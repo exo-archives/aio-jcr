@@ -1,0 +1,151 @@
+<project>
+  <parent>
+    <groupId>org.exoplatform.jcr</groupId>
+    <artifactId>config</artifactId>
+    <version>1.6</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>exo.jcr.connectors.rmiadapter</artifactId>
+  <packaging>rar</packaging>
+  <version>${org.exoplatform.jcr.version}</version>
+  <name>eXo JCR RMI resource adapter</name>
+  <url>http://www.exoplatform.org</url>
+  <description>eXo JCR RMI resource adapter</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.core</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.rmi</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <!-- dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.test.framework</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>test</scope>
+    </dependency -->
+
+    <!-- dependency>
+      <groupId>javax.resource</groupId>
+      <artifactId>connector-api</artifactId>
+      <version>1.5</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.1</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-digester</groupId>
+      <artifactId>commons-digester</artifactId>
+      <version>1.5</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+      <version>1.6</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>bcel</groupId>
+      <artifactId>bcel</artifactId>
+      <version>5.1</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>xpp3</groupId>
+      <artifactId>xpp3</artifactId>
+      <version>1.1.2a</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis</artifactId>
+      <version>1.0.b2</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>jibx</groupId>
+      <artifactId>jibx-bind</artifactId>
+      <version>1.0</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>jibx</groupId>
+      <artifactId>jibx-run</artifactId>
+      <version>1.0</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xerces</artifactId>
+      <version>2.0.2</version>
+      <scope>provided</scope>
+    </dependency -->
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.0</version>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <goals><goal>jar</goal></goals>
+          </execution>
+        </executions>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+            <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-rar-plugin</artifactId>
+                 <configuration>
+                     <archive>
+                         <manifest>
+                             <addClasspath>true</addClasspath>
+                         </manifest>
+                     </archive>
+                 </configuration>
+            </plugin>
+    </plugins>
+  </build>
+
+</project>

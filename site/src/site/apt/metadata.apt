@@ -1,0 +1,45 @@
+                              -----------------
+                              Metadata managing
+                              -----------------
+
+Metadata managing
+
+* Introduction
+  
+  eXo JCR provides standardized metadata vocabulary that JCR applications could use 
+  when organizing their content storage. To not to re-invent the wheel eXo JCR defines 
+  a small set of JCR node types that leverage the vocabulary established by the 
+  {{{http://dublincore.org}Dublin Core Metadata Initiative}}    
+
+  There is dedicated mixin type called dc:elementSet created after Core Dublin Core element
+  set, including following (String, multivalued) properties:
+
+  TODO
+
+
+* Automatical Metadata Extraction Action
+
+  How automatically metadata adding works:
+  Each time when client performs setProperty("jcr:data") on nt:resource node DocumentReaderService tries to extract
+  metadata from incoming stream and maps it to some Dublin Core MetaData properties, then AddMetadataAction (see below) adds "dc:elementSet"  mixin to underlying node and fills its properties with retrieved from DocumentReader.
+ 
+ 
+  Configure SessionActionCatalog and plugin (see above) adding org.exoplatform.services.jcr.ext.metadata.AddMetadataAction. 
+  For example:
+  
+---------
+  <value>
+    <object type="org.exoplatform.services.jcr.impl.ext.action.ActionConfiguration">
+      <field  name="eventTypes"><string>addProperty,changeProperty</string></field>
+      <field  name="path"><string>/test</string></field>       
+      <field  name="isDeep"><boolean>true</boolean></field>       
+      <field  name="parentNodeType"><string>nt:resource</string></field>       
+      <!-- field  name="workspace"><string>production</string></field -->
+      <field  name="actionClassName"><string>org.exoplatform.services.jcr.ext.metadata.AddMetadataAction</string></field>       
+    </object>
+  </value>
+---------
+
+  In this example AddMetadataAction will be fired each time when adding or changing property (i.e. each setProperty()) will be performed on nt:resource node if this node is placed on or under (isDeep == true) /test path of any workspace
+
+*  Dublin-Core Metadata Setting Action

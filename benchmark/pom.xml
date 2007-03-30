@@ -1,0 +1,106 @@
+<project>
+  <parent>
+    <groupId>org.exoplatform.jcr</groupId>
+    <artifactId>config</artifactId>
+    <version>1.6</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>exo.jcr.benchmark</artifactId>
+  <packaging>jar</packaging>
+  <version>${org.exoplatform.jcr.version}</version>
+  <name>eXo JCR benchmark demo</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.core</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+        <dependency>
+            <groupId>com.sun.japex</groupId>
+            <artifactId>japex</artifactId>
+            <version>1.0.25</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>1.6.5</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.0.4</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>2.0</version>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.xml</groupId>
+                    <artifactId>jsr173</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+  </dependencies>
+
+  <build>
+   <plugins>
+    <plugin>
+      <artifactId>maven-assembly-plugin</artifactId>
+      <version>2.1</version>
+      <executions>
+        <execution>
+          <phase>compile</phase>
+            <goals>
+              <goal>directory</goal>
+            </goals>
+        </execution>
+      </executions>
+      <configuration>
+      <descriptor>eXoJCRBenchmark-descriptor.xml</descriptor>
+        <finalName>eXoJCRBenchmark</finalName>
+      </configuration>
+    </plugin>
+    <plugin>
+      <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>install</phase>
+              <configuration>
+                <tasks>
+                  <java dir="${basedir}" className="com.sun.japex.Japex"
+                    fork="true"
+                    failonerror="true"
+                    maxmemory="128m">
+                    <arg value="src/main/java/conf/JCRAPI.xml"/>
+                    <classpath>
+                      <pathelement path="${classpath}"/>
+                      <fileset dir="${basedir}/target">
+                        <include name="**/eXoJCRBenchmark-1.6/*.jar"/>
+                      </fileset>
+                     <!--<pathelement location="classes"/>
+                       <dirset dir="${basedir}">
+                          <include name="target/**/classes"/>
+                          <exclude name="target/**/*Test*"/>
+                       </dirset>-->
+                    </classpath>
+                  </java>
+                </tasks>
+              </configuration>
+              <goals>
+                <goal>run</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+    </plugins>
+  </build>
+</project>

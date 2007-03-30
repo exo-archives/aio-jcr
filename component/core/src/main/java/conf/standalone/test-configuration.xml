@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<configuration>
+
+  <!-- component>
+    <key>org.exoplatform.services.xml.querying.XMLQueryingService</key>
+    <type>org.exoplatform.services.xml.querying.impl.xtas.XMLQueryingServiceImpl</type>
+  </component -->
+
+  <component>
+    <key>org.exoplatform.services.log.LogConfigurationInitializer</key>
+    <type>org.exoplatform.services.log.LogConfigurationInitializer</type>
+    <init-params>
+      <value-param>
+        <name>logger</name>
+        <value>org.exoplatform.services.log.impl.BufferedLog4JLogger</value>
+      </value-param>
+      <value-param>
+        <name>configurator</name>
+        <value>org.exoplatform.services.log.impl.Log4JConfigurator</value>
+      </value-param>
+      <properties-param>
+        <name>properties</name>
+        <description>Log4J properties</description>
+        <property name="log4j.rootLogger" value="INFO, stdout, file"/>
+
+        <property name="log4j.appender.stdout" value="org.apache.log4j.ConsoleAppender"/>
+        <property name="log4j.appender.stdout.threshold" value="DEBUG"/>
+
+        <property name="log4j.appender.stdout.layout" value="org.apache.log4j.PatternLayout"/>
+        <property name="log4j.appender.stdout.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
+
+        <property name="log4j.appender.file" value="org.apache.log4j.FileAppender"/>
+        <property name="log4j.appender.file.File" value="target/jcr.log"/>
+
+        <property name="log4j.appender.file.layout" value="org.apache.log4j.PatternLayout"/>
+        <property name="log4j.appender.file.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
+
+				<property name="log4j.category.jcr.DBInitializer" value="DEBUG"/>
+
+        <!-- property name="log4j.category.jcr.SessionDataManager" value="DEBUG"/>
+        <property name="log4j.category.jcr.JDBCStorageConnection" value="DEBUG"/>
+        <property name="log4j.category.jcr.NodeImpl" value="DEBUG"/ -->
+
+        <!-- property name="log4j.category.jcr.FrozenNodeInitializer" value="DEBUG"/ -->
+        <!-- property name="log4j.category.jcr.ItemState" value="DEBUG"/ -->
+        <!-- property name="log4j.category.jcr.ItemDataRestoreVisitor" value="DEBUG"/ -->
+
+        <!-- property name="log4j.category.jcr.WorkspaceStorageCacheImpl" value="DEBUG"/ -->
+        <!-- property name="log4j.category.database.DBSchemaCreator" value="DEBUG"/ -->
+        <!-- property name="log4j.category.jcr.WorkspaceDataReplicator" value="DEBUG"/ -->
+
+      </properties-param>
+
+      <!-- value-param>
+        <name>logger</name>
+        <value>org.exoplatform.services.log.impl.BufferedSimpleLog</value>
+      </value-param>
+      <value-param>
+        <name>configurator</name>
+        <value>org.exoplatform.services.log.impl.SimpleLogConfigurator</value>
+      </value-param>
+      <properties-param>
+        <name>properties</name>
+        <description>SimpleLog properties</description>
+        <property name="org.apache.commons.logging.simplelog.defaultlog" value="debug"/>
+        <property name="org.apache.commons.logging.simplelog.showdatetime" value="true"/>
+      </properties-param -->
+
+      <!-- value-param>
+        <name>logger</name>
+        <value>org.exoplatform.services.log.impl.BufferedJdk14Logger</value>
+      </value-param>
+      <value-param>
+        <name>configurator</name>
+        <value>org.exoplatform.services.log.impl.Jdk14Configurator</value>
+      </value-param>
+      <properties-param>
+        <name>properties</name>
+        <description>jdk1.4 Logger properties</description>
+        <property name="handlers" value="java.util.logging.ConsoleHandler"/>
+        <property name=".level" value="FINE"/>
+        <property name="java.util.logging.ConsoleHandler.level" value="FINE"/>
+      </properties-param -->
+
+    </init-params>
+  </component>
+
+  <component>
+      <key>org.exoplatform.services.cache.CacheService</key>
+      <type>org.exoplatform.services.cache.impl.CacheServiceImpl</type>
+      <init-params>
+      <object-param>
+        <name>cache.config.default</name>
+        <description>The default cache configuration</description>
+        <object type="org.exoplatform.services.cache.ExoCacheConfig">
+          <field  name="name"><string>default</string></field>
+          <field  name="maxSize"><int>100</int></field>
+          <field  name="liveTime"><long>300</long></field>
+          <field  name="distributed"><boolean>false</boolean></field>
+          <field  name="implementation"><string>org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspaceDataCache</string></field>
+        </object>
+      </object-param>
+    </init-params>
+  </component>
+  <component>
+    <key>org.exoplatform.services.log.LogService</key>
+    <type>org.exoplatform.services.log.impl.LogServiceImpl</type>
+    <!--Valid value: FATAL, ERROR, WARN, INFO, DEBUG, TRACE-->
+      <init-params>
+                   <properties-param>
+                     <name>log.level.config</name>
+                     <property name="org.exoplatform.services.log" value="INFO"/>
+                   </properties-param>
+      </init-params>
+  </component>
+
+  <component>
+    <key>org.exoplatform.services.idgenerator.IDGeneratorService</key>
+    <type>org.exoplatform.services.idgenerator.impl.IDGeneratorServiceImpl</type>
+  </component>
+
+  <component>
+    <key>org.exoplatform.services.transaction.TransactionService</key>
+    <type>org.exoplatform.services.transaction.impl.jotm.TransactionServiceJotmImpl</type>
+    <init-params>
+      <value-param>
+        <name>timeout</name>
+        <value>5</value>
+      </value-param>
+    </init-params>
+  </component>
+
+  <component>
+    <key>org.exoplatform.services.naming.InitialContextInitializer</key>
+    <type>org.exoplatform.services.naming.InitialContextInitializer</type>
+    <component-plugins>
+      <component-plugin>
+        <name>bind.datasource</name>
+        <set-method>addPlugin</set-method>
+        <type>org.exoplatform.services.naming.BindReferencePlugin</type>
+        <init-params>
+          <value-param>
+            <name>bind-name</name>
+            <value>jdbcjcr</value>
+          </value-param>
+          <value-param>
+            <name>class-name</name>
+            <value>javax.sql.DataSource</value>
+          </value-param>
+          <value-param>
+            <name>factory</name>
+            <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
+          </value-param>
+          <properties-param>
+            <name>ref-addresses</name>
+            <description>ref-addresses</description>
+            <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+            <property name="url" value="jdbc:hsqldb:file:target/temp/data/portal"/>
+            <property name="username" value="sa"/>
+            <property name="password" value=""/>
+          </properties-param>
+        </init-params>
+      </component-plugin>
+      <component-plugin>
+        <name>bind.datasource</name>
+        <set-method>addPlugin</set-method>
+        <type>org.exoplatform.services.naming.BindReferencePlugin</type>
+        <init-params>
+          <value-param>
+            <name>bind-name</name>
+            <value>jdbcjcr1</value>
+          </value-param>
+          <value-param>
+            <name>class-name</name>
+            <value>javax.sql.DataSource</value>
+          </value-param>
+          <value-param>
+            <name>factory</name>
+            <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
+          </value-param>
+          <properties-param>
+            <name>ref-addresses</name>
+            <description>ref-addresses</description>
+            <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+            <property name="url" value="jdbc:hsqldb:file:target/temp/data/jcr"/>
+            <property name="username" value="sa"/>
+            <property name="password" value=""/>
+          </properties-param>
+        </init-params>
+      </component-plugin>
+      <component-plugin>
+        <name>bind.datasource</name>
+        <set-method>addPlugin</set-method>
+        <type>org.exoplatform.services.naming.BindReferencePlugin</type>
+        <init-params>
+          <value-param>
+            <name>bind-name</name>
+            <value>jdbcjcr2</value>
+          </value-param>
+          <value-param>
+            <name>class-name</name>
+            <value>javax.sql.DataSource</value>
+          </value-param>
+          <value-param>
+            <name>factory</name>
+            <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
+          </value-param>
+          <properties-param>
+            <name>ref-addresses</name>
+            <description>ref-addresses</description>
+            <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+            <property name="url" value="jdbc:hsqldb:file:target/temp/data/jcr2"/>
+            <property name="username" value="sa"/>
+            <property name="password" value=""/>
+          </properties-param>
+        </init-params>
+     </component-plugin>
+    <!-- Resource configuration for UserTransaction
+       use JOTM
+    -->
+      <component-plugin>
+        <name>jotm.tx</name>
+        <set-method>addPlugin</set-method>
+        <type>org.exoplatform.services.naming.BindReferencePlugin</type>
+        <init-params>
+          <value-param>
+            <name>bind-name</name>
+            <value>UserTransaction</value>
+          </value-param>
+          <value-param>
+            <name>class-name</name>
+            <value>javax.transaction.UserTransaction</value>
+          </value-param>
+          <value-param>
+            <name>factory</name>
+            <value>org.objectweb.jotm.UserTransactionFactory</value>
+          </value-param>
+          <properties-param>
+            <name>ref-addresses</name>
+            <description>ref-addresses</description>
+            <property name="jotm.timeout" value="60"/>
+          </properties-param>
+        </init-params>
+     </component-plugin>
+     <component-plugin>
+        <name>bind.jcr</name>
+        <set-method>addPlugin</set-method>
+        <type>org.exoplatform.services.naming.BindReferencePlugin</type>
+        <init-params>
+          <value-param>
+            <name>bind-name</name>
+            <value>repo</value>
+          </value-param>
+          <value-param>
+            <name>class-name</name>
+            <value>javax.jcr.Repository</value>
+          </value-param>
+          <value-param>
+            <name>factory</name>
+            <value>org.exoplatform.services.jcr.impl.jndi.BindableRepositoryFactory</value>
+          </value-param>
+          <properties-param>
+            <name>ref-addresses</name>
+            <description>ref-addresses</description>
+            <property name="repositoryName" value="db1"/>
+            <!-- property name="containerConfig" value="exo-configuration.xml"/ -->
+          </properties-param>
+        </init-params>
+       </component-plugin>
+       <component-plugin>
+        <name>rmi.jcr</name>
+        <set-method>addPlugin</set-method>
+        <type>org.exoplatform.services.naming.BindReferencePlugin</type>
+        <init-params>
+          <value-param>
+            <name>bind-name</name>
+            <value>rmirepository</value>
+          </value-param>
+          <value-param>
+            <name>class-name</name>
+            <value>javax.jcr.Repository</value>
+          </value-param>
+          <value-param>
+            <name>factory</name>
+            <value>org.exoplatform.services.jcr.rmi.RepositoryFactory</value>
+          </value-param>
+          <properties-param>
+            <name>ref-addresses</name>
+            <description>ref-addresses</description>
+            <property name="url" value="//localhost:9999/repository"/>
+          </properties-param>
+        </init-params>
+       </component-plugin>
+    </component-plugins>
+    <init-params>
+      <properties-param>
+        <name>default-properties</name>
+        <description>Default initial context properties</description>
+        <property name="java.naming.factory.initial" value="org.exoplatform.services.naming.SimpleContextFactory"/>
+      </properties-param>
+      <!-- properties-param>
+        <name>mandatory-properties</name>
+        <description>Mandatory initial context properties</description>
+        <property name="java.naming.factory.initial" value="org.exoplatform.services.naming.SimpleContextFactory"/>
+        <property name="java.naming.provider.url" value="rmi://localhost:9999"/>
+      </properties-param -->
+    </init-params>
+  </component>
+
+  <!-- component>
+    <key>org.exoplatform.services.database.jdbc.DBSchemaCreator</key>
+    <type>org.exoplatform.services.database.jdbc.DBSchemaCreator</type>
+    <component-plugins>
+      <component-plugin>
+          <name>jcr.dbschema</name>
+          <set-method>addPlugin</set-method>
+          <type>org.exoplatform.services.database.jdbc.CreateDBSchemaPlugin</type>
+          <init-params>
+            <value-param>
+              <name>data-source</name>
+              <value>jdbcjcr</value>
+            </value-param>
+            <value-param>
+              <name>script-file</name>
+              <value>conf/storage/jcr-mjdbc.sql</value>
+            </value-param>
+          </init-params>
+      </component-plugin>
+      <component-plugin>
+          <name>jcr.dbschema</name>
+          <set-method>addPlugin</set-method>
+          <type>org.exoplatform.services.database.jdbc.CreateDBSchemaPlugin</type>
+          <init-params>
+            <value-param>
+              <name>data-source</name>
+              <value>jdbcjcr1</value>
+            </value-param>
+            <value-param>
+              <name>script-file</name>
+              <value>conf/storage/jcr-mjdbc.sql</value>
+            </value-param>
+          </init-params>
+      </component-plugin>
+      <component-plugin>
+          <name>jcr.dbschema</name>
+          <set-method>addPlugin</set-method>
+          <type>org.exoplatform.services.database.jdbc.CreateDBSchemaPlugin</type>
+          <init-params>
+            <value-param>
+              <name>data-source</name>
+              <value>jdbcjcr2</value>
+            </value-param>
+            <value-param>
+              <name>script-file</name>
+              <value>conf/storage/jcr-mjdbc.sql</value>
+            </value-param>
+          </init-params>
+      </component-plugin>
+    </component-plugins>
+  </component -->
+
+  <component>
+    <key>org.exoplatform.services.jcr.RepositoryService</key>
+    <type>org.exoplatform.services.jcr.impl.RepositoryServiceImpl</type>
+    <component-plugins>
+      <component-plugin>
+          <name>add.namespaces</name>
+          <set-method>addPlugin</set-method>
+          <type>org.exoplatform.services.jcr.impl.AddNamespacesPlugin</type>
+          <init-params>
+            <properties-param>
+              <name>namespaces</name>
+              <property name="test" value="http://www.apache.org/jackrabbit/test"/>
+              <property name="exojcrtest" value="http://www.exoplatform.org/jcr/test/1.0"/>
+            </properties-param>
+          </init-params>
+      </component-plugin>
+      <component-plugin>
+        <name>add.nodeType</name>
+        <set-method>addPlugin</set-method>
+        <type>org.exoplatform.services.jcr.impl.AddNodeTypePlugin</type>
+        <init-params>
+          <values-param>
+            <name>nodeTypesFiles</name>
+            <description>Node types configuration file</description>
+            <value>jar:/conf/test/nodetypes-tck.xml</value>
+            <value>jar:/conf/test/nodetypes-impl.xml</value>
+          </values-param>
+        </init-params>
+      </component-plugin>
+    </component-plugins>
+  </component>
+
+  <component>
+    <key>org.exoplatform.services.jcr.config.RepositoryServiceConfiguration</key>
+    <type>org.exoplatform.services.jcr.impl.config.RepositoryServiceConfigurationImpl</type>
+    <init-params>
+      <value-param>
+        <name>conf-path</name>
+        <description>JCR configuration file</description>
+        <value>file:src/main/java/conf/standalone/test-jcr-config.xml</value>
+      </value-param>
+    </init-params>
+  </component>
+
+  <component>
+    <type>org.exoplatform.services.jcr.impl.mock.DummyOrganizationService</type>
+  </component>
+
+  <component>
+          <key>org.exoplatform.services.security.SecurityService</key>
+          <type>org.exoplatform.services.security.impl.SecurityServiceImpl</type>
+    <init-params>
+      <value-param>
+        <name>security.authentication</name>
+        <value>standalone</value>
+      </value-param>
+    </init-params>
+  </component>
+
+  <component>
+    <key>org.exoplatform.services.document.DocumentReaderService</key>
+    <type>org.exoplatform.services.document.impl.DocumentReaderServiceImpl</type>
+    <component-plugins>
+      <component-plugin>
+        <name>pdf.document.reader</name>
+        <set-method>addDocumentReader</set-method>
+        <type>org.exoplatform.services.document.impl.PDFDocumentReader</type>
+        <description>to read  the pdf inputstream</description>
+      </component-plugin>
+
+      <component-plugin>
+        <name>document.readerMSWord</name>
+        <set-method>addDocumentReader</set-method>
+        <type>org.exoplatform.services.document.impl.MSWordDocumentReader</type>
+        <description>to read  the ms word inputstream</description>
+      </component-plugin>
+
+      <component-plugin>
+        <name>document.readerMSExcel</name>
+        <set-method>addDocumentReader</set-method>
+        <type>org.exoplatform.services.document.impl.MSExcelDocumentReader</type>
+        <description>to read  the ms excel inputstream</description>
+      </component-plugin>
+
+      <component-plugin>
+        <name>PPTdocument.reader</name>
+        <set-method>addDocumentReader</set-method>
+        <type>org.exoplatform.services.document.impl.PPTDocumentReader</type>
+        <description>to read  the ms ppt inputstream</description>
+      </component-plugin>
+
+      <component-plugin>
+        <name>TPdocument.reader</name>
+        <set-method>addDocumentReader</set-method>
+        <type>org.exoplatform.services.document.impl.TextPlainDocumentReader</type>
+        <description>to read  the plain text inputstream</description>
+      </component-plugin>
+
+      <component-plugin>
+        <name>html.reader</name>
+        <set-method>addDocumentReader</set-method>
+        <type>org.exoplatform.services.document.impl.HTMLDocumentReader</type>
+        <description>to read html inputstream</description>
+      </component-plugin>
+
+    </component-plugins>
+  </component>
+
+  <component>
+    <type>org.exoplatform.services.jcr.impl.ext.action.SessionActionCatalog</type>
+  </component>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.remote.group.CommunicationService</target-component>
+    <component-plugin>
+      <name>synchronize.cache.handler</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.services.cache.impl.SynchronizeCacheMessageHandler</type>
+      <description>synchronize the cache</description>
+    </component-plugin>
+  </external-component-plugins>
+
+</configuration>

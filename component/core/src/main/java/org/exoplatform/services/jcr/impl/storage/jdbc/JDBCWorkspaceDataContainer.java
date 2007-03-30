@@ -1,0 +1,428 @@
+/**
+ * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ */
+
+package org.exoplatform.services.jcr.impl.storage.jdbc;
+
+import java.io.File;
+import java.io.IOException;
+
+import javax.jcr.RepositoryException;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.config.WorkspaceEntry;
+import org.exoplatform.services.jcr.impl.storage.WorkspaceDataContainerBase;
+import org.exoplatform.services.jcr.impl.storage.jdbc.db.GenericConnectionFactory;
+import org.exoplatform.services.jcr.impl.storage.jdbc.db.OracleConnectionFactory;
+import org.exoplatform.services.jcr.impl.storage.jdbc.init.DBInitializer;
+import org.exoplatform.services.jcr.impl.storage.jdbc.init.DBInitializerException;
+import org.exoplatform.services.jcr.impl.storage.jdbc.init.OracleDBInitializer;
+import org.exoplatform.services.jcr.impl.storage.jdbc.init.PgSQLDBInitializer;
+import org.exoplatform.services.jcr.impl.storage.jdbc.update.StorageUpdateManager;
+import org.exoplatform.services.jcr.impl.storage.value.StandaloneStoragePluginProvider;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
+import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.naming.InitialContextInitializer;
+import org.picocontainer.Startable;
+
+/**
+ * Created by The eXo Platform SARL .
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id:GenericWorkspaceDataContainer.java 13433 2007-03-15 16:07:23Z peterit $
+ */
+public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase implements Startable{
+  
+  public final static String CONTAINER_NAME = "containerName";
+  public final static String SOURCE_NAME = "sourceName";
+  public final static String MULTIDB = "multi-db";
+  public final static String MAXBUFFERSIZE = "max-buffer-size";
+  public final static String SWAPDIR = "swap-directory";
+  
+  /**
+   * Describe which type of RDBMS will be used (DB creation metadata etc.)
+   */
+  public final static String DB_TYPE = "db-type";
+  public final static String DB_DRIVER = "db-driver";
+  public final static String DB_URL = "db-url";
+  public final static String DB_USERNAME = "db-username";
+  public final static String DB_PASSWORD = "db-password";
+  
+  public final static String DB_TYPE_GENERIC = "Generic".intern();
+  public final static String DB_TYPE_ORACLE = "Oracle".intern();
+  public final static String DB_TYPE_ORACLEOCI = "Oracle-OCI".intern();
+  public final static String DB_TYPE_PGSQL = "PgSQL".intern();
+  public final static String DB_TYPE_MYSQL = "MySQL".intern();
+  public final static String DB_TYPE_HSQLDB = "HSQLDB".intern();
+  public final static String DB_TYPE_DB2 = "DB2".intern();
+  public final static String DB_TYPE_MSSQL = "MSSQL".intern();
+  public final static String DB_TYPE_SYBASE = "Sybase".intern();
+  public final static String DB_TYPE_DERBY = "Derby".intern();
+  
+   
+  
+  public final static String[] DB_TYPES = {DB_TYPE_GENERIC, DB_TYPE_ORACLE, DB_TYPE_ORACLEOCI, DB_TYPE_PGSQL, 
+    DB_TYPE_MYSQL, DB_TYPE_HSQLDB, DB_TYPE_DB2, DB_TYPE_MSSQL, DB_TYPE_SYBASE, DB_TYPE_DERBY};
+  
+  /**
+   * Describe which type of JDBC dialect will be used to iteract with RDBMS.
+   * Used for type of ConnectionFactory decision.
+   */
+  public final static String DB_DIALECT = "db-dialect";
+  
+  public final static int DEF_MAXBUFFERSIZE = 1024 * 200; // 200k
+  public final static String DEF_SWAPDIR = System.getProperty("java.io.tmpdir");
+  
+  protected static Log log = ExoLogger.getLogger("jcr.GenericWorkspaceDataContainer");
+  
+  protected final String containerName;
+  protected final String dbSourceName;
+  protected final boolean multiDb;
+  protected final String dbDriver;
+  protected final String dbType;
+  protected final String dbUrl;
+  protected final String dbUserName;
+  protected final String dbPassword;
+  protected final ValueStoragePluginProvider valueStorageProvider;
+  
+  protected String storageVersion;
+  
+  protected int maxBufferSize;
+  protected File swapDirectory;
+  protected FileCleaner swapCleaner;
+  
+  protected final GenericConnectionFactory connFactory;
+  
+  /**
+   * Constructor with value storage plugins
+   * @param wsConfig
+   * @param valueStrorageProvider
+   * @throws RepositoryConfigurationException
+   * @throws NamingException
+   */
+  public JDBCWorkspaceDataContainer(WorkspaceEntry wsConfig, 
+      InitialContextInitializer contextInit,
+      //LogConfigurationInitializer logCongig,
+      ValueStoragePluginProvider valueStorageProvider) 
+    throws RepositoryConfigurationException, NamingException, RepositoryException, IOException {
+    
+    this.containerName = wsConfig.getName();
+    this.multiDb = Boolean.parseBoolean(wsConfig.getContainer().getParameterValue(MULTIDB));
+    this.valueStorageProvider = valueStorageProvider;
+    
+    // ------------- Database config ------------------
+    // dbType
+    String pDbType = null;
+    try {
+      pDbType = detectDialect(wsConfig.getContainer().getParameterValue(DB_TYPE));
+      log.info("Using a db-type '" + pDbType + "'");
+    } catch(RepositoryConfigurationException e) {
+      log.info("Using a default db-type '" + DB_TYPE_GENERIC + "'");
+      pDbType = DB_TYPE_GENERIC;
+    } 
+    this.dbType = pDbType;
+    
+    String pDbDriver = null;
+    String pDbUrl = null;
+    String pDbUserName = null;
+    String pDbPassword = null;
+    try {
+      pDbDriver = wsConfig.getContainer().getParameterValue(DB_DRIVER);
+      
+      // username/passwd may not pesent 
+      try {
+        pDbUserName = wsConfig.getContainer().getParameterValue(DB_USERNAME);
+        pDbPassword = wsConfig.getContainer().getParameterValue(DB_PASSWORD);
+      } catch(RepositoryConfigurationException e) {
+        pDbUserName = pDbPassword = null;
+      }
+      
+      pDbUrl = wsConfig.getContainer().getParameterValue(DB_URL); // last here!
+    } catch(RepositoryConfigurationException e) {
+    }
+
+    if (pDbUrl != null) {
+      this.dbDriver = pDbDriver;
+      this.dbUrl = pDbUrl;
+      this.dbUserName = pDbUserName; 
+      this.dbPassword = pDbPassword;
+      this.dbSourceName = null;
+      log.info("Connect to JCR database as user '" + this.dbUserName + "'");
+    } else {
+      this.dbDriver = null; 
+      this.dbUrl = null;
+      this.dbUserName = null;
+      this.dbPassword = null;
+      this.dbSourceName = wsConfig.getContainer().getParameterValue(SOURCE_NAME);
+    }
+
+    // ------------- Values swap config ------------------
+    try {
+      String bsParam = wsConfig.getContainer().getParameterValue(MAXBUFFERSIZE);
+      this.maxBufferSize = Integer.parseInt(bsParam);
+    } catch (RepositoryConfigurationException e) {
+      this.maxBufferSize = DEF_MAXBUFFERSIZE;
+    }
+
+    try {
+      String sdParam = wsConfig.getContainer().getParameterValue(SWAPDIR);
+      this.swapDirectory = new File(sdParam);
+    } catch (RepositoryConfigurationException e1) {
+      this.swapDirectory = new File(DEF_SWAPDIR);
+    }
+    if(!swapDirectory.exists())
+      swapDirectory.mkdirs();
+
+    //Context context = new InitialContext();
+    //DataSource dataSource = (DataSource) context.lookup(dbSourceName);
+    
+    DBInitializer dbInitilizer = null;
+    String sqlPath = null;
+    if (dbType == DB_TYPE_ORACLEOCI) {
+      //if (multiDb)
+      //  throw new RepositoryConfigurationException("Oracle multi database option is not supported now, try to use multi-db=false");
+      
+      // sample of connection factory customization
+      if (dbSourceName != null)
+        this.connFactory = defaultConnectionFactory();
+      else
+        this.connFactory = new OracleConnectionFactory(
+            dbDriver, dbUrl, dbUserName, dbPassword, 
+            containerName, multiDb, valueStorageProvider, maxBufferSize, swapDirectory, swapCleaner);      
+
+      //sqlPath = "/conf/storage/jcr-sjdbc.ora.sql";
+      sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.ora.sql";
+      
+      // a particular db initializer may be configured here too
+      dbInitilizer = new OracleDBInitializer(containerName, 
+          this.connFactory.getJdbcConnection(), 
+          sqlPath);
+    } else if (dbType == DB_TYPE_ORACLE) {  
+      this.connFactory = defaultConnectionFactory();
+      sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.ora.sql";
+      dbInitilizer = new OracleDBInitializer(containerName, 
+          this.connFactory.getJdbcConnection(), 
+          sqlPath);
+    } else if (dbType == DB_TYPE_PGSQL) {
+      this.connFactory = defaultConnectionFactory();
+      sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.pgsql.sql";
+      dbInitilizer = new PgSQLDBInitializer(containerName, 
+          this.connFactory.getJdbcConnection(), 
+          sqlPath);
+    } else if (dbType == DB_TYPE_MYSQL) {
+      this.connFactory = defaultConnectionFactory();
+      sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.mysql.sql";
+    } else if (dbType == DB_TYPE_MSSQL) {
+      this.connFactory = defaultConnectionFactory();
+      sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.mssql.sql";
+    } else if (dbType == DB_TYPE_DERBY) {
+      this.connFactory = defaultConnectionFactory();
+      sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.derby.sql";
+    } else if (dbType == DB_TYPE_DB2) {
+      this.connFactory = defaultConnectionFactory();
+      sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.db2.sql";
+    } else if (dbType == DB_TYPE_SYBASE) {      
+      this.connFactory = defaultConnectionFactory();
+      sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.sybase.sql";
+    } else {
+      // generic, DB_HSQLDB
+      this.connFactory = defaultConnectionFactory();
+      sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.sql";      
+    }
+    
+    // database type
+    try {
+      if (dbInitilizer == null)
+        dbInitilizer = new DBInitializer(
+          containerName, 
+          this.connFactory.getJdbcConnection(), 
+          sqlPath);
+      
+      dbInitilizer.init();
+    } catch (DBInitializerException e) {
+      log.error("Error of init db " + e, e);
+    }
+    
+    String suParam = null;
+    boolean enableStorageUpdate = false;
+    try {
+      suParam = wsConfig.getContainer().getParameterValue("update-storage");
+      enableStorageUpdate = Boolean.parseBoolean(suParam);
+    } catch (RepositoryConfigurationException e) {
+      log.debug("update-storage parameter is not set "+dbSourceName);
+    }
+    
+    //checkVersion(dataSource, enableStorageUpdate);
+    this.storageVersion = StorageUpdateManager.checkVersion(
+        dbSourceName, this.connFactory.getJdbcConnection(), multiDb, enableStorageUpdate);
+        
+    // check for FileValueStorage
+    if (valueStorageProvider instanceof StandaloneStoragePluginProvider) {
+      WorkspaceStorageConnection conn = null;
+      try {
+        conn = openConnection();
+        ((StandaloneStoragePluginProvider) valueStorageProvider).checkConsistency(conn);
+      } finally {
+        if (conn != null)
+          conn.rollback();
+      }
+    }
+    
+    log.info(getInfo());  
+//    log.info("JDBCWorkspaceDataContainer (cEntry): " + containerName + ", dataSource: " + sourceName);
+  }
+  
+  protected GenericConnectionFactory defaultConnectionFactory() throws NamingException, RepositoryException {
+    // by default
+    if (dbSourceName != null) {
+      DataSource ds = (DataSource) new InitialContext().lookup(dbSourceName);
+      if (ds != null)
+        return new GenericConnectionFactory (
+          ds, containerName, multiDb, valueStorageProvider, maxBufferSize, swapDirectory, swapCleaner);
+      
+      throw new RepositoryException("Datasource '" + dbSourceName + "' is not bound in this context.");
+    }
+    
+    return new GenericConnectionFactory (
+        dbDriver, dbUrl, dbUserName, dbPassword, 
+        containerName, multiDb, valueStorageProvider, maxBufferSize, swapDirectory, swapCleaner);
+  }
+  
+  // it's a development code store
+  @Deprecated
+  private void initDialiectClass() {
+    // db-type samples: Generic, Oracle, HSQLDB, PgSQL
+    // will try to load classes: org.exoplatform.services.jcr.impl.storage.jdbc.GenericConnectionFactory
+    // org.exoplatform.services.jcr.impl.storage.jdbc.OracleConnectionFactory etc.
+    
+//    GenericConnectionFactory cf = null;
+//    try {
+//      String dialectClassName = "org.exoplatform.services.jcr.impl.storage.jdbc." + dbType + "ConnectionFactory";
+//      Class<? extends GenericConnectionFactory> dialectClass = (Class<? extends GenericConnectionFactory>) Class.forName(dialectClassName);
+//      Constructor<? extends GenericConnectionFactory> dConstructor = dialectClass.getConstructor(
+//          new Class[] {
+//            DataSource.class,
+//            String.class, 
+//            boolean.class, 
+//            ValueStoragePluginProvider.class, 
+//            int.class, 
+//            File.class, 
+//            FileCleaner.class}
+//          );
+//      
+//      cf = dConstructor.newInstance(
+//          new Object[] {
+//              dataSource,
+//              containerName, 
+//              multiDb, 
+//              valueStorageProvider, 
+//              maxBufferSize, 
+//              swapDirectory, 
+//              swapCleaner
+//          });
+//      
+//    } catch (Throwable e) {
+//      
+//      if (log.isDebugEnabled())
+//        log.warn("A dialect " + dbType + " isn't accessible (or can't be instantiated). A generic one will be used. " + e, e);
+//      else
+//        log.warn("A dialect " + dbType + " isn't accessible (or can't be instantiated). A generic one will be used. " + e);
+//      
+//      cf = new GenericConnectionFactory(dataSource, 
+//        containerName, 
+//        multiDb, 
+//        valueStorageProvider, 
+//        maxBufferSize, 
+//        swapDirectory, 
+//        swapCleaner);
+//    }    
+  }
+  
+  protected String detectDialect(String confParam) {
+    for (String dbType: DB_TYPES) {
+      if (dbType.equalsIgnoreCase(confParam))
+        return dbType;
+    }
+    
+    return DB_TYPE_GENERIC; // by default
+  }
+  
+  // check version of the database
+//  public String checkVersion(DataSource dataSource, boolean enableStorageUpdate) throws RepositoryException {
+//    this.storageVersion = StorageUpdateManager.checkVersion(dbSourceName, dataSource, multiDb, enableStorageUpdate);
+//    
+//    return this.storageVersion;
+//  }
+    
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.storage.WorkspaceDataContainer#openConnection()
+   */
+  public WorkspaceStorageConnection openConnection() throws RepositoryException {
+
+    return connFactory.openConnection();
+    
+//    try {
+//
+//      if (multiDb) 
+//        return new MultiDbJDBCConnection(dataSource, containerName, multiDb, valueStorageProvider, maxBufferSize, swapDirectory, swapCleaner);
+//      else
+//        return new SingleDbJDBCConnection(dataSource, containerName, multiDb, valueStorageProvider, maxBufferSize, swapDirectory, swapCleaner);
+//
+//    } catch (SQLException e) {
+//      throw new RepositoryException(e);
+//    }
+  }
+
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.storage.WorkspaceDataContainer#getName()
+   */
+  public String getName() {
+    return containerName;
+  }
+
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.storage.WorkspaceDataContainer#getInfo()
+   */
+  public String getInfo() {
+    String str = "JDBC based JCR Workspace Data container \n"+
+      "container name: "+containerName+" \n"+
+      "data source JNDI name: "+dbSourceName+"\n"+
+      "is multi database: "+multiDb+"\n"+
+      "storage version: "+storageVersion+"\n"+
+      "value storage provider: "+valueStorageProvider+"\n"+
+      "max buffer size (bytes): "+maxBufferSize+"\n"+
+      "swap directory path: "+swapDirectory.getAbsolutePath();
+    return str;
+  }
+
+  
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.storage.DataContainer#getStorageVersion()
+   */
+  public String getStorageVersion() {
+    return storageVersion;
+  }
+
+  /* (non-Javadoc)
+   * @see org.picocontainer.Startable#start()
+   */
+  public void start() {
+    this.swapCleaner = new FileCleaner();
+  }
+
+  /* (non-Javadoc)
+   * @see org.picocontainer.Startable#stop()
+   */
+  public void stop() {
+    this.swapCleaner.halt();
+    this.swapCleaner.interrupt();
+  }
+
+}

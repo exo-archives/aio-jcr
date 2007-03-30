@@ -1,0 +1,255 @@
+<project>
+  <parent>
+    <groupId>org.exoplatform.jcr</groupId>
+    <artifactId>config</artifactId>
+    <version>1.6</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>exo.jcr.applications.rmi-server</artifactId>
+  <version>${org.exoplatform.jcr.version}</version>
+  <packaging>exo-jcrrmi</packaging>
+  <name>eXo JCR RMI server</name>
+  <url>http://www.exoplatform.org</url>
+  <description>eXo JCR RMI server</description>
+
+  <dependencies>
+
+    <!-- JCR API -->
+    <dependency>
+      <groupId>jcr</groupId>
+      <artifactId>jcr</artifactId>
+      <version>1.0</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.core</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.rmi</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <!-- ************************ jakarta commons ************************ -->
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.1</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.1</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-pool</groupId>
+      <artifactId>commons-pool</artifactId>
+      <version>1.2</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-digester</groupId>
+      <artifactId>commons-digester</artifactId>
+      <version>1.5</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-validator</groupId>
+      <artifactId>commons-validator</artifactId>
+      <version>1.1.1</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+      <version>1.6</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.2</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <!-- dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.services.organization.api</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+   <dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.services.common.api</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+   <dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.services.common.impl</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.container</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.commons</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.services.database.api</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.services.security.api</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.services.cache.api</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.services.cache.impl</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.services.security.impl</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.services.xml-processing.api</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.services.xml-processing.impl</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.services.organization.api</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.services.organization.impl</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.services.backup.api</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.services.backup.impl</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.services.templates.api</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.services.templates.impl</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>compile</scope>
+    </dependency -->
+
+  </dependencies>
+
+  <build>
+    <outputDirectory>${basedir}/run</outputDirectory>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-exo-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <dest>rmisrv</dest>
+          <runDir>${basedir}/run</runDir>
+          <resDir>${basedir}/res</resDir>
+          <codebase>jcr, exo-jcr.services.jcr.api,exo-jcr.services.jcr.rmi.impl,exo-jcr.services.jcr.rmi.api</codebase>
+
+          <excludeProjects>
+            junit, jmock, bcel, ehcache, xercesImpl, msv,  servlet-api, jibx-bind, isorelax,
+            relaxngDatatype, velocity-dep, saxpath, exo-platform.test.framework, xerces, jtidy,
+            xmldb-api, castor, drools-smftest, jsp-api, xml-apis, xml-resolver, jaxen,
+            xjavadoc, xdoclet-hibernate-module, xdoclet-xdoclet-module, xdoclet
+          </excludeProjects>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

@@ -1,0 +1,48 @@
+<<Workspace Data Container>>
+
+  Each Workspace of JCR has own persistent storage to hold workspace's items data. eXo Content Repository can be configured to use one or more workspaces (see {{{configuration.html}Configuration}}) that are logical units of repository content.
+  Physical data storage mechanism is configured using mandatory element <<container>>.
+  Type of container is described in the attribute <<class>> = full qualified name of <org.exoplatform.services.jcr.storage.WorkspaceDataContainer> subclass like
+
+---------
+<container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
+  <properties>
+    <property name="sourceName" value="jdbcjcr1"/>
+    <property name="multi-db" value="true"/>
+    <property name="update-storage" value="true"/>
+    <property name="max-buffer-size" value="204800"/>
+    <property name="swap-directory" value="target/temp/swap/ws"/>
+  </properties>
+---------
+  Properties are Container specific parameters.
+
+  Where :
+
+  sourceName - JDBC data source name (was registered in JDNI by {{{dbcontainer.html}InitialContextInitializer component}})
+
+  update-storage - flag, if true an storage update from previous version will be performed at the system startup.
+
+  max-buffer-size - a threshold in bytes if a value size is greater then it will be spooled to temporary file.
+
+  swap-directory - a location where value will be spooled if no value storage is configured but a max-buffer-size is exceeded.
+
+
+  eXo JCR has RDB (JDBC) based production ready {{{dbcontainer.html}Workspace Data Container}}.
+
+  Workspace Data Container MAY support external storages for <javax.jcr.Value> (which can be the case for BLOB values for example) using optional element <value-storages>. Data Container will try to read or write Value using underlying value storage plugin if filter criteria (see below) much current property.
+
+---------
+<value-storages>
+   <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
+       <properties>
+          <property name="path" value="target/temp/values"/>
+       </properties>
+       <filters>
+         <filter property-type="Binary"/>
+       </filters>
+    </value-storage>
+</value-storages>
+----------
+
+  Where <<value-storage>> is subclass of <org.exoplatform.services.jcr.storage.value.ValueStoragePlugin> and <<properties>> are optional Plugin specific parameters.
+  <<filters>> described ORed criterias when this plugin is applicable. For the time only <<property-type>> is an option for criteria (by default Binary)

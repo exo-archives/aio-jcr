@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite name="Calculating the average time of execution of the main JCR API methods" xmlns="http://www.sun.com/japex/testSuite">
+<param name="japex.resultUnit" value="ms"/>
+<param name="japex.reportsDirectory" value="target/testing-results-reports"/>
+<param name="japex.plotGroupSize" value="16"/>
+    <driver name="eXoJCR-1.6 Driver">
+        <param name="japex.classPath" value="target/eXoJCRBenchmark-1.6/*.jar"/>
+        <param name="japex.driverClass" value="org.exoplatform.jcr.benchmark.jcrapi.TestDriver"/>
+        <param name="initializer" value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializer"/>
+
+        <param name="description" value="JCR Internal API"/>
+
+        <param name="japex.numberOfThreads" value="1"/>
+        <param name="japex.threadRampupTime" value="60"/>
+        <param name="japex.includeWarmupRun" value="false"/>
+
+    </driver>
+
+    <testCase name="Adding nodes">
+        <param name="methodName" value="doAddNodesOfTypeNtUnstructured"/>
+        <param name="saveSession" value="false"/>
+
+        <param name="japex.warmupIterations" value="0"/>
+        <param name="japex.runIterations" value="10"/>
+
+    </testCase>
+
+    <!--<testCase name="Setting 100 properties of node">
+        <param name="methodName" value="doSetProperties"/>
+        <param name="numberOfNodes" value="0"/>
+        <param name="numberOfProperties" value="100"/>
+        <param name="mixinType" value="none"/>
+        <param name="saveSession" value="false"/>
+
+        <param name="japex.warmupIterations" value="1"/>
+        <param name="japex.runIterations" value="1"/>
+        <param name="japex.runDelay" value="1"/>
+        <param name="japex.runDelayVariation" value="10"/>
+
+    </testCase>
+
+    <testCase name="Removing 100 nodes">
+        <param name="methodName" value="doRemoveNodes"/>
+        <param name="numberOfNodes" value="100"/>
+        <param name="numberOfProperties" value="0"/>
+        <param name="mixinType" value="none"/>
+        <param name="saveSession" value="false"/>
+
+        <param name="japex.warmupIterations" value="1"/>
+        <param name="japex.runIterations" value="1"/>
+        <param name="japex.runDelay" value="1"/>
+        <param name="japex.runDelayVariation" value="10"/>
+
+    </testCase>
+
+    <testCase name="Removing 100 properties of the node">
+        <param name="methodName" value="doRemoveProperties"/>
+        <param name="numberOfNodes" value="0"/>
+        <param name="numberOfProperties" value="100"/>
+        <param name="mixinType" value="none"/>
+        <param name="saveSession" value="false"/>
+
+        <param name="japex.warmupIterations" value="1"/>
+        <param name="japex.runIterations" value="1"/>
+        <param name="japex.runDelay" value="1"/>
+        <param name="japex.runDelayVariation" value="10"/>
+
+    </testCase>
+
+    <testCase name="Adding 100 mix:referenceable">
+        <param name="methodName" value="doAddMixin"/>
+        <param name="numberOfNodes" value="100"/>
+        <param name="numberOfProperties" value="0"/>
+        <param name="mixinType" value="mix:referenceable"/>
+        <param name="saveSession" value="false"/>
+
+        <param name="japex.warmupIterations" value="1"/>
+        <param name="japex.runIterations" value="1"/>
+        <param name="japex.runDelay" value="1"/>
+        <param name="japex.runDelayVariation" value="10"/>
+
+    </testCase>
+
+    <testCase name="Saving 100 nodes - short session">
+        <param name="methodName" value="doAddNodesOfTypeNtUnstructured"/>
+        <param name="numberOfNodes" value="100"/>
+        <param name="numberOfProperties" value="0"/>
+        <param name="mixinType" value="none"/>
+        <param name="saveSession" value="true"/>
+
+        <param name="japex.warmupIterations" value="1"/>
+        <param name="japex.runIterations" value="1"/>
+        <param name="japex.runDelay" value="1"/>
+        <param name="japex.runDelayVariation" value="10"/>
+
+    </testCase>
+
+    <testCase name="Saving 500 nodes - long session">
+        <param name="methodName" value="doAddNodesOfTypeNtUnstructured"/>
+        <param name="numberOfNodes" value="500"/>
+        <param name="numberOfProperties" value="0"/>
+        <param name="mixinType" value="none"/>
+        <param name="saveSession" value="true"/>
+
+        <param name="japex.warmupIterations" value="1"/>
+        <param name="japex.runIterations" value="1"/>
+        <param name="japex.runDelay" value="1"/>
+        <param name="japex.runDelayVariation" value="10"/>
+
+    </testCase>
+
+    <testCase name="Saving 100 properties - short session">
+        <param name="methodName" value="doSetProperties"/>
+        <param name="numberOfNodes" value="0"/>
+        <param name="numberOfProperties" value="100"/>
+        <param name="mixinType" value="none"/>
+        <param name="saveSession" value="true"/>
+
+        <param name="japex.warmupIterations" value="1"/>
+        <param name="japex.runIterations" value="1"/>
+        <param name="japex.runDelay" value="1"/>
+        <param name="japex.runDelayVariation" value="10"/>
+
+    </testCase>
+
+    <testCase name="Saving 500 properties - long session">
+        <param name="methodName" value="doSetProperties"/>
+        <param name="numberOfNodes" value="0"/>
+        <param name="numberOfProperties" value="500"/>
+        <param name="mixinType" value="none"/>
+        <param name="saveSession" value="true"/>
+
+        <param name="japex.warmupIterations" value="1"/>
+        <param name="japex.runIterations" value="1"/>
+        <param name="japex.runDelay" value="1"/>
+        <param name="japex.runDelayVariation" value="10"/>
+
+    </testCase>
+
+    <testCase name="Adding 100 mix:versionable">
+        <param name="methodName" value="doAddMixin"/>
+        <param name="numberOfNodes" value="100"/>
+        <param name="numberOfProperties" value="0"/>
+        <param name="mixinType" value="mix:versionable"/>
+        <param name="saveSession" value="false"/>
+
+        <param name="japex.warmupIterations" value="1"/>
+        <param name="japex.runIterations" value="1"/>
+        <param name="japex.runDelay" value="1"/>
+        <param name="japex.runDelayVariation" value="10"/>
+
+    </testCase>
+
+    <testCase name="Checkin">
+        <param name="methodName" value="doCheckin"/>
+        <param name="numberOfNodes" value="100"/>
+        <param name="numberOfProperties" value="0"/>
+        <param name="mixinType" value="mix:versionable"/>
+        <param name="saveSession" value="false"/>
+
+        <param name="japex.warmupIterations" value="1"/>
+        <param name="japex.runIterations" value="1"/>
+        <param name="japex.runDelay" value="1"/>
+        <param name="japex.runDelayVariation" value="10"/>
+
+    </testCase>
+
+    <testCase name="Checkout">
+        <param name="methodName" value="doCheckout"/>
+        <param name="numberOfNodes" value="100"/>
+        <param name="numberOfProperties" value="0"/>
+        <param name="mixinType" value="mix:versionable"/>
+        <param name="saveSession" value="false"/>
+
+        <param name="japex.warmupIterations" value="1"/>
+        <param name="japex.runIterations" value="1"/>
+        <param name="japex.runDelay" value="1"/>
+        <param name="japex.runDelayVariation" value="10"/>
+
+    </testCase>
+
+    <testCase name="Lock">
+        <param name="methodName" value="doLock"/>
+        <param name="numberOfNodes" value="100"/>
+        <param name="numberOfProperties" value="0"/>
+        <param name="mixinType" value="mix:lockable"/>
+        <param name="saveSession" value="false"/>
+
+        <param name="japex.warmupIterations" value="1"/>
+        <param name="japex.runIterations" value="1"/>
+        <param name="japex.runDelay" value="1"/>
+        <param name="japex.runDelayVariation" value="10"/>
+
+    </testCase>
+
+    <testCase name="Unlock">
+        <param name="methodName" value="doUnlock"/>
+        <param name="numberOfNodes" value="100"/>
+        <param name="numberOfProperties" value="0"/>
+        <param name="mixinType" value="mix:lockable"/>
+        <param name="saveSession" value="false"/>
+
+        <param name="japex.warmupIterations" value="1"/>
+        <param name="japex.runIterations" value="1"/>
+        <param name="japex.runDelay" value="1"/>
+        <param name="japex.runDelayVariation" value="10"/>
+
+    </testCase>-->
+
+</testSuite>

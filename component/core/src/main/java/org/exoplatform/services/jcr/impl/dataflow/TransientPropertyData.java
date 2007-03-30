@@ -1,0 +1,203 @@
+/***************************************************************************
+ * Copyright 2001-2003 The eXo Platform SARL         All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ **************************************************************************/
+
+package org.exoplatform.services.jcr.impl.dataflow;
+
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.jcr.RepositoryException;
+
+import org.exoplatform.services.jcr.dataflow.ItemDataVisitor;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.MutablePropertyData;
+import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.util.UUIDGenerator;
+
+/**
+ * Created by The eXo Platform SARL.
+ * 
+ * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
+ * @version $Id: TransientPropertyData.java 12841 2007-02-16 08:58:38Z peterit $
+ */
+
+public class TransientPropertyData extends TransientItemData implements MutablePropertyData,
+    Externalizable /*, Cloneable*/ {
+
+  private List<ValueData> values;
+
+  private int             type;
+
+  private boolean         multiValued = false;
+
+  /**
+   * @param path qpath
+   * @param uuid id
+   * @param version persisted version
+   * @param type property type
+   * @param parentUUID parentId
+   * @param multiValued multi-valued state
+   */
+  public TransientPropertyData(InternalQPath path, String uuid, int version, int type,
+      String parentUUID, boolean multiValued) {
+    super(path, uuid, version, parentUUID);
+    this.type = type;
+    this.multiValued = multiValued;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.datamodel.ItemData#isNode()
+   */
+  public boolean isNode() {
+    return false;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.datamodel.PropertyData#getType()
+   */
+  public int getType() {
+    return type;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.datamodel.PropertyData#getValues()
+   */
+  public List<ValueData> getValues() {
+    return values;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.datamodel.PropertyData#isMultiValued()
+   */
+  public boolean isMultiValued() {
+    return multiValued;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.datamodel.MutablePropertyData#setValues(java.util.List)
+   */
+  public void setValues(List<ValueData> values) {
+    this.values = values;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.datamodel.MutablePropertyData#setType(int)
+   */
+  public void setType(int type) {
+    this.type = type;
+  }
+
+  /**
+   * Shortcut for single-valued property data initialization
+   * 
+   * @param value
+   */
+  public void setValue(ValueData value) {
+    this.values = new ArrayList<ValueData>();
+    values.add(value);
+  }
+
+  public static TransientPropertyData createPropertyData(NodeData parent, InternalQName name,
+      int type, boolean multiValued) {
+    TransientPropertyData propData = null;
+    InternalQPath path = InternalQPath.makeChildPath(parent.getQPath(), name);
+    propData = new TransientPropertyData(path, UUIDGenerator.generate(), -1, type,
+        parent.getUUID(), multiValued);
+
+    return propData;
+  }
+
+  public static TransientPropertyData createPropertyData(NodeData parent, InternalQName name,
+      int type, boolean multiValued, ValueData value) {
+    TransientPropertyData propData = createPropertyData(parent, name, type, multiValued);
+    propData.setValue(value);
+    return propData;
+  }
+
+  public static TransientPropertyData createPropertyData(NodeData parent, InternalQName name,
+      int type, boolean multiValued, List<ValueData> values) {
+    TransientPropertyData propData = createPropertyData(parent, name, type, multiValued);
+    propData.setValues(values);
+    return propData;
+  }
+
+  public void accept(ItemDataVisitor visitor) throws RepositoryException {
+    visitor.visit(this);
+  }
+
+// ------------ Cloneable ------------------
+  
+  /**
+   * Clone node data without value data!!!
+   */
+  @Override
+  public TransientPropertyData clone() {
+    TransientPropertyData dataCopy = new TransientPropertyData(
+        getQPath(), 
+        getUUID(), 
+        getPersistedVersion(),
+        getType(), 
+        getParentUUID(),
+        isMultiValued());
+    
+    List<ValueData> copyValues = new ArrayList<ValueData>(); 
+    for (ValueData vdata: getValues()) {
+      copyValues.add(((TransientValueData) vdata).createTransientCopy());
+    }
+    dataCopy.setValues(copyValues);
+    
+    return dataCopy;
+  }
+  
+// ----------------- Externalizable
+  public TransientPropertyData() {
+    super();
+  }
+
+  public void writeExternal(ObjectOutput out) throws IOException {
+    super.writeExternal(out);
+
+    out.writeInt(type);
+    out.writeBoolean(multiValued);
+
+    int listSize = values.size();
+    out.writeInt(listSize);
+    for (int i = 0; i < listSize; i++) 
+      out.writeObject(values.get(i));
+  }
+
+  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+//    System.out.println("-->TransientPropertyData --> readExternal(ObjectInput in)");
+
+    super.readExternal(in);
+        
+    type = in.readInt();
+    
+    multiValued = in.readBoolean();
+
+    values = new ArrayList<ValueData>();
+    int listSize = in.readInt();
+    for (int i = 0; i < listSize; i++)
+      values.add((ValueData) in.readObject());
+  }
+}

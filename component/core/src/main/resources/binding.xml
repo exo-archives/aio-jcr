@@ -1,0 +1,85 @@
+<binding>
+ 
+  <mapping name="repository-service" 
+           class="org.exoplatform.services.jcr.config.RepositoryServiceConfiguration"> 
+    <value name="default-repository" field="defaultRepositoryName" style="attribute" />           
+    <collection name="repositories" field="repositoryConfigurations" 
+                item-type="org.exoplatform.services.jcr.config.RepositoryEntry"/>
+  </mapping>
+
+  <mapping name="repository" class="org.exoplatform.services.jcr.config.RepositoryEntry">
+    <value name="name" field="name" style="attribute"/>
+    <value name="system-workspace" field="systemWorkspaceName" style="attribute"/>
+    <value name="default-workspace" field="defaultWorkspaceName" style="attribute"/>
+    <value name="security-domain" field="securityDomain"/>
+    <value name="access-control" field="accessControl" usage="optional"/>
+    <value name="session-timeout" field="sessionTimeOut" usage="optional"/>
+    <value name="lock-timeout" field="lockTimeOut" usage="optional"/>
+    <structure name="replication" field="replication" usage="optional">
+      <value name="enabled" field="enabled" style="attribute"/>
+        <value name="mode" field="mode" style="attribute"/>
+        <value name="test-mode" field="testMode" style="attribute" usage="optional"/>	
+      <value name="channel-config" field="channelConfig" style="attribute"/>
+   </structure>
+		
+    <value name="authentication-policy" field="authenticationPolicy"/>
+    <structure name="binary-temp" field="binaryTemp" usage="optional">
+      <value name="directory-path" field="directoryPath" style="attribute" usage="optional"/>
+      <value name="max-buffer-size" field="maxBufferSize" style="attribute" usage="optional"/>
+      <!-- value name="copy-local-files" field="copyLocalFiles" style="attribute" usage="optional"/ -->
+    </structure>    
+    <collection name="workspaces" field="workspaces"
+                item-type="org.exoplatform.services.jcr.config.WorkspaceEntry"/>
+  </mapping>
+
+  <mapping name="workspace" class="org.exoplatform.services.jcr.config.WorkspaceEntry">
+    <value name="name" field="name" style="attribute"/>
+    <value name="auto-init-root-nodetype" field="autoInitializedRootNt" style="attribute" usage="optional"/>
+    <structure name="container" field="container">
+      <value name="class" field="type" style="attribute"/>
+      <collection name="properties" field="parameters" usage="optional" 
+                item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"/>
+      <collection name="value-storages" field="valueStorages" usage="optional" 
+                item-type="org.exoplatform.services.jcr.config.ValueStorageEntry"/>
+	    <!-- structure name="binary-swap" field="binarySwap" usage="optional">
+	      <value name="directory-path" field="directoryPath" style="attribute"/>
+	      <value name="min-file-size" field="minFileSize" style="attribute"/>      
+				<value name="copy-local-files" field="copyLocalFiles" style="attribute" usage="optional"/>
+	    </structure -->                
+    </structure>
+    <structure name="cache" field="cache" usage="optional">
+      <value name="enabled" field="enabled" style="attribute"/>
+      <collection name="properties" field="parameters" usage="optional" 
+                item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"/>
+    </structure>
+    <structure name="query-handler" field="queryHandler" usage="optional">
+      <value name="class" field="type" style="attribute"/>
+      <collection name="properties" field="parameters" usage="optional" 
+                item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"/>
+    </structure>
+    <structure name="access-manager" field="accessManager" usage="optional">
+      <value name="class" field="type" style="attribute"/>
+      <collection name="properties" field="parameters" usage="optional" 
+                item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"/>
+    </structure>
+  </mapping>
+  
+  <mapping name="property" class="org.exoplatform.services.jcr.config.SimpleParameterEntry">
+    <value name="name" field="name" style="attribute"/>
+    <value name="value" field="value" style="attribute"/>
+  </mapping>
+  
+  <mapping name="value-storage" class="org.exoplatform.services.jcr.config.ValueStorageEntry">
+    <value name="class" field="type" style="attribute"/>
+    <collection name="properties" field="parameters" usage="optional" 
+                item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"/>
+    <collection name="filters" field="filters"  
+                item-type="org.exoplatform.services.jcr.config.ValueStorageFilterEntry"/>
+  </mapping>
+  <mapping name="filter" class="org.exoplatform.services.jcr.config.ValueStorageFilterEntry">
+    <value name="property-type" field="propertyType" style="attribute" usage="optional"/>
+    <value name="ancestor-path" field="ancestorPath" style="attribute" usage="optional"/>
+    <value name="property-name" field="propertyName" style="attribute" usage="optional"/>
+  </mapping>
+
+</binding>

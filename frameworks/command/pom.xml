@@ -1,0 +1,74 @@
+<project>
+  <parent>
+    <groupId>org.exoplatform.jcr</groupId>
+    <artifactId>config</artifactId>
+    <version>1.6</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>exo.jcr.framework.command</artifactId>
+  <packaging>jar</packaging>
+  <version>${org.exoplatform.jcr.version}</version>
+  <name>eXo JCR command framework</name>
+  <url>http://www.exoplatform.org</url>
+  <description>eXo JCR command framework</description>
+
+  <dependencies>
+    <!-- dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.4</version>
+      <scope>provided</scope>
+    </dependency -->
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.core</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.kernel</groupId>
+      <artifactId>exo.kernel.component.command</artifactId>
+      <version>${org.exoplatform.kernel.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <!-- dependency>
+      <groupId>exo-platform</groupId>
+      <artifactId>exo-platform.services.cache.impl</artifactId>
+      <version>${exo.platform.version}</version>
+      <scope>compile</scope>
+    </dependency -->
+
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+      <version>1.0</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+        <groupId>hsqldb</groupId>
+        <artifactId>hsqldb</artifactId>
+        <version>1.8.0.7</version>
+        <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>**/JCRCommandsTest.java</include>
+          </includes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

@@ -1,0 +1,80 @@
+eXo WebDav Office Client
+
+  <<1. Intro>>
+
+	  eXoWebDavClient is a  library written on C# ,  that allows to use WebDav  service from  any other application, and example Word  
+	  application with the user interface based on this library.
+	  Library allows :
+
+		* Load files from JCR repository into MS Word;
+
+		* Edit and Save files onto repository;
+
+		* Making full-text repository search;
+
+		* View propertis list;
+                
+                * View and Edit some version of current file and compare it with base version (current state). 
+
+
+ <<2. Installation>>
+
+	  First of all, you need to have Microsoft Office 2003 Word and Microsoft .NET framework 
+	  installed on your system. If you do not install Microsoft .NET framework runtime environment, 
+          during installation procedure plugin will ask you to do so and point to URL where you can get it. 
+
+	  Also, important condition is to have installed Microsoft Hot fix Office2003-kb907417  ENU,  which allows to use external libraries into MS Word. This update is available
+	  under SVN or into Microsoft  web site at: {{http://support.microsoft.com/kb/907417}}. Please, install also
+	  extensibilityMSM.msi	update from this hotfix pack.
+	
+	  After this conditions is done, you can install eXoClient application running <eXoWebDavOfficePlugin.msi>
+          or setup.exe (if your system does not support MSI installer).
+
+[images/installmsoplugin.jpg]
+
+	  When installation succesfully ends, new menu column called "Remote Documents" is appears in the MS Word.
+
+          For <<uninstallation>> open Control Panel->Add or Remove Programs, find line called eXo WebDav MSOffice Plugin and click Remove.
+
+ <<3. Configuration>>
+ 
+	Before opening any documents, you need to configure your connection information.
+	You can do this using a "Settings" dialog window.  Use a "Test connection" button to 
+	make sure You're entered right settings. Please note that the "Proxy" subsettings
+	currently don't have any effect to your connection.
+
+[images/cl_settings.jpg]
+
+ <<4. Using>>
+	
+	When configuration is done, you already can start browse your documents.
+	Click at "Open" form the "Remote Documents" menu calls a browser window, and you can browse
+	repository using left nodes tree. For opening any file, click twice on it at right file list,
+	or select the file and press "Open" button on the form.
+
+	If you have opened file from the repository, and want to save any changes, you can use both - 
+	"Save" and "Save As.." buttons. The difference is the "Save" putting document at the same place,
+	or "Save As.." allows you to save file into other folder.
+
+[images/cl_main.jpg]
+
+	For browsing document versions history use a "Versions" button, which is active when you have selected an versionable file. 
+
+	You can also make a full-text search into repository. Press the "Search" menu button, put 
+	keywords to search into search text box and press "Search" button. Results will appear into
+	file list.
+	This picture shows full-text search results:	
+
+[images/cl_search.jpg]
+
+	
+
+
+	
+	
+
+
+
+	
+
+	

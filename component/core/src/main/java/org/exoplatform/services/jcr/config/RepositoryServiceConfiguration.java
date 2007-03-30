@@ -1,0 +1,73 @@
+/**
+ * Copyright 2001-2003 The eXo Platform SARL         All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ */
+
+package org.exoplatform.services.jcr.config;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IBindingFactory;
+import org.jibx.runtime.IUnmarshallingContext;
+import org.jibx.runtime.JiBXException;
+
+/**
+ * Created by The eXo Platform SARL .
+ * 
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov
+ *         </a>
+ * @version $Id: RepositoryServiceConfiguration.java 2038 2005-10-05 16:50:11Z
+ *          geaz $
+ */
+
+public class RepositoryServiceConfiguration {
+
+  private ArrayList repositoryConfigurations;
+
+  private String defaultRepositoryName;
+
+  public RepositoryServiceConfiguration() {
+  }
+
+  public String getDefaultRepositoryName() {
+    return defaultRepositoryName;
+  }
+
+  public List getRepositoryConfigurations() {
+    return repositoryConfigurations;
+  }
+
+  public RepositoryEntry getRepositoryConfiguration(String name)
+      throws RepositoryConfigurationException {
+
+    for (int i = 0; i < repositoryConfigurations.size(); i++) {
+      RepositoryEntry conf = (RepositoryEntry) repositoryConfigurations.get(i);
+      if (conf.getName().equals(name))
+        return conf;
+    }
+    throw new RepositoryConfigurationException("Repository not configured "
+        + name);
+  }
+
+  public void init(InputStream is) throws RepositoryConfigurationException {
+    try {
+      IBindingFactory factory = BindingDirectory
+          .getFactory(RepositoryServiceConfiguration.class);
+      IUnmarshallingContext uctx = factory.createUnmarshallingContext();
+      RepositoryServiceConfiguration conf = (RepositoryServiceConfiguration) uctx
+          .unmarshalDocument(is, null);
+
+      this.defaultRepositoryName = conf.getDefaultRepositoryName();
+      this.repositoryConfigurations = (ArrayList) conf
+          .getRepositoryConfigurations();
+    } catch (JiBXException e) {
+      e.printStackTrace();
+      throw new RepositoryConfigurationException(
+          "Error in config initialization " + e);
+    }
+  }
+
+}

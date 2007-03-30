@@ -1,0 +1,22 @@
+<Context path="/fckeditor" docBase="fckeditor" reloadable="true" crossContext="false">
+
+  <!-- Logger className="org.apache.catalina.logger.SystemOutLogger"
+    prefix="localhost_jcr_log." suffix=".txt"
+    timestamp="true"/ -->
+  <!--
+  Remove this if you want to use the default StandarManager. The standard 
+  manager try to save the the session when you restart the tomcat it may cause
+  problem as not all of your session attribute is not serializable
+  -->
+  <Manager className="org.apache.catalina.session.StandardManager" saveOnRestart="false"/>
+
+  <Realm className="org.apache.catalina.realm.JAASRealm"
+         appName="exo-domain"
+         userClassNames="org.exoplatform.services.security.UserPrincipal"
+         roleClassNames="org.exoplatform.services.security.RolePrincipal"
+         />
+
+  <!-- ResourceLink name="jcr/repository"
+      global="jcr/globalRepository"
+      type="javax.jcr.Repository"/ -->
+</Context>

@@ -1,0 +1,4 @@
+<<Optional features>>
+
+  On top of Level 1 or Level 2 a number of functional block serve for more advanced repository functionality. This includes functions like: Versioning, (JTA) Transactions, Query using SQL, Explicit Locking and Content Observation.
+[images/optionnal.gif]

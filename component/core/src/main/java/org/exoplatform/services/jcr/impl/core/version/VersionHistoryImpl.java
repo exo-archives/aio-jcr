@@ -1,0 +1,504 @@
+
+/**
+ * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ */
+
+package org.exoplatform.services.jcr.impl.core.version;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.jcr.AccessDeniedException;
+import javax.jcr.InvalidItemStateException;
+import javax.jcr.ItemNotFoundException;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.PropertyType;
+import javax.jcr.ReferentialIntegrityException;
+import javax.jcr.RepositoryException;
+import javax.jcr.UnsupportedRepositoryOperationException;
+import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.version.Version;
+import javax.jcr.version.VersionException;
+import javax.jcr.version.VersionHistory;
+import javax.jcr.version.VersionIterator;
+
+import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.core.JCRName;
+import org.exoplatform.services.jcr.impl.core.JCRPath;
+import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
+import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
+import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
+import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
+import org.exoplatform.services.jcr.impl.util.EntityCollection;
+
+/**
+ * Created by The eXo Platform SARL .
+ * 
+ * @author Gennady Azarenkov
+ * @version $Id: VersionHistoryImpl.java 13421 2007-03-15 10:46:47Z geaz $
+ */
+
+public class VersionHistoryImpl extends VersionStorageDescendantNode implements VersionHistory {
+
+  // new impl
+  public VersionHistoryImpl(NodeData data, 
+      SessionImpl session) throws PathNotFoundException,
+      RepositoryException {
+    
+    super(data, session);
+
+    if (!this.isNodeType(Constants.NT_VERSIONHISTORY))
+      throw new RepositoryException("Node " + getLocation().getAsString(true)
+          + " is not nt:versionHistory type");
+  }
+  
+  @Override
+  public void loadData(ItemData vhData) throws RepositoryException, InvalidItemStateException,
+      ConstraintViolationException {
+    
+    super.loadData(new VersionHistoryDataHelper((NodeData) vhData, 
+        session.getTransientNodesManager().getTransactManager(),
+        session.getWorkspace().getNodeTypeManager()));
+  }
+
+  public VersionHistoryDataHelper getData() {
+    return (VersionHistoryDataHelper) super.getData();
+  }
+  
+  public String getVersionableUUID() throws RepositoryException {
+    
+    checkValid();
+    
+    PropertyData versionableUuid = (PropertyData) dataManager.getItemData(
+        InternalQPath.makeChildPath(getLocation().getInternalPath(), Constants.JCR_VERSIONABLEUUID));
+    
+    if (versionableUuid != null)
+      try {
+        return new String(versionableUuid.getValues().get(0).getAsByteArray());
+      } catch (IllegalStateException e) {
+        log.error("jcr:versionableUuid, error of read " + e + ". Version history " + getPath(), e);
+      } catch (IOException e) {
+        log.error("jcr:versionableUuid, error of read " + e + ". Version history " + getPath(), e);
+      }
+    
+    throw new ItemNotFoundException("A property jcr:versionableUuid is not found. Version history " + getPath());
+    // return this.getProperty("jcr:versionableUuid").getString();
+  }
+
+  public Version getRootVersion() throws RepositoryException {
+    
+    checkValid();
+    
+    InternalQPath versionPath = InternalQPath.makeChildPath(getData().getQPath(), Constants.JCR_ROOTVERSION);
+    
+    VersionImpl version = (VersionImpl) dataManager.getItem(versionPath, true);
+    
+    if (version == null)
+      throw new VersionException("There are no root version in the version history " + getPath());
+    
+    return version;
+    
+    //return (Version) this.getNode("jcr:rootVersion");
+  }
+
+  public VersionIterator getAllVersions() throws RepositoryException {
+    
+    checkValid();
+    
+    List<NodeData> versionsDataList = getData().getAllVersionsData();
+    
+    EntityCollection versions = new EntityCollection();
+    
+    for (NodeData vd: versionsDataList) {
+      versions.add(new VersionImpl(vd, session)); 
+    }
+    
+    return versions;
+    
+  }
+
+  public Version getVersion(String versionName) throws VersionException, RepositoryException {
+    
+    checkValid();
+    
+    JCRName jcrVersionName = locationFactory.parseJCRName(versionName);
+    InternalQName versionQName = jcrVersionName.getInternalName();
+    
+    InternalQPath versionPath = InternalQPath.makeChildPath(getData().getQPath(), versionQName);
+    
+    VersionImpl version = (VersionImpl) dataManager.getItem(versionPath, true);
+    
+    if (version == null)
+      throw new VersionException("There are no version with name '" + versionName
+        + "' in the version history " + getPath());
+    
+    return version;
+    
+  }
+
+  public Version getVersionByLabel(String label) throws RepositoryException {
+
+    checkValid();
+    
+    NodeData versionData = getVersionDataByLabel(label);
+    if (versionData == null)
+      throw new RepositoryException("There are no label '" + label + "' in the version history " + getPath());
+
+    VersionImpl version = (VersionImpl) dataManager.getItemByUUID(versionData.getUUID(), true);
+    
+    if (version == null)
+      throw new VersionException("There are no version with label '" + label + "' in the version history " + getPath());
+    
+    return version;
+    
+  }
+
+  public boolean hasVersionLabel(String label) throws RepositoryException {
+    
+    checkValid();
+    
+    if (this.getVersionDataByLabel(label) == null)
+      return false;
+
+    return true;
+  }
+
+  public boolean hasVersionLabel(Version version, String label)
+      throws VersionException, RepositoryException {
+
+    checkValid();
+    
+    NodeData versionData = getVersionDataByLabel(label);
+    if (versionData != null && version.getUUID().equals(versionData.getUUID()))
+      return true;
+    
+    return false;
+  }
+
+  public String[] getVersionLabels() throws RepositoryException {
+    
+    checkValid();
+    
+    List<PropertyData> versionLabels = getData().getVersionLabels();
+    String[] labelsStrs = new String[versionLabels.size()]; 
+    for (int i=0; i<versionLabels.size(); i++) {
+      labelsStrs[i] = locationFactory.createJCRName(versionLabels.get(i).getQPath().getName()).getAsString();
+    }
+    
+    return labelsStrs;
+  }
+
+  protected List<String> getVersionLabelsList(Version version) throws VersionException, RepositoryException {
+    if(!isVersionBelongToThis(version))  
+      throw new VersionException("There are no version '" + version.getPath() + "' in the version history " + getPath());
+
+    List<PropertyData> labelsList = getData().getVersionLabels();
+    List<String> vlabels = new ArrayList<String>();
+    
+    try {
+      for (PropertyData prop: labelsList) {
+        String versionUuid = new String(prop.getValues().get(0).getAsByteArray());
+        if (versionUuid.equals(((VersionImpl) version).getInternalUUID())) {
+          vlabels.add(locationFactory.createJCRName(prop.getQPath().getName()).getAsString());
+        }
+      }
+    } catch (IOException e) {
+      throw new RepositoryException("Get version " + version.getPath() + " labels error " + e, e);
+    }
+    
+    return vlabels;
+  }
+  
+  public String[] getVersionLabels(Version version) throws VersionException, RepositoryException {
+    
+    checkValid();
+    
+    List<String> vlabels = getVersionLabelsList(version);
+    
+    String[] res = new String[vlabels.size()]; 
+    for(int i=0; i<vlabels.size(); i++)
+      res[i] = vlabels.get(i);
+    return res;
+  }
+
+  public void removeVersion(String versionName)
+      throws ReferentialIntegrityException, AccessDeniedException,
+      UnsupportedRepositoryOperationException, VersionException,
+      RepositoryException {
+    
+    // do check inside getVersion()
+    VersionImpl version = (VersionImpl) getVersion(versionName);
+
+    // check references. 
+    // Note: References from /jcr:system/jcr:versionStorage never included to getReferences!
+    //List<PropertyData> refs = workspaceDataManager().getReferencesData(version.getUUID());
+    List<PropertyData> refs = dataManager.getReferencesData(version.getInternalUUID());
+    if(refs.size() > 0)
+      throw new ReferentialIntegrityException(
+          "There are Reference property pointed to this Version " + refs.get(0).getQPath().getAsString());
+
+    PlainChangesLog changes = new PlainChangesLogImpl(session.getId());
+    
+    // remove labels first
+    try {
+      for (PropertyData vlabel: getData().getVersionLabels()) {
+        String versionUuid = new String(vlabel.getValues().get(0).getAsByteArray());
+        if (versionUuid.equals(version.getInternalUUID())) {
+          changes.add(ItemState.createDeletedState(vlabel));
+        }
+      }
+    } catch (IOException e) {
+      throw new RepositoryException("Get version " + version.getPath() + " labels error " + e, e);
+    }
+
+    // remove this version from successor anf predecessor list
+    // and point successor to predecessor directly
+    
+    InternalQPath qpath = InternalQPath.makeChildPath(version.getInternalPath(), Constants.JCR_SUCCESSORS); 
+    PropertyData successorsData = (PropertyData) dataManager.getItemData(qpath);
+    
+    // jcr:predecessors
+    qpath = InternalQPath.makeChildPath(version.getInternalPath(), Constants.JCR_PREDECESSORS); 
+    PropertyData predecessorsData = (PropertyData) dataManager.getItemData(qpath);
+    try {
+      for (ValueData pvalue: predecessorsData.getValues()) {
+        String puuid = new String(pvalue.getAsByteArray());
+        VersionImpl predecessor = (VersionImpl) dataManager.getItemByUUID(puuid, false);
+        if (predecessor != null) {
+          for (ValueData svalue: successorsData.getValues()) {
+            predecessor.removeAddSuccessor(version.getInternalUUID(), new String(svalue.getAsByteArray()), changes);
+          }
+        } else {
+          throw new RepositoryException("A predecessor (" + puuid + ") of the version " + version.getPath() + " is not found.");
+        }
+      }
+    } catch(IOException e) {
+      throw new RepositoryException("Get predecessor " + version.getPath() + " error " + e, e);
+    }
+    
+    try {
+      for (ValueData svalue: successorsData.getValues()) {
+        String suuid = new String(svalue.getAsByteArray());
+        VersionImpl successor = (VersionImpl) dataManager.getItemByUUID(suuid, false);
+        if (successor != null) {
+          for (ValueData pvalue: predecessorsData.getValues()) {
+            successor.removeAddPredecessor(version.getInternalUUID(), new String(pvalue.getAsByteArray()), changes);
+          }
+        } else {
+          throw new RepositoryException("A successor (" + suuid + ") of the version " + version.getPath() + " is not found.");
+        }
+      }
+    } catch(IOException e) {
+      throw new RepositoryException("Get successor " + version.getPath() + " error " + e, e);
+    }
+    
+    ItemDataRemoveVisitor removeVisitor = new ItemDataRemoveVisitor(dataManager.getTransactManager());
+    version.getData().accept(removeVisitor);
+    changes.addAll(removeVisitor.getRemovedStates());
+    
+    dataManager.getTransactManager().save(changes); // changes.dump()
+    
+  }
+  
+  protected NodeData getVersionData(String versionName) throws VersionException, RepositoryException {
+    JCRPath jcrPath = locationFactory.createJCRPath(getLocation(), versionName);
+    
+    NodeData version = getData().getVersionData(jcrPath.getName().getInternalName());
+    
+    if(version == null)
+      throw new VersionException("Version is not found " + jcrPath.getAsString(false));
+    
+    return version;
+  }
+  
+  protected NodeData getVersionLabelsData() throws VersionException, RepositoryException {
+    NodeData labels = getData().getVersionLabelsData();
+    if(labels == null)
+      throw new VersionException("Mandatory node jcr:versionLabels is not found for version history " + getPath());
+    
+    return labels;
+  }
+  
+  protected NodeData getVersionDataByLabel(String labelName) throws VersionException, RepositoryException {
+    
+    JCRName jcrLabelName = locationFactory.parseJCRName(labelName);
+    InternalQName labelQName = jcrLabelName.getInternalName();
+    
+    return getData().getVersionDataByLabel(labelQName);
+  }
+
+  protected NodeData getVersionDataByUUID(String versionUuid) throws VersionException, RepositoryException {
+    
+    NodeData version = (NodeData) dataManager.getItemData(versionUuid);
+    if(version == null)
+      throw new VersionException("Version is not found, uuid: " + versionUuid);
+    
+    return version;
+  }   
+  
+  public void addVersionLabel(String versionName, String label, boolean moveLabel) throws VersionException, RepositoryException {
+    
+    checkValid();
+    
+    JCRName jcrLabelName = locationFactory.parseJCRName(label);
+    InternalQName labelQName = jcrLabelName.getInternalName();
+    
+    NodeData labels = getVersionLabelsData();
+    
+    List<PropertyData> labelsList = dataManager.getChildPropertiesData(labels);
+    for (PropertyData prop: labelsList) {
+      if (prop.getQPath().getName().equals(labelQName)) {
+        // label is found
+        if (moveLabel) {
+          removeVersionLabel(label); // TODO implement method
+          break;
+        }
+        throw new VersionException("Label " + label + " is already exists and moveLabel=false");
+      }
+    }
+    
+    NodeData versionData = getVersionData(versionName);
+    
+    SessionChangesLog changesLog = new SessionChangesLog(session.getId());
+    
+    PropertyData labelData = TransientPropertyData.createPropertyData(labels, labelQName, PropertyType.REFERENCE, 
+        false, new TransientValueData(versionData.getUUID()));
+    changesLog.add(ItemState.createAddedState(labelData));
+    
+    dataManager.getTransactManager().save(changesLog);
+            
+  }
+
+  public void removeVersionLabel(String labelName) throws VersionException, RepositoryException {
+    
+    checkValid();
+
+    JCRName jcrLabelName = locationFactory.parseJCRName(labelName);
+    InternalQName labelQName = jcrLabelName.getInternalName(); 
+    
+    InternalQPath vlpath = InternalQPath.makeChildPath(getData().getVersionLabelsData().getQPath(), labelQName); 
+    
+    PropertyData vldata = (PropertyData) dataManager.getItemData(vlpath); 
+    if (vldata != null) {
+      PlainChangesLog changes = new PlainChangesLogImpl(session.getId());
+      changes.add(ItemState.createDeletedState(vldata));
+      dataManager.getTransactManager().save(changes);
+    } else
+      throw new VersionException("Label not found " + labelName);
+    
+  }
+
+  ////////////////// impl
+  
+  public void addVersion(NodeData versionableNodeData, String uuid, SessionChangesLog changesLog) throws RepositoryException {
+   
+    // nt:version
+    NodeData versionData = TransientNodeData.createNodeData(nodeData(),
+        new InternalQName(null, nextVersionName()), Constants.NT_VERSION, uuid);
+    changesLog.add(ItemState.createAddedState(versionData));
+
+    // jcr:primaryType
+    TransientPropertyData propData = TransientPropertyData.createPropertyData(versionData, Constants.JCR_PRIMARYTYPE, 
+        PropertyType.NAME, false, new TransientValueData(Constants.NT_VERSION));
+    changesLog.add(ItemState.createAddedState(propData));
+    
+    // jcr:mixinTypes
+    propData = TransientPropertyData.createPropertyData(versionData, Constants.JCR_MIXINTYPES, PropertyType.NAME, 
+        true, new TransientValueData(Constants.MIX_REFERENCEABLE));
+    changesLog.add(ItemState.createAddedState(propData));
+    
+    // jcr:uuid
+    propData = TransientPropertyData.createPropertyData(versionData, Constants.JCR_UUID, PropertyType.STRING, 
+        false, new TransientValueData(uuid));
+    changesLog.add(ItemState.createAddedState(propData));
+    
+    // jcr:created
+    propData = TransientPropertyData.createPropertyData(versionData, Constants.JCR_CREATED, PropertyType.DATE, 
+        false, new TransientValueData(
+            session.getTransientNodesManager().getWorkspaceDataManager().getCurrentTime()));
+    changesLog.add(ItemState.createAddedState(propData));
+    
+    InternalQPath predecessorsPath = InternalQPath.makeChildPath(versionableNodeData.getQPath(), Constants.JCR_PREDECESSORS);
+    
+    // A reference to V is added to the jcr:successors property of
+    // each of the versions identified in V’s jcr:predecessors property.
+    List <ValueData> predecessors = ((PropertyData)dataManager.getItemData(predecessorsPath)).getValues();
+    for(ValueData predecessorValue : predecessors) {
+      String predecessorUuid;
+      try {
+        predecessorUuid = new String(predecessorValue.getAsByteArray());
+      } catch (IOException e) {
+        throw new RepositoryException(e);
+      }
+      VersionImpl predecessor = (VersionImpl) dataManager.getItemByUUID(predecessorUuid, true);
+      predecessor.addSuccessor(versionData.getUUID(), changesLog);
+    }
+    
+    // jcr:predecessors
+    propData = TransientPropertyData.createPropertyData(versionData, Constants.JCR_PREDECESSORS, PropertyType.REFERENCE, 
+        true, predecessors);
+    changesLog.add(ItemState.createAddedState(propData));
+    
+    // jcr:frozenNode    
+    NodeData frozenData = TransientNodeData.createNodeData(versionData, Constants.JCR_FROZENNODE, Constants.NT_FROZENNODE);
+    changesLog.add(ItemState.createAddedState(frozenData));
+    
+    propData = TransientPropertyData.createPropertyData(frozenData, Constants.JCR_PRIMARYTYPE, PropertyType.NAME, 
+        false, new TransientValueData(Constants.NT_FROZENNODE));
+    changesLog.add(ItemState.createAddedState(propData));
+    
+    propData = TransientPropertyData.createPropertyData(frozenData, Constants.JCR_MIXINTYPES, PropertyType.NAME, 
+        true, new TransientValueData(Constants.MIX_REFERENCEABLE));
+    changesLog.add(ItemState.createAddedState(propData));
+    
+    propData = TransientPropertyData.createPropertyData(frozenData, Constants.JCR_UUID, PropertyType.STRING, 
+        false, new TransientValueData(frozenData.getUUID()));
+    changesLog.add(ItemState.createAddedState(propData));
+    
+    NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
+    FrozenNodeInitializer visitor = new FrozenNodeInitializer(
+        frozenData, session.getTransientNodesManager(), ntManager, changesLog);    
+
+    if (log.isDebugEnabled())
+      log.debug("Before frozen visitor: " + changesLog.dump());
+    
+    versionableNodeData.accept(visitor);
+    
+  }
+  
+  public boolean isVersionBelongToThis(Version version) {
+    return ((VersionImpl) version).getLocation().isDescendantOf(getLocation(), false);
+  }
+  
+  private String nextVersionName() throws RepositoryException {
+    // make version name - 1-based (because of rootVersion) integer    
+    int vn = 0;
+    for (VersionIterator allVersions = getAllVersions(); allVersions.hasNext();) {
+      Version v = allVersions.nextVersion();
+      try {
+        int vi = Integer.parseInt(v.getName());
+        if (vi > vn) {
+          vn = vi;
+        }
+      } catch(NumberFormatException e) {
+      }      
+    }
+    //return new Integer((int) getAllVersions().getSize()).toString();
+    return vn > 0 ? String.valueOf(vn + 1) : "1";
+  }
+}

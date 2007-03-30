@@ -1,0 +1,278 @@
+/**
+ * Copyright 2001-2003 The eXo Platform SARL         All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ */
+
+package org.exoplatform.services.jcr.impl.access;
+
+import java.security.AccessControlException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import javax.jcr.AccessDeniedException;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+
+import org.exoplatform.services.jcr.BaseStandaloneTest;
+import org.exoplatform.services.jcr.access.AccessControlList;
+import org.exoplatform.services.jcr.access.PermissionType;
+import org.exoplatform.services.jcr.access.SystemIdentity;
+import org.exoplatform.services.jcr.core.ExtendedNode;
+import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
+import org.exoplatform.services.jcr.impl.core.NodeImpl;
+
+/**
+ * Created by The eXo Platform SARL        .
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
+ * @version $Id: TestAccess.java.1 12841 2007-02-16 08:58:38Z peterit $
+ */
+
+public class TestAccess extends BaseStandaloneTest {
+  
+  public String getRepositoryName() {
+    return "db1";
+  }
+	
+  public void testNoAccessControllable() throws Exception {
+    
+    ExtendedNode root = (ExtendedNode)session.getRootNode();
+    AccessControlList acl = root.getChildrenACL();
+    assertEquals(SystemIdentity.SYSTEM, acl.getOwner());
+    assertEquals(1, acl.getPermissions().size());
+    String id = (String)acl.getPermissions().keySet().iterator().next();
+    assertEquals(SystemIdentity.ANY, id);
+    assertEquals(PermissionType.ALL, (String[])acl.getPermissions().get(id));
+  }
+  
+  public void testDefaultAccessControllable() throws Exception {
+    
+    ExtendedNode node = (ExtendedNode)session.getRootNode().addNode("testACNode");
+    node.addMixin("exo:accessControllable");
+    
+    AccessControlList acl = node.getChildrenACL();
+    assertEquals(session.getUserID(), acl.getOwner());
+    assertEquals(1, acl.getPermissions().size());
+    String id = (String)acl.getPermissions().keySet().iterator().next();
+    assertEquals(SystemIdentity.ANY, id);
+    assertEquals(PermissionType.DEFAULT_AC, (String[])acl.getPermissions().get(id));
+    
+    // the same after save() and re-retrieve
+    session.save();
+    node = (ExtendedNode)session.getRootNode().getNode("testACNode");
+    
+    Session session1 = repository.login(new CredentialsImpl("exo2", "exo2".toCharArray()));
+    session1.getRootNode().getNode("testACNode");
+    
+    
+    acl = node.getChildrenACL();
+    assertEquals(session.getUserID(), acl.getOwner());
+    assertEquals(1, acl.getPermissions().size());
+    id = (String)acl.getPermissions().keySet().iterator().next();
+    assertEquals(SystemIdentity.ANY, id);
+    assertEquals(PermissionType.DEFAULT_AC[0], ((String[])acl.getPermissions().get(id))[0]);
+
+  }
+  
+  public void testAddNode() throws Exception {
+    ExtendedNode node = (ExtendedNode)session.getRootNode().addNode("testAddNode");
+    HashMap perm = new HashMap();
+    //perm.put("exo1", PermissionType.ALL);
+    perm.put("exo1", new String[] {PermissionType.ADD_NODE});
+    node.setChildrenPermissions(perm);
+    session.save();
+    
+    assertEquals("exo",((ExtendedNode)session.getRootNode().getNode("testAddNode")).getChildrenACL().getOwner());
+    session.getRootNode().getNode("testAddNode").addNode("ownersNode");
+    session.save();
+    
+    Session session1 = repository.login(new CredentialsImpl("exo2", "exo2".toCharArray()));
+    session1.getRootNode().getNode("testAddNode").addNode("illegal");
+
+    try {
+      session1.save();
+      fail("AccessDeniedException should have been thrown ");
+    } catch (AccessDeniedException e) {
+      session1.refresh(false);
+    }
+    
+    session1 = repository.login(new CredentialsImpl("exo1", "exo1".toCharArray()));
+    session1.getRootNode().getNode("testAddNode").addNode("legal");
+    session1.save();
+    try {
+      session1.getRootNode().getNode("testAddNode").setProperty("illegal", "test");
+      session1.save();
+      fail("AccessDeniedException should have been thrown ");
+    } catch (AccessDeniedException e) {
+      session1.refresh(false);
+    }
+    
+    //log.debug("HMMMMMMM >>> "+session1.getItem("/testAddNode/legal"));
+  }
+
+  
+  public void testModifyAndReadItem() throws Exception {
+    ExtendedNode node = (ExtendedNode)session.getRootNode().addNode("testModifyAndReadNode");
+    HashMap perm = new HashMap();
+    perm.put("exo1", PermissionType.ALL);
+    node.setChildrenPermissions(perm);
+    session.save();
+    
+    assertEquals("exo",((ExtendedNode)session.getRootNode().getNode("testModifyAndReadNode")).getChildrenACL().getOwner());
+    session.getRootNode().getNode("testModifyAndReadNode").addNode("ownersNode");
+    session.save();
+    
+    Session session1 = repository.login(new CredentialsImpl("exo1", "exo1".toCharArray()));
+    
+    session1 = repository.login(new CredentialsImpl("exo1", "exo1".toCharArray()));
+    session1.getRootNode().getNode("testModifyAndReadNode").setProperty("legal", "test");
+    session1.getRootNode().getNode("testModifyAndReadNode").setProperty("illegal", "test");
+    session1.save();
+    
+    session.getItem("/testModifyAndReadNode/legal");
+
+    session1.getRootNode().getProperty("testModifyAndReadNode/legal").remove();
+    session1.save();
+    
+    // exo1
+    session1.getRootNode().getNode("testModifyAndReadNode").getProperty("illegal");
+    assertEquals(1, session1.getRootNode().getNode("testModifyAndReadNode").getProperties("illegal").getSize());
+    session1 = repository.login(new CredentialsImpl("exo2", "exo2".toCharArray()));
+    try {
+      // exo2
+      session1.getRootNode().getNode("testModifyAndReadNode").getProperty("illegal");
+      fail("PathNotFoundException or AccessDenied should have been thrown ");
+    } catch (PathNotFoundException e) {
+    } catch (AccessDeniedException e) {
+    }
+    try {
+      assertEquals(0, session1.getRootNode().getNode("testModifyAndReadNode").getProperties("illegal").getSize());
+    } catch (AccessDeniedException e) {
+    }
+
+
+  }
+
+  public void testCheckAndCleanPermissions() throws Exception {
+    ExtendedNode node = (ExtendedNode)session.getRootNode().addNode("testCheckAndCleanPermissions");
+    HashMap perm = new HashMap();
+    perm.put("exo1", PermissionType.ALL);
+    perm.put("exo2", new String[]{PermissionType.READ});
+    node.setChildrenPermissions(perm);
+    session.save();
+    
+    Session session1 = repository.login(new CredentialsImpl("exo1", "exo1".toCharArray()));
+    Session session2 = repository.login(new CredentialsImpl("exo2", "exo2".toCharArray()));
+
+    session1.checkPermission("/testCheckAndCleanPermissions/test", PermissionType.ADD_NODE);
+    
+    try {
+      session2.checkPermission("/testCheckAndCleanPermissions/test", PermissionType.ADD_NODE);
+      fail("AccessControlException should have been thrown ");
+    } catch (AccessControlException e) {
+    } 
+    session2.checkPermission("/testCheckAndCleanPermissions/test", PermissionType.READ);
+
+    // try to re set permissions
+    ExtendedNode node2 = (ExtendedNode)session2.getRootNode()
+    .getNode("testCheckAndCleanPermissions");
+    try {
+      // no set_property permission
+      node2.setChildrenPermissions(perm);
+      session2.save();
+      fail("AccessControlException should have been thrown ");
+    } catch (AccessControlException e) {
+      session2.refresh(false);
+    }
+    
+    // get current permissions
+    AccessControlList acl = node2.getChildrenACL();
+    assertEquals("exo", acl.getOwner());
+    assertEquals(2, acl.getPermissions().size());
+    
+    try {
+      // clean acl
+      node2.clearChildrenACL();
+      session2.save();
+      fail("AccessControlException should have been thrown ");
+    } catch (AccessControlException e) {
+      session2.refresh(false);
+    }
+    
+    ExtendedNode node1 = (ExtendedNode)session1.getRootNode()
+    .getNode("testCheckAndCleanPermissions");
+    node1.clearChildrenACL();
+    session1.save();
+    acl = node1.getChildrenACL();
+    assertEquals(SystemIdentity.SYSTEM, acl.getOwner());
+    assertEquals(1, acl.getPermissions().size());
+
+  }
+  
+  public void testSetAndRemovePermission() throws Exception {
+    ExtendedNode node = (ExtendedNode)session.getRootNode().addNode("testSetAndRemovePermission");
+    node.setChildrenPermission("exo1", PermissionType.ALL);
+    assertEquals(1, node.getChildrenACL().getPermissions().size());
+    
+    System.out.println("Access contr "+node.isNodeType("exo:accessControllable"));
+    node.setChildrenPermission("exo2", new String[]{PermissionType.READ});
+    assertEquals(2, node.getChildrenACL().getPermissions().size());
+    node.removeChildrenPermission("exo1");
+    assertEquals(1, node.getChildrenACL().getPermissions().size());
+    
+    //HashMap perm = new HashMap();
+    //perm.put("exo1", PermissionType.ALL);
+    //perm.put("exo2", new String[]{PermissionType.READ});
+    //node.setChildrenPermissions(perm);
+    //session.save();
+  }
+  
+  public void testAccessJcrSystem() throws Exception {
+    //showPermissions("jcr:system");
+    
+    Session session1 = repository.login(new CredentialsImpl("exo", "exo".toCharArray()));
+    try {
+      session1.checkPermission("/jcr:system/jcr:nodetypes", PermissionType.READ);
+      fail("Exception");
+    } catch (AccessControlException e) {
+    }
+    try {
+      ((ExtendedNode)session1.getRootNode().getNode("jcr:system")).checkChildrenPermission(PermissionType.READ);
+      fail("Exception");
+    } catch (AccessControlException e) {
+    }
+
+    try {
+      session1.getRootNode().getNode("jcr:system").getNodes();
+      fail("Exception");
+    } catch (AccessDeniedException e) {
+    }
+
+    showPermissions("jcr:system");
+    session1 = repository.login(new CredentialsImpl("admin", "admin".toCharArray()));
+    session1.checkPermission("/jcr:system/jcr:nodetypes", PermissionType.READ);
+    ((ExtendedNode)session1.getRootNode().getNode("jcr:system")).checkChildrenPermission(PermissionType.READ);
+    session1.getRootNode().getNode("jcr:system").getNodes();
+  }
+  
+  
+  
+  private void showPermissions(String path) throws RepositoryException {
+    NodeImpl node = (NodeImpl)this.repository.getSystemSession().getRootNode().getNode(path);
+    AccessControlList acl = node.getChildrenACL();
+    System.out.println("OWNER: "+acl.getOwner());
+    Map perms = acl.getPermissions();
+    Iterator ids = perms.keySet().iterator();
+    while(ids.hasNext()) {
+      String id = (String)ids.next();
+      String[] perm = (String[])perms.get(id);
+      String permStr = "";
+      for(int i=0; i<perm.length; i++)
+        permStr+=perm[i]+",";
+      System.out.println(" "+id +" --->" +permStr);
+    }
+    
+  }
+  
+}

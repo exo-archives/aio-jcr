@@ -1,0 +1,9 @@
+<jnlp-versions>
+      <resource>
+         <pattern>
+           <name>eXoDavBrowser-1.5.jar</name>
+            <version-id>1.5</version-id>
+         </pattern>
+         <file>eXoDavBrowser-1.5.jar</file>
+      </resource>
+</jnlp-versions>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="Maven">
+  <bannerLeft>
+    <src>http://www.exoplatform.com/resources/community/images/banner-left-390x69.jpg</src>
+    <href>http://www.exoplatform.org/</href>
+  </bannerLeft>
+  <bannerRight>
+    <name>eXo JCR</name>
+  </bannerRight>
+  <body>
+    <links>
+      <item name="Home" href="../exo.site/index.html"/>
+      <item name="ObjectWeb Forge" href="http://forge.objectweb.org/projects/exoplatform" />
+      <item name="Community Portal" href="http://www.exoplatform.org"/>
+      <item name="Company Portal" href="http://www.exoplatform.com"/>
+    </links>
+
+    <menu name="Java Content Repository (JSR-170)">
+      <item name="Introduction" href="index.html"/>
+      <item name="JCR API concepts" href="concepts.html"/>
+      <item name="Compatibility Levels" href="levels.html"/>
+      <item name="Resources" href="resources.html"/>
+    </menu>
+    <menu name="eXo JCR Service">
+      <item name="Architecture" href="architecture.html"/>
+      <item name="Configuration" href="configuration.html"/>
+      <item name="Node Types and Namespaces" href="ntdefinition.html"/>
+      <item name="Security" href="security.html"/>
+      <item name="Persistence Storage" href="storage.html" collapsed="true">
+        <item name="JDBC Data Container" href="dbcontainer.html"/>	
+        <item name="FileSystem Value Storage" href="fsvaluestorage.html"/>	
+      </item>
+      <item name="Extension" href="ext.html" collapsed="true">
+        <item name="Metadata" href="metadata.html"/>	
+        <item name="Access control" href="accesscontrol.html"/>	
+        <item name="Audit" href="audit.html"/>	
+      </item>
+      <item name="Locking" href="locking.html"/>
+      <item name="Clustering" href="cluster.html"/>
+    </menu>
+    <menu name="Applications">
+      <item name="JCR Application model" href="apps.html" />
+      <item name="Frameworks" href="frameworks.html" />
+      <item name="Web applications" href="webapps.html" />
+      <item name="WebDAV" href="webdav.html" />
+      <item name="FTP" href="ftp.html" />
+      <item name="RMI" href="rmi.html" />
+      <item name="Kofax" href="kfx.html" />
+      <item name="WebDav Clients Library" href="davclients.html" />
+      <item name="Web Dav Office client" href="exo_client.html" />
+
+    </menu>
+    <menu name="Tests">
+      <item name="JMeter performance testing" href="jmeter.html" />
+    </menu>
+    <menu name="For developers">
+      <item name="Howto add Test Unit" href="usecasetest.html" />
+      <item name="Howto reach eXo JCR Repository" href="standalone-app.html" />
+      <item name="XPATH and SQL grammar howto" href="grammar.html" />
+    </menu>
+
+    ${reports}
+  </body>
+</project>
