@@ -17,7 +17,7 @@
     </security>
     <resources>
         <j2se version="1.5+" />
-        <jar href="eXoDavBrowser-1.5.jar" main="true" />
+        <jar href="eXoDavBrowser.jar" main="true" />
     </resources>
     <application-desc
         main-class="org.exoplatform.applications.exodavbrowser.eXoDavBrowser" />
