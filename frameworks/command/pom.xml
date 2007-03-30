@@ -64,7 +64,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <includes>
-            <include>**/JCRCommandsTest.java</include>
+            <!--<include>**/JCRCommandsTest.java</include>-->
           </includes>
         </configuration>
       </plugin>
