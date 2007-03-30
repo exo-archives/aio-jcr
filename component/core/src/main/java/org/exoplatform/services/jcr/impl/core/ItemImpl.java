@@ -113,7 +113,7 @@ public abstract class ItemImpl implements Item {
   protected boolean checkValid() throws InvalidItemStateException {
     if (data == null) 
       throw new InvalidItemStateException("Invalid item state. Item was removed.");
-    
+      session.updateLastAccessTime();
     return true;
   } 
 

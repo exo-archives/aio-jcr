@@ -133,6 +133,10 @@ public class SessionImpl implements Session, NamespaceAccessor {
 
   private SessionActionInterceptor actionHandler;
 
+  private long lastAccessTime;
+
+  private SessionRegistry sessionRegistry;
+  private static long count = 0;
   SessionImpl(String workspaceName, Credentials credentials, ExoContainer container)
       throws RepositoryException {
 
@@ -180,6 +184,13 @@ public class SessionImpl implements Session, NamespaceAccessor {
     SessionActionCatalog catalog = (SessionActionCatalog) container
       .getComponentInstanceOfType(SessionActionCatalog.class); 
     actionHandler = new SessionActionInterceptor(catalog, container);
+    
+    this.lastAccessTime = System.currentTimeMillis();
+    
+    sessionRegistry = (SessionRegistry) container
+    .getComponentInstanceOfType(SessionRegistry.class);
+    
+    sessionRegistry.registerSession(this);
   }
   
 
@@ -223,6 +234,7 @@ public class SessionImpl implements Session, NamespaceAccessor {
     for (int i = 0; i < lifecycleListeners.size(); i++) {
       lifecycleListeners.get(i).onCloseSession(this);
     }
+    sessionRegistry.unregisterSession(getId());
     live = false;
   }
 
@@ -1012,5 +1024,12 @@ public class SessionImpl implements Session, NamespaceAccessor {
   public SessionActionInterceptor getActionHandler() {
     return actionHandler;
   }
+  public long getLastAccessTime(){
+    return  lastAccessTime;
 
+  }
+
+  public void updateLastAccessTime(){
+    lastAccessTime = System.currentTimeMillis();
+  }
 }
