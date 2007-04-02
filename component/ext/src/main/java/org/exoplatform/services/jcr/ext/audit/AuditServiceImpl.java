@@ -5,7 +5,6 @@
 
 package org.exoplatform.services.jcr.ext.audit;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -26,16 +25,15 @@ import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.Uuid;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.ItemImpl;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.core.value.BaseValue;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -90,7 +88,7 @@ public class AuditServiceImpl implements AuditService {
     NodeData auditHistory = auditSession.getAuditHistoryNodeData();
 
     // make path to the AUDITHISTORY_LASTRECORD property
-    InternalQPath path = InternalQPath.makeChildPath(auditHistory.getQPath(),
+    QPath path = QPath.makeChildPath(auditHistory.getQPath(),
         AuditService.EXO_AUDITHISTORY_LASTRECORD);
     // searching last name of node
     PropertyData pData = (PropertyData) dm.getItemData(path);
@@ -158,7 +156,7 @@ public class AuditServiceImpl implements AuditService {
 
     // Update lastRecord
     
-    TransientPropertyData pLastRecord = (TransientPropertyData)auditSession.getDataManager().getItemData(InternalQPath.
+    TransientPropertyData pLastRecord = (TransientPropertyData)auditSession.getDataManager().getItemData(QPath.
         makeChildPath(auditHistory.getQPath(), EXO_AUDITHISTORY_LASTRECORD));
     
     pLastRecord.setValue(new TransientValueData(String
@@ -396,9 +394,9 @@ public class AuditServiceImpl implements AuditService {
     }
     
     private NodeData getAuditHistoryNodeData() throws RepositoryException{
-      InternalQPath path = null;
+      QPath path = null;
       //make path to the audithistory property 
-      path = InternalQPath.makeChildPath(((NodeImpl)node).getData().getQPath(),AuditService.EXO_AUDITHISTORY);
+      path = QPath.makeChildPath(((NodeImpl)node).getData().getQPath(),AuditService.EXO_AUDITHISTORY);
       //searching uuid of corresponding EXO_AUDITHISTORY node
       PropertyData pData = (PropertyData) dm.getItemData(path);
       String ahUuid;

@@ -12,9 +12,7 @@ import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
 import org.exoplatform.services.jcr.impl.core.ItemImpl;
-import org.exoplatform.services.jcr.impl.ext.action.SessionEventMatcher;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 import org.exoplatform.services.organization.OrganizationService;
 
