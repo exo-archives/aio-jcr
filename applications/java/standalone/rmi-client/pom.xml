@@ -37,6 +37,61 @@
   </dependencies>
 
   <build>
-    <finalName>jcr-rmi-cli</finalName>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.1</version>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+              <goals>
+                <goal>directory</goal>
+              </goals>
+          </execution>
+        </executions>
+        <configuration>
+        <archive>
+		  <manifest>
+		    <mainClass>org.oxoplatform.jcr.JcrRMIDemo</mainClass>
+		  </manifest>
+        </archive>
+        <descriptor>rmi-client-descriptor.xml</descriptor>
+          <finalName>rmi-client</finalName>
+        </configuration>
+      </plugin>
+      <plugin>
+	          <artifactId>maven-antrun-plugin</artifactId>
+	            <executions>
+	              <execution>
+	                <phase>install</phase>
+	                  <configuration>
+	                    <tasks>
+	                      <java dir="${basedir}" className="org.exoplatform.jcr.JcrRMIDemo"
+	                        fork="true"
+	                        failonerror="true"
+	                        maxmemory="128m">
+	                        <!--<arg value="bind configuration.xml"/>-->
+	                        <classpath>
+	                          <pathelement path="${classpath}"/>
+	                          <fileset dir="${basedir}/target">
+	                            <include name="**/rmi-client-1.6/*.jar"/>
+	                          </fileset>
+	                         <!--<pathelement location="classes"/>
+	                           <dirset dir="${basedir}">
+	                              <include name="target/**/classes"/>
+	                              <exclude name="target/**/*Test*"/>
+	                           </dirset>-->
+	                        </classpath>
+	                      </java>
+	                    </tasks>
+	                  </configuration>
+	                  <goals>
+	                    <goal>run</goal>
+	                  </goals>
+	                </execution>
+	              </executions>
+          </plugin>
+      </plugins>
   </build>
+
 </project>

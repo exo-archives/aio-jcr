@@ -8,7 +8,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.applications.rmi-server</artifactId>
   <version>${org.exoplatform.jcr.version}</version>
-  <packaging>exo-jcrrmi</packaging>
+  <packaging>jar</packaging>
   <name>eXo JCR RMI server</name>
   <url>http://www.exoplatform.org</url>
   <description>eXo JCR RMI server</description>
@@ -226,30 +226,74 @@
       <scope>compile</scope>
     </dependency -->
 
+    <dependency>
+	  <groupId>hsqldb</groupId>
+	  <artifactId>hsqldb</artifactId>
+	  <!-- version>1.7.3.3</version -->
+	  <version>1.8.0.7</version>
+	  <scope>compile</scope>
+	</dependency>
+
   </dependencies>
 
   <build>
-    <outputDirectory>${basedir}/run</outputDirectory>
-    <plugins>
+     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-exo-plugin</artifactId>
-        <extensions>true</extensions>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.1</version>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+              <goals>
+                <goal>directory</goal>
+              </goals>
+          </execution>
+        </executions>
         <configuration>
-          <dest>rmisrv</dest>
-          <runDir>${basedir}/run</runDir>
-          <resDir>${basedir}/res</resDir>
-          <codebase>jcr, exo-jcr.services.jcr.api,exo-jcr.services.jcr.rmi.impl,exo-jcr.services.jcr.rmi.api</codebase>
-
-          <excludeProjects>
-            junit, jmock, bcel, ehcache, xercesImpl, msv,  servlet-api, jibx-bind, isorelax,
-            relaxngDatatype, velocity-dep, saxpath, exo-platform.test.framework, xerces, jtidy,
-            xmldb-api, castor, drools-smftest, jsp-api, xml-apis, xml-resolver, jaxen,
-            xjavadoc, xdoclet-hibernate-module, xdoclet-xdoclet-module, xdoclet
-          </excludeProjects>
+        <descriptors>
+          <descriptor>rmi-server-descriptor.xml</descriptor>
+          <descriptor>rmi-server-codebase-descriptor.xml</descriptor>
+        </descriptors>
+          <finalName>rmi-server</finalName>
         </configuration>
       </plugin>
-    </plugins>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+          <executions>
+            <execution>
+              <phase>install</phase>
+                <configuration>
+                  <tasks>
+                    <java dir="${basedir}" className="org.exoplatform.connectors.jcr.RMIStarter"
+                      fork="true"
+                      failonerror="true"
+                      maxmemory="128m">
+                      <jvmarg value="-Djava.security.auth.login.config=res/jaas.conf"/>
+                      <jvmarg value="-Djava.rmi.server.codebase=file:/${basedir}/target/rmi-server-codebase/"/>
+					  <jvmarg value="-Djava.security.policy=res/java.policy"/>
+                      <arg value="bind"/>
+                      <arg value="res/configuration.xml"/>
+                      <classpath>
+                        <pathelement path="${classpath}"/>
+                        <fileset dir="${basedir}/target">
+                          <include name="**/rmi-server-1.6/*.jar"/>
+                        </fileset>
+                       <!--<pathelement location="classes"/>
+                         <dirset dir="${basedir}">
+                            <include name="target/**/classes"/>
+                            <exclude name="target/**/*Test*"/>
+                         </dirset>-->
+                      </classpath>
+                    </java>
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+      </plugins>
   </build>
 
 </project>
