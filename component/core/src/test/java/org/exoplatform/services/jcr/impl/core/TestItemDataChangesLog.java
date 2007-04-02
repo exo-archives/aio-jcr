@@ -14,10 +14,8 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
-import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -37,9 +35,9 @@ public class TestItemDataChangesLog extends JcrImplBaseTest {
 
   public void setUp() throws Exception {
     super.setUp();
-    InternalQPath path1 = InternalQPath.makeChildPath(Constants.ROOT_PATH, new InternalQName(null,"testBasicOperations1")); 
-    InternalQPath path2 = InternalQPath.makeChildPath(Constants.ROOT_PATH, new InternalQName(null,"testBasicOperations2"));
-    InternalQPath path3 = InternalQPath.makeChildPath(Constants.ROOT_PATH, new InternalQName(null,"testBasicOperations3")); 
+    QPath path1 = QPath.makeChildPath(Constants.ROOT_PATH, new InternalQName(null,"testBasicOperations1")); 
+    QPath path2 = QPath.makeChildPath(Constants.ROOT_PATH, new InternalQName(null,"testBasicOperations2"));
+    QPath path3 = QPath.makeChildPath(Constants.ROOT_PATH, new InternalQName(null,"testBasicOperations3")); 
 
     data1 = 
       new TransientNodeData(

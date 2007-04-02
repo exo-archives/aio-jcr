@@ -65,7 +65,7 @@ public class NamespaceDataPersister {
   
 //  void initStorage(NodeData nsSystem, boolean addACL, Map<InternalQName, String> namespaces) {
   public void initStorage(NodeData nsSystem, boolean addACL, Map<String, String> namespaces) 
-  throws IllegalNameException, RepositoryException {
+  throws RepositoryException {
     
     TransientNodeData root = TransientNodeData.createNodeData(
         nsSystem, Constants.EXO_NAMESPACES, Constants.NT_UNSTRUCTURED);
@@ -123,7 +123,7 @@ public class NamespaceDataPersister {
   
   ///** @deprecated */
   public void addNamespace(String prefix, String uri)  
-      throws IllegalNameException, RepositoryException, InvalidItemStateException {
+      throws RepositoryException, InvalidItemStateException {
 
     if (!isInialized()) {
       log.warn("Namespace storage (/jcr:system/exo:namespaces node) is not initialized");

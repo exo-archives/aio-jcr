@@ -11,7 +11,7 @@ import org.apache.commons.chain.Context;
 import org.apache.commons.chain.impl.ContextBase;
 import org.exoplatform.services.command.action.Action;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.ext.action.SessionActionCatalog;
 import org.exoplatform.services.jcr.impl.ext.action.SessionEventMatcher;
@@ -52,7 +52,7 @@ public class TestAllActions extends BaseUsecasesTest {
 
   public SessionEventMatcher prepareActionCatalog(Action action,
                                                   int event,
-                                                  InternalQPath[] paths,
+                                                  QPath[] paths,
                                                   boolean isDeep,
                                                   InternalQName[] nodeTypeNames,
                                                   InternalQName[] parentNodeTypeNames,
@@ -104,7 +104,7 @@ public class TestAllActions extends BaseUsecasesTest {
       // test by path
       prepareActionCatalog(daction,
                            actionInfo.getEventType(),
-                           new InternalQPath[] { ((NodeImpl) node).getInternalPath() },
+                           new QPath[] { ((NodeImpl) node).getInternalPath() },
                            true,
                            null,
                            null,
@@ -125,7 +125,7 @@ public class TestAllActions extends BaseUsecasesTest {
       daction = new DummyAction();
       prepareActionCatalog(daction,
                            actionInfo.getEventType(),
-                           new InternalQPath[] { ((NodeImpl) node).getInternalPath() },
+                           new QPath[] { ((NodeImpl) node).getInternalPath() },
                            false,
                            null,
                            null,

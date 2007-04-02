@@ -14,15 +14,6 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
-import org.exoplatform.services.jcr.impl.core.value.StringValue;
-import org.exoplatform.services.xml.querying.InvalidSourceException;
-import org.exoplatform.services.xml.querying.InvalidStatementException;
-import org.exoplatform.services.xml.querying.QueryRunTimeException;
-import org.exoplatform.services.xml.querying.UniFormTransformationException;
-import org.exoplatform.services.xml.querying.XMLQuery;
-import org.exoplatform.services.xml.querying.XMLQueryingService;
-import org.exoplatform.services.xml.querying.helper.SimpleStatementHelper;
-import org.exoplatform.services.xml.querying.helper.XMLDataManager;
 import org.xml.sax.SAXException;
 
 /**
@@ -33,7 +24,7 @@ import org.xml.sax.SAXException;
 
 public class TestExportSysView extends JcrAPIBaseTest {
 
-  private XMLQueryingService xmlQueryingService;
+  //private XMLQueryingService xmlQueryingService;
 
   public void initRepository() throws RepositoryException {
     Node root = session.getRootNode();
@@ -46,7 +37,7 @@ public class TestExportSysView extends JcrAPIBaseTest {
 
     session.save();
 
-    xmlQueryingService = (XMLQueryingService) container.getComponentInstanceOfType(XMLQueryingService.class);
+    //xmlQueryingService = (XMLQueryingService) container.getComponentInstanceOfType(XMLQueryingService.class);
   }
 
   public void tearDown() throws Exception {
@@ -57,8 +48,9 @@ public class TestExportSysView extends JcrAPIBaseTest {
     super.tearDown();
   }
 
-  public void testWithOutputStream() throws RepositoryException, IOException,
-      InvalidSourceException, InvalidStatementException, QueryRunTimeException, UniFormTransformationException {
+  public void testWithOutputStream() throws RepositoryException, IOException
+      //InvalidSourceException, InvalidStatementException, QueryRunTimeException, UniFormTransformationException 
+  {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     session.exportSystemView("/childNode", out, false, false);
     byte[] bArray = out.toByteArray();
@@ -66,10 +58,11 @@ public class TestExportSysView extends JcrAPIBaseTest {
     log.debug("testWithOutputStream export result ["+new String(bArray)+"]");
 //    System.out.println(""+new String(bArray));
 
+    /*  
     SimpleStatementHelper sHelper = xmlQueryingService.createStatementHelper();
     XMLDataManager dManager = xmlQueryingService.createXMLDataManager();
     XMLQuery query = xmlQueryingService.createQuery();
-/*    
+  
     query.setInputStream(new ByteArrayInputStream(bArray));
     query.prepare(sHelper.select("//childNode/sv:node"));
     query.execute();

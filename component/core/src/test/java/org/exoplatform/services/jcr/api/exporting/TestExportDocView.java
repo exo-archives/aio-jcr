@@ -16,14 +16,6 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 import org.exoplatform.services.jcr.impl.core.value.StringValue;
-import org.exoplatform.services.xml.querying.InvalidSourceException;
-import org.exoplatform.services.xml.querying.InvalidStatementException;
-import org.exoplatform.services.xml.querying.QueryRunTimeException;
-import org.exoplatform.services.xml.querying.UniFormTransformationException;
-import org.exoplatform.services.xml.querying.XMLQuery;
-import org.exoplatform.services.xml.querying.XMLQueryingService;
-import org.exoplatform.services.xml.querying.helper.SimpleStatementHelper;
-import org.exoplatform.services.xml.querying.helper.XMLDataManager;
 import org.xml.sax.SAXException;
 
 /**
@@ -34,7 +26,7 @@ import org.xml.sax.SAXException;
 
 public class TestExportDocView extends JcrAPIBaseTest {
 
-  private XMLQueryingService xmlQueryingService;
+  //private XMLQueryingService xmlQueryingService;
 
   public void initRepository() throws RepositoryException {
 
@@ -53,7 +45,7 @@ public class TestExportDocView extends JcrAPIBaseTest {
     session.save();
     log.debug(">> save childNode END");
 
-    xmlQueryingService = (XMLQueryingService) container.getComponentInstanceOfType(XMLQueryingService.class);
+    //xmlQueryingService = (XMLQueryingService) container.getComponentInstanceOfType(XMLQueryingService.class);
   }
 
   public void tearDown() throws Exception {
@@ -70,8 +62,10 @@ public class TestExportDocView extends JcrAPIBaseTest {
     super.tearDown();
   }
 
-  public void testWithOutputStream() throws RepositoryException, IOException, InvalidSourceException,
-      InvalidStatementException, QueryRunTimeException, UniFormTransformationException {
+  public void testWithOutputStream() throws RepositoryException, IOException
+    //InvalidSourceException,InvalidStatementException, QueryRunTimeException, UniFormTransformationException 
+    {
+    
     ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 //    System.out.println(">>"+session.getItem("/childNode/jcr:created"));
@@ -90,9 +84,9 @@ public class TestExportDocView extends JcrAPIBaseTest {
     byte[] bArray = out.toByteArray();
 //    System.out.println(""+new String(bArray));
     
-    SimpleStatementHelper sHelper = xmlQueryingService.createStatementHelper();
-    XMLDataManager dManager = xmlQueryingService.createXMLDataManager();
-    XMLQuery query = xmlQueryingService.createQuery();
+    //SimpleStatementHelper sHelper = xmlQueryingService.createStatementHelper();
+    //XMLDataManager dManager = xmlQueryingService.createXMLDataManager();
+    //XMLQuery query = xmlQueryingService.createQuery();
     
     // [PN] 19.07.06 There are problem with XMLQueryingService work
 //    String sba = new String(bArray).trim();

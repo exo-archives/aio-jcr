@@ -15,7 +15,7 @@ import java.util.Calendar;
 import junit.framework.TestCase;
 
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.Uuid;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
@@ -144,9 +144,9 @@ public class TestTransientValueData extends TestCase {
   }  
 
   public void testNewPathValueData() throws Exception {
-    InternalQPath path = InternalQPath.parse("[]:1[]test:1");
+    QPath path = QPath.parse("[]:1[]test:1");
     TransientValueData vd = new  TransientValueData(path);
-    assertEquals(path, InternalQPath.parse(new String(vd.getAsByteArray())));
+    assertEquals(path, QPath.parse(new String(vd.getAsByteArray())));
   }
   
   public void testNewNameValueData() throws Exception {

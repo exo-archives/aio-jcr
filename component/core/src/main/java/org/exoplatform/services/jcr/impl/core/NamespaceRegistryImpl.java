@@ -28,8 +28,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: NamespaceRegistryImpl.java 12841 2007-02-16 08:58:38Z peterit $
  */
 
-public class NamespaceRegistryImpl implements NamespaceRegistry,
-    NamespaceAccessor {
+public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccessor {
 
   public static HashMap <String, String> DEF_NAMESPACES = new HashMap<String, String>();
 
@@ -84,7 +83,7 @@ public class NamespaceRegistryImpl implements NamespaceRegistry,
    * @see javax.jcr.NamespaceRegistry#registerNamespace(java.lang.String, java.lang.String)
    */
   public synchronized void registerNamespace(String prefix, String uri)
-      throws IllegalNameException, NamespaceException, RepositoryException {
+      throws NamespaceException, RepositoryException {
     
 
     validateNamespace(prefix, uri);
@@ -119,7 +118,7 @@ public class NamespaceRegistryImpl implements NamespaceRegistry,
       throws NamespaceException, RepositoryException {
     
     if(prefix.indexOf(":") > 0)
-      throw new IllegalNameException(
+      throw new RepositoryException(
       "Namespace prefix should not contain ':' " + prefix);
 
     if (ArrayUtils.contains(protectedNamespaces, prefix)) {

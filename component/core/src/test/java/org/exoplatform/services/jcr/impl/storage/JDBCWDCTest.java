@@ -25,8 +25,8 @@ import org.exoplatform.services.jcr.config.ContainerEntry;
 import org.exoplatform.services.jcr.config.SimpleParameterEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
@@ -153,13 +153,13 @@ public class JDBCWDCTest extends TestCase {
   public void testAddRoot() throws Exception {
 
     InternalQName nt = Constants.NT_UNSTRUCTURED;
-    InternalQPath rootPath = InternalQPath.parse(Constants.ROOT_URI);
+    QPath rootPath = QPath.parse(Constants.ROOT_URI);
     WorkspaceStorageConnection conn = container.openConnection();
     NodeData node = new TransientNodeData(rootPath, 
         Constants.ROOT_UUID, 1, nt, new InternalQName[0],
         0, null, new AccessControlList());
     TransientPropertyData ntProp = new TransientPropertyData(
-        InternalQPath.makeChildPath(rootPath, Constants.JCR_PRIMARYTYPE), 
+        QPath.makeChildPath(rootPath, Constants.JCR_PRIMARYTYPE), 
         "1", 1, PropertyType.NAME,  Constants.ROOT_UUID, false);
     ValueData vd = new TransientValueData(Constants.NT_UNSTRUCTURED.getAsString()); 
     ntProp.setValue(vd);

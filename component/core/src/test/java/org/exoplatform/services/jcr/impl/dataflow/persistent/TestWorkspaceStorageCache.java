@@ -18,29 +18,29 @@ import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedPropertyData;
 import org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.util.UUIDGenerator;
 
 public class TestWorkspaceStorageCache extends JcrImplBaseTest {
 
-  private InternalQPath nodePath1 = InternalQPath.makeChildPath(Constants.ROOT_PATH, new InternalQName(Constants.NS_EXO_PREFIX,"node 1"));
-  private InternalQPath nodePath2 = InternalQPath.makeChildPath(Constants.ROOT_PATH, new InternalQName(Constants.NS_EXO_PREFIX,"node 2"));
-  private InternalQPath nodePath3 = InternalQPath.makeChildPath(Constants.ROOT_PATH, new InternalQName(Constants.NS_EXO_PREFIX,"node 3"));
+  private QPath nodePath1 = QPath.makeChildPath(Constants.ROOT_PATH, new InternalQName(Constants.NS_EXO_PREFIX,"node 1"));
+  private QPath nodePath2 = QPath.makeChildPath(Constants.ROOT_PATH, new InternalQName(Constants.NS_EXO_PREFIX,"node 2"));
+  private QPath nodePath3 = QPath.makeChildPath(Constants.ROOT_PATH, new InternalQName(Constants.NS_EXO_PREFIX,"node 3"));
   
-  private InternalQPath nodePath31 = InternalQPath.makeChildPath(nodePath3, new InternalQName(Constants.NS_EXO_PREFIX,"node 3.1"));
-  private InternalQPath nodePath32 = InternalQPath.makeChildPath(nodePath3, new InternalQName(Constants.NS_EXO_PREFIX,"node 3.2"));
+  private QPath nodePath31 = QPath.makeChildPath(nodePath3, new InternalQName(Constants.NS_EXO_PREFIX,"node 3.1"));
+  private QPath nodePath32 = QPath.makeChildPath(nodePath3, new InternalQName(Constants.NS_EXO_PREFIX,"node 3.2"));
   
-  private InternalQPath propertyPath11 = InternalQPath.makeChildPath(nodePath1, new InternalQName(Constants.NS_EXO_PREFIX,"property 1.1"));
-  private InternalQPath propertyPath12 = InternalQPath.makeChildPath(nodePath1, new InternalQName(Constants.NS_EXO_PREFIX,"property 1.2"));
-  private InternalQPath propertyPath21 = InternalQPath.makeChildPath(nodePath2, new InternalQName(Constants.NS_EXO_PREFIX,"property 2.1"));
-  private InternalQPath propertyPath22 = InternalQPath.makeChildPath(nodePath2, new InternalQName(Constants.NS_EXO_PREFIX,"property 2.2"));
+  private QPath propertyPath11 = QPath.makeChildPath(nodePath1, new InternalQName(Constants.NS_EXO_PREFIX,"property 1.1"));
+  private QPath propertyPath12 = QPath.makeChildPath(nodePath1, new InternalQName(Constants.NS_EXO_PREFIX,"property 1.2"));
+  private QPath propertyPath21 = QPath.makeChildPath(nodePath2, new InternalQName(Constants.NS_EXO_PREFIX,"property 2.1"));
+  private QPath propertyPath22 = QPath.makeChildPath(nodePath2, new InternalQName(Constants.NS_EXO_PREFIX,"property 2.2"));
   
-  private InternalQPath propertyPath311 = InternalQPath.makeChildPath(nodePath31, new InternalQName(Constants.NS_EXO_PREFIX,"property 3.1.1"));
-  private InternalQPath propertyPath312 = InternalQPath.makeChildPath(nodePath31, new InternalQName(Constants.NS_EXO_PREFIX,"property 3.1.2"));
+  private QPath propertyPath311 = QPath.makeChildPath(nodePath31, new InternalQName(Constants.NS_EXO_PREFIX,"property 3.1.1"));
+  private QPath propertyPath312 = QPath.makeChildPath(nodePath31, new InternalQName(Constants.NS_EXO_PREFIX,"property 3.1.2"));
   
   private String rootUuid;
   

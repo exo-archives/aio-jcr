@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
 
 
@@ -47,21 +47,21 @@ public class TestPath extends TestCase {
   }
   
   public void testParseQPath() throws Exception {
-  	InternalQPath path = InternalQPath.parse(Constants.ROOT_URI);
+  	QPath path = QPath.parse(Constants.ROOT_URI);
   	assertEquals("", path.getName().getName()); 
   	assertEquals("", path.getName().getNamespace()); 
   	assertEquals(1, path.getIndex());
   	assertEquals(1, path.getLength());
   	assertEquals(Constants.ROOT_URI, path.getAsString());
   	
-  	path = InternalQPath.parse("[]:1[]root:2[]node1:1[http://www.exoplatform.com/jcr/exo/1.0]node2:3");
+  	path = QPath.parse("[]:1[]root:2[]node1:1[http://www.exoplatform.com/jcr/exo/1.0]node2:3");
   	assertEquals("[]:1[]root:2[]node1:1[http://www.exoplatform.com/jcr/exo/1.0]node2:3", path.getAsString());
   	assertEquals(3, path.getIndex());
   	assertEquals(4, path.getLength());
-  	InternalQPath path1 = InternalQPath.parse("[]:1[]root:2[]node1:1[http://www.exoplatform.com/jcr/exo/1.0]node2:3");
+  	QPath path1 = QPath.parse("[]:1[]root:2[]node1:1[http://www.exoplatform.com/jcr/exo/1.0]node2:3");
   	assertTrue(path.equals(path1));
 
-  	path = InternalQPath.parse("[]:1[]root:1[]node1:1[http://www.exoplatform.com/jcr/exo/1.0]node2");
+  	path = QPath.parse("[]:1[]root:1[]node1:1[http://www.exoplatform.com/jcr/exo/1.0]node2");
   	assertEquals("[]:1[]root:1[]node1:1[http://www.exoplatform.com/jcr/exo/1.0]node2:1", path.getAsString());
   	assertEquals(1, path.getIndex());
   	assertEquals("[http://www.exoplatform.com/jcr/exo/1.0]node2", path.getName().getAsString());
@@ -72,8 +72,8 @@ public class TestPath extends TestCase {
   }
   
   public void testMakeQPath() throws Exception {
-  	InternalQPath root = InternalQPath.parse(Constants.ROOT_URI);
-  	InternalQPath path = InternalQPath.makeChildPath(root, "[http://www.exoplatform.com/jcr/exo/1.0]test");
+  	QPath root = QPath.parse(Constants.ROOT_URI);
+  	QPath path = QPath.makeChildPath(root, "[http://www.exoplatform.com/jcr/exo/1.0]test");
   	assertEquals(1, path.getIndex());
   	assertEquals("test", path.getName().getName());
   	assertTrue(path.isDescendantOf(root, true));

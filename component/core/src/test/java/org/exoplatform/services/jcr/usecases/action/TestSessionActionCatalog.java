@@ -23,7 +23,7 @@ import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.services.command.action.ActionMatcher;
 import org.exoplatform.services.command.action.Condition;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
@@ -129,7 +129,7 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
 
     // test by path
     SessionEventMatcher matcher = new SessionEventMatcher(ExtendedEvent.NODE_ADDED,
-        new InternalQPath[] { node.getInternalPath() },
+        new QPath[] { node.getInternalPath() },
         true,
         null,
         null,
@@ -148,12 +148,12 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
     assertEquals(0, catalog.getActions(cond).size());
 
     // test for child path
-    InternalQPath child = InternalQPath.makeChildPath(node.getInternalPath(), Constants.EXO_PREFIX);
+    QPath child = QPath.makeChildPath(node.getInternalPath(), Constants.EXO_PREFIX);
     cond.put(SessionEventMatcher.PATH_KEY, child);
     assertEquals(1, catalog.getActions(cond).size());
 
     // test for grandchild path - found as deep = true
-    InternalQPath grandchild = InternalQPath.makeChildPath(child, Constants.EXO_PREFIX);
+    QPath grandchild = QPath.makeChildPath(child, Constants.EXO_PREFIX);
     cond.put(SessionEventMatcher.PATH_KEY, grandchild);
     assertEquals(1, catalog.getActions(cond).size());
 
@@ -167,7 +167,7 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
 
     // test by path
     SessionEventMatcher matcher = new SessionEventMatcher(ExtendedEvent.NODE_ADDED,
-        new InternalQPath[] { ((NodeImpl) root).getInternalPath() },
+        new QPath[] { ((NodeImpl) root).getInternalPath() },
         false,
         null,
         null,
@@ -187,7 +187,7 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
     assertEquals(1, catalog.getActions(cond).size());
 
     // test for grandchild path - not found as deep = false
-    InternalQPath child = InternalQPath.makeChildPath(node.getInternalPath(), Constants.EXO_PREFIX);
+    QPath child = QPath.makeChildPath(node.getInternalPath(), Constants.EXO_PREFIX);
     cond.put(SessionEventMatcher.PATH_KEY, child);
     assertEquals(0, catalog.getActions(cond).size());
 
@@ -272,7 +272,7 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
   public void testDumpMatcher() throws Exception {
     NodeImpl node = (NodeImpl) root.addNode("test");
     NodeImpl node1 = (NodeImpl) root.addNode("test1");
-    InternalQPath[] paths = new InternalQPath[] { node.getInternalPath(), node1.getInternalPath() };
+    QPath[] paths = new QPath[] { node.getInternalPath(), node1.getInternalPath() };
 
     SessionEventMatcher matcher = new SessionEventMatcher(ExtendedEvent.NODE_ADDED,
         paths,
@@ -350,7 +350,7 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
     root.save();
     
     SessionEventMatcher matcher = new SessionEventMatcher(ExtendedEvent.READ,
-        new InternalQPath[]{prop.getData().getQPath()} ,
+        new QPath[]{prop.getData().getQPath()} ,
         true,
         null,
         new InternalQName[] { Constants.NT_UNSTRUCTURED },

@@ -7,7 +7,7 @@ package org.exoplatform.services.jcr.impl.name;
 
 import junit.framework.TestCase;
 
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.core.JCRName;
 import org.exoplatform.services.jcr.impl.core.JCRPath;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
@@ -85,7 +85,7 @@ public class TestJCRPath extends TestCase {
     			factory.createJCRPath(parent, "exo:node2/node3").getAsString(false));
 
     	assertTrue(path.equals(factory.createJCRPath(parent, "exo:node2")));
-    	InternalQPath qpath = path.getInternalPath();
+    	QPath qpath = path.getInternalPath();
     	assertTrue(path.equals(factory.createJCRPath(qpath)));
     	
     	JCRPath sibs = factory.parseAbsPath("/jcr:node/node1[2]/exo:node2[2]");
