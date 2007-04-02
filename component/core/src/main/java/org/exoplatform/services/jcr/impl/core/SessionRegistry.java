@@ -32,9 +32,9 @@ public final class SessionRegistry implements Startable {
 
   public SessionRegistry(InitParams params) {
     sessionsMap = new WeakHashMap<String, SessionImpl>();
-    if (params != null && params.getValueParam("timeout") != null) {
-      int t = Integer.parseInt(params.getValueParam("timeout").getValue());
-
+    if (params != null && params.getValueParam("session-max-age") != null) {
+      int t = Integer.parseInt(params.getValueParam("session-max-age").getValue());
+      log.debug("session-max-age="+t);
       this.timeOut = t > 0 ? t : DEFAULT_TIMEOUT;
 
     }
@@ -57,7 +57,9 @@ public final class SessionRegistry implements Startable {
       sessionsMap.remove(sessionId);
     }
   }
-
+  public SessionImpl  getSession(String sessionId) {
+      return sessionsMap.get(sessionId);
+  }
   public void start() {
     sessionCleaner = new SessionCleaner(timeOut);
 

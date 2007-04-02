@@ -123,6 +123,16 @@
       </value-param>
     </init-params>
   </component>
+<component>
+    <key>org.exoplatform.services.jcr.impl.core.SessionRegistry</key>
+    <type>org.exoplatform.services.jcr.impl.core.SessionRegistry</type>
+    <init-params>
+      <value-param>
+        <name>timeout</name>
+        <value>10000</value>
+      </value-param>
+    </init-params>
+  </component>
 
   <component>
     <key>org.exoplatform.services.naming.InitialContextInitializer</key>
