@@ -58,8 +58,9 @@ public class WorkspaceResource extends DavCommonResource {
   public Response getResponse(CommonPropDocument reqProps) throws RepositoryException {    
     Response response = new ResponseImpl();
     
-    Href href = new Href(context, "/" + workspaceName);    
+    Href href = new Href(context.getWebDavRequest().getServerPrefix() + "/" + workspaceName);    
     response.setHref(href);
+    //response.setHref(new Href(getHref()));
     
     initResponse(reqProps, response);
     

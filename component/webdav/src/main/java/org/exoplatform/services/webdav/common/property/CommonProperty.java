@@ -167,7 +167,7 @@ public class CommonProperty implements WebDavProperty {
     return true;
   }
   
-  public boolean refresh123(DavResource resource, Href href) {
+  public boolean refresh(DavResource resource, Href href) {
     resourceHref = href;
     
     try {

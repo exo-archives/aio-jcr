@@ -5,6 +5,8 @@
 
 package org.exoplatform.services.webdav;
 
+import org.exoplatform.services.webdav.acl.property.CurrentUserPrivilegeSetProp;
+import org.exoplatform.services.webdav.acl.property.SupportedPrivilegeSetProp;
 import org.exoplatform.services.webdav.common.property.DavProperty;
 import org.exoplatform.services.webdav.common.property.dav.ChildCountProp;
 import org.exoplatform.services.webdav.common.property.dav.ContentLengthProp;
@@ -85,7 +87,11 @@ public class DavProperties {
     {DavProperty.CHILDCOUNT,
           ChildCountProp.class.getCanonicalName()},
     {DavProperty.ISFOLDER,
-          IsFolderProp.class.getCanonicalName()}
+          IsFolderProp.class.getCanonicalName()},
+    {DavProperty.SUPPORTED_PRIVILEGE_SET,
+          SupportedPrivilegeSetProp.class.getCanonicalName()},
+    {DavProperty.CURRENT_USER_PRIVILEGE_SET,
+          CurrentUserPrivilegeSetProp.class.getCanonicalName()}
   };  
   
 }

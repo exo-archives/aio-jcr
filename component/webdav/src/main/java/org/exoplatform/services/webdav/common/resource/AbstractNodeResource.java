@@ -13,6 +13,8 @@ import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.WebDavCommandContext;
 import org.exoplatform.services.webdav.common.request.documents.CommonPropDocument;
@@ -27,6 +29,8 @@ import org.exoplatform.services.webdav.common.response.ResponseImpl;
  */
 
 public class AbstractNodeResource extends DavCommonResource {
+  
+  private static Log log = ExoLogger.getLogger("jcr.AbstractNodeResource");
   
   private Node resourceNode;
   
@@ -88,17 +92,17 @@ public class AbstractNodeResource extends DavCommonResource {
   }
 
   public String getHref() throws RepositoryException {
-    return "/" + resourceNode.getSession().getWorkspace().getName() + resourceNode.getPath();
+    return context.getWebDavRequest().getServerPrefix() + getShortHref();
   }
   
   public String getShortHref() throws RepositoryException {
-    return getHref();
+    return "/" + resourceNode.getSession().getWorkspace().getName() + resourceNode.getPath();
   }
     
   public Response getResponse(CommonPropDocument reqProps) throws RepositoryException {
     Response response = new ResponseImpl();
     
-    response.setHref(new Href(context, getHref()));
+    response.setHref(new Href(getHref()));
 
     initResponse(reqProps, response);
     

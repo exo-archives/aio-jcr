@@ -7,7 +7,6 @@ package org.exoplatform.services.webdav.deltav.property;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
-import javax.jcr.version.Version;
 
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.common.property.DavProperty;
@@ -15,6 +14,9 @@ import org.exoplatform.services.webdav.common.property.dav.AbstractDAVProperty;
 import org.exoplatform.services.webdav.common.resource.AbstractNodeResource;
 import org.exoplatform.services.webdav.common.resource.DavResource;
 import org.exoplatform.services.webdav.common.response.DavStatus;
+import org.exoplatform.services.webdav.common.response.Href;
+import org.exoplatform.services.webdav.deltav.resource.DeltaVResource;
+import org.exoplatform.services.webdav.deltav.resource.VersionResource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -26,7 +28,7 @@ import org.w3c.dom.Element;
 
 public class CheckedInProp extends AbstractDAVProperty {
   
-  protected String lastVersionHref = "";
+  private Href href = null;  
   
   public CheckedInProp() {
     super(DavProperty.CHECKEDIN);
@@ -39,20 +41,23 @@ public class CheckedInProp extends AbstractDAVProperty {
     }
     
     Node node = ((AbstractNodeResource)resource).getNode();
-    
-    if (node instanceof Version) {
-      lastVersionHref = resourceHref + DavConst.DAV_VERSIONPREFIX + node.getName();
+        
+    if (resource instanceof VersionResource) {      
+      href = new Href(resourceHref.getValue());
       status = DavStatus.OK;
       return true;        
-    }
+    }    
 
     if (node.isCheckedOut()) {
       return false;
     }
-
-    lastVersionHref = resourceHref + DavConst.DAV_VERSIONPREFIX + node.getBaseVersion().getName();
-    status = DavStatus.OK;
     
+    if (!(resource instanceof DeltaVResource)) {
+      return false;
+    }
+    
+    href = new Href(resourceHref + DavConst.DAV_VERSIONPREFIX + node.getBaseVersion().getName());
+    status = DavStatus.OK;
     return true;
   }
 
@@ -63,9 +68,9 @@ public class CheckedInProp extends AbstractDAVProperty {
       return;
     }
     
-    Element elHref = rootDoc.createElement(DavConst.DAV_PREFIX + DavProperty.HREF);
-    propertyElement.appendChild(elHref);
-    elHref.setTextContent(lastVersionHref);
+    if (href != null) {
+      href.serialize(rootDoc, propertyElement);
+    }
   }
   
 }

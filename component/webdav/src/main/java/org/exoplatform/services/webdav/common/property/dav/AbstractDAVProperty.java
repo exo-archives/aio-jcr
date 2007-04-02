@@ -5,8 +5,12 @@
 
 package org.exoplatform.services.webdav.common.property.dav;
 
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
+
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.common.property.CommonProperty;
+import org.exoplatform.services.webdav.common.resource.AbstractNodeResource;
 import org.exoplatform.services.webdav.common.resource.DavResource;
 import org.exoplatform.services.webdav.common.response.DavStatus;
 import org.w3c.dom.Document;
@@ -34,10 +38,20 @@ public abstract class AbstractDAVProperty extends CommonProperty {
   public boolean remove(DavResource resource) {    
     status = DavStatus.INTERNAL_SERVER_ERROR;
     return false;
-  }  
+  }
+  
+  private Node getResNode(AbstractNodeResource resource) throws RepositoryException {
+    Node node = ((AbstractNodeResource)resource).getNode();
+    
+    if (node.isNodeType(DavConst.NodeTypes.NT_VERSION)) {
+      node = node.getNode(DavConst.NodeTypes.JCR_FROZENNODE);
+    }
+    
+    return node;
+  }
 
   public void serialize(Document rootDoc, Element parentElement) {
     serialize(rootDoc, parentElement, DavConst.DAV_PREFIX + propertyName);
-  }  
+  }
   
 }

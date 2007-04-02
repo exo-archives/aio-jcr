@@ -11,6 +11,8 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.version.Version;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.WebDavCommandContext;
 import org.exoplatform.services.webdav.common.request.WebDavRequest;
@@ -33,6 +35,8 @@ import org.exoplatform.services.webdav.search.resource.SearchableWorkspace;
  */
 
 public class ResourceFactoryImpl implements ResourceFactory {
+  
+  private static Log log = ExoLogger.getLogger("jcr.ResourceFactoryImpl");
   
   private WebDavCommandContext context;
   
@@ -64,17 +68,26 @@ public class ResourceFactoryImpl implements ResourceFactory {
     String workspace = request.getSrcWorkspace();    
     String path = request.getSrcPath();
     
+    log.info(">>>>>>> workspace: [" + workspace + "]");
+    log.info(">>>>>>> path: [" + path + "]");
+    
     if ("/".equals(path)) {
+      
       if ("".equals(workspace)) {
         return new RepositoryResource(context);
       } 
 
+      log.info("TRY BUG HERE!!!!!!!!");
+      request.getSourceSession(context.getSessionProvider());
       return new WorkspaceResource(context, workspace);      
     }
 
     Session session = request.getSourceSession(context.getSessionProvider());    
     
     try {
+      
+      log.info("required path: [" + path + "]");
+      
       Node node = (Node)session.getItem(path);
       if (node.isNodeType(DavConst.NodeTypes.MIX_VERSIONABLE)) {
         

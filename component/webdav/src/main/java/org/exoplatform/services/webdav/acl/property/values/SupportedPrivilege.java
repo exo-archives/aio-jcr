@@ -7,6 +7,10 @@ package org.exoplatform.services.webdav.acl.property.values;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.webdav.DavConst;
+import org.exoplatform.services.webdav.acl.SecurityProperties;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Created by The eXo Platform SARL
@@ -20,6 +24,11 @@ public class SupportedPrivilege {
   
   public SupportedPrivilege() {
     log.info("construct.........");
+  }
+  
+  public Element serialize(Document document) {
+    Element privilege = document.createElement(DavConst.DAV_PREFIX + SecurityProperties.SUPPORTED_PRIVILEGE);
+    return privilege;
   }
   
 }

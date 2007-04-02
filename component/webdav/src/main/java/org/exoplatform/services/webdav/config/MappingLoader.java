@@ -7,6 +7,8 @@ package org.exoplatform.services.webdav.config;
 
 import java.io.InputStream;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.common.property.factory.MappingTable;
 import org.exoplatform.services.webdav.common.property.factory.PropertyMapping;
 import org.exoplatform.services.webdav.common.util.DavUtil;
@@ -22,6 +24,8 @@ import org.w3c.dom.NodeList;
 
 public class MappingLoader {
   
+  private static Log log = ExoLogger.getLogger("jcr.MappingLoader");
+  
   public static final String EL_PROPERTYMAPPING = "propertymapping";
 
   public static final String EL_NODETYPE = "nodetype";
@@ -35,7 +39,10 @@ public class MappingLoader {
   
   private MappingTable mappingTable = new MappingTable();
 
-  public MappingLoader(InputStream mappingStream) throws Exception {    
+  public MappingLoader(InputStream mappingStream) throws Exception {
+    
+    log.info("mapping: " + mappingStream);
+    
     Document mappingDocument = DavUtil.GetDocumentFromInputStream(mappingStream);
     
     Node elPropMap = mappingDocument.getChildNodes().item(0);

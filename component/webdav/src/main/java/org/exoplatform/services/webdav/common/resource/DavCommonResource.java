@@ -56,7 +56,7 @@ public abstract class DavCommonResource implements DavResource {
     for (int i = 0; i < defines.size(); i++) {
       PropertyDefine define = defines.get(i);      
       WebDavProperty property = define.getProperty();
-      property.refresh123(this, response.getHref());      
+      property.refresh(this, response.getHref());      
       response.addProperty(property, isNeedSearch);
     }
   }

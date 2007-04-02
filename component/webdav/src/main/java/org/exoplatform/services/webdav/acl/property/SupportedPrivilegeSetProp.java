@@ -12,6 +12,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.common.property.DavProperty;
 import org.exoplatform.services.webdav.common.property.dav.AbstractDAVProperty;
 import org.exoplatform.services.webdav.common.resource.DavResource;
+import org.exoplatform.services.webdav.common.response.DavStatus;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -33,12 +34,23 @@ public class SupportedPrivilegeSetProp extends AbstractDAVProperty {
  
   @Override
   protected boolean initialize(DavResource resource) throws RepositoryException {
+    status = DavStatus.OK;
     return false;
   }
   
   @Override
   public void serialize(Document rootDoc, Element parentElement) {
     super.serialize(rootDoc, parentElement);
+    
+    log.info("try serialize");
+    
+    if (status != DavStatus.OK) {
+      return;
+    }
+    
+    //Element supportedPrivilede = rootDoc.createElement(DavConst.DAV_PREFIX + "")
+    
+    //propertyElement.setTextContent("" + contentLength);    
   }  
   
 }

@@ -42,7 +42,8 @@ public class RestoreCommand extends WebDavCommand {
       
       Version []predesessors = baseVersion.getPredecessors();
       
-      if (predesessors.length < 1) {
+      if (predesessors.length < 1) {        
+        davResponse().setStatus(DavStatus.CONFLICT);
         return true;
       }
       
@@ -55,7 +56,8 @@ public class RestoreCommand extends WebDavCommand {
       log.info("Unhandled exception. " + rexc.getMessage(), rexc);
       throw rexc;
     }
-    
+
+    davResponse().setStatus(DavStatus.OK);
     return true;
   }
   

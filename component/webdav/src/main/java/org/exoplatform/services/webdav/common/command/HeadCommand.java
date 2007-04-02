@@ -7,6 +7,8 @@ package org.exoplatform.services.webdav.common.command;
 
 import javax.jcr.RepositoryException;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.common.resource.DavResource;
 import org.exoplatform.services.webdav.common.resource.DavResourceInfo;
@@ -19,8 +21,14 @@ import org.exoplatform.services.webdav.common.resource.DavResourceInfo;
 
 public class HeadCommand extends WebDavCommand {
   
+  private static Log log = ExoLogger.getLogger("jcr.HeadCommand");
+  
   protected boolean process() throws RepositoryException {
+    log.info("process...");
+    
     DavResource resource = getResourceFactory().getSrcResource(false);
+    
+    log.info("RESOURCE: " + resource);
     
     DavResourceInfo info = resource.getInfo();
     

@@ -74,9 +74,7 @@ public class LockCommand extends WebDavCommand {
     
     LockDiscoveryProp lockDiscovery = (LockDiscoveryProp)define.getProperty();
     
-    //LockDiscoveryProp lockDiscovery = new LockDiscoveryProp();
-    
-    lockDiscovery.refresh123(resource, null);
+    lockDiscovery.refresh(resource, null);
     
     lockDiscovery.setLockToken(lockResult.getLockToken());
 

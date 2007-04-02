@@ -5,12 +5,16 @@
 
 package org.exoplatform.services.webdav.acl.property;
 
+import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.access.AccessControlList;
+import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.common.property.DavProperty;
 import org.exoplatform.services.webdav.common.property.dav.AbstractDAVProperty;
+import org.exoplatform.services.webdav.common.resource.AbstractNodeResource;
 import org.exoplatform.services.webdav.common.resource.DavResource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -31,13 +35,25 @@ public class AclProp extends AbstractDAVProperty {
   }
   
   @Override
-  protected boolean initialize(DavResource resource) throws RepositoryException {
+  protected boolean initialize(DavResource resource) throws RepositoryException {    
+    Node node = ((AbstractNodeResource)resource).getNode(); 
+
+    if (!(node instanceof ExtendedNode)) {
+      return false;
+    }
+
+    ExtendedNode extNode = (ExtendedNode)node;
+
+    AccessControlList acl = extNode.getACL();
+    String dump = acl.dump();
+    log.info("DUMP: [" + dump + "]");
+
     return false;
   }
-  
+
   @Override
   public void serialize(Document rootDoc, Element parentElement) {
     super.serialize(rootDoc, parentElement);
   }  
-  
+
 }

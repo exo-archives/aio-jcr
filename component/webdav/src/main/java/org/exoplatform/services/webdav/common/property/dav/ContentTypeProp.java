@@ -36,11 +36,7 @@ public class ContentTypeProp extends AbstractDAVProperty {
       return false;
     }
 
-    Node node = ((AbstractNodeResource)resource).getNode();
-    
-    if (node.isNodeType(DavConst.NodeTypes.NT_VERSION)) {
-      node = node.getNode(DavConst.NodeTypes.JCR_FROZENNODE);
-    }
+    Node node = getResourceNode((AbstractNodeResource)resource);
 
     Node contentNode = node.getNode(DavConst.NodeTypes.JCR_CONTENT);
     if (!contentNode.hasProperty(DavConst.NodeTypes.JCR_MIMETYPE)) {        

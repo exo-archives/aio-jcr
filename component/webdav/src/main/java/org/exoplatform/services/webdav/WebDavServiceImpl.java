@@ -19,6 +19,7 @@ import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.webdav.common.command.WebDavCommand;
 import org.exoplatform.services.webdav.common.property.factory.PropertyFactory;
 import org.exoplatform.services.webdav.config.MappingLoader;
@@ -50,7 +51,11 @@ public class WebDavServiceImpl implements WebDavService {
   public WebDavServiceImpl (
       InitParams params,
       CommandService commandService, 
-      RepositoryService repositoryService) throws Exception {
+      RepositoryService repositoryService,
+      OrganizationService organizationService
+    ) throws Exception {
+
+    log.info(">>>>>>>> OS:" + organizationService);
     
     this.repositoryService = repositoryService;
     

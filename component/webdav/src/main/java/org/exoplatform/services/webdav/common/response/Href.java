@@ -6,7 +6,6 @@
 package org.exoplatform.services.webdav.common.response;
 
 import org.exoplatform.services.webdav.DavConst;
-import org.exoplatform.services.webdav.WebDavCommandContext;
 import org.exoplatform.services.webdav.common.property.DavProperty;
 import org.exoplatform.services.webdav.common.util.DavTextUtil;
 import org.w3c.dom.Document;
@@ -22,14 +21,18 @@ public class Href {
   
   private String href;
   
-  private WebDavCommandContext context;
+//  private WebDavCommandContext context;
   
-  public Href(WebDavCommandContext context) {
-    this.context = context;
-  }
+//  public Href(WebDavCommandContext context) {
+//    this.context = context;
+//  }
   
-  public Href(WebDavCommandContext context, String href) {
-    this.context = context;
+//  public Href(WebDavCommandContext context, String href) {
+//    this.context = context;
+//    this.href = href;
+//  }
+  
+  public Href(String href) {
     this.href = href;
   }
     
@@ -46,9 +49,13 @@ public class Href {
     parentElement.appendChild(hrefElement);    
 
     String escapedHref = DavTextUtil.Escape(href, '%', true);
-    String fullHref = context.getWebDavRequest().getServerPrefix() + escapedHref;
+    escapedHref = escapedHref.replace(":", "%3a");
     
-    hrefElement.setTextContent(fullHref);    
+//    if (context != null) {
+//      escapedHref = context.getWebDavRequest().getServerPrefix() + escapedHref;
+//    }
+    
+    hrefElement.setTextContent(escapedHref);    
   }
 
 }

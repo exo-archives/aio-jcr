@@ -50,7 +50,10 @@ public class PropPatchCommand extends WebDavCommand {
     
     Response response = new ResponseImpl();
     
-    Href href = new Href(davContext(), "/" + davRequest().getSrcWorkspace() + davRequest().getSrcPath());    
+    String hrefVal = davContext().getWebDavRequest().getServerPrefix() +
+      "/" + davRequest().getSrcWorkspace() + davRequest().getSrcPath();
+
+    Href href = new Href(hrefVal);    
     response.setHref(href);
     
     Iterator<String> keyIter = sets.keySet().iterator();

@@ -13,6 +13,8 @@ import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.common.command.WebDavCommand;
 import org.exoplatform.services.webdav.common.request.documents.RequestDocument;
 import org.exoplatform.services.webdav.common.resource.DavResource;
@@ -33,6 +35,8 @@ import org.exoplatform.services.webdav.order.request.OrderPatchDocument;
  */
 
 public class OrderPatchCommand extends WebDavCommand {
+  
+  private static Log log = ExoLogger.getLogger("jcr.OrderPatchCommand");
   
   protected boolean process() throws RepositoryException {
     RequestDocument reqDoc = davRequest().getDocumentFromRequest();
@@ -112,7 +116,10 @@ public class OrderPatchCommand extends WebDavCommand {
     }
     
     Response response = new ResponseImpl();
-    response.setHref(new Href(davContext(), href));        
+    log.info("///////////////////////////////////////");
+    log.info("HREF: [" + href + "]");
+    
+    response.setHref(new Href(href));        
     response.setStatus(status);
     response.setDescription(description);
     

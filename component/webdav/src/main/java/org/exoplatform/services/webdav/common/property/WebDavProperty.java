@@ -40,7 +40,7 @@ public interface WebDavProperty {
   
   void addMultiValue(String propertyValue);
 
-  boolean refresh123(DavResource resource, Href href);
+  boolean refresh(DavResource resource, Href href);
   
   boolean set(DavResource resource);
   

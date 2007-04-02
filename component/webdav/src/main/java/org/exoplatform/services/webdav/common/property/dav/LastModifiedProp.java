@@ -13,13 +13,13 @@ import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.common.property.DavProperty;
 import org.exoplatform.services.webdav.common.resource.AbstractNodeResource;
 import org.exoplatform.services.webdav.common.resource.DavResource;
-import org.exoplatform.services.webdav.common.resource.NodeResource;
 import org.exoplatform.services.webdav.common.response.DavStatus;
-import org.exoplatform.services.webdav.deltav.resource.DeltaVResource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -31,6 +31,8 @@ import org.w3c.dom.Element;
 
 public class LastModifiedProp extends AbstractDAVProperty {
   
+  private static Log log = ExoLogger.getLogger("jcr.LastModifiedProp");
+  
   protected String lastModified = "";
   
   public LastModifiedProp() {
@@ -39,8 +41,10 @@ public class LastModifiedProp extends AbstractDAVProperty {
 
   @Override
   protected boolean initialize(DavResource resource) throws RepositoryException {
-    if (!(resource instanceof NodeResource) &&
-        !(resource instanceof DeltaVResource)) {
+    
+    //log.info("initialize...");
+    
+    if (!(resource instanceof AbstractNodeResource)) {
       return false;
     }
 
@@ -48,7 +52,9 @@ public class LastModifiedProp extends AbstractDAVProperty {
       return false;
     }
 
-    Node node = ((AbstractNodeResource)resource).getNode();
+    //log.info("try get info value.............");
+    
+    Node node = getResourceNode((AbstractNodeResource)resource);
     
     Node contentNode = node.getNode(DavConst.NodeTypes.JCR_CONTENT);      
     

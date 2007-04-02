@@ -5,6 +5,7 @@
 
 package org.exoplatform.services.webdav.common.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
@@ -47,10 +48,23 @@ public class DavUtil {
   }    
     
   public static Document GetDocumentFromInputStream(InputStream in) throws Exception {
+    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+    byte []buff = new byte[2048];
+    while (true) {
+      int readed = in.read(buff);
+      if (readed < 0) {
+        break;
+      }
+      outStream.write(buff, 0, readed);
+    }
+    
+    byte []datas = outStream.toByteArray();    
+    ByteArrayInputStream inStream = new ByteArrayInputStream(datas);
+    
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     factory.setNamespaceAware(true);        
     DocumentBuilder builder = factory.newDocumentBuilder();
-    Document document = builder.parse(in);
+    Document document = builder.parse(inStream);
     return document;
   }
     
@@ -101,6 +115,8 @@ public class DavUtil {
     
     Element propElement = responseDocument.createElementNS(DavConst.DAV_NAMESPACE, DavConst.DAV_PREFIX + DavProperty.PROP);
     responseDocument.appendChild(propElement);
+
+    property.serialize(responseDocument, propElement);
     
     byte []xmlBytes = getSerializedDom(propElement);
     

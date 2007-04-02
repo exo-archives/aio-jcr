@@ -11,11 +11,14 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.Version;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.common.property.DavProperty;
 import org.exoplatform.services.webdav.common.property.dav.AbstractDAVProperty;
 import org.exoplatform.services.webdav.common.resource.DavResource;
 import org.exoplatform.services.webdav.common.response.DavStatus;
+import org.exoplatform.services.webdav.common.response.Href;
 import org.exoplatform.services.webdav.deltav.resource.VersionResource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -27,8 +30,11 @@ import org.w3c.dom.Element;
  */
 
 public class SuccessorSetProp extends AbstractDAVProperty {
+  
+  private static Log log = ExoLogger.getLogger("jcr.SuccessorSetProp");
 
   protected ArrayList<String> versionSuccessors = new ArrayList<String>();
+  protected ArrayList<Href> versionHrefs = new ArrayList<Href>();
   
   public SuccessorSetProp() {
     super(DavProperty.SUCCESSORSET);
@@ -49,7 +55,12 @@ public class SuccessorSetProp extends AbstractDAVProperty {
     Version []successors = ((Version)node).getSuccessors();
 
     while (successors.length > 0) {
-      versionSuccessors.add(resourceHref + DavConst.DAV_VERSIONPREFIX + successors[0].getName());
+      
+      //Href href = new Href();
+      String href = ((VersionResource)resource).getHref();
+      log.info(">>> resource href: [" + href + "]");
+      
+      versionSuccessors.add(resourceHref.getValue() + DavConst.DAV_VERSIONPREFIX + successors[0].getName());
       successors = successors[0].getSuccessors();
     }      
     status = DavStatus.OK;
