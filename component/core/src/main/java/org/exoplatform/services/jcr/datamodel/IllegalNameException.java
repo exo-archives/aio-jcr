@@ -13,7 +13,7 @@ import javax.jcr.RepositoryException;
  * @version $Id: IllegalNameException.java 12843 2007-02-16 09:11:18Z peterit $
  */
 
-public class IllegalNameException extends RepositoryException {
+public class IllegalNameException extends Exception {
 
   public IllegalNameException() {
     super();

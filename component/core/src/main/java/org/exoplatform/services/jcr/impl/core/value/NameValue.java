@@ -12,6 +12,7 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
 
+import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.core.JCRName;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
@@ -93,7 +94,11 @@ public class NameValue extends BaseValue {
    * @throws RepositoryException
    */
   public InternalQName getQName() throws ValueFormatException, IllegalStateException, RepositoryException {
-    return InternalQName.parse(getInternalString());
+    try {
+		return InternalQName.parse(getInternalString());
+	} catch (IllegalNameException e) {
+		throw new RepositoryException(e);
+	}
   }
 
 }

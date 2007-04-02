@@ -17,11 +17,12 @@ import javax.jcr.version.OnParentVersionAction;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -254,6 +255,8 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
           ValueData mvd = mvs.get(i);
           mixins[i] = InternalQName.parse(new String(mvd.getAsByteArray()));
         }
+      } catch (IllegalNameException e) {
+          throw new RepositoryException("jcr:frozenMixinTypes, error of data read " + frozenMixinTypes.getQPath().getAsString(), e);  
       } catch (IllegalStateException e) {
         throw new RepositoryException("jcr:frozenMixinTypes, error of data read " + frozenMixinTypes.getQPath().getAsString(), e);
       } catch (IOException e) {
@@ -264,6 +267,8 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
     InternalQName ptName = null;
     try {
       ptName = InternalQName.parse(new String(frozenPrimaryType.getValues().get(0).getAsByteArray()));
+    } catch (IllegalNameException e) {
+      throw new RepositoryException("jcr:frozenPrimaryType, error of data read " + frozenPrimaryType.getQPath().getAsString(), e);
     } catch (IllegalStateException e) {
       throw new RepositoryException("jcr:frozenPrimaryType, error of data read " + frozenPrimaryType.getQPath().getAsString(), e);
     } catch (IOException e) {

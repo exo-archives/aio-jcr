@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedPropertyData;
+import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
@@ -650,70 +651,73 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     int cNORDERNUM = item.getInt(COLUMN_NORDERNUM);
     QPath qpath = QPath.parse(item.getString(COLUMN_PATH));
 
-    // PRIMARY
-    QPath ptPath = QPath.makeChildPath(qpath, Constants.JCR_PRIMARYTYPE);
+    try {
+      // PRIMARY
+      QPath ptPath = QPath.makeChildPath(qpath, Constants.JCR_PRIMARYTYPE);
 
-    ResultSet ptProp = findPropertyByPath(cNID, ptPath.getAsString());
+      ResultSet ptProp = findPropertyByPath(cNID, ptPath.getAsString());
 
-    if (!ptProp.next())
-    //if (idPrimaryType == null)
-      throw new PrimaryTypeNotFoundException("FATAL ERROR primary type record not found "
-          + ptPath.getAsString() + ", parent id " + cNID +  ", container "+this.containerName, ptPath);
+      if (!ptProp.next())
+        // if (idPrimaryType == null)
+        throw new PrimaryTypeNotFoundException("FATAL ERROR primary type record not found "
+            + ptPath.getAsString() + ", parent id " + cNID + ", container " + this.containerName, 
+            ptPath);
 
-    ResultSet ptValue = findValuesByPropertyId(ptProp.getString(COLUMN_PID));
+      ResultSet ptValue = findValuesByPropertyId(ptProp.getString(COLUMN_PID));
 
-    if (!ptValue.next())
-      throw new RepositoryException("FATAL ERROR primary type value not found "
-          + ptPath.getAsString() + ", id " + ptProp.getString(COLUMN_ID) + ", container " + this.containerName);
+      if (!ptValue.next())
+        throw new RepositoryException("FATAL ERROR primary type value not found "
+            + ptPath.getAsString() + ", id " + ptProp.getString(COLUMN_ID) + ", container "
+            + this.containerName);
 
-    byte[] data = ptValue.getBytes(COLUMN_DATA);
-    InternalQName ptName = InternalQName.parse(new String((data != null ? data : new byte[] {})));
+      byte[] data = ptValue.getBytes(COLUMN_DATA);
+      InternalQName ptName = InternalQName.parse(new String((data != null ? data : new byte[] {})));
 
-    // MIXIN
-    QPath mtPath = QPath.makeChildPath(qpath, Constants.JCR_MIXINTYPES);
-    ResultSet mtProp = findPropertyByPath(cNID, mtPath.getAsString());
+      // MIXIN
+      QPath mtPath = QPath.makeChildPath(qpath, Constants.JCR_MIXINTYPES);
+      ResultSet mtProp = findPropertyByPath(cNID, mtPath.getAsString());
 
-    InternalQName[] mixinNames = new InternalQName[0];
-    if(mtProp.next()) {
-      List<byte[]> mts = new ArrayList<byte[]>();
-      ResultSet mtValues = findValuesByPropertyId(mtProp.getString(COLUMN_PID));
-      while (mtValues.next()) {
-        mts.add(mtValues.getBytes(COLUMN_DATA));
+      InternalQName[] mixinNames = new InternalQName[0];
+      if (mtProp.next()) {
+        List<byte[]> mts = new ArrayList<byte[]>();
+        ResultSet mtValues = findValuesByPropertyId(mtProp.getString(COLUMN_PID));
+        while (mtValues.next()) {
+          mts.add(mtValues.getBytes(COLUMN_DATA));
+        }
+        mixinNames = new InternalQName[mts.size()];
+        for (int i = 0; i < mts.size(); i++) {
+          mixinNames[i] = InternalQName.parse(new String(mts.get(i)));
+        }
       }
-      mixinNames = new InternalQName[mts.size()];
-      for (int i = 0; i < mts.size(); i++) {
-        mixinNames[i] = InternalQName.parse(new String(mts.get(i)));
-      }
-    }
 
-    // ACL
-    AccessControlList acl;
-    if (isAccessControllable(mixinNames)) {
+      // ACL
+      AccessControlList acl;
+      if (isAccessControllable(mixinNames)) {
 
-      QPath ownerPath = QPath.makeChildPath(qpath, Constants.EXO_OWNER);
+        QPath ownerPath = QPath.makeChildPath(qpath, Constants.EXO_OWNER);
 
-      PropertyData ownerData = (PropertyData) getItemData(ownerPath);
+        PropertyData ownerData = (PropertyData) getItemData(ownerPath);
 
-      QPath permPath = QPath.makeChildPath(qpath, Constants.EXO_PERMISSIONS);
+        QPath permPath = QPath.makeChildPath(qpath, Constants.EXO_PERMISSIONS);
 
-      PropertyData permData = (PropertyData) getItemData(permPath);
+        PropertyData permData = (PropertyData) getItemData(permPath);
 
-      acl = new AccessControlList(ownerData, permData);
-    } else {
-      if(qpath.equals(Constants.ROOT_PATH)) {
-        // make default ACL for root
-        acl = new AccessControlList();
+        acl = new AccessControlList(ownerData, permData);
       } else {
-        acl = null;
+        if (qpath.equals(Constants.ROOT_PATH)) {
+          // make default ACL for root
+          acl = new AccessControlList();
+        } else {
+          acl = null;
+        }
       }
-    }
 
-    return new PersistedNodeData(getUuid(cNID),
-        qpath,
-        getUuid(cNPARENTID),
-        cVERSION,
-        cNORDERNUM,
-        ptName, mixinNames, acl);
+      return new PersistedNodeData(getUuid(cNID), qpath, getUuid(cNPARENTID), cVERSION, cNORDERNUM,
+          ptName, mixinNames, acl);
+
+    } catch (IllegalNameException e) {
+      throw new RepositoryException(e);
+    }
   }
 
   private boolean isAccessControllable(InternalQName[] mixinNames) {
