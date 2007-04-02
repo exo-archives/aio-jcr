@@ -9,6 +9,7 @@ import java.util.WeakHashMap;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.impl.proccess.WorkerThread;
 import org.exoplatform.services.log.ExoLogger;
 import org.picocontainer.Startable;
@@ -30,12 +31,10 @@ public final class SessionRegistry implements Startable {
 
   protected long                         timeOut;
 
-  public SessionRegistry(InitParams params) {
+  public SessionRegistry(RepositoryEntry entry) {
     sessionsMap = new WeakHashMap<String, SessionImpl>();
-    if (params != null && params.getValueParam("session-max-age") != null) {
-      int t = Integer.parseInt(params.getValueParam("session-max-age").getValue());
-      log.debug("session-max-age="+t);
-      this.timeOut = t > 0 ? t : DEFAULT_TIMEOUT;
+    if (entry != null) {
+      this.timeOut = entry.getSessionTimeOut() > 0 ? entry.getSessionTimeOut() : DEFAULT_TIMEOUT;
 
     }
 
