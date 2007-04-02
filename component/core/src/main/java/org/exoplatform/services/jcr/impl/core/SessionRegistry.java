@@ -32,7 +32,6 @@ public final class SessionRegistry implements Startable {
 
   public SessionRegistry(InitParams params) {
     sessionsMap = new WeakHashMap<String, SessionImpl>();
-    // Change the timeout only if JOTM is not initialized yet
     if (params != null && params.getValueParam("timeout") != null) {
       int t = Integer.parseInt(params.getValueParam("timeout").getValue());
 
