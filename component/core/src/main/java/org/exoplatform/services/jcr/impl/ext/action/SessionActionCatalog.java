@@ -14,7 +14,7 @@ import org.exoplatform.services.command.action.ActionCatalog;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
@@ -77,12 +77,12 @@ public class SessionActionCatalog extends ActionCatalog {
     return workspaces.split(",");
   }
   
-  private InternalQPath[] getPaths(String paths) throws RepositoryException {
+  private QPath[] getPaths(String paths) throws RepositoryException {
     if(paths == null)
       return null;
 
     String[] pathList = paths.split(",");
-    InternalQPath[] qpaths = new InternalQPath[pathList.length];
+    QPath[] qpaths = new QPath[pathList.length];
     for(int i=0; i<pathList.length; i++) {
       qpaths[i] = locFactory.parseAbsPath(pathList[i]).getInternalPath();
     }

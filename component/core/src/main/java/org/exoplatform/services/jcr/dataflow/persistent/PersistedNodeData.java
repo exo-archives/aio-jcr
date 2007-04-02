@@ -10,7 +10,7 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemDataVisitor;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 /**
  * Created by The eXo Platform SARL        .</br>
@@ -28,7 +28,7 @@ public class PersistedNodeData extends PersistedItemData implements NodeData {
   protected final InternalQName[] mixinTypeNames;
   protected AccessControlList acl;
   
-  public PersistedNodeData(String id, InternalQPath qpath, String parentId, int version,
+  public PersistedNodeData(String id, QPath qpath, String parentId, int version,
       int orderNumber, InternalQName primaryTypeName, InternalQName[] mixinTypeNames,
       AccessControlList acl) {
     super(id, qpath, parentId, version);

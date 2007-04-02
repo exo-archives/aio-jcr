@@ -11,7 +11,7 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
 
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.core.JCRPath;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -28,7 +28,7 @@ public class PathValue extends BaseValue {
   
   private final LocationFactory locationFactory;
   
-  public PathValue(InternalQPath path, LocationFactory locationFactory) throws IOException {
+  public PathValue(QPath path, LocationFactory locationFactory) throws IOException {
     super(TYPE, new TransientValueData(path));
     this.locationFactory = locationFactory;
   }
@@ -91,8 +91,8 @@ public class PathValue extends BaseValue {
    * @throws IllegalStateException
    * @throws RepositoryException
    */
-  public InternalQPath getQPath() throws ValueFormatException, IllegalStateException,
+  public QPath getQPath() throws ValueFormatException, IllegalStateException,
     RepositoryException {
-    return InternalQPath.parse(getInternalString());
+    return QPath.parse(getInternalString());
   }
 }

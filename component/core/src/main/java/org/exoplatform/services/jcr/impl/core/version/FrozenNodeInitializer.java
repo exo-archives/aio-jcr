@@ -22,7 +22,7 @@ import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
@@ -196,7 +196,7 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
       //frozenNode = TransientNodeData.createNodeData(currentNode(),
       //    qname, node.getPrimaryTypeName(), node.getQPath().getIndex());
 
-      InternalQPath frozenPath = InternalQPath.makeChildPath(currentNode().getQPath(), qname, node.getQPath().getIndex());
+      QPath frozenPath = QPath.makeChildPath(currentNode().getQPath(), qname, node.getQPath().getIndex());
       frozenNode = new TransientNodeData(frozenPath,
           UUIDGenerator.generate(),
           node.getPersistedVersion(),
@@ -215,7 +215,7 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
         PropertyData pt = TransientPropertyData.createPropertyData(frozenNode, Constants.JCR_PRIMARYTYPE,
             PropertyType.NAME, false, new TransientValueData(Constants.NT_VERSIONEDCHILD));
 
-        InternalQPath versionHistoryPath = InternalQPath.makeChildPath(node.getQPath(), Constants.JCR_VERSIONHISTORY);
+        QPath versionHistoryPath = QPath.makeChildPath(node.getQPath(), Constants.JCR_VERSIONHISTORY);
         ValueData vh = ((PropertyData)dataManager.getItemData(versionHistoryPath)).getValues().get(0);
         PropertyData pd = TransientPropertyData.createPropertyData(frozenNode, Constants.JCR_CHILDVERSIONHISTORY,
             PropertyType.REFERENCE, false, vh);
@@ -228,7 +228,7 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
         //frozenNode = TransientNodeData.createNodeData(currentNode(),
         //    qname, node.getPrimaryTypeName(), node.getQPath().getIndex());
 
-        InternalQPath frozenPath = InternalQPath.makeChildPath(currentNode().getQPath(), qname, node.getQPath().getIndex());
+        QPath frozenPath = QPath.makeChildPath(currentNode().getQPath(), qname, node.getQPath().getIndex());
         frozenNode = new TransientNodeData(frozenPath,
             UUIDGenerator.generate(),
             node.getPersistedVersion(),

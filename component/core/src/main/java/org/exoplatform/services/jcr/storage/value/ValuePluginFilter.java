@@ -9,7 +9,7 @@ import javax.jcr.PropertyType;
 
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 
 /**
@@ -21,7 +21,7 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 public final class ValuePluginFilter {
   
   private final int propertyType;
-  private final InternalQPath ancestorPath;
+  private final QPath ancestorPath;
   private final InternalQName propertyName;
 
   /**
@@ -39,7 +39,7 @@ public final class ValuePluginFilter {
    * @param propertyName
    * @throws RepositoryConfigurationException
    */
-  public ValuePluginFilter(int propertyType, InternalQPath ancestorPath, InternalQName propertyName) 
+  public ValuePluginFilter(int propertyType, QPath ancestorPath, InternalQName propertyName) 
   throws RepositoryConfigurationException {
     // propertyType, null, null
     // propertyType, ancestorPath, null
@@ -52,7 +52,7 @@ public final class ValuePluginFilter {
     this.propertyName = propertyName;
   }
   
-  public InternalQPath getAncestorPath() {
+  public QPath getAncestorPath() {
     return ancestorPath;
   }
   

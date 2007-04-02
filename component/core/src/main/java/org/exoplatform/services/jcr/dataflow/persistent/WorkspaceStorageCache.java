@@ -7,7 +7,7 @@ package org.exoplatform.services.jcr.dataflow.persistent;
 
 import java.util.List;
 
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -28,7 +28,7 @@ public interface WorkspaceStorageCache extends ItemsPersistenceListener {
    * @param path
    * @return itemData by path or null if not found
    */
-  ItemData get(InternalQPath path);
+  ItemData get(QPath path);
   
   /**
    * @param uuid

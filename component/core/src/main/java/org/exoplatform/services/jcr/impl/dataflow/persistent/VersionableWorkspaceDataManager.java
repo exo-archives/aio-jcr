@@ -11,10 +11,11 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.DataManager;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -52,7 +53,7 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
    */
   @Override
   public List<NodeData> getChildNodesData(NodeData nodeData) throws RepositoryException {
-    InternalQPath path = nodeData.getQPath();
+    QPath path = nodeData.getQPath();
     if(isSystemDescendant(path) && !this.equals(versionDataManager)) {
       return versionDataManager.getChildNodesData(nodeData);
     }
@@ -65,7 +66,7 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
    */
   @Override
   public List<PropertyData> getChildPropertiesData(NodeData nodeData) throws RepositoryException {
-    InternalQPath path = nodeData.getQPath();
+    QPath path = nodeData.getQPath();
     if(isSystemDescendant(path) && !this.equals(versionDataManager)) {
       return versionDataManager.getChildPropertiesData(nodeData);
     }
@@ -76,13 +77,13 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
   /**
    * @see org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager#getItemData(java.lang.String)
    */
-  public ItemData getItemData(InternalQPath qpath) throws RepositoryException {
+  public ItemData getItemData(QPath qpath) throws RepositoryException {
     if(isSystemDescendant(qpath) && !this.equals(versionDataManager)) {
       return versionDataManager.getItemData(qpath);
     }
     return super.getItemData(qpath);
   }
-  public ItemData getItemData(NodeData parentData,InternalQPath.Entry name) throws RepositoryException {
+  public ItemData getItemData(NodeData parentData,QPathEntry name) throws RepositoryException {
     ItemData data = super.getItemData(parentData,name);
     if(data != null)
       return data;
@@ -133,7 +134,7 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
 //      super.save(new PlainChangesLogImpl(nonVersionChanges, changesLog.getSessionId()));
 //  }
   
-  private boolean isSystemDescendant(InternalQPath path) {
+  private boolean isSystemDescendant(QPath path) {
     return path.equals(Constants.JCR_SYSTEM_PATH) || path.isDescendantOf(Constants.JCR_SYSTEM_PATH, false);
   }
 

@@ -14,7 +14,7 @@ import javax.jcr.version.VersionException;
 
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -58,7 +58,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
     NodeData vData = (NodeData) dataManager.getItemData(getQPath());
     
     NodeData rootVersion = (NodeData) dataManager.getItemData(
-        InternalQPath.makeChildPath(getQPath(), Constants.JCR_ROOTVERSION));
+        QPath.makeChildPath(getQPath(), Constants.JCR_ROOTVERSION));
     
     List<NodeData> vChilds = new ArrayList<NodeData>();
     
@@ -81,7 +81,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
     Calendar lastCreated = null;
     for (NodeData vd: versionsData) {
       PropertyData createdData = (PropertyData) dataManager.getItemData(
-          InternalQPath.makeChildPath(vd.getQPath(), Constants.JCR_CREATED));
+          QPath.makeChildPath(vd.getQPath(), Constants.JCR_CREATED));
       if (createdData == null)
         throw new VersionException("jcr:created is not found, version: " + vd.getQPath().getAsString()); 
 
@@ -101,13 +101,13 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   }  
   
   public NodeData getVersionData(InternalQName versionQName) throws VersionException, RepositoryException {
-    InternalQPath versionPath = InternalQPath.makeChildPath(getQPath(), versionQName);
+    QPath versionPath = QPath.makeChildPath(getQPath(), versionQName);
     
     return (NodeData) dataManager.getItemData(versionPath);
   }
   
   public NodeData getVersionLabelsData() throws VersionException, RepositoryException {
-    InternalQPath labelsPath = InternalQPath.makeChildPath(getQPath(), Constants.JCR_VERSIONLABELS);
+    QPath labelsPath = QPath.makeChildPath(getQPath(), Constants.JCR_VERSIONLABELS);
     
     return (NodeData) dataManager.getItemData(labelsPath);
   }

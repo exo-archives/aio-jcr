@@ -7,7 +7,7 @@ package org.exoplatform.services.jcr.impl;
 
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -253,20 +253,20 @@ public class Constants {
 
   public static final InternalQName EXO_PERMISSIONS = new InternalQName(NS_EXO_URI, "permissions");
   
-  public static InternalQPath JCR_VERSION_STORAGE_PATH;
+  public static QPath JCR_VERSION_STORAGE_PATH;
   
-  public static InternalQPath JCR_NODETYPES_PATH;
+  public static QPath JCR_NODETYPES_PATH;
   
-  public static InternalQPath JCR_SYSTEM_PATH;
+  public static QPath JCR_SYSTEM_PATH;
  
-  public static InternalQPath EXO_NAMESPACES_PATH;
+  public static QPath EXO_NAMESPACES_PATH;
 
-  public static InternalQPath ROOT_PATH;
+  public static QPath ROOT_PATH;
 
   static {
     
     try {
-      JCR_SYSTEM_PATH = InternalQPath.parse(JCR_SYSTEM_URI);
+      JCR_SYSTEM_PATH = QPath.parse(JCR_SYSTEM_URI);
     } catch(IllegalPathException e) {
       e.printStackTrace();
       System.err.println("ERROR: Can't parse JCR_SYSTEM_URI for constant JCR_SYSTEM ("
@@ -274,7 +274,7 @@ public class Constants {
     }
     
     try {
-      JCR_VERSION_STORAGE_PATH = InternalQPath.parse(JCR_VERSION_STORAGE_URI);
+      JCR_VERSION_STORAGE_PATH = QPath.parse(JCR_VERSION_STORAGE_URI);
     } catch(IllegalPathException e) {
       e.printStackTrace();
       System.err.println("ERROR: Can't parse JCR_VERSION_STORAGE_URI for constant JCR_VERSION_STORAGE_PATH ("
@@ -282,7 +282,7 @@ public class Constants {
     }
     
     try {
-      JCR_NODETYPES_PATH = InternalQPath.parse(JCR_NODETYPES_URI);
+      JCR_NODETYPES_PATH = QPath.parse(JCR_NODETYPES_URI);
     } catch(IllegalPathException e) {
       e.printStackTrace();
       System.err.println("ERROR: Can't parse JCR_NODETYPES_URI for constant JCR_NODETYPES_PATH ("
@@ -291,7 +291,7 @@ public class Constants {
     
     String nsUri = JCR_SYSTEM_URI + EXO_NAMESPACES.getAsString() + ":1";
     try {
-      EXO_NAMESPACES_PATH = InternalQPath.parse(nsUri);
+      EXO_NAMESPACES_PATH = QPath.parse(nsUri);
     } catch(IllegalPathException e) {
       e.printStackTrace();
       System.err.println("ERROR: Can't parse EXO_NAMESPACES_URI for constant EXO_NAMESPACES (" + nsUri + "): " + e);
@@ -299,7 +299,7 @@ public class Constants {
 
     
     try {
-      ROOT_PATH = InternalQPath.parse(ROOT_URI);
+      ROOT_PATH = QPath.parse(ROOT_URI);
     } catch(IllegalPathException e) {
       e.printStackTrace();
       System.err.println("ERROR: Can't parse ROOT_URI " + e);

@@ -11,7 +11,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -60,7 +60,7 @@ public class ItemState implements Externalizable {
    * path to the data on which save should be called for this state
    * (for Session.move() for ex)
    */
-  private transient InternalQPath ancestorToSave;
+  private transient QPath ancestorToSave;
   
 
 
@@ -71,7 +71,7 @@ public class ItemState implements Externalizable {
    * @param eventFire - if the state cause some event firing
    * @param ancestorToSave - path of item which should be called in save (usually for session.move())
    */
-  public ItemState(ItemData data, int state, boolean eventFire, InternalQPath ancestorToSave) {
+  public ItemState(ItemData data, int state, boolean eventFire, QPath ancestorToSave) {
     this(data, state, eventFire, ancestorToSave, true);
   }
   /**
@@ -82,7 +82,7 @@ public class ItemState implements Externalizable {
    * @param ancestorToSave - path of item which should be called in save (usually for session.move())
    * @param isInternalCreated - indicates that item is created internaly by system 
    */
-  public ItemState(ItemData data, int state, boolean eventFire, InternalQPath ancestorToSave, boolean isInternalCreated) {
+  public ItemState(ItemData data, int state, boolean eventFire, QPath ancestorToSave, boolean isInternalCreated) {
     this.data = data;
     this.state = state;
     this.eventFire = eventFire;
@@ -159,12 +159,12 @@ public class ItemState implements Externalizable {
     return eventFire = false;
   }
 
-  public boolean isDescendant(InternalQPath relPath) {
+  public boolean isDescendant(QPath relPath) {
     return getAncestorToSave().equals(relPath)
         || getAncestorToSave().isDescendantOf(relPath, false);
   } 
   
-  public InternalQPath getAncestorToSave() {
+  public QPath getAncestorToSave() {
     return ancestorToSave;
   }
   

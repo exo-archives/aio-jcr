@@ -26,7 +26,7 @@ import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.log.ExoLogger;
@@ -211,8 +211,8 @@ class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
                             }
 //                            Path.PathElement[] path1 = node1.getPrimaryPath().getElements();
 //                            Path.PathElement[] path2 = node2.getPrimaryPath().getElements();
-                            InternalQPath.Entry[] path1 = node1.getLocation().getInternalPath().getEntries();
-                            InternalQPath.Entry[] path2 = node2.getLocation().getInternalPath().getEntries();
+                            QPathEntry[] path1 = node1.getLocation().getInternalPath().getEntries();
+                            QPathEntry[] path2 = node2.getLocation().getInternalPath().getEntries();
 
                             // find nearest common ancestor
                             int commonDepth = 0; // root

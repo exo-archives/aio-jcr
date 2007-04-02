@@ -15,9 +15,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -104,7 +105,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return null;
   }
   
-  public ItemState getItemState(NodeData parentData,InternalQPath.Entry name) throws IllegalPathException {
+  public ItemState getItemState(NodeData parentData, QPathEntry name) throws IllegalPathException {
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i>=0; i--) {
       ItemState state = allStates.get(i); 
@@ -115,7 +116,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return null;
   }
   
-  public ItemState getItemState(InternalQPath itemPath) {
+  public ItemState getItemState(QPath itemPath) {
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i>=0; i--) {
       ItemState state = allStates.get(i); 

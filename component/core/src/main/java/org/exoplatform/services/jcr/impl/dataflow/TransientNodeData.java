@@ -28,7 +28,7 @@ import org.exoplatform.services.jcr.dataflow.ItemDataVisitor;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.MutableNodeData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.TraverseableNodeData;
@@ -46,7 +46,7 @@ public class TransientNodeData extends TransientItemData implements Comparable,
 
   private AccessControlList acl;
   
-  public TransientNodeData(InternalQPath path, String uuid, int version,
+  public TransientNodeData(QPath path, String uuid, int version,
       InternalQName primaryTypeName, InternalQName[] mixinTypeNames,
       int orderNum, String parentUUID, AccessControlList acl) {
     super(path, uuid, version, parentUUID);
@@ -144,7 +144,7 @@ public class TransientNodeData extends TransientItemData implements Comparable,
   public static TransientNodeData createNodeData(NodeData parent,
       InternalQName name, InternalQName primaryTypeName) {
     TransientNodeData nodeData = null;
-    InternalQPath path = InternalQPath.makeChildPath(parent.getQPath(), name);
+    QPath path = QPath.makeChildPath(parent.getQPath(), name);
     nodeData = new TransientNodeData(path,
         UUIDGenerator.generate(), -1, primaryTypeName, 
         new InternalQName[0], 0, parent.getUUID(), parent.getACL());
@@ -162,7 +162,7 @@ public class TransientNodeData extends TransientItemData implements Comparable,
   public static TransientNodeData createNodeData(NodeData parent,
       InternalQName name, InternalQName primaryTypeName, int index) {
     TransientNodeData nodeData = null;
-    InternalQPath path = InternalQPath.makeChildPath(parent.getQPath(), name, index);
+    QPath path = QPath.makeChildPath(parent.getQPath(), name, index);
     nodeData = new TransientNodeData(path,
         UUIDGenerator.generate(), -1, primaryTypeName, 
         new InternalQName[0], 0, parent.getUUID(), parent.getACL());
@@ -180,7 +180,7 @@ public class TransientNodeData extends TransientItemData implements Comparable,
   public static TransientNodeData createNodeData(NodeData parent,
       InternalQName name, InternalQName primaryTypeName, String uuid) {
     TransientNodeData nodeData = null;
-    InternalQPath path = InternalQPath.makeChildPath(parent.getQPath(), name);
+    QPath path = QPath.makeChildPath(parent.getQPath(), name);
     nodeData = new TransientNodeData(path,
         uuid, -1, primaryTypeName, 
         new InternalQName[0], 0, parent.getUUID(), parent.getACL());
@@ -274,7 +274,7 @@ public class TransientNodeData extends TransientItemData implements Comparable,
   
   public TransientNodeData cloneAsSibling(int index) throws PathNotFoundException, IllegalPathException {
     
-    InternalQPath siblingPath = InternalQPath.makeChildPath(
+    QPath siblingPath = QPath.makeChildPath(
         getQPath().makeParentPath(),
         getQPath().getName(),
         index);

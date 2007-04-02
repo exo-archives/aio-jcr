@@ -9,10 +9,11 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.access.AccessControlList;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 
 /**
  * Created by The eXo Platform SARL .
@@ -31,8 +32,8 @@ public interface ItemDataConsumer {
    * @param path
    * @return data by path
    */
-  ItemData getItemData(InternalQPath path) throws RepositoryException;
-  ItemData getItemData(NodeData parent, InternalQPath.Entry name) throws RepositoryException;
+  ItemData getItemData(QPath path) throws RepositoryException;
+  ItemData getItemData(NodeData parent, QPathEntry name) throws RepositoryException;
 
   /**
    * @param uuid
@@ -71,6 +72,6 @@ public interface ItemDataConsumer {
    * (3) item at path is a not AccessControllable Node nor Root node and ACL inheritance is not supported by outlined Consumer implementation   
    * @throws RepositoryException
    */
-  AccessControlList getACL(InternalQPath path) throws RepositoryException;
+  AccessControlList getACL(QPath path) throws RepositoryException;
 
 }

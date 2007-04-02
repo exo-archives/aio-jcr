@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import javax.jcr.PathNotFoundException;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -114,15 +115,15 @@ public class JCRPath {
     return relPath;
   }
 
-  public InternalQPath getInternalPath() {
+  public QPath getInternalPath() {
 
     
-    InternalQPath.Entry[] entries = new InternalQPath.Entry[names.length]; 
+    QPathEntry[] entries = new QPathEntry[names.length]; 
     
     for (int i = 0; i < names.length; i++)
-      entries[i] = new InternalQPath.Entry(names[i].getNamespace(), names[i].getName(), names[i].getIndex()); 
+      entries[i] = new QPathEntry(names[i].getNamespace(), names[i].getName(), names[i].getIndex()); 
     
-    InternalQPath qpath = new InternalQPath(entries);
+    QPath qpath = new QPath(entries);
     return qpath;
   }
   

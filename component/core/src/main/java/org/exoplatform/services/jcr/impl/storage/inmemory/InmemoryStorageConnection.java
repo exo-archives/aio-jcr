@@ -17,7 +17,7 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -46,7 +46,7 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
     uuids = new TreeMap();
   }
 
-  public ItemData getItemData(InternalQPath qPath) throws RepositoryException,
+  public ItemData getItemData(QPath qPath) throws RepositoryException,
       IllegalStateException {
     log.debug("InmemoryContainer finding " + qPath.getAsString());
     Object o = items.get(qPath.getAsString());

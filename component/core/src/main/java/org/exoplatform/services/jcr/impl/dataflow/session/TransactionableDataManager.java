@@ -16,10 +16,11 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.LocalWorkspaceDataManagerStub;
 import org.exoplatform.services.log.ExoLogger;
@@ -63,7 +64,7 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getACL(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
-  public AccessControlList getACL(InternalQPath path) throws RepositoryException {
+  public AccessControlList getACL(QPath path) throws RepositoryException {
     ItemData data = getItemData(path);
     if(data == null || !data.isNode()) 
       return storageDataManager.getACL(path);
@@ -111,7 +112,7 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
-  public ItemData getItemData(NodeData parentData,InternalQPath.Entry name) throws RepositoryException {
+  public ItemData getItemData(NodeData parentData,QPathEntry name) throws RepositoryException {
     ItemData data = null;
     if(txStarted()) {
       ItemState state = transactionLog.getItemState(parentData,name);
@@ -127,7 +128,7 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
-  public ItemData getItemData(InternalQPath path) throws RepositoryException {
+  public ItemData getItemData(QPath path) throws RepositoryException {
     ItemData data = null;
     if(txStarted()) {
       ItemState state = transactionLog.getItemState(path);

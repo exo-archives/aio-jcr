@@ -11,7 +11,7 @@ import org.exoplatform.services.command.action.ActionMatcher;
 import org.exoplatform.services.command.action.Condition;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -29,13 +29,13 @@ public class SessionEventMatcher implements ActionMatcher {
 
   private int eventTypes;
   private String[] workspaces;
-  private InternalQPath[] paths;
+  private QPath[] paths;
   private boolean isDeep;
   private InternalQName[] parentNodeTypeNames; 
   private InternalQName[] nodeTypeNames;
 
 
-  public SessionEventMatcher(int eventTypes, InternalQPath[] paths, 
+  public SessionEventMatcher(int eventTypes, QPath[] paths, 
       boolean isDeep, InternalQName[] nodeTypeNames,
       InternalQName[] parentNodeTypeNames, String[] workspaces) {
     super();
@@ -55,7 +55,7 @@ public class SessionEventMatcher implements ActionMatcher {
     }
     
 
-    if(!isPathMatch((InternalQPath)conditions.get(PATH_KEY))) {
+    if(!isPathMatch((QPath)conditions.get(PATH_KEY))) {
        return false;
      }
     
@@ -80,7 +80,7 @@ public class SessionEventMatcher implements ActionMatcher {
 
     if (paths != null) {
       str += "Paths (isDeep="+isDeep+"):\n";
-      for (InternalQPath p : paths) {
+      for (QPath p : paths) {
         str += p.getAsString() + "\n";
       }
     }
@@ -110,11 +110,11 @@ public class SessionEventMatcher implements ActionMatcher {
     return (eventTypes & type) > 0;
   }
   
-  private boolean isPathMatch(InternalQPath itemPath) {
+  private boolean isPathMatch(QPath itemPath) {
     if (this.paths == null || itemPath == null)
       return true;
 
-    for(InternalQPath p : paths) {
+    for(QPath p : paths) {
       if(itemPath.equals(p) || itemPath.isDescendantOf(p, !isDeep))
         return true;
     }

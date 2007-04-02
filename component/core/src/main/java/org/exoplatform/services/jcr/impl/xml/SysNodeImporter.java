@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
@@ -147,7 +147,7 @@ class SysNodeImporter extends ImporterBase {
         mixinTypeNames = new InternalQName[0];
 
       InternalQName jcrName = path.getInternalPath().getName();
-      InternalQPath dstNodePath = InternalQPath.makeChildPath(parentNode.getQPath(), jcrName);
+      QPath dstNodePath = QPath.makeChildPath(parentNode.getQPath(), jcrName);
       
       int nodeIndex = getNodeIndex(dstNodePath);
       

@@ -27,7 +27,7 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -171,7 +171,7 @@ public class WorkspaceInitializer {
     changesLog.add(new ItemState(nodeData, ItemState.ADDED, false , null));
     
     TransientPropertyData primaryType = new TransientPropertyData(
-        InternalQPath.makeChildPath(nodeData.getQPath(),
+        QPath.makeChildPath(nodeData.getQPath(),
             Constants.JCR_PRIMARYTYPE), UUIDGenerator.generate(), -1,
         PropertyType.NAME, nodeData.getUUID(), false);
     primaryType.setValue(new TransientValueData(rootNodeType));

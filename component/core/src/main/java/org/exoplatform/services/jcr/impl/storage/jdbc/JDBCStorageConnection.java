@@ -24,7 +24,7 @@ import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedPropertyData;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -535,7 +535,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
-  public ItemData getItemData(InternalQPath qPath) throws RepositoryException, IllegalStateException {
+  public ItemData getItemData(QPath qPath) throws RepositoryException, IllegalStateException {
     checkIfOpened();
     ResultSet item = null;
     try {
@@ -648,10 +648,10 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     String cNPARENTID = item.getString(COLUMN_NPARENTID);
     int cVERSION = item.getInt(COLUMN_VERSION);
     int cNORDERNUM = item.getInt(COLUMN_NORDERNUM);
-    InternalQPath qpath = InternalQPath.parse(item.getString(COLUMN_PATH));
+    QPath qpath = QPath.parse(item.getString(COLUMN_PATH));
 
     // PRIMARY
-    InternalQPath ptPath = InternalQPath.makeChildPath(qpath, Constants.JCR_PRIMARYTYPE);
+    QPath ptPath = QPath.makeChildPath(qpath, Constants.JCR_PRIMARYTYPE);
 
     ResultSet ptProp = findPropertyByPath(cNID, ptPath.getAsString());
 
@@ -670,7 +670,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     InternalQName ptName = InternalQName.parse(new String((data != null ? data : new byte[] {})));
 
     // MIXIN
-    InternalQPath mtPath = InternalQPath.makeChildPath(qpath, Constants.JCR_MIXINTYPES);
+    QPath mtPath = QPath.makeChildPath(qpath, Constants.JCR_MIXINTYPES);
     ResultSet mtProp = findPropertyByPath(cNID, mtPath.getAsString());
 
     InternalQName[] mixinNames = new InternalQName[0];
@@ -690,11 +690,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     AccessControlList acl;
     if (isAccessControllable(mixinNames)) {
 
-      InternalQPath ownerPath = InternalQPath.makeChildPath(qpath, Constants.EXO_OWNER);
+      QPath ownerPath = QPath.makeChildPath(qpath, Constants.EXO_OWNER);
 
       PropertyData ownerData = (PropertyData) getItemData(ownerPath);
 
-      InternalQPath permPath = InternalQPath.makeChildPath(qpath, Constants.EXO_PERMISSIONS);
+      QPath permPath = QPath.makeChildPath(qpath, Constants.EXO_PERMISSIONS);
 
       PropertyData permData = (PropertyData) getItemData(permPath);
 
@@ -729,7 +729,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   protected PersistedPropertyData loadPropertyRecord(ResultSet item) throws RepositoryException, SQLException, IOException {
 
     List<ValueData> values = new ArrayList<ValueData>();
-    InternalQPath path = InternalQPath.parse(item.getString(COLUMN_PATH));
+    QPath path = QPath.parse(item.getString(COLUMN_PATH));
     String cid = item.getString(COLUMN_PID);
     String uuid = getUuid(cid);
     PersistedPropertyData pdata = new PersistedPropertyData(uuid,

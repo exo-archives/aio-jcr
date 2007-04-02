@@ -4,7 +4,7 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.impl.core;
 
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 
 /**
  * Created by The eXo Platform SARL
@@ -16,17 +16,17 @@ import org.exoplatform.services.jcr.datamodel.InternalQPath;
  */
 public class JCRPathMatcher {
   
-  private InternalQPath knownPath = null;
+  private QPath knownPath = null;
   private boolean forDescendants = false;
   private boolean forAncestors = false;
   
-  public JCRPathMatcher(InternalQPath knownPath, boolean forDescendants, boolean forAncestors) {
+  public JCRPathMatcher(QPath knownPath, boolean forDescendants, boolean forAncestors) {
     this.knownPath = knownPath;
     this.forDescendants = forDescendants;
     this.forAncestors = forAncestors;
   }
   
-  public boolean match(InternalQPath path) {
+  public boolean match(QPath path) {
     
     // any, e.g. * 
     if (forDescendants && forAncestors && knownPath == null)

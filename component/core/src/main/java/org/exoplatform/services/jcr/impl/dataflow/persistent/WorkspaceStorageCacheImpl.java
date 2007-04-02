@@ -21,7 +21,7 @@ import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -98,7 +98,7 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * @return
    * @throws Exception
    */
-  public ItemData get(final InternalQPath path) {
+  public ItemData get(final QPath path) {
     if (!enabled)
       return null;
     
@@ -375,7 +375,7 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   /**
    * @param key a InternalQPath path of item cached
    */
-  protected ItemData getItem(final InternalQPath path) throws Exception {
+  protected ItemData getItem(final QPath path) throws Exception {
 
     // ask direct cache (C)
     final String spath = path.getAsString(); 

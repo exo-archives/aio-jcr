@@ -13,9 +13,10 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
 
 /**
@@ -38,11 +39,11 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
    * Removes the item at the rootPath and all descendants from the log
    * @param root path
    */
-  public void remove(InternalQPath rootPath) {
+  public void remove(QPath rootPath) {
     List <ItemState> removedList = new ArrayList <ItemState> ();
     
     for(ItemState item: items) {
-      InternalQPath qPath = item.getData().getQPath(); 
+      QPath qPath = item.getData().getQPath(); 
       if(qPath.equals(rootPath) || qPath.isDescendantOf(rootPath, false) ||
           // [PN] 13.12.06 getAncestorToSave use here
           item.getAncestorToSave().equals(rootPath) || item.getAncestorToSave().isDescendantOf(rootPath, false)) {
@@ -101,7 +102,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
    * @param rootPath
    * @return item state at the rootPath and its descendants
    */
-  public List <ItemState> getDescendantsChanges(InternalQPath rootPath) {
+  public List <ItemState> getDescendantsChanges(QPath rootPath) {
     List<ItemState> list = new ArrayList<ItemState>();
     for (int i = 0; i < items.size(); i++) {
       if (items.get(i).isDescendant(rootPath)) {
@@ -131,13 +132,13 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
    * @param rootPath
    * @return ItemDataChangesLog
    */
-  public PlainChangesLog pushLog(InternalQPath rootPath) {
+  public PlainChangesLog pushLog(QPath rootPath) {
     PlainChangesLog cLog = new PlainChangesLogImpl(sessionId);
     cLog.addAll(getDescendantsChanges(rootPath));
     remove(rootPath);
     return cLog;
   }
-  public ItemState getItemState(NodeData parentData,InternalQPath.Entry name) throws IllegalPathException {
+  public ItemState getItemState(NodeData parentData,QPathEntry name) throws IllegalPathException {
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i>=0; i--) {
       ItemState state = allStates.get(i); 
@@ -159,7 +160,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
     return null;
   }
 
-  public ItemState getItemState(InternalQPath itemPath) {
+  public ItemState getItemState(QPath itemPath) {
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i>=0; i--) {
       ItemState state = allStates.get(i); 

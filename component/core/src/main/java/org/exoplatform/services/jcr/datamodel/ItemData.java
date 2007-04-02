@@ -22,7 +22,7 @@ public interface ItemData {
 	 * @return QPath of this item
 	 */
 	
-	InternalQPath getQPath();
+	QPath getQPath();
 
 	/**
 	 * @return UUID

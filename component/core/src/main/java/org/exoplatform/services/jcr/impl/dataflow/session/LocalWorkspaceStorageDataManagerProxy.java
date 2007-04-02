@@ -21,10 +21,11 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.AbstractValueData;
@@ -85,10 +86,10 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.dataflow.session.WorkspaceStorageDataManagerProxy#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
-  public ItemData getItemData(InternalQPath path) throws RepositoryException {
+  public ItemData getItemData(QPath path) throws RepositoryException {
     return copyItemData(storageDataManager.getItemData(path));
   }
-  public ItemData getItemData(NodeData parentData,InternalQPath.Entry name) throws RepositoryException {
+  public ItemData getItemData(NodeData parentData,QPathEntry name) throws RepositoryException {
     return copyItemData(storageDataManager.getItemData(parentData,name));
   }
   /* (non-Javadoc)
@@ -127,7 +128,7 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getACL(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
-  public AccessControlList getACL(InternalQPath path)
+  public AccessControlList getACL(QPath path)
       throws RepositoryException {
     AccessControlList acl = storageDataManager.getACL(path);
     return new AccessControlList(acl.getOwner(), acl.getPermissionEntries());

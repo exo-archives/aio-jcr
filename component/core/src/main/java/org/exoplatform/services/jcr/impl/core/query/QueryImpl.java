@@ -31,7 +31,7 @@ import javax.jcr.query.QueryResult;
 import javax.jcr.version.VersionException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.JCRPath;
@@ -176,7 +176,7 @@ public class QueryImpl extends AbstractQueryImpl {
       // [PN] 21.12.06
       
       JCRPath path = session.getLocationFactory().parseAbsPath(absPath);
-      InternalQPath qpath = path.getInternalPath();
+      QPath qpath = path.getInternalPath();
       //String parentPath = path.makeParentPath().getAsString(false);
       //String nodeName = path.getName().getAsString();
 

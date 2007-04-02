@@ -35,7 +35,7 @@ import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.core.value.ExtendedValue;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -161,7 +161,7 @@ public abstract class ItemImpl implements Item {
       if (degree < 0)
         throw new ItemNotFoundException("Can't get ancestor with ancestor's degree < 0.");
       
-      final InternalQPath myPath = getData().getQPath();
+      final QPath myPath = getData().getQPath();
       int n = myPath.getDepth() - degree;
       // log.debug("Item.getAncestor(" + degree + ") depth " + getDepth()+" "+n);
       if (n == 0) {
@@ -172,7 +172,7 @@ public abstract class ItemImpl implements Item {
         //JCRPath ancestorLoc = getLocation().makeAncestorPath(n);
         // return findItemByPath(ancestorLoc);
         
-        final InternalQPath ancestorPath = myPath.makeAncestorPath(n);
+        final QPath ancestorPath = myPath.makeAncestorPath(n);
         return item(ancestorPath);
       }
     } catch (PathNotFoundException e) {
@@ -324,7 +324,7 @@ public abstract class ItemImpl implements Item {
       Value[] propertyValues, boolean multiValue, int expectedType) throws ValueFormatException,
       VersionException, LockException, ConstraintViolationException, RepositoryException {
  
-    InternalQPath qpath = InternalQPath.makeChildPath(parentNode.getInternalPath(), propertyName);
+    QPath qpath = QPath.makeChildPath(parentNode.getInternalPath(), propertyName);
     int state;
     PropertyDefinitions pdefs;
     String uuid;
@@ -503,7 +503,7 @@ public abstract class ItemImpl implements Item {
 
     if (isNode()) {
       // validate referential integrity
-      InternalQPath path = getInternalPath();
+      QPath path = getInternalPath();
       List<ItemState> changes = dataManager.getChangesLog().getDescendantsChanges(path);
       
       // referenceable nodes - if a node is deleted and then added, 
@@ -582,7 +582,7 @@ public abstract class ItemImpl implements Item {
     return getData().getParentUUID();
   }
 
-  public InternalQPath getInternalPath() {
+  public QPath getInternalPath() {
     return getData().getQPath();
   }
 
@@ -594,7 +594,7 @@ public abstract class ItemImpl implements Item {
     return dataManager.getItem(path.getInternalPath(), true);
   }
 
-  protected ItemImpl item(InternalQPath path) throws RepositoryException {
+  protected ItemImpl item(QPath path) throws RepositoryException {
     return dataManager.getItem(path, true);
   }
 
@@ -700,7 +700,7 @@ public abstract class ItemImpl implements Item {
       if (value instanceof PathValue) {
         tvd  = ((PathValue)value).getInternalData().createTransientCopy() ;
       }else{
-        InternalQPath pathValue = locationFactory.parseJCRPath(value.getString()).getInternalPath();
+        QPath pathValue = locationFactory.parseJCRPath(value.getString()).getInternalPath();
         tvd = new TransientValueData(pathValue);
       }
       return tvd;

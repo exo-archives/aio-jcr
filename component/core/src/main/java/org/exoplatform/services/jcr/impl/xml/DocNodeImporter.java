@@ -27,7 +27,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
@@ -118,7 +118,7 @@ class DocNodeImporter extends ImporterBase {
       // InternalQPath dstNodePath =
       // InternalQPath.makeChildPath(parent().getQPath(), jcrName);
 
-      InternalQPath dstNodePath = InternalQPath.makeChildPath(parent().getQPath(), jcrName);
+      QPath dstNodePath = QPath.makeChildPath(parent().getQPath(), jcrName);
       int nodeIndex = getNodeIndex(dstNodePath);
 
       nodeData = TransientNodeData.createNodeData(parent(), jcrName, locationFactory

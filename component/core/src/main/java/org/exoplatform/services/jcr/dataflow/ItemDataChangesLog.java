@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 
 /**
@@ -84,7 +84,7 @@ public class ItemDataChangesLog implements Externalizable {
    * @return current state (i.e. last change) of item data with qpath or null if
    *         not found
    */
-  public ItemState getItemState(InternalQPath itemPath) {
+  public ItemState getItemState(QPath itemPath) {
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i>=0; i--) {
       ItemState state = allStates.get(i); 

@@ -10,7 +10,7 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.ItemDataVisitor;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 
@@ -29,7 +29,7 @@ public class PersistedPropertyData extends PersistedItemData implements Property
   protected final int type;
   protected final boolean multiValued;
   
-  public PersistedPropertyData(String id, InternalQPath qpath, String parentId, int version,
+  public PersistedPropertyData(String id, QPath qpath, String parentId, int version,
       int type, boolean multiValued) {
     super(id, qpath, parentId, version);
     this.values = null;

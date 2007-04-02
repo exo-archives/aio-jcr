@@ -10,7 +10,8 @@ import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.core.NamespaceAccessor;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 
 /**
  * Created by The eXo Platform SARL .<br>
@@ -96,11 +97,11 @@ public class LocationFactory {
    * @return
    * @throws RepositoryException
    */
-  public JCRPath createJCRPath(InternalQPath qPath) throws RepositoryException {
+  public JCRPath createJCRPath(QPath qPath) throws RepositoryException {
 
     JCRPath path = new JCRPath();
     for (int i = 0; i < qPath.getEntries().length; i++) {
-      InternalQPath.Entry entry = qPath.getEntries()[i];
+      QPathEntry entry = qPath.getEntries()[i];
       String prefix = namespaces.getNamespacePrefixByURI(entry.getNamespace());
       path.addEntry(entry.getNamespace(), entry.getName(), prefix, entry
           .getIndex());
@@ -127,7 +128,7 @@ public class LocationFactory {
     return new JCRName(entry.getNamespace(), entry.getName(), entry.getPrefix());
   }
 
-  public JCRPath.PathElement[] createRelPath(InternalQPath.Entry[] relPath)
+  public JCRPath.PathElement[] createRelPath(QPathEntry[] relPath)
       throws RepositoryException {
     JCRPath path = new JCRPath();
     JCRPath.PathElement[] entries = new JCRPath.PathElement[relPath.length];

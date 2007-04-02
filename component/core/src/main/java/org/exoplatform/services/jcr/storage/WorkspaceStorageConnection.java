@@ -10,7 +10,7 @@ import java.util.List;
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
 
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -43,7 +43,7 @@ public interface WorkspaceStorageConnection {
    * @throws RepositoryException if some exception occured
    * @throws IllegalStateException if connection is closed
    */
-  ItemData getItemData(InternalQPath qPath) throws RepositoryException, IllegalStateException;
+  ItemData getItemData(QPath qPath) throws RepositoryException, IllegalStateException;
 
   /**
    * @param uuid -

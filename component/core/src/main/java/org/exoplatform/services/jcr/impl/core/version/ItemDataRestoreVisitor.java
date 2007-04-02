@@ -18,7 +18,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -136,7 +136,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
     return null;
   }
 
-  private ItemData findDelegated(InternalQPath path) {
+  private ItemData findDelegated(QPath path) {
     if (delegatedChanges != null)
       for (ItemState state: delegatedChanges.getAllStates()) {
         if (state.getData().getQPath().equals(path))
@@ -145,7 +145,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
     return null;
   }
 
-  private void deleteDelegated(InternalQPath path) {
+  private void deleteDelegated(QPath path) {
     if (delegatedChanges != null) {
       List<ItemState> removed = new ArrayList<ItemState>();
       for (ItemState state: delegatedChanges.getAllStates()) { 
@@ -164,15 +164,15 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
     // TODO fix JCRPath in exceptions
 
     // WARNING: path with index=1
-    InternalQPath nodePath = InternalQPath.makeChildPath(parentData.getQPath(), name);
+    QPath nodePath = QPath.makeChildPath(parentData.getQPath(), name);
 
     if (log.isDebugEnabled())
       log.debug("Restore: " + nodePath.getAsString() + ", removeExisting=" + removeExisting);
 
     //InternalQPath frozenPath = InternalQPath.makeChildPath(historyData.getQPath(), Constants.JCR_FROZENNODE);
-    InternalQPath frozenPath = frozen.getQPath();
+    QPath frozenPath = frozen.getQPath();
 
-    InternalQPath frozenUuidPath = InternalQPath.makeChildPath(frozenPath, Constants.JCR_FROZENUUID);
+    QPath frozenUuidPath = QPath.makeChildPath(frozenPath, Constants.JCR_FROZENUUID);
     PropertyData frozenUuid = (PropertyData) dataManager.getItemData(frozenUuidPath);
 
     String fuuid = null;
@@ -188,7 +188,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         NodeData sameUuidNode = (NodeData) dataManager.getItemData(fuuid);
         //final NodeData sameUuidNode = (NodeData) findExistingItemData(fuuid);
         if (sameUuidNode != null) {
-          InternalQPath sameUuidPath = sameUuidNode.getQPath();
+          QPath sameUuidPath = sameUuidNode.getQPath();
           if (sameUuidPath.makeParentPath().equals(nodePath.makeParentPath()) && // same parent
               sameUuidPath.getName().equals(nodePath.getName()) ) { // same name
 
@@ -196,7 +196,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
               // but different index, see below... fix it
               // [PN] 05.02.07
               //nodePath.getEntries()[nodePath.getLength() - 1].setIndex(sameUuidPath.getIndex());
-              nodePath = InternalQPath.makeChildPath(parentData.getQPath(), name, sameUuidPath.getIndex());
+              nodePath = QPath.makeChildPath(parentData.getQPath(), name, sameUuidPath.getIndex());
 
             // if it's a target node
             existing = sameUuidNode;
@@ -209,7 +209,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
             changes.addAll(removeVisitor.getRemovedStates());
           } else if (!sameUuidPath.isDescendantOf(nodePath, false)) {
             if (removeExisting) {
-              final InternalQPath restorePath = nodePath; 
+              final QPath restorePath = nodePath; 
               // remove same uuid node, with validation
               class RemoveVisitor extends ItemDataRemoveVisitor {
                 RemoveVisitor() {
@@ -240,10 +240,10 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
       throw new RepositoryException("jcr:frozenUuid, error of data read " + frozenUuid.getQPath().getAsString(), e);
     }
 
-    InternalQPath frozenPrimaryTypePath = InternalQPath.makeChildPath(frozenPath, Constants.JCR_FROZENPRIMARYTYPE);
+    QPath frozenPrimaryTypePath = QPath.makeChildPath(frozenPath, Constants.JCR_FROZENPRIMARYTYPE);
     PropertyData frozenPrimaryType = (PropertyData) dataManager.getItemData(frozenPrimaryTypePath);
 
-    InternalQPath frozenMixinTypesPath = InternalQPath.makeChildPath(frozenPath, Constants.JCR_FROZENMIXINTYPES);
+    QPath frozenMixinTypesPath = QPath.makeChildPath(frozenPath, Constants.JCR_FROZENMIXINTYPES);
     PropertyData frozenMixinTypes = (PropertyData) dataManager.getItemData(frozenMixinTypesPath);
     InternalQName[] mixins = null;
     if (frozenMixinTypes != null) {
@@ -309,7 +309,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
 
     } else if (ntManager.isNodeType(Constants.NT_VERSIONEDCHILD, frozen.getPrimaryTypeName())) {
 
-      InternalQPath cvhpPropPath = InternalQPath.makeChildPath(frozen.getQPath(), Constants.JCR_CHILDVERSIONHISTORY);
+      QPath cvhpPropPath = QPath.makeChildPath(frozen.getQPath(), Constants.JCR_CHILDVERSIONHISTORY);
 
       if (log.isDebugEnabled())
         log.debug("Versioned child node " + cvhpPropPath.getAsString());
@@ -331,7 +331,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         throw new RepositoryException("jcr:childVersionHistory, error of data read " + cvhpPropPath.getAsString(), e);
       }
 
-      InternalQPath cvhVersionableUuidPath = InternalQPath.makeChildPath(childHistory.getQPath(), Constants.JCR_VERSIONABLEUUID);
+      QPath cvhVersionableUuidPath = QPath.makeChildPath(childHistory.getQPath(), Constants.JCR_VERSIONABLEUUID);
       String versionableUuid = null;
       try {
         versionableUuid = new String(
@@ -361,7 +361,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         // not found,
         // gets last version (by time of creation) and restore it
         NodeData lastVersionData = childHistory.getLastVersionData();
-        InternalQPath cvFrozenPath = InternalQPath.makeChildPath(lastVersionData.getQPath(), Constants.JCR_FROZENNODE);
+        QPath cvFrozenPath = QPath.makeChildPath(lastVersionData.getQPath(), Constants.JCR_FROZENNODE);
         NodeData cvFrozen = (NodeData) dataManager.getItemData(cvFrozenPath);
 
         ItemDataRestoreVisitor restoreVisitor = new ItemDataRestoreVisitor(
@@ -384,7 +384,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
 
       if (action == OnParentVersionAction.COPY || action == OnParentVersionAction.VERSION) {
         // copy
-        InternalQPath restoredPath = InternalQPath.makeChildPath(currentNode().getQPath(),
+        QPath restoredPath = QPath.makeChildPath(currentNode().getQPath(),
             frozen.getQPath().getName(), frozen.getQPath().getIndex());
 
         // jcr:uuid
@@ -394,7 +394,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
           // copy uuid from frozen state of mix:referenceable,
           // NOTE: mix:referenceable stored in frozen state with genereted ID (JCR_XITEM PK) as UUID must be unique,
           // but jcr:uuid property containts real UUID.
-          InternalQPath jcrUuidPath = InternalQPath.makeChildPath(frozen.getQPath(), Constants.JCR_UUID);
+          QPath jcrUuidPath = QPath.makeChildPath(frozen.getQPath(), Constants.JCR_UUID);
           try {
             jcrUuid = new String(
               ((PropertyData) dataManager.getItemData(jcrUuidPath)).getValues().get(0).getAsByteArray());
@@ -451,7 +451,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         // current C in the workspace will be left unchanged,
         // TODO [PN] 20.12.06 JCR-193
 
-        InternalQPath existedPath = InternalQPath.makeChildPath(currentNode().getQPath(), frozen.getQPath().getName());
+        QPath existedPath = QPath.makeChildPath(currentNode().getQPath(), frozen.getQPath().getName());
         NodeData existed = (NodeData) dataManager.getItemData(existedPath);
 
         if (existed != null) {

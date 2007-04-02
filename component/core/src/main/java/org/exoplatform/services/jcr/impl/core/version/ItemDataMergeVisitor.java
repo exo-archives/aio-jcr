@@ -19,9 +19,10 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
@@ -70,9 +71,9 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
   private class VersionableState {
     private final int result;
 
-    private final InternalQPath path;
+    private final QPath path;
 
-    private VersionableState(InternalQPath path, int result) {
+    private VersionableState(QPath path, int result) {
       this.path = path;
       this.result = result;
     }
@@ -81,7 +82,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
       return result;
     }
 
-    public InternalQPath getPath() {
+    public QPath getPath() {
       return path;
     }
   }
@@ -336,7 +337,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
           SessionDataManager mergeDataManager = mergeSession.getTransientNodesManager();
           
           PropertyData isCheckedOutProperty = (PropertyData) mergeDataManager.getItemData(
-              InternalQPath.makeChildPath(mergeNode.getQPath(), Constants.JCR_ISCHECKEDOUT));
+              QPath.makeChildPath(mergeNode.getQPath(), Constants.JCR_ISCHECKEDOUT));
           try {
             if (!Boolean.valueOf(new String(isCheckedOutProperty.getValues().get(0).getAsByteArray()))
                 && isSuccessor(mergeVersion, corrVersion)) {
@@ -380,7 +381,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
 
     DataManager mergeDataManager = mergeSession.getTransientNodesManager().getTransactManager();
     
-    InternalQPath mergePath = mergeNode.getQPath();
+    QPath mergePath = mergeNode.getQPath();
     
     // InternalQPath path, String uuid, int version, InternalQName primaryTypeName, InternalQName[] mixinTypeNames,
     // int orderNum, String parentUUID, AccessControlList acl
@@ -431,7 +432,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
       // InternalQPath path, String uuid, int version, int type, String parentUUID, boolean multiValued
       PropertyData existed = existedProps.get(cp.getQPath().getName());
       TransientPropertyData mcp = new TransientPropertyData(
-              InternalQPath.makeChildPath(mergePath, cp.getQPath().getName()),
+              QPath.makeChildPath(mergePath, cp.getQPath().getName()),
               existed != null ? existed.getUUID() : cp.getUUID(),
               existed != null ? existed.getPersistedVersion() : cp.getPersistedVersion(),
               cp.getType(), 
@@ -514,7 +515,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
       SessionDataManager dmanager = session.getTransientNodesManager();
       
       PropertyData bvProperty = (PropertyData) dmanager.getItemData(
-          InternalQPath.makeChildPath(node.getQPath(), Constants.JCR_BASEVERSION));
+          QPath.makeChildPath(node.getQPath(), Constants.JCR_BASEVERSION));
       
       try {
         return (TransientNodeData) dmanager.getItemData(
@@ -529,7 +530,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
   
   protected TransientNodeData getCorrNodeData(final TransientNodeData mergeNode) throws RepositoryException {
 
-    final InternalQPath mergePath = mergeNode.getQPath();
+    final QPath mergePath = mergeNode.getQPath();
     
     SessionDataManager corrDataManager = corrSession.getTransientNodesManager();
     SessionDataManager mergeDataManager = mergeSession.getTransientNodesManager();
@@ -545,7 +546,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
     // by location
     //for (int i = mergePath.getDepth(); i >= 0; i--) {
     for (int i = 1; i <= mergePath.getDepth(); i++) {
-      final InternalQPath ancesstorPath = mergePath.makeAncestorPath(i);
+      final QPath ancesstorPath = mergePath.makeAncestorPath(i);
       NodeData mergeAncestor = (NodeData) mergeDataManager.getItemData(ancesstorPath);
       if (mergeAncestor != null && mergeNtManager.isNodeType(Constants.MIX_REFERENCEABLE,
           mergeAncestor.getPrimaryTypeName(), 
@@ -553,8 +554,8 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
 
         NodeData corrAncestor = (NodeData) corrDataManager.getItemData(mergeAncestor.getUUID());
         if (corrAncestor != null) {
-          InternalQPath.Entry[] relQPathEntries = mergePath.getRelPath(mergePath.getDepth() - i);
-          InternalQPath corrNodeQPath = InternalQPath.makeChildPath(corrAncestor.getQPath(), relQPathEntries);
+          QPathEntry[] relQPathEntries = mergePath.getRelPath(mergePath.getDepth() - i);
+          QPath corrNodeQPath = QPath.makeChildPath(corrAncestor.getQPath(), relQPathEntries);
           return (TransientNodeData) corrDataManager.getItemData(corrNodeQPath);
         }
       }
@@ -570,7 +571,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
     SessionDataManager mergeDataManager = mergeSession.getTransientNodesManager();
     
     PropertyData predecessorsProperty = (PropertyData) mergeDataManager.getItemData(
-        InternalQPath.makeChildPath(mergeVersion.getQPath(), Constants.JCR_PREDECESSORS));
+        QPath.makeChildPath(mergeVersion.getQPath(), Constants.JCR_PREDECESSORS));
     
     if (predecessorsProperty != null)
       for (ValueData pv: predecessorsProperty.getValues()) {
@@ -606,7 +607,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
     SessionDataManager mergeDataManager = mergeSession.getTransientNodesManager();
     
     PropertyData successorsProperty = (PropertyData) mergeDataManager.getItemData(
-        InternalQPath.makeChildPath(mergeVersion.getQPath(), Constants.JCR_SUCCESSORS));
+        QPath.makeChildPath(mergeVersion.getQPath(), Constants.JCR_SUCCESSORS));
     
     if (successorsProperty != null)
       for (ValueData sv: successorsProperty.getValues()) {

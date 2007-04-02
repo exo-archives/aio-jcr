@@ -19,7 +19,7 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
@@ -113,11 +113,11 @@ public class ActionLauncher implements ItemsPersistenceListener {
     if (criteria.getAbsPath() == null)
       return true;
     try {
-      InternalQPath cLoc = criteria.getSession().getLocationFactory()
+      QPath cLoc = criteria.getSession().getLocationFactory()
           .parseAbsPath(criteria.getAbsPath()).getInternalPath();
       // 8.3.3 Only events whose associated parent node is at absPath (or
       // within its subtree, if isDeep is true) will be received.
-      InternalQPath itemPath = item.getQPath();
+      QPath itemPath = item.getQPath();
       if (item.isNode()) {
         boolean isAtAbsPathNode = cLoc.equals(itemPath);
         if (isAtAbsPathNode) {

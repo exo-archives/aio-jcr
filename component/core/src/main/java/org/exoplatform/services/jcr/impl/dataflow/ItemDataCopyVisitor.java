@@ -13,7 +13,7 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
@@ -61,7 +61,7 @@ public class ItemDataCopyVisitor extends ItemDataTraversingVisitor {
    */
   protected NodeTypeManagerImpl ntManager;
 
-  protected InternalQPath ancestorToSave = null;
+  protected QPath ancestorToSave = null;
   /**
    * Creates an instance of this class.
    * 
@@ -106,7 +106,7 @@ public class ItemDataCopyVisitor extends ItemDataTraversingVisitor {
     } else {
       values = property.getValues();
     }
-    TransientPropertyData newProperty = new TransientPropertyData(InternalQPath
+    TransientPropertyData newProperty = new TransientPropertyData(QPath
         .makeChildPath(curParent().getQPath(), qname),
         keepUUIDs?property.getUUID():UUIDGenerator.generate(),
         -1,

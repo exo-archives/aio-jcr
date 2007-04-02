@@ -29,10 +29,11 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.version.VersionHistoryImpl;
 import org.exoplatform.services.jcr.impl.core.version.VersionImpl;
@@ -111,10 +112,10 @@ public class SessionDataManager implements ItemDataConsumer {
    * @param path
    * @return existed item data or null if not found
    * @throws RepositoryException
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)
+   * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.exoplatform.services.jcr.datamodel.QPath)
    */
   @Deprecated
-  public ItemData getItemData(InternalQPath path) throws RepositoryException {
+  public ItemData getItemData(QPath path) throws RepositoryException {
     ItemData data = null; 
     // 1. Try in transient changes
     ItemState state = changesLog.getItemState(path);
@@ -126,7 +127,7 @@ public class SessionDataManager implements ItemDataConsumer {
     }
     return data;
   }
-  public ItemData getItemData(NodeData parent, InternalQPath.Entry name) throws RepositoryException {
+  public ItemData getItemData(NodeData parent, QPathEntry name) throws RepositoryException {
     ItemData data = null; 
     // 1. Try in transient changes
     ItemState state = changesLog.getItemState(parent,name);
@@ -147,7 +148,7 @@ public class SessionDataManager implements ItemDataConsumer {
    * @throws RepositoryException
    */
   
-  public ItemImpl getItem(InternalQPath path, boolean pool) throws RepositoryException {
+  public ItemImpl getItem(QPath path, boolean pool) throws RepositoryException {
 
     ItemData itemData = getItemData(path);
     
@@ -232,7 +233,7 @@ public class SessionDataManager implements ItemDataConsumer {
 //  }
 
   
-  public boolean hasPendingChanges(InternalQPath path) {
+  public boolean hasPendingChanges(QPath path) {
     return (changesLog.getDescendantsChanges(path).size() > 0);
   }
 
@@ -353,7 +354,7 @@ public class SessionDataManager implements ItemDataConsumer {
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getACL(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
-  public AccessControlList getACL(InternalQPath path) throws RepositoryException {
+  public AccessControlList getACL(QPath path) throws RepositoryException {
     
     ItemData item = getItemData(path);
     if(item == null || !item.isNode()) 
@@ -437,10 +438,10 @@ public class SessionDataManager implements ItemDataConsumer {
   protected List<ItemState> reindexSameNameSiblings(NodeData cause, ItemDataConsumer dataManager) throws RepositoryException {
     List<ItemState> changes = new ArrayList<ItemState>();
     
-    InternalQPath parent = cause.getQPath().makeParentPath();
+    QPath parent = cause.getQPath().makeParentPath();
     
     // ping same-name sibling existense
-    InternalQPath nextSiblingPath = InternalQPath.makeChildPath(parent, 
+    QPath nextSiblingPath = QPath.makeChildPath(parent, 
         cause.getQPath().getName(), cause.getQPath().getIndex() + 1);
     
     TransientNodeData nextSibling = (TransientNodeData) dataManager.getItemData(nextSiblingPath);
@@ -457,7 +458,7 @@ public class SessionDataManager implements ItemDataConsumer {
       itemsPool.reload(reindexed);
       
       // next...
-      nextSiblingPath = InternalQPath.makeChildPath(parent, 
+      nextSiblingPath = QPath.makeChildPath(parent, 
           nextSibling.getQPath().getName(), nextSibling.getQPath().getIndex() + 1);
       nextSibling = (TransientNodeData) dataManager.getItemData(nextSiblingPath);
     }
@@ -510,7 +511,7 @@ public class SessionDataManager implements ItemDataConsumer {
    * @throws ReferentialIntegrityException
    * @throws InvalidItemStateException
    */
-  public  void commit(InternalQPath path)
+  public  void commit(QPath path)
       throws RepositoryException, AccessDeniedException,
       ReferentialIntegrityException, InvalidItemStateException {
 
@@ -534,7 +535,7 @@ public class SessionDataManager implements ItemDataConsumer {
     return transactionableManager.getReferencesData(uuid); 
   }
 
-  private  void validate(InternalQPath path) throws RepositoryException,
+  private  void validate(QPath path) throws RepositoryException,
       AccessDeniedException, ReferentialIntegrityException {
 
     List<ItemState> changes = changesLog.getAllStates();
@@ -634,7 +635,7 @@ public class SessionDataManager implements ItemDataConsumer {
     for (ItemImpl removed: invalidated) {
       // TODO we use location (JCRPath) stored on ItemImpl as no data found (a result of invalidation)
       // BUT! Most preferable to use UUID!
-      InternalQPath removedPath = removed.getLocation().getInternalPath();
+      QPath removedPath = removed.getLocation().getInternalPath();
       if (removedPath.equals(item.getQPath()) || removedPath.isDescendantOf(item.getQPath(), false)) {
         ItemData persisted = transactionableManager.getItemData(removedPath);
         if (persisted != null) {

@@ -18,25 +18,25 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SARL .
  *
  * @author Gennady Azarenkov
- * @version $Id: InternalQPath.java 13819 2007-03-27 13:44:07Z vaz $
+ * @version $Id$
  */
 
-public class InternalQPath implements Comparable {
+public class QPath implements Comparable {
 
   protected static Log log = ExoLogger.getLogger("jcr.SessionDataManager");
 
   public static final String PREFIX_DELIMITER = ":";
 
-  private final Entry[] names;
+  private final QPathEntry[] names;
   private final int hashCode;
   private String stringName; // compile on demand
 
-  public InternalQPath(Entry[] names) {
+  public QPath(QPathEntry[] names) {
     this.names = names;
 
     final int prime = 31;
     int hash = 1;
-    for (Entry entry: names) {
+    for (QPathEntry entry: names) {
       hash = prime * hash + entry.hashCode();
       hash = prime * hash + entry.getIndex();
     }
@@ -73,7 +73,7 @@ public class InternalQPath implements Comparable {
    * @throws PathNotFoundException
    *           if path could not have parent - i.e. root path
    */
-  public InternalQPath makeParentPath() throws IllegalPathException {
+  public QPath makeParentPath() throws IllegalPathException {
     return makeAncestorPath(1);
   }
 
@@ -84,7 +84,7 @@ public class InternalQPath implements Comparable {
    * @param relativeDegree
    * @return
    */
-  public InternalQPath makeAncestorPath(int relativeDegree) throws IllegalPathException {
+  public QPath makeAncestorPath(int relativeDegree) throws IllegalPathException {
     //InternalQPath path = new InternalQPath();
     if (relativeDegree > getLength() || getLength() <= 1) {
       throw new IllegalPathException("Relative degree " + relativeDegree
@@ -92,32 +92,32 @@ public class InternalQPath implements Comparable {
     }
 
     int entryCount = getLength() - relativeDegree;
-    Entry[] ancestorEntries = new Entry[entryCount];
+    QPathEntry[] ancestorEntries = new QPathEntry[entryCount];
     for (int i = 0; i < entryCount; i++)
-      ancestorEntries[i] = new Entry(names[i].getNamespace(), names[i].getName(), names[i].getIndex());
+      ancestorEntries[i] = new QPathEntry(names[i].getNamespace(), names[i].getName(), names[i].getIndex());
 
-    return new InternalQPath(ancestorEntries);
+    return new QPath(ancestorEntries);
   }
 
-  public Entry[] getRelPath(int relativeDegree) throws IllegalPathException {
+  public QPathEntry[] getRelPath(int relativeDegree) throws IllegalPathException {
 
     if (relativeDegree > getLength() || getLength() <= 1)
       throw new IllegalPathException("Relative degree " + relativeDegree
           + " is more than depth for " + getAsString());
 
-    List<Entry> entries = new ArrayList<Entry>();
+    List<QPathEntry> entries = new ArrayList<QPathEntry>();
 
     // [PN] 12.02.07
     for (int i = names.length - relativeDegree; i < names.length ; i++)
       entries.add(names[i]);
 
-    return entries.toArray(new Entry[entries.size()]);
+    return entries.toArray(new QPathEntry[entries.size()]);
   }
 
   /**
    * @return array of its path's names
    */
-  public Entry[] getEntries() {
+  public QPathEntry[] getEntries() {
     return names;
   }
 
@@ -136,7 +136,7 @@ public class InternalQPath implements Comparable {
    *          account
    * @return if this path is descendant of another one
    */
-  public boolean isDescendantOf(InternalQPath anotherPath, boolean childOnly) {
+  public boolean isDescendantOf(QPath anotherPath, boolean childOnly) {
     int depthDiff = getDepth() - anotherPath.getDepth();
     if (depthDiff <= 0 || (childOnly && depthDiff != 1))
       return false;
@@ -156,14 +156,14 @@ public class InternalQPath implements Comparable {
    * @return The general primogenitor of two ways.
    * @throws PathNotFoundException
    */
- public static InternalQPath getPrimogenitorPath(InternalQPath firstPath, InternalQPath secondPath)
+ public static QPath getPrimogenitorPath(QPath firstPath, QPath secondPath)
       throws PathNotFoundException {
 
     if (!firstPath.getEntries()[0].equals(secondPath.getEntries()[0])) {
       throw new PathNotFoundException("For the given ways there is no general primogenitor.");
     }
 
-    List<Entry> primoEntries = new ArrayList<Entry>();
+    List<QPathEntry> primoEntries = new ArrayList<QPathEntry>();
     for (int i = 0; i < firstPath.getEntries().length; i++) {
       if (firstPath.getEntries()[i].equals(secondPath.getEntries()[i])){
         primoEntries.add(firstPath.getEntries()[i]);
@@ -172,7 +172,7 @@ public class InternalQPath implements Comparable {
       }
     }
 
-    return new InternalQPath(primoEntries.toArray(new Entry[primoEntries.size()]));
+    return new QPath(primoEntries.toArray(new QPathEntry[primoEntries.size()]));
   }
   /**
    * @return last name of this path
@@ -231,7 +231,7 @@ public class InternalQPath implements Comparable {
     if (o == this)
       return true;
 
-    if (!(o instanceof InternalQPath))
+    if (!(o instanceof QPath))
       return false;
 
     return hashCode == o.hashCode();
@@ -241,8 +241,8 @@ public class InternalQPath implements Comparable {
     if(o == this) {
       return 0;
 
-    } else if(o instanceof InternalQPath) {
-      InternalQPath anotherPath = (InternalQPath)o;
+    } else if(o instanceof QPath) {
+      QPath anotherPath = (QPath)o;
 
       final String myString = getAsString();
       final String anotherString = anotherPath.getAsString();
@@ -271,7 +271,7 @@ public class InternalQPath implements Comparable {
    * @throws RepositoryException -
    *           if string is invalid
    */
-  public static InternalQPath parse(String qPath) throws IllegalPathException {
+  public static QPath parse(String qPath) throws IllegalPathException {
     //InternalQPath path = new InternalQPath();
     if (qPath == null)
       throw new IllegalPathException("Bad internal path '" + qPath + "'");
@@ -280,7 +280,7 @@ public class InternalQPath implements Comparable {
       throw new IllegalPathException("Bad internal path '" + qPath + "'");
 
     int uriStart = 0;
-    List<Entry> entries = new ArrayList<Entry>();
+    List<QPathEntry> entries = new ArrayList<QPathEntry>();
     while (uriStart >= 0) {
 
       uriStart = qPath.indexOf("[", uriStart);
@@ -308,9 +308,9 @@ public class InternalQPath implements Comparable {
       }
 
       //path.addEntry(uri, localName, index);
-      entries.add(new Entry(uri, localName, index));
+      entries.add(new QPathEntry(uri, localName, index));
     }
-    return new InternalQPath(entries.toArray(new Entry[entries.size()]));
+    return new QPath(entries.toArray(new QPathEntry[entries.size()]));
   }
 
   /**
@@ -325,7 +325,7 @@ public class InternalQPath implements Comparable {
    * @return new InternalQPath
    */
   @Deprecated // [PN] 05.02.07
-  public static InternalQPath makeChildPath(InternalQPath parent, String name)
+  public static QPath makeChildPath(QPath parent, String name)
       throws IllegalPathException {
 //    InternalQPath path = new InternalQPath();
 //    for (int i = 0; i < parent.getLength(); i++)
@@ -333,20 +333,20 @@ public class InternalQPath implements Comparable {
 //    path.addEntry(path.parseEntry(name));
 //    return path;
 
-    Entry[] parentEntries = parent.getEntries();
-    Entry[] names = new Entry[parentEntries.length + 1];
+    QPathEntry[] parentEntries = parent.getEntries();
+    QPathEntry[] names = new QPathEntry[parentEntries.length + 1];
     int index = 0;
-    for (Entry pname: parentEntries) {
+    for (QPathEntry pname: parentEntries) {
       names[index++] = pname;
     }
 
     names[index] = parseEntry(name);
-    InternalQPath path = new InternalQPath(names);
+    QPath path = new QPath(names);
     //path.addEntry(path.parseEntry(name));
     return path;
   }
 
-  public static InternalQPath makeChildPath(final InternalQPath parent, final InternalQName name) {
+  public static QPath makeChildPath(final QPath parent, final InternalQName name) {
 //    InternalQPath path = new InternalQPath();
 //    for (int i = 0; i < parent.getLength(); i++)
 //      path.addEntry(parent.getEntries()[i]);
@@ -356,7 +356,7 @@ public class InternalQPath implements Comparable {
     return makeChildPath(parent, name, 1);
   }
 
-  public static InternalQPath makeChildPath(final InternalQPath parent,
+  public static QPath makeChildPath(final QPath parent,
       final InternalQName name, final int itemIndex) {
 
 //    InternalQPath path = new InternalQPath();
@@ -365,39 +365,39 @@ public class InternalQPath implements Comparable {
 //    path.addEntry(new Entry(name.getNamespace(), name.getName(), index));
 //    return path;
 
-    Entry[] parentEntries = parent.getEntries();
-    Entry[] names = new Entry[parentEntries.length + 1];
+    QPathEntry[] parentEntries = parent.getEntries();
+    QPathEntry[] names = new QPathEntry[parentEntries.length + 1];
     int index = 0;
-    for (Entry pname: parentEntries) {
+    for (QPathEntry pname: parentEntries) {
       names[index++] = pname;
     }
-    names[index] = new Entry(name.getNamespace(), name.getName(), itemIndex);
+    names[index] = new QPathEntry(name.getNamespace(), name.getName(), itemIndex);
 
-    InternalQPath path = new InternalQPath(names);
+    QPath path = new QPath(names);
     return path;
   }
 
-  public static InternalQPath makeChildPath(final InternalQPath parent, final Entry[] relEntries) {
+  public static QPath makeChildPath(final QPath parent, final QPathEntry[] relEntries) {
 
 //    for (int i = 0; i < parent.getLength(); i++)
 //      path.addEntry(parent.getEntries()[i]);
 //    path.addEntry(new Entry(name.getNamespace(), name.getName(), 1));
 
-    final Entry[] parentEntries = parent.getEntries();
-    final Entry[] names = new Entry[parentEntries.length + relEntries.length];
+    final QPathEntry[] parentEntries = parent.getEntries();
+    final QPathEntry[] names = new QPathEntry[parentEntries.length + relEntries.length];
     int index = 0;
-    for (Entry name: parentEntries) {
+    for (QPathEntry name: parentEntries) {
       names[index++] = name;
     }
-    for (Entry name: relEntries) {
+    for (QPathEntry name: relEntries) {
       names[index++] = name;
     }
 
-    InternalQPath path = new InternalQPath(names);
+    QPath path = new QPath(names);
     return path;
   }
 
-  private static Entry parseEntry(final String entry) throws IllegalPathException {
+  private static QPathEntry parseEntry(final String entry) throws IllegalPathException {
 
     if (!entry.startsWith("["))
       throw new IllegalPathException("Invalid QPath Entry '" + entry
@@ -413,26 +413,12 @@ public class InternalQPath implements Comparable {
 
     final int ind = localName.indexOf(PREFIX_DELIMITER);
     if (ind > 1) {
-      return new Entry(uri,
+      return new QPathEntry(uri,
           localName.substring(0, ind),
           Integer.parseInt(localName.substring(ind + 1)));
     }
 
-    return new Entry(uri, localName, 1);
-  }
-
-  public static class Entry extends InternalQName {
-
-    private final int index;
-
-    public Entry(String namespace, String name, int index) {
-      super(namespace, name);
-      this.index = index > 0 ? index : 1;
-    }
-
-    public int getIndex() {
-      return index;
-    }
+    return new QPathEntry(uri, localName, 1);
   }
 
 }

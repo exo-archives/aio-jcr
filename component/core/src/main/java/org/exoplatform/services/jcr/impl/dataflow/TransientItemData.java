@@ -12,7 +12,7 @@ import java.io.ObjectOutput;
 
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.MutableItemData;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -25,7 +25,7 @@ import org.exoplatform.services.jcr.impl.Constants;
  */
 public abstract class TransientItemData implements MutableItemData, Externalizable {
 
-  protected InternalQPath QPath;
+  protected QPath QPath;
 
   protected String UUID;
 
@@ -42,7 +42,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
    * @param version persisted version
    * @param parentUUID parentId
    */
-  TransientItemData(InternalQPath path, String uuid, int version, String parentUUID) {
+  TransientItemData(QPath path, String uuid, int version, String parentUUID) {
     this.parentUUID = parentUUID != null ? parentUUID.intern() : null;
     this.UUID = uuid.intern();
     this.QPath = path;
@@ -69,7 +69,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
    * 
    * @see org.exoplatform.services.jcr.datamodel.ItemData#getQPath()
    */
-  public InternalQPath getQPath() {
+  public QPath getQPath() {
     return QPath;
   }
 
@@ -171,7 +171,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
       buf = new byte[in.readInt()];
       in.read(buf);
       String sQPath = new String(buf, Constants.DEFAULT_ENCODING);
-      QPath = InternalQPath.parse(sQPath);
+      QPath = QPath.parse(sQPath);
     } catch (IllegalPathException e) {
       e.printStackTrace();
     }

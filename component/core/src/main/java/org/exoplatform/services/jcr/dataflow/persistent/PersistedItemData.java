@@ -5,7 +5,7 @@
 
 package org.exoplatform.services.jcr.dataflow.persistent;
 
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 
 /**
@@ -20,11 +20,11 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 public abstract class PersistedItemData implements ItemData {
   
   protected final String id;
-  protected final InternalQPath qpath;
+  protected final QPath qpath;
   protected final String parentId; 
   protected final int version;
   
-  public PersistedItemData(String id, InternalQPath qpath, String parentId, int version) {
+  public PersistedItemData(String id, QPath qpath, String parentId, int version) {
     this.id = id;
     this.qpath = qpath;
     this.parentId = parentId;
@@ -34,7 +34,7 @@ public abstract class PersistedItemData implements ItemData {
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.ItemData#getQPath()
    */
-  public InternalQPath getQPath() {
+  public QPath getQPath() {
     return qpath;
   }
 

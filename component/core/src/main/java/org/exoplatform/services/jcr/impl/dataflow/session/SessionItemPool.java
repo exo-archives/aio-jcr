@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.WeakHashMap;
 
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.core.ItemImpl;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
@@ -42,7 +42,7 @@ import org.exoplatform.services.jcr.impl.core.PropertyImpl;
     return items.get(uuid);
   }
 
-  ItemImpl get(InternalQPath path) {
+  ItemImpl get(QPath path) {
     for(Iterator <ItemImpl> i = items.values().iterator(); i.hasNext();) {
       ItemImpl item = i.next();
       if(item.getInternalPath().equals(path))

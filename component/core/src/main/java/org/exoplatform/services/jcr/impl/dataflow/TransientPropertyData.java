@@ -16,7 +16,7 @@ import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.ItemDataVisitor;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.MutablePropertyData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
@@ -46,7 +46,7 @@ public class TransientPropertyData extends TransientItemData implements MutableP
    * @param parentUUID parentId
    * @param multiValued multi-valued state
    */
-  public TransientPropertyData(InternalQPath path, String uuid, int version, int type,
+  public TransientPropertyData(QPath path, String uuid, int version, int type,
       String parentUUID, boolean multiValued) {
     super(path, uuid, version, parentUUID);
     this.type = type;
@@ -120,7 +120,7 @@ public class TransientPropertyData extends TransientItemData implements MutableP
   public static TransientPropertyData createPropertyData(NodeData parent, InternalQName name,
       int type, boolean multiValued) {
     TransientPropertyData propData = null;
-    InternalQPath path = InternalQPath.makeChildPath(parent.getQPath(), name);
+    QPath path = QPath.makeChildPath(parent.getQPath(), name);
     propData = new TransientPropertyData(path, UUIDGenerator.generate(), -1, type,
         parent.getUUID(), multiValued);
 

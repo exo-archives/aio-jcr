@@ -16,10 +16,11 @@ import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.SharedDataManager;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -42,7 +43,7 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements ItemDataCons
    * Guaranteed ACL  
    * @see org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager#getACL(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
-  public AccessControlList getACL(InternalQPath qpath) throws RepositoryException {
+  public AccessControlList getACL(QPath qpath) throws RepositoryException {
     AccessControlList acl = persistentManager.getACL(qpath);
     if(acl == null) {
       NodeData data = getNearestACAncestor(qpath);
@@ -59,7 +60,7 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements ItemDataCons
    * @return access controllable node data or root node data(anyway)
    * @throws RepositoryException
    */
-  private NodeData getNearestACAncestor(InternalQPath qpath) throws RepositoryException {
+  private NodeData getNearestACAncestor(QPath qpath) throws RepositoryException {
     ItemData item = persistentManager.getItemData(qpath);
     if (item == null || !item.isNode())
       return getNearestACAncestor(qpath.makeParentPath());
@@ -99,10 +100,10 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements ItemDataCons
       initACL(node);
     return nodes;
   }
-  public ItemData getItemData(NodeData parentData,InternalQPath.Entry name) throws RepositoryException {
+  public ItemData getItemData(NodeData parentData,QPathEntry name) throws RepositoryException {
     return initACL(persistentManager.getItemData(parentData,name));
   }
-  public ItemData getItemData(InternalQPath qpath) throws RepositoryException {
+  public ItemData getItemData(QPath qpath) throws RepositoryException {
     return initACL(persistentManager.getItemData(qpath));
   }
 

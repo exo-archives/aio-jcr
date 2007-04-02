@@ -17,7 +17,7 @@ import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -96,7 +96,7 @@ abstract public class ImporterBase implements ContentHandler {
     this.itemStatesList = itemStatesList;
   }
   //Searching item in local state list
-  protected List<ItemState> getItemStatesList(InternalQPath path, int state) {
+  protected List<ItemState> getItemStatesList(QPath path, int state) {
     List<ItemState> states = new ArrayList<ItemState>();
     for (ItemState itemState : itemStatesList) {
       if (itemState.getData().getQPath().equals(path)){
@@ -109,7 +109,7 @@ abstract public class ImporterBase implements ContentHandler {
     
   }
   
-  protected ItemData getLocalItemData(InternalQPath path){
+  protected ItemData getLocalItemData(QPath path){
     ItemData item = null;
      List<ItemState> states = getItemStatesList(path,0);
      //get last state
@@ -120,7 +120,7 @@ abstract public class ImporterBase implements ContentHandler {
     return item;
   }
   
-  public int getNodeIndex(InternalQPath path) throws PathNotFoundException, IllegalPathException, RepositoryException{
+  public int getNodeIndex(QPath path) throws PathNotFoundException, IllegalPathException, RepositoryException{
     
      
     int newIndex = 1;

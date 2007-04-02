@@ -33,7 +33,7 @@ import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
@@ -460,7 +460,7 @@ public class NodeIndexer {
       //String strQpath = new String(BLOBUtil.readValue(internalValue));
       String strQpath = new String(internalValue.getAsByteArray());
 
-      String strValue = this.sysLocationFactory.createJCRPath(InternalQPath.parse(strQpath)).getAsString(false);
+      String strValue = this.sysLocationFactory.createJCRPath(QPath.parse(strQpath)).getAsString(false);
 //      System.out.println("PATH "+strValue);
 
       doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(

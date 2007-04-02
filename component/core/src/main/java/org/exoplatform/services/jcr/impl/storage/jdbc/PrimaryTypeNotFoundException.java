@@ -6,7 +6,7 @@ package org.exoplatform.services.jcr.impl.storage.jdbc;
 
 import javax.jcr.ItemNotFoundException;
 
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 
 /**
  * Created by The eXo Platform SARL
@@ -18,14 +18,14 @@ import org.exoplatform.services.jcr.datamodel.InternalQPath;
  */
 public class PrimaryTypeNotFoundException extends ItemNotFoundException {
   
-  private final InternalQPath path;
+  private final QPath path;
   
-  PrimaryTypeNotFoundException(String message, InternalQPath path) {
+  PrimaryTypeNotFoundException(String message, QPath path) {
     super(message);
     this.path = path;
   }
 
-  public InternalQPath getItemPath() {
+  public QPath getItemPath() {
     return path;
   }
 }

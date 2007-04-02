@@ -18,11 +18,11 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
-import org.exoplatform.services.jcr.datamodel.InternalQPath.Entry;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
 import org.exoplatform.services.jcr.impl.storage.SystemDataContainerHolder;
@@ -137,7 +137,7 @@ public class WorkspacePersistentDataManager implements DataManager {
    * 
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(InternalQPath)
    */
-  public ItemData getItemData(final InternalQPath qpath) throws RepositoryException {
+  public ItemData getItemData(final QPath qpath) throws RepositoryException {
     final WorkspaceStorageConnection con = dataContainer.openConnection();
     try {
       return con.getItemData(qpath);
@@ -220,7 +220,7 @@ public class WorkspacePersistentDataManager implements DataManager {
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getACL(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
-  public AccessControlList getACL(final InternalQPath qpath) throws RepositoryException {
+  public AccessControlList getACL(final QPath qpath) throws RepositoryException {
     final ItemData data = getItemData(qpath);
     if(data != null && data.isNode())
       return ((NodeData)data).getACL();
@@ -369,7 +369,7 @@ public class WorkspacePersistentDataManager implements DataManager {
     }
   }
   
-  private WorkspaceStorageConnection chooseConnection(InternalQPath path,
+  private WorkspaceStorageConnection chooseConnection(QPath path,
       WorkspaceStorageConnection regularConnection,
       WorkspaceStorageConnection systemConnection) {
     
@@ -381,12 +381,12 @@ public class WorkspacePersistentDataManager implements DataManager {
       
   }
   
-  private boolean isSystemPath(InternalQPath path) {
+  private boolean isSystemPath(QPath path) {
     
     return path.equals(Constants.JCR_SYSTEM_PATH) || path.isDescendantOf(Constants.JCR_SYSTEM_PATH, false);
   }
 
-  public ItemData getItemData(NodeData parent, Entry name) throws RepositoryException {
+  public ItemData getItemData(NodeData parent, QPathEntry name) throws RepositoryException {
     // TODO Auto-generated method stub
     return null;
   }

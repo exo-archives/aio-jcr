@@ -28,7 +28,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -85,7 +85,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     checkValid();
     
     PropertyData versionableUuid = (PropertyData) dataManager.getItemData(
-        InternalQPath.makeChildPath(getLocation().getInternalPath(), Constants.JCR_VERSIONABLEUUID));
+        QPath.makeChildPath(getLocation().getInternalPath(), Constants.JCR_VERSIONABLEUUID));
     
     if (versionableUuid != null)
       try {
@@ -104,7 +104,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     
     checkValid();
     
-    InternalQPath versionPath = InternalQPath.makeChildPath(getData().getQPath(), Constants.JCR_ROOTVERSION);
+    QPath versionPath = QPath.makeChildPath(getData().getQPath(), Constants.JCR_ROOTVERSION);
     
     VersionImpl version = (VersionImpl) dataManager.getItem(versionPath, true);
     
@@ -139,7 +139,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     JCRName jcrVersionName = locationFactory.parseJCRName(versionName);
     InternalQName versionQName = jcrVersionName.getInternalName();
     
-    InternalQPath versionPath = InternalQPath.makeChildPath(getData().getQPath(), versionQName);
+    QPath versionPath = QPath.makeChildPath(getData().getQPath(), versionQName);
     
     VersionImpl version = (VersionImpl) dataManager.getItem(versionPath, true);
     
@@ -269,11 +269,11 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     // remove this version from successor anf predecessor list
     // and point successor to predecessor directly
     
-    InternalQPath qpath = InternalQPath.makeChildPath(version.getInternalPath(), Constants.JCR_SUCCESSORS); 
+    QPath qpath = QPath.makeChildPath(version.getInternalPath(), Constants.JCR_SUCCESSORS); 
     PropertyData successorsData = (PropertyData) dataManager.getItemData(qpath);
     
     // jcr:predecessors
-    qpath = InternalQPath.makeChildPath(version.getInternalPath(), Constants.JCR_PREDECESSORS); 
+    qpath = QPath.makeChildPath(version.getInternalPath(), Constants.JCR_PREDECESSORS); 
     PropertyData predecessorsData = (PropertyData) dataManager.getItemData(qpath);
     try {
       for (ValueData pvalue: predecessorsData.getValues()) {
@@ -391,7 +391,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     JCRName jcrLabelName = locationFactory.parseJCRName(labelName);
     InternalQName labelQName = jcrLabelName.getInternalName(); 
     
-    InternalQPath vlpath = InternalQPath.makeChildPath(getData().getVersionLabelsData().getQPath(), labelQName); 
+    QPath vlpath = QPath.makeChildPath(getData().getVersionLabelsData().getQPath(), labelQName); 
     
     PropertyData vldata = (PropertyData) dataManager.getItemData(vlpath); 
     if (vldata != null) {
@@ -433,7 +433,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
             session.getTransientNodesManager().getWorkspaceDataManager().getCurrentTime()));
     changesLog.add(ItemState.createAddedState(propData));
     
-    InternalQPath predecessorsPath = InternalQPath.makeChildPath(versionableNodeData.getQPath(), Constants.JCR_PREDECESSORS);
+    QPath predecessorsPath = QPath.makeChildPath(versionableNodeData.getQPath(), Constants.JCR_PREDECESSORS);
     
     // A reference to V is added to the jcr:successors property of
     // each of the versions identified in V’s jcr:predecessors property.

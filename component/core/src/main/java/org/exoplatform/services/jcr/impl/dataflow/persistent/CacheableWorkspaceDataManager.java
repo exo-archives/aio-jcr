@@ -9,10 +9,11 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.storage.SystemDataContainerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
@@ -53,7 +54,7 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     return data;
   }
   
-  public ItemData getItemData(NodeData parentData,InternalQPath.Entry name) throws RepositoryException {
+  public ItemData getItemData(NodeData parentData,QPathEntry name) throws RepositoryException {
 //    // 2. Try from cache
 //    ItemData data = getCachedItemData(qpath);
 //
@@ -63,13 +64,13 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
 //    }
 //
 //    return data;
-    return getItemData(InternalQPath.makeChildPath(parentData.getQPath(),new InternalQPath.Entry[]{name}));
+    return getItemData(QPath.makeChildPath(parentData.getQPath(),new QPathEntry[]{name}));
   }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspaceDataManager#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
-  public ItemData getItemData(InternalQPath qpath) throws RepositoryException {
+  public ItemData getItemData(QPath qpath) throws RepositoryException {
     // 2. Try from cache
     ItemData data = getCachedItemData(qpath);
 
@@ -165,11 +166,11 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     return cache;
   }
 
-  protected ItemData getCachedItemData(InternalQPath qpath) throws RepositoryException {
+  protected ItemData getCachedItemData(QPath qpath) throws RepositoryException {
     return cache.get(qpath);
   }  
   
-  protected ItemData getPersistedItemData(InternalQPath qpath) throws RepositoryException {
+  protected ItemData getPersistedItemData(QPath qpath) throws RepositoryException {
 
     ItemData data = null;
     data = super.getItemData(qpath);

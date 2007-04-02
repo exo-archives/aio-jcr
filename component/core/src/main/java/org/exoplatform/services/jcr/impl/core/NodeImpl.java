@@ -59,10 +59,11 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.Uuid;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -249,7 +250,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
   
   protected PropertyImpl property(InternalQName name) throws IllegalPathException, PathNotFoundException, RepositoryException {
-    Item prop = item(InternalQPath.makeChildPath(getInternalPath(), name));
+    Item prop = item(QPath.makeChildPath(getInternalPath(), name));
     if(prop == null || prop.isNode())
       throw new PathNotFoundException("Property not found " + name);
     return (PropertyImpl) prop; 
@@ -259,7 +260,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     try {
       //if(property(name) != null)
       // [PN] 15.02.07
-      ItemData pdata = dataManager.getItemData(InternalQPath.makeChildPath(getInternalPath(), name));
+      ItemData pdata = dataManager.getItemData(QPath.makeChildPath(getInternalPath(), name));
       if (pdata != null && !pdata.isNode())
         return true;
     } catch (RepositoryException e) {
@@ -659,7 +660,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 //    int orderNum = (hasOCN)?parentNode.getNextChildOrderNum(siblings):0;
 //    int index = (allowSNS)?parentNode.getNextChildIndex(name, siblings, parentNode.nodeData()):1;
     
-    InternalQPath path = InternalQPath.makeChildPath(parentNode.getInternalPath(), name, index);
+    QPath path = QPath.makeChildPath(parentNode.getInternalPath(), name, index);
     
     AccessControlList acl = parentNode.getACL(); 
 
@@ -1008,7 +1009,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   public NodeData getCorrespondingNodeData(SessionImpl corrSession) throws ItemNotFoundException,
       NoSuchWorkspaceException, AccessDeniedException, RepositoryException {
 
-    final InternalQPath myPath = nodeData().getQPath();
+    final QPath myPath = nodeData().getQPath();
     final SessionDataManager corrDataManager = corrSession.getTransientNodesManager();
     
     if (this.isNodeType(Constants.MIX_REFERENCEABLE)) {
@@ -1017,7 +1018,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         return corrNode;
     } else {
       for (int i = myPath.getDepth(); i >= 0; i--) {
-        final InternalQPath ancesstorPath = myPath.makeAncestorPath(i);
+        final QPath ancesstorPath = myPath.makeAncestorPath(i);
         NodeData ancestor = (NodeData) dataManager.getItemData(ancesstorPath);
         if (corrSession.getWorkspace().getNodeTypeManager().isNodeType(
             Constants.MIX_REFERENCEABLE, 
@@ -1030,8 +1031,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
                 + locationFactory.createJCRPath(ancesstorPath).getAsString(false) + " in " 
                 + corrSession.getWorkspace().getName());
           
-          InternalQPath.Entry[] relQPathEntries = myPath.getRelPath(myPath.getDepth() - i);
-          InternalQPath corrNodeQPath = InternalQPath.makeChildPath(corrAncestor.getQPath(), relQPathEntries); 
+          QPathEntry[] relQPathEntries = myPath.getRelPath(myPath.getDepth() - i);
+          QPath corrNodeQPath = QPath.makeChildPath(corrAncestor.getQPath(), relQPathEntries); 
           NodeData corrNode = (NodeData) corrDataManager.getItemData(corrNodeQPath);
           if (corrNode != null)
             return corrNode;
@@ -1196,7 +1197,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     values.add(new TransientValueData(mixinName));
     
     TransientPropertyData prop = (TransientPropertyData) dataManager.getItemData(
-        InternalQPath.makeChildPath(getInternalPath(), Constants.JCR_MIXINTYPES));
+        QPath.makeChildPath(getInternalPath(), Constants.JCR_MIXINTYPES));
     ItemState state;
     
     if(prop!= null) {// there was mixin prop
@@ -1280,7 +1281,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       }
     }
     
-    TransientPropertyData prop = (TransientPropertyData)dataManager.getItemData(InternalQPath.
+    TransientPropertyData prop = (TransientPropertyData)dataManager.getItemData(QPath.
         makeChildPath(getInternalPath(), Constants.JCR_MIXINTYPES));
     prop.setValues(values);
     
@@ -1345,8 +1346,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   
   protected void doOrderBefore(JCRPath sourcePath, JCRPath destenationPath) throws RepositoryException {
     
-    InternalQPath srcPath = sourcePath.getInternalPath();
-    InternalQPath destPath = destenationPath != null ? destenationPath.getInternalPath() : null;
+    QPath srcPath = sourcePath.getInternalPath();
+    QPath destPath = destenationPath != null ? destenationPath.getInternalPath() : null;
     
     if (srcPath.equals(destPath))
       return;
@@ -1654,7 +1655,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     changesLog.add(ItemState.createUpdatedState(
         updatePropertyData(Constants.JCR_ISCHECKEDOUT, new TransientValueData(true))));
 
-    ValueData baseVersion = ((PropertyData) dataManager.getItemData(InternalQPath.makeChildPath(getInternalPath(),
+    ValueData baseVersion = ((PropertyData) dataManager.getItemData(QPath.makeChildPath(getInternalPath(),
             Constants.JCR_BASEVERSION))).getValues().get(0);
 
 //    propData = TransientPropertyData.createPropertyData(nodeData(), Constants.JCR_PREDECESSORS,
@@ -1674,7 +1675,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       return true;
 
     if (this.isNodeType(Constants.MIX_VERSIONABLE)) {
-      InternalQPath path = InternalQPath.makeChildPath(getInternalPath(), Constants.JCR_ISCHECKEDOUT);
+      QPath path = QPath.makeChildPath(getInternalPath(), Constants.JCR_ISCHECKEDOUT);
       return ((Property) dataManager.getItem(path, false)).getBoolean();
       //return property(Constants.JCR_ISCHECKEDOUT).getBoolean();
     }
@@ -1791,7 +1792,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     
     NodeImpl node;
     // JCRPath newPath = locationFactory.createJCRPath(getLocation(), relPath);
-    InternalQPath newPath = locationFactory.createJCRPath(getLocation(),
+    QPath newPath = locationFactory.createJCRPath(getLocation(),
         relPath).getInternalPath();
     try {
       // node = (NodeImpl) getNode(relPath);
@@ -1858,7 +1859,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     EntityCollection res = new EntityCollection();
 
     TransientPropertyData mergeFailed = (TransientPropertyData) dataManager.getItemData(
-        InternalQPath.makeChildPath(getInternalPath(), Constants.JCR_MERGEFAILED));
+        QPath.makeChildPath(getInternalPath(), Constants.JCR_MERGEFAILED));
     
     List<ValueData> mergeFailedRefs = null;
     int state = 0;
@@ -1935,7 +1936,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       PlainChangesLog changesLog) throws RepositoryException {
 
     TransientPropertyData mergeFailed = (TransientPropertyData) dataManager.getItemData(
-        InternalQPath.makeChildPath(getInternalPath(), Constants.JCR_MERGEFAILED));
+        QPath.makeChildPath(getInternalPath(), Constants.JCR_MERGEFAILED));
     if (mergeFailed == null)
       return;
 
@@ -2070,11 +2071,11 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     PlainChangesLog changesLog = new PlainChangesLogImpl(new ArrayList<ItemState>(), session
         .getId(), ExtendedEvent.UNLOCK);
 
-    ItemData lockOwner = dataManager.getItemData(InternalQPath.makeChildPath(getInternalPath(),
+    ItemData lockOwner = dataManager.getItemData(QPath.makeChildPath(getInternalPath(),
         Constants.JCR_LOCKOWNER));
     changesLog.add(ItemState.createDeletedState(lockOwner));
 
-    ItemData lockIsDeep = dataManager.getItemData(InternalQPath.makeChildPath(getInternalPath(),
+    ItemData lockIsDeep = dataManager.getItemData(QPath.makeChildPath(getInternalPath(),
         Constants.JCR_LOCKISDEEP));
     changesLog.add(ItemState.createDeletedState(lockIsDeep));
 
@@ -2435,7 +2436,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     }
 
     TransientPropertyData permProp = (TransientPropertyData)dataManager.getItemData(
-        InternalQPath.makeChildPath(getInternalPath(), Constants.EXO_PERMISSIONS));
+        QPath.makeChildPath(getInternalPath(), Constants.EXO_PERMISSIONS));
     permProp = new TransientPropertyData(permProp.getQPath(), 
         permProp.getUUID(), permProp.getPersistedVersion(),
         permProp.getType(), permProp.getParentUUID(), permProp.isMultiValued());
@@ -2608,8 +2609,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     return updatePropertyData(getInternalPath(), name, value);
   }
   
-  protected PropertyData updatePropertyData(InternalQPath parentPath, InternalQName name, ValueData value) throws RepositoryException {
-    InternalQPath path = InternalQPath.makeChildPath(parentPath, name); 
+  protected PropertyData updatePropertyData(QPath parentPath, InternalQName name, ValueData value) throws RepositoryException {
+    QPath path = QPath.makeChildPath(parentPath, name); 
     PropertyData existed = (PropertyData) dataManager.getItemData(path);
     if (existed != null) {
       TransientPropertyData tdata = new TransientPropertyData(path, existed.getUUID(), 
@@ -2626,8 +2627,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     return updatePropertyData(getInternalPath(), name, values);
   }
   
-  protected PropertyData updatePropertyData(InternalQPath parentPath, InternalQName name, List<ValueData> values) throws ValueFormatException, RepositoryException {
-    InternalQPath path = InternalQPath.makeChildPath(parentPath, name); 
+  protected PropertyData updatePropertyData(QPath parentPath, InternalQName name, List<ValueData> values) throws ValueFormatException, RepositoryException {
+    QPath path = QPath.makeChildPath(parentPath, name); 
     PropertyData existed = (PropertyData) dataManager.getItemData(path);
     if (existed != null) {
       TransientPropertyData tdata = new TransientPropertyData(path, existed.getUUID(), 

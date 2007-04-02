@@ -12,7 +12,7 @@ import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.InternalQPath;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
@@ -61,7 +61,7 @@ public class ItemDataMoveVisitor extends ItemDataCopyVisitor {
 //    }
     
     if (ancestorToSave == null){
-      ancestorToSave = InternalQPath.getPrimogenitorPath(curParent().getQPath(),node.getQPath());
+      ancestorToSave = QPath.getPrimogenitorPath(curParent().getQPath(),node.getQPath());
     }
 
     super.entering(node, level);
