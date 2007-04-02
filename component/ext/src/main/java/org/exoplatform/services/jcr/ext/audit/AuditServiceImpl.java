@@ -5,6 +5,7 @@
 
 package org.exoplatform.services.jcr.ext.audit;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -24,6 +25,7 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -290,8 +292,10 @@ public class AuditServiceImpl implements AuditService {
         }else if (propertyData.getQPath().getName().equals(AuditService.EXO_AUDITRECORD_PROPERTYNAME)){
           try {
             propertyName = InternalQName.parse(new String (propertyData.getValues().get(0).getAsByteArray()));
-          } catch (Exception e) {
-            throw new RepositoryException(e);
+          } catch (IOException e) {
+              throw new RepositoryException(e);
+          } catch (IllegalNameException e) {
+              throw new RepositoryException(e);
           }
 //          ((TransientValueData) propertyData.getValues().get(0),PropertyType.NAME)
 //          propertyName =  ((BaseValue)vf.loadValue((TransientValueData) propertyData.getValues().get(0),PropertyType.NAME));
