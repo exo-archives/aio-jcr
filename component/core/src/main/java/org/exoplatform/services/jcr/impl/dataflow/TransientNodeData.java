@@ -274,7 +274,7 @@ public class TransientNodeData extends TransientItemData implements Comparable,
   
   public TransientNodeData cloneAsSibling(int index) throws PathNotFoundException, IllegalPathException {
     
-    QPath siblingPath = QPath.makeChildPath(
+    QPath siblingPath = qpath.makeChildPath(
         getQPath().makeParentPath(),
         getQPath().getName(),
         index);

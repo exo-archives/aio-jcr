@@ -25,7 +25,7 @@ import org.exoplatform.services.jcr.impl.Constants;
  */
 public abstract class TransientItemData implements MutableItemData, Externalizable {
 
-  protected QPath QPath;
+  protected QPath qpath;
 
   protected String UUID;
 
@@ -45,7 +45,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
   TransientItemData(QPath path, String uuid, int version, String parentUUID) {
     this.parentUUID = parentUUID != null ? parentUUID.intern() : null;
     this.UUID = uuid.intern();
-    this.QPath = path;
+    this.qpath = path;
     this.persistedVersion = version;
     //this.hashCode = initHashCode();
   }
@@ -70,7 +70,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
    * @see org.exoplatform.services.jcr.datamodel.ItemData#getQPath()
    */
   public QPath getQPath() {
-    return QPath;
+    return qpath;
   }
 
   /*
@@ -140,7 +140,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
    * @return Qname - shortcut for getQPath().getName();
    */
   public InternalQName getQName() {
-    return QPath.getName();
+    return qpath.getName();
   }
 
 //  serializable --------------
@@ -150,8 +150,8 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
   public void writeExternal(ObjectOutput out) throws IOException {
 //    System.out.println("-->TransientItemData--> writeExternal(ObjectOutput out)");
 
-    out.writeInt(QPath.getAsString().getBytes().length);
-    out.write(QPath.getAsString().getBytes());
+    out.writeInt(qpath.getAsString().getBytes().length);
+    out.write(qpath.getAsString().getBytes());
 
     out.writeInt(UUID.getBytes().length);
     out.write(UUID.getBytes());
@@ -171,7 +171,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
       buf = new byte[in.readInt()];
       in.read(buf);
       String sQPath = new String(buf, Constants.DEFAULT_ENCODING);
-      QPath = QPath.parse(sQPath);
+      qpath = QPath.parse(sQPath);
     } catch (IllegalPathException e) {
       e.printStackTrace();
     }
