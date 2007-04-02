@@ -128,8 +128,8 @@
     <type>org.exoplatform.services.jcr.impl.core.SessionRegistry</type>
     <init-params>
       <value-param>
-        <name>timeout</name>
-        <value>10000</value>
+        <name>session-max-age</name>
+        <value>3600000</value>
       </value-param>
     </init-params>
   </component>
