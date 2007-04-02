@@ -22,6 +22,7 @@ import org.exoplatform.services.jcr.datamodel.InternalQPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.InternalQPath.Entry;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
 import org.exoplatform.services.jcr.impl.storage.SystemDataContainerHolder;
@@ -383,6 +384,11 @@ public class WorkspacePersistentDataManager implements DataManager {
   private boolean isSystemPath(InternalQPath path) {
     
     return path.equals(Constants.JCR_SYSTEM_PATH) || path.isDescendantOf(Constants.JCR_SYSTEM_PATH, false);
+  }
+
+  public ItemData getItemData(NodeData parent, Entry name) throws RepositoryException {
+    // TODO Auto-generated method stub
+    return null;
   }
 
   

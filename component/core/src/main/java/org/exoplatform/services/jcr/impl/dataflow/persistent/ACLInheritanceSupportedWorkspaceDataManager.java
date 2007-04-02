@@ -99,7 +99,9 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements ItemDataCons
       initACL(node);
     return nodes;
   }
-
+  public ItemData getItemData(NodeData parentData,InternalQPath.Entry name) throws RepositoryException {
+    return initACL(persistentManager.getItemData(parentData,name));
+  }
   public ItemData getItemData(InternalQPath qpath) throws RepositoryException {
     return initACL(persistentManager.getItemData(qpath));
   }

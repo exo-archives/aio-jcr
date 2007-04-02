@@ -52,6 +52,19 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     }
     return data;
   }
+  
+  public ItemData getItemData(NodeData parentData,InternalQPath.Entry name) throws RepositoryException {
+//    // 2. Try from cache
+//    ItemData data = getCachedItemData(qpath);
+//
+//    // 3. Try from container
+//    if (data == null) {
+//      data = getPersistedItemData(qpath);
+//    }
+//
+//    return data;
+    return getItemData(InternalQPath.makeChildPath(parentData.getQPath(),new InternalQPath.Entry[]{name}));
+  }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspaceDataManager#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)

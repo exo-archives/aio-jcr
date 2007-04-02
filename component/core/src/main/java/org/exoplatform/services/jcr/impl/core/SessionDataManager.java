@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.WeakHashMap;
 
 import javax.jcr.AccessDeniedException;
@@ -112,6 +113,7 @@ public class SessionDataManager implements ItemDataConsumer {
    * @throws RepositoryException
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
+  @Deprecated
   public ItemData getItemData(InternalQPath path) throws RepositoryException {
     ItemData data = null; 
     // 1. Try in transient changes
@@ -124,7 +126,18 @@ public class SessionDataManager implements ItemDataConsumer {
     }
     return data;
   }
-
+  public ItemData getItemData(NodeData parent, InternalQPath.Entry name) throws RepositoryException {
+    ItemData data = null; 
+    // 1. Try in transient changes
+    ItemState state = changesLog.getItemState(parent,name);
+    if(state == null) {
+      // 2. Try from txdatamanager
+      data = transactionableManager.getItemData(parent,name);
+    } else if (!state.isDeleted()) {
+      data = state.getData();
+    }
+    return data;
+  }
   /**
    * Finds item by absolute path in this tnsient storage then in workspace
    * container.
@@ -133,6 +146,7 @@ public class SessionDataManager implements ItemDataConsumer {
    * @return item or null if not found
    * @throws RepositoryException
    */
+  
   public ItemImpl getItem(InternalQPath path, boolean pool) throws RepositoryException {
 
     ItemData itemData = getItemData(path);

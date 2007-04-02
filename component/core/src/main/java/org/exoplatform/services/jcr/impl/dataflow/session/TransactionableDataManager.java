@@ -111,6 +111,22 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
+  public ItemData getItemData(NodeData parentData,InternalQPath.Entry name) throws RepositoryException {
+    ItemData data = null;
+    if(txStarted()) {
+      ItemState state = transactionLog.getItemState(parentData,name);
+      if(state != null)
+        data = state.getData();
+    }
+    if(data != null)
+      return data;
+    else
+      return storageDataManager.getItemData(parentData,name);
+  }
+  
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)
+   */
   public ItemData getItemData(InternalQPath path) throws RepositoryException {
     ItemData data = null;
     if(txStarted()) {

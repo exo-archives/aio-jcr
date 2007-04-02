@@ -22,8 +22,8 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
  * 
  * Basic (Level 1) data flow inmemory operations  
  *  
- * Common Rule for Read : If there is some storage in this manager –
- * try to get the data from here first, if not found – call super.someMethod
+ * Common Rule for Read : If there is some storage in this manager ï¿½
+ * try to get the data from here first, if not found ï¿½ call super.someMethod
  */
 public interface ItemDataConsumer {
 
@@ -32,6 +32,7 @@ public interface ItemDataConsumer {
    * @return data by path
    */
   ItemData getItemData(InternalQPath path) throws RepositoryException;
+  ItemData getItemData(NodeData parent, InternalQPath.Entry name) throws RepositoryException;
 
   /**
    * @param uuid

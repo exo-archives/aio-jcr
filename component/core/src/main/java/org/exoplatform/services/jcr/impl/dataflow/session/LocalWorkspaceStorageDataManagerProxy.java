@@ -88,7 +88,9 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
   public ItemData getItemData(InternalQPath path) throws RepositoryException {
     return copyItemData(storageDataManager.getItemData(path));
   }
-
+  public ItemData getItemData(NodeData parentData,InternalQPath.Entry name) throws RepositoryException {
+    return copyItemData(storageDataManager.getItemData(parentData,name));
+  }
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.dataflow.session.WorkspaceStorageDataManagerProxy#getItemData(java.lang.String)
    */
