@@ -14,20 +14,22 @@ package org.exoplatform.services.jcr.config;
  */
 public class WorkspaceEntry {
 
-  private String name;
+  private String             name;
 
-  private String autoInitializedRootNt;
+  private String             autoInitializedRootNt;
 
-  private ContainerEntry container;
+  private ContainerEntry     container;
 
-  private QueryHandlerEntry queryHandler;
-  
-  private CacheEntry cache;
-  
-  private String uniqueName;
-  
+  private QueryHandlerEntry  queryHandler;
+
+  private CacheEntry         cache;
+
+  private String             uniqueName;
+
   private AccessManagerEntry accessManager;
-  
+
+  private long               lockTimeOut = -1;
+
   public WorkspaceEntry() {
 
   }
@@ -54,8 +56,7 @@ public class WorkspaceEntry {
   }
 
   /**
-   * @param autoInitializedRootNt
-   *          The autoInitializedRootNt to set.
+   * @param autoInitializedRootNt The autoInitializedRootNt to set.
    */
   public void setAutoInitializedRootNt(String autoInitializedRootNt) {
     this.autoInitializedRootNt = autoInitializedRootNt;
@@ -69,8 +70,7 @@ public class WorkspaceEntry {
   }
 
   /**
-   * @param container
-   *          The container to set.
+   * @param container The container to set.
    */
   public void setContainer(ContainerEntry container) {
     this.container = container;
@@ -84,30 +84,33 @@ public class WorkspaceEntry {
   }
 
   /**
-   * @param queryManager
-   *          The queryManager to set.
+   * @param queryManager The queryManager to set.
    */
   public void setQueryHandler(QueryHandlerEntry queryHandler) {
     this.queryHandler = queryHandler;
   }
+
   /**
    * @return Returns the cache.
    */
   public CacheEntry getCache() {
     return cache;
   }
+
   /**
    * @param cache The cache to set.
    */
   public void setCache(CacheEntry cache) {
     this.cache = cache;
   }
+
   /**
    * @return Returns the uniqueName.
    */
   public String getUniqueName() {
     return uniqueName;
   }
+
   /**
    * @param uniqueName The uniqueName to set.
    */
@@ -123,4 +126,11 @@ public class WorkspaceEntry {
     this.accessManager = accessManager;
   }
 
+  public long getLockTimeOut() {
+    return lockTimeOut;
+  }
+
+  public void setLockTimeOut(long lockTimeOut) {
+    this.lockTimeOut = lockTimeOut;
+  }
 }

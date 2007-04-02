@@ -28,6 +28,7 @@ import org.exoplatform.services.jcr.impl.core.NamespaceDataPersister;
 import org.exoplatform.services.jcr.impl.core.NamespaceRegistryImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionFactory;
+import org.exoplatform.services.jcr.impl.core.SessionRegistry;
 import org.exoplatform.services.jcr.impl.core.WorkspaceInitializer;
 import org.exoplatform.services.jcr.impl.core.access.DefaultAccessManagerImpl;
 import org.exoplatform.services.jcr.impl.core.lock.LockManagerImpl;
@@ -144,6 +145,8 @@ public class RepositoryContainer extends ExoContainer {
     registerComponentImplementation(NodeTypeManagerImpl.class);
     
     registerComponentImplementation(DefaultAccessManagerImpl.class);
+    
+    registerComponentImplementation(SessionRegistry.class);
     try {
       registerComponentImplementation(Class.forName(config.getAuthenticationPolicy()));
     } catch (ClassNotFoundException e) {

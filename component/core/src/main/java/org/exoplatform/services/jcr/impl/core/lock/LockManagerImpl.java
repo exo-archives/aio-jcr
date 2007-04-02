@@ -21,6 +21,7 @@ import javax.jcr.lock.LockException;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
+import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
 import org.exoplatform.services.jcr.dataflow.DataManager;
@@ -83,11 +84,11 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   private LockRemover                   lockRemover;
 
-  public LockManagerImpl(WorkspacePersistentDataManager dataManager, RepositoryEntry config) {
+  public LockManagerImpl(WorkspacePersistentDataManager dataManager, WorkspaceEntry config) {
     this.dataManager = dataManager;
 
     lockTimeOut = config.getLockTimeOut() > 0 ? config.getLockTimeOut() : DEFAULT_TIMEOUT;
-
+    
     locks = new WeakHashMap<String, LockData>();
     pendingLocks = new WeakHashMap<String, LockData>();
     tokensMap = new WeakHashMap<String, LockData>();
@@ -430,7 +431,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
   }
 
   public void start() {
-    lockRemover = new LockRemover();
+    lockRemover = new LockRemover(lockTimeOut);
   }
 
   public void stop() {

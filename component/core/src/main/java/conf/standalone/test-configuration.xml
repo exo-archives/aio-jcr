@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <configuration>
 
+  <!-- component>
+    <key>org.exoplatform.services.xml.querying.XMLQueryingService</key>
+    <type>org.exoplatform.services.xml.querying.impl.xtas.XMLQueryingServiceImpl</type>
+  </component -->
+
   <component>
     <key>org.exoplatform.services.log.LogConfigurationInitializer</key>
     <type>org.exoplatform.services.log.LogConfigurationInitializer</type>
@@ -124,17 +129,7 @@
       </value-param>
     </init-params>
   </component>
-  
-  <component>
-    <key>org.exoplatform.services.jcr.impl.core.SessionRegistry</key>
-    <type>org.exoplatform.services.jcr.impl.core.SessionRegistry</type>
-    <init-params>
-      <value-param>
-        <name>session-max-age</name>
-        <value>3600000</value>
-      </value-param>
-    </init-params>
-  </component>
+
 
   <component>
     <key>org.exoplatform.services.naming.InitialContextInitializer</key>

@@ -185,11 +185,12 @@ public class SessionImpl implements Session, NamespaceAccessor {
       .getComponentInstanceOfType(SessionActionCatalog.class); 
     actionHandler = new SessionActionInterceptor(catalog, container);
     
-    this.lastAccessTime = System.currentTimeMillis();
-    
+        
     sessionRegistry = (SessionRegistry) container.getComponentInstanceOfType(SessionRegistry.class);
     
     sessionRegistry.registerSession(this);
+    
+    this.lastAccessTime = System.currentTimeMillis();
   }
   
 

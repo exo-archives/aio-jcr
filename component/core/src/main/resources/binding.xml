@@ -13,8 +13,7 @@
     <value name="default-workspace" field="defaultWorkspaceName" style="attribute"/>
     <value name="security-domain" field="securityDomain"/>
     <value name="access-control" field="accessControl" usage="optional"/>
-    <value name="session-timeout" field="sessionTimeOut" usage="optional"/>
-    <value name="lock-timeout" field="lockTimeOut" usage="optional"/>
+    <value name="session-max-age" field="sessionTimeOut" usage="optional"/>
     <structure name="replication" field="replication" usage="optional">
       <value name="enabled" field="enabled" style="attribute"/>
         <value name="mode" field="mode" style="attribute"/>
@@ -35,6 +34,7 @@
   <mapping name="workspace" class="org.exoplatform.services.jcr.config.WorkspaceEntry">
     <value name="name" field="name" style="attribute"/>
     <value name="auto-init-root-nodetype" field="autoInitializedRootNt" style="attribute" usage="optional"/>
+    
     <structure name="container" field="container">
       <value name="class" field="type" style="attribute"/>
       <collection name="properties" field="parameters" usage="optional" 
@@ -62,6 +62,7 @@
       <collection name="properties" field="parameters" usage="optional" 
                 item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"/>
     </structure>
+	<value name="lock-time-out" field="lockTimeOut" usage="optional"/>
   </mapping>
   
   <mapping name="property" class="org.exoplatform.services.jcr.config.SimpleParameterEntry">

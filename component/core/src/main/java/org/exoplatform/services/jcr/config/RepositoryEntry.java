@@ -37,8 +37,6 @@ public class RepositoryEntry {
 
   private long                      sessionTimeOut = -1;
 
-  private long                      lockTimeOut    = -1;
-
   public RepositoryEntry() {
     workspaces = new ArrayList<WorkspaceEntry>();
   }
@@ -156,11 +154,4 @@ public class RepositoryEntry {
     this.sessionTimeOut = sessionTimeOut;
   }
 
-  public long getLockTimeOut() {
-    return lockTimeOut;
-  }
-
-  public void setLockTimeOut(long lockTimeOut) {
-    this.lockTimeOut = lockTimeOut;
-  }
 }
