@@ -28,10 +28,9 @@ import org.exoplatform.services.jcr.dataflow.ItemDataVisitor;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.MutableNodeData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.exoplatform.services.jcr.datamodel.TraverseableNodeData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.util.UUIDGenerator;
 
@@ -276,7 +275,7 @@ public class TransientNodeData extends TransientItemData implements Comparable,
   
   public TransientNodeData cloneAsSibling(int index) throws PathNotFoundException, IllegalPathException {
     
-    QPath siblingPath = qpath.makeChildPath(
+    QPath siblingPath = QPath.makeChildPath(
         getQPath().makeParentPath(),
         getQPath().getName(),
         index);
