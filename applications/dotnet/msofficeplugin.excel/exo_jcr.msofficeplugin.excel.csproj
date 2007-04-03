@@ -173,7 +173,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\exo_jcr.webdav.csclient\exo_jcr.webdav.csclient.csproj">
+    <ProjectReference Include="..\webdav.csclient\exo_jcr.webdav.csclient.csproj">
       <Project>{34CA8A92-58A6-4A68-A01B-C9E798A86B03}</Project>
       <Name>exo_jcr.webdav.csclient</Name>
     </ProjectReference>
