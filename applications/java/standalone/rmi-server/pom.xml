@@ -257,7 +257,7 @@
           <finalName>rmi-server</finalName>
         </configuration>
       </plugin>
-      <plugin>
+      <!--<plugin>
         <artifactId>maven-antrun-plugin</artifactId>
           <executions>
             <execution>
@@ -278,11 +278,6 @@
                         <fileset dir="${basedir}/target">
                           <include name="**/rmi-server-1.6/*.jar"/>
                         </fileset>
-                       <!--<pathelement location="classes"/>
-                         <dirset dir="${basedir}">
-                            <include name="target/**/classes"/>
-                            <exclude name="target/**/*Test*"/>
-                         </dirset>-->
                       </classpath>
                     </java>
                   </tasks>
@@ -292,7 +287,7 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>
+          </plugin>-->
       </plugins>
   </build>
 
