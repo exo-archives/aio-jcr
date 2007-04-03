@@ -63,7 +63,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <includes>
-              <!-- include>**/WebDavTests.java</include -->
+              <include>**/WebDavTests.java</include>
 
               <!--
                   <include>**/DavTest.java</include>
