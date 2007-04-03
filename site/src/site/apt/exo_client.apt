@@ -2,11 +2,11 @@ eXo WebDav Office Client
 
   <<1. Intro>>
 
-	  eXoWebDavClient is a  library written on C# ,  that allows to use WebDav  service from  any other application, and example Word  
-	  application with the user interface based on this library.
+	  eXoWebDavClient is a  library written on C# ,  that allows to use WebDav  service from  any other application, and example MS Office  
+	  application (plug-in for Word, Excel and Power Point) with the user interface based on this library.
 	  Library allows :
 
-		* Load files from JCR repository into MS Word;
+		* Load .doc, .xls, .ppt files from JCR repository into MS Office;
 
 		* Edit and Save files onto repository;
 
@@ -14,7 +14,7 @@ eXo WebDav Office Client
 
 		* View propertis list;
                 
-                * View and Edit some version of current file and compare it with base version (current state). 
+                * View and Edit some version of current file and compare it (Word only) with base version (current state). 
 
 
  <<2. Installation>>
@@ -32,9 +32,12 @@ eXo WebDav Office Client
 
 [images/installmsoplugin.jpg]
 
-	  When installation succesfully ends, new menu column called "Remote Documents" is appears in the MS Word.
+	  When installation succesfully ends, new menu column called "Remote Documents" is appears in the applications You selected during install.
 
           For <<uninstallation>> open Control Panel->Add or Remove Programs, find line called eXo WebDav MSOffice Plugin and click Remove.
+
+		* Note: Microsoft Word store the state of his all menu bars into normal.dot. So, in some cases, after uninstalling plugin, You can see
+			  a "Remote Documents" bar continue appearing into Word's menu.  So, You need to rewrite (or simply delete) Your normal.dot.
 
  <<3. Configuration>>
  
@@ -44,6 +47,15 @@ eXo WebDav Office Client
 	currently don't have any effect to your connection.
 
 [images/cl_settings.jpg]
+
+	Please, be attentive when You entering username and password. They can vary, depends
+	of Your server settings. Default login and pass for eXo JCR standalone based server is admin/admin, 
+	eXo ECM based server  - exoadmin/exo@ecm, e.t.c.
+	Also note, that the different application servers use a various default port numbers -  8080 for Tomcat and JBoss, 9000 for JOnAS...
+	
+
+
+
 
  <<4. Using>>
 	
