@@ -1,0 +1,6 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>open-office</groupId>
+  <artifactId>com.sun.star.comp</artifactId>
+  <version>1.0</version>
+</project>
