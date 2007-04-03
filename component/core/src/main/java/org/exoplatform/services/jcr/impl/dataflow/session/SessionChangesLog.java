@@ -142,8 +142,10 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i>=0; i--) {
       ItemState state = allStates.get(i); 
-      if (!state.isOrderable() && state.getData().getParentUUID().equals(parentData.getUUID())
-          && state.getData().getQPath().getRelPath(1).equals(name))
+      if (!state.isOrderable()
+          && state.getData().getParentUUID().equals(parentData.getUUID())
+          && state.getData().getQPath().getEntries()[state.getData().getQPath().getEntries().length - 1]
+              .isSame(name))
         return state;
     }
     return null;
