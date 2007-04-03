@@ -43,7 +43,7 @@
         <version>2.1</version>
         <executions>
           <execution>
-            <phase>compile</phase>
+            <phase>install</phase>
               <goals>
                 <goal>directory</goal>
               </goals>
@@ -59,33 +59,25 @@
           <finalName>rmi-client</finalName>
         </configuration>
       </plugin>
-      <!--<plugin>
-	          <artifactId>maven-antrun-plugin</artifactId>
-	            <executions>
-	              <execution>
-	                <phase>install</phase>
-	                  <configuration>
-	                    <tasks>
-	                      <java dir="${basedir}" className="org.exoplatform.jcr.JcrRMIDemo"
-	                        fork="true"
-	                        failonerror="true"
-	                        maxmemory="128m">
-	                        <classpath>
-	                          <pathelement path="${classpath}"/>
-	                          <fileset dir="${basedir}/target">
-	                            <include name="**/rmi-client-1.6/*.jar"/>
-	                          </fileset>
-	                        </classpath>
-	                      </java>
-	                    </tasks>
-	                  </configuration>
-	                  <goals>
-	                    <goal>run</goal>
-	                  </goals>
-	                </execution>
-	              </executions>
-          </plugin>-->
-      </plugins>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <configuration>
+	      <tasks>
+	        <java dir="${basedir}" className="org.exoplatform.jcr.JcrRMIDemo"
+	            fork="true"
+	            failonerror="true"
+	            maxmemory="128m">
+	           <classpath>
+	             <pathelement path="${classpath}"/>
+	             <fileset dir="${basedir}/target">
+	               <include name="**/rmi-client-1.6/*.jar"/>
+	             </fileset>
+	           </classpath>
+	        </java>
+	      </tasks>
+	    </configuration>
+      </plugin>
+    </plugins>
   </build>
 
 </project>

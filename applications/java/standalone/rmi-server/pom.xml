@@ -243,7 +243,7 @@
         <version>2.1</version>
         <executions>
           <execution>
-            <phase>compile</phase>
+            <phase>install</phase>
               <goals>
                 <goal>directory</goal>
               </goals>
@@ -257,11 +257,8 @@
           <finalName>rmi-server</finalName>
         </configuration>
       </plugin>
-      <!--<plugin>
+      <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
-          <executions>
-            <execution>
-              <phase>install</phase>
                 <configuration>
                   <tasks>
                     <java dir="${basedir}" className="org.exoplatform.connectors.jcr.RMIStarter"
@@ -282,12 +279,7 @@
                     </java>
                   </tasks>
                 </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>-->
+          </plugin>
       </plugins>
   </build>
 
