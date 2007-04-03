@@ -6,10 +6,11 @@
 package org.exoplatform.applications.exodavbrowser;
 
 import java.io.File;
-import org.exoplatform.frameworks.davclient.Const;
-import org.exoplatform.frameworks.davclient.ServerLocation;
-import org.exoplatform.frameworks.davclient.commands.DavMkCol;
-import org.exoplatform.frameworks.davclient.commands.DavPut;
+
+import org.exoplatform.frameworks.webdavclient.Const;
+import org.exoplatform.frameworks.webdavclient.WebDavContext;
+import org.exoplatform.frameworks.webdavclient.commands.DavMkCol;
+import org.exoplatform.frameworks.webdavclient.commands.DavPut;
 
 /**
  * Created by The eXo Platform SARL
@@ -19,7 +20,7 @@ import org.exoplatform.frameworks.davclient.commands.DavPut;
  */
 
 public class Put2DirThread  extends Thread {
-  private ServerLocation location;
+  private WebDavContext location;
   private String sResurcePath;
   private File fTemp;
   private long lDirSize;
@@ -54,7 +55,7 @@ public class Put2DirThread  extends Thread {
     return sCurFileName;
   }
   
-  public Put2DirThread(ServerLocation sl ,String ResurcePath, File f){
+  public Put2DirThread(WebDavContext sl ,String ResurcePath, File f){
     location = sl;
     sResurcePath = ResurcePath;
     fTemp = f;

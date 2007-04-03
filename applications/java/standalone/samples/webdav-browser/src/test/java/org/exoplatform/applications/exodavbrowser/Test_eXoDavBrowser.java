@@ -1,10 +1,5 @@
 package org.exoplatform.applications.exodavbrowser;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import org.exoplatform.frameworks.davclient.TextUtils;
-import org.exoplatform.frameworks.davclient.properties.*;
-
 import junit.framework.TestCase;
 
 /**

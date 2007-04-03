@@ -5,14 +5,12 @@
 
 package org.exoplatform.applications.exodavbrowser;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -20,7 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-import org.exoplatform.frameworks.davclient.ServerLocation;
+import org.exoplatform.frameworks.webdavclient.WebDavContext;
 
 /**
  * Created by The eXo Platform SARL
@@ -50,13 +48,13 @@ public class WriteDirDialog  extends JDialog implements Runnable
   private JProgressBar jProgressBar1;
   private int x;
   private int y;
-  private ServerLocation slLocation;
+  private WebDavContext slLocation;
   private String sResutcePath;
   private File fTemp;
   private  Put2DirThread copyDirThread;
   private boolean bStart;
   
-  public WriteDirDialog(JFrame frame, ServerLocation sl ,String ResutcePath, File f) {
+  public WriteDirDialog(JFrame frame, WebDavContext sl ,String ResutcePath, File f) {
     super(frame);
     
     slLocation = sl;

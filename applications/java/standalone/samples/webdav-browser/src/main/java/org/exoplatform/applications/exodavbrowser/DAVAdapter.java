@@ -8,36 +8,40 @@ package org.exoplatform.applications.exodavbrowser;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Vector;
+
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.table.DefaultTableModel;
-import org.exoplatform.frameworks.davclient.*;
-import org.exoplatform.frameworks.davclient.commands.DavCheckIn;
-import org.exoplatform.frameworks.davclient.commands.DavCheckOut;
-import org.exoplatform.frameworks.davclient.commands.DavCopy;
-import org.exoplatform.frameworks.davclient.commands.DavDelete;
-import org.exoplatform.frameworks.davclient.commands.DavGet;
-import org.exoplatform.frameworks.davclient.commands.DavLock;
-import org.exoplatform.frameworks.davclient.commands.DavMkCol;
-import org.exoplatform.frameworks.davclient.commands.DavMove;
-import org.exoplatform.frameworks.davclient.commands.DavPropFind;
-import org.exoplatform.frameworks.davclient.commands.DavPut;
-import org.exoplatform.frameworks.davclient.commands.DavReport;
-import org.exoplatform.frameworks.davclient.commands.DavUnCheckOut;
-import org.exoplatform.frameworks.davclient.commands.DavUnLock;
-import org.exoplatform.frameworks.davclient.commands.DavVersionControl;
-import org.exoplatform.frameworks.davclient.documents.DocumentApi;
-import org.exoplatform.frameworks.davclient.documents.Multistatus;
-import org.exoplatform.frameworks.davclient.documents.ResponseDoc;
-import org.exoplatform.frameworks.davclient.properties.CheckedInProp;
-import org.exoplatform.frameworks.davclient.properties.CheckedOutProp;
-import org.exoplatform.frameworks.davclient.properties.ContentLengthProp;
-import org.exoplatform.frameworks.davclient.properties.CreatorDisplayNameProp;
-import org.exoplatform.frameworks.davclient.properties.DisplayNameProp;
-import org.exoplatform.frameworks.davclient.properties.LastModifiedProp;
-import org.exoplatform.frameworks.davclient.properties.LockDiscoveryProp;
-import org.exoplatform.frameworks.davclient.properties.ResourceTypeProp;
-import org.exoplatform.frameworks.davclient.properties.LockDiscoveryProp.ActiveLock;
+
+import org.exoplatform.frameworks.webdavclient.Const;
+import org.exoplatform.frameworks.webdavclient.WebDavContext;
+import org.exoplatform.frameworks.webdavclient.commands.DavCheckIn;
+import org.exoplatform.frameworks.webdavclient.commands.DavCheckOut;
+import org.exoplatform.frameworks.webdavclient.commands.DavCopy;
+import org.exoplatform.frameworks.webdavclient.commands.DavDelete;
+import org.exoplatform.frameworks.webdavclient.commands.DavGet;
+import org.exoplatform.frameworks.webdavclient.commands.DavLock;
+import org.exoplatform.frameworks.webdavclient.commands.DavMkCol;
+import org.exoplatform.frameworks.webdavclient.commands.DavMove;
+import org.exoplatform.frameworks.webdavclient.commands.DavPropFind;
+import org.exoplatform.frameworks.webdavclient.commands.DavPut;
+import org.exoplatform.frameworks.webdavclient.commands.DavReport;
+import org.exoplatform.frameworks.webdavclient.commands.DavUnCheckOut;
+import org.exoplatform.frameworks.webdavclient.commands.DavUnLock;
+import org.exoplatform.frameworks.webdavclient.commands.DavVersionControl;
+import org.exoplatform.frameworks.webdavclient.documents.DocumentApi;
+import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
+import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
+import org.exoplatform.frameworks.webdavclient.properties.CheckedInProp;
+import org.exoplatform.frameworks.webdavclient.properties.CheckedOutProp;
+import org.exoplatform.frameworks.webdavclient.properties.ContentLengthProp;
+import org.exoplatform.frameworks.webdavclient.properties.CreatorDisplayNameProp;
+import org.exoplatform.frameworks.webdavclient.properties.DisplayNameProp;
+import org.exoplatform.frameworks.webdavclient.properties.LastModifiedProp;
+import org.exoplatform.frameworks.webdavclient.properties.LockDiscoveryProp;
+import org.exoplatform.frameworks.webdavclient.properties.ResourceTypeProp;
+import org.exoplatform.frameworks.webdavclient.properties.LockDiscoveryProp.ActiveLock;
+
 
 /**
  * Created by The eXo Platform SARL
@@ -49,7 +53,7 @@ import org.exoplatform.frameworks.davclient.properties.LockDiscoveryProp.ActiveL
 public class DAVAdapter{
   
   private DefaultTableModel dataModel;
-  private static ServerLocation location;
+  private static WebDavContext location;
   private String sParentResurcePath;
   private String sResurcePath;
   private String sResurceDisplayName;
@@ -73,10 +77,10 @@ public class DAVAdapter{
   private boolean bLogin;
   private static int iCurrentStatus;
     
-  public static ServerLocation getServerLocation(){
+  public static WebDavContext getServerLocation(){
     return location;
   }
-  public  String getHref(ServerLocation sl){
+  public  String getHref(WebDavContext sl){
     String sHref =getServerLocation().getHost() +":"+ getServerLocation().getPort() + getServerLocation().getServletPath();
     sHref.replaceAll("//","");
     return "http://" + sHref;  
@@ -103,8 +107,8 @@ public class DAVAdapter{
     bLogin = false;
   }
   
-  public ServerLocation setServetLocation(String host, int port, String ServletPath){
-    location = new ServerLocation();
+  public WebDavContext setServetLocation(String host, int port, String ServletPath){
+    location = new WebDavContext();
     location.setHost(host);
     location.setPort(port);
     location.setServletPath(ServletPath);
@@ -279,7 +283,7 @@ public class DAVAdapter{
                       
             /*CONTENT LENGTH*/
             ContentLengthProp pContentLength = (ContentLengthProp)curResponse.getProperty(Const.DavProp.GETCONTENTLENGTH);
-            sContentLength = Integer.toString(pContentLength.getContentLength());
+            sContentLength = Long.toString(pContentLength.getContentLength());
                       
             /*VERSION*/
             CheckedInProp pCheckedIn = (CheckedInProp)curResponse.getProperty(Const.DavProp.CHECKEDIN);
