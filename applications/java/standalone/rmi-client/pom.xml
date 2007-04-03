@@ -59,7 +59,7 @@
           <finalName>rmi-client</finalName>
         </configuration>
       </plugin>
-      <plugin>
+      <!--<plugin>
 	          <artifactId>maven-antrun-plugin</artifactId>
 	            <executions>
 	              <execution>
@@ -70,17 +70,11 @@
 	                        fork="true"
 	                        failonerror="true"
 	                        maxmemory="128m">
-	                        <!--<arg value="bind configuration.xml"/>-->
 	                        <classpath>
 	                          <pathelement path="${classpath}"/>
 	                          <fileset dir="${basedir}/target">
 	                            <include name="**/rmi-client-1.6/*.jar"/>
 	                          </fileset>
-	                         <!--<pathelement location="classes"/>
-	                           <dirset dir="${basedir}">
-	                              <include name="target/**/classes"/>
-	                              <exclude name="target/**/*Test*"/>
-	                           </dirset>-->
 	                        </classpath>
 	                      </java>
 	                    </tasks>
@@ -90,7 +84,7 @@
 	                  </goals>
 	                </execution>
 	              </executions>
-          </plugin>
+          </plugin>-->
       </plugins>
   </build>
 
