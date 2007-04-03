@@ -25,28 +25,28 @@
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.core</artifactId>
       <version>${org.exoplatform.jcr.version}</version>
-      <scope>compile</scope>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>exo-weblogic</groupId>
       <artifactId>exo-weblogic-authproviders</artifactId>
       <version>1.0</version>
-      <scope>compile</scope>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>exo-weblogic</groupId>
       <artifactId>exo-weblogic-loginmodule</artifactId>
       <version>1.0</version>
-      <scope>compile</scope>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
-      <scope>compile</scope>
+      <scope>provided</scope>
     </dependency>
 
   </dependencies>
@@ -79,6 +79,19 @@
           <provsWL>exo-weblogic-authproviders</provsWL>
         </configuration>
       </plugin -->
+      <plugin>
+	  				<artifactId>maven-war-plugin</artifactId>
+	  				<configuration>
+	  					<!-- This is broken in maven-war-plugin 2.0, works in 2.0.1 -->
+	  					<warSourceExcludes>WEB-INF/lib/*.jar</warSourceExcludes>
+	  					<archive>
+	  						<manifest>
+	  							<addClasspath>false</addClasspath>
+	  							<classpathPrefix>lib/</classpathPrefix>
+	  						</manifest>
+	  					</archive>
+	  				</configuration>
+			</plugin>
     </plugins>
   </build>
 

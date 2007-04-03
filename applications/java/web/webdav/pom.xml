@@ -19,15 +19,15 @@
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.framework.web</artifactId>
       <version>${org.exoplatform.jcr.version}</version>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
 
   </dependencies>
 
   <build>
     <finalName>webdav</finalName>
-    <!-- plugins>
-      <plugin>
+    <plugins>
+      <!--<plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-exo-plugin</artifactId>
         <extensions>true</extensions>
@@ -51,8 +51,21 @@
           <jarsWLToLib>commons-logging, log4j, exo-weblogic-loginmodule</jarsWLToLib>
           <provsWL>exo-weblogic-authproviders</provsWL>
         </configuration>
+      </plugin>-->
+      <plugin>
+	  	           <artifactId>maven-war-plugin</artifactId>
+	  	           <configuration>
+	  	             <!-- This is broken in maven-war-plugin 2.0, works in 2.0.1 -->
+	  	             <warSourceExcludes>WEB-INF/lib/*.jar</warSourceExcludes>
+	  	             <archive>
+	  	               <manifest>
+	  	                 <addClasspath>false</addClasspath>
+	  	                 <classpathPrefix>lib/</classpathPrefix>
+	  	               </manifest>
+	  	             </archive>
+	  	           </configuration>
       </plugin>
-    </plugins -->
+    </plugins>
   </build>
 
 </project>
