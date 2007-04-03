@@ -6,10 +6,9 @@
 package org.exoplatform.frameworks.webdavclient.documents;
 
 import java.util.ArrayList;
-import org.apache.commons.logging.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
+import org.exoplatform.frameworks.webdavclient.Log;
 import org.exoplatform.frameworks.webdavclient.XmlUtil;
-import org.exoplatform.services.log.ExoLogger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -22,8 +21,6 @@ import org.w3c.dom.NodeList;
 
 public class Multistatus implements DocumentApi {
 
-  private static Log log = ExoLogger.getLogger("jcr.Multistatus");
-  
   protected ArrayList<ResponseDoc> responses = new ArrayList<ResponseDoc>(); 
   
   public boolean initFromDocument(Document document) {
@@ -46,7 +43,7 @@ public class Multistatus implements DocumentApi {
       
       return true;
     } catch (Exception exc) {
-      log.info("Unhandled exception. " + exc.getMessage());
+      Log.info("Unhandled exception. " + exc.getMessage());
       exc.printStackTrace();
     }
     

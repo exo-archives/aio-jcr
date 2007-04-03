@@ -7,10 +7,9 @@ package org.exoplatform.frameworks.webdavclient.search.basicsearch;
 
 import java.util.ArrayList;
 
-import org.apache.commons.logging.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
+import org.exoplatform.frameworks.webdavclient.Log;
 import org.exoplatform.frameworks.webdavclient.search.SearchConst;
-import org.exoplatform.services.log.ExoLogger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -22,12 +21,10 @@ import org.w3c.dom.Element;
 
 public class AndCondition implements BasicSearchCondition {
   
-  private static Log log = ExoLogger.getLogger("jcr.AndCondition");
-
   private ArrayList<BasicSearchCondition> conditions = new ArrayList<BasicSearchCondition>();
   
   public AndCondition(BasicSearchCondition... conditions) {
-    log.info("Conditions: [" + conditions.length + "]");
+    Log.info("Conditions: [" + conditions.length + "]");
 
     for (int i = 0; i < conditions.length; i++) {
       this.conditions.add(conditions[i]);

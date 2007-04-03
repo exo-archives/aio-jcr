@@ -7,12 +7,10 @@ package org.exoplatform.frameworks.webdavclient.documents;
 
 import java.util.ArrayList;
 
-import org.apache.commons.logging.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.XmlUtil;
 import org.exoplatform.frameworks.webdavclient.properties.PropApi;
 import org.exoplatform.frameworks.webdavclient.properties.PropManager;
-import org.exoplatform.services.log.ExoLogger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -23,8 +21,6 @@ import org.w3c.dom.NodeList;
  */
 
 public class ResponseDoc {
-  
-  private static Log log = ExoLogger.getLogger("jcr.ResponseDoc");
   
   protected String href;
   protected ArrayList<PropApi> properties = new ArrayList<PropApi>();

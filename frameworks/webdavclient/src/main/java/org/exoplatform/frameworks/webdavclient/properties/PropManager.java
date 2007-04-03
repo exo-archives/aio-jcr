@@ -5,9 +5,8 @@
 
 package org.exoplatform.frameworks.webdavclient.properties;
 
-import org.apache.commons.logging.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.frameworks.webdavclient.Log;
 import org.w3c.dom.Node;
 
 /**
@@ -18,8 +17,6 @@ import org.w3c.dom.Node;
 
 public class PropManager {
   
-  private static Log log = ExoLogger.getLogger("jcr.PropManager");
-
   protected static String [][]availableProperties = {
     { Const.DavProp.DISPLAYNAME, DisplayNameProp.class.getCanonicalName() },
     { Const.DavProp.LOCKDISCOVERY, LockDiscoveryProp.class.getCanonicalName() },
@@ -58,7 +55,7 @@ public class PropManager {
       curProp.init(propertyNode);      
       return curProp;
     } catch (Exception exc) {
-      log.info("Unhandled exception. " + exc.getMessage());
+      Log.info("Unhandled exception. " + exc.getMessage());
       exc.printStackTrace();
     }
     return null;

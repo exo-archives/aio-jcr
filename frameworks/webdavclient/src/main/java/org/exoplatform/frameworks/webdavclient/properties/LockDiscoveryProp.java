@@ -5,10 +5,9 @@
 
 package org.exoplatform.frameworks.webdavclient.properties;
 
-import org.apache.commons.logging.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
+import org.exoplatform.frameworks.webdavclient.Log;
 import org.exoplatform.frameworks.webdavclient.XmlUtil;
-import org.exoplatform.services.log.ExoLogger;
 import org.w3c.dom.Node;
 
 /**
@@ -41,8 +40,6 @@ public class LockDiscoveryProp extends CommonProp {
   
   public class ActiveLock {
     
-    protected Log lockLog = ExoLogger.getLogger("jcr.ActiveLock");
-
     protected String lockType = Const.Lock.TYPE_WRITE;
     protected String lockScope = Const.Lock.SCOPE_EXCLUSIVE;
     protected String depth = "Infinity";
@@ -91,7 +88,7 @@ public class LockDiscoveryProp extends CommonProp {
         
         enabled = true;
       } catch (Exception exc) {
-        lockLog.info("Unhandled exception. " + exc.getMessage(), exc);
+        Log.info("Unhandled exception. " + exc.getMessage(), exc);
       }      
       
     }

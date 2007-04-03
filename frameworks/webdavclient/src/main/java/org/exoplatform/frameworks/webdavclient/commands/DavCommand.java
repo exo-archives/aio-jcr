@@ -19,11 +19,10 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.HttpClient;
+import org.exoplatform.frameworks.webdavclient.Log;
 import org.exoplatform.frameworks.webdavclient.WebDavContext;
-import org.exoplatform.services.log.ExoLogger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.ls.LSOutput;
@@ -35,8 +34,6 @@ import org.w3c.dom.ls.LSOutput;
  */
 
 public abstract class DavCommand {
-
-  private static Log log = ExoLogger.getLogger("jcr.DavCommand");
 
   public static final String AUTH_BASIC = "Basic";
 
@@ -195,7 +192,7 @@ public abstract class DavCommand {
     
     requestDataBytes = outStream.toByteArray();
     
-    log.info("REQUEST:\r\n" + new String(requestDataBytes));
+    Log.info("REQUEST:\r\n" + new String(requestDataBytes));
   }  
   
   static class Output implements LSOutput {

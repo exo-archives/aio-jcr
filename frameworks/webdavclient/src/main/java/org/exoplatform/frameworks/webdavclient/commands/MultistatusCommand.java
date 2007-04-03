@@ -5,14 +5,13 @@
 
 package org.exoplatform.frameworks.webdavclient.commands;
 
-import org.apache.commons.logging.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
+import org.exoplatform.frameworks.webdavclient.Log;
 import org.exoplatform.frameworks.webdavclient.WebDavContext;
 import org.exoplatform.frameworks.webdavclient.documents.DocumentApi;
 import org.exoplatform.frameworks.webdavclient.documents.DocumentManager;
 import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
 import org.exoplatform.frameworks.webdavclient.request.PropertyList;
-import org.exoplatform.services.log.ExoLogger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -24,8 +23,6 @@ import org.w3c.dom.Element;
 
 public abstract class MultistatusCommand extends DavCommand {
   
-  private static Log log = ExoLogger.getLogger("jcr.MultistatusCommand");
-
   protected PropertyList propList = new PropertyList();
   
   protected String xmlName = Const.StreamDocs.PROPFIND;
@@ -60,7 +57,7 @@ public abstract class MultistatusCommand extends DavCommand {
         return;
       }
     } catch (Exception exc) {
-      log.info("Unhandled exception. " + exc.getMessage(), exc);
+      Log.info("Unhandled exception. " + exc.getMessage(), exc);
     }
     
     multistatusDocument = DocumentManager.getResponseDocument(client.getResponseStream());

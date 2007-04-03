@@ -5,8 +5,8 @@
 
 package org.exoplatform.frameworks.webdavclient.commands;
 
-import org.apache.commons.logging.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
+import org.exoplatform.frameworks.webdavclient.Log;
 import org.exoplatform.frameworks.webdavclient.WebDavContext;
 import org.exoplatform.frameworks.webdavclient.documents.DocumentApi;
 import org.exoplatform.frameworks.webdavclient.documents.DocumentManager;
@@ -14,7 +14,6 @@ import org.exoplatform.frameworks.webdavclient.documents.PropDoc;
 import org.exoplatform.frameworks.webdavclient.properties.LockDiscoveryProp;
 import org.exoplatform.frameworks.webdavclient.properties.PropApi;
 import org.exoplatform.frameworks.webdavclient.properties.LockDiscoveryProp.ActiveLock;
-import org.exoplatform.services.log.ExoLogger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -25,8 +24,6 @@ import org.w3c.dom.Element;
  */
 
 public class DavLock extends DavCommand {
-  
-  private static Log log = ExoLogger.getLogger("jcr.DavLock");
   
   protected DocumentApi propDocument = null;
   protected String lockToken = "";
@@ -46,7 +43,7 @@ public class DavLock extends DavCommand {
       lockToken = lockToken.substring(1, lockToken.length() - 1);    
       propDocument = DocumentManager.getResponseDocument(client.getResponseStream());
     } catch (Exception exc) {
-      log.info("Unhandled exception. " + exc.getMessage());
+      Log.info("Unhandled exception. " + exc.getMessage());
     }    
   }
   

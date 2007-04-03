@@ -5,9 +5,7 @@
 
 package org.exoplatform.frameworks.webdavclient.properties;
 
-import org.apache.commons.logging.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.services.log.ExoLogger;
 import org.w3c.dom.Node;
 
 /**
@@ -18,8 +16,6 @@ import org.w3c.dom.Node;
 
 public class CurrentUserPrivilegeSet extends CommonProp {
   
-  private static Log log = ExoLogger.getLogger("jcr.CurrentUserPrivilegeSet");
-
   public CurrentUserPrivilegeSet() {
     this.propertyName = Const.DavProp.CURRENT_USER_PRIVILEGE_SET;
   }

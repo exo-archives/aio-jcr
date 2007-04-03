@@ -13,9 +13,6 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import org.apache.commons.logging.Log;
-import org.exoplatform.services.log.ExoLogger;
-
 /**
  * Created by The eXo Platform SARL
  * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
@@ -24,8 +21,6 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class HttpClient {
 
-  private static Log log = ExoLogger.getLogger("jcr.HttpClient");
-  
   private boolean enableTrace = false;
   public void EnableTrace() {
       enableTrace = true;
@@ -111,7 +106,7 @@ public class HttpClient {
       }        
       
       String newHeader = headerName + Const.Http.HEADER_DELIM + headerValue;
-      log.info("Set header: [" + newHeader + "]");
+      Log.info("Set header: [" + newHeader + "]");
       requestHeaders.add(newHeader);
   }
   
@@ -228,7 +223,7 @@ public class HttpClient {
     outPrintStream.println(httpLine);
     
     if (enableTrace) {
-      log.info(httpLine);
+      Log.info(httpLine);
     }
     
     long reqContLength = 0;
@@ -256,7 +251,7 @@ public class HttpClient {
         String curHeader = (String)requestHeaders.get(i);
         outPrintStream.println(curHeader);
         if (enableTrace) {
-          log.info(curHeader);
+          Log.info(curHeader);
         }
     }
     
@@ -269,7 +264,7 @@ public class HttpClient {
         int readed = httpRequestBodyStream.read(buff);
         readData += readed;
         if (readed < 0) {
-          log.info("OOOOOOO: " + readData);
+          Log.info("OOOOOOO: " + readData);
           break;
         }
         outStream.write(buff, 0, readed);
@@ -325,7 +320,7 @@ public class HttpClient {
         }
       }
     } catch (Exception exc) {
-      log.info("Unhandled exception. " + exc.getMessage(), exc);
+      Log.info("Unhandled exception. " + exc.getMessage(), exc);
     }
     
     contentBytes = outStream.toByteArray();

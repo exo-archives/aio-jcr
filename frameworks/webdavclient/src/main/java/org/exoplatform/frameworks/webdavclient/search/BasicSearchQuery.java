@@ -5,10 +5,9 @@
 
 package org.exoplatform.frameworks.webdavclient.search;
 
-import org.apache.commons.logging.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
+import org.exoplatform.frameworks.webdavclient.Log;
 import org.exoplatform.frameworks.webdavclient.search.basicsearch.BasicSearchCondition;
-import org.exoplatform.services.log.ExoLogger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -20,15 +19,13 @@ import org.w3c.dom.Element;
 
 public class BasicSearchQuery extends AbstractQuery {
 
-  private static Log log = ExoLogger.getLogger("jcr.BasicSearchQuery");
-  
   private String fromHref = "";
   private int fromDepth = Integer.MAX_VALUE;
   
   private BasicSearchCondition condition; 
   
   public BasicSearchQuery() {
-    log.info("Construct..............");
+    Log.info("Construct..............");
   }
   
   public void setFrom(String fromHref, int fromDepth) {
@@ -41,7 +38,7 @@ public class BasicSearchQuery extends AbstractQuery {
   }
   
   public Element toXml(Document xmlDocument) {    
-    log.info("To XML...............");
+    Log.info("To XML...............");
     
     Element basicSearchEl = xmlDocument.createElement(Const.Dav.PREFIX + Const.DavProp.BASICSEARCH);
     
