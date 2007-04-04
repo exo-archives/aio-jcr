@@ -76,7 +76,7 @@
 			
 			<value-param>
 				<name>def-file-mimetype</name>
-				<value>text/plain</value>
+				<value>application/occet-stream</value>
 			</value-param>
 			
 			<value-param>
