@@ -117,10 +117,6 @@
   </component>
 
   <component>
-    <type>org.exoplatform.services.jcr.impl.dataflow.replication.WorkspaceDataReplicator</type>
-  </component>
-
-  <component>
     <key>org.exoplatform.services.security.SecurityService</key>
     <type>org.exoplatform.services.security.impl.SecurityServiceImpl</type>
     <init-params>
