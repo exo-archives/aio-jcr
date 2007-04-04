@@ -201,7 +201,7 @@
         <artifactId>hsqldb</artifactId>
         <!-- version>1.7.3.3</version -->
         <version>1.8.0.7</version>
-        <scope>test</scope>
+        <scope>compile</scope>
     </dependency>
 
     <dependency>
