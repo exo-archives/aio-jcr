@@ -29,7 +29,8 @@ public class SettingsDialog extends PlugInDialog {
   
   public static final String EDT_SERVERNAME = "edtServerName";
   public static final String EDT_PORT = "edtPort";
-  public static final String EDT_PATH = "edtPath";
+  public static final String EDT_SERVLET = "edtServlet";
+  public static final String EDT_WORKSPACE = "edtWorkSpace";
   public static final String EDT_USER = "edtUserName";
   public static final String EDT_PASS = "edtPassword";
   
@@ -55,7 +56,8 @@ public class SettingsDialog extends PlugInDialog {
         
         setTextBoxValue(EDT_SERVERNAME, config.getHost());
         setTextBoxValue(EDT_PORT, "" + config.getPort());
-        setTextBoxValue(EDT_PATH, config.getServlet());
+        setTextBoxValue(EDT_SERVLET, config.getServlet());
+        setTextBoxValue(EDT_WORKSPACE, config.getWorkSpace());
         setTextBoxValue(EDT_USER, config.getUserId());
         setTextBoxValue(EDT_PASS, config.getUserPass());
                 
@@ -80,18 +82,18 @@ public class SettingsDialog extends PlugInDialog {
   private class SaveClick extends ActionListener {
     
     public void actionPerformed(ActionEvent arg0) {
-      Log.info("private class SaveClick extends ActionListener");
-
       try {
         String host = getTextBoxValue(EDT_SERVERNAME);
         int port = new Integer(getTextBoxValue(EDT_PORT));
-        String path = getTextBoxValue(EDT_PATH);
+        String path = getTextBoxValue(EDT_SERVLET);
+        String workSpace = getTextBoxValue(EDT_WORKSPACE);
         String userId = getTextBoxValue(EDT_USER);
         String userPass = getTextBoxValue(EDT_PASS);
         
         config.setHost(host);
         config.setPort(port);
         config.setServlet(path);
+        config.setWorkSpace(workSpace);
         config.setUserId(userId);
         config.setUserPath(userPass);
         

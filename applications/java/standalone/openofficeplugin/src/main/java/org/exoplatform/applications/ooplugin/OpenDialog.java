@@ -146,8 +146,4 @@ public class OpenDialog extends BrowseDialog {
 
   }
   
-  
-  
-    
-  
 }

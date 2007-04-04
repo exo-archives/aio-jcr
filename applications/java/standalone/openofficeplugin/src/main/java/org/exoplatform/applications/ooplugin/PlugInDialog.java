@@ -87,7 +87,6 @@ public class PlugInDialog {
   }
   
   public boolean launchBeforeOpen() {
-    Log.info("public boolean launchBeforeOpen()");
     return true;
   }
   
@@ -99,12 +98,9 @@ public class PlugInDialog {
     try {
       DialogBuilder builder = new DialogBuilder(this, xFrame, xToolkit);
       builder.init();
-      Log.info(">>> to call CREATE DIALOG");
       Object dialog = builder.createDialog(dialogName, eventHandlers);
       
       xDialog = (XDialog)UnoRuntime.queryInterface(XDialog.class, dialog);
-      
-      Log.info("XDIALOG: " + xDialog);
       
       if (launchBeforeOpen()) {
         enabled = true;
@@ -114,7 +110,6 @@ public class PlugInDialog {
       XComponent xComponent = (XComponent)UnoRuntime.queryInterface(XComponent.class, dialog);
       xComponent.dispose();
       
-      Log.info(">>> after call CREATE DIALOG");
     } catch (java.lang.Exception exc) {
       Log.info("Unhandled exception. " + exc.getMessage(), exc);
     }    
@@ -157,7 +152,6 @@ public class PlugInDialog {
     filePath = filePath.replace("\\", "/");
     
     filePath = filePath.replace("?", ".");
-    Log.info("OPEN FILE PATH: [" + filePath + "]");
     
     File outFile = new File(filePath);
     if (outFile.exists()) {
@@ -171,8 +165,8 @@ public class PlugInDialog {
     fileOutStream.write(fileContent);
     fileOutStream.close();
     
-    XComponent component = OOUtils.loadFromFile(xComponentContext, filePath, resourcePath);
-    Log.info("X COMPONENT: " + component);
+    //XComponent component = OOUtils.loadFromFile(xComponentContext, filePath, resourcePath);
+    OOUtils.loadFromFile(xComponentContext, filePath, resourcePath);    
   }  
   
   public void showMessageBox(String sMessage) {
@@ -202,6 +196,7 @@ public class PlugInDialog {
             }
         }
     } catch (com.sun.star.uno.Exception e) {
+    	Log.info("Unhandled exception", e);
       // do your error handling 
     }
   }  

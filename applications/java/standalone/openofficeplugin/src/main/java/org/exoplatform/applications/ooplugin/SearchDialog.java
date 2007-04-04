@@ -67,8 +67,6 @@ public class SearchDialog extends BrowseDialog {
     public void actionPerformed(ActionEvent arg0) {
       
       try {
-        Log.info("SEARCH EVENT!!!!!!!");
-        
         disableAll();
         
         XTextComponent xEdtText = (XTextComponent)UnoRuntime.queryInterface(
@@ -99,9 +97,8 @@ public class SearchDialog extends BrowseDialog {
         
         int status = davSearch.execute();
         
-        Log.info("SEARCH STATUS: " + status);
-        
         if (status != Const.HttpStatus.MULTISTATUS) {
+          showMessageBox("Search error! Code: " + status);
           return;
         }
         
@@ -116,31 +113,29 @@ public class SearchDialog extends BrowseDialog {
     }
   }
   
+  private boolean tryOpenSelected() throws Exception {
+    XListBox xListBox = (XListBox)UnoRuntime.queryInterface(XListBox.class, xControlContainer.getControl(LST_ITEMS));
+    int selectedPos = xListBox.getSelectedItemPos();
+    if (selectedPos < 0) {
+      return false;
+    }
+
+    ResponseDoc response = responses.get(selectedPos);
+    
+    if (isCollection(response)) {
+      return false ;
+    }
+
+    String href = TextUtils.UnEscape(response.getHref(), '%');
+    doOpenRemoteFile(href);              
+    return true;
+  }
+  
   private class ListItemsClick extends ActionListener {
 
     public void actionPerformed(ActionEvent arg0) {
-      Log.info("private class ListItemsClick extends ActionListener");
-
-      XListBox xListBox = (XListBox)UnoRuntime.queryInterface(XListBox.class, xControlContainer.getControl(LST_ITEMS));
-      Log.info("XLISTBOX: " + xListBox);
-      int selectedPos = xListBox.getSelectedItemPos();
-      Log.info("SELECTED POS: " + selectedPos);
-      if (selectedPos < 0) {
-        return;
-      }
-      
-      ResponseDoc response = responses.get(selectedPos);
-      
-      Log.info("RESPONSE: " + response);
-      
-      if (isCollection(response)) {
-        Log.info("Can't open collections!!!!!!!");
-        return;
-      }
-      
       try {
-        String href = TextUtils.UnEscape(response.getHref(), '%');
-        doOpenRemoteFile(href);              
+        tryOpenSelected();
       } catch (Exception exc) {
         Log.info("Unhandled exception. " + exc.getMessage(), exc);
       }
@@ -152,6 +147,11 @@ public class SearchDialog extends BrowseDialog {
   private class OpenClick extends ActionListener {
     
     public void actionPerformed(ActionEvent arg0) {
+      try {
+        tryOpenSelected();
+      } catch (Exception exc) {
+        Log.info("Unhandled exception. " + exc.getMessage(), exc);
+      }
       
 //      String documentsPath = LocalFileSystem.getDocumentsPath();
 //      Log.info("DOCUMENTS PATH: \r\n[" + documentsPath + "]");

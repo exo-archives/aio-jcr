@@ -23,12 +23,14 @@ public class WebDavConfig {
   public static final String WHOST = "Host";
   public static final String WPORT = "Port";
   public static final String WSERVLET = "Servlet";
+  public static final String WWORKSPACE = "WorkSpace";
   public static final String WUSER = "User";
   public static final String WPASS = "Pass";
   
   private String host = "192.168.0.5";
   private int port = 8080;
   private String servlet = "/jcr-webdav/repository";
+  private String workSpace = "production";
   private String user_id = "admin";
   private String user_pass = "admin";
   
@@ -40,8 +42,7 @@ public class WebDavConfig {
   }
   
   public WebDavContext getContext() {
-	Log.info(">>>>>>> public WebDavContext getContext()");
-    return new WebDavContext(host, port, servlet, user_id, user_pass);
+    return new WebDavContext(host, port, servlet + "/" + workSpace, user_id, user_pass);
   }
   
   public String getHost() {
@@ -68,6 +69,14 @@ public class WebDavConfig {
     this.servlet = servlet;
   }
   
+  public String getWorkSpace() {
+	return workSpace; 
+  }
+  
+  public void setWorkSpace(String workSpace) {
+	this.workSpace = workSpace;
+  }
+  
   public String getUserId() {
     return user_id;
   }
@@ -88,6 +97,7 @@ public class WebDavConfig {
     String outParams = WHOST + "=" + host + "\r\n";
     outParams += WPORT + "=" + port + "\r\n";
     outParams += WSERVLET + "=" + servlet + "\r\n";
+    outParams += WWORKSPACE + "=" + workSpace + "\r\n";
     outParams += WUSER + "=" + user_id + "\r\n";
     outParams += WPASS + "=" + user_pass + "\r\n";
     
@@ -124,6 +134,7 @@ public class WebDavConfig {
       host = hParams.get(WHOST);
       port = new Integer(hParams.get(WPORT));
       servlet = hParams.get(WSERVLET);
+      workSpace = hParams.get(WWORKSPACE);
       user_id = hParams.get(WUSER);
       user_pass = hParams.get(WPASS);      
     } catch (Exception exc) {

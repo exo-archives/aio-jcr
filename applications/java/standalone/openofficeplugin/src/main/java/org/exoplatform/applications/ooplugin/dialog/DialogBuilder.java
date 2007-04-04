@@ -112,9 +112,7 @@ public class DialogBuilder {
       Component component = components.get(i);
       
       Object componentModel = xMultiServiceFactory.createInstance(component.getClassName());
-      Log.info("COMPONENT MODEL: " + componentModel);
       XPropertySet propertySet = (XPropertySet)UnoRuntime.queryInterface(XPropertySet.class, componentModel);
-      Log.info("X PROPERTY SET: " + propertySet);
       
       ArrayList<ComponentProperty> compProperties = component.getProperties();
       for (int propi = 0; propi < compProperties.size(); propi++) {
@@ -143,8 +141,7 @@ public class DialogBuilder {
       
         case Component.XTYPE_XBUTTON:
           XButton xButtonObject = (XButton)UnoRuntime.queryInterface(XButton.class, compObject);
-          Log.info("XBUTTON: " + xButtonObject);
-  
+
           if (listener instanceof ActionListener) {
             xButtonObject.addActionListener((XActionListener)listener);
           }
@@ -153,7 +150,6 @@ public class DialogBuilder {
   
         case Component.XTYPE_XCOMBOBOX:
           XComboBox xComboBox = (XComboBox)UnoRuntime.queryInterface(XComboBox.class, compObject);
-          Log.info("XCOMBOBOX: " + xComboBox);
           
           if (listener instanceof ActionListener) {
             xComboBox.addActionListener((XActionListener)listener);
@@ -165,8 +161,9 @@ public class DialogBuilder {
   
         case Component.XTYPE_XLISTBOX:
           XListBox xListBox = (XListBox)UnoRuntime.queryInterface(XListBox.class, compObject);
-          Log.info("XLISTBOX: " + xListBox);
-          xListBox.addActionListener((XActionListener)listener);
+          if (listener instanceof XActionListener) {
+        	xListBox.addActionListener((XActionListener)listener);
+          }
           
           break;
       }    
@@ -181,10 +178,6 @@ public class DialogBuilder {
   }
   
   private void setProperty(XPropertySet propertySet, ComponentProperty property) throws Exception {
-    
-    Log.info("PROPERTY: " + property.getName());
-    
-    
     if (property.isType(ComponentProperty.TYPE_STRING)) {
       propertySet.setPropertyValue(property.getName(), property.getValue());
       return;          

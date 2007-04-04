@@ -69,8 +69,6 @@ public abstract class BrowseDialog extends PlugInDialog {
       addHandler(BTN_PREV, Component.XTYPE_XBUTTON, new PrevClick());      
     }
     
-    Log.info("createDialog...");
-    
     super.createDialog();
   }
   
@@ -177,8 +175,6 @@ public abstract class BrowseDialog extends PlugInDialog {
   protected void fillItemsList() {
     XListBox xListBox = (XListBox)UnoRuntime.queryInterface(XListBox.class, xControlContainer.getControl(LST_ITEMS));
     
-    Log.info("XLisBox: " + xListBox);
-    
     xListBox.removeItems((short)0, xListBox.getItemCount());    
     
     for (int i = responses.size() - 1; i >= 0; i--) {
@@ -189,8 +185,6 @@ public abstract class BrowseDialog extends PlugInDialog {
   }
     
   protected void doPropFind() {
-	Log.info("protected void doPropFind()");
-	  
     disableAll();
     openThread = new OpenThread();
     openThread.start();    
@@ -199,16 +193,9 @@ public abstract class BrowseDialog extends PlugInDialog {
   protected class OpenThread extends Thread {    
     
     public void run() {
-      try {
-    	  
-    	Log.info("RUNNING PROPFIND:");
-    	  
+      try {    	  
         DavPropFind davPropFind = new DavPropFind(config.getContext());
-        Log.info("new...");
-        
         davPropFind.setResourcePath(currentPath);
-        
-        Log.info("res path");
         
         davPropFind.setRequiredProperty(Const.DavProp.DISPLAYNAME);
         davPropFind.setRequiredProperty(Const.DavProp.RESOURCETYPE);
@@ -217,9 +204,7 @@ public abstract class BrowseDialog extends PlugInDialog {
         davPropFind.setRequiredProperty(Const.DavProp.VERSIONNAME);
         davPropFind.setRequiredProperty(Const.DavProp.COMMENT);
         
-        Log.info("to exec");
         int status = davPropFind.execute();
-        Log.info("STATUS: " + status);
         
         String serverPrefix = config.getContext().getServerPrefix();
         String currentHref = serverPrefix + currentPath;
