@@ -153,17 +153,6 @@ public class SearchDialog extends BrowseDialog {
         Log.info("Unhandled exception. " + exc.getMessage(), exc);
       }
       
-//      String documentsPath = LocalFileSystem.getDocumentsPath();
-//      Log.info("DOCUMENTS PATH: \r\n[" + documentsPath + "]");
-//      
-//      try {
-//        XComponent component = OOUtils.loadFromFile(xComponentContext, "D:/test_file.odt");
-//        Log.info("RETURNED XCOMPONENT: " + component);
-//        
-//      } catch (Exception exc) {
-//        Log.info("Unhandled exception. " + exc.getMessage(), exc);
-//      }
-      
     }
 
   }  

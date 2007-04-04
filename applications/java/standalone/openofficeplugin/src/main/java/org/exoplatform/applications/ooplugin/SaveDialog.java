@@ -228,8 +228,7 @@ public class SaveDialog extends BrowseDialog {
   
   protected void initDefaults() throws Exception {
     XMultiComponentFactory xMultiComponentFactory = xComponentContext.getServiceManager();
-    Log.info("Component factory: " + xMultiComponentFactory);
-    
+
     Object descTop = xMultiComponentFactory.createInstanceWithContext(
         "com.sun.star.frame.Desktop", xComponentContext);
 

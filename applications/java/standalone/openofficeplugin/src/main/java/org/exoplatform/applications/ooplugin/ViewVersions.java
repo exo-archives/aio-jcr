@@ -103,10 +103,6 @@ public class ViewVersions extends PlugInDialog {
         
     for (int i = responses.size() - 1; i >= 0 ; i--) {
       ResponseDoc curResponse = responses.get(i);
-      
-      String curResponseHref = TextUtils.UnEscape(curResponse.getHref(), '%');      
-      Log.info("RESPONSE HREF: " + curResponseHref);
-      
       xListBox.addItem(formatLine(curResponse), (short)0);
     }
     
@@ -156,7 +152,6 @@ public class ViewVersions extends PlugInDialog {
       XListBox xListBox = (XListBox)UnoRuntime.queryInterface(XListBox.class, xControlContainer.getControl(LST_VERSIONS));
       short selectedItem = xListBox.getSelectedItemPos();
       if (selectedItem < 0) {
-        Log.info("SELECTED < 0. RETURNED");
         return;
       }
       
