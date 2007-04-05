@@ -17,6 +17,7 @@ import org.exoplatform.frameworks.webdavclient.commands.DavPut;
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.XTextComponent;
 import com.sun.star.awt.XToolkit;
+import com.sun.star.awt.XWindow;
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.document.XDocumentInfo;
 import com.sun.star.document.XDocumentInfoSupplier;
@@ -41,6 +42,7 @@ public class SaveDialog extends BrowseDialog {
   public static final String DIALOG_NAME = "_SaveDialog";
   
   private Thread launchThread;
+  private Thread enableSaveThread;
   
   private XStorable xStorable;
   private XDocumentInfo xDocumentInfo;
@@ -170,7 +172,7 @@ public class SaveDialog extends BrowseDialog {
       
       xStorable.storeAsURL(path, loadProps);
     } catch (com.sun.star.io.IOException e) {
-      Log.info("Exception.", e);
+      Log.info("Exception", e);
     }
   }  
   
@@ -256,10 +258,34 @@ public class SaveDialog extends BrowseDialog {
         }
         Thread.sleep(100);
         
+        enableSaveThread = new EnableSaveThread();
+        enableSaveThread.start();
+        
         doPropFind();
                 
       } catch (Exception exc) {
         Log.info("Unhandled exception. " + exc.getMessage(), exc);
+      }
+    }
+  }
+  
+  private class EnableSaveThread extends Thread {
+    public void run() {
+      try {
+        while (true) {
+          Thread.sleep(100);
+
+          if ("".equals(getFileName())) {
+            ((XWindow)UnoRuntime.queryInterface(
+                XWindow.class, xControlContainer.getControl(BTN_SAVE))).setEnable(false);                
+          } else {
+            ((XWindow)UnoRuntime.queryInterface(
+                XWindow.class, xControlContainer.getControl(BTN_SAVE))).setEnable(true);            
+          }
+          
+        }
+      } catch (Exception exc) {
+        Log.info("Unhandled exception", exc);
       }
     }
   }
@@ -275,7 +301,7 @@ public class SaveDialog extends BrowseDialog {
       
       int status = davPut.execute();
       if (status == Const.HttpStatus.CREATED) {
-        showMessageBox("File saved!");
+        showMessageBox("File " + config.getContext().getServerPrefix() + remotePath + " succesfully saved!");
         return true;
       }
       

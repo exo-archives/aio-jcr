@@ -107,25 +107,25 @@ public class SettingsDialog extends PlugInDialog {
   
   private class EnableTestButtonThread extends Thread {
     public void run() {
-        while (true) {
-          try {
-            Thread.sleep(100);
-            
-            if (isEntheredAll()) {
-              ((XWindow)UnoRuntime.queryInterface(
-                  XWindow.class, xControlContainer.getControl(BTN_TEST))).setEnable(true);                
-              ((XWindow)UnoRuntime.queryInterface(
-                  XWindow.class, xControlContainer.getControl(BTN_SAVE))).setEnable(true);                
-            } else {
-              ((XWindow)UnoRuntime.queryInterface(
-                  XWindow.class, xControlContainer.getControl(BTN_TEST))).setEnable(false);
-              ((XWindow)UnoRuntime.queryInterface(
-                  XWindow.class, xControlContainer.getControl(BTN_SAVE))).setEnable(false);
-            }          
-          } catch (Exception exc) {
-            Log.info("Can't execute EnableTestButton thread!", exc);
-          }
+      try {
+        while (true) {            
+          Thread.sleep(100);
+          
+          if (isEntheredAll()) {
+            ((XWindow)UnoRuntime.queryInterface(
+                XWindow.class, xControlContainer.getControl(BTN_TEST))).setEnable(true);                
+            ((XWindow)UnoRuntime.queryInterface(
+                XWindow.class, xControlContainer.getControl(BTN_SAVE))).setEnable(true);                
+          } else {
+            ((XWindow)UnoRuntime.queryInterface(
+                XWindow.class, xControlContainer.getControl(BTN_TEST))).setEnable(false);
+            ((XWindow)UnoRuntime.queryInterface(
+                XWindow.class, xControlContainer.getControl(BTN_SAVE))).setEnable(false);
+          }          
         }
+      } catch (Exception exc) {
+        Log.info("Can't execute EnableTestButton thread!", exc);
+      }
     }
   }
   
@@ -167,7 +167,7 @@ public class SettingsDialog extends PlugInDialog {
         Log.info("Unhandled exception", exc);
       }
 
-      showMessageBox("Can't connect with server!");      
+      showMessageBox(" Can not connect to repository!");      
       
     }
   }

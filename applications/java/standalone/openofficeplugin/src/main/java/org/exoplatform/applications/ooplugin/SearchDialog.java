@@ -110,7 +110,12 @@ public class SearchDialog extends BrowseDialog {
         
         Multistatus multistatus = davSearch.getMultistatus();
         responses = multistatus.getResponses();
-        fillItemsList(); 
+        
+        fillItemsList();
+        if (responses.size() == 0) {
+          showMessageBox("No files found!");
+        }
+
         enableAll();
       } catch (java.lang.Exception exc) {
         Log.info("Unhandled exception. " + exc.getMessage(), exc);

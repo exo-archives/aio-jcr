@@ -83,6 +83,9 @@ public class OpenDialog extends BrowseDialog {
           int selectedPos = getSelectedItemPos();
           
           if (selectedPos >= 0) {
+            ((XWindow)UnoRuntime.queryInterface(
+                XWindow.class, xControlContainer.getControl(BTN_OPEN))).setEnable(true);
+            
             ResponseDoc response = responses.get(selectedPos);
             VersionNameProp versionNameProperty = 
                 (VersionNameProp)response.getProperty(Const.DavProp.VERSIONNAME);
@@ -92,6 +95,9 @@ public class OpenDialog extends BrowseDialog {
               continue;
             }
             
+          } else {
+            ((XWindow)UnoRuntime.queryInterface(
+                XWindow.class, xControlContainer.getControl(BTN_OPEN))).setEnable(false);
           }
           
         } catch (Exception exc) {
@@ -106,14 +112,14 @@ public class OpenDialog extends BrowseDialog {
   
   protected void disableAll() {
     super.disableAll();
-    ((XWindow)UnoRuntime.queryInterface(
-        XWindow.class, xControlContainer.getControl(BTN_OPEN))).setEnable(false);    
+//    ((XWindow)UnoRuntime.queryInterface(
+//        XWindow.class, xControlContainer.getControl(BTN_OPEN))).setEnable(false);    
   }
   
   protected void enableAll() {
     super.enableAll();
-    ((XWindow)UnoRuntime.queryInterface(
-        XWindow.class, xControlContainer.getControl(BTN_OPEN))).setEnable(true);    
+//    ((XWindow)UnoRuntime.queryInterface(
+//        XWindow.class, xControlContainer.getControl(BTN_OPEN))).setEnable(true);    
   }  
   
   private class PathChanged extends ItemListener {

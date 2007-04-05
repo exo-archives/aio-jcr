@@ -173,15 +173,13 @@ public abstract class BrowseDialog extends PlugInDialog {
   }
   
   protected void fillItemsList() {
-    XListBox xListBox = (XListBox)UnoRuntime.queryInterface(XListBox.class, xControlContainer.getControl(LST_ITEMS));
-    
+    XListBox xListBox = (XListBox)UnoRuntime.queryInterface(XListBox.class, xControlContainer.getControl(LST_ITEMS));    
     xListBox.removeItems((short)0, xListBox.getItemCount());    
     
     for (int i = responses.size() - 1; i >= 0; i--) {
       ResponseDoc response = responses.get(i);
       xListBox.addItem(formatResponseLine(response), (short)0);
-    }
-    
+    }    
   }
     
   protected void doPropFind() {
