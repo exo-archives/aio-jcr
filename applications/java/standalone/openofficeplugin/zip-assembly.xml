@@ -52,9 +52,9 @@
 				<exclude>jmock:jmock</exclude>
 				<exclude>commons-beanutils:commons-beanutils</exclude>
 				<exclude>xerces:xercesImpl</exclude>
-				<exclude>open-office:com.sun.star.beans</exclude>
-				<exclude>open-office:com.sun.star.unoil</exclude>
-				<exclude>open-office:com.sun.star.comp</exclude>				
+				<exclude>com.sun.star:beans</exclude>
+				<exclude>com.sun.star:unoil</exclude>
+				<exclude>com.sun.star:comp</exclude>				
 			</excludes>
 		</dependencySet>
 	</dependencySets>
