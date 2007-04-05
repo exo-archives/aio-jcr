@@ -1,0 +1,171 @@
+<project>
+	<parent>
+		<groupId>org.exoplatform.jcr</groupId>
+		<artifactId>config</artifactId>
+		<version>1.6</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>exo-jcr</groupId>
+	<artifactId>exo-jcr.applications.repoload</artifactId>
+	<packaging>jar</packaging>
+	<version>1.1</version>
+	<name>repoload</name>
+	<url>http://www.exoplatform.org</url>
+	<description>Repository Uploader</description>
+
+	<dependencies>
+		<!-- dependency>
+			<groupId>exo-jcr</groupId>
+			<artifactId>exo-jcr.services.jcr.api</artifactId>
+			<version>${exo.jcr.version}</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>exo-jcr</groupId>
+			<artifactId>exo-jcr.services.jcr.impl</artifactId>
+			<version>${exo.jcr.version}</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-chain</groupId>
+			<artifactId>commons-chain</artifactId>
+			<version>1.0</version>
+			<scope>compile</scope>
+		</dependency -->
+		
+		<dependency>
+			<groupId>org.exoplatform.jcr</groupId> 
+			<artifactId>exo.jcr.component.core</artifactId> 
+			<version>${org.exoplatform.jcr.version}</version> 
+			 <scope>compile</scope> 
+		</dependency>
+
+
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.8</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<!--dependency>
+			<groupId>exo-platform</groupId>
+			<artifactId>exo-platform.container</artifactId>
+			<version>${exo.platform.version}</version>
+			<scope>compile</scope>
+		</dependency -->
+
+		<!--dependency>
+			<groupId>exo-platform</groupId>
+			<artifactId>exo-platform.services.common.api</artifactId>
+			<version>${exo.platform.version}</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>exo-platform</groupId>
+			<artifactId>exo-platform.services.command</artifactId>
+			<version>${exo.platform.version}</version>
+			<scope>compile</scope>
+		</dependency-->
+		
+		<dependency>
+			<groupId>ojdbc</groupId>
+			<artifactId>ojdbc</artifactId>
+			<version>14</version>
+			<scope>compile</scope>
+			</dependency>
+			
+			<dependency>
+			<groupId>ojdbc</groupId>
+			<artifactId>orai18n</artifactId>
+			<version>14</version>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+
+		<resources>
+
+			<resource>
+				<directory>src/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+					<include>**/*.html</include>
+					<include>**/*.ion</include>
+				</includes>
+			</resource>
+
+		</resources>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<archive>
+						<manifestEntries>
+							<Main-Class>
+								org/exoplatform/applications/repoload/RepositoryDataUploader
+							</Main-Class>
+							<Sealed>true</Sealed>
+						</manifestEntries>
+						<manifest>
+							<addClasspath>true</addClasspath>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.1</version>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>assembly</goal>
+						</goals>
+					</execution>
+				</executions>
+
+				<configuration>
+					<archive><!-- Please document this -->
+						<manifest>
+							<mainClass>
+								org/exoplatform/applications/repoload/RepositoryDataUploader
+							</mainClass>
+						</manifest>
+					</archive>
+
+					<descriptor>jar-with-dependencies.xml</descriptor>
+					<finalName>repoload</finalName>
+					<outputDirectory>bin</outputDirectory>
+					<workDirectory>target/assembly/work</workDirectory>
+				</configuration>
+			</plugin>
+
+
+		</plugins>
+	</build>
+
+
+</project>
