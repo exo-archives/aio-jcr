@@ -14,7 +14,7 @@ Library allows :
  - Load .doc, .xls, .ppt files from JCR repository into MS Office; 
  - Edit and Save files onto repository; 
  - Making full-text repository search; 
- - View propertis list; 
+ - View properties list; 
  - View and Edit some version of current file and compare it (Word only) with base version (current state). 
 
 
