@@ -660,13 +660,24 @@
 				<property name="MultiLine" type="boolean" value="false" />
 				<property name="EchoChar" type="short" value="42" />
 			</component>
+
+			<component>
+				<class>com.sun.star.awt.UnoControlButtonModel</class>
+				<property name="Name" type="string" value="btnTest"/>
+				<property name="PositionX" type="integer" value="17" />
+				<property name="PositionY" type="integer" value="154" />
+				<property name="Width" type="integer" value="42" />
+				<property name="Height" type="integer" value="14" />
+				<property name="TabIndex" type="short" value="4" />				
+				<property name="Label" type="string" value="Test" />
+			</component>
 			
 			<component>
 				<class>com.sun.star.awt.UnoControlButtonModel</class>
 				<property name="Name" type="string" value="btnSave"/>
-				<property name="PositionX" type="integer" value="70" />
+				<property name="PositionX" type="integer" value="67" />
 				<property name="PositionY" type="integer" value="154" />
-				<property name="Width" type="integer" value="42" />
+				<property name="Width" type="integer" value="43" />
 				<property name="Height" type="integer" value="14" />
 				<property name="TabIndex" type="short" value="4" />				
 				<property name="Label" type="string" value="Save" />

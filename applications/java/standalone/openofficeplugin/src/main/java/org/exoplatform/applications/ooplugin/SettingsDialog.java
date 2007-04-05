@@ -7,6 +7,9 @@ package org.exoplatform.applications.ooplugin;
 
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
+import org.exoplatform.frameworks.webdavclient.Const;
+import org.exoplatform.frameworks.webdavclient.WebDavContext;
+import org.exoplatform.frameworks.webdavclient.commands.DavHead;
 
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.XTextComponent;
@@ -26,6 +29,7 @@ public class SettingsDialog extends PlugInDialog {
   public static final String NAME = "_SettingsDialog";
   
   public static final String BTN_SAVE = "btnSave";
+  public static final String BTN_TEST = "btnTest";
   
   public static final String EDT_SERVERNAME = "edtServerName";
   public static final String EDT_PORT = "edtPort";
@@ -41,6 +45,7 @@ public class SettingsDialog extends PlugInDialog {
     dialogName = NAME;
     
     addHandler(BTN_SAVE, Component.XTYPE_XBUTTON, new SaveClick());
+    addHandler(BTN_TEST, Component.XTYPE_XBUTTON, new TestClick());
     
     launchThread = new LaunchThread();
     launchThread.start();
@@ -77,6 +82,37 @@ public class SettingsDialog extends PlugInDialog {
     XTextComponent xComboText = (XTextComponent)UnoRuntime.queryInterface(
         XTextComponent.class, xControlContainer.getControl(componentName));
     return xComboText.getText();      
+  }
+  
+  private class TestClick extends ActionListener {
+    public void actionPerformed(ActionEvent arg0) {
+      
+      try {        
+        String host = getTextBoxValue(EDT_SERVERNAME);
+        int port = new Integer(getTextBoxValue(EDT_PORT));
+        String path = getTextBoxValue(EDT_SERVLET);
+        String workSpace = getTextBoxValue(EDT_WORKSPACE);
+        String userId = getTextBoxValue(EDT_USER);
+        String userPass = getTextBoxValue(EDT_PASS);
+        
+        WebDavContext testContext = new WebDavContext(host, port, path + "/" + workSpace, userId, userPass);
+        
+        DavHead davHead = new DavHead(testContext);
+        davHead.setResourcePath("/");
+        
+        int status = davHead.execute();
+        if (status == Const.HttpStatus.OK) {
+          showMessageBox("Connection successful!");
+          return;
+        }
+        
+      } catch (Exception exc) {
+        Log.info("Unhandled exception", exc);
+      }
+
+      showMessageBox("Can't connect with server!");      
+      
+    }
   }
   
   private class SaveClick extends ActionListener {
