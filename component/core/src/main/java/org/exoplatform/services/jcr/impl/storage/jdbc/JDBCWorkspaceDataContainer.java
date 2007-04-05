@@ -7,6 +7,9 @@ package org.exoplatform.services.jcr.impl.storage.jdbc;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.sql.Connection;
 
 import javax.jcr.RepositoryException;
 import javax.naming.InitialContext;
@@ -98,7 +101,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
   protected File swapDirectory;
   protected FileCleaner swapCleaner;
   
-  protected final GenericConnectionFactory connFactory;
+  protected GenericConnectionFactory connFactory;
   
   /**
    * Constructor with value storage plugins
@@ -182,6 +185,61 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
 
     //Context context = new InitialContext();
     //DataSource dataSource = (DataSource) context.lookup(dbSourceName);
+
+    initDatabase();
+    
+    String suParam = null;
+    boolean enableStorageUpdate = false;
+    try {
+      suParam = wsConfig.getContainer().getParameterValue("update-storage");
+      enableStorageUpdate = Boolean.parseBoolean(suParam);
+    } catch (RepositoryConfigurationException e) {
+      log.debug("update-storage parameter is not set "+dbSourceName);
+    }
+    
+    //checkVersion(dataSource, enableStorageUpdate);
+    this.storageVersion = StorageUpdateManager.checkVersion(
+        dbSourceName, this.connFactory.getJdbcConnection(), multiDb, enableStorageUpdate);
+        
+    // check for FileValueStorage
+    if (valueStorageProvider instanceof StandaloneStoragePluginProvider) {
+      WorkspaceStorageConnection conn = null;
+      try {
+        conn = openConnection();
+        ((StandaloneStoragePluginProvider) valueStorageProvider).checkConsistency(conn);
+      } finally {
+        if (conn != null)
+          conn.rollback();
+      }
+    }
+    
+    log.info(getInfo());  
+  }
+  
+  protected GenericConnectionFactory defaultConnectionFactory() throws NamingException, RepositoryException {
+    // by default
+    if (dbSourceName != null) {
+      DataSource ds = (DataSource) new InitialContext().lookup(dbSourceName);
+      if (ds != null)
+        return new GenericConnectionFactory (
+          ds, containerName, multiDb, valueStorageProvider, maxBufferSize, swapDirectory, swapCleaner);
+      
+      throw new RepositoryException("Datasource '" + dbSourceName + "' is not bound in this context.");
+    }
+    
+    return new GenericConnectionFactory (
+        dbDriver, dbUrl, dbUserName, dbPassword, 
+        containerName, multiDb, valueStorageProvider, maxBufferSize, swapDirectory, swapCleaner);
+  }
+
+  protected DBInitializer defaultDBInitializer(String sqlPath) throws NamingException, RepositoryException, IOException {
+    return new DBInitializer(
+        containerName, 
+        this.connFactory.getJdbcConnection(), 
+        sqlPath);
+  }
+  
+  protected void initDatabase() throws NamingException, RepositoryException, IOException {
     
     DBInitializer dbInitilizer = null;
     String sqlPath = null;
@@ -219,132 +277,36 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     } else if (dbType == DB_TYPE_MYSQL) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.mysql.sql";
+      dbInitilizer = defaultDBInitializer(sqlPath);
     } else if (dbType == DB_TYPE_MSSQL) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.mssql.sql";
+      dbInitilizer = defaultDBInitializer(sqlPath);
     } else if (dbType == DB_TYPE_DERBY) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.derby.sql";
     } else if (dbType == DB_TYPE_DB2) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.db2.sql";
+      dbInitilizer = defaultDBInitializer(sqlPath);
     } else if (dbType == DB_TYPE_SYBASE) {      
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.sybase.sql";
+      dbInitilizer = defaultDBInitializer(sqlPath);
     } else {
       // generic, DB_HSQLDB
       this.connFactory = defaultConnectionFactory();
-      sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.sql";      
+      sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.sql";
+      dbInitilizer = defaultDBInitializer(sqlPath);
     }
     
     // database type
     try {
-      if (dbInitilizer == null)
-        dbInitilizer = new DBInitializer(
-          containerName, 
-          this.connFactory.getJdbcConnection(), 
-          sqlPath);
-      
       dbInitilizer.init();
     } catch (DBInitializerException e) {
       log.error("Error of init db " + e, e);
     }
-    
-    String suParam = null;
-    boolean enableStorageUpdate = false;
-    try {
-      suParam = wsConfig.getContainer().getParameterValue("update-storage");
-      enableStorageUpdate = Boolean.parseBoolean(suParam);
-    } catch (RepositoryConfigurationException e) {
-      log.debug("update-storage parameter is not set "+dbSourceName);
-    }
-    
-    //checkVersion(dataSource, enableStorageUpdate);
-    this.storageVersion = StorageUpdateManager.checkVersion(
-        dbSourceName, this.connFactory.getJdbcConnection(), multiDb, enableStorageUpdate);
-        
-    // check for FileValueStorage
-    if (valueStorageProvider instanceof StandaloneStoragePluginProvider) {
-      WorkspaceStorageConnection conn = null;
-      try {
-        conn = openConnection();
-        ((StandaloneStoragePluginProvider) valueStorageProvider).checkConsistency(conn);
-      } finally {
-        if (conn != null)
-          conn.rollback();
-      }
-    }
-    
-    log.info(getInfo());  
-//    log.info("JDBCWorkspaceDataContainer (cEntry): " + containerName + ", dataSource: " + sourceName);
   }
-  
-  protected GenericConnectionFactory defaultConnectionFactory() throws NamingException, RepositoryException {
-    // by default
-    if (dbSourceName != null) {
-      DataSource ds = (DataSource) new InitialContext().lookup(dbSourceName);
-      if (ds != null)
-        return new GenericConnectionFactory (
-          ds, containerName, multiDb, valueStorageProvider, maxBufferSize, swapDirectory, swapCleaner);
-      
-      throw new RepositoryException("Datasource '" + dbSourceName + "' is not bound in this context.");
-    }
-    
-    return new GenericConnectionFactory (
-        dbDriver, dbUrl, dbUserName, dbPassword, 
-        containerName, multiDb, valueStorageProvider, maxBufferSize, swapDirectory, swapCleaner);
-  }
-  
-  // it's a development code store
-  @Deprecated
-  private void initDialiectClass() {
-    // db-type samples: Generic, Oracle, HSQLDB, PgSQL
-    // will try to load classes: org.exoplatform.services.jcr.impl.storage.jdbc.GenericConnectionFactory
-    // org.exoplatform.services.jcr.impl.storage.jdbc.OracleConnectionFactory etc.
-    
-//    GenericConnectionFactory cf = null;
-//    try {
-//      String dialectClassName = "org.exoplatform.services.jcr.impl.storage.jdbc." + dbType + "ConnectionFactory";
-//      Class<? extends GenericConnectionFactory> dialectClass = (Class<? extends GenericConnectionFactory>) Class.forName(dialectClassName);
-//      Constructor<? extends GenericConnectionFactory> dConstructor = dialectClass.getConstructor(
-//          new Class[] {
-//            DataSource.class,
-//            String.class, 
-//            boolean.class, 
-//            ValueStoragePluginProvider.class, 
-//            int.class, 
-//            File.class, 
-//            FileCleaner.class}
-//          );
-//      
-//      cf = dConstructor.newInstance(
-//          new Object[] {
-//              dataSource,
-//              containerName, 
-//              multiDb, 
-//              valueStorageProvider, 
-//              maxBufferSize, 
-//              swapDirectory, 
-//              swapCleaner
-//          });
-//      
-//    } catch (Throwable e) {
-//      
-//      if (log.isDebugEnabled())
-//        log.warn("A dialect " + dbType + " isn't accessible (or can't be instantiated). A generic one will be used. " + e, e);
-//      else
-//        log.warn("A dialect " + dbType + " isn't accessible (or can't be instantiated). A generic one will be used. " + e);
-//      
-//      cf = new GenericConnectionFactory(dataSource, 
-//        containerName, 
-//        multiDb, 
-//        valueStorageProvider, 
-//        maxBufferSize, 
-//        swapDirectory, 
-//        swapCleaner);
-//    }    
-  }
-  
   protected String detectDialect(String confParam) {
     for (String dbType: DB_TYPES) {
       if (dbType.equalsIgnoreCase(confParam))
@@ -425,4 +387,149 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     this.swapCleaner.interrupt();
   }
 
+  // ------------------ development code ---------------
+  
+  @Deprecated
+  protected GenericConnectionFactory connectionFactory(String dbType) throws NamingException, RepositoryException {
+    try {
+      String cfClassName = "org.exoplatform.services.jcr.impl.storage.jdbc." + dbType + "ConnectionFactory";
+      Class<? extends GenericConnectionFactory> cfClass = (Class<? extends GenericConnectionFactory>) Class.forName(cfClassName);
+      
+      if (dbSourceName != null) {
+        DataSource dataSource = (DataSource) new InitialContext().lookup(dbSourceName);
+          if (dataSource != null) {
+            Constructor<? extends GenericConnectionFactory> cfConstructor = cfClass.getConstructor(
+                new Class[] {
+                  DataSource.class,
+                  String.class, 
+                  boolean.class, 
+                  ValueStoragePluginProvider.class, 
+                  int.class, 
+                  File.class, 
+                  FileCleaner.class}
+                );
+            
+            return cfConstructor.newInstance(
+                new Object[] {
+                    dataSource,
+                    containerName, 
+                    multiDb, 
+                    valueStorageProvider, 
+                    maxBufferSize, 
+                    swapDirectory, 
+                    swapCleaner
+                });
+          }
+      } 
+      
+      Constructor<? extends GenericConnectionFactory> cfConstructor = cfClass.getConstructor(
+          new Class[] {
+            String.class,
+            String.class,
+            String.class,
+            String.class,
+            String.class, 
+            boolean.class, 
+            ValueStoragePluginProvider.class, 
+            int.class, 
+            File.class, 
+            FileCleaner.class}
+          );
+      
+      return cfConstructor.newInstance(
+          new Object[] {
+              dbDriver,
+              dbUrl,
+              dbUserName,
+              dbPassword,
+              containerName, 
+              multiDb, 
+              valueStorageProvider, 
+              maxBufferSize, 
+              swapDirectory, 
+              swapCleaner
+          });
+      
+    } catch(ClassNotFoundException e) {
+      // no definition for the class with the specified name could be found
+      if (log.isDebugEnabled())
+        log.warn("No definition for the connection factory of database type " + dbType + " is found. A generic one will be used. " + e, e);
+      else
+        log.warn("No definition for the connection factory of database type " + dbType + " is found. A generic one will be used. " + e);
+      
+      return defaultConnectionFactory();
+      
+    } catch(NoSuchMethodException e) {
+      // a particular method cannot be found
+      throw new RepositoryException(e);
+    } catch(InstantiationException e) {
+      // it is an interface or is an abstract class
+      throw new RepositoryException(e);
+    } catch(IllegalArgumentException e) {
+      // a method has been passed an illegal or inappropriate argument
+      throw new RepositoryException(e);
+    } catch(InvocationTargetException e) {
+      // an exception thrown by an invoked method or constructor
+      throw new RepositoryException(e);
+    } catch(SecurityException e) {
+      // a security violation
+      throw new RepositoryException(e);
+    } catch(IllegalAccessException e) {
+      // the currently executing method does not have access to the definition of 
+      // the specified class, field, method or constructor
+      throw new RepositoryException(e);
+    }    
+  }
+  
+  @Deprecated
+  protected DBInitializer dbInitializer(String dbType, Connection connection, String scriptPath) throws NamingException, RepositoryException, IOException {
+    try {
+      String dbiClassName = "org.exoplatform.services.jcr.impl.storage.jdbc.init." + dbType + "DBInitializer";
+      Class<? extends DBInitializer> cfClass = (Class<? extends DBInitializer>) Class.forName(dbiClassName);
+      
+      Constructor<? extends DBInitializer> cfConstructor = cfClass.getConstructor(
+          new Class[] {
+            String.class, 
+            Connection.class, 
+            String.class}
+          );
+      
+      return cfConstructor.newInstance(
+          new Object[] {
+              containerName,
+              connection,
+              scriptPath
+          });
+      
+    } catch(ClassNotFoundException e) {
+      // no definition for the class with the specified name could be found
+      if (log.isDebugEnabled())
+        log.warn("No definition for the connection factory of database type " + dbType + " is found. A generic one will be used. " + e, e);
+      else
+        log.warn("No definition for the connection factory of database type " + dbType + " is found. A generic one will be used. " + e);
+      
+      return defaultDBInitializer(scriptPath);
+      
+    } catch(NoSuchMethodException e) {
+      // a particular method cannot be found
+      throw new RepositoryException(e);
+    } catch(InstantiationException e) {
+      // it is an interface or is an abstract class
+      throw new RepositoryException(e);
+    } catch(IllegalArgumentException e) {
+      // a method has been passed an illegal or inappropriate argument
+      throw new RepositoryException(e);
+    } catch(InvocationTargetException e) {
+      // an exception thrown by an invoked method or constructor
+      throw new RepositoryException(e);
+    } catch(SecurityException e) {
+      // a security violation
+      throw new RepositoryException(e);
+    } catch(IllegalAccessException e) {
+      // the currently executing method does not have access to the definition of 
+      // the specified class, field, method or constructor
+      throw new RepositoryException(e);
+    }    
+  }  
+  
 }

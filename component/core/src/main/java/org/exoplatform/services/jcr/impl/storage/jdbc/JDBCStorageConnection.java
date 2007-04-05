@@ -29,6 +29,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
@@ -307,107 +308,115 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       return 0; // will newer returns
     }
   }
-
-  public void doReindex(String itemUuid, String oldQPath, int indexDelimPos, int oldIndexLength, String newIndexStr) throws RepositoryException, UnsupportedOperationException, InvalidItemStateException, IllegalStateException, SQLException {
-
-    // internal class for storing reindex result and freeing JDBC statement (i.e. client-cursor)
-    class ItemId {
-      private final String cid;
-      private final String path;
-      private final int version;
-      
-      ItemId(String cid, String path, int version) {
-        this.cid = cid;
-        this.path = path;
-        this.version = version;
-      }
-
-      public String getCid() {
-        return cid;
-      }
-
-      public String getPath() {
-        return path;
-      }
-
-      public int getVersion() {
-        return version;
-      }
-    }
-    
-    // child nodes
-    final ResultSet dnrs = findDescendantNodes(itemUuid, oldQPath);
-    final List<ItemId> descendantNodes = new ArrayList<ItemId>(); 
-    while (dnrs.next()) {
-      descendantNodes.add(new ItemId(dnrs.getString(COLUMN_ID), dnrs.getString(COLUMN_PATH), dnrs.getInt(COLUMN_VERSION)));
-    }
-    dnrs.close();
-          
-    for (ItemId item: descendantNodes) {  
-      String newDescPath = item.getPath().substring(0, indexDelimPos) + newIndexStr
-        + item.getPath().substring(indexDelimPos + oldIndexLength);
-      if (updateItemPathByUUID(newDescPath, item.getVersion() + 1, item.getCid()) <= 0)
-        log.warn("No nodes was updated during reindex " + item.getPath() + " -> " + newDescPath + ", uuid:" + item.getCid());
-      else {
-        // DO IT RECURSIVE
-        doReindex(item.getCid(), oldQPath, indexDelimPos, oldIndexLength, newIndexStr);
-
-        if (log.isDebugEnabled())
-          log.debug("Reindex node " + item.getPath() + " -> " + newDescPath + ", " + item.getCid());
-      }
-    }
-
-    // child properties
-    final ResultSet dprs = findDescendantProperties(itemUuid, oldQPath);
-    final List<ItemId> descendantProperties = new ArrayList<ItemId>();
-    while (dprs.next()) {
-      descendantProperties.add(new ItemId(dprs.getString(COLUMN_ID), dprs.getString(COLUMN_PATH), dprs.getInt(COLUMN_VERSION)));
-    }
-    dprs.close();
-      
-    for (ItemId item: descendantProperties) {
-      final String newDescPath = item.getPath().substring(0, indexDelimPos) + newIndexStr
-        + item.getPath().substring(indexDelimPos + oldIndexLength);
-      if (updateItemPathByUUID(newDescPath, item.getVersion() + 1, item.getCid()) <= 0)
-        log.warn("No nodes was updated during reindex " + item.getPath() + " -> " + newDescPath + ", uuid:" + item.getCid());
-      else if (log.isDebugEnabled())
-        log.debug("Reindex property " + item.getPath() + " -> " + newDescPath + ", " + item.getCid());
-    }
-  }
+  
+//  public void doReindex(String itemUuid, String oldQPath, int indexDelimPos, int oldIndexLength, String newIndexStr) throws RepositoryException, UnsupportedOperationException, InvalidItemStateException, IllegalStateException, SQLException {
+//
+//    // TODO reimplement
+//    log.warn("Nodes reordering is not supported currently");
+//    return;
+//    
+//    // internal class for storing reindex result and freeing JDBC statement (i.e. client-cursor)
+//    class ItemId {
+//      private final String cid;
+//      private final String path;
+//      private final int version;
+//      
+//      ItemId(String cid, String path, int version) {
+//        this.cid = cid;
+//        this.path = path;
+//        this.version = version;
+//      }
+//
+//      public String getCid() {
+//        return cid;
+//      }
+//
+//      public String getPath() {
+//        return path;
+//      }
+//
+//      public int getVersion() {
+//        return version;
+//      }
+//    }
+//    
+//    // child nodes
+//    final ResultSet dnrs = findDescendantNodes(itemUuid, oldQPath);
+//    final List<ItemId> descendantNodes = new ArrayList<ItemId>(); 
+//    while (dnrs.next()) {
+//      descendantNodes.add(new ItemId(dnrs.getString(COLUMN_ID), dnrs.getString(COLUMN_PATH), dnrs.getInt(COLUMN_VERSION)));
+//    }
+//    dnrs.close();
+//          
+//    for (ItemId item: descendantNodes) {  
+//      String newDescPath = item.getPath().substring(0, indexDelimPos) + newIndexStr
+//        + item.getPath().substring(indexDelimPos + oldIndexLength);
+//      if (updateItemPathByUUID(newDescPath, item.getVersion() + 1, item.getCid()) <= 0)
+//        log.warn("No nodes was updated during reindex " + item.getPath() + " -> " + newDescPath + ", uuid:" + item.getCid());
+//      else {
+//        // DO IT RECURSIVE
+//        doReindex(item.getCid(), oldQPath, indexDelimPos, oldIndexLength, newIndexStr);
+//
+//        if (log.isDebugEnabled())
+//          log.debug("Reindex node " + item.getPath() + " -> " + newDescPath + ", " + item.getCid());
+//      }
+//    }
+//
+//    // child properties
+//    final ResultSet dprs = findDescendantProperties(itemUuid, oldQPath);
+//    final List<ItemId> descendantProperties = new ArrayList<ItemId>();
+//    while (dprs.next()) {
+//      descendantProperties.add(new ItemId(dprs.getString(COLUMN_ID), dprs.getString(COLUMN_PATH), dprs.getInt(COLUMN_VERSION)));
+//    }
+//    dprs.close();
+//      
+//    for (ItemId item: descendantProperties) {
+//      final String newDescPath = item.getPath().substring(0, indexDelimPos) + newIndexStr
+//        + item.getPath().substring(indexDelimPos + oldIndexLength);
+//      if (updateItemPathByUUID(newDescPath, item.getVersion() + 1, item.getCid()) <= 0)
+//        log.warn("No nodes was updated during reindex " + item.getPath() + " -> " + newDescPath + ", uuid:" + item.getCid());
+//      else if (log.isDebugEnabled())
+//        log.debug("Reindex property " + item.getPath() + " -> " + newDescPath + ", " + item.getCid());
+//    }
+//  }
 
   public void reindex(NodeData oldData, NodeData data) throws RepositoryException, UnsupportedOperationException, InvalidItemStateException, IllegalStateException {
-    checkIfOpened();
-    try {
-      String cid = getInternalId(data.getUUID());
-
-      String oldQPath = oldData.getQPath().getAsString();
-      String newQPath = data.getQPath().getAsString();
-
-      int indexDelimPos = oldQPath.lastIndexOf(":");
-      if (newQPath.charAt(indexDelimPos) != ':')
-        throw new RepositoryException("Reindex. An old and a new node has a different locations in workspace. "
-            + oldQPath + ", " + newQPath);
-
-      indexDelimPos++; // pos of the first char of a index string
-      
-      String newIndexStr = newQPath.substring(indexDelimPos);
-      int oldIndexLength = oldQPath.length() - indexDelimPos;
-
-      // reindex node
-      if (updateItemPathByUUID(newQPath, data.getPersistedVersion() + 1, cid) <= 0)
-        log.warn("No nodes was updated during reindex " + oldQPath + " -> " + newQPath + ", uuid:" + cid);
-      else if (log.isDebugEnabled())
-        log.debug("Reindex root node " + oldQPath + " -> " + newQPath + ", " + cid + ", " + data.getPrimaryTypeName().getAsString());
-
-      // reindex childs
-      doReindex(cid, oldQPath, indexDelimPos, oldIndexLength, newIndexStr);
-
-    } catch (RepositoryException e) {
-      throw new RepositoryException(e);
-    } catch (Exception e) { // SQL
-      log.error("Node reindex. Database error: " + e, e);
-      exceptionHandler.handleUpdateException(e, data);
-    }
+    // TODO reimplement
+    log.warn("Nodes reordering is not supported currently");
+    return;
+    
+//    checkIfOpened();
+//    try {
+//      String cid = getInternalId(data.getUUID());
+//
+//      String oldQPath = oldData.getQPath().getAsString();
+//      String newQPath = data.getQPath().getAsString();
+//
+//      int indexDelimPos = oldQPath.lastIndexOf(":");
+//      if (newQPath.charAt(indexDelimPos) != ':')
+//        throw new RepositoryException("Reindex. An old and a new node has a different locations in workspace. "
+//            + oldQPath + ", " + newQPath);
+//
+//      indexDelimPos++; // pos of the first char of a index string
+//      
+//      String newIndexStr = newQPath.substring(indexDelimPos);
+//      int oldIndexLength = oldQPath.length() - indexDelimPos;
+//
+//      // reindex node
+//      if (updateItemPathByUUID(newQPath, data.getPersistedVersion() + 1, cid) <= 0)
+//        log.warn("No nodes was updated during reindex " + oldQPath + " -> " + newQPath + ", uuid:" + cid);
+//      else if (log.isDebugEnabled())
+//        log.debug("Reindex root node " + oldQPath + " -> " + newQPath + ", " + cid + ", " + data.getPrimaryTypeName().getAsString());
+//
+//      // reindex childs
+//      doReindex(cid, oldQPath, indexDelimPos, oldIndexLength, newIndexStr);
+//
+//    } catch (RepositoryException e) {
+//      throw new RepositoryException(e);
+//    } catch (Exception e) { // SQL
+//      log.error("Node reindex. Database error: " + e, e);
+//      exceptionHandler.handleUpdateException(e, data);
+//    }
   }
 
   /* (non-Javadoc)
@@ -420,7 +429,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       // version update
       updateItemVersionByUUID(data.getPersistedVersion(), cid);
       // order numb update
-      updateNodeOrderNumbByUUID(data.getOrderNumber(), cid);
+      updateNodeOrderNumbByUUID(data.getQPath().getIndex(), data.getOrderNumber(), cid);
 
       if (log.isDebugEnabled())
         log.debug("Node updated " + data.getQPath().getAsString() + ", " + data.getUUID() + ", " + data.getPrimaryTypeName().getAsString());
@@ -533,9 +542,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)
-   */
+  @Deprecated
   public ItemData getItemData(QPath qPath) throws RepositoryException, IllegalStateException {
     checkIfOpened();
     ResultSet item = null;
@@ -565,6 +572,31 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
    */
   public ItemData getItemData(String uuid) throws RepositoryException, IllegalStateException {
     return getItemByUUID(getInternalId(uuid));
+  }
+  
+  public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException,
+      IllegalStateException {
+    checkIfOpened();
+    ResultSet item = null;
+    try {
+      item = findItemByParentName(parentData.getUUID(), name.getName(), name.getIndex());
+      if (item.next())
+        return itemData(item);
+      return null;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new RepositoryException(e);
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw new RepositoryException(e);
+    } finally {
+      try {
+        if (item != null)
+          item.close();
+      } catch(SQLException e) {
+        log.error("getItemData() Error close resultset " + e.getMessage());
+      }
+    }
   }
 
   /* (non-Javadoc)
@@ -843,6 +875,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   protected abstract ResultSet findItemByPath(String path) throws SQLException;
   protected abstract ResultSet findItemByUUID(String uuid) throws SQLException;
   protected abstract ResultSet findPropertyByPath(String parentId, String path) throws SQLException;
+  protected abstract ResultSet findItemByParentName(String parentId, String name, int index) throws SQLException;
 
   protected abstract ResultSet findChildNodesByParentUUID(String parentUUID) throws SQLException;
   protected abstract ResultSet findChildPropertiesByParentUUID(String parentUUID) throws SQLException;
@@ -859,8 +892,10 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   protected abstract int deletePropertyByUUID(String uuid) throws SQLException;
 
   protected abstract int updateItemVersionByUUID(int versionValue, String uuid) throws SQLException;
-  protected abstract int updateItemPathByUUID(String qpath, int version, String uuid) throws SQLException;
-  protected abstract int updateNodeOrderNumbByUUID(int orderNumb, String uuid) throws SQLException;
+  
+  //protected abstract int updateItemPathByUUID(String qpath, int version, String uuid) throws SQLException;
+  
+  protected abstract int updateNodeOrderNumbByUUID(int index, int orderNumb, String uuid) throws SQLException;
   protected abstract int updatePropertyTypeByUUID(int type, String uuid) throws SQLException;
   
   // -------- values processing ------------

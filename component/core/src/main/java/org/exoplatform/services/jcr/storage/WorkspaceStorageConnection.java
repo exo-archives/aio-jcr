@@ -14,6 +14,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 
 /**
  * Created by The eXo Platform SARL        . <br>
@@ -43,7 +44,10 @@ public interface WorkspaceStorageConnection {
    * @throws RepositoryException if some exception occured
    * @throws IllegalStateException if connection is closed
    */
+  @Deprecated
   ItemData getItemData(QPath qPath) throws RepositoryException, IllegalStateException;
+  
+  ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException, IllegalStateException;
 
   /**
    * @param uuid -

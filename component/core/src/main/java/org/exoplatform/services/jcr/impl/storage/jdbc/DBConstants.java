@@ -22,6 +22,7 @@ public class DBConstants {
   
   protected String FIND_ITEM_BY_ID;
   protected String FIND_ITEM_BY_PATH;
+  protected String FIND_ITEM_BY_PARENT;
   
   protected String FIND_CHILD_PROPERTY_BY_PATH;
   
@@ -51,7 +52,7 @@ public class DBConstants {
   protected String INSERT_REF;
   
   protected String UPDATE_ITEM;
-  protected String UPDATE_ITEM_PATH;
+  //protected String UPDATE_ITEM_PATH;
   protected String UPDATE_NODE;
   protected String UPDATE_PROPERTY;
   //protected String UPDATE_VALUE;
@@ -75,6 +76,7 @@ public class DBConstants {
   protected static final String COLUMN_NID = "NID";
   protected static final String COLUMN_NORDERNUM = "NORDER_NUM";
   protected static final String COLUMN_NPARENTID = "NPARENT_ID";
+  protected static final String COLUMN_NNODEINDEX = "NNODE_INDEX";
   
   // PROPERTY table
   protected static final String COLUMN_TYPE = "TYPE";

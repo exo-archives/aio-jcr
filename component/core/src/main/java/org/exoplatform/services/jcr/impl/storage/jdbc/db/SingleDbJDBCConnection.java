@@ -32,6 +32,7 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
 
   protected PreparedStatement findItemById;
   protected PreparedStatement findItemByPath;
+  protected PreparedStatement findItemByParentName;
 
   protected PreparedStatement findChildPropertyByPath;
 
@@ -105,6 +106,10 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
       + " from JCR_SITEM I LEFT JOIN JCR_SNODE N ON I.ID=N.ID LEFT JOIN JCR_SPROPERTY P ON I.ID=P.ID"
       + " where I.PATH=? and I.CONTAINER_NAME=? order by I.VERSION DESC";
     
+    FIND_ITEM_BY_PARENT = "select I.*, N.ID as NID, N.ORDER_NUM as NORDER_NUM, N.PARENT_ID as NPARENT_ID, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
+      + " from JCR_MITEM I LEFT JOIN JCR_MNODE N on (I.ID=N.ID and N.NODE_INDEX=?) LEFT JOIN JCR_MPROPERTY P on I.ID=P.ID"
+      + " where I.CONTAINER_NAME=? and I.PARENT_ID=? and I.NAME=? order by I.VERSION DESC";
+    
     FIND_CHILD_PROPERTY_BY_PATH = "select I.*, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
       + " from JCR_SPROPERTY P, JCR_SITEM I"
       + " where I.PATH=? and I.ID=P.ID and P.PARENT_ID=? order by I.VERSION DESC"; // I.CONTAINER_NAME=? and 
@@ -139,27 +144,18 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
       + " where I.ID=P.ID and P.PARENT_ID=?" 
       + " order by I.ID";
     
-    FIND_NODES_IDS_BY_PARENTID = "select I.ID" 
-      + " from JCR_SNODE N, JCR_SITEM I"
-      + " where I.ID=N.ID and N.PARENT_ID=?"
-      + " group by I.ID"
-      + " order by I.ID";
-    
-    FIND_REFERENCEABLE = "select R.NODE_ID as NID, R.PROPERTY_ID as PID, I.PATH, I.VERSION, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" +
-    " from JCR_SREF R, JCR_SITEM I, JCR_SPROPERTY P" +
-    " where R.PROPERTY_ID=I.ID and R.PROPERTY_ID=P.ID and I.ID=P.ID and R.PROPERTY_ID=? and I.CONTAINER_NAME=?";
-
     FIND_NODESCOUNT_BY_PARENTID = "select count(*) from JCR_SNODE where PARENT_ID=?";
     FIND_PROPERTIESCOUNT_BY_PARENTID = "select count(*) from JCR_SPROPERTY where PARENT_ID=?";
     
-    INSERT_ITEM = "insert into JCR_SITEM(ID, PATH, VERSION, CONTAINER_NAME) VALUES(?,?,?,?)";
-    INSERT_NODE = "insert into JCR_SNODE(ID, ORDER_NUM, PARENT_ID) VALUES(?,?,?)";
-    INSERT_PROPERTY = "insert into JCR_SPROPERTY(ID, TYPE, MULTIVALUED, PARENT_ID) VALUES(?,?,?,?)";
+    INSERT_ITEM = "insert into JCR_SITEM(ID, NAME, VERSION, CONTAINER_NAME, PATH) VALUES(?,?,?,?,?)";
+    INSERT_NODE = "insert into JCR_SNODE(ID, PARENT_ID, NODE_INDEX, ORDER_NUM) VALUES(?,?,?,?)";
+    INSERT_PROPERTY = "insert into JCR_SPROPERTY(ID, PARENT_ID, TYPE, MULTIVALUED) VALUES(?,?,?,?)";
+    
     INSERT_VALUE = "insert into JCR_SVALUE(DATA, ORDER_NUM, PROPERTY_ID) VALUES(?,?,?)";
     INSERT_REF = "insert into JCR_SREF(NODE_ID, PROPERTY_ID, ORDER_NUM) VALUES(?,?,?)";
 
     UPDATE_ITEM = "update JCR_SITEM set VERSION=? where ID=?"; // and CONTAINER_NAME=?
-    UPDATE_ITEM_PATH = "update JCR_SITEM set PATH=?, VERSION=? where ID=?"; // and CONTAINER_NAME=?
+    //UPDATE_ITEM_PATH = "update JCR_SITEM set PATH=?, VERSION=? where ID=?"; // and CONTAINER_NAME=?
     UPDATE_NODE = "update JCR_SNODE set ORDER_NUM=? where ID=?";
     UPDATE_PROPERTY = "update JCR_SPROPERTY set TYPE=? where ID=?";
     
@@ -328,6 +324,20 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
   }
 
   @Override
+  protected ResultSet findItemByParentName(String parentId, String name, int index) throws SQLException {
+    if (findItemByParentName == null)
+      findItemByParentName = dbConnection.prepareStatement(FIND_ITEM_BY_PARENT);
+    else
+      findItemByParentName.clearParameters();
+    
+    findItemByParentName.setInt(1, index);
+    findItemByParentName.setString(2, containerName);
+    findItemByParentName.setString(3, parentId);
+    findItemByParentName.setString(4, name);
+    return findItemByParentName.executeQuery();
+  }
+
+  @Override
   protected ResultSet findPropertyByPath(String parentCid, String path) throws SQLException {
     if (findChildPropertyByPath == null)
       findChildPropertyByPath = dbConnection.prepareStatement(FIND_CHILD_PROPERTY_BY_PATH);
@@ -397,28 +407,30 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     return updateItem.executeUpdate();
   }
   
-  @Override
-  protected int updateItemPathByUUID(String qpath, int version, String cid) throws SQLException {
-    if (updateItemPath == null)
-      updateItemPath = dbConnection.prepareStatement(UPDATE_ITEM_PATH);
-    else
-      updateItemPath.clearParameters();
-          
-    updateItemPath.setString(1, qpath);
-    updateItemPath.setInt(2, version);
-    updateItemPath.setString(3, cid);
-    return updateItemPath.executeUpdate();
-  }    
+//  @Override
+//  protected int updateItemPathByUUID(String qpath, int version, String cid) throws SQLException {
+//    if (updateItemPath == null)
+//      updateItemPath = dbConnection.prepareStatement(UPDATE_ITEM_PATH);
+//    else
+//      updateItemPath.clearParameters();
+//          
+//    updateItemPath.setString(1, qpath);
+//    updateItemPath.setInt(2, version);
+//    updateItemPath.setString(3, cid);
+//    return updateItemPath.executeUpdate();
+//  }    
   
   @Override
-  protected int updateNodeOrderNumbByUUID(int orderNumb, String cid) throws SQLException {
+  protected int updateNodeOrderNumbByUUID(int index, int orderNumb, String cid) throws SQLException {
     if (updateNode == null)
       updateNode = dbConnection.prepareStatement(UPDATE_NODE);
     else
       updateNode.clearParameters();
-          
-    updateNode.setInt(1, orderNumb);
-    updateNode.setString(2, cid);
+    
+    // UPDATE_NODE = "update JCR_MNODE set NODE_INDEX=?, ORDER_NUM=? where ID=?";
+    updateNode.setInt(1, index);
+    updateNode.setInt(2, orderNumb);
+    updateNode.setString(3, cid);
     return updateNode.executeUpdate();
   }
   

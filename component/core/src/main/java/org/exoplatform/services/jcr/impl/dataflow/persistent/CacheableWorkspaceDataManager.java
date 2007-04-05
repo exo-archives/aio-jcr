@@ -54,17 +54,30 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     return data;
   }
   
-  public ItemData getItemData(NodeData parentData,QPathEntry name) throws RepositoryException {
-//    // 2. Try from cache
+  public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
+//    // 1. Try from cache
 //    ItemData data = getCachedItemData(qpath);
 //
-//    // 3. Try from container
+//    // 2. Try from container
 //    if (data == null) {
 //      data = getPersistedItemData(qpath);
 //    }
 //
 //    return data;
-    return getItemData(QPath.makeChildPath(parentData.getQPath(),new QPathEntry[]{name}));
+    
+    
+    // [PN] 05.04.07 TODO Remove whole qpath make after the cache refactor
+    QPath qpath = QPath.makeChildPath(parentData.getQPath(), new QPathEntry[]{name});
+    
+    // 1. Try from cache
+    ItemData data = getCachedItemData(qpath);
+  
+    // 2. Try from container
+    if (data == null) {
+      data = getPersistedItemData(parentData, name);
+    }
+    
+    return data;
   }
 
   /* (non-Javadoc)
@@ -180,6 +193,15 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     return data;
   }
   
+  protected ItemData getPersistedItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
+
+    ItemData data = null;
+    data = super.getItemData(parentData, name);
+    if (data != null && cache.isEnabled()) {
+      cache.put(data);
+    }
+    return data;
+  }
   
   /** 
    * Returns an item from cache by UUID or null if the item don't cached.

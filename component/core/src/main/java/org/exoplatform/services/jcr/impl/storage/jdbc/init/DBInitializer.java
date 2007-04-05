@@ -245,6 +245,8 @@ public class DBInitializer {
         }
       }
       
+      optionalInit();
+      
       connection.commit();
       log.info("DB schema of DataSource: '" + containerName + "' initialized succesfully");
     } catch (SQLException e) {
@@ -274,6 +276,13 @@ public class DBInitializer {
         log.error("Error of a connection closing. " + e, e);
       }
     }
+  }
+  
+  /**
+   * Empty here but may be overriden
+   */
+  protected void optionalInit() throws DBInitializerException {
+    
   }
   
   // ------ custom log --------

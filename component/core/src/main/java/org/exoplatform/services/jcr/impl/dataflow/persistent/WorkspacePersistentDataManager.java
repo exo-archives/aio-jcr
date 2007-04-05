@@ -145,7 +145,7 @@ public class WorkspacePersistentDataManager implements DataManager {
       con.rollback();
     }
   }
-
+  
   /*
    * (non-Javadoc)
    * 
@@ -386,10 +386,16 @@ public class WorkspacePersistentDataManager implements DataManager {
     return path.equals(Constants.JCR_SYSTEM_PATH) || path.isDescendantOf(Constants.JCR_SYSTEM_PATH, false);
   }
 
-  public ItemData getItemData(NodeData parent, QPathEntry name) throws RepositoryException {
-    // TODO Auto-generated method stub
-    return null;
+  public ItemData getItemData(final NodeData parentData, final QPathEntry name) throws RepositoryException {
+    final WorkspaceStorageConnection con = dataContainer.openConnection();
+    try {
+      return con.getItemData(parentData, name);
+    } finally {
+      con.rollback();
+    }
   }
+
+
 
   
 }
