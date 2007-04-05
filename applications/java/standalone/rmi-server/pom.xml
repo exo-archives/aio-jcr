@@ -99,188 +99,189 @@
       <artifactId>exo-platform.services.organization.api</artifactId>
       <version>${exo.platform.version}</version>
       <scope>compile</scope>
-    </dependency>
-
-   <dependency>
+      </dependency>
+      
+      <dependency>
       <groupId>exo-platform</groupId>
       <artifactId>exo-platform.services.common.api</artifactId>
       <version>${exo.platform.version}</version>
       <scope>compile</scope>
-    </dependency>
-
-   <dependency>
+      </dependency>
+      
+      <dependency>
       <groupId>exo-platform</groupId>
       <artifactId>exo-platform.services.common.impl</artifactId>
       <version>${exo.platform.version}</version>
       <scope>compile</scope>
-    </dependency>
-
-    <dependency>
+      </dependency>
+      
+      <dependency>
       <groupId>exo-platform</groupId>
       <artifactId>exo-platform.container</artifactId>
       <version>${exo.platform.version}</version>
       <scope>compile</scope>
-    </dependency>
-
-    <dependency>
+      </dependency>
+      
+      <dependency>
       <groupId>exo-platform</groupId>
       <artifactId>exo-platform.commons</artifactId>
       <version>${exo.platform.version}</version>
       <scope>compile</scope>
-    </dependency>
-
-    <dependency>
+      </dependency>
+      
+      <dependency>
       <groupId>exo-platform</groupId>
       <artifactId>exo-platform.services.database.api</artifactId>
       <version>${exo.platform.version}</version>
       <scope>compile</scope>
       <exclusions>
-        <exclusion>
-          <groupId>org.hibernate</groupId>
-          <artifactId>hibernate</artifactId>
-        </exclusion>
+      <exclusion>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate</artifactId>
+      </exclusion>
       </exclusions>
-    </dependency>
-
-    <dependency>
+      </dependency>
+      
+      <dependency>
       <groupId>exo-platform</groupId>
       <artifactId>exo-platform.services.security.api</artifactId>
       <version>${exo.platform.version}</version>
       <scope>compile</scope>
-    </dependency>
-
-    <dependency>
+      </dependency>
+      
+      <dependency>
       <groupId>exo-platform</groupId>
       <artifactId>exo-platform.services.cache.api</artifactId>
       <version>${exo.platform.version}</version>
       <scope>compile</scope>
-    </dependency>
-
-    <dependency>
+      </dependency>
+      
+      <dependency>
       <groupId>exo-platform</groupId>
       <artifactId>exo-platform.services.cache.impl</artifactId>
       <version>${exo.platform.version}</version>
       <scope>compile</scope>
-    </dependency>
-
-    <dependency>
+      </dependency>
+      
+      <dependency>
       <groupId>exo-platform</groupId>
       <artifactId>exo-platform.services.security.impl</artifactId>
       <version>${exo.platform.version}</version>
       <scope>compile</scope>
-    </dependency>
-
-    <dependency>
+      </dependency>
+      
+      <dependency>
       <groupId>exo-platform</groupId>
       <artifactId>exo-platform.services.xml-processing.api</artifactId>
       <version>${exo.platform.version}</version>
       <scope>compile</scope>
-    </dependency>
-
-    <dependency>
+      </dependency>
+      
+      <dependency>
       <groupId>exo-platform</groupId>
       <artifactId>exo-platform.services.xml-processing.impl</artifactId>
       <version>${exo.platform.version}</version>
       <scope>compile</scope>
-    </dependency>
-
-    <dependency>
+      </dependency>
+      
+      <dependency>
       <groupId>exo-platform</groupId>
       <artifactId>exo-platform.services.organization.api</artifactId>
       <version>${exo.platform.version}</version>
       <scope>compile</scope>
-    </dependency>
-
-    <dependency>
+      </dependency>
+      
+      <dependency>
       <groupId>exo-platform</groupId>
       <artifactId>exo-platform.services.organization.impl</artifactId>
       <version>${exo.platform.version}</version>
       <scope>compile</scope>
-    </dependency>
-
-    <dependency>
+      </dependency>
+      
+      <dependency>
       <groupId>exo-platform</groupId>
       <artifactId>exo-platform.services.backup.api</artifactId>
       <version>${exo.platform.version}</version>
       <scope>compile</scope>
-    </dependency>
-
-    <dependency>
+      </dependency>
+      
+      <dependency>
       <groupId>exo-platform</groupId>
       <artifactId>exo-platform.services.backup.impl</artifactId>
       <version>${exo.platform.version}</version>
       <scope>compile</scope>
-    </dependency>
-
-    <dependency>
+      </dependency>
+      
+      <dependency>
       <groupId>exo-platform</groupId>
       <artifactId>exo-platform.services.templates.api</artifactId>
       <version>${exo.platform.version}</version>
       <scope>compile</scope>
-    </dependency>
-
-    <dependency>
+      </dependency>
+      
+      <dependency>
       <groupId>exo-platform</groupId>
       <artifactId>exo-platform.services.templates.impl</artifactId>
       <version>${exo.platform.version}</version>
       <scope>compile</scope>
-    </dependency -->
+      </dependency -->
 
     <dependency>
-	  <groupId>hsqldb</groupId>
-	  <artifactId>hsqldb</artifactId>
-	  <!-- version>1.7.3.3</version -->
-	  <version>1.8.0.7</version>
-	  <scope>compile</scope>
-	</dependency>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <!-- version>1.7.3.3</version -->
+      <version>1.8.0.7</version>
+      <scope>compile</scope>
+    </dependency>
 
   </dependencies>
 
   <build>
-     <plugins>
+    <plugins>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>2.1</version>
         <executions>
           <execution>
             <phase>install</phase>
-              <goals>
-                <goal>directory</goal>
-              </goals>
+            <goals>
+              <goal>assembly</goal>
+            </goals>
           </execution>
         </executions>
         <configuration>
-        <descriptors>
-          <descriptor>rmi-server-descriptor.xml</descriptor>
-          <descriptor>rmi-server-codebase-descriptor.xml</descriptor>
-        </descriptors>
+          <descriptors>
+            <descriptor>rmi-server-descriptor.xml</descriptor>
+            <descriptor>rmi-server-codebase-descriptor.xml</descriptor>
+          </descriptors>
           <finalName>rmi-server</finalName>
         </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
-                <configuration>
-                  <tasks>
-                    <java dir="${basedir}" className="org.exoplatform.connectors.jcr.RMIStarter"
-                      fork="true"
-                      failonerror="true"
-                      maxmemory="128m">
-                      <jvmarg value="-Djava.security.auth.login.config=res/jaas.conf"/>
-                      <jvmarg value="-Djava.rmi.server.codebase=file:/${basedir}/target/rmi-server-codebase/"/>
-					  <jvmarg value="-Djava.security.policy=res/java.policy"/>
-                      <arg value="bind"/>
-                      <arg value="res/configuration.xml"/>
-                      <classpath>
-                        <pathelement path="${classpath}"/>
-                        <fileset dir="${basedir}/target">
-                          <include name="**/rmi-server-1.6/*.jar"/>
-                        </fileset>
-                      </classpath>
-                    </java>
-                  </tasks>
-                </configuration>
-          </plugin>
-      </plugins>
+        <configuration>
+          <tasks>
+            <java dir="${basedir}"
+              className="org.exoplatform.connectors.jcr.RMIStarter"
+              fork="true" failonerror="true" maxmemory="128m">
+              <jvmarg
+                value="-Djava.security.auth.login.config=res/jaas.conf" />
+              <jvmarg
+                value="-Djava.rmi.server.codebase=file:/${basedir}/target/rmi-server-codebase.dir/" />
+              <jvmarg value="-Djava.security.policy=res/java.policy" />
+              <arg value="bind" />
+              <arg value="res/configuration.xml" />
+              <classpath>
+                <pathelement path="${classpath}" />
+                <fileset dir="${basedir}/target">
+                  <include name="**/rmi-server-1.6.dir/*.jar" />
+                </fileset>
+              </classpath>
+            </java>
+          </tasks>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 
 </project>

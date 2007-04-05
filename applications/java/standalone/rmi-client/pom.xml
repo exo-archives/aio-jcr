@@ -44,38 +44,37 @@
         <executions>
           <execution>
             <phase>install</phase>
-              <goals>
-                <goal>directory</goal>
-              </goals>
+            <goals>
+              <goal>assembly</goal>
+            </goals>
           </execution>
         </executions>
         <configuration>
-        <archive>
-		  <manifest>
-		    <mainClass>org.oxoplatform.jcr.JcrRMIDemo</mainClass>
-		  </manifest>
-        </archive>
-        <descriptor>rmi-client-descriptor.xml</descriptor>
+          <archive>
+            <manifest>
+              <mainClass>org.oxoplatform.jcr.JcrRMIDemo</mainClass>
+            </manifest>
+          </archive>
+          <descriptor>rmi-client-descriptor.xml</descriptor>
           <finalName>rmi-client</finalName>
         </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <configuration>
-	      <tasks>
-	        <java dir="${basedir}" className="org.exoplatform.jcr.JcrRMIDemo"
-	            fork="true"
-	            failonerror="true"
-	            maxmemory="128m">
-	           <classpath>
-	             <pathelement path="${classpath}"/>
-	             <fileset dir="${basedir}/target">
-	               <include name="**/rmi-client-1.6/*.jar"/>
-	             </fileset>
-	           </classpath>
-	        </java>
-	      </tasks>
-	    </configuration>
+          <tasks>
+            <java dir="${basedir}"
+              className="org.exoplatform.jcr.JcrRMIDemo" fork="true"
+              failonerror="true" maxmemory="128m">
+              <classpath>
+                <pathelement path="${classpath}" />
+                <fileset dir="${basedir}/target">
+                  <include name="**/rmi-client-1.6.dir/*.jar" />
+                </fileset>
+              </classpath>
+            </java>
+          </tasks>
+        </configuration>
       </plugin>
     </plugins>
   </build>

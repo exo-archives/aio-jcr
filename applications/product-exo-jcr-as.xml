@@ -7,7 +7,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.product.jcr</artifactId>
-  <packaging>exo-product</packaging>
+  <packaging>jar</packaging>
   <version>${org.exoplatform.jcr.version}</version>
   <name>eXo JCR Product</name>
   <url>http://www.exoplatform.org</url>
@@ -43,7 +43,42 @@
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.ext</artifactId>
       <version>${org.exoplatform.jcr.version}</version>
-      <scope>compile</scope>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.ftp</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.webdav</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.rmi</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.framework.command</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.framework.web</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>runtime</scope>
     </dependency>
 
   </dependencies>
@@ -51,102 +86,76 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-exo-plugin</artifactId>
-        <extensions>true</extensions>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.1</version>
+        <executions>
+          <execution>
+            <phase>install</phase>
+            <goals>
+              <goal>assembly</goal>
+            </goals>
+          </execution>
+        </executions>
         <configuration>
-
-      <!-- Application servers configuration -->
-          <deployConfigurations>
-            <DeployConfiguration>
-              <serverType>tomcat-server</serverType>
-              <serverPatchs>
-                <serverPatch>product-patches/as/tomcat5</serverPatch>
-              </serverPatchs>
-              <serverConfig>product-patches/as/tomcat5</serverConfig>
-              <deployServerDir>${exo.directory.working}/exo-tomcat</deployServerDir>
-              <deployLibDir>${exo.directory.working}/exo-tomcat/common/lib</deployLibDir>
-              <deployWebappDir>${exo.directory.working}/exo-tomcat/webapps</deployWebappDir>
-              <cleanServerDir>${exo.directory.dependencies}/${exo.server.tomcat}</cleanServerDir>
-              <useCleanServer>${clean}</useCleanServer>
-              <defaultPortalDir>${exo.directory.working}/exo-tomcat/webapps/portal</defaultPortalDir>
-              <ignoredFiles>${exo.ignore.files}</ignoredFiles>
-              <deployDependencyScope>${scope}</deployDependencyScope>
-              <excludeProjects>${exo.exclude.projects}, commons-collections</excludeProjects>
-              <scripts>
-                <script>org.exoplatform.maven.plugin.exo.Command$NewServer.class</script>
-                <script>org.exoplatform.maven.plugin.exo.Command$PatchServerConfig.class</script>
-                <script>org.exoplatform.maven.plugin.exo.Command$DeployProject.class</script>
-                <script>org.exoplatform.maven.plugin.exo.Command$CreatePortalXml.class</script>
-              </scripts>
-            </DeployConfiguration>
-            <DeployConfiguration>
-              <serverType>jboss-server</serverType>
-              <serverConfig>product-patches/as/jboss</serverConfig>
-              <deployServerDir>${exo.directory.working}/exo-jboss</deployServerDir>
-              <deployLibDir>${exo.directory.working}/exo-jboss/server/default/deploy/exoplatform.sar</deployLibDir>
-              <deployWebappDir>${exo.directory.working}/exo-jboss/server/default/deploy/exoplatform.sar</deployWebappDir>
-              <cleanServerDir>${exo.directory.dependencies}/${exo.server.jboss}</cleanServerDir>
-              <deployDependencyScope>${scope}</deployDependencyScope>
-              <useCleanServer>${clean}</useCleanServer>
-              <ignoredFiles>${exo.ignore.files}</ignoredFiles>
-              <excludeProjects>${exo.exclude.projects}</excludeProjects>
-              <scripts>
-                <script>org.exoplatform.maven.plugin.exo.Command$NewServer.class</script>
-                <script>org.exoplatform.maven.plugin.exo.Command$PatchConfigJboss.class</script>
-                <script>org.exoplatform.maven.plugin.exo.Command$DeployProject.class</script>
-                <script>org.exoplatform.maven.plugin.exo.Command$CreateManifest.class</script>
-                <script>org.exoplatform.maven.plugin.exo.Command$CreateEarApplicationXml.class</script>
-              </scripts>
-            </DeployConfiguration>
-            <DeployConfiguration>
-              <serverType>jonas-server</serverType>
-              <serverPatchs>
-                <serverPatch>product-patches/as/jonas</serverPatch>
-              </serverPatchs>
-              <serverConfig>product-patches/as/jonas</serverConfig>
-              <deployServerDir>${exo.directory.working}/exo-jonas</deployServerDir>
-              <deployLibDir>${exo.directory.working}/exo-jonas/lib/apps</deployLibDir>
-              <deployWebappDir>${exo.directory.working}/exo-jonas/apps/autoload/exoplatform.ear</deployWebappDir>
-              <deployEjbDir>${exo.directory.working}/exo-jonas/apps/autoload/exoplatform.ear</deployEjbDir>
-              <deployRarDir>${exo.directory.working}/exo-jonas/apps/autoload/exoplatform.ear</deployRarDir>
-              <cleanServerDir>${exo.directory.dependencies}/${exo.server.jonas}</cleanServerDir>
-              <deployDependencyScope>${scope}</deployDependencyScope>
-              <useCleanServer>${clean}</useCleanServer>
-              <ignoredFiles>${exo.ignore.files}</ignoredFiles>
-              <excludeProjects>${exo.exclude.projects}</excludeProjects>
-              <scripts>
-                <script>org.exoplatform.maven.plugin.exo.Command$NewServer.class</script>
-                <script>org.exoplatform.maven.plugin.exo.Command$PatchServerConfig.class</script>
-                <script>org.exoplatform.maven.plugin.exo.Command$DeployProject.class</script>
-                <script>org.exoplatform.maven.plugin.exo.Command$CreateManifest.class</script>
-                <script>org.exoplatform.maven.plugin.exo.Command$CreateEarApplicationXml.class</script>
-                <script>
-                  def DeployServerDir = deployConfig.getDeployServerDir();
-                  if (System.getProperty("os.name").toLowerCase().startsWith("win")) {
-                    def process = DeployServerDir + "\\bin\\nt\\post-patch.bat";
-                  }
-                  else {
-                    def process = DeployServerDir + "/bin/unix/post-patch.sh";
-                    try {
-                      ("chmod +x " + process).execute().in.eachLine { println it };
-                    } catch(Exception e) {
-                      System.err.println("[ERROR] " + e.toString());
-                    }
-                  }
-                  try {
-                    print "\n[PATCH] Moving appropriate files to complete deployment\n";
-                    process.execute().in.eachLine { println it };
-                  } catch(Exception e) {
-                    System.err.println("[ERROR] " + e.toString());
-                  }
-                </script>
-              </scripts>
-            </DeployConfiguration>
-          </deployConfigurations>
+          <descriptors>
+            <descriptor>product-exo-jcr-as-descriptor.xml</descriptor>
+          </descriptors>
+          <finalName>lib</finalName>
         </configuration>
       </plugin>
-
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <configuration>
+          <tasks>
+            <delete dir="${exo.projects.directory.working}/exo-tomcat"
+              includeEmptyDirs="true" quiet="yes" />
+            <copy todir="${exo.projects.directory.working}/exo-tomcat"
+              verbose="false" overwrite="true">
+              <fileset
+                dir="${exo.projects.directory.dependencies}/${exo.projects.app.tomcat.version}" />
+            </copy>
+            <copy
+              todir="${exo.projects.directory.working}/exo-tomcat/common/lib/"
+              verbose="true" overwrite="true">
+              <fileset
+                dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/"
+                excludes="**/*.war" />
+            </copy>
+            <copy todir="${exo.projects.directory.working}/exo-tomcat/"
+              verbose="true" overwrite="true">
+              <fileset dir="${basedir}/product-patches/as/tomcat5/" />
+            </copy>
+            <move
+              todir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+              <fileset
+                dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+                <include name="**/*.war" />
+              </fileset>
+              <mapper>
+                <chainedmapper>
+                  <flattenmapper />
+                  <globmapper
+                    from="exo.jcr.applications.*-${org.exoplatform.jcr.version}.war"
+                    to="*.war" casesensitive="no" />
+                </chainedmapper>
+              </mapper>
+            </move>
+            <copy
+              todir="${exo.projects.directory.working}/exo-tomcat/webapps/"
+              verbose="true" flatten="true" overwrite="true">
+              <fileset
+                dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/"
+                casesensitive="yes">
+                <include name="**/*.war" />
+              </fileset>
+            </copy>
+            <delete
+              dir="${exo.projects.directory.working}/exo-tomcat/webapps/webdav/"
+              includeEmptyDirs="true" quiet="yes" />
+          </tasks>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
+
 </project>

@@ -12,6 +12,9 @@
   <command   name="displayResource"
         className="org.exoplatform.frameworks.jcr.command.web.DisplayResourceCommand"/>
 
+  <command   name="getNode"
+        className="org.exoplatform.frameworks.jcr.command.core.GetNodeCommand"/>
+
 
   <!-- chain     name="displayResource">
     <command   id="1"

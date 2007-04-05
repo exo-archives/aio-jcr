@@ -11,7 +11,7 @@
           <init-params>
             <value-param>
               <name>config-file</name>
-              <value>conf/custom-commands.xml</value>
+              <value>custom-commands.xml</value>
             </value-param>
           </init-params>
       </component-plugin>
