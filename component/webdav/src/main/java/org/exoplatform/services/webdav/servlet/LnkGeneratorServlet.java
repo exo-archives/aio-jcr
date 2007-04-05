@@ -28,19 +28,20 @@ public class LnkGeneratorServlet extends HttpServlet {
   
   private static Log log = ExoLogger.getLogger("jcr.LnkGeneratorServlet");
 
-  public static final String PARAM_SERVLET = "servlet";
   public static final String PARAM_PATH = "path"; 
   
   protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     try {
-      String host = request.getServerName();
       
-      String servletName = request.getParameter(PARAM_SERVLET);
-
+      String paramPath = request.getParameter(PARAM_PATH);
+      
+      String []paramPaths = paramPath.split("/");
+      
+      String host = request.getServerName();      
       String servletPath = request.getScheme() + "://" + request.getServerName() + ":" +
-      request.getServerPort() + request.getContextPath() + "/" + servletName; 
+      request.getServerPort() + request.getContextPath() + "/" + paramPaths[1]; 
       
-      String path = request.getParameter(PARAM_PATH);
+      String path = paramPath.substring(("/" + paramPaths[1]).length());
       
       LinkGenerator lnkGenerator = new LinkGenerator(host, servletPath, path);
       byte []linkContent = lnkGenerator.generateLinkContent();
