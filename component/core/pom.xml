@@ -13,13 +13,13 @@
   <url>http://www.exoplatform.org</url>
   <description>eXo JCR Service core component</description>
 
-  <repositories>
+  <!-- repositories>
     <repository>
         <id>java.net</id>
         <url>https://maven-repository.dev.java.net/nonav/repository</url>
         <layout>legacy</layout>
     </repository>
-  </repositories>
+  </repositories -->
 
   <pluginRepositories>
     <pluginRepository>
@@ -499,6 +499,7 @@
     <!-- testSourceDirectory>src/test/java</testSourceDirectory -->
     <!-- testSourceDirectory>src/TCK/java</testSourceDirectory -->
     <testSourceDirectory>src/notest</testSourceDirectory>
+
     <testOutputDirectory>target/test-classes</testOutputDirectory>
 
     <plugins>
