@@ -27,7 +27,7 @@ public class WebDavConfig {
   public static final String WUSER = "User";
   public static final String WPASS = "Pass";
   
-  private String host = "192.168.0.5";
+  private String host = "localhost";
   private int port = 8080;
   private String servlet = "/jcr-webdav/repository";
   private String workSpace = "production";

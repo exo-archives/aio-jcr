@@ -666,16 +666,16 @@
 				<property name="Name" type="string" value="btnTest"/>
 				<property name="PositionX" type="integer" value="17" />
 				<property name="PositionY" type="integer" value="154" />
-				<property name="Width" type="integer" value="42" />
+				<property name="Width" type="integer" value="50" />
 				<property name="Height" type="integer" value="14" />
 				<property name="TabIndex" type="short" value="4" />				
-				<property name="Label" type="string" value="Test" />
+				<property name="Label" type="string" value="Test Connection" />
 			</component>
 			
 			<component>
 				<class>com.sun.star.awt.UnoControlButtonModel</class>
 				<property name="Name" type="string" value="btnSave"/>
-				<property name="PositionX" type="integer" value="67" />
+				<property name="PositionX" type="integer" value="71" />
 				<property name="PositionY" type="integer" value="154" />
 				<property name="Width" type="integer" value="43" />
 				<property name="Height" type="integer" value="14" />

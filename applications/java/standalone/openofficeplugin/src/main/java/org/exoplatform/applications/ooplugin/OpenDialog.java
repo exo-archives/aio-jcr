@@ -8,8 +8,10 @@ package org.exoplatform.applications.ooplugin;
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.applications.ooplugin.events.ItemListener;
+import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.TextUtils;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
+import org.exoplatform.frameworks.webdavclient.properties.VersionNameProp;
 
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.ItemEvent;
@@ -34,6 +36,7 @@ public class OpenDialog extends BrowseDialog {
   public static final String BTN_OPEN = "btnOpen";
     
   private Thread launchThread;
+  private Thread viewVersionEnableThread;
   
   public OpenDialog(WebDavConfig config, XComponentContext xComponentContext, XFrame xFrame, XToolkit xToolkit) {
     super(config, xComponentContext, xFrame, xToolkit);
@@ -56,13 +59,50 @@ public class OpenDialog extends BrowseDialog {
         }
         Thread.sleep(100);
         
+        viewVersionEnableThread = new ViewVersionsButtonEnableThread();
+        viewVersionEnableThread.start();
+        
         doPropFind();
       } catch (Exception exc) {
         Log.info("Unhandled exception. " + exc.getMessage());
       }
     }
   }
+
+  protected void enableVersionView(boolean isEnabled) {
+    ((XWindow)UnoRuntime.queryInterface(
+        XWindow.class, xControlContainer.getControl(BTN_VERSIONS))).setEnable(isEnabled);    
+  }
   
+  private class ViewVersionsButtonEnableThread extends Thread {
+    
+    public void run() {
+      while (true) {
+        try {
+          Thread.sleep(100);          
+          int selectedPos = getSelectedItemPos();
+          
+          if (selectedPos >= 0) {
+            ResponseDoc response = responses.get(selectedPos);
+            VersionNameProp versionNameProperty = 
+                (VersionNameProp)response.getProperty(Const.DavProp.VERSIONNAME);
+            if (versionNameProperty != null && 
+                versionNameProperty.getStatus() == Const.HttpStatus.OK) {
+              enableVersionView(true);
+              continue;
+            }
+            
+          }
+          
+        } catch (Exception exc) {
+        }
+
+        enableVersionView(false);
+      }
+      
+    }
+    
+  }
   
   protected void disableAll() {
     super.disableAll();

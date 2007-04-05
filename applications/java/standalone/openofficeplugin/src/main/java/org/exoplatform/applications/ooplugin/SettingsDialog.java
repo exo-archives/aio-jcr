@@ -14,6 +14,7 @@ import org.exoplatform.frameworks.webdavclient.commands.DavHead;
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.XTextComponent;
 import com.sun.star.awt.XToolkit;
+import com.sun.star.awt.XWindow;
 import com.sun.star.frame.XFrame;
 import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
@@ -39,6 +40,7 @@ public class SettingsDialog extends PlugInDialog {
   public static final String EDT_PASS = "edtPassword";
   
   private Thread launchThread;
+  private Thread enableTestButtonThread;
 
   public SettingsDialog(WebDavConfig config, XComponentContext xComponentContext, XFrame xFrame, XToolkit xToolkit) {
     super(config, xComponentContext, xFrame, xToolkit);
@@ -59,6 +61,9 @@ public class SettingsDialog extends PlugInDialog {
         }
         Thread.sleep(100);
         
+        enableTestButtonThread = new EnableTestButtonThread();
+        enableTestButtonThread.start();
+        
         setTextBoxValue(EDT_SERVERNAME, config.getHost());
         setTextBoxValue(EDT_PORT, "" + config.getPort());
         setTextBoxValue(EDT_SERVLET, config.getServlet());
@@ -70,7 +75,59 @@ public class SettingsDialog extends PlugInDialog {
         Log.info("Unhandled exception. " + exc.getMessage());
       }
     }
-  }  
+  }
+
+  private boolean isEntheredAll() {
+    if ("".equals(getTextBoxValue(EDT_SERVERNAME))) {
+      return false;
+    }
+    
+    if ("".equals(getTextBoxValue(EDT_PORT))) {
+      return false;
+    }
+    
+    if ("".equals(getTextBoxValue(EDT_SERVLET))) {
+      return false;
+    }
+    
+    if ("".equals(getTextBoxValue(EDT_WORKSPACE))) {
+      return false;
+    }
+    
+    if ("".equals(getTextBoxValue(EDT_USER))) {
+      return false;
+    }
+    
+    if ("".equals(getTextBoxValue(EDT_PASS))) {
+      return false;
+    }
+    
+    return true;
+  }
+  
+  private class EnableTestButtonThread extends Thread {
+    public void run() {
+        while (true) {
+          try {
+            Thread.sleep(100);
+            
+            if (isEntheredAll()) {
+              ((XWindow)UnoRuntime.queryInterface(
+                  XWindow.class, xControlContainer.getControl(BTN_TEST))).setEnable(true);                
+              ((XWindow)UnoRuntime.queryInterface(
+                  XWindow.class, xControlContainer.getControl(BTN_SAVE))).setEnable(true);                
+            } else {
+              ((XWindow)UnoRuntime.queryInterface(
+                  XWindow.class, xControlContainer.getControl(BTN_TEST))).setEnable(false);
+              ((XWindow)UnoRuntime.queryInterface(
+                  XWindow.class, xControlContainer.getControl(BTN_SAVE))).setEnable(false);
+            }          
+          } catch (Exception exc) {
+            Log.info("Can't execute EnableTestButton thread!", exc);
+          }
+        }
+    }
+  }
   
   protected void setTextBoxValue(String componentName, String textValue) {
     XTextComponent xComboText = (XTextComponent)UnoRuntime.queryInterface(
