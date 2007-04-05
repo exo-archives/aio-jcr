@@ -102,7 +102,7 @@
             <execution>
           <phase>compile</phase>
             <goals>
-          <goal>assembly</goal>
+          <goal>attached</goal>
             </goals>
         </execution>
       </executions>
