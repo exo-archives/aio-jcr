@@ -21,45 +21,24 @@
       <version>1.6</version>
       <scope>compile</scope>
     </dependency>
-	  	  
-    <!-- dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-      <version>1.2</version>
-      <scope>compile</scope>
-    </dependency -->
-
-    <!-- dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
-      <version>3.0</version>
-      <scope>provided</scope>
-    </dependency -->
 	  
     <dependency>
-      <groupId>open-office</groupId>
-      <artifactId>com.sun.star.unoil</artifactId>
+      <groupId>com.sun.star</groupId>
+      <artifactId>comp</artifactId>
+      <version>1.0</version>
+      <scope>compile</scope>
+    </dependency>	  	  
+	  
+    <dependency>
+      <groupId>com.sun.star</groupId>
+      <artifactId>unoil</artifactId>
       <version>1.0</version>
       <scope>compile</scope>
     </dependency>
-	  
-    <!-- dependency>
-      <groupId>open-office</groupId>
-      <artifactId>org.apache.webdav</artifactId>
-      <version>1.0</version>
-      <scope>compile</scope>
-    </dependency -->
-	  
+	  	  
     <dependency>
-      <groupId>open-office</groupId>
-      <artifactId>com.sun.star.beans</artifactId>
-      <version>1.0</version>
-      <scope>compile</scope>
-    </dependency>	  
-
-    <dependency>
-      <groupId>open-office</groupId>
-      <artifactId>com.sun.star.comp</artifactId>
+      <groupId>com.sun.star</groupId>
+      <artifactId>beans</artifactId>
       <version>1.0</version>
       <scope>compile</scope>
     </dependency>	  
