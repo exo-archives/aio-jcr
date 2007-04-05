@@ -29,9 +29,10 @@
     <module>applications/java/web/samples/browser</module>
     <module>applications/java/web/samples/fckeditor</module>
     <module>applications/java/web/webdav</module>
-    <module>applications/java/standalone/samples/webdav-browser</module>
     <module>applications/java/standalone/rmi-server</module>
     <module>applications/java/standalone/rmi-client</module>
+
+    <module>applications/java/standalone/samples/webdav-browser</module>
     <module>applications/java/standalone/openofficeplugin</module>
 
     <!-- module>applications/jcr-console</module -->
@@ -321,14 +322,6 @@
   </build>
 
   <repositories>
-    <!-- repository>
-      <id>local</id>
-      <url>file:${exo.directory.v2.x}/exo-platform/maven2</url>
-    </repository>
-    <repository>
-      <id>local-ecm</id>
-      <url>file:${exo.directory.v2.x}/exo-ecm/maven2</url>
-    </repository -->
     <repository>
       <id>local-jcr</id>
       <url>file:${exo.projects.directory.src}/jcr/trunk/maven/repository</url>
@@ -352,6 +345,11 @@
     <repository>
       <id>objectweb.org-snapshot</id>
       <url>http://maven.objectweb.org/maven2-snapshot/</url>
+    </repository>
+    <repository>
+      <id>java.net</id>
+      <url>https://maven-repository.dev.java.net/nonav/repository</url>
+      <layout>legacy</layout>
     </repository>
   </repositories>
 
