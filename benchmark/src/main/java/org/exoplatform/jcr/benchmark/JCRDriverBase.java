@@ -23,10 +23,10 @@ import com.sun.japex.JapexDriverBase;
 
 public abstract class JCRDriverBase extends JapexDriverBase {
 
-  private Repository repository;
-  
+  protected Repository repository;
+
   protected Session session;
-  
+
   @Override
   public void initializeDriver() {
     super.initializeDriver();
@@ -37,14 +37,14 @@ public abstract class JCRDriverBase extends JapexDriverBase {
         Class.forName(initializerName).newInstance();
       initializer.initialize();
       repository = initializer.getRepository();
-      session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), "ws");      
+      session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), "ws");
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
     }
-    
+
   }
-  
+
 //  @Override
 //  public void prepare() {
 //    super.prepare();
@@ -57,10 +57,10 @@ public abstract class JCRDriverBase extends JapexDriverBase {
 //      // TODO Auto-generated catch block
 //      e.printStackTrace();
 //    }
-//    
+//
 //    System.out.println(">>>>>>>>>>>>>>>>>> JCRDriverBase.prepare() <<<<<<<<<<<<<<<<<<<<<");
 //
 //  }
-  
+
 }
 
