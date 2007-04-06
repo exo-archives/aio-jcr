@@ -1,8 +1,9 @@
 readme.txt
+Line eXo JCR 1.6 pre-release
 
 
-eXo WebDav Office Client
 
+JCR Storage Plugin  for MS Office
 
 
 1. Intro
