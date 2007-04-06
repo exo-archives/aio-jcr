@@ -124,7 +124,6 @@ public class SettingsDialog extends PlugInDialog {
           }          
         }
       } catch (Exception exc) {
-        Log.info("Can't execute EnableTestButton thread!", exc);
       }
     }
   }

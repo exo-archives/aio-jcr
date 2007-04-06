@@ -22,6 +22,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.sun.star.awt.FontDescriptor;
+import com.sun.star.awt.FontWeight;
 import com.sun.star.awt.XActionListener;
 import com.sun.star.awt.XButton;
 import com.sun.star.awt.XComboBox;
@@ -214,6 +215,13 @@ public class DialogBuilder {
       FontDescriptor fontDescriptor = new FontDescriptor();
       fontDescriptor.Name = fontsValues[0];
       fontDescriptor.CharacterWidth = new Float(fontsValues[1]);
+      fontDescriptor.WordLineMode = true;
+      
+      if (fontsValues.length > 2) {
+        fontDescriptor.Weight = FontWeight.BOLD;
+        //fontDescriptor.Strikeout = new Short(fontsValues[2]);
+      }
+             
       propertySet.setPropertyValue(property.getName(), fontDescriptor);
     }
   }

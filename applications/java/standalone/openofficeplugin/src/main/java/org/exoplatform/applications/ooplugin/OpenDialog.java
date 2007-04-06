@@ -34,6 +34,7 @@ public class OpenDialog extends BrowseDialog {
   
   public static final String BTN_VERSIONS = "btnVersions";
   public static final String BTN_OPEN = "btnOpen";
+  
     
   private Thread launchThread;
   private Thread viewVersionEnableThread;
@@ -49,7 +50,7 @@ public class OpenDialog extends BrowseDialog {
     
     launchThread = new LaunchThread();
     launchThread.start();
-  }
+  }  
   
   private class LaunchThread extends Thread {
     public void run() {
@@ -132,7 +133,7 @@ public class OpenDialog extends BrowseDialog {
       String serverPrefix = config.getContext().getServerPrefix();
       
       if (!path.startsWith(serverPrefix)) {
-        Log.info("Can't to locate another WebDav server!!!");
+        Log.info("Can't connect remote WebDav server!!!");
         return;
       }
       

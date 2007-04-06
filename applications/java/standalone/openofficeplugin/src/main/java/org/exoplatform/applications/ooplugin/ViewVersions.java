@@ -20,6 +20,7 @@ import org.exoplatform.frameworks.webdavclient.properties.CreatorDisplayNameProp
 import org.exoplatform.frameworks.webdavclient.properties.DisplayNameProp;
 
 import com.sun.star.awt.ActionEvent;
+import com.sun.star.awt.XFixedText;
 import com.sun.star.awt.XListBox;
 import com.sun.star.awt.XToolkit;
 import com.sun.star.frame.XFrame;
@@ -37,8 +38,13 @@ public class ViewVersions extends PlugInDialog {
   private static final String DIALOG_NAME = "_ViewVersionsDialog";
   
   public static final String LST_VERSIONS = "lstVersions";
-  
+  public static final String LBL_TABLEHEAD = "lblTableHead";
   public static final String BTN_OPEN = "btnOpen"; 
+  
+  public static final int NAME_LEN = 14;
+  public static final int SIZE_LEN = 24;
+  public static final int CREATED_LEN = 45;
+  
   
   private Thread launchThread;
   
@@ -60,6 +66,37 @@ public class ViewVersions extends PlugInDialog {
     launchThread = new LaunchThread();
     launchThread.start();
   }
+  
+  public boolean launchBeforeOpen() {
+    try {      
+      XFixedText xLabelHead = (XFixedText)UnoRuntime.queryInterface(
+          XFixedText.class, xControlContainer.getControl(LBL_TABLEHEAD));
+      
+      String headerValue = "Version Name";
+      while (headerValue.length() < NAME_LEN) {
+        headerValue += " ";
+      }
+
+      headerValue += "Size";
+      while (headerValue.length() < SIZE_LEN) {
+        headerValue += " ";
+      }
+      
+      headerValue += "Created";
+      while (headerValue.length() < CREATED_LEN) {
+        headerValue += " ";
+      }
+      
+      headerValue += "Owner";
+      
+      xLabelHead.setText(headerValue);
+      
+    } catch (Exception exc) {
+      Log.info("Unhandled exception", exc);
+    }
+    
+    return true;
+  }  
   
   private class LaunchThread extends Thread {
     public void run() {
@@ -108,11 +145,7 @@ public class ViewVersions extends PlugInDialog {
     
     return true;
   }
-  
-  public static final int NAME_SIZE = 14;
-  public static final int SIZE_SIZE = 24;
-  public static final int CREATED_SIZE = 45;
-  
+    
   private String formatLine(ResponseDoc response) {
     DisplayNameProp displayNameProperty = (DisplayNameProp)response.getProperty(Const.DavProp.DISPLAYNAME);    
     ContentLengthProp contentLengthProperty = (ContentLengthProp)response.getProperty(Const.DavProp.GETCONTENTLENGTH);
@@ -120,7 +153,7 @@ public class ViewVersions extends PlugInDialog {
     CreatorDisplayNameProp creatorDisplayName = (CreatorDisplayNameProp)response.getProperty(Const.DavProp.CREATORDISPLAYNAME);
     
     String lineStr = displayNameProperty.getDisplayName();
-    while (lineStr.length() < NAME_SIZE) {
+    while (lineStr.length() < NAME_LEN) {
       lineStr += " ";
     }
     
@@ -128,7 +161,7 @@ public class ViewVersions extends PlugInDialog {
       lineStr += contentLengthProperty.getContentLength();
     }
      
-    while (lineStr.length() < SIZE_SIZE) {
+    while (lineStr.length() < SIZE_LEN) {
       lineStr += " ";
     }
     
@@ -136,7 +169,7 @@ public class ViewVersions extends PlugInDialog {
       lineStr += creationDateProperty.getCreationDate();
     }
     
-    while (lineStr.length() < CREATED_SIZE) {
+    while (lineStr.length() < CREATED_LEN) {
       lineStr += " ";
     }
     

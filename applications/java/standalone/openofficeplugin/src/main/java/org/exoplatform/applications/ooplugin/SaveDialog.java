@@ -12,7 +12,10 @@ import java.net.URLDecoder;
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.frameworks.webdavclient.Const;
+import org.exoplatform.frameworks.webdavclient.TextUtils;
 import org.exoplatform.frameworks.webdavclient.commands.DavPut;
+import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
+import org.exoplatform.frameworks.webdavclient.properties.DisplayNameProp;
 
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.XTextComponent;
@@ -99,6 +102,31 @@ public class SaveDialog extends BrowseDialog {
         XTextComponent.class, xControlContainer.getControl(EDT_NAME));
     xComboText.setText(fileName);    
   }
+  
+  protected void doSelectItem() {
+    int selectedPos = getSelectedItemPos();
+    
+    if (selectedPos < 0) {
+      return;
+    }
+    
+    ResponseDoc response = responses.get(selectedPos);
+    
+    if (isCollection(response)) {
+      doPropFindResponse(response);
+    } else {
+      try {
+        
+        DisplayNameProp displayNameProperty = 
+            (DisplayNameProp)response.getProperty(Const.DavProp.DISPLAYNAME);
+        
+        setFileName(displayNameProperty.getDisplayName());
+      } catch (Exception exc) {
+        Log.info("Can't open remote file... " + exc.getMessage(), exc);
+      }      
+    }
+    
+  }  
     
   protected void doSaveFile() throws Exception {
     String fileName = getFileName();
@@ -177,7 +205,11 @@ public class SaveDialog extends BrowseDialog {
   }  
   
   @Override
-  public boolean launchBeforeOpen() {    
+  public boolean launchBeforeOpen() {
+    if (!super.launchBeforeOpen()) {
+      return false;
+    }
+    
     try {      
       initDefaults();
    
@@ -285,7 +317,6 @@ public class SaveDialog extends BrowseDialog {
           
         }
       } catch (Exception exc) {
-        Log.info("Unhandled exception", exc);
       }
     }
   }

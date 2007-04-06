@@ -25,6 +25,7 @@ import org.exoplatform.frameworks.webdavclient.properties.VersionNameProp;
 
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.XComboBox;
+import com.sun.star.awt.XFixedText;
 import com.sun.star.awt.XListBox;
 import com.sun.star.awt.XTextComponent;
 import com.sun.star.awt.XToolkit;
@@ -51,6 +52,8 @@ public abstract class BrowseDialog extends PlugInDialog {
   public static final String COMBO_PATH = "comboPath";
   public static final String BTN_CANCEL = "btnCancel";
   
+  public static final String LBL_TABLEHEAD = "lblTableHead";
+  
   protected String currentPath = "/";
   
   protected Thread openThread;  
@@ -71,6 +74,42 @@ public abstract class BrowseDialog extends PlugInDialog {
     
     super.createDialog();
   }
+  
+  public boolean launchBeforeOpen() {
+    try {      
+      XFixedText xLabelHead = (XFixedText)UnoRuntime.queryInterface(
+          XFixedText.class, xControlContainer.getControl(LBL_TABLEHEAD));
+      
+      String headerValue = "*";
+      while (headerValue.length() < VNAME_LEN) {
+        headerValue += " ";
+      }
+
+      headerValue += "Name";
+      while (headerValue.length() < NAME_LEN) {
+        headerValue += " ";
+      }
+      
+      headerValue += "Size";
+      while (headerValue.length() < SIZE_LEN) {
+        headerValue += " ";
+      }
+      
+      headerValue += "Last Modified";
+      while (headerValue.length() < LASTMODOFIED_SIZE) {
+        headerValue += " ";
+      }
+      
+      headerValue += "Comments";
+      
+      xLabelHead.setText(headerValue);
+      
+    } catch (Exception exc) {
+      Log.info("Unhandled exception", exc);
+    }
+    
+    return true;
+  }  
   
   protected void disableAll() {
     ((XWindow)UnoRuntime.queryInterface(
@@ -296,7 +335,11 @@ public abstract class BrowseDialog extends PlugInDialog {
       
       return;
     }
-    
+
+    doPropFindResponse(response);
+  }
+  
+  protected void doPropFindResponse(ResponseDoc response) {
     String href = TextUtils.UnEscape(response.getHref(), '%');
     String serverPrefix = config.getContext().getServerPrefix();
 
@@ -305,7 +348,7 @@ public abstract class BrowseDialog extends PlugInDialog {
     }
     
     currentPath = href.substring(serverPrefix.length());
-    doPropFind();
+    doPropFind();    
   }
     
   private class ListItemsClick extends ActionListener {

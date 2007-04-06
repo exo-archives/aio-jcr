@@ -52,9 +52,13 @@ public class AddonHandler extends WeakBase
   };  
   
   public AddonHandler(XComponentContext xComponentContext) {
-    this.xComponentContext = xComponentContext;
-    if (config == null) {
-      config = new WebDavConfig();
+    try {
+      this.xComponentContext = xComponentContext;
+      if (config == null) {
+        config = new WebDavConfig();
+      }      
+    } catch (Throwable thr) {
+      Log.info("Exception", thr);
     }
   }
 
@@ -69,7 +73,12 @@ public class AddonHandler extends WeakBase
   
   
   public static boolean __writeRegistryServiceInfo(XRegistryKey xRegistryKey) {
-    return Factory.writeRegistryServiceInfo(m_implementationName, m_serviceNames, xRegistryKey);    
+    try {
+      return Factory.writeRegistryServiceInfo(m_implementationName, m_serviceNames, xRegistryKey);          
+    } catch (Throwable thr) {
+      Log.info("Exception", thr);
+    }
+    return false;    
   }
   
   public String getImplementationName() {
@@ -121,6 +130,7 @@ public class AddonHandler extends WeakBase
   public com.sun.star.frame.XDispatch[] queryDispatches(
         com.sun.star.frame.DispatchDescriptor[] seqDescriptors )    
   {        
+    Log.info("public com.sun.star.frame.XDispatch[] queryDispatches(");
     int nCount = seqDescriptors.length;        
     com.sun.star.frame.XDispatch[] seqDispatcher = 
           new com.sun.star.frame.XDispatch[seqDescriptors.length];         
@@ -133,7 +143,8 @@ public class AddonHandler extends WeakBase
   }  
   
   public void initialize( Object[] object ) throws com.sun.star.uno.Exception    
-  {        
+  {
+    Log.info("public void initialize( Object[] object ) throws com.sun.star.uno.Exception...");
     if (object.length > 0) {
       xFrame = (XFrame)UnoRuntime.queryInterface(
             XFrame.class, object[0]);
@@ -147,6 +158,8 @@ public class AddonHandler extends WeakBase
   
   public void dispatch(com.sun.star.util.URL aURL,      
         com.sun.star.beans.PropertyValue[] aArguments ) {
+    
+    Log.info("public void dispatch(com.sun.star.util.URL aURL,");
     
     try {
       if ( aURL.Protocol.compareTo("org.exoplatform.applications.ooplugin:") == 0 ) {
@@ -190,10 +203,12 @@ public class AddonHandler extends WeakBase
   
   public void addStatusListener(com.sun.star.frame.XStatusListener xControl,
       com.sun.star.util.URL aURL) {
+    Log.info("public void addStatusListener(com.sun.star.frame.XStatusListener xControl,");
   }     
   
   public void removeStatusListener(com.sun.star.frame.XStatusListener xControl,
       com.sun.star.util.URL aURL ) {
+    Log.info("public void removeStatusListener(com.sun.star.frame.XStatusListener xControl,");
   }
   
   public static void showMessageBox(String sTitle, String sMessage) {

@@ -62,12 +62,6 @@ public class SearchDialog extends BrowseDialog {
         XWindow.class, xControlContainer.getControl(BTN_SEARCH))).setEnable(true);          
   }
   
-  private class TestClick extends ActionListener {
-    public void actionPerformed(ActionEvent arg0) {
-      Log.info("private class TestClick extends ActionListener");
-    }
-  }
-  
   private class SearchClick extends ActionListener {
     
     public void actionPerformed(ActionEvent arg0) {
