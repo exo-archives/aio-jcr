@@ -1,0 +1,1 @@
+Just run "mvn clean install antrun:run" command.
