@@ -3,7 +3,7 @@
 	oor:package="org.openoffice.Office">
 	<node oor:name="AddonUI">
 		<node oor:name="OfficeMenuBar">
-			<node oor:name="org.openoffice.testaddon.testaddon" oor:op="replace">
+			<node oor:name="org.exoplatform.ooplugin.webdav" oor:op="replace">
 				<prop oor:name="Title" oor:type="xs:string">
 					<value/>
 					<value xml:lang="en">Remote Documents</value>
@@ -15,7 +15,7 @@
 					<value/>
 				</prop>
 				<node oor:name="Submenu">
-					
+				
 					<node oor:name="m1" oor:op="replace">
 						<prop oor:name="URL" oor:type="xs:string">
 							<value>org.exoplatform.applications.ooplugin:open</value>
