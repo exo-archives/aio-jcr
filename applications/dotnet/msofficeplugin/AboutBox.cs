@@ -25,5 +25,10 @@ namespace exo_jcr.msofficeplugin
             System.Diagnostics.Process.Start("iexplore.exe", "http://www.exoplatform.com");
             
         }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
