@@ -29,6 +29,7 @@ public class DBInitializer {
   static public String SQL_DELIMITER_COMMENT_PREFIX = "/*$DELIMITER:";
   
   static public String SQL_CREATETABLE = "^(CREATE(\\s)+TABLE(\\s)+(IF(\\s)+NOT(\\s)+EXISTS(\\s)+)*){1}";
+  static public String SQL_CREATEVIEW = "^(CREATE(\\s)+VIEW(\\s)+(IF(\\s)+NOT(\\s)+EXISTS(\\s)+)*){1}";
   static public String SQL_OBJECTNAME = "((JCR_[A-Z_]+){1}(\\s*?|(\\(\\))*?)+)+?";
   static public String SQL_CREATEINDEX = "^(CREATE(\\s)+(UNIQUE(\\s)+)*INDEX(\\s)+){1}";
   static public String SQL_ONTABLENAME = "(ON(\\s)+(JCR_[A-Z_]+){1}(\\s*?|(\\(\\))*?)+){1}";
@@ -43,6 +44,7 @@ public class DBInitializer {
   protected final String script;
   
   protected final Pattern creatTablePattern;  
+  protected final Pattern creatViewPattern; 
   protected final Pattern dbObjectNamePattern;
   protected final Pattern creatIndexPattern;
   protected final Pattern onTableNamePattern;
@@ -56,6 +58,7 @@ public class DBInitializer {
     this.script = script(scriptPath);
     
     this.creatTablePattern = Pattern.compile(SQL_CREATETABLE, Pattern.CASE_INSENSITIVE);
+    this.creatViewPattern = Pattern.compile(SQL_CREATEVIEW, Pattern.CASE_INSENSITIVE);
     this.dbObjectNamePattern = Pattern.compile(SQL_OBJECTNAME, Pattern.CASE_INSENSITIVE);
     this.creatIndexPattern = Pattern.compile(SQL_CREATEINDEX, Pattern.CASE_INSENSITIVE);
     this.onTableNamePattern = Pattern.compile(SQL_ONTABLENAME, Pattern.CASE_INSENSITIVE);
@@ -153,6 +156,18 @@ public class DBInitializer {
           return true;
         }
       }
+    } else if ((tMatcher = creatViewPattern.matcher(sql)).find()) {
+      //   CREATE VIEW
+      tMatcher = dbObjectNamePattern.matcher(sql);
+      if (tMatcher.find()) {
+        // got view name
+        String tableName = sql.substring(tMatcher.start(), tMatcher.end());
+        if (isTableExists(conn, tableName)) {
+          if (log.isDebugEnabled())
+            log.debug("View is already exists " + tableName);
+          return true;
+        }
+      }
     } else if ((tMatcher = creatIndexPattern.matcher(sql)).find()) {
       // CREATE INDEX
       tMatcher = dbObjectNamePattern.matcher(sql);
@@ -245,6 +260,8 @@ public class DBInitializer {
         }
       }
       
+      rootInit(connection);
+      
       optionalInit();
       
       connection.commit();
@@ -284,6 +301,22 @@ public class DBInitializer {
   protected void optionalInit() throws DBInitializerException {
     
   }
+  
+  /**
+   * Init root node parent record
+   */
+  protected void rootInit(Connection connection) throws SQLException {
+    String select = "select * from JCR_MITEM where ID='' and PARENT_ID=''";
+    
+    if (!connection.createStatement().executeQuery(select).next()) {
+      String insert = 
+        "insert into JCR_MITEM(ID, PARENT_ID, NAME, PATH, VERSION, I_CLASS, I_INDEX, N_ORDER_NUM)" + 
+        " VALUES('', '', '__root_parent', '', 0, 0, 0, 0)";
+      
+      connection.createStatement().executeUpdate(insert);
+    }
+  }
+  
   
   // ------ custom log --------
   protected void log(String msg) {

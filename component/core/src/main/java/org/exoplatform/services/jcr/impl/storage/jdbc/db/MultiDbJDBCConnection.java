@@ -34,15 +34,18 @@ import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: MultiDbJDBCConnection.java 13869 2007-03-28 13:50:50Z peterit $
+ * 
+ * CREATE INDEX JCR_IDX_MITEM_NAME ON JCR_MITEM(NAME, ID, VERSION); 
  */
 
 public class MultiDbJDBCConnection extends JDBCStorageConnection {
   
   protected PreparedStatement findItemById;
   protected PreparedStatement findItemByPath;
-  protected PreparedStatement findItemByParentName;
+  protected PreparedStatement findItemByName;
 
   protected PreparedStatement findChildPropertyByPath;
+  protected PreparedStatement findPropertyByName;
 
   protected PreparedStatement findDescendantNodes;
   protected PreparedStatement findDescendantProperties;
@@ -55,7 +58,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
   protected PreparedStatement findNodesByParentId;
   protected PreparedStatement findPropertiesByParentId;
 
-  protected PreparedStatement insertItem;
+  //protected PreparedStatement insertItem;
   protected PreparedStatement insertNode;
   protected PreparedStatement insertProperty;
   protected PreparedStatement insertReference;
@@ -102,107 +105,116 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     JCR_FK_VALUE_PROPERTY = "JCR_FK_MVALUE_PROP";
     JCR_PK_ITEM = "JCR_MITEM_PKEY";
      
-    FIND_ITEM_BY_ID = "select I.*, N.ID as NID, N.NODE_INDEX as NNODE_INDEX, N.ORDER_NUM as NORDER_NUM, N.PARENT_ID as NPARENT_ID, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
-      + " from JCR_MITEM I LEFT JOIN JCR_MNODE N ON I.ID=N.ID LEFT JOIN JCR_MPROPERTY P ON I.ID=P.ID"
-      + " where I.ID=?"; // [PN] 03.01.07 as we serching by ID, we don't order by I.VERSION DESC
+    FIND_ITEM_BY_ID = "select * from JCR_MITEM where ID=?";
 
-    // select item(s) 
-    FIND_ITEM_BY_PATH = "select I.*, N.ID as NID, N.NODE_INDEX as NNODE_INDEX, N.ORDER_NUM as NORDER_NUM, N.PARENT_ID as NPARENT_ID, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
-      + " from JCR_MITEM I LEFT JOIN JCR_MNODE N on I.ID=N.ID LEFT JOIN JCR_MPROPERTY P on I.ID=P.ID"
-      + " where I.PATH=? order by I.VERSION DESC";
+    FIND_ITEM_BY_PATH = "select * from JCR_MITEM where PATH=? order by VERSION DESC";
     
-    FIND_ITEM_BY_PARENT = "select I.*, N.ID as NID, N.NODE_INDEX as NNODE_INDEX, N.ORDER_NUM as NORDER_NUM, N.PARENT_ID as NPARENT_ID, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
-      + " from JCR_MITEM I LEFT JOIN JCR_MNODE N on (I.ID=N.ID and N.NODE_INDEX=?) LEFT JOIN JCR_MPROPERTY P on I.ID=P.ID"
-      + " where I.PARENT_ID=? and I.NAME=? order by I.VERSION DESC";
+    FIND_ITEM_BY_NAME = "select * from JCR_MITEM"
+      + " where PARENT_ID=? and NAME=? and I_INDEX=? order by I_CLASS, VERSION DESC";
     
-    FIND_CHILD_PROPERTY_BY_PATH = "select I.*, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
-      + " from JCR_MPROPERTY P, JCR_MITEM I"
-      + " where I.PATH=? and I.ID=P.ID and P.PARENT_ID=? order by I.VERSION DESC";
+    // TODO unuse JCR_IDX_MITEM_PARENT_PATH
+    FIND_CHILD_PROPERTY_BY_PATH = "select *" 
+      + " from JCR_MPROPERTY"
+      + " where PARENT_ID=? and PATH=? order by VERSION DESC";
+    
+    FIND_PROPERTY_BY_NAME = "select *" 
+      + " from JCR_MPROPERTY"
+      + " where PARENT_ID=? and NAME=? order by VERSION DESC";
    
     FIND_DESCENDANT_NODES_LIKE_PATH = "select I.*, N.NODE_INDEX as NNODE_INDEX, N.ID as NID" 
       + " from JCR_MNODE N, JCR_MITEM I"
-      + " where I.ID=N.ID and N.PARENT_ID=? and I.PATH like ?"
+      + " where N.PARENT_ID=? and I.ID=N.ID and I.PATH like ?"
       + " order by I.PATH";
     
     FIND_DESCENDANT_PROPERTIES_LIKE_PATH = "select I.*, P.ID as PID" 
       + " from JCR_MPROPERTY P, JCR_MITEM I"
-      + " where I.ID=P.ID and P.PARENT_ID=? and I.PATH like ?"
+      + " where P.PARENT_ID=? and I.ID=P.ID and I.PATH like ?"
       + " order by I.PATH";
     
-    FIND_REFERENCES = "select R.NODE_ID as NID, R.PROPERTY_ID as PID, I.PATH, I.VERSION, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" +
-        " from JCR_MREF R, JCR_MITEM I, JCR_MPROPERTY P" +
-        " where R.PROPERTY_ID=I.ID and R.PROPERTY_ID=P.ID and I.ID=P.ID and R.NODE_ID=?";
+    FIND_REFERENCES = "select P.ID, P.PARENT_ID, P.VERSION, P.P_TYPE, P.P_MULTIVALUED, P.NAME, P.PATH" +
+        " from JCR_MREF R, JCR_MPROPERTY P" +
+        " where R.PROPERTY_ID=P.ID and R.NODE_ID=?";
     
     FIND_VALUES_BY_PROPERTYID = "select * from JCR_MVALUE where PROPERTY_ID=? order by ORDER_NUM";
     FIND_VALUE_BY_PROPERTYID_OREDERNUMB = "select DATA from JCR_MVALUE where PROPERTY_ID=? and ORDER_NUM=?";
     
-    FIND_NODES_BY_PARENTID = "select I.*, N.ID as NID, N.NODE_INDEX as NNODE_INDEX, N.ORDER_NUM as NORDER_NUM, N.PARENT_ID as NPARENT_ID" 
-      + " from JCR_MNODE N, JCR_MITEM I"
-      + " where I.ID=N.ID and N.PARENT_ID=?"
-      // [PN] 26.12.06
-      //+ " order by I.ID"; 
-      + " order by NORDER_NUM"; 
+    // TODO Index PARENT_ID, N_ORDER_NUM
+    FIND_NODES_BY_PARENTID = "select * from JCR_MNODE"
+      + " where PARENT_ID=?"
+      + " order by N_ORDER_NUM";
     
-    FIND_PROPERTIES_BY_PARENTID = "select I.*, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
-      + " from JCR_MPROPERTY P, JCR_MITEM I"
-      + " where I.ID=P.ID and P.PARENT_ID=?" 
-      + " order by I.ID";
+    // TODO Index PARENT_ID, ID    
+    FIND_PROPERTIES_BY_PARENTID = "select * from JCR_MPROPERTY"
+      + " where PARENT_ID=?" 
+      + " order by ID";
     
-    FIND_NODESCOUNT_BY_PARENTID = "select count(*) from JCR_MNODE where PARENT_ID=?";
-    FIND_PROPERTIESCOUNT_BY_PARENTID = "select count(*) from JCR_MPROPERTY where PARENT_ID=?";
-    
-    INSERT_ITEM = "insert into JCR_MITEM(ID, NAME, VERSION, PATH) VALUES(?,?,?,?)";
-    INSERT_NODE = "insert into JCR_MNODE(ID, PARENT_ID, NODE_INDEX, ORDER_NUM) VALUES(?,?,?,?)";
-    INSERT_PROPERTY = "insert into JCR_MPROPERTY(ID, PARENT_ID, TYPE, MULTIVALUED) VALUES(?,?,?,?)";
+    //INSERT_ITEM = "insert into JCR_MITEM(ID, NAME, VERSION, PATH) VALUES(?,?,?,?)";
+  /*
+  ID VARCHAR(96) NOT NULL PRIMARY KEY,
+  PARENT_ID VARCHAR(96) NOT NULL,
+  NAME VARCHAR(512) NOT NULL,
+  VERSION INTEGER NOT NULL, 
+  PATH VARCHAR(4096) NOT NULL,
+  I_CLASS INTEGER NOT NULL,
+  I_INDEX INTEGER NOT NULL,
+  N_ORDER_NUM INTEGER NOT NULL,
+  P_TYPE INTEGER NOT NULL, 
+  P_MULTIVALUED BOOLEAN NOT NULL, */
+    INSERT_NODE = "insert into JCR_MITEM(ID, PARENT_ID, NAME, PATH, VERSION, I_CLASS, I_INDEX, N_ORDER_NUM) VALUES(?,?,?,?,?," + I_CLASS_NODE + ",?,?)";
+
+    //INSERT_PROPERTY = "insert into JCR_MPROPERTY(ID, PARENT_ID, TYPE, MULTIVALUED) VALUES(?,?,?,?)";    
+    INSERT_PROPERTY = "insert into JCR_MITEM(ID, PARENT_ID, NAME, PATH, VERSION, I_CLASS, I_INDEX, P_TYPE, P_MULTIVALUED) VALUES(?,?,?,?,?," + I_CLASS_PROPERTY + ",?,?,?)";
     
     INSERT_VALUE = "insert into JCR_MVALUE(DATA, ORDER_NUM, PROPERTY_ID) VALUES(?,?,?)";
     INSERT_REF = "insert into JCR_MREF(NODE_ID, PROPERTY_ID, ORDER_NUM) VALUES(?,?,?)";
 
-    UPDATE_ITEM = "update JCR_MITEM set VERSION=? where ID=?";
+    //UPDATE_ITEM = "update JCR_MITEM set VERSION=? where ID=?";
     //UPDATE_ITEM_PATH = "update JCR_MITEM set NAME=?, PATH=?, VERSION=? where ID=?";
-    UPDATE_NODE = "update JCR_MNODE set NODE_INDEX=?, ORDER_NUM=? where ID=?";
-    
-    UPDATE_PROPERTY = "update JCR_MPROPERTY set TYPE=? where ID=?";
+    UPDATE_NODE = "update JCR_MITEM set VERSION=?, I_INDEX=?, N_ORDER_NUM=? where ID=?";
+    UPDATE_PROPERTY = "update JCR_MITEM set VERSION=?, P_TYPE=? where ID=?";
     
     DELETE_ITEM = "delete from JCR_MITEM where ID=?";
-    DELETE_NODE = "delete from JCR_MNODE where ID=?";
-    DELETE_PROPERTY = "delete from JCR_MPROPERTY where ID=?";
+    //DELETE_NODE = "delete from JCR_MNODE where ID=?";
+    //DELETE_PROPERTY = "delete from JCR_MPROPERTY where ID=?";
     DELETE_VALUE = "delete from JCR_MVALUE where PROPERTY_ID=?";
     DELETE_REF = "delete from JCR_MREF where PROPERTY_ID=?";
   }
   
   @Override
   protected void addNodeRecord(NodeData data) throws SQLException {
-    if (insertItem == null)
-      insertItem = dbConnection.prepareStatement(INSERT_ITEM);
-    else
-      insertItem.clearParameters();
+//    if (insertItem == null)
+//      insertItem = dbConnection.prepareStatement(INSERT_ITEM);
+//    else
+//      insertItem.clearParameters();
     if (insertNode == null)
       insertNode = dbConnection.prepareStatement(INSERT_NODE);
     else
       insertNode.clearParameters();
     
     // INSERT_ITEM = "insert into JCR_MITEM(ID, NAME, VERSION, PATH) VALUES(?,?,?,?)";
-    insertItem.setString(1, data.getUUID());
-    insertItem.setString(2, data.getQPath().getName().getAsString());
-    insertItem.setInt(3, data.getPersistedVersion());
-    insertItem.setString(4, data.getQPath().getAsString()); // TODO deprecated
-    insertItem.executeUpdate();
+//    insertItem.setString(1, data.getUUID());
+//    insertItem.setString(2, data.getQPath().getName().getAsString());
+//    insertItem.setInt(3, data.getPersistedVersion());
+//    insertItem.setString(4, data.getQPath().getAsString()); // TODO deprecated
+//    insertItem.executeUpdate();
 
-    // INSERT_NODE = "insert into JCR_MNODE(ID, PARENT_ID, NODE_INDEX, ORDER_NUM) VALUES(?,?,?,?)";
+    // INSERT_NODE = "insert into JCR_MITEM(ID, PARENT_ID, NAME, PATH, VERSION, I_CLASS, I_INDEX, N_ORDER_NUM) VALUES(?,?,?,?,?," + I_CLASS_NODE + ",?,?)";
     insertNode.setString(1, data.getUUID());
-    insertNode.setString(2, data.getParentUUID());
-    insertNode.setInt(3, data.getQPath().getIndex());
-    insertNode.setInt(4, data.getOrderNumber());
+    insertNode.setString(2, data.getParentUUID() == null ? "" : data.getParentUUID()); // if root then parent uuid equals empty string 
+    insertNode.setString(3, data.getQPath().getName().getAsString());
+    insertNode.setString(4, data.getQPath().getAsString());
+    insertNode.setInt(5, data.getPersistedVersion());
+    insertNode.setInt(6, data.getQPath().getIndex());
+    insertNode.setInt(7, data.getOrderNumber());
     insertNode.executeUpdate();    
   }
 
   @Override
   protected void addPropertyRecord(PropertyData data) throws SQLException {
-    if (insertItem == null)
-      insertItem = dbConnection.prepareStatement(INSERT_ITEM);
-    else
-      insertItem.clearParameters();
+//    if (insertItem == null)
+//      insertItem = dbConnection.prepareStatement(INSERT_ITEM);
+//    else
+//      insertItem.clearParameters();
     
     if (insertProperty == null)
       insertProperty = dbConnection.prepareStatement(INSERT_PROPERTY);
@@ -210,17 +222,22 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
       insertProperty.clearParameters();
         
     // INSERT_ITEM = "insert into JCR_MITEM(ID, NAME, VERSION, PATH) VALUES(?,?,?,?)";
-    insertItem.setString(1, data.getUUID());
-    insertItem.setString(2, data.getQPath().getName().getAsString());
-    insertItem.setInt(3, data.getPersistedVersion());
-    insertItem.setString(4, data.getQPath().getAsString()); // TODO deprecated
-    insertItem.executeUpdate();
+//    insertItem.setString(1, data.getUUID());
+//    insertItem.setString(2, data.getQPath().getName().getAsString());
+//    insertItem.setInt(3, data.getPersistedVersion());
+//    insertItem.setString(4, data.getQPath().getAsString()); // TODO deprecated
+//    insertItem.executeUpdate();
     
-    // INSERT_PROPERTY = "insert into JCR_MPROPERTY(ID, PARENT_ID, TYPE, MULTIVALUED) VALUES(?,?,?,?)";
+    // INSERT_PROPERTY = "insert into JCR_MITEM(ID, PARENT_ID, NAME, PATH, VERSION, I_CLASS, I_INDEX, P_TYPE, P_MULTIVALUED) VALUES(?,?,?,?,?," + I_CLASS_NODE + ",?,?,?)";
     insertProperty.setString(1, data.getUUID());
     insertProperty.setString(2, data.getParentUUID());
-    insertProperty.setInt(3, data.getType());
-    insertProperty.setBoolean(4, data.isMultiValued());
+    insertProperty.setString(3, data.getQPath().getName().getAsString());
+    insertProperty.setString(4, data.getQPath().getAsString());
+    insertProperty.setInt(5, data.getPersistedVersion());
+    insertProperty.setInt(6, data.getQPath().getIndex());
+    insertProperty.setInt(7, data.getType());
+    insertProperty.setBoolean(8, data.isMultiValued());
+    
     insertProperty.executeUpdate();
   }
   
@@ -233,6 +250,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
       insertReference = dbConnection.prepareStatement(INSERT_REF);
     else
       insertReference.clearParameters();
+    
+    if (data.getQPath().getAsString().indexOf("versionableUuid")>0)
+      log.info("add ref versionableUuid " + data.getQPath().getAsString());
     
     List<ValueData> values = data.getValues();
     for (int i=0; i<values.size(); i++) {
@@ -258,7 +278,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
       deleteReference.clearParameters();
     
     deleteReference.setString(1, propertyUuid);
-    deleteReference.executeUpdate();
+    int r = deleteReference.executeUpdate();
+//    if (r > 0)
+//      log.info("deleteReference " + propertyUuid + " " + r);
   }
 
   @Override
@@ -267,32 +289,37 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
       deleteItem = dbConnection.prepareStatement(DELETE_ITEM);
     else
       deleteItem.clearParameters();
+
+//    ResultSet rs = dbConnection.createStatement().executeQuery("select * from jcr_mref where node_id='" + uuid+"'");
+//    while (rs.next()) {
+//      log.info(rs.getString("PROPERTY_ID"));
+//    }
     
     deleteItem.setString(1, uuid);
     return deleteItem.executeUpdate();
   }
 
-  @Override
-  protected int deleteNodeByUUID(String uuid) throws SQLException {
-    if (deleteNode == null)
-      deleteNode = dbConnection.prepareStatement(DELETE_NODE);
-    else
-      deleteNode.clearParameters();
-    
-    deleteNode.setString(1, uuid);
-    return deleteNode.executeUpdate();
-  }
-
-  @Override
-  protected int deletePropertyByUUID(String uuid) throws SQLException {
-    if (deleteProperty == null)
-      deleteProperty = dbConnection.prepareStatement(DELETE_PROPERTY);
-    else
-      deleteProperty.clearParameters();
-    
-    deleteProperty.setString(1, uuid);
-    return deleteProperty.executeUpdate();
-  }
+//  @Override
+//  protected int deleteNodeByUUID(String uuid) throws SQLException {
+//    if (deleteNode == null)
+//      deleteNode = dbConnection.prepareStatement(DELETE_NODE);
+//    else
+//      deleteNode.clearParameters();
+//    
+//    deleteNode.setString(1, uuid);
+//    return deleteNode.executeUpdate();
+//  }
+//
+//  @Override
+//  protected int deletePropertyByUUID(String uuid) throws SQLException {
+//    if (deleteProperty == null)
+//      deleteProperty = dbConnection.prepareStatement(DELETE_PROPERTY);
+//    else
+//      deleteProperty.clearParameters();
+//    
+//    deleteProperty.setString(1, uuid);
+//    return deleteProperty.executeUpdate();
+//  }
 
 //  @Override
 //  protected int updateItemPathByUUID(String qname, String qpath, int version, String uuid) throws SQLException {
@@ -309,41 +336,42 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
 //    return updateItemPath.executeUpdate();
 //  }  
   
-  @Override
-  protected int updateItemVersionByUUID(int versionValue, String uuid) throws SQLException {
-    if (updateItem == null)
-      updateItem = dbConnection.prepareStatement(UPDATE_ITEM);
-    else
-      updateItem.clearParameters();
-    
-    updateItem.setInt(1, versionValue);
-    updateItem.setString(2, uuid);
-    return updateItem.executeUpdate();
-  }
+//  @Override
+//  protected int updateItemVersionByUUID(int versionValue, String uuid) throws SQLException {
+//    if (updateItem == null)
+//      updateItem = dbConnection.prepareStatement(UPDATE_ITEM);
+//    else
+//      updateItem.clearParameters();
+//    
+//    updateItem.setInt(1, versionValue);
+//    updateItem.setString(2, uuid);
+//    return updateItem.executeUpdate();
+//  }
   
   @Override
-  protected int updateNodeOrderNumbByUUID(int index, int orderNumb, String uuid) throws SQLException {
+  protected int updateNodeByUUID(int version, int index, int orderNumb, String uuid) throws SQLException {
     if (updateNode == null)
       updateNode = dbConnection.prepareStatement(UPDATE_NODE);
     else
       updateNode.clearParameters();
     
-    // UPDATE_NODE = "update JCR_MNODE set NODE_INDEX=?, ORDER_NUM=? where ID=?";
-    updateNode.setInt(1, index);
-    updateNode.setInt(2, orderNumb);
-    updateNode.setString(3, uuid);
+    updateNode.setInt(1, version);
+    updateNode.setInt(2, index);
+    updateNode.setInt(3, orderNumb);
+    updateNode.setString(4, uuid);
     return updateNode.executeUpdate();
   }
   
   @Override
-  protected int updatePropertyTypeByUUID(int type, String uuid) throws SQLException {
+  protected int updatePropertyByUUID(int version, int type, String uuid) throws SQLException {
     if (updateProperty == null)
       updateProperty = dbConnection.prepareStatement(UPDATE_PROPERTY);
     else
       updateProperty.clearParameters();
     
-    updateProperty.setInt(1, type);
-    updateProperty.setString(2, uuid);
+    updateProperty.setInt(1, version);
+    updateProperty.setInt(2, type);
+    updateProperty.setString(3, uuid);
     return updateProperty.executeUpdate();
   }
   
@@ -358,16 +386,16 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     return findItemByPath.executeQuery();
   }
   
-  protected ResultSet findItemByParentName(String parentId, String name, int index) throws SQLException {
-    if (findItemByParentName == null)
-      findItemByParentName = dbConnection.prepareStatement(FIND_ITEM_BY_PARENT);
+  protected ResultSet findItemByName(String parentId, String name, int index) throws SQLException {
+    if (findItemByName == null)
+      findItemByName = dbConnection.prepareStatement(FIND_ITEM_BY_NAME);
     else
-      findItemByParentName.clearParameters();
+      findItemByName.clearParameters();
     
-    findItemByParentName.setInt(1, index);
-    findItemByParentName.setString(2, parentId);
-    findItemByParentName.setString(3, name);
-    return findItemByParentName.executeQuery();
+    findItemByName.setString(1, parentId);
+    findItemByName.setString(2, name);
+    findItemByName.setInt(3, index);
+    return findItemByName.executeQuery();
   }
   
   @Override
@@ -377,9 +405,21 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     else
       findChildPropertyByPath.clearParameters();
     
-    findChildPropertyByPath.setString(1, path);
-    findChildPropertyByPath.setString(2, parentId);
+    findChildPropertyByPath.setString(1, parentId);
+    findChildPropertyByPath.setString(2, path);
     return findChildPropertyByPath.executeQuery();
+  }
+  
+  @Override
+  protected ResultSet findPropertyByName(String parentId, String name) throws SQLException {
+    if (findPropertyByName == null)
+      findPropertyByName = dbConnection.prepareStatement(FIND_PROPERTY_BY_NAME);
+    else
+      findPropertyByName.clearParameters();
+    
+    findPropertyByName.setString(1, parentId);
+    findPropertyByName.setString(2, name);
+    return findPropertyByName.executeQuery();
   }
 
   @Override

@@ -32,9 +32,10 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
 
   protected PreparedStatement findItemById;
   protected PreparedStatement findItemByPath;
-  protected PreparedStatement findItemByParentName;
+  protected PreparedStatement findItemByName;
 
   protected PreparedStatement findChildPropertyByPath;
+  protected PreparedStatement findPropertyByName;
 
   protected PreparedStatement findDescendantNodes;
   protected PreparedStatement findDescendantProperties;
@@ -106,13 +107,17 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
       + " from JCR_SITEM I LEFT JOIN JCR_SNODE N ON I.ID=N.ID LEFT JOIN JCR_SPROPERTY P ON I.ID=P.ID"
       + " where I.PATH=? and I.CONTAINER_NAME=? order by I.VERSION DESC";
     
-    FIND_ITEM_BY_PARENT = "select I.*, N.ID as NID, N.ORDER_NUM as NORDER_NUM, N.PARENT_ID as NPARENT_ID, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
-      + " from JCR_MITEM I LEFT JOIN JCR_MNODE N on (I.ID=N.ID and N.NODE_INDEX=?) LEFT JOIN JCR_MPROPERTY P on I.ID=P.ID"
-      + " where I.CONTAINER_NAME=? and I.PARENT_ID=? and I.NAME=? order by I.VERSION DESC";
+    FIND_ITEM_BY_NAME = "select I.*, N.ID as NID, N.ORDER_NUM as NORDER_NUM, N.PARENT_ID as NPARENT_ID, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
+      + " from JCR_MITEM I LEFT JOIN JCR_MNODE N on (I.ID=N.ID and N.PARENT_ID=? and N.NODE_INDEX=?) LEFT JOIN JCR_MPROPERTY P on (I.ID=P.ID and P.PARENT_ID=?)"
+      + " where I.CONTAINER_NAME=? and I.NAME=? order by I.VERSION DESC";
     
     FIND_CHILD_PROPERTY_BY_PATH = "select I.*, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
       + " from JCR_SPROPERTY P, JCR_SITEM I"
-      + " where I.PATH=? and I.ID=P.ID and P.PARENT_ID=? order by I.VERSION DESC"; // I.CONTAINER_NAME=? and 
+      + " where P.PARENT_ID=? and I.PATH=? and I.ID=P.ID order by I.VERSION DESC"; // I.CONTAINER_NAME=? and
+    
+    FIND_PROPERTY_BY_NAME = "select I.*, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
+      + " from JCR_SPROPERTY P, JCR_SITEM I"
+      + " where P.PARENT_ID=? and I.NAME=? and I.ID=P.ID order by I.VERSION DESC"; // I.CONTAINER_NAME=? and
 
     FIND_DESCENDANT_NODES_LIKE_PATH = "select I.*, N.ID as NID" 
       + " from JCR_SNODE N, JCR_SITEM I"
@@ -144,34 +149,31 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
       + " where I.ID=P.ID and P.PARENT_ID=?" 
       + " order by I.ID";
     
-    FIND_NODESCOUNT_BY_PARENTID = "select count(*) from JCR_SNODE where PARENT_ID=?";
-    FIND_PROPERTIESCOUNT_BY_PARENTID = "select count(*) from JCR_SPROPERTY where PARENT_ID=?";
-    
-    INSERT_ITEM = "insert into JCR_SITEM(ID, NAME, VERSION, CONTAINER_NAME, PATH) VALUES(?,?,?,?,?)";
+    //INSERT_ITEM = "insert into JCR_SITEM(ID, NAME, VERSION, CONTAINER_NAME, PATH) VALUES(?,?,?,?,?)";
     INSERT_NODE = "insert into JCR_SNODE(ID, PARENT_ID, NODE_INDEX, ORDER_NUM) VALUES(?,?,?,?)";
     INSERT_PROPERTY = "insert into JCR_SPROPERTY(ID, PARENT_ID, TYPE, MULTIVALUED) VALUES(?,?,?,?)";
     
     INSERT_VALUE = "insert into JCR_SVALUE(DATA, ORDER_NUM, PROPERTY_ID) VALUES(?,?,?)";
     INSERT_REF = "insert into JCR_SREF(NODE_ID, PROPERTY_ID, ORDER_NUM) VALUES(?,?,?)";
 
-    UPDATE_ITEM = "update JCR_SITEM set VERSION=? where ID=?"; // and CONTAINER_NAME=?
+    //UPDATE_ITEM = "update JCR_SITEM set VERSION=? where ID=?"; // and CONTAINER_NAME=?
     //UPDATE_ITEM_PATH = "update JCR_SITEM set PATH=?, VERSION=? where ID=?"; // and CONTAINER_NAME=?
-    UPDATE_NODE = "update JCR_SNODE set ORDER_NUM=? where ID=?";
-    UPDATE_PROPERTY = "update JCR_SPROPERTY set TYPE=? where ID=?";
+    UPDATE_NODE = "update JCR_SITEM set VERSION=?, I_INDEX=?, N_ORDER_NUM=? where ID=?";
+    UPDATE_PROPERTY = "update JCR_SPROPERTY set VERSION=?, TYPE=? where ID=?";
     
     DELETE_ITEM = "delete from JCR_SITEM where ID=?";
-    DELETE_NODE = "delete from JCR_SNODE where ID=?";
-    DELETE_PROPERTY = "delete from JCR_SPROPERTY where ID=?";
+    //DELETE_NODE = "delete from JCR_SNODE where ID=?";
+    //DELETE_PROPERTY = "delete from JCR_SPROPERTY where ID=?";
     DELETE_VALUE = "delete from JCR_SVALUE where PROPERTY_ID=?";
     DELETE_REF = "delete from JCR_SREF where PROPERTY_ID=?";
   }
 
   @Override
   protected void addNodeRecord(NodeData data) throws SQLException {
-    if (insertItem == null)
-      insertItem = dbConnection.prepareStatement(INSERT_ITEM);
-    else
-      insertItem.clearParameters();
+//    if (insertItem == null)
+//      insertItem = dbConnection.prepareStatement(INSERT_ITEM);
+//    else
+//      insertItem.clearParameters();
     
     if (insertNode == null)
       insertNode = dbConnection.prepareStatement(INSERT_NODE);
@@ -194,10 +196,10 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
 
   @Override
   protected void addPropertyRecord(PropertyData data) throws SQLException {
-    if (insertItem == null)
-      insertItem = dbConnection.prepareStatement(INSERT_ITEM);
-    else
-      insertItem.clearParameters();
+//    if (insertItem == null)
+//      insertItem = dbConnection.prepareStatement(INSERT_ITEM);
+//    else
+//      insertItem.clearParameters();
       
     if (insertProperty == null)
       insertProperty = dbConnection.prepareStatement(INSERT_PROPERTY);
@@ -267,27 +269,27 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     return deleteItem.executeUpdate();
   }
 
-  @Override
-  protected int deleteNodeByUUID(String cid) throws SQLException {
-    if (deleteNode == null)
-      deleteNode = dbConnection.prepareStatement(DELETE_NODE);
-    else
-      deleteNode.clearParameters();
-    
-    deleteNode.setString(1, cid);
-    return deleteNode.executeUpdate();
-  }
+//  @Override
+//  protected int deleteNodeByUUID(String cid) throws SQLException {
+//    if (deleteNode == null)
+//      deleteNode = dbConnection.prepareStatement(DELETE_NODE);
+//    else
+//      deleteNode.clearParameters();
+//    
+//    deleteNode.setString(1, cid);
+//    return deleteNode.executeUpdate();
+//  }
 
-  @Override
-  protected int deletePropertyByUUID(String cid) throws SQLException {
-    if (deleteProperty == null)
-      deleteProperty = dbConnection.prepareStatement(DELETE_PROPERTY);
-    else
-      deleteProperty.clearParameters();
-    
-    deleteProperty.setString(1, cid);
-    return deleteProperty.executeUpdate();
-  }
+//  @Override
+//  protected int deletePropertyByUUID(String cid) throws SQLException {
+//    if (deleteProperty == null)
+//      deleteProperty = dbConnection.prepareStatement(DELETE_PROPERTY);
+//    else
+//      deleteProperty.clearParameters();
+//    
+//    deleteProperty.setString(1, cid);
+//    return deleteProperty.executeUpdate();
+//  }
 
   @Override
   protected ResultSet findChildNodesByParentUUID(String parentCid) throws SQLException {
@@ -324,17 +326,18 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
   }
 
   @Override
-  protected ResultSet findItemByParentName(String parentId, String name, int index) throws SQLException {
-    if (findItemByParentName == null)
-      findItemByParentName = dbConnection.prepareStatement(FIND_ITEM_BY_PARENT);
+  protected ResultSet findItemByName(String parentId, String name, int index) throws SQLException {
+    if (findItemByName == null)
+      findItemByName = dbConnection.prepareStatement(FIND_ITEM_BY_NAME);
     else
-      findItemByParentName.clearParameters();
+      findItemByName.clearParameters();
     
-    findItemByParentName.setInt(1, index);
-    findItemByParentName.setString(2, containerName);
-    findItemByParentName.setString(3, parentId);
-    findItemByParentName.setString(4, name);
-    return findItemByParentName.executeQuery();
+    findItemByName.setString(1, parentId);
+    findItemByName.setInt(2, index);
+    findItemByName.setString(3, parentId);
+    findItemByName.setString(4, containerName);
+    findItemByName.setString(5, name);
+    return findItemByName.executeQuery();
   }
 
   @Override
@@ -343,11 +346,23 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
       findChildPropertyByPath = dbConnection.prepareStatement(FIND_CHILD_PROPERTY_BY_PATH);
     else
       findChildPropertyByPath.clearParameters();
-          
-    findChildPropertyByPath.setString(1, path);
-    findChildPropertyByPath.setString(2, parentCid);
+
+    findChildPropertyByPath.setString(1, parentCid);
+    findChildPropertyByPath.setString(2, path);
     return findChildPropertyByPath.executeQuery();
   }  
+  
+  @Override
+  protected ResultSet findPropertyByName(String parentCid, String name) throws SQLException {
+    if (findPropertyByName == null)
+      findPropertyByName = dbConnection.prepareStatement(FIND_PROPERTY_BY_NAME);
+    else
+      findPropertyByName.clearParameters();
+    
+    findPropertyByName.setString(1, parentCid);
+    findPropertyByName.setString(2, name);
+    return findPropertyByName.executeQuery();
+  }
 
   @Override
   protected ResultSet findItemByUUID(String cid) throws SQLException {
@@ -395,17 +410,16 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     return findReferences.executeQuery();
   }
 
-  @Override
-  protected int updateItemVersionByUUID(int versionValue, String cid) throws SQLException {
-    if (updateItem == null)
-      updateItem = dbConnection.prepareStatement(UPDATE_ITEM);
-    else
-      updateItem.clearParameters();
-          
-    updateItem.setInt(1, versionValue);
-    updateItem.setString(2, cid);
-    return updateItem.executeUpdate();
-  }
+//  protected int updateItemVersionByUUID(int versionValue, String cid) throws SQLException {
+//    if (updateItem == null)
+//      updateItem = dbConnection.prepareStatement(UPDATE_ITEM);
+//    else
+//      updateItem.clearParameters();
+//          
+//    updateItem.setInt(1, versionValue);
+//    updateItem.setString(2, cid);
+//    return updateItem.executeUpdate();
+//  }
   
 //  @Override
 //  protected int updateItemPathByUUID(String qpath, int version, String cid) throws SQLException {
@@ -421,28 +435,29 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
 //  }    
   
   @Override
-  protected int updateNodeOrderNumbByUUID(int index, int orderNumb, String cid) throws SQLException {
+  protected int updateNodeByUUID(int version, int index, int orderNumb, String cid) throws SQLException {
     if (updateNode == null)
       updateNode = dbConnection.prepareStatement(UPDATE_NODE);
     else
       updateNode.clearParameters();
     
-    // UPDATE_NODE = "update JCR_MNODE set NODE_INDEX=?, ORDER_NUM=? where ID=?";
-    updateNode.setInt(1, index);
-    updateNode.setInt(2, orderNumb);
-    updateNode.setString(3, cid);
+    updateNode.setInt(1, version);
+    updateNode.setInt(2, index);
+    updateNode.setInt(3, orderNumb);
+    updateNode.setString(4, cid);
     return updateNode.executeUpdate();
   }
   
   @Override
-  protected int updatePropertyTypeByUUID(int type, String cid) throws SQLException {
+  protected int updatePropertyByUUID(int version, int type, String cid) throws SQLException {
     if (updateProperty == null)
       updateProperty = dbConnection.prepareStatement(UPDATE_PROPERTY);
     else
       updateProperty.clearParameters();
-          
-    updateProperty.setInt(1, type);
-    updateProperty.setString(2, cid);
+    
+    updateProperty.setInt(1, version);
+    updateProperty.setInt(2, type);
+    updateProperty.setString(3, cid);
     return updateProperty.executeUpdate();
   }
   

@@ -25,10 +25,10 @@ import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedPropertyData;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -50,6 +50,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
 
   protected static Log log = ExoLogger.getLogger("jcr.JDBCStorageConnection");
 
+  public static final int I_CLASS_NODE = 1;
+  public static final int I_CLASS_PROPERTY = 2;
+  
   protected final ValueStoragePluginProvider valueStorageProvider;
   protected final int maxBufferSize;
   protected final File swapDirectory;
@@ -262,10 +265,10 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     int deleted = 0;
 
     // deleting from NODE table
-    if (deleteNodeByUUID(cid) <= 0) {
-      // [PN] it's error state, as we actually didn't delete the node
-      log.warn("Error state, the node actually not deleted " + cid);
-    }
+//    if (deleteNodeByUUID(cid) <= 0) {
+//      // [PN] it's error state, as we actually didn't delete the node
+//      log.warn("Error state, the node actually not deleted " + cid);
+//    }
 
     // deleting from ITEM table
     int nc = deleteItemByUUID(cid);
@@ -297,9 +300,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       deleteReference(cid);
 
       // delete property
-      if (deletePropertyByUUID(cid) <= 0) {
-        log.warn("Error state, the property actually is not deleted " + cid);
-      }
+//      if (deletePropertyByUUID(cid) <= 0) {
+//        log.warn("Error state, the property actually is not deleted " + cid);
+//      }
 
       // delete item
       return deleteItemByUUID(cid);
@@ -426,10 +429,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     checkIfOpened();
     try {
       String cid = getInternalId(data.getUUID());
-      // version update
-      updateItemVersionByUUID(data.getPersistedVersion(), cid);
       // order numb update
-      updateNodeOrderNumbByUUID(data.getQPath().getIndex(), data.getOrderNumber(), cid);
+      updateNodeByUUID(data.getPersistedVersion(), data.getQPath().getIndex(), data.getOrderNumber(), cid);
 
       if (log.isDebugEnabled())
         log.debug("Node updated " + data.getQPath().getAsString() + ", " + data.getUUID() + ", " + data.getPrimaryTypeName().getAsString());
@@ -450,11 +451,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     try {
       String cid = getInternalId(data.getUUID());
 
-      // version update
-      updateItemVersionByUUID(data.getPersistedVersion(), cid);
-
       // update type
-      updatePropertyTypeByUUID(data.getType(), cid);
+      updatePropertyByUUID(data.getPersistedVersion(), data.getType(), cid);
 
       // update reference
       try {
@@ -501,8 +499,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       //List<NodeData> childrens = new ItemsArrayList<NodeData>(); // [PN] Debug
       List<NodeData> childrens = new ArrayList<NodeData>();
       while(node.next()) {
-        if (node.getString(COLUMN_NID) != null) {
-          childrens.add(loadNodeRecord(node));
+        if (node.getString(COLUMN_ID) != null) {
+          childrens.add(loadNodeRecord(parent.getQPath(), node));
         } else {
           throw new RepositoryException("FATAL: Not found child node for parent "+parent.getQPath().getAsString()
               + ", but child item found " + node.getString(COLUMN_PATH) + " " + getUuid(node.getString(COLUMN_ID)));
@@ -524,8 +522,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       ResultSet prop = findChildPropertiesByParentUUID(getInternalId(parent.getUUID()));
       List<PropertyData> children = new ArrayList<PropertyData>();
       while(prop.next()) {
-        if (prop.getString(COLUMN_PID) != null) {
-          children.add(loadPropertyRecord(prop));
+        if (prop.getString(COLUMN_ID) != null) {
+          children.add(loadPropertyRecord(parent.getQPath(), prop));
         } else {
           throw new RepositoryException("FATAL: Not found child property for parent "+parent.getQPath().getAsString()
               + ", but child item found " + prop.getString(COLUMN_PATH) + " " + getUuid(prop.getString(COLUMN_ID)));
@@ -576,27 +574,13 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   
   public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException,
       IllegalStateException {
-    checkIfOpened();
-    ResultSet item = null;
-    try {
-      item = findItemByParentName(parentData.getUUID(), name.getName(), name.getIndex());
-      if (item.next())
-        return itemData(item);
-      return null;
-    } catch (SQLException e) {
-      e.printStackTrace();
-      throw new RepositoryException(e);
-    } catch (IOException e) {
-      e.printStackTrace();
-      throw new RepositoryException(e);
-    } finally {
-      try {
-        if (item != null)
-          item.close();
-      } catch(SQLException e) {
-        log.error("getItemData() Error close resultset " + e.getMessage());
-      }
-    }
+    
+    if (parentData != null) {
+      return getItemByName(parentData.getQPath(), getInternalId(parentData.getUUID()), name);
+    } 
+
+    // it's a root node
+    return getItemByName(null, null, name);
   }
 
   /* (non-Javadoc)
@@ -623,134 +607,302 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   // ------------------ Private methods ---------------
 
 
-  protected ItemData getItemByUUID(String cid) throws RepositoryException, IllegalStateException {
-    checkIfOpened();
-    ResultSet item = null;
-    try {
-      item = findItemByUUID(cid);
-      if(item.next()) {
-        return itemData(item);
+    protected ItemData getItemByUUID(String cid) throws RepositoryException, IllegalStateException {
+      checkIfOpened();
+      ResultSet item = null;
+      try {
+        item = findItemByUUID(cid);
+        if(item.next()) {
+          return itemData(item);
+        }
+        return null;
+      } catch (SQLException e) {
+        throw new RepositoryException("getItemData() error", e);
+      } catch (IOException e) {
+        throw new RepositoryException("getItemData() error", e);
+      } finally {
+          try {
+            if (item != null)
+              item.close();
+          } catch(SQLException e) {
+            log.error("getItemData() Error close resultset " + e.getMessage());
+          }
       }
-      return null;
-    } catch (SQLException e) {
-      throw new RepositoryException("getItemData() error", e);
-    } catch (IOException e) {
-      throw new RepositoryException("getItemData() error", e);
-    } finally {
+    }
+
+    /**
+     * Gets an item data from database.
+     * 
+     * @param parentPath - parent QPath 
+     * @param parentId - parent container internal id (depends on Multi/Single DB)
+     * @param name - item name
+     * @return - ItemData instance
+     * 
+     * @throws RepositoryException
+     * @throws IllegalStateException
+   */
+    protected ItemData getItemByName(QPath parentPath, String parentId, QPathEntry name) throws RepositoryException,
+        IllegalStateException {
+      checkIfOpened();
+      ResultSet item = null;
+      try {
+        item = findItemByName(parentId,
+            name.getAsString(),
+            name.getIndex());
+        if (item.next())
+          return itemData(parentPath, item);
+        return null;
+      } catch (SQLException e) {
+        e.printStackTrace();
+        throw new RepositoryException(e);
+      } catch (IOException e) {
+        e.printStackTrace();
+        throw new RepositoryException(e);
+      } finally {
         try {
           if (item != null)
             item.close();
-        } catch(SQLException e) {
+        } catch (SQLException e) {
           log.error("getItemData() Error close resultset " + e.getMessage());
         }
-    }
-  }
-
-  /**
-   * @param itemRecord
-   * @return
-   * @throws RepositoryException
-   * @throws SQLException
-   */
-  private ItemData itemData(ResultSet itemRecord) throws RepositoryException, SQLException, IOException {
-    String id = itemRecord.getString(COLUMN_ID);
-
-    boolean isNode = itemRecord.getString(COLUMN_NID) != null;
-    boolean isProperty = itemRecord.getString(COLUMN_PID) != null;
-
-    if (isNode && isProperty) {
-      // inconsistent data stored in db
-      throw new RepositoryException("FATAL: Item stored as node and as property "+itemRecord.getString(COLUMN_PATH) + " " + getUuid(id));
-    }
-
-    if (!isNode && !isProperty) {
-      // no data stored for item - node or property
-      throw new RepositoryException("FATAL: Not found corresponding node nor property for item "+itemRecord.getString(COLUMN_PATH) + " " + getUuid(id));
-    }
-
-    if (isNode)
-      return loadNodeRecord(itemRecord);
-
-    // property
-    return loadPropertyRecord(itemRecord);
-  }
-
-  protected PersistedNodeData loadNodeRecord(ResultSet item) throws RepositoryException, SQLException {
-
-    String cNID = item.getString(COLUMN_NID);
-    String cNPARENTID = item.getString(COLUMN_NPARENTID);
-    int cVERSION = item.getInt(COLUMN_VERSION);
-    int cNORDERNUM = item.getInt(COLUMN_NORDERNUM);
-    QPath qpath = QPath.parse(item.getString(COLUMN_PATH));
-
-    try {
-      // PRIMARY
-      QPath ptPath = QPath.makeChildPath(qpath, Constants.JCR_PRIMARYTYPE);
-
-      ResultSet ptProp = findPropertyByPath(cNID, ptPath.getAsString());
-
-      if (!ptProp.next())
-        // if (idPrimaryType == null)
-        throw new PrimaryTypeNotFoundException("FATAL ERROR primary type record not found "
-            + ptPath.getAsString() + ", parent id " + cNID + ", container " + this.containerName, 
-            ptPath);
-
-      ResultSet ptValue = findValuesByPropertyId(ptProp.getString(COLUMN_PID));
-
-      if (!ptValue.next())
-        throw new RepositoryException("FATAL ERROR primary type value not found "
-            + ptPath.getAsString() + ", id " + ptProp.getString(COLUMN_ID) + ", container "
-            + this.containerName);
-
-      byte[] data = ptValue.getBytes(COLUMN_DATA);
-      InternalQName ptName = InternalQName.parse(new String((data != null ? data : new byte[] {})));
-
-      // MIXIN
-      QPath mtPath = QPath.makeChildPath(qpath, Constants.JCR_MIXINTYPES);
-      ResultSet mtProp = findPropertyByPath(cNID, mtPath.getAsString());
-
-      InternalQName[] mixinNames = new InternalQName[0];
-      if (mtProp.next()) {
-        List<byte[]> mts = new ArrayList<byte[]>();
-        ResultSet mtValues = findValuesByPropertyId(mtProp.getString(COLUMN_PID));
-        while (mtValues.next()) {
-          mts.add(mtValues.getBytes(COLUMN_DATA));
-        }
-        mixinNames = new InternalQName[mts.size()];
-        for (int i = 0; i < mts.size(); i++) {
-          mixinNames[i] = InternalQName.parse(new String(mts.get(i)));
-        }
       }
-
-      // ACL
-      AccessControlList acl;
-      if (isAccessControllable(mixinNames)) {
-
-        QPath ownerPath = QPath.makeChildPath(qpath, Constants.EXO_OWNER);
-
-        PropertyData ownerData = (PropertyData) getItemData(ownerPath);
-
-        QPath permPath = QPath.makeChildPath(qpath, Constants.EXO_PERMISSIONS);
-
-        PropertyData permData = (PropertyData) getItemData(permPath);
-
-        acl = new AccessControlList(ownerData, permData);
-      } else {
-        if (qpath.equals(Constants.ROOT_PATH)) {
-          // make default ACL for root
-          acl = new AccessControlList();
+    }
+  
+    /**
+     * @param itemRecord
+     * @return
+     * @throws RepositoryException
+     * @throws SQLException
+     */
+    private ItemData itemData(ResultSet itemRecord) throws RepositoryException, SQLException, IOException {
+      int itemClass = itemRecord.getInt(COLUMN_CLASS);
+      
+      if (itemClass == I_CLASS_NODE)
+        return loadNodeRecord(itemRecord);
+  
+      // property
+      return loadPropertyRecord(itemRecord);
+    }
+  
+    protected PersistedNodeData loadNodeRecord(ResultSet item) throws RepositoryException, SQLException {
+  
+      String cNID = item.getString(COLUMN_ID);
+      
+      String cNPARENTID = item.getString(COLUMN_PARENTID);
+      cNPARENTID = cNPARENTID.equals("") ? null : cNPARENTID;
+      
+      int cVERSION = item.getInt(COLUMN_VERSION);
+      int cNORDERNUM = item.getInt(COLUMN_NORDERNUM);
+      QPath qpath = QPath.parse(item.getString(COLUMN_PATH));
+  
+      try {
+        // PRIMARY
+        //QPath ptPath = QPath.makeChildPath(qpath, Constants.JCR_PRIMARYTYPE);
+        ResultSet ptProp = findPropertyByName(cNID, Constants.JCR_PRIMARYTYPE.getAsString());
+        
+        //ResultSet ptProp = findPropertyByPath(cNID, ptPath.getAsString());
+        if (!ptProp.next()) 
+          // if (idPrimaryType == null)
+          throw new PrimaryTypeNotFoundException("FATAL ERROR primary type record not found. Node "
+              + qpath.getAsString() + ", id " + cNID + ", container " + this.containerName, 
+              null);
+  
+        ResultSet ptValue = findValuesByPropertyId(ptProp.getString(COLUMN_ID));
+  
+        if (!ptValue.next())
+          throw new RepositoryException("FATAL ERROR primary type value not found. Node "
+              + qpath.getAsString() + ", id " + ptProp.getString(COLUMN_ID) + ", container "
+              + this.containerName);
+  
+        byte[] data = ptValue.getBytes(COLUMN_VDATA);
+        InternalQName ptName = InternalQName.parse(new String((data != null ? data : new byte[] {})));
+  
+        // MIXIN
+        //QPath mtPath = QPath.makeChildPath(qpath, Constants.JCR_MIXINTYPES);
+        //ResultSet mtProp = findPropertyByPath(cNID, mtPath.getAsString());
+        ResultSet mtProp = findPropertyByName(cNID, Constants.JCR_MIXINTYPES.getAsString());
+  
+        InternalQName[] mixinNames = new InternalQName[0];
+        if (mtProp.next()) {
+          List<byte[]> mts = new ArrayList<byte[]>();
+          ResultSet mtValues = findValuesByPropertyId(mtProp.getString(COLUMN_ID));
+          while (mtValues.next()) {
+            mts.add(mtValues.getBytes(COLUMN_VDATA));
+          }
+          mixinNames = new InternalQName[mts.size()];
+          for (int i = 0; i < mts.size(); i++) {
+            mixinNames[i] = InternalQName.parse(new String(mts.get(i)));
+          }
+        }
+  
+        // ACL
+        AccessControlList acl;
+        if (isAccessControllable(mixinNames)) {
+  
+          QPath ownerPath = QPath.makeChildPath(qpath, Constants.EXO_OWNER);
+  
+          PropertyData ownerData = (PropertyData) getItemData(ownerPath);
+  
+          QPath permPath = QPath.makeChildPath(qpath, Constants.EXO_PERMISSIONS);
+  
+          PropertyData permData = (PropertyData) getItemData(permPath);
+  
+          acl = new AccessControlList(ownerData, permData);
         } else {
-          acl = null;
+          if (qpath.equals(Constants.ROOT_PATH)) {
+            // make default ACL for root
+            acl = new AccessControlList();
+          } else {
+            acl = null;
+          }
         }
+  
+        return new PersistedNodeData(getUuid(cNID), qpath, getUuid(cNPARENTID), cVERSION, cNORDERNUM,
+            ptName, mixinNames, acl);
+  
+      } catch (IllegalNameException e) {
+        throw new RepositoryException(e);
       }
+    }
+    /**
+     * @param itemRecord
+     * @return
+     * @throws RepositoryException
+     * @throws SQLException
+     */
+    private ItemData itemData(QPath parentPath, ResultSet itemRecord) throws RepositoryException, SQLException, IOException {
+      int itemClass = itemRecord.getInt(COLUMN_CLASS);
+      
+      if (itemClass == I_CLASS_NODE) 
+        return loadNodeRecord(parentPath, itemRecord);
+  
+      // property
+      return loadPropertyRecord(parentPath, itemRecord);
+    }
 
-      return new PersistedNodeData(getUuid(cNID), qpath, getUuid(cNPARENTID), cVERSION, cNORDERNUM,
-          ptName, mixinNames, acl);
+    protected PersistedNodeData loadNodeRecord(QPath parentPath, ResultSet item) throws RepositoryException, SQLException {
 
+      String cNID = item.getString(COLUMN_ID);
+      
+      String cNPARENTID = item.getString(COLUMN_PARENTID);
+      cNPARENTID = cNPARENTID.equals("") ? null : cNPARENTID;
+      
+      int cVERSION = item.getInt(COLUMN_VERSION);
+      int cNINDEX = item.getInt(COLUMN_INDEX);
+      int cNORDERNUM = item.getInt(COLUMN_NORDERNUM);
+      
+      //QPath qpath = QPath.parse(item.getString(COLUMN_PATH));
+      String cNAME = item.getString(COLUMN_NAME);
+
+      try {
+        InternalQName qname = InternalQName.parse(cNAME);
+        QPath qpath = parentPath != null ? QPath.makeChildPath(parentPath, qname, cNINDEX) : Constants.ROOT_PATH;
+        
+        // PRIMARY
+        //QPath ptPath = QPath.makeChildPath(qpath, Constants.JCR_PRIMARYTYPE);
+        ResultSet ptProp = findPropertyByName(cNID, Constants.JCR_PRIMARYTYPE.getAsString());
+
+        if (!ptProp.next())
+          // if (idPrimaryType == null)
+          throw new PrimaryTypeNotFoundException("FATAL ERROR primary type record not found. Node "
+              + qpath.getAsString() + ", id " + cNID + ", container " + this.containerName, 
+              null);
+
+        ResultSet ptValue = findValuesByPropertyId(ptProp.getString(COLUMN_ID));
+
+        if (!ptValue.next())
+          throw new RepositoryException("FATAL ERROR primary type value not found. Node "
+              + qpath.getAsString() + ", id " + ptProp.getString(COLUMN_ID) + ", container "
+              + this.containerName);
+
+        byte[] data = ptValue.getBytes(COLUMN_VDATA);
+        InternalQName ptName = InternalQName.parse(new String((data != null ? data : new byte[] {})));
+
+        // MIXIN
+        //QPath mtPath = QPath.makeChildPath(qpath, Constants.JCR_MIXINTYPES);
+        //ResultSet mtProp = findPropertyByPath(cNID, mtPath.getAsString());
+        ResultSet mtProp = findPropertyByName(cNID, Constants.JCR_MIXINTYPES.getAsString());
+
+        InternalQName[] mixinNames = new InternalQName[0];
+        if (mtProp.next()) {
+          List<byte[]> mts = new ArrayList<byte[]>();
+          ResultSet mtValues = findValuesByPropertyId(mtProp.getString(COLUMN_ID));
+          while (mtValues.next()) {
+            mts.add(mtValues.getBytes(COLUMN_VDATA));
+          }
+          mixinNames = new InternalQName[mts.size()];
+          for (int i = 0; i < mts.size(); i++) {
+            mixinNames[i] = InternalQName.parse(new String(mts.get(i)));
+          }
+        }
+
+        // ACL
+        AccessControlList acl;
+        if (isAccessControllable(mixinNames)) {
+
+          //QPath ownerPath = QPath.makeChildPath(qpath, Constants.EXO_OWNER);
+          //PropertyData ownerData = (PropertyData) getItemData(ownerPath);
+          PropertyData ownerData = (PropertyData) getItemByName(qpath, cNID, new QPathEntry(Constants.EXO_OWNER, 1));
+
+          //QPath permPath = QPath.makeChildPath(qpath, Constants.EXO_PERMISSIONS);
+          //PropertyData permData = (PropertyData) getItemData(permPath);
+          PropertyData permData = (PropertyData) getItemByName(qpath, cNID, new QPathEntry(Constants.EXO_PERMISSIONS, 1));
+
+          acl = new AccessControlList(ownerData, permData);
+        } else {
+          //if (qname.equals(Constants.ROOT_PATH.getName())) {
+          if (parentPath == null) {
+            // make default ACL for root
+            acl = new AccessControlList();
+          } else {
+            acl = null;
+          }
+        }
+
+        return new PersistedNodeData(getUuid(cNID), qpath, getUuid(cNPARENTID), cVERSION, cNORDERNUM,
+            ptName, mixinNames, acl);
+
+      } catch (IllegalNameException e) {
+        throw new RepositoryException(e);
+      }    
+  }
+    
+  protected PersistedPropertyData loadPropertyRecord(QPath parentPath, ResultSet item) throws RepositoryException, SQLException, IOException {
+
+    // NOTE parentPath - never is null 
+    
+    List<ValueData> values = new ArrayList<ValueData>();
+    
+    //QPath path = QPath.parse(item.getString(COLUMN_PATH));
+    InternalQName qname;
+    try {
+      qname = InternalQName.parse(item.getString(COLUMN_NAME));
     } catch (IllegalNameException e) {
       throw new RepositoryException(e);
     }
-  }
+    QPath qpath = QPath.makeChildPath(parentPath, qname);
+    
+    String cid = item.getString(COLUMN_ID);
+    String uuid = getUuid(cid);
+    PersistedPropertyData pdata = new PersistedPropertyData(uuid,
+        qpath,
+        getUuid(item.getString(COLUMN_PARENTID)),
+        item.getInt(COLUMN_VERSION),
+        item.getInt(COLUMN_PTYPE),
+        item.getBoolean(COLUMN_PMULTIVALUED)
+    );
+
+    ValueIOChannel channel = valueStorageProvider.getApplicableChannel(pdata);
+    if (channel != null) {
+      values = channel.read(uuid, this.maxBufferSize);
+      channel.close();
+    } else {
+      values = readValues(cid);
+    }
+
+    pdata.setValues(values);
+    return pdata;
+  }  
 
   private boolean isAccessControllable(InternalQName[] mixinNames) {
     for (int i = 0; i < mixinNames.length; i++) {
@@ -766,11 +918,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
 
     List<ValueData> values = new ArrayList<ValueData>();
     QPath path = QPath.parse(item.getString(COLUMN_PATH));
-    String cid = item.getString(COLUMN_PID);
+    String cid = item.getString(COLUMN_ID);
     String uuid = getUuid(cid);
     PersistedPropertyData pdata = new PersistedPropertyData(uuid,
         path,
-        getUuid(item.getString(COLUMN_PPARENTID)),
+        getUuid(item.getString(COLUMN_PARENTID)),
         item.getInt(COLUMN_VERSION),
         item.getInt(COLUMN_PTYPE),
         item.getBoolean(COLUMN_PMULTIVALUED)
@@ -797,7 +949,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       final ResultSet valueRecords = findValuesByPropertyId(cid);
       try {
         while (valueRecords.next()) {
-          final int orderNum = valueRecords.getInt(COLUMN_ORDERNUM);
+          final int orderNum = valueRecords.getInt(COLUMN_VORDERNUM);
           ValueData vdata = readValueData(cid, orderNum);
           data.add(vdata);
         }
@@ -827,7 +979,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       // stream from database
       valueResultSet = findValueByPropertyIdOrderNumber(cid, orderNumber);
       if (valueResultSet.next()) {
-        final InputStream in = valueResultSet.getBinaryStream(COLUMN_DATA);
+        final InputStream in = valueResultSet.getBinaryStream(COLUMN_VDATA);
         if (in != null) 
           while ((read = in.read(spoolBuffer)) > 0) {
             if (out != null) {
@@ -875,7 +1027,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   protected abstract ResultSet findItemByPath(String path) throws SQLException;
   protected abstract ResultSet findItemByUUID(String uuid) throws SQLException;
   protected abstract ResultSet findPropertyByPath(String parentId, String path) throws SQLException;
-  protected abstract ResultSet findItemByParentName(String parentId, String name, int index) throws SQLException;
+  protected abstract ResultSet findPropertyByName(String parentId, String name) throws SQLException;
+  protected abstract ResultSet findItemByName(String parentId, String name, int index) throws SQLException;
 
   protected abstract ResultSet findChildNodesByParentUUID(String parentUUID) throws SQLException;
   protected abstract ResultSet findChildPropertiesByParentUUID(String parentUUID) throws SQLException;
@@ -888,15 +1041,15 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   protected abstract ResultSet findReferences(String nodeUuid) throws SQLException;
 
   protected abstract int deleteItemByUUID(String uuid) throws SQLException;
-  protected abstract int deleteNodeByUUID(String uuid) throws SQLException;
-  protected abstract int deletePropertyByUUID(String uuid) throws SQLException;
+  //protected abstract int deleteNodeByUUID(String uuid) throws SQLException;
+  //protected abstract int deletePropertyByUUID(String uuid) throws SQLException;
 
-  protected abstract int updateItemVersionByUUID(int versionValue, String uuid) throws SQLException;
+  //protected abstract int updateItemVersionByUUID(int versionValue, String uuid) throws SQLException;
   
   //protected abstract int updateItemPathByUUID(String qpath, int version, String uuid) throws SQLException;
   
-  protected abstract int updateNodeOrderNumbByUUID(int index, int orderNumb, String uuid) throws SQLException;
-  protected abstract int updatePropertyTypeByUUID(int type, String uuid) throws SQLException;
+  protected abstract int updateNodeByUUID(int version, int index, int orderNumb, String uuid) throws SQLException;
+  protected abstract int updatePropertyByUUID(int version, int type, String uuid) throws SQLException;
   
   // -------- values processing ------------
   protected abstract void addValues(String cid, List<ValueData> data) throws IOException, SQLException;

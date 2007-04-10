@@ -365,7 +365,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
           persister.saveChanges();
         }
       } catch(InvalidItemStateException e) {
-        log.warn("Error of storing node type " + nodeType.getName() + ". May be node type already registered .");
+        log.warn("Error of storing node type " + nodeType.getName() + ". May be node type already registered .", e);
       }
       log.info("NodeType " + nodeType.getName() + " initialized. " + (System.currentTimeMillis() - start) + " ms");
     } else {

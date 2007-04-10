@@ -46,7 +46,7 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
     
     FIND_CHILD_PROPERTY_BY_PATH = "select SQL_CACHE I.*, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
       + " from JCR_MPROPERTY P, JCR_MITEM I"
-      + " where I.PATH=? and I.ID=P.ID and P.PARENT_ID=? order by I.VERSION DESC";
+      + " where P.PARENT_ID=? and I.PATH=? and I.ID=P.ID order by I.VERSION DESC";
    
     FIND_DESCENDANT_NODES_LIKE_PATH = "select SQL_CACHE I.*, N.ID as NID" 
       + " from JCR_MNODE N, JCR_MITEM I"
@@ -87,9 +87,6 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
     " from JCR_MREF R, JCR_MITEM I, JCR_MPROPERTY P" +
     " where R.PROPERTY_ID=I.ID and R.PROPERTY_ID=P.ID and I.ID=P.ID and R.PROPERTY_ID=?";
     
-    FIND_NODESCOUNT_BY_PARENTID = "select count(*) from JCR_MNODE where PARENT_ID=?";
-    FIND_PROPERTIESCOUNT_BY_PARENTID = "select count(*) from JCR_MPROPERTY where PARENT_ID=?";
-    
     FIND_ITEM_BY_ID = FIND_ITEM_BY_ID.replace("?", "%s");
     FIND_ITEM_BY_PATH = FIND_ITEM_BY_PATH.replace("?", "%s");
     FIND_CHILD_PROPERTY_BY_PATH = FIND_CHILD_PROPERTY_BY_PATH.replace("?", "%s");
@@ -102,8 +99,6 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
     FIND_PROPERTIES_BY_PARENTID = FIND_PROPERTIES_BY_PARENTID.replace("?", "%s");
     FIND_NODES_IDS_BY_PARENTID = FIND_NODES_IDS_BY_PARENTID.replace("?", "%s");
     FIND_REFERENCEABLE = FIND_REFERENCEABLE.replace("?", "%s");
-    FIND_NODESCOUNT_BY_PARENTID = FIND_NODESCOUNT_BY_PARENTID.replace("?", "%s");
-    FIND_PROPERTIESCOUNT_BY_PARENTID = FIND_PROPERTIESCOUNT_BY_PARENTID.replace("?", "%s");
   }
   
   @Override
@@ -146,7 +141,7 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
   @Override
   protected ResultSet findPropertyByPath(String parentId, String path) throws SQLException {
     return dbConnection.createStatement().executeQuery(
-        String.format(FIND_CHILD_PROPERTY_BY_PATH, "'" + path + "'", "'" + parentId + "'"));
+        String.format(FIND_CHILD_PROPERTY_BY_PATH, "'" + parentId + "'", "'" + path + "'"));
   }
 
   @Override

@@ -59,10 +59,10 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.Uuid;
 import org.exoplatform.services.jcr.datamodel.ValueData;
@@ -75,11 +75,9 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.PropertyDefinitionImpl;
 import org.exoplatform.services.jcr.impl.core.value.BaseValue;
 import org.exoplatform.services.jcr.impl.core.version.ItemDataMergeVisitor;
-import org.exoplatform.services.jcr.impl.core.version.MergeVisitor;
 import org.exoplatform.services.jcr.impl.core.version.VersionHistoryImpl;
 import org.exoplatform.services.jcr.impl.core.version.VersionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
-//import org.exoplatform.services.jcr.impl.dataflow.MutableItemDataChangesLog;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -2273,7 +2271,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     // jcr:versionableUuid
     TransientPropertyData vhVersionableUuid = TransientPropertyData
-        .createPropertyData(versionHistory, Constants.JCR_VERSIONABLEUUID, PropertyType.REFERENCE, false);
+        // [PN] 10.04.07 VERSIONABLEUUID isn't referenceable!!!
+        //.createPropertyData(versionHistory, Constants.JCR_VERSIONABLEUUID, PropertyType.REFERENCE, false);
+        .createPropertyData(versionHistory, Constants.JCR_VERSIONABLEUUID, PropertyType.STRING, false);
     vhVersionableUuid.setValue(new TransientValueData(new Uuid(nodeData().getUUID())));
 
     // ------ jcr:versionLabels ------

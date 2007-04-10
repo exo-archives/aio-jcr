@@ -24,8 +24,4 @@ public class PrimaryTypeNotFoundException extends ItemNotFoundException {
     super(message);
     this.path = path;
   }
-
-  public QPath getItemPath() {
-    return path;
-  }
 }

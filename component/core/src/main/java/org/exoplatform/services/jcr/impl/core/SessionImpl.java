@@ -292,7 +292,14 @@ public class SessionImpl implements Session, NamespaceAccessor {
    * @see javax.jcr.Session#getRootNode()
    */
   public Node getRootNode() throws RepositoryException {
-    return (Node) getItem(JCRPath.ROOT_PATH);
+    //return (Node) getItem(JCRPath.ROOT_PATH);
+
+    Item item = nodesManager.getItemByUUID(Constants.ROOT_UUID, true);
+    if (item != null && item.isNode()) {
+      return (NodeImpl) item;
+    }
+
+    throw new ItemNotFoundException("Node not found " + JCRPath.ROOT_PATH + " at " + workspaceName);
   }
 
   /*
@@ -300,12 +307,12 @@ public class SessionImpl implements Session, NamespaceAccessor {
    * 
    * @see javax.jcr.Session#getNodeByUUID(java.lang.String)
    */
-  public Node getNodeByUUID(String uuid) throws ItemNotFoundException, RepositoryException {
+  public NodeImpl getNodeByUUID(String uuid) throws ItemNotFoundException, RepositoryException {
     Item item = nodesManager.getItemByUUID(uuid, true);
     // .getAccessibleItemByUUID(uuid);
 
     if (item != null && item.isNode()) {
-      Node node = (Node) item;
+      NodeImpl node = (NodeImpl) item;
       node.getUUID(); // throws exception
       return node;
     }

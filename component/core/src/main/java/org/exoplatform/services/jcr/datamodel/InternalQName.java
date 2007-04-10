@@ -19,17 +19,6 @@ public class InternalQName extends QName {
   public InternalQName(String namespace, String name) {
     super(namespace, name);
   }
-  
-  /**
-   * For InternalQPath class internal use only!
-   * 
-   * DON'T USE DIRECT!
-   * 
-   * @param internal - if true, hashCode and string doesn't calculated. I.e. QName instance is unusable.
-   */
-  InternalQName(String namespace, String name, boolean internal) {
-    super(namespace, name, internal);
-  }
 
   /**
    * Parse qname in form of eXo-JCR names conversion string, e.g.

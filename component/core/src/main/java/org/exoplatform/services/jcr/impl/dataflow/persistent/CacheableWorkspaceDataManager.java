@@ -65,7 +65,6 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
 //
 //    return data;
     
-    
     // [PN] 05.04.07 TODO Remove whole qpath make after the cache refactor
     QPath qpath = QPath.makeChildPath(parentData.getQPath(), new QPathEntry[]{name});
     

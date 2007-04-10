@@ -10,12 +10,17 @@ public class QPathEntry extends InternalQName {
   public QPathEntry(InternalQName qName, int index) {
     super(qName.getNamespace(), qName.getName());
     this.index = index > 0 ? index : 1;
-
+    
+    // must be same as for InternalQName   
+    //this.hashCode = 31 * this.hashCode + this.index;
   }
 
   public QPathEntry(String namespace, String name, int index) {
     super(namespace, name);
     this.index = index > 0 ? index : 1;
+
+    // must be same as for InternalQName    
+    //this.hashCode = 31 * this.hashCode + this.index;
   }
 
   public int getIndex() {
@@ -23,10 +28,21 @@ public class QPathEntry extends InternalQName {
   }
 
   public boolean isSame(QPathEntry obj) {
-    if (!super.equals(obj))
-      return false;
-    return index == obj.getIndex();
+    if (super.equals(obj))
+      return index == obj.getIndex();
 
+    return false;
   }
 
+  @Override
+  public String getAsString() {
+    return getAsString(false);
+  }
+  
+  /**
+   * @return - if showIndex=false it's a string without index
+   */
+  public String getAsString(boolean showIndex) {
+    return super.getAsString() + (showIndex ? QPath.PREFIX_DELIMITER + this.index : "");
+  }
 }

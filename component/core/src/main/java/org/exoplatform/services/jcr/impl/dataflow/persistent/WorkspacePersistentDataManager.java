@@ -122,7 +122,7 @@ public class WorkspacePersistentDataManager implements DataManager {
       throw e;
     } catch (RuntimeException e) {
       throw e;
-    } finally {
+    } finally { //getReferencesData("dbfaf7cac0a8000301a5dac0017ec5e4")
       if (regularConnection != null && regularConnection.isOpened())
         regularConnection.rollback();
       if (systemConnection != null && systemConnection != regularConnection && systemConnection.isOpened())

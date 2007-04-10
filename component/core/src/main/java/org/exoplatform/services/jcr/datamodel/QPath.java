@@ -52,22 +52,6 @@ public class QPath implements Comparable {
    else return true;
   }
 
-//  @Deprecated
-//  public void addEntry(String namespace, String name, int index) {
-//    addEntry(new Entry(namespace, name, index));
-//  }
-//
-//  @Deprecated
-//  private void addEntry(Entry entry) {
-////    if (entry.getIndex() < 1)
-////      entry.setIndex(1);
-//    Entry[] newNames = new Entry[names.length + 1];
-//    for (int i = 0; i < names.length; i++)
-//      newNames[i] = names[i];
-//    newNames[names.length] = entry;
-//    names = newNames;
-//  }
-
   /**
    * @return parent path
    * @throws PathNotFoundException
@@ -202,18 +186,10 @@ public class QPath implements Comparable {
   public String getAsString() {
 
     if (stringName == null) {
-//      StringBuffer str = new StringBuffer(256);
-//      for (int i = 0; i < names.length; i++) {
-//        str.append(names[i].getAsString());
-//        str.append(PREFIX_DELIMITER);
-//        str.append(names[i].getIndex());
-//      }
-//
-//      stringName = str.toString();
 
       String str = "";
       for (int i = 0; i < getLength(); i++) {
-        str += names[i].getAsString() + PREFIX_DELIMITER + names[i].getIndex();
+        str += names[i].getAsString(true);
       }
       stringName = str.intern();
     }
@@ -327,11 +303,6 @@ public class QPath implements Comparable {
   @Deprecated // [PN] 05.02.07
   public static QPath makeChildPath(QPath parent, String name)
       throws IllegalPathException {
-//    InternalQPath path = new InternalQPath();
-//    for (int i = 0; i < parent.getLength(); i++)
-//      path.addEntry(parent.getEntries()[i]);
-//    path.addEntry(path.parseEntry(name));
-//    return path;
 
     QPathEntry[] parentEntries = parent.getEntries();
     QPathEntry[] names = new QPathEntry[parentEntries.length + 1];
@@ -347,23 +318,11 @@ public class QPath implements Comparable {
   }
 
   public static QPath makeChildPath(final QPath parent, final InternalQName name) {
-//    InternalQPath path = new InternalQPath();
-//    for (int i = 0; i < parent.getLength(); i++)
-//      path.addEntry(parent.getEntries()[i]);
-//    path.addEntry(new Entry(name.getNamespace(), name.getName(), 1));
-//    return path;
-
     return makeChildPath(parent, name, 1);
   }
 
   public static QPath makeChildPath(final QPath parent,
       final InternalQName name, final int itemIndex) {
-
-//    InternalQPath path = new InternalQPath();
-//    for (int i = 0; i < parent.getLength(); i++)
-//      path.addEntry(parent.getEntries()[i]);
-//    path.addEntry(new Entry(name.getNamespace(), name.getName(), index));
-//    return path;
 
     QPathEntry[] parentEntries = parent.getEntries();
     QPathEntry[] names = new QPathEntry[parentEntries.length + 1];
@@ -378,10 +337,6 @@ public class QPath implements Comparable {
   }
 
   public static QPath makeChildPath(final QPath parent, final QPathEntry[] relEntries) {
-
-//    for (int i = 0; i < parent.getLength(); i++)
-//      path.addEntry(parent.getEntries()[i]);
-//    path.addEntry(new Entry(name.getNamespace(), name.getName(), 1));
 
     final QPathEntry[] parentEntries = parent.getEntries();
     final QPathEntry[] names = new QPathEntry[parentEntries.length + relEntries.length];
