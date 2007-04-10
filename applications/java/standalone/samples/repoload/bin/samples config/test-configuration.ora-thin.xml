@@ -28,7 +28,7 @@
         <property name="log4j.appender.stdout.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
 
         <property name="log4j.appender.file" value="org.apache.log4j.FileAppender"/>
-        <property name="log4j.appender.file.File" value="/uploder/target/jcr.log"/>
+        <property name="log4j.appender.file.File" value="target/jcr.log"/>
 
         <property name="log4j.appender.file.layout" value="org.apache.log4j.PatternLayout"/>
         <property name="log4j.appender.file.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
@@ -246,7 +246,7 @@
           <values-param>
             <name>nodeTypesFiles</name>
             <description>Node types configuration file</description>
-	    <value>file:/uploder/ext-nodetypes-config.xml</value>
+	    <value>file:ext-nodetypes-config.xml</value>
           </values-param>
         </init-params>
       </component-plugin>
@@ -260,7 +260,7 @@
       <value-param>
         <name>conf-path</name>
         <description>JCR configuration file</description>
-        <value>file:/uploder/test-jcr-config-sjdbc-ora.xml</value>
+        <value>file:test-jcr-config-sjdbc-ora.xml</value>
       </value-param>
     </init-params>
   </component>

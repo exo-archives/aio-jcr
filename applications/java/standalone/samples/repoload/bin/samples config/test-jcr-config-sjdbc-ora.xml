@@ -18,12 +18,12 @@
               <property name="multi-db" value="false"/>
               <property name="update-storage" value="true"/>
               <property name="max-buffer-size" value="204800"/>
-              <property name="swap-directory" value="/uploder/target/temp/swap/ws"/>
+              <property name="swap-directory" value="target/temp/swap/ws"/>
             </properties>
             <!-- value-storages>
               <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
                 <properties>
-                  <property name="path" value="/uploder/target/temp/values/ws"/>
+                  <property name="path" value="target/temp/values/ws"/>
                 </properties>
                 <filters>
                   <filter property-type="Binary"/>
@@ -37,11 +37,11 @@
               <property name="liveTime" value="1800"/><!-- 30 min -->
             </properties>
           </cache>
-          <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
+          <!--query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
             <properties>
-              <property name="indexDir" value="/uploder/target/temp/index"/>
+              <property name="indexDir" value="target/temp/index"/>
             </properties>
-          </query-handler>
+          </query-handler-->
         </workspace>
         
       </workspaces>
