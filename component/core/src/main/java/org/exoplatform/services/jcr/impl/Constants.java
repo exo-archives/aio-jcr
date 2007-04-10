@@ -164,7 +164,8 @@ public class Constants {
   public static final InternalQName JCR_STATEMENT = new InternalQName(NS_JCR_URI, "statement");
 
   public static final InternalQName JCR_DATA = new InternalQName(NS_JCR_URI, "data");
-
+  
+  public static final InternalQName JCR_LASTMODIFIED = new InternalQName(NS_JCR_URI, "lastModified");
 
   public static final InternalQName NT_BASE = new InternalQName(NS_NT_URI, "base");
 
@@ -199,6 +200,8 @@ public class Constants {
   public static final InternalQName NT_QUERY = new InternalQName(NS_NT_URI, "query");
 
   public static final InternalQName NT_FILE = new InternalQName(NS_NT_URI, "file");
+  
+  public static final InternalQName NT_FOLDER = new InternalQName(NS_NT_URI, "folder");
 
   public static final String ROOT_URI = "[]:1";
   
