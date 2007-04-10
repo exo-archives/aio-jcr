@@ -13,7 +13,7 @@ import javax.jcr.Session;
 import javax.jcr.lock.Lock;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
-import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SARL Author : Peter Nedonosko

@@ -117,12 +117,12 @@
         <scope>compile</scope>
     </dependency -->
 
-    <!-- dependency>
-        <groupId>exo-platform</groupId>
-        <artifactId> exo-platform.services.xml-processing.impl </artifactId>
-        <version>${exo.platform.version}</version>
+    <dependency>
+        <groupId>org.exoplatform.core</groupId>
+        <artifactId>exo.core.component.xml-processing</artifactId>
+        <version>${org.exoplatform.core.version}</version>
         <scope>compile</scope>
-    </dependency -->
+    </dependency>
 
     <!-- dependency>
         <groupId>exo-jcr</groupId>
@@ -496,9 +496,9 @@
         </testResource>
     </testResources>
 
-    <!-- testSourceDirectory>src/test/java</testSourceDirectory -->
+    <testSourceDirectory>src/test/java</testSourceDirectory>
     <!-- testSourceDirectory>src/TCK/java</testSourceDirectory -->
-    <testSourceDirectory>src/notest</testSourceDirectory>
+    <!-- testSourceDirectory>src/notest</testSourceDirectory -->
 
     <testOutputDirectory>target/test-classes</testOutputDirectory>
 
@@ -528,7 +528,7 @@
                     <include>**/api/version/*Test.java</include>
 
                     <!-- eXo tests -->
-                    <!-- include>**/api/**/Test*.java</include -->
+                    <include>**/api/accessing/**/Test*.java</include>
                     <!-- include>**/impl/**/Test*.java</include -->
 
                     <!-- include>**/load/**/TestBinaryValue.java</include -->

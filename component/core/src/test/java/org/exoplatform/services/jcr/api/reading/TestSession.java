@@ -17,7 +17,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
-import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.value.StringValue;
 
 /**

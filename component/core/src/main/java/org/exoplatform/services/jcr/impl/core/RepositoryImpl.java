@@ -28,6 +28,7 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.RepositoryContainer;
 import org.exoplatform.services.jcr.impl.WorkspaceContainer;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.picocontainer.ComponentAdapter;
 
 /**

@@ -22,7 +22,7 @@ import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.core.ExtendedNode;
-import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 

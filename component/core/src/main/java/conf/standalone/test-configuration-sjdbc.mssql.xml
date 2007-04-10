@@ -297,13 +297,13 @@
       <value-param>
         <name>conf-path</name>
         <description>JCR configuration file</description>
-        <value>file:src/java/conf/standalone/test-jcr-config-sjdbc.xml</value>
+        <value>file:src/main/java/conf/standalone/test-jcr-config-sjdbc.xml</value>
       </value-param>
     </init-params>
   </component>
 
   <component>
-    <type>org.exoplatform.services.jcr.impl.mock.DummyOrganizationService</type>
+    <type>org.exoplatform.services.organization.impl.mock.DummyOrganizationService</type>
   </component>
 
   <component>

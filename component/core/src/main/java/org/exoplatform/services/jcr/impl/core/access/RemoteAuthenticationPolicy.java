@@ -9,8 +9,8 @@ import javax.jcr.Credentials;
 import javax.jcr.LoginException;
 
 import org.exoplatform.services.jcr.config.RepositoryEntry;
-import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
 import org.exoplatform.services.security.SecurityService;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SARL .

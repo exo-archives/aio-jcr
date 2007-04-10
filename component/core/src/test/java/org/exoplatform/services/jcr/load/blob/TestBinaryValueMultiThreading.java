@@ -13,7 +13,7 @@ import java.util.Calendar;
 import javax.jcr.Node;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
-import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**

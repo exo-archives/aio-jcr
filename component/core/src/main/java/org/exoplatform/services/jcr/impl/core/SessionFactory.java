@@ -18,6 +18,7 @@ import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableResourceManager;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.exoplatform.services.transaction.TransactionService;
 
 /**

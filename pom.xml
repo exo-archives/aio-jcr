@@ -33,18 +33,18 @@
     <module>applications/java/standalone/rmi-client</module>
 
     <module>applications/java/standalone/samples/webdav-browser</module>
-    <module>applications/java/standalone/openofficeplugin</module>
+    <!-- module>applications/java/standalone/openofficeplugin</module -->
 
     <!-- module>applications/jcr-console</module -->
     <module>site</module>
   </modules>
 
   <build>
-    <sourceDirectory>src/main/java</sourceDirectory>
+    <!-- sourceDirectory>src/main/java</sourceDirectory>
     <outputDirectory>target/classes</outputDirectory>
 
     <testSourceDirectory>src/test/java</testSourceDirectory>
-    <testOutputDirectory>target/test-classes</testOutputDirectory>
+    <testOutputDirectory>target/test-classes</testOutputDirectory -->
 
     <resources>
         <resource>

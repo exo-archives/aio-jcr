@@ -18,7 +18,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.StandaloneContainer;
-import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -66,7 +66,7 @@ public abstract class BaseStandaloneTest extends TestCase {
 
     if (System.getProperty("java.security.auth.login.config") == null)
       System.setProperty("java.security.auth.login.config",
-          "src/resources/login.conf");
+          "src/main/resources/login.conf");
 
     credentials = new CredentialsImpl("exo", "exo".toCharArray());
 

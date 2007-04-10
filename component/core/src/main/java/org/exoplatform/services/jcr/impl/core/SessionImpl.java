@@ -81,6 +81,7 @@ import org.exoplatform.services.jcr.impl.xml.SysExportXmlVisior;
 import org.exoplatform.services.jcr.impl.xml.XMLWriter;
 import org.exoplatform.services.jcr.util.UUIDGenerator;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;

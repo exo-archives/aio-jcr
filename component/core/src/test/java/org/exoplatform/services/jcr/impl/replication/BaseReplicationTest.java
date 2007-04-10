@@ -11,7 +11,7 @@ import javax.jcr.Workspace;
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.BaseStandaloneTest;
 import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 

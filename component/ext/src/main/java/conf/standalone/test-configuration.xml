@@ -496,7 +496,7 @@
   </component>
 
   <component>
-    <type>org.exoplatform.services.jcr.impl.mock.DummyOrganizationService</type>
+    <type>org.exoplatform.services.organization.impl.mock.DummyOrganizationService</type>
   </component>
 
   <component>

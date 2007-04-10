@@ -14,8 +14,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
-import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
-import org.exoplatform.services.jcr.impl.mock.DummyClientInfo;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * Created y the eXo platform team
@@ -41,21 +40,28 @@ public class TestAccessRepository extends JcrAPIBaseTest {
    * for access to the specified workspace 
    */
   public void testExternalLogin() throws NoSuchWorkspaceException, LoginException, RepositoryException {
-    try {
-      Session session = repository.login(null, WORKSPACE);
-      fail("Exception should have been thrown");
-    } catch (LoginException e) {}
-
+//    try {
+//      Session session = repository.login(null, WORKSPACE);
+//      System.out.println("USER >>>>>>>>>>>>> "+session.getUserID());
+//      fail("Exception should have been thrown");
+//    } catch (LoginException e) {}
+//
 //    PortalContainer.getInstance().
 //        createSessionContainer("my-session", "gena").
 //        setClientInfo(new DummyClientInfo("gena"));
-    container.createSessionContainer("my-session", "gena").
-       setClientInfo(new DummyClientInfo("gena"));
+//    container.createSessionContainer("my-session", "gena").
+//       setClientInfo(new DummyClientInfo("gena"));
+
+    // make sure for this thread the user is "exo" 
+    Credentials cred = new CredentialsImpl("exo", "exo".toCharArray());
+    Session session1 = repository.login(cred, WORKSPACE);
+    
+    // new session with the same credentials
     Session session = repository.login(WORKSPACE);
     assertNotNull(session);
-    assertEquals("gena", session.getUserID());
+    assertEquals("exo", session.getUserID());
     assertEquals(WORKSPACE, session.getWorkspace().getName());
-
+    assertFalse(session1.equals(session));
   }
 
 
@@ -78,8 +84,8 @@ public class TestAccessRepository extends JcrAPIBaseTest {
 //    PortalContainer.getInstance().
 //        createSessionContainer("my-session", "gena").
 //        setClientInfo(new DummyClientInfo("gena"));
-    container.createSessionContainer("my-session", "gena").
-    setClientInfo(new DummyClientInfo("gena"));
+//    container.createSessionContainer("my-session", "gena").
+//    setClientInfo(new DummyClientInfo("gena"));
 
 
     Session session = repository.login();

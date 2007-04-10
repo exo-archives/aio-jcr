@@ -8,7 +8,7 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
-import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**

@@ -8,7 +8,6 @@ package org.exoplatform.services.jcr.impl.core.access;
 import javax.jcr.Credentials;
 import javax.jcr.LoginException;
 import javax.jcr.SimpleCredentials;
-import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginContext;
 
@@ -16,9 +15,9 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.access.AuthenticationPolicy;
 import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
-import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.SecurityService;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.exoplatform.services.security.jaas.BasicCallbackHandler;
 
 /**
@@ -33,6 +32,9 @@ abstract public class BaseAuthenticationPolicy implements AuthenticationPolicy {
   
   protected static Log log = ExoLogger.getLogger("jcr.AuthenticationPolicy");
   protected RepositoryEntry config;
+  
+//  protected static ThreadLocal <Credentials> credentialsHolder;
+
   protected SecurityService securityService;
 
   public BaseAuthenticationPolicy(RepositoryEntry config,
