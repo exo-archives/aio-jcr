@@ -336,8 +336,10 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
           
           SessionDataManager mergeDataManager = mergeSession.getTransientNodesManager();
           
-          PropertyData isCheckedOutProperty = (PropertyData) mergeDataManager.getItemData(
-              QPath.makeChildPath(mergeNode.getQPath(), Constants.JCR_ISCHECKEDOUT));
+//          PropertyData isCheckedOutProperty = (PropertyData) mergeDataManager.getItemData(
+//              QPath.makeChildPath(mergeNode.getQPath(), Constants.JCR_ISCHECKEDOUT));
+          PropertyData isCheckedOutProperty = (PropertyData) mergeDataManager.getItemData(mergeNode,new QPathEntry(Constants.JCR_ISCHECKEDOUT,0));
+          
           try {
             if (!Boolean.valueOf(new String(isCheckedOutProperty.getValues().get(0).getAsByteArray()))
                 && isSuccessor(mergeVersion, corrVersion)) {
@@ -514,8 +516,10 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
 
       SessionDataManager dmanager = session.getTransientNodesManager();
       
-      PropertyData bvProperty = (PropertyData) dmanager.getItemData(
-          QPath.makeChildPath(node.getQPath(), Constants.JCR_BASEVERSION));
+//      PropertyData bvProperty = (PropertyData) dmanager.getItemData(
+//          QPath.makeChildPath(node.getQPath(), Constants.JCR_BASEVERSION));
+    PropertyData bvProperty = (PropertyData) dmanager.getItemData(node,
+          new QPathEntry(Constants.JCR_BASEVERSION, 0));
       
       try {
         return (TransientNodeData) dmanager.getItemData(
@@ -570,8 +574,10 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
   protected boolean isPredecessor(TransientNodeData mergeVersion, TransientNodeData corrVersion) throws RepositoryException {
     SessionDataManager mergeDataManager = mergeSession.getTransientNodesManager();
     
-    PropertyData predecessorsProperty = (PropertyData) mergeDataManager.getItemData(
-        QPath.makeChildPath(mergeVersion.getQPath(), Constants.JCR_PREDECESSORS));
+//    PropertyData predecessorsProperty = (PropertyData) mergeDataManager.getItemData(
+//        QPath.makeChildPath(mergeVersion.getQPath(), Constants.JCR_PREDECESSORS));
+    PropertyData predecessorsProperty = (PropertyData) mergeDataManager.getItemData(mergeVersion,
+        new QPathEntry(Constants.JCR_PREDECESSORS, 0));
     
     if (predecessorsProperty != null)
       for (ValueData pv: predecessorsProperty.getValues()) {
@@ -606,8 +612,10 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
   protected boolean isSuccessor(TransientNodeData mergeVersion, TransientNodeData corrVersion) throws RepositoryException {
     SessionDataManager mergeDataManager = mergeSession.getTransientNodesManager();
     
-    PropertyData successorsProperty = (PropertyData) mergeDataManager.getItemData(
-        QPath.makeChildPath(mergeVersion.getQPath(), Constants.JCR_SUCCESSORS));
+//    PropertyData successorsProperty = (PropertyData) mergeDataManager.getItemData(
+//        QPath.makeChildPath(mergeVersion.getQPath(), Constants.JCR_SUCCESSORS));
+  PropertyData successorsProperty = (PropertyData) mergeDataManager.getItemData(mergeVersion,
+        new QPathEntry(Constants.JCR_SUCCESSORS, 0));
     
     if (successorsProperty != null)
       for (ValueData sv: successorsProperty.getValues()) {

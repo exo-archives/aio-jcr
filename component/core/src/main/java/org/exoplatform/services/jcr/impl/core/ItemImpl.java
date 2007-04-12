@@ -39,6 +39,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.Uuid;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -326,11 +327,11 @@ public abstract class ItemImpl implements Item {
  
     QPath qpath = QPath.makeChildPath(parentNode.getInternalPath(), propertyName);
     int state;
-    PropertyDefinitions pdefs;
+
     String uuid;
     int version;
     PropertyImpl oldProp = null;
-    ItemImpl oldItem = dataManager.getItem(qpath, true);
+    ItemImpl oldItem = dataManager.getItem(parentNode.nodeData(), new QPathEntry(propertyName,0), true);
     PropertyDefinition def = null;
     
     NodeTypeManagerImpl ntm = session.getWorkspace().getNodeTypeManager();

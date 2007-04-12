@@ -33,6 +33,7 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.JCRPath;
@@ -425,10 +426,15 @@ class SysNodeImporter extends ImporterBase {
           
           try {
             // build current path of the imported node
-            JCRPath parentPath = locationFactory.createJCRPath(locationFactory
-                .createJCRPath(parentNode.getQPath()), pathElement.getAsString(false));
-            parentNode = (NodeData) session.getTransientNodesManager().getItemData(
-                parentPath.getInternalPath());// (NodeImpl)
+//            JCRPath parentPath = locationFactory.createJCRPath(locationFactory
+//                .createJCRPath(parentNode.getQPath()), pathElement.getAsString(false));
+//            parentNode = (NodeData) session.getTransientNodesManager().getItemData(
+//                parentPath.getInternalPath());// (NodeImpl)
+           parentNode = (NodeData) session.getTransientNodesManager().getItemData(parentNode,
+                new QPathEntry(pathElement.getNamespace(), pathElement.getName(), pathElement
+                    .getIndex()));// (NodeImpl)
+
+            
             if (log.isDebugEnabled())
               log.debug("BUILD NODE, <<< NEW ANCESTOR for RELATIVE path >>> : '"
                   + parentNode.getQPath().getAsString() + "', depth: " + depth + ", path: '"

@@ -23,6 +23,7 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -171,11 +172,12 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
       log.debug("Restore: " + nodePath.getAsString() + ", removeExisting=" + removeExisting);
 
     //InternalQPath frozenPath = InternalQPath.makeChildPath(historyData.getQPath(), Constants.JCR_FROZENNODE);
-    QPath frozenPath = frozen.getQPath();
-
-    QPath frozenUuidPath = QPath.makeChildPath(frozenPath, Constants.JCR_FROZENUUID);
-    PropertyData frozenUuid = (PropertyData) dataManager.getItemData(frozenUuidPath);
-
+//    QPath frozenPath = frozen.getQPath();
+//
+//    QPath frozenUuidPath = QPath.makeChildPath(frozenPath, Constants.JCR_FROZENUUID);
+//    PropertyData frozenUuid = (PropertyData) dataManager.getItemData(frozenUuidPath);
+    PropertyData frozenUuid = (PropertyData) dataManager.getItemData(frozen,new QPathEntry(Constants.JCR_FROZENUUID,0));
+    
     String fuuid = null;
     NodeData existing = null;
     // make new node from frozen
@@ -241,11 +243,19 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
       throw new RepositoryException("jcr:frozenUuid, error of data read " + frozenUuid.getQPath().getAsString(), e);
     }
 
-    QPath frozenPrimaryTypePath = QPath.makeChildPath(frozenPath, Constants.JCR_FROZENPRIMARYTYPE);
-    PropertyData frozenPrimaryType = (PropertyData) dataManager.getItemData(frozenPrimaryTypePath);
+    
+//    QPath frozenPrimaryTypePath = QPath.makeChildPath(frozenPath, Constants.JCR_FROZENPRIMARYTYPE);
+//    PropertyData frozenPrimaryType = (PropertyData) dataManager.getItemData(frozenPrimaryTypePath);
 
-    QPath frozenMixinTypesPath = QPath.makeChildPath(frozenPath, Constants.JCR_FROZENMIXINTYPES);
-    PropertyData frozenMixinTypes = (PropertyData) dataManager.getItemData(frozenMixinTypesPath);
+    PropertyData frozenPrimaryType = (PropertyData) dataManager.getItemData(frozen,
+        new QPathEntry(Constants.JCR_FROZENPRIMARYTYPE, 0));
+    
+//    QPath frozenMixinTypesPath = QPath.makeChildPath(frozenPath, Constants.JCR_FROZENMIXINTYPES);
+//    PropertyData frozenMixinTypes = (PropertyData) dataManager.getItemData(frozenMixinTypesPath);
+
+    PropertyData frozenMixinTypes = (PropertyData) dataManager.getItemData(frozen,
+        new QPathEntry(Constants.JCR_FROZENMIXINTYPES, 0));
+    
     InternalQName[] mixins = null;
     if (frozenMixinTypes != null) {
       try {
@@ -322,8 +332,11 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
       VersionHistoryDataHelper childHistory = null;
       try {
 
+//        String vhUuid = new String(
+//            ((PropertyData) dataManager.getItemData(cvhpPropPath)).getValues().get(0).getAsByteArray());
+
         String vhUuid = new String(
-            ((PropertyData) dataManager.getItemData(cvhpPropPath)).getValues().get(0).getAsByteArray());
+            ((PropertyData) dataManager.getItemData(frozen,new QPathEntry(Constants.JCR_CHILDVERSIONHISTORY,0))).getValues().get(0).getAsByteArray());
 
         NodeData cHistory = null;
         if ((cHistory = (NodeData) dataManager.getItemData(vhUuid)) == null)
@@ -336,11 +349,14 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         throw new RepositoryException("jcr:childVersionHistory, error of data read " + cvhpPropPath.getAsString(), e);
       }
 
-      QPath cvhVersionableUuidPath = QPath.makeChildPath(childHistory.getQPath(), Constants.JCR_VERSIONABLEUUID);
+      //QPath cvhVersionableUuidPath = QPath.makeChildPath(childHistory.getQPath(), Constants.JCR_VERSIONABLEUUID);
       String versionableUuid = null;
       try {
+//        versionableUuid = new String(
+//          ((PropertyData) dataManager.getItemData(cvhVersionableUuidPath)).getValues().get(0).getAsByteArray());
         versionableUuid = new String(
-          ((PropertyData) dataManager.getItemData(cvhVersionableUuidPath)).getValues().get(0).getAsByteArray());
+            ((PropertyData) dataManager.getItemData(childHistory,new QPathEntry(Constants.JCR_VERSIONABLEUUID,0))).getValues().get(0).getAsByteArray());
+        
       } catch (IOException e) {
         throw new RepositoryException("jcr:childVersionHistory, error of data read " + cvhpPropPath.getAsString(), e);
       }
@@ -366,8 +382,9 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         // not found,
         // gets last version (by time of creation) and restore it
         NodeData lastVersionData = childHistory.getLastVersionData();
-        QPath cvFrozenPath = QPath.makeChildPath(lastVersionData.getQPath(), Constants.JCR_FROZENNODE);
-        NodeData cvFrozen = (NodeData) dataManager.getItemData(cvFrozenPath);
+        //QPath cvFrozenPath = QPath.makeChildPath(lastVersionData.getQPath(), Constants.JCR_FROZENNODE);
+        //NodeData cvFrozen = (NodeData) dataManager.getItemData(cvFrozenPath);
+        NodeData cvFrozen = (NodeData) dataManager.getItemData(lastVersionData,new QPathEntry(Constants.JCR_FROZENNODE,0));
 
         ItemDataRestoreVisitor restoreVisitor = new ItemDataRestoreVisitor(
             currentNode(), qname, childHistory, userSession, removeExisting, changes);
@@ -401,15 +418,19 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
           // but jcr:uuid property containts real UUID.
           QPath jcrUuidPath = QPath.makeChildPath(frozen.getQPath(), Constants.JCR_UUID);
           try {
-            jcrUuid = new String(
-              ((PropertyData) dataManager.getItemData(jcrUuidPath)).getValues().get(0).getAsByteArray());
+//            jcrUuid = new String(
+//              ((PropertyData) dataManager.getItemData(jcrUuidPath)).getValues().get(0).getAsByteArray());
+          jcrUuid = new String(
+          ((PropertyData) dataManager.getItemData(frozen,new QPathEntry(Constants.JCR_UUID,0))).getValues().get(0).getAsByteArray());
+
           } catch (IOException e) {
             throw new RepositoryException("jcr:uuid, error of data read " + jcrUuidPath.getAsString(), e);
           }
           existing = (NodeData) dataManager.getItemData(jcrUuid);
         } else {
           // try to use existing node uuid, otherwise to generate one new
-          existing = (NodeData) dataManager.getItemData(restoredPath);
+          existing = (NodeData) dataManager.getItemData(currentNode(), new QPathEntry(frozen
+              .getQPath().getName(), frozen.getQPath().getIndex()));
           if (existing != null) {
             jcrUuid = existing.getUUID();
           } else {
@@ -456,8 +477,11 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         // current C in the workspace will be left unchanged,
         // TODO [PN] 20.12.06 JCR-193
 
-        QPath existedPath = QPath.makeChildPath(currentNode().getQPath(), frozen.getQPath().getName());
-        NodeData existed = (NodeData) dataManager.getItemData(existedPath);
+//        QPath existedPath = QPath.makeChildPath(currentNode().getQPath(), frozen.getQPath().getName());
+//        NodeData existed = (NodeData) dataManager.getItemData(existedPath);
+
+        //QPath existedPath = QPath.makeChildPath(currentNode().getQPath(), frozen.getQPath().getName());
+        NodeData existed = (NodeData) dataManager.getItemData(currentNode(),new QPathEntry(frozen.getQPath().getName(),0));
 
         if (existed != null) {
           // copy existed - i.e. left unchanged

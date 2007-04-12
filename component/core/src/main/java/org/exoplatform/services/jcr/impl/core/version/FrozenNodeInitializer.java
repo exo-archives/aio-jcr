@@ -25,6 +25,7 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
@@ -210,15 +211,30 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
       changesLog.add(ItemState.createAddedState(frozenNode));
     } else if (action == OnParentVersionAction.VERSION) {
       if (ntManager.isNodeType(Constants.MIX_VERSIONABLE, node.getPrimaryTypeName(), node.getMixinTypeNames())) {
-        frozenNode = TransientNodeData.createNodeData(currentNode(), qname, Constants.NT_VERSIONEDCHILD, node.getQPath().getIndex());
+        frozenNode = TransientNodeData.createNodeData(currentNode(),
+            qname,
+            Constants.NT_VERSIONEDCHILD,
+            node.getQPath().getIndex());
 
-        PropertyData pt = TransientPropertyData.createPropertyData(frozenNode, Constants.JCR_PRIMARYTYPE,
-            PropertyType.NAME, false, new TransientValueData(Constants.NT_VERSIONEDCHILD));
+        PropertyData pt = TransientPropertyData.createPropertyData(frozenNode,
+            Constants.JCR_PRIMARYTYPE,
+            PropertyType.NAME,
+            false,
+            new TransientValueData(Constants.NT_VERSIONEDCHILD));
 
-        QPath versionHistoryPath = QPath.makeChildPath(node.getQPath(), Constants.JCR_VERSIONHISTORY);
-        ValueData vh = ((PropertyData)dataManager.getItemData(versionHistoryPath)).getValues().get(0);
-        PropertyData pd = TransientPropertyData.createPropertyData(frozenNode, Constants.JCR_CHILDVERSIONHISTORY,
-            PropertyType.REFERENCE, false, vh);
+        // QPath versionHistoryPath = QPath.makeChildPath(node.getQPath(),
+        // Constants.JCR_VERSIONHISTORY);
+        // ValueData vh =
+        // ((PropertyData)dataManager.getItemData(versionHistoryPath)).getValues().get(0);
+        
+        ValueData vh = ((PropertyData) dataManager.getItemData(node,
+            new QPathEntry(Constants.JCR_VERSIONHISTORY, 0))).getValues().get(0);
+
+        PropertyData pd = TransientPropertyData.createPropertyData(frozenNode,
+            Constants.JCR_CHILDVERSIONHISTORY,
+            PropertyType.REFERENCE,
+            false,
+            vh);
 
         contextNodes.push(null);
         changesLog.add(ItemState.createAddedState(frozenNode));

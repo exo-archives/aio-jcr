@@ -13,8 +13,10 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 
@@ -159,8 +161,11 @@ public class TestFrozenNodeInitializer extends BaseVersionImplTest {
             assertEquals("Versioned node must be stored in frozen state as node of type nt:versionedChild: " 
                 + resultData.getQPath().getAsString(), Constants.NT_VERSIONEDCHILD, ntName);
 
-            QPath versionHistoryPropertyPath = QPath.makeChildPath(state.getData().getQPath(), Constants.JCR_VERSIONHISTORY);
-            PropertyData vh = (PropertyData) session.getTransientNodesManager().getItemData(versionHistoryPropertyPath);
+//            QPath versionHistoryPropertyPath = QPath.makeChildPath(state.getData().getQPath(), Constants.JCR_VERSIONHISTORY);
+//            PropertyData vh = (PropertyData) session.getTransientNodesManager().getItemData(versionHistoryPropertyPath);
+
+            PropertyData vh = (PropertyData) session.getTransientNodesManager().getItemData((NodeData) state.getData(),new QPathEntry(Constants.JCR_VERSIONHISTORY,0));
+
             String vhUuid = new String(vh.getValues().get(0).getAsByteArray());
             
             QPath childVersionHistoryPropertyPath = QPath.makeChildPath(resultData.getQPath(), Constants.JCR_CHILDVERSIONHISTORY);

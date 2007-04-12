@@ -17,6 +17,7 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
@@ -55,11 +56,16 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   
   public List<NodeData> getAllVersionsData() throws RepositoryException {
     
-    NodeData vData = (NodeData) dataManager.getItemData(getQPath());
+//    NodeData vData = (NodeData) dataManager.getItemData(getQPath());
+//    
+//    NodeData rootVersion = (NodeData) dataManager.getItemData(
+//        QPath.makeChildPath(getQPath(), Constants.JCR_ROOTVERSION));
+//    
+    NodeData vData = (NodeData) dataManager.getItemData(getUUID());
     
-    NodeData rootVersion = (NodeData) dataManager.getItemData(
-        QPath.makeChildPath(getQPath(), Constants.JCR_ROOTVERSION));
+    NodeData rootVersion = (NodeData) dataManager.getItemData(vData,new QPathEntry(Constants.JCR_ROOTVERSION,0));
     
+
     List<NodeData> vChilds = new ArrayList<NodeData>();
     
     // should be first in list
@@ -76,23 +82,29 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   
   public NodeData getLastVersionData() throws RepositoryException {
     List<NodeData> versionsData = getAllVersionsData();
-    
+
     NodeData lastVersionData = null;
     Calendar lastCreated = null;
-    for (NodeData vd: versionsData) {
-      PropertyData createdData = (PropertyData) dataManager.getItemData(
-          QPath.makeChildPath(vd.getQPath(), Constants.JCR_CREATED));
+    for (NodeData vd : versionsData) {
+      // PropertyData createdData = (PropertyData) dataManager.getItemData(
+      // QPath.makeChildPath(vd.getQPath(), Constants.JCR_CREATED));
+      
+      PropertyData createdData = (PropertyData) dataManager.getItemData(vd,
+          new QPathEntry(Constants.JCR_CREATED, 0));
+
       if (createdData == null)
-        throw new VersionException("jcr:created is not found, version: " + vd.getQPath().getAsString()); 
+        throw new VersionException("jcr:created is not found, version: "
+            + vd.getQPath().getAsString());
 
       Calendar created = null;
       try {
-        created = new DateFormatHelper().deserialize(new String(createdData.getValues().get(0).getAsByteArray()));
-      } catch(IOException e) {
+        created = new DateFormatHelper().deserialize(new String(createdData.getValues().get(0)
+            .getAsByteArray()));
+      } catch (IOException e) {
         throw new RepositoryException(e);
       }
-      
-      if(lastVersionData == null || created.after(lastCreated)) { 
+
+      if (lastVersionData == null || created.after(lastCreated)) {
         lastCreated = created;
         lastVersionData = vd;
       }
@@ -101,15 +113,17 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   }  
   
   public NodeData getVersionData(InternalQName versionQName) throws VersionException, RepositoryException {
-    QPath versionPath = QPath.makeChildPath(getQPath(), versionQName);
-    
-    return (NodeData) dataManager.getItemData(versionPath);
+//    QPath versionPath = QPath.makeChildPath(getQPath(), versionQName);
+//    
+//    return (NodeData) dataManager.getItemData(versionPath);
+    return (NodeData) dataManager.getItemData(this, new QPathEntry(versionQName,0));
   }
   
   public NodeData getVersionLabelsData() throws VersionException, RepositoryException {
-    QPath labelsPath = QPath.makeChildPath(getQPath(), Constants.JCR_VERSIONLABELS);
-    
-    return (NodeData) dataManager.getItemData(labelsPath);
+//    QPath labelsPath = QPath.makeChildPath(getQPath(), Constants.JCR_VERSIONLABELS);
+//    
+//    return (NodeData) dataManager.getItemData(labelsPath);
+    return (NodeData) dataManager.getItemData(this, new QPathEntry(Constants.JCR_VERSIONLABELS,0));
   }
   
   public List<PropertyData> getVersionLabels() throws VersionException, RepositoryException {

@@ -23,6 +23,7 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.Uuid;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -61,9 +62,11 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     
     checkValid();
     
-    QPath createdPath = QPath.makeChildPath(getData().getQPath(), Constants.JCR_CREATED);
+//    QPath createdPath = QPath.makeChildPath(getData().getQPath(), Constants.JCR_CREATED);
+//    
+//    PropertyData pdata = (PropertyData) dataManager.getItemData(createdPath);
+    PropertyData pdata = (PropertyData) dataManager.getItemData(nodeData(),new QPathEntry( Constants.JCR_CREATED,0));
     
-    PropertyData pdata = (PropertyData) dataManager.getItemData(createdPath);
     
     if (pdata == null)
       throw new VersionException("jcr:created property is not found for version " + getPath());
@@ -82,9 +85,12 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     
     checkValid();
     
-    QPath successorsPath = QPath.makeChildPath(getData().getQPath(), Constants.JCR_SUCCESSORS);
+//    QPath successorsPath = QPath.makeChildPath(getData().getQPath(), Constants.JCR_SUCCESSORS);
+//    
+//    PropertyData successorsData = (PropertyData) dataManager.getItemData(successorsPath);
     
-    PropertyData successorsData = (PropertyData) dataManager.getItemData(successorsPath);
+    PropertyData successorsData = (PropertyData) dataManager.getItemData(nodeData(),
+        new QPathEntry(Constants.JCR_SUCCESSORS, 0));
     
     if (successorsData == null)
       return new Version[0];
@@ -116,9 +122,14 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     
     checkValid();
     
-    QPath predecessorsPath = QPath.makeChildPath(getData().getQPath(), Constants.JCR_PREDECESSORS);
+//    QPath predecessorsPath = QPath.makeChildPath(getData().getQPath(), Constants.JCR_PREDECESSORS);
+//    
+//    PropertyData predecessorsData = (PropertyData) dataManager.getItemData(predecessorsPath);
+    //QPath predecessorsPath = QPath.makeChildPath(getData().getQPath(), Constants.JCR_PREDECESSORS);
     
-    PropertyData predecessorsData = (PropertyData) dataManager.getItemData(predecessorsPath);
+    PropertyData predecessorsData = (PropertyData) dataManager.getItemData(nodeData(),
+        new QPathEntry(Constants.JCR_PREDECESSORS, 0));
+
     
     if (predecessorsData == null)
       return new Version[0];
@@ -146,8 +157,10 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
   public void addSuccessor(String successorUuid, PlainChangesLog changesLog) throws RepositoryException {
     ValueData successorRef = new TransientValueData(new Uuid(successorUuid));
     
-    QPath successorsPath = QPath.makeChildPath(this.getInternalPath(), Constants.JCR_SUCCESSORS);
-    TransientPropertyData successorsProp = (TransientPropertyData) dataManager.getItemData(successorsPath);
+//    QPath successorsPath = QPath.makeChildPath(this.getInternalPath(), Constants.JCR_SUCCESSORS);
+//    TransientPropertyData successorsProp = (TransientPropertyData) dataManager.getItemData(successorsPath);
+    TransientPropertyData successorsProp = (TransientPropertyData) dataManager
+    .getItemData(nodeData(), new QPathEntry(Constants.JCR_SUCCESSORS, 0));
     
     if (successorsProp == null) {
       // create a property now
@@ -167,8 +180,11 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     
     ValueData predeccessorRef = new TransientValueData(new Uuid(predeccessorUuid));
     
-    QPath predeccessorssPath = QPath.makeChildPath(this.getInternalPath(), Constants.JCR_PREDECESSORS);
-    TransientPropertyData predeccessorsProp = (TransientPropertyData) dataManager.getItemData(predeccessorssPath);
+    //QPath predeccessorssPath = QPath.makeChildPath(this.getInternalPath(), Constants.JCR_PREDECESSORS);
+    //TransientPropertyData predeccessorsProp = (TransientPropertyData) dataManager.getItemData(predeccessorssPath);
+    TransientPropertyData predeccessorsProp = (TransientPropertyData) dataManager
+        .getItemData(nodeData(), new QPathEntry(Constants.JCR_PREDECESSORS, 0));
+
     
     if (predeccessorsProp == null) {
       List<ValueData> predeccessors = new ArrayList<ValueData>(); 
@@ -185,9 +201,10 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
   }
   
   void removeSuccessor(String successorUuid, PlainChangesLog changesLog) throws RepositoryException {
-    QPath successorsPath = QPath.makeChildPath(this.getInternalPath(), Constants.JCR_SUCCESSORS);
-    PropertyData successorsProp = (PropertyData) dataManager.getItemData(successorsPath);
-    
+    //QPath successorsPath = QPath.makeChildPath(this.getInternalPath(), Constants.JCR_SUCCESSORS);
+    //PropertyData successorsProp = (PropertyData) dataManager.getItemData(successorsPath);
+    TransientPropertyData successorsProp = (TransientPropertyData) dataManager
+        .getItemData(nodeData(), new QPathEntry(Constants.JCR_SUCCESSORS, 0));
     if (successorsProp != null) {
       List<ValueData> newSuccessors = new ArrayList<ValueData>();
       
@@ -215,8 +232,11 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
   }
   
   void removeAddSuccessor(String removedSuccessorUuid, String addedSuccessorUuid, PlainChangesLog changesLog) throws RepositoryException {
-    QPath successorsPath = QPath.makeChildPath(this.getInternalPath(), Constants.JCR_SUCCESSORS);
-    PropertyData successorsProp = (PropertyData) dataManager.getItemData(successorsPath);
+//    QPath successorsPath = QPath.makeChildPath(this.getInternalPath(), Constants.JCR_SUCCESSORS);
+//    PropertyData successorsProp = (PropertyData) dataManager.getItemData(successorsPath);
+    
+    TransientPropertyData successorsProp = (TransientPropertyData) dataManager
+    .getItemData(nodeData(), new QPathEntry(Constants.JCR_SUCCESSORS, 0));
     
     if (successorsProp != null) {
       List<ValueData> newSuccessors = new ArrayList<ValueData>();
@@ -247,8 +267,10 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
   }
   
   void removePredecessor(String predecessorUuid, PlainChangesLog changesLog) throws RepositoryException {
-    QPath predeccessorsPath = QPath.makeChildPath(this.getInternalPath(), Constants.JCR_PREDECESSORS);
-    PropertyData predeccessorsProp = (PropertyData) dataManager.getItemData(predeccessorsPath);
+//    QPath predeccessorsPath = QPath.makeChildPath(this.getInternalPath(), Constants.JCR_PREDECESSORS);
+//    PropertyData predeccessorsProp = (PropertyData) dataManager.getItemData(predeccessorsPath);
+    TransientPropertyData predeccessorsProp = (TransientPropertyData) dataManager
+    .getItemData(nodeData(), new QPathEntry(Constants.JCR_PREDECESSORS, 0));
     
     if (predeccessorsProp != null) {
       List<ValueData> newPredeccessors = new ArrayList<ValueData>();
@@ -277,8 +299,11 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
   }
   
   void removeAddPredecessor(String removedPredecessorUuid, String addedPredecessorUuid, PlainChangesLog changesLog) throws RepositoryException {
-    QPath predeccessorsPath = QPath.makeChildPath(this.getInternalPath(), Constants.JCR_PREDECESSORS);
-    PropertyData predeccessorsProp = (PropertyData) dataManager.getItemData(predeccessorsPath);
+//    QPath predeccessorsPath = QPath.makeChildPath(this.getInternalPath(), Constants.JCR_PREDECESSORS);
+//    PropertyData predeccessorsProp = (PropertyData) dataManager.getItemData(predeccessorsPath);
+
+    TransientPropertyData predeccessorsProp = (TransientPropertyData) dataManager
+    .getItemData(nodeData(), new QPathEntry(Constants.JCR_PREDECESSORS, 0));
     
     if (predeccessorsProp != null) {
       List<ValueData> newPredeccessors = new ArrayList<ValueData>();

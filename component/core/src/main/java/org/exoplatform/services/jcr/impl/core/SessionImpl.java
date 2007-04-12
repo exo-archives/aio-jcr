@@ -525,8 +525,11 @@ public class SessionImpl implements Session, NamespaceAccessor {
         getTransientNodesManager(), skipBinary, noRecurse);
 
     JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
-    ItemData srcItemData = nodesManager.getItemData(srcNodePath.getInternalPath());
+//    ItemData srcItemData = nodesManager.getItemData(srcNodePath.getInternalPath());
 
+    NodeData rootItem = (NodeData) nodesManager.getItemData(Constants.ROOT_UUID);
+    ItemData srcItemData = nodesManager.getItemData(rootItem,srcNodePath.getInternalPath());
+    
     if (srcItemData == null) {
       throw new PathNotFoundException("No node exists at " + absPath);
     }
