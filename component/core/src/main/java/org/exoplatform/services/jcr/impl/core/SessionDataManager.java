@@ -139,7 +139,7 @@ public class SessionDataManager implements ItemDataConsumer {
     }
     return currItem;
   }
-  private ItemData getItemData(NodeData parent, QPathEntry[] nameEntrys) throws RepositoryException {
+  public ItemData getItemData(NodeData parent, QPathEntry[] nameEntrys) throws RepositoryException {
     ItemData currItem = parent;
     for (int i = 1; i < nameEntrys.length; i++) {
       currItem = getItemData((NodeData) currItem, nameEntrys[i]);

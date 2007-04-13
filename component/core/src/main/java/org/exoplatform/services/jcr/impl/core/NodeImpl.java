@@ -1014,38 +1014,69 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     final QPath myPath = nodeData().getQPath();
     final SessionDataManager corrDataManager = corrSession.getTransientNodesManager();
     
-    if (this.isNodeType(Constants.MIX_REFERENCEABLE)) {
+//    if (this.isNodeType(Constants.MIX_REFERENCEABLE)) {
+//      NodeData corrNode = (NodeData) corrDataManager.getItemData(getUUID());
+//      if (corrNode != null)
+//        return corrNode;
+//    } else {
+//      for (int i = myPath.getDepth(); i >= 0; i--) {
+//        final QPath ancesstorPath = myPath.makeAncestorPath(i);
+//        NodeData ancestor = (NodeData) dataManager.getItemData(ancesstorPath);
+//        if (corrSession.getWorkspace().getNodeTypeManager().isNodeType(
+//            Constants.MIX_REFERENCEABLE, 
+//            ancestor.getPrimaryTypeName(), 
+//            ancestor.getMixinTypeNames())) {
+//          
+//          NodeData corrAncestor = (NodeData) corrDataManager.getItemData(ancestor.getUUID());
+//          if (corrAncestor == null) 
+//            throw new ItemNotFoundException("No corresponding path for ancestor " 
+//                + locationFactory.createJCRPath(ancesstorPath).getAsString(false) + " in " 
+//                + corrSession.getWorkspace().getName());
+//          
+//          QPathEntry[] relQPathEntries = myPath.getRelPath(myPath.getDepth() - i);
+//          QPath corrNodeQPath = QPath.makeChildPath(corrAncestor.getQPath(), relQPathEntries); 
+//          NodeData corrNode = (NodeData) corrDataManager.getItemData(corrNodeQPath);
+//          if (corrNode != null)
+//            return corrNode;
+//        }
+//      }
+//    }
+//    
+//    NodeData corrNode = (NodeData) corrDataManager.getItemData(myPath);
+//    if (corrNode != null)
+//      return corrNode;
+//    
+//    throw new ItemNotFoundException("No corresponding path for " + getPath() + " in "
+//        + corrSession.getWorkspace().getName());
+    
+  if (this.isNodeType(Constants.MIX_REFERENCEABLE)) {
       NodeData corrNode = (NodeData) corrDataManager.getItemData(getUUID());
       if (corrNode != null)
         return corrNode;
     } else {
-      for (int i = myPath.getDepth(); i >= 0; i--) {
-        final QPath ancesstorPath = myPath.makeAncestorPath(i);
-        NodeData ancestor = (NodeData) dataManager.getItemData(ancesstorPath);
-        if (corrSession.getWorkspace().getNodeTypeManager().isNodeType(
-            Constants.MIX_REFERENCEABLE, 
-            ancestor.getPrimaryTypeName(), 
+      NodeData ancestor = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
+      for (int i = 1; i < myPath.getDepth(); i++) {
+        ancestor = (NodeData) dataManager.getItemData(ancestor, myPath.getEntries()[i]);
+        if (corrSession.getWorkspace().getNodeTypeManager().isNodeType(Constants.MIX_REFERENCEABLE,
+            ancestor.getPrimaryTypeName(),
             ancestor.getMixinTypeNames())) {
-          
           NodeData corrAncestor = (NodeData) corrDataManager.getItemData(ancestor.getUUID());
-          if (corrAncestor == null) 
-            throw new ItemNotFoundException("No corresponding path for ancestor " 
-                + locationFactory.createJCRPath(ancesstorPath).getAsString(false) + " in " 
-                + corrSession.getWorkspace().getName());
-          
-          QPathEntry[] relQPathEntries = myPath.getRelPath(myPath.getDepth() - i);
-          QPath corrNodeQPath = QPath.makeChildPath(corrAncestor.getQPath(), relQPathEntries); 
-          NodeData corrNode = (NodeData) corrDataManager.getItemData(corrNodeQPath);
+          if (corrAncestor == null)
+            throw new ItemNotFoundException("No corresponding path for ancestor "
+                + ancestor.getQPath().getAsString() + " in " + corrSession.getWorkspace().getName());
+
+          NodeData corrNode = (NodeData) corrDataManager.getItemData(corrAncestor, myPath
+              .getRelPath(myPath.getDepth() - i));
           if (corrNode != null)
             return corrNode;
         }
       }
     }
-    
-    NodeData corrNode = (NodeData) corrDataManager.getItemData(myPath);
+    NodeData corrRoot = (NodeData) corrDataManager.getItemData(Constants.ROOT_UUID);
+    NodeData corrNode = (NodeData) corrDataManager.getItemData(corrRoot,myPath);
     if (corrNode != null)
       return corrNode;
-    
+
     throw new ItemNotFoundException("No corresponding path for " + getPath() + " in "
         + corrSession.getWorkspace().getName());
   }  
@@ -1056,15 +1087,14 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     
     if (this.isNodeType(Constants.MIX_REFERENCEABLE)) {
       try {
-        return (NodeImpl) correspSession.getNodeByUUID(getUUID());
+        return correspSession.getNodeByUUID(getUUID());
       } catch (ItemNotFoundException e) {
       }
     } else {
       for (int i = getDepth(); i >= 0; i--) {
         NodeImpl ancestor = (NodeImpl) getAncestor(i);
         if (ancestor.isNodeType(Constants.MIX_REFERENCEABLE)) {
-          NodeImpl correspAncestor = (NodeImpl) correspSession
-              .getNodeByUUID(ancestor.getUUID());
+          NodeImpl correspAncestor = correspSession.getNodeByUUID(ancestor.getUUID());
           JCRPath.PathElement[] relJCRPath = getLocation().getRelPath(getDepth() - i);
           // System.out.println("LOC. getRelPath "+(getDepth() - i)+" =
           // "+getRelPath(relJCRPath)+" "+getPath());
