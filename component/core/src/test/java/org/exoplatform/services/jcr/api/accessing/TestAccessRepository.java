@@ -115,6 +115,4 @@ public class TestAccessRepository extends JcrAPIBaseTest {
     assertTrue(repository.getDescriptorKeys().length>=6);
     assertNotNull(repository.getDescriptor(Repository.REP_NAME_DESC));
   }
-
-
 }

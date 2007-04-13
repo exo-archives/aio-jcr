@@ -266,6 +266,14 @@
         <scope>compile</scope>
     </dependency>
 
+    <dependency>
+      <groupId>joo</groupId>
+      <artifactId>jooconvertor</artifactId>
+      <version>2.1.0</version>
+      <scope>compile</scope>
+    </dependency>
+
+
     <!-- slf4j-log4j12 for TCK -->
     <!-- url>http://www.slf4j.org/download.html</url -->
     <dependency>

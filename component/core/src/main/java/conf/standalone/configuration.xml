@@ -136,13 +136,6 @@
         <set-method>addDocumentReader</set-method>
         <type>org.exoplatform.services.document.impl.PDFDocumentReader</type>
         <description>to read  the pdf inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.types</name>
-            <description>description</description>
-            <value>application/pdf</value>
-          </values-param>
-        </init-params>
       </component-plugin>
 
       <component-plugin>
@@ -150,13 +143,6 @@
         <set-method>addDocumentReader</set-method>
         <type>org.exoplatform.services.document.impl.MSWordDocumentReader</type>
         <description>to read  the ms word inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.typesMSWord</name>
-            <description>description</description>
-            <value>application/msword</value>
-          </values-param>
-        </init-params>
       </component-plugin>
 
       <component-plugin>
@@ -164,13 +150,6 @@
         <set-method>addDocumentReader</set-method>
         <type>org.exoplatform.services.document.impl.MSExcelDocumentReader</type>
         <description>to read  the ms excel inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.typesMSExcel</name>
-            <description>description</description>
-            <value>application/excel</value>
-          </values-param>
-        </init-params>
       </component-plugin>
 
       <component-plugin>
@@ -178,13 +157,6 @@
         <set-method>addDocumentReader</set-method>
         <type>org.exoplatform.services.document.impl.PPTDocumentReader</type>
         <description>to read  the ms ppt inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.typesPPT</name>
-            <description>description</description>
-            <value>application/ppt</value>
-          </values-param>
-        </init-params>
       </component-plugin>
 
       <component-plugin>
@@ -192,13 +164,6 @@
         <set-method>addDocumentReader</set-method>
         <type>org.exoplatform.services.document.impl.TextPlainDocumentReader</type>
         <description>to read  the plain text inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.typesTextPlain</name>
-            <description>description</description>
-            <value>text/plain</value>
-          </values-param>
-        </init-params>
       </component-plugin>
 
       <component-plugin>
@@ -206,14 +171,15 @@
         <set-method>addDocumentReader</set-method>
         <type>org.exoplatform.services.document.impl.HTMLDocumentReader</type>
         <description>to read  the html inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.typesHTML</name>
-            <description>description</description>
-            <value>text/html</value>
-          </values-param>
-        </init-params>
       </component-plugin>
+
+      <component-plugin>
+        <name>document.readerOO</name>
+        <set-method>addDocumentReader</set-method>
+        <type>org.exoplatform.services.document.impl.OpenOfficeDocumentReader</type>
+        <description>to read  the OO inputstream</description>
+      </component-plugin>
+
     </component-plugins>
   </component>
 

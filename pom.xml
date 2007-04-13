@@ -36,7 +36,7 @@
     <!-- module>applications/java/standalone/openofficeplugin</module -->
 
     <!-- module>applications/jcr-console</module -->
-    <module>site</module>
+    <!-- module>site</module -->
   </modules>
 
   <build>

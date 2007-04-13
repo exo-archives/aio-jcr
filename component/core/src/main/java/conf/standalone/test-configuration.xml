@@ -465,6 +465,13 @@
         <description>to read html inputstream</description>
       </component-plugin>
 
+      <component-plugin>
+        <name>document.readerOO</name>
+        <set-method>addDocumentReader</set-method>
+        <type>org.exoplatform.services.document.impl.OpenOfficeDocumentReader</type>
+        <description>to read  the OO inputstream</description>
+      </component-plugin>
+
     </component-plugins>
   </component>
 
