@@ -11,6 +11,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.exoplatform.services.webdav.common.request.documents.CommonPropDocument;
+import org.exoplatform.services.webdav.common.resource.resourcedata.ResourceData;
 import org.exoplatform.services.webdav.common.response.Response;
 
 /**
@@ -25,7 +26,7 @@ public interface DavResource {
   
   String getName() throws RepositoryException;
   
-  DavResourceInfo getInfo() throws RepositoryException;
+  ResourceData getResourceData() throws RepositoryException;
 
   ArrayList<String> getAvailableMethods();
   

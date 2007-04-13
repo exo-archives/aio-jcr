@@ -9,7 +9,6 @@ import java.util.ArrayList;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
-import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
@@ -18,6 +17,9 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.WebDavCommandContext;
 import org.exoplatform.services.webdav.common.request.documents.CommonPropDocument;
+import org.exoplatform.services.webdav.common.resource.resourcedata.CollectionResourceData;
+import org.exoplatform.services.webdav.common.resource.resourcedata.JcrFileResourceData;
+import org.exoplatform.services.webdav.common.resource.resourcedata.ResourceData;
 import org.exoplatform.services.webdav.common.response.Href;
 import org.exoplatform.services.webdav.common.response.Response;
 import org.exoplatform.services.webdav.common.response.ResponseImpl;
@@ -52,40 +54,54 @@ public class AbstractNodeResource extends DavCommonResource {
     return resourceNode.getName();
   }
   
-  protected DavResourceInfo getInfo(Node node, boolean isCollection) throws RepositoryException {
-    DavResourceInfo info = new DavResourceInfoImpl();
-    
-    info.setName(node.getName());
-    
-    if (isCollection) {
-      if (node.hasProperty(DavConst.NodeTypes.JCR_CREATED)) {
-        info.setLastModified(node.getProperty(DavConst.NodeTypes.JCR_CREATED).getString());
-      }
-    } else {
-      info.setType(false);
+  public ResourceData getResourceData() throws RepositoryException {
+    if (isCollection()) {
+      return new CollectionResourceData(this);
+    }
 
-      Node contentNode = node.getNode(DavConst.NodeTypes.JCR_CONTENT);
-      
-      if (node.hasProperty(DavConst.NodeTypes.JCR_LASTMODIFIED)) {
-        info.setLastModified(contentNode.getProperty(DavConst.NodeTypes.JCR_LASTMODIFIED).getString());
-      }      
-      
-      info.setContentType(contentNode.getProperty(DavConst.NodeTypes.JCR_MIMETYPE).getString());
-      
-      Property dataProperty = contentNode.getProperty(DavConst.NodeTypes.JCR_DATA); 
-      
-      info.setContentStream(dataProperty.getStream());
-      info.setContentLength(dataProperty.getLength());
-      
-      info.setType(false);
-    }    
-    
-    return info;
+    return new JcrFileResourceData(getNode());
   }
+  
+//  protected DavResourceInfo getInfo(Node node, boolean isCollection) throws RepositoryException {
+//    if (isCollection) {
+//      return new CollectionResourceInfo();
+//    }
+//    
+//    return new NodeResourceInfo(node);
+//    
+////    DavResourceInfo info =  new DavResourceInfoImpl();
+////    
+////    info.setName(node.getName());
+////    
+////    if (isCollection) {
+////      if (node.hasProperty(DavConst.NodeTypes.JCR_CREATED)) {
+////        info.setLastModified(node.getProperty(DavConst.NodeTypes.JCR_CREATED).getString());
+////      }
+////    } else {
+////      info.setType(false);
+////
+////      Node contentNode = node.getNode(DavConst.NodeTypes.JCR_CONTENT);
+////      
+////      if (node.hasProperty(DavConst.NodeTypes.JCR_LASTMODIFIED)) {
+////        info.setLastModified(contentNode.getProperty(DavConst.NodeTypes.JCR_LASTMODIFIED).getString());
+////      }      
+////      
+////      info.setContentType(contentNode.getProperty(DavConst.NodeTypes.JCR_MIMETYPE).getString());
+////      
+////      Property dataProperty = contentNode.getProperty(DavConst.NodeTypes.JCR_DATA); 
+////      
+////      info.setContentStream(dataProperty.getStream());
+////      info.setContentLength(dataProperty.getLength());
+////      
+////      info.setType(false);
+////    }    
+////    
+////    return info;
+//  }
 
-  public DavResourceInfo getInfo() throws RepositoryException {
-    return getInfo(resourceNode, isCollection());
-  }
+//  public DavResourceInfo getInfo() throws RepositoryException {
+//    return getInfo(resourceNode, isCollection());
+//  }
   
   public ArrayList<String> getAvailableMethods() {
     return context.getAvailableCommands();

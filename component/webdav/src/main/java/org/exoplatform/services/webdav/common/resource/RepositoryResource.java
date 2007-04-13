@@ -1,11 +1,9 @@
 /***************************************************************************
- * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 
 package org.exoplatform.services.webdav.common.resource;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 
 import javax.jcr.RepositoryException;
@@ -32,19 +30,19 @@ public class RepositoryResource extends DavCommonResource {
 
   public String getName() throws RepositoryException {
     return "";
-  }
-  
-  public DavResourceInfo getInfo() throws RepositoryException {
-//    throw new AccessDeniedException();
-    DavResourceInfo info = new DavResourceInfoImpl();
-//    
-//    ArrayList<DavResource> resources = getChildsResources();
-//    
-//    info.setContentStream(new HtmlBuilder(context).getHtml("/", resources));
-//    
-    info.setContentStream(new ByteArrayInputStream("".getBytes()));
-    return info;
   }  
+  
+//  public DavResourceInfo getInfo() throws RepositoryException {
+////    throw new AccessDeniedException();
+//    DavResourceInfo info = new CollectionResourceInfo(); DavResourceInfoImpl();
+////    
+////    ArrayList<DavResource> resources = getChildsResources();
+////    
+////    info.setContentStream(new HtmlBuilder(context).getHtml("/", resources));
+////    
+//    info.setContentStream(new ByteArrayInputStream("".getBytes()));
+//    return info;
+//  }  
   
   public Response getResponse(CommonPropDocument reqProps) throws RepositoryException {
     return null;

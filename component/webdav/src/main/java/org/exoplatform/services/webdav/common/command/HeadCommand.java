@@ -7,11 +7,9 @@ package org.exoplatform.services.webdav.common.command;
 
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.logging.Log;
-import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.common.resource.DavResource;
-import org.exoplatform.services.webdav.common.resource.DavResourceInfo;
+import org.exoplatform.services.webdav.common.resource.resourcedata.ResourceData;
 
 /**
  * Created by The eXo Platform SARL
@@ -21,22 +19,16 @@ import org.exoplatform.services.webdav.common.resource.DavResourceInfo;
 
 public class HeadCommand extends WebDavCommand {
   
-  private static Log log = ExoLogger.getLogger("jcr.HeadCommand");
-  
   protected boolean process() throws RepositoryException {
-    log.info("process...");
-    
     DavResource resource = getResourceFactory().getSrcResource(false);
     
-    log.info("RESOURCE: " + resource);
+    ResourceData resourceData = resource.getResourceData();
     
-    DavResourceInfo info = resource.getInfo();
-    
-    davResponse().setResponseHeader(DavConst.Headers.LASTMODIFIED, info.getLastModified());
-    davResponse().setResponseHeader(DavConst.Headers.CONTENTTYPE, info.getContentType());
-    
-    if (!info.getType()) {
-      davResponse().setResponseHeader(DavConst.Headers.CONTENTLENGTH, "" + info.getContentLength());
+    davResponse().setResponseHeader(DavConst.Headers.LASTMODIFIED, resourceData.getLastModified());
+    davResponse().setResponseHeader(DavConst.Headers.CONTENTTYPE, resourceData.getContentType());
+
+    if (!resourceData.isCollection()) {
+      davResponse().setResponseHeader(DavConst.Headers.CONTENTLENGTH, "" + resourceData.getContentLength());
     }
     
     davResponse().answerOk();

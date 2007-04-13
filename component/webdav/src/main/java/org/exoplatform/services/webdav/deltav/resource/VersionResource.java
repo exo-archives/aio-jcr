@@ -5,14 +5,14 @@
 
 package org.exoplatform.services.webdav.deltav.resource;
 
-import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.Version;
 
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.WebDavCommandContext;
 import org.exoplatform.services.webdav.common.resource.AbstractNodeResource;
-import org.exoplatform.services.webdav.common.resource.DavResourceInfo;
+import org.exoplatform.services.webdav.common.resource.resourcedata.JcrFileResourceData;
+import org.exoplatform.services.webdav.common.resource.resourcedata.ResourceData;
 
 /**
  * Created by The eXo Platform SARL
@@ -49,10 +49,15 @@ public class VersionResource extends AbstractNodeResource {
     return ownResource;
   }
   
-  @Override
-  public DavResourceInfo getInfo() throws RepositoryException {    
-    Node frozenNode = getNode().getNode(DavConst.NodeTypes.JCR_FROZENNODE);    
-    return getInfo(frozenNode, isCollection());
+  public ResourceData getResourceData() throws RepositoryException {
+    return new JcrFileResourceData(getNode().getNode(DavConst.NodeTypes.JCR_FROZENNODE));
   }
+  
+  
+//  @Override
+//  public DavResourceInfo getInfo() throws RepositoryException {    
+//    Node frozenNode = getNode().getNode(DavConst.NodeTypes.JCR_FROZENNODE);    
+//    return getInfo(frozenNode, isCollection());
+//  }
   
 }

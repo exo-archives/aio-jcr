@@ -17,6 +17,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.WebDavCommandContext;
 import org.exoplatform.services.webdav.common.request.WebDavRequest;
 import org.exoplatform.services.webdav.common.request.documents.CommonPropDocument;
+import org.exoplatform.services.webdav.common.resource.resourcedata.ResourceData;
 import org.exoplatform.services.webdav.common.response.Response;
 
 /**
@@ -90,10 +91,10 @@ public class FakeResource implements DavResource {
     throw new PathNotFoundException();
   }
   
-  public DavResourceInfo getInfo() throws RepositoryException {
-    throw new PathNotFoundException();
+  public ResourceData getResourceData() throws RepositoryException {
+    return null;
   }
-
+  
   public ArrayList<String> getAvailableMethods() {
     return null;
   }

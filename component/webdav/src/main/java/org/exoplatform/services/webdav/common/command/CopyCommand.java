@@ -7,9 +7,6 @@ package org.exoplatform.services.webdav.common.command;
 
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.logging.Log;
-import org.exoplatform.services.log.ExoLogger;
-
 /**
  * Created by The eXo Platform SARL
  * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
@@ -18,16 +15,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class CopyCommand extends WebDavCommand {
   
-  private static Log log = ExoLogger.getLogger("jcr.CopyCommand");
-  
-  public CopyCommand() {
-    log.info("CopyCommandCopyCommandCopyCommandCopyCommandCopyCommand");
-  }
-  
   protected boolean process() throws RepositoryException {    
-    //RequestDoc requestDoc = davRequest().getDocumentFromRequest();
-    // xml data here...
-    
     jcrDestSession().getWorkspace().copy(
         davRequest().getSrcWorkspace(), 
         davRequest().getSrcPath(),

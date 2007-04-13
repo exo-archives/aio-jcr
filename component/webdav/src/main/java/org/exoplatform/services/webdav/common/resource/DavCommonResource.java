@@ -14,6 +14,8 @@ import org.exoplatform.services.webdav.WebDavCommandContext;
 import org.exoplatform.services.webdav.common.property.WebDavProperty;
 import org.exoplatform.services.webdav.common.property.factory.PropertyDefine;
 import org.exoplatform.services.webdav.common.request.documents.CommonPropDocument;
+import org.exoplatform.services.webdav.common.resource.resourcedata.CollectionResourceData;
+import org.exoplatform.services.webdav.common.resource.resourcedata.ResourceData;
 import org.exoplatform.services.webdav.common.response.Response;
 
 /**
@@ -34,7 +36,12 @@ public abstract class DavCommonResource implements DavResource {
   
   public abstract String getName() throws RepositoryException;
   
-  public abstract DavResourceInfo getInfo() throws RepositoryException;
+  //public abstract DavResourceInfo getInfo() throws RepositoryException;
+  //public abstract ResourceData getResourceData() throws RepositoryException;
+  public ResourceData getResourceData() throws RepositoryException {
+    ResourceData collectionResourceData = new CollectionResourceData(this);
+    return collectionResourceData;
+  }
   
   public ArrayList<String> getAvailableMethods() {
     return context.getAvailableCommands();

@@ -55,8 +55,6 @@ public class WebDavServiceImpl implements WebDavService {
       OrganizationService organizationService
     ) throws Exception {
 
-    log.info(">>>>>>>> OS:" + organizationService);
-    
     this.repositoryService = repositoryService;
     
     InputStream commandsStream = getClass().getResourceAsStream(COMMANDS_PATH);

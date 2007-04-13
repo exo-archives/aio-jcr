@@ -5,7 +5,6 @@
 
 package org.exoplatform.services.webdav.common.resource;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 
 import javax.jcr.Node;
@@ -42,13 +41,13 @@ public class WorkspaceResource extends DavCommonResource {
     return workspaceName;
   }
   
-  public DavResourceInfo getInfo() throws RepositoryException {
-    DavResourceInfo info = new DavResourceInfoImpl();
-    info.setName(workspaceName);
-
-    info.setContentStream(new ByteArrayInputStream("".getBytes()));
-    return info;        
-  }  
+//  public DavResourceInfo getInfo() throws RepositoryException {
+//    DavResourceInfo info = new DavResourceInfoImpl();
+//    info.setName(workspaceName);
+//
+//    info.setContentStream(new ByteArrayInputStream("".getBytes()));
+//    return info;        
+//  }  
   
   @Override
   public Session getSession() throws RepositoryException {

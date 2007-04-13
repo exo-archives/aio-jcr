@@ -13,7 +13,7 @@ import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.common.resource.DavResource;
-import org.exoplatform.services.webdav.common.resource.DavResourceInfo;
+import org.exoplatform.services.webdav.common.resource.resourcedata.ResourceData;
 import org.exoplatform.services.webdav.common.response.DavStatus;
 
 /**
@@ -28,15 +28,23 @@ public class GetCommand extends WebDavCommand {
   protected boolean process() throws RepositoryException {
     DavResource resource = getResourceFactory().getSrcResource(false);
     
-    DavResourceInfo info = resource.getInfo();
+    ResourceData resourceData = resource.getResourceData();
     
-    if (info.getContentType() != null) {
-      davResponse().setResponseHeader(DavConst.Headers.CONTENTTYPE, info.getContentType());
-    }
+    //DavResourceInfo info = resource.getInfo();
     
-    InputStream resourceStream = info.getContentStream();
+//    if (info.getContentType() != null) {
+//      davResponse().setResponseHeader(DavConst.Headers.CONTENTTYPE, info.getContentType());
+//    }
+
+    if (resourceData.getContentType() != null) {
+      davResponse().setResponseHeader(DavConst.Headers.CONTENTTYPE, resourceData.getContentType());
+    }    
     
-    long fileContentLengtn = info.getContentLength();
+    InputStream resourceStream = resourceData.getContentStream();
+    //InputStream resourceStream = info.getContentStream();
+    
+    long fileContentLengtn = resourceData.getContentLength();
+    //long fileContentLengtn = info.getContentLength();
     
     long startRange = davRequest().getRangeStart();
     
