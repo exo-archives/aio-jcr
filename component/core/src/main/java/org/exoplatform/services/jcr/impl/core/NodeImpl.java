@@ -259,14 +259,18 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 //    return (Property)prop;
     
     checkValid();
+    JCRPath itemPath = locationFactory.createJCRPath(getLocation(), relPath);
     
+    NodeData rootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
+
+    if (log.isDebugEnabled())
+      log.debug("getProperty() " + getLocation() + " " + relPath);
+    Item prop = dataManager.getItem(rootData, itemPath.getInternalPath(), true);
     
-    if(log.isDebugEnabled())
-      log.debug("getProperty() " + getLocation()+" "+relPath);
-    Item prop = dataManager.getItem(nodeData(),locationFactory.parseRelPath(relPath).getInternalPath(),true);
     if (prop == null || prop.isNode())
-      throw new PathNotFoundException("Property not found " + getLocation()+" "+relPath);  
-    return (Property)prop;
+      throw new PathNotFoundException("Property not found " + getLocation() + " " + relPath);
+    
+    return (Property) prop;
   }
   
   protected PropertyImpl property(InternalQName name) throws IllegalPathException, PathNotFoundException, RepositoryException {
@@ -1862,12 +1866,12 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     
     NodeImpl node;
     // JCRPath newPath = locationFactory.createJCRPath(getLocation(), relPath);
-//    QPath newPath = locationFactory.createJCRPath(getLocation(),
-//        relPath).getInternalPath();
-    QPath newPath =  locationFactory.parseRelPath(relPath).getInternalPath();
+    QPath newPath = locationFactory.createJCRPath(getLocation(),
+        relPath).getInternalPath();
     try {
       // node = (NodeImpl) getNode(relPath);
-      node = (NodeImpl) dataManager.getItem(nodeData(),newPath, true);
+      NodeData rootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
+      node = (NodeImpl) dataManager.getItem(rootData,newPath, true);
     } catch (PathNotFoundException e) {
 
 //      NodeData parentData = (NodeData) dataManager.getItemData(newPath
@@ -1881,8 +1885,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       
       
       dataManager.update(ItemState.createAddedState(nodeData), true);
-
-      node = (NodeImpl) dataManager.getItem(newPath, true);
+      NodeData rootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
+      node = (NodeImpl) dataManager.getItem(rootData,newPath, true);
     }
 
     node.restore(version, removeExisting);
