@@ -181,8 +181,8 @@ public class QueryImpl extends AbstractQueryImpl {
       //String nodeName = path.getName().getAsString();
 
       //NodeImpl parent = (NodeImpl)session.getItem(parentPath);
-      
-      NodeImpl parent = (NodeImpl) session.getTransientNodesManager().getItem(qpath.makeParentPath(), false);
+      NodeData rootData = (NodeData) session.getTransientNodesManager().getItemData(Constants.ROOT_UUID);
+      NodeImpl parent = (NodeImpl) session.getTransientNodesManager().getItem(rootData,qpath.makeParentPath(), false);
       if (parent == null)
         throw new PathNotFoundException("Parent not found for " + path.getAsString(false));
 

@@ -118,8 +118,9 @@ class DocNodeImporter extends ImporterBase {
       // InternalQPath dstNodePath =
       // InternalQPath.makeChildPath(parent().getQPath(), jcrName);
 
-      QPath dstNodePath = QPath.makeChildPath(parent().getQPath(), jcrName);
-      int nodeIndex = getNodeIndex(dstNodePath);
+      //QPath dstNodePath = QPath.makeChildPath(parent().getQPath(), jcrName);
+      //int nodeIndex = getNodeIndex(dstNodePath);
+      int nodeIndex = getNodeIndex(parent(),jcrName);
 
       nodeData = TransientNodeData.createNodeData(parent(), jcrName, locationFactory
           .parseJCRName(primaryNodeType).getInternalName(), nodeIndex);

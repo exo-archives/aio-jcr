@@ -63,6 +63,7 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.lock.LockManagerImpl;
@@ -327,7 +328,11 @@ public class SessionImpl implements Session, NamespaceAccessor {
    */
   public Item getItem(String absPath) throws PathNotFoundException, RepositoryException {
     JCRPath loc = locationFactory.parseAbsPath(absPath);
-    ItemImpl item = nodesManager.getItem(loc.getInternalPath(), true);
+    // ItemImpl item = nodesManager.getItem(loc.getInternalPath(), true);
+    
+    NodeData rootData = (NodeData) nodesManager.getItemData(Constants.ROOT_UUID);
+    ItemImpl item = nodesManager.getItem(rootData, loc.getInternalPath(), true);
+    
     // .getAccessibleItem(loc);
     if (item != null)
       return item;
@@ -342,7 +347,8 @@ public class SessionImpl implements Session, NamespaceAccessor {
    */
   public boolean itemExists(String absPath) {
     try {
-      if (nodesManager.getItem(locationFactory.parseAbsPath(absPath).getInternalPath(), true) != null)
+      //if (nodesManager.getItem(locationFactory.parseAbsPath(absPath).getInternalPath(), true) != null)
+      if(getItem(absPath) != null)
         // getAccessibleItem(locationFactory.parseAbsPath(absPath)) != null)
         return true;
     } catch (RepositoryException e) {
@@ -576,8 +582,15 @@ public class SessionImpl implements Session, NamespaceAccessor {
       SAXException, RepositoryException {
 
     JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
-    NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcNodePath.getInternalPath(), true);
+    
+    // NodeImpl srcNode = (NodeImpl)
+    // nodesManager.getItem(srcNodePath.getInternalPath(), true);
+    
+    NodeData srcRootData = (NodeData) nodesManager.getItemData(Constants.ROOT_UUID);
 
+    NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcRootData,
+        srcNodePath.getInternalPath(),
+        true);
 
     XMLWriter writer = new XMLWriter(this);
     //    
@@ -731,7 +744,14 @@ public class SessionImpl implements Session, NamespaceAccessor {
       PathNotFoundException, VersionException, LockException, RepositoryException {
 
     JCRPath srcNodePath = getLocationFactory().parseAbsPath(srcAbsPath);
-    NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcNodePath.getInternalPath(), true);
+    //NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcNodePath.getInternalPath(), true);
+    NodeData srcRootData = (NodeData) nodesManager
+    .getItemData(Constants.ROOT_UUID);
+
+NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcRootData,
+    srcNodePath.getInternalPath(),
+    true);
+    
 
     JCRPath destNodePath = getLocationFactory().parseAbsPath(destAbsPath);
     if (destNodePath.isIndexSetExplicitly())
@@ -739,9 +759,12 @@ public class SessionImpl implements Session, NamespaceAccessor {
           "The relPath provided must not have an index on its final element. "
               + destNodePath.getAsString(false));
 
-    NodeImpl destParentNode = (NodeImpl) nodesManager.getItem(
-        destNodePath.makeParentPath().getInternalPath(), true);
-
+//    NodeImpl destParentNode = (NodeImpl) nodesManager.getItem(
+//        destNodePath.makeParentPath().getInternalPath(), true);
+    NodeData dstRootData = (NodeData) nodesManager.getItemData(Constants.ROOT_UUID);
+    NodeImpl destParentNode = (NodeImpl) nodesManager.getItem(dstRootData, destNodePath
+        .makeParentPath().getInternalPath(), true);
+    
     if (srcNode == null || destParentNode == null) {
       throw new PathNotFoundException("No node exists at " + srcAbsPath
           + " or no node exists one level above " + destAbsPath);
@@ -751,8 +774,11 @@ public class SessionImpl implements Session, NamespaceAccessor {
         ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
 
     // Check for node with destAbsPath name in session
-    NodeImpl destNode = (NodeImpl) nodesManager.getItem(destNodePath.getInternalPath(), true);
-
+//    NodeImpl destNode = (NodeImpl) nodesManager.getItem(destNodePath.getInternalPath(), true);
+    NodeImpl destNode = (NodeImpl) nodesManager.getItem((NodeData) destParentNode.getData(),
+        new QPathEntry(destNodePath.getInternalPath().getName(), 0),
+        true);
+    
     if (destNode != null) {
       if (!destNode.getDefinition().allowsSameNameSiblings()) {
         // Throw exception

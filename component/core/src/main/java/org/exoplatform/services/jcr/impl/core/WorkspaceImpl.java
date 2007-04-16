@@ -40,6 +40,8 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.query.QueryManagerFactory;
 import org.exoplatform.services.jcr.impl.core.query.QueryManagerImpl;
@@ -195,12 +197,26 @@ public class WorkspaceImpl implements Workspace {
               + destNodePath.getAsString(false));
     // get source node
     JCRPath srcNodePath = srcSession.getLocationFactory().parseAbsPath(srcAbsPath);
-    NodeImpl srcNode = (NodeImpl) srcSession.getTransientNodesManager().getItem(
-        srcNodePath.getInternalPath(), true);
+//    NodeImpl srcNode = (NodeImpl) srcSession.getTransientNodesManager().getItem(
+//        srcNodePath.getInternalPath(), true);
 
-    NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager().getItem(
-        destNodePath.makeParentPath().getInternalPath(), true);
-        
+//    NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager().getItem(
+//        destNodePath.makeParentPath().getInternalPath(), true);
+//    
+    
+    NodeData srcRootData = (NodeData) srcSession.getTransientNodesManager()
+        .getItemData(Constants.ROOT_UUID);
+
+    NodeImpl srcNode = (NodeImpl) srcSession.getTransientNodesManager().getItem(srcRootData,
+        srcNodePath.getInternalPath(),
+        true);
+
+//     get dst parent node
+    NodeData dstRootData = (NodeData) session.getTransientNodesManager()
+        .getItemData(Constants.ROOT_UUID);
+    NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager().getItem(dstRootData,
+        destNodePath.makeParentPath().getInternalPath(),
+        true);        
 
     if (srcNode == null || destParentNode == null) {
       throw new PathNotFoundException("No node exists at " + srcAbsPath
@@ -215,9 +231,14 @@ public class WorkspaceImpl implements Workspace {
         ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
     
     // Check for node with destAbsPath name in session
-    NodeImpl destNode = (NodeImpl) session.getTransientNodesManager().getItem(
-        destNodePath.getInternalPath(), true);
-
+//    NodeImpl destNode = (NodeImpl) session.getTransientNodesManager().getItem(
+//        destNodePath.getInternalPath(), true);
+    
+    NodeImpl destNode = (NodeImpl) session.getTransientNodesManager()
+        .getItem((NodeData) destParentNode.getData(),
+            new QPathEntry(destNodePath.getInternalPath().getName(), 0),
+            true);
+    
     if (destNode != null) {
       
       if (!destNode.getDefinition().allowsSameNameSiblings()) {
@@ -271,11 +292,24 @@ public class WorkspaceImpl implements Workspace {
               + destNodePath.getAsString(false));
     // get source node
     JCRPath srcNodePath = session.getLocationFactory().parseAbsPath(srcAbsPath);
-    NodeImpl srcNode = (NodeImpl) session.getTransientNodesManager().getItem(
-        srcNodePath.getInternalPath(), true);
+//    NodeImpl srcNode = (NodeImpl) session.getTransientNodesManager().getItem(
+//        srcNodePath.getInternalPath(), true);
+//
+//    NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager().getItem(
+//        destNodePath.makeParentPath().getInternalPath(), true);
+    NodeData srcRootData = (NodeData) session.getTransientNodesManager()
+        .getItemData(Constants.ROOT_UUID);
 
-    NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager().getItem(
-        destNodePath.makeParentPath().getInternalPath(), true);
+    NodeImpl srcNode = (NodeImpl) session.getTransientNodesManager().getItem(srcRootData,
+        srcNodePath.getInternalPath(),
+        true);
+
+    // get dst parent node
+    NodeData dstRootData = (NodeData) session.getTransientNodesManager()
+        .getItemData(Constants.ROOT_UUID);
+    NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager().getItem(dstRootData,
+        destNodePath.makeParentPath().getInternalPath(),
+        true);       
 
     if (srcNode == null || destParentNode == null) {
       throw new PathNotFoundException("No node exists at " + srcAbsPath
@@ -291,8 +325,13 @@ public class WorkspaceImpl implements Workspace {
         ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
 
     // Check for node with destAbsPath name in session
-    NodeImpl destNode = (NodeImpl) session.getTransientNodesManager().getItem(
-        destNodePath.getInternalPath(), true);
+//    NodeImpl destNode = (NodeImpl) session.getTransientNodesManager().getItem(
+//        destNodePath.getInternalPath(), true);
+    
+    NodeImpl destNode = (NodeImpl) session.getTransientNodesManager()
+    .getItem((NodeData) destParentNode.getData(),
+        new QPathEntry(destNodePath.getInternalPath().getName(), 0),
+        true);
 
     if (destNode != null) {
       if (!destNode.getDefinition().allowsSameNameSiblings()) {
@@ -347,17 +386,33 @@ public class WorkspaceImpl implements Workspace {
       throw new RepositoryException("DestPath should not contain an index " + destAbsPath);
 
     // find src node
-    SessionImpl srcSession = (SessionImpl) ((RepositoryImpl) session.getRepository()).login(session
+    SessionImpl srcSession = ((RepositoryImpl) session.getRepository()).login(session
         .getCredentials(), srcWorkspace);
 
     // get source node
     JCRPath srcNodePath = srcSession.getLocationFactory().parseAbsPath(srcAbsPath);
-    NodeImpl srcNode = (NodeImpl) srcSession.getTransientNodesManager().getItem(
-        srcNodePath.getInternalPath(), true);
 
-    NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager().getItem(
-        destNodePath.makeParentPath().getInternalPath(), true);
-    
+    // NodeImpl srcNode = (NodeImpl)
+    // srcSession.getTransientNodesManager().getItem(
+    // srcNodePath.getInternalPath(), true);
+    //
+    // NodeImpl destParentNode = (NodeImpl)
+    // session.getTransientNodesManager().getItem(
+    // destNodePath.makeParentPath().getInternalPath(), true);
+
+    NodeData srcRootData = (NodeData) srcSession.getTransientNodesManager()
+        .getItemData(Constants.ROOT_UUID);
+
+    NodeImpl srcNode = (NodeImpl) srcSession.getTransientNodesManager().getItem(srcRootData,
+        srcNodePath.getInternalPath(),
+        true);
+
+    NodeData dstRootData = (NodeData) session.getTransientNodesManager()
+        .getItemData(Constants.ROOT_UUID);
+    NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager().getItem(dstRootData,
+        destNodePath.makeParentPath().getInternalPath(),
+        true);
+
     if (srcNode == null || destParentNode == null) {
       throw new PathNotFoundException("No node exists at " + srcAbsPath
           + " or no node exists one level above " + destAbsPath);
@@ -367,14 +422,18 @@ public class WorkspaceImpl implements Workspace {
     } catch (AccessControlException e) {
       throw new AccessDeniedException(e.getMessage());
     }
-    
+
     destParentNode.validateChildNode(destNodePath.getName().getInternalName(),
         ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
-    
-    // Check for node with destAbsPath name in session
-    NodeImpl destNode = (NodeImpl) session.getTransientNodesManager().getItem(
-        destNodePath.getInternalPath(), true);
 
+    // Check for node with destAbsPath name in session
+    // NodeImpl destNode = (NodeImpl)
+    // session.getTransientNodesManager().getItem(
+    // destNodePath.getInternalPath(), true);
+    NodeImpl destNode = (NodeImpl) session.getTransientNodesManager()
+        .getItem((NodeData) destParentNode.getData(),
+            new QPathEntry(destNodePath.getInternalPath().getName(), 0),
+            true);
     if (destNode != null) {
       if (!destNode.getDefinition().allowsSameNameSiblings()) {
         // Throw exception
@@ -391,29 +450,33 @@ public class WorkspaceImpl implements Workspace {
     if (!srcNode.checkLocking())
       throw new LockException("Source parent node " + srcNode.getPath() + " is     locked ");
 
-    ItemDataCloneVisitor initializer = new ItemDataCloneVisitor(
-        (NodeData) destParentNode.getData(), destNodePath.getName().getInternalName(),
-        getNodeTypeManager(), srcSession.getTransientNodesManager(), session
-            .getTransientNodesManager(), removeExisting);
+    ItemDataCloneVisitor initializer = new ItemDataCloneVisitor((NodeData) destParentNode.getData(),
+        destNodePath.getName().getInternalName(),
+        getNodeTypeManager(),
+        srcSession.getTransientNodesManager(),
+        session.getTransientNodesManager(),
+        removeExisting);
     srcNode.getData().accept(initializer);
 
     // [PN] to do save in one transaction
     PlainChangesLog changes = new PlainChangesLogImpl(session.getId());
-    
+
     // removeing existing nodes and properties
-    if (removeExisting && initializer.getItemDeletedExistingStates(false).size()>0) {
-//      ItemDataChangesLog changesDeletedExistingLog = new ItemDataChangesLog(initializer
-//          .getItemDeletedExistingStates(true), session.getId());
-//      session.getTransientNodesManager().getTransactManager().save(changesDeletedExistingLog);
+    if (removeExisting && initializer.getItemDeletedExistingStates(false).size() > 0) {
+      // ItemDataChangesLog changesDeletedExistingLog = new
+      // ItemDataChangesLog(initializer
+      // .getItemDeletedExistingStates(true), session.getId());
+      // session.getTransientNodesManager().getTransactManager().save(changesDeletedExistingLog);
       changes.addAll(initializer.getItemDeletedExistingStates(true));
     }
 
     // adding nodes
-//    ItemDataChangesLog changesAddLog = new ItemDataChangesLog(initializer.getItemAddStates(),
-//        session.getId());
-    
+    // ItemDataChangesLog changesAddLog = new
+    // ItemDataChangesLog(initializer.getItemAddStates(),
+    // session.getId());
+
     changes.addAll(initializer.getItemAddStates());
-    
+
     session.getTransientNodesManager().getTransactManager().save(changes); // changes.dump()
   }
 

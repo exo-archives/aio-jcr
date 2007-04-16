@@ -20,9 +20,9 @@ import javax.jcr.version.VersionException;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.Uuid;
 import org.exoplatform.services.jcr.datamodel.ValueData;
@@ -337,7 +337,10 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     
     checkValid();
     
-    VersionHistoryImpl vhistory = (VersionHistoryImpl) dataManager.getItem(getInternalPath().makeParentPath(), true);
+ //   VersionHistoryImpl vhistory = (VersionHistoryImpl) dataManager.getItem(nodeData().makeParentPath(), true);
+    
+    VersionHistoryImpl vhistory = (VersionHistoryImpl) dataManager.getItemByUUID(nodeData().getParentUUID(), true);
+     
     
     if (vhistory == null)
       throw new VersionException("Version history item is not found for version " + getPath());

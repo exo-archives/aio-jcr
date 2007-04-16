@@ -150,7 +150,8 @@ class SysNodeImporter extends ImporterBase {
       InternalQName jcrName = path.getInternalPath().getName();
       QPath dstNodePath = QPath.makeChildPath(parentNode.getQPath(), jcrName);
       
-      int nodeIndex = getNodeIndex(dstNodePath);
+      //int nodeIndex = getNodeIndex(dstNodePath);
+      int nodeIndex = getNodeIndex(parentNode,jcrName);
       
       NodeData newNodeData = TransientNodeData.createNodeData(parentNode, jcrName, primaryTypeName,nodeIndex);
 

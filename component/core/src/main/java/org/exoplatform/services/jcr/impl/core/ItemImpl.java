@@ -174,7 +174,8 @@ public abstract class ItemImpl implements Item {
         // return findItemByPath(ancestorLoc);
         
         final QPath ancestorPath = myPath.makeAncestorPath(n);
-        return item(ancestorPath);
+        NodeData rootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
+        return dataManager.getItem(rootData,ancestorPath,true);
       }
     } catch (PathNotFoundException e) {
       throw new ItemNotFoundException(e.getMessage(), e);
@@ -590,14 +591,14 @@ public abstract class ItemImpl implements Item {
   public InternalQName getInternalName() {
     return getData().getQPath().getName();
   }
-
-  protected ItemImpl item(JCRPath path) throws RepositoryException {
-    return dataManager.getItem(path.getInternalPath(), true);
-  }
-
-  protected ItemImpl item(QPath path) throws RepositoryException {
-    return dataManager.getItem(path, true);
-  }
+//  @Deprecated
+//  protected ItemImpl item(JCRPath path) throws RepositoryException {
+//    return dataManager.getItem(path.getInternalPath(), true);
+//  }
+//  @Deprecated
+//  protected ItemImpl item(QPath path) throws RepositoryException {
+//    return dataManager.getItem(path, true);
+//  }
 
   protected ItemImpl item(String uuid) throws RepositoryException {
     return dataManager.getItemByUUID(uuid, true);

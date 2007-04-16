@@ -20,6 +20,7 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
@@ -95,23 +96,23 @@ abstract public class ImporterBase implements ContentHandler {
   public void setItemStatesList(List<ItemState> itemStatesList) {
     this.itemStatesList = itemStatesList;
   }
-  //Searching item in local state list
-  protected List<ItemState> getItemStatesList(QPath path, int state) {
+  protected List<ItemState> getItemStatesList(NodeData parentData, QPathEntry name, int state) {
     List<ItemState> states = new ArrayList<ItemState>();
     for (ItemState itemState : itemStatesList) {
-      if (itemState.getData().getQPath().equals(path)){
+      if (itemState.getData().getParentUUID().equals(parentData.getUUID())
+          && itemState.getData().getQPath().getEntries()[itemState.getData().getQPath().getEntries().length - 1]
+              .isSame(name)){
         if(state != 0 && state != itemState.getState())
           continue;
         states.add(itemState);
       }
     }
     return states;
-    
   }
   
-  protected ItemData getLocalItemData(QPath path){
+  protected ItemData getLocalItemData(NodeData parent, QPathEntry name){
     ItemData item = null;
-     List<ItemState> states = getItemStatesList(path,0);
+     List<ItemState> states = getItemStatesList(parent,name,0);
      //get last state
      ItemState state = states.get(states.size()-1);
      if (!state.isDeleted()){
@@ -119,48 +120,46 @@ abstract public class ImporterBase implements ContentHandler {
      }
     return item;
   }
-  
-  public int getNodeIndex(QPath path) throws PathNotFoundException, IllegalPathException, RepositoryException{
+  public int getNodeIndex(NodeData parent, InternalQName name) throws PathNotFoundException, IllegalPathException, RepositoryException{
     
-     
     int newIndex = 1;
     
-    NodeImpl parentNode=  ((NodeImpl) session.getTransientNodesManager().getItem(
-        path.makeParentPath(), true));
+    NodeImpl parentNode =  ((NodeImpl) session.getTransientNodesManager().getItemByUUID(parent.getUUID(),true));
+        
     //parent must be in local itemStates list
-    NodeData parentNodeData = null;
-    if (parentNode == null){
-      parentNodeData = (NodeData) getLocalItemData(path.makeParentPath());
-      if (parentNodeData == null)
-        throw new RepositoryException("invalid state getNodeIndex");
-    }else{
-      parentNodeData = (NodeData) parentNode.getData();
-    }
+  //  NodeData parentNodeData = null;
+//    if (parentNode == null){
+//      parentNodeData = (NodeData) getLocalItemData(path.makeParentPath());
+//      if (parentNodeData == null)
+//        throw new RepositoryException("invalid state getNodeIndex");
+//    }else{
+//      parentNodeData = (NodeData) parentNode.getData();
+//    }
      
       
-    NodeDefinitionImpl nodedef = session.getWorkspace().getNodeTypeManager().findNodeDefinition(path.getName(),parentNodeData.getPrimaryTypeName(),parentNodeData.getMixinTypeNames());
+    NodeDefinitionImpl nodedef = session.getWorkspace().getNodeTypeManager().findNodeDefinition(name,parent.getPrimaryTypeName(),parent.getMixinTypeNames());
    
  
     NodeImpl sameNameNode =null;
     try {
-      sameNameNode = (NodeImpl) session.getTransientNodesManager().getItem(
-          path, true);
+      sameNameNode = (NodeImpl) session.getTransientNodesManager().getItem(parent,new QPathEntry(name,0)
+          , true);
     } catch (PathNotFoundException e) {
       //  Ok no same name node;
         return newIndex;
     }
     
-    List<ItemState> transientAddChilds = getItemStatesList(path,ItemState.ADDED);
-    List<ItemState> transientDeletedChilds = getItemStatesList(path,ItemState.DELETED);
+    List<ItemState> transientAddChilds = getItemStatesList(parent,new QPathEntry(name,0),ItemState.ADDED);
+    List<ItemState> transientDeletedChilds = getItemStatesList(parent,new QPathEntry(name,0),ItemState.DELETED);
     
     if(!nodedef.allowsSameNameSiblings() && (sameNameNode != null || transientAddChilds.size()>0)){
       if (sameNameNode != null && transientDeletedChilds.size()<1){
       throw new ItemExistsException("The node  already exists in "
-          + path.getAsString() + " and same name sibling is not allowed ");
+          + sameNameNode.getPath() + " and same name sibling is not allowed ");
       }
       if (transientAddChilds.size()>0){
         throw new ItemExistsException("The node  already exists in add state "
-            + path.getAsString() + "  and same name sibling is not allowed ");
+            + "  and same name sibling is not allowed ");
         
       }
     }
@@ -168,14 +167,14 @@ abstract public class ImporterBase implements ContentHandler {
     newIndex+= transientAddChilds.size();
    
     
-    List<NodeData> existedChilds = session.getTransientNodesManager().getChildNodesData(parentNodeData);
+    List<NodeData> existedChilds = session.getTransientNodesManager().getChildNodesData(parent);
     
     //Calculate SNS index for dest root
     for(NodeData child: existedChilds) {
       //skeep deleted items
       if(transientDeletedChilds.size()!=0) continue;
       
-      if (child.getQPath().getName().equals(path.getName())) {
+      if (child.getQPath().getName().equals(name)) {
         newIndex++; // next sibling index
       }
       

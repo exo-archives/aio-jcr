@@ -58,6 +58,7 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
@@ -179,10 +180,17 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   public Node getNode(String relPath) throws PathNotFoundException, RepositoryException {
 
     checkValid();
-    
+
     JCRPath itemPath = locationFactory.createJCRPath(getLocation(), relPath);
-    NodeImpl node = (NodeImpl)dataManager.getItem(itemPath.getInternalPath(), true);
-    if(node == null)
+    
+    // NodeImpl node = (NodeImpl)dataManager.getItem(itemPath.getInternalPath(),
+    // true);
+    
+    NodeData srcRootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
+
+    NodeImpl node = (NodeImpl) dataManager.getItem(srcRootData, itemPath.getInternalPath(), true);
+    
+    if (node == null)
       throw new PathNotFoundException("Node not found " + itemPath.getAsString(true));
     return node;
 
@@ -229,31 +237,44 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     }
     return new EntityCollection(list);
   }
-
+  
+  
+  
   /**
    * @see javax.jcr.Node#getProperty
    */
   public Property getProperty(String relPath) throws PathNotFoundException, RepositoryException {
 
     
+//    checkValid();
+//    JCRPath itemPath = locationFactory.createJCRPath(getLocation(), relPath);
+//  
+//    if(log.isDebugEnabled())
+//      log.debug("getProperty() " + itemPath.getAsString(false));
+//    
+//    Item prop = item(itemPath);
+//    if(prop == null || prop.isNode())
+//      throw new PathNotFoundException("Property not found " + itemPath.getAsString(false));
+//    
+//    return (Property)prop;
+    
     checkValid();
-    JCRPath itemPath = locationFactory.createJCRPath(getLocation(), relPath);
-  
+    
+    
     if(log.isDebugEnabled())
-      log.debug("getProperty() " + itemPath.getAsString(false));
-    
-    Item prop = item(itemPath);
-    if(prop == null || prop.isNode())
-      throw new PathNotFoundException("Property not found " + itemPath.getAsString(false));
-    
+      log.debug("getProperty() " + getLocation()+" "+relPath);
+    Item prop = dataManager.getItem(nodeData(),locationFactory.parseRelPath(relPath).getInternalPath(),true);
+    if (prop == null || prop.isNode())
+      throw new PathNotFoundException("Property not found " + getLocation()+" "+relPath);  
     return (Property)prop;
   }
   
   protected PropertyImpl property(InternalQName name) throws IllegalPathException, PathNotFoundException, RepositoryException {
-    Item prop = item(QPath.makeChildPath(getInternalPath(), name));
+    //Item prop = item(QPath.makeChildPath(getInternalPath(), name));
+    PropertyImpl prop = (PropertyImpl) dataManager.getItem(nodeData(),new QPathEntry(name,0),true);
     if(prop == null || prop.isNode())
       throw new PathNotFoundException("Property not found " + name);
-    return (PropertyImpl) prop; 
+    return prop; 
   }
   
   private boolean hasProperty(InternalQName name) {
@@ -351,15 +372,13 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   public Item getPrimaryItem() throws ItemNotFoundException, RepositoryException {
 
     checkValid();
-    
-    NodeType[] types = this.getAllNodeTypes();
+
+    ExtendedNodeType[] types = this.getAllNodeTypes();
+
     for (int i = 0; i < types.length; i++) {
-      // TODO make InternalQName getPrimaryItemQName();
-      String itemName = types[i].getPrimaryItemName();
-      if (itemName != null) {
-        Item primaryItem = dataManager.getItem(
-            locationFactory.createJCRPath(getLocation(),
-            itemName).getInternalPath(), true);
+      if (types[i].getPrimaryItemName() != null) {
+        Item primaryItem = dataManager.getItem(nodeData(), new QPathEntry(locationFactory
+            .parseJCRName(types[i].getPrimaryItemName()).getInternalName(), 0), true);
         if (primaryItem != null)
           return primaryItem;
       }
@@ -372,15 +391,14 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
    * @see javax.jcr.Node#getUUID
    */
   public String getUUID() throws UnsupportedRepositoryOperationException, RepositoryException {
-    
+
     checkValid();
-    
+
     if (isNodeType("mix:referenceable")) {
       return this.getInternalUUID();
-    } else {
-      throw new UnsupportedRepositoryOperationException("Node " + getPath()
-          + " is not referenceable");
     }
+    
+    throw new UnsupportedRepositoryOperationException("Node " + getPath() + " is not referenceable");
 
   }
 
@@ -470,7 +488,13 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
               + itemPath.getAsString(false));
 
 //    NodeImpl parent = (NodeImpl)dataManager.getItem(itemPath.makeParentPath().getInternalPath(), false); //this.findParent(itemPath);
-    ItemImpl parentItem = dataManager.getItem(itemPath.makeParentPath().getInternalPath(), true);
+    //ItemImpl parentItem = dataManager.getItem(itemPath.makeParentPath().getInternalPath(), true);
+    NodeData rootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
+    
+    ItemImpl parentItem = dataManager.getItem(rootData,
+        itemPath.makeParentPath().getInternalPath(),
+        true);
+
     if (parentItem == null)
       throw new PathNotFoundException("Parent not found for " + itemPath.getAsString(true));
     if(!parentItem.isNode())
@@ -528,7 +552,13 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
           "The relPath provided must not have an index on its final element. "
               + itemPath.getAsString(false));
 
-    ItemImpl parentItem = dataManager.getItem(itemPath.makeParentPath().getInternalPath(), true);
+    //ItemImpl parentItem = dataManager.getItem(itemPath.makeParentPath().getInternalPath(), true);
+    NodeData rootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
+    
+    ItemImpl parentItem = dataManager.getItem(rootData,
+        itemPath.makeParentPath().getInternalPath(),
+        true);
+    
     if (parentItem == null)
       throw new PathNotFoundException("Parent not found for " + itemPath.getAsString(true));
     if(!parentItem.isNode())
@@ -1000,8 +1030,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     
     checkValid();
     
-    SessionImpl corrSession = (SessionImpl) ((RepositoryImpl) session.getRepository()).login(
-        session.getCredentials(), workspaceName);
+    SessionImpl corrSession = ((RepositoryImpl) session.getRepository()).login(session
+        .getCredentials(), workspaceName);
     
     //return getCorrespondingNodeData(corrDataManager).getPath();
     return corrSession.getLocationFactory().createJCRPath(
@@ -1832,11 +1862,12 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     
     NodeImpl node;
     // JCRPath newPath = locationFactory.createJCRPath(getLocation(), relPath);
-    QPath newPath = locationFactory.createJCRPath(getLocation(),
-        relPath).getInternalPath();
+//    QPath newPath = locationFactory.createJCRPath(getLocation(),
+//        relPath).getInternalPath();
+    QPath newPath =  locationFactory.parseRelPath(relPath).getInternalPath();
     try {
       // node = (NodeImpl) getNode(relPath);
-      node = (NodeImpl) dataManager.getItem(newPath, true);
+      node = (NodeImpl) dataManager.getItem(nodeData(),newPath, true);
     } catch (PathNotFoundException e) {
 
 //      NodeData parentData = (NodeData) dataManager.getItemData(newPath
@@ -2661,14 +2692,14 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   //////////////////// NEW METHODS (since 1.5) ////////////////
   
   private ExtendedNodeType nodeType(InternalQName qName) throws NoSuchNodeTypeException, RepositoryException {
-    return (ExtendedNodeType) session.getWorkspace().getNodeTypeManager().getNodeType(qName);
+    return session.getWorkspace().getNodeTypeManager().getNodeType(qName);
   }
 
-  public NodeType[] getAllNodeTypes() throws RepositoryException {
+  public ExtendedNodeType[] getAllNodeTypes() throws RepositoryException {
     ExtendedNodeType primaryType = nodeType(nodeData().getPrimaryTypeName());
     
     InternalQName[] mixinNames = nodeData().getMixinTypeNames();
-    NodeType[] nodeTypes = new NodeType[mixinNames.length + 1];
+    ExtendedNodeType[] nodeTypes = new ExtendedNodeType[mixinNames.length + 1];
     nodeTypes[0] = primaryType;
     for (int i = 1; i <= mixinNames.length; i++) {
       nodeTypes[i] = nodeType(mixinNames[i - 1]);

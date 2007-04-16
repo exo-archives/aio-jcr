@@ -141,7 +141,11 @@ public class SessionDataManager implements ItemDataConsumer {
   }
   public ItemData getItemData(NodeData parent, QPathEntry[] nameEntrys) throws RepositoryException {
     ItemData currItem = parent;
-    for (int i = 1; i < nameEntrys.length; i++) {
+    int startFrom = 0;
+    if(parent.getUUID().equals(Constants.ROOT_UUID) && nameEntrys[0].equals(Constants.ROOT_PATH.getName()))
+      startFrom = 1;
+    
+    for (int i = startFrom; i < nameEntrys.length; i++) {
       currItem = getItemData((NodeData) currItem, nameEntrys[i]);
       if (currItem == null)
         break;
@@ -236,6 +240,7 @@ public class SessionDataManager implements ItemDataConsumer {
     
     return item;
   }
+ 
   public ItemImpl getItem(NodeData parent, QPath relPath, boolean pool) throws RepositoryException{
     return getItem(parent, relPath.getEntries(),pool);
   }
