@@ -4,6 +4,9 @@
  **************************************************************************/
 package org.exoplatform.applications.repoload;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
+
 
 /**
  * Created by The eXo Platform SARL Author : Alex Reshetnyak
@@ -15,28 +18,56 @@ package org.exoplatform.applications.repoload;
 
 
 public class RepositoryDataUploader {
-
+  
+  protected static Log log = ExoLogger.getLogger("repload.RepositoryDataUploader");
+  
   public static void main(String[] args) {
     long start, end;
-
-    try {
-      DataUploader dataUploader = new DataUploader(args);
-
-      dataUploader.initRepository();
-
-      start = System.currentTimeMillis(); // to get the time of start
-      
-      dataUploader.uploadData();
-      
-      end = System.currentTimeMillis();
-      
-      dataUploader.readData();
-
-      System.out.println("The time of the adding of " + dataUploader.countNodes + " nodes: "
-          + ((end - start) / 1000.0) + " sec");
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.out.println("Error upload data");
-    }
+    DataReader dataReader;
+    DataUploader dataUploader;
+    
+    if (isRead(args))
+      dataReader = new DataReader(args);
+    else
+      try {
+        dataUploader = new DataUploader(args);
+  
+        dataUploader.initRepository();
+  
+        start = System.currentTimeMillis(); // to get the time of start
+        
+        try {
+          dataUploader.uploadData();
+        } catch (Exception e) {
+          log.info("Error upload data", e);
+        }
+        
+        end = System.currentTimeMillis();
+        
+        dataUploader.readData();
+  
+        log.info("The time of the adding of " + dataUploader.countNodes + " nodes: "
+            + ((end - start) / 1000.0) + " sec");
+      } catch (Exception e) {
+        e.printStackTrace();
+        log.error("Error upload data", e);
+      }
   }
+  
+  private static boolean isRead(String[] args ){
+    for (int i = 0; i < args.length; i++)
+      if (args[i].equals("-read"))
+        return true;  
+    return false;
+    
+  }
+
+  private static boolean isWrite(String[] args ){
+    for (int i = 0; i < args.length; i++)
+      if (args[i].equals("-write"))
+        return true;  
+    return false;
+    
+  }
+  
 }

@@ -10,20 +10,19 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 import javax.jcr.Item;
-import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.JCRPath;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
@@ -37,6 +36,8 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.storage.WorkspaceDataContainerBase;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SARL
@@ -48,7 +49,9 @@ import org.exoplatform.services.jcr.util.UUIDGenerator;
  */
 public class DataUploader{
 
-  private static class DCPropertyQName {
+  private Log log = ExoLogger.getLogger("repload.DataUploader");
+  
+  protected static class DCPropertyQName {
     public static InternalQName dcElementSet;
 
     public static InternalQName dcTitle;
@@ -62,58 +65,61 @@ public class DataUploader{
     public static InternalQName dcPublisher;
   }
 
-  private HashMap<String, String>    mapConfig;
+  protected String[]                   args; 
+  
+  protected HashMap<String, String>    mapConfig;
 
-  private String                     tree        = "10-5-5-5";
+  protected String                     tree        = "10-5-5-5";
 
-  private String                     sVdfile     = "/image.tif";
+  protected String                     sVdfile     = "/image.tif";
 
-  private String                     sConf       = "/exo-configuration.xml";
+  protected String                     sConf       = "/exo-configuration.xml";
 
-  private String                     sRoot       = "/testroot";
+  protected String                     sRoot       = "/testroot";
 
-  private String                     sWorkspace  = "ws";
+  protected String                     sWorkspace  = "ws";
 
-  private String                     sRepository = "db1";
+  protected String                     sRepository = "db1";
 
-  private String                     sReadTree   = "false";
+  protected String                     sReadTree   = "false";
 
-  private SessionImpl                session;
+  protected SessionImpl                session;
 
-  private SessionDataManager         dataManager;
+  protected SessionDataManager         dataManager;
 
-  private RepositoryImpl             repository;
+  protected RepositoryImpl             repository;
 
-  private CredentialsImpl            credentials;
+  protected CredentialsImpl            credentials;
 
-  private WorkspaceImpl              workspace;
+  protected WorkspaceImpl              workspace;
 
-  private RepositoryService          repositoryService;
+  protected RepositoryService          repositoryService;
 
-  private NodeImpl                   root;
+  protected NodeImpl                   root;
 
-  private NodeImpl                   rootTestNode;
+  protected NodeImpl                   rootTestNode;
 
-  private StandaloneContainer        container;
+  protected StandaloneContainer        container;
 
-  private WorkspaceStorageConnection connection;
+  protected WorkspaceStorageConnection connection;
 
-  private WorkspaceDataContainerBase workspaceDataContainer;
+  protected WorkspaceDataContainerBase workspaceDataContainer;
 
-  private LocationFactory            locationFactory;
+  protected LocationFactory            locationFactory;
 
-  private TransientValueData         fileData;
+  protected TransientValueData         fileData;
 
-  private Calendar                   date;
+  protected Calendar                   date;
 
-  private String                     sName;
+  protected String                     sName;
 
-  private String                     sFile;
+  protected String                     sFile;
 
   public int                         countNodes;
 
   public DataUploader(String[] args) {
     this.mapConfig = parceCommandLine(args);
+    this.args = args;
   }
 
   public void initRepository() throws Exception {
@@ -125,7 +131,7 @@ public class DataUploader{
     sReadTree = mapConfig.get("-readtree");
 
     fileData = new TransientValueData(new FileInputStream(sVdfile));
-
+      //new java.io.File(sVdfile).getAbsolutePath()
     try {
       StandaloneContainer.setConfigurationPath(sConf);
 
@@ -142,51 +148,56 @@ public class DataUploader{
 
       repository = (RepositoryImpl) repositoryService.getRepository(sRepository);
       if (repository != null)
-        System.out.println("--->>> perository");
+        log.info("--->>> perository");
 
       session = repository.login(credentials, sWorkspace);
       if (session != null)
-        System.out.println("--->>> session");
+        log.info("--->>> session");
 
       locationFactory = session.getLocationFactory();
       if (locationFactory != null)
-        System.out.println("--->>> locationFactory");
+        log.info("--->>> locationFactory");
 
       dataManager = session.getTransientNodesManager();
       if (dataManager != null)
-        System.out.println("--->>> dataManager");
+        log.info("--->>> dataManager");
 
       workspaceDataContainer = (WorkspaceDataContainerBase) (session.getContainer()
           .getComponentInstanceOfType(WorkspaceDataContainerBase.class));
       connection = workspaceDataContainer.openConnection();
       if (connection != null)
-        System.out.println("--->>> connection");
+        log.info("--->>> connection");
 
       workspace = session.getWorkspace();
       if (workspace != null)
-        System.out.println("--->>> workspace");
+        log.info("--->>> workspace");
 
       root = (NodeImpl) session.getRootNode();
       if (root != null)
-        System.out.println("--->>> root");
+        log.info("--->>> root");
     } catch (Exception e) {
-      // TODO: handle exception
-      e.printStackTrace();
+      log.error("Can not initialize repository", e);
     }
 
     try {
-      rootTestNode = (NodeImpl) root.getNode(sRoot);
-      System.out.println("--->>> Node " + sRoot + " exist");
-    } catch (Exception e) {
+      if (sRoot.startsWith("/")){
+        rootTestNode = (NodeImpl) session.getItem(sRoot);
+        log.info("--->>> Node " + sRoot + " exist");
+      } else 
+        new Exception("Test root is not absolute path: " + sRoot);
+      
+    } catch (PathNotFoundException e) {
       try {
-        root.addNode(sRoot);
+         
+//        root.addNode(sRoot);
+        rootTestNode = addNodes(sRoot, root);
         session.save();
-        System.out.println("--->>> Node " + sRoot + " create");
-        rootTestNode = (NodeImpl) root.getNode(sRoot);
+        log.info("--->>> Node " + sRoot + " create");
+//        rootTestNode = (NodeImpl) root.getNode(sRoot);
         if (rootTestNode != null)
-          System.out.println("--->>> rootTestNode");
+          log.info("--->>> rootTestNode");
       } catch (Exception ee) {
-        ee.printStackTrace();
+        log.error( "Can not create roottest node: " + sRoot, ee);
       }
     }
 
@@ -198,11 +209,30 @@ public class DataUploader{
         .getInternalName();
     DCPropertyQName.dcPublisher = locationFactory.parseJCRName("dc:publisher").getInternalName();
   }
+  
+  private NodeImpl addNodes( String sRoot, NodeImpl parentNode) throws Exception {
+    String mas[] = sRoot.split("/");
+    
+    NodeImpl temp = parentNode; 
+    
+    for (int i = 1; i < mas.length; i++){
+      if(temp.hasNode(mas[i]))
+        temp = (NodeImpl)temp.getNode(mas[i]); 
+      else {
+        temp = (NodeImpl)temp.addNode(mas[i]);
+        session.save();
+      }
+    }
+    
+    return temp;
+  }
 
   public void uploadData() throws Exception {
+    long start, end, temp, localStart, localEnd; 
+    
     int tree[] = getTree(mapConfig.get("-tree"));
 
-    System.out.println(">>>>>>>>>>>---------- Upload data ----------<<<<<<<<<<<<");
+    log.info(">>>>>>>>>>>---------- Upload data ----------<<<<<<<<<<<<");
 
     sName = "node";
 
@@ -210,8 +240,10 @@ public class DataUploader{
 
     date = Calendar.getInstance();
 
-    countNodes = tree[0] * tree[1] * tree[2] * tree[3];
+    countNodes = 0/*tree[0] * tree[1] * tree[2] * tree[3]*/;
 
+    start = System.currentTimeMillis();
+    
     for (int i = 1; i <= tree[0]; i++) {
       try {
         TransientNodeData nodeData_L1 = addNode(connection, sName + i, i, rootTestNode, date);
@@ -219,25 +251,54 @@ public class DataUploader{
         for (int j = 1; j <= tree[1]; j++) {
           TransientNodeData nodeData_L2 = addNode(connection, sName + j, j, nodeData_L1, date);
 
+          localStart = System.currentTimeMillis();
+          
           for (int k = 1; k <= tree[2]; k++) {
             TransientNodeData nodeData_L3 = addNode(connection, sName + k, k, nodeData_L2, date);
 
-            for (int index = 1; index <= tree[3]; index++)
+            for (int index = 1; index <= tree[3]; index++){
               addNode_file(connection, sFile + index, index, nodeData_L3, date, fileData);
+              countNodes++;
+            }
 
             connection.commit();
             connection = getConnection();
 
-            System.out.println("Node " + i + " - " + j + " - " + k + " - " + "[1..." + tree[3]
+            log.info("Node " + i + " - " + j + " - " + k + " - " + "[1..." + tree[3]
                 + "] add");
           }
+         
+          localEnd = System.currentTimeMillis();
+                    
+          log.info("\tThe time of adding of " + tree[2]*tree[3] + " nodes: "+ ((localEnd - localStart) / 1000.0) + " sec"  );
+          log.info("\tTotal adding time " + countNodes + " nodes: "+ ((localEnd - start) / 1000.0) + " sec"  );
         }
       } catch (Exception e) {
-        e.printStackTrace();
         connection.rollback();
-        System.out.println(">>>>>>>>>>>---------- Upload data Exception ----------<<<<<<<<<<<<");
+        log.error(">>>>>>>>>>>---------- Upload data Exception ----------<<<<<<<<<<<<", e);
       }
     }
+    
+    end = System.currentTimeMillis();
+    log.info("The time of the adding of " + countNodes + " nodes: "
+        + ((end - start) / 1000.0) + " sec");
+  }
+  
+  public void uploadDataTh(){
+    int tree[] = getTree(mapConfig.get("-tree"));
+    
+    Thread[] threads = new Thread[tree[0]];
+    DataUploaderTh[] uploaderThs = new DataUploaderTh[tree[0]];
+    
+    
+    for (int i = 0; i < threads.length; i++) {
+      uploaderThs[i] = new DataUploaderTh(args, workspaceDataContainer, rootTestNode, i+1);
+      threads[i] = new Thread(uploaderThs[i]);
+    }
+    
+    for (int i = 0; i < threads.length; i++) 
+      threads[i].start(); 
+//    threads[0].start();
   }
 
   public void readData() {
@@ -267,7 +328,7 @@ public class DataUploader{
                 Value[] d = getProperty( n_4, "dc:description").getValues();
                 String des = d[0].getString();
 
-                System.out.println("--->>> Node " + mapConfig.get("-root") + "/" + (sName + i)
+                log.info("--->>> Node " + mapConfig.get("-root") + "/" + (sName + i)
                     + "/" + (sName + j) + "/" + (sName + k) + "/" + (sFile + s) + " exist : "
                     + fis.available() + " b   |   dc:title --> " + tit
                     + "   |   dc:description --> " + des);
@@ -276,8 +337,7 @@ public class DataUploader{
             }
           }
         } catch (Exception e) {
-          e.printStackTrace();
-          System.out.println(">>>>>>>>>>>---------- Read data Exception ----------<<<<<<<<<<<<");
+          log.error(">>>>>>>>>>>---------- Read data Exception ----------<<<<<<<<<<<<", e);
         }
       }
     }
@@ -300,7 +360,7 @@ public class DataUploader{
     return nodeData;
   }
 
-  private TransientNodeData addNode(WorkspaceStorageConnection con, String name, int orderNum,
+  protected TransientNodeData addNode(WorkspaceStorageConnection con, String name, int orderNum,
       NodeImpl parentNode, Calendar date) throws Exception {
     TransientNodeData nodeData = creteNodeData_nt_folder(name, orderNum, parentNode);
     con.add(nodeData);
@@ -345,7 +405,7 @@ public class DataUploader{
     return nodeData;
   }
 
-  private TransientNodeData addNode(WorkspaceStorageConnection con, String name, int orderNum,
+  protected TransientNodeData addNode(WorkspaceStorageConnection con, String name, int orderNum,
       TransientNodeData parentNode, Calendar date) throws Exception {
     TransientNodeData nodeData = creteNodeData(new InternalQName(Constants.NS_DEFAULT_URI, name),
         orderNum, parentNode, Constants.NT_FOLDER, null);
@@ -366,7 +426,7 @@ public class DataUploader{
     return nodeData;
   }
 
-  private void addNode_file(WorkspaceStorageConnection con, String name, int orderNum,
+  protected void addNode_file(WorkspaceStorageConnection con, String name, int orderNum,
       TransientNodeData parentNode, Calendar date, TransientValueData fData) throws Exception {
 
     TransientNodeData nodeData = creteNodeData(new InternalQName(Constants.NS_DEFAULT_URI, name),
@@ -468,7 +528,7 @@ public class DataUploader{
     return (Property)prop;
   }
 
-  private int[] getTree(String sTree) {
+  protected int[] getTree(String sTree) {
     String[] masTree = sTree.split("-");
     int iTree[] = new int[4];
     for (int i = 0; i < 4; i++)
@@ -477,8 +537,12 @@ public class DataUploader{
     return iTree;
   }
 
-  private WorkspaceStorageConnection getConnection() throws Exception {
+  protected WorkspaceStorageConnection getConnection() throws Exception {
     return workspaceDataContainer.openConnection();
+  }
+  
+  public WorkspaceDataContainerBase getWorkspaceDataContainer(){
+    return workspaceDataContainer;
   }
 
   private HashMap<String, String> parceCommandLine(String[] args) {
@@ -489,17 +553,19 @@ public class DataUploader{
     map.put("-vdfile", "");
     map.put("-repo", "");
     map.put("-ws", "");
-    map.put("-readtree", "");
+    map.put("-readtree", "false");
+    map.put("-read", "");
+    map.put("-readdc", "false");
 
     for (int i = 0; i < args.length; i++) {
       String[] params = args[i].split("=");
       if (!map.containsKey(params[0]))
-        System.out.println("Error: " + params[0] + " unknown parameter");
+        log.error("Error: " + params[0] + " unknown parameter");
 
       map.remove(params[0]);
       map.put(params[0], params[1]);
 
-      System.out.println(params[0] + " = " + params[1]);
+      log.info(params[0] + " = " + params[1]);
     }
 
     return map;

@@ -6,42 +6,35 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>exo-jcr</groupId>
-	<artifactId>exo-jcr.applications.repoload</artifactId>
+	<artifactId>exo.jcr.applications.repoload</artifactId>
 	<packaging>jar</packaging>
-	<version>1.1</version>
+	<version>${org.exoplatform.jcr.version}</version>
 	<name>repoload</name>
 	<url>http://www.exoplatform.org</url>
 	<description>Repository Uploader</description>
 
 	<dependencies>
-		<!-- dependency>
-			<groupId>exo-jcr</groupId>
-			<artifactId>exo-jcr.services.jcr.api</artifactId>
-			<version>${exo.jcr.version}</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>exo-jcr</groupId>
-			<artifactId>exo-jcr.services.jcr.impl</artifactId>
-			<version>${exo.jcr.version}</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-chain</groupId>
-			<artifactId>commons-chain</artifactId>
-			<version>1.0</version>
-			<scope>compile</scope>
-		</dependency -->
 		
 		<dependency>
-			<groupId>org.exoplatform.jcr</groupId> 
-			<artifactId>exo.jcr.component.core</artifactId> 
-			<version>${org.exoplatform.jcr.version}</version> 
-			 <scope>compile</scope> 
+			<groupId>org.exoplatform.jcr</groupId>
+			<artifactId>exo.jcr.component.core</artifactId>
+			<version>${org.exoplatform.jcr.version}</version>
+			<scope>compile</scope>
 		</dependency>
 
+    <dependency>
+        <groupId>org.exoplatform.core</groupId>
+        <artifactId>exo.core.component.security</artifactId>
+        <version>${org.exoplatform.core.version}</version>
+        <scope>compile</scope>
+    </dependency>
+
+		<dependency>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>1.8.0.7</version>
+			<scope>compile</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>commons-logging</groupId>
@@ -57,35 +50,14 @@
 			<scope>compile</scope>
 		</dependency>
 
-		<!--dependency>
-			<groupId>exo-platform</groupId>
-			<artifactId>exo-platform.container</artifactId>
-			<version>${exo.platform.version}</version>
-			<scope>compile</scope>
-		</dependency -->
-
-		<!--dependency>
-			<groupId>exo-platform</groupId>
-			<artifactId>exo-platform.services.common.api</artifactId>
-			<version>${exo.platform.version}</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>exo-platform</groupId>
-			<artifactId>exo-platform.services.command</artifactId>
-			<version>${exo.platform.version}</version>
-			<scope>compile</scope>
-		</dependency-->
-		
 		<dependency>
 			<groupId>ojdbc</groupId>
 			<artifactId>ojdbc</artifactId>
 			<version>14</version>
 			<scope>compile</scope>
-			</dependency>
-			
-			<dependency>
+		</dependency>
+
+		<dependency>
 			<groupId>ojdbc</groupId>
 			<artifactId>orai18n</artifactId>
 			<version>14</version>
@@ -109,6 +81,18 @@
 		</resources>
 
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.0</version>
+				<configuration>
+					<childDelegation>true</childDelegation>
+					<includes>
+						<include>**/TestUpload.java</include>
+					</includes>
+				</configuration>
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -138,14 +122,14 @@
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.1</version>
-				<executions>
+				<!-- executions>
 					<execution>
 						<phase>compile</phase>
 						<goals>
 							<goal>assembly</goal>
 						</goals>
 					</execution>
-				</executions>
+				</executions -->
 
 				<configuration>
 					<archive><!-- Please document this -->
