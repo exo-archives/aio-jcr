@@ -116,23 +116,13 @@ public class SessionDataManager implements ItemDataConsumer {
    */
   @Deprecated
   public ItemData getItemData(QPath path) throws RepositoryException {
-//    ItemData data = null; 
-//    // 1. Try in transient changes
-//    ItemState state = changesLog.getItemState(path);
-//    if(state == null) {
-//      // 2. Try from txdatamanager
-//      data = transactionableManager.getItemData(path);
-//    } else if (!state.isDeleted()) {
-//      data = state.getData();
-//    }
-//    return data;
     ItemData currItem = getItemData(Constants.ROOT_UUID);
     
     int startFrom = 0;
     if(path.getEntries().length>0 && path.getEntries()[0].equals(Constants.ROOT_PATH.getName()))
       startFrom = 1;
     
-    for (int i = 1; i < path.getEntries().length; i++) {
+    for (int i = startFrom; i < path.getEntries().length; i++) {
       currItem =  getItemData((NodeData) currItem,path.getEntries()[i]);
       if (currItem == null)
         break;
@@ -173,6 +163,29 @@ public class SessionDataManager implements ItemDataConsumer {
     }
     return data;
   }
+
+  /**
+   * Finds item data by UUID in this transient storage then in workspace
+   * container.
+   * 
+   * @param uuid 
+   * @return existed item data or null if not found
+   * @throws RepositoryException
+   * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(java.lang.String)
+   */
+  public ItemData getItemData(String uuid) throws RepositoryException {
+    ItemData data = null; 
+    // 1. Try in transient changes
+    ItemState state = changesLog.getItemState(uuid);
+    if(state == null) {
+      // 2. Try from txdatamanager
+      data = transactionableManager.getItemData(uuid);
+    } else if (!state.isDeleted()) {
+      data = state.getData();
+    }
+    return data;
+  }
+
 
   public ItemImpl getItem(NodeData parent, QPathEntry name, boolean pool) throws RepositoryException {
     ItemData itemData = getItemData(parent, name);
@@ -243,28 +256,6 @@ public class SessionDataManager implements ItemDataConsumer {
  
   public ItemImpl getItem(NodeData parent, QPath relPath, boolean pool) throws RepositoryException{
     return getItem(parent, relPath.getEntries(),pool);
-  }
-
-  /**
-   * Finds item data by UUID in this transient storage then in workspace
-   * container.
-   * 
-   * @param uuid 
-   * @return existed item data or null if not found
-   * @throws RepositoryException
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(java.lang.String)
-   */
-  public ItemData getItemData(String uuid) throws RepositoryException {
-    ItemData data = null; 
-    // 1. Try in transient changes
-    ItemState state = changesLog.getItemState(uuid);
-    if(state == null) {
-      // 2. Try from txdatamanager
-      data = transactionableManager.getItemData(uuid);
-    } else if (!state.isDeleted()) {
-      data = state.getData();
-    }
-    return data;
   }
 
   /**
