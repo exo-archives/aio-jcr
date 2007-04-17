@@ -165,7 +165,7 @@
       <value-param>
         <name>conf-path</name>
         <description>JCR configuration file</description>
-        <value>file:bin/config/jcr-config-oraee.xml</value>
+        <value>file:bin/config/devel/jcr-config-oraee.xml</value>
       </value-param>
     </init-params>
   </component>
