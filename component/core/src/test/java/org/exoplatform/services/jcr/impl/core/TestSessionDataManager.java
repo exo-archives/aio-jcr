@@ -230,9 +230,15 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     PropertyImpl prop1 = (PropertyImpl) modificationManager
         .update(ItemState.createAddedState(prop), true);
 
-    assertNotNull(modificationManager.getItemData(data.getQPath()));
-    assertEquals(data.getUUID(), modificationManager.getItemData(data.getQPath()).getUUID());
-    assertEquals(node2, modificationManager.getItem(data.getQPath(), true));
+    //assertNotNull(modificationManager.getItemData(data.getQPath()));
+    //assertEquals(data.getUUID(), modificationManager.getItemData(data.getQPath()).getUUID());
+    fail("Must fix getItemData method");
+    
+    
+    //assertEquals(node2, modificationManager.getItem(data.getQPath(), true));
+    
+    fail("Must fix getItem method");
+    
     assertEquals(prop.getUUID(), modificationManager.getItemData(prop.getUUID()).getUUID());
     assertEquals(prop1, modificationManager.getItemByUUID(prop.getUUID(), true));
 
@@ -279,7 +285,8 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     // make sure changes are saved
     assertEquals(0, modificationManager.getChangesLog().getSize());
 
-    assertNotNull(modificationManager.getItem(data1.getQPath(), true));
+    //assertNotNull(modificationManager.getItem(data1.getQPath(), true));
+    fail("Must fix getItem method");
 
     assertEquals(1, modificationManager.getChildProperties(data1, true).size());
 
@@ -290,9 +297,9 @@ public class TestSessionDataManager extends JcrImplBaseTest {
         false);
     prop.setValue(new TransientValueData("test"));
     modificationManager.update(ItemState.createAddedState(prop), true);
-    assertEquals("test", ((PropertyImpl) modificationManager.getItem(prop.getQPath(), true))
-        .getString());
-
+//    assertEquals("test", ((PropertyImpl) modificationManager.getItem(prop.getQPath(), true))
+//        .getString());
+    fail("Must fix getItem method");
   }
 
   @SuppressWarnings("deprecation")
@@ -301,9 +308,9 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     assertNull(modificationManager.getItemData((NodeData) ((NodeImpl) root).getData(),
         new QPathEntry("", "testgetitemNode", 0)));
     // get non-existent data by ItemData getItemData(QPath path)
-    assertNull(modificationManager.getItemData(QPath.makeChildPath(((NodeImpl) root).getData()
-        .getQPath(), new InternalQName("", "testgetitemNode"))));
-    
+//    assertNull(modificationManager.getItemData(QPath.makeChildPath(((NodeImpl) root).getData()
+//        .getQPath(), new InternalQName("", "testgetitemNode"))));
+    fail("Must fix getItemData method");
     
     NodeImpl testNode = (NodeImpl) root.addNode("testgetitemNode");
     
@@ -312,7 +319,8 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     assertNotNull(modificationManager.getItemData((NodeData) ((NodeImpl) root).getData(),
         new QPathEntry("", "testgetitemNode", 0)));
     // get data by ItemData getItemData(QPath path)
-    assertNotNull(modificationManager.getItemData(QPath.makeChildPath(((NodeImpl) root).getData()
-        .getQPath(), new InternalQName("", "testgetitemNode"))));
+//    assertNotNull(modificationManager.getItemData(QPath.makeChildPath(((NodeImpl) root).getData()
+//        .getQPath(), new InternalQName("", "testgetitemNode"))));
+    fail("Must fix getItemData method");
   }
 }

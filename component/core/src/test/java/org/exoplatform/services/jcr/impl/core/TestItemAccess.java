@@ -54,7 +54,8 @@ public class TestItemAccess extends JcrImplBaseTest {
     SessionDataManager tm = newSession.getTransientNodesManager();
     for (int i = 0; i < TEST_ITEMS_COUNT; i++) {
       QPath itemPath = validNames[random.nextInt(validNames.length)];
-      assertNotNull(tm.getItem(itemPath, true));
+      //assertNotNull(tm.getItem(itemPath, true));
+      fail("Must fix getItem method");
       // System.out.println(itemPath.getAsString());
     }
     for (int i = 0; i < TEST_ITEMS_COUNT; i++) {
