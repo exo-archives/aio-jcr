@@ -10,15 +10,11 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 import javax.jcr.Item;
-import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
-import javax.jcr.lock.LockException;
-import javax.jcr.nodetype.ConstraintViolationException;
-import javax.jcr.version.VersionException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.StandaloneContainer;
@@ -27,7 +23,6 @@ import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.JCRPath;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
@@ -42,6 +37,7 @@ import org.exoplatform.services.jcr.impl.storage.WorkspaceDataContainerBase;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.jcr.util.UUIDGenerator;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SARL

@@ -23,7 +23,6 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.JCRPath;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
@@ -35,6 +34,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.storage.WorkspaceDataContainerBase;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SARL Author : Alex Reshetnyak
