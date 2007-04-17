@@ -1,154 +1,118 @@
 <project>
-    <parent>
-        <groupId>org.exoplatform.jcr</groupId>
-        <artifactId>config</artifactId>
-        <version>1.6</version>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
-    <artifactId>exo.jcr.applications.repoload</artifactId>
-    <packaging>jar</packaging>
-    <version>${org.exoplatform.jcr.version}</version>
-    <name>repoload</name>
-    <url>http://www.exoplatform.org</url>
-    <description>Repository Uploader</description>
+  <parent>
+    <groupId>org.exoplatform.jcr</groupId>
+    <artifactId>config</artifactId>
+    <version>1.6</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>exo.jcr.applications.repoload</artifactId>
+  <packaging>jar</packaging>
+  <version>${org.exoplatform.jcr.version}</version>
+  <name>repoload</name>
+  <url>http://www.exoplatform.org</url>
+  <description>Repository Uploader</description>
 
-    <dependencies>
-
-        <dependency>
-            <groupId>org.exoplatform.jcr</groupId>
-            <artifactId>exo.jcr.component.core</artifactId>
-            <version>${org.exoplatform.jcr.version}</version>
-            <scope>compile</scope>
-        </dependency>
+  <dependencies>
 
     <dependency>
-        <groupId>org.exoplatform.core</groupId>
-        <artifactId>exo.core.component.security</artifactId>
-        <version>${org.exoplatform.core.version}</version>
-        <scope>compile</scope>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.core</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>compile</scope>
     </dependency>
 
-        <dependency>
-            <groupId>hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <version>1.8.0.7</version>
-            <scope>compile</scope>
-        </dependency>
+    <dependency>
+      <groupId>org.exoplatform.core</groupId>
+      <artifactId>exo.core.component.security</artifactId>
+      <version>${org.exoplatform.core.version}</version>
+      <scope>compile</scope>
+    </dependency>
 
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.0.4</version>
-            <scope>compile</scope>
-        </dependency>
+    <dependency>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>1.8.0.7</version>
+      <scope>compile</scope>
+    </dependency>
 
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.8</version>
-            <scope>compile</scope>
-        </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+      <scope>compile</scope>
+    </dependency>
 
-        <dependency>
-            <groupId>ojdbc</groupId>
-            <artifactId>ojdbc</artifactId>
-            <version>14</version>
-            <scope>compile</scope>
-        </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.8</version>
+      <scope>compile</scope>
+    </dependency>
 
-        <dependency>
-            <groupId>ojdbc</groupId>
-            <artifactId>orai18n</artifactId>
-            <version>14</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
+    <dependency>
+      <groupId>ojdbc</groupId>
+      <artifactId>ojdbc</artifactId>
+      <version>14</version>
+      <scope>compile</scope>
+    </dependency>
 
-    <build>
+    <dependency>
+      <groupId>ojdbc</groupId>
+      <artifactId>orai18n</artifactId>
+      <version>14</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
 
-        <resources>
+  <build>
 
-            <resource>
-                <directory>src/java</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                    <include>**/*.html</include>
-                    <include>**/*.ion</include>
-                </includes>
-            </resource>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.0</version>
+        <configuration>
+          <childDelegation>true</childDelegation>
+          <includes>
+            <include>**/TestUpload.java</include>
+          </includes>
+        </configuration>
+      </plugin>
 
-        </resources>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>lib</classpathPrefix>
+              <mainClass>org.exoplatform.applications.repoload.RepositoryDataUploader</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
 
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.0</version>
-                <configuration>
-                    <childDelegation>true</childDelegation>
-                    <includes>
-                        <include>**/TestUpload.java</include>
-                    </includes>
-                </configuration>
-            </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.1</version>
+        <executions>
+          <execution>
+            <id>binary</id>
+            <phase>package</phase>
+            <goals>
+              <goal>directory-inline</goal>
+            </goals>
+          </execution>
+        </executions>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Main-Class>
-                                org/exoplatform/applications/repoload/RepositoryDataUploader
-                            </Main-Class>
-                            <Sealed>true</Sealed>
-                        </manifestEntries>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.1</version>
-                <!-- executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>assembly</goal>
-                        </goals>
-                    </execution>
-                </executions -->
-
-                <configuration>
-                    <archive><!-- Please document this -->
-                        <manifest>
-                            <mainClass>
-                                org/exoplatform/applications/repoload/RepositoryDataUploader
-                            </mainClass>
-                        </manifest>
-                    </archive>
-
-                    <descriptor>jar-with-dependencies.xml</descriptor>
-                    <finalName>repoload</finalName>
-                    <outputDirectory>bin</outputDirectory>
-                    <workDirectory>target/assembly/work</workDirectory>
-                </configuration>
-            </plugin>
-
-
-        </plugins>
-    </build>
+        <configuration>
+          <descriptor>${basedir}/src/main/assemblies/binary-assembly.xml</descriptor>
+          <finalName>repoload</finalName>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 
 </project>

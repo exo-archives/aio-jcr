@@ -54,6 +54,7 @@ public class RepositoryDataUploader {
         log.info("The time of the adding of " + dataUploader.countNodes + " nodes: "
             + ((end - start) / 1000.0) + " sec");
       } catch (Exception e) {
+        e.printStackTrace();
         log.info("Error upload data", e);
       }
   }

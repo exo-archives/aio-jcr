@@ -8,7 +8,7 @@ public class TestUpload extends TestCase {
 		super.setUp();
 	}
 	
-	public void _testRunUpload() {
+	public void testRunUpload() {
 		// Usecase of:
 		// java -Duser.language=en -Duser.region=us \
 		//			-jar repoload-1.0.jar \
@@ -19,10 +19,10 @@ public class TestUpload extends TestCase {
 		//			-repo="db1" -ws="ws" \
 		//			-readtree="false"
 		String[] params = new String[] {
-				"-conf=bin\\config\\configuration-oraee.xml",
+				"-conf=bin\\config\\configuration-oraee1.xml",
 				"-root=/testStorage/root1",
 				"-tree=10-100-100-100",
-				"-vdfile=img.tif",
+				"-vdfile=bin\\img.tif",
 				"-repo=db1", 
         "-ws=ws",
 				"-readtree=false"
@@ -30,7 +30,7 @@ public class TestUpload extends TestCase {
 		RepositoryDataUploader.main(params);
 	}
   
-  public void testRunRead() {
+  public void _testRunRead() {
     // Usecase of:
     // java -Duser.language=en -Duser.region=us \
     //      -jar repoload-1.0.jar \
@@ -44,7 +44,7 @@ public class TestUpload extends TestCase {
         "-conf=bin\\config\\configuration-oraee.xml",
         "-root=/testStorage/root1",
         "-tree=10-100-100-100",
-        "-vdfile=img.tif",
+        "-vdfile=bin\\img.tif",
         "-repo=db1", 
         "-ws=ws",
         "-read",

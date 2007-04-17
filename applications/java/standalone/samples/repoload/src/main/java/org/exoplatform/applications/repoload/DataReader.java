@@ -339,6 +339,14 @@ public class DataReader {
   }
 
   public void readDataAPI() throws RepositoryException {
+    // show initial tree info
+    NodeIterator ni = rootTestNode.getNodes();
+    log.info("Reader root ls: ");
+    if (ni.hasNext()) {
+      Node n1 = ni.nextNode();
+      log.info("\t" + n1.getPath());
+    }
+        
     readChilds(rootTestNode);
   }
 
