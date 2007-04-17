@@ -11,6 +11,7 @@ import javax.jcr.Credentials;
 import javax.jcr.LoginException;
 import javax.security.auth.Subject;
 
+import org.exoplatform.container.SessionContainer;
 import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.security.SecurityService;
@@ -38,6 +39,10 @@ public class PortalAuthenticationPolicy extends BaseAuthenticationPolicy {
    * @see org.exoplatform.services.jcr.impl.core.access.BaseAuthenticationPolicy#authenticate()
    */
   public Credentials authenticate() throws LoginException {
+    
+    SessionContainer sessionContainer = SessionContainer.getInstance();
+//    if (sessionContainer != null) 
+//      String userId = SessionContainer.getInstance().getRemoteUser();
     
     Credentials cred = null;
     Subject subj = securityService.getCurrentSubject();

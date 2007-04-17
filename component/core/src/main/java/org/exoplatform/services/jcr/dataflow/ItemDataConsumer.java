@@ -34,6 +34,12 @@ public interface ItemDataConsumer {
    */
   ItemData getItemData(QPath path) throws RepositoryException;
   
+  /**
+   * @param parent
+   * @param name
+   * @return data by parent and name
+   * @throws RepositoryException
+   */
   ItemData getItemData(NodeData parent, QPathEntry name) throws RepositoryException;
 
   /**

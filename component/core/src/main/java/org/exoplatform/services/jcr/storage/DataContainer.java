@@ -1,5 +1,5 @@
 /***************************************************************************
- * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 
@@ -32,13 +32,4 @@ public abstract interface DataContainer {
    */
   String getStorageVersion();
   
-  
-  /**
-   * check compatibility of underlying storage with current repository version and try to apply patch if there is suitable patch and the flag==true
-   * @param repositoryVersion
-   * @param apply
-   * @throws RepositoryException if current repository version is not compatible with underlying strorage and patches could not be applied(no such patch or applyPatch==false)
-   */
-  //void manageCompatibility(String repositoryVersion, boolean applyPatch) throws RepositoryException;
-
 }

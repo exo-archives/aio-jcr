@@ -1,5 +1,5 @@
 /**
- * Copyright 2001-2003 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  */
 
@@ -28,7 +28,7 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  * so better NOT to open/close potentially EXPENSIVE resources using by Connection (WorkspaceDataContainer should be responsible for that). 
  * The Connection IS NOT a thread-safe object and normally SHOULD NOT be pooled/cached.
  * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
+ * @author Gennady Azarenkov
  * @version $Id: WorkspaceStorageConnection.java 12843 2007-02-16 09:11:18Z peterit $
  */
 
@@ -46,7 +46,18 @@ public interface WorkspaceStorageConnection {
    */
   @Deprecated
   ItemData getItemData(QPath qPath) throws RepositoryException, IllegalStateException;
-  
+
+  /**
+   * @param parentData -
+   *          the item's parent node data
+   * @param name -
+   *          item's path entry (qname + index)
+   * @return - stored ItemData wich has exact the same path Entry (name+index)  
+   *         inside the parent;
+   *         or null if not such an item data found
+   * @throws RepositoryException if some exception occured
+   * @throws IllegalStateException if connection is closed
+   */
   ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException, IllegalStateException;
 
   /**
@@ -79,27 +90,16 @@ public interface WorkspaceStorageConnection {
    */
   List <PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException, IllegalStateException;
 
-//  /**
-//   * @param parentNode
-//   * @return size of parent's child nodes in persistent storage. No actual data fetch doing.
-//   * @-throws RepositoryException
-//   */
-//  int getChildNodesCount(NodeData nodeData) throws RepositoryException;
-//  
-//  /**
-//   * @param parentNode
-//   * @return size of parent's child properties in persistent storage. No actual data fetch doing.
-//   * @-throws RepositoryException
-//   */
-//  int getChildPropertiesCount(NodeData nodeData) throws RepositoryException;  
   
   /**
    * @param UUID of referenceable node
    * @return list of referenced property data or empty list 
    * @throws RepositoryException if some exception occured
    * @throws IllegalStateException if connection is closed
+   * @throws UnsupportedOperationException if operation is not supported 
    */
-  List <PropertyData> getReferencesData(String nodeUUID) throws RepositoryException, IllegalStateException;
+  List <PropertyData> getReferencesData(String nodeUUID) throws RepositoryException, IllegalStateException,
+                      UnsupportedOperationException;
   
   /**
    * Adds single NodeData. 
@@ -140,21 +140,6 @@ public interface WorkspaceStorageConnection {
   void update(NodeData data) throws RepositoryException, UnsupportedOperationException,
       InvalidItemStateException, IllegalStateException;
 
-  /**
-   * Reindex NodeData location and all its descendants. 
-   * 
-   * @param oldData - the old data
-   * @param data - the new data
-   * @throws InvalidItemStateException (1)if the data is already updated, i.e. persisted version value
-   * of persisted data >= of new data's persisted version value
-   * (2) if the persisted data is not NodeData (i.e. it is PropertyData). 
-   * It means that some other proccess deleted original data and replace it with other type of data.
-   * @throws UnsupportedOperationException if operation is not supported (it is container for level 1)
-   * @throws RepositoryException if some exception occured
-   * @throws IllegalStateException if connection is closed
-   */
-  void reindex(NodeData oldData, NodeData data) throws RepositoryException, UnsupportedOperationException,
-      InvalidItemStateException, IllegalStateException;
   
   /**
    * Updates PropertyData. 
@@ -203,4 +188,22 @@ public interface WorkspaceStorageConnection {
    * @return true if connection is opened
    */
   boolean isOpened();
+  
+  /**
+   * Reindex NodeData location and all its descendants. 
+   * 
+   * @param oldData - the old data
+   * @param data - the new data
+   * @throws InvalidItemStateException (1)if the data is already updated, i.e. persisted version value
+   * of persisted data >= of new data's persisted version value
+   * (2) if the persisted data is not NodeData (i.e. it is PropertyData). 
+   * It means that some other proccess deleted original data and replace it with other type of data.
+   * @throws UnsupportedOperationException if operation is not supported (it is container for level 1)
+   * @throws RepositoryException if some exception occured
+   * @throws IllegalStateException if connection is closed
+   */
+  @Deprecated
+  void reindex(NodeData oldData, NodeData data) throws RepositoryException, UnsupportedOperationException,
+      InvalidItemStateException, IllegalStateException;
+
 }
