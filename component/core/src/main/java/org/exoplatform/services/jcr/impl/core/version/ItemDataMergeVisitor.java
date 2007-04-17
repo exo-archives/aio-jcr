@@ -532,7 +532,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
     
     return null; // non versionable
   }
-  
+
   protected TransientNodeData getCorrNodeData(final TransientNodeData mergeNode) throws RepositoryException {
 
     final QPath mergePath = mergeNode.getQPath();
@@ -550,9 +550,10 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
     
     // by location
     //for (int i = mergePath.getDepth(); i >= 0; i--) {
+    NodeData rootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
     for (int i = 1; i <= mergePath.getDepth(); i++) {
       final QPath ancesstorPath = mergePath.makeAncestorPath(i);
-      NodeData mergeAncestor = (NodeData) mergeDataManager.getItemData(ancesstorPath);
+      NodeData mergeAncestor = (NodeData) mergeDataManager.getItemData(rootData,ancesstorPath);
       if (mergeAncestor != null && mergeNtManager.isNodeType(Constants.MIX_REFERENCEABLE,
           mergeAncestor.getPrimaryTypeName(), 
           mergeAncestor.getMixinTypeNames())) {
@@ -561,38 +562,14 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
         if (corrAncestor != null) {
           QPathEntry[] relQPathEntries = mergePath.getRelPath(mergePath.getDepth() - i);
           QPath corrNodeQPath = QPath.makeChildPath(corrAncestor.getQPath(), relQPathEntries);
-          return (TransientNodeData) corrDataManager.getItemData(corrNodeQPath);
+          return (TransientNodeData) corrDataManager.getItemData(rootData,corrNodeQPath);
         }
       }
     }
 
-    return (TransientNodeData) corrDataManager.getItemData(mergePath);
-//    NodeData ancestor = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
-//    for (int i = 1; i < mergePath.getDepth(); i++) {
-//      ancestor = (NodeData) dataManager.getItemData(ancestor, mergePath.getEntries()[i]);
-//      if (corrSession.getWorkspace().getNodeTypeManager().isNodeType(Constants.MIX_REFERENCEABLE,
-//          ancestor.getPrimaryTypeName(),
-//          ancestor.getMixinTypeNames())) {
-//        NodeData corrAncestor = (NodeData) corrDataManager.getItemData(ancestor.getUUID());
-//        if (corrAncestor == null)
-//          throw new ItemNotFoundException("No corresponding path for ancestor "
-//              + ancestor.getQPath().getAsString() + " in " + corrSession.getWorkspace().getName());
-//
-//        NodeData corrNode = (NodeData) corrDataManager.getItemData(corrAncestor, mergePath
-//            .getRelPath(mergePath.getDepth() - i));
-//        if (corrNode != null)
-//          return (TransientNodeData)corrNode;
-//      }
-//    }
-//  
-//  NodeData corrRoot = (NodeData) corrDataManager.getItemData(Constants.ROOT_UUID);
-//  return (TransientNodeData) corrDataManager.getItemData(corrRoot,mergePath);
-//  if (corrNode != null)
-//    return (TransientNodeData)corrNode;
-    
-
-  }    
-  
+    return (TransientNodeData) corrDataManager.getItemData(rootData,mergePath);
+  }   
+ 
   /**
    * Is a predecessor of the merge version 
    */
