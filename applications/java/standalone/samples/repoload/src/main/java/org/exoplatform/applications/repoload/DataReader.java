@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.JCRPath;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
@@ -34,7 +35,6 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.storage.WorkspaceDataContainerBase;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SARL Author : Alex Reshetnyak
@@ -117,6 +117,8 @@ public class DataReader {
   private int                          ntFolderCount;
 
   private int                          ntFileCount;
+  
+  private long                         end, start;
 
   public DataReader(String[] args) {
 
@@ -134,6 +136,88 @@ public class DataReader {
     } catch (/* Repository */Exception e) {
       log.error("Read error", e);
     }
+  }
+
+  public DataReader(String[] args, String threadName) {
+
+    this.mapConfig = parceCommandLine(args);
+    this.args = args;
+    try {
+      this.initRepository();
+    } catch (Exception e) {
+      log.error("Error: Can not initialize repository", e);
+    }
+
+    int iThreads = Integer.valueOf(mapConfig.get("-threads")).intValue();
+    int iteration = Integer.valueOf(mapConfig.get("-iteration")).intValue();
+
+    DataReaderTh[] readers = new DataReaderTh[iThreads];
+
+    if (iThreads == 1) {
+
+      try {
+        readers[0] = new DataReaderTh(rootTestNode, threadName + 1, mapConfig);
+        readers[0].startRead();
+      } catch (Exception e) {
+        log.error("Error: read data", e);
+      }
+
+    } else {
+      try {
+
+        if (mapConfig.get("-concurrent").equals("true")) {
+
+          for (int i = 0; i < readers.length; i++)
+            readers[i] = new DataReaderTh(rootTestNode, threadName + i, mapConfig);
+
+        } else {
+
+          NodeIterator ni = rootTestNode.getNodes();
+
+          for (int i = 0; i < readers.length; i++)
+            if (ni.hasNext())
+              readers[i] = new DataReaderTh(ni.nextNode(), threadName + i, mapConfig);
+            else
+              ni = rootTestNode.getNodes();
+        }
+
+        start = System.currentTimeMillis();
+        
+        for (int i = 0; i < readers.length; i++)
+          readers[i].startRead();
+
+      } catch (RepositoryException e) {
+        log.error("Error: read data", e);
+      }
+
+    }
+
+    try {
+      int countFinished = 0;
+      boolean bFinished = false;
+
+      while (!bFinished) {
+        Thread.sleep(10);
+        for (int j = 0; j < readers.length; j++)
+          if (readers[j].getTimeAdding() == 0) {
+            bFinished = false;
+            break;
+          } else
+            bFinished = true;
+      }
+
+      end = System.currentTimeMillis();
+      
+      for (int i = 0; i < readers.length; i++) 
+        log.info(readers[i].getThreadName() + ": " + "The time of reading of "
+            + readers[i].getNTCount() + " nodes: " + (readers[i].getTimeAdding() / 1000.0) + " sec");
+      
+      log.info("Total reading time " + ((end - start) / 1000.0) + " sec");
+
+    } catch (Exception e) {
+      log.error("Error read data", e);
+    }
+
   }
 
   public void initRepository() throws Exception {
@@ -260,9 +344,9 @@ public class DataReader {
 
   public void readChilds(Node parent) throws RepositoryException {
     NodeIterator ni = parent.getNodes();
-    
+
     String primaryType = parent.getPrimaryNodeType().getName();
-    
+
     if (primaryType.equals("nt:folder")) {
       ntFolderCount++;
       log.info("\t" + ntFolderCount + " nt:folder has been raed");
@@ -290,27 +374,28 @@ public class DataReader {
 
     if (sMix.equals("nt:file")) {
 
-      for (NodeType mt : parent.getMixinNodeTypes()) 
+      for (NodeType mt : parent.getMixinNodeTypes())
         sMix += " " + mt.getName();
-      
+
       log.info(sMix + " " + parent.getPath());
-      
-      if(mapConfig.get("-readdc").equals("true")){
-        String[] dcprop = {"dc:title", "dc:creator", "dc:subject", "dc:description", "dc:publisher"}; 
-        
+
+      if (mapConfig.get("-readdc").equals("true")) {
+        String[] dcprop = { "dc:title", "dc:creator", "dc:subject", "dc:description",
+            "dc:publisher" };
+
         for (int i = 0; i < dcprop.length; i++) {
           Property propdc = parent.getProperty(dcprop[i]);
-          
+
           String s = propdc.getValues()[0].getString();
-          
-          log.info("\t\t" + propdc.getName() + " " + PropertyType.nameFromValue(propdc.getType()) + " "
-              + s);
+
+          log.info("\t\t" + propdc.getName() + " " + PropertyType.nameFromValue(propdc.getType())
+              + " " + s);
         }
       }
     }
-      
+
   }
-  
+
   public void showProperty(Node parent) throws RepositoryException {
     PropertyIterator pi = parent.getProperties();
 
@@ -380,6 +465,9 @@ public class DataReader {
     map.put("-readtree", "");
     map.put("-read", "");
     map.put("-readdc", "false");
+    map.put("-threads", "1");
+    map.put("-iteration", "1");
+    map.put("-concurrent", "false");
 
     for (int i = 0; i < args.length; i++) {
       String[] params = args[i].split("=");
@@ -389,14 +477,10 @@ public class DataReader {
       map.remove(params[0]);
       if (params.length > 1)
         map.put(params[0], params[1]);
-      else if (params[0].equals("-readdc"))
-             map.put(params[0], "true");
-           else
-             map.put(params[0], "");
-      
-      
-        
-      
+      else if (params[0].equals("-readdc") || params[0].equals("-concurrent"))
+        map.put(params[0], "true");
+      else
+        map.put(params[0], "");
 
       if (params.length > 1)
         log.info(params[0] + " = " + params[1]);

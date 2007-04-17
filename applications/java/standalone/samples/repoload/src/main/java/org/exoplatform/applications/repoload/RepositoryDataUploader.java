@@ -27,7 +27,12 @@ public class RepositoryDataUploader {
     DataUploader dataUploader;
     
     if (isRead(args))
-      dataReader = new DataReader(args);
+      
+      if (isThreads(args))
+        dataReader = new DataReader(args, "ThReader");
+      else  
+        dataReader = new DataReader(args);
+    
     else
       try {
         dataUploader = new DataUploader(args);
@@ -49,8 +54,7 @@ public class RepositoryDataUploader {
         log.info("The time of the adding of " + dataUploader.countNodes + " nodes: "
             + ((end - start) / 1000.0) + " sec");
       } catch (Exception e) {
-        e.printStackTrace();
-        log.error("Error upload data", e);
+        log.info("Error upload data", e);
       }
   }
   
@@ -59,7 +63,6 @@ public class RepositoryDataUploader {
       if (args[i].equals("-read"))
         return true;  
     return false;
-    
   }
 
   private static boolean isWrite(String[] args ){
@@ -67,7 +70,15 @@ public class RepositoryDataUploader {
       if (args[i].equals("-write"))
         return true;  
     return false;
-    
+  }
+  
+  private static boolean isThreads(String[] args ) {
+    for (int i = 0; i < args.length; i++){
+     String[] pair = args[i].split("="); 
+      if (pair[0].equals("-threads"))
+        return true;
+    }
+    return false;
   }
   
 }
