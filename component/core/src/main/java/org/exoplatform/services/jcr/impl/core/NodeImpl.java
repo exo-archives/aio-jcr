@@ -152,7 +152,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   private void initDefinition() throws RepositoryException, ConstraintViolationException {
 
     if (this.isRoot()) { // root - no parent
-      NodeDefinitionImpl defNodeDef = new NodeDefinitionImpl();
+      NodeDefinitionImpl defNodeDef = new NodeDefinitionImpl(null,null);
       defNodeDef.setRequiredNodeTypes(new NodeType[] {nodeType(Constants.NT_BASE)});
       this.definition = defNodeDef;
       return;

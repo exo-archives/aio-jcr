@@ -534,55 +534,73 @@ public class NodeTypeDataPersister {
                .forProperty(Constants.JCR_VALUECONSTRAINTS, PropertyType.STRING) // jcr:valueConstraints
                .forProperty(Constants.JCR_DEFAULTVALUES, PropertyType.STRING); // jcr:defaultValues        
             pdr.read();
-            
-            PropertyDefinitionImpl pDef = new PropertyDefinitionImpl();
-            try {
-              NameValue nameValue = (NameValue) pdr.getPropertyValue(Constants.JCR_NAME);
-              pDef.setName(nameValue.getString());
-              pDef.setQName(nameValue.getQName());
-            } catch(PathNotFoundException e) {
-            }
-            try {
-              pDef.setAutoCreate(pdr.getPropertyValue(Constants.JCR_AUTOCREATED).getBoolean());
-              pDef.setMandatory(pdr.getPropertyValue(Constants.JCR_MANDATORY).getBoolean());
-              pDef.setReadOnly(pdr.getPropertyValue(Constants.JCR_PROTECTED).getBoolean());
-              pDef.setMultiple(pdr.getPropertyValue(Constants.JCR_MULTIPLE).getBoolean());
-              pDef.setOnVersion(
-                  OnParentVersionAction.valueFromName(
-                      pdr.getPropertyValue(Constants.JCR_ONPARENTVERSION).getString()));
-              
-              pDef.setDeclaringNodeType(type);
-              pDef.setRequiredType(
-                  ExtendedPropertyType.valueFromName(
-                      pdr.getPropertyValue(Constants.JCR_REQUIREDTYPE).getString()));
-            } catch (PathNotFoundException e) {
-              throw new ConstraintViolationException("Mandatory property did not set."
-                  + " PropertyDefinition: " + pDef.getName() + ". Type: " + type.getName() + ". Error: "
-                  + e.getMessage() + ". Node type resistration aborted.");
-            }
-            
+            String[] valueConstraints = null;
             try {
               List<Value> valueConstraintValues = pdr.getPropertyValues(Constants.JCR_VALUECONSTRAINTS);
-              String[] valueConstraints = new String[valueConstraintValues.size()];
+             valueConstraints = new String[valueConstraintValues.size()];
               for (int j = 0; j < valueConstraintValues.size(); j++) {
                 if (valueConstraintValues.get(j) != null)
                   valueConstraints[j] = valueConstraintValues.get(j).getString();
                 else
                   valueConstraints[j] = null;
               }
-              pDef.setValueConstraints(valueConstraints);
+              //pDef.setValueConstraints(valueConstraints);
             } catch (PathNotFoundException e) { // Mandatory false
-            }
-            
+            } 
+            Value[] defaultValues = null;
             try {
               List<Value> dvl = pdr.getPropertyValues(Constants.JCR_DEFAULTVALUES);
-              Value[] defaultValues = new Value[dvl.size()];
+              defaultValues = new Value[dvl.size()];
               for (int i=0; i<dvl.size(); i++) {
                 defaultValues[i] = dvl.get(i);
               }
-              pDef.setDefaultValues(defaultValues);
+              //pDef.setDefaultValues(defaultValues);
             } catch (PathNotFoundException e) { // Mandatory false
             }
+            
+            NameValue nameValue = (NameValue) pdr.getPropertyValue(Constants.JCR_NAME);
+            PropertyDefinitionImpl pDef = new PropertyDefinitionImpl(nameValue.getString(),
+                type,
+                ExtendedPropertyType.valueFromName(pdr.getPropertyValue(Constants.JCR_REQUIREDTYPE)
+                    .getString()),
+                valueConstraints,
+                defaultValues,
+                pdr.getPropertyValue(Constants.JCR_AUTOCREATED).getBoolean(),
+                pdr.getPropertyValue(Constants.JCR_MANDATORY).getBoolean(),
+                OnParentVersionAction.valueFromName(pdr
+                    .getPropertyValue(Constants.JCR_ONPARENTVERSION).getString()),
+                pdr.getPropertyValue(Constants.JCR_PROTECTED).getBoolean(),
+                pdr.getPropertyValue(Constants.JCR_MULTIPLE).getBoolean(),
+                nameValue.getQName());
+            //NameValue nameValue = (NameValue) pdr.getPropertyValue(Constants.JCR_NAME);
+//            pDef.setName(nameValue.getString());
+//            pDef.setQName(nameValue.getQName());
+//            
+//            
+////            try {
+////            } catch(PathNotFoundException e) {
+////            }
+//            try {
+//              pDef.setAutoCreate(pdr.getPropertyValue(Constants.JCR_AUTOCREATED).getBoolean());
+//              pDef.setMandatory(pdr.getPropertyValue(Constants.JCR_MANDATORY).getBoolean());
+//              pDef.setReadOnly(pdr.getPropertyValue(Constants.JCR_PROTECTED).getBoolean());
+//              pDef.setMultiple(pdr.getPropertyValue(Constants.JCR_MULTIPLE).getBoolean());
+//              pDef.setOnVersion(
+//                  OnParentVersionAction.valueFromName(
+//                      pdr.getPropertyValue(Constants.JCR_ONPARENTVERSION).getString()));
+//              
+//              pDef.setDeclaringNodeType(type);
+//              pDef.setRequiredType(
+//                  ExtendedPropertyType.valueFromName(
+//                      pdr.getPropertyValue(Constants.JCR_REQUIREDTYPE).getString()));
+//            } catch (PathNotFoundException e) {
+//              throw new ConstraintViolationException("Mandatory property did not set."
+//                  + " PropertyDefinition: " + pDef.getName() + ". Type: " + type.getName() + ". Error: "
+//                  + e.getMessage() + ". Node type resistration aborted.");
+//            }
+            
+            
+
             
             if (log.isDebugEnabled())
               log.debug("Property definitions readed " + pDef.getName() + " " + (System.currentTimeMillis() - ntStart));
@@ -613,11 +631,11 @@ public class NodeTypeDataPersister {
                .forProperty(Constants.JCR_DEFAULTPRIMNARYTYPE, PropertyType.NAME); // jcr:defaultPrimaryType
             cdr.read();
             
-            NodeDefinitionImpl nDef = new NodeDefinitionImpl();
+            NodeDefinitionImpl nDef = null ;
             try {
+              
               NameValue nameValue = (NameValue) cdr.getPropertyValue(Constants.JCR_NAME);
-              nDef.setName(nameValue.getString());
-              nDef.setQName(nameValue.getQName());
+              nDef = new NodeDefinitionImpl(nameValue.getString(),nameValue.getQName());
             } catch (PathNotFoundException e) { // Mandatory false
             }
             try {

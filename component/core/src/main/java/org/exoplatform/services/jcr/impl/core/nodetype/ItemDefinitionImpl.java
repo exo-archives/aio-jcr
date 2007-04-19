@@ -21,7 +21,7 @@ public abstract class ItemDefinitionImpl implements ExtendedItemDefinition {
 
   protected NodeType declaringNodeType;
 
-  protected String name;
+  protected final String name;
 
   protected boolean autoCreate;
 
@@ -31,9 +31,18 @@ public abstract class ItemDefinitionImpl implements ExtendedItemDefinition {
 
   protected boolean mandatory;
 
-  protected InternalQName qName;
+  protected final InternalQName qName;
+  
+  protected int hashCode;
+  public ItemDefinitionImpl(String name,InternalQName qName) {
+    this.name = name;
+    this.qName = qName;
+    this.hashCode = qName == null ? 0 : qName.hashCode();
+  }
 
-  public ItemDefinitionImpl() {
+  @Override
+  public int hashCode() {
+    return hashCode;
   }
 
   public ItemDefinitionImpl(String name, NodeType declaringNodeType,
@@ -51,6 +60,7 @@ public abstract class ItemDefinitionImpl implements ExtendedItemDefinition {
     }
     this.qName = qName;
     this.name = name;
+    this.hashCode = qName == null ? 0 : qName.hashCode();
   }
 
   /**
@@ -132,13 +142,13 @@ public abstract class ItemDefinitionImpl implements ExtendedItemDefinition {
    * @param name
    *          The name to set.
    */
-  public void setName(String name) {
-    this.name = name;
-  }
+//  public void setName(String name) {
+//    this.name = name;
+//  }
   
-  public void setQName(InternalQName qname) {
-    this.qName = qname;
-  }
+//  public void setQName(InternalQName qname) {
+//    this.qName = qname;
+//  }
 
   /**
    * @param onVersion
@@ -159,5 +169,4 @@ public abstract class ItemDefinitionImpl implements ExtendedItemDefinition {
   public InternalQName getQName() {
     return qName;
   }
-
 }

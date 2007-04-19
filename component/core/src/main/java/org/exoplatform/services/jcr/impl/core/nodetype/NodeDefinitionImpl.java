@@ -17,23 +17,27 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
  * @version $Id: NodeDefinitionImpl.java 12841 2007-02-16 08:58:38Z peterit $
  */
 
-public class NodeDefinitionImpl extends ItemDefinitionImpl implements
-    NodeDefinition {
+public class NodeDefinitionImpl extends ItemDefinitionImpl implements NodeDefinition {
 
-  private NodeType defaultNodeType;
+  private NodeType   defaultNodeType;
 
   private NodeType[] requiredNodeTypes;
 
-  private boolean multiple;
-  
-  public NodeDefinitionImpl(String name, NodeType declaringNodeType,
-      NodeType[] requiredNodeTypes, NodeType defaultNodeType,
-      boolean autoCreate, boolean mandatory, int onVersion, boolean readOnly,
-      boolean multiple, InternalQName qName) {
+  private boolean    multiple;
 
-    super(name, declaringNodeType, autoCreate, onVersion, 
-          readOnly, mandatory, qName);
-      
+  public NodeDefinitionImpl(String name,
+      NodeType declaringNodeType,
+      NodeType[] requiredNodeTypes,
+      NodeType defaultNodeType,
+      boolean autoCreate,
+      boolean mandatory,
+      int onVersion,
+      boolean readOnly,
+      boolean multiple,
+      InternalQName qName) {
+
+    super(name, declaringNodeType, autoCreate, onVersion, readOnly, mandatory, qName);
+
     this.declaringNodeType = declaringNodeType;
     this.requiredNodeTypes = requiredNodeTypes;
     this.defaultNodeType = defaultNodeType;
@@ -41,9 +45,8 @@ public class NodeDefinitionImpl extends ItemDefinitionImpl implements
 
   }
 
-
-  public NodeDefinitionImpl() {
-    super();
+  public NodeDefinitionImpl(String name, InternalQName qName) {
+    super(name, qName);
   }
 
   /**
@@ -58,7 +61,7 @@ public class NodeDefinitionImpl extends ItemDefinitionImpl implements
    * @see javax.jcr.nodetype.NodeDefinition#getDefaultPrimaryType
    */
   public NodeType getDefaultPrimaryType() {
-    return defaultNodeType;    
+    return defaultNodeType;
   }
 
   /**
@@ -69,24 +72,21 @@ public class NodeDefinitionImpl extends ItemDefinitionImpl implements
   }
 
   /**
-   * @param defaultNodeType
-   *          The defaultNodeType to set.
+   * @param defaultNodeType The defaultNodeType to set.
    */
   public void setDefaultNodeType(NodeType defaultNodeType) {
     this.defaultNodeType = defaultNodeType;
   }
 
   /**
-   * @param multiple
-   *          The multiple to set.
+   * @param multiple The multiple to set.
    */
   public void setMultiple(boolean multiple) {
     this.multiple = multiple;
   }
 
   /**
-   * @param requiredNodeTypes
-   *          The requiredNodeTypes to set.
+   * @param requiredNodeTypes The requiredNodeTypes to set.
    */
   public void setRequiredNodeTypes(NodeType[] requiredNodeTypes) {
     this.requiredNodeTypes = requiredNodeTypes;
