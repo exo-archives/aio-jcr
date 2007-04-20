@@ -176,7 +176,7 @@ public class WorkspaceInitializer {
         PropertyType.NAME, nodeData.getUUID(), false);
     primaryType.setValue(new TransientValueData(rootNodeType));
 
-    changesLog.add(new ItemState(primaryType, ItemState.ADDED, false , null));
+    changesLog.add(new ItemState(primaryType, ItemState.ADDED, false , null));  //changesLog.dump();
 
     dataManager.save(new TransactionChangesLog(changesLog));
     
@@ -239,7 +239,7 @@ public class WorkspaceInitializer {
     changesLog.add(ItemState.createAddedState(versionStorageNodeData)).add(
         ItemState.createAddedState(vsPrimaryType));
     
-    dataManager.save(new TransactionChangesLog(changesLog));
+    dataManager.save(new TransactionChangesLog(changesLog)); 
     changesLog.clear();
 
     nsPersister.initStorage(sysNodeData, addACL, NamespaceRegistryImpl.DEF_NAMESPACES);

@@ -20,8 +20,8 @@ import java.sql.SQLException;
  */
 public class PgSQLDBInitializer extends DBInitializer {
 
-  public PgSQLDBInitializer(String containerName, Connection connection, String scriptPath) throws IOException {
-    super(containerName, connection, scriptPath);
+  public PgSQLDBInitializer(String containerName, Connection connection, String scriptPath, boolean multiDb) throws IOException {
+    super(containerName, connection, scriptPath, multiDb);
   }
 
   @Override

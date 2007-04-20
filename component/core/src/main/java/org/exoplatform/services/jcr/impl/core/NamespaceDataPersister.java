@@ -62,7 +62,6 @@ public class NamespaceDataPersister {
     }
   }
   
-  
 //  void initStorage(NodeData nsSystem, boolean addACL, Map<InternalQName, String> namespaces) {
   public void initStorage(NodeData nsSystem, boolean addACL, Map<String, String> namespaces) 
   throws RepositoryException {

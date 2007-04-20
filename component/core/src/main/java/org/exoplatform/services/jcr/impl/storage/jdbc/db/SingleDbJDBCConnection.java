@@ -17,6 +17,7 @@ import java.util.List;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.storage.jdbc.JDBCStorageConnection;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
@@ -92,6 +93,21 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
    */
   @Override
   protected final void prepareQueries() throws SQLException {
+    /**
+      CREATE INDEX JCR_IDX_SITEM_PARENT_ORD ON JCR_SITEM(I_CLASS, CONTAINER_NAME, PARENT_ID, N_ORDER_NUM, VERSION DESC)
+      /
+
+      CREATE VIEW JCR_SNODE AS 
+      SELECT ID, PARENT_ID, NAME, VERSION, PATH, CONTAINER_NAME, I_INDEX, N_ORDER_NUM 
+      FROM JCR_SITEM WHERE I_CLASS=1
+      /
+    
+      CREATE VIEW JCR_SPROPERTY AS 
+      SELECT ID, PARENT_ID, NAME, VERSION, PATH, CONTAINER_NAME, P_TYPE, P_MULTIVALUED FROM JCR_SITEM WHERE I_CLASS=2
+      /
+     * 
+     */
+    
     JCR_FK_NODE_PARENT = "JCR_FK_SNODE_PARENT";
     JCR_FK_NODE_ITEM = "JCR_FK_SNODE_ITEM";
     JCR_FK_PROPERTY_NODE = "JCR_FK_SPROPERTY_N";
@@ -99,125 +115,121 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     JCR_FK_VALUE_PROPERTY = "JCR_FK_SVALUE_PROP";
     JCR_PK_ITEM = "JCR_SITEM_PKEY";
     
-    FIND_ITEM_BY_ID = "select I.*, N.ID as NID, N.ORDER_NUM as NORDER_NUM, N.PARENT_ID as NPARENT_ID, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
-      + " from JCR_SITEM I LEFT JOIN JCR_SNODE N ON I.ID=N.ID LEFT JOIN JCR_SPROPERTY P ON I.ID=P.ID"
-      + " where I.ID=?"; //  and I.CONTAINER_NAME=?
+    FIND_ITEM_BY_ID = "select * from JCR_SITEM where ID=?";
 
-    FIND_ITEM_BY_PATH = "select I.*, N.ID as NID, N.ORDER_NUM as NORDER_NUM, N.PARENT_ID as NPARENT_ID, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
-      + " from JCR_SITEM I LEFT JOIN JCR_SNODE N ON I.ID=N.ID LEFT JOIN JCR_SPROPERTY P ON I.ID=P.ID"
-      + " where I.PATH=? and I.CONTAINER_NAME=? order by I.VERSION DESC";
+    FIND_ITEM_BY_PATH = "select * from JCR_SITEM where CONTAINER_NAME=? and PATH=? order by VERSION DESC";
     
-    FIND_ITEM_BY_NAME = "select I.*, N.ID as NID, N.ORDER_NUM as NORDER_NUM, N.PARENT_ID as NPARENT_ID, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
-      + " from JCR_MITEM I LEFT JOIN JCR_MNODE N on (I.ID=N.ID and N.PARENT_ID=? and N.NODE_INDEX=?) LEFT JOIN JCR_MPROPERTY P on (I.ID=P.ID and P.PARENT_ID=?)"
-      + " where I.CONTAINER_NAME=? and I.NAME=? order by I.VERSION DESC";
+    FIND_ITEM_BY_NAME = "select * from JCR_SITEM"
+      + " where CONTAINER_NAME=? and PARENT_ID=? and NAME=? and I_INDEX=? order by I_CLASS, VERSION DESC";
     
-    FIND_CHILD_PROPERTY_BY_PATH = "select I.*, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
-      + " from JCR_SPROPERTY P, JCR_SITEM I"
-      + " where P.PARENT_ID=? and I.PATH=? and I.ID=P.ID order by I.VERSION DESC"; // I.CONTAINER_NAME=? and
+    // TODO unuse JCR_IDX_MITEM_PARENT_PATH
+//    FIND_CHILD_PROPERTY_BY_PATH = "select *" 
+//      + " from JCR_SPROPERTY"
+//      + " where CONTAINER_NAME=? and PARENT_ID=? and PATH=? order by VERSION DESC";
     
-    FIND_PROPERTY_BY_NAME = "select I.*, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
-      + " from JCR_SPROPERTY P, JCR_SITEM I"
-      + " where P.PARENT_ID=? and I.NAME=? and I.ID=P.ID order by I.VERSION DESC"; // I.CONTAINER_NAME=? and
-
-    FIND_DESCENDANT_NODES_LIKE_PATH = "select I.*, N.ID as NID" 
-      + " from JCR_SNODE N, JCR_SITEM I"
-      + " where I.ID=N.ID and N.PARENT_ID=? and I.PATH like ?" // I.CONTAINER_NAME=? and 
-      + " order by I.PATH";
+    FIND_CHILD_PROPERTY_BY_PATH = "select *" 
+      + " from JCR_SITEM"
+      + " where I_CLASS=2 and CONTAINER_NAME=? and PARENT_ID=? and PATH=? order by VERSION DESC";
     
-    FIND_DESCENDANT_PROPERTIES_LIKE_PATH = "select I.*, P.ID as PID" 
-      + " from JCR_SPROPERTY P, JCR_SITEM I"
-      + " where I.ID=P.ID and P.PARENT_ID=? and I.PATH like ?" // I.CONTAINER_NAME=? and 
-      + " order by I.PATH";    
+//    FIND_PROPERTY_BY_NAME = "select *" 
+//      + " from JCR_SPROPERTY"
+//      + " where CONTAINER_NAME=? and PARENT_ID=? and NAME=? order by VERSION DESC";
     
-    FIND_REFERENCES = "select R.NODE_ID as NID, R.PROPERTY_ID as PID, I.PATH, I.VERSION, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" +
-    " from JCR_SREF R, JCR_SITEM I, JCR_SPROPERTY P" +
-    " where R.PROPERTY_ID=I.ID and R.PROPERTY_ID=P.ID and P.ID=I.ID and R.NODE_ID=?"; //  and I.CONTAINER_NAME=?  
+    FIND_PROPERTY_BY_NAME = "select *" 
+      + " from JCR_SITEM"
+      + " where I_CLASS=2 and CONTAINER_NAME=? and PARENT_ID=? and NAME=? order by VERSION DESC";
+    
+//    FIND_REFERENCES = "select P.ID, P.PARENT_ID, P.VERSION, P.P_TYPE, P.P_MULTIVALUED, P.NAME, P.PATH" +
+//      " from JCR_SREF R, JCR_SPROPERTY P" +
+//      " where P.CONTAINER_NAME=? and R.NODE_ID=? and P.ID=R.PROPERTY_ID";
+    
+    FIND_REFERENCES = "select P.ID, P.PARENT_ID, P.VERSION, P.P_TYPE, P.P_MULTIVALUED, P.NAME, P.PATH" +
+    " from JCR_SREF R, JCR_SITEM P" +
+    " where P.I_CLASS=2 and P.CONTAINER_NAME=? and R.NODE_ID=? and P.ID=R.PROPERTY_ID";
 
     FIND_VALUES_BY_PROPERTYID = "select * from JCR_SVALUE where PROPERTY_ID=? order by ORDER_NUM";
     FIND_VALUE_BY_PROPERTYID_OREDERNUMB = "select DATA from JCR_SVALUE where PROPERTY_ID=? and ORDER_NUM=?";
-
-    FIND_NODES_BY_PARENTID = "select I.*, N.ID as NID, N.ORDER_NUM as NORDER_NUM, N.PARENT_ID as NPARENT_ID" 
-      + " from JCR_SNODE N, JCR_SITEM I"
-      + " where I.ID=N.ID and N.PARENT_ID=?" 
-      //+ " order by I.ID";
-      // [PN] 26.12.06
-      //+ " order by I.ID"; 
-      + " order by NORDER_NUM"; 
     
-    FIND_PROPERTIES_BY_PARENTID = "select I.*, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
-      + " from JCR_SPROPERTY P, JCR_SITEM I"
-      + " where I.ID=P.ID and P.PARENT_ID=?" 
-      + " order by I.ID";
+    // TODO Index CONTAINER_NAME, PARENT_ID, N_ORDER_NUM
+//    FIND_NODES_BY_PARENTID = "select * from JCR_SNODE"
+//      + " where CONTAINER_NAME=? and PARENT_ID=?"
+//      + " order by N_ORDER_NUM";
     
-    //INSERT_ITEM = "insert into JCR_SITEM(ID, NAME, VERSION, CONTAINER_NAME, PATH) VALUES(?,?,?,?,?)";
-    INSERT_NODE = "insert into JCR_SNODE(ID, PARENT_ID, NODE_INDEX, ORDER_NUM) VALUES(?,?,?,?)";
-    INSERT_PROPERTY = "insert into JCR_SPROPERTY(ID, PARENT_ID, TYPE, MULTIVALUED) VALUES(?,?,?,?)";
+    FIND_NODES_BY_PARENTID = "select * from JCR_SITEM"
+      + " where I_CLASS=1 and CONTAINER_NAME=? and PARENT_ID=?"
+      + " order by N_ORDER_NUM";
+    
+    // TODO Index CONTAINER_NAME, PARENT_ID, ID    
+//    FIND_PROPERTIES_BY_PARENTID = "select * from JCR_SPROPERTY"
+//      + " where CONTAINER_NAME=? and PARENT_ID=?" 
+//      + " order by ID";
+    
+    FIND_PROPERTIES_BY_PARENTID = "select * from JCR_SITEM"
+      + " where I_CLASS=2 and CONTAINER_NAME=? and PARENT_ID=?" 
+      + " order by ID";
+    
+    /*
+    ID VARCHAR(96) NOT NULL PRIMARY KEY,
+    PARENT_ID VARCHAR(96) NOT NULL,
+    NAME VARCHAR(512) NOT NULL,
+    VERSION INTEGER NOT NULL, 
+    PATH VARCHAR(4096) NOT NULL,
+    CONTAINER_NAME VARCHAR2(96) NOT NULL,
+    I_CLASS INTEGER NOT NULL,
+    I_INDEX INTEGER NOT NULL,
+    N_ORDER_NUM INTEGER NOT NULL,
+    P_TYPE INTEGER NOT NULL, 
+    P_MULTIVALUED BOOLEAN NOT NULL, */
+    INSERT_NODE = "insert into JCR_SITEM(ID, PARENT_ID, NAME, PATH, CONTAINER_NAME, VERSION, I_CLASS, I_INDEX, N_ORDER_NUM) VALUES(?,?,?,?,?,?," + I_CLASS_NODE + ",?,?)";
+    INSERT_PROPERTY = "insert into JCR_SITEM(ID, PARENT_ID, NAME, PATH, CONTAINER_NAME, VERSION, I_CLASS, I_INDEX, P_TYPE, P_MULTIVALUED) VALUES(?,?,?,?,?,?," + I_CLASS_PROPERTY + ",?,?,?)";
     
     INSERT_VALUE = "insert into JCR_SVALUE(DATA, ORDER_NUM, PROPERTY_ID) VALUES(?,?,?)";
     INSERT_REF = "insert into JCR_SREF(NODE_ID, PROPERTY_ID, ORDER_NUM) VALUES(?,?,?)";
 
-    //UPDATE_ITEM = "update JCR_SITEM set VERSION=? where ID=?"; // and CONTAINER_NAME=?
-    //UPDATE_ITEM_PATH = "update JCR_SITEM set PATH=?, VERSION=? where ID=?"; // and CONTAINER_NAME=?
     UPDATE_NODE = "update JCR_SITEM set VERSION=?, I_INDEX=?, N_ORDER_NUM=? where ID=?";
-    UPDATE_PROPERTY = "update JCR_SPROPERTY set VERSION=?, TYPE=? where ID=?";
+    UPDATE_PROPERTY = "update JCR_SITEM set VERSION=?, P_TYPE=? where ID=?";
     
     DELETE_ITEM = "delete from JCR_SITEM where ID=?";
-    //DELETE_NODE = "delete from JCR_SNODE where ID=?";
-    //DELETE_PROPERTY = "delete from JCR_SPROPERTY where ID=?";
     DELETE_VALUE = "delete from JCR_SVALUE where PROPERTY_ID=?";
     DELETE_REF = "delete from JCR_SREF where PROPERTY_ID=?";
   }
 
   @Override
   protected void addNodeRecord(NodeData data) throws SQLException {
-//    if (insertItem == null)
-//      insertItem = dbConnection.prepareStatement(INSERT_ITEM);
-//    else
-//      insertItem.clearParameters();
-    
     if (insertNode == null)
       insertNode = dbConnection.prepareStatement(INSERT_NODE);
     else
       insertNode.clearParameters();
     
-    String cid = getInternalId(data.getUUID());
-    
-    insertItem.setString(1, cid);
-    insertItem.setString(2, data.getQPath().getAsString());
-    insertItem.setInt(3, data.getPersistedVersion());
-    insertItem.setString(4, containerName);
-    insertItem.executeUpdate();
-
-    insertNode.setString(1, cid);
-    insertNode.setInt(2, data.getOrderNumber());
-    insertNode.setString(3, data.getParentUUID() != null ? getInternalId(data.getParentUUID()) : null);
+    insertNode.setString(1, getInternalId(data.getUUID()));
+    // if root then parent uuid equals space string
+    insertNode.setString(2, data.getParentUUID() == null ? Constants.ROOT_PARENT_UUID : getInternalId(data.getParentUUID()));  
+    insertNode.setString(3, data.getQPath().getName().getAsString());
+    insertNode.setString(4, data.getQPath().getAsString());
+    insertNode.setString(5, containerName);
+    insertNode.setInt(6, data.getPersistedVersion());
+    insertNode.setInt(7, data.getQPath().getIndex());
+    insertNode.setInt(8, data.getOrderNumber());
     insertNode.executeUpdate();    
   }
 
   @Override
   protected void addPropertyRecord(PropertyData data) throws SQLException {
-//    if (insertItem == null)
-//      insertItem = dbConnection.prepareStatement(INSERT_ITEM);
-//    else
-//      insertItem.clearParameters();
-      
     if (insertProperty == null)
       insertProperty = dbConnection.prepareStatement(INSERT_PROPERTY);
     else
       insertProperty.clearParameters();
-
-    String cid = getInternalId(data.getUUID());
     
-    insertItem.setString(1, cid);
-    insertItem.setString(2, data.getQPath().getAsString());
-    insertItem.setInt(3, data.getPersistedVersion());
-    insertItem.setString(4, containerName);
-    insertItem.executeUpdate();
-
-    insertProperty.setString(1, cid);
-    insertProperty.setInt(2, data.getType());
-    insertProperty.setBoolean(3, data.isMultiValued());
-    insertProperty.setString(4, getInternalId(data.getParentUUID()));
+    insertProperty.setString(1, getInternalId(data.getUUID()));
+    insertProperty.setString(2, getInternalId(data.getParentUUID()));
+    insertProperty.setString(3, data.getQPath().getName().getAsString());
+    insertProperty.setString(4, data.getQPath().getAsString());
+    insertProperty.setString(5, containerName);
+    insertProperty.setInt(6, data.getPersistedVersion());
+    insertProperty.setInt(7, data.getQPath().getIndex());
+    insertProperty.setInt(8, data.getType());
+    insertProperty.setBoolean(9, data.isMultiValued());
+    
     insertProperty.executeUpdate();
   }
 
@@ -234,7 +246,6 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     List<ValueData> values = data.getValues();
     for (int i=0; i<values.size(); i++) {
       ValueData vdata = values.get(i);
-//      String refNodeUuid = new String(BLOBUtil.readValue(vdata));
       String refNodeUuid = new String(vdata.getAsByteArray());
 
       insertReference.setString(1, getInternalId(refNodeUuid));
@@ -298,7 +309,8 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     else
       findNodesByParentId.clearParameters();
     
-    findNodesByParentId.setString(1, parentCid);
+    findNodesByParentId.setString(1, containerName);
+    findNodesByParentId.setString(2, parentCid);
     return findNodesByParentId.executeQuery();
   }
   
@@ -309,7 +321,8 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     else
       findPropertiesByParentId.clearParameters();
     
-    findPropertiesByParentId.setString(1, parentCid);
+    findPropertiesByParentId.setString(1, containerName);
+    findPropertiesByParentId.setString(2, parentCid);
     return findPropertiesByParentId.executeQuery();
   }
 
@@ -320,8 +333,8 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     else
       findItemByPath.clearParameters();
       
-    findItemByPath.setString(1, path);
-    findItemByPath.setString(2, containerName);
+    findItemByPath.setString(1, containerName);
+    findItemByPath.setString(2, path);
     return findItemByPath.executeQuery();
   }
 
@@ -332,11 +345,10 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     else
       findItemByName.clearParameters();
     
-    findItemByName.setString(1, parentId);
-    findItemByName.setInt(2, index);
-    findItemByName.setString(3, parentId);
-    findItemByName.setString(4, containerName);
-    findItemByName.setString(5, name);
+    findItemByName.setString(1, containerName);
+    findItemByName.setString(2, parentId);
+    findItemByName.setString(3, name);
+    findItemByName.setInt(4, index);
     return findItemByName.executeQuery();
   }
 
@@ -347,8 +359,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     else
       findChildPropertyByPath.clearParameters();
 
-    findChildPropertyByPath.setString(1, parentCid);
-    findChildPropertyByPath.setString(2, path);
+    findChildPropertyByPath.setString(1, containerName);
+    findChildPropertyByPath.setString(2, parentCid);
+    findChildPropertyByPath.setString(3, path);
     return findChildPropertyByPath.executeQuery();
   }  
   
@@ -359,8 +372,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     else
       findPropertyByName.clearParameters();
     
-    findPropertyByName.setString(1, parentCid);
-    findPropertyByName.setString(2, name);
+    findPropertyByName.setString(1, containerName);
+    findPropertyByName.setString(2, parentCid);
+    findPropertyByName.setString(3, name);
     return findPropertyByName.executeQuery();
   }
 
@@ -374,30 +388,6 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     findItemById.setString(1, cid);
     return findItemById.executeQuery();
   }
-
-  @Override
-  protected ResultSet findDescendantNodes(String parentCid, String parentPath) throws SQLException {
-    if (findDescendantNodes == null)
-      findDescendantNodes = dbConnection.prepareStatement(FIND_DESCENDANT_NODES_LIKE_PATH);
-    else
-      findDescendantNodes.clearParameters();
-          
-    findDescendantNodes.setString(1, parentCid);
-    findDescendantNodes.setString(2, parentPath + "%");
-    return findDescendantNodes.executeQuery();
-  }
-  
-  @Override
-  protected ResultSet findDescendantProperties(String parentCid, String parentPath) throws SQLException {
-    if (findDescendantProperties == null)
-      findDescendantProperties = dbConnection.prepareStatement(FIND_DESCENDANT_PROPERTIES_LIKE_PATH);
-    else
-      findDescendantProperties.clearParameters();
-          
-    findDescendantProperties.setString(1, parentCid);
-    findDescendantProperties.setString(2, parentPath + "%");
-    return findDescendantProperties.executeQuery();
-  }
   
   @Override
   protected ResultSet findReferences(String cid) throws SQLException {
@@ -405,8 +395,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
       findReferences = dbConnection.prepareStatement(FIND_REFERENCES);
     else
       findReferences.clearParameters();
-          
-    findReferences.setString(1, cid);
+    
+    findReferences.setString(1, containerName);
+    findReferences.setString(2, cid);
     return findReferences.executeQuery();
   }
 

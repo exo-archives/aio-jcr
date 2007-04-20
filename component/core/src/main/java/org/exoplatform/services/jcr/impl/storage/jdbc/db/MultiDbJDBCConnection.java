@@ -121,19 +121,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
       + " from JCR_MPROPERTY"
       + " where PARENT_ID=? and NAME=? order by VERSION DESC";
    
-    FIND_DESCENDANT_NODES_LIKE_PATH = "select I.*, N.NODE_INDEX as NNODE_INDEX, N.ID as NID" 
-      + " from JCR_MNODE N, JCR_MITEM I"
-      + " where N.PARENT_ID=? and I.ID=N.ID and I.PATH like ?"
-      + " order by I.PATH";
-    
-    FIND_DESCENDANT_PROPERTIES_LIKE_PATH = "select I.*, P.ID as PID" 
-      + " from JCR_MPROPERTY P, JCR_MITEM I"
-      + " where P.PARENT_ID=? and I.ID=P.ID and I.PATH like ?"
-      + " order by I.PATH";
-    
     FIND_REFERENCES = "select P.ID, P.PARENT_ID, P.VERSION, P.P_TYPE, P.P_MULTIVALUED, P.NAME, P.PATH" +
         " from JCR_MREF R, JCR_MPROPERTY P" +
-        " where R.PROPERTY_ID=P.ID and R.NODE_ID=?";
+        " where R.NODE_ID=? and R.PROPERTY_ID=P.ID";
     
     FIND_VALUES_BY_PROPERTYID = "select * from JCR_MVALUE where PROPERTY_ID=? order by ORDER_NUM";
     FIND_VALUE_BY_PROPERTYID_OREDERNUMB = "select DATA from JCR_MVALUE where PROPERTY_ID=? and ORDER_NUM=?";
@@ -431,30 +421,6 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     
     findItemById.setString(1, uuid);
     return findItemById.executeQuery();
-  }
-    
-  @Override
-  protected ResultSet findDescendantNodes(String parentId, String parentPath) throws SQLException {
-    if (findDescendantNodes == null)
-      findDescendantNodes = dbConnection.prepareStatement(FIND_DESCENDANT_NODES_LIKE_PATH);
-    else
-      findDescendantNodes.clearParameters();
-      
-    findDescendantNodes.setString(1, parentId);
-    findDescendantNodes.setString(2, parentPath + "%");
-    return findDescendantNodes.executeQuery();
-  }
-  
-  @Override
-  protected ResultSet findDescendantProperties(String parentId, String parentPath) throws SQLException {
-    if (findDescendantProperties == null)
-      findDescendantProperties = dbConnection.prepareStatement(FIND_DESCENDANT_PROPERTIES_LIKE_PATH);
-    else
-      findDescendantProperties.clearParameters();
-      
-    findDescendantProperties.setString(1, parentId);
-    findDescendantProperties.setString(2, parentPath + "%");
-    return findDescendantProperties.executeQuery();
   }
 
   @Override

@@ -32,7 +32,7 @@
         <property name="log4j.appender.file.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
       </properties-param>
 
-      <!--<value-param>
+      <!--value-param>
         <name>logger</name>
         <value>org.exoplatform.services.log.impl.BufferedSimpleLog</value>
       </value-param>
@@ -45,8 +45,8 @@
         <description>SimpleLog properties</description>
         <property name="org.apache.commons.logging.simplelog.defaultlog" value="info"/>
         <property name="org.apache.commons.logging.simplelog.showdatetime" value="true"/>
-      </properties-param>
-    </init-params>-->
+      </properties-param-->
+    </init-params>
   </component>
 
   <component>

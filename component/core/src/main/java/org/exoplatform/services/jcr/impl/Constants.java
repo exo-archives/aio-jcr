@@ -206,6 +206,8 @@ public class Constants {
   public static final String ROOT_URI = "[]:1";
   
   //public static final String ROOT_UUID = "__eXo_jcr_root_uuid_____________";
+  public static final String ROOT_PARENT_UUID = " ".intern(); // empty string
+  
   public static final String ROOT_UUID =           "00exo0jcr0root0uuid0000000000000";
   
   public static final String SYSTEM_UUID =         "00exo0jcr0system0uuid00000000000";

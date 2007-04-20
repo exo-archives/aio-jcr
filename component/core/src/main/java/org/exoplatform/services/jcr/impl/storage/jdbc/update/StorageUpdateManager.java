@@ -36,6 +36,7 @@ public class StorageUpdateManager {
   public static final String STORAGE_VERSION_1_0_1 = "1.0.1";
   public static final String STORAGE_VERSION_1_1_0 = "1.1";
   public static final String STORAGE_VERSION_1_5_0 = "1.5";
+  public static final String STORAGE_VERSION_1_6_0 = "1.6";
   
   public static final String FIRST_STORAGE_VERSION = STORAGE_VERSION_1_0_0;
   
@@ -43,10 +44,17 @@ public class StorageUpdateManager {
   
   public static final String REQUIRED_STORAGE_VERSION = STORAGE_VERSION_1_5_0;
   
-  protected static final String SQL_INSERT_VERSION = "insert into JCR_CONTAINER(VERSION) values(?)";
-  protected static final String SQL_UPDATE_VERSION = "update JCR_CONTAINER set VERSION=?";
+  protected final String SQL_INSERT_VERSION;
+  protected static final String SQL_INSERT_VERSION_MULTIDB = "insert into JCR_MCONTAINER(VERSION) values(?)";
+  protected static final String SQL_INSERT_VERSION_SINGLEDB = "insert into JCR_SCONTAINER(VERSION) values(?)";
   
-  protected static final String SQL_SELECT_VERSION = "select VERSION from JCR_CONTAINER";
+  protected final String SQL_UPDATE_VERSION;
+  protected static final String SQL_UPDATE_VERSION_MULTIDB = "update JCR_MCONTAINER set VERSION=?";
+  protected static final String SQL_UPDATE_VERSION_SINGLEDB = "update JCR_SCONTAINER set VERSION=?";
+  
+  protected final String SQL_SELECT_VERSION;
+  protected static final String SQL_SELECT_VERSION_MULTIDB = "select VERSION from JCR_MCONTAINER";
+  protected static final String SQL_SELECT_VERSION_SINGLEDB = "select VERSION from JCR_SCONTAINER";
   
   protected static final String SQL_UPDATE_JCRUUID_MULTIDB = "update JCR_MVALUE set DATA=? where ID=?";
   protected static final String SQL_UPDATE_JCRUUID_SINGLEDB = "update JCR_SVALUE set DATA=? where ID=?";
@@ -182,6 +190,11 @@ public class StorageUpdateManager {
     this.connection = connection;
     this.sourceName = sourceName;
     this.multiDB = multiDB;
+    
+    this.SQL_SELECT_VERSION = multiDB ? SQL_SELECT_VERSION_MULTIDB : SQL_SELECT_VERSION_SINGLEDB;
+    this.SQL_INSERT_VERSION = multiDB ? SQL_INSERT_VERSION_MULTIDB : SQL_INSERT_VERSION_SINGLEDB;
+    this.SQL_UPDATE_VERSION = multiDB ? SQL_UPDATE_VERSION_MULTIDB : SQL_UPDATE_VERSION_SINGLEDB;
+    
     this.SQL_SELECT_JCRUUID = multiDB ? SQL_SELECT_JCRUUID_MULTIDB : SQL_SELECT_JCRUUID_SINGLEDB;
     this.SQL_SELECT_FROZENJCRUUID = multiDB ? SQL_SELECT_FROZENJCRUUID_MULTIDB : SQL_SELECT_FROZENJCRUUID_SINGLEDB;
     this.SQL_UPDATE_JCRUUID = multiDB ? SQL_UPDATE_JCRUUID_MULTIDB : SQL_UPDATE_JCRUUID_SINGLEDB;

@@ -27,13 +27,6 @@ public class DBConstants {
   protected String FIND_CHILD_PROPERTY_BY_PATH;
   protected String FIND_PROPERTY_BY_NAME;
   
-  @Deprecated
-  protected String FIND_DESCENDANT_NODES_LIKE_PATH;
-  @Deprecated
-  protected String FIND_DESCENDANT_PROPERTIES_LIKE_PATH;
-    
-  @Deprecated
-  protected String FIND_REFERENCEABLE;
   protected String FIND_REFERENCES;
   
   protected String FIND_VALUES_BY_PROPERTYID;
@@ -41,8 +34,6 @@ public class DBConstants {
   protected String FIND_VALUE_BY_PROPERTYID_OREDERNUMB;
   
   protected String FIND_NODES_BY_PARENTID;
-  @Deprecated
-  protected String FIND_NODES_IDS_BY_PARENTID;
   protected String FIND_PROPERTIES_BY_PARENTID;
   
   // protected String INSERT_ITEM;

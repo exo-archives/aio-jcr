@@ -15,6 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -42,6 +43,7 @@ public class DBInitializer {
   protected final Connection connection;
   protected final String containerName; 
   protected final String script;
+  protected final boolean multiDb;
   
   protected final Pattern creatTablePattern;  
   protected final Pattern creatViewPattern; 
@@ -52,10 +54,11 @@ public class DBInitializer {
   protected final Pattern creatTriggerPattern;
   protected final Pattern dbTriggerNamePattern;
   
-  public DBInitializer(String containerName, Connection connection, String scriptPath) throws IOException {
+  public DBInitializer(String containerName, Connection connection, String scriptPath, boolean multiDb) throws IOException {
     this.connection = connection;
     this.containerName = containerName;
     this.script = script(scriptPath);
+    this.multiDb = multiDb;
     
     this.creatTablePattern = Pattern.compile(SQL_CREATETABLE, Pattern.CASE_INSENSITIVE);
     this.creatViewPattern = Pattern.compile(SQL_CREATEVIEW, Pattern.CASE_INSENSITIVE);
@@ -306,12 +309,16 @@ public class DBInitializer {
    * Init root node parent record
    */
   protected void rootInit(Connection connection) throws SQLException {
-    String select = "select * from JCR_MITEM where ID='' and PARENT_ID=''";
+    final String MDB = (multiDb ? "M" : "S");
+    String select = "select * from JCR_" + MDB + "ITEM where ID='" + Constants.ROOT_PARENT_UUID + "' and PARENT_ID='" + Constants.ROOT_PARENT_UUID + "'";
     
     if (!connection.createStatement().executeQuery(select).next()) {
       String insert = 
-        "insert into JCR_MITEM(ID, PARENT_ID, NAME, PATH, VERSION, I_CLASS, I_INDEX, N_ORDER_NUM)" + 
-        " VALUES('', '', '__root_parent', '', 0, 0, 0, 0)";
+        "insert into JCR_" + MDB + "ITEM(ID, PARENT_ID, NAME, PATH, " +
+        (multiDb ? "" : "CONTAINER_NAME, ") + 
+        "VERSION, I_CLASS, I_INDEX, N_ORDER_NUM)" + 
+        " VALUES('" + Constants.ROOT_PARENT_UUID + "', '" + Constants.ROOT_PARENT_UUID + "', '__root_parent', '" + Constants.ROOT_PARENT_UUID + "', " +
+        (multiDb ? "" : "'__root_parent_container', ") + "0, 0, 0, 0)";
       
       connection.createStatement().executeUpdate(insert);
     }

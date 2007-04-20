@@ -29,7 +29,7 @@ import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
  * 26.09.2006
  * 
  * VARNING! This test change data container database data directly in tables 
- * JCR_CONTAINER: version switched to 1.0 value. 
+ * JCR_XCONTAINER: version switched to 1.0 value. 
  * And then try update container to actual data in StorageUpdateManager. 
  *  
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
@@ -128,7 +128,7 @@ public class StorageUpdateTest extends JcrImplBaseTest {
       
       // =================== remove version record ===================
       Statement smnt = jdbcConn.getJdbcConnection().createStatement();
-      log.info("Update container version records: " + smnt.executeUpdate("update JCR_CONTAINER set VERSION='1.0'"));
+      log.info("Update container version records: " + smnt.executeUpdate("update JCR_MCONTAINER set VERSION='1.0'"));
       jdbcConn.getJdbcConnection().commit();
       
       conn.commit();

@@ -236,7 +236,8 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     return new DBInitializer(
         containerName, 
         this.connFactory.getJdbcConnection(), 
-        sqlPath);
+        sqlPath,
+        multiDb);
   }
   
   protected void initDatabase() throws NamingException, RepositoryException, IOException {
@@ -261,19 +262,19 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
       // a particular db initializer may be configured here too
       dbInitilizer = new OracleDBInitializer(containerName, 
           this.connFactory.getJdbcConnection(), 
-          sqlPath);
+          sqlPath, multiDb);
     } else if (dbType == DB_TYPE_ORACLE) {  
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.ora.sql";
       dbInitilizer = new OracleDBInitializer(containerName, 
           this.connFactory.getJdbcConnection(), 
-          sqlPath);
+          sqlPath, multiDb);
     } else if (dbType == DB_TYPE_PGSQL) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.pgsql.sql";
       dbInitilizer = new PgSQLDBInitializer(containerName, 
           this.connFactory.getJdbcConnection(), 
-          sqlPath);
+          sqlPath, multiDb);
     } else if (dbType == DB_TYPE_MYSQL) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.mysql.sql";

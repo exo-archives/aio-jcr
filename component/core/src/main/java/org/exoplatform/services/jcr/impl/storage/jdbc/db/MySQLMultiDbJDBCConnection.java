@@ -47,16 +47,6 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
     FIND_CHILD_PROPERTY_BY_PATH = "select SQL_CACHE I.*, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
       + " from JCR_MPROPERTY P, JCR_MITEM I"
       + " where P.PARENT_ID=? and I.PATH=? and I.ID=P.ID order by I.VERSION DESC";
-   
-    FIND_DESCENDANT_NODES_LIKE_PATH = "select SQL_CACHE I.*, N.ID as NID" 
-      + " from JCR_MNODE N, JCR_MITEM I"
-      + " where I.ID=N.ID and N.PARENT_ID=? and I.PATH like ?"
-      + " order by I.PATH";
-    
-    FIND_DESCENDANT_PROPERTIES_LIKE_PATH = "select SQL_CACHE I.*, P.ID as PID" 
-      + " from JCR_MPROPERTY P, JCR_MITEM I"
-      + " where I.ID=P.ID and P.PARENT_ID=? and I.PATH like ?"
-      + " order by I.PATH";
     
     FIND_REFERENCES = "select SQL_CACHE R.NODE_ID as NID, R.PROPERTY_ID as PID, I.PATH, I.VERSION, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" +
         " from JCR_MREF R, JCR_MITEM I, JCR_MPROPERTY P" +
@@ -77,28 +67,14 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
       + " where I.ID=P.ID and P.PARENT_ID=?" 
       + " order by I.ID";
     
-    FIND_NODES_IDS_BY_PARENTID = "select SQL_CACHE I.ID" 
-      + " from JCR_MNODE N, JCR_MITEM I"
-      + " where I.ID=N.ID and N.PARENT_ID=?" 
-      + " group by I.ID"     
-      + " order by I.ID";    
-    
-    FIND_REFERENCEABLE = "select SQL_CACHE R.NODE_ID as NID, R.PROPERTY_ID as PID, I.PATH, I.VERSION, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" +
-    " from JCR_MREF R, JCR_MITEM I, JCR_MPROPERTY P" +
-    " where R.PROPERTY_ID=I.ID and R.PROPERTY_ID=P.ID and I.ID=P.ID and R.PROPERTY_ID=?";
-    
     FIND_ITEM_BY_ID = FIND_ITEM_BY_ID.replace("?", "%s");
     FIND_ITEM_BY_PATH = FIND_ITEM_BY_PATH.replace("?", "%s");
     FIND_CHILD_PROPERTY_BY_PATH = FIND_CHILD_PROPERTY_BY_PATH.replace("?", "%s");
-    FIND_DESCENDANT_NODES_LIKE_PATH = FIND_DESCENDANT_NODES_LIKE_PATH.replace("?", "%s");
-    FIND_DESCENDANT_PROPERTIES_LIKE_PATH = FIND_DESCENDANT_PROPERTIES_LIKE_PATH.replace("?", "%s");
     FIND_REFERENCES = FIND_REFERENCES.replace("?", "%s");
     FIND_VALUES_BY_PROPERTYID = FIND_VALUES_BY_PROPERTYID.replace("?", "%s");
     FIND_VALUE_BY_PROPERTYID_OREDERNUMB = FIND_VALUE_BY_PROPERTYID_OREDERNUMB.replace("?", "%s");
     FIND_NODES_BY_PARENTID = FIND_NODES_BY_PARENTID.replace("?", "%s");
     FIND_PROPERTIES_BY_PARENTID = FIND_PROPERTIES_BY_PARENTID.replace("?", "%s");
-    FIND_NODES_IDS_BY_PARENTID = FIND_NODES_IDS_BY_PARENTID.replace("?", "%s");
-    FIND_REFERENCEABLE = FIND_REFERENCEABLE.replace("?", "%s");
   }
   
   @Override
@@ -111,19 +87,6 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
   protected ResultSet findChildPropertiesByParentUUID(String parentUUID) throws SQLException {
     return dbConnection.createStatement().executeQuery(
         String.format(FIND_PROPERTIES_BY_PARENTID, "'" + parentUUID + "'"));
-  }
-
-  @Override
-  protected ResultSet findDescendantNodes(String parentId, String parentPath) throws SQLException {
-    return dbConnection.createStatement().executeQuery(
-        String.format(FIND_DESCENDANT_NODES_LIKE_PATH, "'" + parentId + "'", "'" + parentPath + "%'"));
-  }
-
-  @Override
-  protected ResultSet findDescendantProperties(String parentId, String parentPath)
-      throws SQLException {
-    return dbConnection.createStatement().executeQuery(
-        String.format(FIND_DESCENDANT_PROPERTIES_LIKE_PATH, "'" + parentId + "'", "'" + parentPath + "%'"));
   }
 
   @Override

@@ -59,7 +59,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   protected final FileCleaner swapCleaner;
 
   protected final Connection dbConnection;
-
+  
   protected final String containerName;
 
   protected final SQLExceptionHandler exceptionHandler;
@@ -502,6 +502,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         if (node.getString(COLUMN_ID) != null) {
           childrens.add(loadNodeRecord(parent.getQPath(), node));
         } else {
+          // TODO impoossible state
           throw new RepositoryException("FATAL: Not found child node for parent "+parent.getQPath().getAsString()
               + ", but child item found " + node.getString(COLUMN_PATH) + " " + getUuid(node.getString(COLUMN_ID)));
         }
@@ -525,6 +526,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         if (prop.getString(COLUMN_ID) != null) {
           children.add(loadPropertyRecord(parent.getQPath(), prop));
         } else {
+          // TODO impoossible state
           throw new RepositoryException("FATAL: Not found child property for parent "+parent.getQPath().getAsString()
               + ", but child item found " + prop.getString(COLUMN_PATH) + " " + getUuid(prop.getString(COLUMN_ID)));
         }
@@ -689,7 +691,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       String cNID = item.getString(COLUMN_ID);
       
       String cNPARENTID = item.getString(COLUMN_PARENTID);
-      cNPARENTID = cNPARENTID.equals("") ? null : cNPARENTID;
+      // if parent ID is empty string - it's a root node  
+      cNPARENTID = cNPARENTID.equals(Constants.ROOT_PARENT_UUID) ? null : cNPARENTID;
       
       int cVERSION = item.getInt(COLUMN_VERSION);
       int cNORDERNUM = item.getInt(COLUMN_NORDERNUM);
@@ -785,7 +788,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       String cNID = item.getString(COLUMN_ID);
       
       String cNPARENTID = item.getString(COLUMN_PARENTID);
-      cNPARENTID = cNPARENTID.equals("") ? null : cNPARENTID;
+      // if parent ID is empty string - it's a root node  
+      cNPARENTID = cNPARENTID.equals(Constants.ROOT_PARENT_UUID) ? null : cNPARENTID;
       
       int cVERSION = item.getInt(COLUMN_VERSION);
       int cNINDEX = item.getInt(COLUMN_INDEX);
@@ -1033,20 +1037,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   protected abstract ResultSet findChildNodesByParentUUID(String parentUUID) throws SQLException;
   protected abstract ResultSet findChildPropertiesByParentUUID(String parentUUID) throws SQLException;
 
-  protected abstract ResultSet findDescendantNodes(String parentId, String parentPath) throws SQLException;
-  protected abstract ResultSet findDescendantProperties(String parentId, String parentPath) throws SQLException;
-
   protected abstract void addReference(PropertyData data) throws SQLException, IOException;
   protected abstract void deleteReference(String propertyUuid) throws SQLException;
   protected abstract ResultSet findReferences(String nodeUuid) throws SQLException;
 
   protected abstract int deleteItemByUUID(String uuid) throws SQLException;
-  //protected abstract int deleteNodeByUUID(String uuid) throws SQLException;
-  //protected abstract int deletePropertyByUUID(String uuid) throws SQLException;
-
-  //protected abstract int updateItemVersionByUUID(int versionValue, String uuid) throws SQLException;
-  
-  //protected abstract int updateItemPathByUUID(String qpath, int version, String uuid) throws SQLException;
   
   protected abstract int updateNodeByUUID(int version, int index, int orderNumb, String uuid) throws SQLException;
   protected abstract int updatePropertyByUUID(int version, int type, String uuid) throws SQLException;
