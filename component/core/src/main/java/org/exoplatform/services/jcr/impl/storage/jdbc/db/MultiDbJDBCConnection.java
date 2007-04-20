@@ -18,6 +18,7 @@ import java.util.List;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.storage.jdbc.JDBCStorageConnection;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
@@ -190,7 +191,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
 
     // INSERT_NODE = "insert into JCR_MITEM(ID, PARENT_ID, NAME, PATH, VERSION, I_CLASS, I_INDEX, N_ORDER_NUM) VALUES(?,?,?,?,?," + I_CLASS_NODE + ",?,?)";
     insertNode.setString(1, data.getUUID());
-    insertNode.setString(2, data.getParentUUID() == null ? "" : data.getParentUUID()); // if root then parent uuid equals empty string 
+    insertNode.setString(2, data.getParentUUID() == null ? Constants.ROOT_PARENT_UUID : data.getParentUUID()); // if root then parent uuid equals empty string 
     insertNode.setString(3, data.getQPath().getName().getAsString());
     insertNode.setString(4, data.getQPath().getAsString());
     insertNode.setInt(5, data.getPersistedVersion());

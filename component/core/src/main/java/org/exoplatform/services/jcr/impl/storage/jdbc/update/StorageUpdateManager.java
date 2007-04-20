@@ -40,9 +40,9 @@ public class StorageUpdateManager {
   
   public static final String FIRST_STORAGE_VERSION = STORAGE_VERSION_1_0_0;
   
-  public static final String PREV_STORAGE_VERSION = STORAGE_VERSION_1_1_0;
+  public static final String PREV_STORAGE_VERSION = STORAGE_VERSION_1_5_0;
   
-  public static final String REQUIRED_STORAGE_VERSION = STORAGE_VERSION_1_5_0;
+  public static final String REQUIRED_STORAGE_VERSION = STORAGE_VERSION_1_6_0;
   
   protected final String SQL_INSERT_VERSION;
   protected static final String SQL_INSERT_VERSION_MULTIDB = "insert into JCR_MCONTAINER(VERSION) values(?)";
