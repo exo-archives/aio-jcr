@@ -24,14 +24,15 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.container.SessionContainer;
+/*import org.exoplatform.container.SessionContainer;
 import org.exoplatform.container.SessionManager;
 import org.exoplatform.container.SessionManagerContainer;
-import org.exoplatform.container.client.http.HttpClientInfo;
+import org.exoplatform.container.client.http.HttpClientInfo;*/
 import org.exoplatform.frameworks.jcr.SingleRepositorySessionFactory;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.security.SecurityService;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -69,7 +70,11 @@ public class SimpleSessionFactoryInitializedFilter implements Filter {
     
     ExoContainerContext.setCurrentContainer(container);
     
-    SessionManagerContainer sessionManagerContainer = (SessionManagerContainer) container;
+    SecurityService securityService = (SecurityService) container.getComponentInstanceOfType(SecurityService.class);
+    securityService.setCurrentUser(httpRequest.getRemoteUser());
+    
+    
+    /*SessionManagerContainer sessionManagerContainer = (SessionManagerContainer) container;
     SessionManager sessionManager = sessionManagerContainer.getSessionManager();
     SessionContainer sessionContainer = sessionManager.getSessionContainer(httpSession.getId());
     if (sessionContainer == null) {
@@ -78,14 +83,14 @@ public class SimpleSessionFactoryInitializedFilter implements Filter {
       sessionContainer.setClientInfo(new HttpClientInfo(httpRequest));
     }
     // attach to current thread
-    SessionContainer.setInstance(sessionContainer);
+    SessionContainer.setInstance(sessionContainer);*/
     
     /////////////////////
     try {
 
       if (httpRequest.getSession().getAttribute(
           SingleRepositorySessionFactory.SESSION_FACTORY) == null
-          || userChanged(httpRequest, sessionContainer)) {
+          || userChanged(httpRequest, securityService )) {
         
 //        SimpleCredentials cred;
         ManageableRepository rep;
@@ -134,7 +139,7 @@ public class SimpleSessionFactoryInitializedFilter implements Filter {
       chain.doFilter(request, response);
      
     } finally {
-      SessionContainer.setInstance(null);
+      //SessionContainer.setInstance(null);
       PortalContainer.setInstance(null);
     }
 
@@ -143,7 +148,8 @@ public class SimpleSessionFactoryInitializedFilter implements Filter {
   public void destroy() {
   }
   
-  private boolean userChanged(HttpServletRequest httpRequest, SessionContainer sessionContainer) {
+  //private boolean userChanged(HttpServletRequest httpRequest, SessionContainer sessionContainer) {
+  private boolean userChanged(HttpServletRequest httpRequest, SecurityService securityService) {
     
     String newUser = httpRequest.getRemoteUser();
     
@@ -157,8 +163,9 @@ public class SimpleSessionFactoryInitializedFilter implements Filter {
 //    System.out.println("---------------- "+res+" "+userId+" "+newUser);
     if(res) {
       // refresh sessionContainer
-      sessionContainer.setClientInfo(new HttpClientInfo(httpRequest));
-      SessionContainer.setInstance(sessionContainer);
+      securityService.setCurrentUser(newUser);
+      /*sessionContainer.setClientInfo(new HttpClientInfo(httpRequest));
+      SessionContainer.setInstance(sessionContainer);*/
 
       userId = newUser;
     }
