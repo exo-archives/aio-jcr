@@ -144,8 +144,8 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
 //      " where P.CONTAINER_NAME=? and R.NODE_ID=? and P.ID=R.PROPERTY_ID";
     
     FIND_REFERENCES = "select P.ID, P.PARENT_ID, P.VERSION, P.P_TYPE, P.P_MULTIVALUED, P.NAME, P.PATH" +
-    " from JCR_SREF R, JCR_SITEM P" +
-    " where P.I_CLASS=2 and P.CONTAINER_NAME=? and R.NODE_ID=? and P.ID=R.PROPERTY_ID";
+      " from JCR_SREF R, JCR_SITEM P" +
+      " where P.I_CLASS=2 and P.CONTAINER_NAME=? and R.NODE_ID=? and P.ID=R.PROPERTY_ID";
 
     FIND_VALUES_BY_PROPERTYID = "select * from JCR_SVALUE where PROPERTY_ID=? order by ORDER_NUM";
     FIND_VALUE_BY_PROPERTYID_OREDERNUMB = "select DATA from JCR_SVALUE where PROPERTY_ID=? and ORDER_NUM=?";

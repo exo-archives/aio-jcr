@@ -99,6 +99,16 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
    */
   @Override
   protected void prepareQueries() throws SQLException {
+    /**
+     * CREATE VIEW JCR_MNODE AS 
+  SELECT ID, PARENT_ID, NAME, VERSION, PATH, I_INDEX, N_ORDER_NUM 
+  FROM JCR_MITEM WHERE I_CLASS=1;
+
+CREATE VIEW JCR_MPROPERTY AS 
+  SELECT ID, PARENT_ID, NAME, VERSION, PATH, P_TYPE, P_MULTIVALUED FROM JCR_MITEM WHERE I_CLASS=2;
+
+     */
+    
     JCR_FK_NODE_PARENT = "JCR_FK_MNODE_PARENT";
     JCR_FK_NODE_ITEM = "JCR_FK_MNODE_ITEM";
     JCR_FK_PROPERTY_NODE = "JCR_FK_MPROPERTY_N";
@@ -115,28 +125,28 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     
     // TODO unuse JCR_IDX_MITEM_PARENT_PATH
     FIND_CHILD_PROPERTY_BY_PATH = "select *" 
-      + " from JCR_MPROPERTY"
-      + " where PARENT_ID=? and PATH=? order by VERSION DESC";
+      + " from JCR_MITEM"
+      + " where I_CLASS=2 and PARENT_ID=? and PATH=? order by VERSION DESC";
     
     FIND_PROPERTY_BY_NAME = "select *" 
-      + " from JCR_MPROPERTY"
-      + " where PARENT_ID=? and NAME=? order by VERSION DESC";
+      + " from JCR_MITEM"
+      + " where I_CLASS=2 and PARENT_ID=? and NAME=? order by VERSION DESC";
    
     FIND_REFERENCES = "select P.ID, P.PARENT_ID, P.VERSION, P.P_TYPE, P.P_MULTIVALUED, P.NAME, P.PATH" +
-        " from JCR_MREF R, JCR_MPROPERTY P" +
-        " where R.NODE_ID=? and R.PROPERTY_ID=P.ID";
+        " from JCR_MREF R, JCR_MITEM P" +
+        " where P.I_CLASS=2 and R.NODE_ID=? and P.ID=R.PROPERTY_ID";
     
     FIND_VALUES_BY_PROPERTYID = "select * from JCR_MVALUE where PROPERTY_ID=? order by ORDER_NUM";
     FIND_VALUE_BY_PROPERTYID_OREDERNUMB = "select DATA from JCR_MVALUE where PROPERTY_ID=? and ORDER_NUM=?";
     
     // TODO Index PARENT_ID, N_ORDER_NUM
-    FIND_NODES_BY_PARENTID = "select * from JCR_MNODE"
-      + " where PARENT_ID=?"
+    FIND_NODES_BY_PARENTID = "select * from JCR_MITEM"
+      + " where I_CLASS=1 and PARENT_ID=?"
       + " order by N_ORDER_NUM";
     
     // TODO Index PARENT_ID, ID    
-    FIND_PROPERTIES_BY_PARENTID = "select * from JCR_MPROPERTY"
-      + " where PARENT_ID=?" 
+    FIND_PROPERTIES_BY_PARENTID = "select * from JCR_MITEM"
+      + " where I_CLASS=2 and PARENT_ID=?" 
       + " order by ID";
     
     //INSERT_ITEM = "insert into JCR_MITEM(ID, NAME, VERSION, PATH) VALUES(?,?,?,?)";
