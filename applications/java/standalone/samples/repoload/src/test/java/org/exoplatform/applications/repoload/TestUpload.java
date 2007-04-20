@@ -19,7 +19,7 @@ public class TestUpload extends TestCase {
 		//			-repo="db1" -ws="ws" \
 		//			-readtree="false"
 		String[] params = new String[] {
-				"-conf=bin\\config\\configuration-oraee1.xml",
+				"-conf=bin\\config\\devel\\configuration-oraee1.xml",
 				"-root=/testStorage/root1",
 				"-tree=10-100-100-100",
 				"-vdfile=bin\\img.tif",
@@ -41,7 +41,7 @@ public class TestUpload extends TestCase {
     //      -repo="db1" -ws="ws" \
     //      -readdc -read
     String[] params = new String[] {
-        "-conf=bin\\config\\configuration-oraee.xml",
+        "-conf=bin\\config\\devel\\configuration-oraee.xml",
         "-root=/testStorage/root1",
         "-tree=10-100-100-100",
         "-vdfile=bin\\img.tif",
