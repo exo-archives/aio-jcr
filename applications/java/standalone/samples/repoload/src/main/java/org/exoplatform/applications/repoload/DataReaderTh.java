@@ -18,65 +18,77 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL
- * Author : Alex Reshetnyak
- *          alex.reshetnyak@exoplatform.org.ua
- *          reshetnyak.alex@gmail.com		
- * 16.04.2007 12:52:43 
- * @version $Id: DataReaderTh.java 16.04.2007 12:52:43 rainfox 
+ * Created by The eXo Platform SARL Author : Alex Reshetnyak
+ * alex.reshetnyak@exoplatform.org.ua reshetnyak.alex@gmail.com 16.04.2007
+ * 12:52:43
+ * 
+ * @version $Id: DataReaderTh.java 16.04.2007 12:52:43 rainfox
  */
-public class DataReaderTh implements Runnable{
-  
-  private Log                          log;
-  
-  protected HashMap<String, String>    mapConfig;
- 
-  private int                          ntFolderCount;
+public class DataReaderTh implements Runnable {
 
-  private int                          ntFileCount;
-  
-  private String                       threadName;     
-  
-  private Node                         startNode;
-  
-  private Thread                       thReader;
-  
-  private int                          iteration;
-  
-  private long                         end, start, time = 0;
-  
-  public DataReaderTh(Node startNode , String threadName, HashMap<String, String> conf) {
+  private Log                       log;
+
+  protected HashMap<String, String> mapConfig;
+
+  private int                       ntFolderCount;
+
+  private int                       ntFileCount;
+
+  private String                    threadName;
+
+  private Node                      startNode;
+
+  private Thread                    thReader;
+
+  private int                       iteration;
+
+  private long                      end, start, time = 0;
+
+  private boolean                   readProperty;
+
+  public DataReaderTh(Node startNode, String threadName, HashMap<String, String> conf) {
     log = ExoLogger.getLogger("repload.DataReaderTh_" + threadName);
     mapConfig = conf;
     this.threadName = threadName;
     this.startNode = startNode;
     thReader = new Thread(this, threadName);
     this.iteration = Integer.valueOf(mapConfig.get("-iteration")).intValue();
+    this.readProperty = Boolean.valueOf(mapConfig.get("-readprop")).booleanValue();
+    log.info("-readprop = " + readProperty);
   }
-  
+
   public void readChilds(Node parent) throws RepositoryException {
-    NodeIterator ni = parent.getNodes();
-    
+
     String primaryType = parent.getPrimaryNodeType().getName();
-    
+
     if (primaryType.equals("nt:folder")) {
       ntFolderCount++;
       log.info("\t" + ntFolderCount + " nt:folder has been raed");
+        NodeIterator ni = parent.getNodes();
+        if (ni.hasNext()) {
+          while (ni.hasNext()) {
+            Node n1 = ni.nextNode();
+            readChilds(n1);
+          }
+        }
     } else if (primaryType.equals("nt:file")) {
       ntFileCount++;
       log.info("\t" + ntFileCount + " nt:file has been raed");
-      showDCProperty(parent);
-    }
-
-    if (ni.hasNext()) {
-      while (ni.hasNext()) {
-        Node n1 = ni.nextNode();
-        readChilds(n1);
+      if (readProperty) {
+        showDCProperty(parent);
+        
+        NodeIterator ni = parent.getNodes();
+        if (ni.hasNext()) {
+          while (ni.hasNext()) {
+            Node n1 = ni.nextNode();
+            readChilds(n1);
+          }
+        } else {
+          showProperty(parent);
+        }
       }
-
-    } else {
+    } else if (readProperty)
       showProperty(parent);
-    }
   }
 
   public void showDCProperty(Node parent) throws RepositoryException {
@@ -86,25 +98,26 @@ public class DataReaderTh implements Runnable{
 
     if (sMix.equals("nt:file")) {
 
-      for (NodeType mt : parent.getMixinNodeTypes()) 
+      for (NodeType mt : parent.getMixinNodeTypes())
         sMix += " " + mt.getName();
-      
+
       log.info(sMix + " " + parent.getPath());
-      
-      if(mapConfig.get("-readdc").equals("true")){
-        String[] dcprop = {"dc:title", "dc:creator", "dc:subject", "dc:description", "dc:publisher"}; 
-        
+
+      if (mapConfig.get("-readdc").equals("true")) {
+        String[] dcprop = { "dc:title", "dc:creator", "dc:subject", "dc:description",
+            "dc:publisher" };
+
         for (int i = 0; i < dcprop.length; i++) {
           Property propdc = parent.getProperty(dcprop[i]);
-          
+
           String s = propdc.getValues()[0].getString();
-          
-          log.info("\t\t" + propdc.getName() + " " + PropertyType.nameFromValue(propdc.getType()) + " "
-              + s);
+
+          log.info("\t\t" + propdc.getName() + " " + PropertyType.nameFromValue(propdc.getType())
+              + " " + s);
         }
       }
     }
-      
+
   }
 
   public void showProperty(Node parent) throws RepositoryException {
@@ -138,33 +151,33 @@ public class DataReaderTh implements Runnable{
   public void run() {
     try {
       start = System.currentTimeMillis();
-      
+
       for (int i = 0; i < iteration; i++)
         readChilds(startNode);
-      
+
       end = System.currentTimeMillis();
-      
+
       time = end - start;
-      
+
     } catch (RepositoryException e) {
-      log.error( "Error: read data",e);
+      log.error("Error: read data", e);
+      time = -1;
     }
   }
-  
+
   public void startRead() {
     thReader.start();
   }
-  
+
   public long getTimeAdding() {
     return time;
   }
-  
-  public int getNTCount(){
+
+  public int getNTCount() {
     return ntFileCount;
   }
-  
-  public String getThreadName(){
+
+  public String getThreadName() {
     return threadName;
   }
 }
-

@@ -57,6 +57,7 @@ public class RepositoryDataUploader {
         e.printStackTrace();
         log.info("Error upload data", e);
       }
+    System.exit(0);  
   }
   
   private static boolean isRead(String[] args ){

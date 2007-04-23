@@ -119,11 +119,15 @@ public class DataReader {
   private int                          ntFileCount;
   
   private long                         end, start;
+  
+  private boolean                      readProperty;
 
   public DataReader(String[] args) {
 
     this.mapConfig = parceCommandLine(args);
     this.args = args;
+    this.readProperty = Boolean.valueOf(mapConfig.get("-readprop")).booleanValue();
+    
     try {
       this.initRepository();
     } catch (Exception e) {
@@ -214,7 +218,7 @@ public class DataReader {
       
       log.info("Total reading time " + ((end - start) / 1000.0) + " sec");
 
-    } catch (Exception e) {
+    } catch (Throwable e) {
       log.error("Error read data", e);
     }
 
@@ -351,28 +355,37 @@ public class DataReader {
   }
 
   public void readChilds(Node parent) throws RepositoryException {
-    NodeIterator ni = parent.getNodes();
 
     String primaryType = parent.getPrimaryNodeType().getName();
 
     if (primaryType.equals("nt:folder")) {
       ntFolderCount++;
       log.info("\t" + ntFolderCount + " nt:folder has been raed");
+        NodeIterator ni = parent.getNodes();
+        if (ni.hasNext()) {
+          while (ni.hasNext()) {
+            Node n1 = ni.nextNode();
+            readChilds(n1);
+          }
+        }
     } else if (primaryType.equals("nt:file")) {
       ntFileCount++;
       log.info("\t" + ntFileCount + " nt:file has been raed");
-      showDCProperty(parent);
-    }
-
-    if (ni.hasNext()) {
-      while (ni.hasNext()) {
-        Node n1 = ni.nextNode();
-        readChilds(n1);
+      if (readProperty) {
+        showDCProperty(parent);
+        
+        NodeIterator ni = parent.getNodes();
+        if (ni.hasNext()) {
+          while (ni.hasNext()) {
+            Node n1 = ni.nextNode();
+            readChilds(n1);
+          }
+        } else {
+          showProperty(parent);
+        }
       }
-
-    } else {
+    } else if (readProperty)
       showProperty(parent);
-    }
   }
 
   public void showDCProperty(Node parent) throws RepositoryException {
@@ -476,6 +489,7 @@ public class DataReader {
     map.put("-threads", "1");
     map.put("-iteration", "1");
     map.put("-concurrent", "false");
+    map.put("-readprop", "false");
 
     for (int i = 0; i < args.length; i++) {
       String[] params = args[i].split("=");
@@ -485,7 +499,7 @@ public class DataReader {
       map.remove(params[0]);
       if (params.length > 1)
         map.put(params[0], params[1]);
-      else if (params[0].equals("-readdc") || params[0].equals("-concurrent"))
+      else if (params[0].equals("-readprop") || params[0].equals("-readdc") || params[0].equals("-concurrent"))
         map.put(params[0], "true");
       else
         map.put(params[0], "");
