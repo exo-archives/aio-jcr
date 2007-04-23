@@ -31,8 +31,6 @@ public class BasicJCRAPIDriver extends JCRDriverBase {
     Session session = null;
     try {
       session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), "ws");
-      System.out.println("===BasicJCRAPIDriver.java, run, repository : " + repository);
-      System.out.println("===BasicJCRAPIDriver.java, run, session    : " + session);      
       String testCaseName = packageName + tc.getName();
       AbstactTest test = (AbstactTest) Class.forName(testCaseName).newInstance();
       test.execute(tc, session);

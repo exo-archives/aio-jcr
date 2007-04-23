@@ -32,12 +32,10 @@ public abstract class JCRDriverBase extends JapexDriverBase {
     super.initializeDriver();
     String initializerName = getParam("initializer");
     try {
-      System.out.println("\n===JCRDriverBase.java, initializeDriver");
       JCRInitializer initializer = (JCRInitializer)
         Class.forName(initializerName).newInstance();
       initializer.initialize();
       repository = initializer.getRepository();
-      //session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), "ws");
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
