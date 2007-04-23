@@ -5,32 +5,20 @@
   <param name="japex.resultUnit" value="ms" />
   <param name="japex.reportsDirectory" value="target/testing-results-reports" />
   <param name="japex.plotGroupSize" value="16" />
-  <param name="japex.classPath"   value="target/exo-jcr-benchmark-1.6.dir/*.jar" />
 
-  <driver name="TestDriver">
-    <param name="japex.driverClass" value="org.exoplatform.jcr.benchmark.jcrapi.TestDriver" />
+  <driver name="ExoJCR-1.6">
+    <param name="japex.classPath"   value="target/exo-jcr-benchmark-1.6.dir/*.jar" />
+    <param name="japex.driverClass" value="org.exoplatform.jcr.benchmark.jcrapi.BasicJCRAPIDriver" />  
     <param name="initializer"       value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializer" />
     <param name="description"       value="JCR Internal API" />
-    <param name="japex.numberOfThreads"  value="1" />
+    <param name="japex.numberOfThreads"  value="3" />
     <param name="japex.threadRampupTime" value="60" />
-    <param name="japex.includeWarmupRun" value="false" />
   </driver>
-  <driver name="AddNodeDriver">
-    <param name="japex.driverClass" value="org.exoplatform.jcr.benchmark.jcrapi.AddNodeDriver" />
-    <param name="initializer"       value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializer" />
-    <param name="description"       value="JCR Internal API" />
-    <param name="japex.numberOfThreads"  value="1" />
-    <param name="japex.threadRampupTime" value="60" />
-    <param name="japex.includeWarmupRun" value="false" />
-  </driver>
-
-  <testCase name="Adding nodes">
-    <param name="methodName" value="doAddNodesOfTypeNtUnstructured" />
+  
+  <testCase name="TestAddNode">
     <param name="saveSession" value="false" />
-
     <param name="japex.warmupIterations" value="0" />
     <param name="japex.runIterations" value="2" />
-
   </testCase>
 
   <!--<testCase name="Setting 100 properties of node">

@@ -31,8 +31,6 @@ public class EXOJCRStandaloneInitializer extends JCRInitializer {
       RepositoryService repositoryService = (RepositoryService) container
           .getComponentInstanceOfType(RepositoryService.class);
       repository = repositoryService.getRepository();
-      //login for the first time to get session access 
-      repository.login(new SimpleCredentials("admin", "admin".toCharArray()), "ws");      
     } catch (Exception e) {
       e.printStackTrace();
     }

@@ -5,24 +5,25 @@
 
 package org.exoplatform.jcr.benchmark.jcrapi;
 
-import org.exoplatform.jcr.benchmark.JCRDriverBase;
-
+import javax.jcr.Session;
+import org.exoplatform.jcr.benchmark.init.AbstactTest;
 import com.sun.japex.TestCase;
 
 /**
- * Created by The eXo Platform SARL        .
+ * Created by The eXo Platform SARL .
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
-public class TestDriver extends JCRDriverBase {
+public class TestAddNode extends AbstactTest {
 
-  @Override
-  public void run(final TestCase tc) {
+  public void execute(final TestCase tc, Session session) {
     try {
-      System.out.println("\n===TestDriver.java, run");
-      session.getRootNode().addNode("test");
+      String nodeName = "testNode" + String.valueOf(Math.random()); 
+      session.getRootNode().addNode(nodeName, "nt:unstructured");
       session.save();
+      System.out.println("===TestAddNode.java, execute, node added  : " + session.getRootNode().getNode(nodeName).getName());
     } catch (Throwable exception) {
       exception.printStackTrace();
       throw new RuntimeException(exception.getMessage(), exception);
