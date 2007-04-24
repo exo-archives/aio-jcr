@@ -1626,7 +1626,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     for (int j = 0; j < siblings.size(); j++) {
       NodeData sdata = siblings.get(j);
 
-      //calculateing same name index
+      //calculating same name index
       if(sdata.getQPath().getName().equals(srcPath.getName()))
         ++sameNameIndex;
       
