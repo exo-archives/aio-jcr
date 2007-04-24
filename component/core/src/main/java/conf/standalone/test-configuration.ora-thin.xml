@@ -33,38 +33,6 @@
         <property name="log4j.appender.file.layout" value="org.apache.log4j.PatternLayout"/>
         <property name="log4j.appender.file.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
       </properties-param>
-
-      <!-- value-param>
-        <name>logger</name>
-        <value>org.exoplatform.services.log.impl.BufferedSimpleLog</value>
-      </value-param>
-      <value-param>
-        <name>configurator</name>
-        <value>org.exoplatform.services.log.impl.SimpleLogConfigurator</value>
-      </value-param>
-      <properties-param>
-        <name>properties</name>
-        <description>SimpleLog properties</description>
-        <property name="org.apache.commons.logging.simplelog.defaultlog" value="debug"/>
-        <property name="org.apache.commons.logging.simplelog.showdatetime" value="true"/>
-      </properties-param -->
-
-      <!-- value-param>
-        <name>logger</name>
-        <value>org.exoplatform.services.log.impl.BufferedJdk14Logger</value>
-      </value-param>
-      <value-param>
-        <name>configurator</name>
-        <value>org.exoplatform.services.log.impl.Jdk14Configurator</value>
-      </value-param>
-      <properties-param>
-        <name>properties</name>
-        <description>jdk1.4 Logger properties</description>
-        <property name="handlers" value="java.util.logging.ConsoleHandler"/>
-        <property name=".level" value="FINE"/>
-        <property name="java.util.logging.ConsoleHandler.level" value="FINE"/>
-      </properties-param -->
-
     </init-params>
   </component>
 
@@ -229,7 +197,7 @@
       <value-param>
         <name>conf-path</name>
         <description>JCR configuration file</description>
-        <value>jar:/conf/standalone/test-jcr-config-sjdbc.xml</value>
+        <value>jar:/conf/standalone/test-jcr-config-sjdbc.ora.xml</value>
       </value-param>
     </init-params>
   </component>
@@ -239,8 +207,8 @@
   </component>
 
   <component>
-          <key>org.exoplatform.services.security.SecurityService</key>
-          <type>org.exoplatform.services.security.impl.SecurityServiceImpl</type>
+    <key>org.exoplatform.services.security.SecurityService</key>
+    <type>org.exoplatform.services.security.impl.SecurityServiceImpl</type>
     <init-params>
       <value-param>
         <name>security.authentication</name>
