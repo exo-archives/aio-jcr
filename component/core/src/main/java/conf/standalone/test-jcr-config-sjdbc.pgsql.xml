@@ -10,7 +10,7 @@
       <authentication-policy>org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy</authentication-policy>
       <workspaces>
         <workspace name="ws" auto-init-root-nodetype="nt:unstructured">
-					<container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
+			<container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="sourceName" value="jdbcjcr"/>
               <property name="db-type" value="pgsql"/>
