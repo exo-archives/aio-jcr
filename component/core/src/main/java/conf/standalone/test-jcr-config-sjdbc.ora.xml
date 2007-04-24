@@ -2,8 +2,7 @@
   <repositories>
     <repository name="db1" system-workspace="ws" default-workspace="ws">
       <security-domain>exo-domain</security-domain>
-      <!-- access-control>optional</access-control -->
-      <!-- access-control>disable</access-control -->
+      <access-control>optional</access-control>
       <!--<replication
         enabled="true"
         mode="persistent"
@@ -15,18 +14,18 @@
           <!-- for system storage -->
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
-              <!-- property name="sourceName" value="jdbcjcr"/ -->
-              <property name="db-type" value="oracle-oci"/>
-              <property name="db-driver" value="oracle.jdbc.OracleDriver"/>
-              <property name="db-url" value="jdbc:oracle:oci:@exoua.dnsalias.net:1521/XE"/>
+              <property name="sourceName" value="jdbcjcr"/>
+              <property name="db-type" value="oracle"/>
+              <!-- property name="db-driver" value="oracle.jdbc.OracleDriver"/>
+              <property name="db-url" value="jdbc:oracle:thin:@exoua.dnsalias.net:1521/XE"/>
               <property name="db-username" value="exoadmin"/>
-              <property name="db-password" value="exo12321"/>
+              <property name="db-password" value="exo12321"/ -->
               <property name="multi-db" value="false"/>
               <property name="update-storage" value="true"/>
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="target/temp/swap/ws"/>
             </properties>
-            <value-storages>
+            <!-- value-storages>
               <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws"/>
@@ -35,7 +34,7 @@
                   <filter property-type="Binary"/>
                 </filters>
               </value-storage>
-            </value-storages>
+            </value-storages -->
           </container>
           <cache enabled="true">
             <properties>
@@ -52,13 +51,8 @@
         <workspace name="ws1" auto-init-root-nodetype="nt:unstructured">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
-              <!-- property name="sourceName" value="jdbcjcr1"/ -->
-							<property name="db-type" value="oracle-oci"/>
-              <property name="db-driver" value="oracle.jdbc.OracleDriver"/>
-              <property name="db-url" value="jdbc:oracle:oci:@exoua.dnsalias.net:1521/XE"/>
-              <property name="db-username" value="exoadmin"/>
-              <property name="db-password" value="exo12321"/>
-              <property name="multi-db" value="false"/>
+              <property name="sourceName" value="jdbcjcr1"/>
+			  <property name="multi-db" value="false"/>
               <property name="update-storage" value="true"/>
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="target/temp/swap/ws1"/>
@@ -74,11 +68,6 @@
                 </filters>
               </value-storage>
             </value-storages -->
-            <!-- binary-swap
-                directory-path="target/temp/swap/ws1"
-                min-file-size="100K"
-                copy-local-files="false">
-            </binary-swap -->
           </container>
           <cache enabled="true">
             <properties>
@@ -95,13 +84,8 @@
         <workspace name="ws2" auto-init-root-nodetype="nt:unstructured">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
-              <!-- property name="sourceName" value="jdbcjcr2"/ -->
-							<property name="db-type" value="oracle-oci"/>
-              <property name="db-driver" value="oracle.jdbc.OracleDriver"/>
-              <property name="db-url" value="jdbc:oracle:oci:@exoua.dnsalias.net:1521/XE"/>
-              <property name="db-username" value="exoadmin"/>
-              <property name="db-password" value="exo12321"/>
-              <property name="multi-db" value="false"/>
+              <property name="sourceName" value="jdbcjcr2"/>
+  			  <property name="multi-db" value="false"/>
               <property name="update-storage" value="true"/>
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="target/temp/swap/ws2"/>
@@ -117,11 +101,6 @@
                 </filters>
               </value-storage>
             </value-storages -->
-            <!-- binary-swap
-                directory-path="target/temp/swap/ws2"
-                min-file-size="100K"
-                copy-local-files="false">
-            </binary-swap -->
           </container>
           <cache enabled="true">
             <properties>
