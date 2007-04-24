@@ -26,14 +26,28 @@ public class BasicJCRAPIDriver extends JCRDriverBase {
 
   private final String packageName  = "org.exoplatform.jcr.benchmark.jcrapi.";
 
-  @Override
-  public void run(final TestCase tc) {
+  private AbstactTest  test         = null;
+
+  public void prepare(final TestCase tc) {
     Session session = null;
     try {
       session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), "ws");
       String testCaseName = packageName + tc.getName();
-      AbstactTest test = (AbstactTest) Class.forName(testCaseName).newInstance();
-      test.execute(tc, session);
+      test = (AbstactTest) Class.forName(testCaseName).newInstance();
+      test.doPrepare(tc, session);
+    } catch (Throwable exception) {
+      exception.printStackTrace();
+      throw new RuntimeException(exception.getMessage(), exception);
+    } finally {
+      session.logout();
+    }
+  }
+
+  public void run(final TestCase tc) {
+    Session session = null;
+    try {
+      session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), "ws");
+      test.doRun(tc, session);
     } catch (Throwable exception) {
       exception.printStackTrace();
       throw new RuntimeException(exception.getMessage(), exception);

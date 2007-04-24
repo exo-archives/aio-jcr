@@ -17,6 +17,7 @@ import com.sun.japex.TestCase;
 
 public abstract class AbstactTest {
   
-  public abstract void execute(final TestCase tc, Session session);
+  public abstract void doPrepare(final TestCase tc, Session session);
+  public abstract void doRun(final TestCase tc, Session session);
   
 }
