@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <configuration>
 
-    <component>
-      <key>org.exoplatform.services.xml.querying.XMLQueryingService</key>
-        <type>org.exoplatform.services.xml.querying.impl.xtas.XMLQueryingServiceImpl</type>
-    </component>
-
   <component>
     <key>org.exoplatform.services.log.LogConfigurationInitializer</key>
     <type>org.exoplatform.services.log.LogConfigurationInitializer</type>
@@ -39,38 +34,6 @@
         <property name="log4j.appender.file.layout" value="org.apache.log4j.PatternLayout"/>
         <property name="log4j.appender.file.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
       </properties-param>
-
-      <!-- value-param>
-        <name>logger</name>
-        <value>org.exoplatform.services.log.impl.BufferedSimpleLog</value>
-      </value-param>
-      <value-param>
-        <name>configurator</name>
-        <value>org.exoplatform.services.log.impl.SimpleLogConfigurator</value>
-      </value-param>
-      <properties-param>
-        <name>properties</name>
-        <description>SimpleLog properties</description>
-        <property name="org.apache.commons.logging.simplelog.defaultlog" value="debug"/>
-        <property name="org.apache.commons.logging.simplelog.showdatetime" value="true"/>
-      </properties-param -->
-
-      <!-- value-param>
-        <name>logger</name>
-        <value>org.exoplatform.services.log.impl.BufferedJdk14Logger</value>
-      </value-param>
-      <value-param>
-        <name>configurator</name>
-        <value>org.exoplatform.services.log.impl.Jdk14Configurator</value>
-      </value-param>
-      <properties-param>
-        <name>properties</name>
-        <description>jdk1.4 Logger properties</description>
-        <property name="handlers" value="java.util.logging.ConsoleHandler"/>
-        <property name=".level" value="FINE"/>
-        <property name="java.util.logging.ConsoleHandler.level" value="FINE"/>
-      </properties-param -->
-
     </init-params>
   </component>
 
@@ -144,12 +107,12 @@
             <name>ref-addresses</name>
             <description>ref-addresses</description>
             <property name="driverClassName" value="org.postgresql.Driver"/>
-            <property name="url" value="jdbc:postgresql://exoua.dnsalias.net/exodb"/>
+            <property name="url" value="jdbc:postgresql://localhost/exodb"/>
             <property name="username" value="exoadmin"/>
             <property name="password" value="exo12321"/>
             <property name="maxActive" value="30"/>
             <property name="maxIdle" value="2"/>
-            <property name="initialSize" value="5"/>
+            <property name="initialSize" value="2"/>
           </properties-param>
         </init-params>
      </component-plugin>
@@ -195,29 +158,7 @@
       </properties-param -->
     </init-params>
   </component>
-
-  <!-- component>
-    <key>org.exoplatform.services.database.jdbc.DBSchemaCreator</key>
-    <type>org.exoplatform.services.database.jdbc.DBSchemaCreator</type>
-    <component-plugins>
-      <component-plugin>
-          <name>jcr.dbschema</name>
-          <set-method>addPlugin</set-method>
-          <type>org.exoplatform.services.database.jdbc.CreateDBSchemaPlugin</type>
-          <init-params>
-            <value-param>
-              <name>data-source</name>
-              <value>jdbcjcr</value>
-            </value-param>
-            <value-param>
-              <name>script-file</name>
-              <value>conf/storage/jcr-sjdbc.pgsql.sql</value>
-            </value-param>
-          </init-params>
-      </component-plugin>
-    </component-plugins>
-  </component -->
-
+  
   <component>
     <key>org.exoplatform.services.jcr.RepositoryService</key>
     <type>org.exoplatform.services.jcr.impl.RepositoryServiceImpl</type>
@@ -267,8 +208,8 @@
   </component>
 
   <component>
-          <key>org.exoplatform.services.security.SecurityService</key>
-          <type>org.exoplatform.services.security.impl.SecurityServiceImpl</type>
+    <key>org.exoplatform.services.security.SecurityService</key>
+    <type>org.exoplatform.services.security.impl.SecurityServiceImpl</type>
     <init-params>
       <value-param>
         <name>security.authentication</name>
