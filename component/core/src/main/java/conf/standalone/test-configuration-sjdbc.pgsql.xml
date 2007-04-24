@@ -198,7 +198,7 @@
       <value-param>
         <name>conf-path</name>
         <description>JCR configuration file</description>
-        <value>file:src/java/conf/standalone/test-jcr-config-sjdbc.pgsql.xml</value>
+        <value>jar:/conf/standalone/test-jcr-config-sjdbc.pgsql.xml</value>
       </value-param>
     </init-params>
   </component>
