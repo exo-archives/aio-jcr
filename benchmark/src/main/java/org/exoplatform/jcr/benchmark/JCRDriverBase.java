@@ -12,11 +12,14 @@ import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
 import org.exoplatform.jcr.benchmark.init.JCRInitializer;
+import org.exoplatform.jcr.benchmark.jcrapi.AbstactTest;
 
 import com.sun.japex.JapexDriverBase;
+import com.sun.japex.TestCase;
 
 /**
- * Created by The eXo Platform SARL        .
+ * Created by The eXo Platform SARL .
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -25,40 +28,33 @@ public abstract class JCRDriverBase extends JapexDriverBase {
 
   protected Repository repository;
 
-  //protected Session session;
+  protected Session    session;
+  
+  private final String packageName  = "org.exoplatform.jcr.benchmark.jcrapi.";
+
+  private AbstactTest  test         = null;
 
   @Override
   public void initializeDriver() {
     super.initializeDriver();
     String initializerName = getParam("initializer");
     try {
-      JCRInitializer initializer = (JCRInitializer)
-        Class.forName(initializerName).newInstance();
+      JCRInitializer initializer = (JCRInitializer) Class.forName(initializerName).newInstance();
       initializer.initialize();
       repository = initializer.getRepository();
+      session = initializer.getSession();
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
     }
-
   }
-
-//  @Override
-//  public void prepare() {
-//    super.prepare();
-//    try {
-//      session = repository.login();
-//    } catch (LoginException e) {
-//      // TODO Auto-generated catch block
-//      e.printStackTrace();
-//    } catch (RepositoryException e) {
-//      // TODO Auto-generated catch block
-//      e.printStackTrace();
-//    }
-//
-//    System.out.println(">>>>>>>>>>>>>>>>>> JCRDriverBase.prepare() <<<<<<<<<<<<<<<<<<<<<");
-//
-//  }
+  
+  /*public void prepare(final TestCase tc) {
+    ...
+  }*/
+  
+  /*public void run(final TestCase tc) {
+    ...    
+  }*/
 
 }
-

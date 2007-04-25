@@ -9,7 +9,7 @@ import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
 import org.exoplatform.jcr.benchmark.JCRDriverBase;
-import org.exoplatform.jcr.benchmark.init.AbstactTest;
+import org.exoplatform.jcr.benchmark.jcrapi.AbstactTest;
 
 import com.sun.japex.TestCase;
 
@@ -22,18 +22,12 @@ import com.sun.japex.TestCase;
 
 public class BasicJCRAPIDriver extends JCRDriverBase {
 
-  private final String SAVE_SESSION = "saveSession";
-
   private final String packageName  = "org.exoplatform.jcr.benchmark.jcrapi.";
 
   private AbstactTest  test         = null;
 
-  private Session      session      = null;
-
   public void prepare(final TestCase tc) {
-    // Session session = null;
     try {
-      session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), "ws");
       String testCaseName = packageName + tc.getName();
       test = (AbstactTest) Class.forName(testCaseName).newInstance();
       test.doPrepare(tc, session);
@@ -46,10 +40,7 @@ public class BasicJCRAPIDriver extends JCRDriverBase {
   }
 
   public void run(final TestCase tc) {
-    // Session session = null;
     try {
-      // session = repository.login(new SimpleCredentials("admin",
-      // "admin".toCharArray()), "ws");
       test.doRun(tc, session);
     } catch (Throwable exception) {
       exception.printStackTrace();

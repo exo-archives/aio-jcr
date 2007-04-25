@@ -24,13 +24,13 @@ public class EXOJCRStandaloneInitializer extends JCRInitializer {
           "conf/standalone/test-configuration-benchmark.xml").toString();
       StandaloneContainer.setConfigurationURL(path);
       StandaloneContainer container = StandaloneContainer.getInstance();
-      System.out.println("=== container instance: " + (container));
       if (System.getProperty("java.security.auth.login.config") == null)
         System.setProperty("java.security.auth.login.config", Thread.currentThread()
             .getContextClassLoader().getResource("login.conf").toString());
       RepositoryService repositoryService = (RepositoryService) container
           .getComponentInstanceOfType(RepositoryService.class);
       repository = repositoryService.getRepository();
+      session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), "ws");
     } catch (Exception e) {
       e.printStackTrace();
     }

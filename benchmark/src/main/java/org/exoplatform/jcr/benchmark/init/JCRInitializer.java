@@ -6,23 +6,29 @@
 package org.exoplatform.jcr.benchmark.init;
 
 import javax.jcr.Repository;
+import javax.jcr.Session;
 
 /**
- * Created by The eXo Platform SARL        .
+ * Created by The eXo Platform SARL .
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public abstract class JCRInitializer {
-  
-  
+
   protected Repository repository;
-  
+
+  protected Session    session;
+
   public abstract void initialize();
-  
+
   public final Repository getRepository() {
     return repository;
   }
 
+  public final Session getSession() {
+    return session;
+  }
 
 }

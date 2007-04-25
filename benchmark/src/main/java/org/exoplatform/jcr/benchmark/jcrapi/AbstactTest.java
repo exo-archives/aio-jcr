@@ -3,21 +3,23 @@
  * Please look at license.txt in info directory for more license detail.   *
  */
 
-package org.exoplatform.jcr.benchmark.init;
+package org.exoplatform.jcr.benchmark.jcrapi;
 
 import javax.jcr.Session;
 
 import com.sun.japex.TestCase;
 
 /**
- * Created by The eXo Platform SARL        .
+ * Created by The eXo Platform SARL .
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
-public abstract class AbstactTest {
-  
-  public abstract void doPrepare(final TestCase tc, Session session);
-  public abstract void doRun(final TestCase tc, Session session);
-  
+public interface AbstactTest {
+
+  public void doPrepare(final TestCase tc, Session session);
+
+  public void doRun(final TestCase tc, Session session);
+
 }

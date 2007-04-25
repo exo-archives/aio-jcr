@@ -6,7 +6,7 @@
 package org.exoplatform.jcr.benchmark.jcrapi;
 
 import javax.jcr.Session;
-import org.exoplatform.jcr.benchmark.init.AbstactTest;
+import org.exoplatform.jcr.benchmark.jcrapi.AbstactTest;
 import com.sun.japex.TestCase;
 
 /**
@@ -16,33 +16,29 @@ import com.sun.japex.TestCase;
  * @version $Id: $
  */
 
-public class TestAddNode extends AbstactTest {
+public class TestAddNode implements AbstactTest {
 
-  private String rootNodeName = "testRoot" + String.valueOf(Math.random());
+  //private String rootNodeName = "testRoot" + System.nanoTime();
 
   public void doPrepare(final TestCase tc, Session session) {
     try {
-      session.getRootNode().addNode(rootNodeName, "nt:unstructured");
+      String nodeName = "TestAddNodePrepare" + System.nanoTime();
+      session.getRootNode().addNode(nodeName, "nt:unstructured");
       session.save();
     } catch (Throwable exception) {
       exception.printStackTrace();
       throw new RuntimeException(exception.getMessage(), exception);
-    } finally {
-      session.logout();
     }
-    // System.out.println("===TestAddNode, doPrepare : " + (end-start));
   }
 
   public void doRun(final TestCase tc, Session session) {
     try {
-      String nodeName = "testNode" + String.valueOf(Math.random());
+      String nodeName = "TestAddNode" + System.nanoTime();
       session.getRootNode().addNode(nodeName, "nt:unstructured");
-      // session.save();
+      //session.save();
     } catch (Throwable exception) {
       exception.printStackTrace();
       throw new RuntimeException(exception.getMessage(), exception);
-    } finally {
-      session.logout();
     }
   }
 
