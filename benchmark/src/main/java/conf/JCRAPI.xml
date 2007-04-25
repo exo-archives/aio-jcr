@@ -12,13 +12,11 @@
     <param name="initializer"       value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializer" />
     <param name="description"       value="JCR Internal API" />
     <param name="japex.numberOfThreads"  value="2" />
-    <param name="japex.threadRampupTime" value="60" />
   </driver>
   
   <testCase name="TestAddNode">
-    <param name="saveSession" value="false" />
-    <param name="japex.warmupIterations" value="0" />
     <param name="japex.runIterations" value="3" />
+    <param name="japex.warmupIterations" value="0"/>
   </testCase>
 
   <!--<testCase name="Setting 100 properties of node">

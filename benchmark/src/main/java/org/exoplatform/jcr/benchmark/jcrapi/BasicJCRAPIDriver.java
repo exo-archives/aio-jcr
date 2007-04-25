@@ -28,8 +28,10 @@ public class BasicJCRAPIDriver extends JCRDriverBase {
 
   private AbstactTest  test         = null;
 
+  private Session      session      = null;
+
   public void prepare(final TestCase tc) {
-    Session session = null;
+    // Session session = null;
     try {
       session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), "ws");
       String testCaseName = packageName + tc.getName();
@@ -44,9 +46,10 @@ public class BasicJCRAPIDriver extends JCRDriverBase {
   }
 
   public void run(final TestCase tc) {
-    Session session = null;
+    // Session session = null;
     try {
-      session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), "ws");
+      // session = repository.login(new SimpleCredentials("admin",
+      // "admin".toCharArray()), "ws");
       test.doRun(tc, session);
     } catch (Throwable exception) {
       exception.printStackTrace();
@@ -54,6 +57,8 @@ public class BasicJCRAPIDriver extends JCRDriverBase {
     } finally {
       session.logout();
     }
+    // long end = System.nanoTime();
+    // tc.setDoubleParam("japex.resultValue", (end-start)/(1000000.0));
   }
 
 }

@@ -19,7 +19,7 @@ import com.sun.japex.TestCase;
 public class TestAddNode extends AbstactTest {
 
   private String rootNodeName = "testRoot" + String.valueOf(Math.random());
-  
+
   public void doPrepare(final TestCase tc, Session session) {
     try {
       session.getRootNode().addNode(rootNodeName, "nt:unstructured");
@@ -30,13 +30,14 @@ public class TestAddNode extends AbstactTest {
     } finally {
       session.logout();
     }
+    // System.out.println("===TestAddNode, doPrepare : " + (end-start));
   }
-  
+
   public void doRun(final TestCase tc, Session session) {
     try {
-      String nodeName = "testNode" + String.valueOf(Math.random()); 
-      session.getRootNode().getNode(rootNodeName).addNode(nodeName, "nt:unstructured");
-      session.save();
+      String nodeName = "testNode" + String.valueOf(Math.random());
+      session.getRootNode().addNode(nodeName, "nt:unstructured");
+      // session.save();
     } catch (Throwable exception) {
       exception.printStackTrace();
       throw new RuntimeException(exception.getMessage(), exception);
