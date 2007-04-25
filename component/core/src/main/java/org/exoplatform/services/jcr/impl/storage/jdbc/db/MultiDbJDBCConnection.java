@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
 
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -469,50 +470,25 @@ CREATE VIEW JCR_MPROPERTY AS
   }
   
   // -------- values processing ------------
-  
-  protected void addValues(String cid, List<ValueData> data) throws IOException, SQLException {
-    if(data == null) {
-      log.warn("List of values data is NULL. Check JCR logic. PropertyId: " + getUuid(cid));
-      return;
-    }
 
-    for (int i = 0; i < data.size(); i++) {
-      addValueRecord(cid, data.get(i), i); // TODO data.get(i).getOrderNumber()
-    }
-  }  
-  
-  protected void addValueRecord(String cid, ValueData data, int orderNumber) throws SQLException, IOException {
-
-    InputStream stream = null;
-    int streamLength = 0;
-    if (data.isByteArray()) {
-      byte[] dataBytes = data.getAsByteArray();
-      stream = new ByteArrayInputStream(dataBytes);
-      streamLength = dataBytes.length;
-    } else {
-      stream = data.getAsStream();
-      streamLength = stream.available(); // for FileInputStream can be used channel.size() result
-    }
+  protected void addValueData(String cid, int orderNumber, InputStream stream, int streamLength) throws SQLException, IOException {
 
     if (insertValue == null)
       insertValue = dbConnection.prepareStatement(INSERT_VALUE);
     else
-      insertValue.clearParameters();
+      insertValue.clearParameters();      
     
-    insertValue.setBinaryStream(1, stream, streamLength);
+    if (stream == null)
+      insertValue.setNull(1, Types.BLOB); // null, i.e. reference
+    else
+      insertValue.setBinaryStream(1, stream, streamLength);
 
-    data.setOrderNumber(orderNumber);
-    insertValue.setInt(2, data.getOrderNumber());
+    insertValue.setInt(2, orderNumber);
 
     insertValue.setString(3, cid);
-    try {
-      insertValue.executeUpdate();
-    } catch (SQLException e) {
-      log.error("addValueRecord() ",  e);
-      throw e;
-    }
+    insertValue.executeUpdate();
   }
-
+  
   protected void deleteValues(String cid) throws SQLException {
     if (deleteValue == null)
       deleteValue = dbConnection.prepareStatement(DELETE_VALUE);

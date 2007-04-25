@@ -8,10 +8,12 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
 
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -131,42 +133,42 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
       + " from JCR_SITEM"
       + " where I_CLASS=2 and CONTAINER_NAME=? and PARENT_ID=? and PATH=? order by VERSION DESC";
     
-//    FIND_PROPERTY_BY_NAME = "select *" 
-//      + " from JCR_SPROPERTY"
-//      + " where CONTAINER_NAME=? and PARENT_ID=? and NAME=? order by VERSION DESC";
-    
     FIND_PROPERTY_BY_NAME = "select *" 
-      + " from JCR_SITEM"
-      + " where I_CLASS=2 and CONTAINER_NAME=? and PARENT_ID=? and NAME=? order by VERSION DESC";
+      + " from JCR_SPROPERTY"
+      + " where CONTAINER_NAME=? and PARENT_ID=? and NAME=? order by VERSION DESC";
     
-//    FIND_REFERENCES = "select P.ID, P.PARENT_ID, P.VERSION, P.P_TYPE, P.P_MULTIVALUED, P.NAME, P.PATH" +
-//      " from JCR_SREF R, JCR_SPROPERTY P" +
-//      " where P.CONTAINER_NAME=? and R.NODE_ID=? and P.ID=R.PROPERTY_ID";
+//    FIND_PROPERTY_BY_NAME = "select *" 
+//      + " from JCR_SITEM"
+//      + " where I_CLASS=2 and CONTAINER_NAME=? and PARENT_ID=? and NAME=? order by VERSION DESC";
     
     FIND_REFERENCES = "select P.ID, P.PARENT_ID, P.VERSION, P.P_TYPE, P.P_MULTIVALUED, P.NAME, P.PATH" +
-      " from JCR_SREF R, JCR_SITEM P" +
-      " where P.I_CLASS=2 and P.CONTAINER_NAME=? and R.NODE_ID=? and P.ID=R.PROPERTY_ID";
+      " from JCR_SREF R, JCR_SPROPERTY P" +
+      " where P.CONTAINER_NAME=? and R.NODE_ID=? and P.ID=R.PROPERTY_ID";
+    
+//    FIND_REFERENCES = "select P.ID, P.PARENT_ID, P.VERSION, P.P_TYPE, P.P_MULTIVALUED, P.NAME, P.PATH" +
+//      " from JCR_SREF R, JCR_SITEM P" +
+//      " where P.I_CLASS=2 and P.CONTAINER_NAME=? and R.NODE_ID=? and P.ID=R.PROPERTY_ID";
 
     FIND_VALUES_BY_PROPERTYID = "select * from JCR_SVALUE where PROPERTY_ID=? order by ORDER_NUM";
     FIND_VALUE_BY_PROPERTYID_OREDERNUMB = "select DATA from JCR_SVALUE where PROPERTY_ID=? and ORDER_NUM=?";
     
     // TODO Index CONTAINER_NAME, PARENT_ID, N_ORDER_NUM
-//    FIND_NODES_BY_PARENTID = "select * from JCR_SNODE"
-//      + " where CONTAINER_NAME=? and PARENT_ID=?"
-//      + " order by N_ORDER_NUM";
-    
-    FIND_NODES_BY_PARENTID = "select * from JCR_SITEM"
-      + " where I_CLASS=1 and CONTAINER_NAME=? and PARENT_ID=?"
+    FIND_NODES_BY_PARENTID = "select * from JCR_SNODE"
+      + " where CONTAINER_NAME=? and PARENT_ID=?"
       + " order by N_ORDER_NUM";
     
-    // TODO Index CONTAINER_NAME, PARENT_ID, ID    
-//    FIND_PROPERTIES_BY_PARENTID = "select * from JCR_SPROPERTY"
-//      + " where CONTAINER_NAME=? and PARENT_ID=?" 
-//      + " order by ID";
+//    FIND_NODES_BY_PARENTID = "select * from JCR_SITEM"
+//      + " where I_CLASS=1 and CONTAINER_NAME=? and PARENT_ID=?"
+//      + " order by N_ORDER_NUM";
     
-    FIND_PROPERTIES_BY_PARENTID = "select * from JCR_SITEM"
-      + " where I_CLASS=2 and CONTAINER_NAME=? and PARENT_ID=?" 
+    // TODO Index CONTAINER_NAME, PARENT_ID, ID    
+    FIND_PROPERTIES_BY_PARENTID = "select * from JCR_SPROPERTY"
+      + " where CONTAINER_NAME=? and PARENT_ID=?" 
       + " order by ID";
+    
+//    FIND_PROPERTIES_BY_PARENTID = "select * from JCR_SITEM"
+//      + " where I_CLASS=2 and CONTAINER_NAME=? and PARENT_ID=?" 
+//      + " order by ID";
     
     /*
     ID VARCHAR(96) NOT NULL PRIMARY KEY,
@@ -454,44 +456,24 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
   
   // -------- values processing ------------
   
-  protected void addValues(String cid, List<ValueData> data) throws IOException, SQLException {
-    if(data == null) {
-      log.warn("List of values data is NULL. Check JCR logic. PropertyId: " + getUuid(cid));
-      return;
-    }
-
-    for (int i = 0; i < data.size(); i++) {
-      addValueRecord(cid, data.get(i), i); // TODO data.get(i).getOrderNumber()
-    }
-  } 
-  
-  protected void addValueRecord(String cid, ValueData data, int orderNumber) throws SQLException, IOException {
-
-    InputStream stream = null;
-    int streamLength = 0;
-    if (data.isByteArray()) {
-      byte[] dataBytes = data.getAsByteArray();
-      stream = new ByteArrayInputStream(dataBytes);
-      streamLength = dataBytes.length;
-    } else {
-      stream = data.getAsStream();
-      streamLength = stream.available(); // for FileInputStream can be used channel.size() result
-    }
+  protected void addValueData(String cid, int orderNumber, InputStream stream, int streamLength) throws SQLException, IOException {
 
     if (insertValue == null)
       insertValue = dbConnection.prepareStatement(INSERT_VALUE);
     else
       insertValue.clearParameters();      
     
-    insertValue.setBinaryStream(1, stream, streamLength);
+    if (stream == null)
+      insertValue.setNull(1, Types.BLOB); // null, i.e. reference
+    else
+      insertValue.setBinaryStream(1, stream, streamLength);
 
-    data.setOrderNumber(orderNumber);
-    insertValue.setInt(2, data.getOrderNumber());
+    insertValue.setInt(2, orderNumber);
 
     insertValue.setString(3, cid);
     insertValue.executeUpdate();
   }
-
+  
   protected void deleteValues(String cid) throws SQLException {
     if (deleteValue == null)
       deleteValue = dbConnection.prepareStatement(DELETE_VALUE);

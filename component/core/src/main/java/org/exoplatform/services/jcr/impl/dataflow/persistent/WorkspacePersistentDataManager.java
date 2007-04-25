@@ -269,71 +269,71 @@ public class WorkspacePersistentDataManager implements DataManager {
       throws RepositoryException, InvalidItemStateException {
 
     // check if update is possible
-    final ItemData existed = con.getItemData(item.getUUID());
-    if (existed == null) {
-      // [PN] 12.12.06, We can have a same path item but with different uuid... 
-      // Usecase: use of ItemState updated with newly created item data:
-      //  PropertyData propData = TransientPropertyData.createPropertyData(
-      //     nodeData(), Constants.JCR_ISCHECKEDOUT, PropertyType.BOOLEAN, false, new TransientValueData(false));
-      //  changesLog.add(ItemState.createUpdatedState(propData));
-      // propData has new uuid but logicaly points to the existed in storage property (with another uuid)
-      
-      final ItemData samePathItem = con.getItemData(item.getQPath());
-      if (samePathItem == null) {
-        throw new InvalidItemStateException("(update) Item "  
-            + item.getQPath().getAsString()
-            + " not found. Probably was deleted by another session");
-      }
-      
-      // [PN] 12.12.06, if an item with different uuid but with this path is exists - delete it
-      con.delete(samePathItem);
-    }
+//    final ItemData existed = con.getItemData(item.getUUID());
+//    if (existed == null) {
+//      // [PN] 12.12.06, We can have a same path item but with different uuid... 
+//      // Usecase: use of ItemState updated with newly created item data:
+//      //  PropertyData propData = TransientPropertyData.createPropertyData(
+//      //     nodeData(), Constants.JCR_ISCHECKEDOUT, PropertyType.BOOLEAN, false, new TransientValueData(false));
+//      //  changesLog.add(ItemState.createUpdatedState(propData));
+//      // propData has new uuid but logicaly points to the existed in storage property (with another uuid)
+//      
+//      final ItemData samePathItem = con.getItemData(item.getQPath());
+//      if (samePathItem == null) {
+//        throw new InvalidItemStateException("(update) Item "  
+//            + item.getQPath().getAsString()
+//            + " not found. Probably was deleted by another session");
+//      }
+//      
+//      // [PN] 12.12.06, if an item with different uuid but with this path is exists - delete it
+//      con.delete(samePathItem);
+//    }
 
     if (item.isNode()) {
       con.update((NodeData) item);
       
-      // check if reindex needed
-      NodeData existedNode = (NodeData) existed;
-      if (existedNode.getQPath().getIndex() != item.getQPath().getIndex()) {
-        // reindex it's a new persisted version, (DB index JCR_IDX_SITEM_PATH must be UNIQUE also)
-        //item.increasePersistedVersion(); 
-        con.reindex(existedNode, (NodeData) item);
-      }
+//      // check if reindex needed
+//      NodeData existedNode = (NodeData) existed;
+//      if (existedNode.getQPath().getIndex() != item.getQPath().getIndex()) {
+//        // reindex it's a new persisted version, (DB index JCR_IDX_SITEM_PATH must be UNIQUE also)
+//        //item.increasePersistedVersion(); 
+//        con.reindex(existedNode, (NodeData) item);
+//      }
     } else {
       con.update((PropertyData) item);
     }
   }
-
+  
   /**
    * Performs actual item data adding
    * @param item to add
    * @param con 
    * @throws RepositoryException
    * @throws InvalidItemStateException if the item is already added
-   */
+   */  
   protected void doAdd(TransientItemData item, WorkspaceStorageConnection con)
       throws RepositoryException, InvalidItemStateException {
    
     // check once again as another session may insert the same
-    ItemData sameItem = con.getItemData(item.getQPath());
-    if (sameItem != null && sameItem.isNode() == item.isNode()) {
-      throw new InvalidItemStateException("Item "
-          + item.getQPath().getAsString() + " (persisted version: "
-          + sameItem.getPersistedVersion() + ") already exists in "
-          + dataContainer.getName()
-          + ". Probably was added by another session " + sameItem.getUUID());
-    }
+//    ItemData sameItem = con.getItemData(item.getQPath());
+//    if (sameItem != null && sameItem.isNode() == item.isNode()) {
+//      throw new InvalidItemStateException("Item "
+//          + item.getQPath().getAsString() + " (persisted version: "
+//          + sameItem.getPersistedVersion() + ") already exists in "
+//          + dataContainer.getName()
+//          + ". Probably was added by another session " + sameItem.getUUID());
+//    }
     // [PN] 15.06.06 Custom tunning for MySQL self-referencing FOREIGN KEY on JCR_NODE table (FOREIGN KEY DON'T WORK!)
-    if (item.isNode() && item.getParentUUID() != null) {
-      ItemData parentItem = con.getItemData(item.getParentUUID());
-      if (parentItem == null) {
-        throw new InvalidItemStateException("Parent for item "
-            + item.getQPath().getAsString() + " " + item.getUUID() + " (persisted version: "
-            + item.getPersistedVersion() + ") does not exists in "
-            + dataContainer.getName()
-            + ". Probably was deleted by another session.");
-      }
-    }
+//    if (item.isNode() && item.getParentUUID() != null) {
+//      ItemData parentItem = con.getItemData(item.getParentUUID());
+//      if (parentItem == null) {
+//        throw new InvalidItemStateException("Parent for item "
+//            + item.getQPath().getAsString() + " " + item.getUUID() + " (persisted version: "
+//            + item.getPersistedVersion() + ") does not exists in "
+//            + dataContainer.getName()
+//            + ". Probably was deleted by another session.");
+//      }
+//    }
 
     if (item.isNode()) {
       con.add((NodeData) item);
@@ -348,7 +348,6 @@ public class WorkspacePersistentDataManager implements DataManager {
   public Calendar getCurrentTime() {
     return dataContainer.getCurrentTime();
   }
-  
 
   // ---------------------------------------------
 
