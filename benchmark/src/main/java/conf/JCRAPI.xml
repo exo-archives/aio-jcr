@@ -15,7 +15,12 @@
   </driver>
   
   <testCase name="TestAddNode">
-    <param name="japex.runIterations" value="3" />
+    <param name="japex.runIterations" value="100" />
+    <param name="japex.warmupIterations" value="0"/>
+  </testCase>
+  
+  <testCase name="TestSetProperty">
+    <param name="japex.runIterations" value="100" />
     <param name="japex.warmupIterations" value="0"/>
   </testCase>
 

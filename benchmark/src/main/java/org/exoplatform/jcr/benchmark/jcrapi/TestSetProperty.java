@@ -7,7 +7,7 @@ package org.exoplatform.jcr.benchmark.jcrapi;
 
 import javax.jcr.Node;
 import javax.jcr.Session;
-
+import org.exoplatform.jcr.benchmark.jcrapi.AbstactTest;
 import com.sun.japex.TestCase;
 
 /**
@@ -17,13 +17,15 @@ import com.sun.japex.TestCase;
  * @version $Id: $
  */
 
-public class TestAddNode implements AbstactTest {
-
+public class TestSetProperty implements AbstactTest {
+  
   private Node node = null;
 
   public void doPrepare(final TestCase tc, Session session) {
     try {
-      node = session.getRootNode();
+      String nodeName = "TestSetProperty" + System.nanoTime();
+      node = session.getRootNode().addNode(nodeName, "nt:unstructured");
+      session.save();
     } catch (Throwable exception) {
       exception.printStackTrace();
       throw new RuntimeException(exception.getMessage(), exception);
@@ -32,9 +34,9 @@ public class TestAddNode implements AbstactTest {
 
   public void doRun(final TestCase tc, Session session) {
     try {
-      String nodeName = "TestAddNode" + System.nanoTime();
-      node.addNode(nodeName, "nt:unstructured");
-      // session.save();
+      String propertyName = "TestSetProperty" + System.nanoTime();
+      node.setProperty(propertyName, "1234567890");
+      //session.save();
     } catch (Throwable exception) {
       exception.printStackTrace();
       throw new RuntimeException(exception.getMessage(), exception);
