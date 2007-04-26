@@ -34,8 +34,6 @@ public class BasicJCRAPIDriver extends JCRDriverBase {
     } catch (Throwable exception) {
       exception.printStackTrace();
       throw new RuntimeException(exception.getMessage(), exception);
-    } finally {
-      session.logout();
     }
   }
 
@@ -45,8 +43,6 @@ public class BasicJCRAPIDriver extends JCRDriverBase {
     } catch (Throwable exception) {
       exception.printStackTrace();
       throw new RuntimeException(exception.getMessage(), exception);
-    } finally {
-      session.logout();
     }
     // long end = System.nanoTime();
     // tc.setDoubleParam("japex.resultValue", (end-start)/(1000000.0));
