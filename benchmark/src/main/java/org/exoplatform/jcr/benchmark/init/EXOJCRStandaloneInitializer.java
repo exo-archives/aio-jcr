@@ -30,7 +30,7 @@ public class EXOJCRStandaloneInitializer extends JCRInitializer {
       RepositoryService repositoryService = (RepositoryService) container
           .getComponentInstanceOfType(RepositoryService.class);
       repository = repositoryService.getRepository();
-      session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), "ws");
+      session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
     } catch (Exception e) {
       e.printStackTrace();
     }
