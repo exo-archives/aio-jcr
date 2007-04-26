@@ -35,7 +35,7 @@ public class TestCheckin implements AbstactTest {
         String tmpNodeName = "TestCheckinTmp" + System.nanoTime();
         Node tmpNode = node.addNode(tmpNodeName, "nt:unstructured");
         tmpNode.addMixin("mix:versionable");
-        session.save();
+        node.save();
         nodesList.add(tmpNode);
       }
     } catch (Throwable exception) {

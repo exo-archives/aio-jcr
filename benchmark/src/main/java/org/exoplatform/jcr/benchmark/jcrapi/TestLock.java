@@ -35,7 +35,7 @@ public class TestLock implements AbstactTest {
         String tmpNodeName = "TestLockTmp" + System.nanoTime();
         Node tmpNode = node.addNode(tmpNodeName, "nt:unstructured");
         tmpNode.addMixin("mix:lockable");
-        session.save();
+        node.save();
         nodesList.add(tmpNode);
       }
     } catch (Throwable exception) {

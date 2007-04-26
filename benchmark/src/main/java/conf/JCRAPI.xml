@@ -5,7 +5,7 @@
 	<param name="japex.resultUnit" value="ms" />
 	<param name="japex.reportsDirectory"
 		value="target/testing-results-reports" />
-	<param name="japex.plotGroupSize" value="16" />
+	<param name="japex.plotGroupSize" value="5" />
 
 	<driver name="ExoJCR-1.6">
 		<param name="japex.classPath"
@@ -15,7 +15,7 @@
 		<param name="initializer"
 			value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializer" />
 		<param name="description" value="JCR Internal API" />
-		<param name="japex.numberOfThreads" value="1" />
+		<param name="japex.numberOfThreads" value="2" />
 	</driver>
 
 	<testCase name="TestAddNode">

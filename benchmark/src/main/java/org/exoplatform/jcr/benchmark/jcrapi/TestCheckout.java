@@ -35,7 +35,7 @@ public class TestCheckout implements AbstactTest {
         String tmpNodeName = "TestCheckoutTmp" + System.nanoTime();
         Node tmpNode = node.addNode(tmpNodeName, "nt:unstructured");
         tmpNode.addMixin("mix:versionable");
-        session.save();
+        node.save();
         tmpNode.checkin();
         nodesList.add(tmpNode);
       }
