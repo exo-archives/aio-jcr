@@ -79,7 +79,7 @@
               <classpath>
                 <pathelement path="${classpath}" />
                 <fileset dir="${basedir}/target">
-                  <include name="**/exo-jcr-benchmark-1.6.dir/*.jar" />
+                  <include name="**/exo-jcr-benchmark-${org.exoplatform.jcr.version}.dir/*.jar" />
                 </fileset>
                 <!--<pathelement location="classes"/>
                   <dirset dir="${basedir}">
