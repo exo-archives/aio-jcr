@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.impl.proccess.WorkerThread;
 import org.exoplatform.services.log.ExoLogger;
@@ -22,10 +21,13 @@ public final class SessionRegistry implements Startable {
   private final Map<String, SessionImpl> sessionsMap;
 
   // 60 min
-  private int                            DEFAULT_TIMEOUT = 60 * 60 * 1000;
+  private int                            DEFAULT_SESSION_TIMEOUT = 60 * 60 * 1000;
 
-  protected static Log                   log             = ExoLogger
-                                                             .getLogger("jcr.SessionRegistry");
+  // 1 min
+  private int                            DEFAULT_CLEANER_TIMEOUT = 60 * 1000;
+
+  protected static Log                   log                     = ExoLogger
+                                                                     .getLogger("jcr.SessionRegistry");
 
   private SessionCleaner                 sessionCleaner;
 
@@ -34,15 +36,9 @@ public final class SessionRegistry implements Startable {
   public SessionRegistry(RepositoryEntry entry) {
     sessionsMap = new WeakHashMap<String, SessionImpl>();
     if (entry != null) {
-      this.timeOut = entry.getSessionTimeOut() > 0 ? entry.getSessionTimeOut() : DEFAULT_TIMEOUT;
-
+      this.timeOut = entry.getSessionTimeOut() > 0 ? entry.getSessionTimeOut()
+          : DEFAULT_SESSION_TIMEOUT;
     }
-
-  }
-
-  protected void setTimeOut(long timeOut) {
-    this.timeOut = timeOut;
-    sessionCleaner.setTimeOut(timeOut);
   }
 
   public void registerSession(SessionImpl session) {
@@ -56,12 +52,13 @@ public final class SessionRegistry implements Startable {
       sessionsMap.remove(sessionId);
     }
   }
-  public SessionImpl  getSession(String sessionId) {
-      return sessionsMap.get(sessionId);
-  }
-  public void start() {
-    sessionCleaner = new SessionCleaner(timeOut);
 
+  public SessionImpl getSession(String sessionId) {
+    return sessionsMap.get(sessionId);
+  }
+
+  public void start() {
+    sessionCleaner = new SessionCleaner(DEFAULT_CLEANER_TIMEOUT, timeOut);
   }
 
   public void stop() {
@@ -69,16 +66,17 @@ public final class SessionRegistry implements Startable {
   }
 
   private class SessionCleaner extends WorkerThread {
-    private void setTimeOut(long timeOut) {
-      this.timeout = timeOut;
-    }
 
-    public SessionCleaner(long timeout) {
-      super(timeout);
+    private long sessionTimeOut;
+
+    public SessionCleaner(long workTime, long sessionTimeOut) {
+      super(workTime);
+      this.sessionTimeOut = sessionTimeOut;
       setName("SessionCleaner " + getId());
       setPriority(Thread.MIN_PRIORITY);
       start();
-      log.info("SessionCleaner instantiated name= " + getName() + " timeout= " + timeout);
+      log.info("SessionCleaner instantiated name= " + getName() + " workTime= " + workTime
+          + " sessionTimeOut=" + sessionTimeOut);
     }
 
     @Override
@@ -89,7 +87,7 @@ public final class SessionRegistry implements Startable {
       }
       synchronized (sessions) {
         for (int i = 0; i < sessions.length; i++) {
-          if (sessions[i].getLastAccessTime() + timeout < System.currentTimeMillis()) {
+          if (sessions[i].getLastAccessTime() + sessionTimeOut < System.currentTimeMillis()) {
             sessions[i].logout();
           }
         }
