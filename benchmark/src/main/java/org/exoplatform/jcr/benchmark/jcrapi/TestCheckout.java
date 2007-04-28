@@ -26,7 +26,7 @@ public class TestCheckout implements AbstactTest {
   
   private ArrayList<Node> nodesList = new ArrayList<Node>(); 
 
-  public void doPrepare(final TestCase tc, Session session) {
+  public void doPrepare(final TestCase tc, Session session, int myNodeIndex) {
     try {
       String nodeName = "TestCheckout" + System.nanoTime();
       node = session.getRootNode().addNode(nodeName, "nt:unstructured");

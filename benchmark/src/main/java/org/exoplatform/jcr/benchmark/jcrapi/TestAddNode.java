@@ -21,7 +21,7 @@ public class TestAddNode implements AbstactTest {
 
   private Node node = null;
 
-  public void doPrepare(final TestCase tc, Session session) {
+  public void doPrepare(final TestCase tc, Session session, int myNodeIndex) {
     try {
       node = session.getRootNode();
     } catch (Throwable exception) {

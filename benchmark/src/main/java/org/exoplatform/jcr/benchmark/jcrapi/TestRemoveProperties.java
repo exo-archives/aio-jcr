@@ -26,7 +26,7 @@ public class TestRemoveProperties implements AbstactTest {
   
   private ArrayList<Property> propertiesList = new ArrayList<Property>(); 
 
-  public void doPrepare(final TestCase tc, Session session) {
+  public void doPrepare(final TestCase tc, Session session, int myNodeIndex) {
     try {
       String nodeName = "TestRemoveProperties" + System.nanoTime();
       node = session.getRootNode().addNode(nodeName, "nt:unstructured");

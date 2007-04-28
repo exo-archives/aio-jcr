@@ -21,7 +21,7 @@ public class TestSetProperty implements AbstactTest {
   
   private Node node = null;
 
-  public void doPrepare(final TestCase tc, Session session) {
+  public void doPrepare(final TestCase tc, Session session, int myNodeIndex) {
     try {
       String nodeName = "TestSetProperty" + System.nanoTime();
       node = session.getRootNode().addNode(nodeName, "nt:unstructured");

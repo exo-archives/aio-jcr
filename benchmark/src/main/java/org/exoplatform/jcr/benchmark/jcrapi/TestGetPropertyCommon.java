@@ -20,25 +20,21 @@ import com.sun.japex.TestCase;
  * @version $Id: $
  */
 
-public class TestUnlock implements AbstactTest {
+public class TestGetPropertyCommon implements AbstactTest {
   
   private Node node = null;
+  private String nodeName = "/testStorage/root3/node1/node2/node3/file4/jcr:content";
   
-  private ArrayList<Node> nodesList = new ArrayList<Node>(); 
-
   public void doPrepare(final TestCase tc, Session session, int myNodeIndex) {
     try {
-      String nodeName = "TestUnlock" + System.nanoTime();
-      node = session.getRootNode().addNode(nodeName, "nt:unstructured");
-      session.save();
-      for (int i = 0; i < tc.getIntParam("japex.runIterations"); i++) {
-        String tmpNodeName = "TestUnlockTmp" + System.nanoTime();
-        Node tmpNode = node.addNode(tmpNodeName, "nt:unstructured");
-        tmpNode.addMixin("mix:lockable");
-        node.save();
-        tmpNode.lock(true,true);
-        nodesList.add(tmpNode);
-      }
+      /*if (tc.getParam("exo.readFolder").equalsIgnoreCase("common")){
+        nodeName = "/testStorage/root3/node1/node2/node3/file4/jcr:content";
+      }else if (tc.getParam("exo.readFolder").equalsIgnoreCase("own")){
+        nodeName = "/testStorage/root3/node1/node2/node3/file" + myNodeIndex + "/jcr:content"; 
+      }*/
+      nodeName = "/testStorage/root3/node1/node2/node3/file4/jcr:content";
+      //System.out.println("===TestGetPropertyCommon, doPrepare : " + nodeName);
+      node = (Node)session.getItem(nodeName);
     } catch (Throwable exception) {
       exception.printStackTrace();
       throw new RuntimeException(exception.getMessage(), exception);
@@ -47,8 +43,7 @@ public class TestUnlock implements AbstactTest {
 
   public void doRun(final TestCase tc, Session session) {
     try {
-      nodesList.remove(0).unlock();
-      //session.save();
+      node.getProperty("jcr:data");
     } catch (Throwable exception) {
       exception.printStackTrace();
       throw new RuntimeException(exception.getMessage(), exception);

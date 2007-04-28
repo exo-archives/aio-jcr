@@ -26,7 +26,7 @@ public class TestAddMixReferenceable implements AbstactTest {
   
   private ArrayList<Node> nodesList = new ArrayList<Node>(); 
 
-  public void doPrepare(final TestCase tc, Session session) {
+  public void doPrepare(final TestCase tc, Session session, int index) {
     try {
       String nodeName = "TestAddMixReferenceable" + System.nanoTime();
       node = session.getRootNode().addNode(nodeName, "nt:unstructured");

@@ -3,65 +3,215 @@
 	name="Calculating the average time of execution of the main JCR API methods"
 	xmlns="http://www.sun.com/japex/testSuite">
 	<param name="japex.resultUnit" value="ms" />
-	<param name="japex.reportsDirectory"
-		value="target/testing-results-reports" />
+	<param name="japex.reportsDirectory" value="../reports" />
 	<param name="japex.plotGroupSize" value="5" />
 
-	<driver name="ExoJCR-1.6">
+	<!--<driver name="ExoJCR-1.5">
 		<param name="japex.classPath"
-			value="target/exo-jcr-benchmark-1.6.dir/*.jar" />
+		value="target/exo-jcr-benchmark-1.5.dir/*.jar" />
+		<param name="japex.driverClass"
+		value="org.exoplatform.jcr.benchmark.jcrapi.BasicJCRAPIDriver" />
+		<param name="initializer"
+		value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializer15" />
+		<param name="description" value="JCR Internal API" />
+		<param name="japex.numberOfThreads" value="1" />
+		</driver>-->
+
+	<!--<driver name="JackrabbitJCR-1.4">
+		<param name="japex.classPath"
+		value="target/jackrabbit-jcr-benchmark-1.4.dir/*.jar" />
+		<param name="japex.driverClass"
+		value="org.exoplatform.jcr.benchmark.jcrapi.BasicJCRAPIDriver" />
+		<param name="initializer"
+		value="org.apache.jackrabbit.jcr.benchmark.init.JackrabbitJCRInitializer" />
+		<param name="description" value="JCR Internal API" />
+		<param name="japex.numberOfThreads" value="1" />
+		</driver>-->
+
+	<!--<driver name="Threads-1">
+		<param name="japex.classPath" value="../lib/*.jar" />
+		<param name="japex.driverClass"
+		value="org.exoplatform.jcr.benchmark.jcrapi.BasicJCRAPIDriver" />
+		<param name="initializer"
+		value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializerOracle" />
+		<param name="description" value="JCR Internal API" />
+		<param name="japex.numberOfThreads" value="1" />
+		</driver>-->
+
+	<!--<driver name="Threads-1">
+		<param name="japex.classPath" value="../lib/*.jar" />
 		<param name="japex.driverClass"
 			value="org.exoplatform.jcr.benchmark.jcrapi.BasicJCRAPIDriver" />
 		<param name="initializer"
-			value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializer" />
+			value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializerOracle" />
 		<param name="description" value="JCR Internal API" />
-		<param name="japex.numberOfThreads" value="2" />
+		<param name="japex.numberOfThreads" value="1" />
+	</driver>-->
+
+	<driver name="Threads-10">
+		<param name="japex.classPath" value="../lib/*.jar" />
+		<param name="japex.driverClass"
+			value="org.exoplatform.jcr.benchmark.jcrapi.BasicJCRAPIDriver" />
+		<param name="initializer"
+			value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializerOracle" />
+		<param name="description" value="JCR Internal API" />
+		<param name="japex.numberOfThreads" value="10" />
 	</driver>
 
-	<testCase name="TestAddNode">
-		<param name="japex.runIterations" value="100" />
+	<driver name="Threads-20">
+		<param name="japex.classPath" value="../lib/*.jar" />
+		<param name="japex.driverClass"
+			value="org.exoplatform.jcr.benchmark.jcrapi.BasicJCRAPIDriver" />
+		<param name="initializer"
+			value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializerOracle" />
+		<param name="description" value="JCR Internal API" />
+		<param name="japex.numberOfThreads" value="20" />
+	</driver>
+
+	<driver name="Threads-30">
+		<param name="japex.classPath" value="../lib/*.jar" />
+		<param name="japex.driverClass"
+			value="org.exoplatform.jcr.benchmark.jcrapi.BasicJCRAPIDriver" />
+		<param name="initializer"
+			value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializerOracle" />
+		<param name="description" value="JCR Internal API" />
+		<param name="japex.numberOfThreads" value="30" />
+	</driver>
+
+	<!--<driver name="Threads-40">
+		<param name="japex.classPath" value="../lib/*.jar" />
+		<param name="japex.driverClass"
+			value="org.exoplatform.jcr.benchmark.jcrapi.BasicJCRAPIDriver" />
+		<param name="initializer"
+			value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializerOracle" />
+		<param name="description" value="JCR Internal API" />
+		<param name="japex.numberOfThreads" value="40" />
+	</driver>
+
+	<driver name="Threads-50">
+		<param name="japex.classPath" value="../lib/*.jar" />
+		<param name="japex.driverClass"
+			value="org.exoplatform.jcr.benchmark.jcrapi.BasicJCRAPIDriver" />
+		<param name="initializer"
+			value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializerOracle" />
+		<param name="description" value="JCR Internal API" />
+		<param name="japex.numberOfThreads" value="50" />
+	</driver>
+
+	<driver name="Threads-100">
+		<param name="japex.classPath" value="../lib/*.jar" />
+		<param name="japex.driverClass"
+			value="org.exoplatform.jcr.benchmark.jcrapi.BasicJCRAPIDriver" />
+		<param name="initializer"
+			value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializerOracle" />
+		<param name="description" value="JCR Internal API" />
+		<param name="japex.numberOfThreads" value="100" />
+	</driver>-->
+
+	<!--<driver name="Threads-20">
+		<param name="japex.classPath" value="*.jar" />
+		<param name="japex.driverClass"
+		value="org.exoplatform.jcr.benchmark.jcrapi.BasicJCRAPIDriver" />
+		<param name="initializer"
+		value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializerOracle" />
+		<param name="description" value="JCR Internal API" />
+		<param name="japex.numberOfThreads" value="20" />
+		</driver>
+		
+		<driver name="Threads-30">
+		<param name="japex.classPath" value="*.jar" />
+		<param name="japex.driverClass"
+		value="org.exoplatform.jcr.benchmark.jcrapi.BasicJCRAPIDriver" />
+		<param name="initializer"
+		value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializerOracle" />
+		<param name="description" value="JCR Internal API" />
+		<param name="japex.numberOfThreads" value="30" />
+		</driver>
+		
+		<driver name="Threads-40">
+		<param name="japex.classPath" value="*.jar" />
+		<param name="japex.driverClass"
+		value="org.exoplatform.jcr.benchmark.jcrapi.BasicJCRAPIDriver" />
+		<param name="initializer"
+		value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializerOracle" />
+		<param name="description" value="JCR Internal API" />
+		<param name="japex.numberOfThreads" value="40" />
+		</driver>
+		
+		<driver name="Threads-50">
+		<param name="japex.classPath" value="*.jar" />
+		<param name="japex.driverClass"
+		value="org.exoplatform.jcr.benchmark.jcrapi.BasicJCRAPIDriver" />
+		<param name="initializer"
+		value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializerOracle" />
+		<param name="description" value="JCR Internal API" />
+		<param name="japex.numberOfThreads" value="50" />
+		</driver>-->
+
+	<testCase name="TestGetNodeOwn">
+		<param name="japex.runIterations" value="1" />
 		<param name="japex.warmupIterations" value="0" />
 	</testCase>
 
-	<testCase name="TestSetProperty">
-		<param name="japex.runIterations" value="100" />
+	<testCase name="TestGetPropertyOwn">
+		<param name="japex.runIterations" value="1" />
 		<param name="japex.warmupIterations" value="0" />
 	</testCase>
 
-	<testCase name="TestRemoveNodes">
-		<param name="japex.runIterations" value="100" />
+	<testCase name="TestGetNodeCommon">
+		<param name="japex.runIterations" value="1" />
 		<param name="japex.warmupIterations" value="0" />
 	</testCase>
 
-	<testCase name="TestRemoveProperties">
-		<param name="japex.runIterations" value="100" />
+	<testCase name="TestGetPropertyCommon">
+		<param name="japex.runIterations" value="1" />
 		<param name="japex.warmupIterations" value="0" />
 	</testCase>
 
-	<testCase name="TestAddMixReferenceable">
+	<!--<testCase name="TestAddNode">
 		<param name="japex.runIterations" value="100" />
 		<param name="japex.warmupIterations" value="0" />
-	</testCase>
-
-	<testCase name="TestCheckin">
+		</testCase>
+		
+		<testCase name="TestSetProperty">
+		<param name="japex.runIterations" value="100" />
+		<param name="japex.warmupIterations" value="0" />
+		</testCase>
+		
+		<testCase name="TestRemoveNodes">
+		<param name="japex.runIterations" value="100" />
+		<param name="japex.warmupIterations" value="0" />
+		</testCase>
+		
+		<testCase name="TestRemoveProperties">
+		<param name="japex.runIterations" value="100" />
+		<param name="japex.warmupIterations" value="0" />
+		</testCase>
+		
+		<testCase name="TestAddMixReferenceable">
+		<param name="japex.runIterations" value="100" />
+		<param name="japex.warmupIterations" value="0" />
+		</testCase>
+		
+		<testCase name="TestCheckin">
 		<param name="japex.runIterations" value="10" />
 		<param name="japex.warmupIterations" value="0" />
-	</testCase>
-
-	<testCase name="TestCheckout">
+		</testCase>
+		
+		<testCase name="TestCheckout">
 		<param name="japex.runIterations" value="10" />
 		<param name="japex.warmupIterations" value="0" />
-	</testCase>
-	
-	<testCase name="TestLock">
+		</testCase>
+		
+		<testCase name="TestLock">
 		<param name="japex.runIterations" value="100" />
 		<param name="japex.warmupIterations" value="0" />
-	</testCase>
-
-	<testCase name="TestUnlock">
+		</testCase>
+		
+		<testCase name="TestUnlock">
 		<param name="japex.runIterations" value="100" />
 		<param name="japex.warmupIterations" value="0" />
-	</testCase>
+		</testCase>-->
 
 	<!--<testCase name="Setting 100 properties of node">
 		<param name="methodName" value="doSetProperties"/>

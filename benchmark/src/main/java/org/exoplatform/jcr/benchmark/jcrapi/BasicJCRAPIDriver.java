@@ -27,10 +27,11 @@ public class BasicJCRAPIDriver extends JCRDriverBase {
   private AbstactTest  test         = null;
 
   public void prepare(final TestCase tc) {
+    
     try {
       String testCaseName = packageName + tc.getName();
       test = (AbstactTest) Class.forName(testCaseName).newInstance();
-      test.doPrepare(tc, session);
+      test.doPrepare(tc, session, myNodeIndex);
     } catch (Throwable exception) {
       exception.printStackTrace();
       throw new RuntimeException(exception.getMessage(), exception);

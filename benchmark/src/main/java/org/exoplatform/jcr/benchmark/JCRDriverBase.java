@@ -30,6 +30,8 @@ public abstract class JCRDriverBase extends JapexDriverBase {
 
   protected Session    session;
   
+  protected int    myNodeIndex;
+  
   private final String packageName  = "org.exoplatform.jcr.benchmark.jcrapi.";
 
   private AbstactTest  test         = null;
@@ -43,6 +45,7 @@ public abstract class JCRDriverBase extends JapexDriverBase {
       initializer.initialize();
       repository = initializer.getRepository();
       session = initializer.getSession();
+      myNodeIndex = initializer.getMyNodeIndex();
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);

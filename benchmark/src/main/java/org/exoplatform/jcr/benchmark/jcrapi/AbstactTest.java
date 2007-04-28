@@ -18,8 +18,8 @@ import com.sun.japex.TestCase;
 
 public interface AbstactTest {
 
-  public void doPrepare(final TestCase tc, Session session);
+  public void doPrepare(final TestCase tc, Session session, int myNodeIndex);
 
   public void doRun(final TestCase tc, Session session);
-
+   
 }
