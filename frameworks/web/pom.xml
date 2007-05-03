@@ -31,14 +31,7 @@
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.framework.webdavclient</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.component.ftp</artifactId>
+      <artifactId>exo.jcr.component.rest</artifactId>
       <version>${org.exoplatform.jcr.version}</version>
       <scope>compile</scope>
     </dependency>
