@@ -1,0 +1,152 @@
+<searchrequests >
+
+	<A:searchrequest xmlns:A="DAV:">
+		<A:basicsearch>
+			<A:select>
+				<A:prop xmlns:dc="dc:">
+					<A:displayname/>
+					<A:resourcetype/>
+					<A:getcontentlength/>
+					<dc:creator/>
+					<dc:description/>
+				</A:prop>
+			</A:select>
+			<A:from>
+				<A:scope>
+					<A:href>/test1/</A:href>
+					<A:depth>5</A:depth>
+				</A:scope>
+			</A:from>
+			<A:where>
+				<A:and/>
+			</A:where>
+		</A:basicsearch>
+	</A:searchrequest>	
+
+	<A:searchrequest xmlns:A="DAV:">
+		<A:basicsearch>
+			<A:select>
+				<A:prop xmlns:dc="dc:">
+					<A:displayname/>
+					<A:resourcetype/>
+					<A:getcontentlength/>
+					<dc:creator/>
+					<dc:description/>
+				</A:prop>
+			</A:select>
+			<A:from>
+				<A:scope>
+					<A:href>/test1/</A:href>
+					<A:depth>5</A:depth>
+				</A:scope>
+			</A:from>
+			<A:where>
+				<A:and/>
+			</A:where>
+		</A:basicsearch>
+	</A:searchrequest>		
+	
+	<A:searchrequest xmlns:A="DAV:">
+		<A:basicsearch>
+			<A:select>
+				<A:prop xmlns:dc="dc:">
+					<A:displayname/>
+					<A:resourcetype/>
+					<A:getcontentlength/>
+					<dc:creator/>
+					<dc:description/>
+				</A:prop>
+			</A:select>
+			<A:from>
+				<A:scope>
+					<A:href>/test1/</A:href>
+					<A:depth>5</A:depth>
+				</A:scope>
+			</A:from>
+			<A:where>
+				<A:and>
+					<A:not>
+						<A:eq>
+							<A:prop>displayname</A:prop>
+							<A:literal>testfile</A:literal>
+						</A:eq>
+						</A:not>
+					<A:not>
+						<A:eq>
+							<A:prop>getcontentlength</A:prop>
+							<A:literal>1000</A:literal>
+						</A:eq>
+					</A:not>
+				</A:and>
+			</A:where>
+		</A:basicsearch>
+	</A:searchrequest>	
+	
+	<A:searchrequest xmlns:A="DAV:">
+		<A:basicsearch>
+			<A:select>
+				<A:prop xmlns:dc="dc:">
+					<A:displayname/>
+					<A:resourcetype/>
+					<A:getcontentlength/>
+					<dc:creator/>
+					<dc:description/>
+				</A:prop>
+			</A:select>
+			<A:from>
+				<A:scope>
+					<A:href>/test1/</A:href>
+					<A:depth>5</A:depth>
+				</A:scope>
+			</A:from>
+			<A:where>
+				<A:and>
+					<A:eq>
+						<A:prop>jcr:primaryType</A:prop>
+						<A:literal>text/xml</A:literal>
+					</A:eq>
+					<A:eq>
+						<A:prop>jcr:mimeType</A:prop>
+						<A:literal>text/xml</A:literal>
+					</A:eq>
+				</A:and>
+			</A:where>
+		</A:basicsearch>
+	</A:searchrequest>	
+
+
+	<A:searchrequest xmlns:A="DAV:">
+		<A:basicsearch>
+			<A:select>
+				<A:prop>
+					<A:displayname/>
+					<A:resourcetype/>
+					<A:getcontentlength/>
+				</A:prop>
+			</A:select>
+			<A:from>
+				<A:scope>
+					<A:href>/test1/</A:href>
+					<A:depth>5</A:depth>
+				</A:scope>
+			</A:from>
+			<A:where>
+				<A:and>
+					<A:eq>
+						<A:prop>
+							<jcr:primaryType xmlns:jcr="jcr:"/>
+						</A:prop>
+						<A:literal>text/xml</A:literal>
+					</A:eq>
+					<A:eq>
+						<A:prop>
+							<jcr:mimeType xmlns:jcr="jcr:"/>
+						</A:prop>
+						<A:literal>text/xml</A:literal>
+					</A:eq>
+				</A:and>
+			</A:where>
+		</A:basicsearch>
+	</A:searchrequest>
+
+<searchrequests>
