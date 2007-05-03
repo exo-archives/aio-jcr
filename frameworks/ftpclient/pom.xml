@@ -62,17 +62,8 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <includes>
-            <!-- include>**/eXoFtpDetailTest.java</include -->
-            <!-- include>**/FtpTest.java</include -->
-
-            <!-- include>**/MultiThreadFtpTest.java</include -->
-
+            <include>**/FtpTests.java</include>
             <!-- include>**/multimulti/MultiThreadCrushTest.java</include -->
-
-            <!-- include>**/FtpStatTest.java</include -->
-            <!-- include>**/SlowStreamTest.java</include -->
-
-            <!-- include>**/FtpGrab.java</include -->
           </includes>
         </configuration>
       </plugin>
