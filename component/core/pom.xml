@@ -496,9 +496,9 @@
         </testResource>
     </testResources>
 
-    <testSourceDirectory>src/test/java</testSourceDirectory>
+    <!-- testSourceDirectory>src/test/java</testSourceDirectory -->
     <!-- testSourceDirectory>src/TCK/java</testSourceDirectory -->
-    <!-- testSourceDirectory>src/notest</testSourceDirectory -->
+    <testSourceDirectory>src/notest</testSourceDirectory>
 
     <testOutputDirectory>target/test-classes</testOutputDirectory>
 
