@@ -7,7 +7,6 @@ package org.exoplatform.jcr.benchmark.init;
 
 import javax.jcr.SimpleCredentials;
 
-import org.apache.jackrabbit.jcr.benchmark.init.SimpleRepositoryHelper;
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.RepositoryService;
 
@@ -25,7 +24,7 @@ public class EXOJCRStandaloneInitializerOracle extends JCRInitializer {
     public static int getCurrentNodeIndex() {
       return counter;
     }
-    
+
     public synchronized static void incrementCurrentNodeIndex() {
       counter+=1;
     }
