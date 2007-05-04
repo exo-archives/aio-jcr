@@ -300,14 +300,11 @@ public abstract class ItemImpl implements Item {
     // Check locking
     if (!parentNode.checkLocking())
       throw new LockException("Node " + parent().getPath() + " is locked ");
-
     
     //launch event
     session.getActionHandler().preRemoveItem(parentNode,this);
     // remove from datamanager
     dataManager.delete(data);
-
-    
   }
       
   

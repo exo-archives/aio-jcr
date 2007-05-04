@@ -80,5 +80,4 @@ public interface ItemDataConsumer {
    * @throws RepositoryException
    */
   AccessControlList getACL(QPath path) throws RepositoryException;
-
 }

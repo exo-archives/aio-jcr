@@ -26,7 +26,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: GenericConnectionFactory.java 13867 2007-03-28 13:43:08Z peterit $
  */
-public class GenericConnectionFactory {
+public class GenericConnectionFactory implements WorkspaceStorageConnectionFactory {
 
   protected final Log log = ExoLogger.getLogger("jcr.GenericConnectionFactory");
   
@@ -43,7 +43,7 @@ public class GenericConnectionFactory {
   protected final File swapDirectory;
   protected final FileCleaner swapCleaner;
   
-  private GenericConnectionFactory( 
+  protected GenericConnectionFactory( 
       DataSource dataSource,
       String dbDriver,
       String dbUrl, 

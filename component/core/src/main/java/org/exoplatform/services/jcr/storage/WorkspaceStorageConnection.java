@@ -44,8 +44,7 @@ public interface WorkspaceStorageConnection {
    * @throws RepositoryException if some exception occured
    * @throws IllegalStateException if connection is closed
    */
-  @Deprecated
-  ItemData getItemData(QPath qPath) throws RepositoryException, IllegalStateException;
+  //ItemData getItemData(QPath qPath) throws RepositoryException, IllegalStateException;
 
   /**
    * @param parentData -
@@ -165,9 +164,10 @@ public interface WorkspaceStorageConnection {
    * @throws RepositoryException if some exception occured
    * @throws IllegalStateException if connection is closed
    */
-  void delete(ItemData data) throws RepositoryException, UnsupportedOperationException,
+  void delete(NodeData data) throws RepositoryException, UnsupportedOperationException,
       InvalidItemStateException, IllegalStateException;
-
+  void delete(PropertyData data) throws RepositoryException, UnsupportedOperationException,
+    InvalidItemStateException, IllegalStateException;
 
   /**
    * Accepts (in sense of persistent changes) connection job results and closes connection. It can be database transaction commit for instance etc.

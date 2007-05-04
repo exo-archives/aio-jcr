@@ -35,7 +35,7 @@ public class QPath implements Comparable {
     this.names = names;
 
     final int prime = 31;
-    int hash = 1;
+    int hash = names.length > 0 ? 1 : super.hashCode();
     for (QPathEntry entry: names) {
       hash = prime * hash + entry.hashCode();
       hash = prime * hash + entry.getIndex();

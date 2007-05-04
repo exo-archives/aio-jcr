@@ -18,15 +18,14 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
 import org.exoplatform.services.jcr.impl.storage.SystemDataContainerHolder;
-import org.exoplatform.services.jcr.impl.storage.jdbc.PrimaryTypeNotFoundException;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.log.ExoLogger;
@@ -38,9 +37,9 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: WorkspacePersistentDataManager.java 13869 2007-03-28 13:50:50Z peterit $
  */
-public class WorkspacePersistentDataManager implements DataManager {
+public abstract class WorkspacePersistentDataManager implements DataManager {
 
-  protected static Log log = ExoLogger.getLogger("jcr.WorkspacePersistentDataManager");
+  protected Log log = ExoLogger.getLogger("jcr.WorkspacePersistentDataManager");
 
   protected WorkspaceDataContainer dataContainer;
   
@@ -77,14 +76,32 @@ public class WorkspacePersistentDataManager implements DataManager {
 
         WorkspaceStorageConnection conn = null;
         if (isSystemPath(data.getQPath())) {
-          if (systemConnection == null)
-            conn = systemConnection = (
-                systemDataContainer != dataContainer ? systemDataContainer.openConnection() : 
-                  regularConnection == null ? regularConnection = dataContainer.openConnection() : regularConnection);
-          else
-            conn = systemConnection;
+//            conn = systemConnection = (
+//                systemDataContainer != dataContainer ? systemDataContainer.openConnection() : 
+//                  regularConnection == null ? regularConnection = dataContainer.openConnection() : regularConnection);
+          // !systemDataContainer.equals(dataContainer)
+          conn = systemConnection == null ? 
+              systemConnection = (
+                  systemDataContainer != dataContainer ? // if same as instance
+                      // if equals by storage params and the storage connection is already opened
+                      systemDataContainer.equals(dataContainer) && regularConnection != null ?
+                          // reuse physical connection resource (used by regularConnection)
+                          systemDataContainer.reuseConnection(regularConnection)   
+                      : systemDataContainer.openConnection() // open one new
+                  : regularConnection == null ? regularConnection = dataContainer.openConnection() : regularConnection)
+              : systemConnection;
         } else {
-          conn = regularConnection == null ? regularConnection = dataContainer.openConnection() : regularConnection;
+          //conn = regularConnection == null ? regularConnection = dataContainer.openConnection() : regularConnection;
+          conn = regularConnection == null ? 
+              regularConnection = (
+                  systemDataContainer != dataContainer ? // if same as instance  
+                    // if equals by storage params and the storage connection is already opened
+                      dataContainer.equals(systemDataContainer) && systemConnection != null ?
+                          // reuse physical connection resource (used by systemConnection)
+                          dataContainer.reuseConnection(systemConnection)   
+                      : dataContainer.openConnection() // open one new
+                  : systemConnection == null ? systemConnection = dataContainer.openConnection() : systemConnection)
+              : regularConnection;
         }
         
         if (log.isDebugEnabled()) {
@@ -114,7 +131,7 @@ public class WorkspacePersistentDataManager implements DataManager {
       }
       if (regularConnection != null)
         regularConnection.commit();
-      if (systemConnection != null && systemConnection != regularConnection)
+      if (systemConnection != null && !systemConnection.equals(regularConnection))
         systemConnection.commit();
     } catch (InvalidItemStateException e) {
       throw e;
@@ -125,7 +142,7 @@ public class WorkspacePersistentDataManager implements DataManager {
     } finally { //getReferencesData("dbfaf7cac0a8000301a5dac0017ec5e4")
       if (regularConnection != null && regularConnection.isOpened())
         regularConnection.rollback();
-      if (systemConnection != null && systemConnection != regularConnection && systemConnection.isOpened())
+      if (systemConnection != null && !systemConnection.equals(regularConnection) && systemConnection.isOpened())
         systemConnection.rollback();
     }
     
@@ -137,14 +154,15 @@ public class WorkspacePersistentDataManager implements DataManager {
    * 
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(InternalQPath)
    */
-  public ItemData getItemData(final QPath qpath) throws RepositoryException {
-    final WorkspaceStorageConnection con = dataContainer.openConnection();
-    try {
-      return con.getItemData(qpath);
-    } finally {
-      con.rollback();
-    }
-  }
+  public abstract ItemData getItemData(final QPath qpath) throws RepositoryException;
+//  public ItemData getItemData(final QPath qpath) throws RepositoryException {
+//    final WorkspaceStorageConnection con = dataContainer.openConnection();
+//    try {
+//      return con.getItemData(qpath);
+//    } finally {
+//      con.rollback();
+//    }
+//  }
   
   /*
    * (non-Javadoc)
@@ -242,19 +260,22 @@ public class WorkspacePersistentDataManager implements DataManager {
       throws RepositoryException, InvalidItemStateException {
     
     // check if an item exists
-    try {
-      if (con.getItemData(item.getUUID()) == null) {
-        throw new InvalidItemStateException("(delete) Item "
-            + item.getQPath().getAsString() + " " + item.getUUID()
-            + " not found. Probably was deleted by another session ");
-      }
-    } catch(PrimaryTypeNotFoundException e) {
-      // situation possible in case of delete by log  
-      if (log.isDebugEnabled())
-        log.debug(e.getMessage());
-    }
+//    try {
+//      if (con.getItemData(item.getUUID()) == null) {
+//        throw new InvalidItemStateException("(delete) Item "
+//            + item.getQPath().getAsString() + " " + item.getUUID()
+//            + " not found. Probably was deleted by another session ");
+//      }
+//    } catch(PrimaryTypeNotFoundException e) {
+//      // situation possible in case of delete by log  
+//      if (log.isDebugEnabled())
+//        log.debug(e.getMessage());
+//    }
     
-    con.delete(item);
+    if (item.isNode())
+      con.delete((NodeData) item);
+    else
+      con.delete((PropertyData) item);
   }
 
   /**

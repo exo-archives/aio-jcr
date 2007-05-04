@@ -89,14 +89,24 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     this.exceptionHandler = new SQLExceptionHandler(containerName, this);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this)
+      return true;
+    
+    if (obj instanceof JDBCStorageConnection) {
+      JDBCStorageConnection another = (JDBCStorageConnection) obj;
+      return getJdbcConnection() == another.getJdbcConnection();
+    }
+    
+    return false;
+  }
+
   /**
-   * For test only
    * Return JDBC connection obtained from initialized data source.
    * NOTE: Helper can obtain one new connection per each call of the method  or return one obtained once.
-   *
-   * @throws SQLException
    */
-  public Connection getJdbcConnection() throws SQLException {
+  public Connection getJdbcConnection() {
     return dbConnection;
   }
 
@@ -205,17 +215,35 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       }
 
       ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data);
-      if (channel != null) {
-        channel.write(data.getUUID(), data.getValues());
-        channel.close();
-      } else {
-        addValues(getInternalId(data.getUUID()), data.getValues());
+      List<ValueData> vdata = data.getValues();
+      for (int i = 0; i < vdata.size(); i++) {
+        ValueData vd = vdata.get(i);
+        InputStream stream = null;
+        int streamLength = 0;
+        if (vd.isByteArray()) {
+          byte[] dataBytes = vd.getAsByteArray();
+          stream = new ByteArrayInputStream(dataBytes);
+          streamLength = dataBytes.length;
+        } else {
+          stream = vd.getAsStream();
+          streamLength = stream.available(); // for FileInputStream can be used channel.size() result
+        }
+        addValueData(getInternalId(data.getUUID()), i, stream, streamLength); // TODO data.get(i).getOrderNumber()
       }
+      
+      
+      
+//      ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data);
+//      if (channel != null) {
+//        channel.write(data.getUUID(), data.getValues());
+//        channel.close();
+//      } else {
+//        addValues(getInternalId(data.getUUID()), data.getValues());
+//      }
 
       if (log.isDebugEnabled())
         log.debug("Property added " + data.getQPath().getAsString() + ", " + data.getUUID()
-            + (data.getValues() != null ? ", values count: " + data.getValues().size() : ", NULL data")
-            + ", use channel "+channel);
+            + (data.getValues() != null ? ", values count: " + data.getValues().size() : ", NULL data"));
 
     } catch (IOException e) {
       if (log.isDebugEnabled())
@@ -228,67 +256,33 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     }
   }
 
-
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#delete(org.exoplatform.services.jcr.datamodel.ItemData)
-   */
-  public void delete(ItemData data) throws RepositoryException, UnsupportedOperationException, InvalidItemStateException, IllegalStateException {
+  public void delete(NodeData data) throws RepositoryException, UnsupportedOperationException, InvalidItemStateException, IllegalStateException {
     checkIfOpened();
 
     final String cid = getInternalId(data.getUUID());
 
     try {
-      if (data.isNode()) {
-        if (deleteNode(cid) <= 0) {
-          // [PN] it's error state, as we actually didn't delete the node (with sub-nodes)
-          log.warn("Error state, the node (with sub-nodes) is not deleted " + data.getQPath().getAsString());
-        }
-      } else {
-        if (deleteProperty(cid) <= 0) {
-          // [PN] it's error state, as we actually didn't delete the property
-          log.warn("Error state, the property item is not deleted " + data.getQPath().getAsString());
-        }
-      }
+      int nc = deleteItemByUUID(cid);
+      if (nc <= 0)
+        //log.warn("Error state, a item corresponding the node actually not deleted " + cid);
+        throw new InvalidItemStateException("(delete) Node "
+            + data.getQPath().getAsString() + " " + data.getUUID()
+            + " not found. Probably was deleted by another session ");
 
       if (log.isDebugEnabled())
-        if (data.isNode())
-          log.debug("Node deleted " + data.getQPath().getAsString() + ", " + data.getUUID() + ", " + ((NodeData) data).getPrimaryTypeName().getAsString());
-        else
-          log.debug("Property deleted " + data.getQPath().getAsString() + ", " + data.getUUID()
-              + (((PropertyData) data).getValues() != null ? ", values count: " + ((PropertyData) data).getValues().size() : ", NULL data"));
+        log.debug("Node deleted " + data.getQPath().getAsString() + ", " + data.getUUID() + ", " + ((NodeData) data).getPrimaryTypeName().getAsString());
 
     } catch (SQLException e) {
       if (log.isDebugEnabled())
-        log.error("Item remove. Database error: " + e, e);
+        log.error("Node remove. Database error: " + e, e);
       exceptionHandler.handleDeleteException(e, data);
-    }
+    }    
   }
+  
+  public void delete(PropertyData data) throws RepositoryException, UnsupportedOperationException, InvalidItemStateException, IllegalStateException {
+    checkIfOpened();
 
-  /**
-   * @param cid, must be ready for container (e.g. if single-db then with prefix)
-   */
-  protected int deleteNode(String cid) throws SQLException {
-    int deleted = 0;
-
-    // deleting from NODE table
-//    if (deleteNodeByUUID(cid) <= 0) {
-//      // [PN] it's error state, as we actually didn't delete the node
-//      log.warn("Error state, the node actually not deleted " + cid);
-//    }
-
-    // deleting from ITEM table
-    int nc = deleteItemByUUID(cid);
-    if (nc <= 0) {
-      // [PN] it's error state, as we actually didn't delete a item corresponding the node
-      log.warn("Error state, a item corresponding the node actually not deleted " + cid);
-    }
-    deleted += nc;
-    return deleted;
-  }
-
-  protected int deleteProperty(String cid) throws SQLException, RepositoryException {
-
-    PropertyData data = (PropertyData) getItemByUUID(cid); // by container id
+    final String cid = getInternalId(data.getUUID());
 
     try {
       // delete value
@@ -300,23 +294,101 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         deleteValues(cid);
       }
 
-      //if (log.isDebugEnabled())
-      //  log.debug("values deleted " + data.getUUID() + " use channel " + channel);
-
+      // delete references 
       deleteReference(cid);
 
-      // delete property
-//      if (deletePropertyByUUID(cid) <= 0) {
-//        log.warn("Error state, the property actually is not deleted " + cid);
-//      }
-
       // delete item
-      return deleteItemByUUID(cid);
+      int nc = deleteItemByUUID(cid);
+      if (nc <= 0)
+        throw new InvalidItemStateException("(delete) Property "
+            + data.getQPath().getAsString() + " " + data.getUUID()
+            + " not found. Probably was deleted by another session ");
+
+      if (log.isDebugEnabled())
+        log.debug("Property deleted " + data.getQPath().getAsString() + ", " + data.getUUID()
+            + (((PropertyData) data).getValues() != null ? ", values count: " + ((PropertyData) data).getValues().size() : ", NULL data"));      
+    
     } catch (IOException e) {
+      if (log.isDebugEnabled())
+        log.error("Property remove. IO error: " + e, e);
       exceptionHandler.handleDeleteException(e, data);
-      return 0; // will newer returns
+    } catch (SQLException e) {
+      if (log.isDebugEnabled())
+        log.error("Property remove. Database error: " + e, e);
+      exceptionHandler.handleDeleteException(e, data);
     }
   }
+
+//  public void delete(ItemData data) throws RepositoryException, UnsupportedOperationException, InvalidItemStateException, IllegalStateException {
+//    checkIfOpened();
+//
+//    final String cid = getInternalId(data.getUUID());
+//
+//    try {
+//      if (data.isNode()) {
+//        if (deleteNode(cid) <= 0) {
+//          // [PN] it's error state, as we actually didn't delete the node (with sub-nodes)
+//          log.warn("Error state, the node (with sub-nodes) is not deleted " + data.getQPath().getAsString());
+//        }
+//      } else {
+//        if (deleteProperty(cid) <= 0) {
+//          // [PN] it's error state, as we actually didn't delete the property
+//          log.warn("Error state, the property item is not deleted " + data.getQPath().getAsString());
+//        }
+//      }
+//
+//      if (log.isDebugEnabled())
+//        if (data.isNode())
+//          log.debug("Node deleted " + data.getQPath().getAsString() + ", " + data.getUUID() + ", " + ((NodeData) data).getPrimaryTypeName().getAsString());
+//        else
+//          log.debug("Property deleted " + data.getQPath().getAsString() + ", " + data.getUUID()
+//              + (((PropertyData) data).getValues() != null ? ", values count: " + ((PropertyData) data).getValues().size() : ", NULL data"));
+//
+//    } catch (SQLException e) {
+//      if (log.isDebugEnabled())
+//        log.error("Item remove. Database error: " + e, e);
+//      exceptionHandler.handleDeleteException(e, data);
+//    }
+//  }
+
+//  /**
+//   * @param cid, must be ready for container (e.g. if single-db then with prefix)
+//   */
+//  protected int deleteNode(String cid) throws SQLException {
+//    int deleted = 0;
+//
+//    int nc = deleteItemByUUID(cid);
+//    if (nc <= 0) {
+//      // [PN] it's error state, as we actually didn't delete a item corresponding the node
+//      log.warn("Error state, a item corresponding the node actually not deleted " + cid);
+//    }
+//    deleted += nc;
+//    return deleted;
+//  }
+//
+//  protected int deleteProperty(String cid) throws SQLException, RepositoryException {
+//
+//    PropertyData data = (PropertyData) getItemByUUID(cid); // by container id
+//
+//    try {
+//      // delete value
+//      ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data);
+//      if (channel != null) {
+//        channel.delete(data.getUUID()); // by API UUI, not by cid
+//        channel.close();
+//      } else {
+//        deleteValues(cid);
+//      }
+//
+//      deleteReference(cid);
+//
+//      // delete item
+//      return deleteItemByUUID(cid);
+//    } catch (IOException e) {
+//      exceptionHandler.handleDeleteException(e, data);
+//      return 0; // will newer returns
+//    }
+//  }
   
 //  public void doReindex(String itemUuid, String oldQPath, int indexDelimPos, int oldIndexLength, String newIndexStr) throws RepositoryException, UnsupportedOperationException, InvalidItemStateException, IllegalStateException, SQLException {
 //
@@ -552,30 +624,29 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     }
   }
 
-  @Deprecated
-  public ItemData getItemData(QPath qPath) throws RepositoryException, IllegalStateException {
-    checkIfOpened();
-    ResultSet item = null;
-    try {
-      item = findItemByPath(qPath.getAsString());
-      if (item.next())
-        return itemData(null, item, item.getInt(COLUMN_CLASS));
-      return null;
-    } catch (SQLException e) {
-      e.printStackTrace();
-      throw new RepositoryException(e);
-    } catch (IOException e) {
-      e.printStackTrace();
-      throw new RepositoryException(e);
-    } finally {
-      try {
-        if (item != null)
-          item.close();
-      } catch(SQLException e) {
-        log.error("getItemData() Error close resultset " + e.getMessage());
-      }
-    }
-  }
+//  public ItemData getItemData(QPath qPath) throws RepositoryException, IllegalStateException {
+//    checkIfOpened();
+//    ResultSet item = null;
+//    try {
+//      item = findItemByPath(qPath.getAsString());
+//      if (item.next())
+//        return itemData(null, item, item.getInt(COLUMN_CLASS));
+//      return null;
+//    } catch (SQLException e) {
+//      e.printStackTrace();
+//      throw new RepositoryException(e);
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//      throw new RepositoryException(e);
+//    } finally {
+//      try {
+//        if (item != null)
+//          item.close();
+//      } catch(SQLException e) {
+//        log.error("getItemData() Error close resultset " + e.getMessage());
+//      }
+//    }
+//  }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#getItemData(java.lang.String)
@@ -1077,6 +1148,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     return new ByteArrayPersistedValueData(buffer, orderNumber);
   }
   
+  @Deprecated
   protected void addValues(String cid, List<ValueData> data) throws IOException, SQLException {
     if(data == null) {
       log.warn("List of values data is NULL. Check JCR logic. PropertyId: " + getUuid(cid));
@@ -1104,9 +1176,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   protected abstract void addNodeRecord(NodeData data) throws SQLException;
   protected abstract void addPropertyRecord(PropertyData prop) throws SQLException;
 
-  protected abstract ResultSet findItemByPath(String path) throws SQLException;
+  //protected abstract ResultSet findItemByPath(String path) throws SQLException;
   protected abstract ResultSet findItemByUUID(String uuid) throws SQLException;
-  protected abstract ResultSet findPropertyByPath(String parentId, String path) throws SQLException;
+  //protected abstract ResultSet findPropertyByPath(String parentId, String path) throws SQLException;
   protected abstract ResultSet findPropertyByName(String parentId, String name) throws SQLException;
   protected abstract ResultSet findItemByName(String parentId, String name, int index) throws SQLException;
 

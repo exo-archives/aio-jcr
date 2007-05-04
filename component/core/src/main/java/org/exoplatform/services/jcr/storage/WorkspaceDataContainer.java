@@ -9,6 +9,8 @@ import java.util.Calendar;
 
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.services.jcr.impl.storage.jdbc.JDBCStorageConnection;
+
 /**
  * Created by The eXo Platform SARL .<br>
  * 
@@ -32,5 +34,14 @@ public interface WorkspaceDataContainer extends DataContainer {
    * normally implementation of this method should be synchronized
    */
   WorkspaceStorageConnection openConnection() throws RepositoryException ;
+  
+  /**
+   * @return the connection to workspace storage, 
+   *         if it possible the connection will use same physical resource (already obtained)
+   *         as original connection, otherwise same behaviour will be used as for openConnection(). 
+   *           
+   * normally implementation of this method should be synchronized
+   */
+  WorkspaceStorageConnection reuseConnection(WorkspaceStorageConnection original) throws RepositoryException;
 
 }

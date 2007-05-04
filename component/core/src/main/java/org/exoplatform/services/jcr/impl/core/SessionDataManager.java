@@ -432,7 +432,6 @@ public class SessionDataManager implements ItemDataConsumer {
 
     return ((NodeData)item).getACL();
   }
-
   
   /**
    * thaverses all the descendants of incoming item and creates DELETED state for them

@@ -17,10 +17,10 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.core.JCRPath;
@@ -177,9 +177,15 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
     log.debug("InmemoryContainer updated " + item);
   }
 
-  public void delete(ItemData data) throws RepositoryException,
+  public void delete(NodeData data) throws RepositoryException,
       UnsupportedOperationException, InvalidItemStateException,
       IllegalStateException {
+    items.remove(data.getQPath().getAsString());
+    log.debug("InmemoryContainer removed " + data.getQPath().getAsString());
+  }
+  
+  public void delete(PropertyData data) throws RepositoryException, UnsupportedOperationException,
+      InvalidItemStateException, IllegalStateException {
     items.remove(data.getQPath().getAsString());
     log.debug("InmemoryContainer removed " + data.getQPath().getAsString());
   }

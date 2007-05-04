@@ -314,10 +314,10 @@ public class DBInitializer {
     
     if (!connection.createStatement().executeQuery(select).next()) {
       String insert = 
-        "insert into JCR_" + MDB + "ITEM(ID, PARENT_ID, NAME, PATH, " +
+        "insert into JCR_" + MDB + "ITEM(ID, PARENT_ID, NAME, " +
         (multiDb ? "" : "CONTAINER_NAME, ") + 
         "VERSION, I_CLASS, I_INDEX, N_ORDER_NUM)" + 
-        " VALUES('" + Constants.ROOT_PARENT_UUID + "', '" + Constants.ROOT_PARENT_UUID + "', '__root_parent', '" + Constants.ROOT_PARENT_UUID + "', " +
+        " VALUES('" + Constants.ROOT_PARENT_UUID + "', '" + Constants.ROOT_PARENT_UUID + "', '__root_parent', " +
         (multiDb ? "" : "'__root_parent_container', ") + "0, 0, 0, 0)";
       
       connection.createStatement().executeUpdate(insert);

@@ -40,8 +40,8 @@ public class SQLExceptionHandler {
     if (errMessage != null) {
       // try detect error by foreign key names
       String umsg = errMessage.toLowerCase().toUpperCase();
-      if (umsg.indexOf(conn.JCR_FK_NODE_PARENT)>=0) {
-        // we see that error contains JCR_FK_XNODE_PARENT constraint name, so it's constraint violation...
+      if (umsg.indexOf(conn.JCR_FK_ITEM_PARENT)>=0) {
+        // we see that error contains JCR_FK_XITEM_PARENT constraint name, so it's constraint violation...
         message += "Parent not found for " + itemInfo;
         throw new InvalidItemStateException(message, e);
       } else if (umsg.indexOf(conn.JCR_FK_NODE_ITEM)>=0) {
@@ -109,7 +109,7 @@ public class SQLExceptionHandler {
     if (errMessage != null) {
       // try detect error by foreign key names
       String umsg = errMessage.toLowerCase().toUpperCase();
-      if (umsg.indexOf(conn.JCR_FK_NODE_PARENT)>=0) {
+      if (umsg.indexOf(conn.JCR_FK_ITEM_PARENT)>=0) {
         // we see that error contains JCR_FK_MNODEPARENT constraint name, so it's constraint violation...
         message += "Can't delete parent till child exists " + itemInfo;
         throw new InvalidItemStateException(message, e);

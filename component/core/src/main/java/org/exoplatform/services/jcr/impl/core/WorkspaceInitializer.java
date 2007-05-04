@@ -112,7 +112,8 @@ public class WorkspaceInitializer {
     if (isWorkspaceInitialized()) {
       // [PN] 21.02.07 moved to startWorkspace()
       //initSearchIndex();
-      return (NodeData) dataManager.getItemData(Constants.ROOT_PATH);
+      // [PN] 25.04.07 use UUID instead path
+      return (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
     }
 
     // Init root (/) node

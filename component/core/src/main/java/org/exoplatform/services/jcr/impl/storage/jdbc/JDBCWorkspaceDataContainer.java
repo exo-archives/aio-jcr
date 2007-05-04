@@ -22,6 +22,7 @@ import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.impl.storage.WorkspaceDataContainerBase;
 import org.exoplatform.services.jcr.impl.storage.jdbc.db.GenericConnectionFactory;
 import org.exoplatform.services.jcr.impl.storage.jdbc.db.OracleConnectionFactory;
+import org.exoplatform.services.jcr.impl.storage.jdbc.db.WorkspaceStorageConnectionFactory;
 import org.exoplatform.services.jcr.impl.storage.jdbc.init.DBInitializer;
 import org.exoplatform.services.jcr.impl.storage.jdbc.init.DBInitializerException;
 import org.exoplatform.services.jcr.impl.storage.jdbc.init.OracleDBInitializer;
@@ -46,6 +47,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
   public final static String CONTAINER_NAME = "containerName";
   public final static String SOURCE_NAME = "sourceName";
   public final static String MULTIDB = "multi-db";
+
   public final static String MAXBUFFERSIZE = "max-buffer-size";
   public final static String SWAPDIR = "swap-directory";
   
@@ -100,8 +102,26 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
   protected int maxBufferSize;
   protected File swapDirectory;
   protected FileCleaner swapCleaner;
-  
   protected GenericConnectionFactory connFactory;
+  
+  class SharedConnectionFactory extends GenericConnectionFactory {
+    
+    final private Connection connection;
+    
+    SharedConnectionFactory (Connection connection,
+        String containerName, boolean multiDb, ValueStoragePluginProvider valueStorageProvider, 
+        int maxBufferSize, File swapDirectory, FileCleaner swapCleaner) {
+
+      super(null, null, null, null, null,
+          containerName, multiDb, valueStorageProvider, maxBufferSize, swapDirectory, swapCleaner);
+      
+      this.connection = connection;
+    }
+    
+    public Connection getJdbcConnection() throws RepositoryException {
+      return connection;
+    }
+  }
   
   /**
    * Constructor with value storage plugins
@@ -308,6 +328,11 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
       log.error("Error of init db " + e, e);
     }
   }
+  
+  protected GenericConnectionFactory getConnectionFactory() {
+    return connFactory;
+  }  
+    
   protected String detectDialect(String confParam) {
     for (String dbType: DB_TYPES) {
       if (dbType.equalsIgnoreCase(confParam))
@@ -330,17 +355,20 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
   public WorkspaceStorageConnection openConnection() throws RepositoryException {
 
     return connFactory.openConnection();
-    
-//    try {
-//
-//      if (multiDb) 
-//        return new MultiDbJDBCConnection(dataSource, containerName, multiDb, valueStorageProvider, maxBufferSize, swapDirectory, swapCleaner);
-//      else
-//        return new SingleDbJDBCConnection(dataSource, containerName, multiDb, valueStorageProvider, maxBufferSize, swapDirectory, swapCleaner);
-//
-//    } catch (SQLException e) {
-//      throw new RepositoryException(e);
-//    }
+  }
+  
+  public WorkspaceStorageConnection reuseConnection(WorkspaceStorageConnection original) throws RepositoryException {
+
+    if (original instanceof JDBCStorageConnection) {
+      WorkspaceStorageConnectionFactory cFactory = new SharedConnectionFactory(
+          ((JDBCStorageConnection) original).getJdbcConnection(),
+          containerName, multiDb, valueStorageProvider, 
+          maxBufferSize, swapDirectory, swapCleaner); 
+      
+      return cFactory.openConnection();
+    } else {
+      return openConnection();
+    }
   }
 
   /* (non-Javadoc)
@@ -387,9 +415,47 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     this.swapCleaner.halt();
     this.swapCleaner.interrupt();
   }
-
-  // ------------------ development code ---------------
   
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this)
+      return true;
+    
+    if (obj instanceof JDBCWorkspaceDataContainer) {
+      JDBCWorkspaceDataContainer another = (JDBCWorkspaceDataContainer) obj;
+      
+      if (getDbSourceName() != null)
+         // by jndi ds name
+         return getDbSourceName().equals(another.getDbSourceName());
+       
+       // by db connection params
+       return getDbDriver().equals(another.getDbDriver()) 
+         && getDbUrl().equals(another.getDbUrl())
+         && getDbUserName().equals(another.getDbUserName());
+    }
+    
+    return false;
+  }
+
+  
+  protected String getDbSourceName() {
+    return dbSourceName;
+  }
+
+  protected String getDbDriver() {
+    return dbDriver;
+  }
+
+  protected String getDbUrl() {
+    return dbUrl;
+  }
+
+  protected String getDbUserName() {
+    return dbUserName;
+  }
+  
+  // ------------------ development code ---------------
+
   @Deprecated
   protected GenericConnectionFactory connectionFactory(String dbType) throws NamingException, RepositoryException {
     try {
@@ -531,6 +597,5 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
       // the specified class, field, method or constructor
       throw new RepositoryException(e);
     }    
-  }  
-  
+  }
 }

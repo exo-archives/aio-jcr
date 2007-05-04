@@ -55,6 +55,10 @@ public class InmemoryContainerImpl extends WorkspaceDataContainerBase {
   public WorkspaceStorageConnection openConnection() {
     return new InmemoryStorageConnection(name);
   }
+  
+  public WorkspaceStorageConnection reuseConnection(WorkspaceStorageConnection original) throws RepositoryException {
+    return openConnection();
+  }
 
   public String getStorageVersion() {
     return "1.0";

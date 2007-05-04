@@ -40,14 +40,6 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
       + " where I.ID=?";
 
     // select item(s) 
-    FIND_ITEM_BY_PATH = "select SQL_CACHE I.*, N.ID as NID, N.ORDER_NUM as NORDER_NUM, N.PARENT_ID as NPARENT_ID, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
-      + " from JCR_MITEM I LEFT JOIN JCR_MNODE N on I.ID=N.ID LEFT JOIN JCR_MPROPERTY P on I.ID=P.ID"
-      + " where I.PATH=? order by I.VERSION DESC"; 
-    
-    FIND_CHILD_PROPERTY_BY_PATH = "select SQL_CACHE I.*, P.ID as PID, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" 
-      + " from JCR_MPROPERTY P, JCR_MITEM I"
-      + " where P.PARENT_ID=? and I.PATH=? and I.ID=P.ID order by I.VERSION DESC";
-    
     FIND_REFERENCES = "select SQL_CACHE R.NODE_ID as NID, R.PROPERTY_ID as PID, I.PATH, I.VERSION, P.TYPE as PTYPE, P.PARENT_ID as PPARENT_ID, P.MULTIVALUED as PMULTIVALUED" +
         " from JCR_MREF R, JCR_MITEM I, JCR_MPROPERTY P" +
         " where R.PROPERTY_ID=I.ID and R.PROPERTY_ID=P.ID and I.ID=P.ID and R.NODE_ID=?";
@@ -68,8 +60,6 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
       + " order by I.ID";
     
     FIND_ITEM_BY_ID = FIND_ITEM_BY_ID.replace("?", "%s");
-    FIND_ITEM_BY_PATH = FIND_ITEM_BY_PATH.replace("?", "%s");
-    FIND_CHILD_PROPERTY_BY_PATH = FIND_CHILD_PROPERTY_BY_PATH.replace("?", "%s");
     FIND_REFERENCES = FIND_REFERENCES.replace("?", "%s");
     FIND_VALUES_BY_PROPERTYID = FIND_VALUES_BY_PROPERTYID.replace("?", "%s");
     FIND_VALUE_BY_PROPERTYID_OREDERNUMB = FIND_VALUE_BY_PROPERTYID_OREDERNUMB.replace("?", "%s");
@@ -89,11 +79,11 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
         String.format(FIND_PROPERTIES_BY_PARENTID, "'" + parentUUID + "'"));
   }
 
-  @Override
-  protected ResultSet findItemByPath(String path) throws SQLException {
-    return dbConnection.createStatement().executeQuery(
-        String.format(FIND_ITEM_BY_PATH, "'" + path + "'"));
-  }
+//  @Override
+//  protected ResultSet findItemByPath(String path) throws SQLException {
+//    return dbConnection.createStatement().executeQuery(
+//        String.format(FIND_ITEM_BY_PATH, "'" + path + "'"));
+//  }
 
   @Override
   protected ResultSet findItemByUUID(String uuid) throws SQLException {
@@ -101,11 +91,11 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
         String.format(FIND_ITEM_BY_ID, "'" + uuid + "'"));
   }
 
-  @Override
-  protected ResultSet findPropertyByPath(String parentId, String path) throws SQLException {
-    return dbConnection.createStatement().executeQuery(
-        String.format(FIND_CHILD_PROPERTY_BY_PATH, "'" + parentId + "'", "'" + path + "'"));
-  }
+//  @Override
+//  protected ResultSet findPropertyByPath(String parentId, String path) throws SQLException {
+//    return dbConnection.createStatement().executeQuery(
+//        String.format(FIND_CHILD_PROPERTY_BY_PATH, "'" + parentId + "'", "'" + path + "'"));
+//  }
 
   @Override
   protected ResultSet findReferences(String nodeUuid) throws SQLException {

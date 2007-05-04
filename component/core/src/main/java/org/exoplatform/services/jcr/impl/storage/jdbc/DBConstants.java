@@ -12,7 +12,7 @@ package org.exoplatform.services.jcr.impl.storage.jdbc;
 
 public class DBConstants {
   //error constants
-  protected String JCR_FK_NODE_PARENT;
+  protected String JCR_FK_ITEM_PARENT;
   protected String JCR_FK_NODE_ITEM;
   protected String JCR_FK_PROPERTY_NODE;
   protected String JCR_FK_PROPERTY_ITEM;
@@ -58,7 +58,7 @@ public class DBConstants {
   protected static final String COLUMN_ID = "ID";
   protected static final String COLUMN_PARENTID = "PARENT_ID";
   protected static final String COLUMN_NAME = "NAME";
-  protected static final String COLUMN_PATH = "PATH";
+  //protected static final String COLUMN_PATH = "PATH";
   protected static final String COLUMN_VERSION = "VERSION";
   protected static final String COLUMN_CLASS = "I_CLASS";
   protected static final String COLUMN_INDEX = "I_INDEX";
