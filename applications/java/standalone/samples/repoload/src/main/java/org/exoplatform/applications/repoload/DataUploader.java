@@ -49,7 +49,7 @@ import org.exoplatform.services.security.impl.CredentialsImpl;
  */
 public class DataUploader{
 
-  private Log log = ExoLogger.getLogger("repload.DataUploader");
+  protected Log log = ExoLogger.getLogger("repload.DataUploader");
   
   protected static class DCPropertyQName {
     public static InternalQName dcElementSet;
@@ -116,6 +116,8 @@ public class DataUploader{
 
   public int                         countNodes;
 
+  protected String                     sMimeType;
+
   public DataUploader(String[] args) {
     this.mapConfig = parceCommandLine(args);
     this.args = args;
@@ -128,8 +130,10 @@ public class DataUploader{
     sRoot = mapConfig.get("-root");
     sVdfile = mapConfig.get("-vdfile");
     sReadTree = mapConfig.get("-readtree");
+    sMimeType = mapConfig.get("-mimeType");
 
-    fileData = new TransientValueData(new FileInputStream(sVdfile));
+    if (!sVdfile.equals("")) 
+      fileData = new TransientValueData(new FileInputStream(sVdfile));   
 
     try {
       StandaloneContainer.setConfigurationPath(sConf);
@@ -469,7 +473,7 @@ public class DataUploader{
     TransientPropertyData mimeTypePropertyData = new TransientPropertyData(QPath.makeChildPath(
         contentNode.getQPath(), Constants.JCR_MIMETYPE), UUIDGenerator.generate(), -1,
         PropertyType.STRING, contentNode.getUUID(), false);
-    mimeTypePropertyData.setValue(new TransientValueData("image/tiff"));
+    mimeTypePropertyData.setValue(new TransientValueData(sMimeType/*"image/tiff"*/));
     con.add(mimeTypePropertyData);
 
     TransientPropertyData lastModifiedPropertyData = new TransientPropertyData(QPath.makeChildPath(
@@ -558,6 +562,8 @@ public class DataUploader{
     map.put("-threads","1");
     map.put("-iteration", "1");
     map.put("-concurrent", "false");
+    map.put("-mimeType", "image/tiff");
+    map.put("-api","false");
 
     for (int i = 0; i < args.length; i++) {
       String[] params = args[i].split("=");

@@ -54,13 +54,13 @@ public class DataReaderTh implements Runnable {
     thReader = new Thread(this, threadName);
     this.iteration = Integer.valueOf(mapConfig.get("-iteration")).intValue();
     this.readProperty = Boolean.valueOf(mapConfig.get("-readprop")).booleanValue();
-    log.info("-readprop = " + readProperty);
   }
 
   public void readChilds(Node parent) throws RepositoryException {
 
     String primaryType = parent.getPrimaryNodeType().getName();
 
+    //TODO
     if (primaryType.equals("nt:folder")) {
       ntFolderCount++;
       log.info("\t" + ntFolderCount + " nt:folder has been raed");

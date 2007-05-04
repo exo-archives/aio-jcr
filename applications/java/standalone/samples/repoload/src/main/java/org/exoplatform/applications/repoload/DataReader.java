@@ -187,8 +187,12 @@ public class DataReader {
 
         start = System.currentTimeMillis();
         
-        for (int i = 0; i < readers.length; i++)
+        for (int i = 0; i < readers.length; i++){
+          try {
+            Thread.sleep(500);
+          } catch (InterruptedException e) {}
           readers[i].startRead();
+        }
 
       } catch (RepositoryException e) {
         log.error("Error: read data", e);
@@ -346,12 +350,8 @@ public class DataReader {
     // show initial tree info
     NodeIterator ni = rootTestNode.getNodes();
     log.info("Reader root ls: ");
-    if (ni.hasNext()) {
-      Node n1 = ni.nextNode();
-      log.info("\t" + n1.getPath());
-    }
-        
-    readChilds(rootTestNode);
+    while (ni.hasNext()) 
+      readChilds(ni.nextNode());
   }
 
   public void readChilds(Node parent) throws RepositoryException {
@@ -499,8 +499,10 @@ public class DataReader {
       map.remove(params[0]);
       if (params.length > 1)
         map.put(params[0], params[1]);
-      else if (params[0].equals("-readprop") || params[0].equals("-readdc") || params[0].equals("-concurrent"))
+      else if (params[0].equals("-readdc") || params[0].equals("-concurrent") || params[0].equals("-readprop")) {
         map.put(params[0], "true");
+	log.info(params[0] + " = true");
+        }
       else
         map.put(params[0], "");
 

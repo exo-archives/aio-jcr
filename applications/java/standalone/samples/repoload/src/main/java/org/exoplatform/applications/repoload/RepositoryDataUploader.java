@@ -35,29 +35,56 @@ public class RepositoryDataUploader {
     
     else
       try {
-        dataUploader = new DataUploader(args);
-  
-        dataUploader.initRepository();
-  
-        start = System.currentTimeMillis(); // to get the time of start
         
-        try {
-          dataUploader.uploadData();
-        } catch (Exception e) {
-          log.info("Error upload data", e);
+        if (isAPIRead(args)){
+          
+          DataUploaderAPI dataUploaderApi = new DataUploaderAPI(args);
+          
+          dataUploaderApi.initRepository();
+    
+          start = System.currentTimeMillis(); // to get the time of start
+          
+          try {
+            dataUploaderApi.uploadDataAPI();
+          } catch (Exception e) {
+            log.info("Error upload data", e);
+          }
+          
+          end = System.currentTimeMillis();
+          
+          dataUploaderApi.readData();
+    
+          log.info("The time of the adding of " + dataUploaderApi.countNodes + " nodes: "
+              + ((end - start) / 1000.0) + " sec");
+          
+        } else {
+          dataUploader = new DataUploader(args);
+          
+          dataUploader.initRepository();
+    
+          start = System.currentTimeMillis(); // to get the time of start
+          
+          try {
+            dataUploader.uploadData();
+          } catch (Exception e) {
+            log.info("Error upload data", e);
+          }
+          
+          end = System.currentTimeMillis();
+          
+          dataUploader.readData();
+    
+          log.info("The time of the adding of " + dataUploader.countNodes + " nodes: "
+              + ((end - start) / 1000.0) + " sec");
         }
         
-        end = System.currentTimeMillis();
         
-        dataUploader.readData();
-  
-        log.info("The time of the adding of " + dataUploader.countNodes + " nodes: "
-            + ((end - start) / 1000.0) + " sec");
+        
       } catch (Exception e) {
         e.printStackTrace();
         log.info("Error upload data", e);
       }
-    System.exit(0);  
+    System.exit(0); 
   }
   
   private static boolean isRead(String[] args ){
@@ -83,4 +110,12 @@ public class RepositoryDataUploader {
     return false;
   }
   
+  private static boolean isAPIRead(String[] args ) {
+    for (int i = 0; i < args.length; i++){
+     String[] pair = args[i].split("="); 
+      if (pair[0].equals("-api"))
+        return true;
+    }
+    return false;
+  }
 }
