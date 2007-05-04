@@ -13,7 +13,9 @@ import javax.jcr.version.Version;
 
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.JcrImplBaseTest;
+import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -122,7 +124,9 @@ public class StorageUpdateTest extends JcrImplBaseTest {
       conn.update(bugData);
       jdbcConn.getJdbcConnection().commit();
       
-      PropertyData persistedBugData = (PropertyData) conn.getItemData(bugData.getQPath());
+      NodeData parent = (NodeData) session.getTransientNodesManager().getTransactManager().getItemData(jcrUuid.getParentUUID());
+      QPathEntry[] qentry = bugData.getQPath().getEntries();
+      PropertyData persistedBugData = (PropertyData) conn.getItemData(parent, qentry[qentry.length - 1]);
       log.info("node_V node BUG uuid: " + node_V.getUUID() +  ", jcr:uuid: " 
           + new String(persistedBugData.getValues().get(0).getAsByteArray()));
       
