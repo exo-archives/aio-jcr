@@ -6,7 +6,9 @@
 package org.exoplatform.jcr.benchmark.init;
 
 import javax.jcr.Repository;
-import javax.jcr.Session;
+
+import com.sun.japex.Params;
+
 
 /**
  * Created by The eXo Platform SARL .
@@ -19,22 +21,10 @@ public abstract class JCRInitializer {
 
   protected Repository repository;
 
-  protected Session    session;
-  
-  protected int myNodeIndex;
-
-  public abstract void initialize();
+  public abstract void initialize(Params params);
 
   public final Repository getRepository() {
     return repository;
-  }
-
-  public final Session getSession() {
-    return session;
-  }
-  
-  public final int getMyNodeIndex() {
-    return myNodeIndex;
   }
 
 }

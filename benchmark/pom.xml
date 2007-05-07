@@ -1,16 +1,16 @@
-<project>
+	<project>
 	<parent>
 		<groupId>org.exoplatform.jcr</groupId>
 		<artifactId>config</artifactId>
 		<version>1.6</version>
 	</parent>
-
+	
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>exo.jcr.benchmark.repoload</artifactId>
+	<artifactId>exo.jcr.benchmark</artifactId>
 	<packaging>jar</packaging>
 	<version>${org.exoplatform.jcr.version}</version>
-	<name>eXo JCR benchmark demo</name>
-
+	<name>eXo JCR benchmark</name>
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.exoplatform.jcr</groupId>
@@ -18,7 +18,7 @@
 			<version>${org.exoplatform.jcr.version}</version>
 			<scope>compile</scope>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>com.sun.japex</groupId>
 			<artifactId>japex</artifactId>
@@ -35,13 +35,13 @@
 			<groupId>jfree</groupId>
 			<artifactId>jfreechart</artifactId>
 			<version>1.0.4</version>
-			<scope>compile</scope>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.xml.bind</groupId>
 			<artifactId>jaxb-impl</artifactId>
 			<version>2.0</version>
-			<scope>compile</scope>
+			<scope>runtime</scope>
 			<exclusions>
 				<exclusion>
 					<groupId>javax.xml</groupId>
@@ -50,42 +50,42 @@
 			</exclusions>
 		</dependency>
 		<!-- For Oracle 10g support (local-jcr repository) -->
-		<dependency>
-			<groupId>ojdbc</groupId>
-			<artifactId>ojdbc</artifactId>
-			<version>14</version>
-			<scope>compile</scope>
+		<!-- dependency>
+		<groupId>ojdbc</groupId>
+		<artifactId>ojdbc</artifactId>
+		<version>14</version>
+		<scope>compile</scope>
 		</dependency>
-
+		
 		<dependency>
-			<groupId>ojdbc</groupId>
-			<artifactId>orai18n</artifactId>
-			<version>14</version>
-			<scope>compile</scope>
-		</dependency>
+		<groupId>ojdbc</groupId>
+		<artifactId>orai18n</artifactId>
+		<version>14</version>
+		<scope>compile</scope>
+		</dependency -->
 	</dependencies>
-
+	
 	<build>
 		<plugins>
-		    <plugin>
-			        <groupId>org.apache.maven.plugins</groupId>
-			        <artifactId>maven-jar-plugin</artifactId>
-			        <configuration>
-			          <archive>
-			            <manifest>
-			              <addClasspath>true</addClasspath>
-			              <!--<classpathPrefix>lib</classpathPrefix>-->
-			              <mainClass>com.sun.japex.Japex</mainClass>
-			            </manifest>
-			          </archive>
-			        </configuration>
-			      </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<!--<classpathPrefix>lib</classpathPrefix>-->
+							<mainClass>com.sun.japex.Japex</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<!--<source>1.5</source>
-						<target>1.5</target>-->
+					<target>1.5</target>-->
 					<excludes>
 						<exclude>**/Jackrabbit*.java</exclude>
 					</excludes>
@@ -103,32 +103,22 @@
 					</execution>
 				</executions>
 				<configuration>
-					<descriptor>
-						repoload-benchmark-descriptor.xml
-					</descriptor>
-					<finalName>exo.jcr.benchmark.repoload</finalName>
+					<descriptor> exo-jcr-benchmark-descriptor.xml </descriptor>
+					<finalName>exo.jcr.benchmark</finalName>
 				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<configuration>
 					<tasks>
-						<java dir="${basedir}"
-							className="com.sun.japex.Japex" fork="true" failonerror="true"
-							maxmemory="256m">
-							<arg value="src/main/java/conf/JCRAPI.xml" />
+						<java dir="${basedir}" className="com.sun.japex.Japex"
+							fork="true" failonerror="true" maxmemory="256m">
+							<arg value="src/main/java/conf/JCRAPI.xml"/>
 							<classpath>
-								<pathelement path="${classpath}" />
+								<pathelement path="${classpath}"/>
 								<fileset dir="${basedir}/target">
-									<!--<include name="**/exo-jcr-benchmark-${org.exoplatform.jcr.version}.dir/*.jar" />-->
-									<include
-										name="**/*benchmark*.dir/*.jar" />
+									<include name="**/*benchmark*.dir/*.jar"/>
 								</fileset>
-								<!--<pathelement location="classes"/>
-									<dirset dir="${basedir}">
-									<include name="target/**/classes"/>
-									<exclude name="target/**/*Test*"/>
-									</dirset>-->
 							</classpath>
 						</java>
 					</tasks>
@@ -136,4 +126,4 @@
 			</plugin>
 		</plugins>
 	</build>
-</project>
+	</project>

@@ -5,10 +5,10 @@
 
 package org.exoplatform.jcr.benchmark.init;
 
-import javax.jcr.SimpleCredentials;
-
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.RepositoryService;
+
+import com.sun.japex.Params;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -18,7 +18,15 @@ import org.exoplatform.services.jcr.RepositoryService;
 
 public class EXOJCRStandaloneInitializer extends JCRInitializer {
 
-  public void initialize() {
+  public void initialize(Params params) {
+    if(!params.hasParam("exo.jaasConf"))
+      throw new RuntimeException("<exo.jaasConf> parameter required");
+
+    if(!params.hasParam("exo.containerConf"))
+      throw new RuntimeException("<exo.containerConf> parameter required");
+
+    String jaasConf = params.getParam("exo.jaasConf");
+    String containerConf = params.getParam("exo.containerConf");
     try {
       String path = Thread.currentThread().getContextClassLoader().getResource(
           "conf/standalone/test-configuration-benchmark.xml").toString();
@@ -30,7 +38,7 @@ public class EXOJCRStandaloneInitializer extends JCRInitializer {
       RepositoryService repositoryService = (RepositoryService) container
           .getComponentInstanceOfType(RepositoryService.class);
       repository = repositoryService.getRepository();
-      session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
+//      session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
     } catch (Exception e) {
       e.printStackTrace();
     }
