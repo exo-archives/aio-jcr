@@ -82,7 +82,7 @@ public class ObservationManagerImpl implements ObservationManager, SessionLifecy
    */
   public void onCloseSession(SessionImpl targetSession) {
     // clear all event listeners on session created this manager
-    if (this.getSession().getId() == targetSession.getId()) {
+    if (this.getSession() == targetSession) {
       registry.removeSessionEventListeners(targetSession);
     }
     session = null;
