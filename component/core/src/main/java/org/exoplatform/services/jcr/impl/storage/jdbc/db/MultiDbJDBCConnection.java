@@ -99,16 +99,6 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
    */
   @Override
   protected void prepareQueries() throws SQLException {
-    /**
-     * CREATE VIEW JCR_MNODE AS 
-  SELECT ID, PARENT_ID, NAME, VERSION, PATH, I_INDEX, N_ORDER_NUM 
-  FROM JCR_MITEM WHERE I_CLASS=1;
-
-CREATE VIEW JCR_MPROPERTY AS 
-  SELECT ID, PARENT_ID, NAME, VERSION, PATH, P_TYPE, P_MULTIVALUED FROM JCR_MITEM WHERE I_CLASS=2;
-
-     */
-    
     JCR_FK_ITEM_PARENT = "JCR_FK_MITEM_PARENT";
     JCR_FK_NODE_ITEM = "JCR_FK_MNODE_ITEM";
     JCR_FK_PROPERTY_NODE = "JCR_FK_MPROPERTY_N";
@@ -121,74 +111,43 @@ CREATE VIEW JCR_MPROPERTY AS
     FIND_ITEM_BY_NAME = "select * from JCR_MITEM"
       + " where PARENT_ID=? and NAME=? and I_INDEX=? order by I_CLASS, VERSION DESC";
     
-//    FIND_PROPERTY_BY_NAME = "select *" 
-//      + " from JCR_MITEM"
-//      + " where I_CLASS=2 and PARENT_ID=? and NAME=? order by VERSION DESC";
     FIND_PROPERTY_BY_NAME = "select *" 
-      + " from JCR_MPROPERTY"
-      + " where PARENT_ID=? and NAME=? order by VERSION DESC";
+      + " from JCR_MITEM"
+      + " where I_CLASS=2 and PARENT_ID=? and NAME=? order by VERSION DESC";
+//    FIND_PROPERTY_BY_NAME = "select *" 
+//      + " from JCR_MPROPERTY"
+//      + " where PARENT_ID=? and NAME=? order by VERSION DESC";
    
-//    FIND_REFERENCES = "select P.ID, P.PARENT_ID, P.VERSION, P.P_TYPE, P.P_MULTIVALUED, P.NAME, P.PATH" +
-//        " from JCR_MREF R, JCR_MITEM P" +
-//        " where P.I_CLASS=2 and R.NODE_ID=? and P.ID=R.PROPERTY_ID";
     FIND_REFERENCES = "select P.ID, P.PARENT_ID, P.VERSION, P.P_TYPE, P.P_MULTIVALUED, P.NAME" +
-    " from JCR_MREF R, JCR_MPROPERTY P" +
-    " where R.NODE_ID=? and P.ID=R.PROPERTY_ID";
+        " from JCR_MREF R, JCR_MITEM P" +
+        " where P.I_CLASS=2 and R.NODE_ID=? and P.ID=R.PROPERTY_ID";
+//    FIND_REFERENCES = "select P.ID, P.PARENT_ID, P.VERSION, P.P_TYPE, P.P_MULTIVALUED, P.NAME" +
+//    " from JCR_MREF R, JCR_MPROPERTY P" +
+//    " where R.NODE_ID=? and P.ID=R.PROPERTY_ID";
     
     FIND_VALUES_BY_PROPERTYID = "select * from JCR_MVALUE where PROPERTY_ID=? order by ORDER_NUM";
     FIND_VALUE_BY_PROPERTYID_OREDERNUMB = "select DATA from JCR_MVALUE where PROPERTY_ID=? and ORDER_NUM=?";
     
     // TODO Index PARENT_ID, N_ORDER_NUM
-//    FIND_NODES_BY_PARENTID = "select * from JCR_MITEM"
-//      + " where I_CLASS=1 and PARENT_ID=?"
-//      + " order by N_ORDER_NUM";
-    FIND_NODES_BY_PARENTID = "select * from JCR_MNODE"
-      + " where PARENT_ID=?"
+    FIND_NODES_BY_PARENTID = "select * from JCR_MITEM"
+      + " where I_CLASS=1 and PARENT_ID=?"
       + " order by N_ORDER_NUM";
+//    FIND_NODES_BY_PARENTID = "select * from JCR_MNODE"
+//      + " where PARENT_ID=?"
+//      + " order by N_ORDER_NUM";
     
     // TODO Index PARENT_ID, ID    
-//    FIND_PROPERTIES_BY_PARENTID = "select * from JCR_MITEM"
-//      + " where I_CLASS=2 and PARENT_ID=?" 
-//      + " order by ID";
-    FIND_PROPERTIES_BY_PARENTID = "select * from JCR_MPROPERTY"
-      + " where PARENT_ID=?" 
+    FIND_PROPERTIES_BY_PARENTID = "select * from JCR_MITEM"
+      + " where I_CLASS=2 and PARENT_ID=?" 
       + " order by ID";
-    
-    //INSERT_ITEM = "insert into JCR_MITEM(ID, NAME, VERSION, PATH) VALUES(?,?,?,?)";
-  /*
-  ID VARCHAR(96) NOT NULL PRIMARY KEY,
-  PARENT_ID VARCHAR(96) NOT NULL,
-  NAME VARCHAR(512) NOT NULL,
-  VERSION INTEGER NOT NULL, 
-  I_CLASS INTEGER NOT NULL,
-  I_INDEX INTEGER NOT NULL,
-  N_ORDER_NUM INTEGER NOT NULL,
-  P_TYPE INTEGER NOT NULL, 
-  P_MULTIVALUED BOOLEAN NOT NULL, */
-    INSERT_NODE = "insert into JCR_MITEM(ID, PARENT_ID, NAME, VERSION, I_CLASS, I_INDEX, N_ORDER_NUM) VALUES(?,?,?,?," + I_CLASS_NODE + ",?,?)";
-
-    //INSERT_PROPERTY = "insert into JCR_MPROPERTY(ID, PARENT_ID, TYPE, MULTIVALUED) VALUES(?,?,?,?)";    
-    INSERT_PROPERTY = "insert into JCR_MITEM(ID, PARENT_ID, NAME, VERSION, I_CLASS, I_INDEX, P_TYPE, P_MULTIVALUED) VALUES(?,?,?,?," + I_CLASS_PROPERTY + ",?,?,?)";
-    
-    INSERT_VALUE = "insert into JCR_MVALUE(DATA, ORDER_NUM, PROPERTY_ID) VALUES(?,?,?)";
-    INSERT_REF = "insert into JCR_MREF(NODE_ID, PROPERTY_ID, ORDER_NUM) VALUES(?,?,?)";
-
-    //UPDATE_ITEM = "update JCR_MITEM set VERSION=? where ID=?";
-    //UPDATE_ITEM_PATH = "update JCR_MITEM set NAME=?, PATH=?, VERSION=? where ID=?";
-    UPDATE_NODE = "update JCR_MITEM set VERSION=?, I_INDEX=?, N_ORDER_NUM=? where ID=?";
-    UPDATE_PROPERTY = "update JCR_MITEM set VERSION=?, P_TYPE=? where ID=?";
-    
-    DELETE_ITEM = "delete from JCR_MITEM where ID=?";
-    //DELETE_NODE = "delete from JCR_MNODE where ID=?";
-    //DELETE_PROPERTY = "delete from JCR_MPROPERTY where ID=?";
-    DELETE_VALUE = "delete from JCR_MVALUE where PROPERTY_ID=?";
-    DELETE_REF = "delete from JCR_MREF where PROPERTY_ID=?";
-    
+//    FIND_PROPERTIES_BY_PARENTID = "select * from JCR_MPROPERTY"
+//      + " where PARENT_ID=?" 
+//      + " order by ID";
     
     INSERT_NODE = "insert into JCR_MITEM(ID, PARENT_ID, NAME, VERSION, I_CLASS, I_INDEX, N_ORDER_NUM) VALUES(?,?,?,?," + I_CLASS_NODE + ",?,?)";
     INSERT_PROPERTY = "insert into JCR_MITEM(ID, PARENT_ID, NAME, VERSION, I_CLASS, I_INDEX, P_TYPE, P_MULTIVALUED) VALUES(?,?,?,?," + I_CLASS_PROPERTY + ",?,?,?)";
     
-    INSERT_VALUE = "insert into JCR_MVALUE(DATA, ORDER_NUM, PROPERTY_ID) VALUES(?,?,?)";
+    INSERT_VALUE = "insert into JCR_MVALUE(DATA, ORDER_NUM, PROPERTY_ID, STORAGE_DESC) VALUES(?,?,?,?)";
     INSERT_REF = "insert into JCR_MREF(NODE_ID, PROPERTY_ID, ORDER_NUM) VALUES(?,?,?)";
 
     UPDATE_NODE = "update JCR_MITEM set VERSION=?, I_INDEX=?, N_ORDER_NUM=? where ID=?";
@@ -484,20 +443,23 @@ CREATE VIEW JCR_MPROPERTY AS
   
   // -------- values processing ------------
 
-  protected void addValueData(String cid, int orderNumber, InputStream stream, int streamLength) throws SQLException, IOException {
+  protected void addValueData(String cid, int orderNumber, InputStream stream, int streamLength, String storageDesc) throws SQLException, IOException {
 
     if (insertValue == null)
       insertValue = dbConnection.prepareStatement(INSERT_VALUE);
     else
       insertValue.clearParameters();      
     
-    if (stream == null)
-      insertValue.setNull(1, Types.BLOB); // null, i.e. reference
-    else
+    if (stream == null) {
+      // [PN] store vd reference to external storage etc.
+      insertValue.setNull(1, Types.BLOB);
+      insertValue.setString(4, storageDesc);
+    } else {
       insertValue.setBinaryStream(1, stream, streamLength);
+      insertValue.setNull(4, Types.VARCHAR);
+    }
 
     insertValue.setInt(2, orderNumber);
-
     insertValue.setString(3, cid);
     insertValue.executeUpdate();
   }

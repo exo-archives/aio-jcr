@@ -96,15 +96,16 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     /**
       CREATE INDEX JCR_IDX_SITEM_PARENT_ORD ON JCR_SITEM(I_CLASS, CONTAINER_NAME, PARENT_ID, N_ORDER_NUM, VERSION DESC)
       /
-
-      CREATE VIEW JCR_SNODE AS 
-      SELECT ID, PARENT_ID, NAME, VERSION, PATH, CONTAINER_NAME, I_INDEX, N_ORDER_NUM 
-      FROM JCR_SITEM WHERE I_CLASS=1
-      /
+      
+CREATE VIEW JCR_SNODE AS 
+    SELECT ID, PARENT_ID, NAME, VERSION, CONTAINER_NAME, I_INDEX, N_ORDER_NUM 
+    FROM JCR_SITEM WHERE I_CLASS=1
+/
     
-      CREATE VIEW JCR_SPROPERTY AS 
-      SELECT ID, PARENT_ID, NAME, VERSION, PATH, CONTAINER_NAME, P_TYPE, P_MULTIVALUED FROM JCR_SITEM WHERE I_CLASS=2
-      /
+CREATE VIEW JCR_SPROPERTY AS 
+    SELECT ID, PARENT_ID, NAME, VERSION, CONTAINER_NAME, P_TYPE, P_MULTIVALUED 
+  FROM JCR_SITEM WHERE I_CLASS=2
+/
      * 
      */
     
@@ -182,7 +183,7 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     INSERT_NODE = "insert into JCR_SITEM(ID, PARENT_ID, NAME, CONTAINER_NAME, VERSION, I_CLASS, I_INDEX, N_ORDER_NUM) VALUES(?,?,?,?,?," + I_CLASS_NODE + ",?,?)";
     INSERT_PROPERTY = "insert into JCR_SITEM(ID, PARENT_ID, NAME, CONTAINER_NAME, VERSION, I_CLASS, I_INDEX, P_TYPE, P_MULTIVALUED) VALUES(?,?,?,?,?," + I_CLASS_PROPERTY + ",?,?,?)";
     
-    INSERT_VALUE = "insert into JCR_SVALUE(DATA, ORDER_NUM, PROPERTY_ID) VALUES(?,?,?)";
+    INSERT_VALUE = "insert into JCR_SVALUE(DATA, ORDER_NUM, PROPERTY_ID, STORAGE_DESC) VALUES(?,?,?,?)";
     INSERT_REF = "insert into JCR_SREF(NODE_ID, PROPERTY_ID, ORDER_NUM) VALUES(?,?,?)";
 
     UPDATE_NODE = "update JCR_SITEM set VERSION=?, I_INDEX=?, N_ORDER_NUM=? where ID=?";
@@ -450,21 +451,24 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
   }
   
   // -------- values processing ------------
-  
-  protected void addValueData(String cid, int orderNumber, InputStream stream, int streamLength) throws SQLException, IOException {
+
+  protected void addValueData(String cid, int orderNumber, InputStream stream, int streamLength, String storageDesc) throws SQLException, IOException {
 
     if (insertValue == null)
       insertValue = dbConnection.prepareStatement(INSERT_VALUE);
     else
       insertValue.clearParameters();      
     
-    if (stream == null)
-      insertValue.setNull(1, Types.BLOB); // null, i.e. reference
-    else
+    if (stream == null) {
+      // [PN] store vd reference to external storage etc.
+      insertValue.setNull(1, Types.BLOB);
+      insertValue.setString(4, storageDesc);
+    } else {
       insertValue.setBinaryStream(1, stream, streamLength);
+      insertValue.setNull(4, Types.VARCHAR);
+    }
 
     insertValue.setInt(2, orderNumber);
-
     insertValue.setString(3, cid);
     insertValue.executeUpdate();
   }

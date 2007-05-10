@@ -73,4 +73,5 @@ public class DBConstants {
   // VALUE table
   protected static final String COLUMN_VDATA = "DATA";
   protected static final String COLUMN_VORDERNUM = "ORDER_NUM";  
+  protected static final String COLUMN_VSTORAGE_DESC = "STORAGE_DESC";
 }
