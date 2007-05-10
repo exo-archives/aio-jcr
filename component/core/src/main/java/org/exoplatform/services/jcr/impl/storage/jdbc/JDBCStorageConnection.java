@@ -35,6 +35,7 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CleanableFileStreamValueData;
+import org.exoplatform.services.jcr.impl.storage.value.ValueDataNotFoundException;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
@@ -1026,14 +1027,14 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         cpmultivalued
     );
 
-    ValueIOChannel channel = valueStorageProvider.getApplicableChannel(pdata);
-    if (channel != null) {
-      values = channel.read(uuid, this.maxBufferSize);
-      channel.close();
-    } else {
-      values = readValues(cid, pdata);
-    }
-    pdata.setValues(values);
+//    ValueIOChannel channel = valueStorageProvider.getApplicableChannel(pdata);
+//    if (channel != null) {
+//      values = channel.read(uuid, this.maxBufferSize);
+//      channel.close();
+//    } else {
+//      values = readValues(cid, pdata);
+//    }
+    pdata.setValues(readValues(cid, pdata));
     return pdata;
   }  
 
@@ -1073,7 +1074,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
 //    return pdata;
 //  }
 
-  private List<ValueData> readValues(String cid, PropertyData pdata) throws IOException {
+  private List<ValueData> readValues(String cid, PropertyData pdata) throws IOException, ValueDataNotFoundException {
 
     List<ValueData> data = new ArrayList<ValueData>();
 
@@ -1102,10 +1103,10 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     return data;
   }
 
-  protected ValueData readValueData(PropertyData pdata, int orderNumber, String storageDesc) throws SQLException, IOException {
+  protected ValueData readValueData(PropertyData pdata, int orderNumber, String storageDesc) throws SQLException, IOException, ValueDataNotFoundException {
     ValueIOChannel channel = valueStorageProvider.getChannel(storageDesc, pdata, orderNumber);
     try {
-      return channel.read(pdata, orderNumber);
+      return channel.read(pdata.getUUID(), orderNumber, maxBufferSize);
     } finally {
       channel.close();
     } 
