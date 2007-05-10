@@ -9,8 +9,8 @@ import javax.jcr.PropertyType;
 
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 
 /**
  * Created by The eXo Platform SARL .
@@ -59,8 +59,7 @@ public final class ValuePluginFilter {
     this.propertyType = propertyType;
     this.ancestorPath = ancestorPath;
     this.propertyName = propertyName;
-    this.minValueSize = minValueSize != null ? Bytes.parseBytes(minValueSize) : 0;
-
+    this.minValueSize = minValueSize != null ? Long.parseLong(minValueSize) : 0;
   }
 
   public QPath getAncestorPath() {

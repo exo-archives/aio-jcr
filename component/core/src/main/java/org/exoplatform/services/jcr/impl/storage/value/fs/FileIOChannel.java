@@ -89,10 +89,10 @@ public class FileIOChannel implements ValueIOChannel {
     return FileValueIOUtil.readValue(valueFile, orderNumber, maxBufferSize, false);
   }
 
-  public void write(String propertyId, ValueData value) throws IOException {
+  public String write(String propertyId, ValueData value) throws IOException {
     String fileName = propertyId + value.getOrderNumber();
     File file = new File(rootDir, fileName);
     FileValueIOUtil.writeValue(file, value);
-   
+    return file.getAbsolutePath();
   }
 }

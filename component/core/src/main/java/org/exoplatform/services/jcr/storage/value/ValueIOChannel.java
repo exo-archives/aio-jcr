@@ -26,7 +26,7 @@ public interface ValueIOChannel {
    * @return List of ValueData
    * @throws IOException
    */
-  ValueData read(String propertyId,int orderNumber, int maxBufferSize) throws IOException;
+  ValueData read(String propertyId, int orderNumber, int maxBufferSize) throws IOException;
   
   /**
    * writes values

@@ -215,28 +215,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         }
       }
 
-      //ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data);
-      List<ValueData> vdata = data.getValues();
-      for (int i = 0; i < vdata.size(); i++) {
-        ValueData vd = vdata.get(i);
-        ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data, i);
-        InputStream stream = null;
-        int streamLength = 0;
-        String vdDesc = null;
-        if (channel == null) {
-          if (vd.isByteArray()) {
-            byte[] dataBytes = vd.getAsByteArray();
-            stream = new ByteArrayInputStream(dataBytes);
-            streamLength = dataBytes.length;
-          } else {
-            stream = vd.getAsStream();
-            streamLength = stream.available(); 
-          }
-        } else {
-          vdDesc = channel.write(data.getUUID(),vd);
-        }
-        addValueData(getInternalId(data.getUUID()), i, stream, streamLength, vdDesc); 
-      }
+      addValues(data);
       
 //      ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data);
 //      if (channel != null) {
@@ -291,13 +270,16 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
 
     try {
       // delete value
-      ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data);
-      if (channel != null) {
-        channel.delete(data.getUUID()); // by API UUI, not by cid
-        channel.close();
-      } else {
-        deleteValues(cid);
-      }
+//      ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data);
+//      if (channel != null) {
+//        channel.delete(data.getUUID()); // by API UUI, not by cid
+//        channel.close();
+//      } else {
+//        deleteValues(cid);
+//      }
+      
+      deleteExternalValues(cid, data);
+      deleteValues(cid);
 
       // delete references 
       deleteReference(cid);
@@ -549,20 +531,24 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         throw new RepositoryException("Can't update REFERENCE property ("+data.getQPath()+" "+data.getUUID()+") value: " + e.getMessage(), e);
       }
 
-      ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data);
-      if (channel != null) {
-        channel.delete(data.getUUID()); // by API UUID, not by cid
-        channel.write(data.getUUID(), data.getValues());
-        channel.close();
-      } else {
-        deleteValues(cid);
-        addValues(cid, data.getValues());
-      }
+//      ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data);
+//      if (channel != null) {
+//        channel.delete(data.getUUID()); // by API UUID, not by cid
+//        channel.write(data.getUUID(), data.getValues());
+//        channel.close();
+//      } else {
+//        deleteValues(cid);
+//        addValues(cid, data.getValues());
+//      }
+      
+      deleteExternalValues(cid, data);
+      deleteValues(cid);
+      
+      addValues(data);
 
       if (log.isDebugEnabled())
         log.debug("Property updated " + data.getQPath().getAsString() + ", " + data.getUUID()
-            + (data.getValues() != null ? ", values count: " + data.getValues().size() : ", NULL data")
-            + ", use channel "+channel);
+            + (data.getValues() != null ? ", values count: " + data.getValues().size() : ", NULL data"));
 
     } catch (IOException e) {
       if (log.isDebugEnabled())
@@ -1074,6 +1060,35 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
 //    return pdata;
 //  }
 
+  private void deleteExternalValues(String cid, PropertyData pdata) throws IOException, ValueDataNotFoundException {
+
+    try {
+
+      final ResultSet valueRecords = findValuesByPropertyId(cid);
+      try {
+        while (valueRecords.next()) {
+          final int orderNum = valueRecords.getInt(COLUMN_VORDERNUM);
+          final String storageDesc = valueRecords.getString(COLUMN_VSTORAGE_DESC);
+          if (!valueRecords.wasNull()) {
+            final ValueIOChannel channel = valueStorageProvider.getChannel(storageDesc, pdata, orderNum);
+            try {
+              channel.delete(pdata.getUUID());
+            } finally {
+              channel.close();
+            }
+          }
+        }
+      } finally {
+        valueRecords.close();
+      }
+
+    } catch (SQLException e) {
+      String msg = "Can't read value data of property with id " + cid + ", error:" + e;
+      log.error(msg, e);
+      throw new IOException(msg);
+    }
+  }
+  
   private List<ValueData> readValues(String cid, PropertyData pdata) throws IOException, ValueDataNotFoundException {
 
     List<ValueData> data = new ArrayList<ValueData>();
@@ -1179,28 +1194,28 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
 //    
 //    addValueData(cid, data.getOrderNumber(), stream, streamLength);
 //  }
-
   
-  @Deprecated
-  protected void addValues(String cid, List<ValueData> data) throws IOException, SQLException {
-    if(data == null) {
-      log.warn("List of values data is NULL. Check JCR logic. PropertyId: " + getUuid(cid));
-      return;
-    }
-
-    for (int i = 0; i < data.size(); i++) {
-      ValueData vd = data.get(i);
+  protected void addValues(PropertyData data) throws IOException, SQLException {
+    List<ValueData> vdata = data.getValues();
+    for (int i = 0; i < vdata.size(); i++) {
+      ValueData vd = vdata.get(i);
+      ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data, i);
       InputStream stream = null;
       int streamLength = 0;
-      if (vd.isByteArray()) {
-        byte[] dataBytes = vd.getAsByteArray();
-        stream = new ByteArrayInputStream(dataBytes);
-        streamLength = dataBytes.length;
+      String vdDesc = null;
+      if (channel == null) {
+        if (vd.isByteArray()) {
+          byte[] dataBytes = vd.getAsByteArray();
+          stream = new ByteArrayInputStream(dataBytes);
+          streamLength = dataBytes.length;
+        } else {
+          stream = vd.getAsStream();
+          streamLength = stream.available(); 
+        }
       } else {
-        stream = vd.getAsStream();
-        streamLength = stream.available(); // for FileInputStream can be used channel.size() result
+        vdDesc = channel.write(data.getUUID(), vd);
       }
-      addValueData(cid, i, stream, streamLength, null); // TODO data.get(i).getOrderNumber()
+      addValueData(getInternalId(data.getUUID()), i, stream, streamLength, vdDesc); 
     }
   } 
 
