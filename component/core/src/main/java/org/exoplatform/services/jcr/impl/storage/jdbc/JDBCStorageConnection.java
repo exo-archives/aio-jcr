@@ -222,7 +222,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data, i);
         InputStream stream = null;
         int streamLength = 0;
-        
+        String vdDesc = null;
         if (channel == null) {
           if (vd.isByteArray()) {
             byte[] dataBytes = vd.getAsByteArray();
@@ -233,9 +233,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
             streamLength = stream.available(); 
           }
         } else {
-          String vdDesc = channel.write(getInternalId(data.getUUID()),vd);
+          vdDesc = channel.write(getInternalId(data.getUUID()),vd);
         }
-        addValueData(getInternalId(data.getUUID()), i, stream, streamLength, null); 
+        addValueData(getInternalId(data.getUUID()), i, stream, streamLength, vdDesc); 
       }
       
 //      ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data);
