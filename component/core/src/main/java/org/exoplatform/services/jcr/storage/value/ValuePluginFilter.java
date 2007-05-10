@@ -84,7 +84,7 @@ public final class ValuePluginFilter {
 
     if (propertyType == prop.getType()
         && (ancestorPath == null || prop.getQPath().isDescendantOf(ancestorPath, false))
-        && (minValueSize == 0 || prop.getValues().get(valueOrderNumer).getLength() > minValueSize)
+        && (minValueSize > 0 && prop.getValues().get(valueOrderNumer).getLength() > minValueSize)
         && (propertyName == null || prop.getQPath().getName().equals(propertyName)))
       return true;
     else
