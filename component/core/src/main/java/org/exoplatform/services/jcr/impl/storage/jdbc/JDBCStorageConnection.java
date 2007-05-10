@@ -952,7 +952,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
               + qpath.getAsString() + ", id " + cid + ", container " + this.containerName, 
               null);
 
-        ResultSet ptValue = findValuesByPropertyId(ptProp.getString(COLUMN_ID));
+        ResultSet ptValue = findValuesDataByPropertyId(ptProp.getString(COLUMN_ID));
 
         if (!ptValue.next())
           throw new RepositoryException("FATAL ERROR primary type value not found. Node "
@@ -968,7 +968,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         InternalQName[] mixinNames = new InternalQName[0];
         if (mtProp.next()) {
           List<byte[]> mts = new ArrayList<byte[]>();
-          ResultSet mtValues = findValuesByPropertyId(mtProp.getString(COLUMN_ID));
+          ResultSet mtValues = findValuesDataByPropertyId(mtProp.getString(COLUMN_ID));
           while (mtValues.next()) {
             mts.add(mtValues.getBytes(COLUMN_VDATA));
           }
@@ -1031,7 +1031,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       values = channel.read(uuid, this.maxBufferSize);
       channel.close();
     } else {
-      values = readValues(cid);
+      values = readValues(cid, pdata);
     }
     pdata.setValues(values);
     return pdata;
@@ -1073,7 +1073,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
 //    return pdata;
 //  }
 
-  private List<ValueData> readValues(String cid) throws IOException {
+  private List<ValueData> readValues(String cid, PropertyData pdata) throws IOException {
 
     List<ValueData> data = new ArrayList<ValueData>();
 
@@ -1083,7 +1083,10 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       try {
         while (valueRecords.next()) {
           final int orderNum = valueRecords.getInt(COLUMN_VORDERNUM);
-          ValueData vdata = readValueData(cid, orderNum);
+          final String storageDesc = valueRecords.getString(COLUMN_VSTORAGE_DESC);
+          ValueData vdata = valueRecords.wasNull() ? 
+              readValueData(cid, orderNum) : 
+                readValueData(pdata, orderNum, storageDesc);
           data.add(vdata);
         }
       } finally {
@@ -1099,6 +1102,15 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     return data;
   }
 
+  protected ValueData readValueData(PropertyData pdata, int orderNumber, String storageDesc) throws SQLException, IOException {
+    ValueIOChannel channel = valueStorageProvider.getChannel(storageDesc, pdata, orderNumber);
+    try {
+      return channel.read(pdata, orderNumber);
+    } finally {
+      channel.close();
+    } 
+  }
+  
   protected ValueData readValueData(String cid, int orderNumber) throws SQLException, IOException {
 
     byte[] buffer = new byte[0];
@@ -1218,5 +1230,6 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   protected abstract void addValueData(String cid, int orderNumber, InputStream stream, int streamLength, String storageDesc) throws SQLException, IOException;
   protected abstract void deleteValues(String cid) throws SQLException;
   protected abstract ResultSet findValuesByPropertyId(String cid) throws SQLException;
+  protected abstract ResultSet findValuesDataByPropertyId(String cid) throws SQLException;
   protected abstract ResultSet findValueByPropertyIdOrderNumber(String cid, int orderNumb) throws SQLException;
 }

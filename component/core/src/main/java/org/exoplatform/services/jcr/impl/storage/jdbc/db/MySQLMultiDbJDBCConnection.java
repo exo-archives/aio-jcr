@@ -111,6 +111,12 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
   }
 
   @Override
+  protected ResultSet findValuesDataByPropertyId(String cid) throws SQLException {
+    return dbConnection.createStatement().executeQuery(
+        String.format(FIND_VALUESDATA_BY_PROPERTYID, "'" + cid + "'"));    
+  }  
+  
+  @Override
   protected ResultSet findValuesByPropertyId(String cid) throws SQLException {
     return dbConnection.createStatement().executeQuery(
         String.format(FIND_VALUES_BY_PROPERTYID, "'" + cid + "'"));

@@ -30,6 +30,7 @@ public class DBConstants {
   protected String FIND_REFERENCES;
   
   protected String FIND_VALUES_BY_PROPERTYID;
+  protected String FIND_VALUESDATA_BY_PROPERTYID;
   
   protected String FIND_VALUE_BY_PROPERTYID_OREDERNUMB;
   

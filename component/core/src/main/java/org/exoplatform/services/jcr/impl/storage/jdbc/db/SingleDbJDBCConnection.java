@@ -148,7 +148,8 @@ CREATE VIEW JCR_SPROPERTY AS
       " from JCR_SREF R, JCR_SITEM P" +
       " where P.I_CLASS=2 and P.CONTAINER_NAME=? and R.NODE_ID=? and P.ID=R.PROPERTY_ID";
 
-    FIND_VALUES_BY_PROPERTYID = "select * from JCR_SVALUE where PROPERTY_ID=? order by ORDER_NUM";
+    FIND_VALUES_BY_PROPERTYID = "select PROPERTY_ID, ORDER_NUM, STORAGE_DESC from JCR_SVALUE where PROPERTY_ID=? order by ORDER_NUM";
+    FIND_VALUESDATA_BY_PROPERTYID = "select * from JCR_SVALUE where PROPERTY_ID=? order by ORDER_NUM";
     FIND_VALUE_BY_PROPERTYID_OREDERNUMB = "select DATA from JCR_SVALUE where PROPERTY_ID=? and ORDER_NUM=?";
     
     // TODO Index CONTAINER_NAME, PARENT_ID, N_ORDER_NUM
@@ -483,6 +484,16 @@ CREATE VIEW JCR_SPROPERTY AS
     deleteValue.executeUpdate();
   }
 
+  protected ResultSet findValuesDataByPropertyId(String cid) throws SQLException {
+    if (findValuesByPropertyId == null)
+      findValuesByPropertyId = dbConnection.prepareStatement(FIND_VALUESDATA_BY_PROPERTYID);
+    else
+      findValuesByPropertyId.clearParameters();
+      
+    findValuesByPropertyId.setString(1, cid);
+    return findValuesByPropertyId.executeQuery();
+  }  
+  
   protected ResultSet findValuesByPropertyId(String cid) throws SQLException {
     if (findValuesByPropertyId == null)
       findValuesByPropertyId = dbConnection.prepareStatement(FIND_VALUES_BY_PROPERTYID);
