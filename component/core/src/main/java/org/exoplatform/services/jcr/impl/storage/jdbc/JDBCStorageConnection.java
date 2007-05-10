@@ -228,10 +228,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
           stream = vd.getAsStream();
           streamLength = stream.available(); // for FileInputStream can be used channel.size() result
         }
-        addValueData(getInternalId(data.getUUID()), i, stream, streamLength); // TODO data.get(i).getOrderNumber()
+        addValueData(getInternalId(data.getUUID()), i, stream, streamLength, null); // TODO data.get(i).getOrderNumber()
       }
-      
-      
       
 //      ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data);
 //      if (channel != null) {
@@ -1167,7 +1165,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         stream = vd.getAsStream();
         streamLength = stream.available(); // for FileInputStream can be used channel.size() result
       }
-      addValueData(cid, i, stream, streamLength); // TODO data.get(i).getOrderNumber()
+      addValueData(cid, i, stream, streamLength, null); // TODO data.get(i).getOrderNumber()
     }
   } 
 
@@ -1195,7 +1193,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   protected abstract int updatePropertyByUUID(int version, int type, String uuid) throws SQLException;
   
   // -------- values processing ------------
-  protected abstract void addValueData(String cid, int orderNumber, InputStream stream, int streamLength) throws SQLException, IOException;
+  protected abstract void addValueData(String cid, int orderNumber, InputStream stream, int streamLength, String storageDesc) throws SQLException, IOException;
   protected abstract void deleteValues(String cid) throws SQLException;
   protected abstract ResultSet findValuesByPropertyId(String cid) throws SQLException;
   protected abstract ResultSet findValueByPropertyIdOrderNumber(String cid, int orderNumb) throws SQLException;
