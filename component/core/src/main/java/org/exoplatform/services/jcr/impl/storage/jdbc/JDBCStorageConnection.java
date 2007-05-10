@@ -1165,20 +1165,20 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     return new ByteArrayPersistedValueData(buffer, orderNumber);
   }
   
-  protected void addValue(String cid, ValueData data) throws  IOException, SQLException{
-    InputStream stream = null;
-    int streamLength = 0;
-    if (data.isByteArray()) {
-      byte[] dataBytes = data.getAsByteArray();
-      stream = new ByteArrayInputStream(dataBytes);
-      streamLength = dataBytes.length;
-    } else {
-      stream = data.getAsStream();
-      streamLength = stream.available(); // for FileInputStream can be used channel.size() result
-    }
-    
-    addValueData(cid, data.getOrderNumber(), stream, streamLength);
-  }
+//  protected void addValue(String cid, ValueData data) throws  IOException, SQLException{
+//    InputStream stream = null;
+//    int streamLength = 0;
+//    if (data.isByteArray()) {
+//      byte[] dataBytes = data.getAsByteArray();
+//      stream = new ByteArrayInputStream(dataBytes);
+//      streamLength = dataBytes.length;
+//    } else {
+//      stream = data.getAsStream();
+//      streamLength = stream.available(); // for FileInputStream can be used channel.size() result
+//    }
+//    
+//    addValueData(cid, data.getOrderNumber(), stream, streamLength);
+//  }
 
   
   @Deprecated
