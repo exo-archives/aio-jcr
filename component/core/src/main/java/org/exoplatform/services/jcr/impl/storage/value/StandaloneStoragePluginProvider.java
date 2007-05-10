@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.naming.NamingException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
@@ -38,8 +36,7 @@ import org.exoplatform.services.log.ExoLogger;
  *          geaz $
  */
 
-public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugin> implements
-    ValueStoragePluginProvider {
+public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugin> implements ValueStoragePluginProvider {
 
   private static final long serialVersionUID = 4537116106932443262L;
 
