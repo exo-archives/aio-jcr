@@ -214,21 +214,27 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         }
       }
 
-      ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data);
+      //ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data);
       List<ValueData> vdata = data.getValues();
       for (int i = 0; i < vdata.size(); i++) {
         ValueData vd = vdata.get(i);
+        ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data, i);
         InputStream stream = null;
         int streamLength = 0;
-        if (vd.isByteArray()) {
-          byte[] dataBytes = vd.getAsByteArray();
-          stream = new ByteArrayInputStream(dataBytes);
-          streamLength = dataBytes.length;
+        
+        if (channel == null) {
+          if (vd.isByteArray()) {
+            byte[] dataBytes = vd.getAsByteArray();
+            stream = new ByteArrayInputStream(dataBytes);
+            streamLength = dataBytes.length;
+          } else {
+            stream = vd.getAsStream();
+            streamLength = stream.available(); 
+          }
         } else {
-          stream = vd.getAsStream();
-          streamLength = stream.available(); // for FileInputStream can be used channel.size() result
+          String vdDesc = channel.write(getInternalId(data.getUUID()),vd);
         }
-        addValueData(getInternalId(data.getUUID()), i, stream, streamLength, null); // TODO data.get(i).getOrderNumber()
+        addValueData(getInternalId(data.getUUID()), i, stream, streamLength, null); 
       }
       
 //      ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data);
@@ -1145,6 +1151,22 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
 
     return new ByteArrayPersistedValueData(buffer, orderNumber);
   }
+  
+  protected void addValue(String cid, ValueData data) throws  IOException, SQLException{
+    InputStream stream = null;
+    int streamLength = 0;
+    if (data.isByteArray()) {
+      byte[] dataBytes = data.getAsByteArray();
+      stream = new ByteArrayInputStream(dataBytes);
+      streamLength = dataBytes.length;
+    } else {
+      stream = data.getAsStream();
+      streamLength = stream.available(); // for FileInputStream can be used channel.size() result
+    }
+    
+    addValueData(cid, data.getOrderNumber(), stream, streamLength);
+  }
+
   
   @Deprecated
   protected void addValues(String cid, List<ValueData> data) throws IOException, SQLException {
