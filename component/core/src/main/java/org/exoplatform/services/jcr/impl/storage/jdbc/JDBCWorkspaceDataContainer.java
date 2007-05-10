@@ -85,7 +85,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
   public final static int DEF_MAXBUFFERSIZE = 1024 * 200; // 200k
   public final static String DEF_SWAPDIR = System.getProperty("java.io.tmpdir");
   
-  protected static Log log = ExoLogger.getLogger("jcr.GenericWorkspaceDataContainer");
+  protected static Log log = ExoLogger.getLogger("jcr.JDBCWorkspaceDataContainer");
   
   protected final String containerName;
   protected final String dbSourceName;
