@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.impl.storage.jdbc.ValueReference;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -25,7 +26,7 @@ public interface ValueIOChannel {
    * @return List of ValueData
    * @throws IOException
    */
-  List<ValueData> read(String propertyId, int maxBufferSize) throws IOException;
+  ValueData read(String propertyId,int orderNumber, int maxBufferSize) throws IOException;
   
   /**
    * writes values
@@ -33,7 +34,7 @@ public interface ValueIOChannel {
    * @param data - list of ValueData
    * @throws IOException
    */
-  void write(String propertyId, List<ValueData> data) throws IOException;
+  String write(String propertyId, ValueData data) throws IOException;
 
   /**
    * deletes values
@@ -46,5 +47,4 @@ public interface ValueIOChannel {
    * closes channel 
    */
   void close();
-
 }

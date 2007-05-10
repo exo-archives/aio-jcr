@@ -12,6 +12,7 @@ import java.util.Properties;
 import javax.naming.NamingException;
 
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 
 /**
@@ -24,9 +25,7 @@ public abstract class ValueStoragePlugin {
   
   protected List <ValuePluginFilter> filters;
     
-//  protected BinaryValueSwapStorage swapStorage = null; 
-//  protected boolean enableSwap = false;
-  
+
   /**
    * Initialize this plugin.
    * 
@@ -49,37 +48,6 @@ public abstract class ValueStoragePlugin {
   public final void setFilters(List <ValuePluginFilter> filters) {
     this.filters = filters;
   }
-
-//  /**
-//   * Initialize this plugin to work with binary swap if given parameter not is null and enable this option.
-//   * If binarySwap is null swopping will be disabled in anycase.
-//   * 
-//   * @see: disableBinarySwap(), enableBinarySwap()  
-//   */
-//  public void initBinarySwap(BinaryValueSwapStorage swap) {
-//    this.swapStorage = swap;
-//    enableBinarySwap();
-//  }
-//  
-//  /**
-//   * Enable swapping if binary swap was successful initialized before.
-//   */
-//  public void enableBinarySwap() {
-//    this.enableSwap = swapStorage != null;
-//  }
-//  
-//  /**
-//   * Disabe swapping.
-//   * 
-//   *  @see: enableBinarySwap() for enable operations after disable
-//   */
-//  public void disableBinarySwap() {
-//    this.enableSwap = false;
-//  }
-//  
-//  public boolean isBinarySwapEnabled() {
-//    return enableSwap;
-//  }
   
   /**
    * Run consistency check operation
@@ -87,6 +55,7 @@ public abstract class ValueStoragePlugin {
    * @param dataConnection - connection to metadata storage
    */
   public abstract void checkConsistency(WorkspaceStorageConnection dataConnection);
-    
+  
+  public abstract boolean match(String valueDataDescriptor, PropertyData prop, int valueOrderNumer);
 }
 

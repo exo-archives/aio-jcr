@@ -5,18 +5,30 @@
 
 package org.exoplatform.services.jcr.config;
 
-
 /**
- * Created by The eXo Platform SARL        .
+ * Created by The eXo Platform SARL .
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: ValueStorageFilterEntry.java 12843 2007-02-16 09:11:18Z peterit $
  */
 
 public class ValueStorageFilterEntry {
   private String propertyType;
+
   private String ancestorPath;
+
   private String propertyName;
-  
+
+  private String minValueSize;
+
+  public String getMinValueSize() {
+    return minValueSize;
+  }
+
+  public void setMinValueSize(String minValueSize) {
+    this.minValueSize = minValueSize;
+  }
+
   public ValueStorageFilterEntry() {
   }
 

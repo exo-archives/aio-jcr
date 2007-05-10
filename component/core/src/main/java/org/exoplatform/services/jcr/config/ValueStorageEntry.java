@@ -15,21 +15,21 @@ import java.util.ArrayList;
 
 public class ValueStorageEntry extends MappedParametrizedObjectEntry {
   
-  private ArrayList filters;
+  private ArrayList<ValueStorageFilterEntry> filters;
   
   public ValueStorageEntry() {
     super();
   }
   
-  public ValueStorageEntry(String type, ArrayList params) {
+  public ValueStorageEntry(String type, ArrayList<ValueStorageFilterEntry> params) {
     super(type, params);
   }
 
-  public ArrayList getFilters() {
+  public ArrayList<ValueStorageFilterEntry> getFilters() {
     return filters;
   }
 
-  public void setFilters(ArrayList filters) {
+  public void setFilters(ArrayList<ValueStorageFilterEntry> filters) {
     this.filters = filters;
   }
 }

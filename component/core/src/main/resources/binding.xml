@@ -79,6 +79,7 @@
   </mapping>
   <mapping name="filter" class="org.exoplatform.services.jcr.config.ValueStorageFilterEntry">
     <value name="property-type" field="propertyType" style="attribute" usage="optional"/>
+    <value name="min-value-size" field="minValueSize" style="attribute" usage="optional"/>
     <value name="ancestor-path" field="ancestorPath" style="attribute" usage="optional"/>
     <value name="property-name" field="propertyName" style="attribute" usage="optional"/>
   </mapping>
