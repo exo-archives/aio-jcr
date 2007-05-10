@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
@@ -63,6 +64,12 @@ public class SimpleFileValueStorage extends ValueStoragePlugin {
   }
   
   public void checkConsistency(WorkspaceStorageConnection dataConnection) {
+    
+  }
+
+  @Override
+  public boolean match(String valueDataDescriptor, PropertyData prop, int valueOrderNumer) {
+    return valueDataDescriptor.startsWith(rootDir.getAbsolutePath());
   }
   
 //  public void checkConsistency(WorkspaceStorageConnection dataConnection) {

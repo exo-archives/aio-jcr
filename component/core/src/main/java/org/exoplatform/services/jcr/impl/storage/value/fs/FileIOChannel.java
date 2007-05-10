@@ -8,8 +8,6 @@ package org.exoplatform.services.jcr.impl.storage.value.fs;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.datamodel.ValueData;
@@ -36,7 +34,7 @@ public class FileIOChannel implements ValueIOChannel {
     this.rootDir = rootDir;
     this.cleaner = cleaner;
   }
-  
+  /*
   public List<ValueData> read(String propertyId, int maxBufferSize) throws IOException {
     
     final File[] valueFiles = rootDir.listFiles(new PropertyIDFilter(propertyId));
@@ -56,7 +54,7 @@ public class FileIOChannel implements ValueIOChannel {
       FileValueIOUtil.writeValue(file, value);
     }      
   }
-  
+  */
   public boolean delete(String propertyId)  throws IOException {
     
     final File[] valueFiles = rootDir.listFiles(new PropertyIDFilter(propertyId));
@@ -84,5 +82,17 @@ public class FileIOChannel implements ValueIOChannel {
     public boolean accept(File file) {
       return file.getName().startsWith(id);// && !file.getName().endsWith(SharedFile.DELETED_EXTENSION);
     }
+  }
+
+  public ValueData read(String propertyId, int orderNumber, int maxBufferSize) throws IOException {
+    File valueFile = new File(rootDir, propertyId + orderNumber);
+    return FileValueIOUtil.readValue(valueFile, orderNumber, maxBufferSize, false);
+  }
+
+  public void write(String propertyId, ValueData value) throws IOException {
+    String fileName = propertyId + value.getOrderNumber();
+    File file = new File(rootDir, fileName);
+    FileValueIOUtil.writeValue(file, value);
+   
   }
 }
