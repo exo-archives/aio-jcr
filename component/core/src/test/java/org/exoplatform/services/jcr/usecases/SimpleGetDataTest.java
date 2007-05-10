@@ -6,6 +6,9 @@
 package org.exoplatform.services.jcr.usecases;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Calendar;
 
 import javax.jcr.LoginException;
@@ -36,12 +39,20 @@ public class SimpleGetDataTest extends BaseUsecasesTest {
     Node testLocalSmallFiles = root.addNode("testLocalSmallFiles");
     Node localSmallFile = testLocalSmallFiles.addNode("smallFile", "nt:file");
     Node contentNode = localSmallFile.addNode("jcr:content", "nt:resource");
-    byte[] data = new byte[32];
-    contentNode.setProperty("jcr:data", new ByteArrayInputStream(data));
-    contentNode.setProperty("jcr:mimeType", "application/octet-stream");
+    //byte[] data = new byte[32];
+    File f = new File("src/test/resources/test.txt");
+    InputStream is = new FileInputStream(f);
+    byte[] byteContent = new byte[is.available()] ;
+    is.read(byteContent) ;
+    
+    contentNode.setProperty("jcr:data", new ByteArrayInputStream(byteContent));
+    contentNode.setProperty("jcr:mimeType", "text/html");
     contentNode.setProperty("jcr:lastModified", Calendar.getInstance());
     session.save();
     assertNotNull(session.getRootNode().getNode("testLocalSmallFiles").getNode("smallFile").getNode(
     "jcr:content").getProperty("jcr:data").getValue());
+    
+    System.out.println("value === " + session.getRootNode().getNode("testLocalSmallFiles").getNode("smallFile").getNode(
+    "jcr:content").getProperty("jcr:data").getString()) ;
   }
 }
