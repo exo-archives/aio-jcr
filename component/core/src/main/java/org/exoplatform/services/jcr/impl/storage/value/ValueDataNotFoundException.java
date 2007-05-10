@@ -10,26 +10,26 @@ import javax.jcr.RepositoryException;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class ValueStorageNotFoundException extends RepositoryException {
+public class ValueDataNotFoundException extends RepositoryException {
 
   private static final long serialVersionUID = -3480032427540892483L;
 
-  public ValueStorageNotFoundException() {
+  public ValueDataNotFoundException() {
     super();
     // TODO Auto-generated constructor stub
   }
 
-  public ValueStorageNotFoundException(String message, Throwable rootCause) {
+  public ValueDataNotFoundException(String message, Throwable rootCause) {
     super(message, rootCause);
     // TODO Auto-generated constructor stub
   }
 
-  public ValueStorageNotFoundException(String message) {
+  public ValueDataNotFoundException(String message) {
     super(message);
     // TODO Auto-generated constructor stub
   }
 
-  public ValueStorageNotFoundException(Throwable rootCause) {
+  public ValueDataNotFoundException(Throwable rootCause) {
     super(rootCause);
     // TODO Auto-generated constructor stub
   }
