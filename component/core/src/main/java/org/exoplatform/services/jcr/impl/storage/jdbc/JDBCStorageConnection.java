@@ -233,7 +233,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
             streamLength = stream.available(); 
           }
         } else {
-          vdDesc = channel.write(getInternalId(data.getUUID()),vd);
+          vdDesc = channel.write(data.getUUID(),vd);
         }
         addValueData(getInternalId(data.getUUID()), i, stream, streamLength, vdDesc); 
       }
