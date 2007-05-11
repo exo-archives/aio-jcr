@@ -59,7 +59,7 @@ public final class ValuePluginFilter {
     this.propertyType = propertyType;
     this.ancestorPath = ancestorPath;
     this.propertyName = propertyName;
-    this.minValueSize = minValueSize != null ? Long.parseLong(minValueSize) : 0;
+    this.minValueSize = minValueSize != null ? Long.parseLong(minValueSize) : -1;
   }
 
   public QPath getAncestorPath() {
@@ -84,7 +84,7 @@ public final class ValuePluginFilter {
 
     if (propertyType == prop.getType()
         && (ancestorPath == null || prop.getQPath().isDescendantOf(ancestorPath, false))
-        && (minValueSize > 0 && prop.getValues().get(valueOrderNumer).getLength() > minValueSize)
+        && (minValueSize == -1 || (prop.getValues().get(valueOrderNumer).getLength() > minValueSize && minValueSize > 0))
         && (propertyName == null || prop.getQPath().getName().equals(propertyName)))
       return true;
     else

@@ -1197,8 +1197,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   
   protected void addValues(PropertyData data) throws IOException, SQLException {
     List<ValueData> vdata = data.getValues();
+    
     for (int i = 0; i < vdata.size(); i++) {
+      //System.out.println(data.getQPath()+" order:"+i);
       ValueData vd = vdata.get(i);
+      vd.setOrderNumber(i);
       ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data, i);
       InputStream stream = null;
       int streamLength = 0;
@@ -1215,7 +1218,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       } else {
         vdDesc = channel.write(data.getUUID(), vd);
       }
-      addValueData(getInternalId(data.getUUID()), i, stream, streamLength, vdDesc); 
+
+      addValueData(getInternalId(data.getUUID()),i, stream, streamLength, vdDesc); 
     }
   } 
 
