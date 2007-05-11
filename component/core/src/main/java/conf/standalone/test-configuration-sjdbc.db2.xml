@@ -33,44 +33,7 @@
 
         <property name="log4j.appender.file.layout" value="org.apache.log4j.PatternLayout"/>
         <property name="log4j.appender.file.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
-
-                <!-- property name="log4j.category.jcr.WorkspacePersistentDataManager" value="DEBUG"/ -->
-
-        <!-- property name="log4j.category.jcr.JDBCIOChannel" value="DEBUG"/ -->
-        <!-- property name="log4j.category.jcr.AbstractValueData" value="DEBUG"/ -->
       </properties-param>
-
-      <!-- value-param>
-        <name>logger</name>
-        <value>org.exoplatform.services.log.impl.BufferedSimpleLog</value>
-      </value-param>
-      <value-param>
-        <name>configurator</name>
-        <value>org.exoplatform.services.log.impl.SimpleLogConfigurator</value>
-      </value-param>
-      <properties-param>
-        <name>properties</name>
-        <description>SimpleLog properties</description>
-        <property name="org.apache.commons.logging.simplelog.defaultlog" value="debug"/>
-        <property name="org.apache.commons.logging.simplelog.showdatetime" value="true"/>
-      </properties-param -->
-
-      <!-- value-param>
-        <name>logger</name>
-        <value>org.exoplatform.services.log.impl.BufferedJdk14Logger</value>
-      </value-param>
-      <value-param>
-        <name>configurator</name>
-        <value>org.exoplatform.services.log.impl.Jdk14Configurator</value>
-      </value-param>
-      <properties-param>
-        <name>properties</name>
-        <description>jdk1.4 Logger properties</description>
-        <property name="handlers" value="java.util.logging.ConsoleHandler"/>
-        <property name=".level" value="FINE"/>
-        <property name="java.util.logging.ConsoleHandler.level" value="FINE"/>
-      </properties-param -->
-
     </init-params>
   </component>
 
@@ -96,10 +59,10 @@
     <type>org.exoplatform.services.log.impl.LogServiceImpl</type>
     <!--Valid value: FATAL, ERROR, WARN, INFO, DEBUG, TRACE-->
       <init-params>
-                   <properties-param>
-                     <name>log.level.config</name>
-                     <property name="org.exoplatform.services.log" value="INFO"/>
-                   </properties-param>
+         <properties-param>
+           <name>log.level.config</name>
+           <property name="org.exoplatform.services.log" value="INFO"/>
+         </properties-param>
       </init-params>
   </component>
 
@@ -143,10 +106,13 @@
           <properties-param>
             <name>ref-addresses</name>
             <description>ref-addresses</description>
-            <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
-            <property name="url" value="jdbc:hsqldb:file:target/temp/data/portal"/>
-            <property name="username" value="sa"/>
-            <property name="password" value=""/>
+            <property name="driverClassName" value="com.ibm.db2.jcc.DB2Driver"/>
+            <property name="url" value="jdbc:db2://localhost:50000/exodb"/>
+            <property name="username" value="exoadmin"/>
+            <property name="password" value="exo12321"/>
+            <property name="maxActive" value="30"/>
+            <property name="maxIdle" value="2"/>
+            <property name="initialSize" value="2"/>
           </properties-param>
         </init-params>
       </component-plugin>
@@ -281,7 +247,7 @@
       <value-param>
         <name>conf-path</name>
         <description>JCR configuration file</description>
-        <value>file:src/main/java/conf/standalone/test-jcr-config-sjdbc.xml</value>
+        <value>jar:/conf/standalone/test-jcr-config-sjdbc.db2.xml</value>
       </value-param>
     </init-params>
   </component>

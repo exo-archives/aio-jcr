@@ -13,11 +13,7 @@
 			<container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="sourceName" value="jdbcjcr"/>
-              <property name="db-type" value="pgsql"/>
-              <!-- property name="db-driver" value="org.hsqldb.jdbcDriver"/>
-              <property name="db-url" value="jdbc:hsqldb:file:target/temp/data/portal"/>
-              <property name="db-username" value="su"/>
-              <property name="db-password" value=""/ -->
+              <property name="db-type" value="mssql"/>
               <property name="multi-db" value="false"/>
               <property name="update-storage" value="true"/>
               <property name="max-buffer-size" value="204800"/>
@@ -29,7 +25,7 @@
                   <property name="path" value="target/temp/values/ws"/>
                 </properties>
                 <filters>
-                  <filter property-type="Binary"/>
+                  <filter property-type="Binary" min-value-size="100000"/>
                 </filters>
               </value-storage>
             </value-storages -->
@@ -50,11 +46,7 @@
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="sourceName" value="jdbcjcr"/>
-              <property name="db-type" value="pgsql"/>
-              <!-- property name="db-driver" value="org.hsqldb.jdbcDriver"/>
-              <property name="db-url" value="jdbc:hsqldb:file:target/temp/data/portal"/>
-              <property name="db-username" value="su"/>
-              <property name="db-password" value=""/ -->
+              <property name="db-type" value="mssql"/>
               <property name="multi-db" value="false"/>
               <property name="update-storage" value="true"/>
               <property name="max-buffer-size" value="204800"/>
@@ -66,7 +58,7 @@
                   <property name="path" value="target/temp/values/ws1"/>
                 </properties>
                 <filters>
-                  <filter property-type="Binary" min-value-size="100000"/>
+                  <filter property-type="Binary"/>
                 </filters>
               </value-storage>
             </value-storages -->
@@ -87,11 +79,7 @@
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="sourceName" value="jdbcjcr"/>
-              <property name="db-type" value="pgsql"/>
-              <!-- property name="db-driver" value="org.hsqldb.jdbcDriver"/>
-              <property name="db-url" value="jdbc:hsqldb:file:target/temp/data/portal"/>
-              <property name="db-username" value="su"/>
-              <property name="db-password" value=""/ -->
+              <property name="db-type" value="mssql"/>
               <property name="multi-db" value="false"/>
               <property name="update-storage" value="true"/>
               <property name="max-buffer-size" value="204800"/>

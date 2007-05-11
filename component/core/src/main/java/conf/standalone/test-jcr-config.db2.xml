@@ -13,12 +13,12 @@
 			<container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="sourceName" value="jdbcjcr"/>
-              <property name="db-type" value="pgsql"/>
-              <!-- property name="db-driver" value="org.hsqldb.jdbcDriver"/>
-              <property name="db-url" value="jdbc:hsqldb:file:target/temp/data/portal"/>
-              <property name="db-username" value="su"/>
-              <property name="db-password" value=""/ -->
-              <property name="multi-db" value="false"/>
+              <property name="db-type" value="db2"/>
+              <!-- property name="db-driver" value="com.ibm.db2.jcc.DB2Driver"/>
+              <property name="db-url" value="jdbc:db2://localhost:50000/exodb"/>
+              <property name="db-username" value="exoadmin"/>
+              <property name="db-password" value="exo12321"/ -->
+              <property name="multi-db" value="true"/>
               <property name="update-storage" value="true"/>
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="target/temp/swap/ws"/>
@@ -27,43 +27,6 @@
               <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws"/>
-                </properties>
-                <filters>
-                  <filter property-type="Binary"/>
-                </filters>
-              </value-storage>
-            </value-storages -->
-          </container>
-          <cache enabled="true">
-            <properties>
-              <property name="maxSize" value="10000"/>
-              <property name="liveTime" value="1800"/><!-- 30 min -->
-            </properties>
-          </cache>
-          <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
-            <properties>
-              <property name="indexDir" value="target/temp/index"/>
-            </properties>
-          </query-handler>
-        </workspace>
-        <workspace name="ws1" auto-init-root-nodetype="nt:unstructured">
-          <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
-            <properties>
-              <property name="sourceName" value="jdbcjcr"/>
-              <property name="db-type" value="pgsql"/>
-              <!-- property name="db-driver" value="org.hsqldb.jdbcDriver"/>
-              <property name="db-url" value="jdbc:hsqldb:file:target/temp/data/portal"/>
-              <property name="db-username" value="su"/>
-              <property name="db-password" value=""/ -->
-              <property name="multi-db" value="false"/>
-              <property name="update-storage" value="true"/>
-              <property name="max-buffer-size" value="204800"/>
-              <property name="swap-directory" value="target/temp/swap/ws1"/>
-            </properties>
-            <!-- value-storages>
-              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
-                <properties>
-                  <property name="path" value="target/temp/values/ws1"/>
                 </properties>
                 <filters>
                   <filter property-type="Binary" min-value-size="100000"/>
@@ -83,16 +46,45 @@
             </properties>
           </query-handler>
         </workspace>
+        <workspace name="ws1" auto-init-root-nodetype="nt:unstructured">
+          <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
+            <properties>
+              <property name="sourceName" value="jdbcjcr1"/>
+              <property name="db-type" value="db2"/>
+              <property name="multi-db" value="true"/>
+              <property name="update-storage" value="true"/>
+              <property name="max-buffer-size" value="204800"/>
+              <property name="swap-directory" value="target/temp/swap/ws1"/>
+            </properties>
+            <!-- value-storages>
+              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
+                <properties>
+                  <property name="path" value="target/temp/values/ws1"/>
+                </properties>
+                <filters>
+                  <filter property-type="Binary"/>
+                </filters>
+              </value-storage>
+            </value-storages -->
+          </container>
+          <cache enabled="true">
+            <properties>
+              <property name="maxSize" value="10000"/>
+              <property name="liveTime" value="1800"/><!-- 30 min -->
+            </properties>
+          </cache>
+          <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
+            <properties>
+              <property name="indexDir" value="target/temp/index"/>
+            </properties>
+          </query-handler>
+        </workspace>
         <workspace name="ws2" auto-init-root-nodetype="nt:unstructured">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
-              <property name="sourceName" value="jdbcjcr"/>
-              <property name="db-type" value="pgsql"/>
-              <!-- property name="db-driver" value="org.hsqldb.jdbcDriver"/>
-              <property name="db-url" value="jdbc:hsqldb:file:target/temp/data/portal"/>
-              <property name="db-username" value="su"/>
-              <property name="db-password" value=""/ -->
-              <property name="multi-db" value="false"/>
+              <property name="sourceName" value="jdbcjcr2"/>
+              <property name="db-type" value="db2"/>
+              <property name="multi-db" value="true"/>
               <property name="update-storage" value="true"/>
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="target/temp/swap/ws2"/>

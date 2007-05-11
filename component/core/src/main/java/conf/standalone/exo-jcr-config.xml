@@ -16,6 +16,7 @@
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="sourceName" value="jdbcjcr"/>
+              <property name="db-type" value="generic"/>
               <property name="multi-db" value="false"/>
               <property name="update-storage" value="true"/>
 			  <property name="max-buffer-size" value="204800"/>
@@ -31,12 +32,6 @@
                 </filters>
               </value-storage>
             </value-storages>
-            <!-- SWAP will be actual if value storage isn't used, i.e. values will storing in database -->
-            <!-- binary-swap
-              directory-path="../temp/swap/production"
-              min-file-size="100K"
-              copy-local-files="false">
-            </binary-swap -->
           </container>
          <cache enabled="true">
           <properties>
@@ -54,6 +49,7 @@
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="sourceName" value="jdbcjcr"/>
+              <property name="db-type" value="generic"/>
               <property name="multi-db" value="false"/>
               <property name="update-storage" value="true"/>
 			  <property name="max-buffer-size" value="204800"/>
@@ -69,11 +65,6 @@
                 </filters>
               </value-storage>
             </value-storages -->
-            <!-- binary-swap
-              directory-path="../temp/swap/draft"
-              min-file-size="100K"
-              copy-local-files="false">
-            </binary-swap -->
           </container>
          <cache enabled="true">
           <properties>
@@ -86,6 +77,7 @@
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="sourceName" value="jdbcjcr"/>
+              <property name="db-type" value="generic"/>
               <property name="multi-db" value="false"/>
               <property name="update-storage" value="true"/>
 			  <property name="max-buffer-size" value="204800"/>
@@ -101,11 +93,6 @@
                 </filters>
               </value-storage>
             </value-storages -->
-            <!-- binary-swap
-              directory-path="../temp/swap/backup"
-              min-file-size="100K"
-              copy-local-files="false">
-            </binary-swap -->
           </container>
          <cache enabled="true">
           <properties>
@@ -118,6 +105,7 @@
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="sourceName" value="jdbcjcr"/>
+              <property name="db-type" value="generic"/>
               <property name="multi-db" value="false"/>
               <property name="update-storage" value="true"/>
 			  <property name="max-buffer-size" value="204800"/>
@@ -133,11 +121,6 @@
                 </filters>
               </value-storage>
             </value-storages -->
-            <!-- binary-swap
-              directory-path="../temp/swap/digital-assets"
-              min-file-size="100K"
-              copy-local-files="false">
-            </binary-swap -->
           </container>
           <cache enabled="true">
             <properties>

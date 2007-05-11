@@ -32,8 +32,6 @@
 
         <property name="log4j.appender.file.layout" value="org.apache.log4j.PatternLayout"/>
         <property name="log4j.appender.file.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
-        
-        <property name="log4j.category.jcr.WorkspacePersistentDataManager" value="DEBUG"/>
       </properties-param>
 
       <!-- value-param>
@@ -159,7 +157,7 @@
 
             <!-- Apache Commons DBCP Connection pooling with jTDS driver (1.2) -->
             <property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver"/>
-            <property name="url" value="jdbc:jtds:sqlserver://localhost:1433/exodb;instance=SQLEXPRESS"/>
+            <property name="url" value="jdbc:jtds:sqlserver://127.0.0.1:1433/exodb;instance=SQLEXPRESS"/>
             <property name="username" value="exoadmin"/>
             <property name="password" value="exo12321"/>
             <property name="appName" value="eXo JCR (exodb)"/>
@@ -237,28 +235,6 @@
   </component>
 
   <component>
-    <key>org.exoplatform.services.database.jdbc.DBSchemaCreator</key>
-    <type>org.exoplatform.services.database.jdbc.DBSchemaCreator</type>
-    <component-plugins>
-      <component-plugin>
-          <name>jcr.dbschema</name>
-          <set-method>addPlugin</set-method>
-          <type>org.exoplatform.services.database.jdbc.CreateDBSchemaPlugin</type>
-          <init-params>
-            <value-param>
-              <name>data-source</name>
-              <value>jdbcjcr</value>
-            </value-param>
-            <value-param>
-              <name>script-file</name>
-              <value>conf/storage/jcr-sjdbc.mssql.sql</value>
-            </value-param>
-          </init-params>
-      </component-plugin>
-    </component-plugins>
-  </component>
-
-  <component>
     <key>org.exoplatform.services.jcr.RepositoryService</key>
     <type>org.exoplatform.services.jcr.impl.RepositoryServiceImpl</type>
     <component-plugins>
@@ -297,7 +273,7 @@
       <value-param>
         <name>conf-path</name>
         <description>JCR configuration file</description>
-        <value>file:src/main/java/conf/standalone/test-jcr-config-sjdbc.xml</value>
+        <value>file:src/main/java/conf/standalone/test-jcr-config-sjdbc.mssql.xml</value>
       </value-param>
     </init-params>
   </component>
