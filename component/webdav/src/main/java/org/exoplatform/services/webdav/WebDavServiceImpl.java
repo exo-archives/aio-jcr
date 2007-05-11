@@ -38,7 +38,7 @@ public class WebDavServiceImpl implements WebDavService {
   
   private static Log log = ExoLogger.getLogger("jcr.WebDavServiceImpl");
   
-  public static final String COMMANDS_PATH = "/conf/webdav-commands.xml";
+  public static final String COMMANDS_PATH = "/org/exoplatform/services/webdav/webdav-commands.xml";
   public static final String MAPPING_PATH = "/conf/webdav-mapping-table.xml";
   public static final String PROPERTYCONFIG_PATH = "/conf/webdav-propertyconfig.xml";
   
