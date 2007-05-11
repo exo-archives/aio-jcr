@@ -22,7 +22,16 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
 	    <load-on-startup>4</load-on-startup>
     </servlet>
 
-	<servlet>
+  <servlet>
+    <servlet-name>LinkServlet</servlet-name>
+    <description>
+      eXo - Platform LnkGenerator Servlet.
+    </description>
+    <servlet-class>org.exoplatform.frameworks.jcr.webdav.LnkGeneratorServlet</servlet-class>
+    <load-on-startup>4</load-on-startup>
+  </servlet>
+
+  <servlet>
 		<servlet-name>JnlpDownloadServlet</servlet-name>
 		<servlet-class>jnlp.sample.servlet.JnlpDownloadServlet</servlet-class>
 	</servlet>
@@ -32,7 +41,12 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
 	    <url-pattern>/repository/*</url-pattern>
     </servlet-mapping>
 
-	<servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>LinkServlet</servlet-name>
+    <url-pattern>/lnkgenerator/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
 		<servlet-name>JnlpDownloadServlet</servlet-name>
 		<url-pattern>*.jnlp</url-pattern>
 	</servlet-mapping>
