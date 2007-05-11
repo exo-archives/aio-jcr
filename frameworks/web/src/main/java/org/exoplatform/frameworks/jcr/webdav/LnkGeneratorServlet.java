@@ -27,11 +27,15 @@ public class LnkGeneratorServlet extends HttpServlet {
   
   private static Log log = ExoLogger.getLogger("jcr.LnkGeneratorServlet");
 
-  public static final String PARAM_PATH = "path"; 
+  public static final String PARAM_PATH = "path";
+  
+  @Override
+  public void init() throws ServletException {
+    log.info("Upping...");
+  }  
   
   protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     try {
-      
       String paramPath = request.getParameter(PARAM_PATH);
       
       String []paramPaths = paramPath.split("/");
