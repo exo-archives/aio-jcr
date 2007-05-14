@@ -51,8 +51,11 @@ public class FtpServiceImpl implements FtpService, Startable {
   }
 
   public void stop() {
-    log.info("Stopping...");    
-    ftpServer.stop();
+    log.info("Stopping...");
+    if (ftpServer != null)
+      ftpServer.stop();
+    else
+      log.warn("Service isn't started");
   }
 
 }
