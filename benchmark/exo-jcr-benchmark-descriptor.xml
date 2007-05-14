@@ -13,7 +13,7 @@
 	          <include>**/*.cmd</include>
 	          <include>**/*.sh</include>
 	          <include>**/*.log</include>
-	          <include>**/JCRAPI.xml</include>
+	          <include>**/JCRAPI*.xml</include>
       </includes>
     </fileSet>
   </fileSets>
@@ -26,6 +26,7 @@
       <excludes>
         <exclude>xalan:xalan</exclude>
         <exclude>com.sun.xml.parsers:jaxp-ri</exclude>
+        <exclude>javax.activation:activation</exclude>
         <!--<exclude>bcel:bcel</exclude>
           <exclude>mail:mail</exclude>
           <exclude>jsf:jsf-api</exclude>

@@ -16,12 +16,11 @@ import com.sun.japex.TestCase;
 
 public abstract class JCRTestBase {
 
-  public void doPrepare(final TestCase tc, JCRTestContext context) {
-  }
-  
-  public void doFinish(final TestCase tc, JCRTestContext context) {
+  public void doPrepare(final TestCase tc, JCRTestContext context) throws Exception {
   }
 
+  public void doFinish(final TestCase tc, JCRTestContext context) throws Exception {
+  }
 
   public abstract void doRun(final TestCase tc, JCRTestContext context) throws Exception;
 

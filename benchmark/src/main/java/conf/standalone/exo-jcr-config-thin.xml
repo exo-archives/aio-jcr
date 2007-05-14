@@ -9,16 +9,10 @@
         <workspace name="ws" auto-init-root-nodetype="nt:unstructured">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
-          <property name="db-type" value="oracle"/>
-
-          <property name="db-driver" value="oracle.jdbc.OracleDriver"/>
-              <!--<property name="db-url" value="jdbc:oracle:thin:@domu-12-31-34-00-03-4b.usma2.compute.amazonaws.com:1521/orcl"/>-->
-              <property name="db-url" value="jdbc:oracle:thin:@localhost:1521/orcl"/>
-              <property name="db-username" value="dctiadmin"/>
-              <property name="db-password" value="dcti12321"/>
-
+              <property name="sourceName" value="jdbcjcr"/>
+              <property name="db-type" value="oracle"/>
               <property name="multi-db" value="false"/>
-              <property name="update-storage" value="false"/>
+              <property name="update-storage" value="true"/>
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="../temp/swap/ws"/>
             </properties>

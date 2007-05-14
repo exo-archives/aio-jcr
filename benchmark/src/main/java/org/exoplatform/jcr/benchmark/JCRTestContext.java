@@ -10,29 +10,33 @@ import java.util.HashMap;
 import javax.jcr.Session;
 
 /**
- * Created by The eXo Platform SARL        .
+ * Created by The eXo Platform SARL .
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
-public final class JCRTestContext extends HashMap <String, Object>{
-  
-  public static final String SESSION = "session";
+public final class JCRTestContext extends HashMap<String, Object> {
+
+  public static final String SESSION       = "session";
+
   public static final String THREAD_NUMBER = "threadNumber";
-  public static final String COUNTER = "counter";
-  
+
+  public static final String COUNTER       = "counter";
+
   public void setSession(Session session) {
     put(SESSION, session);
   }
-  
+
   public Session getSession() {
-    return (Session)get(SESSION);
+    return (Session) get(SESSION);
   }
-  
+
   public String generateUniqueName(String prefix) {
-    int cnt = (Integer)get(COUNTER);
-    String name = prefix+get(THREAD_NUMBER)+cnt;
-    put(COUNTER, ++cnt);
+    // int cnt = (Integer)get(COUNTER);
+    // String name = prefix+get(THREAD_NUMBER)+cnt;
+    String name = prefix + get(THREAD_NUMBER);
+    // put(COUNTER, ++cnt);
     return name;
   }
 }
