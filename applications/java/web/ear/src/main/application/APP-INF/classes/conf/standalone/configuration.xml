@@ -69,19 +69,6 @@
   </component>
 
   <component>
-    <key>org.exoplatform.services.jcr.config.RepositoryServiceConfiguration</key>
-    <type>org.exoplatform.services.jcr.impl.config.RepositoryServiceConfigurationImpl</type>
-    <init-params>
-      <value-param>
-        <name>conf-path</name>
-        <description>JCR configuration file</description>
-        <value>jar:/conf/standalone/exo-jcr-config.xml</value>
-      </value-param>
-    </init-params>
-  </component>
-
-
-  <component>
     <key>org.exoplatform.services.idgenerator.IDGeneratorService</key>
     <type>org.exoplatform.services.idgenerator.impl.IDGeneratorServiceImpl</type>
   </component>
