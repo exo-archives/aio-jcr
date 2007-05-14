@@ -38,7 +38,7 @@ public class JcrResourceAdapter implements ResourceAdapter {
   public synchronized void start(BootstrapContext ctx)
       throws ResourceAdapterInternalException {
 
-    //System.out.println("<<<<<<<<<<<<<<<<<< JcrResourceAdapter.start() >>>>>>>>>>>>>>>>>>>");
+    System.out.println("<<<<<<<<<<<<<<<<<< JcrResourceAdapter.start(), " + containerConfig + " >>>>>>>>>>>>>>>>>>>");
 
     log.info("Container config: " + containerConfig);
     Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
@@ -61,6 +61,7 @@ public class JcrResourceAdapter implements ResourceAdapter {
    * @see javax.resource.spi.ResourceAdapter#stop()
    */
   public void stop() {
+    System.out.println("<<<<<<<<<<<<<<<<<< JcrResourceAdapter.stop(), " + containerConfig + " >>>>>>>>>>>>>>>>>>>");
     try {
       StandaloneContainer sc = StandaloneContainer.getInstance();
       sc.stop();

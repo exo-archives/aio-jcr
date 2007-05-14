@@ -414,6 +414,24 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
   public void stop() {
     this.swapCleaner.halt();
     this.swapCleaner.interrupt();
+    
+    if (dbType.equals(DB_TYPE_GENERIC) || dbType.equals(DB_TYPE_HSQLDB)) {
+      // shutdown in-process HSQLDB database
+	System.out.println("Shutdown in-process HSQLDB database...");
+      try {
+        JDBCStorageConnection conn = (JDBCStorageConnection) openConnection();
+        Connection jdbcConn = conn.getJdbcConnection();
+        String dbUrl = jdbcConn.getMetaData().getURL();
+        if (dbUrl.startsWith("jdbc:hsqldb:file") || dbUrl.startsWith("jdbc:hsqldb:mem")) {
+          // yeah, there is in-process hsqldb, shutdown it now
+          jdbcConn.createStatement().execute("SHUTDOWN");
+  	  System.out.println("Shutdown in-process HSQLDB database... done.");
+        }
+      } catch (Throwable e) {
+        log.error("JDBC Data container stop error " + e);
+	e.printStackTrace();
+      }
+    }
   }
   
   @Override
