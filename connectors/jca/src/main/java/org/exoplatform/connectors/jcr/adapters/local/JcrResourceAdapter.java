@@ -1,5 +1,5 @@
 /**
- * Copyright 2001-2003 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SAS         All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  */
 
@@ -40,20 +40,19 @@ public class JcrResourceAdapter implements ResourceAdapter {
 
     //System.out.println("<<<<<<<<<<<<<<<<<< JcrResourceAdapter.start() >>>>>>>>>>>>>>>>>>>");
 
-    log.info("containerConfig: " + containerConfig);
+    log.info("Container config: " + containerConfig);
     Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
     try {
       StandaloneContainer.setConfigurationURL(containerConfig);
     } catch (MalformedURLException e) {
       log.warn("Invalid containerConfig URL, ignored: "+containerConfig);
+      e.printStackTrace();
     }
 
     try {
       StandaloneContainer sc = StandaloneContainer.getInstance();
-      //InitialContext jndiContext = new InitialContext();
-      //jndiContext.bind(bindName, new BindableRepositoryImpl(sc, repositoryConfig));
     } catch (Exception e) {
-      log.error("BINDING ERROR: " + e);
+      log.error("Standalone container start error: " + e);
       e.printStackTrace();
     }
   }
@@ -62,6 +61,13 @@ public class JcrResourceAdapter implements ResourceAdapter {
    * @see javax.resource.spi.ResourceAdapter#stop()
    */
   public void stop() {
+    try {
+      StandaloneContainer sc = StandaloneContainer.getInstance();
+      sc.stop();
+    } catch (Exception e) {
+      log.error("Standalone container stop error: " + e);
+      e.printStackTrace();
+    }
   }
 
   /* (non-Javadoc)

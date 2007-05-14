@@ -54,6 +54,7 @@
       </object-param>
     </init-params>
   </component>
+
   <component>
     <key>org.exoplatform.services.log.LogService</key>
     <type>org.exoplatform.services.log.impl.LogServiceImpl</type>
