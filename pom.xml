@@ -24,7 +24,7 @@
     <module>frameworks/ftpclient</module>
 
 
-    <module>connectors/jca</module>
+    <!-- module>connectors/jca</module -->
 
     <!-- check readme.txt in the project -->
     <!-- module>connectors/rmiadapter</module -->
@@ -32,11 +32,11 @@
     <module>applications/java/web/samples/browser</module>
     <module>applications/java/web/samples/fckeditor</module>
     <module>applications/java/web/webdav</module>
-    <module>applications/java/standalone/rmi-server</module>
+    <!-- module>applications/java/standalone/rmi-server</module>
     <module>applications/java/standalone/rmi-client</module>
 
     <module>applications/java/standalone/samples/webdav-browser</module>
-    <!-- module>applications/java/standalone/openofficeplugin</module -->
+    <module>applications/java/standalone/openofficeplugin</module -->
 
     <!-- module>applications/jcr-console</module -->
     <!-- module>site</module -->
