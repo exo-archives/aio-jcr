@@ -70,19 +70,23 @@
 
   <<workspaces>> - list of workspaces
 
+  <<session-max-age>> - time after which an idle session will be removed (called logout). If not set the idle session will never be removed.
+
 *---*
   Workspace configuration:
 *---*
   
   <<name>> - name of workspace
-                       <
+                       
   <<auto-init-root-nodetype>> - node type for root node initialization
 
   <<container>> - workspace data container (physical storage) configuration
 
-  <cache>> - workspace storage cache configuration  
+  <<cache>> - workspace storage cache configuration  
 
   <<query-handler>> - query handler configuration  
+
+  <<lock-time-out>> - time after which unused global lock will be removed.
 
 *---*
   Workspace data container configuration:
