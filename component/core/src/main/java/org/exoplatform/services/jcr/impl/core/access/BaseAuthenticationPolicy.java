@@ -59,6 +59,7 @@ abstract public class BaseAuthenticationPolicy implements AuthenticationPolicy {
       throw new LoginException(
           "Credentials for the authentication should be CredentialsImpl or SimpleCredentials type");
     
+    //System.out.println("Auth policy, user: " + thisCredentials.getUserID() + " " + new String(thisCredentials.getPassword()));
     doAuthentication(thisCredentials); // throws LoginException
     
     log.debug("Repository.login() authenticated "

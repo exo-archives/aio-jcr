@@ -88,7 +88,7 @@ public class WorkspaceInitializer {
     this.nsPersister = nsPersister;
     this.ntRegistry = ntRegistry;
     this.ntPersister = ntPersister;
-    this.accessControlType = repConfig.getAuthenticationPolicy();
+    this.accessControlType = repConfig.getAccessControl(); // was getAuthenticationPolicy()
 
   }
 
@@ -107,7 +107,7 @@ public class WorkspaceInitializer {
     this.nsPersister = nsPersister;
     this.ntRegistry = ntRegistry;
     this.ntPersister = ntPersister;
-    this.accessControlType = repConfig.getAuthenticationPolicy();
+    this.accessControlType = repConfig.getAccessControl(); // was getAuthenticationPolicy()
     this.searchIndex = searchIndex;
   }
 

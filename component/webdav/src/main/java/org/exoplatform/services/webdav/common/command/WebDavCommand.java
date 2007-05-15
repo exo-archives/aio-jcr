@@ -28,69 +28,71 @@ import org.exoplatform.services.webdav.common.response.WebDavResponse;
  */
 
 public abstract class WebDavCommand implements Command {
-  
-  private static Log log = ExoLogger.getLogger("jcr.WebDavCommand"); 
-  
+
+  private static Log log = ExoLogger.getLogger("jcr.WebDavCommand");
+
   protected ThreadLocal<WebDavCommandContext> commandContext = new ThreadLocal<WebDavCommandContext>();
-  
+
   public final boolean execute(Context context) throws Exception {
     commandContext.set((WebDavCommandContext)context);
-    
+
     boolean status = false;
 
     try {
-      
+
       try {
         status = process();
       } catch (Exception exc) {
         log.info("Unhandled exception. " + exc.getMessage(), exc);
+        System.out.println("Exception. " + exc);
+        exc.printStackTrace();
         throw exc;
-      }      
-      
+      }
+
     } catch (LoginException lexc) {
-      String wwwAuthencticate = davContext().getConfig().getAuthHeader(); 
+      String wwwAuthencticate = davContext().getConfig().getAuthHeader();
       davResponse().answerUnAuthorized(wwwAuthencticate);
-      
+
     } catch (PathNotFoundException pexc) {
       davResponse().answerNotFound();
-      
+
     } catch (AccessDeniedException aexc) {
-      davResponse().answerForbidden();      
-    
+      davResponse().answerForbidden();
+
     } catch (RepositoryException rexr) {
       davResponse().answerForbidden();
 
     } finally {
       davContext().getSessionProvider().logOutAllSessions();
     }
-    
-    return status;    
+
+    return status;
   }
-    
+
   protected abstract boolean process() throws Exception;
-  
+
   public final WebDavCommandContext davContext() {
     return commandContext.get();
   }
-  
+
   public final WebDavRequest davRequest() {
     return commandContext.get().getWebDavRequest();
   }
-  
+
   public final WebDavResponse davResponse() {
     return commandContext.get().getWebDavResponse();
   }
-  
+
   public final ResourceFactory getResourceFactory() {
     return new ResourceFactoryImpl(davContext());
   }
-  
+
   public final Session jcrSrcSession() throws RepositoryException {
     return davRequest().getSourceSession(davContext().getSessionProvider());
   }
-  
+
   public final Session jcrDestSession() throws RepositoryException {
     return davRequest().getDestinationSession(davContext().getSessionProvider());
-  }  
-  
+  }
+
 }

@@ -83,7 +83,6 @@
               <artifactId>exo.jcr.applications.webdav</artifactId>
               <bundleFileName>webdav.war</bundleFileName>
               <contextRoot>webdav</contextRoot>
-	      <excluded>false</excluded>
             </webModule>
             <webModule>
               <groupId>org.exoplatform.jcr</groupId>
@@ -96,6 +95,7 @@
               <artifactId>exo.jcr.applications.fckeditor</artifactId>
               <bundleFileName>fckeditor.war</bundleFileName>
               <contextRoot>fckeditor</contextRoot>
+              <excluded>true</excluded>
             </webModule>
           </modules>
         </configuration>
