@@ -10,6 +10,7 @@ import java.util.StringTokenizer;
 
 import javax.jcr.ValueFormatException;
 
+import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.access.SystemIdentity;
@@ -66,7 +67,7 @@ public class PermissionValue extends BaseValue {
   }
   
   static public String[] parse(String pstring) {
-    StringTokenizer parser = new StringTokenizer(pstring, AccessControlList.DELIMITER);
+    StringTokenizer parser = new StringTokenizer(pstring, AccessControlEntry.DELIMITER);
     String identityString = parser.nextToken();
     String permissionString = parser.nextToken();
     
@@ -92,7 +93,7 @@ public class PermissionValue extends BaseValue {
   
   static protected String asString(String identity, String permission) {
     if (identity != null || permission != null) //SystemIdentity.ANY, PermissionType.ALL
-      return (identity != null ? identity : SystemIdentity.ANY) + AccessControlList.DELIMITER 
+      return (identity != null ? identity : SystemIdentity.ANY) + AccessControlEntry.DELIMITER 
         + (permission != null ? permission : PermissionType.READ);
     else 
       return "";

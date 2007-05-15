@@ -9,13 +9,14 @@ package org.exoplatform.services.jcr.access;
  * @author Gennady Azarenkov
  * @version $Id: AccessControlEntry.java 12843 2007-02-16 09:11:18Z peterit $
  */
-
 public class AccessControlEntry {
+
 
   private String identity;
 
   private String permission;
-
+  
+  public static final String DELIMITER = " "; 
   public AccessControlEntry(String identity, String permission) {
     this.identity = identity;
     this.permission = permission;
@@ -30,9 +31,13 @@ public class AccessControlEntry {
   }
 
   public String getAsString() {
-    return identity + AccessControlList.DELIMITER + permission;
+    return identity + AccessControlEntry.DELIMITER + permission;
   }
-
+  public static AccessControlEntry parse(String permission) {
+    
+    return null;
+  }
+  
   public boolean equals(Object obj) {
     if(obj == this)
       return true;
