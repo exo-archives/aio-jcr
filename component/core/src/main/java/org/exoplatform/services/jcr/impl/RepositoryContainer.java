@@ -79,7 +79,6 @@ public class RepositoryContainer extends ExoContainer {
     this.mbeanServer = MBeanServerFactory.createMBeanServer("jcrrep" + getName() + "mx");
     
     registerComponents();
-    
   }
 
   /* (non-Javadoc)
