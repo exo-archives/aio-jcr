@@ -66,7 +66,7 @@ public class WebDavRequestImpl extends HttpServletRequestWrapper implements WebD
     if (request.getParameter(DavConst.DAV_VERSIONIDENTIFIER) != null) {
       sourceVersion = request.getParameter(DavConst.DAV_VERSIONIDENTIFIER);
     } else {
-      if (sourcePath.indexOf("?") >= 0) {
+      if (sourcePath.indexOf("?" + DavConst.DAV_VERSIONIDENTIFIER) >= 0) {
         sourceVersion = sourcePath.substring(sourcePath.indexOf("?") + 1);
         sourceVersion = sourceVersion.substring(DavConst.DAV_VERSIONIDENTIFIER.length() + 1);
         sourcePath = sourcePath.substring(0, sourcePath.indexOf("?"));
