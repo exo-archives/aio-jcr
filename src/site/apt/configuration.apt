@@ -88,6 +88,8 @@
 
   <<lock-time-out>> - time after which unused global lock will be removed.
 
+  <<auto-init-permissions>> - default permissions of the root node. For example <any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove> means what users from group “admin” have all permissions and over user have only a read permissions.
+
 *---*
   Workspace data container configuration:
 *---*
