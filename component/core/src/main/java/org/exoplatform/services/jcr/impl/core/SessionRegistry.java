@@ -20,9 +20,6 @@ import org.picocontainer.Startable;
 public final class SessionRegistry implements Startable {
   private final Map<String, SessionImpl> sessionsMap;
 
-  // 60 min
-  private int                            DEFAULT_SESSION_TIMEOUT = 60 * 60 * 1000;
-
   // 1 min
   private int                            DEFAULT_CLEANER_TIMEOUT = 60 * 1000;
 
@@ -36,8 +33,7 @@ public final class SessionRegistry implements Startable {
   public SessionRegistry(RepositoryEntry entry) {
     sessionsMap = new WeakHashMap<String, SessionImpl>();
     if (entry != null) {
-      this.timeOut = entry.getSessionTimeOut() > 0 ? entry.getSessionTimeOut()
-          : DEFAULT_SESSION_TIMEOUT;
+      this.timeOut = entry.getSessionTimeOut() > 0 ? entry.getSessionTimeOut() : 0;
     }
   }
 
@@ -58,11 +54,13 @@ public final class SessionRegistry implements Startable {
   }
 
   public void start() {
-    sessionCleaner = new SessionCleaner(DEFAULT_CLEANER_TIMEOUT, timeOut);
+    if (timeOut > 0)
+      sessionCleaner = new SessionCleaner(DEFAULT_CLEANER_TIMEOUT, timeOut);
   }
 
   public void stop() {
-    sessionCleaner.halt();
+    if (timeOut > 0)
+      sessionCleaner.halt();
   }
 
   private class SessionCleaner extends WorkerThread {
