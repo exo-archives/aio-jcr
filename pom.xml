@@ -35,9 +35,8 @@
 
     <!-- module>applications/java/standalone/rmi-server</module>
     <module>applications/java/standalone/rmi-client</module>
-
-    <module>applications/java/standalone/samples/webdav-browser</module>
-    <module>applications/java/standalone/openofficeplugin</module -->
+    <module>applications/java/standalone/samples/webdav-browser</module -->
+    <!-- module>applications/java/standalone/openofficeplugin</module -->
 
     <!-- module>applications/jcr-console</module -->
     <!-- module>site</module -->
