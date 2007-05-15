@@ -23,7 +23,7 @@ import org.exoplatform.services.security.SecurityService;
 
 /**
  * Created by The eXo Platform SARL .
- * 
+ *
  * @author <a href="mailto:lautarul@gmail.com">Roman Pedchenko</a>
  * @version $Id: Helper.java 13081 2007-03-01 15:32:25Z tuan08 $
  */
@@ -88,7 +88,10 @@ public class Helper {
         request_.getRemoteUser());
     if (userProfile == null) {
       userProfile = orgService.getUserProfileHandler().createUserProfileInstance();
+      System.out.println("userProfile is null, create one new");
     }
+
+    System.out.println("userProfile: " + userProfile + ", remote: " + request_.getRemoteUser());
 
     /*container_.removeSessionContainer(session.getId());
     SessionContainer scontainer_ = container_.createSessionContainer(session.getId());

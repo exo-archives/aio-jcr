@@ -19,7 +19,7 @@ String editor = request.getParameter(editorName);
 String path = request.getParameter("path");
 if(path == null) {
   path = "/content/index";
-  
+
   JCRAppSessionFactory factory = (JCRAppSessionFactory)session.getAttribute(SingleRepositorySessionFactory.SESSION_FACTORY);
   GenericWebAppContext ctx = new GenericWebAppContext(session.getServletContext(), request, response,
           factory);
@@ -27,30 +27,40 @@ if(path == null) {
   CommandService catalog = (CommandService)container.getComponentInstanceOfType(CommandService.class);
 
   ctx.put(DefaultKeys.WORKSPACE, "production");
-  
+
   try {
-	  Command getNode = catalog.getCatalog().getCommand("getNode");
-	  ctx.put("currentNode", "/");
-	  ctx.put("path", "content/index");
-	  getNode.execute(ctx);
+      Command getNode = catalog.getCatalog().getCommand("getNode");
+      ctx.put("currentNode", "/");
+      ctx.put("path", "content/index");
+      getNode.execute(ctx);
   } catch(PathNotFoundException e) {
+    System.err.println("Test node not found, create one new");
     // Node not found - create it
-	  Command addNode = catalog.getCatalog().getCommand("addNode");
-	  ctx.put("nodeType", "nt:folder");
-	  ctx.put("path", "content");
-	  addNode.execute(ctx);
-	
-	  Command addResourceFile = catalog.getCatalog().getCommand("addResourceFile");
-	  ctx.put("currentNode", "/content");
-	  ctx.put("path", "index");
-	  ctx.put("data", "NEW Node data");
-	  ctx.put("mimeType", "text/html");
-	  addResourceFile.execute(ctx);
-	
-	  ctx.put("path", "/");
-	  Command save = catalog.getCatalog().getCommand("save");
-	  save.execute(ctx);
-  }   
+    try {
+      Command addNode = catalog.getCatalog().getCommand("addNode");
+      ctx.put("nodeType", "nt:folder");
+      ctx.put("path", "content");
+      addNode.execute(ctx);
+
+      Command addResourceFile = catalog.getCatalog().getCommand("addResourceFile");
+      ctx.put("currentNode", "/content");
+      ctx.put("path", "index");
+      ctx.put("data", "NEW Node data");
+      ctx.put("mimeType", "text/html");
+      addResourceFile.execute(ctx);
+
+      ctx.put("path", "/");
+      Command save = catalog.getCatalog().getCommand("save");
+      save.execute(ctx);
+    } catch(Throwable th) {
+        System.err.println("Error of add node: " + th);
+        th.printStackTrace();
+    }
+
+  } catch(Throwable th) {
+    System.err.println("Error of test node init: " + th);
+    th.printStackTrace();
+  }
 }
 
 String ws = request.getParameter("workspace");
@@ -61,7 +71,7 @@ if(session.getAttribute("ed") == null) {
   FCKeditorConfigurations conf = new FCKeditorConfigurations();
   conf.put("ImageBrowserURL", "/fckeditor/FCKeditor/editor/filemanager/browser/default/browser.html?Connector=/fckeditor/connector");
   oFCKeditor.setConfig(conf);
-  session.setAttribute("ed", oFCKeditor);  
+  session.setAttribute("ed", oFCKeditor);
 } else {
   oFCKeditor = (JCRContentFCKeditor)session.getAttribute("ed");
   if(editor != null)
@@ -73,7 +83,7 @@ if(session.getAttribute("ed") == null) {
 <html>
 <head>
   <title>eXo Platform JCR FCKeditor sample LOGIN ERROR</title>
-	<link rel="stylesheet" href="../exojcrstyle.css">
+    <link rel="stylesheet" href="../exojcrstyle.css">
   <script type="text/javascript" src="../FCKeditor/fckeditor.js"></script>
 </head>
   <body>
@@ -83,8 +93,8 @@ if(session.getAttribute("ed") == null) {
    <%=oFCKeditor.create()%>
 
    <br>
-	   <input type="submit" value="Submit" />
-	   </form>
+       <input type="submit" value="Submit" />
+       </form>
    <br>
 
    <%=oFCKeditor.getValue()%>
