@@ -323,7 +323,7 @@
     </dependency -->
 
     <!-- For IBM DB2 support (local-jcr repository) -->
-    <!-- dependency>
+    <dependency>
     <groupId>com.ibm.db2</groupId>
     <artifactId>db2jcc</artifactId>
     <version>9.1</version>
@@ -335,7 +335,7 @@
     <artifactId>db2jcc_license_cu</artifactId>
     <version>9.1</version>
     <scope>compile</scope>
-    </dependency -->
+    </dependency>
 
     <!-- For MS SQL 7/2000/2005 and Sybase ASE/Anywhere support (jTDS driver) -->
     <!-- dependency>
@@ -494,8 +494,8 @@
     </testResources>
 
     <!-- testSourceDirectory>src/test/java</testSourceDirectory -->
-    <!-- testSourceDirectory>src/TCK/java</testSourceDirectory -->
-    <testSourceDirectory>src/notest</testSourceDirectory>
+    <testSourceDirectory>src/TCK/java</testSourceDirectory>
+    <!-- testSourceDirectory>src/notest</testSourceDirectory -->
 
     <testOutputDirectory>target/test-classes</testOutputDirectory>
 
