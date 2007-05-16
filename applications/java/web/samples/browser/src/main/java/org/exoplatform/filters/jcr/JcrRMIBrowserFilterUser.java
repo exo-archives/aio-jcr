@@ -58,7 +58,8 @@ public class JcrRMIBrowserFilterUser implements Filter {
         ses = repository.login(s);
         httpRequest.getSession().setAttribute("ses", ses);
       } catch (Exception e) {
-e.printStackTrace();
+        System.err.println("doFilter, ses = null: " + e);
+        e.printStackTrace();
         httpRequest.getSession().setAttribute("msg", e.toString());
         httpResponse.sendRedirect("reperr.jsp");
         return;
@@ -82,13 +83,14 @@ e.printStackTrace();
           throw new Exception();
         httpRequest.getSession().setAttribute("node", node);
       } catch (Exception e) {
-e.printStackTrace();
+        System.err.println("doFilter, ses != null: " + e);
+        e.printStackTrace();
         httpRequest.getSession().setAttribute("msg", e.toString());
         httpResponse.sendRedirect("reperr.jsp");
         return;
       }
     } else {
-System.out.println("JcrRMIBrowserFilter2: can't get session");
+      System.out.println("JcrRMIBrowserFilter2: can't get session");
       httpRequest.getSession().setAttribute("msg", "Session expired");
       httpResponse.sendRedirect("reperr.jsp");
       return;
