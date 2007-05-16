@@ -5,13 +5,15 @@
 
 	<param name="japex.reportsDirectory" value="../reports" />
 	<param name="japex.plotGroupSize" value="6" />
-	<!--<param name="japex.resultUnit" value="ms" />-->
-	<!-- <param name="japex.resultUnit" value="tps" />-->
+	<param name="japex.resultUnit" value="ms" />
+	<!--<param name="japex.resultUnit" value="tps" />-->
 
 
 
 	<driver name="10T">
 		<param name="japex.classPath" value="../lib/*.jar" />
+		<!--<param name="japex.classPath"
+			value="target/exo.jcr.benchmark-1.6.dir/lib/*.jar" />-->
 		<param name="japex.driverClass"
 			value="org.exoplatform.jcr.benchmark.JCRDriver" />
 		<param name="japex.numberOfThreads" value="10" />
@@ -32,6 +34,8 @@
 
 	<driver name="20T">
 		<param name="japex.classPath" value="../lib/*.jar" />
+		<!--<param name="japex.classPath"
+			value="target/exo.jcr.benchmark-1.6.dir/lib/*.jar" />-->
 		<param name="japex.driverClass"
 			value="org.exoplatform.jcr.benchmark.JCRDriver" />
 		<param name="japex.numberOfThreads" value="20" />
@@ -43,7 +47,6 @@
 		<param name="jcr.workspace" value="ws" />
 		<param name="jcr.sessionPolicy" value="single" />
 
-		<!-- param name="exo.description" value="JCR Internal API" / -->
 		<param name="exo.jaasConf" value="login.conf" />
 		<param name="exo.containerConf"
 			value="conf/standalone/configuration-thin.xml" />
@@ -52,6 +55,8 @@
 
 	<driver name="40T">
 		<param name="japex.classPath" value="../lib/*.jar" />
+		<!--<param name="japex.classPath"
+			value="target/exo.jcr.benchmark-1.6.dir/lib/*.jar" />-->
 		<param name="japex.driverClass"
 			value="org.exoplatform.jcr.benchmark.JCRDriver" />
 		<param name="japex.numberOfThreads" value="40" />
@@ -63,7 +68,6 @@
 		<param name="jcr.workspace" value="ws" />
 		<param name="jcr.sessionPolicy" value="single" />
 
-		<!-- param name="exo.description" value="JCR Internal API" / -->
 		<param name="exo.jaasConf" value="login.conf" />
 		<param name="exo.containerConf"
 			value="conf/standalone/configuration-thin.xml" />
@@ -72,22 +76,22 @@
 
 	<!--<testCase name="SimpleTest">
 		<param name="exo.testClass"
-			value="org.exoplatform.jcr.benchmark.jcrapi.SimpleTest" />
+		value="org.exoplatform.jcr.benchmark.jcrapi.SimpleTest" />
 		<param name="japex.runIterations" value="10" />
-	</testCase>-->
+		</testCase>-->
 
 	<testCase name="GetNodeCommonTest">
 		<param name="exo.testClass"
-		value="org.exoplatform.jcr.benchmark.jcrapi.GetNodeCommonTest" />
+			value="org.exoplatform.jcr.benchmark.jcrapi.GetNodeCommonTest" />
 		<param name="japex.runIterations" value="100" />
 		<param name="japex.warmupIterations" value="0" />
-		</testCase>
+	</testCase>
 
-		<testCase name="GetNodeOwnTest">
+	<testCase name="GetNodeOwnTest">
 		<param name="exo.testClass"
-		value="org.exoplatform.jcr.benchmark.jcrapi.GetNodeOwnTest" />
+			value="org.exoplatform.jcr.benchmark.jcrapi.GetNodeOwnTest" />
 		<param name="japex.runIterations" value="100" />
 		<param name="japex.warmupIterations" value="0" />
-		</testCase>
+	</testCase>
 
 </testSuite>

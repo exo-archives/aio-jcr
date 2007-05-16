@@ -11,9 +11,9 @@
 
 
 	<driver name="eXo JCR Driver10T">
-		<param name="japex.classPath"
-			value="target/exo.jcr.benchmark-1.6.dir/lib/*.jar" />
-		<!--<param name="japex.classPath" value="../lib/*.jar" />-->
+	    <param name="japex.classPath" value="../lib/*.jar" />
+		<!--<param name="japex.classPath"
+			value="target/exo.jcr.benchmark-1.6.dir/lib/*.jar" />-->
 		<param name="japex.driverClass"
 			value="org.exoplatform.jcr.benchmark.JCRDriver" />
 		<param name="japex.numberOfThreads" value="10" />

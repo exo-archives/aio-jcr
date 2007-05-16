@@ -83,43 +83,6 @@
     </init-params>
   </component>
 
-<!--<component>
-    <key>org.exoplatform.services.naming.InitialContextInitializer</key>
-    <type>org.exoplatform.services.naming.InitialContextInitializer</type>
-    <component-plugins>
-             <component-plugin>
-                <name>jotm.tx</name>
-                <set-method>addPlugin</set-method>
-                <type>org.exoplatform.services.naming.BindReferencePlugin</type>
-                <init-params>
-                  <value-param>
-                    <name>bind-name</name>
-                    <value>UserTransaction</value>
-                  </value-param>
-                  <value-param>
-                    <name>class-name</name>
-                    <value>javax.transaction.UserTransaction</value>
-                  </value-param>
-                  <value-param>
-                    <name>factory</name>
-                    <value>org.objectweb.jotm.UserTransactionFactory</value>
-                  </value-param>
-                  <properties-param>
-                    <name>ref-addresses</name>
-                    <description>ref-addresses</description>
-                    <property name="jotm.timeout" value="60"/>
-                  </properties-param>
-                </init-params>
-             </component-plugin>
-    </component-plugins>
-    <init-params>
-      <properties-param>
-        <name>default-properties</name>
-        <description>Default initial context properties</description>
-        <property name="java.naming.factory.initial" value="org.exoplatform.services.naming.SimpleContextFactory"/>
-      </properties-param>
-    </init-params>
-  </component>-->
   <component>
     <key>org.exoplatform.services.naming.InitialContextInitializer</key>
     <type>org.exoplatform.services.naming.InitialContextInitializer</type>
@@ -148,7 +111,7 @@
             <property name="url" value="jdbc:oracle:thin:@192.168.0.10:1521/XE"/>
             <property name="username" value="exoadmin2"/>
             <property name="password" value="exo12321"/>
-            <property name="maxActive" value="20"/>
+            <property name="maxActive" value="10"/>
             <property name="maxIdle" value="2"/>
             <property name="initialSize" value="2"/>
           </properties-param>

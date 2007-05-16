@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>com.sun.japex</groupId>
 			<artifactId>japex</artifactId>
-			<version>1.0.25</version>
+			<version>1.0.27</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -127,15 +127,9 @@
 							<classpath>
 								<pathelement path="${classpath}" />
 								<fileset dir="${basedir}/target">
-									<!--<include name="**/exo-jcr-benchmark-${org.exoplatform.jcr.version}.dir/*.jar" />-->
 									<include
-										name="**/target/exo.jcr.benchmark-1.6.dir/lib/*.jar" />
+										name="**/target/exo.jcr.benchmark-${org.exoplatform.jcr.version}.dir/*.jar" />
 								</fileset>
-								<!--<pathelement location="classes"/>
-									<dirset dir="${basedir}">
-									<include name="target/**/classes"/>
-									<exclude name="target/**/*Test*"/>
-									</dirset>-->
 							</classpath>
 						</java>
 					</tasks>
