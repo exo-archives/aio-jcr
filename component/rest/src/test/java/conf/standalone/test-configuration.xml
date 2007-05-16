@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<configuration>
+
+  <component>
+    <type>org.exoplatform.services.rest.ResourceRouter</type>
+  </component>
+  <component>
+    <type>org.exoplatform.services.rest.wrapper.TestResourceWrapper</type>
+  </component>
+
+</configuration>
