@@ -125,8 +125,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
 
   private boolean live;
 
-  //private HashSet<String> lockTokens;
-
   private List<SessionLifecycleListener> lifecycleListeners;
 
   private SessionFactory sessionFactory;
@@ -138,7 +136,8 @@ public class SessionImpl implements Session, NamespaceAccessor {
   private long lastAccessTime;
 
   private SessionRegistry sessionRegistry;
-  private static long count = 0;
+  
+  //private static long count = 0;
   SessionImpl(String workspaceName, Credentials credentials, ExoContainer container)
       throws RepositoryException {
 
@@ -193,6 +192,7 @@ public class SessionImpl implements Session, NamespaceAccessor {
     sessionRegistry.registerSession(this);
     
     this.lastAccessTime = System.currentTimeMillis();
+    
   }
   
 
@@ -236,8 +236,8 @@ public class SessionImpl implements Session, NamespaceAccessor {
     for (int i = 0; i < lifecycleListeners.size(); i++) {
       lifecycleListeners.get(i).onCloseSession(this);
     }
-    sessionRegistry.unregisterSession(getId());
-    live = false;
+    this.sessionRegistry.unregisterSession(getId());
+    this.live = false;
   }
 
   /*
@@ -272,7 +272,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
       char[] pswd = ((SimpleCredentials) credentials).getPassword();
       CredentialsImpl thisCredentials = new CredentialsImpl(name, pswd);
       return sessionFactory.createSession(thisCredentials);
-      // return new SessionImpl(workspaceName, thisCredentials, container);
     } else
       throw new LoginException(
           "Credentials for the authentication should be CredentialsImpl or SimpleCredentials type");
@@ -293,8 +292,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
    * @see javax.jcr.Session#getRootNode()
    */
   public Node getRootNode() throws RepositoryException {
-    //return (Node) getItem(JCRPath.ROOT_PATH);
-
     Item item = nodesManager.getItemByUUID(Constants.ROOT_UUID, true);
     if (item != null && item.isNode()) {
       return (NodeImpl) item;
@@ -332,8 +329,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
     
     NodeData rootData = (NodeData) nodesManager.getItemData(Constants.ROOT_UUID);
     ItemImpl item = nodesManager.getItem(rootData, loc.getInternalPath(), true);
-    
-    // .getAccessibleItem(loc);
     if (item != null)
       return item;
 
@@ -347,9 +342,7 @@ public class SessionImpl implements Session, NamespaceAccessor {
    */
   public boolean itemExists(String absPath) {
     try {
-      //if (nodesManager.getItem(locationFactory.parseAbsPath(absPath).getInternalPath(), true) != null)
       if(getItem(absPath) != null)
-        // getAccessibleItem(locationFactory.parseAbsPath(absPath)) != null)
         return true;
     } catch (RepositoryException e) {
     }
@@ -583,9 +576,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
 
     JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
     
-    // NodeImpl srcNode = (NodeImpl)
-    // nodesManager.getItem(srcNodePath.getInternalPath(), true);
-    
     NodeData srcRootData = (NodeData) nodesManager.getItemData(Constants.ROOT_UUID);
 
     NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcRootData,
@@ -610,14 +600,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
   public void exportDocumentView(String absPath, OutputStream out, boolean skipBinary,
       boolean noRecurse) throws InvalidSerializedDataException, IOException, PathNotFoundException,
       RepositoryException {
-// TODO should we save it to pool?
-//    NodeImpl node = (NodeImpl) nodesManager.getItem(locationFactory.parseAbsPath(absPath)
-//        .getInternalPath(), true);
-//
-//    XMLWriter writer = new XMLWriter(this);
-//    initNodeAsDocView(node, writer, skipBinary, noRecurse);
-//    out.write(writer.getBytes());
-//    out.flush();
     
     SAXTransformerFactory stf = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
 
@@ -652,12 +634,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
       NodeImporter importer = (NodeImporter) getImportContentHandler(parentAbsPath, uuidBehavior);
       
       importer.parse(in);
-      // update changes cache in manager
-      // with question for SysView import???
-      // node.setState(ItemChangeState.ADDED); // ADDED has been
-      // nodesManager.update(node);
-      // nodesManager.update(ItemState.createUpdatedState(node.getData()),
-      // true);
     } catch (IOException e) {
       // e.printStackTrace();
       throw new InvalidSerializedDataException("importXML failed", e);
@@ -759,8 +735,6 @@ NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcRootData,
           "The relPath provided must not have an index on its final element. "
               + destNodePath.getAsString(false));
 
-//    NodeImpl destParentNode = (NodeImpl) nodesManager.getItem(
-//        destNodePath.makeParentPath().getInternalPath(), true);
     NodeData dstRootData = (NodeData) nodesManager.getItemData(Constants.ROOT_UUID);
     NodeImpl destParentNode = (NodeImpl) nodesManager.getItem(dstRootData, destNodePath
         .makeParentPath().getInternalPath(), true);
@@ -797,15 +771,11 @@ NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcRootData,
     ItemDataMoveVisitor initializer = new ItemDataMoveVisitor((NodeData) destParentNode.getData(),
         destNodePath.getName().getInternalName(), getWorkspace().getNodeTypeManager(),
         getTransientNodesManager(), true);
-        //getTransientNodesManager(), srcNode.isNodeType(Constants.MIX_REFERENCEABLE));
 
     srcNode.getData().accept(initializer);
     
-    // TODO [PN] 06.01.07 Don't use SDM.getChangesLog()
-    
     // deleting nodes
     getTransientNodesManager().getChangesLog().addAll(initializer.getItemDeletedStates(true));
-    // getTransientNodesManager().getChangesLog().dump()
     // [PN] 06.01.07 Reindex same-name siblings after deletion
     getTransientNodesManager().getChangesLog().addAll(
         getTransientNodesManager().reindexSameNameSiblings(srcNode.nodeData(), getTransientNodesManager()));
@@ -851,8 +821,6 @@ NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcRootData,
    * @see javax.jcr.Session#getLockTokens()
    */
   public String[] getLockTokens() {
-//    String[] tokens = new String[lockTokens.size()];
-//    lockTokens.toArray(tokens);
     return getLockManager().getLockTokens(getId());
   }
 
@@ -862,7 +830,6 @@ NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcRootData,
    * @see javax.jcr.Session#removeLockToken(java.lang.String)
    */
   public void removeLockToken(String lt) {
-    //lockTokens.remove(lt);
     getLockManager().removeLockToken(getId(),lt);
   }
 
@@ -887,21 +854,6 @@ NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcRootData,
   public void registerLifecycleListener(SessionLifecycleListener listener) {
     this.lifecycleListeners.add(listener);
   }
-//  @Deprecated
-//  boolean hasLockToken(String lt) {
-//    return false;
-//
-//    //return lockTokens.contains(lt);
-//  }
-//  @Deprecated
-//  public String getLockToken(String lt) {
-////    for (Iterator<String> it = lockTokens.iterator(); it.hasNext();) {
-////      String token = it.next();
-////      if (token.equals(lt))
-////        return token;
-////    }
-//    return null;
-//  }
 
   // Helper for for node export
   private void initNodeAsDocView(NodeImpl node, XMLWriter writer, boolean skipBinary,
@@ -924,7 +876,6 @@ NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcRootData,
         if (i < strPropValues.length - 1 && strPropValues[i].length() > 0)
           // space as delimiter for multi-valued (not applied for skipBinary)
           strValues += " ";
-        // System.out.println(">>> PROP >>>> "+prop.getPath()+" "+strValues);
       }
       attrs.setProperty(prop.getName(), strValues);
     }
@@ -960,18 +911,12 @@ NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcRootData,
       RepositoryException {
     try {
       SAXParserFactory factory = SAXParserFactory.newInstance();
-      //factory.setNamespaceAware(true);
-      // System.out.println(" factory.isNamespaceAware() "
-      // + factory.isNamespaceAware());
       SAXParser parser = factory.newSAXParser();
 
       XMLReader reader = parser.getXMLReader();
 
       reader.setContentHandler(contentHandler);
       reader.setFeature("http://apache.org/xml/features/allow-java-encodings",true);
-
-      // System.out.println(" Session.invokeHandler: " + new String(input));
-      // saveAsFile(input, "d:/tmp/export_test_sys.xml");
 
       reader.parse(new InputSource(new ByteArrayInputStream(input)));
 
@@ -999,8 +944,6 @@ NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcRootData,
         for (int i = 0; i < values.length; i++) {
           try {
             ValueData data = ((BinaryValue) prop.getValueArray()[i]).getInternalData();
-//            String b64s = new String(Base64.encodeBase64(BLOBUtil.readValue(data)));
-//            values[i] = b64s;
             values[i] = new String(Base64.encodeBase64(data.getAsByteArray()));
           } catch (IOException e) {
             throw new RepositoryException("Can't export value data to string: " + e.getMessage(), e);
@@ -1023,19 +966,10 @@ NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcRootData,
     return values;
   }
 
-  /**
-   * @return Returns the locationFactory.
-   */
   public LocationFactory getLocationFactory() {
     return locationFactory;
   }
 
-//  /**
-//   * @return Returns the uuidGenerator.
-//   */
-//  public UUIDGenerator getUuidGenerator() {
-//    return uuidGenerator;
-//  }
 
   /**
    * @return Returns the accessManager.
@@ -1061,6 +995,7 @@ NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcRootData,
   public SessionActionInterceptor getActionHandler() {
     return actionHandler;
   }
+  
   public long getLastAccessTime(){
     return  lastAccessTime;
 

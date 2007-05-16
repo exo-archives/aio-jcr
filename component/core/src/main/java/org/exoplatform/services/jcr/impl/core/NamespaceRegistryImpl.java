@@ -18,7 +18,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.core.NamespaceAccessor;
 import org.exoplatform.services.jcr.dataflow.DataManager;
-import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.log.ExoLogger;
 
 /**

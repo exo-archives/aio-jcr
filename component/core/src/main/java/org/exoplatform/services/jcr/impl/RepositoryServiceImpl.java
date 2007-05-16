@@ -56,8 +56,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
 
   public RepositoryServiceImpl(RepositoryServiceConfiguration configuration)
       throws RepositoryConfigurationException, RepositoryException {
-    this.config = configuration;
-    addNodeTypePlugins = new ArrayList();
+    this(configuration, null);
   }
 
   public RepositoryServiceImpl(RepositoryServiceConfiguration configuration, 

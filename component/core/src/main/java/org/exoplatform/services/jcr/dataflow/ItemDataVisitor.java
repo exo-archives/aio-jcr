@@ -18,10 +18,23 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 
 public interface ItemDataVisitor {
   
+  /**
+   * @return data manager wired data
+   */
   ItemDataConsumer getDataManager();
   
+  /**
+   * visit propertyData
+   * @param property
+   * @throws RepositoryException
+   */
   void visit(PropertyData property) throws RepositoryException;
 
+  /**
+   * visit NodeData
+   * @param node
+   * @throws RepositoryException
+   */
   void visit(NodeData node) throws RepositoryException;
 
 }
