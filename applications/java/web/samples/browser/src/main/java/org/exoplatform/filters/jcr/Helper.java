@@ -34,9 +34,14 @@ public class Helper {
 
   public static Repository requestRepository(HttpServletRequest httpRequest, String repoName,
       boolean useRmi) throws Exception {
+    
+    System.out.println("requestRepository: " + repoName + " useRmi: " + useRmi);
+    
     Repository repository = null;
-    if (repoName == null)
+    if (repoName == null) {
       repository = (Repository) httpRequest.getSession().getAttribute("repo");
+    }
+    
     if (repository == null) {
       /*
        * if (useRmi) { RepositoryFactory factory = new RepositoryFactory();
@@ -61,6 +66,7 @@ public class Helper {
         repository = (Repository) ctx.lookup("java:comp/env/jcr/" + repoName);
       }
     }
+    
     httpRequest.getSession().setAttribute("repo", repository);
     // System.out.println(" -- repository: " + repository);
     return repository;
@@ -76,6 +82,8 @@ public class Helper {
 
   //private static void newSessionContainer(HttpServletRequest request_) throws Exception {
   private static void setUser(HttpServletRequest request_) throws Exception {
+    System.out.println("setUser: " + request_.getRemoteUser());
+    
     StandaloneContainer container_ = StandaloneContainer.getInstance();
     HttpSession session = request_.getSession();
     // removeAttributes(session);
@@ -112,6 +120,8 @@ public class Helper {
       //newSessionContainer(request_);
       setUser(request_);
     } catch (Exception e) {
+      System.err.println("tuneRequest error " + request_.getRemoteUser() + ", " + e);
+      e.printStackTrace();
     }
   }
 
