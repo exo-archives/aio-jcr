@@ -18,12 +18,15 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.Value;
+import javax.jcr.ValueFactory;
 import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 import com.sun.japex.TestCase;
@@ -57,6 +60,8 @@ public class WriteNTFile extends JCRTestBase {
   int              myIndex;
 
   Session          session;
+  
+  ValueFactory     valueFactory;
 
   Node             rootTestNode;
 
@@ -69,6 +74,10 @@ public class WriteNTFile extends JCRTestBase {
   boolean          bReadproperty;
   
   boolean          bReadFile;
+  
+  boolean          bWriteLog;
+  
+  boolean          bConcurrent;
 
   @Override
   public void doPrepare(final TestCase tc, JCRTestContext context) {
@@ -76,10 +85,15 @@ public class WriteNTFile extends JCRTestBase {
       initParams(tc);
 
       session = context.getSession();
+      
+      valueFactory = session.getValueFactory();
 
       rootTestNode = addNodes(testroot, session.getRootNode());
 
-      myIndex = getIndex();
+      if (bConcurrent)
+        myIndex = 0;
+      else
+        myIndex = getIndex();
 
       initTree();
 
@@ -109,6 +123,10 @@ public class WriteNTFile extends JCRTestBase {
       throw new RuntimeException("<test.readproperty> parameter required");
     if (!tc.hasParam("test.readfile"))
       throw new RuntimeException("<test.readfile> parameter required");
+    if (!tc.hasParam("test.writelog"))
+      throw new RuntimeException("<test.writelog> parameter required");
+    if (!tc.hasParam("test.concurrent"))
+      throw new RuntimeException("<test.concurrent> parameter required");
     
 
     testroot = tc.getParam("test.testroot");
@@ -121,6 +139,8 @@ public class WriteNTFile extends JCRTestBase {
     bReadDC = Boolean.valueOf(tc.getParam("test.readdc")).booleanValue();
     bReadproperty = Boolean.valueOf(tc.getParam("test.readproperty")).booleanValue();
     bReadFile = Boolean.valueOf(tc.getParam("test.readfile")).booleanValue();
+    bWriteLog = Boolean.valueOf(tc.getParam("test.writelog")).booleanValue();
+    bConcurrent = Boolean.valueOf(tc.getParam("test.concurrent")).booleanValue();
     
     bSetFile = !sFile.equals("");
   }
@@ -135,6 +155,7 @@ public class WriteNTFile extends JCRTestBase {
         Node tempFile = ni.nextNode();
         if (bReadproperty)
           showProperty(tempFile);
+          showProperty(tempFile.getNode("jcr:content"));
         if (bReadDC) 
           showDCProperty(tempFile);
       }
@@ -164,7 +185,7 @@ public class WriteNTFile extends JCRTestBase {
 
   private void initTree() throws RepositoryException, IOException {
 
-    Node folder = rootTestNode.addNode(sFolderName + myIndex, "nt:folder");
+    Node writeRoot = rootTestNode.addNode(sFolderName + myIndex, "nt:folder");
 
     for (int i = 0; i < iteration; i++) {
 
@@ -179,12 +200,12 @@ public class WriteNTFile extends JCRTestBase {
 
       if (bReadDC) {
         nodeFile.addMixin("dc:elementSet");
-        nodeFile.setProperty("dc:title", "0123456789");
-        nodeFile.setProperty("dc:subject", "0123456789");
-        nodeFile.setProperty("dc:description", "0123456789");
-        nodeFile.setProperty("dc:publisher", "0123456789");
-        nodeFile.setProperty("dc:date", "0123456789");
-        nodeFile.setProperty("dc:resourceType", "0123456789");
+        nodeFile.setProperty("dc:title", createMultiValue("0123456789"));
+        nodeFile.setProperty("dc:subject", createMultiValue("0123456789"));
+        nodeFile.setProperty("dc:description", createMultiValue("0123456789"));
+        nodeFile.setProperty("dc:publisher", createMultiValue("0123456789"));
+        nodeFile.setProperty("dc:date", createMultiValue(Calendar.getInstance()));
+        nodeFile.setProperty("dc:resourceType", createMultiValue("0123456789"));
       }
     }
 
@@ -193,6 +214,20 @@ public class WriteNTFile extends JCRTestBase {
 
   synchronized int getIndex() {
     return ++nodeIndex;
+  }
+  
+  private Value[] createMultiValue(String sValue) {
+    Value[] values = new Value[1];
+    values[0] = valueFactory.createValue("0123456789");
+    
+    return values;
+  } 
+  
+  private Value[] createMultiValue(Calendar date) {
+    Value[] values = new Value[1];
+    values[0] = valueFactory.createValue(date);
+    
+    return values;
   }
 
   public void showDCProperty(Node parent) throws RepositoryException {
@@ -205,17 +240,18 @@ public class WriteNTFile extends JCRTestBase {
       for (NodeType mt : parent.getMixinNodeTypes())
         sMix += " " + mt.getName();
 
-      log.info(sMix + " " + parent.getPath());
+      if (bWriteLog) 
+        log.info(sMix + " " + parent.getPath());
 
-      String[] dcprop = { "dc:title", "dc:creator", "dc:subject", "dc:description", "dc:publisher" };
+      String[] dcprop = { "dc:title", "dc:subject", "dc:description", "dc:publisher", "dc:date", "dc:resourceType"};
 
       for (int i = 0; i < dcprop.length; i++) {
         Property propdc = parent.getProperty(dcprop[i]);
 
         String s = propdc.getValues()[0].getString();
 
-        log.info("\t\t" + propdc.getName() + " " + PropertyType.nameFromValue(propdc.getType())
-            + " " + s);
+        if (bWriteLog) 
+          log.info("\t\t" + propdc.getName() + " " + PropertyType.nameFromValue(propdc.getType()) + " " + s);
       }
     }
   }
@@ -231,29 +267,42 @@ public class WriteNTFile extends JCRTestBase {
         sMix += " " + mt.getName();
       }
 
-      log.info(sMix + " " + parent.getPath());
+      if (bWriteLog) 
+        log.info(sMix + " " + parent.getPath());
 
       while (pi.hasNext()) {
         Property prop = pi.nextProperty();
         if (prop.getType() == PropertyType.BINARY) {
-          log.info("\t\t" + prop.getName() + " " + PropertyType.nameFromValue(prop.getType()));
+          
+          int length = 0;
           if (bReadFile) 
-             readStream(prop.getStream());
+            length = readStream(prop.getStream());
+          
+          if (bReadFile)
+            if (bWriteLog)
+              log.info("\t\t" + prop.getName() + " " + PropertyType.nameFromValue(prop.getType()) + " " + length + " byte");
+          else
+            if (bWriteLog)
+              log.info("\t\t" + prop.getName() + " " + PropertyType.nameFromValue(prop.getType()));
+          
         } else {
           String s = prop.getString();
           if (s.length() > 64)
             s = s.substring(0, 64);
-          log.info("\t\t" + prop.getName() + " " + PropertyType.nameFromValue(prop.getType()) + " "
-              + s);
+          if (bWriteLog)
+            log.info("\t\t" + prop.getName() + " " + PropertyType.nameFromValue(prop.getType()) + " " + s);
         }
       }
     }
   }
   
-  public void readStream(InputStream is) throws IOException{
+  public int readStream(InputStream is) throws IOException{
+    int length = 0;
     int len;
     byte buf[] = new  byte[4049];
-    while ((len = is.read(buf)) > 0){}
+    while ((len = is.read(buf)) > 0)
+      length += len;
+    return length;
   }
-
+  
 }
