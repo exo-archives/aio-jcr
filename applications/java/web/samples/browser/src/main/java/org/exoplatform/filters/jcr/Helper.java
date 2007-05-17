@@ -19,6 +19,7 @@ import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.UserProfile;
+import org.exoplatform.services.organization.UserProfileHandler;
 import org.exoplatform.services.security.SecurityService;
 
 /**
@@ -34,9 +35,6 @@ public class Helper {
 
   public static Repository requestRepository(HttpServletRequest httpRequest, String repoName,
       boolean useRmi) throws Exception {
-
-    System.out.println("requestRepository: " + repoName + " useRmi: " + useRmi);
-
     Repository repository = null;
     if (repoName == null) {
       repository = (Repository) httpRequest.getSession().getAttribute("repo");
@@ -83,7 +81,7 @@ public class Helper {
 
   //private static void newSessionContainer(HttpServletRequest request_) throws Exception {
   private static void setUser(HttpServletRequest request_) throws Exception {
-    System.out.println("setUser: " + request_.getRemoteUser());
+    //System.out.println("setUser: " + request_.getRemoteUser());
 
     StandaloneContainer container_ = StandaloneContainer.getInstance();
     HttpSession session = request_.getSession();
@@ -91,12 +89,18 @@ public class Helper {
     SecurityService securityService = (SecurityService) container_
         .getComponentInstanceOfType(SecurityService.class);
     securityService.setCurrentUser(request_.getRemoteUser());
+    
     OrganizationService orgService = (OrganizationService) container_
         .getComponentInstanceOfType(OrganizationService.class);
-    UserProfile userProfile = orgService.getUserProfileHandler().findUserProfileByName(
-        request_.getRemoteUser());
+    
+    //System.out.println("OrganizationService: " + orgService);
+    UserProfileHandler upHandler = orgService.getUserProfileHandler();
+    //System.out.println("UserProfileHandler: " + upHandler);
+    
+    UserProfile userProfile = upHandler.findUserProfileByName(request_.getRemoteUser());
+    
     if (userProfile == null) {
-      userProfile = orgService.getUserProfileHandler().createUserProfileInstance();
+      userProfile = upHandler.createUserProfileInstance();
       System.out.println("userProfile is null, create one new");
     }
 
@@ -122,7 +126,7 @@ public class Helper {
       setUser(request_);
     } catch (Exception e) {
       System.err.println("tuneRequest error " + request_.getRemoteUser() + ", " + e);
-//      e.printStackTrace();
+      //e.printStackTrace();
     }
   }
 
