@@ -54,15 +54,16 @@
       <plugin>
         <artifactId>maven-ear-plugin</artifactId>
         <configuration>
-          <!-- security>
-            <security-role id="SecurityRole_1234">
-              <role-name>manager</role-name>
+          <security>
+            <security-role id="ID_EXO_USER">
+              <description>a simple user role</description>
+              <role-name>user</role-name>
             </security-role>
-            <security-role id="SecurityRole_5678">
-              <description>My cool description</description>
-              <role-name id="RoleName_12">teller</role-name>
+            <security-role id="ID_EXO_ADMIN">
+              <description>a simple admin role</description>
+              <role-name>admin</role-name>
             </security-role>
-          </security -->
+          </security>
 
             <!-- all deps jars inside the rar, so copy all jars in-self -->
             <defaultLibBundleDir>../APP-INF/lib</defaultLibBundleDir>

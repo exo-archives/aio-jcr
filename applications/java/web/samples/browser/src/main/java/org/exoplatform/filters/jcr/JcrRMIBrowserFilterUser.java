@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.exoplatform.services.security.impl.*;
 //import org.exoplatform.services.jcr.rmi.api.client.*;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SARL .

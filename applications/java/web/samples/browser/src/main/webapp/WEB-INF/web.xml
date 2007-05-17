@@ -88,11 +88,21 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
     </form-login-config>
   </login-config>
 
-  <security-role>
+  <!-- security-role>
     <description>a simple user role</description>
     <role-name>user</role-name>
   </security-role>
   <security-role>
     <role-name>admin</role-name>
-  </security-role>
+  </security-role -->
+
+            <security-role id="ID_EXO_USER">
+              <description>a simple user role</description>
+              <role-name>user</role-name>
+            </security-role>
+            <security-role id="ID_EXO_ADMIN">
+              <description>a simple admin role</description>
+              <role-name>admin</role-name>
+            </security-role>
+
 </web-app>
