@@ -41,6 +41,10 @@ public class PortalAuthenticationPolicy extends BaseAuthenticationPolicy {
     
     Credentials cred = null;
     Subject subj = securityService.getCurrentSubject();
+    
+    if (subj == null)
+      throw new LoginException("PortalAuthenticationPolicy: current subject is not found in security service");
+    
     Iterator credentials = subj.getPublicCredentials().iterator();
     while(credentials.hasNext()) {
       Object tmp = credentials.next(); 
