@@ -18,10 +18,10 @@ import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.RootContainer;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.rest.RestCommandContext;
-import org.exoplatform.services.rest.RestService;
-import org.exoplatform.services.rest.RestServiceImpl;
-import org.exoplatform.services.rest.common.command.RestCommand;
+import org.exoplatform.services.orgservice.RestCommandContext;
+import org.exoplatform.services.orgservice.RestService;
+import org.exoplatform.services.orgservice.RestServiceImpl;
+import org.exoplatform.services.orgservice.command.RestCommand;
 
 /**
  * Created by The eXo Platform SARL
