@@ -22,6 +22,7 @@ import org.exoplatform.services.jcr.access.AuthenticationPolicy;
 import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
+import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -114,7 +115,7 @@ public class RepositoryImpl implements ManageableRepository {
       NoSuchWorkspaceException, RepositoryException {
     return login(credentials, null);
   }
-
+  
   /* (non-Javadoc)
    * @see javax.jcr.Repository#login(java.lang.String)
    */
@@ -229,7 +230,62 @@ public class RepositoryImpl implements ManageableRepository {
 
     log.info("Workspace " + workspaceName + "@" + this.name + " is initialized");
   }
+  
+  public void configWorkspace(WorkspaceEntry wsConfig) throws RepositoryException{
+    if (isWorkspaceInitialized(wsConfig.getName())) {
+      log.warn("Workspace '" + wsConfig.getName()+ "' is presumably initialized. config canceled");
+      return;
+    }
+    try {
+      repositoryContainer.registerWorkspace(wsConfig);
+    } catch (RepositoryConfigurationException e) {
+      throw new RepositoryException(e);
+    }
 
+  }
+  /**
+   * Creation contains three  steps: 
+   * First <code>configWorkspace(WorkspaceEntry wsConfig)</code>
+   *  - registration a new configuration  in RepositoryContainer and create WorkspaceContainer. 
+   * Second, the main step, is <code>initWorkspace(String workspaceName, String rootNodeType)</code>
+   *  - initializing workspace by name and root nodetype. 
+   * Third, final step, starting all components of workspace.
+   * Before creation workspace <b>must be configured</b> 
+   * 
+   * @see org.exoplatform.services.jcr.core.RepositoryImpl#configWorkspace(org.exoplatform.services.jcr.config.WorkspaceEntry )
+   * @see org.exoplatform.services.jcr.core.RepositoryImpl#initWorkspace(java.lang.String,java.lang.String)
+   *  
+   * @param wsName - Creates a new Workspace with the specified name
+   * @throws RepositoryException
+   */
+  public void createWorkspace(String wsName) throws RepositoryException {
+    
+    if (isWorkspaceInitialized(wsName)) {
+      log.warn("Workspace '" + wsName+ "' is presumably initialized. config canceled");
+      return;
+    }
+    WorkspaceContainer wsContainer = repositoryContainer.getWorkspaceContainer(wsName);
+    
+    if(wsContainer==null)
+      throw new RepositoryException("Workspace "+wsName+" is not configured");
+    
+    //Second step
+    WorkspaceEntry wsConfig = repositoryContainer.getWorkspaceEntry(wsName);
+    initWorkspace(wsConfig.getName(),wsConfig.getAutoInitializedRootNt());
+    
+    //Third step
+    repositoryContainer.getWorkspaceContainer(wsConfig.getName()).getWorkspaceInitializer().startWorkspace();
+
+    
+    log.info("Workspace " + wsName + "@" + this.name + " is initialized");
+  }
+  
+  public void createWorkspace(WorkspaceEntry wsConfig) throws RepositoryException {
+    initWorkspace(wsConfig.getName(),wsConfig.getAutoInitializedRootNt());
+    repositoryContainer.getWorkspaceContainer(wsConfig.getName()).getWorkspaceInitializer().startWorkspace();
+    
+    log.info("Workspace " + wsConfig.getName() + "@" + this.name + " is initialized");
+  }
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.core.ManageableRepository#isWorkspaceInitialized(java.lang.String)
    */
@@ -271,5 +327,7 @@ public class RepositoryImpl implements ManageableRepository {
   public LocationFactory getLocationFactory() {
     return repositoryContainer.getLocationFactory();
   }
+
+
 
 }

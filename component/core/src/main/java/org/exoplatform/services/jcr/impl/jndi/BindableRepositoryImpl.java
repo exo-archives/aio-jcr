@@ -20,6 +20,7 @@ import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
 
 import org.exoplatform.services.jcr.config.RepositoryEntry;
+import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 
@@ -169,5 +170,10 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
       null);
     ref.add(new StringRefAddr(BindableRepositoryFactory.REPOSITORYNAME_ADDRTYPE, delegatee.getConfiguration().getName()));
     return ref;
+  }
+
+  public void createWorkspace(WorkspaceEntry wsConfig) throws RepositoryException {
+    delegatee.createWorkspace(wsConfig);
+    
   }
 }

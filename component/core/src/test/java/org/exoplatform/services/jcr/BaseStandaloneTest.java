@@ -59,8 +59,9 @@ public abstract class BaseStandaloneTest extends TestCase {
 
   public void setUp() throws Exception {
 
-    //StandaloneContainer.setConfigurationPath("src/java/conf/standalone/test-configuration.xml");
-    StandaloneContainer.setConfigurationPath("src/main/java/conf/standalone/test-configuration.pgsql.xml");
+    StandaloneContainer
+    .setConfigurationPath("src/main/java/conf/standalone/test-configuration-sjdbc.xml");
+    //StandaloneContainer.setConfigurationPath("src/main/java/conf/standalone/test-configuration.pgsql.xml");
 
     container = StandaloneContainer.getInstance();
 
@@ -96,7 +97,8 @@ public abstract class BaseStandaloneTest extends TestCase {
   protected void tearDown() throws Exception {
 
     // [PN] 05.05.06
-
+    if (true)
+      return ;
     log.info("tearDown() BEGIN " + getClass().getName() + "." + getName());
 
     if (session != null) {

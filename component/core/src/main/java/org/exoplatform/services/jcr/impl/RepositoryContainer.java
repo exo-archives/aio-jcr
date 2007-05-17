@@ -158,8 +158,14 @@ public class RepositoryContainer extends ExoContainer {
     registerComponentInstance(repository);
 
   }
-
-
+  public WorkspaceEntry getWorkspaceEntry(String wsName){
+    for (WorkspaceEntry entry : config.getWorkspaceEntries()) {
+      if(entry.getName().equals(wsName))
+        return entry;
+    }
+    return null;
+  }
+  
   private void registerWorkspacesComponents() throws RepositoryException, RepositoryConfigurationException {
     List<WorkspaceEntry> wsEntries = config.getWorkspaceEntries();
     Collections.sort(wsEntries, new WorkspaceOrderComparator(config.getSystemWorkspaceName()));
@@ -168,7 +174,7 @@ public class RepositoryContainer extends ExoContainer {
     }
   }  
   
-  private void registerWorkspace(WorkspaceEntry wsConfig) 
+  public  void registerWorkspace(WorkspaceEntry wsConfig) 
   throws RepositoryException, RepositoryConfigurationException {
      
     boolean isSystem = config.getSystemWorkspaceName().equals(wsConfig.getName());
@@ -246,6 +252,8 @@ public class RepositoryContainer extends ExoContainer {
       workspaceContainer.registerComponentImplementation(WorkspaceDataReplicator.class);
     }
     
+    if(!config.getWorkspaceEntries().contains(wsConfig))
+      config.getWorkspaceEntries().add(wsConfig);
   }
   
   // Components access methods -------
