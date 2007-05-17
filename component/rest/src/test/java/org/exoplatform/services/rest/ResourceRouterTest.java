@@ -23,7 +23,7 @@ import org.exoplatform.services.rest.wrapper.InvalidResourceDescriptorException;
  * Created by The eXo Platform SARL .
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: CommandServiceTest.java 9296 2006-10-04 13:13:29Z geaz $
+ * @version $Id:$
  */
 public class ResourceRouterTest extends TestCase {
   
