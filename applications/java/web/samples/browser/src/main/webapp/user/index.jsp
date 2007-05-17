@@ -17,7 +17,7 @@
 	</head>
   <body>
     <h1>eXo Platform JCR browser sample</h1>
-      <form action="../admin/" method="post" name="admin">
+      <form action="../admin/index.jsp" method="post" name="admin">
         <!-- input type="hidden" name="rep" value="<%= repName%>" -->
         <h2 class="info">Repository:&nbsp;<span class="infoText"><%= repName%></span></h2>
         <h2 class="info">Workspace:&nbsp;<span class="infoText"><%= ses.getWorkspace().getName()%>&nbsp;<input type="submit" name="submit" value="select"></span>

@@ -20,7 +20,7 @@
   </h2>
   <h2 class="info">Workspace:&nbsp;<span class="infoText"><%= wsName%> <form action="ws.jsp" method="post" name="admin_workspace"><input name="submit" type="submit" value="change"></form></span>
   </h2>
-  <h2>&nbsp;<span class="infoText"><form action="../user/" method="post" name="browse"><input name="submit" type="submit" value="browse!"></form></span>
+  <h2>&nbsp;<span class="infoText"><form action="../user/index.jsp" method="post" name="browse"><input name="submit" type="submit" value="browse!"></form></span>
   </h2>
 </body>  
 </html>

@@ -15,7 +15,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.StandaloneContainer;
-import org.exoplatform.container.client.http.HttpClientInfo;
+//import org.exoplatform.container.client.http.HttpClientInfo;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.UserProfile;
@@ -34,14 +34,14 @@ public class Helper {
 
   public static Repository requestRepository(HttpServletRequest httpRequest, String repoName,
       boolean useRmi) throws Exception {
-    
+
     System.out.println("requestRepository: " + repoName + " useRmi: " + useRmi);
-    
+
     Repository repository = null;
     if (repoName == null) {
       repository = (Repository) httpRequest.getSession().getAttribute("repo");
     }
-    
+
     if (repository == null) {
       /*
        * if (useRmi) { RepositoryFactory factory = new RepositoryFactory();
@@ -63,10 +63,11 @@ public class Helper {
       } catch (NamingException e) {
         System.err.println("Repository not bound in JNDI with name '" + repoName + "', "
             + e.getMessage());
+//        e.printStackTrace();
         repository = (Repository) ctx.lookup("java:comp/env/jcr/" + repoName);
       }
     }
-    
+
     httpRequest.getSession().setAttribute("repo", repository);
     // System.out.println(" -- repository: " + repository);
     return repository;
@@ -83,7 +84,7 @@ public class Helper {
   //private static void newSessionContainer(HttpServletRequest request_) throws Exception {
   private static void setUser(HttpServletRequest request_) throws Exception {
     System.out.println("setUser: " + request_.getRemoteUser());
-    
+
     StandaloneContainer container_ = StandaloneContainer.getInstance();
     HttpSession session = request_.getSession();
     // removeAttributes(session);
@@ -121,7 +122,7 @@ public class Helper {
       setUser(request_);
     } catch (Exception e) {
       System.err.println("tuneRequest error " + request_.getRemoteUser() + ", " + e);
-      e.printStackTrace();
+//      e.printStackTrace();
     }
   }
 

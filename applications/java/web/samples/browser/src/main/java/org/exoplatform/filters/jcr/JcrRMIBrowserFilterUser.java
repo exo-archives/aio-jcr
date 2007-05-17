@@ -6,10 +6,10 @@
 package org.exoplatform.filters.jcr;
 
 import java.io.IOException;
-import java.util.*;
+//import java.util.*;
 
 import javax.jcr.*;
-import javax.naming.*;
+//import javax.naming.*;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -19,9 +19,10 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+//import javax.servlet.http.HttpSession;
 
-import org.exoplatform.services.jcr.rmi.api.client.*;
+import org.exoplatform.services.security.impl.*;
+//import org.exoplatform.services.jcr.rmi.api.client.*;
 
 /**
  * Created by The eXo Platform SARL .
@@ -55,7 +56,9 @@ public class JcrRMIBrowserFilterUser implements Filter {
         String s = (String) httpRequest.getSession().getAttribute("ws");
         if (s == null)
           s = "";
-        ses = repository.login(s);
+        // TODO use login without cridentials, let do it the form authenticator (JAAS login module)
+        // ses = repository.login(s);
+        ses = repository.login(new CredentialsImpl("admin", "admin".toCharArray()), s);
         httpRequest.getSession().setAttribute("ses", ses);
       } catch (Exception e) {
         System.err.println("doFilter, ses = null: " + e);

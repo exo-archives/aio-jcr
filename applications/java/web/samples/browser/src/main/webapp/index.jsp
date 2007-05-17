@@ -1,1 +1,1 @@
-<%response.sendRedirect("user/");%>
+<%response.sendRedirect("user/index.jsp");%>
