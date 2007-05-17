@@ -17,10 +17,11 @@ public class Response implements Message {
   private Representation representation;
   private ResourceMetadata resourceMetadata;
   private ResourceIdentifier resourceIdentifier;
-  
+/*  
   public Response(Request request) {
     this.resourceIdentifier = request.getResourceIdentifier();
   }
+*/
   
   public Representation getEntity() {
     return representation;

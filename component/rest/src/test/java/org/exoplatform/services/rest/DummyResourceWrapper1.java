@@ -21,19 +21,35 @@ public class DummyResourceWrapper1 implements ResourceWrapper {
   public final static String TEST_METHOD_NAME1 = "method1";
   
   @HTTPMethod(name=TEST_HTTP_METHOD1, uri=TEST_URI1)
-  public void method1(Request request, Response response) {
+  public Response method1(Representation rep) {
     System.out.println(">>> method1 called!!");
-    response.setEntity(new StringRepresentation(TEST_METHOD_NAME1));
+    Response res = new Response();
+    res.setEntity(new StringRepresentation(TEST_METHOD_NAME1));
+    return res;
   }
   
-  public final static String TEST_HTTP_METHOD2 = "GET";
+  public final static String TEST_HTTP_METHOD2 = "POST";
   public final static String TEST_URI2 = "/any/{id2}/";
   public final static String TEST_METHOD_NAME2 = "method2";
   
   @HTTPMethod(name=TEST_HTTP_METHOD2, uri=TEST_URI2)
-  public void method2(Request request, Response response) {
-    response.setEntity(new StringRepresentation((String)request.getResourceIdentifier().getParameters().get("id")));
+  public Response method2(Representation rep) {
+    System.out.println(">>> method2 called!!");
+    Response res = new Response();
+    res.setEntity(new StringRepresentation(TEST_METHOD_NAME2));
+    return res;
   }
 
+  public final static String TEST_HTTP_METHOD3 = "PUT";
+  public final static String TEST_URI3 = "/any/{id3}/";
+  public final static String TEST_METHOD_NAME3 = "method2";
+  
+  @HTTPMethod(name=TEST_HTTP_METHOD3, uri=TEST_URI3)
+  public Response method3(Representation rep) {
+    System.out.println(">>> method3 called!!");
+    Response res = new Response();
+    res.setEntity(new StringRepresentation(TEST_METHOD_NAME3));
+    return res;
+  }
 
 }

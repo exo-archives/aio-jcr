@@ -3,9 +3,12 @@
 
   <component>
     <type>org.exoplatform.services.rest.ResourceRouter</type>
-  </component>
-  <component>
-    <type>org.exoplatform.services.rest.wrapper.TestResourceWrapper</type>
+    <init-params>
+    	<value-param>
+    		<name>wrapper-strategy</name>
+    		<value>org.exoplatform.services.rest.wrapper.http.HTTPAnnotatedWrapperResolvingStrategy</value>
+    	</value-param>
+    </init-params>
   </component>
 
 </configuration>

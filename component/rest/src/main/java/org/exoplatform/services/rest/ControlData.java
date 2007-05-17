@@ -16,6 +16,7 @@ public class ControlData {
   
   private String methodName;
   private String acceptedMediaType;
+  private int status;
 
   public ControlData(String methodName, String acceptedMediaType) {
     super();
@@ -29,5 +30,13 @@ public class ControlData {
   
   public String getAcceptedMediaType() {
     return acceptedMediaType;
+  }
+  
+  public void setStatus(int status) {
+    this.status = status;
+  }
+
+  public int getStatus() {
+    return status;
   }
 }

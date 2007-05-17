@@ -5,6 +5,7 @@
 
 package org.exoplatform.services.rest;
 
+import org.exoplatform.services.rest.Representation;
 import org.exoplatform.services.rest.data.StringRepresentation;
 import org.exoplatform.services.rest.wrapper.ResourceWrapper;
 import org.exoplatform.services.rest.wrapper.http.HTTPMethod;
@@ -22,9 +23,11 @@ public class DummyResourceWrapper implements ResourceWrapper {
   
   
   @HTTPMethod(name=TEST_HTTP_METHOD1, uri=TEST_URI1)
-  public void method1(Request request, Response response) {
+  public Response method1(Representation rep) {
     System.out.println(">>> method1 called!!");
-    response.setEntity(new StringRepresentation(TEST_METHOD_NAME1));
+    Response res = new Response();
+    res.setEntity(new StringRepresentation(TEST_METHOD_NAME1));
+    return res;
   }
 
 }

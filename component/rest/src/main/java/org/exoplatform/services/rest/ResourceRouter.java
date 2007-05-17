@@ -8,6 +8,8 @@ package org.exoplatform.services.rest;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.rest.wrapper.InvalidResourceDescriptorException;
 import org.exoplatform.services.rest.wrapper.ResourceDescriptor;
 import org.exoplatform.services.rest.wrapper.ResourceWrapper;
@@ -23,21 +25,28 @@ import org.exoplatform.services.rest.wrapper.http.HTTPAnnotatedWrapperResolvingS
 public class ResourceRouter implements Connector {
   
   private List <ResourceDescriptor> resourceDescriptors;
-  private List <WrapperResolvingStrategy> bindStrategies; 
+  private List <WrapperResolvingStrategy> bindStrategies;
+  private String wrapperStrategy = null;
   
-  public ResourceRouter() {
+  public ResourceRouter(InitParams params) {
+    ValueParam wstvalue = params.getValueParam("wrapper-strategy");
+    if(wstvalue != null) {
+      wrapperStrategy = wstvalue.getValue();
+    }
     this.resourceDescriptors = new ArrayList <ResourceDescriptor>();
     this.bindStrategies = new ArrayList <WrapperResolvingStrategy>();
-    
-    // TEMPORARY! do it in conf
-    bindStrategies.add(new HTTPAnnotatedWrapperResolvingStrategy());
+    try {
+      bindStrategies.add((HTTPAnnotatedWrapperResolvingStrategy)Class.forName(wrapperStrategy).newInstance());
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
+/*
   public void serve(Request request, Response response) throws Exception {
     
     String requestedURI = request.getResourceIdentifier().getURI().getPath();
     String methodName = request.getControlData().getMethodName();        
-
 
     for(ResourceDescriptor resource : resourceDescriptors) {
       //System.out.println(""+resource.getURIPattern().getString()+" MATCH "+requestedURI+" "+resource.getURIPattern().matches(requestedURI));
@@ -47,6 +56,20 @@ public class ResourceRouter implements Connector {
         request.getResourceIdentifier().initParameters(resource.getURIPattern());
         resource.getServer().invoke(resource.getWrapper(), request, response);
         return;
+      }
+    }
+    throw new NoSuchMethodException("No method found for " + methodName + " " + requestedURI);
+  }
+*/
+
+  public Response serve(Request request) throws Exception {
+    String requestedURI = request.getResourceIdentifier().getURI().getPath();
+    String methodName = request.getControlData().getMethodName();        
+    for(ResourceDescriptor resource : resourceDescriptors) {
+      if(resource.getAcceptableMethod().equalsIgnoreCase(methodName)
+         && resource.getURIPattern().matches(requestedURI)) {
+
+        return (Response)resource.getServer().invoke(resource.getWrapper(), request.getEntity());
       }
     }
     throw new NoSuchMethodException("No method found for " + methodName + " " + requestedURI);
@@ -65,7 +88,9 @@ public class ResourceRouter implements Connector {
     List <ResourceDescriptor> tmp = new ArrayList <ResourceDescriptor> (resourceDescriptors);  
     for(ResourceDescriptor resource : tmp) {
       if(resource.getWrapper().equals(wrapper)) {
-        resourceDescriptors.remove(i++);
+        resourceDescriptors.remove(i);
+      } else {
+        i++;
       }
     }
   }
@@ -88,7 +113,7 @@ public class ResourceRouter implements Connector {
 			if(spattern.matches(npattern.getString()) ||
 				npattern.matches(spattern.getString())) {
 				throw new InvalidResourceDescriptorException("The resource descriptor pattern '"+
-						newDesc.getURIPattern().getString()+"' can not be defined because of existed '"+
+						newDesc.getURIPattern().getString() + "' can not be defined because of existed '"+
 						storedDesc.getURIPattern().getString());
 			}
 		}
