@@ -16,10 +16,10 @@
   <dependencies>
 
     <dependency>
-      <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.component.core</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
-      <scope>compile</scope>
+	  <groupId>org.exoplatform.jcr</groupId>
+	  <artifactId>exo.jcr.configuration</artifactId>
+	  <version>${org.exoplatform.jcr.version}</version>
+	  <scope>compile</scope>
     </dependency>
 
     <dependency>
