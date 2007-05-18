@@ -43,7 +43,9 @@ public class JcrResourceAdapter implements ResourceAdapter {
     log.info("Container config: " + containerConfig);
     Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
     try {
-      StandaloneContainer.setConfigurationURL(containerConfig);
+	  String url = Thread.currentThread().getContextClassLoader().getResource(
+          containerConfig).toString();
+      StandaloneContainer.setConfigurationURL(url);
     } catch (MalformedURLException e) {
       log.warn("Invalid containerConfig URL, ignored: "+containerConfig);
       e.printStackTrace();

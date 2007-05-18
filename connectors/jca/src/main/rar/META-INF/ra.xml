@@ -12,11 +12,11 @@
  </license>
  <resourceadapter>
   <resourceadapter-class>org.exoplatform.connectors.jcr.adapters.local.JcrResourceAdapter</resourceadapter-class>
-  <!-- config-property>
+  <config-property>
    <description/>
    <config-property-name>containerConfig</config-property-name>
    <config-property-type>java.lang.String</config-property-type>
-   <config-property-value>file:/c:/temp/configuration.xml</config-property-value>
-  </config-property -->
+   <config-property-value>conf/standalone/exo-configuration.xml</config-property-value>
+  </config-property>
  </resourceadapter>
 </connector>
