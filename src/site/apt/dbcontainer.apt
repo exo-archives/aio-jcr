@@ -275,10 +275,11 @@ jdbc:mysql://exoua.dnsalias.net/portal?characterEncoding=utf8
           </cache>
         </workspace>
 ---------
+  Therewith workspace can be added dynamically in runtime. It can be done in two  steps:
 
-===================================
+     * First <<<ManageableRepository.configWorkspace(WorkspaceEntry wsConfig)>>> - registration a new configuration  in RepositoryContainer and create WorkspaceContainer. 
 
-
+     * Second, the main step, is <<<ManageableRepository.createWorkspace(String workspaceName) >>>– creation of new new workspace.
 
   <<Notes for Microsoft Windows users>>
 
@@ -291,9 +292,9 @@ jdbc:mysql://exoua.dnsalias.net/portal?characterEncoding=utf8
   Microsoft Windows has <<MaxUserPort>>, <<TcpTimedWaitDelay>> registry keys in node [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters],
   by default these keys is unseted, set each one with values like these:
 
-  * "TcpTimedWaitDelay"=dword:0000001e, sets TIME_WAIT parameter to 30 seconds, default is 240.
+   * "TcpTimedWaitDelay"=dword:0000001e, sets TIME_WAIT parameter to 30 seconds, default is 240.
 
-  * "MaxUserPort"=dword:00001b58, sets maximum open ports to 7000 or higher, default is 5000.
+   * "MaxUserPort"=dword:00001b58, sets maximum open ports to 7000 or higher, default is 5000.
 
 
   An example registry file below:
