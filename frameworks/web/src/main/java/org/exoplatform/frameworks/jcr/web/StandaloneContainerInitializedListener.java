@@ -29,33 +29,40 @@ import org.exoplatform.services.naming.InitialContextInitializer;
 
 public class StandaloneContainerInitializedListener implements
     ServletContextListener {
-  
+
   /**
    * org.exoplatform.container.standalone.config
    */
   private static final String CONF_URL_PARAMETER = "org.exoplatform.container.standalone.config";
-  
+
   private StandaloneContainer container;
-  
+
   /* (non-Javadoc)
    * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
    */
-  
+
   public void contextInitialized(ServletContextEvent event) {
     String configurationURL = event.getServletContext().
     getInitParameter(CONF_URL_PARAMETER);
-    if(configurationURL == null)
-      configurationURL = "conf/exo-configuration.xml";
+    if(configurationURL == null) {
+      String path = "conf/standalone/exo-configuration.xml";
+      configurationURL = Thread.currentThread().getContextClassLoader().getResource(
+          path).toString();
+      //configurationURL = "conf/exo-configuration.xml";
+    }
     try {
       StandaloneContainer.setConfigurationURL(configurationURL);
+      //if configurationURL is still == null StandaloneContainer will search
+      //"exo-configuration.xml" in root of AS, then "conf/exo-configuration.xml"
+      //in current classpath, then "conf/standalone/configuration.xml" in current classpath 
     } catch (MalformedURLException e1) {
     }
- 
+
 //    if (container == null) {
     try {
       container = StandaloneContainer.getInstance(Thread.currentThread()
           .getContextClassLoader());
-      
+
 
       // Patch for tomcat InitialContext
       InitialContextInitializer ic = (InitialContextInitializer) container
@@ -75,7 +82,7 @@ public class StandaloneContainerInitializedListener implements
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see javax.servlet.ServletContextListener#contextDestroyed(javax.servlet.ServletContextEvent)
    */
   public void contextDestroyed(ServletContextEvent event) {
