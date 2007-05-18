@@ -7,7 +7,6 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>configuration</module>
     <module>component/core</module>
     <module>component/ext</module>
 
@@ -16,6 +15,7 @@
     <module>component/rest</module>
     <module>component/webdav</module>
 
+    <module>configuration</module>
     <module>frameworks/command</module>
     <module>frameworks/web</module>
 
