@@ -23,7 +23,9 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
  */
 
 public interface ManageableRepository extends Repository {
-
+    
+    public void configWorkspace(WorkspaceEntry wsConfig) throws RepositoryException;
+    
     /**
      * Initializes workspace
      * @param workspaceName
@@ -37,7 +39,7 @@ public interface ManageableRepository extends Repository {
      * @param wsConfig
      * @throws RepositoryException
      */
-    void createWorkspace(WorkspaceEntry wsConfig) throws RepositoryException;
+    void createWorkspace(String workspaceName) throws RepositoryException;
 
     /**
      * @param workspaceName

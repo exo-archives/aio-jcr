@@ -25,8 +25,8 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 
 /**
- * Created by The eXo Platform SARL .<br/>
- * Bindable implementation of Repository - ready to bind to Naming Context
+ * Created by The eXo Platform SARL .<br/> Bindable implementation of
+ * Repository - ready to bind to Naming Context
  * 
  * @see BindableRepositoryFactory
  * @author <a href="mailto:lautarul@gmail.com">Roman Pedchenko</a>
@@ -35,145 +35,180 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 
 public class BindableRepositoryImpl implements Serializable, Referenceable, ManageableRepository {
 
-
   private transient ManageableRepository delegatee = null;
-  
-//private static transient ExoContainer topContainer = null;
-//  private String configName;
 
-//  public BindableRepositoryImpl(ExoContainer container, String config)
-//      throws RepositoryException, RepositoryConfigurationException, FileNotFoundException, Exception {
-//    topContainer = container;
-//    configName = config;
-//    init();
-//  }
-  
-//  private void init() throws RepositoryException, RepositoryConfigurationException, RepositoryException,
-//    FileNotFoundException, Exception {
-//    //RepositoryEntry config = null;
-//    RepositoryServiceImpl rs = (RepositoryServiceImpl)topContainer.getComponentInstanceOfType(RepositoryServiceImpl.class);
-//    delegatee = (RepositoryImpl)rs.getRepository(configName);
-//  }
-  
+  // private static transient ExoContainer topContainer = null;
+  // private String configName;
+
+  // public BindableRepositoryImpl(ExoContainer container, String config)
+  // throws RepositoryException, RepositoryConfigurationException,
+  // FileNotFoundException, Exception {
+  // topContainer = container;
+  // configName = config;
+  // init();
+  // }
+
+  // private void init() throws RepositoryException,
+  // RepositoryConfigurationException, RepositoryException,
+  // FileNotFoundException, Exception {
+  // //RepositoryEntry config = null;
+  // RepositoryServiceImpl rs =
+  // (RepositoryServiceImpl)topContainer.getComponentInstanceOfType(RepositoryServiceImpl.class);
+  // delegatee = (RepositoryImpl)rs.getRepository(configName);
+  // }
+
   /**
    * @param rep real repository impl
    */
   public BindableRepositoryImpl(ManageableRepository rep) {
     this.delegatee = rep;
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see javax.jcr.Repository#getDescriptorKeys()
    */
   public String[] getDescriptorKeys() {
     return delegatee.getDescriptorKeys();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see javax.jcr.Repository#getDescriptor(java.lang.String)
    */
   public String getDescriptor(String key) {
     return delegatee.getDescriptor(key);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see javax.jcr.Repository#login(javax.jcr.Credentials)
    */
   public Session login(Credentials credentials) throws LoginException,
-      NoSuchWorkspaceException, RepositoryException {
+      NoSuchWorkspaceException,
+      RepositoryException {
     return delegatee.login(credentials);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see javax.jcr.Repository#login(java.lang.String)
    */
   public Session login(String workspaceName) throws LoginException,
-      NoSuchWorkspaceException, RepositoryException {
+      NoSuchWorkspaceException,
+      RepositoryException {
     return delegatee.login(workspaceName);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see javax.jcr.Repository#login()
    */
-  public Session login() throws LoginException, NoSuchWorkspaceException,
-      RepositoryException {
+  public Session login() throws LoginException, NoSuchWorkspaceException, RepositoryException {
     return delegatee.login();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see javax.jcr.Repository#login(javax.jcr.Credentials, java.lang.String)
    */
-  public Session login(Credentials credentials, String workspaceName)
-      throws LoginException, NoSuchWorkspaceException, RepositoryException {
+  public Session login(Credentials credentials, String workspaceName) throws LoginException,
+      NoSuchWorkspaceException,
+      RepositoryException {
     return delegatee.login(credentials, workspaceName);
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.core.ManageableRepository#getSystemSession(java.lang.String)
    */
-  public Session getSystemSession(String workspaceName)
-      throws RepositoryException {
+  public Session getSystemSession(String workspaceName) throws RepositoryException {
     return delegatee.getSystemSession(workspaceName);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.core.ManageableRepository#getWorkspaceNames()
    */
   public String[] getWorkspaceNames() {
     return delegatee.getWorkspaceNames();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.core.ManageableRepository#getNodeTypeManager()
    */
   public ExtendedNodeTypeManager getNodeTypeManager() {
     return delegatee.getNodeTypeManager();
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.core.ManageableRepository#getNamespaceRegistry()
    */
   public NamespaceRegistry getNamespaceRegistry() {
     return delegatee.getNamespaceRegistry();
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ManageableRepository#initWorkspace(java.lang.String, java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.core.ManageableRepository#initWorkspace(java.lang.String,
+   *      java.lang.String)
    */
-  public void initWorkspace(String workspaceName, String rootNodeType)
-    throws RepositoryException {
+  public void initWorkspace(String workspaceName, String rootNodeType) throws RepositoryException {
     delegatee.initWorkspace(workspaceName, rootNodeType);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.core.ManageableRepository#isWorkspaceInitialized(java.lang.String)
    */
-  public boolean isWorkspaceInitialized(String workspaceName) 
-   throws RepositoryException {
+  public boolean isWorkspaceInitialized(String workspaceName) throws RepositoryException {
     return delegatee.isWorkspaceInitialized(workspaceName);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.core.ManageableRepository#getConfiguration()
    */
   public RepositoryEntry getConfiguration() {
     return delegatee.getConfiguration();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see javax.naming.Referenceable#getReference()
    */
   public Reference getReference() throws NamingException {
-    Reference ref = new Reference(
-      BindableRepositoryImpl.class.getName(),
-      BindableRepositoryFactory.class.getName(),
-      null);
-    ref.add(new StringRefAddr(BindableRepositoryFactory.REPOSITORYNAME_ADDRTYPE, delegatee.getConfiguration().getName()));
+    Reference ref = new Reference(BindableRepositoryImpl.class.getName(),
+        BindableRepositoryFactory.class.getName(),
+        null);
+    ref.add(new StringRefAddr(BindableRepositoryFactory.REPOSITORYNAME_ADDRTYPE, delegatee
+        .getConfiguration().getName()));
     return ref;
   }
 
-  public void createWorkspace(WorkspaceEntry wsConfig) throws RepositoryException {
-    delegatee.createWorkspace(wsConfig);
-    
+  public void createWorkspace(String wsName) throws RepositoryException {
+    delegatee.createWorkspace(wsName);
+
+  }
+
+  public void configWorkspace(WorkspaceEntry wsConfig) throws RepositoryException {
+    delegatee.configWorkspace(wsConfig);
+
   }
 }

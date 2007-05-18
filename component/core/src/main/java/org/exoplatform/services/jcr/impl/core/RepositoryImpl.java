@@ -267,7 +267,7 @@ public class RepositoryImpl implements ManageableRepository {
     WorkspaceContainer wsContainer = repositoryContainer.getWorkspaceContainer(wsName);
     
     if(wsContainer==null)
-      throw new RepositoryException("Workspace "+wsName+" is not configured");
+      throw new RepositoryException("Workspace "+wsName+" is not configured. Use RepositoryImpl.configWorkspace() method");
     
     //Second step
     WorkspaceEntry wsConfig = repositoryContainer.getWorkspaceEntry(wsName);
@@ -280,12 +280,6 @@ public class RepositoryImpl implements ManageableRepository {
     log.info("Workspace " + wsName + "@" + this.name + " is initialized");
   }
   
-  public void createWorkspace(WorkspaceEntry wsConfig) throws RepositoryException {
-    initWorkspace(wsConfig.getName(),wsConfig.getAutoInitializedRootNt());
-    repositoryContainer.getWorkspaceContainer(wsConfig.getName()).getWorkspaceInitializer().startWorkspace();
-    
-    log.info("Workspace " + wsConfig.getName() + "@" + this.name + " is initialized");
-  }
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.core.ManageableRepository#isWorkspaceInitialized(java.lang.String)
    */
