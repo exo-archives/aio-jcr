@@ -46,6 +46,13 @@
     <!-- eXo dependencies (eXo JCR API) -->
 
     <dependency>
+	  <groupId>org.exoplatform.jcr</groupId>
+	  <artifactId>exo.jcr.configuration</artifactId>
+	  <version>${org.exoplatform.jcr.version}</version>
+	  <scope>compile</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.exoplatform.kernel</groupId>
       <artifactId>exo.kernel.container</artifactId>
       <version>${org.exoplatform.kernel.version}</version>
