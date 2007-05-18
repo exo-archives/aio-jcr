@@ -46,10 +46,10 @@
     <!-- eXo dependencies (eXo JCR API) -->
 
     <dependency>
-	  <groupId>org.exoplatform.jcr</groupId>
-	  <artifactId>exo.jcr.configuration</artifactId>
-	  <version>${org.exoplatform.jcr.version}</version>
-	  <scope>compile</scope>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.configuration</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>compile</scope>
     </dependency>
 
     <dependency>
@@ -330,7 +330,7 @@
     </dependency -->
 
     <!-- For IBM DB2 support (local-jcr repository) -->
-    <dependency>
+    <!-- dependency>
     <groupId>com.ibm.db2</groupId>
     <artifactId>db2jcc</artifactId>
     <version>9.1</version>
@@ -342,7 +342,7 @@
     <artifactId>db2jcc_license_cu</artifactId>
     <version>9.1</version>
     <scope>compile</scope>
-    </dependency>
+    </dependency -->
 
     <!-- For MS SQL 7/2000/2005 and Sybase ASE/Anywhere support (jTDS driver) -->
     <!-- dependency>
