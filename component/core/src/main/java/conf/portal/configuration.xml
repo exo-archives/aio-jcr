@@ -18,6 +18,16 @@
     <key>org.exoplatform.services.jcr.RepositoryService</key>
     <type>org.exoplatform.services.jcr.impl.RepositoryServiceImpl</type>
    </component>
+   
+ 
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+    <component-plugin>
+      <name>exo.service.authentication.login</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.services.jcr.impl.core.access.JCRAuthenticationListener</type>
+	</component-plugin>
+  </external-component-plugins>  
 
   <!-- external-component-plugins>
     <target-component>org.exoplatform.services.database.jdbc.DBSchemaCreator</target-component>
