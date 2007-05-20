@@ -10,7 +10,24 @@ package org.exoplatform.services.rest;
  * @version $Id: $
  */
 
-public interface Message {
-  Representation getEntity();
-  ResourceIdentifier getResourceIdentifier();
+public abstract class Message {
+  
+  protected Representation entity;
+  protected String acceptedMediaType;
+
+  public Representation getEntity() {
+    return this.entity;
+  }
+
+  public void setEntity(Representation entity) {
+    this.entity = entity;
+  }
+  
+  public String getAcceptedMediaType() {
+    return acceptedMediaType;
+  }
+
+  public void setAcceptedMediaType(String acceptedMediaType) {
+    this.acceptedMediaType = acceptedMediaType;
+  }
 }

@@ -3,18 +3,21 @@
  * Please look at license.txt in info directory for more license detail.   *
  */
 
-package org.exoplatform.services.rest.wrapper.http;
+package org.exoplatform.services.rest;
+
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Created by The eXo Platform SARL        .
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-
-@Retention(RetentionPolicy.RUNTIME)
+@Target(value={METHOD})
+@Retention(RUNTIME)
 public @interface HTTPMethod {
   String name();
   String allowedContentType() default "*";

@@ -60,7 +60,7 @@ public class MetaDataActionTest extends BaseStandaloneTest {
 //    catalog.clear();
 //    catalog.addPlugin(aap);
     
-    InputStream is = new FileInputStream("src/resources/test/test_index.xls");
+    InputStream is = new FileInputStream("src/test/resources/test/test_index.xls");
     
     Node contentNode = rootNode.addNode("testAddContent", "nt:resource");
     //contentNode.setProperty("jcr:encoding", "UTF-8");

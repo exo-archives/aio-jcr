@@ -12,29 +12,35 @@ package org.exoplatform.services.rest;
  * @version $Id: $
  */
 
-public class Request implements Message {
+public class Request extends Message {
 
-  private ControlData controlData;
+  private String methodName;
   private ResourceIdentifier resourceIdentifier;
-  private Representation entity;
   
   public Request(ResourceIdentifier resourceIdentifier, 
-      Representation entity, ControlData controlData) {
-    this.controlData = controlData;
+      String methodName, Representation entity) {
+    this.methodName = methodName;
     this.resourceIdentifier = resourceIdentifier;
     this.entity = entity;
   }
-
-  public ControlData getControlData() {
-    return controlData;
+  
+  public Request(ResourceIdentifier resourceIdentifier, 
+      String methodName) {
+    this.methodName = methodName;
+    this.resourceIdentifier = resourceIdentifier;
   }
+
 
   public ResourceIdentifier getResourceIdentifier() {
     return resourceIdentifier;
   }
 
-  public Representation getEntity() {
-    return entity;
+  public void setResourceIdentifier(ResourceIdentifier resourceIdentifier) {
+    this.resourceIdentifier = resourceIdentifier;
+  }
+
+  public String getMethodName() {
+    return methodName;
   }
 
 }

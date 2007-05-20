@@ -160,9 +160,10 @@ public class ResourceRouterTest extends TestCase {
     DummyResourceWrapper dw = new DummyResourceWrapper();
     reg.bind(dw);
 
-    Request req = new Request(new ResourceIdentifier("/level1/myID/level3/"), 
-        new StringRepresentation("text/plain"),
-        new ControlData(DummyResourceWrapper.TEST_HTTP_METHOD1, null));
+    Request req = new Request(new ResourceIdentifier("/level1/myID/level3/"),
+        DummyResourceWrapper.TEST_HTTP_METHOD1,
+        new StringRepresentation("text/plain"));
+    
     Response resp = reg.serve(req);
     assertEquals(DummyResourceWrapper.TEST_METHOD_NAME1, resp.getEntity().getString());
     assertEquals(DummyResourceWrapper.TEST_METHOD_NAME1.length(), resp.getEntity().getLength());
@@ -179,9 +180,9 @@ public class ResourceRouterTest extends TestCase {
     List <ResourceDescriptor> list = reg.getAllDescriptors();
     DummyResourceWrapper1 dw1 = new DummyResourceWrapper1();
     reg.bind(dw1);
-    Request req = new Request(new ResourceIdentifier("/any/myID/"), 
-        new StringRepresentation("text/plain"),
-        new ControlData(DummyResourceWrapper1.TEST_HTTP_METHOD2, null));
+    Request req = new Request(new ResourceIdentifier("/any/myID/"),
+        DummyResourceWrapper1.TEST_HTTP_METHOD2,
+        new StringRepresentation("text/plain"));
     Response resp = reg.serve(req);
     assertEquals(DummyResourceWrapper1.TEST_METHOD_NAME2, resp.getEntity().getString());
     reg.unbind(dw1);

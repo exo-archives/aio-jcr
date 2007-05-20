@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.util.Arrays;
 
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.ValueFactory;
@@ -19,11 +18,11 @@ import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.LogService;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SARL .
@@ -56,13 +55,13 @@ public abstract class BaseStandaloneTest extends TestCase {
   public void setUp() throws Exception {
     
        StandaloneContainer
-          .setConfigurationPath("src/java/conf/standalone/test-configuration.xml");
+          .setConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
 
       container = StandaloneContainer.getInstance();
 
       if (System.getProperty("java.security.auth.login.config") == null)
         System.setProperty("java.security.auth.login.config",
-            "src/resources/login.conf");
+            "src/test/resources/login.conf");
 
       credentials = new CredentialsImpl("exo", "exo".toCharArray());
 

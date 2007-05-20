@@ -27,8 +27,14 @@ public interface RepositoryService {
    * @throws RepositoryException
    * @throws RepositoryConfigurationException
    */
+  ManageableRepository getDefaultRepository() throws RepositoryException, RepositoryConfigurationException;
+
+  /**
+   * @deprecated use getDefaultRepository() instead
+   */
   ManageableRepository getRepository() throws RepositoryException, RepositoryConfigurationException;
 
+  
   /**
    * @param name
    * @return repository by name
@@ -37,8 +43,24 @@ public interface RepositoryService {
    */
   ManageableRepository getRepository(String name) throws RepositoryException, RepositoryConfigurationException;
 
+  
+  /**
+   * @return
+   * @throws RepositoryException
+   * @throws RepositoryConfigurationException
+   */
+  ManageableRepository getCurrentRepository() throws RepositoryException, RepositoryConfigurationException;
+  
+  /**
+   * @param repositoryName
+   * @throws RepositoryConfigurationException
+   */
+  void setCurrentRepositoryName(String repositoryName) throws RepositoryConfigurationException;
+  
   /**
    * @return RepositoryServiceConfiguration
    */
   RepositoryServiceConfiguration getConfig();
+  
+  
 }

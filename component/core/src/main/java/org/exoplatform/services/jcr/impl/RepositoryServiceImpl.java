@@ -45,7 +45,9 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
   protected static Log log = ExoLogger.getLogger("jcr.RepositoryService");
 
   private RepositoryServiceConfiguration config;
-
+  
+  private ThreadLocal <String> currentRepositoryName = new ThreadLocal <String>(); 
+  
   private HashMap repositoryContainers = new HashMap();
 
   private List addNodeTypePlugins;
@@ -65,10 +67,18 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     addNodeTypePlugins = new ArrayList();
     addNamespacesPlugins = new ArrayList();
     containerContext = context;
+    currentRepositoryName.set(config.getDefaultRepositoryName());
   }
 
-  public ManageableRepository getRepository() throws RepositoryException {
+  public ManageableRepository getDefaultRepository() throws RepositoryException {
     return getRepository(config.getDefaultRepositoryName());
+  }
+
+  /** 
+   * @deprecated use getDefaultRepository() instead
+   */
+  public ManageableRepository getRepository() throws RepositoryException {
+    return getDefaultRepository();
   }
 
   public ManageableRepository getRepository(String name) throws RepositoryException {
@@ -84,6 +94,16 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
 
   public RepositoryServiceConfiguration getConfig() {
     return config;
+  }
+  
+  public ManageableRepository getCurrentRepository() throws RepositoryException, RepositoryConfigurationException {
+    return getRepository(currentRepositoryName.get());
+  }
+
+  public void setCurrentRepositoryName(String repositoryName) throws RepositoryConfigurationException {
+    if(!repositoryContainers.containsKey(repositoryName))
+      throw new RepositoryConfigurationException("Repository is not configured. Name "+repositoryName);
+    currentRepositoryName.set(repositoryName);
   }
 
   public void addPlugin(ComponentPlugin plugin) {

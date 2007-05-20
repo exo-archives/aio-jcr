@@ -23,6 +23,13 @@
     </dependency>
 
     <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.rest</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
       <groupId>commons-chain</groupId>
       <artifactId>commons-chain</artifactId>
       <version>1.0</version>
@@ -34,7 +41,7 @@
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>
     <outputDirectory>target/classes</outputDirectory>
-    <testSourceDirectory>src/notest/java</testSourceDirectory>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
     <testOutputDirectory>target/test-classes</testOutputDirectory>
 
     <resources>
@@ -90,6 +97,7 @@
             <include>**/metadata/*Test.java</include>
             <include>**/audit/*Test.java</include>
             <include>**/owner/*Test.java</include>
+            <include>**/registry/*Test.java</include>
           </includes>
         </configuration>
       </plugin>

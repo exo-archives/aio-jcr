@@ -42,29 +42,9 @@ public class ResourceRouter implements Connector {
     }
   }
 
-/*
-  public void serve(Request request, Response response) throws Exception {
-    
-    String requestedURI = request.getResourceIdentifier().getURI().getPath();
-    String methodName = request.getControlData().getMethodName();        
-
-    for(ResourceDescriptor resource : resourceDescriptors) {
-      //System.out.println(""+resource.getURIPattern().getString()+" MATCH "+requestedURI+" "+resource.getURIPattern().matches(requestedURI));
-      if(resource.getAcceptableMethod().equalsIgnoreCase(methodName)
-         && resource.getURIPattern().matches(requestedURI)) {
-        
-        request.getResourceIdentifier().initParameters(resource.getURIPattern());
-        resource.getServer().invoke(resource.getWrapper(), request, response);
-        return;
-      }
-    }
-    throw new NoSuchMethodException("No method found for " + methodName + " " + requestedURI);
-  }
-*/
-
   public Response serve(Request request) throws Exception {
     String requestedURI = request.getResourceIdentifier().getURI().getPath();
-    String methodName = request.getControlData().getMethodName();        
+    String methodName = request.getMethodName();        
     for(ResourceDescriptor resource : resourceDescriptors) {
       if(resource.getAcceptableMethod().equalsIgnoreCase(methodName)
          && resource.getURIPattern().matches(requestedURI)) {

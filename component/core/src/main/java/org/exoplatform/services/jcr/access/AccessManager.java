@@ -129,8 +129,10 @@ public abstract class AccessManager {
       if ("*".equals(membershipName)) {
         while (groups.hasNext()) {
           Group group = (Group) groups.next();
-          log.debug("Check of user "+userId+" membership. Test if "+
+          if(log.isDebugEnabled()) {
+            log.debug("Check of user "+userId+" membership. Test if "+
               groupName+" == "+group.getId()+" "+groupName.equals(group.getId()));
+          }
           if (groupName.equals(group.getId())) 
             return true;
         }

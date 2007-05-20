@@ -12,16 +12,18 @@ package org.exoplatform.services.rest;
  * @version $Id: $
  */
 
-public class Response implements Message {
+public class Response extends Message {
   
   private Representation representation;
-  private ResourceMetadata resourceMetadata;
-  private ResourceIdentifier resourceIdentifier;
-/*  
-  public Response(Request request) {
-    this.resourceIdentifier = request.getResourceIdentifier();
+  private int status;
+
+  public Response(int status) {
+    this.status = status;
   }
-*/
+
+  public Response(int status, Representation representation) {
+    this.status = status;
+  }
   
   public Representation getEntity() {
     return representation;
@@ -32,20 +34,14 @@ public class Response implements Message {
     this.representation = entity;
   }
   
-  public void setResourceMetadata(ResourceMetadata metadata) {
-    this.resourceMetadata = metadata;
-  } 
-
-  public ResourceMetadata getResourceMetadata() {
-    return resourceMetadata;
-  } 
-  
-  public ResourceIdentifier getResourceIdentifier() {
-    return resourceIdentifier;
+  public void setStatus(int status) {
+    this.status = status;
   }
 
-  public void setResourceIdentifier(ResourceIdentifier resourceIdentifier) {
-    this.resourceIdentifier = resourceIdentifier;
-  } 
+  public int getStatus() {
+    return status;
+  }
+
+
 
 }

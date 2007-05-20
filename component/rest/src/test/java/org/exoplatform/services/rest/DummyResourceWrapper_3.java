@@ -7,7 +7,6 @@ package org.exoplatform.services.rest;
 
 import org.exoplatform.services.rest.data.StringRepresentation;
 import org.exoplatform.services.rest.wrapper.ResourceWrapper;
-import org.exoplatform.services.rest.wrapper.http.HTTPMethod;
 
 /**
  * Created by The eXo Platform SARL        .

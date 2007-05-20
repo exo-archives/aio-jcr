@@ -16,5 +16,4 @@ package org.exoplatform.services.rest.wrapper;
  */
 
 public interface ResourceWrapper {
-  //List <ResourceDescriptor> getServingResources();
 }

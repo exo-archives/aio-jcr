@@ -10,10 +10,11 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.URIPattern;
+import org.exoplatform.services.rest.URITemplate;
 import org.exoplatform.services.rest.wrapper.ResourceDescriptor;
 import org.exoplatform.services.rest.wrapper.ResourceWrapper;
-import org.exoplatform.services.rest.wrapper.URITemplate;
 import org.exoplatform.services.rest.wrapper.WrapperResolvingStrategy;
 
 /**
