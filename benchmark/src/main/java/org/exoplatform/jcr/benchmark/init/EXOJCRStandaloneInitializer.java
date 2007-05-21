@@ -17,7 +17,6 @@ import com.sun.japex.Params;
  */
 
 public class EXOJCRStandaloneInitializer extends JCRInitializer {
-
   public void initialize(Params params) {
     if(!params.hasParam("exo.jaasConf"))
       throw new RuntimeException("<exo.jaasConf> parameter required");
@@ -37,7 +36,7 @@ public class EXOJCRStandaloneInitializer extends JCRInitializer {
             .getContextClassLoader().getResource(jaasConf).toString());
       RepositoryService repositoryService = (RepositoryService) container
           .getComponentInstanceOfType(RepositoryService.class);
-      repository = repositoryService.getRepository();
+      repository = repositoryService.getDefaultRepository();
 //      session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
     } catch (Exception e) {
       e.printStackTrace();
