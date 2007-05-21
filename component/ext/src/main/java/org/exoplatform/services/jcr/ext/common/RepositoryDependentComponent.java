@@ -8,9 +8,11 @@ package org.exoplatform.services.jcr.ext.common;
 import java.util.Iterator;
 
 import javax.jcr.Credentials;
+import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.access.SystemIdentity;
+import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.security.SecurityService;
 import org.exoplatform.services.security.impl.CredentialsImpl;
@@ -27,7 +29,7 @@ public abstract class RepositoryDependentComponent {
   protected Credentials credentials;
  
   public RepositoryDependentComponent(RepositoryService repositoryService,
-      SecurityService securityService) { 
+      SecurityService securityService) throws RepositoryException, RepositoryConfigurationException  { 
     this.repository = repositoryService.getCurrentRepository();
     Iterator pubCreds = securityService.getCurrentSubject().getPublicCredentials().iterator();
     while(pubCreds.hasNext()) {

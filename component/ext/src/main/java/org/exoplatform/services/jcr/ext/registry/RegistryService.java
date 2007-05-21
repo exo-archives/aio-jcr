@@ -108,9 +108,9 @@ public class RegistryService implements Startable {
    * @throws RepositoryException
    */
   public RegistryEntryNode getRegistryEntry(SessionProvider sessionProvider, String entryType,
-      String entryName) throws RepositoryException {
+      String entryName, ManageableRepository repository) throws RepositoryException {
     String relPath = EXO_REGISTRY+"/"+entryType+"/"+entryName;
-    Node root = rootNode(sessionProvider);
+    Node root = rootNode(sessionProvider, repository);
     if(!root.hasNode(relPath)) {
       return new RegistryEntryNode(root.addNode(relPath, EXO_REGISTRYENTRY_NT));
     } else {
@@ -125,9 +125,9 @@ public class RegistryService implements Startable {
    * @return
    * @throws RepositoryException
    */
-  public RegistryNode getRegistry(SessionProvider sessionProvider) 
+  public RegistryNode getRegistry(SessionProvider sessionProvider, ManageableRepository repository) 
     throws RepositoryException{
-    return new RegistryNode(rootNode(sessionProvider).getNode(EXO_REGISTRY));
+    return new RegistryNode(rootNode(sessionProvider, repository).getNode(EXO_REGISTRY));
   } 
   
 
@@ -149,9 +149,9 @@ public class RegistryService implements Startable {
    * @throws RepositoryException
    */
   public void unregister(SessionProvider sessionProvider, String entryType,
-      String entryName) throws RepositoryException {
+      String entryName, ManageableRepository repository) throws RepositoryException {
     String relPath = EXO_REGISTRY+"/"+entryType+"/"+entryName;
-    Node root = rootNode(sessionProvider);
+    Node root = rootNode(sessionProvider, repository);
     Node node = root.getNode(relPath);
     Node parent = node.getParent();
     node.remove();
@@ -159,9 +159,9 @@ public class RegistryService implements Startable {
   }
 
   
-  private Node rootNode(SessionProvider sessionProvider) throws RepositoryException {
-    String repName = sessionProvider.getRepository().getConfiguration().getName();
-    Session session = sessionProvider.getSession(regWorkspaces.get(repName));
+  private Node rootNode(SessionProvider sessionProvider, ManageableRepository repository) throws RepositoryException {
+    String repName = repository.getConfiguration().getName();
+    Session session = sessionProvider.getSession(regWorkspaces.get(repName), repository);
     return session.getRootNode();
   }
 
