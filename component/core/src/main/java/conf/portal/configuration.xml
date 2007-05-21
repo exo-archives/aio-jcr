@@ -29,25 +29,5 @@
 	</component-plugin>
   </external-component-plugins>  
 
-  <!-- external-component-plugins>
-    <target-component>org.exoplatform.services.database.jdbc.DBSchemaCreator</target-component>
-      <component-plugin>
-          <name>jcr.dbschema</name>
-          <set-method>addPlugin</set-method>
-          <type>org.exoplatform.services.database.jdbc.CreateDBSchemaPlugin</type>
-          <init-params>
-            <value-param>
-              <name>data-source</name>
-              <value>jdbcjcr</value>
-            </value-param>
-            <value-param>
-              <name>script-file</name>
-              <value>conf/storage/jcr-sjdbc.sql</value>
-            </value-param>
-          </init-params>
-      </component-plugin>
-  </external-component-plugins>
-
-
-  <import>classpath:/conf/portal/jdbcjcr-configuration.hsql.xml</import --> 
+  <import>classpath:/conf/portal/jdbcjcr-configuration.hsql.xml</import> 
 </configuration>
