@@ -7,6 +7,7 @@ package org.exoplatform.services.rest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Iterator;
 
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
@@ -28,17 +29,15 @@ public class ResourceRouter implements Connector {
   private List <WrapperResolvingStrategy> bindStrategies;
   private String wrapperStrategy = null;
   
-  public ResourceRouter(InitParams params) {
-    ValueParam wstvalue = params.getValueParam("wrapper-strategy");
-    if(wstvalue != null) {
-      wrapperStrategy = wstvalue.getValue();
-    }
+  public ResourceRouter(InitParams params) throws Exception {
     this.resourceDescriptors = new ArrayList <ResourceDescriptor>();
     this.bindStrategies = new ArrayList <WrapperResolvingStrategy>();
-    try {
-      bindStrategies.add((HTTPAnnotatedWrapperResolvingStrategy)Class.forName(wrapperStrategy).newInstance());
-    } catch (Exception e) {
-      e.printStackTrace();
+
+    Iterator<ValueParam> i = params.getValueParamIterator();
+    while(i.hasNext()) {
+      ValueParam v = i.next();
+      WrapperResolvingStrategy ws = (WrapperResolvingStrategy)Class.forName(v.getValue()).newInstance();
+      bindStrategies.add(ws);
     }
   }
 
