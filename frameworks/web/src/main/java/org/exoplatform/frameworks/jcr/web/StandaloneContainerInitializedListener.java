@@ -34,6 +34,8 @@ public class StandaloneContainerInitializedListener implements
    * org.exoplatform.container.standalone.config
    */
   private static final String CONF_URL_PARAMETER = "org.exoplatform.container.standalone.config";
+  
+  private final static String CONTAINER_CONFIG = "conf/standalone/exo-configuration.xml";
 
   private StandaloneContainer container;
 
@@ -45,9 +47,8 @@ public class StandaloneContainerInitializedListener implements
     String configurationURL = event.getServletContext().
     getInitParameter(CONF_URL_PARAMETER);
     if(configurationURL == null) {
-      String path = "conf/standalone/exo-configuration.xml";
       configurationURL = Thread.currentThread().getContextClassLoader().getResource(
-          path).toString();
+          CONTAINER_CONFIG).toString();
       //configurationURL = "conf/exo-configuration.xml";
     }
     try {
