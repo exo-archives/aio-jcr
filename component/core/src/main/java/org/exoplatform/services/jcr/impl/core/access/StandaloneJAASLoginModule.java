@@ -20,7 +20,4 @@ public class StandaloneJAASLoginModule extends ExoLoginJAASLoginModule {
   public void preProcessOperations() throws Exception {
     
   }
-  
-  
-
 }
