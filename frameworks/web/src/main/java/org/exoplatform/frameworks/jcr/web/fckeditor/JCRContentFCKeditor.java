@@ -52,9 +52,6 @@ public class JCRContentFCKeditor extends FCKeditor {
     //[VO] "jcr:content/jcr:data" - impossible according to spec
     file.getNode("jcr:content").setProperty("jcr:data", value);
     setValue(value);
-    if(file.isNew())
-      file.getParent().save();
-    else
-      file.save();
+    file.getSession().save();
   }
 }
