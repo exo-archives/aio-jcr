@@ -55,20 +55,20 @@ public abstract class BaseStandaloneTest extends TestCase {
   public void setUp() throws Exception {
     
        StandaloneContainer
-          .setConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
+          .setConfigurationPath("src/main/java/conf/standalone/test-configuration.xml");
 
       container = StandaloneContainer.getInstance();
 
       if (System.getProperty("java.security.auth.login.config") == null)
         System.setProperty("java.security.auth.login.config",
-            "src/test/resources/login.conf");
+            "src/main/resources/login.conf");
 
       credentials = new CredentialsImpl("exo", "exo".toCharArray());
 
       repositoryService = (RepositoryService) container
           .getComponentInstanceOfType(RepositoryService.class);
 
-      repository = (RepositoryImpl) repositoryService.getRepository();
+      repository = (RepositoryImpl) repositoryService.getDefaultRepository();
 
       // repository.getContainer().start();
 
