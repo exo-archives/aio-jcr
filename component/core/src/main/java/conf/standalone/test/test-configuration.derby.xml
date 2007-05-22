@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- Configuration for Sybase ASE Linux Expres Edition (15.0) -->
 <configuration>
+
   <component>
     <key>org.exoplatform.services.log.LogConfigurationInitializer</key>
     <type>org.exoplatform.services.log.LogConfigurationInitializer</type>
@@ -86,7 +86,7 @@
     <key>org.exoplatform.services.naming.InitialContextInitializer</key>
     <type>org.exoplatform.services.naming.InitialContextInitializer</type>
     <component-plugins>
-      <component-plugin>
+      <!-- component-plugin>
         <name>bind.datasource</name>
         <set-method>addPlugin</set-method>
         <type>org.exoplatform.services.naming.BindReferencePlugin</type>
@@ -106,15 +106,8 @@
           <properties-param>
             <name>ref-addresses</name>
             <description>ref-addresses</description>
-            <!-- Apache Commons DBCP Connection pooling with jTDS driver (1.2) -->
-            <property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver"/>
-            <property name="url" value="jdbc:jtds:sybase://exoua.dnsalias.net:5000/portal"/>
-            <property name="username" value="exoadmin"/>
-            <property name="password" value="exo12321"/>
-            <property name="appName" value="eXo JCR"/>
-            <property name="maxActive" value="50"/>
-            <property name="maxIdle" value="5"/>
-            <property name="initialSize" value="5"/>
+            <property name="driverClassName" value="org.apache.derby.jdbc.EmbeddedDriver"/>
+            <property name="url" value="jdbc:derby:target/temp/derby/portal;create=true"/>
           </properties-param>
         </init-params>
       </component-plugin>
@@ -138,14 +131,8 @@
           <properties-param>
             <name>ref-addresses</name>
             <description>ref-addresses</description>
-            <property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver"/>
-            <property name="url" value="jdbc:jtds:sybase://exoua.dnsalias.net:5000/jcr"/>
-            <property name="username" value="exoadmin"/>
-            <property name="password" value="exo12321"/>
-            <property name="appName" value="eXo JCR"/>
-            <property name="maxActive" value="50"/>
-            <property name="maxIdle" value="5"/>
-            <property name="initialSize" value="5"/>
+            <property name="driverClassName" value="org.apache.derby.jdbc.EmbeddedDriver"/>
+            <property name="url" value="jdbc:derby:target/temp/derby/jcr;create=true"/>
           </properties-param>
         </init-params>
       </component-plugin>
@@ -169,17 +156,11 @@
           <properties-param>
             <name>ref-addresses</name>
             <description>ref-addresses</description>
-            <property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver"/>
-            <property name="url" value="jdbc:jtds:sybase://exoua.dnsalias.net:5000/jcr2"/>
-            <property name="username" value="exoadmin"/>
-            <property name="password" value="exo12321"/>
-            <property name="appName" value="eXo JCR"/>
-            <property name="maxActive" value="50"/>
-            <property name="maxIdle" value="5"/>
-            <property name="initialSize" value="5"/>
+            <property name="driverClassName" value="org.apache.derby.jdbc.EmbeddedDriver"/>
+            <property name="url" value="jdbc:derby:target/temp/derby/jcr2;create=true"/>
           </properties-param>
         </init-params>
-     </component-plugin>
+     </component-plugin -->
     <!-- Resource configuration for UserTransaction
        use JOTM
     -->
@@ -207,6 +188,31 @@
           </properties-param>
         </init-params>
      </component-plugin>
+     <component-plugin>
+        <name>bind.jcr</name>
+        <set-method>addPlugin</set-method>
+        <type>org.exoplatform.services.naming.BindReferencePlugin</type>
+        <init-params>
+          <value-param>
+            <name>bind-name</name>
+            <value>repo</value>
+          </value-param>
+          <value-param>
+            <name>class-name</name>
+            <value>javax.jcr.Repository</value>
+          </value-param>
+          <value-param>
+            <name>factory</name>
+            <value>org.exoplatform.services.jcr.impl.jndi.BindableRepositoryFactory</value>
+          </value-param>
+          <properties-param>
+            <name>ref-addresses</name>
+            <description>ref-addresses</description>
+            <property name="repositoryName" value="db1"/>
+            <!-- property name="containerConfig" value="exo-configuration.xml"/ -->
+          </properties-param>
+        </init-params>
+       </component-plugin>
     </component-plugins>
     <init-params>
       <properties-param>
@@ -222,7 +228,7 @@
       </properties-param -->
     </init-params>
   </component>
-
+ 
   <component>
     <key>org.exoplatform.services.jcr.RepositoryService</key>
     <type>org.exoplatform.services.jcr.impl.RepositoryServiceImpl</type>
@@ -235,6 +241,17 @@
             <properties-param>
               <name>namespaces</name>
               <property name="test" value="http://www.apache.org/jackrabbit/test"/>
+            </properties-param>
+          </init-params>
+      </component-plugin>
+      <component-plugin>
+          <name>add.namespaces</name>
+          <set-method>addPlugin</set-method>
+          <type>org.exoplatform.services.jcr.impl.AddNamespacesPlugin</type>
+          <init-params>
+            <properties-param>
+              <name>namespaces</name>
+              <property name="exojcrtest" value="http://www.exoplatform.org/jcr/exojcrtest"/>
               <property name="exojcrtest" value="http://www.exoplatform.org/jcr/exojcrtest"/>
             </properties-param>
           </init-params>
@@ -262,7 +279,7 @@
       <value-param>
         <name>conf-path</name>
         <description>JCR configuration file</description>
-        <value>file:src/java/conf/standalone/test-jcr-config.sybase.xml</value>
+        <value>jar:/conf/standalone/test/test-jcr-config.derby.xml</value>
       </value-param>
     </init-params>
   </component>
@@ -286,6 +303,7 @@
     <key>org.exoplatform.services.document.DocumentReaderService</key>
     <type>org.exoplatform.services.document.impl.DocumentReaderServiceImpl</type>
     <component-plugins>
+
       <component-plugin>
         <name>pdf.document.reader</name>
         <set-method>addDocumentReader</set-method>

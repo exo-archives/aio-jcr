@@ -107,7 +107,7 @@
       <value-param>
         <name>conf-path</name>
         <description>JCR configuration file</description>
-        <value>jar:/conf/standalone/exo-jcr-config.xml</value>
+        <value>jar:/conf/standalone/test/exo-jcr-config.xml</value>
       </value-param>
     </init-params>
   </component>

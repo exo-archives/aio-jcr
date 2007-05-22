@@ -241,7 +241,6 @@ public class RepositoryImpl implements ManageableRepository {
     } catch (RepositoryConfigurationException e) {
       throw new RepositoryException(e);
     }
-
   }
   /**
    * Creation contains three  steps: 
@@ -264,6 +263,7 @@ public class RepositoryImpl implements ManageableRepository {
       log.warn("Workspace '" + wsName+ "' is presumably initialized. config canceled");
       return;
     }
+    
     WorkspaceContainer wsContainer = repositoryContainer.getWorkspaceContainer(wsName);
     
     if(wsContainer==null)

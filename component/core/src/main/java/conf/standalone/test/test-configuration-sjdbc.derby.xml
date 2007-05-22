@@ -35,6 +35,37 @@
         <property name="log4j.appender.file.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
       </properties-param>
 
+      <!-- value-param>
+        <name>logger</name>
+        <value>org.exoplatform.services.log.impl.BufferedSimpleLog</value>
+      </value-param>
+      <value-param>
+        <name>configurator</name>
+        <value>org.exoplatform.services.log.impl.SimpleLogConfigurator</value>
+      </value-param>
+      <properties-param>
+        <name>properties</name>
+        <description>SimpleLog properties</description>
+        <property name="org.apache.commons.logging.simplelog.defaultlog" value="debug"/>
+        <property name="org.apache.commons.logging.simplelog.showdatetime" value="true"/>
+      </properties-param -->
+
+      <!-- value-param>
+        <name>logger</name>
+        <value>org.exoplatform.services.log.impl.BufferedJdk14Logger</value>
+      </value-param>
+      <value-param>
+        <name>configurator</name>
+        <value>org.exoplatform.services.log.impl.Jdk14Configurator</value>
+      </value-param>
+      <properties-param>
+        <name>properties</name>
+        <description>jdk1.4 Logger properties</description>
+        <property name="handlers" value="java.util.logging.ConsoleHandler"/>
+        <property name=".level" value="FINE"/>
+        <property name="java.util.logging.ConsoleHandler.level" value="FINE"/>
+      </properties-param -->
+
     </init-params>
   </component>
 
@@ -98,80 +129,6 @@
           </value-param>
           <value-param>
             <name>class-name</name>
-            <!-- Apache Commons DBCP Connection pooling -->
-            <value>javax.sql.DataSource</value>
-
-            <!-- jTDS driver connection pooling (1.2) experimental, not recommended -->
-            <!-- value>net.sourceforge.jtds.jdbcx.JtdsDataSource</value -->
-
-            <!-- Microsoft SQL Server 2005 JDBC driver connection pooling -->
-            <!-- value>com.microsoft.sqlserver.jdbc.SQLServerXADataSource</value -->
-          </value-param>
-          <value-param>
-            <name>factory</name>
-            <!-- Apache Commons DBCP Connection pooling -->
-            <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
-
-            <!-- jTDS driver connection pooling (1.2) -->
-            <!-- value>net.sourceforge.jtds.jdbcx.JtdsObjectFactory</value -->
-
-            <!-- Microsoft SQL Server 2005 JDBC driver connection pooling -->
-            <!-- value>com.microsoft.sqlserver.jdbc.SQLServerDataSourceObjectFactory</value -->
-          </value-param>
-          <properties-param>
-            <name>ref-addresses</name>
-            <description>ref-addresses</description>
-            <!-- Apache Commons DBCP Connection pooling with Microsoft SQL Server 2005 JDBC driver -->
-            <!-- property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-            <property name="url" value="jdbc:sqlserver://localhost\SQLEXPRESS;databaseName=portal"/ -->
-
-            <!-- Apache Commons DBCP Connection pooling with jTDS driver (1.2) -->
-            <property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver"/>
-            <property name="url" value="jdbc:jtds:sqlserver://localhost:1433/portal;instance=SQLEXPRESS"/>
-            <property name="username" value="exoadmin"/>
-            <property name="password" value="exo12321"/>
-            <property name="appName" value="eXo JCR"/>
-            <property name="maxActive" value="50"/>
-            <property name="maxIdle" value="5"/>
-            <property name="initialSize" value="5"/>
-
-            <!-- Microsoft SQL Server 2005 JDBC driver connection pooling
-              (parameters for pooling not documented by MS) -->
-            <!-- property name="class" value="com.microsoft.sqlserver.jdbc.SQLServerXADataSource"/>
-            <property name="dataSourceURL" value="jdbc:sqlserver://localhost\SQLEXPRESS"/>
-            <property name="databaseName" value="portal"/>
-            <property name="applicationName" value="eXo JCR"/>
-            <property name="user" value="exoadmin"/>
-            <property name="password" value="exo12321"/ -->
-
-            <!-- jTDS driver connection pooling (1.2) experimental, not recommended.
-              See JtdsObjectFactory.java from jtds.sourceforge.net for details -->
-            <!-- property name="SERVERNAME" value="localhost"/>
-            <property name="INSTANCE" value="SQLEXPRESS"/>
-            <property name="PORTNUMBER" value="1433"/>
-            <property name="DATABASENAME" value="portal"/>
-            <property name="LANGUAGE" value="ru_RU"/>
-            <property name="CHARSET" value="Cp1252"/>
-            <property name="SERVERTYPE" value="1"/>
-            <property name="TDS" value="9"/>
-            <property name="APPNAME" value="eXo JCR"/>
-            <property name="USER" value="exoadmin"/>
-            <property name="PASSWORD" value="exo12321"/>
-            <property name="MAXSTATEMENTS" value="50"/ -->
-          </properties-param>
-        </init-params>
-      </component-plugin>
-      <component-plugin>
-        <name>bind.datasource</name>
-        <set-method>addPlugin</set-method>
-        <type>org.exoplatform.services.naming.BindReferencePlugin</type>
-        <init-params>
-          <value-param>
-            <name>bind-name</name>
-            <value>jdbcjcr1</value>
-          </value-param>
-          <value-param>
-            <name>class-name</name>
             <value>javax.sql.DataSource</value>
           </value-param>
           <value-param>
@@ -181,52 +138,15 @@
           <properties-param>
             <name>ref-addresses</name>
             <description>ref-addresses</description>
-            <property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver"/>
-            <property name="url" value="jdbc:jtds:sqlserver://localhost:1433/jcr;instance=SQLEXPRESS"/>
-            <property name="username" value="exoadmin"/>
-            <property name="password" value="exo12321"/>
-            <property name="appName" value="eXo JCR"/>
-            <property name="maxActive" value="50"/>
-            <property name="maxIdle" value="5"/>
-            <property name="initialSize" value="5"/>
-          </properties-param>
-        </init-params>
-      </component-plugin>
-      <component-plugin>
-        <name>bind.datasource</name>
-        <set-method>addPlugin</set-method>
-        <type>org.exoplatform.services.naming.BindReferencePlugin</type>
-        <init-params>
-          <value-param>
-            <name>bind-name</name>
-            <value>jdbcjcr2</value>
-          </value-param>
-          <value-param>
-            <name>class-name</name>
-            <value>javax.sql.DataSource</value>
-          </value-param>
-          <value-param>
-            <name>factory</name>
-            <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
-          </value-param>
-          <properties-param>
-            <name>ref-addresses</name>
-            <description>ref-addresses</description>
-            <property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver"/>
-            <property name="url" value="jdbc:jtds:sqlserver://localhost:1433/jcr2;instance=SQLEXPRESS"/>
-            <property name="username" value="exoadmin"/>
-            <property name="password" value="exo12321"/>
-            <property name="appName" value="eXo JCR"/>
-            <property name="maxActive" value="50"/>
-            <property name="maxIdle" value="5"/>
-            <property name="initialSize" value="5"/>
+            <property name="driverClassName" value="org.apache.derby.jdbc.EmbeddedDriver"/>
+            <property name="url" value="jdbc:derby:target/temp/derby/exodb;create=true"/>
           </properties-param>
         </init-params>
      </component-plugin>
-    <!-- Resource configuration for UserTransaction
+     <!-- Resource configuration for UserTransaction
        use JOTM
-    -->
-      <component-plugin>
+      -->
+     <component-plugin>
         <name>jotm.tx</name>
         <set-method>addPlugin</set-method>
         <type>org.exoplatform.services.naming.BindReferencePlugin</type>
@@ -305,7 +225,7 @@
       <value-param>
         <name>conf-path</name>
         <description>JCR configuration file</description>
-        <value>file:src/java/conf/standalone/test-jcr-config.xml</value>
+        <value>jar:/conf/standalone/test/test-jcr-config-sjdbc.derby.xml</value>
       </value-param>
     </init-params>
   </component>

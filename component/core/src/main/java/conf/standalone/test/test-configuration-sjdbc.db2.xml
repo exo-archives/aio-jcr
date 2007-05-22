@@ -248,7 +248,7 @@
       <value-param>
         <name>conf-path</name>
         <description>JCR configuration file</description>
-        <value>jar:/conf/standalone/test-jcr-config-sjdbc.db2.xml</value>
+        <value>jar:/conf/standalone/test/test-jcr-config-sjdbc.db2.xml</value>
       </value-param>
     </init-params>
   </component>

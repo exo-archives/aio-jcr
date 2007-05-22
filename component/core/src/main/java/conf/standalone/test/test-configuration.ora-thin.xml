@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <configuration>
-
   <component>
     <key>org.exoplatform.services.log.LogConfigurationInitializer</key>
     <type>org.exoplatform.services.log.LogConfigurationInitializer</type>
@@ -18,9 +17,6 @@
         <name>properties</name>
         <description>Log4J properties</description>
         <property name="log4j.rootLogger" value="INFO, stdout, file"/>
-        <!-- property name="log4j.category.jcr.TransactionableDataManager" value="DEBUG, stdout, file"/>
-        <property name="log4j.category.jcr.WorkspaceDataManager" value="DEBUG, stdout, file"/ -->
-        <property name="log4j.category.jcr.JDBCWorkspaceDataContainer" value="DEBUG, stdout, file"/>
         <property name="log4j.category.jcr.Test" value="DEBUG, stdout, file"/>
 
         <property name="log4j.appender.stdout" value="org.apache.log4j.ConsoleAppender"/>
@@ -33,6 +29,11 @@
 
         <property name="log4j.appender.file.layout" value="org.apache.log4j.PatternLayout"/>
         <property name="log4j.appender.file.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
+        
+        <!-- property name="log4j.category.jcr.WorkspacePersistentDataManager" value="DEBUG"/>
+        <property name="log4j.category.jcr.SessionDataManager" value="DEBUG"/>
+        <property name="log4j.category.jcr.JDBCStorageConnection" value="DEBUG"/>
+        <property name="log4j.category.jcr.NodeImpl" value="DEBUG"/ -->
       </properties-param>
     </init-params>
   </component>
@@ -59,10 +60,10 @@
     <type>org.exoplatform.services.log.impl.LogServiceImpl</type>
     <!--Valid value: FATAL, ERROR, WARN, INFO, DEBUG, TRACE-->
       <init-params>
-                   <properties-param>
-                     <name>log.level.config</name>
-                     <property name="org.exoplatform.services.log" value="INFO"/>
-                   </properties-param>
+         <properties-param>
+           <name>log.level.config</name>
+           <property name="org.exoplatform.services.log" value="INFO"/>
+         </properties-param>
       </init-params>
   </component>
 
@@ -106,43 +107,43 @@
           <properties-param>
             <name>ref-addresses</name>
             <description>ref-addresses</description>
-            <property name="driverClassName" value="org.postgresql.Driver"/>
-            <property name="url" value="jdbc:postgresql://192.168.0.10/exodb"/>
+            <property name="driverClassName" value="oracle.jdbc.OracleDriver"/>
+            <property name="url" value="jdbc:oracle:thin:@192.168.0.10:1521/XE"/>
             <property name="username" value="exoadmin"/>
             <property name="password" value="exo12321"/>
-            <property name="maxActive" value="30"/>
+            <property name="maxActive" value="20"/>
             <property name="maxIdle" value="2"/>
             <property name="initialSize" value="2"/>
           </properties-param>
         </init-params>
-     </component-plugin>
-     <!-- Resource configuration for UserTransaction
-       use JOTM
-      -->
-     <component-plugin>
-        <name>jotm.tx</name>
-        <set-method>addPlugin</set-method>
-        <type>org.exoplatform.services.naming.BindReferencePlugin</type>
-        <init-params>
-          <value-param>
-            <name>bind-name</name>
-            <value>UserTransaction</value>
-          </value-param>
-          <value-param>
-            <name>class-name</name>
-            <value>javax.transaction.UserTransaction</value>
-          </value-param>
-          <value-param>
-            <name>factory</name>
-            <value>org.objectweb.jotm.UserTransactionFactory</value>
-          </value-param>
-          <properties-param>
-            <name>ref-addresses</name>
-            <description>ref-addresses</description>
-            <property name="jotm.timeout" value="60"/>
-          </properties-param>
-        </init-params>
-     </component-plugin>
+      </component-plugin>
+            <!-- Resource configuration for UserTransaction
+               use JOTM
+              -->
+             <component-plugin>
+                <name>jotm.tx</name>
+                <set-method>addPlugin</set-method>
+                <type>org.exoplatform.services.naming.BindReferencePlugin</type>
+                <init-params>
+                  <value-param>
+                    <name>bind-name</name>
+                    <value>UserTransaction</value>
+                  </value-param>
+                  <value-param>
+                    <name>class-name</name>
+                    <value>javax.transaction.UserTransaction</value>
+                  </value-param>
+                  <value-param>
+                    <name>factory</name>
+                    <value>org.objectweb.jotm.UserTransactionFactory</value>
+                  </value-param>
+                  <properties-param>
+                    <name>ref-addresses</name>
+                    <description>ref-addresses</description>
+                    <property name="jotm.timeout" value="60"/>
+                  </properties-param>
+                </init-params>
+             </component-plugin>
     </component-plugins>
     <init-params>
       <properties-param>
@@ -158,7 +159,7 @@
       </properties-param -->
     </init-params>
   </component>
-  
+
   <component>
     <key>org.exoplatform.services.jcr.RepositoryService</key>
     <type>org.exoplatform.services.jcr.impl.RepositoryServiceImpl</type>
@@ -198,7 +199,7 @@
       <value-param>
         <name>conf-path</name>
         <description>JCR configuration file</description>
-        <value>jar:/conf/standalone/test-jcr-config-sjdbc.pgsql.xml</value>
+        <value>jar:/conf/standalone/test/test-jcr-config-sjdbc.ora.xml</value>
       </value-param>
     </init-params>
   </component>
@@ -222,6 +223,7 @@
     <key>org.exoplatform.services.document.DocumentReaderService</key>
     <type>org.exoplatform.services.document.impl.DocumentReaderServiceImpl</type>
     <component-plugins>
+
       <component-plugin>
         <name>pdf.document.reader</name>
         <set-method>addDocumentReader</set-method>

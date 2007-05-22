@@ -60,7 +60,7 @@ public abstract class BaseStandaloneTest extends TestCase {
   public void setUp() throws Exception {
 
     StandaloneContainer
-    .setConfigurationPath("src/main/java/conf/standalone/test-configuration-sjdbc.xml");
+    .setConfigurationPath("src/main/java/conf/standalone/test/test-configuration-sjdbc.xml");
     //StandaloneContainer.setConfigurationPath("src/main/java/conf/standalone/test-configuration.pgsql.xml");
 
     container = StandaloneContainer.getInstance();
