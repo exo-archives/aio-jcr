@@ -57,9 +57,8 @@ public class JcrRMIBrowserFilterUser implements Filter {
         String s = (String) httpRequest.getSession().getAttribute("ws");
         if (s == null)
           s = "";
-        // TODO use login without cridentials, let do it the form authenticator (JAAS login module)
-        // ses = repository.login(s);
-        ses = repository.login(new CredentialsImpl("admin", "admin".toCharArray()), s);
+        ses = repository.login(s);
+        //ses = repository.login(new CredentialsImpl("admin", "admin".toCharArray()), s);
         httpRequest.getSession().setAttribute("ses", ses);
       } catch (Exception e) {
         System.err.println("doFilter, ses = null: " + e);
