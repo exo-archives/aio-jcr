@@ -409,7 +409,7 @@
     </init-params>
   </component>
 
-  <component>
+  <!-- component>
     <key>org.exoplatform.services.database.jdbc.DBSchemaCreator</key>
     <type>org.exoplatform.services.database.jdbc.DBSchemaCreator</type>
     <component-plugins>
@@ -459,7 +459,7 @@
           </init-params>
       </component-plugin>
     </component-plugins>
-  </component>
+  </component -->
 
 
   <component>
@@ -469,7 +469,7 @@
       <value-param>
         <name>conf-path</name>
         <description>JCR configuration file</description>
-        <value>file:src/main/java/conf/standalone/test-jcr-config.xml</value>
+        <value>file:src/main/java/conf/standalone/test/test-jcr-config.xml</value>
       </value-param>
     </init-params>
   </component>
@@ -479,6 +479,22 @@
   </component>
 
   <component>
+    <key>org.exoplatform.services.listener.ListenerService</key>
+    <type>org.exoplatform.services.listener.ListenerService</type>
+    <component-plugins>
+      <component-plugin>
+        <name>exo.service.authentication.login</name>
+        <set-method>addListener</set-method>
+        <type>org.exoplatform.services.jcr.impl.core.access.JCRAuthenticationListener</type>
+      </component-plugin>
+    </component-plugins>    
+  </component>
+
+  <component> 
+    <type>org.exoplatform.services.organization.auth.AuthenticationService</type>
+  </component>
+
+  <!-- component>
           <key>org.exoplatform.services.security.SecurityService</key>
           <type>org.exoplatform.services.security.impl.SecurityServiceImpl</type>
     <init-params>
@@ -487,7 +503,7 @@
         <value>standalone</value>
       </value-param>
     </init-params>
-  </component>
+  </component -->
 
   <component>
     <key>org.exoplatform.services.document.DocumentReaderService</key>
