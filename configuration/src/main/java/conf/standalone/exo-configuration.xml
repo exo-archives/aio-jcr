@@ -44,7 +44,7 @@
           <property name="log4j.appender.console.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
 
           <property name="log4j.appender.file" value="org.apache.log4j.FileAppender"/>
-          <property name="log4j.appender.file.File" value="../temp/jcr.log"/>
+          <property name="log4j.appender.file.File" value="../logs/jcr.log"/>
 
           <property name="log4j.appender.file.layout" value="org.apache.log4j.PatternLayout"/>
           <property name="log4j.appender.file.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
@@ -98,7 +98,7 @@
       <value-param>
         <name>conf-path</name>
         <description>JCR configuration file</description>
-        <value>jar:/conf/standalone/exo-jcr-config.xml</value>
+        <value>exo-jcr-config.xml</value>
       </value-param>
     </init-params>
   </component>
@@ -505,6 +505,22 @@
         <type>org.exoplatform.services.jcr.ext.audit.AuditServiceImpl</type>
   </component>
 
+  <component>
+      <type>org.exoplatform.services.organization.auth.AuthenticationService</type>
+  </component>
+
+<component>
+  <key>org.exoplatform.services.listener.ListenerService</key>
+  <type>org.exoplatform.services.listener.ListenerService</type>
+ <component-plugins>
+ <component-plugin>
+  <name>exo.service.authentication.login</name>
+  <set-method>addListener</set-method>
+  <type>org.exoplatform.services.jcr.impl.core.access.JCRAuthenticationListener</type>
+  </component-plugin>
+  </component-plugins>
+  </component>
+
   <external-component-plugins>
       <target-component>org.exoplatform.services.jcr.impl.ext.action.SessionActionCatalog</target-component>
       <component-plugin>
@@ -569,4 +585,12 @@
 		        </init-params>
 		      </component-plugin>
     </external-component-plugins>
+    <!--<external-component-plugins>
+	    <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+	    <component-plugin>
+	      <name>exo.service.authentication.login</name>
+	  <set-method>addListener</set-method>
+	      <type>org.exoplatform.services.organization.auth.JCRAuthenticationListener</type>
+	</component-plugin>
+  </external-component-plugins>-->
 </configuration>
