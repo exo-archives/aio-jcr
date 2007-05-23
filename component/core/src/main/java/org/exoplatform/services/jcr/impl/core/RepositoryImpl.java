@@ -231,16 +231,12 @@ public class RepositoryImpl implements ManageableRepository {
     log.info("Workspace " + workspaceName + "@" + this.name + " is initialized");
   }
   
-  public void configWorkspace(WorkspaceEntry wsConfig) throws RepositoryException{
+  public void configWorkspace(WorkspaceEntry wsConfig) throws  RepositoryConfigurationException, RepositoryException{
     if (isWorkspaceInitialized(wsConfig.getName())) {
-      log.warn("Workspace '" + wsConfig.getName()+ "' is presumably initialized. config canceled");
-      return;
+      throw new RepositoryConfigurationException("Workspace '" + wsConfig.getName()+ "' is presumably initialized. config canceled");
     }
-    try {
-      repositoryContainer.registerWorkspace(wsConfig);
-    } catch (RepositoryConfigurationException e) {
-      throw new RepositoryException(e);
-    }
+    
+    repositoryContainer.registerWorkspace(wsConfig);
   }
   /**
    * Creation contains three  steps: 

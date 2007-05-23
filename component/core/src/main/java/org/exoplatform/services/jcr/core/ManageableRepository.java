@@ -10,6 +10,7 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
+import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
@@ -24,7 +25,7 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 
 public interface ManageableRepository extends Repository {
     
-    public void configWorkspace(WorkspaceEntry wsConfig) throws RepositoryException;
+    public void configWorkspace(WorkspaceEntry wsConfig) throws  RepositoryConfigurationException, RepositoryException;
     
     /**
      * Initializes workspace

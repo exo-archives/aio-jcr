@@ -19,6 +19,7 @@ import javax.naming.Reference;
 import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
 
+import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
@@ -207,8 +208,10 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
 
   }
 
-  public void configWorkspace(WorkspaceEntry wsConfig) throws RepositoryException {
+  public void configWorkspace(WorkspaceEntry wsConfig) throws RepositoryConfigurationException,
+      RepositoryException {
     delegatee.configWorkspace(wsConfig);
-
+   
   }
+
 }
