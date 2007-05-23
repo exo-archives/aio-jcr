@@ -10,9 +10,7 @@ import java.util.Calendar;
 
 import javax.jcr.Node;
 
-import org.apache.commons.logging.Log;
 import org.exoplatform.commons.utils.MimeTypeResolver;
-import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.config.WebDavConfigImpl;
 import org.exoplatform.services.webdav.lock.FakeLockTable;
@@ -25,16 +23,7 @@ import org.exoplatform.services.webdav.lock.FakeLockTable;
 
 public class PutCommand extends WebDavCommand {
   
-  private static Log log = ExoLogger.getLogger("jcr.PutCommand");
-  
   protected boolean process() throws Exception {
-    
-    String srcWorkspace = davContext().getWebDavRequest().getSrcWorkspace();
-    String srcPath = davContext().getWebDavRequest().getSrcPath();
-    
-    log.info("WORKSPACE: " + srcWorkspace);
-    log.info("PATH: " + srcPath);
-    
     String mimeType = davRequest().getContentType();
 
     if (mimeType == null) {
@@ -46,7 +35,6 @@ public class PutCommand extends WebDavCommand {
     }
 
     if (davRequest().getRequestStream() == null) {      
-      log.info("INPUT STREAM NOT FOUND!!!!!!");
       davResponse().answerPreconditionFailed();
       return false;
     }
@@ -66,7 +54,6 @@ public class PutCommand extends WebDavCommand {
       }
       
       if (!tokenFinded) {
-        log.info("FORBIDDEN!!!!!!!!!");
         davResponse().answerForbidden();
         return false;          
       }        

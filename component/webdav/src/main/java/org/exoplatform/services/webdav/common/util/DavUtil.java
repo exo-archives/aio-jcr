@@ -77,13 +77,13 @@ public class DavUtil {
     return document;
   }    
 
-  private static Document getDomDocument() throws Exception {
+  public static Document getDomDocument() throws Exception {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     DocumentBuilder builder = factory.newDocumentBuilder();    
     return builder.newDocument();
   }
   
-  private static byte []getSerializedDom(Element element) throws Exception {
+  public static byte []getSerializedDom(Element element) throws Exception {
     TransformerFactory transformerFactory = TransformerFactory.newInstance();
     Transformer transformer = transformerFactory.newTransformer();
     

@@ -5,7 +5,6 @@
 
 package org.exoplatform.services.webdav.common.resource;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.jcr.RepositoryException;
@@ -28,7 +27,7 @@ public interface WebDavResource {
   
   boolean isCollection() throws RepositoryException;
   
-  ResourceData getResourceData() throws IOException, RepositoryException;
+  ResourceData getResourceData() throws Exception;
 
   ArrayList<WebDavResource> getChildResources() throws RepositoryException;  
   

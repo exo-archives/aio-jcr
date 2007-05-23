@@ -5,7 +5,6 @@
 
 package org.exoplatform.services.webdav.common.resource;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.jcr.Node;
@@ -13,13 +12,11 @@ import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.apache.commons.logging.Log;
-import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.WebDavCommandContext;
-import org.exoplatform.services.webdav.common.resource.resourcedata.CollectionResourceData;
 import org.exoplatform.services.webdav.common.resource.resourcedata.JcrFileResourceData;
 import org.exoplatform.services.webdav.common.resource.resourcedata.ResourceData;
+import org.exoplatform.services.webdav.common.resource.resourcedata.XmlItemData;
 
 /**
  * Created by The eXo Platform SARL
@@ -29,11 +26,9 @@ import org.exoplatform.services.webdav.common.resource.resourcedata.ResourceData
 
 public class AbstractNodeResource extends CommonResource {
   
-  private static Log log = ExoLogger.getLogger("jcr.AbstractNodeResource");
-  
   private Node resourceNode;
   
-  public AbstractNodeResource(WebDavCommandContext context, Node node) throws RepositoryException {
+  public AbstractNodeResource(WebDavCommandContext context, Node node) {
     super(context);
     resourceNode = node;    
   }
@@ -50,9 +45,12 @@ public class AbstractNodeResource extends CommonResource {
     return resourceNode.getName();
   }
   
-  public ResourceData getResourceData() throws IOException, RepositoryException {
+  public ResourceData getResourceData() throws Exception {
     if (isCollection()) {
-      return new CollectionResourceData(this);
+      String prefix = context.getWebDavRequest().getServerPrefix();
+      prefix += "/" + context.getWebDavRequest().getSrcWorkspace();
+      
+      return new XmlItemData(prefix, getNode());
     }
 
     return new JcrFileResourceData(getNode());

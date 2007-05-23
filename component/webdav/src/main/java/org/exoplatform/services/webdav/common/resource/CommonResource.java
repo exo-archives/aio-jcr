@@ -5,7 +5,6 @@
 
 package org.exoplatform.services.webdav.common.resource;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.jcr.RepositoryException;
@@ -43,7 +42,7 @@ public abstract class CommonResource implements WebDavResource {
     throw new RepositoryException();
   }
   
-  public ResourceData getResourceData() throws IOException, RepositoryException {
+  public ResourceData getResourceData() throws Exception {
     ResourceData collectionResourceData = new CollectionResourceData(this);
     return collectionResourceData;
   }

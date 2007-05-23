@@ -5,8 +5,10 @@
 
 package org.exoplatform.services.webdav.common.resource.factory;
 
+import javax.jcr.Item;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
+import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.version.Version;
@@ -16,6 +18,7 @@ import org.exoplatform.services.webdav.WebDavCommandContext;
 import org.exoplatform.services.webdav.common.request.WebDavRequest;
 import org.exoplatform.services.webdav.common.resource.FakeResource;
 import org.exoplatform.services.webdav.common.resource.NodeResource;
+import org.exoplatform.services.webdav.common.resource.PropertyResource;
 import org.exoplatform.services.webdav.common.resource.RepositoryResource;
 import org.exoplatform.services.webdav.common.resource.WebDavResource;
 import org.exoplatform.services.webdav.common.resource.WorkspaceResource;
@@ -77,20 +80,28 @@ public class ResourceFactoryImpl implements ResourceFactory {
     Session session = request.getSourceSession(context.getSessionProvider());    
     
     try {
-      Node node = (Node)session.getItem(path);
-      if (node.isNodeType(DavConst.NodeTypes.MIX_VERSIONABLE)) {
-        
-        String srcVersion = request.getSrcVersion();
-        
-        if (srcVersion != null) {
-          Version selectedVersion = node.getVersionHistory().getVersion(srcVersion);          
-          return new VersionResource(context, selectedVersion, new DeltaVResource(context, node));          
+      
+      Item jcrItem = session.getItem(path);
+      
+      if (jcrItem instanceof Node) {
+        Node node = (Node)jcrItem;
+        if (node.isNodeType(DavConst.NodeTypes.MIX_VERSIONABLE)) {
+          
+          String srcVersion = request.getSrcVersion();
+          
+          if (srcVersion != null) {
+            Version selectedVersion = node.getVersionHistory().getVersion(srcVersion);          
+            return new VersionResource(context, selectedVersion, new DeltaVResource(context, node));          
+          }
+          
+          return new DeltaVResource(context, node); 
         }
-        
-        return new DeltaVResource(context, node); 
-      }
 
-      return new NodeResource(context, node);
+        return new NodeResource(context, node);        
+      }
+      
+      return new PropertyResource(context, (Property)jcrItem);
+      
     } catch (PathNotFoundException pexc) {
       if (enableFake) {
         return new FakeResource(context, session.getRootNode(), path);

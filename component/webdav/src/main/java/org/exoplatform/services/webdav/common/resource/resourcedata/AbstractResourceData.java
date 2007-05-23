@@ -22,10 +22,6 @@ public abstract class AbstractResourceData implements ResourceData {
   protected InputStream resourceInputStream;
   protected long resourceLenght;  
   
-  public AbstractResourceData() {
-    
-  }
-  
   public String getName() {
     return name;
   }
