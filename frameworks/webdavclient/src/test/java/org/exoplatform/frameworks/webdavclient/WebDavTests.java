@@ -12,6 +12,7 @@ import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.common.CommonTestSuite;
 import org.exoplatform.frameworks.webdavclient.deltav.DeltaVTestSuite;
 import org.exoplatform.frameworks.webdavclient.lock.LockTestSuite;
+import org.exoplatform.frameworks.webdavclient.xmlexport.SimpleExportTest;
 
 /**
  * Created by The eXo Platform SARL
@@ -27,10 +28,13 @@ public class WebDavTests extends TestCase {
     TestSuite suite = new TestSuite("jcr.webdav tests");
 
 //    suite.addTestSuite(TestTest.class);
+
     
+//    suite.addTestSuite(MimeTypesTest.class);
     suite.addTestSuite(CommonTestSuite.class);
     suite.addTestSuite(DeltaVTestSuite.class);
     suite.addTestSuite(LockTestSuite.class);
+    suite.addTestSuite(SimpleExportTest.class);
 
     //suite.addTestSuite(OrderTestSuite.class);
     

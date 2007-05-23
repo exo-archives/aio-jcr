@@ -26,6 +26,7 @@ public class DeltaVTestSuite extends TestSuite {
     addTestSuite(ReportTest.class);
     addTestSuite(UnCheckOutTest.class);
     addTestSuite(VersionControlTest.class);
+    addTestSuite(ExtendedGetTest.class);
     
     Log.info("Run tests...");
   }

@@ -11,7 +11,8 @@ import java.io.FileOutputStream;
 import junit.framework.TestCase;
 
 import org.exoplatform.frameworks.httpclient.Log;
-import org.exoplatform.frameworks.webdavclient.commands.DavPropFind;
+import org.exoplatform.frameworks.webdavclient.commands.DavPut;
+import org.exoplatform.frameworks.webdavclient.commands.DavReport;
 
 /**
  * Created by The eXo Platform SARL
@@ -21,33 +22,81 @@ import org.exoplatform.frameworks.webdavclient.commands.DavPropFind;
 
 public class TestTest extends TestCase {
 
-  public void testSimplePropFind() throws Exception {
-    Log.info("TestTest:testSimplePropFind");
+//  public void testSimplePropFind() throws Exception {
+//    Log.info("TestTest:testSimplePropFind");
+//    
+//    //WebDavContext context = new WebDavContext("192.168.0.5", 8080, "/ecm/repository", "exoadmin", "exo@ecm");
+//    WebDavContext context = new WebDavContext("192.168.0.5", 8080, "/webdav/repository", "admin", "admin");
+//    
+//    DavPropFind davProPfind = new DavPropFind(context);
+//    //DavPropFind davProPfind = new DavPropFind(TestContext.getContextAuthorized());
+//    
+//    davProPfind.setResourcePath("/production/Macros.txt");
+//    
+////    davProPfind.setRequiredProperty(Const.DavProp.DISPLAYNAME);
+////    davProPfind.setRequiredProperty(Const.DavProp.RESOURCETYPE);
+////    davProPfind.setRequiredProperty(Const.DavProp.GETCONTENTLENGTH);
+////    davProPfind.setRequiredProperty(Const.DavProp.GETCONTENTTYPE);
+//    
+//    int status = davProPfind.execute();
+//    Log.info("STATUS: " + status);
+//    
+//    Log.info("REPLY: " + new String(davProPfind.getResponseDataBuffer()));
+//    
+//    String outFileName = "D://exo/projects/exoprojects/jcr/trunk/frameworks/webdavclient/testlog.xml";
+//    File outFile = new File(outFileName);
+//    FileOutputStream logStream = new FileOutputStream(outFile);
+//    logStream.write(davProPfind.getResponseDataBuffer());        
+//    
+//    Log.info("done.");
+//  }
+  
+  public void testReport() throws Exception {    
+    Log.info("TestTest:testReport...");
     
-    //WebDavContext context = new WebDavContext("192.168.0.5", 8080, "/ecm/repository", "exoadmin", "exo@ecm");
-    WebDavContext context = new WebDavContext("192.168.0.5", 8080, "/ecm/repository", "gavrik", "vetal");
+    String fileName = "/production/testfile.txt";
+    String fileContent1 = "TEST FILE CONTENT1";
+    String fileContent2 = "TEST FILE CONTENT2";
     
-    DavPropFind davProPfind = new DavPropFind(context);
-    //DavPropFind davProPfind = new DavPropFind(TestContext.getContextAuthorized());
+    WebDavContext context = TestContext.getContextAuthorized();    
     
-    davProPfind.setResourcePath("/");
+//    // putting new file
+//    {
+//      DavPut davPut = new DavPut(context);
+//      davPut.setResourcePath(fileName);
+//      
+//      davPut.setRequestDataBuffer(fileContent1.getBytes());
+//      Log.info("PUT STATUS: " + davPut.execute());
+//    }
+//    
+//    // second put
+//    {
+//      DavPut davPut = new DavPut(context);
+//      davPut.setResourcePath(fileName);
+//      
+//      davPut.setRequestDataBuffer(fileContent2.getBytes());
+//      Log.info("PUT STATUS: " + davPut.execute());      
+//    }
+
+    // try get report
+    {
+      
+      DavReport davReport = new DavReport(context);
+      davReport.setResourcePath(fileName);
+      
+      int status = davReport.execute();
+      Log.info("REPORT STATUS: " + status);
+      
+      Log.info("REPLY: " + new String(davReport.getResponseDataBuffer()));
+      
+      String outFileName = "D://exo/projects/exoprojects/jcr/trunk/frameworks/webdavclient/testlog.xml";
+      File outFile = new File(outFileName);
+      FileOutputStream logStream = new FileOutputStream(outFile);
+      logStream.write(davReport.getResponseDataBuffer());        
+    }    
     
-//    davProPfind.setRequiredProperty(Const.DavProp.DISPLAYNAME);
-//    davProPfind.setRequiredProperty(Const.DavProp.RESOURCETYPE);
-//    davProPfind.setRequiredProperty(Const.DavProp.GETCONTENTLENGTH);
-//    davProPfind.setRequiredProperty(Const.DavProp.GETCONTENTTYPE);
+    Log.info("Done.");
     
-    int status = davProPfind.execute();
-    Log.info("STATUS: " + status);
-    
-    Log.info("REPLY: " + new String(davProPfind.getResponseDataBuffer()));
-    
-    String outFileName = "D://exo/projects/exoprojects/jcr/trunk/frameworks/webdavclient/testlog.xml";
-    File outFile = new File(outFileName);
-    FileOutputStream logStream = new FileOutputStream(outFile);
-    logStream.write(davProPfind.getResponseDataBuffer());        
-    
-    Log.info("done.");
   }
   
 }

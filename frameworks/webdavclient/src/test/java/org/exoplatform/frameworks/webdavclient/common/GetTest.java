@@ -5,8 +5,6 @@
 
 package org.exoplatform.frameworks.webdavclient.common;
 
-import java.util.ArrayList;
-
 import junit.framework.TestCase;
 
 import org.exoplatform.frameworks.httpclient.HttpHeader;
@@ -17,9 +15,6 @@ import org.exoplatform.frameworks.webdavclient.commands.DavDelete;
 import org.exoplatform.frameworks.webdavclient.commands.DavGet;
 import org.exoplatform.frameworks.webdavclient.commands.DavMkCol;
 import org.exoplatform.frameworks.webdavclient.commands.DavPut;
-import org.exoplatform.frameworks.webdavclient.commands.DavReport;
-import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
-import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
 
 /**
  * Created by The eXo Platform SARL
@@ -35,8 +30,6 @@ public class GetTest extends TestCase {
   public static final String NOT_EXIST_PATH = SRC_WORKSPACE + "/not exist path.txt";
   
   private static final String FILE_CONTENT = "TEST FILE CONTENT...";
-  private static final String FILE_CONTENT_2 = "TEST FILE CONTENT... 222";
-  private static final String FILE_CONTENT_3 = "TEST FILE CONTENT... 333";
   
   public void setUp() throws Exception {
     DavMkCol davMkCol = new DavMkCol(TestContext.getContextAuthorized());
@@ -170,130 +163,6 @@ public class GetTest extends TestCase {
     Log.info("done.");
   }
 
-  /*
-   * putting new file
-   * putting existing file -> version created automatically
-   * putting existing file -> version created automatically
-   *   here 3 versions
-   * 
-   * get for version 1, 2, 3 -> assert
-   * get ranged for version 1, 2, 3 -> assert
-   * 
-   */
-
-  public void testForVersions() throws Exception {
-    Log.info("GetTest:testForVersions...");
-    
-    // putting new file
-    {
-      DavGet davGet = new DavGet(TestContext.getContextAuthorized());
-      davGet.setResourcePath(SRC_NAME);
-      
-      assertEquals(Const.HttpStatus.OK, davGet.execute());    
-      
-      String reply = new String(davGet.getResponseDataBuffer());
-      assertEquals(reply, FILE_CONTENT);      
-    }
-    
-    // putting existing file -> version created automatically
-    {
-      DavPut davPut = new DavPut(TestContext.getContextAuthorized());
-      davPut.setResourcePath(SRC_NAME);
-      
-      davPut.setRequestDataBuffer(FILE_CONTENT_2.getBytes());
-      
-      assertEquals(Const.HttpStatus.CREATED, davPut.execute());
-    }
-
-    // putting existing file -> version created automatically
-    {
-      DavPut davPut = new DavPut(TestContext.getContextAuthorized());
-      davPut.setResourcePath(SRC_NAME);
-      
-      davPut.setRequestDataBuffer(FILE_CONTENT_3.getBytes());
-      
-      assertEquals(Const.HttpStatus.CREATED, davPut.execute());
-    }
-
-    // here 3 versions
-    {
-      DavReport davReport = new DavReport(TestContext.getContextAuthorized());
-      davReport.setResourcePath(SRC_NAME);
-      
-      assertEquals(Const.HttpStatus.MULTISTATUS, davReport.execute());
-      
-      Multistatus multistatus = (Multistatus)davReport.getMultistatus();
-      ArrayList<ResponseDoc> responses = multistatus.getResponses();
-      assertEquals(3, responses.size());
-    }
-    
-    // get for version 1, 2, 3 -> assert
-    String VERSION_SUFFIX = "?VERSIONID=";
-    
-    {
-      DavGet davGet = new DavGet(TestContext.getContextAuthorized());
-      davGet.setResourcePath(SRC_NAME + VERSION_SUFFIX + "1");
-    
-      assertEquals(Const.HttpStatus.OK, davGet.execute());     
-      String reply = new String(davGet.getResponseDataBuffer());
-      assertEquals(reply, FILE_CONTENT);      
-    }
-    
-    {
-      DavGet davGet = new DavGet(TestContext.getContextAuthorized());
-      davGet.setResourcePath(SRC_NAME + VERSION_SUFFIX + "2");
-      
-      assertEquals(Const.HttpStatus.OK, davGet.execute());
-      String reply = new String(davGet.getResponseDataBuffer());
-      assertEquals(reply, FILE_CONTENT_2);      
-    }
-    
-    {
-      DavGet davGet = new DavGet(TestContext.getContextAuthorized());
-      davGet.setResourcePath(SRC_NAME + VERSION_SUFFIX + "3");
-
-      assertEquals(Const.HttpStatus.OK, davGet.execute());
-      String reply = new String(davGet.getResponseDataBuffer());
-      assertEquals(reply, FILE_CONTENT_3);      
-    }
-    
-    // get ranged for version 1, 2, 3 -> assert
-
-    {
-      DavGet davGet = new DavGet(TestContext.getContextAuthorized());
-      davGet.setResourcePath(SRC_NAME + VERSION_SUFFIX + "1");
-      
-      davGet.setRange(5);
-      assertEquals(Const.HttpStatus.PARTIAL_CONTENT, davGet.execute());
-      
-      String reply = new String(davGet.getResponseDataBuffer());
-      assertEquals(reply, FILE_CONTENT.substring(5));
-    }
-    
-    {
-      DavGet davGet = new DavGet(TestContext.getContextAuthorized());
-      davGet.setResourcePath(SRC_NAME + VERSION_SUFFIX + "2");
-      
-      davGet.setRange(17, 21);
-      assertEquals(Const.HttpStatus.PARTIAL_CONTENT, davGet.execute());
-      
-      String reply = new String(davGet.getResponseDataBuffer());
-      assertEquals(reply, FILE_CONTENT_2.substring(17, 22));            
-    }
-    
-    {
-      DavGet davGet = new DavGet(TestContext.getContextAuthorized());
-      davGet.setResourcePath(SRC_NAME + VERSION_SUFFIX + "3");
-      
-      davGet.setRange(20, 21);
-      assertEquals(Const.HttpStatus.PARTIAL_CONTENT, davGet.execute());
-      
-      String reply = new String(davGet.getResponseDataBuffer());
-      assertEquals(reply, FILE_CONTENT_3.substring(20, 22));            
-    }
-    
-    Log.info("done.");
-  }
   
   /*
   // allow without authentication

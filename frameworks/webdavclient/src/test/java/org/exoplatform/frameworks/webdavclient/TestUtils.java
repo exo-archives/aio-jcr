@@ -5,11 +5,14 @@
 
 package org.exoplatform.frameworks.webdavclient;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.frameworks.webdavclient.commands.DavCommand;
 import org.exoplatform.frameworks.webdavclient.commands.DavDelete;
 import org.exoplatform.frameworks.webdavclient.commands.DavMkCol;
 import org.exoplatform.frameworks.webdavclient.commands.DavPut;
@@ -55,6 +58,13 @@ public class TestUtils extends TestCase {
     DavDelete davDelete = new DavDelete(TestContext.getContextAuthorized());
     davDelete.setResourcePath(path);    
     assertEquals(Const.HttpStatus.NOCONTENT, davDelete.execute());
+  }
+  
+  public static void logXML(DavCommand davCommand) throws Exception {
+    String xmlFileName = "D://exo/projects/exoprojects/jcr/trunk/frameworks/webdavclient/testlog.xml";
+    File outFile = new File(xmlFileName);
+    FileOutputStream logStream = new FileOutputStream(outFile);
+    logStream.write(davCommand.getResponseDataBuffer());            
   }
   
 }
