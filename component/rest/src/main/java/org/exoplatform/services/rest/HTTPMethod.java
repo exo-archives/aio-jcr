@@ -19,7 +19,5 @@ import java.lang.annotation.Target;
 @Target(value={METHOD})
 @Retention(RUNTIME)
 public @interface HTTPMethod {
-  String name();
-  String allowedContentType() default "*";
-  String uri();
+  String value();
 }

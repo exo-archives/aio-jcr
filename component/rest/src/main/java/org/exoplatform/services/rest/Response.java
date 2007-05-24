@@ -28,7 +28,6 @@ public class Response extends Message {
   public Representation getEntity() {
     return representation;
   }
-  
 
   public void setEntity(Representation entity) {
     this.representation = entity;

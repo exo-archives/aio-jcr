@@ -20,5 +20,5 @@ import java.lang.annotation.Target;
 @Target(value={TYPE,METHOD})
 @Retention(RUNTIME)
 public @interface URITemplate {
-  String uri() default "/";
+  String value() default "/";
 }

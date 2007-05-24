@@ -5,9 +5,8 @@
 
 package org.exoplatform.services.rest;
 
-import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-import static java.lang.annotation.ElementType.FIELD;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -17,7 +16,7 @@ import java.lang.annotation.Target;
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-@Target(value={METHOD, FIELD})
+@Target(value={PARAMETER})
 @Retention(RUNTIME)
 public @interface HeaderParam {
   String value();

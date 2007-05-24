@@ -5,6 +5,7 @@
 
 package org.exoplatform.services.rest;
 
+import java.util.Map;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -16,6 +17,8 @@ public class Request extends Message {
 
   private String methodName;
   private ResourceIdentifier resourceIdentifier;
+  private Map<String, String> httpHeaderParameters;
+  private Map<String, String> httpQueryParameters;
   
   public Request(ResourceIdentifier resourceIdentifier, 
       String methodName, Representation entity) {
@@ -30,7 +33,6 @@ public class Request extends Message {
     this.resourceIdentifier = resourceIdentifier;
   }
 
-
   public ResourceIdentifier getResourceIdentifier() {
     return resourceIdentifier;
   }
@@ -41,6 +43,22 @@ public class Request extends Message {
 
   public String getMethodName() {
     return methodName;
+  }
+  
+  public void setHttpHeaderParameters(Map<String, String> p) {
+    this.httpHeaderParameters = p;
+  }
+
+  public void setHttpQueryParameters(Map<String, String> p) {
+    this.httpQueryParameters = p;
+  }
+
+  public Map<String, String> getHttpHeaderParameters() {
+    return this.httpHeaderParameters;
+  }
+
+  public Map<String, String> getHttpQueryParameters() {
+    return this.httpQueryParameters;
   }
 
 }

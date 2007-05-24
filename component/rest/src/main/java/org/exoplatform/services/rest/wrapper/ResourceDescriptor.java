@@ -6,6 +6,7 @@
 package org.exoplatform.services.rest.wrapper;
 
 import java.lang.reflect.Method;
+import java.lang.annotation.Annotation;
 
 import org.exoplatform.services.rest.URIPattern;
 
@@ -17,9 +18,11 @@ import org.exoplatform.services.rest.URIPattern;
 
 public interface ResourceDescriptor {
   String getAcceptableMethod();
-  String getAcceptableMediaType();
+  String getConsumeMediaType();
+  String getProduceMediaType();
   ResourceWrapper getWrapper();
   Method getServer();
   URIPattern getURIPattern();
-
+  Annotation[] getMethodParameterAnnotations();
+  Class[] getMethodParameters();
 }

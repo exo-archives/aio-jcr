@@ -13,7 +13,7 @@ package org.exoplatform.services.rest;
 public abstract class Message {
   
   protected Representation entity;
-  protected String acceptedMediaType;
+  protected String acceptedMediaType = "*";
 
   public Representation getEntity() {
     return this.entity;

@@ -13,6 +13,8 @@ import java.util.List;
 import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.URIPattern;
 import org.exoplatform.services.rest.URITemplate;
+import org.exoplatform.services.rest.ConsumeMimeType;
+import org.exoplatform.services.rest.ProduceMimeType;
 import org.exoplatform.services.rest.wrapper.ResourceDescriptor;
 import org.exoplatform.services.rest.wrapper.ResourceWrapper;
 import org.exoplatform.services.rest.wrapper.WrapperResolvingStrategy;
@@ -36,37 +38,58 @@ public class HTTPAnnotatedWrapperResolvingStrategy implements WrapperResolvingSt
     return resources;
   }
 
-  private HTTPResourceDescriptor methodMapping(String middleUri, Method method, ResourceWrapper connector) {
-    HTTPMethod m = (HTTPMethod)method.getAnnotation(HTTPMethod.class);
-    if(m != null) 
-      return new HTTPResourceDescriptor(method, m.name(), m.uri(), m.allowedContentType(), connector);  
-    else 
-      return null;
+  private HTTPResourceDescriptor methodMapping(String middleUri, Method method,
+      ResourceWrapper connector) {
+    
+    HTTPMethod m = method.getAnnotation(HTTPMethod.class);
+    URITemplate u = method.getAnnotation(URITemplate.class);
+    ConsumeMimeType c = method.getAnnotation(ConsumeMimeType.class);
+    ProduceMimeType p = method.getAnnotation(ProduceMimeType.class);
+    if(m != null && u != null){
+      Class[] params = method.getParameterTypes();
+      Annotation[][] a =  method.getParameterAnnotations();
+      Annotation[] anno = new Annotation[a.length];
+      for(int i = 0; i < a.length; i++) {
+        if(a[i].length > 0)
+          anno[i] = a[i][0];
+      }
+      String uri = ("".equals(middleUri)) ? u.value() : (middleUri + u.value());
+      String cmt = (p != null) ? p.value() : "*";
+      String pmt = (c != null) ? c.value() : "*";
+      return new HTTPResourceDescriptor(method, m.value(), uri, anno, params, cmt, pmt, connector);
+    }  
+    return null;
   }
 
   private String middleUri(Class clazz) {
-    
     Annotation anno = clazz.getAnnotation(URITemplate.class);
     if(anno == null)
       return "";
-    else
-      return ((URITemplate)anno).uri();
+    return ((URITemplate)anno).value();
     
   }
-
   
   public class HTTPResourceDescriptor implements ResourceDescriptor{
     private String methodName;
     private URIPattern uriPattern;
-    private String acceptableMediaType;
+    private String consumeMediaType;
+    private String produceMediaType;
     private Method servingMethod;
+    private Annotation[] methodParameterAnnotations;
+    private Class[] methodParameters;
     private ResourceWrapper wrapper;
-
-    public HTTPResourceDescriptor(Method method, String name, String uri, String acceptableContentType,
-        ResourceWrapper wrapper) {
+    
+    public HTTPResourceDescriptor(Method method, String name, String uri,
+        Annotation[] methodParameterAnnotations,
+        Class[] methodParameters,
+        String consumeMediaType, String produceMediaType, ResourceWrapper wrapper) {
+      
       this.methodName = name;
+      this.methodParameterAnnotations = methodParameterAnnotations;
+      this.methodParameters = methodParameters;
       this.uriPattern = new URIPattern(uri);
-      this.acceptableMediaType = acceptableContentType;
+      this.consumeMediaType = consumeMediaType;
+      this.produceMediaType = produceMediaType;
       this.servingMethod = method;
       this.wrapper = wrapper;
     }
@@ -80,19 +103,30 @@ public class HTTPAnnotatedWrapperResolvingStrategy implements WrapperResolvingSt
       return servingMethod;
     }
     
+    public Annotation[] getMethodParameterAnnotations() {
+      return methodParameterAnnotations;
+    }
+    
+    public Class[] getMethodParameters() {
+      return methodParameters;
+    }
+
     public URIPattern getURIPattern() {
       return uriPattern;
     }
-
     
     public String getAcceptableMethod() {
       return methodName;
     }
     
-    public String getAcceptableMediaType() {
-      return acceptableMediaType;
+    public String getConsumeMediaType() {
+      return consumeMediaType;
     }
 
+    public String getProduceMediaType() {
+      return produceMediaType;
+    }
     
   }
+
 }
