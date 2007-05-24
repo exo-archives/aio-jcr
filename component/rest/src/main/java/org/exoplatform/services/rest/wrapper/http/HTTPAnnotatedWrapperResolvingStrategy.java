@@ -54,8 +54,8 @@ public class HTTPAnnotatedWrapperResolvingStrategy implements WrapperResolvingSt
           anno[i] = a[i][0];
       }
       String uri = ("".equals(middleUri)) ? u.value() : (middleUri + u.value());
-      String cmt = (p != null) ? p.value() : "*";
-      String pmt = (c != null) ? c.value() : "*";
+      String cmt = (c != null) ? c.value() : "*";
+      String pmt = (p != null) ? p.value() : "*";
       return new HTTPResourceDescriptor(method, m.value(), uri, anno, params, cmt, pmt, connector);
     }  
     return null;

@@ -81,11 +81,6 @@ public class ResourceRouter implements Connector {
               
                 QueryParam q = (QueryParam)a;
                 objs[i] = request.getHttpQueryParameters().get(q.value());
-              } else if("org.exoplatform.services.rest.ProduceMimeType".equals(
-                  a.annotationType().getCanonicalName())) {
-              
-                ProduceMimeType p = (ProduceMimeType)a;
-                objs[i] = p.value();
               }
             }
           }
