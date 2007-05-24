@@ -6,6 +6,7 @@
 package org.exoplatform.services.rest;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -46,20 +47,20 @@ public class ResourceRouterTest extends TestCase {
     System.out.println("getQuery "+uri.getQuery());
     System.out.println("getUserInfo "+uri.getUserInfo());
     System.out.println("relativize "+new URI("http://localhost/level1").relativize(uri).toASCIIString());
-  }  
-  
+  } 
+
   public void testBind() throws Exception {
     ResourceRouter reg = (ResourceRouter)container.getComponentInstanceOfType(ResourceRouter.class);
     assertNotNull(reg);
     reg.clear();
     List <ResourceDescriptor> list = reg.getAllDescriptors();
-    DummyResourceWrapper dw = new DummyResourceWrapper();
+    AnnotatedParamWrapper dw = new AnnotatedParamWrapper();
     reg.bind(dw);
     assertEquals(1, list.size());
     ResourceDescriptor d = list.get(0);
-    assertEquals(DummyResourceWrapper.TEST_HTTP_METHOD1, d.getAcceptableMethod());
-    assertEquals(DummyResourceWrapper.TEST_METHOD_NAME1, d.getServer().getName());
-    assertEquals(DummyResourceWrapper.TEST_URI1, d.getURIPattern().getString());
+    assertEquals("GET", d.getAcceptableMethod());
+    assertEquals("method1", d.getServer().getName());
+    assertEquals("/level1/{id}/level3/", d.getURIPattern().getString());
     
     reg.unbind(dw);
     assertEquals(0, list.size());
@@ -68,14 +69,14 @@ public class ResourceRouterTest extends TestCase {
   public void testBind2() throws Exception {
     ResourceRouter reg = (ResourceRouter)container.getComponentInstanceOfType(ResourceRouter.class);
     assertNotNull(reg);
-    DummyResourceWrapper_1 dw1 = new DummyResourceWrapper_1();
-    DummyResourceWrapper_2 dw2 = new DummyResourceWrapper_2();
-    DummyResourceWrapper_3 dw3 = new DummyResourceWrapper_3();
+    TestBindDummyResourceWrapper1 dw1 = new TestBindDummyResourceWrapper1();
+    TestBindDummyResourceWrapper2 dw2 = new TestBindDummyResourceWrapper2();
+    TestBindDummyResourceWrapper3 dw3 = new TestBindDummyResourceWrapper3();
     reg.bind(dw1);
     List <ResourceDescriptor> list = reg.getAllDescriptors();
     assertEquals(1, list.size());
     try {
-      reg.bind(new DummyResourceWrapper_2());
+      reg.bind(new TestBindDummyResourceWrapper2());
     }catch(InvalidResourceDescriptorException e) {;}
     assertEquals(1, list.size());
     reg.unbind(dw1);
@@ -84,7 +85,7 @@ public class ResourceRouterTest extends TestCase {
     reg.bind(dw2);
     assertEquals(1, list.size());
     try {
-      reg.bind(new DummyResourceWrapper_1());
+      reg.bind(new TestBindDummyResourceWrapper1());
     }catch(InvalidResourceDescriptorException e) {;}
     assertEquals(1, list.size());
     reg.unbind(dw2);
@@ -150,26 +151,43 @@ public class ResourceRouterTest extends TestCase {
     assertEquals("test3", params.get("id"));
     assertEquals("test5/", params.get("id2"));
   }
-  
 
   public void testServe() throws Exception {
     ResourceRouter reg = (ResourceRouter)container.getComponentInstanceOfType(ResourceRouter.class);
     assertNotNull(reg);
 
     List <ResourceDescriptor> list = reg.getAllDescriptors();
-    DummyResourceWrapper dw = new DummyResourceWrapper();
+    AnnotatedParamWrapper dw = new AnnotatedParamWrapper();
     reg.bind(dw);
+    assertEquals(1, list.size());
 
     Request req = new Request(new ResourceIdentifier("/level1/myID/level3/"),
-        DummyResourceWrapper.TEST_HTTP_METHOD1,
-        new StringRepresentation("text/plain"));
-    
+        "GET", new StringRepresentation("text/plain"));
     Response resp = reg.serve(req);
-    assertEquals(DummyResourceWrapper.TEST_METHOD_NAME1, resp.getEntity().getString());
-    assertEquals(DummyResourceWrapper.TEST_METHOD_NAME1.length(), resp.getEntity().getLength());
+    assertEquals("method1".length(), resp.getEntity().getLength());
+    assertEquals("method1", resp.getEntity().getString());
     reg.unbind(dw);
     assertEquals(0, list.size());
-    System.out.println("RESPONSE >>>>>>> " + resp + " " + resp.getEntity().getString());
+    System.out.println("RESPONSE >>>>>>> " + resp.getEntity().getString());
+  }
+
+  public void testServeAnnotatedClass() throws Exception {
+    ResourceRouter reg = (ResourceRouter)container.getComponentInstanceOfType(ResourceRouter.class);
+    assertNotNull(reg);
+
+    List <ResourceDescriptor> list = reg.getAllDescriptors();
+    AnnotatedWrapper dw = new AnnotatedWrapper();
+    reg.bind(dw);
+    assertEquals(1, list.size());
+
+    Request req = new Request(new ResourceIdentifier("/level1/level2/level3/" +
+    		"hello_world_annotated_class"),
+        "GET", new StringRepresentation("text/plain"));
+    Response resp = reg.serve(req);
+    assertEquals("method1".length(), resp.getEntity().getLength());
+    assertEquals("method1", resp.getEntity().getString());
+    reg.unbind(dw);
+    assertEquals(0, list.size());
   }
 
   public void testServeWithParametrizedMapping() throws Exception {
@@ -178,13 +196,24 @@ public class ResourceRouterTest extends TestCase {
     assertNotNull(reg);
     reg.clear();
     List <ResourceDescriptor> list = reg.getAllDescriptors();
-    DummyResourceWrapper1 dw1 = new DummyResourceWrapper1();
+    AnnotatedParamWrapper1 dw1 = new AnnotatedParamWrapper1();
     reg.bind(dw1);
-    Request req = new Request(new ResourceIdentifier("/any/myID/"),
-        DummyResourceWrapper1.TEST_HTTP_METHOD2,
-        new StringRepresentation("text/plain"));
+    Request req = new Request(new ResourceIdentifier("/level1/level2/"),
+        "GET", new StringRepresentation("text/plain"));
+    req.setAcceptedMediaType("text/html");
     Response resp = reg.serve(req);
-    assertEquals(DummyResourceWrapper1.TEST_METHOD_NAME2, resp.getEntity().getString());
+    assertEquals("method1", resp.getEntity().getString());
+    
+    req = new Request(new ResourceIdentifier("/level1/level2/"),
+        "GET", new StringRepresentation("text/plain"));
+    req.setAcceptedMediaType("text/xml");
+    resp = reg.serve(req);
+    assertEquals("method2", resp.getEntity().getString());
+    
+    req = new Request(new ResourceIdentifier("/level1/hello/level3/world/level4/good/"),
+        "POST", new StringRepresentation("text/plain"));
+    resp = reg.serve(req);
+    assertEquals("method3", resp.getEntity().getString());
     reg.unbind(dw1);
     assertEquals(0, list.size());
   }
