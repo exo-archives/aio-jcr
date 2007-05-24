@@ -6,6 +6,8 @@
 package org.exoplatform.services.jcr.api.exporting;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Calendar;
 
@@ -16,6 +18,10 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 import org.exoplatform.services.jcr.impl.core.value.StringValue;
+import org.exoplatform.services.xml.querying.InvalidSourceException;
+import org.exoplatform.services.xml.querying.InvalidStatementException;
+import org.exoplatform.services.xml.querying.QueryRunTimeException;
+import org.exoplatform.services.xml.querying.UniFormTransformationException;
 import org.xml.sax.SAXException;
 
 /**
@@ -155,6 +161,38 @@ public class TestExportDocView extends JcrAPIBaseTest {
     assertEquals(1, mock.docElement);
   }
 
+  public void testExportPdf() throws RepositoryException, IOException, InvalidSourceException,
+      InvalidStatementException, QueryRunTimeException, UniFormTransformationException {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    // [VO] 24.05.07 export Xml problem
+    Node testPdf = root.addNode("testPdf", "nt:file");
+    Node contentTestPdfNode = testPdf.addNode("jcr:content", "nt:resource");
+    try {
+      File file = createBLOBTempFile(2500);// 2.5M
+      log.info("=== File has created, size " + file.length());
+      contentTestPdfNode.setProperty("jcr:data", new FileInputStream(file));
+      contentTestPdfNode.setProperty("jcr:mimeType", new StringValue("text/html"));
+    } catch (IOException e) {
+      throw new RepositoryException(e);
+    }
+    contentTestPdfNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(
+        Calendar.getInstance()));
+    session.save();
+    try {
+      log.info("===Starting export...");
+      session.exportDocumentView("/testPdf", out, false, false);
+      log.info("===Export has finished successfully");
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Impossible to export pdf");
+    } finally {
+      testPdf.remove();
+      session.save();
+    }
+    // byte[] bArray = out.toByteArray();
+    // System.out.println(""+new String(bArray));
+
+  }
 
 //  public void testEmpty() {
 //  }
