@@ -17,6 +17,13 @@
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.framework.httpclient</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>compile</scope>
+    </dependency>	  
+	  
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.framework.webdavclient</artifactId>
       <version>1.6</version>
       <scope>compile</scope>

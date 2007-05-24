@@ -8,8 +8,8 @@ package org.exoplatform.applications.ooplugin;
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.applications.ooplugin.events.ItemListener;
+import org.exoplatform.frameworks.httpclient.TextUtils;
 import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.frameworks.webdavclient.TextUtils;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
 import org.exoplatform.frameworks.webdavclient.properties.VersionNameProp;
 

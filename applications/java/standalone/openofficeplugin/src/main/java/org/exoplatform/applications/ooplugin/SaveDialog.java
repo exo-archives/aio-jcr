@@ -12,7 +12,6 @@ import java.net.URLDecoder;
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.frameworks.webdavclient.TextUtils;
 import org.exoplatform.frameworks.webdavclient.commands.DavPut;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
 import org.exoplatform.frameworks.webdavclient.properties.DisplayNameProp;

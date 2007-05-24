@@ -7,8 +7,8 @@ package org.exoplatform.applications.ooplugin;
 
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
+import org.exoplatform.frameworks.httpclient.TextUtils;
 import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.frameworks.webdavclient.TextUtils;
 import org.exoplatform.frameworks.webdavclient.commands.DavSearch;
 import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
