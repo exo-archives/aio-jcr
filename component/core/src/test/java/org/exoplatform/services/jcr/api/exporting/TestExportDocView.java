@@ -18,10 +18,10 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 import org.exoplatform.services.jcr.impl.core.value.StringValue;
-import org.exoplatform.services.xml.querying.InvalidSourceException;
+/*import org.exoplatform.services.xml.querying.InvalidSourceException;
 import org.exoplatform.services.xml.querying.InvalidStatementException;
 import org.exoplatform.services.xml.querying.QueryRunTimeException;
-import org.exoplatform.services.xml.querying.UniFormTransformationException;
+import org.exoplatform.services.xml.querying.UniFormTransformationException;*/
 import org.xml.sax.SAXException;
 
 /**
@@ -161,8 +161,7 @@ public class TestExportDocView extends JcrAPIBaseTest {
     assertEquals(1, mock.docElement);
   }
 
-  public void testExportPdf() throws RepositoryException, IOException, InvalidSourceException,
-      InvalidStatementException, QueryRunTimeException, UniFormTransformationException {
+  public void testExportPdf() throws RepositoryException, IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     // [VO] 24.05.07 export Xml problem
     Node testPdf = root.addNode("testPdf", "nt:file");
