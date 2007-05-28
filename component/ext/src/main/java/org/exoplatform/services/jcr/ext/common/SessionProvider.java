@@ -13,11 +13,11 @@ import java.util.Map;
 import javax.jcr.Credentials;
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
-import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.exoplatform.services.jcr.access.SystemIdentity;
+import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
@@ -32,62 +32,66 @@ import org.exoplatform.services.security.impl.CredentialsImpl;
 public class SessionProvider {
 
   private Map <String, Session> cache;
-//  private ManageableRepository repository;
   private Credentials credentials;
-//  private String defaultWorkspace;
- 
-//  public SessionProvider(ManageableRepository repository) {
-//    this(repository, null);
-//  }
   
+  /**
+   * Creates SessionProvider for certain identity
+   * @param cred
+   */
   public SessionProvider(Credentials cred) {
     this.cache = new HashMap<String, Session>();
-//    this.repository = repository;
     this.credentials = cred;
-//    this.defaultWorkspace = repository.getConfiguration().getDefaultWorkspaceName();
   }
   
-  public SessionProvider() {
-    this(new CredentialsImpl(SystemIdentity.ANONIM, null));
+  /**
+   * Helper for creating System session provider
+   * @return System session
+   */
+  public static SessionProvider createSystemProvider() {
+    return new SessionProvider(new CredentialsImpl(SystemIdentity.SYSTEM, null));
   }
-  
-//  public Session getSession(String workspaceName) throws LoginException, NoSuchWorkspaceException, RepositoryException {
-//  }
-  
-//  public Session getSession(String workspaceName, String repositoryName) 
-//    throws LoginException, NoSuchWorkspaceException, RepositoryException {
-//  }
 
-  public Session getSession(String workspaceName, Repository repository) 
+  /**
+   * Helper for creating Anonimous session provider
+   * @return System session
+   */
+  public static SessionProvider createAnonimProvider() {
+    return new SessionProvider(new CredentialsImpl(SystemIdentity.ANONIM, null));
+  }
+
+  
+  /**
+   * Gets the session from internal cache or creates and caches new one 
+   * @param workspaceName
+   * @param repository
+   * @return session
+   * @throws LoginException
+   * @throws NoSuchWorkspaceException
+   * @throws RepositoryException
+   */
+  public Session getSession(String workspaceName, ManageableRepository repository) 
     throws LoginException, NoSuchWorkspaceException, RepositoryException {
     if (workspaceName == null) {
       throw new NullPointerException("Workspace Name is null");
     }
+    
+    String repositoryName = repository.getConfiguration().getName();
 
-//    if (workspaceName == null || workspaceName.length() == 0) {
-//      if (defaultWorkspace == null)
-//        throw new NoSuchWorkspaceException("No workspace found");
-//      else
-//        workspaceName = defaultWorkspace;
-//    }
-
-    Session ses = cache.get(workspaceName);
+    Session ses = cache.get(repositoryName+workspaceName);
     // create and cache new session 
     if (ses == null) {
       if(credentials == null)
         ses = repository.login(workspaceName);
       else
         ses = repository.login(credentials, workspaceName);
-      cache.put(workspaceName, ses);
+      cache.put(repositoryName+workspaceName, ses);
     }
     return ses;
   }
-//  public ManageableRepository getRepository() {
-//    return repository;
-//  }
-  
 
-
+  /**
+   * Calls logout() method for all cached sessions
+   */
   public void close() {
     Collection<Session> cachedSessions = cache.values();
     Iterator<Session> sessionIter = cachedSessions.iterator();

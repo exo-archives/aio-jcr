@@ -10,7 +10,7 @@ import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
-import org.exoplatform.services.jcr.ext.registry.RegistryService.RegistryEntryNode;
+import org.exoplatform.services.jcr.ext.registry.Registry.RegistryEntryNode;
 
 public class RegistryTest extends BaseStandaloneTest{
   
@@ -62,7 +62,8 @@ public class RegistryTest extends BaseStandaloneTest{
     assertTrue(node.hasProperty("test"));
 
     // unregister
-    regService.unregister(sp, RegistryService.EXO_SERVICES, "testService", rep);
+    //regService.unregister(sp, RegistryService.EXO_SERVICES, "testService", rep);
+    regService.unregister(ren1);
     RegistryEntryNode ren2 = regService.getRegistryEntry(sp, RegistryService.EXO_SERVICES, "testService", rep);
     node = ren2.getNode();
     assertTrue(node.isNew());

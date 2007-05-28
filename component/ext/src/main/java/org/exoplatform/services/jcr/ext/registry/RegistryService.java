@@ -47,7 +47,7 @@ import org.picocontainer.Startable;
  * @version $Id: $
  */
 
-public class RegistryService implements Startable {
+public class RegistryService extends Registry implements Startable {
   
   private static Log log = ExoLogger.getLogger("jcr.RegistryService");
   
@@ -60,9 +60,9 @@ public class RegistryService implements Startable {
   protected final static String EXO_REGISTRYENTRY = "exo:registryEntry";
   
 
-  protected final static String EXO_SERVICES = "exo:services";
-  protected final static String EXO_APPLICATIONS = "exo:applications";
-  protected final static String EXO_USERS = "exo:users";
+  public final static String EXO_SERVICES = "exo:services";
+  public final static String EXO_APPLICATIONS = "exo:applications";
+  public final static String EXO_USERS = "exo:users";
   
   protected final Map <String, String> regWorkspaces;
   protected final RepositoryService repositoryService;
@@ -99,13 +99,8 @@ public class RegistryService implements Startable {
   }
   
   
-  /**
-   * Returns existed or newly created RegistryEntry which wraps Node of "exo:registryEntry" type  
-   * @param sessionProvider
-   * @param entryType
-   * @param entryName
-   * @return
-   * @throws RepositoryException
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.ext.registry.Registry#getRegistryEntry(org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String, java.lang.String, org.exoplatform.services.jcr.core.ManageableRepository)
    */
   public RegistryEntryNode getRegistryEntry(SessionProvider sessionProvider, String entryType,
       String entryName, ManageableRepository repository) throws RepositoryException {
@@ -118,12 +113,8 @@ public class RegistryService implements Startable {
     }
   }
   
-  /**
-   * Returns Registry object which wraps Node of "exo:registry" type
-   * (the whole registry tree)  
-   * @param sessionProvider
-   * @return
-   * @throws RepositoryException
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.ext.registry.Registry#getRegistry(org.exoplatform.services.jcr.ext.common.SessionProvider, org.exoplatform.services.jcr.core.ManageableRepository)
    */
   public RegistryNode getRegistry(SessionProvider sessionProvider, ManageableRepository repository) 
     throws RepositoryException{
@@ -131,28 +122,19 @@ public class RegistryService implements Startable {
   } 
   
 
-  /**
-   * Registers entry (saves the node)  
-   * @param entry
-   * @throws RepositoryException
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.ext.registry.Registry#register(org.exoplatform.services.jcr.ext.registry.Registry.RegistryEntryNode)
    */
   public void register(RegistryEntryNode entry) throws RepositoryException {
     Node node = entry.getNode();
     node.getParent().save();
   }
   
-  /**
-   * Unregisters entry
-   * @param sessionProvider
-   * @param entryType
-   * @param entryName
-   * @throws RepositoryException
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.ext.registry.Registry#unregister(org.exoplatform.services.jcr.ext.registry.Registry.RegistryEntryNode)
    */
-  public void unregister(SessionProvider sessionProvider, String entryType,
-      String entryName, ManageableRepository repository) throws RepositoryException {
-    String relPath = EXO_REGISTRY+"/"+entryType+"/"+entryName;
-    Node root = rootNode(sessionProvider, repository);
-    Node node = root.getNode(relPath);
+  public void unregister(RegistryEntryNode entry) throws RepositoryException {
+    Node node = entry.getNode(); 
     Node parent = node.getParent();
     node.remove();
     parent.save();
@@ -233,40 +215,14 @@ public class RegistryService implements Startable {
   public void removeRegistryLocation(String repositoryName) {
     regWorkspaces.remove(repositoryName);
   }
+  
+  public RepositoryService getRepositoryService() {
+    return repositoryService;
+  }
 
   private List <RepositoryEntry> repConfigurations() {
     return  (List <RepositoryEntry>)repositoryService.getConfig().getRepositoryConfigurations();
   }
-  
-  
-  /**
-   * Internal Node wrapper which ensures the node of "exo:registryEntry" type inside
-   */
-  public class RegistryEntryNode extends NodeWrapper {
-    private RegistryEntryNode(final Node node) throws RepositoryException {
-      super(node);
-    }
-  }
 
-  /**
-   * Internal Node wrapper which ensures the node of "exo:registry" type inside
-   */
-  public class RegistryNode extends NodeWrapper {
-    private RegistryNode(final Node node) throws RepositoryException {
-      super(node);
-    }
-  }
 
-  private abstract class NodeWrapper {
-    
-    private final Node node;
-    
-    private NodeWrapper(final Node node) {
-      this.node = node;
-    }
-
-    public final Node getNode() {
-      return node;
-    }
-  }
 }
