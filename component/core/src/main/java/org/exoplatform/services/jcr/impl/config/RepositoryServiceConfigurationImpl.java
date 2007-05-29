@@ -5,13 +5,24 @@
 
 package org.exoplatform.services.jcr.impl.config;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.jcr.RepositoryException;
 
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryServiceConfiguration;
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IBindingFactory;
+import org.jibx.runtime.IMarshallingContext;
+import org.jibx.runtime.JiBXException;
 
 /**
  * Created by The eXo Platform SARL .
@@ -50,5 +61,36 @@ public class RepositoryServiceConfigurationImpl extends RepositoryServiceConfigu
     String fileUri = getParam().getValue();
     return fileUri.startsWith("file:");
   }
+  /**
+   * Replace configuration file with runtime configuration.
+   * 
+   * @throws RepositoryException
+   */
+  
+  public void saveConfiguration() throws RepositoryException {
+    try {
+      String fileUri = getParam().getValue();
+      if (!canSave())
+        throw new RepositoryException("Unsupported  configuration place " + fileUri
+            + " If you want to save configuration, start repository from standalone file");
 
+      File sourceConfig = new File(fileUri.substring("file:".length()).trim());
+      SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmm");
+      File backUp = new File(sourceConfig.getAbsoluteFile() + "_" + format.format(new Date()));
+      if (!sourceConfig.renameTo(backUp))
+        throw new RepositoryException("Can't back up configuration on path "
+            + sourceConfig.getAbsolutePath());
+
+      IBindingFactory bfact = BindingDirectory.getFactory(RepositoryServiceConfiguration.class);
+      IMarshallingContext mctx = bfact.createMarshallingContext();
+
+      mctx.marshalDocument(this, "ISO-8859-1", null, new FileOutputStream(sourceConfig));
+    } catch (JiBXException e) {
+
+      throw new RepositoryException(e);
+    } catch (FileNotFoundException e) {
+      throw new RepositoryException(e);
+    }
+
+  }
 }

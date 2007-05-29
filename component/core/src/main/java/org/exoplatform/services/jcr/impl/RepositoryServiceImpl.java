@@ -224,38 +224,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     }
   }
 
-  /**
-   * Replace configuration file with runtime configuration.
-   * 
-   * @throws RepositoryException
-   */
-  public void saveConfiguration() throws RepositoryException {
-    try {
-      String fileUri = ((RepositoryServiceConfigurationImpl) config).getParam().getValue();
-      if (!((RepositoryServiceConfigurationImpl) config).canSave())
-        throw new RepositoryException("Unsupported  configuration place " + fileUri
-            + " If you want to save configuration, start repository from standalone file");
-
-      File sourceConfig = new File(fileUri.substring("file:".length()).trim());
-      SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmm");
-      File backUp = new File(sourceConfig.getAbsoluteFile() + "_" + format.format(new Date()));
-      if (!sourceConfig.renameTo(backUp))
-        throw new RepositoryException("Can't back up configuration on path "
-            + sourceConfig.getAbsolutePath());
-
-      IBindingFactory bfact = BindingDirectory.getFactory(RepositoryServiceConfiguration.class);
-      IMarshallingContext mctx = bfact.createMarshallingContext();
-
-      mctx.marshalDocument(config, "ISO-8859-1", null, new FileOutputStream(sourceConfig));
-    } catch (JiBXException e) {
-      log.error(e.getLocalizedMessage());
-      throw new RepositoryException(e);
-    } catch (FileNotFoundException e) {
-      log.error(e.getLocalizedMessage());
-      throw new RepositoryException(e);
-    }
-
-  }
+ 
 
   private void addNamespaces(ExoContainer container) throws Exception {
 

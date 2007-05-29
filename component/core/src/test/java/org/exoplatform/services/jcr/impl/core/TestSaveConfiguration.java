@@ -12,7 +12,9 @@ import java.util.Date;
 
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.config.RepositoryServiceConfiguration;
 import org.exoplatform.services.jcr.impl.RepositoryServiceImpl;
+import org.exoplatform.services.jcr.impl.config.RepositoryServiceConfigurationImpl;
 
 import junit.framework.TestCase;
 
@@ -482,7 +484,8 @@ public class TestSaveConfiguration extends TestCase {
         .getComponentInstanceOfType(RepositoryService.class);
     SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmm");
     File conf = new File(FILE_JCR_CONFIG.getAbsoluteFile()+ "_" + format.format(new Date()));
-    ((RepositoryServiceImpl) service).saveConfiguration();
+    RepositoryServiceConfigurationImpl repConfig = (RepositoryServiceConfigurationImpl) service.getConfig();
+    repConfig.saveConfiguration();
     
     assertTrue(FILE_JCR_CONFIG.exists());
     assertTrue(conf.exists());
