@@ -1,0 +1,42 @@
+Link Generator Servlet
+
+	Link Generator Servlet - simple servlet, which generates *.lnk file, that is compatible with Microsoft link file format.
+This servlet must be mapped in the same context with ExoJCRWebdavServlet.
+By GET request servlet generates content of .lnk file, which is point to JCR resource via WebDav.
+
+	Use this servlet with configurations like below.
+
+---------
+  <servlet>
+    <servlet-name>WebdavServer</servlet-name>
+    <servlet-class>org.exoplatform.frameworks.jcr.webdav.ExoJCRWebdavServlet</servlet-class>
+    ...
+  </servlet>
+
+  <servlet>
+    <servlet-name>LinkServlet</servlet-name>
+    <servlet-class>org.exoplatform.frameworks.jcr.webdav.LnkGeneratorServlet</servlet-class>
+    ...
+  </servlet>
+---------
+
+
+---------
+  <servlet-mapping>
+    <servlet-name>WebdavServer</servlet-name>
+    <url-pattern>/repository/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>LinkServlet</servlet-name>
+    <url-pattern>/lnkgenerator/*</url-pattern>
+  </servlet-mapping>  
+---------
+	
+	In case of JCR resource can be addressed by WebDav href such
+		http://host:port/webdav/repository/workspace/somenode/somefile.extention,
+	link servlet must be called for this resource by several href, like
+		http://localhost:8080/webdav/lnkgenerator/openit.lnk?path=/repository/workspace/somenode/somefile.extention
+
+	The name of .lnk file can be any. But for the best compatibility it must be the same as name of the JCR resource.
+	
