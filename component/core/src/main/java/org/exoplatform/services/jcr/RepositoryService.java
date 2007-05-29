@@ -62,5 +62,12 @@ public interface RepositoryService {
    */
   RepositoryServiceConfiguration getConfig();
   
+  /**
+   * Replace configuration file with runtime configuration.
+   * 
+   * @throws RepositoryException
+   */
+  public void saveConfiguration() throws RepositoryException;
+  
   
 }

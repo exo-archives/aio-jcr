@@ -17,28 +17,38 @@ import org.exoplatform.services.jcr.config.RepositoryServiceConfiguration;
  * Created by The eXo Platform SARL .
  * 
  * @author Gennady Azarenkov
- * @version $Id: RepositoryServiceConfigurationImpl.java 12841 2007-02-16 08:58:38Z peterit $
+ * @version $Id: RepositoryServiceConfigurationImpl.java 12841 2007-02-16
+ *          08:58:38Z peterit $
  */
 
 public class RepositoryServiceConfigurationImpl extends RepositoryServiceConfiguration {
 
-	public RepositoryServiceConfigurationImpl(InitParams params,
-			ConfigurationManager configurationService)
-			throws RepositoryConfigurationException {
- 
-		try {
-			ValueParam param = params.getValueParam("conf-path");
-			InputStream is = configurationService.getInputStream((String) param.getValue());
-			init(is);
-		} catch (Exception e) {
-			throw new RepositoryConfigurationException(
-					"XML config data not found! Reason: " + e);
-		}
+  private ValueParam param;
 
-	}
+  public RepositoryServiceConfigurationImpl(InitParams params,
+      ConfigurationManager configurationService) throws RepositoryConfigurationException {
 
-	public RepositoryServiceConfigurationImpl(InputStream is) throws RepositoryConfigurationException {
-		init(is);
-	}
-	
+    try {
+      param = params.getValueParam("conf-path");
+      InputStream is = configurationService.getInputStream(param.getValue());
+      init(is);
+    } catch (Exception e) {
+      throw new RepositoryConfigurationException("XML config data not found! Reason: " + e);
+    }
+
+  }
+
+  public RepositoryServiceConfigurationImpl(InputStream is) throws RepositoryConfigurationException {
+    init(is);
+  }
+
+  public ValueParam getParam() {
+    return param;
+  }
+
+  public boolean canSave() {
+    String fileUri = getParam().getValue();
+    return fileUri.startsWith("file:");
+  }
+
 }

@@ -5,9 +5,17 @@
 
 package org.exoplatform.services.jcr.impl;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -22,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.services.jcr.RepositoryService;
@@ -30,7 +39,12 @@ import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.RepositoryServiceConfiguration;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.impl.config.RepositoryServiceConfigurationImpl;
 import org.exoplatform.services.log.ExoLogger;
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IBindingFactory;
+import org.jibx.runtime.IMarshallingContext;
+import org.jibx.runtime.JiBXException;
 import org.picocontainer.Startable;
 
 /**
@@ -42,26 +56,27 @@ import org.picocontainer.Startable;
 
 public class RepositoryServiceImpl implements RepositoryService, Startable {
 
-  protected static Log log = ExoLogger.getLogger("jcr.RepositoryService");
+  protected static Log                   log                   = ExoLogger
+                                                                   .getLogger("jcr.RepositoryService");
 
   private RepositoryServiceConfiguration config;
-  
-  private ThreadLocal <String> currentRepositoryName = new ThreadLocal <String>(); 
-  
-  private HashMap repositoryContainers = new HashMap();
 
-  private List addNodeTypePlugins;
-  
-  private List addNamespacesPlugins;
+  private ThreadLocal<String>            currentRepositoryName = new ThreadLocal<String>();
 
-  private ExoContainerContext containerContext;
+  private HashMap                        repositoryContainers  = new HashMap();
 
-  public RepositoryServiceImpl(RepositoryServiceConfiguration configuration)
-      throws RepositoryConfigurationException, RepositoryException {
+  private List                           addNodeTypePlugins;
+
+  private List                           addNamespacesPlugins;
+
+  private ExoContainerContext            containerContext;
+
+  public RepositoryServiceImpl(RepositoryServiceConfiguration configuration) throws RepositoryConfigurationException,
+      RepositoryException {
     this(configuration, null);
   }
 
-  public RepositoryServiceImpl(RepositoryServiceConfiguration configuration, 
+  public RepositoryServiceImpl(RepositoryServiceConfiguration configuration,
       ExoContainerContext context) throws RepositoryConfigurationException, RepositoryException {
     this.config = configuration;
     addNodeTypePlugins = new ArrayList();
@@ -74,7 +89,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     return getRepository(config.getDefaultRepositoryName());
   }
 
-  /** 
+  /**
    * @deprecated use getDefaultRepository() instead
    */
   public ManageableRepository getRepository() throws RepositoryException {
@@ -95,21 +110,23 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
   public RepositoryServiceConfiguration getConfig() {
     return config;
   }
-  
-  public ManageableRepository getCurrentRepository() throws RepositoryException, RepositoryConfigurationException {
+
+  public ManageableRepository getCurrentRepository() throws RepositoryException,
+      RepositoryConfigurationException {
     return getRepository(currentRepositoryName.get());
   }
 
   public void setCurrentRepositoryName(String repositoryName) throws RepositoryConfigurationException {
-    if(!repositoryContainers.containsKey(repositoryName))
-      throw new RepositoryConfigurationException("Repository is not configured. Name "+repositoryName);
+    if (!repositoryContainers.containsKey(repositoryName))
+      throw new RepositoryConfigurationException("Repository is not configured. Name "
+          + repositoryName);
     currentRepositoryName.set(repositoryName);
   }
 
   public void addPlugin(ComponentPlugin plugin) {
     if (plugin instanceof AddNodeTypePlugin)
       addNodeTypePlugins.add(plugin);
-    else if(plugin instanceof AddNamespacesPlugin)
+    else if (plugin instanceof AddNamespacesPlugin)
       addNamespacesPlugins.add(plugin);
   }
 
@@ -122,7 +139,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
   }
 
   // ------------------- Startable ----------------------------
-  
+
   public void start() {
     try {
 
@@ -139,33 +156,32 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
 
     } catch (Exception e) {
       log.error("Error start repository service", e);
-      //e.printStackTrace();
+      // e.printStackTrace();
     }
   }
 
   public void stop() {
   }
-  
-  private void init(ExoContainer parentContainer)
-      throws RepositoryConfigurationException, RepositoryException {
+
+  private void init(ExoContainer parentContainer) throws RepositoryConfigurationException,
+      RepositoryException {
     List rEntries = config.getRepositoryConfigurations();
     for (int i = 0; i < rEntries.size(); i++) {
       RepositoryEntry rEntry = (RepositoryEntry) rEntries.get(i);
       // Making new repository container as portal's subcontainer
-      RepositoryContainer repositoryContainer = new RepositoryContainer(
-          parentContainer, rEntry);
+      RepositoryContainer repositoryContainer = new RepositoryContainer(parentContainer, rEntry);
       // Storing and starting the repository container under
       // key=repository_name
       repositoryContainers.put(rEntry.getName(), repositoryContainer);
       repositoryContainer.start();
     }
   }
-  
+
   private void addNodeTypes(ExoContainer container) throws Exception {
-    
+
     ConfigurationManager configService = (ConfigurationManager) container
-      .getComponentInstanceOfType(ConfigurationManager.class);
-    
+        .getComponentInstanceOfType(ConfigurationManager.class);
+
     ManageableRepository repository = getRepository();
     ExtendedNodeTypeManager ntManager = repository.getNodeTypeManager();
     for (int j = 0; j < addNodeTypePlugins.size(); j++) {
@@ -178,9 +194,11 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
           for (Iterator iter = nodeTypesFiles.iterator(); iter.hasNext();) {
             nodeTypeFilesName = (String) iter.next();
             InputStream inXml = configService.getInputStream(nodeTypeFilesName);
-            //log.info("Trying register nodes from xml-file " + nodeTypeFilesName);
+            // log.info("Trying register nodes from xml-file " +
+            // nodeTypeFilesName);
             ntManager.registerNodeTypes(inXml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-            //log.info("Nodes is registered from xml-file " + nodeTypeFilesName);
+            // log.info("Nodes is registered from xml-file " +
+            // nodeTypeFilesName);
           }
           continue; // Loaded! Go to next element in addNodeTypePlugins
         } else {
@@ -205,21 +223,53 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
       }
     }
   }
-  
+
+  /**
+   * Replace configuration file with runtime configuration.
+   * 
+   * @throws RepositoryException
+   */
+  public void saveConfiguration() throws RepositoryException {
+    try {
+      String fileUri = ((RepositoryServiceConfigurationImpl) config).getParam().getValue();
+      if (!((RepositoryServiceConfigurationImpl) config).canSave())
+        throw new RepositoryException("Unsupported  configuration place " + fileUri
+            + " If you want to save configuration, start repository from standalone file");
+
+      File sourceConfig = new File(fileUri.substring("file:".length()).trim());
+      SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmm");
+      File backUp = new File(sourceConfig.getAbsoluteFile() + "_" + format.format(new Date()));
+      if (!sourceConfig.renameTo(backUp))
+        throw new RepositoryException("Can't back up configuration on path "
+            + sourceConfig.getAbsolutePath());
+
+      IBindingFactory bfact = BindingDirectory.getFactory(RepositoryServiceConfiguration.class);
+      IMarshallingContext mctx = bfact.createMarshallingContext();
+
+      mctx.marshalDocument(config, "ISO-8859-1", null, new FileOutputStream(sourceConfig));
+    } catch (JiBXException e) {
+      log.error(e.getLocalizedMessage());
+      throw new RepositoryException(e);
+    } catch (FileNotFoundException e) {
+      log.error(e.getLocalizedMessage());
+      throw new RepositoryException(e);
+    }
+
+  }
+
   private void addNamespaces(ExoContainer container) throws Exception {
-    
+
     ManageableRepository repository = getRepository();
     NamespaceRegistry nsRegistry = repository.getNamespaceRegistry();
-    
+
     for (int j = 0; j < addNamespacesPlugins.size(); j++) {
-      AddNamespacesPlugin plugin = (AddNamespacesPlugin) addNamespacesPlugins
-          .get(j);
+      AddNamespacesPlugin plugin = (AddNamespacesPlugin) addNamespacesPlugins.get(j);
       Map namespaces = plugin.getNamespaces();
       try {
         for (Iterator iter = namespaces.entrySet().iterator(); iter.hasNext();) {
           Map.Entry namespace = (Map.Entry) iter.next();
-          String prefix = (String)namespace.getKey();
-          String uri = (String)namespace.getValue();
+          String prefix = (String) namespace.getKey();
+          String uri = (String) namespace.getValue();
 
           // register namespace if not found
           try {
@@ -227,12 +277,12 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
           } catch (NamespaceException e) {
             nsRegistry.registerNamespace(prefix, uri);
           }
-          log.info("Namespace is registered " + prefix+" = "+uri);
+          log.info("Namespace is registered " + prefix + " = " + uri);
         }
       } catch (Exception e) {
         log.error("Error load namespaces ", e);
       }
     }
   }
-  
+
 }

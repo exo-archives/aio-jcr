@@ -5,14 +5,17 @@
 
 package org.exoplatform.services.jcr.impl.core;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.jcr.NamespaceRegistry;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.nodetype.NodeTypeManager;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.access.AccessControlList;
@@ -24,6 +27,7 @@ import org.exoplatform.services.jcr.config.ValueStorageEntry;
 import org.exoplatform.services.jcr.config.ValueStorageFilterEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ExtendedNode;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SARL .
@@ -33,24 +37,25 @@ import org.exoplatform.services.jcr.core.ExtendedNode;
  */
 public class TestInitRepository extends JcrImplBaseTest {
 
-  public void setUp() throws Exception {
-    super.setUp();
+  protected static Log log = ExoLogger.getLogger("jcr.JCRTest");
+
+  public void testRepositoryServiceRegistration() throws Exception {
+    RepositoryService service = (RepositoryService) container
+        .getComponentInstanceOfType(RepositoryService.class);
+    assertNotNull(service);
+    RepositoryImpl defRep = (RepositoryImpl) service.getRepository();
+    assertNotNull(defRep);
+    String sysWs = defRep.getSystemWorkspaceName();
+    assertFalse("Sys ws should not be    initialized for this test!!", defRep
+        .isWorkspaceInitialized(sysWs)); // Default Namespaces and NodeTypes
+    NamespaceRegistry nsReg = defRep.getNamespaceRegistry();
+    assertNotNull(nsReg);
+    assertTrue(nsReg.getPrefixes().length > 0);
+    NodeTypeManager ntReg = defRep.getNodeTypeManager();
+    assertNotNull(ntReg);
+    assertTrue(ntReg.getAllNodeTypes().getSize() > 0);
   }
 
-  /*
-   * public void testRepositoryServiceRegistration() throws Exception {
-   * RepositoryService service =
-   * (RepositoryService)container.getComponentInstanceOfType(RepositoryService.class);
-   * assertNotNull(service); RepositoryImpl defRep =
-   * (RepositoryImpl)service.getRepository(); assertNotNull(defRep); String
-   * sysWs = defRep.getSystemWorkspaceName(); assertFalse("Sys ws should not be
-   * initialized for this test!!", defRep.isWorkspaceInitialized(sysWs)); //
-   * Default Namespaces and NodeTypes NamespaceRegistry nsReg =
-   * defRep.getNamespaceRegistry(); assertNotNull(nsReg);
-   * assertTrue(nsReg.getPrefixes().length>0); NodeTypeManager ntReg =
-   * defRep.getNodeTypeManager(); assertNotNull(ntReg);
-   * assertTrue(ntReg.getAllNodeTypes().getSize()>0); }
-   */
   public void testInitSystemWorkspace() throws Exception {
 
     RepositoryService service = (RepositoryService) container
@@ -160,7 +165,7 @@ public class TestInitRepository extends JcrImplBaseTest {
     }
 
   }
-  
+
   public void testCreateWsNoConfig() {
 
     List params = new ArrayList();
@@ -228,7 +233,7 @@ public class TestInitRepository extends JcrImplBaseTest {
         defRep.createWorkspace(workspaceEntry.getName());
         fail();
       } catch (RepositoryConfigurationException e) {
-        //Ok
+        // Ok
       } catch (RepositoryException e) {
         fail();
       }
@@ -293,13 +298,12 @@ public class TestInitRepository extends JcrImplBaseTest {
     try {
       defRep = (RepositoryImpl) service.getDefaultRepository();
       String systemWsName = defRep.getSystemWorkspaceName();
-      
+
     } catch (RepositoryException e1) {
       fail();
     } catch (RepositoryConfigurationException e1) {
       fail();
     }
-    
 
     List params = new ArrayList();
     params.add(new SimpleParameterEntry("sourceName", "jdbcjcr"));
@@ -322,12 +326,13 @@ public class TestInitRepository extends JcrImplBaseTest {
       defRep.createWorkspace(workspaceEntry.getName());
       fail();
     } catch (RepositoryException e) {
-        fail();
+      fail();
     } catch (RepositoryConfigurationException e) {
-      
-      //ok;
+
+      // ok;
     }
   }
+
   public void testAddSingleDbWsWithNewDs() {
 
     RepositoryService service = (RepositoryService) container
@@ -337,13 +342,12 @@ public class TestInitRepository extends JcrImplBaseTest {
     try {
       defRep = (RepositoryImpl) service.getDefaultRepository();
       String systemWsName = defRep.getSystemWorkspaceName();
-      
+
     } catch (RepositoryException e1) {
       fail();
     } catch (RepositoryConfigurationException e1) {
       fail();
     }
-    
 
     List params = new ArrayList();
     params.add(new SimpleParameterEntry("sourceName", "jdbcjcrNew"));
@@ -366,10 +370,11 @@ public class TestInitRepository extends JcrImplBaseTest {
       defRep.createWorkspace(workspaceEntry.getName());
       fail();
     } catch (RepositoryException e) {
-        fail();
+      fail();
     } catch (RepositoryConfigurationException e) {
-      
-      //ok;
+
+      // ok;
     }
   }
+
 }
