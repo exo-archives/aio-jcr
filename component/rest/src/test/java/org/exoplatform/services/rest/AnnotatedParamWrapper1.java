@@ -17,12 +17,12 @@ public class AnnotatedParamWrapper1 implements ResourceWrapper {
 
   @HTTPMethod("GET")
   @URITemplate("/level1/level2/")
-  @ConsumeMimeType
   @ProduceMimeType("text/html")
   public Response method1(Representation rep) {
     System.out.println(">>>>> method1 called!!!");
     System.out.println("<<<<< produce type: html");
     Response res = new Response(RESTStatus.OK);
+    res.setAcceptedMediaType("text/html");
     res.setEntity(new StringRepresentation("method1"));
     return res;
   }
@@ -34,6 +34,7 @@ public class AnnotatedParamWrapper1 implements ResourceWrapper {
     System.out.println(">>>>> method1 called!!!");
     System.out.println("<<<<< produce type: xml");
     Response res = new Response(RESTStatus.OK);
+    res.setAcceptedMediaType("text/xml");
     res.setEntity(new StringRepresentation("method2"));
     return res;
   }

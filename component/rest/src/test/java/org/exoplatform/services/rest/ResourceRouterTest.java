@@ -34,7 +34,7 @@ public class ResourceRouterTest extends TestCase {
     StandaloneContainer.setConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
     container = StandaloneContainer.getInstance();
   }
-  
+ 
   public void testIdentifier() throws Exception {
     URI uri = new URI("http://localhost/level1/level2/id");
     System.out.println("getScheme "+uri.getScheme());
@@ -202,12 +202,14 @@ public class ResourceRouterTest extends TestCase {
         "GET", new StringRepresentation("text/plain"));
     req.setAcceptedMediaType("text/html");
     Response resp = reg.serve(req);
+    assertEquals("text/html", resp.getAcceptedMediaType());
     assertEquals("method1", resp.getEntity().getString());
     
     req = new Request(new ResourceIdentifier("/level1/level2/"),
         "GET", new StringRepresentation("text/plain"));
     req.setAcceptedMediaType("text/xml");
     resp = reg.serve(req);
+    assertEquals("text/xml", resp.getAcceptedMediaType());
     assertEquals("method2", resp.getEntity().getString());
     
     req = new Request(new ResourceIdentifier("/level1/hello/level3/world/level4/good/"),
@@ -217,4 +219,5 @@ public class ResourceRouterTest extends TestCase {
     reg.unbind(dw1);
     assertEquals(0, list.size());
   }
+
 }

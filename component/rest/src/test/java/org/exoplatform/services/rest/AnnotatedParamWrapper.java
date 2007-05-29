@@ -17,7 +17,6 @@ public class AnnotatedParamWrapper implements ResourceWrapper {
 
   @HTTPMethod("GET")
   @URITemplate("/level1/{id}/level3/")
-  @ConsumeMimeType("text/plain")
   public Response method1(@URIParam("id") String param) {
     System.out.println(">>>>> -method1 called!!!");
     System.out.println("<<<<< id = " + param);
