@@ -4,6 +4,9 @@
  **************************************************************************/
 package org.exoplatform.services.rest.data;
 
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
@@ -11,8 +14,11 @@ package org.exoplatform.services.rest.data;
 
 public class HeaderUtils {
 	
-	public static String[] parse(String s) {
+  private static Pattern spacePattern = Pattern.compile("(\\s+)");
+
+  public static String[] parse(String s) {
 		if(s != null && s.length() != 0) {
+		  s = normalizeAccepString(s);
 			String[] ss = s.split(",");
 			sortByQvalue(ss, 0, ss.length - 1);
 			return removeQvalues(ss);
@@ -20,7 +26,12 @@ public class HeaderUtils {
 		return null;
 	}
 	
-	public static float parseQuality(String s) {
+	public static String normalizeAccepString(String s) {
+	  Matcher m = spacePattern.matcher(s);
+	  return m.replaceAll("");
+	}
+	
+	private static float parseQuality(String s) {
 		float q = Float.valueOf(s);
 		if(q >= 0f && q <= 1.0f)
 			return q;
@@ -28,7 +39,7 @@ public class HeaderUtils {
 			
 	}
 	
-	public static String[] sortByQvalue(String s[], int lo0, int hi0) {
+	private static String[] sortByQvalue(String s[], int lo0, int hi0) {
 		int lo = lo0;
 		int hi = hi0;
 		if (hi0 > lo0) {
@@ -45,13 +56,7 @@ public class HeaderUtils {
 		return s;
 	}
 	
-	public static String[] removeQvalues(String[] s) {
-		for(int i = 0; i < s.length; i++)
-			s[i] = s[i].split(";q=")[0];
-		return s;
-	}
-	
-	public static Float getQvalue(String s) {
+	private static Float getQvalue(String s) {
 		float q = 1.0f;
 		String[] temp = s.split(";");
 		for(String t : temp) {
@@ -63,6 +68,12 @@ public class HeaderUtils {
 		return q;
 	}
 
+  private static String[] removeQvalues(String[] s) {
+    for(int i = 0; i < s.length; i++)
+      s[i] = s[i].split(";q=")[0];
+    return s;
+  }
+  
 	private static void swap(String a[], int i, int j) {
 		String t = a[i];
 		a[i] = a[j];
