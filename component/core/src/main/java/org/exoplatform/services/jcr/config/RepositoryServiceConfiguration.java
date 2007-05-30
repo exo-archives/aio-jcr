@@ -25,7 +25,7 @@ import org.jibx.runtime.JiBXException;
  *          geaz $
  */
 
-public abstract class RepositoryServiceConfiguration {
+public class RepositoryServiceConfiguration {
 
   private ArrayList repositoryConfigurations;
 
@@ -74,12 +74,15 @@ public abstract class RepositoryServiceConfiguration {
    * checks if current configuration can be saved
    * @return
    */
-  public abstract boolean isRetainable();
+  public boolean isRetainable() {
+    return false;
+  }
   
   /**
    * Saves current configuration to persistent
    * @throws RepositoryException
    */
-  public abstract void retain() throws RepositoryException;
+  public void retain() throws RepositoryException {
+  }
 
 }
