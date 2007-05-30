@@ -9,7 +9,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.exoplatform.services.jcr.impl.config.RepositoryServiceConfigurationImpl;
+import javax.jcr.RepositoryException;
+
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
 import org.jibx.runtime.IUnmarshallingContext;
@@ -24,24 +25,22 @@ import org.jibx.runtime.JiBXException;
  *          geaz $
  */
 
-public class RepositoryServiceConfiguration {
+public abstract class RepositoryServiceConfiguration {
 
   private ArrayList repositoryConfigurations;
 
   private String defaultRepositoryName;
 
-  public RepositoryServiceConfiguration() {
-  }
 
-  public String getDefaultRepositoryName() {
+  public final String getDefaultRepositoryName() {
     return defaultRepositoryName;
   }
 
-  public List getRepositoryConfigurations() {
+  public final List getRepositoryConfigurations() {
     return repositoryConfigurations;
   }
 
-  public RepositoryEntry getRepositoryConfiguration(String name)
+  public final RepositoryEntry getRepositoryConfiguration(String name)
       throws RepositoryConfigurationException {
 
     for (int i = 0; i < repositoryConfigurations.size(); i++) {
@@ -53,7 +52,7 @@ public class RepositoryServiceConfiguration {
         + name);
   }
 
-  public void init(InputStream is) throws RepositoryConfigurationException {
+  protected final void init(InputStream is) throws RepositoryConfigurationException {
     try {
       IBindingFactory factory = BindingDirectory
           .getFactory(RepositoryServiceConfiguration.class);
@@ -70,5 +69,17 @@ public class RepositoryServiceConfiguration {
           "Error in config initialization " + e);
     }
   }
+  
+  /**
+   * checks if current configuration can be saved
+   * @return
+   */
+  public abstract boolean isRetainable();
+  
+  /**
+   * Saves current configuration to persistent
+   * @throws RepositoryException
+   */
+  public abstract void retain() throws RepositoryException;
 
 }

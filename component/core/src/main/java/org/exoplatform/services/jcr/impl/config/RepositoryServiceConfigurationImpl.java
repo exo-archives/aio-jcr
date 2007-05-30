@@ -53,24 +53,24 @@ public class RepositoryServiceConfigurationImpl extends RepositoryServiceConfigu
     init(is);
   }
 
-  public ValueParam getParam() {
-    return param;
-  }
 
-  public boolean canSave() {
-    String fileUri = getParam().getValue();
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.config.RepositoryServiceConfiguration#isRetainable()
+   */
+  public boolean isRetainable() {
+    String fileUri = param.getValue();
     return fileUri.startsWith("file:");
   }
+  
   /**
    * Replace configuration file with runtime configuration.
    * 
    * @throws RepositoryException
    */
-  
-  public void saveConfiguration() throws RepositoryException {
+  public void retain() throws RepositoryException {
     try {
-      String fileUri = getParam().getValue();
-      if (!canSave())
+      String fileUri = param.getValue();
+      if (!isRetainable())
         throw new RepositoryException("Unsupported  configuration place " + fileUri
             + " If you want to save configuration, start repository from standalone file");
 
