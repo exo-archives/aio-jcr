@@ -4,6 +4,8 @@
  */
 
 package org.exoplatform.services.rest;
+
+import org.exoplatform.services.rest.data.MimeTypes;
 /**
  * Created by The eXo Platform SARL        .
  * @author Gennady Azarenkov
@@ -13,7 +15,7 @@ package org.exoplatform.services.rest;
 public abstract class Message {
   
   protected Representation entity;
-  protected String acceptedMediaType = "*";
+  protected String acceptedMediaType = MimeTypes.ALL;
 
   public Representation getEntity() {
     return this.entity;

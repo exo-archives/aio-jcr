@@ -6,6 +6,7 @@
 package org.exoplatform.services.rest;
 
 import java.util.Map;
+import java.util.Enumeration;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -17,8 +18,8 @@ public class Request extends Message {
 
   private String methodName;
   private ResourceIdentifier resourceIdentifier;
-  private Map<String, String> httpHeaderParameters;
-  private Map<String, String> httpQueryParameters;
+  private Map<String, Enumeration<String>> httpHeaderParameters;
+  private Map<String, String[]> httpQueryParameters;
   
   public Request(ResourceIdentifier resourceIdentifier, 
       String methodName, Representation entity) {
@@ -27,8 +28,7 @@ public class Request extends Message {
     this.entity = entity;
   }
   
-  public Request(ResourceIdentifier resourceIdentifier, 
-      String methodName) {
+  public Request(ResourceIdentifier resourceIdentifier, String methodName) {
     this.methodName = methodName;
     this.resourceIdentifier = resourceIdentifier;
   }
@@ -45,19 +45,19 @@ public class Request extends Message {
     return methodName;
   }
   
-  public void setHttpHeaderParameters(Map<String, String> p) {
+  public void setHttpHeaderParameters(Map<String, Enumeration<String>> p) {
     this.httpHeaderParameters = p;
   }
 
-  public void setHttpQueryParameters(Map<String, String> p) {
+  public void setHttpQueryParameters(Map<String, String[]> p) {
     this.httpQueryParameters = p;
   }
 
-  public Map<String, String> getHttpHeaderParameters() {
+  public Map<String, Enumeration<String>> getHttpHeaderParameters() {
     return this.httpHeaderParameters;
   }
 
-  public Map<String, String> getHttpQueryParameters() {
+  public Map<String, String[]> getHttpQueryParameters() {
     return this.httpQueryParameters;
   }
 

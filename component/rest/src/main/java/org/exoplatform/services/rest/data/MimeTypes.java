@@ -11,6 +11,7 @@ package org.exoplatform.services.rest.data;
 
 public class MimeTypes {
 	
+  public static final String ALL = "*/*";
 	private String[] mimeTypes;
 	
 	public MimeTypes(String s) {
