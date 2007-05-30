@@ -33,10 +33,31 @@ By GET request servlet generates content of .lnk file, which is point to JCR res
   </servlet-mapping>  
 ---------
 	
-	In case of JCR resource can be addressed by WebDav href such
+	In case of JCR resource can be addressed by WebDav href like
 		http://host:port/webdav/repository/workspace/somenode/somefile.extention,
 	link servlet must be called for this resource by several href, like
 		http://localhost:8080/webdav/lnkgenerator/openit.lnk?path=/repository/workspace/somenode/somefile.extention
 
-	The name of .lnk file can be any. But for the best compatibility it must be the same as name of the JCR resource.
+	The name of .lnk file can be any. But for the best compatibility it must be the same as the name of the JCR resource.
+	
+	Here is a step by step sample of use case of link generator... 
+	At the first, type valid href to the resource, using link generator in you browser's adress field:
+
+[images/linkgenerator_1.png] Step 1.
+
+	Internet Explorer will give dialog window requesting to Open file or to Save it. Click on the Open button
+
+[images/linkgenerator_2.png] Step 2.
+	
+	The Windows system will download .lnk file, will open it and the application which is bounded with the file, which is pointed in .lnk. 
+	In case with .doc file, Windows opens Microsoft Office Word which will try to open remote file (test0000.doc). 
+	Maybe it will be needed to enter USERNAME and PASSWORD.	
+
+[images/linkgenerator_3.png] Step 3.
+
+	At the next step you will be able to edit file in Microsoft Word.
+
+[images/linkgenerator_4.png] Step 4.
+
+	This Link Generator is necessary for open/edit remote files in Microsoft Office Word, without any other updates.
 	

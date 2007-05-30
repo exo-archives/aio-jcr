@@ -2,7 +2,7 @@ eXo WebDav Office Client
 
   <<1. Intro>>
 
-	  eXoWebDavClient is a  library written on C# ,  that allows to use WebDav  service from  any other application, and example Word  
+	  eXoWebDavClient is a  library written on C# ,  that allows to use WebDav  service from  any other applications, and example Word  
 	  application with the user interface based on this library.
 	  Library allows :
 
@@ -14,7 +14,7 @@ eXo WebDav Office Client
 
 		* View propertis list;
                 
-                * View and Edit some version of current file and compare it with base version (current state). 
+                * View and Edit some version of current file and compare it with the base version (current state). 
 
 
  <<2. Installation>>
@@ -23,38 +23,43 @@ eXo WebDav Office Client
 	  installed on your system. If you do not install Microsoft .NET framework runtime environment, 
           during installation procedure plugin will ask you to do so and point to URL where you can get it. 
 
-	  Also, important condition is to have installed Microsoft Hot fix Office2003-kb907417  ENU,  which allows to use external libraries into MS Word. This update is available
-	  under SVN or into Microsoft  web site at: {{http://support.microsoft.com/kb/907417}}. Please, install also
+	  Also, important thing is to have  Microsoft Hot fix Office2003-kb907417  ENU installed,  which allows to use external libraries written on .NET in MS Word. 
+	  This update is available under SVN or at Microsoft  web-site at: {{http://support.microsoft.com/kb/907417}}. Please, also install 
 	  extensibilityMSM.msi	update from this hotfix pack.
 	
-	  After this conditions is done, you can install eXoClient application running <eXoWebDavOfficePlugin.msi>
+	  After this conditions are done, you can install eXoClient application running <eXoWebDavOfficePlugin.msi>
           or setup.exe (if your system does not support MSI installer).
 
 [images/installmsoplugin.jpg]
 
-	  When installation succesfully ends, new menu column called "Remote Documents" is appears in the MS Word.
+	  When the installation process succesfully ends, new menu column called "Remote Documents" will appear in MS Word.
 
           For <<uninstallation>> open <Control Panel->Add or Remove Programs>, find line called <<eXo WebDav MSOffice Plugin>> and click <<Remove>>
 
  <<3. Configuration>>
  
 	Before opening any documents, you need to configure your connection information.
-	You can do this using a "Settings" dialog window.  Use a "Test connection" button to 
-	make sure You're entered right settings. Please note that the "Proxy" subsettings
-	currently don't have any effect to your connection.
+	You can do this using "Settings" dialog window.  Use  "Test connection" button to 
+	make sure You've entered right settings. Please note that the "Proxy" subsettings
+	currently don't have any effect on your connection.
 
 [images/cl_settings.jpg]
 
  <<4. Using>>
 	
-	When configuration is done, you already can start browse your documents.
-	Click at "Open" form the "Remote Documents" menu calls a browser window, and you can browse
+	When configuration is done, you can start browsing your documents.
+	Click "Open" form the "Remote Documents" menu for calling browser window, and you can browse
 	repository using left nodes tree. For opening any file, click twice on it at right file list,
 	or select the file and press "Open" button on the form.
 
 	If you have opened file from the repository, and want to save any changes, you can use both - 
 	"Save" and "Save As.." buttons. The difference is the "Save" putting document at the same place,
 	or "Save As.." allows you to save file into other folder.
+	
+	Library can save documents of  various types. Select a required type of the document from the field of types and click "Save" button.
+	Such types of the documents as Word Document, Word Template, Text File and HTML file are avaliable.
+	Together with the file content Library also sends the MimeType of the document to the server.
+	PlugIn can also  open various types of the documents.
 
 [images/cl_main.jpg]
 
