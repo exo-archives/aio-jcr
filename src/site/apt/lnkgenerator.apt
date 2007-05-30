@@ -61,3 +61,11 @@ By GET request servlet generates content of .lnk file, which is point to JCR res
 
 	This Link Generator is necessary for open/edit remote files in Microsoft Office Word, without any other updates.
 	
+	Also Link Generator can be available for use into HTML page.
+	If page contains code like
+
+---------
+<a href="http://localhost:8080/webdav/lnkgenerator/openit.lnk?path=/repository/workspace/somenode/somefile.extention">somefile.extention</a>
+---------
+
+	the file "somefile.extention" will opens directly.

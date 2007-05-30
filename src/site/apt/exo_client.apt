@@ -56,6 +56,8 @@ eXo WebDav Office Client
 	"Save" and "Save As.." buttons. The difference is the "Save" putting document at the same place,
 	or "Save As.." allows you to save file into other folder.
 	
+[images/cl_save.png]
+	
 	Library can save documents of  various types. Select a required type of the document from the field of types and click "Save" button.
 	Such types of the documents as Word Document, Word Template, Text File and HTML file are avaliable.
 	Together with the file content Library also sends the MimeType of the document to the server.
