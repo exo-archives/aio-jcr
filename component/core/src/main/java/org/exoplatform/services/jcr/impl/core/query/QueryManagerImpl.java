@@ -65,8 +65,8 @@ public class QueryManagerImpl implements QueryManager {
      * @param searchMgr
      */
     public QueryManagerImpl(SessionImpl session,
-                            SearchManager searchMgr,
-                            LogService logService) {
+                            SearchManager searchMgr) {
+//                            LogService logService) {
         this.session = session;
         this.searchMgr = searchMgr;
     }

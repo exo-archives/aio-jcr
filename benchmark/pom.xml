@@ -9,7 +9,7 @@
 	<artifactId>exo.jcr.benchmark</artifactId>
 	<packaging>jar</packaging>
 	<version>${org.exoplatform.jcr.version}</version>
-	<name>eXo JCR benchmark demo</name>
+	<name>eXo JCR benchmark</name>
 
 	<dependencies>
 		<dependency>

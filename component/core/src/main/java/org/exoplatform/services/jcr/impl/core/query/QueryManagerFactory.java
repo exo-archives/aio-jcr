@@ -6,7 +6,6 @@
 package org.exoplatform.services.jcr.impl.core.query;
 
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.log.LogService;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -18,17 +17,17 @@ public class QueryManagerFactory {
   
   private final SearchManager searchManager;
   
-  private final LogService logService;
+  //private final LogService logService;
   
-  public QueryManagerFactory(final SearchManager searchManager,
-      final LogService logService) {
+  public QueryManagerFactory(final SearchManager searchManager) {
+//      final LogService logService) {
     super();
     this.searchManager = searchManager;
-    this.logService = logService;
+    //this.logService = logService;
   }
   
   public QueryManagerImpl getQueryManager(SessionImpl session) {
-    return new QueryManagerImpl(session, searchManager, logService);
+    return new QueryManagerImpl(session, searchManager);
   }
 
 }

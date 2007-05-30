@@ -9,6 +9,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.ext.common.NodeWrapper;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 
 /**
@@ -74,19 +75,6 @@ public abstract class Registry {
   public final class RegistryNode extends NodeWrapper {
     protected RegistryNode(final Node node) throws RepositoryException {
       super(node);
-    }
-  }
-  
-  private class NodeWrapper {
-    
-    private final Node node;
-    
-    private NodeWrapper(final Node node) {
-      this.node = node;
-    }
-
-    public final Node getNode() {
-      return node;
     }
   }
 

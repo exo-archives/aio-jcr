@@ -27,8 +27,10 @@ public class EXOJCRStandaloneInitializer extends JCRInitializer {
     String jaasConf = params.getParam("exo.jaasConf");
     String containerConf = params.getParam("exo.containerConf");
     try {
+      
       String path = Thread.currentThread().getContextClassLoader().getResource(
           containerConf).toString();
+      
       StandaloneContainer.setConfigurationURL(path);
       StandaloneContainer container = StandaloneContainer.getInstance();
       if (System.getProperty("java.security.auth.login.config") == null)
@@ -37,7 +39,6 @@ public class EXOJCRStandaloneInitializer extends JCRInitializer {
       RepositoryService repositoryService = (RepositoryService) container
           .getComponentInstanceOfType(RepositoryService.class);
       repository = repositoryService.getDefaultRepository();
-//      session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
     } catch (Exception e) {
       e.printStackTrace();
     }

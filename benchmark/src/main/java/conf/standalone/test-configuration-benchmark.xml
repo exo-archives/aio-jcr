@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <configuration>
 
-    <!--<component>
-      <key>org.exoplatform.services.xml.querying.XMLQueryingService</key>
-        <type>org.exoplatform.services.xml.querying.impl.xtas.XMLQueryingServiceImpl</type>
-    </component>-->
-
   <component>
     <key>org.exoplatform.services.log.LogConfigurationInitializer</key>
     <type>org.exoplatform.services.log.LogConfigurationInitializer</type>
@@ -99,17 +94,6 @@
         </object>
       </object-param>
     </init-params>
-  </component>
-  <component>
-    <key>org.exoplatform.services.log.LogService</key>
-    <type>org.exoplatform.services.log.impl.LogServiceImpl</type>
-    <!--Valid value: FATAL, ERROR, WARN, INFO, DEBUG, TRACE-->
-      <init-params>
-                   <properties-param>
-                     <name>log.level.config</name>
-                     <property name="org.exoplatform.services.log" value="INFO"/>
-                   </properties-param>
-      </init-params>
   </component>
 
   <component>
@@ -305,57 +289,6 @@
     </init-params>
   </component>
 
-  <!-- component>
-    <key>org.exoplatform.services.database.jdbc.DBSchemaCreator</key>
-    <type>org.exoplatform.services.database.jdbc.DBSchemaCreator</type>
-    <component-plugins>
-      <component-plugin>
-          <name>jcr.dbschema</name>
-          <set-method>addPlugin</set-method>
-          <type>org.exoplatform.services.database.jdbc.CreateDBSchemaPlugin</type>
-          <init-params>
-            <value-param>
-              <name>data-source</name>
-              <value>jdbcjcr</value>
-            </value-param>
-            <value-param>
-              <name>script-file</name>
-              <value>conf/storage/jcr-mjdbc.sql</value>
-            </value-param>
-          </init-params>
-      </component-plugin>
-      <component-plugin>
-          <name>jcr.dbschema</name>
-          <set-method>addPlugin</set-method>
-          <type>org.exoplatform.services.database.jdbc.CreateDBSchemaPlugin</type>
-          <init-params>
-            <value-param>
-              <name>data-source</name>
-              <value>jdbcjcr1</value>
-            </value-param>
-            <value-param>
-              <name>script-file</name>
-              <value>conf/storage/jcr-mjdbc.sql</value>
-            </value-param>
-          </init-params>
-      </component-plugin>
-      <component-plugin>
-          <name>jcr.dbschema</name>
-          <set-method>addPlugin</set-method>
-          <type>org.exoplatform.services.database.jdbc.CreateDBSchemaPlugin</type>
-          <init-params>
-            <value-param>
-              <name>data-source</name>
-              <value>jdbcjcr2</value>
-            </value-param>
-            <value-param>
-              <name>script-file</name>
-              <value>conf/storage/jcr-mjdbc.sql</value>
-            </value-param>
-          </init-params>
-      </component-plugin>
-    </component-plugins>
-  </component -->
 
   <component>
     <key>org.exoplatform.services.jcr.RepositoryService</key>
@@ -378,7 +311,7 @@
     <type>org.exoplatform.services.organization.impl.mock.DummyOrganizationService</type>
   </component>
 
-  <component>
+  <!-- component>
           <key>org.exoplatform.services.security.SecurityService</key>
           <type>org.exoplatform.services.security.impl.SecurityServiceImpl</type>
     <init-params>
@@ -387,6 +320,14 @@
         <value>standalone</value>
       </value-param>
     </init-params>
+  </component -->
+
+  <component> 
+    <type>org.exoplatform.services.organization.auth.AuthenticationService</type>
+  </component>
+
+  <component>
+    <type>org.exoplatform.services.listener.ListenerService</type>
   </component>
 
   <component>
@@ -442,14 +383,5 @@
     <type>org.exoplatform.services.jcr.impl.ext.action.SessionActionCatalog</type>
   </component>
 
-  <external-component-plugins>
-    <target-component>org.exoplatform.services.remote.group.CommunicationService</target-component>
-    <component-plugin>
-      <name>synchronize.cache.handler</name>
-      <set-method>addPlugin</set-method>
-      <type>org.exoplatform.services.cache.impl.SynchronizeCacheMessageHandler</type>
-      <description>synchronize the cache</description>
-    </component-plugin>
-  </external-component-plugins>
 
 </configuration>

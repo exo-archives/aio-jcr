@@ -9,15 +9,11 @@
 	<param name="japex.resultUnit" value="tps" />
 
 
-
-	<driver name="eXo JCR Driver10T">
+	<driver name="JCR driver">
 	    <param name="japex.classPath" value="../lib/*.jar" />
-		<!--<param name="japex.classPath"
-			value="target/exo.jcr.benchmark-1.6.dir/lib/*.jar" />-->
 		<param name="japex.driverClass"
 			value="org.exoplatform.jcr.benchmark.JCRDriver" />
 		<param name="japex.numberOfThreads" value="10" />
-		<!-- param name="japex.runsPerDriver" value="10" / -->
 
 		<param name="jcr.initializer"
 			value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializer" />
@@ -26,7 +22,6 @@
 		<param name="jcr.workspace" value="ws" />
 		<param name="jcr.sessionPolicy" value="single" />
 
-		<!-- param name="exo.description" value="JCR Internal API" / -->
 		<param name="exo.jaasConf" value="login.conf" />
 		<param name="exo.containerConf"
 			value="conf/standalone/test-configuration-benchmark.xml" />
@@ -36,9 +31,9 @@
 	<testCase name="AddNodeTest">
 		<param name="exo.testClass"
 			value="org.exoplatform.jcr.benchmark.jcrapi.AddNodeTest" />
-		<!--<param name="japex.runTime" value="20" />-->
-		<!--<param name="japex.warmupTime" value="5" />-->
-		<param name="japex.runIterations" value="1" />
+		<!-- <param name="japex.runTime" value="20" /> -->
+		<!-- <param name="japex.warmupTime" value="5" /> -->
+		<param name="japex.runIterations" value="10" />
 		<param name="japex.warmupIterations" value="0" />
 
 	</testCase>
