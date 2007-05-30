@@ -3,7 +3,7 @@
  * Please look at license.txt in info directory for more license detail.   *
  */
 
-package org.exoplatform.services.rest.wrapper;
+package org.exoplatform.services.rest.container;
 
 import java.lang.reflect.Method;
 import java.lang.annotation.Annotation;
