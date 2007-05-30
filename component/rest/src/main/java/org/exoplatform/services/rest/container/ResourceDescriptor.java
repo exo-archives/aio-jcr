@@ -20,7 +20,7 @@ public interface ResourceDescriptor {
   String getAcceptableMethod();
   String getConsumeMediaType();
   String getProduceMediaType();
-  ResourceWrapper getWrapper();
+  ResourceContainer getResourceContainer();
   Method getServer();
   URIPattern getURIPattern();
   Annotation[] getMethodParameterAnnotations();
