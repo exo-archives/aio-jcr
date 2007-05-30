@@ -43,13 +43,13 @@ public class QPath implements Comparable {
     this.hashCode = hash; // prime * hash + this.names.hashCode()
   }
 
-  public boolean isAbsolute()
-  {
-   if( names[0].getIndex() == 1
-       && names[0].getName().length() == 0
-       && names[0].getNamespace().length() == 0)
-   return false;
-   else return true;
+  public boolean isAbsolute() {
+    if( names[0].getIndex() == 1
+        && names[0].getName().length() == 0
+        && names[0].getNamespace().length() == 0)
+      return true;
+    else 
+      return false;
   }
 
   /**
