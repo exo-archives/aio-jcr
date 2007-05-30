@@ -2,14 +2,17 @@
 <configuration>
 
   <component>
-    <type>org.exoplatform.services.rest.ResourceRouter</type>
+    <type>org.exoplatform.services.rest.ResourceDispatcher</type>
+  </component>
+  <component>
+ 	  <type>org.exoplatform.services.rest.ResourceBinder</type>
     <init-params>
     	<value-param>
     		<name>ws1</name>
-    		<value>org.exoplatform.services.rest.wrapper.http.HTTPAnnotatedWrapperResolvingStrategy</value>
+    		<value>org.exoplatform.services.rest.container.HTTPAnnotatedContainerResolvingStrategy</value>
     	</value-param>
     </init-params>
-  </component>
+ 	</component>
   <component>
     <type>org.exoplatform.services.rest.data.XMLValidator</type>
     <init-params>
@@ -18,5 +21,8 @@
     		<value>src/test/java/conf/standalone/test.xsd</value>
     	</value-param>
     </init-params>
+  </component>
+  <component>
+    <type>org.exoplatform.services.rest.AutoBindedResourceContainer</type>
   </component>
 </configuration>

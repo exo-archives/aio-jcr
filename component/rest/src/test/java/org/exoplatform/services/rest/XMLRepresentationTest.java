@@ -10,7 +10,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import junit.framework.TestCase;
 
-import org.exoplatform.container.StandaloneContainer;
+//import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.rest.data.XMLRepresentation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -25,16 +25,12 @@ import org.w3c.dom.Element;
  */
 public class XMLRepresentationTest extends TestCase {
   
-
-  private StandaloneContainer container;
+//  private StandaloneContainer container;
   
-  
-  public void setUp() throws Exception {
-    
-    StandaloneContainer.setConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
-  	
-    container = StandaloneContainer.getInstance();
-  }
+//  public void setUp() throws Exception {
+//    StandaloneContainer.setConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
+//    container = StandaloneContainer.getInstance();
+//  }
   
   public void testCreateXMLRepresentation() throws Exception {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -52,11 +48,7 @@ public class XMLRepresentationTest extends TestCase {
     
     XMLRepresentation repr = new XMLRepresentation(doc);
     System.out.println(">>>>>> "+repr.getString());
-    
     //Request
   }
-  
-//  public void testXMLRequestResponse() throws Exception {
 
-  
 }
