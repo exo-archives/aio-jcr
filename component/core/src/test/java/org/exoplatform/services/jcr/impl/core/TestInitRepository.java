@@ -285,6 +285,7 @@ public class TestInitRepository extends JcrImplBaseTest {
       fail();
     } catch (Throwable e) {
       // ok
+      e.printStackTrace();
       log.info(e.getLocalizedMessage());
     }
   }
@@ -317,7 +318,7 @@ public class TestInitRepository extends JcrImplBaseTest {
         (ArrayList) params);
     containerEntry.setParameters(params);
 
-    WorkspaceEntry workspaceEntry = new WorkspaceEntry("newws", "nt:unstructured");
+    WorkspaceEntry workspaceEntry = new WorkspaceEntry("MixMultiAndSingleDbWs", "nt:unstructured");
     workspaceEntry.setContainer(containerEntry);
 
     try {
@@ -328,7 +329,7 @@ public class TestInitRepository extends JcrImplBaseTest {
     } catch (RepositoryException e) {
       fail();
     } catch (RepositoryConfigurationException e) {
-
+      e.printStackTrace();
       // ok;
     }
   }
@@ -361,7 +362,7 @@ public class TestInitRepository extends JcrImplBaseTest {
         (ArrayList) params);
     containerEntry.setParameters(params);
 
-    WorkspaceEntry workspaceEntry = new WorkspaceEntry("newws", "nt:unstructured");
+    WorkspaceEntry workspaceEntry = new WorkspaceEntry("SingleDbWsWithNewDs", "nt:unstructured");
     workspaceEntry.setContainer(containerEntry);
 
     try {
@@ -372,7 +373,7 @@ public class TestInitRepository extends JcrImplBaseTest {
     } catch (RepositoryException e) {
       fail();
     } catch (RepositoryConfigurationException e) {
-
+      e.printStackTrace();
       // ok;
     }
   }

@@ -88,7 +88,7 @@ public class JDBCWDCTest extends TestCase {
 
 //    SimpleJNDIContextInitializer.initialize(sourceName, ref);
 //    
-    container = new JDBCWorkspaceDataContainer(config, null, new StandaloneStoragePluginProvider(config));
+    container = new JDBCWorkspaceDataContainer(config, null,null, new StandaloneStoragePluginProvider(config));
     
     Properties logProps = new Properties();
     logProps.put("org.apache.commons.logging.simplelog.defaultlog", "debug");

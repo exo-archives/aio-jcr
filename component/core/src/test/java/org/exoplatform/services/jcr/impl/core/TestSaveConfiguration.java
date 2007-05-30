@@ -485,7 +485,7 @@ public class TestSaveConfiguration extends TestCase {
     SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmm");
     File conf = new File(FILE_JCR_CONFIG.getAbsoluteFile()+ "_" + format.format(new Date()));
     RepositoryServiceConfigurationImpl repConfig = (RepositoryServiceConfigurationImpl) service.getConfig();
-    repConfig.saveConfiguration();
+    repConfig.retain();
     
     assertTrue(FILE_JCR_CONFIG.exists());
     assertTrue(conf.exists());
