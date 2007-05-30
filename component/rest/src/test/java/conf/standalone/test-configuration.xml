@@ -5,7 +5,7 @@
     <type>org.exoplatform.services.rest.ResourceDispatcher</type>
   </component>
   <component>
- 	  <type>org.exoplatform.services.rest.ResourceBinder</type>
+  <type>org.exoplatform.services.rest.ResourceBinder</type>
     <init-params>
     	<value-param>
     		<name>ws1</name>
