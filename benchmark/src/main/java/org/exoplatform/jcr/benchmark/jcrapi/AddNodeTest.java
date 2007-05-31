@@ -19,11 +19,15 @@ import com.sun.japex.TestCase;
  */
 public class AddNodeTest extends JCRTestBase {
   
+  //public long runtime = 0;
+  
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
+   //long curTime = System.currentTimeMillis();
    Session session = context.getSession();
    String name = context.generateUniqueName("node");
    session.getRootNode().addNode(name, "nt:unstructured");
    session.getRootNode().save();
+   //System.out.println(context.get(JCRTestContext.THREAD_NUMBER)+"  "+(runtime+=(System.currentTimeMillis() - curTime)));
   }
 }

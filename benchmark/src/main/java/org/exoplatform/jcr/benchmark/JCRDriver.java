@@ -108,18 +108,18 @@ public class JCRDriver extends JapexDriverBase {
   public void finish(final TestCase tc) {
     // testInstance(tc).doFinish(tc, context);
     // super.finish(tc);
-    // System.out.println("------------------- FINISH --------------"
-    // +tc.getParam("japex.resultTime")+" "
-    // +tc.getParam("japex.actualRunTime")+" "
-    // +tc.getParam("japex.actualRunIterations")+" "
-    // +tc.getParam("japex.warmupTime")+" "
-    // +tc.getParam("japex.runIterations")+" "
-    // +tc.getParam("japex.runTime")+" "
-    // +getParam("japex.numberOfThreads")+" "
-    // +tc.getParam("japex.resultUnit")+" "
-    // +tc.getParam("japex.resultValue")+" "
-    //
-    // );
+//     System.out.println("------------------- FINISH --------------"
+//     //+tc.getParam("japex.resultTime")+" "
+//     +tc.getParam("japex.actualRunTime")+" "
+//     //+tc.getParam("japex.actualRunIterations")+" "
+//     //+tc.getParam("japex.warmupTime")+" "
+//     +tc.getParam("japex.runIterations")+" "
+//     //+tc.getParam("japex.runTime")+" "
+//     +getParam("japex.numberOfThreads")+" "
+//     +tc.getParam("japex.resultUnit")+" "
+//     //+tc.getParam("japex.resultValue")+" "
+//    
+//     );
   }
 
   private synchronized JCRTestBase testInstance(TestCase tc) {
