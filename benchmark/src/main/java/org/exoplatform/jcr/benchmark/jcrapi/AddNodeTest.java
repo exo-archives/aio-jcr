@@ -19,7 +19,8 @@ import com.sun.japex.TestCase;
  */
 public class AddNodeTest extends JCRTestBase {
   
-  //public long runtime = 0;
+  // just to compare with Japex
+  public long runtime = 0;
   
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
@@ -28,6 +29,13 @@ public class AddNodeTest extends JCRTestBase {
    String name = context.generateUniqueName("node");
    session.getRootNode().addNode(name, "nt:unstructured");
    session.getRootNode().save();
-   //System.out.println(context.get(JCRTestContext.THREAD_NUMBER)+"  "+(runtime+=(System.currentTimeMillis() - curTime)));
+   //runtime+=(System.currentTimeMillis() - curTime);
   }
+
+  @Override
+  public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
+    //System.out.println("DO FINISH AddNodeTest "+runtime);
+  }
+  
+  
 }

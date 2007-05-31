@@ -13,7 +13,7 @@
 	    <param name="japex.classPath" value="../lib/*.jar" />
 		<param name="japex.driverClass"
 			value="org.exoplatform.jcr.benchmark.JCRDriver" />
-		<param name="japex.numberOfThreads" value="10" />
+		<param name="japex.numberOfThreads" value="50" />
 
 		<param name="jcr.initializer"
 			value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializer" />

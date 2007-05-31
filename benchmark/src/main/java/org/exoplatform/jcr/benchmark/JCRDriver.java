@@ -7,7 +7,6 @@ package org.exoplatform.jcr.benchmark;
 
 import javax.jcr.Credentials;
 import javax.jcr.LoginException;
-import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -80,11 +79,7 @@ public class JCRDriver extends JapexDriverBase {
   public void prepare(final TestCase tc) {
     super.prepare(tc);
     try {
-      // context = new JCRTestContext();
       initContext(tc, context);
-      // testInstance(tc).doPrepare(tc, context);
-      // context.put(JCRTestContext.THREAD_NUMBER, threadCounter++);
-      //context.put(JCRTestContext.COUNTER, 0);
       test = testInstance(tc);
       test.doPrepare(tc, context);
     } catch (Exception e) {
@@ -106,20 +101,26 @@ public class JCRDriver extends JapexDriverBase {
 
   @Override
   public void finish(final TestCase tc) {
-    // testInstance(tc).doFinish(tc, context);
-    // super.finish(tc);
-//     System.out.println("------------------- FINISH --------------"
-//     //+tc.getParam("japex.resultTime")+" "
-//     +tc.getParam("japex.actualRunTime")+" "
-//     //+tc.getParam("japex.actualRunIterations")+" "
-//     //+tc.getParam("japex.warmupTime")+" "
-//     +tc.getParam("japex.runIterations")+" "
-//     //+tc.getParam("japex.runTime")+" "
-//     +getParam("japex.numberOfThreads")+" "
-//     +tc.getParam("japex.resultUnit")+" "
-//     //+tc.getParam("japex.resultValue")+" "
-//    
-//     );
+    try {
+      test.doFinish(tc, context);
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
+
+     System.out.println("------------------- FINISH --------------"
+     //+tc.getParam("japex.resultTime")+" "
+     +tc.getParam("japex.actualRunTime")+" "
+     //+tc.getParam("japex.actualRunIterations")+" "
+     //+tc.getParam("japex.warmupTime")+" "
+     +tc.getParam("japex.runIterations")+" "
+     //+tc.getParam("japex.runTime")+" "
+     +getParam("japex.numberOfThreads")+" "
+     +tc.getParam("japex.resultUnit")+" "
+     //+tc.getParam("japex.resultValue")+" "
+    
+     );
+    
   }
 
   private synchronized JCRTestBase testInstance(TestCase tc) {
