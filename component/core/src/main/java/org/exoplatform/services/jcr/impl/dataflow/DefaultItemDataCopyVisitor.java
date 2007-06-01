@@ -33,7 +33,7 @@ import org.exoplatform.services.jcr.util.UUIDGenerator;
 * @version $Id: ItemDataCopyVisitor.java 13619 2007-03-21 13:36:51Z ksm $
  */
 
-public class ItemDataCopyVisitor extends ItemDataTraversingVisitor {
+public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisitor {
 
   /**
    * Destination node name
@@ -62,6 +62,7 @@ public class ItemDataCopyVisitor extends ItemDataTraversingVisitor {
   protected NodeTypeManagerImpl ntManager;
 
   protected QPath ancestorToSave = null;
+  
   /**
    * Creates an instance of this class.
    * 
@@ -72,7 +73,7 @@ public class ItemDataCopyVisitor extends ItemDataTraversingVisitor {
    * @param keepUUIDs - Is it necessity to keep <code>UUID</code>
    */
 
-  public ItemDataCopyVisitor(NodeData parent, InternalQName destNodeName,
+  public DefaultItemDataCopyVisitor(NodeData parent, InternalQName destNodeName,
       NodeTypeManagerImpl nodeTypeManager, SessionDataManager dataManager, boolean keepUUIDs) {
     super(dataManager);
 
@@ -96,6 +97,7 @@ public class ItemDataCopyVisitor extends ItemDataTraversingVisitor {
     InternalQName qname = property.getQPath().getName();
 
     List<ValueData> values;
+    
     if (ntManager.isNodeType(Constants.MIX_REFERENCEABLE,
         curParent().getPrimaryTypeName(),
         curParent().getMixinTypeNames())
@@ -106,6 +108,7 @@ public class ItemDataCopyVisitor extends ItemDataTraversingVisitor {
     } else {
       values = property.getValues();
     }
+    
     TransientPropertyData newProperty = new TransientPropertyData(QPath
         .makeChildPath(curParent().getQPath(), qname),
         keepUUIDs?property.getUUID():UUIDGenerator.generate(),
@@ -215,5 +218,23 @@ public class ItemDataCopyVisitor extends ItemDataTraversingVisitor {
    */
   public List<ItemState> getItemAddStates() {
     return itemAddStates;
+  }
+  
+  protected List<ItemState> findItemStates(QPath itemPath) {
+    List<ItemState> istates = new ArrayList<ItemState>();
+    for (ItemState istate: itemAddStates) {
+      if (istate.getData().getQPath().equals(itemPath)) 
+        istates.add(istate);
+    }
+    return istates;
+  }
+  
+  protected ItemState findLastItemState(QPath itemPath) {
+    for (int i=itemAddStates.size()-1; i>=0; i--) {
+      ItemState istate = itemAddStates.get(i); 
+      if (istate.getData().getQPath().equals(itemPath)) 
+        return istate;
+    }
+    return null;
   }
 }

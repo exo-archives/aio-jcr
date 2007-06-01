@@ -29,7 +29,7 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
  * properties and <b>ItemDeletedExistingStates</b> list for remove existing nodes 
  * if <code>removeExisting</code> is true.
  */
-public class ItemDataCloneVisitor extends ItemDataCopyVisitor {
+public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
 
   private boolean                    removeExisting;
 

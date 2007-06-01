@@ -47,7 +47,7 @@ import org.exoplatform.services.jcr.impl.core.query.QueryManagerFactory;
 import org.exoplatform.services.jcr.impl.core.query.QueryManagerImpl;
 import org.exoplatform.services.jcr.impl.core.version.VersionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataCloneVisitor;
-import org.exoplatform.services.jcr.impl.dataflow.ItemDataCopyVisitor;
+import org.exoplatform.services.jcr.impl.dataflow.ItemDataCopyVisitor1;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataMoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableDataManager;
@@ -197,21 +197,16 @@ public class WorkspaceImpl implements Workspace {
               + destNodePath.getAsString(false));
     // get source node
     JCRPath srcNodePath = srcSession.getLocationFactory().parseAbsPath(srcAbsPath);
-//    NodeImpl srcNode = (NodeImpl) srcSession.getTransientNodesManager().getItem(
-//        srcNodePath.getInternalPath(), true);
-
-//    NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager().getItem(
-//        destNodePath.makeParentPath().getInternalPath(), true);
-//    
+  
     
-    NodeData srcRootData = (NodeData) srcSession.getTransientNodesManager()
-        .getItemData(Constants.ROOT_UUID);
+    NodeData srcRootData = (NodeData) srcSession.getTransientNodesManager().getItemData(Constants.ROOT_UUID);
 
-    NodeImpl srcNode = (NodeImpl) srcSession.getTransientNodesManager().getItem(srcRootData,
+    NodeImpl srcNode = (NodeImpl) srcSession.getTransientNodesManager().getItem(
+        srcRootData,
         srcNodePath.getInternalPath(),
         true);
 
-//     get dst parent node
+    // get dst parent node
     NodeData dstRootData = (NodeData) session.getTransientNodesManager()
         .getItemData(Constants.ROOT_UUID);
     NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager().getItem(dstRootData,
@@ -229,11 +224,7 @@ public class WorkspaceImpl implements Workspace {
     }
     destParentNode.validateChildNode(destNodePath.getName().getInternalName(),
         ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
-    
-    // Check for node with destAbsPath name in session
-//    NodeImpl destNode = (NodeImpl) session.getTransientNodesManager().getItem(
-//        destNodePath.getInternalPath(), true);
-    
+  
     NodeImpl destNode = (NodeImpl) session.getTransientNodesManager()
         .getItem((NodeData) destParentNode.getData(),
             new QPathEntry(destNodePath.getInternalPath().getName(), 0),
@@ -255,7 +246,7 @@ public class WorkspaceImpl implements Workspace {
     if (!srcNode.checkLocking())
       throw new LockException("Source parent node " + srcNode.getPath() + " is locked ");
     
-    ItemDataCopyVisitor initializer = new ItemDataCopyVisitor(
+    ItemDataCopyVisitor1 initializer = new ItemDataCopyVisitor1(
         (NodeData) destParentNode.getData(),
         destNodePath.getName().getInternalName(), 
         getNodeTypeManager(), 

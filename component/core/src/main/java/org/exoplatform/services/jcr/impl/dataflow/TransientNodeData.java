@@ -37,13 +37,13 @@ import org.exoplatform.services.jcr.util.UUIDGenerator;
 public class TransientNodeData extends TransientItemData implements Comparable,
     MutableNodeData, Externalizable  {
 
-  private InternalQName primaryTypeName;
+  protected InternalQName primaryTypeName;
 
-  private InternalQName[] mixinTypeNames;
+  protected InternalQName[] mixinTypeNames;
 
-  private int orderNum;
+  protected int orderNum;
 
-  private AccessControlList acl;
+  protected AccessControlList acl;
   
   public TransientNodeData(QPath path, String uuid, int version,
       InternalQName primaryTypeName, InternalQName[] mixinTypeNames,

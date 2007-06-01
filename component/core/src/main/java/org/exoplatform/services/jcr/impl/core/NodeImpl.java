@@ -86,6 +86,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
+import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 import org.exoplatform.services.jcr.util.UUIDGenerator;
@@ -2352,7 +2353,14 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     // VERSION
     if (type.isNodeType(Constants.MIX_VERSIONABLE)) {
-      initVersionable();
+      PlainChangesLogImpl changes = new PlainChangesLogImpl();
+      VersionHistoryDataHelper vhistory = new VersionHistoryDataHelper(
+          nodeData(), changes, dataManager, 
+          session.getWorkspace().getNodeTypeManager());
+      for (ItemState istate: changes.getAllStates()) {
+        dataManager.update(istate, true);
+      }
+      //initVersionable();
     }
   }
 
@@ -2531,25 +2539,17 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     // update all
     // InternalQPath vhPath = versionHistory.getQPath();
-    dataManager.update(new ItemState(versionHistory, ItemState.ADDED, true, getInternalPath()),
-        false);
-    dataManager.update(new ItemState(vhPrimaryType, ItemState.ADDED, true, getInternalPath()),
-        false);
+    dataManager.update(new ItemState(versionHistory, ItemState.ADDED, true, getInternalPath()), false);
+    dataManager.update(new ItemState(vhPrimaryType, ItemState.ADDED, true, getInternalPath()), false);
     dataManager.update(new ItemState(vhUuid, ItemState.ADDED, true, getInternalPath()), false);
-    dataManager.update(new ItemState(vhVersionableUuid, ItemState.ADDED, true, getInternalPath()),
-        false);
+    dataManager.update(new ItemState(vhVersionableUuid, ItemState.ADDED, true, getInternalPath()), false);
 
-    dataManager.update(new ItemState(vhVersionLabels, ItemState.ADDED, true, getInternalPath()),
-        false);
-    dataManager.update(new ItemState(vlPrimaryType, ItemState.ADDED, true, getInternalPath()),
-        false);
+    dataManager.update(new ItemState(vhVersionLabels, ItemState.ADDED, true, getInternalPath()), false);
+    dataManager.update(new ItemState(vlPrimaryType, ItemState.ADDED, true, getInternalPath()), false);
 
-    dataManager.update(new ItemState(rootVersionData, ItemState.ADDED, true, getInternalPath()),
-        false);
-    dataManager.update(new ItemState(rvPrimaryType, ItemState.ADDED, true, getInternalPath()),
-        false);
-    dataManager
-        .update(new ItemState(rvMixinTypes, ItemState.ADDED, true, getInternalPath()), false);
+    dataManager.update(new ItemState(rootVersionData, ItemState.ADDED, true, getInternalPath()), false);
+    dataManager.update(new ItemState(rvPrimaryType, ItemState.ADDED, true, getInternalPath()), false);
+    dataManager.update(new ItemState(rvMixinTypes, ItemState.ADDED, true, getInternalPath()), false);
     dataManager.update(new ItemState(rvUuid, ItemState.ADDED, true, getInternalPath()), false);
     dataManager.update(new ItemState(rvCreated, ItemState.ADDED, true, getInternalPath()), false);
 

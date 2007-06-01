@@ -27,7 +27,7 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
  * properties and <b>itemDeletedStates</b> for deleting existing nodes and
  * properties.
  */
-public class ItemDataMoveVisitor extends ItemDataCopyVisitor {
+public class ItemDataMoveVisitor extends DefaultItemDataCopyVisitor {
   /**
    * The list of added item states
    */

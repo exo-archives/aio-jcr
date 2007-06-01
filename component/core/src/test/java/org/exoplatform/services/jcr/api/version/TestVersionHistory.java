@@ -2,6 +2,7 @@ package org.exoplatform.services.jcr.api.version;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
 
@@ -15,12 +16,16 @@ import javax.jcr.version.VersionHistory;
 
 public class TestVersionHistory extends BaseVersionTest {
 
+  private Node testRoot = null;
+  
   private Node testVersionable = null;
   
   public void setUp() throws Exception {
     super.setUp();
     
-    testVersionable = root.addNode("testVersionable","nt:unstructured");
+    testRoot = root.addNode("testRoot");
+    
+    testVersionable = testRoot.addNode("testVersionable","nt:unstructured");
     testVersionable.addMixin("mix:versionable");
     root.save();
   }
@@ -28,7 +33,7 @@ public class TestVersionHistory extends BaseVersionTest {
   protected void tearDown() throws Exception {
     try {
       testVersionable.checkout();
-      testVersionable.remove();
+      testRoot.remove();
       root.save();
     } catch(RepositoryException e) {
       log.error("tear down error: " + e, e);
@@ -224,5 +229,54 @@ public class TestVersionHistory extends BaseVersionTest {
         n2.getPath(), snsN2_2_Other.getPath(), n3.getPath()}, 
         new String[] {n4.getPath(), n5.getPath(), n6.getPath()});     
     checkVersionHistory(testVersionable, 8);
+  }
+  
+  private void checkVersionableCopy(Node versionable1, Node versionable2) throws RepositoryException {
+    String v1_VH_UUID = versionable1.getProperty("jcr:versionHistory").getString();
+    String v1_BV_UUID = versionable1.getProperty("jcr:baseVersion").getString();
+    
+    try {
+      
+      String v2_VH_UUID = versionable2.getProperty("jcr:versionHistory").getString();
+      String v2_BV_UUID = versionable2.getProperty("jcr:baseVersion").getString();
+      
+      assertNotSame("Copied node must has a new version history ", v1_VH_UUID, v2_VH_UUID);
+      assertNotSame("Copied node must has a new base version ", v1_BV_UUID, v2_BV_UUID);
+      
+      // add new version to the source
+      versionable1.checkin();
+      versionable1.checkout();
+
+      v1_BV_UUID = versionable1.getProperty("jcr:baseVersion").getString();
+      v2_BV_UUID = versionable2.getProperty("jcr:baseVersion").getString();
+      assertNotSame("Copied node and its source versionable node must has a different version graphs (1) ", v1_BV_UUID, v2_BV_UUID);
+      
+      // add new version to the another versionable
+      versionable2.checkin();
+      versionable2.checkout();
+      
+      v2_BV_UUID = versionable2.getProperty("jcr:baseVersion").getString();
+      assertNotSame("Copied node and its source versionable node must has a different version graphs (2) ", v1_BV_UUID, v2_BV_UUID);
+      
+    } catch(RepositoryException e) {
+      fail("Versionable node was not copied properly. " + e);
+    }
+  }
+  
+  public void testCopyVersionable() throws Exception {
+    
+    //Node source = testRoot.addNode("node1");
+    session.getWorkspace().copy(testVersionable.getPath(), testRoot.getPath() + "/newVersionable");
+
+    checkVersionableCopy(testVersionable, testRoot.getNode("newVersionable"));
+  }
+  
+  public void testCopyVersionableInAnotherWorkspace() throws Exception {
+  
+    Session ws1 = repository.login(credentials, "ws1");
+    
+    ws1.getWorkspace().copy("ws", testVersionable.getPath(), "/newVersionable");
+    
+    checkVersionableCopy(testVersionable, ws1.getRootNode().getNode("newVersionable"));
   }
 }

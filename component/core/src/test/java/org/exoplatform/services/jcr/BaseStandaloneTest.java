@@ -69,23 +69,15 @@ public abstract class BaseStandaloneTest extends TestCase {
       System.setProperty("java.security.auth.login.config",
           "src/main/resources/login.conf");
 
-    credentials = new CredentialsImpl("exo", "exo".toCharArray());
+    credentials = new CredentialsImpl("admin", "admin".toCharArray());
 
     repositoryService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
 
-    repository = (RepositoryImpl) repositoryService.getRepository();
+    repository = (RepositoryImpl) repositoryService.getDefaultRepository();
 
-    //repository.getContainer().start();
-
-    if (!repository.isWorkspaceInitialized("ws"))
-      repository.initWorkspace("ws", "nt:unstructured");
-//
-//    if (!((RepositoryImpl) repository).isWorkspaceInitialized("ws1"))
-//      ((RepositoryImpl) repository).initWorkspace("ws1", "nt:unstructured");
-//
-//    if (!((RepositoryImpl) repository).isWorkspaceInitialized("ws2"))
-//      ((RepositoryImpl) repository).initWorkspace("ws2", "nt:unstructured");
-
+//    if (!repository.isWorkspaceInitialized("ws"))
+//      repository.initWorkspace("ws", "nt:unstructured");
+    
     session = (SessionImpl) repository.login(credentials, "ws");
     workspace = session.getWorkspace();
     root = session.getRootNode();

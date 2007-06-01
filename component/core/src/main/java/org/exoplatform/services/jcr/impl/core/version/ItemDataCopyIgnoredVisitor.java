@@ -22,7 +22,7 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
-import org.exoplatform.services.jcr.impl.dataflow.ItemDataCopyVisitor;
+import org.exoplatform.services.jcr.impl.dataflow.DefaultItemDataCopyVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -34,7 +34,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: ItemDataCopyIgnoredVisitor.java 13421 2007-03-15 10:46:47Z geaz $
  */
-public class ItemDataCopyIgnoredVisitor extends ItemDataCopyVisitor {
+public class ItemDataCopyIgnoredVisitor extends DefaultItemDataCopyVisitor {
 
   private static Log log = ExoLogger.getLogger("jcr.ItemDataCopyIgnoredVisitor");
   
