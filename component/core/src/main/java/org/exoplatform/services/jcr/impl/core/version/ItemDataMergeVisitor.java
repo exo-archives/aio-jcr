@@ -29,7 +29,7 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
-import org.exoplatform.services.jcr.impl.dataflow.ItemDataCopyVisitor1;
+import org.exoplatform.services.jcr.impl.dataflow.ItemDataCopyVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -305,7 +305,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
     
           //changes.add(new ItemState(((TransientNodeData) corrNode).clone(), ItemState.ADDED, true, context.getParent().getQPath(), true));
           
-          ItemDataCopyVisitor1 copier = new ItemDataCopyVisitor1(context.getParent(), 
+          ItemDataCopyVisitor copier = new ItemDataCopyVisitor(context.getParent(), 
               corrNode.getQPath().getName(), 
               mergeSession.getWorkspace().getNodeTypeManager(),
               mergeDataManager, true);      

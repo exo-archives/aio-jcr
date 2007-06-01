@@ -10,7 +10,7 @@ package org.exoplatform.services.jcr.impl.dataflow.replication;
  * alex.reshetnyak@exoplatform.com.ua 24.11.2006
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: FixupStream.java 12841 2007-02-16 08:58:38Z peterit $
+ * @version $Id$
  */
 
 public class FixupStream{

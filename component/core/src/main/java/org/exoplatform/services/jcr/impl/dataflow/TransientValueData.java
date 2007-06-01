@@ -33,7 +33,7 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
  * 
  * 
  * @author Gennady Azarenkov
- * @version $Id: TransientValueData.java 13729 2007-03-23 16:13:13Z vetal_ok $
+ * @version $Id$
  */
 
 public class TransientValueData extends AbstractValueData implements Externalizable {

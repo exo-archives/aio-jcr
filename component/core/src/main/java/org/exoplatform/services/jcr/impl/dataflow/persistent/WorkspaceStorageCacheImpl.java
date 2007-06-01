@@ -37,7 +37,7 @@ import org.exoplatform.services.log.ExoLogger;
  *  
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov
  *         </a>
- * @version $Id: WorkspaceStorageCacheImpl.java 13421 2007-03-15 10:46:47Z geaz $
+ * @version $Id$
  */
 
 public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {

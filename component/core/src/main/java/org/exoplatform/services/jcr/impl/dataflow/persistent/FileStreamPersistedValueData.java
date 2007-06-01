@@ -17,7 +17,7 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 /**
  * Created by The eXo Platform SARL        .
  * @author Gennady Azarenkov
- * @version $Id: FileStreamPersistedValueData.java 12841 2007-02-16 08:58:38Z peterit $
+ * @version $Id$
  */
 
 public class FileStreamPersistedValueData extends AbstractValueData {

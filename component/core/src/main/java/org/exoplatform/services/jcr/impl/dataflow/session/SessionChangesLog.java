@@ -26,7 +26,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
  * Relying on fact that ItemData inside ItemState SHOULD be TransientItemData  
  *
  * @author Gennady Azarenkov
- * @version $Id: SessionChangesLog.java 13421 2007-03-15 10:46:47Z geaz $
+ * @version $Id$
  */
  public final class SessionChangesLog extends PlainChangesLogImpl {
 

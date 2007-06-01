@@ -35,7 +35,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Workspace-level data manager
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: WorkspacePersistentDataManager.java 13869 2007-03-28 13:50:50Z peterit $
+ * @version $Id$
  */
 public abstract class WorkspacePersistentDataManager implements DataManager {
 

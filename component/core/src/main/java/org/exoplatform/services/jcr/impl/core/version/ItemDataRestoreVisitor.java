@@ -28,7 +28,7 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
-import org.exoplatform.services.jcr.impl.dataflow.ItemDataCopyVisitor1;
+import org.exoplatform.services.jcr.impl.dataflow.ItemDataCopyVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -485,7 +485,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
 
         if (existed != null) {
           // copy existed - i.e. left unchanged
-          ItemDataCopyVisitor1 copyVisitor = new ItemDataCopyVisitor1(currentNode(), frozen.getQPath().getName(),
+          ItemDataCopyVisitor copyVisitor = new ItemDataCopyVisitor(currentNode(), frozen.getQPath().getName(),
               ntManager, userSession.getTransientNodesManager(), true);
           existed.accept(copyVisitor);
           changes.addAll(copyVisitor.getItemAddStates());

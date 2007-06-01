@@ -47,7 +47,7 @@ import org.exoplatform.services.jcr.impl.core.query.QueryManagerFactory;
 import org.exoplatform.services.jcr.impl.core.query.QueryManagerImpl;
 import org.exoplatform.services.jcr.impl.core.version.VersionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataCloneVisitor;
-import org.exoplatform.services.jcr.impl.dataflow.ItemDataCopyVisitor1;
+import org.exoplatform.services.jcr.impl.dataflow.ItemDataCopyVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataMoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableDataManager;
@@ -246,7 +246,7 @@ public class WorkspaceImpl implements Workspace {
     if (!srcNode.checkLocking())
       throw new LockException("Source parent node " + srcNode.getPath() + " is locked ");
     
-    ItemDataCopyVisitor1 initializer = new ItemDataCopyVisitor1(
+    ItemDataCopyVisitor initializer = new ItemDataCopyVisitor(
         (NodeData) destParentNode.getData(),
         destNodePath.getName().getInternalName(), 
         getNodeTypeManager(), 

@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.util.UUIDGenerator;
  * properties.
  * 
 * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
-* @version $Id: ItemDataCopyVisitor.java 13619 2007-03-21 13:36:51Z ksm $
+* @version $Id$
  */
 
 public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisitor {

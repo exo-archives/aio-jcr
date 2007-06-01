@@ -14,7 +14,7 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
  * Created by The eXo Platform SARL        .
  * Implementation of FileStream ValueData secures deleting file in object finalization 
  * @author Gennady Azarenkov
- * @version $Id: CleanableFileStreamValueData.java 12841 2007-02-16 08:58:38Z peterit $
+ * @version $Id$
  */
 
 public class CleanableFileStreamValueData extends FileStreamPersistedValueData {

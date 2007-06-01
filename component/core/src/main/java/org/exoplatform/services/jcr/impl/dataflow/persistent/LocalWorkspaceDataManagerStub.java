@@ -11,7 +11,7 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SARL        .
  * @author Gennady Azarenkov
- * @version $Id: LocalWorkspaceDataManagerStub.java 13421 2007-03-15 10:46:47Z geaz $
+ * @version $Id$
  */
 
 public class LocalWorkspaceDataManagerStub extends VersionableWorkspaceDataManager {

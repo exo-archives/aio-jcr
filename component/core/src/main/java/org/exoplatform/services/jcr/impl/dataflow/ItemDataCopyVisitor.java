@@ -20,11 +20,11 @@ import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelp
 import org.exoplatform.services.jcr.util.UUIDGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
-public class ItemDataCopyVisitor1 extends DefaultItemDataCopyVisitor {
+public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
 
   private Log      log = ExoLogger.getLogger("jcr.ItemDataCopyVisitor");
   
-  public ItemDataCopyVisitor1(NodeData parent, InternalQName destNodeName,
+  public ItemDataCopyVisitor(NodeData parent, InternalQName destNodeName,
       NodeTypeManagerImpl nodeTypeManager, SessionDataManager dataManager, boolean keepUUIDs) {
     super(parent, destNodeName, nodeTypeManager, dataManager, keepUUIDs);
   }

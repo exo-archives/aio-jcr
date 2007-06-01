@@ -40,7 +40,7 @@ import org.exoplatform.services.jcr.util.UUIDGenerator;
  * For use instead a VersionHistoryImpl.
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: VersionHistoryDataHelper.java 12841 2007-02-16 08:58:38Z peterit $
+ * @version $Id$
  */
 public class VersionHistoryDataHelper extends TransientNodeData {
 

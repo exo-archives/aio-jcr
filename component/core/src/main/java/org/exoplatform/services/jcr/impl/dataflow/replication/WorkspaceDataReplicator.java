@@ -47,7 +47,7 @@ import org.jgroups.util.Util;
  * configured
  * 
  * @author Gennady Azarenkov
- * @version $Id: WorkspaceDataReplicator.java 13818 2007-03-27 13:28:54Z rainf0x $
+ * @version $Id$
  */
 
 public class WorkspaceDataReplicator implements ItemsPersistenceListener,

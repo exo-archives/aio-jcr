@@ -42,7 +42,7 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.LocalWorkspaceDataM
  * for session data manager and pass it on top (to TransactionableDM) (and vice versa?) 
  *     
  * @author Gennady Azarenkov
- * @version $Id: LocalWorkspaceStorageDataManagerProxy.java 13467 2007-03-16 10:06:34Z ksm $
+ * @version $Id$
  */
 
 public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDataManagerProxy {

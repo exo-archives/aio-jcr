@@ -23,7 +23,7 @@ import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
  * Author : Peter Nedonosko
  *          peter.nedonosko@exoplatform.com.ua
  * 13.04.2006
- * @version $Id: CacheableWorkspaceDataManager.java 13421 2007-03-15 10:46:47Z geaz $
+ * @version $Id$
  */
 public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManager {
 

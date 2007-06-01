@@ -27,7 +27,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SARL        .
  * Data Manager supported ACL Inheritance
  * @author Gennady Azarenkov
- * @version $Id: ACLInheritanceSupportedWorkspaceDataManager.java 13421 2007-03-15 10:46:47Z geaz $
+ * @version $Id$
  */
 public class ACLInheritanceSupportedWorkspaceDataManager implements ItemDataConsumer, SharedDataManager {
 

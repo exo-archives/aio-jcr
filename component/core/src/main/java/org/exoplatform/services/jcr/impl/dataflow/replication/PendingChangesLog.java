@@ -33,7 +33,7 @@ import org.exoplatform.services.jcr.util.UUIDGenerator;
  * alex.reshetnyak@exoplatform.com.ua 24.11.2006
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: PendingChangesLog.java 13716 2007-03-23 10:42:43Z rainf0x $
+ * @version $Id$
  */
 
 public class PendingChangesLog {

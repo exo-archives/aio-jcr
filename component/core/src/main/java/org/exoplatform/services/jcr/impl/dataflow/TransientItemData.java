@@ -21,7 +21,7 @@ import org.exoplatform.services.jcr.impl.Constants;
  * Created by The eXo Platform SARL .
  * 
  * @author Gennady Azarenkov
- * @version $Id: TransientItemData.java 12841 2007-02-16 08:58:38Z peterit $
+ * @version $Id$
  */
 public abstract class TransientItemData implements MutableItemData, Externalizable {
 

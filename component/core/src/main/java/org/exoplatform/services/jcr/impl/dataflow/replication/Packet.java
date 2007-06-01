@@ -19,7 +19,7 @@ import java.io.ObjectOutputStream;
  * alex.reshetnyak@exoplatform.org.ua 24.11.2006
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: Packet.java 12841 2007-02-16 08:58:38Z peterit $
+ * @version $Id$
  */
 
 public class Packet implements Externalizable {

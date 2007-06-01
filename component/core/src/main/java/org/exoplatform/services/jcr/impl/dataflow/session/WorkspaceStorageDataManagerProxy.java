@@ -12,7 +12,7 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
 /**
  * Created by The eXo Platform SARL        .
  * @author Gennady Azarenkov
- * @version $Id: WorkspaceStorageDataManagerProxy.java 12841 2007-02-16 08:58:38Z peterit $
+ * @version $Id$
  */
 
 public interface WorkspaceStorageDataManagerProxy extends DataManager {
