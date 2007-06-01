@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -35,6 +36,7 @@ import org.jibx.runtime.JiBXException;
 public class RepositoryServiceConfigurationImpl extends RepositoryServiceConfiguration {
 
   private ValueParam param;
+  private ConfigurationManager configurationService;
 
   public RepositoryServiceConfigurationImpl(InitParams params,
       ConfigurationManager configurationService) throws RepositoryConfigurationException {
@@ -42,6 +44,7 @@ public class RepositoryServiceConfigurationImpl extends RepositoryServiceConfigu
     try {
       param = params.getValueParam("conf-path");
       InputStream is = configurationService.getInputStream(param.getValue());
+      this.configurationService = configurationService;
       init(is);
     } catch (Exception e) {
       throw new RepositoryConfigurationException("XML config data not found! Reason: " + e);
@@ -58,8 +61,15 @@ public class RepositoryServiceConfigurationImpl extends RepositoryServiceConfigu
    * @see org.exoplatform.services.jcr.config.RepositoryServiceConfiguration#isRetainable()
    */
   public boolean isRetainable() {
-    String fileUri = param.getValue();
-    return fileUri.startsWith("file:");
+    String strfileUri = param.getValue();
+    URL fileURL ;
+    try {
+      fileURL = configurationService.getURL(strfileUri);
+      
+    } catch (Exception e) {
+      return false;
+    }
+    return fileURL.getProtocol().equals("file");
   }
   
   /**

@@ -267,7 +267,7 @@ public class TestSaveConfiguration extends TestCase {
           + "        <description>JCR configuration file</description>" +
           // /
           "        <value>"
-          + "file:"+FILE_JCR_CONFIG.getAbsolutePath()
+          +   FILE_JCR_CONFIG.getName()
           + "        </value>"
           +
           // /
@@ -492,5 +492,7 @@ public class TestSaveConfiguration extends TestCase {
     conf.deleteOnExit();
 
   }
+
+
 
 }
