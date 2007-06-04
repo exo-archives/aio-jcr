@@ -38,7 +38,7 @@ import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelp
  * Created by The eXo Platform SARL .
  * 
  * @author Gennady Azarenkov
- * @version $Id: VersionImpl.java 13421 2007-03-15 10:46:47Z geaz $
+ * @version $Id$
  */
 
 public class VersionImpl extends VersionStorageDescendantNode implements Version {
@@ -62,9 +62,6 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     
     checkValid();
     
-//    QPath createdPath = QPath.makeChildPath(getData().getQPath(), Constants.JCR_CREATED);
-//    
-//    PropertyData pdata = (PropertyData) dataManager.getItemData(createdPath);
     PropertyData pdata = (PropertyData) dataManager.getItemData(nodeData(),new QPathEntry( Constants.JCR_CREATED,0));
     
     
@@ -74,8 +71,6 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     Value created = session.getValueFactory().loadValue((TransientValueData) pdata.getValues().get(0), pdata.getType());
     
     return created.getDate();
-    
-    //return getProperty("jcr:created").getDate();
   }
 
   /* (non-Javadoc)
@@ -84,10 +79,6 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
   public Version[] getSuccessors() throws RepositoryException {
     
     checkValid();
-    
-//    QPath successorsPath = QPath.makeChildPath(getData().getQPath(), Constants.JCR_SUCCESSORS);
-//    
-//    PropertyData successorsData = (PropertyData) dataManager.getItemData(successorsPath);
     
     PropertyData successorsData = (PropertyData) dataManager.getItemData(nodeData(),
         new QPathEntry(Constants.JCR_SUCCESSORS, 0));
@@ -122,11 +113,6 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     
     checkValid();
     
-//    QPath predecessorsPath = QPath.makeChildPath(getData().getQPath(), Constants.JCR_PREDECESSORS);
-//    
-//    PropertyData predecessorsData = (PropertyData) dataManager.getItemData(predecessorsPath);
-    //QPath predecessorsPath = QPath.makeChildPath(getData().getQPath(), Constants.JCR_PREDECESSORS);
-    
     PropertyData predecessorsData = (PropertyData) dataManager.getItemData(nodeData(),
         new QPathEntry(Constants.JCR_PREDECESSORS, 0));
 
@@ -157,8 +143,6 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
   public void addSuccessor(String successorUuid, PlainChangesLog changesLog) throws RepositoryException {
     ValueData successorRef = new TransientValueData(new Uuid(successorUuid));
     
-//    QPath successorsPath = QPath.makeChildPath(this.getInternalPath(), Constants.JCR_SUCCESSORS);
-//    TransientPropertyData successorsProp = (TransientPropertyData) dataManager.getItemData(successorsPath);
     TransientPropertyData successorsProp = (TransientPropertyData) dataManager
     .getItemData(nodeData(), new QPathEntry(Constants.JCR_SUCCESSORS, 0));
     
@@ -180,8 +164,6 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     
     ValueData predeccessorRef = new TransientValueData(new Uuid(predeccessorUuid));
     
-    //QPath predeccessorssPath = QPath.makeChildPath(this.getInternalPath(), Constants.JCR_PREDECESSORS);
-    //TransientPropertyData predeccessorsProp = (TransientPropertyData) dataManager.getItemData(predeccessorssPath);
     TransientPropertyData predeccessorsProp = (TransientPropertyData) dataManager
         .getItemData(nodeData(), new QPathEntry(Constants.JCR_PREDECESSORS, 0));
 
@@ -201,8 +183,6 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
   }
   
   void removeSuccessor(String successorUuid, PlainChangesLog changesLog) throws RepositoryException {
-    //QPath successorsPath = QPath.makeChildPath(this.getInternalPath(), Constants.JCR_SUCCESSORS);
-    //PropertyData successorsProp = (PropertyData) dataManager.getItemData(successorsPath);
     TransientPropertyData successorsProp = (TransientPropertyData) dataManager
         .getItemData(nodeData(), new QPathEntry(Constants.JCR_SUCCESSORS, 0));
     if (successorsProp != null) {
@@ -232,8 +212,6 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
   }
   
   void removeAddSuccessor(String removedSuccessorUuid, String addedSuccessorUuid, PlainChangesLog changesLog) throws RepositoryException {
-//    QPath successorsPath = QPath.makeChildPath(this.getInternalPath(), Constants.JCR_SUCCESSORS);
-//    PropertyData successorsProp = (PropertyData) dataManager.getItemData(successorsPath);
     
     TransientPropertyData successorsProp = (TransientPropertyData) dataManager
     .getItemData(nodeData(), new QPathEntry(Constants.JCR_SUCCESSORS, 0));
@@ -267,8 +245,6 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
   }
   
   void removePredecessor(String predecessorUuid, PlainChangesLog changesLog) throws RepositoryException {
-//    QPath predeccessorsPath = QPath.makeChildPath(this.getInternalPath(), Constants.JCR_PREDECESSORS);
-//    PropertyData predeccessorsProp = (PropertyData) dataManager.getItemData(predeccessorsPath);
     TransientPropertyData predeccessorsProp = (TransientPropertyData) dataManager
     .getItemData(nodeData(), new QPathEntry(Constants.JCR_PREDECESSORS, 0));
     
@@ -299,8 +275,6 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
   }
   
   void removeAddPredecessor(String removedPredecessorUuid, String addedPredecessorUuid, PlainChangesLog changesLog) throws RepositoryException {
-//    QPath predeccessorsPath = QPath.makeChildPath(this.getInternalPath(), Constants.JCR_PREDECESSORS);
-//    PropertyData predeccessorsProp = (PropertyData) dataManager.getItemData(predeccessorsPath);
 
     TransientPropertyData predeccessorsProp = (TransientPropertyData) dataManager
     .getItemData(nodeData(), new QPathEntry(Constants.JCR_PREDECESSORS, 0));
@@ -337,8 +311,6 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     
     checkValid();
     
- //   VersionHistoryImpl vhistory = (VersionHistoryImpl) dataManager.getItem(nodeData().makeParentPath(), true);
-    
     VersionHistoryImpl vhistory = (VersionHistoryImpl) dataManager.getItemByUUID(nodeData().getParentUUID(), true);
      
     
@@ -359,8 +331,6 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     
     NodeData parentData = (NodeData) dmanager.getItemData(nodeData.getParentUUID());
     
-    //QPath frozenPath = QPath.makeChildPath(getData().getQPath(), Constants.JCR_FROZENNODE);
-    //NodeData frozenData = (NodeData) dmanager.getItemData(frozenPath);
     NodeData frozenData = (NodeData) dmanager.getItemData(nodeData(), new QPathEntry(Constants.JCR_FROZENNODE, 1));
     
     ItemDataRestoreVisitor restoreVisitor = new ItemDataRestoreVisitor(

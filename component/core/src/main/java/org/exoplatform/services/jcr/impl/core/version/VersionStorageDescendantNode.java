@@ -36,7 +36,7 @@ import org.exoplatform.services.jcr.impl.dataflow.session.WorkspaceStorageDataMa
  * Created by The eXo Platform SARL        .
  * 
  * @author Gennady Azarenkov
- * @version $Id: VersionStorageDescendantNode.java 12841 2007-02-16 08:58:38Z peterit $
+ * @version $Id$
  */
 
 public abstract class VersionStorageDescendantNode extends NodeImpl {
@@ -210,16 +210,4 @@ public abstract class VersionStorageDescendantNode extends NodeImpl {
         "jcr:versionStorage is protected");
   }
   
-/*  
-  protected PropertyImpl doSetProperty(String name, Value[] values, int type,
-      boolean multiValued, boolean registerInDataManager, boolean doExternalValidation) 
-      throws ConstraintViolationException, VersionException, RepositoryException {
-    if(doExternalValidation)
-      throw new ConstraintViolationException("jcr:versionStorage is protected");
-    else
-      return super.doSetProperty(name, values, type, multiValued, 
-          registerInDataManager, doExternalValidation);
-  }
-*/
-
 }

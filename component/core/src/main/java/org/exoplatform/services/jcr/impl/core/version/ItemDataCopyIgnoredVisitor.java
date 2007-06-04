@@ -5,7 +5,6 @@
 
 package org.exoplatform.services.jcr.impl.core.version;
 
-import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.nodetype.PropertyDefinition;
@@ -13,10 +12,7 @@ import javax.jcr.version.OnParentVersionAction;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.QPath;
-import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -32,7 +28,7 @@ import org.exoplatform.services.log.ExoLogger;
  * 14.12.2006
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ItemDataCopyIgnoredVisitor.java 13421 2007-03-15 10:46:47Z geaz $
+ * @version $Id$
  */
 public class ItemDataCopyIgnoredVisitor extends DefaultItemDataCopyVisitor {
 
@@ -66,8 +62,6 @@ public class ItemDataCopyIgnoredVisitor extends DefaultItemDataCopyVisitor {
         // parent is not exists as this copy context current parent
         // i.e. it's a IGNOREd property elsewhere at a versionable node descendant. 
         // So, we have to know that this parent WILL exists after restore
-        //NodeData contextParent = findRestoredParent(property);
-        //if (contextParent != null) {
         ItemState contextState = restoredChanges.getItemState(property.getParentUUID());
         if (contextState != null && !contextState.isDeleted()) {        
           // the node can be stored as IGNOREd in restore set, check an action
@@ -104,10 +98,8 @@ public class ItemDataCopyIgnoredVisitor extends DefaultItemDataCopyVisitor {
           // parent is not exists as this copy context current parent
           // i.e. it's a IGNOREd node elsewhere at a versionable node descendant. 
           // So, we have to know that this parent WILL exists after restore
-          //NodeData contextParent = findRestoredParent(node);
           ItemState contextState = restoredChanges.getItemState(node.getParentUUID());
           if (contextState != null && !contextState.isDeleted()) {
-          //if (contextParent != null) {
             if (log.isDebugEnabled())
               log.debug("A node " + node.getQPath().getAsString() + " is IGNOREd");
             

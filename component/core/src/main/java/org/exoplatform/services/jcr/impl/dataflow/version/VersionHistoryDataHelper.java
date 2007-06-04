@@ -56,10 +56,6 @@ public class VersionHistoryDataHelper extends TransientNodeData {
    * @param ntManager
    */
   public VersionHistoryDataHelper(NodeData source, ItemDataConsumer dataManager, NodeTypeManagerImpl ntManager) {
-    /*InternalQPath path, String uuid, int version,
-      InternalQName primaryTypeName, InternalQName[] mixinTypeNames,
-      int orderNum, String parentUUID, AccessControlList acl*/
-    
     super(source.getQPath(), source.getUUID(), source.getPersistedVersion(), 
         source.getPrimaryTypeName(), source.getMixinTypeNames(), source.getOrderNumber(), 
         source.getParentUUID(), source.getACL());
@@ -80,10 +76,6 @@ public class VersionHistoryDataHelper extends TransientNodeData {
    * @throws RepositoryException 
    */
   public VersionHistoryDataHelper(NodeData versionable, PlainChangesLogImpl changes, ItemDataConsumer dataManager, NodeTypeManagerImpl ntManager) throws RepositoryException {
-//    super(source.getQPath(), source.getUUID(), source.getPersistedVersion(), 
-//        source.getPrimaryTypeName(), source.getMixinTypeNames(), source.getOrderNumber(), 
-//        source.getParentUUID(), source.getACL());
-
     this.dataManager = dataManager;
     this.ntManager = ntManager;
     
@@ -104,11 +96,6 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   
   public List<NodeData> getAllVersionsData() throws RepositoryException {
     
-//    NodeData vData = (NodeData) dataManager.getItemData(getQPath());
-//    
-//    NodeData rootVersion = (NodeData) dataManager.getItemData(
-//        QPath.makeChildPath(getQPath(), Constants.JCR_ROOTVERSION));
-//    
     NodeData vData = (NodeData) dataManager.getItemData(getUUID());
     
     NodeData rootVersion = (NodeData) dataManager.getItemData(vData,new QPathEntry(Constants.JCR_ROOTVERSION,0));
@@ -134,8 +121,6 @@ public class VersionHistoryDataHelper extends TransientNodeData {
     NodeData lastVersionData = null;
     Calendar lastCreated = null;
     for (NodeData vd : versionsData) {
-      // PropertyData createdData = (PropertyData) dataManager.getItemData(
-      // QPath.makeChildPath(vd.getQPath(), Constants.JCR_CREATED));
       
       PropertyData createdData = (PropertyData) dataManager.getItemData(vd,
           new QPathEntry(Constants.JCR_CREATED, 0));
@@ -161,16 +146,10 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   }  
   
   public NodeData getVersionData(InternalQName versionQName) throws VersionException, RepositoryException {
-//    QPath versionPath = QPath.makeChildPath(getQPath(), versionQName);
-//    
-//    return (NodeData) dataManager.getItemData(versionPath);
     return (NodeData) dataManager.getItemData(this, new QPathEntry(versionQName,0));
   }
   
   public NodeData getVersionLabelsData() throws VersionException, RepositoryException {
-//    QPath labelsPath = QPath.makeChildPath(getQPath(), Constants.JCR_VERSIONLABELS);
-//    
-//    return (NodeData) dataManager.getItemData(labelsPath);
     return (NodeData) dataManager.getItemData(this, new QPathEntry(Constants.JCR_VERSIONLABELS,0));
   }
   
@@ -236,8 +215,6 @@ public class VersionHistoryDataHelper extends TransientNodeData {
     // jcr:versionableUuid
     TransientPropertyData vhVersionableUuid = TransientPropertyData
     // [PN] 10.04.07 VERSIONABLEUUID isn't referenceable!!!
-        // .createPropertyData(versionHistory, Constants.JCR_VERSIONABLEUUID,
-        // PropertyType.REFERENCE, false);
         .createPropertyData(versionHistory,
             Constants.JCR_VERSIONABLEUUID,
             PropertyType.STRING,

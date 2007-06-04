@@ -44,7 +44,7 @@ import org.exoplatform.services.log.ExoLogger;
  * 14.12.2006
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ItemDataRestoreVisitor.java 12841 2007-02-16 08:58:38Z peterit $
+ * @version $Id$
  */
 public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
 
@@ -98,7 +98,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
     }
 
     protected void validateReferential(NodeData node) throws RepositoryException {
-      // TODO no REFERENCE validation here
+      // no REFERENCE validation here
     }
   };
 
@@ -171,11 +171,6 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
     if (log.isDebugEnabled())
       log.debug("Restore: " + nodePath.getAsString() + ", removeExisting=" + removeExisting);
 
-    //InternalQPath frozenPath = InternalQPath.makeChildPath(historyData.getQPath(), Constants.JCR_FROZENNODE);
-//    QPath frozenPath = frozen.getQPath();
-//
-//    QPath frozenUuidPath = QPath.makeChildPath(frozenPath, Constants.JCR_FROZENUUID);
-//    PropertyData frozenUuid = (PropertyData) dataManager.getItemData(frozenUuidPath);
     PropertyData frozenUuid = (PropertyData) dataManager.getItemData(frozen,new QPathEntry(Constants.JCR_FROZENUUID,0));
     
     String fuuid = null;
@@ -189,7 +184,6 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         deleteDelegated(sameUuidNodeRestored.getQPath());
       } else {
         NodeData sameUuidNode = (NodeData) dataManager.getItemData(fuuid);
-        //final NodeData sameUuidNode = (NodeData) findExistingItemData(fuuid);
         if (sameUuidNode != null) {
           QPath sameUuidPath = sameUuidNode.getQPath();
           if (sameUuidPath.makeParentPath().equals(nodePath.makeParentPath()) && // same parent
@@ -197,8 +191,6 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
 
             if (sameUuidPath.getIndex() != nodePath.getIndex())
               // but different index, see below... fix it
-              // [PN] 05.02.07
-              //nodePath.getEntries()[nodePath.getLength() - 1].setIndex(sameUuidPath.getIndex());
               nodePath = QPath.makeChildPath(parentData.getQPath(), name, sameUuidPath.getIndex());
 
             // if it's a target node
@@ -206,7 +198,6 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
 
             // remove existed node, with validation
             ItemDataRemoveVisitor removeVisitor = new RemoveVisitor();
-//            existing.accept(removeVisitor); //  removeVisitor.visit(existing)
             removeVisitor.visit(existing);
 
             changes.addAll(removeVisitor.getRemovedStates());
@@ -244,15 +235,9 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
     }
 
     
-//    QPath frozenPrimaryTypePath = QPath.makeChildPath(frozenPath, Constants.JCR_FROZENPRIMARYTYPE);
-//    PropertyData frozenPrimaryType = (PropertyData) dataManager.getItemData(frozenPrimaryTypePath);
-
     PropertyData frozenPrimaryType = (PropertyData) dataManager.getItemData(frozen,
         new QPathEntry(Constants.JCR_FROZENPRIMARYTYPE, 0));
     
-//    QPath frozenMixinTypesPath = QPath.makeChildPath(frozenPath, Constants.JCR_FROZENMIXINTYPES);
-//    PropertyData frozenMixinTypes = (PropertyData) dataManager.getItemData(frozenMixinTypesPath);
-
     PropertyData frozenMixinTypes = (PropertyData) dataManager.getItemData(frozen,
         new QPathEntry(Constants.JCR_FROZENMIXINTYPES, 0));
     
@@ -293,8 +278,6 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         mixins == null ? new InternalQName[0] : mixins,
         0, parentData.getUUID(), parentData.getACL());
 
-//    changes.add(new ItemState(restoredData,
-//        (existing != null && updateExisting ? ItemState.UPDATED : ItemState.ADDED), true, null));
     changes.add(ItemState.createAddedState(restoredData));
 
     pushCurrent(restoredData);
@@ -332,9 +315,6 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
       VersionHistoryDataHelper childHistory = null;
       try {
 
-//        String vhUuid = new String(
-//            ((PropertyData) dataManager.getItemData(cvhpPropPath)).getValues().get(0).getAsByteArray());
-
         String vhUuid = new String(
             ((PropertyData) dataManager.getItemData(frozen,new QPathEntry(Constants.JCR_CHILDVERSIONHISTORY,0))).getValues().get(0).getAsByteArray());
 
@@ -349,11 +329,8 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         throw new RepositoryException("jcr:childVersionHistory, error of data read " + cvhpPropPath.getAsString(), e);
       }
 
-      //QPath cvhVersionableUuidPath = QPath.makeChildPath(childHistory.getQPath(), Constants.JCR_VERSIONABLEUUID);
       String versionableUuid = null;
       try {
-//        versionableUuid = new String(
-//          ((PropertyData) dataManager.getItemData(cvhVersionableUuidPath)).getValues().get(0).getAsByteArray());
         versionableUuid = new String(
             ((PropertyData) dataManager.getItemData(childHistory,new QPathEntry(Constants.JCR_VERSIONABLEUUID,0))).getValues().get(0).getAsByteArray());
         
@@ -361,11 +338,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         throw new RepositoryException("jcr:childVersionHistory, error of data read " + cvhpPropPath.getAsString(), e);
       }
 
-      //if (log.isDebugEnabled())
-      //  log.debug("jcr:versionableUuid:  " + frozenNode.getQPath().getAsString() + " " + versionableUuid);
-
       NodeData versionable = (NodeData) dataManager.getItemData(versionableUuid);
-      //NodeData versionable = (NodeData) findExistingItemData(versionableUuid);
       if (versionable != null) {
         // exists,
         // On restore of VN, if the workspace currently has an already
@@ -382,8 +355,6 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         // not found,
         // gets last version (by time of creation) and restore it
         NodeData lastVersionData = childHistory.getLastVersionData();
-        //QPath cvFrozenPath = QPath.makeChildPath(lastVersionData.getQPath(), Constants.JCR_FROZENNODE);
-        //NodeData cvFrozen = (NodeData) dataManager.getItemData(cvFrozenPath);
         NodeData cvFrozen = (NodeData) dataManager.getItemData(lastVersionData,new QPathEntry(Constants.JCR_FROZENNODE,0));
 
         ItemDataRestoreVisitor restoreVisitor = new ItemDataRestoreVisitor(
@@ -418,8 +389,6 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
           // but jcr:uuid property containts real UUID.
           QPath jcrUuidPath = QPath.makeChildPath(frozen.getQPath(), Constants.JCR_UUID);
           try {
-//            jcrUuid = new String(
-//              ((PropertyData) dataManager.getItemData(jcrUuidPath)).getValues().get(0).getAsByteArray());
           jcrUuid = new String(
           ((PropertyData) dataManager.getItemData(frozen,new QPathEntry(Constants.JCR_UUID,0))).getValues().get(0).getAsByteArray());
 
@@ -448,7 +417,6 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
             if (removeExisting) {
               // remove existed node, with validation (same as for restored root)
               ItemDataRemoveVisitor removeVisitor = new RemoveVisitor();
-//              existing.accept(removeVisitor); //  removeVisitor.visit(existing)
               removeVisitor.visit(existing);
 
               changes.addAll(removeVisitor.getRemovedStates());
@@ -469,18 +437,10 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
             currentNode().getUUID(), // parent
             frozen.getACL());
 
-//        changes.add(new ItemState(restoredData,
-//            (existing != null && updateExisting ? ItemState.UPDATED : ItemState.ADDED), true, null));
         changes.add(ItemState.createAddedState(restoredData));
         pushCurrent(restoredData);
       } else if (action == OnParentVersionAction.INITIALIZE || action == OnParentVersionAction.COMPUTE) {
         // current C in the workspace will be left unchanged,
-        // TODO [PN] 20.12.06 JCR-193
-
-//        QPath existedPath = QPath.makeChildPath(currentNode().getQPath(), frozen.getQPath().getName());
-//        NodeData existed = (NodeData) dataManager.getItemData(existedPath);
-
-        //QPath existedPath = QPath.makeChildPath(currentNode().getQPath(), frozen.getQPath().getName());
         NodeData existed = (NodeData) dataManager.getItemData(currentNode(),new QPathEntry(frozen.getQPath().getName(),0));
 
         if (existed != null) {
@@ -494,112 +454,6 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         pushCurrent(null); // JCR-193, skip any childs of that node now
       }
     }
-
-//    if(node.isNodeType("nt:frozenNode") || curParent() == null) {
-//      // can be either root or referenced from versionedChild
-//      if (log.isDebugEnabled())
-//        log.debug("frozenNode "+node.getPath());
-//    } else if(node.isNodeType("nt:versionedChild")) {
-//      // i.e. action == OnParentVersionAction.VERSION
-//      String ref = node.getProperty("jcr:childVersionHistory").getString();
-//      VersionHistoryImpl history = (VersionHistoryImpl)((SessionImpl)node.getSession()).getNodeByUUID(ref);
-//      String versionableUuid = history.getVersionableUUID();
-//
-//      if (log.isDebugEnabled())
-//        log.debug("versionedChild node >> "+node.getPath()+" "+versionableUuid);
-//
-//      try {
-//        NodeImpl childNode = (NodeImpl)history.getSession().getNodeByUUID(versionableUuid);
-//        if (log.isDebugEnabled())
-//          log.debug("versionable child found >> "+childNode.getPath());
-//        if(removeExisting) {
-//          // [PN] 16.02.05
-//          NodeImpl newNode = createChildNode(curParent(), childNode, removeExisting);
-//
-//          if (log.isDebugEnabled())
-//            log.debug("copy node >> parent: "+curParent().getPath());
-//
-//          NodeCopyVisitor copyVisitor = new NodeCopyVisitor(newNode, false, false);
-//          childNode.accept(copyVisitor);
-//
-//          parents.push(newNode); // [PN] 24.02.06 -- newNode
-//        } else {
-//          // 2. exists and not a child and removeEx = false (ItemExistsException)
-//          throw new ItemExistsException("Node "+versionableUuid+" already exists "+childNode.getPath()+" and removeExisting==false");
-//        }
-//      } catch (ItemNotFoundException e) {
-//        if (log.isDebugEnabled())
-//          log.debug("versionable UUID not found >> "+versionableUuid+" "+node.getPath());
-//        // 3. not exists
-//        // gets last version (by time of creation)
-//        VersionImpl lastVersion = (VersionImpl) history.getLastVersion();
-//        NodeImpl frozen = (NodeImpl) lastVersion.getNode("jcr:frozenNode");
-//
-//        String ptName = frozen.getProperty("jcr:frozenPrimaryType").getString();
-//        Value[] mtValues = frozen.getProperty("jcr:frozenMixinTypes").getValues();
-//        String[] mtNames = new String[mtValues.length];
-//        for(int i=0; i<mtNames.length; i++) {
-//          mtNames[i] = mtValues[i].getString();
-//        }
-//        String uuid = frozen.getProperty("jcr:frozenUuid").getString(); // [PN] 26.02.06 did node
-//
-//        // [PN] 16.02.06
-//        NodeImpl nodeImpl = (NodeImpl) node;
-//        SessionImpl nodeSession = (SessionImpl) node.getSession();
-//        TransientNodeData nodeData = (TransientNodeData) nodeImpl.getData();
-//        InternalQName nodeQName = nodeData.getQName();
-//        InternalQName ptQName = nodeSession.getLocationFactory().parseJCRName(ptName).getInternalName();
-//        InternalQName[] mtQNames = new InternalQName[mtNames.length];
-//        for (int i=0; i<mtNames.length; i++) {
-//          String mtName = mtNames[i];
-//          mtQNames[i] = nodeSession.getLocationFactory().parseJCRName(mtName).getInternalName();
-//        }
-//
-//        // [PN] 04.08.06 Add autocreated items - true
-//        NodeImpl restoredNode = curParent().createChildNodeInmemory(nodeQName, ptQName, mtQNames,
-//            uuid, nodeImpl.getIndex(), false, false, true);
-//
-//        if (log.isDebugEnabled())
-//          log.debug("frozen child node>> "+node.getPath()+" "+node.getPrimaryNodeType().getName());
-//
-//        RestoreVisitor childVisitor = new RestoreVisitor(restoredNode, removeExisting);
-//        frozen.accept(childVisitor);
-//
-//        // [PN] 03.08.06 Add 'jcr:baseVersion', 'jcr:isCheckedOut' properties to the restored versioned child
-//        restoredNode.createChildPropertyInmemory(
-//            Constants.JCR_BASEVERSION,
-//            PropertyType.REFERENCE,
-//            new Value[] { restoredNode.getSession().getValueFactory().createValue(lastVersion) },
-//            false,  // registerInDataManager
-//            false); // doExternalValidation
-//        //restoredNode.createChildProperty("jcr:baseVersion", new Value[] { restoredNode.getSession().getValueFactory().createValue(lastVersion) }, PropertyType.REFERENCE);
-//
-//        restoredNode.createChildPropertyInmemory(
-//            Constants.JCR_ISCHECKEDOUT,
-//            PropertyType.BOOLEAN,
-//            new Value[] { restoredNode.getSession().getValueFactory().createValue(false) },
-//            false,  // registerInDataManager
-//            false); // doExternalValidation
-//        //restoredNode.createChildProperty("jcr:isCheckedOut", new Value[] { restoredNode.getSession().getValueFactory().createValue(false) }, PropertyType.BOOLEAN);
-//
-//        parents.push(restoredNode);
-//      }
-//
-//    } else { // ordinary node for copy under nt:frozenNode
-//
-//      // [PN] 10.04.06 In case of COPY - copy node, otherwise we don't
-//      // 8.2.11.3 INITIALIZE; 8.2.11.4 COMPUTE
-//      // On restore of VN, the C stored as its child will be ignored, and the
-//      // current C in the workspace will be left unchanged.
-//      if (log.isDebugEnabled())
-//        log.debug("frozen child node>> "+node.getPath()+" "+node.getPrimaryNodeType().getName());
-//      NodeImpl newNode = createChildNode(curParent(), (NodeImpl) node, removeExisting);
-//      if (newNode != null) {
-//        if (log.isDebugEnabled())
-//          log.debug("frozen child node restored>> "+newNode.getPath()+" "+newNode.getPrimaryNodeType().getName());
-//        parents.push(newNode);
-//      }
-//    }
   }
 
   @Override
@@ -625,10 +479,6 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
           return;
         }
 
-//      int action = ntManager.findPropertyDefinitions(
-//          qname,
-//          currentNode().getPrimaryTypeName(),
-//          currentNode().getMixinTypeNames()).getAnyDefinition().getOnParentVersion();
       int action = ntManager.findPropertyDefinition(
           qname,
           currentNode().getPrimaryTypeName(),
@@ -649,41 +499,8 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
             property.isMultiValued(),
             property.getValues());
 
-//        changes.add(new ItemState(tagetProperty,
-//            (isCurrentExisting() && updateExisting ? ItemState.UPDATED : ItemState.ADDED), true, null));
         changes.add(ItemState.createAddedState(tagetProperty));
 
-//      } else if (action == OnParentVersionAction.INITIALIZE || action == OnParentVersionAction.COMPUTE) {
-        // 8.2.11.3 INITIALIZE; 8.2.11.4 COMPUTE
-        //On restore of VN, the P stored as its child will be ignored, and the
-        //current P in the workspace will be left unchanged.
-//        InternalQPath existedPath = InternalQPath.makeChildPath(currentNode().getQPath(), qname);
-//        PropertyData existedProperty = (PropertyData) dataManager.getItemData(existedPath);
-//        if (existedProperty != null) {
-//          PropertyData tagetProperty = TransientPropertyData.createPropertyData(
-//              currentNode(),
-//              qname,
-//              existedProperty.getType(),
-//              existedProperty.isMultiValued(),
-//              existedProperty.getValues());
-//          changes.add(ItemState.createAddedState(tagetProperty));
-//        } else if (level > 0) {
-//          // for jcr:frozenNode childs use frozen state (logic same as for COPY)
-//          PropertyData tagetProperty = TransientPropertyData.createPropertyData(
-//              currentNode(),
-//              qname,
-//              property.getType(),
-//              property.isMultiValued(),
-//              property.getValues());
-//          changes.add(ItemState.createAddedState(tagetProperty));
-//        }
-//        PropertyData tagetProperty = TransientPropertyData.createPropertyData(
-//            currentNode(),
-//            qname,
-//            property.getType(),
-//            property.isMultiValued(),
-//            property.getValues());
-//        changes.add(ItemState.createAddedState(tagetProperty));
         // else - nothing to do, i.e. left unchanged
 
       } else if (log.isDebugEnabled()) {

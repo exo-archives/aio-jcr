@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import javax.jcr.ItemNotFoundException;
 import javax.jcr.MergeException;
 import javax.jcr.RepositoryException;
 
@@ -20,9 +19,9 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -44,7 +43,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Traverse through merging nodes (destenation) and do merge to correspondent version states.     
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ItemDataMergeVisitor.java 12841 2007-02-16 08:58:38Z peterit $
+ * @version $Id$
  */
 public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
 
@@ -55,7 +54,6 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
   
   protected static Log log = ExoLogger.getLogger("jcr.ItemDataMergeVisitor");  
   
-  //protected final NodeData mergeNode;
   protected final SessionImpl mergeSession;
   protected final SessionImpl corrSession;
   protected final Map<String, String> failed;
@@ -63,11 +61,6 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
   
   protected final Stack<ContextParent> parents = new Stack<ContextParent>();
   protected final SessionChangesLog changes;
-  
-  //protected final Set<VersionableState> versionableStates = new TreeSet<VersionableState>(new VersionableStateComparator());
-  
-  //protected final Map<InternalQPath, List<NodeData>> corrChildNodes = new HashMap<InternalQPath, List<NodeData>>();
-  //protected final Map<InternalQPath, List<PropertyData>> corrChildProperties = new HashMap<InternalQPath, List<PropertyData>>();
   
   private class VersionableState {
     private final int result;
@@ -95,7 +88,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
     }
 
     protected void validateReferential(NodeData node) throws RepositoryException {
-      // TODO no REFERENCE validation here
+      // no REFERENCE validation here
     }
   };
   
@@ -138,7 +131,6 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
     
     this.corrSession = corrSession;
     this.mergeSession = mergeSession;
-    //this.mergeNode = mergeNode;
     this.bestEffort = bestEffort;
     this.failed = failed;
     
@@ -148,11 +140,6 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
   @Override
   protected void entering(NodeData mergeNode, int level) throws RepositoryException {
 
-//    if (level == 0) {
-//      // init merge stack
-//      parents.push(mergeNode);
-//    }
-    
     if (level == 0) {
       // initial - merge root node
       doMerge((TransientNodeData) mergeNode);
@@ -185,89 +172,9 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
     }
   }
   
-//protected void entering(Node node, int level) throws RepositoryException {
-//    
-//
-//    //toLog("MergeVisitor entering node "+node.getPath()+" "+node.getSession().getWorkspace().getName());
-//    //createNode(node, level);
-//    try {
-//      destNode = ((NodeImpl)node).getCorrespondingNode(destSession);
-//      cleanItemCache(destNode);
-//    } catch (ItemNotFoundException e) {
-//      return;
-//    }
-//    
-//    // TODO (one more pass) 
-//    // If N (destNode) does not have a corresponding node then the merge
-//    // result for N is leave.
-//
-//    if(destNode.isNodeType("mix:versionable")) {
-//      VersionImpl srcBase = (VersionImpl)node.getBaseVersion();
-//      VersionImpl destBase = (VersionImpl)destNode.getBaseVersion();
-//      //toLog("MERGE compare >>> " + destNode.getPath() + " " + bestEffort +
-//      //    " src ver:"+srcBase.getName()+" dest Ver:"+destBase.getName()+" "+destBase.isSuccessorOrSameOf(srcBase));
-//      
-//      if (destNode.isCheckedOut()) { // CHECKED-OUT
-//        if (destBase.getName().equals(srcBase.getName())
-//            || destBase.isSuccessorOrSameOf(srcBase)) {
-//          addNode(destNode, level);
-//          versionableStates.add(new VersionableState(destNode.getLocation(),
-//              LEAVE));
-//        } else {
-//          addNode(destNode, level);
-//          if (bestEffort) {
-//            failed.put(destNode.getUUID(), srcBase.getUUID());
-//          } else
-//            throw new MergeException("Merging of node " + node.getPath()
-//                + " failed");
-//          versionableStates.add(new VersionableState(destNode.getLocation(),
-//              FAIL));
-//        }
-//      } else { // CHECKED-IN
-//        if (srcBase.isSuccessorOrSameOf(destBase)) {
-//          addNode((NodeImpl) node, level);
-//          //super.entering(node, level);
-//          versionableStates.add(new VersionableState(destNode.getLocation(),
-//              UPDATE));
-//        } else if (destBase.getName().equals(srcBase.getName())
-//            || destBase.isSuccessorOrSameOf(srcBase)) {
-//          addNode(destNode, level);
-//          versionableStates.add(new VersionableState(destNode.getLocation(),
-//              LEAVE));
-//        } else {
-//          addNode(destNode, level);
-//          if (bestEffort) {
-//            failed.put(destNode.getUUID(), srcBase.getUUID());
-//          } else
-//            throw new MergeException("Merging of node " + node.getPath()
-//                + " failed");
-//          versionableStates.add(new VersionableState(destNode.getLocation(),
-//              FAIL));
-//        }
-//      }
-//    } else { // node is not versionable
-//      int nearestState = getNearestVersionableState(destNode);      
-//      if(nearestState == NONE || nearestState == UPDATE)
-//        addNode((NodeImpl)node, level);
-//        //super.entering(node, level);
-//      else
-//        addNode(destNode, level);
-//    }
-//  }  
-
-  
   @Override
   protected void entering(PropertyData mergeProperty, int level) throws RepositoryException {
     // remove any property, merged will be added in doMerge() --> doUpdate()
-    
-    // check if need to remove
-//    final int state = getNearestVersionableState(mergeProperty);
-//    if (state == UPDATE || state == NONE) {
-//      changes.add(
-//          new ItemState(((TransientPropertyData) mergeProperty).clone(), 
-//              ItemState.DELETED, true, parents.peek().getQPath(), true)
-//          );      
-//    } 
   }
 
   @Override
@@ -276,10 +183,6 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
 
   @Override
   protected void leaving(NodeData mergeNode, int level) throws RepositoryException {
-    //parents.pop();
-    //corrChildProperties.remove(mergedNode.getQPath());
-    //corrChildNodes.remove(mergedNode.getQPath());
-    
     if (parents.size()>0) {
       ContextParent context = parents.pop();
       if (context.getResult() == UPDATE) {
@@ -295,16 +198,12 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
             //  UUID as a node already existing in this workspace,
             //  the already existing node is removed
             
-            //changes.add(new ItemState(existedSameUUID.clone(), ItemState.DELETED, true, context.getParent().getQPath(), true));
-            
             RemoveVisitor remover = new RemoveVisitor();
             existedSameUUID.accept(remover);
             
             changes.addAll(remover.getRemovedStates());
           }
     
-          //changes.add(new ItemState(((TransientNodeData) corrNode).clone(), ItemState.ADDED, true, context.getParent().getQPath(), true));
-          
           ItemDataCopyVisitor copier = new ItemDataCopyVisitor(context.getParent(), 
               corrNode.getQPath().getName(), 
               mergeSession.getWorkspace().getNodeTypeManager(),
@@ -337,8 +236,6 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
           
           SessionDataManager mergeDataManager = mergeSession.getTransientNodesManager();
           
-//          PropertyData isCheckedOutProperty = (PropertyData) mergeDataManager.getItemData(
-//              QPath.makeChildPath(mergeNode.getQPath(), Constants.JCR_ISCHECKEDOUT));
           PropertyData isCheckedOutProperty = (PropertyData) mergeDataManager.getItemData(mergeNode,new QPathEntry(Constants.JCR_ISCHECKEDOUT,0));
           
           try {
@@ -375,8 +272,6 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
   protected void doLeave(TransientNodeData mergeNode) throws RepositoryException {
     // for each child node c of n domerge(c).
     // ...back to visitor
-    //versionableStates.add(new VersionableState(mergeNode.getQPath(), LEAVE));
-    
     parents.push(new ContextParent(mergeNode, LEAVE));
   }
   
@@ -386,8 +281,6 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
     
     QPath mergePath = mergeNode.getQPath();
     
-    // InternalQPath path, String uuid, int version, InternalQName primaryTypeName, InternalQName[] mixinTypeNames,
-    // int orderNum, String parentUUID, AccessControlList acl
     TransientNodeData mergedNode = new TransientNodeData(
         mergePath, 
         mergeNode.getUUID(), 
@@ -399,8 +292,6 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
         mergeNode.getACL());
     
     if (!mergeNode.getUUID().equals(corrNode.getUUID())) {
-      // [PN] 12.02.07 fix for update work 
-      //mergedNode.setUUID(mergeNode.getUUID()); // use uuid of the node already existed in merge workspace
       
       TransientNodeData existedSameUUID = (TransientNodeData) mergeDataManager.getItemData(corrNode.getUUID());
       if (existedSameUUID != null) {
@@ -408,7 +299,6 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
         //  UUID as a node already existing in this workspace,
         //  the already existing node is removed
         
-        //changes.add(new ItemState(existedSameUUID.clone(), ItemState.DELETED, true, mergeNode.getQPath(), true));
         RemoveVisitor remover = new RemoveVisitor();
         existedSameUUID.accept(remover);
         
@@ -432,7 +322,6 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
     }
     
     for (PropertyData cp : corrChildProps) {
-      // InternalQPath path, String uuid, int version, int type, String parentUUID, boolean multiValued
       PropertyData existed = existedProps.get(cp.getQPath().getName());
       TransientPropertyData mcp = new TransientPropertyData(
               QPath.makeChildPath(mergePath, cp.getQPath().getName()),
@@ -482,32 +371,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
   }
 
   // -------------------- utils --------------------
-  
-//  private int getNearestVersionableState(ItemData mergeItem) throws RepositoryException {
-//    
-//    NodeData targetNode = null;
-//    if (mergeItem.isNode()) {      
-//      targetNode = (NodeData) mergeItem;
-//    } else {
-//      targetNode = parents.peek().getParent();
-//    }
-//    
-//    NodeTypeManagerImpl mergeNtManager = mergeSession.getWorkspace().getNodeTypeManager();
-//    if (!mergeNtManager.isNodeType(Constants.MIX_REFERENCEABLE, 
-//        targetNode.getPrimaryTypeName(), 
-//        targetNode.getMixinTypeNames())) {
-//      return UPDATE;
-//    }
-//    
-//    final InternalQPath path = mergeItem.getQPath();
-//    for(VersionableState state: versionableStates) {  
-//      if(path.isDescendantOf(state.getPath(), false))
-//        return state.getResult();
-//    }
-//    
-//    return NONE;
-//  }  
-  
+    
   protected TransientNodeData getBaseVersionData(final TransientNodeData node, final SessionImpl session) throws RepositoryException {
     
     NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
@@ -517,8 +381,6 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
 
       SessionDataManager dmanager = session.getTransientNodesManager();
       
-//      PropertyData bvProperty = (PropertyData) dmanager.getItemData(
-//          QPath.makeChildPath(node.getQPath(), Constants.JCR_BASEVERSION));
     PropertyData bvProperty = (PropertyData) dmanager.getItemData(node,
           new QPathEntry(Constants.JCR_BASEVERSION, 0));
       
@@ -549,7 +411,6 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
     }
     
     // by location
-    //for (int i = mergePath.getDepth(); i >= 0; i--) {
     NodeData rootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
     for (int i = 1; i <= mergePath.getDepth(); i++) {
       final QPath ancesstorPath = mergePath.makeAncestorPath(i);
@@ -576,8 +437,6 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
   protected boolean isPredecessor(TransientNodeData mergeVersion, TransientNodeData corrVersion) throws RepositoryException {
     SessionDataManager mergeDataManager = mergeSession.getTransientNodesManager();
     
-//    PropertyData predecessorsProperty = (PropertyData) mergeDataManager.getItemData(
-//        QPath.makeChildPath(mergeVersion.getQPath(), Constants.JCR_PREDECESSORS));
     PropertyData predecessorsProperty = (PropertyData) mergeDataManager.getItemData(mergeVersion,
         new QPathEntry(Constants.JCR_PREDECESSORS, 0));
     
@@ -614,8 +473,6 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
   protected boolean isSuccessor(TransientNodeData mergeVersion, TransientNodeData corrVersion) throws RepositoryException {
     SessionDataManager mergeDataManager = mergeSession.getTransientNodesManager();
     
-//    PropertyData successorsProperty = (PropertyData) mergeDataManager.getItemData(
-//        QPath.makeChildPath(mergeVersion.getQPath(), Constants.JCR_SUCCESSORS));
   PropertyData successorsProperty = (PropertyData) mergeDataManager.getItemData(mergeVersion,
         new QPathEntry(Constants.JCR_SUCCESSORS, 0));
     

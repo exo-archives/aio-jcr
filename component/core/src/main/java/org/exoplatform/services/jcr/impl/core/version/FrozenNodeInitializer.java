@@ -41,7 +41,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SARL .
  *
  * @author Gennady Azarenkov
- * @version $Id: FrozenNodeInitializer.java 13421 2007-03-15 10:46:47Z geaz $
+ * @version $Id$
  */
 
 public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
@@ -77,7 +77,6 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
 
     PropertyData frozenProperty = null;
     InternalQName qname = property.getQPath().getName();
-    //List <ValueData> values = property.getValues();
 
     List <ValueData> values = new ArrayList<ValueData>();
     for (ValueData valueData: property.getValues()) {
@@ -101,10 +100,6 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
     } else {
       NodeData parent = (NodeData) dataManager.getItemData(property.getParentUUID());
 
-//      PropertyDefinition pdef = ntManager.findPropertyDefinitions(
-//          qname,
-//          parent.getPrimaryTypeName(),
-//          parent.getMixinTypeNames()).getAnyDefinition();
       PropertyDefinition pdef = ntManager.findPropertyDefinition(
           qname,
           parent.getPrimaryTypeName(),
@@ -130,19 +125,10 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
           if (pdef.getDefaultValues() != null && pdef.getDefaultValues().length>0) {
             // to use default values
             values.clear();
-//            try {
               for (Value defValue: pdef.getDefaultValues()) {
                 TransientValueData defData = ((BaseValue) defValue).getInternalData();
                 values.add(defData.createTransientCopy());
-//                if (defData.isByteArray()) {
-//                  values.add(new TransientValueData(defData.getAsByteArray(), defData.getOrderNumber()));
-//                } else {
-//                  values.add(new TransientValueData(defData.getAsStream(), defData.getOrderNumber()));
-//                }
               }
-//            } catch (IOException e) {
-//              throw new RepositoryException("Proeprty default value data read error " + e, e);
-//            }
           } else if (ntManager.isNodeType(
               Constants.NT_HIERARCHYNODE, parent.getPrimaryTypeName(), parent.getMixinTypeNames())
               &&
@@ -194,8 +180,6 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
     } else if (action == OnParentVersionAction.ABORT) {
       throw new VersionException("Node is aborted " + node.getQPath().getAsString());
     } else if (action == OnParentVersionAction.COPY) {
-      //frozenNode = TransientNodeData.createNodeData(currentNode(),
-      //    qname, node.getPrimaryTypeName(), node.getQPath().getIndex());
 
       QPath frozenPath = QPath.makeChildPath(currentNode().getQPath(), qname, node.getQPath().getIndex());
       frozenNode = new TransientNodeData(frozenPath,
@@ -221,11 +205,6 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
             PropertyType.NAME,
             false,
             new TransientValueData(Constants.NT_VERSIONEDCHILD));
-
-        // QPath versionHistoryPath = QPath.makeChildPath(node.getQPath(),
-        // Constants.JCR_VERSIONHISTORY);
-        // ValueData vh =
-        // ((PropertyData)dataManager.getItemData(versionHistoryPath)).getValues().get(0);
         
         ValueData vh = ((PropertyData) dataManager.getItemData(node,
             new QPathEntry(Constants.JCR_VERSIONHISTORY, 0))).getValues().get(0);
@@ -241,9 +220,6 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
         changesLog.add(ItemState.createAddedState(pt));
         changesLog.add(ItemState.createAddedState(pd));
       } else { // behaviour of COPY
-        //frozenNode = TransientNodeData.createNodeData(currentNode(),
-        //    qname, node.getPrimaryTypeName(), node.getQPath().getIndex());
-
         QPath frozenPath = QPath.makeChildPath(currentNode().getQPath(), qname, node.getQPath().getIndex());
         frozenNode = new TransientNodeData(frozenPath,
             UUIDGenerator.generate(),
@@ -282,40 +258,6 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
       throw new RepositoryException("Unknown onParentVersion type " + action);
     }
   }
-
-//  private NodeImpl createChildNode(NodeData nodeParent, NodeData nodeData) throws RepositoryException {
-//
-//    //boolean isReferenceable = node.isNodeType("mix:referenceable");
-////    TransientNodeData nodeData = (TransientNodeData) node.getData();
-//    InternalQName nodeName = nodeData.getQPath().getName();
-//    InternalQName ptName = nodeData.getPrimaryTypeName();
-//    InternalQName[] mtNames = nodeData.getMixinTypeNames();
-//    //String uuid = isReferenceable ? node.getUUID() : null;
-//
-////    toLog("====== FrozenInit createChildNode() " + nodeParent.getSession().getWorkspace().getName()
-////       + " destParent: " + nodeParent.getPath()
-////       + " src:" + node.getPath() + " name:" + nodeName.getAsString());
-//
-//    NodeImpl newNode = nodeParent.createChildNodeInmemory(nodeName, ptName, mtNames,
-//        null, node.getIndex(), false, false, true);
-//    return newNode;
-//  }
-
-//  private NodeImpl createChildNode(NodeImpl nodeParent, String name,
-//      String primaryTypeName) throws RepositoryException {
-//
-//    SessionImpl nodeSession = (SessionImpl) nodeParent.getSession();
-//    InternalQName nodeName = nodeSession.getLocationFactory().parseJCRName(name).getInternalName();
-//    InternalQName ptName = nodeSession.getLocationFactory().parseJCRName(primaryTypeName).getInternalName();
-//
-////    toLog("====== FrozenInit createChildNode() NEW " + nodeParent.getSession().getWorkspace().getName()
-////        + " destParent: " + nodeParent.getPath()
-////        + " src:" + nodeParent.getPath() + " name:" + nodeName.getAsString());
-//
-//    NodeImpl newNode = nodeParent.createChildNodeInmemory(nodeName, ptName, null,
-//        null, -1, false, false, true);
-//    return newNode;
-//  }
 
   protected void leaving(PropertyData property, int level) throws RepositoryException {
   }
