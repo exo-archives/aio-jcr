@@ -28,6 +28,7 @@ import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
@@ -56,7 +57,9 @@ public class NamespaceDataPersister {
     this.dataManager = dataManager;
     this.changesLog = new PlainChangesLogImpl();
     try {
-      this.nsRoot = (NodeData) dataManager.getItemData(Constants.EXO_NAMESPACES_PATH);
+      NodeData jcrSystem = (NodeData) dataManager.getItemData(Constants.SYSTEM_UUID);
+      if (jcrSystem != null)
+        this.nsRoot = (NodeData) dataManager.getItemData(jcrSystem, new QPathEntry(Constants.EXO_NAMESPACES, 1));
     } catch (RepositoryException e) {
       log.warn("Namespace storage (/jcr:system/exo:namespaces node) is not initialized");
     }

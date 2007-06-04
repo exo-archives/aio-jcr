@@ -34,6 +34,7 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -415,12 +416,10 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
           SystemIdentity.SYSTEM,
           ExtendedEvent.UNLOCK);
 
-      ItemData lockOwner = dataManager.getItemData(QPath.makeChildPath(nData.getQPath(),
-          Constants.JCR_LOCKOWNER));
+      ItemData lockOwner = dataManager.getItemData(nData, new QPathEntry(Constants.JCR_LOCKOWNER, 1));
       changesLog.add(ItemState.createDeletedState(lockOwner));
 
-      ItemData lockIsDeep = dataManager.getItemData(QPath.makeChildPath(nData.getQPath(),
-          Constants.JCR_LOCKISDEEP));
+      ItemData lockIsDeep = dataManager.getItemData(nData, new QPathEntry(Constants.JCR_LOCKISDEEP, 1));
       changesLog.add(ItemState.createDeletedState(lockIsDeep));
 
       dataManager.save(changesLog);

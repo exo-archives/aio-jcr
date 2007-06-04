@@ -359,8 +359,9 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     
     NodeData parentData = (NodeData) dmanager.getItemData(nodeData.getParentUUID());
     
-    QPath frozenPath = QPath.makeChildPath(getData().getQPath(), Constants.JCR_FROZENNODE);
-    NodeData frozenData = (NodeData) dmanager.getItemData(frozenPath);
+    //QPath frozenPath = QPath.makeChildPath(getData().getQPath(), Constants.JCR_FROZENNODE);
+    //NodeData frozenData = (NodeData) dmanager.getItemData(frozenPath);
+    NodeData frozenData = (NodeData) dmanager.getItemData(nodeData(), new QPathEntry(Constants.JCR_FROZENNODE, 1));
     
     ItemDataRestoreVisitor restoreVisitor = new ItemDataRestoreVisitor(
         parentData, 

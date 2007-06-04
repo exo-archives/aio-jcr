@@ -25,7 +25,6 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
-import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
@@ -34,6 +33,7 @@ import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
@@ -72,7 +72,9 @@ public class NodeTypeDataPersister {
     this.locationFactory = locationFactory;
     this.changesLog = new PlainChangesLogImpl();
     try {
-      this.ntRoot = (NodeData) dataManager.getItemData(Constants.JCR_NODETYPES_PATH);
+      NodeData jcrSystem = (NodeData) dataManager.getItemData(Constants.SYSTEM_UUID);
+      if (jcrSystem != null)
+        this.ntRoot = (NodeData) dataManager.getItemData(jcrSystem, new QPathEntry(Constants.JCR_NODETYPES, 1));
     } catch (RepositoryException e) {
       log.warn("Nodetypes storage (/jcr:system/jcr:nodetypes node) is not initialized.");
     }
@@ -425,8 +427,13 @@ public class NodeTypeDataPersister {
     
   public List<NodeType> loadNodetypes(List<NodeType> registeredNodeTypes, NodeTypeManagerImpl ntManager) throws PathNotFoundException, RepositoryException {
     
-    if (!isPersisted())
-      ntRoot = (NodeData) dataManager.getItemData(Constants.JCR_NODETYPES_PATH);
+    if (!isPersisted()) {
+      NodeData jcrSystem = (NodeData) dataManager.getItemData(Constants.SYSTEM_UUID);
+      if (jcrSystem != null)
+        this.ntRoot = (NodeData) dataManager.getItemData(jcrSystem, new QPathEntry(Constants.JCR_NODETYPES, 1));
+      else
+        throw new RepositoryException("jcr:system is not found. Possible the workspace is not initialized properly"); 
+    }
     
     if (!isPersisted()) {
       log.warn("Nodetypes storage (/jcr:system/jcr:nodetypes node) is not initialized. No nodetypes loaded.");
