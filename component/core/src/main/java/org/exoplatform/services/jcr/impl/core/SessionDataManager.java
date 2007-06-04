@@ -129,6 +129,7 @@ public class SessionDataManager implements ItemDataConsumer {
     }
     return currItem;
   }
+  
   public ItemData getItemData(NodeData parent, QPathEntry[] nameEntrys) throws RepositoryException {
     ItemData currItem = parent;
     int startFrom = 0;
@@ -422,6 +423,7 @@ public class SessionDataManager implements ItemDataConsumer {
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getACL(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
+  @Deprecated
   public AccessControlList getACL(QPath path) throws RepositoryException {
     
     NodeData rootItem = (NodeData) getItemData(Constants.ROOT_UUID);
@@ -431,6 +433,11 @@ public class SessionDataManager implements ItemDataConsumer {
       return transactionableManager.getACL(path);
 
     return ((NodeData)item).getACL();
+  }
+  
+  public AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException {
+    // TODO
+    return null;
   }
   
   /**

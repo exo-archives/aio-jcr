@@ -64,6 +64,7 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getACL(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
+  @Deprecated
   public AccessControlList getACL(QPath path) throws RepositoryException {
     ItemData data = getItemData(path);
     if(data == null || !data.isNode()) 
@@ -71,7 +72,11 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
     else
       return ((NodeData)data).getACL();
   }
-
+  
+  public AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException {
+    // TODO
+    return null;
+  }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getChildNodesData(org.exoplatform.services.jcr.datamodel.NodeData)

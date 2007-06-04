@@ -79,5 +79,8 @@ public interface ItemDataConsumer {
    * (3) item at path is a not AccessControllable Node nor Root node and ACL inheritance is not supported by outlined Consumer implementation   
    * @throws RepositoryException
    */
+  @Deprecated
   AccessControlList getACL(QPath path) throws RepositoryException;
+  
+  AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException;
 }

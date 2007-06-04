@@ -43,6 +43,7 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements ItemDataCons
    * Guaranteed ACL  
    * @see org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager#getACL(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
+  @Deprecated
   public AccessControlList getACL(QPath qpath) throws RepositoryException {
     AccessControlList acl = persistentManager.getACL(qpath);
     if(acl == null) {
@@ -52,6 +53,11 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements ItemDataCons
       acl = data.getACL(); 
     }
     return acl;
+  }
+  
+  public AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException {
+    // TODO
+    return null;
   }
 
   /**
@@ -103,6 +109,7 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements ItemDataCons
   public ItemData getItemData(NodeData parentData,QPathEntry name) throws RepositoryException {
     return initACL(persistentManager.getItemData(parentData,name));
   }
+  
   public ItemData getItemData(QPath qpath) throws RepositoryException {
     return initACL(persistentManager.getItemData(qpath));
   }

@@ -141,7 +141,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       throw new RepositoryException("ACL is NULL " + nodeData.getQPath().getAsString());
 
     this.data = nodeData;
-    // [PN] 03.01.07
     this.location = session.getLocationFactory().createJCRPath(getData().getQPath());
   }
 
@@ -168,8 +167,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
           + getPath());
   }
 
-  // /// ------------ Reading
-
   /**
    * @see javax.jcr.Node#getNode
    */
@@ -178,9 +175,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     checkValid();
 
     JCRPath itemPath = locationFactory.createJCRPath(getLocation(), relPath);
-
-    // NodeImpl node = (NodeImpl)dataManager.getItem(itemPath.getInternalPath(),
-    // true);
 
     NodeData srcRootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
 
@@ -239,19 +233,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
    */
   public Property getProperty(String relPath) throws PathNotFoundException, RepositoryException {
 
-    // checkValid();
-    // JCRPath itemPath = locationFactory.createJCRPath(getLocation(), relPath);
-    //  
-    // if(log.isDebugEnabled())
-    // log.debug("getProperty() " + itemPath.getAsString(false));
-    //    
-    // Item prop = item(itemPath);
-    // if(prop == null || prop.isNode())
-    // throw new PathNotFoundException("Property not found " +
-    // itemPath.getAsString(false));
-    //    
-    // return (Property)prop;
-
     checkValid();
     JCRPath itemPath = locationFactory.createJCRPath(getLocation(), relPath);
 
@@ -270,7 +251,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   protected PropertyImpl property(InternalQName name) throws IllegalPathException,
       PathNotFoundException,
       RepositoryException {
-    // Item prop = item(QPath.makeChildPath(getInternalPath(), name));
     PropertyImpl prop = (PropertyImpl) dataManager.getItem(nodeData(),
         new QPathEntry(name, 0),
         true);
@@ -281,10 +261,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   private boolean hasProperty(InternalQName name) {
     try {
-      // if(property(name) != null)
-      // [PN] 15.02.07
-      // ItemData pdata =
-      // dataManager.getItemData(QPath.makeChildPath(getInternalPath(), name));
       ItemData pdata = dataManager.getItemData(nodeData(), new QPathEntry(name, 0));
 
       if (pdata != null && !pdata.isNode())
@@ -468,7 +444,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     checkValid();
 
     return dataManager.getChildProperties(nodeData(), true) != null;
-    // return getProperties().hasNext();
   }
 
   // // -------------- Writting
@@ -492,11 +467,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       throw new RepositoryException("The relPath provided must not have an index on its final element. "
           + itemPath.getAsString(false));
 
-    // NodeImpl parent =
-    // (NodeImpl)dataManager.getItem(itemPath.makeParentPath().getInternalPath(),
-    // false); //this.findParent(itemPath);
-    // ItemImpl parentItem =
-    // dataManager.getItem(itemPath.makeParentPath().getInternalPath(), true);
     NodeData rootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
 
     ItemImpl parentItem = dataManager.getItem(rootData,
@@ -513,7 +483,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     // Check if parent exists
 
     // find node type
-    // NodeType[] nodeTypes = parent.getAllNodeTypes();
     JCRName nodeTypeName = parent.findNodeType(itemPath.getName().getAsString());
 
     // try to make new node
@@ -562,8 +531,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       throw new RepositoryException("The relPath provided must not have an index on its final element. "
           + itemPath.getAsString(false));
 
-    // ItemImpl parentItem =
-    // dataManager.getItem(itemPath.makeParentPath().getInternalPath(), true);
     NodeData rootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
 
     ItemImpl parentItem = dataManager.getItem(rootData,
@@ -632,8 +599,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       VersionException,
       LockException {
 
-    // parentNode.validateChildNode(name, primaryTypeName);
-
     // /////// VALIDATION /////////
 
     if (nodeType(primaryTypeName).isMixin())
@@ -654,7 +619,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       }
     }
     NodeDefinitionImpl def = null;
-    ;
     try {
       def = session.getWorkspace().getNodeTypeManager().findNodeDefinition(name,
           parentNode.nodeData().getPrimaryTypeName(),
@@ -664,7 +628,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         throw new ConstraintViolationException("Can't add node " + name.getAsString() + " to "
             + getPath() + " node type " + primaryTypeName.getAsString()
             + " is not allowed as child's node name" + ptStr + " for parent node type ");
-
       }
     }
 
@@ -690,19 +653,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     List<NodeData> siblings = dataManager.getChildNodesData(parentNode.nodeData());
     int orderNum = parentNode.getNextChildOrderNum(siblings);
     int index = parentNode.getNextChildIndex(name, siblings, parentNode.nodeData());
-
-    // // may speed it up if not allowsSameNameSiblings nor
-    // hasOrderableChildNodes
-    // List <NodeData> siblings = new ArrayList <NodeData>();
-    // boolean allowSNS = def.allowsSameNameSiblings();
-    // boolean hasOCN =
-    // parentNode.getPrimaryNodeType().hasOrderableChildNodes();
-    // if(allowSNS || hasOCN)
-    // siblings = dataManager.getChildNodesData(parentNode.nodeData());
-    //
-    // int orderNum = (hasOCN)?parentNode.getNextChildOrderNum(siblings):0;
-    // int index = (allowSNS)?parentNode.getNextChildIndex(name, siblings,
-    // parentNode.nodeData()):1;
 
     QPath path = QPath.makeChildPath(parentNode.getInternalPath(), name, index);
 
@@ -787,7 +737,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         values,
         true,
         type);
-
   }
 
   /**
@@ -806,9 +755,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         values,
         true,
         PropertyType.UNDEFINED);
-
   }
-
+  //Changed hierarchy in ItemDataCopyVisitor, added code for versionable nodes and automatic version history creation. Same logic used for NodeImpl mix:versionable initialization.
   /**
    * @see javax.jcr.Node#setProperty
    */
@@ -2425,139 +2373,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     return vals;
   }
 
-  private void initVersionable() throws RepositoryException {
-    String versionHistoryUuid = UUIDGenerator.generate();
-    String baseVersionUuid = UUIDGenerator.generate();
-
-    // ----- VERSION STORAGE nodes -----
-    // ----- version history -----
-    NodeData rootItem = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
-
-    NodeData versionStorageData = (NodeData) dataManager.getItemData(rootItem,
-        Constants.JCR_VERSION_STORAGE_PATH);
-
-    InternalQName vhName = new InternalQName(null, nodeData().getUUID());
-
-    TransientNodeData versionHistory = TransientNodeData.createNodeData(versionStorageData,
-        vhName,
-        Constants.NT_VERSIONHISTORY);
-    versionHistory.setUUID(versionHistoryUuid);
-
-    // jcr:primaryType
-    TransientPropertyData vhPrimaryType = TransientPropertyData.createPropertyData(versionHistory,
-        Constants.JCR_PRIMARYTYPE,
-        PropertyType.NAME,
-        false);
-    vhPrimaryType.setValue(new TransientValueData(versionHistory.getPrimaryTypeName()));
-
-    // jcr:uuid
-    TransientPropertyData vhUuid = TransientPropertyData.createPropertyData(versionHistory,
-        Constants.JCR_UUID,
-        PropertyType.STRING,
-        false);
-    vhUuid.setValue(new TransientValueData(versionHistoryUuid));
-
-    // jcr:versionableUuid
-    TransientPropertyData vhVersionableUuid = TransientPropertyData
-    // [PN] 10.04.07 VERSIONABLEUUID isn't referenceable!!!
-        // .createPropertyData(versionHistory, Constants.JCR_VERSIONABLEUUID,
-        // PropertyType.REFERENCE, false);
-        .createPropertyData(versionHistory,
-            Constants.JCR_VERSIONABLEUUID,
-            PropertyType.STRING,
-            false);
-    vhVersionableUuid.setValue(new TransientValueData(new Uuid(nodeData().getUUID())));
-
-    // ------ jcr:versionLabels ------
-    NodeData vhVersionLabels = TransientNodeData.createNodeData(versionHistory,
-        Constants.JCR_VERSIONLABELS,
-        Constants.NT_VERSIONLABELS);
-
-    // jcr:primaryType
-    TransientPropertyData vlPrimaryType = TransientPropertyData.createPropertyData(vhVersionLabels,
-        Constants.JCR_PRIMARYTYPE,
-        PropertyType.NAME,
-        false);
-    vlPrimaryType.setValue(new TransientValueData(vhVersionLabels.getPrimaryTypeName()));
-
-    // ------ jcr:rootVersion ------
-    NodeData rootVersionData = TransientNodeData.createNodeData(versionHistory,
-        Constants.JCR_ROOTVERSION,
-        Constants.NT_VERSION,
-        baseVersionUuid);
-
-    // jcr:primaryType
-    TransientPropertyData rvPrimaryType = TransientPropertyData.createPropertyData(rootVersionData,
-        Constants.JCR_PRIMARYTYPE,
-        PropertyType.NAME,
-        false);
-    rvPrimaryType.setValue(new TransientValueData(rootVersionData.getPrimaryTypeName()));
-
-    // jcr:uuid
-    TransientPropertyData rvUuid = TransientPropertyData.createPropertyData(rootVersionData,
-        Constants.JCR_UUID,
-        PropertyType.STRING,
-        false);
-    rvUuid.setValue(new TransientValueData(baseVersionUuid));
-
-    // jcr:mixinTypes
-    TransientPropertyData rvMixinTypes = TransientPropertyData.createPropertyData(rootVersionData,
-        Constants.JCR_MIXINTYPES,
-        PropertyType.NAME,
-        true);
-    rvMixinTypes.setValue(new TransientValueData(Constants.MIX_REFERENCEABLE));
-
-    // jcr:created
-    TransientPropertyData rvCreated = TransientPropertyData.createPropertyData(rootVersionData,
-        Constants.JCR_CREATED,
-        PropertyType.DATE,
-        false);
-    rvCreated.setValue(new TransientValueData(dataManager.getTransactManager()
-        .getStorageDataManager().getCurrentTime()));
-
-    // ----- VERSIONABLE properties -----
-    // jcr:versionHistory
-    TransientPropertyData vh = TransientPropertyData.createPropertyData(nodeData(),
-        Constants.JCR_VERSIONHISTORY,
-        PropertyType.REFERENCE,
-        false);
-    vh.setValue(new TransientValueData(new Uuid(versionHistoryUuid)));
-
-    // jcr:baseVersion
-    TransientPropertyData bv = TransientPropertyData.createPropertyData(nodeData(),
-        Constants.JCR_BASEVERSION,
-        PropertyType.REFERENCE,
-        false);
-    bv.setValue(new TransientValueData(new Uuid(baseVersionUuid)));
-
-    // jcr:predecessors
-    TransientPropertyData pd = TransientPropertyData.createPropertyData(nodeData(),
-        Constants.JCR_PREDECESSORS,
-        PropertyType.REFERENCE,
-        true);
-    pd.setValue(new TransientValueData(new Uuid(baseVersionUuid)));
-
-    // update all
-    // InternalQPath vhPath = versionHistory.getQPath();
-    dataManager.update(new ItemState(versionHistory, ItemState.ADDED, true, getInternalPath()), false);
-    dataManager.update(new ItemState(vhPrimaryType, ItemState.ADDED, true, getInternalPath()), false);
-    dataManager.update(new ItemState(vhUuid, ItemState.ADDED, true, getInternalPath()), false);
-    dataManager.update(new ItemState(vhVersionableUuid, ItemState.ADDED, true, getInternalPath()), false);
-
-    dataManager.update(new ItemState(vhVersionLabels, ItemState.ADDED, true, getInternalPath()), false);
-    dataManager.update(new ItemState(vlPrimaryType, ItemState.ADDED, true, getInternalPath()), false);
-
-    dataManager.update(new ItemState(rootVersionData, ItemState.ADDED, true, getInternalPath()), false);
-    dataManager.update(new ItemState(rvPrimaryType, ItemState.ADDED, true, getInternalPath()), false);
-    dataManager.update(new ItemState(rvMixinTypes, ItemState.ADDED, true, getInternalPath()), false);
-    dataManager.update(new ItemState(rvUuid, ItemState.ADDED, true, getInternalPath()), false);
-    dataManager.update(new ItemState(rvCreated, ItemState.ADDED, true, getInternalPath()), false);
-
-    dataManager.update(ItemState.createAddedState(vh), true);
-    dataManager.update(ItemState.createAddedState(bv), true);
-    dataManager.update(ItemState.createAddedState(pd), true);
-  }
-
   public String[] getMixinTypeNames() throws RepositoryException {
     NodeType[] mixinTypes = getMixinNodeTypes();
     String[] mtNames = new String[mixinTypes.length];
@@ -2590,14 +2405,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         throw new ConstraintViolationException("Mandatory item " + def.getName()
             + " not found. Node [" + getPath() + " primary type: "
             + this.getPrimaryNodeType().getName() + "]");
-
-      // if ((def instanceof NodeDefinition && !hasNode(def.getName()))
-      // || (def instanceof PropertyDefinition && !hasProperty(def.getName())))
-      // throw new ConstraintViolationException("Mandatory item " +
-      // def.getName()
-      // + " not found. Node [" + getPath() + " primary type: "
-      // + this.getPrimaryNodeType().getName() + "]");
-
     }
   }
 
@@ -2630,12 +2437,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         aces.add(ace);
       }
     }
-    // !!!Update first
-    // updatePermissions(aces);
-    // setACL(new AccessControlList(getACL().getOwner(), aces));
-
     AccessControlList acl = new AccessControlList(getACL().getOwner(), aces);
-    // !!!Update first
     updatePermissions(acl);
     setACL(acl);
 
@@ -2651,9 +2453,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       permValues.add(vd);
     }
 
-    // TransientPropertyData permProp =
-    // (TransientPropertyData)dataManager.getItemData(
-    // QPath.makeChildPath(getInternalPath(), Constants.EXO_PERMISSIONS));
     TransientPropertyData permProp = (TransientPropertyData) dataManager.getItemData(nodeData(),
         new QPathEntry(Constants.EXO_PERMISSIONS, 0));
 
@@ -2668,8 +2467,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   }
 
-  /*
-   * (non-Javadoc)
+  /**
+   * Get an ACL for this node.
    * 
    * @see org.exoplatform.services.jcr.core.ExtendedNode#getACL()
    */
@@ -2684,8 +2483,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     ((NodeData) data).setACL(acl);
   }
 
-  /*
-   * (non-Javadoc)
+  /**
+   * Clears Access Control List
    * 
    * @see org.exoplatform.services.jcr.core.ExtendedNode#clearACL()
    */
@@ -2696,11 +2495,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     checkPermission(PermissionType.CHANGE_PERMISSION);
 
-    // String[] permissionDefaul = PermissionType.ALL;
-    // if(isNodeType(Constants.EXO_ACCESS_CONTROLLABLE)){
-    // permissionDefaul = PermissionType.DEFAULT_AC;
-    // }
-    // setACL(new AccessControlList(getACL().getOwner()));
     List<AccessControlEntry> aces = new ArrayList<AccessControlEntry>();
     for (String perm : PermissionType.ALL) {
       AccessControlEntry ace = new AccessControlEntry(SystemIdentity.ANY, perm);
@@ -2709,7 +2503,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     AccessControlList acl = new AccessControlList(getACL().getOwner(), aces);
 
     setACL(acl);
-
   }
 
   /*
@@ -2723,10 +2516,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       throw new AccessControlException("Node is not exo:privilegeable " + getPath());
 
     checkPermission(PermissionType.CHANGE_PERMISSION);
-    // remove default permission
-    // getACL().getPermissionsMap().remove(identity);
-    // getACL().removePermissions(identity);
-    // updatePermissions();
 
     AccessControlList acl = new AccessControlList(getACL().getOwner(), getACL()
         .getPermissionEntries());
@@ -2752,12 +2541,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     checkPermission(PermissionType.CHANGE_PERMISSION);
     AccessControlList acl = new AccessControlList(getACL().getOwner(), getACL()
         .getPermissionEntries());
-    // List<AccessControlEntry> acl = getACL().getPermissionEntries();
     acl.addPermissions(identity, permission);
     updatePermissions(acl);
     setACL(acl);
-    // getACL().addPermissions(identity, permission);
-
   }
 
   /*
@@ -2771,13 +2557,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     if (!session.getAccessManager().hasPermission(getACL(), actions, session.getUserID()))
       throw new AccessControlException("Permission denied " + getPath() + " : " + actions);
-
   }
 
-  /**
-   * @author [PN] 18.04.06
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof NodeImpl) {
@@ -2849,8 +2630,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   protected PropertyData updatePropertyData(InternalQName name, List<ValueData> values) throws RepositoryException {
-    // return updatePropertyData(getInternalPath(), name, values);
-    // QPath path = QPath.makeChildPath(parentPath, name);
 
     PropertyData existed = (PropertyData) dataManager.getItemData(nodeData(), new QPathEntry(name,
         0));
@@ -2867,9 +2646,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     tdata.setValues(values);
     return tdata;
-
   }
-
-  // //////////////////////////////
 
 }

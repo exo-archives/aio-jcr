@@ -238,6 +238,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getACL(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
+  @Deprecated
   public AccessControlList getACL(final QPath qpath) throws RepositoryException {
     final ItemData data = getItemData(qpath);
     if(data != null && data.isNode())
@@ -245,7 +246,11 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
 
     return null;
   }
-
+  
+  public AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException {
+    // TODO
+    return null;
+  }
 
 // ----------------------------------------------
   

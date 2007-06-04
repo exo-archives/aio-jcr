@@ -128,12 +128,17 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getACL(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
+  @Deprecated
   public AccessControlList getACL(QPath path)
       throws RepositoryException {
     AccessControlList acl = storageDataManager.getACL(path);
     return new AccessControlList(acl.getOwner(), acl.getPermissionEntries());
   }
-  
+
+  public AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException {
+    // TODO
+    return null;
+  }
   
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.dataflow.session.WorkspaceStorageDataManagerProxy#getCurrentTime()
