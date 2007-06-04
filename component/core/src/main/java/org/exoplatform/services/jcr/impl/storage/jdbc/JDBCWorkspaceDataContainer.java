@@ -345,6 +345,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
         }
         continue;
       }
+      
       // db-url
       String wsUri = null;
       String newWsUri = null;
