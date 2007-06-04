@@ -2224,6 +2224,12 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       RepositoryException {
 
     checkValid();
+    if (!isNodeType(Constants.MIX_LOCKABLE))
+      throw new UnsupportedRepositoryOperationException("Node is not lockable "
+          + getPath()
+          + " According '8.4.5 Placing and Removing a Lock' an attempt to call lock or unlock on a "
+          + "node that is not mix:lockable will throw a UnsupportedRepositoryOperationException");
+    
     if (!session.getLockManager().holdsLock((NodeData) this.getData())) {
       throw new LockException("The node not locked " + getPath());
 
