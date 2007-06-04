@@ -15,7 +15,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import javax.jcr.AccessDeniedException;
@@ -48,7 +47,6 @@ import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.commons.utils.QName;
 import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.PermissionType;
@@ -59,7 +57,6 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
-import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
@@ -73,7 +70,6 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.itemfilters.ItemFilter;
 import org.exoplatform.services.jcr.impl.core.itemfilters.NamePatternFilter;
 import org.exoplatform.services.jcr.impl.core.lock.LockImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.ItemDefinitionImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeDefinitionImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.PropertyDefinitionImpl;
@@ -756,7 +752,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         true,
         PropertyType.UNDEFINED);
   }
-  //Changed hierarchy in ItemDataCopyVisitor, added code for versionable nodes and automatic version history creation. Same logic used for NodeImpl mix:versionable initialization.
+  
   /**
    * @see javax.jcr.Node#setProperty
    */
@@ -967,8 +963,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     checkValid();
 
-    // return setProperty(name, valueFactory.createValue(value),
-    // PropertyType.LONG);
     return doUpdateProperty(this,
         locationFactory.parseJCRName(name).getInternalName(),
         valueFactory.createValue(value),
@@ -1043,17 +1037,12 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     try {
       testNodeType = nodeType(qName);
     } catch (NoSuchNodeTypeException e) {
-      // e.printStackTrace();
       log.warn("Node.isNodeType() No such nodetype: " + qName.getAsString());
       return false;
     }
 
-    // log.info("IS TYPE >>> "+testNodeType.getName()+" "+qName.getAsString());
-
     NodeType[] nodetypes = getAllNodeTypes();
     for (int i = 0; i < nodetypes.length; i++) {
-      // log.info("IS TYPE >>> "+testNodeType.getName()+"
-      // "+nodetypes[i].getName());
       if (NodeTypeImpl.isSameOrSubType(testNodeType, nodetypes[i]))
         return true;
     }
@@ -1087,7 +1076,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     SessionImpl corrSession = ((RepositoryImpl) session.getRepository()).login(session
         .getCredentials(), workspaceName);
 
-    // return getCorrespondingNodeData(corrDataManager).getPath();
     return corrSession.getLocationFactory().createJCRPath(getCorrespondingNodeData(corrSession)
         .getQPath()).getAsString(false);
   }
@@ -1099,46 +1087,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     final QPath myPath = nodeData().getQPath();
     final SessionDataManager corrDataManager = corrSession.getTransientNodesManager();
-
-    // if (this.isNodeType(Constants.MIX_REFERENCEABLE)) {
-    // NodeData corrNode = (NodeData) corrDataManager.getItemData(getUUID());
-    // if (corrNode != null)
-    // return corrNode;
-    // } else {
-    // for (int i = myPath.getDepth(); i >= 0; i--) {
-    // final QPath ancesstorPath = myPath.makeAncestorPath(i);
-    // NodeData ancestor = (NodeData) dataManager.getItemData(ancesstorPath);
-    // if (corrSession.getWorkspace().getNodeTypeManager().isNodeType(
-    // Constants.MIX_REFERENCEABLE,
-    // ancestor.getPrimaryTypeName(),
-    // ancestor.getMixinTypeNames())) {
-    //          
-    // NodeData corrAncestor = (NodeData)
-    // corrDataManager.getItemData(ancestor.getUUID());
-    // if (corrAncestor == null)
-    // throw new ItemNotFoundException("No corresponding path for ancestor "
-    // + locationFactory.createJCRPath(ancesstorPath).getAsString(false) + " in
-    // "
-    // + corrSession.getWorkspace().getName());
-    //          
-    // QPathEntry[] relQPathEntries = myPath.getRelPath(myPath.getDepth() - i);
-    // QPath corrNodeQPath = QPath.makeChildPath(corrAncestor.getQPath(),
-    // relQPathEntries);
-    // NodeData corrNode = (NodeData)
-    // corrDataManager.getItemData(corrNodeQPath);
-    // if (corrNode != null)
-    // return corrNode;
-    // }
-    // }
-    // }
-    //    
-    // NodeData corrNode = (NodeData) corrDataManager.getItemData(myPath);
-    // if (corrNode != null)
-    // return corrNode;
-    //    
-    // throw new ItemNotFoundException("No corresponding path for " + getPath()
-    // + " in "
-    // + corrSession.getWorkspace().getName());
 
     if (this.isNodeType(Constants.MIX_REFERENCEABLE)) {
       NodeData corrNode = (NodeData) corrDataManager.getItemData(getUUID());
@@ -1188,8 +1136,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         if (ancestor.isNodeType(Constants.MIX_REFERENCEABLE)) {
           NodeImpl correspAncestor = correspSession.getNodeByUUID(ancestor.getUUID());
           JCRPath.PathElement[] relJCRPath = getLocation().getRelPath(getDepth() - i);
-          // System.out.println("LOC. getRelPath "+(getDepth() - i)+" =
-          // "+getRelPath(relJCRPath)+" "+getPath());
           try {
             return (NodeImpl) correspAncestor.getNode(getRelPath(relJCRPath));
           } catch (ItemNotFoundException e) {
@@ -1240,7 +1186,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     try {
       srcPath = getCorrespondingNodePath(srcWorkspaceName);
 
-      // [PN] Fix it with ItemData
       ItemDataRemoveVisitor remover = new ItemDataRemoveVisitor(session, true);
       nodeData().accept(remover);
 
@@ -1250,10 +1195,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       return;
     }
 
-    // TODO [PN] 25.12.06 Do it in the one transaction
-
+    // TODO [PN] Do it in the one transaction
     session.getTransientNodesManager().getTransactManager().save(changes);
-
     session.getWorkspace().clone(srcWorkspaceName, srcPath, this.getPath(), true);
   }
 
@@ -1320,14 +1263,11 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     for (int i = 0; i < mixinTypes.length; i++) {
       InternalQName cn = mixinTypes[i];
       newMixin.add(cn);
-      values.add(new TransientValueData(cn)); // valueFactory.createValue(jcrName));
+      values.add(new TransientValueData(cn)); 
     }
     newMixin.add(mixinName);
     values.add(new TransientValueData(mixinName));
 
-    // TransientPropertyData prop = (TransientPropertyData)
-    // dataManager.getItemData(
-    // QPath.makeChildPath(getInternalPath(), Constants.JCR_MIXINTYPES));
     TransientPropertyData prop = (TransientPropertyData) dataManager
         .getItemData(((NodeData) getData()), new QPathEntry(Constants.JCR_MIXINTYPES, 0));
     ItemState state;
@@ -1355,9 +1295,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     // Should register jcr:mixinTypes and autocreated items if node is not added
     updateMixin(newMixin);
     dataManager.update(state, true);
-
-    // PropertyImpl prop = doSetProperty(Constants.JCR_MIXINTYPES, values,
-    // PropertyType.NAME, true);
 
     addAutoCreatedItems(mixinName);
 
@@ -1654,11 +1591,12 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     if (hasProperty(Constants.JCR_MERGEFAILED))
       throw new VersionException("Node has jcr:mergeFailed " + getPath());
 
-    // [PN] 15.12.06 Check locking
     if (!parent().checkLocking())
       throw new LockException("Node " + parent().getPath() + " is locked ");
 
+    // the new version UUID 
     String verUuid = UUIDGenerator.generate();
+    
     SessionChangesLog changesLog = new SessionChangesLog(session.getId());
 
     getVersionHistory().addVersion(this.nodeData(), verUuid, changesLog);
@@ -1763,7 +1701,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     if (versionHistoryProp == null)
       throw new UnsupportedRepositoryOperationException("Node does not have jcr:versionHistory: "
           + getPath());
-    // String versionHistory = getProperty("jcr:versionHistory").getString();
 
     return (VersionHistoryImpl) session.getNodeByUUID(versionHistoryProp.getString());
   }
@@ -2281,6 +2218,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
                     .isMultiple(), listAutoCreateValue)), true);
 
         } else {
+          // TODO [PN] Fix the logic
           log.warn("Duplicate property " + pdImpl.getName() + " for node " + getName()
               + " skeepd for mixin " + nodeTypeName.getName());
         }
@@ -2299,10 +2237,11 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       }
     }
 
-    // VERSION
+    // versionable
     if (type.isNodeType(Constants.MIX_VERSIONABLE)) {
       PlainChangesLogImpl changes = new PlainChangesLogImpl();
-      VersionHistoryDataHelper vhistory = new VersionHistoryDataHelper(
+      // using VH helper as for one new VH, all changes in changes log
+      new VersionHistoryDataHelper(
           nodeData(), changes, dataManager, 
           session.getWorkspace().getNodeTypeManager());
       for (ItemState istate: changes.getAllStates()) {
@@ -2314,12 +2253,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   private List<ValueData> autoCreatedValue(ExtendedNodeType type, PropertyDefinitionImpl def) throws RepositoryException {
 
-    // TODO [PN] Add auto created according JCR-139
-
     List<ValueData> vals = new ArrayList<ValueData>();
-    // NodeTypeManagerImpl nt = session.getWorkspace().getNodeTypeManager();
-    // isAccessControlPolicyDisabled =
-    // session.getWorkspace().getNodeTypeManager().accessControlPolicy.equals(AccessControlPolicy.DISABLE)
     if (type.isNodeType(Constants.NT_BASE) && def.getQName().equals(Constants.JCR_PRIMARYTYPE)) {
       vals.add(new TransientValueData(nodeData().getPrimaryTypeName()));
 
@@ -2338,8 +2272,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       vals.add(new TransientValueData(owner));
       setACL(new AccessControlList(owner, getACL().getPermissionEntries()));
 
-    } else if (/* !session.getAccessManager().isDisabled() && */
-    type.isNodeType(Constants.EXO_PRIVILEGEABLE)
+    } else if (type.isNodeType(Constants.EXO_PRIVILEGEABLE)
         && def.getQName().equals(Constants.EXO_PERMISSIONS)) {
 
       AccessControlList superACL = getACL();
