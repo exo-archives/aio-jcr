@@ -111,6 +111,8 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements ItemDataCons
   }
   
   public ItemData getItemData(QPath qpath) throws RepositoryException {
+    //throw new RepositoryException("getItemData(QPath path) is deprecated");
+    
     return initACL(persistentManager.getItemData(qpath));
   }
 

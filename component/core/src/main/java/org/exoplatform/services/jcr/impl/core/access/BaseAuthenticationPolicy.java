@@ -33,8 +33,6 @@ abstract public class BaseAuthenticationPolicy implements AuthenticationPolicy {
   protected static Log log = ExoLogger.getLogger("jcr.AuthenticationPolicy");
   protected RepositoryEntry config;
   
-//  protected static ThreadLocal <Credentials> credentialsHolder;
-
   protected SecurityService securityService;
 
   public BaseAuthenticationPolicy(RepositoryEntry config,
@@ -59,7 +57,6 @@ abstract public class BaseAuthenticationPolicy implements AuthenticationPolicy {
       throw new LoginException(
           "Credentials for the authentication should be CredentialsImpl or SimpleCredentials type");
     
-    //System.out.println("Auth policy, user: " + thisCredentials.getUserID() + " " + new String(thisCredentials.getPassword()));
     doAuthentication(thisCredentials); // throws LoginException
     
     log.debug("Repository.login() authenticated "
@@ -78,17 +75,6 @@ abstract public class BaseAuthenticationPolicy implements AuthenticationPolicy {
     // SYSTEM
     if (credentials.getUserID().equals(SystemIdentity.SYSTEM))
       return;
-    
-    // look for existed subject, reuse it if found
-//    Subject subj = securityService.getSubject(credentials.getUserID());
-//    if(subj != null) {
-//      
-//      log.info(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Repository.login() reuse subject  " 
-//          + " from securityService "+credentials.getUserID()+" "+subj.getPrivateCredentials().size()+
-//          " "+subj.getPublicCredentials().size());
-//
-//      return;
-//    }
 
     // prepare to new login
     // uses BasicCallbackHandler

@@ -84,6 +84,8 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
    * @see org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspaceDataManager#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
   public ItemData getItemData(QPath qpath) throws RepositoryException {
+    //throw new RepositoryException("getItemData(QPath path) is deprecated");
+    
     // 2. Try from cache
     ItemData data = getCachedItemData(qpath);
 

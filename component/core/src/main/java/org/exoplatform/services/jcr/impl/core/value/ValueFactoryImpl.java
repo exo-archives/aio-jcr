@@ -54,7 +54,6 @@ public class ValueFactoryImpl implements ValueFactory {
     this.locationFactory = locationFactory;
     this.fileCleaner = cleanerHolder.getFileCleaner();
     
-//    System.out.println(">>>>>>>>>>>>>>>>> "+repositoryConfig.getBinaryTemp());
     if(repositoryConfig.getBinaryTemp() == null) {
       this.tempDirectory = new File(System.getProperty("java.io.tmpdir"));
       this.maxBufferSize = 200*1024;

@@ -56,41 +56,35 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
   /**
    * Describe which type of RDBMS will be used (DB creation metadata etc.)
    */
-  public final static String DB_TYPE = "db-type";
-  public final static String DB_DRIVER = "db-driver";
-  public final static String DB_URL = "db-url";
-  public final static String DB_USERNAME = "db-username";
-  public final static String DB_PASSWORD = "db-password";
+  public final static String DB_DIALECT = "dialect";
+  public final static String DB_DRIVER = "driverClassName";
+  public final static String DB_URL = "url";
+  public final static String DB_USERNAME = "username";
+  public final static String DB_PASSWORD = "password";
   
-  public final static String DB_TYPE_GENERIC = "Generic".intern();
-  public final static String DB_TYPE_ORACLE = "Oracle".intern();
-  public final static String DB_TYPE_ORACLEOCI = "Oracle-OCI".intern();
-  public final static String DB_TYPE_PGSQL = "PgSQL".intern();
-  public final static String DB_TYPE_MYSQL = "MySQL".intern();
-  public final static String DB_TYPE_HSQLDB = "HSQLDB".intern();
-  public final static String DB_TYPE_DB2 = "DB2".intern();
-  public final static String DB_TYPE_MSSQL = "MSSQL".intern();
-  public final static String DB_TYPE_SYBASE = "Sybase".intern();
-  public final static String DB_TYPE_DERBY = "Derby".intern();
-  
-   
-  
-  public final static String[] DB_TYPES = {DB_TYPE_GENERIC, DB_TYPE_ORACLE, DB_TYPE_ORACLEOCI, DB_TYPE_PGSQL, 
-    DB_TYPE_MYSQL, DB_TYPE_HSQLDB, DB_TYPE_DB2, DB_TYPE_MSSQL, DB_TYPE_SYBASE, DB_TYPE_DERBY};
+  public final static String DB_DIALECT_GENERIC = "Generic".intern();
+  public final static String DB_DIALECT_ORACLE = "Oracle".intern();
+  public final static String DB_DIALECT_ORACLEOCI = "Oracle-OCI".intern();
+  public final static String DB_DIALECT_PGSQL = "PgSQL".intern();
+  public final static String DB_DIALECT_MYSQL = "MySQL".intern();
+  public final static String DB_DIALECT_HSQLDB = "HSQLDB".intern();
+  public final static String DB_DIALECT_DB2 = "DB2".intern();
+  public final static String DB_DIALECT_MSSQL = "MSSQL".intern();
+  public final static String DB_DIALECT_SYBASE = "Sybase".intern();
+  public final static String DB_DIALECT_DERBY = "Derby".intern();
+      
+  public final static String[] DB_DIALECTS = {DB_DIALECT_GENERIC, DB_DIALECT_ORACLE, DB_DIALECT_ORACLEOCI, DB_DIALECT_PGSQL, 
+    DB_DIALECT_MYSQL, DB_DIALECT_HSQLDB, DB_DIALECT_DB2, DB_DIALECT_MSSQL, DB_DIALECT_SYBASE, DB_DIALECT_DERBY};
 
   /**
    * Describe which type of JDBC dialect will be used to iteract with RDBMS.
    * Used for type of ConnectionFactory decision.
    */
-  public final static String                 DB_DIALECT        = "db-dialect";
-
   public final static int                    DEF_MAXBUFFERSIZE = 1024 * 200;                                    // 200k
 
-  public final static String                 DEF_SWAPDIR       = System
-                                                                   .getProperty("java.io.tmpdir");
+  public final static String                 DEF_SWAPDIR  = System.getProperty("java.io.tmpdir");
 
-  protected static Log                       log               = ExoLogger
-                                                                   .getLogger("jcr.JDBCWorkspaceDataContainer");
+  protected static Log                       log = ExoLogger.getLogger("jcr.JDBCWorkspaceDataContainer");
 
   protected final String                     containerName;
 
@@ -100,7 +94,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
 
   protected final String                     dbDriver;
 
-  protected final String                     dbType;
+  protected final String                     dbDialect;
 
   protected final String                     dbUrl;
 
@@ -173,16 +167,15 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     this.valueStorageProvider = valueStorageProvider;
 
     // ------------- Database config ------------------
-    // dbType
-    String pDbType = null;
+    String pDbDialect = null;
     try {
-      pDbType = detectDialect(wsConfig.getContainer().getParameterValue(DB_TYPE));
-      log.info("Using a db-type '" + pDbType + "'");
+      pDbDialect = detectDialect(wsConfig.getContainer().getParameterValue(DB_DIALECT));
+      log.info("Using a dialect '" + pDbDialect + "'");
     } catch (RepositoryConfigurationException e) {
-      log.info("Using a default db-type '" + DB_TYPE_GENERIC + "'");
-      pDbType = DB_TYPE_GENERIC;
+      log.info("Using a default dialect '" + DB_DIALECT_GENERIC + "'");
+      pDbDialect = DB_DIALECT_GENERIC;
     }
-    this.dbType = pDbType;
+    this.dbDialect = pDbDialect;
 
     String pDbDriver = null;
     String pDbUrl = null;
@@ -333,7 +326,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
       try {
         wsSourceName = wsEntry.getContainer().getParameterValue("sourceName");
         newWsSourceName = wsConfig.getContainer().getParameterValue("sourceName");
-      } catch (RuntimeException e1) {
+      } catch (RepositoryConfigurationException e) {
       }
 
       if (wsSourceName != null && newWsSourceName != null) {
@@ -358,9 +351,9 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
       try {
         wsUri = wsEntry.getContainer().getParameterValue("db-url");
         newWsUri = wsConfig.getContainer().getParameterValue("db-url");
-
       } catch (RepositoryConfigurationException e) {
       }
+      
       if (wsUri != null && newWsUri != null) {
         if (isMulti) {
           if (wsUri.equals(newWsUri)) {
@@ -384,7 +377,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
 
     DBInitializer dbInitilizer = null;
     String sqlPath = null;
-    if (dbType == DB_TYPE_ORACLEOCI) {
+    if (dbDialect == DB_DIALECT_ORACLEOCI) {
       //if (multiDb)
       //  throw new RepositoryConfigurationException("Oracle multi database option is not supported now, try to use multi-db=false");
 
@@ -411,36 +404,36 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
           this.connFactory.getJdbcConnection(),
           sqlPath,
           multiDb);
-    } else if (dbType == DB_TYPE_ORACLE) {
+    } else if (dbDialect == DB_DIALECT_ORACLE) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.ora.sql";
       dbInitilizer = new OracleDBInitializer(containerName,
           this.connFactory.getJdbcConnection(),
           sqlPath,
           multiDb);
-    } else if (dbType == DB_TYPE_PGSQL) {
+    } else if (dbDialect == DB_DIALECT_PGSQL) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.pgsql.sql";
       dbInitilizer = new PgSQLDBInitializer(containerName,
           this.connFactory.getJdbcConnection(),
           sqlPath,
           multiDb);
-    } else if (dbType == DB_TYPE_MYSQL) {
+    } else if (dbDialect == DB_DIALECT_MYSQL) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.mysql.sql";
       dbInitilizer = defaultDBInitializer(sqlPath);
-    } else if (dbType == DB_TYPE_MSSQL) {
+    } else if (dbDialect == DB_DIALECT_MSSQL) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.mssql.sql";
       dbInitilizer = defaultDBInitializer(sqlPath);
-    } else if (dbType == DB_TYPE_DERBY) {
+    } else if (dbDialect == DB_DIALECT_DERBY) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.derby.sql";
-    } else if (dbType == DB_TYPE_DB2) {
+    } else if (dbDialect == DB_DIALECT_DB2) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.db2.sql";
       dbInitilizer = defaultDBInitializer(sqlPath);
-    } else if (dbType == DB_TYPE_SYBASE) {
+    } else if (dbDialect == DB_DIALECT_SYBASE) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.sybase.sql";
       dbInitilizer = defaultDBInitializer(sqlPath);
@@ -464,12 +457,12 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
   }
 
   protected String detectDialect(String confParam) {
-    for (String dbType : DB_TYPES) {
+    for (String dbType : DB_DIALECTS) {
       if (dbType.equalsIgnoreCase(confParam))
         return dbType;
     }
 
-    return DB_TYPE_GENERIC; // by default
+    return DB_DIALECT_GENERIC; // by default
   }
 
   // check version of the database
@@ -545,7 +538,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     this.swapCleaner.halt();
     this.swapCleaner.interrupt();
 
-    if (dbType.equals(DB_TYPE_GENERIC) || dbType.equals(DB_TYPE_HSQLDB)) {
+    if (dbDialect.equals(DB_DIALECT_GENERIC) || dbDialect.equals(DB_DIALECT_HSQLDB)) {
       // shutdown in-process HSQLDB database
       System.out.println("Shutdown in-process HSQLDB database...");
       try {
