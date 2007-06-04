@@ -48,6 +48,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
   public final static String CONTAINER_NAME = "containerName";
   public final static String SOURCE_NAME = "sourceName";
   public final static String MULTIDB = "multi-db";
+  public final static String SINGLEDB = "single-db";
 
   public final static String MAXBUFFERSIZE = "max-buffer-size";
   public final static String SWAPDIR = "swap-directory";
@@ -311,20 +312,20 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
           || !wsEntry.getContainer().getType().equals(this.getClass().getName()))
         continue;
       
-      // multi-db
-      if (!wsEntry.getContainer().getParameterValue("multi-db").equals(wsConfig.getContainer()
-          .getParameterValue("multi-db"))) {
-        throw new RepositoryConfigurationException("All workspaces must be multi-db or single-db. But "
+      // MULTIDB
+      if (!wsEntry.getContainer().getParameterValue(MULTIDB).equals(wsConfig.getContainer()
+          .getParameterValue(MULTIDB))) {
+        throw new RepositoryConfigurationException("All workspaces must be "+MULTIDB+" or "+SINGLEDB+". But "
             + wsEntry.getName()
-            + "- multi-db:"
-            + wsEntry.getContainer().getParameterValue("multi-db")
+            + "- multi-db="
+            + wsEntry.getContainer().getParameterValue(MULTIDB)
             + " and "
             + wsConfig.getName()
-            + "- multi-db:"
-            + wsConfig.getContainer().getParameterValue("multi-db"));
+            + "- multi-db="
+            + wsConfig.getContainer().getParameterValue(MULTIDB));
       }
 
-      isMulti = Boolean.parseBoolean(wsConfig.getContainer().getParameterValue("multi-db"));
+      isMulti = Boolean.parseBoolean(wsConfig.getContainer().getParameterValue(MULTIDB));
 
       // source name
       String wsSourceName = null;
@@ -340,12 +341,12 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
           if (wsSourceName.equals(newWsSourceName)) {
             throw new RepositoryConfigurationException("SourceName " + wsSourceName
                 + " alredy in use in " + wsEntry.getName()
-                + ".SourceName must be different in multi-db. Check configuration for "
+                + ". SourceName must be different in "+MULTIDB+". Check configuration for "
                 + wsConfig.getName());
           }
         } else {
           if (!wsSourceName.equals(newWsSourceName)) {
-            throw new RepositoryConfigurationException("SourceName must be equals in single-db "
+            throw new RepositoryConfigurationException("SourceName must be equals in "+SINGLEDB+" "
                 + "repository." + " Check " + wsEntry.getName() + " and " + wsConfig.getName());
           }
         }
@@ -365,13 +366,13 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
           if (wsUri.equals(newWsUri)) {
             throw new RepositoryConfigurationException("db-url  " + wsUri + " alredy in use in "
                 + wsEntry.getName()
-                + ". db-url must be different in multi-db. Check configuration for "
+                + ". db-url must be different in "+MULTIDB+". Check configuration for "
                 + wsConfig.getName());
 
           }
         } else {
           if (!wsUri.equals(newWsUri)) {
-            throw new RepositoryConfigurationException("db-url must be equals in single-db "
+            throw new RepositoryConfigurationException("db-url must be equals in "+SINGLEDB+" "
                 + "repository." + " Check " + wsEntry.getName() + " and " + wsConfig.getName());
           }
         }
