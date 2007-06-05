@@ -4,9 +4,9 @@
     <artifactId>config</artifactId>
     <version>1.6</version>
   </parent>
+	
   <modelVersion>4.0.0</modelVersion>
-  <groupId>exo.jcr.component.ftp</groupId>
-  <artifactId>exo-jcr.services.CIFS</artifactId>
+  <artifactId>exo.jcr.component.cifs</artifactId>
   <packaging>jar</packaging>
   <version>${org.exoplatform.jcr.version}</version>
   <name>eXo JCR CIFS Service</name>
@@ -14,6 +14,7 @@
   <description>eXo JCR CIFS Service</description>
 
   <dependencies>
+	  
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.core</artifactId>
