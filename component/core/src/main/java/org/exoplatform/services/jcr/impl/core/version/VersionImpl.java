@@ -355,7 +355,6 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     
     SessionChangesLog changesLog = restoreLog(nodeData, historyData, restoreSession, removeExisting, null);
     restoreSession.getTransientNodesManager().getTransactManager().save(changesLog);
-
   }
   
   public boolean isSuccessorOrSameOf(VersionImpl anotherVersion) 

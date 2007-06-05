@@ -87,7 +87,6 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     PropertyData versionableUuid = (PropertyData) dataManager.getItemData(nodeData(),
         new QPathEntry(Constants.JCR_VERSIONABLEUUID, 0));
 
-    
     if (versionableUuid != null)
       try {
         return new String(versionableUuid.getValues().get(0).getAsByteArray());
@@ -355,7 +354,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
       if (prop.getQPath().getName().equals(labelQName)) {
         // label is found
         if (moveLabel) {
-          removeVersionLabel(label); // TODO implement method
+          removeVersionLabel(label); 
           break;
         }
         throw new VersionException("Label " + label + " is already exists and moveLabel=false");
@@ -371,7 +370,6 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     changesLog.add(ItemState.createAddedState(labelData));
     
     dataManager.getTransactManager().save(changesLog);
-            
   }
 
   public void removeVersionLabel(String labelName) throws VersionException, RepositoryException {

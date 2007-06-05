@@ -70,8 +70,6 @@ public class WorkspaceImpl implements Workspace {
 
   private final SessionImpl session;
 
-//  private ExoContainer       container;
-  
   private final NamespaceRegistryImpl namespaceRegistry;
   
   private final NodeTypeManagerImpl nodeTypeManager;
@@ -86,7 +84,6 @@ public class WorkspaceImpl implements Workspace {
       ObservationManager observationManager) throws RepositoryException {
 
     this.session = session;
-//    this.container = container;
     this.name = name;
     this.observationManager = observationManager;
     
@@ -134,11 +131,8 @@ public class WorkspaceImpl implements Workspace {
       NodeImporter importer = (NodeImporter) getImportContentHandler(parentAbsPath, uuidBehavior);
       importer.parse(in);
     } catch (IOException e) {
-      // e.printStackTrace();
       throw new InvalidSerializedDataException("importXML failed", e);
     } catch (SAXException e) {
-      // e.printStackTrace();
-      // throw new InvalidSerializedDataException("importXML failed", e);
       Throwable rootCause = e.getException();
       if (rootCause == null) {
         rootCause = session.getRootCauseException(e);
@@ -146,7 +140,6 @@ public class WorkspaceImpl implements Workspace {
       if (rootCause == null) {
         rootCause = e;
       }
-      // rootCause.printStackTrace();
       if (rootCause instanceof ItemExistsException) {
         throw new ItemExistsException("importXML failed", rootCause);
       } else if (rootCause instanceof ConstraintViolationException) {
@@ -283,11 +276,6 @@ public class WorkspaceImpl implements Workspace {
               + destNodePath.getAsString(false));
     // get source node
     JCRPath srcNodePath = session.getLocationFactory().parseAbsPath(srcAbsPath);
-//    NodeImpl srcNode = (NodeImpl) session.getTransientNodesManager().getItem(
-//        srcNodePath.getInternalPath(), true);
-//
-//    NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager().getItem(
-//        destNodePath.makeParentPath().getInternalPath(), true);
     NodeData srcRootData = (NodeData) session.getTransientNodesManager()
         .getItemData(Constants.ROOT_UUID);
 
@@ -316,9 +304,6 @@ public class WorkspaceImpl implements Workspace {
         ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
 
     // Check for node with destAbsPath name in session
-//    NodeImpl destNode = (NodeImpl) session.getTransientNodesManager().getItem(
-//        destNodePath.getInternalPath(), true);
-    
     NodeImpl destNode = (NodeImpl) session.getTransientNodesManager()
     .getItem((NodeData) destParentNode.getData(),
         new QPathEntry(destNodePath.getInternalPath().getName(), 0),
@@ -342,7 +327,6 @@ public class WorkspaceImpl implements Workspace {
 
     ItemDataMoveVisitor initializer = new ItemDataMoveVisitor((NodeData) destParentNode.getData(),
         destNodePath.getName().getInternalName(), getNodeTypeManager(), session
-            //.getTransientNodesManager(), srcNode.isNodeType(Constants.MIX_REFERENCEABLE));
           .getTransientNodesManager(), true);
     srcNode.getData().accept(initializer);
 
@@ -383,14 +367,6 @@ public class WorkspaceImpl implements Workspace {
     // get source node
     JCRPath srcNodePath = srcSession.getLocationFactory().parseAbsPath(srcAbsPath);
 
-    // NodeImpl srcNode = (NodeImpl)
-    // srcSession.getTransientNodesManager().getItem(
-    // srcNodePath.getInternalPath(), true);
-    //
-    // NodeImpl destParentNode = (NodeImpl)
-    // session.getTransientNodesManager().getItem(
-    // destNodePath.makeParentPath().getInternalPath(), true);
-
     NodeData srcRootData = (NodeData) srcSession.getTransientNodesManager()
         .getItemData(Constants.ROOT_UUID);
 
@@ -418,9 +394,6 @@ public class WorkspaceImpl implements Workspace {
         ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
 
     // Check for node with destAbsPath name in session
-    // NodeImpl destNode = (NodeImpl)
-    // session.getTransientNodesManager().getItem(
-    // destNodePath.getInternalPath(), true);
     NodeImpl destNode = (NodeImpl) session.getTransientNodesManager()
         .getItem((NodeData) destParentNode.getData(),
             new QPathEntry(destNodePath.getInternalPath().getName(), 0),
@@ -454,17 +427,8 @@ public class WorkspaceImpl implements Workspace {
 
     // removeing existing nodes and properties
     if (removeExisting && initializer.getItemDeletedExistingStates(false).size() > 0) {
-      // ItemDataChangesLog changesDeletedExistingLog = new
-      // ItemDataChangesLog(initializer
-      // .getItemDeletedExistingStates(true), session.getId());
-      // session.getTransientNodesManager().getTransactManager().save(changesDeletedExistingLog);
       changes.addAll(initializer.getItemDeletedExistingStates(true));
     }
-
-    // adding nodes
-    // ItemDataChangesLog changesAddLog = new
-    // ItemDataChangesLog(initializer.getItemAddStates(),
-    // session.getId());
 
     changes.addAll(initializer.getItemAddStates());
 
@@ -502,12 +466,6 @@ public class WorkspaceImpl implements Workspace {
     return observationManager;
   }
 
-//  private class MultiVersionRestoreComparator implements Comparator<Version> {
-//    public int compare(Version v1, Version v2) {
-//      return 0;
-//    }
-//  }
-
   /**
    * @see javax.jcr.Workspace#restore
    */
@@ -516,7 +474,6 @@ public class WorkspaceImpl implements Workspace {
       InvalidItemStateException {
 
     restoreVersions(versions, removeExisting);
-    
   }
   
   protected void restoreVersions(Version[] versions, boolean removeExisting)
@@ -585,10 +542,6 @@ public class WorkspaceImpl implements Workspace {
             + e.getMessage(), e);
       }
     }
-
-    // MultiVersionRestoreComparator<Version> orderer = new
-    // MultiVersionRestoreComparator<Version>();
-    // Collections.sort(notExistedVersions, orderer);
 
     for (VersionImpl v : notExistedVersions) {
       String versionableUuid = v.getContainingHistory().getVersionableUUID();

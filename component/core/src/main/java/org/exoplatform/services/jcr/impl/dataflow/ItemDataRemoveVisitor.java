@@ -53,12 +53,6 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
     this.validate = false;
   }
   
-//  public ItemDataRemoveVisitor() {
-//    super(null);
-//    this.session = null;
-//    this.validate = false;
-//  }
-  
   public ItemDataRemoveVisitor(SessionImpl session, boolean validate) {
     super(session.getTransientNodesManager());
     this.session = session;
@@ -91,18 +85,12 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
   }
   
   protected void validateConstraints(PropertyData property) throws RepositoryException {
-    // TODO
   }
   
   protected void validateVersion(PropertyData property) throws RepositoryException {
-    // TODO
   }
   
   protected void validateLock(PropertyData property) throws RepositoryException {
-    // TODO
-//  if (session.getLockManager().getLock(property, false) != null) {
-//  
-//}    
   }
   
   protected void validate(NodeData node) throws RepositoryException {
@@ -171,18 +159,12 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
   }
   
   protected void validateConstraints(NodeData node) throws RepositoryException {
-    // TODO
   }
   
   protected void validateVersion(NodeData node) throws RepositoryException {
-    // TODO
   }
   
   protected void validateLock(NodeData node) throws RepositoryException {
-    // TODO
-//    if (session.getLockManager().getLock(node, false) != null) {
-//      
-//    }
   }  
   
   @Override
@@ -232,7 +214,6 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
     if (reversedItemRemovedStates == null) {
       Collections.reverse(itemRemovedStates);
       reversedItemRemovedStates = itemRemovedStates;
-      // itemRemovedStates = null; // will be NullPointerException in entering(...)
     }
     return reversedItemRemovedStates;
   }

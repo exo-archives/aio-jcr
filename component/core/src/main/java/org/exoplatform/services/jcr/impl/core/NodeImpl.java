@@ -1601,16 +1601,16 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     getVersionHistory().addVersion(this.nodeData(), verUuid, changesLog);
 
-    changesLog.add(ItemState.createUpdatedState(updatePropertyData(Constants.JCR_ISCHECKEDOUT,
-        new TransientValueData(false))));
+    changesLog.add(ItemState.createUpdatedState(
+        updatePropertyData(Constants.JCR_ISCHECKEDOUT, new TransientValueData(false))));
 
-    changesLog.add(ItemState.createUpdatedState(updatePropertyData(Constants.JCR_BASEVERSION,
-        new TransientValueData(new Uuid(verUuid)))));
+    changesLog.add(ItemState.createUpdatedState(
+        updatePropertyData(Constants.JCR_BASEVERSION, new TransientValueData(new Uuid(verUuid)))));
 
-    changesLog.add(ItemState.createUpdatedState(updatePropertyData(Constants.JCR_PREDECESSORS,
-        new ArrayList<ValueData>())));
+    changesLog.add(ItemState.createUpdatedState(
+        updatePropertyData(Constants.JCR_PREDECESSORS, new ArrayList<ValueData>())));
 
-    dataManager.getTransactManager().save(changesLog); // changesLog.dump()
+    dataManager.getTransactManager().save(changesLog); 
 
     VersionImpl version = (VersionImpl) dataManager.getItemByUUID(verUuid, true);
 
@@ -1630,28 +1630,17 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     SessionChangesLog changesLog = new SessionChangesLog(session.getId());
 
-    // PropertyData propData =
-    // TransientPropertyData.createPropertyData(nodeData(),
-    // Constants.JCR_ISCHECKEDOUT,
-    // PropertyType.BOOLEAN, false, new TransientValueData(true));
-    // changesLog.add(ItemState.createUpdatedState(propData));
-    changesLog.add(ItemState.createUpdatedState(updatePropertyData(Constants.JCR_ISCHECKEDOUT,
-        new TransientValueData(true))));
+    changesLog.add(ItemState.createUpdatedState(
+        updatePropertyData(Constants.JCR_ISCHECKEDOUT, new TransientValueData(true))));
 
-    // ValueData baseVersion = ((PropertyData)
-    // dataManager.getItemData(QPath.makeChildPath(getInternalPath(),
-    // Constants.JCR_BASEVERSION))).getValues().get(0);
-    ValueData baseVersion = ((PropertyData) dataManager.getItemData(nodeData(),
-        new QPathEntry(Constants.JCR_BASEVERSION, 0))).getValues().get(0);
+    ValueData baseVersion = ((PropertyData) dataManager.getItemData(
+        nodeData(), new QPathEntry(Constants.JCR_BASEVERSION, 0))).getValues().get(0);
 
-    // propData = TransientPropertyData.createPropertyData(nodeData(),
-    // Constants.JCR_PREDECESSORS,
-    // PropertyType.REFERENCE, false, baseVersion );
-    // changesLog.add(ItemState.createUpdatedState(propData));
-    changesLog.add(ItemState.createUpdatedState(updatePropertyData(Constants.JCR_PREDECESSORS,
-        baseVersion)));
+    changesLog.add(ItemState.createUpdatedState(
+        updatePropertyData(Constants.JCR_PREDECESSORS, baseVersion)));
 
     dataManager.getTransactManager().save(changesLog);
+    
     session.getActionHandler().postCheckout(this);
   }
 
@@ -2544,18 +2533,19 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   protected PropertyData updatePropertyData(InternalQName name, ValueData value) throws RepositoryException {
 
-    // return updatePropertyData(getInternalPath(), name, value);
-
-    PropertyData existed = (PropertyData) dataManager.getItemData(nodeData(), new QPathEntry(name,
-        0));
+    PropertyData existed = (PropertyData) dataManager.getItemData(nodeData(), new QPathEntry(name, 0));
 
     if (existed == null)
       throw new RepositoryException("Property data is not found " + name.getAsString()
           + " for node " + nodeData().getQPath().getAsString());
 
-    TransientPropertyData tdata = new TransientPropertyData(QPath.makeChildPath(getInternalPath(),
-        name), existed.getUUID(), existed.getPersistedVersion(), existed.getType(), existed
-        .getParentUUID(), existed.isMultiValued());
+    TransientPropertyData tdata = new TransientPropertyData(
+        QPath.makeChildPath(getInternalPath(), name), 
+        existed.getUUID(), 
+        existed.getPersistedVersion(), 
+        existed.getType(), 
+        existed.getParentUUID(), 
+        existed.isMultiValued());
 
     tdata.setValue(value);
     return tdata;
@@ -2564,15 +2554,19 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   protected PropertyData updatePropertyData(InternalQName name, List<ValueData> values) throws RepositoryException {
 
-    PropertyData existed = (PropertyData) dataManager.getItemData(nodeData(), new QPathEntry(name,
-        0));
+    PropertyData existed = (PropertyData) dataManager.getItemData(nodeData(), new QPathEntry(name, 0));
+    
     if (existed == null)
       throw new RepositoryException("Property data is not found " + name.getAsString()
           + " for node " + nodeData().getQPath().getAsString());
 
-    TransientPropertyData tdata = new TransientPropertyData(QPath.makeChildPath(getInternalPath(),
-        name), existed.getUUID(), existed.getPersistedVersion(), existed.getType(), existed
-        .getParentUUID(), existed.isMultiValued());
+    TransientPropertyData tdata = new TransientPropertyData(
+        QPath.makeChildPath(getInternalPath(), name), 
+        existed.getUUID(), 
+        existed.getPersistedVersion(), 
+        existed.getType(), 
+        existed.getParentUUID(), 
+        existed.isMultiValued());
 
     if (!existed.isMultiValued())
       throw new ValueFormatException("An existed property is single-valued " + name.getAsString());
@@ -2580,5 +2574,4 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     tdata.setValues(values);
     return tdata;
   }
-
 }
