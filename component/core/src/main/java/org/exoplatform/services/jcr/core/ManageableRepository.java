@@ -6,6 +6,7 @@
 package org.exoplatform.services.jcr.core;
 
 import javax.jcr.NamespaceRegistry;
+import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -23,8 +24,8 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
  * @version $Id: ManageableRepository.java 12843 2007-02-16 09:11:18Z peterit $
  */
 
-public interface ManageableRepository extends Repository {
     
+public interface ManageableRepository extends Repository {
     public void configWorkspace(WorkspaceEntry wsConfig) throws  RepositoryConfigurationException, RepositoryException;
     
     /**
@@ -33,6 +34,7 @@ public interface ManageableRepository extends Repository {
      * @param rootNodeType
      * @throws RepositoryException
      */
+    @Deprecated
     void initWorkspace(String workspaceName, String rootNodeType) throws RepositoryException;
     
     /**
@@ -41,10 +43,23 @@ public interface ManageableRepository extends Repository {
      * @throws RepositoryException
      */
     void createWorkspace(String workspaceName) throws RepositoryException;
-
+    
+    /**
+     * 
+     * @param name
+     * @throws RepositoryException
+     */
+    void removeWorkspace(String workspaceName) throws RepositoryException;
+    /**
+     * 
+     * @param workspaceName
+     * @return
+     * @throws NoSuchWorkspaceException 
+     */
+    boolean canRemoveWorkspace(String workspaceName) throws NoSuchWorkspaceException;
     /**
      * @param workspaceName
-     * @return true if workspace is initialized and false otherwice
+     * @return true if workspace is initialized and false otherwise
      * @throws RepositoryException
      */
     boolean isWorkspaceInitialized(String workspaceName) throws RepositoryException;

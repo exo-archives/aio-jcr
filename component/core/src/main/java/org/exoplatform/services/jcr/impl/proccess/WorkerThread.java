@@ -34,7 +34,9 @@ public abstract class WorkerThread extends Thread {
         callPeriodically();
         sleep(timeout);
       } catch (Exception e) {
-        e.printStackTrace();
+        if(!(e instanceof InterruptedException))
+          e.printStackTrace();
+        
       }
     }
   }

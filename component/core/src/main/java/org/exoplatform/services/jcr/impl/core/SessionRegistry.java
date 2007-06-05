@@ -52,7 +52,16 @@ public final class SessionRegistry implements Startable {
   public SessionImpl getSession(String sessionId) {
     return sessionsMap.get(sessionId);
   }
-
+  
+  public boolean isInUse(String workspaceName){
+    if (workspaceName == null)
+      return sessionsMap.size() > 0;
+    for (SessionImpl session : sessionsMap.values()) {
+      if (session.getWorkspace().getName().equals(workspaceName))
+        return true;
+    }
+    return false;
+  }
   public void start() {
     if (timeOut > 0)
       sessionCleaner = new SessionCleaner(DEFAULT_CLEANER_TIMEOUT, timeOut);

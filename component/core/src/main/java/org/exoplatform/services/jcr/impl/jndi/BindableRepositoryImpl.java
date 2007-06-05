@@ -167,6 +167,7 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
    * @see org.exoplatform.services.jcr.core.ManageableRepository#initWorkspace(java.lang.String,
    *      java.lang.String)
    */
+  @Deprecated
   public void initWorkspace(String workspaceName, String rootNodeType) throws RepositoryException {
     delegatee.initWorkspace(workspaceName, rootNodeType);
   }
@@ -212,6 +213,16 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
       RepositoryException {
     delegatee.configWorkspace(wsConfig);
    
+  }
+
+  public boolean canRemoveWorkspace(String workspaceName) throws NoSuchWorkspaceException {
+    // TODO Auto-generated method stub
+    return delegatee.canRemoveWorkspace(workspaceName);
+  }
+
+  public void removeWorkspace(String workspaceName) throws RepositoryException {
+    delegatee.removeWorkspace(workspaceName);
+    
   }
 
 }

@@ -6,7 +6,6 @@
 package org.exoplatform.services.jcr.config;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
@@ -27,7 +26,7 @@ import org.jibx.runtime.JiBXException;
 
 public class RepositoryServiceConfiguration {
 
-  private ArrayList repositoryConfigurations;
+  private List<RepositoryEntry> repositoryConfigurations;
 
   private String defaultRepositoryName;
 
@@ -36,7 +35,7 @@ public class RepositoryServiceConfiguration {
     return defaultRepositoryName;
   }
 
-  public final List getRepositoryConfigurations() {
+  public final List<RepositoryEntry> getRepositoryConfigurations() {
     return repositoryConfigurations;
   }
 
@@ -44,7 +43,7 @@ public class RepositoryServiceConfiguration {
       throws RepositoryConfigurationException {
 
     for (int i = 0; i < repositoryConfigurations.size(); i++) {
-      RepositoryEntry conf = (RepositoryEntry) repositoryConfigurations.get(i);
+      RepositoryEntry conf = repositoryConfigurations.get(i);
       if (conf.getName().equals(name))
         return conf;
     }
@@ -61,7 +60,7 @@ public class RepositoryServiceConfiguration {
           .unmarshalDocument(is, null);
 
       this.defaultRepositoryName = conf.getDefaultRepositoryName();
-      this.repositoryConfigurations = (ArrayList) conf
+      this.repositoryConfigurations = conf
           .getRepositoryConfigurations();
     } catch (JiBXException e) {
       e.printStackTrace();

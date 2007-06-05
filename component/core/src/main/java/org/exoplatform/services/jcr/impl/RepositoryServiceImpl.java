@@ -37,9 +37,12 @@ import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.RepositoryServiceConfiguration;
+import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.impl.config.RepositoryServiceConfigurationImpl;
+import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
+import org.exoplatform.services.jcr.impl.core.SessionRegistry;
 import org.exoplatform.services.log.ExoLogger;
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
@@ -63,13 +66,15 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
 
   private ThreadLocal<String>            currentRepositoryName = new ThreadLocal<String>();
 
-  private HashMap                        repositoryContainers  = new HashMap();
+  private HashMap<String, RepositoryContainer>                        repositoryContainers  = new HashMap<String, RepositoryContainer>();
 
-  private List                           addNodeTypePlugins;
+  private List<ComponentPlugin>                           addNodeTypePlugins;
 
-  private List                           addNamespacesPlugins;
+  private List<ComponentPlugin>                           addNamespacesPlugins;
 
   private ExoContainerContext            containerContext;
+
+  private ExoContainer parentContainer;
 
   public RepositoryServiceImpl(RepositoryServiceConfiguration configuration) throws RepositoryConfigurationException,
       RepositoryException {
@@ -79,8 +84,8 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
   public RepositoryServiceImpl(RepositoryServiceConfiguration configuration,
       ExoContainerContext context) throws RepositoryConfigurationException, RepositoryException {
     this.config = configuration;
-    addNodeTypePlugins = new ArrayList();
-    addNamespacesPlugins = new ArrayList();
+    addNodeTypePlugins = new ArrayList<ComponentPlugin>();
+    addNamespacesPlugins = new ArrayList<ComponentPlugin>();
     containerContext = context;
     currentRepositoryName.set(config.getDefaultRepositoryName());
   }
@@ -97,7 +102,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
   }
 
   public ManageableRepository getRepository(String name) throws RepositoryException {
-    RepositoryContainer repositoryContainer = (RepositoryContainer) repositoryContainers.get(name);
+    RepositoryContainer repositoryContainer = repositoryContainers.get(name);
     log.debug("RepositoryServiceimpl() getRepository " + name);
     if (repositoryContainer == null)
       throw new RepositoryException("Repository '" + name + "' not found.");
@@ -165,15 +170,12 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
 
   private void init(ExoContainer parentContainer) throws RepositoryConfigurationException,
       RepositoryException {
-    List rEntries = config.getRepositoryConfigurations();
+    this.parentContainer = parentContainer;
+    List<RepositoryEntry> rEntries = config.getRepositoryConfigurations();
     for (int i = 0; i < rEntries.size(); i++) {
-      RepositoryEntry rEntry = (RepositoryEntry) rEntries.get(i);
+      RepositoryEntry rEntry = rEntries.get(i);
       // Making new repository container as portal's subcontainer
-      RepositoryContainer repositoryContainer = new RepositoryContainer(parentContainer, rEntry);
-      // Storing and starting the repository container under
-      // key=repository_name
-      repositoryContainers.put(rEntry.getName(), repositoryContainer);
-      repositoryContainer.start();
+      createRepository(rEntry);
     }
   }
 
@@ -252,6 +254,71 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
         log.error("Error load namespaces ", e);
       }
     }
+  }
+
+  public void createRepository(RepositoryEntry rEntry) throws RepositoryConfigurationException,
+      RepositoryException {
+    if (repositoryContainers.containsKey(rEntry.getName()))
+      throw new RepositoryConfigurationException("Repository container " + rEntry.getName()
+          + " already started");
+
+    RepositoryContainer repositoryContainer = new RepositoryContainer(parentContainer, rEntry);
+    // Storing and starting the repository container under
+    // key=repository_name
+    repositoryContainers.put(rEntry.getName(), repositoryContainer);
+    repositoryContainer.start();
+    
+    if (!config.getRepositoryConfigurations().contains(rEntry)) {
+      config.getRepositoryConfigurations().add(rEntry);
+    }
+    
+  }
+
+  public void removeRepository(String name) throws RepositoryException {
+    if (!canRemoveRepository(name))
+      throw new RepositoryException("Repository " + name + " in use. If you want to "
+          + " remove repository close all open sessions");
+    
+    try {
+      RepositoryEntry repconfig = config.getRepositoryConfiguration(name);
+      RepositoryImpl repo = (RepositoryImpl) getRepository(name);
+      for (WorkspaceEntry wsEntry : repconfig.getWorkspaceEntries()) {
+        repo.internalRemoveWorkspace(wsEntry.getName());
+      }
+      RepositoryContainer repositoryContainer = repositoryContainers.get(name);
+      repositoryContainer.stopContainer();
+      repositoryContainer.stop();
+      repositoryContainers.remove(name);
+      config.getRepositoryConfigurations().remove(repconfig);
+    } catch (RepositoryConfigurationException e) {
+      throw new RepositoryException(e);
+    } catch (Exception e) {
+      throw new RepositoryException(e);
+    }
+  }
+
+  public boolean canRemoveRepository(String name) throws RepositoryException {
+    RepositoryImpl repo = (RepositoryImpl) getRepository(name);
+    try {
+      RepositoryEntry repconfig = config.getRepositoryConfiguration(name);
+
+      for (WorkspaceEntry wsEntry : repconfig.getWorkspaceEntries()) {
+        //Check non system workspaces
+        if (!repo.getSystemWorkspaceName().equals(wsEntry.getName())&& !repo.canRemoveWorkspace(wsEntry.getName()))
+          return false;
+      }
+      //check system workspace
+      RepositoryContainer repositoryContainer = repositoryContainers.get(name);
+      SessionRegistry sessionRegistry = (SessionRegistry) repositoryContainer
+          .getComponentInstance(SessionRegistry.class);
+      if (sessionRegistry == null || sessionRegistry.isInUse(repo.getSystemWorkspaceName()))
+        return false;
+
+    } catch (RepositoryConfigurationException e) {
+      throw new RepositoryException(e);
+    }
+
+    return true;
   }
 
 }

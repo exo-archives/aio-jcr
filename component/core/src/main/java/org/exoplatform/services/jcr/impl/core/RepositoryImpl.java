@@ -168,15 +168,17 @@ public class RepositoryImpl implements ManageableRepository {
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.core.ManageableRepository#getSystemSession(java.lang.String)
    */
-  public Session getSystemSession(String workspaceName)
-      throws RepositoryException {
-    
-    SessionFactory sessionFactory = repositoryContainer.getWorkspaceContainer(workspaceName)
-    .getSessionFactory(); 
-    
-    return sessionFactory.createSession(SYSTEM_CREDENTIALS);
+  public Session getSystemSession(String workspaceName) throws RepositoryException {
+    WorkspaceContainer workspaceContainer = repositoryContainer
+        .getWorkspaceContainer(workspaceName);
+    if (workspaceContainer == null
+        || !workspaceContainer.getWorkspaceInitializer().isWorkspaceInitialized()) {
+      throw new RepositoryException("Workspace " + workspaceName
+          + " doesn't exists or workspace doesn't initialized");
+    }
+    SessionFactory sessionFactory = workspaceContainer.getSessionFactory();
 
-//    return sessionFactory.createSession(AccessManager.systemCredentials());    
+    return sessionFactory.createSession(SYSTEM_CREDENTIALS);
   }
   
   /* (non-Javadoc)
@@ -274,6 +276,42 @@ public class RepositoryImpl implements ManageableRepository {
 
     
     log.info("Workspace " + wsName + "@" + this.name + " is initialized");
+  }
+  
+  public void removeWorkspace(String workspaceName) throws RepositoryException {
+    if (!canRemoveWorkspace(workspaceName))
+      throw new RepositoryException("Workspace " + workspaceName + " in use. If you want to "
+          + " remove workspace close all open sessions");
+
+    internalRemoveWorkspace(workspaceName);
+  }
+  public void internalRemoveWorkspace(String workspaceName) throws RepositoryException {
+    WorkspaceContainer workspaceContainer = null;
+    if (isWorkspaceInitialized(workspaceName)) {
+      workspaceContainer =repositoryContainer.getWorkspaceContainer(workspaceName);
+      //workspaceContainer.stop();
+      try {
+        workspaceContainer.stopContainer();
+      } catch (Exception e) {
+          throw new RepositoryException(e);
+      }
+      repositoryContainer.unregisterComponentByInstance(workspaceContainer);
+    }
+    config.getWorkspaceEntries().remove(repositoryContainer.getWorkspaceEntry(workspaceName));
+  }
+  
+  public boolean canRemoveWorkspace(String workspaceName) throws NoSuchWorkspaceException {
+    if(repositoryContainer.getWorkspaceEntry(workspaceName) == null)
+      throw new NoSuchWorkspaceException("No such workspace "+workspaceName);
+    
+    if(workspaceName.equals(config.getSystemWorkspaceName()))
+      return false;
+    
+    SessionRegistry sessionRegistry = (SessionRegistry) repositoryContainer
+        .getComponentInstance(SessionRegistry.class);
+
+    return sessionRegistry != null && !sessionRegistry.isInUse(workspaceName);
+    
   }
   
   /* (non-Javadoc)
