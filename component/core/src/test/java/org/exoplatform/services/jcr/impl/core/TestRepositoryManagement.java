@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.util.UUIDGenerator;
  * @version $Id: $
  */
 public class TestRepositoryManagement extends JcrImplBaseTest {
-  public void _testAddNewRepository() throws Exception {
+  public void testAddNewRepository() throws Exception {
     RepositoryEntry repositoryEntry = new RepositoryEntry();
 
     repositoryEntry.setName("repo4TestCreateRepository");
@@ -107,7 +107,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
     }
   }
 
-  public void _testAddNewRepositoryWithSameName() throws Exception {
+  public void testAddNewRepositoryWithSameName() throws Exception {
 
     RepositoryService service = (RepositoryService) container
         .getComponentInstanceOfType(RepositoryService.class);
@@ -148,7 +148,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
   }
 
-  public void _testCanRemove() throws Exception {
+  public void testCanRemove() throws Exception {
     RepositoryEntry repositoryEntry = new RepositoryEntry();
 
     repositoryEntry.setName("repo4testCanRemove");

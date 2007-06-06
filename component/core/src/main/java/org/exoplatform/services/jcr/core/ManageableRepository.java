@@ -26,6 +26,12 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 
     
 public interface ManageableRepository extends Repository {
+    /**
+     * Add new workspace configuration
+     * @param wsConfig
+     * @throws RepositoryConfigurationException
+     * @throws RepositoryException
+     */
     public void configWorkspace(WorkspaceEntry wsConfig) throws  RepositoryConfigurationException, RepositoryException;
     
     /**
@@ -38,20 +44,20 @@ public interface ManageableRepository extends Repository {
     void initWorkspace(String workspaceName, String rootNodeType) throws RepositoryException;
     
     /**
-     * add workspace
-     * @param wsConfig
+     * Create new workspace with name workspaceName
+     * @param workspaceName
      * @throws RepositoryException
      */
     void createWorkspace(String workspaceName) throws RepositoryException;
     
     /**
-     * 
-     * @param name
+     * Remove workspace with name workspaceName
+     * @param workspaceName
      * @throws RepositoryException
      */
     void removeWorkspace(String workspaceName) throws RepositoryException;
     /**
-     * 
+     * Indicates if workspace with name workspaceName can be removed
      * @param workspaceName
      * @return
      * @throws NoSuchWorkspaceException 

@@ -64,11 +64,25 @@ public interface RepositoryService {
    * @return RepositoryServiceConfiguration
    */
   RepositoryServiceConfiguration getConfig();
-
-  void createRepository(RepositoryEntry rEntry) throws RepositoryConfigurationException,
+  /**
+   * Create new repository 
+   * @param repositoryEntry
+   * @throws RepositoryConfigurationException
+   * @throws RepositoryException
+   */
+  void createRepository(RepositoryEntry repositoryEntry) throws RepositoryConfigurationException,
       RepositoryException;
-
-  void removeRepository(String name) throws RepositoryException;
-
-  boolean canRemoveRepository(String  name) throws RepositoryException ;
+  /**
+   * Remove repository with name repositoryName
+   * @param repositoryName
+   * @throws RepositoryException
+   */
+  void removeRepository(String repositoryName) throws RepositoryException;
+  /**
+   * Indicates if repository with name repositoryName can be removed
+   * @param repositoryName
+   * @return
+   * @throws RepositoryException
+   */
+  boolean canRemoveRepository(String  repositoryName) throws RepositoryException ;
 }
