@@ -24,8 +24,6 @@
     <module>frameworks/webdavclient</module>
     <module>frameworks/ftpclient</module>
 
-    <module>connectors/jca</module>
-
     <!-- check readme.txt in the project -->
     <!-- module>connectors/rmiadapter</module -->
 
@@ -33,6 +31,8 @@
     <module>applications/java/web/samples/fckeditor</module>
     <module>applications/java/web/webdav</module>
     <module>applications/java/web/ear</module>
+
+    <module>connectors/jca</module>
 
     <!-- module>applications/java/standalone/rmi-server</module>
     <module>applications/java/standalone/rmi-client</module>
