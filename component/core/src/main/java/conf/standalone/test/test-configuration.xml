@@ -16,7 +16,7 @@
       <properties-param>
         <name>properties</name>
         <description>Log4J properties</description>
-        <property name="log4j.rootLogger" value="INFO, stdout, file"/>
+        <property name="log4j.rootLogger" value="DEBUG, stdout, file"/>
 
         <property name="log4j.appender.stdout" value="org.apache.log4j.ConsoleAppender"/>
         <property name="log4j.appender.stdout.threshold" value="DEBUG"/>
@@ -104,7 +104,7 @@
       <init-params>
                    <properties-param>
                      <name>log.level.config</name>
-                     <property name="org.exoplatform.services.log" value="INFO"/>
+                     <property name="org.exoplatform.services.log" value="DEBUG"/>
                    </properties-param>
       </init-params>
   </component>

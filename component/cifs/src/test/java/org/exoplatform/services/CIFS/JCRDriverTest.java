@@ -27,7 +27,7 @@ import org.exoplatform.services.cifs.server.filesys.TreeConnection;
 import org.exoplatform.services.cifs.smb.SMBDate;
 import org.exoplatform.services.cifs.smb.SMBStatus;
 import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 import junit.framework.TestCase;

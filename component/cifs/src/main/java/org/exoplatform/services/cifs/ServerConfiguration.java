@@ -13,10 +13,6 @@ import java.util.Enumeration;
 import java.util.StringTokenizer;
 
 
-
-
-
-
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.container.xml.InitParams;

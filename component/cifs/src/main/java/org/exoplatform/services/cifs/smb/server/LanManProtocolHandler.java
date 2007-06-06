@@ -59,7 +59,7 @@ import org.exoplatform.services.cifs.smb.ShareType;
 import org.exoplatform.services.cifs.smb.server.OpenAndX;
 import org.exoplatform.services.cifs.util.DataBuffer;
 import org.exoplatform.services.cifs.util.DataPacker;
-import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -76,7 +76,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
 	// Debug logging
 
-	private static final Log logger = ExoLogger.getLogger("org.exoplatform.services.CIFS.smb.server.LanManProtocolHandler");
+	private static final Log logger = ExoLogger.getLogger("org.exoplatform.services.c.smb.server.LanManProtocolHandler");
 
 
 	// Locking type flags

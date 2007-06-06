@@ -27,7 +27,7 @@ public class CIFSServiceTest {
     {
       //create standalone container
     
-      StandaloneContainer.setConfigurationPath("src/main/java/conf/standalone/test-configuration.xml");
+      StandaloneContainer.setConfigurationPath("src/main/java/conf/standalone/test/test-configuration.xml");
       
       // obtain standalone container
       StandaloneContainer  container = StandaloneContainer.getInstance();
@@ -35,7 +35,7 @@ public class CIFSServiceTest {
       // set JAAS auth config
       if (System.getProperty("java.security.auth.login.config") == null)
         System.setProperty("java.security.auth.login.config",
-          "src/main/java/conf/standalone/login.conf");
+          "src/main/resources/login.conf");
     
       // obtain default repository
       RepositoryService repositoryService = (RepositoryService) container

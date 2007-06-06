@@ -18,8 +18,8 @@ package org.exoplatform.services.cifs.server;
 
 import java.net.InetAddress;
 
-import javax.jcr.Credentials;
-import javax.jcr.Session;
+//import javax.jcr.Credentials;
+//import javax.jcr.Session;
 import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
@@ -31,8 +31,8 @@ import javax.transaction.UserTransaction;
 import org.exoplatform.services.cifs.server.auth.AuthContext;
 import org.exoplatform.services.cifs.server.core.SharedDevice;
 import org.exoplatform.services.cifs.server.core.SharedDeviceList;
-import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
-import org.exoplatform.services.jcr.impl.core.SessionImpl;
+//import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
+//import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**
  * Server Session Base Class

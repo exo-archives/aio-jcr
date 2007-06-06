@@ -24,8 +24,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-
-
 //import org.exoplatform.services.CIFS.server.core.DeviceInterface;
 //import org.exoplatform.services.CIFS.server.core.SharedDevice;
 //import org.exoplatform.services.CIFS.server.filesys.DiskDeviceContext;
@@ -37,11 +35,11 @@ import java.util.Vector;
 //import org.alfresco.filesys.server.auth.NTLanManAuthContext;
 //import org.alfresco.filesys.smb.server.SecurityMode;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+//import org.apache.commons.logging.LogFactory;
 
 import org.exoplatform.services.log.ExoLogger;
-import javax.jcr.Session;
-import javax.jcr.Credentials;
+//import javax.jcr.Session;
+//import javax.jcr.Credentials;
 
 import org.exoplatform.services.cifs.netbios.NetBIOSException;
 import org.exoplatform.services.cifs.netbios.NetBIOSName;
@@ -66,11 +64,9 @@ import org.exoplatform.services.cifs.smb.SMBDate;
 import org.exoplatform.services.cifs.smb.SMBErrorText;
 import org.exoplatform.services.cifs.smb.SMBStatus;
 import org.exoplatform.services.cifs.smb.ShareType;
-import org.exoplatform.services.cifs.smb.dcerpc.info.ShareInfo;
+//import org.exoplatform.services.cifs.smb.dcerpc.info.ShareInfo;
 import org.exoplatform.services.cifs.util.DataPacker;
 import org.exoplatform.services.cifs.util.StringList;
-import org.exoplatform.services.jcr.impl.core.CredentialsImpl;
-import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 //import org.alfresco.filesys.server.auth.AlfrescoAuthenticator;
 
