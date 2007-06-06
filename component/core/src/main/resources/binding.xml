@@ -4,7 +4,7 @@
            class="org.exoplatform.services.jcr.config.RepositoryServiceConfiguration"> 
     <value name="default-repository" field="defaultRepositoryName" style="attribute" />           
     <collection name="repositories" field="repositoryConfigurations" 
-                item-type="org.exoplatform.services.jcr.config.RepositoryEntry"/>
+                item-type="org.exoplatform.services.jcr.config.RepositoryEntry" factory="org.jibx.runtime.Utility.arrayListFactory"/>
   </mapping>
 
   <mapping name="repository" class="org.exoplatform.services.jcr.config.RepositoryEntry">
