@@ -10,8 +10,7 @@ import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL
- * Author : Karpenko Sergey
+ * Created by The eXo Platform SARL Author : Karpenko Sergey
  * 
  */
 
