@@ -11,9 +11,9 @@ import javax.jcr.Workspace;
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.BaseStandaloneTest;
 import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SARL Author : Alex Reshetnyak
@@ -44,9 +44,9 @@ public class BaseReplicationTest extends BaseStandaloneTest {
     container = StandaloneContainer.getInstance();
 
     if (System.getProperty("java.security.auth.login.config") == null)
-      System.setProperty("java.security.auth.login.config", "src/resources/login.conf");
+      System.setProperty("java.security.auth.login.config", "src/main/resources/login.conf");
 
-    credentials = new CredentialsImpl("exo", "exo".toCharArray());
+    credentials = new CredentialsImpl("admin", "admin".toCharArray());
 
     repositoryService = (RepositoryService) container
         .getComponentInstanceOfType(RepositoryService.class);
@@ -85,4 +85,8 @@ public class BaseReplicationTest extends BaseStandaloneTest {
   protected String getRepositoryName() {
     return null;
   }
+  
+//  public void test() throws Exception {
+//    assertEquals(true,true);
+//  }
 }
