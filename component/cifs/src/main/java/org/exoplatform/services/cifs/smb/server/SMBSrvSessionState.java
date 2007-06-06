@@ -23,42 +23,42 @@ package org.exoplatform.services.cifs.smb.server;
  */
 public class SMBSrvSessionState {
 
-	// NetBIOS session has been closed.
+  // NetBIOS session has been closed.
 
-	public static final int NBHANGUP = 5;
+  public static final int NBHANGUP = 5;
 
-	// NetBIOS session request state.
+  // NetBIOS session request state.
 
-	public static final int NBSESSREQ = 0;
+  public static final int NBSESSREQ = 0;
 
-	// SMB session closed down.
+  // SMB session closed down.
 
-	public static final int SMBCLOSED = 4;
+  public static final int SMBCLOSED = 4;
 
-	// Negotiate SMB dialect.
+  // Negotiate SMB dialect.
 
-	public static final int SMBNEGOTIATE = 1;
+  public static final int SMBNEGOTIATE = 1;
 
-	// SMB session is initialized, ready to receive/handle standard SMB
-	// requests.
+  // SMB session is initialized, ready to receive/handle standard SMB
+  // requests.
 
-	public static final int SMBSESSION = 3;
+  public static final int SMBSESSION = 3;
 
-	// SMB session setup.
+  // SMB session setup.
 
-	public static final int SMBSESSSETUP = 2;
+  public static final int SMBSESSSETUP = 2;
 
-	// State name strings
+  // State name strings
 
-	private static final String _stateName[] = { "NBSESSREQ", "SMBNEGOTIATE",
-			"SMBSESSSETUP", "SMBSESSION", "SMBCLOSED", "NBHANGUP" };
+  private static final String _stateName[] = { "NBSESSREQ", "SMBNEGOTIATE",
+      "SMBSESSSETUP", "SMBSESSION", "SMBCLOSED", "NBHANGUP" };
 
-	/**
-	 * Return the specified SMB state as a string.
-	 */
-	public static String getStateAsString(int state) {
-		if (state < _stateName.length)
-			return _stateName[state];
-		return "[UNKNOWN]";
-	}
+  /**
+   * Return the specified SMB state as a string.
+   */
+  public static String getStateAsString(int state) {
+    if (state < _stateName.length)
+      return _stateName[state];
+    return "[UNKNOWN]";
+  }
 }

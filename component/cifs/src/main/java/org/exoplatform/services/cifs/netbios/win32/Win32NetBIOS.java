@@ -32,779 +32,758 @@ import org.exoplatform.services.cifs.util.X64;
 /**
  * Win32 NetBIOS Native Call Wrapper Class
  */
-public class Win32NetBIOS
-{
+public class Win32NetBIOS {
 
-    // Constants
-    //
-    // FIND_NAME_BUFFER structure length
+  // Constants
+  //
+  // FIND_NAME_BUFFER structure length
 
-    protected final static int FindNameBufferLen = 33;
+  protected final static int FindNameBufferLen = 33;
 
-    // Exception if the native code DLL load failed
+  // Exception if the native code DLL load failed
 
-    private static Throwable m_loadDLLException;
+  private static Throwable m_loadDLLException;
 
-    /**
-	 * Check if the native code was loaded successfully
-	 * 
-	 * @return boolean
-	 */
-    public static final boolean isInitialized()
-    {
-        return m_loadDLLException == null ? true : false;
+  /**
+   * Check if the native code was loaded successfully
+   * 
+   * @return boolean
+   */
+  public static final boolean isInitialized() {
+    return m_loadDLLException == null ? true : false;
+  }
+
+  /**
+   * Return the native code load exception
+   * 
+   * @return Throwable
+   */
+  public static final Throwable getInitializationException() {
+    return m_loadDLLException;
+  }
+
+  /**
+   * Check if NetBIOS is enabled on any network adapters
+   * 
+   * @return boolean
+   */
+  public static final boolean isAvailable() {
+
+    // Check if the DLL was loaded successfully
+
+    if (isInitialized() == false)
+      return false;
+
+    // Check if there are any valid LANAs, if not then NetBIOS is not
+    // enabled or network
+    // adapters that have NetBIOS enabled are not currently enabled
+
+    int[] lanas = LanaEnum();
+    if (lanas != null && lanas.length > 0)
+      return true;
+    return false;
+  }
+
+  /**
+   * Add a NetBIOS name to the local name table
+   * 
+   * @param lana
+   *          int
+   * @param name
+   *          byte[]
+   * @return int
+   */
+  public static native int AddName(int lana, byte[] name);
+
+  /**
+   * Add a group NetBIOS name to the local name table
+   * 
+   * @param lana
+   *          int
+   * @param name
+   *          byte[]
+   * @return int
+   */
+  public static native int AddGroupName(int lana, byte[] name);
+
+  /**
+   * Find a NetBIOS name, return the name buffer
+   * 
+   * @param lana
+   *          int
+   * @param name
+   *          byte[]
+   * @param nameBuf
+   *          byte[]
+   * @param bufLen
+   *          int
+   * @return int
+   */
+  public static native int FindNameRaw(int lana, byte[] name, byte[] nameBuf,
+      int bufLen);
+
+  /**
+   * Find a NetBIOS name
+   * 
+   * @param lana
+   *          int
+   * @param name
+   *          NetBIOSName
+   * @return int
+   */
+  public static int FindName(int lana, NetBIOSName nbName) {
+
+    // Allocate a buffer to receive the name details
+
+    byte[] nameBuf = new byte[nbName.isGroupName() ? 65535 : 4096];
+
+    // Get the raw NetBIOS name data
+
+    int sts = FindNameRaw(lana, nbName.getNetBIOSName(), nameBuf,
+        nameBuf.length);
+
+    if (sts != NetBIOS.NRC_GoodRet)
+      return -sts;
+
+    // Unpack the FIND_NAME_HEADER structure
+
+    DataBuffer buf = new DataBuffer(nameBuf, 0, nameBuf.length);
+
+    int nodeCount = buf.getShort();
+    buf.skipBytes(1);
+    boolean isGroupName = buf.getByte() == 0 ? false : true;
+
+    // Unpack the FIND_NAME_BUFFER structures
+
+    int curPos = buf.getPosition();
+
+    for (int i = 0; i < nodeCount; i++) {
+
+      // FIND_NAME_BUFFER:
+      // UCHAR length
+      // UCHAR access_control
+      // UCHAR frame_control
+      // UCHAR destination_addr[6]
+      // UCHAR source_addr[6]
+      // UCHAR routing_info[18]
+
+      // Skip to the source_addr field
+
+      buf.skipBytes(9);
+
+      // Source address field format should be 0.0.n.n.n.n for TCP/IP
+      // address
+
+      if (buf.getByte() == 0 && buf.getByte() == 0) {
+
+        // Looks like a TCP/IP format address, unpack it
+
+        byte[] ipAddr = new byte[4];
+
+        ipAddr[0] = (byte) buf.getByte();
+        ipAddr[1] = (byte) buf.getByte();
+        ipAddr[2] = (byte) buf.getByte();
+        ipAddr[3] = (byte) buf.getByte();
+
+        // Add the address to the list of TCP/IP addresses for the
+        // NetBIOS name
+
+        nbName.addIPAddress(ipAddr);
+
+        // Skip to the start of the next FIND_NAME_BUFFER structure
+
+        curPos += FindNameBufferLen;
+        buf.setPosition(curPos);
+      }
     }
 
-    /**
-	 * Return the native code load exception
-	 * 
-	 * @return Throwable
-	 */
-    public static final Throwable getInitializationException()
-    {
-        return m_loadDLLException;
+    // Return the node count
+
+    return nodeCount;
+  }
+
+  /**
+   * Delete a NetBIOS name from the local name table
+   * 
+   * @param lana
+   *          int
+   * @param name
+   *          byte[]
+   * @return int
+   */
+  public static native int DeleteName(int lana, byte[] name);
+
+  /**
+   * Enumerate the available LANAs
+   * 
+   * @return int[]
+   */
+  public static int[] LanaEnumerate() {
+    // Make sure that there is an active network adapter as making calls to
+    // the LanaEnum native call
+    // causes problems when there are no active network adapters.
+
+    boolean adapterAvail = false;
+
+    try {
+      // Enumerate the available network adapters and check for an active
+      // adapter, not including
+      // the loopback adapter
+
+      Enumeration<NetworkInterface> nis = NetworkInterface
+          .getNetworkInterfaces();
+
+      while (nis.hasMoreElements() && adapterAvail == false) {
+        NetworkInterface ni = nis.nextElement();
+        if (ni.getName().equals("lo") == false) {
+          // Make sure the adapter has a valid IP address
+
+          Enumeration<InetAddress> addrs = ni.getInetAddresses();
+          if (addrs.hasMoreElements())
+            adapterAvail = true;
+        }
+      }
+
+    } catch (SocketException ex) {
     }
 
-    /**
-	 * Check if NetBIOS is enabled on any network adapters
-	 * 
-	 * @return boolean
-	 */
-    public static final boolean isAvailable() {
-        
-        // Check if the DLL was loaded successfully
-        
-        if ( isInitialized() == false)
-            return false;
-        
-        // Check if there are any valid LANAs, if not then NetBIOS is not
-		// enabled or network
-        // adapters that have NetBIOS enabled are not currently enabled
-        
-        int[] lanas = LanaEnum();
-        if ( lanas != null && lanas.length > 0)
-            return true;
-        return false;
-    }
-    
-    /**
-	 * Add a NetBIOS name to the local name table
-	 * 
-	 * @param lana
-	 *            int
-	 * @param name
-	 *            byte[]
-	 * @return int
-	 */
-    public static native int AddName(int lana, byte[] name);
+    // Check if there are network adapter(s) available
 
-    /**
-	 * Add a group NetBIOS name to the local name table
-	 * 
-	 * @param lana
-	 *            int
-	 * @param name
-	 *            byte[]
-	 * @return int
-	 */
-    public static native int AddGroupName(int lana, byte[] name);
+    if (adapterAvail == false)
+      return null;
 
-    /**
-	 * Find a NetBIOS name, return the name buffer
-	 * 
-	 * @param lana
-	 *            int
-	 * @param name
-	 *            byte[]
-	 * @param nameBuf
-	 *            byte[]
-	 * @param bufLen
-	 *            int
-	 * @return int
-	 */
-    public static native int FindNameRaw(int lana, byte[] name, byte[] nameBuf, int bufLen);
+    // Call the native code to return the available LANA list
 
-    /**
-	 * Find a NetBIOS name
-	 * 
-	 * @param lana
-	 *            int
-	 * @param name
-	 *            NetBIOSName
-	 * @return int
-	 */
-    public static int FindName(int lana, NetBIOSName nbName)
-    {
+    return LanaEnum();
+  }
 
-        // Allocate a buffer to receive the name details
+  /**
+   * Enumerate the available LANAs
+   * 
+   * @return int[]
+   */
+  private static native int[] LanaEnum();
 
-        byte[] nameBuf = new byte[nbName.isGroupName() ? 65535 : 4096];
+  /**
+   * Reset the NetBIOS environment
+   * 
+   * @param lana
+   *          int
+   * @return int
+   */
+  public static native int Reset(int lana);
 
-        // Get the raw NetBIOS name data
+  /**
+   * Listen for an incoming session request
+   * 
+   * @param lana
+   *          int
+   * @param toName
+   *          byte[]
+   * @param fromName
+   *          byte[]
+   * @param callerName
+   *          byte[]
+   * @return int
+   */
+  public static native int Listen(int lana, byte[] toName, byte[] fromName,
+      byte[] callerName);
 
-        int sts = FindNameRaw(lana, nbName.getNetBIOSName(), nameBuf, nameBuf.length);
+  /**
+   * Receive a data packet on a session
+   * 
+   * @param lana
+   *          int
+   * @param lsn
+   *          int
+   * @param buf
+   *          byte[]
+   * @param off
+   *          int
+   * @param maxLen
+   *          int
+   * @return int
+   */
+  public static native int Receive(int lana, int lsn, byte[] buf, int off,
+      int maxLen);
 
-        if (sts != NetBIOS.NRC_GoodRet)
-            return -sts;
+  /**
+   * Send a data packet on a session
+   * 
+   * @param lana
+   *          int
+   * @param lsn
+   *          int
+   * @param buf
+   *          byte[]
+   * @param off
+   *          int
+   * @param len
+   *          int
+   * @return int
+   */
+  public static native int Send(int lana, int lsn, byte[] buf, int off, int len);
 
-        // Unpack the FIND_NAME_HEADER structure
+  /**
+   * Send a datagram to a specified name
+   * 
+   * @param lana
+   *          int
+   * @param srcNum
+   *          int
+   * @param destName
+   *          byte[]
+   * @param buf
+   *          byte[]
+   * @param off
+   *          int
+   * @param len
+   *          int
+   * @return int
+   */
+  public static native int SendDatagram(int lana, int srcNum, byte[] destName,
+      byte[] buf, int off, int len);
 
-        DataBuffer buf = new DataBuffer(nameBuf, 0, nameBuf.length);
+  /**
+   * Send a broadcast datagram
+   * 
+   * @param lana
+   * @param buf
+   *          byte[]
+   * @param off
+   *          int
+   * @param len
+   *          int
+   * @return int
+   */
+  public static native int SendBroadcastDatagram(int lana, byte[] buf, int off,
+      int len);
 
-        int nodeCount = buf.getShort();
-        buf.skipBytes(1);
-        boolean isGroupName = buf.getByte() == 0 ? false : true;
+  /**
+   * Receive a datagram on a specified name
+   * 
+   * @param lana
+   *          int
+   * @param nameNum
+   *          int
+   * @param buf
+   *          byte[]
+   * @param off
+   *          int
+   * @param maxLen
+   *          int
+   * @return int
+   */
+  public static native int ReceiveDatagram(int lana, int nameNum, byte[] buf,
+      int off, int maxLen);
 
-        // Unpack the FIND_NAME_BUFFER structures
+  /**
+   * Receive a broadcast datagram
+   * 
+   * @param lana
+   *          int
+   * @param nameNum
+   *          int
+   * @param buf
+   *          byte[]
+   * @param off
+   *          int
+   * @param maxLen
+   *          int
+   * @return int
+   */
+  public static native int ReceiveBroadcastDatagram(int lana, int nameNum,
+      byte[] buf, int off, int maxLen);
 
-        int curPos = buf.getPosition();
+  /**
+   * Hangup a session
+   * 
+   * @param lsn
+   *          int
+   * @return int
+   */
+  public static native int Hangup(int lana, int lsn);
 
-        for (int i = 0; i < nodeCount; i++)
-        {
+  /**
+   * Return the local computers NetBIOS name
+   * 
+   * @return String
+   */
+  public static native String GetLocalNetBIOSName();
 
-            // FIND_NAME_BUFFER:
-            // UCHAR length
-            // UCHAR access_control
-            // UCHAR frame_control
-            // UCHAR destination_addr[6]
-            // UCHAR source_addr[6]
-            // UCHAR routing_info[18]
+  /**
+   * Return the local domain name
+   * 
+   * @return String
+   */
+  public static native String GetLocalDomainName();
 
-            // Skip to the source_addr field
+  /**
+   * Return a comma delimeted list of WINS server TCP/IP addresses, or null if
+   * no WINS servers are configured.
+   * 
+   * @return String
+   */
+  public static native String getWINSServerList();
 
-            buf.skipBytes(9);
+  /**
+   * Find the TCP/IP address for a LANA
+   * 
+   * @param lana
+   *          int
+   * @return String
+   */
+  public static final String getIPAddressForLANA(int lana) {
 
-            // Source address field format should be 0.0.n.n.n.n for TCP/IP
-			// address
+    // Get the local NetBIOS name
 
-            if (buf.getByte() == 0 && buf.getByte() == 0)
-            {
+    String localName = GetLocalNetBIOSName();
+    if (localName == null)
+      return null;
 
-                // Looks like a TCP/IP format address, unpack it
+    // Create a NetBIOS name for the local name
 
-                byte[] ipAddr = new byte[4];
+    NetBIOSName nbName = new NetBIOSName(localName, NetBIOSName.WorkStation,
+        false);
 
-                ipAddr[0] = (byte) buf.getByte();
-                ipAddr[1] = (byte) buf.getByte();
-                ipAddr[2] = (byte) buf.getByte();
-                ipAddr[3] = (byte) buf.getByte();
+    // Get the local NetBIOS name details
 
-                // Add the address to the list of TCP/IP addresses for the
-				// NetBIOS name
+    int sts = FindName(lana, nbName);
 
-                nbName.addIPAddress(ipAddr);
+    if (sts == -NetBIOS.NRC_EnvNotDef) {
 
-                // Skip to the start of the next FIND_NAME_BUFFER structure
+      // Reset the LANA then try the name lookup again
 
-                curPos += FindNameBufferLen;
-                buf.setPosition(curPos);
-            }
-        }
-
-        // Return the node count
-
-        return nodeCount;
-    }
-
-    /**
-	 * Delete a NetBIOS name from the local name table
-	 * 
-	 * @param lana
-	 *            int
-	 * @param name
-	 *            byte[]
-	 * @return int
-	 */
-    public static native int DeleteName(int lana, byte[] name);
-
-    /**
-	 * Enumerate the available LANAs
-	 * 
-	 * @return int[]
-	 */
-    public static int[] LanaEnumerate()
-    {
-        // Make sure that there is an active network adapter as making calls to
-		// the LanaEnum native call
-        // causes problems when there are no active network adapters.
-        
-        boolean adapterAvail = false;
-        
-        try
-        {
-            // Enumerate the available network adapters and check for an active
-			// adapter, not including
-            // the loopback adapter
-            
-            Enumeration<NetworkInterface> nis = NetworkInterface.getNetworkInterfaces();
-            
-            while ( nis.hasMoreElements() && adapterAvail == false)
-            {
-                NetworkInterface ni = nis.nextElement();
-                if ( ni.getName().equals("lo") == false)
-                {
-                    // Make sure the adapter has a valid IP address
-                    
-                    Enumeration<InetAddress> addrs = ni.getInetAddresses();
-                    if ( addrs.hasMoreElements())
-                        adapterAvail = true;
-                }
-            }
-            
-        }
-        catch ( SocketException ex)
-        {
-        }
-        
-        // Check if there are network adapter(s) available
-        
-        if ( adapterAvail == false)
-            return null;
-        
-        // Call the native code to return the available LANA list
-        
-        return LanaEnum();
-    }
-    
-    /**
-	 * Enumerate the available LANAs
-	 * 
-	 * @return int[]
-	 */
-    private static native int[] LanaEnum();
-
-    /**
-	 * Reset the NetBIOS environment
-	 * 
-	 * @param lana
-	 *            int
-	 * @return int
-	 */
-    public static native int Reset(int lana);
-
-    /**
-	 * Listen for an incoming session request
-	 * 
-	 * @param lana
-	 *            int
-	 * @param toName
-	 *            byte[]
-	 * @param fromName
-	 *            byte[]
-	 * @param callerName
-	 *            byte[]
-	 * @return int
-	 */
-    public static native int Listen(int lana, byte[] toName, byte[] fromName, byte[] callerName);
-
-    /**
-	 * Receive a data packet on a session
-	 * 
-	 * @param lana
-	 *            int
-	 * @param lsn
-	 *            int
-	 * @param buf
-	 *            byte[]
-	 * @param off
-	 *            int
-	 * @param maxLen
-	 *            int
-	 * @return int
-	 */
-    public static native int Receive(int lana, int lsn, byte[] buf, int off, int maxLen);
-
-    /**
-	 * Send a data packet on a session
-	 * 
-	 * @param lana
-	 *            int
-	 * @param lsn
-	 *            int
-	 * @param buf
-	 *            byte[]
-	 * @param off
-	 *            int
-	 * @param len
-	 *            int
-	 * @return int
-	 */
-    public static native int Send(int lana, int lsn, byte[] buf, int off, int len);
-
-    /**
-	 * Send a datagram to a specified name
-	 * 
-	 * @param lana
-	 *            int
-	 * @param srcNum
-	 *            int
-	 * @param destName
-	 *            byte[]
-	 * @param buf
-	 *            byte[]
-	 * @param off
-	 *            int
-	 * @param len
-	 *            int
-	 * @return int
-	 */
-    public static native int SendDatagram(int lana, int srcNum, byte[] destName, byte[] buf, int off, int len);
-
-    /**
-	 * Send a broadcast datagram
-	 * 
-	 * @param lana
-	 * @param buf
-	 *            byte[]
-	 * @param off
-	 *            int
-	 * @param len
-	 *            int
-	 * @return int
-	 */
-    public static native int SendBroadcastDatagram(int lana, byte[] buf, int off, int len);
-
-    /**
-	 * Receive a datagram on a specified name
-	 * 
-	 * @param lana
-	 *            int
-	 * @param nameNum
-	 *            int
-	 * @param buf
-	 *            byte[]
-	 * @param off
-	 *            int
-	 * @param maxLen
-	 *            int
-	 * @return int
-	 */
-    public static native int ReceiveDatagram(int lana, int nameNum, byte[] buf, int off, int maxLen);
-
-    /**
-	 * Receive a broadcast datagram
-	 * 
-	 * @param lana
-	 *            int
-	 * @param nameNum
-	 *            int
-	 * @param buf
-	 *            byte[]
-	 * @param off
-	 *            int
-	 * @param maxLen
-	 *            int
-	 * @return int
-	 */
-    public static native int ReceiveBroadcastDatagram(int lana, int nameNum, byte[] buf, int off, int maxLen);
-
-    /**
-	 * Hangup a session
-	 * 
-	 * @param lsn
-	 *            int
-	 * @return int
-	 */
-    public static native int Hangup(int lana, int lsn);
-
-    /**
-	 * Return the local computers NetBIOS name
-	 * 
-	 * @return String
-	 */
-    public static native String GetLocalNetBIOSName();
-
-    /**
-	 * Return the local domain name
-	 * 
-	 * @return String
-	 */
-    public static native String GetLocalDomainName();
-
-    /**
-	 * Return a comma delimeted list of WINS server TCP/IP addresses, or null if
-	 * no WINS servers are configured.
-	 * 
-	 * @return String
-	 */
-    public static native String getWINSServerList();
-
-    /**
-	 * Find the TCP/IP address for a LANA
-	 * 
-	 * @param lana
-	 *            int
-	 * @return String
-	 */
-    public static final String getIPAddressForLANA(int lana)
-    {
-
-        // Get the local NetBIOS name
-
-        String localName = GetLocalNetBIOSName();
-        if (localName == null)
-            return null;
-
-        // Create a NetBIOS name for the local name
-
-        NetBIOSName nbName = new NetBIOSName(localName, NetBIOSName.WorkStation, false);
-
-        // Get the local NetBIOS name details
-
-        int sts = FindName(lana, nbName);
-
-        if (sts == -NetBIOS.NRC_EnvNotDef)
-        {
-
-            // Reset the LANA then try the name lookup again
-
-            Reset(lana);
-            sts = FindName(lana, nbName);
-        }
-
-        // Check if the name lookup was successful
-
-        String ipAddr = null;
-
-        if (sts >= 0)
-        {
-
-            // Get the first IP address from the list
-
-            ipAddr = nbName.getIPAddressString(0);
-        }
-
-        // Return the TCP/IP address for the LANA
-
-        return ipAddr;
+      Reset(lana);
+      sts = FindName(lana, nbName);
     }
 
-    /**
-	 * Find the adapter name for a LANA
-	 * 
-	 * @param lana
-	 *            int
-	 * @return String
-	 */
-    public static final String getAdapterNameForLANA(int lana)
-    {
+    // Check if the name lookup was successful
 
-        // Get the TCP/IP address for a LANA
+    String ipAddr = null;
 
-        String ipAddr = getIPAddressForLANA(lana);
-        if (ipAddr == null)
-            return null;
+    if (sts >= 0) {
 
-        // Get the list of available network adapters
+      // Get the first IP address from the list
 
-        Hashtable<String, NetworkInterface> adapters = getNetworkAdapterList();
-        String adapterName = null;
-
-        if (adapters != null)
-        {
-
-            // Find the network adapter for the TCP/IP address
-
-            NetworkInterface ni = adapters.get(ipAddr);
-            if (ni != null)
-                adapterName = ni.getDisplayName();
-        }
-
-        // Return the adapter name for the LANA
-
-        return adapterName;
+      ipAddr = nbName.getIPAddressString(0);
     }
 
-    /**
-	 * Find the LANA for a TCP/IP address
-	 * 
-	 * @param addr
-	 *            String
-	 * @return int
-	 */
-    public static final int getLANAForIPAddress(String addr)
-    {
+    // Return the TCP/IP address for the LANA
 
-        // Check if the address is a numeric TCP/IP address
+    return ipAddr;
+  }
 
-        if (IPAddress.isNumericAddress(addr) == false)
-            return -1;
+  /**
+   * Find the adapter name for a LANA
+   * 
+   * @param lana
+   *          int
+   * @return String
+   */
+  public static final String getAdapterNameForLANA(int lana) {
 
-        // Get a list of the available NetBIOS LANAs
+    // Get the TCP/IP address for a LANA
 
-        int[] lanas = LanaEnum();
-        if (lanas == null || lanas.length == 0)
-            return -1;
+    String ipAddr = getIPAddressForLANA(lana);
+    if (ipAddr == null)
+      return null;
 
-        // Search for the LANA with the matching TCP/IP address
+    // Get the list of available network adapters
 
-        for (int i = 0; i < lanas.length; i++)
-        {
+    Hashtable<String, NetworkInterface> adapters = getNetworkAdapterList();
+    String adapterName = null;
 
-            // Get the current LANAs TCP/IP address
+    if (adapters != null) {
 
-            String curAddr = getIPAddressForLANA(lanas[i]);
-            if (curAddr != null && curAddr.equals(addr))
-                return lanas[i];
-        }
+      // Find the network adapter for the TCP/IP address
 
-        // Failed to find the LANA for the specified TCP/IP address
-
-        return -1;
+      NetworkInterface ni = adapters.get(ipAddr);
+      if (ni != null)
+        adapterName = ni.getDisplayName();
     }
 
-    /**
-	 * Find the LANA for a network adapter
-	 * 
-	 * @param name
-	 *            String
-	 * @return int
-	 */
-    public static final int getLANAForAdapterName(String name)
-    {
+    // Return the adapter name for the LANA
 
-        // Get the list of available network adapters
+    return adapterName;
+  }
 
-        Hashtable<String, NetworkInterface> niList = getNetworkAdapterList();
+  /**
+   * Find the LANA for a TCP/IP address
+   * 
+   * @param addr
+   *          String
+   * @return int
+   */
+  public static final int getLANAForIPAddress(String addr) {
 
-        // Search for the address of the specified network adapter
+    // Check if the address is a numeric TCP/IP address
 
-        Enumeration<String> niEnum = niList.keys();
+    if (IPAddress.isNumericAddress(addr) == false)
+      return -1;
 
-        while (niEnum.hasMoreElements())
-        {
+    // Get a list of the available NetBIOS LANAs
 
-            // Get the current TCP/IP address
+    int[] lanas = LanaEnum();
+    if (lanas == null || lanas.length == 0)
+      return -1;
 
-            String ipAddr = niEnum.nextElement();
-            NetworkInterface ni = niList.get(ipAddr);
+    // Search for the LANA with the matching TCP/IP address
 
-            if (ni.getDisplayName().equalsIgnoreCase(name))
-            {
+    for (int i = 0; i < lanas.length; i++) {
 
-                // Return the LANA for the network adapters TCP/IP address
+      // Get the current LANAs TCP/IP address
 
-                return getLANAForIPAddress(ipAddr);
-            }
-        }
-
-        // Failed to find matching network adapter
-
-        return -1;
+      String curAddr = getIPAddressForLANA(lanas[i]);
+      if (curAddr != null && curAddr.equals(addr))
+        return lanas[i];
     }
 
-    /**
-	 * Return a hashtable of NetworkInterfaces indexed by TCP/IP address
-	 * 
-	 * @return Hashtable<String,NetworkInterface>
-	 */
-    private static final Hashtable<String, NetworkInterface> getNetworkAdapterList()
-    {
+    // Failed to find the LANA for the specified TCP/IP address
 
-        // Get a list of the local network adapters
+    return -1;
+  }
 
-        Hashtable<String, NetworkInterface> niList = new Hashtable<String, NetworkInterface>();
+  /**
+   * Find the LANA for a network adapter
+   * 
+   * @param name
+   *          String
+   * @return int
+   */
+  public static final int getLANAForAdapterName(String name) {
 
-        try
-        {
+    // Get the list of available network adapters
 
-            // Enumerate the available network adapters
+    Hashtable<String, NetworkInterface> niList = getNetworkAdapterList();
 
-            Enumeration<NetworkInterface> niEnum = NetworkInterface.getNetworkInterfaces();
+    // Search for the address of the specified network adapter
 
-            while (niEnum.hasMoreElements())
-            {
+    Enumeration<String> niEnum = niList.keys();
 
-                // Get the current network interface details
+    while (niEnum.hasMoreElements()) {
 
-                NetworkInterface ni = niEnum.nextElement();
-                Enumeration<InetAddress> addrEnum = ni.getInetAddresses();
+      // Get the current TCP/IP address
 
-                while (addrEnum.hasMoreElements())
-                {
+      String ipAddr = niEnum.nextElement();
+      NetworkInterface ni = niList.get(ipAddr);
 
-                    // Get the address and add the adapter to the list indexed
-					// via the numeric IP
-                    // address string
+      if (ni.getDisplayName().equalsIgnoreCase(name)) {
 
-                    InetAddress addr = addrEnum.nextElement();
-                    niList.put(addr.getHostAddress(), ni);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-        }
+        // Return the LANA for the network adapters TCP/IP address
 
-        // Return the network adapter list
-
-        return niList;
+        return getLANAForIPAddress(ipAddr);
+      }
     }
 
-    // ---------- Winsock based NetBIOS interface ----------//
-    
-    /**
-	 * Initialize the NetBIOS socket interface
-	 * 
-	 * @exception WinsockNetBIOSException
-	 *                If a Winsock error occurs
-	 */
-    protected static native void InitializeSockets()
-        throws WinsockNetBIOSException;
-    
-    /**
-	 * Shutdown the NetBIOS socket interface
-	 */
-    protected static native void ShutdownSockets();
-    
-    /**
-	 * Create a NetBIOS socket
-	 * 
-	 * @param lana
-	 *            int
-	 * @return int
-	 * @exception WinsockNetBIOSException
-	 *                If a Winsock error occurs
-	 */
-    protected static native int CreateSocket(int lana)
-        throws WinsockNetBIOSException;
-    
-    /**
-	 * Create a NetBIOS datagram socket
-	 * 
-	 * @param lana
-	 *            int
-	 * @return int
-	 * @exception WinsockNetBIOSException
-	 *                If a Winsock error occurs
-	 */
-    protected static native int CreateDatagramSocket(int lana)
-        throws WinsockNetBIOSException;
-    
-    /**
-	 * Bind a NetBIOS socket to a name to listen for incoming sessions
-	 * 
-	 * @param sockPtr
-	 *            int
-	 * @param name
-	 *            byte[]
-	 * @exception WinsockNetBIOSException
-	 *                If a Winsock error occurs
-	 */
-    protected static native int BindSocket(int sockPtr, byte[] name)
-        throws WinsockNetBIOSException;
-    
-    /**
-	 * Listen for an incoming connection
-	 * 
-	 * @param sockPtr
-	 *            int
-	 * @param callerName
-	 *            byte[]
-	 * @return int
-	 * @exception WinsockNetBIOSException
-	 *                If a Winsock error occurs
-	 */
-    protected static native int ListenSocket(int sockPtr, byte[] callerName)
-        throws WinsockNetBIOSException;
+    // Failed to find matching network adapter
 
-    /**
-	 * Close a NetBIOS socket
-	 * 
-	 * @param sockPtr
-	 *            int
-	 */
-    protected static native void CloseSocket(int sockPtr);
-    
-    /**
-	 * Send data on a session socket
-	 * 
-	 * @param sockPtr
-	 *            int
-	 * @param buf
-	 *            byte[]
-	 * @param off
-	 *            int
-	 * @param len
-	 *            int
-	 * @return int
-	 * @exception WinsockNetBIOSException
-	 *                If a Winsock error occurs
-	 */
-    protected static native int SendSocket(int sockPtr, byte[] buf, int off, int len)
-        throws WinsockNetBIOSException;
+    return -1;
+  }
 
-    /**
-	 * Receive data on a session socket
-	 * 
-	 * @param sockPtr
-	 *            int
-	 * @param toName
-	 *            byte[]
-	 * @param buf
-	 *            byte[]
-	 * @param off
-	 *            int
-	 * @param maxLen
-	 *            int
-	 * @return int
-	 * @exception WinsockNetBIOSException
-	 *                If a Winsock error occurs
-	 */
-    protected static native int ReceiveSocket(int sockPtr, byte[] buf, int off, int maxLen)
-        throws WinsockNetBIOSException;
+  /**
+   * Return a hashtable of NetworkInterfaces indexed by TCP/IP address
+   * 
+   * @return Hashtable<String,NetworkInterface>
+   */
+  private static final Hashtable<String, NetworkInterface> getNetworkAdapterList() {
 
-    /**
-	 * Send data on a datagram socket
-	 * 
-	 * @param sockPtr
-	 *            int
-	 * @param toName
-	 *            byte[]
-	 * @param buf
-	 *            byte[]
-	 * @param off
-	 *            int
-	 * @param len
-	 *            int
-	 * @return int
-	 * @exception WinsockNetBIOSException
-	 *                If a Winsock error occurs
-	 */
-    protected static native int SendSocketDatagram(int sockPtr, byte[] toName, byte[] buf, int off, int len)
-        throws WinsockNetBIOSException;
-    
-    /**
-	 * Wait for a network address change event, block until a change occurs or
-	 * the Winsock NetBIOS interface is shut down
-	 */
-    public static native void waitForNetworkAddressChange();
-    
-    /**
-	 * Static initializer used to load the native code library
-	 */
-    static
-    {
-        // Check if we are running under 64 bit Windows
-        
-        String dllName = "src/main/resources/Win32NetBIOS";
-        
-        if ( X64.isWindows64())
-            dllName = "src/main/resources/Win32NetBIOSx64";
-        
-        // Load the Win32 NetBIOS interface library
+    // Get a list of the local network adapters
 
-        try
-        {
-            System.loadLibrary(dllName);
+    Hashtable<String, NetworkInterface> niList = new Hashtable<String, NetworkInterface>();
+
+    try {
+
+      // Enumerate the available network adapters
+
+      Enumeration<NetworkInterface> niEnum = NetworkInterface
+          .getNetworkInterfaces();
+
+      while (niEnum.hasMoreElements()) {
+
+        // Get the current network interface details
+
+        NetworkInterface ni = niEnum.nextElement();
+        Enumeration<InetAddress> addrEnum = ni.getInetAddresses();
+
+        while (addrEnum.hasMoreElements()) {
+
+          // Get the address and add the adapter to the list indexed
+          // via the numeric IP
+          // address string
+
+          InetAddress addr = addrEnum.nextElement();
+          niList.put(addr.getHostAddress(), ni);
         }
-        catch (Throwable ex)
-        {
-            ex.printStackTrace();
-            
-            // Save the native code load exception
-
-            m_loadDLLException = ex;
-        }
+      }
+    } catch (Exception ex) {
     }
+
+    // Return the network adapter list
+
+    return niList;
+  }
+
+  // ---------- Winsock based NetBIOS interface ----------//
+
+  /**
+   * Initialize the NetBIOS socket interface
+   * 
+   * @exception WinsockNetBIOSException
+   *              If a Winsock error occurs
+   */
+  protected static native void InitializeSockets()
+      throws WinsockNetBIOSException;
+
+  /**
+   * Shutdown the NetBIOS socket interface
+   */
+  protected static native void ShutdownSockets();
+
+  /**
+   * Create a NetBIOS socket
+   * 
+   * @param lana
+   *          int
+   * @return int
+   * @exception WinsockNetBIOSException
+   *              If a Winsock error occurs
+   */
+  protected static native int CreateSocket(int lana)
+      throws WinsockNetBIOSException;
+
+  /**
+   * Create a NetBIOS datagram socket
+   * 
+   * @param lana
+   *          int
+   * @return int
+   * @exception WinsockNetBIOSException
+   *              If a Winsock error occurs
+   */
+  protected static native int CreateDatagramSocket(int lana)
+      throws WinsockNetBIOSException;
+
+  /**
+   * Bind a NetBIOS socket to a name to listen for incoming sessions
+   * 
+   * @param sockPtr
+   *          int
+   * @param name
+   *          byte[]
+   * @exception WinsockNetBIOSException
+   *              If a Winsock error occurs
+   */
+  protected static native int BindSocket(int sockPtr, byte[] name)
+      throws WinsockNetBIOSException;
+
+  /**
+   * Listen for an incoming connection
+   * 
+   * @param sockPtr
+   *          int
+   * @param callerName
+   *          byte[]
+   * @return int
+   * @exception WinsockNetBIOSException
+   *              If a Winsock error occurs
+   */
+  protected static native int ListenSocket(int sockPtr, byte[] callerName)
+      throws WinsockNetBIOSException;
+
+  /**
+   * Close a NetBIOS socket
+   * 
+   * @param sockPtr
+   *          int
+   */
+  protected static native void CloseSocket(int sockPtr);
+
+  /**
+   * Send data on a session socket
+   * 
+   * @param sockPtr
+   *          int
+   * @param buf
+   *          byte[]
+   * @param off
+   *          int
+   * @param len
+   *          int
+   * @return int
+   * @exception WinsockNetBIOSException
+   *              If a Winsock error occurs
+   */
+  protected static native int SendSocket(int sockPtr, byte[] buf, int off,
+      int len) throws WinsockNetBIOSException;
+
+  /**
+   * Receive data on a session socket
+   * 
+   * @param sockPtr
+   *          int
+   * @param toName
+   *          byte[]
+   * @param buf
+   *          byte[]
+   * @param off
+   *          int
+   * @param maxLen
+   *          int
+   * @return int
+   * @exception WinsockNetBIOSException
+   *              If a Winsock error occurs
+   */
+  protected static native int ReceiveSocket(int sockPtr, byte[] buf, int off,
+      int maxLen) throws WinsockNetBIOSException;
+
+  /**
+   * Send data on a datagram socket
+   * 
+   * @param sockPtr
+   *          int
+   * @param toName
+   *          byte[]
+   * @param buf
+   *          byte[]
+   * @param off
+   *          int
+   * @param len
+   *          int
+   * @return int
+   * @exception WinsockNetBIOSException
+   *              If a Winsock error occurs
+   */
+  protected static native int SendSocketDatagram(int sockPtr, byte[] toName,
+      byte[] buf, int off, int len) throws WinsockNetBIOSException;
+
+  /**
+   * Wait for a network address change event, block until a change occurs or the
+   * Winsock NetBIOS interface is shut down
+   */
+  public static native void waitForNetworkAddressChange();
+
+  /**
+   * Static initializer used to load the native code library
+   */
+  static {
+    // Check if we are running under 64 bit Windows
+
+    String dllName = "src/main/resources/Win32NetBIOS";
+
+    if (X64.isWindows64())
+      dllName = "src/main/resources/Win32NetBIOSx64";
+
+    // Load the Win32 NetBIOS interface library
+
+    try {
+      System.loadLibrary(dllName);
+    } catch (Throwable ex) {
+      ex.printStackTrace();
+
+      // Save the native code load exception
+
+      m_loadDLLException = ex;
+    }
+  }
 }

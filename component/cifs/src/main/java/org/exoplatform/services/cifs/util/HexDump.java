@@ -23,260 +23,259 @@ import java.io.PrintStream;
  */
 public final class HexDump {
 
-	/**
-	 * Hex dump a byte array
-	 * 
-	 * @param byt
-	 *            Byte array to dump
-	 */
-	public static final void Dump(byte[] byt) {
-		Dump(byt, byt.length, 0, System.out);
-	}
+  /**
+   * Hex dump a byte array
+   * 
+   * @param byt
+   *          Byte array to dump
+   */
+  public static final void Dump(byte[] byt) {
+    Dump(byt, byt.length, 0, System.out);
+  }
 
-	/**
-	 * Hex dump a byte array
-	 * 
-	 * @param byt
-	 *            Byte array to dump
-	 * @param len
-	 *            Length of data to dump
-	 * @param offset
-	 *            Offset to start data dump
-	 */
-	public static final void Dump(byte[] byt, int len, int offset) {
-		Dump(byt, len, offset, System.out);
-	}
+  /**
+   * Hex dump a byte array
+   * 
+   * @param byt
+   *          Byte array to dump
+   * @param len
+   *          Length of data to dump
+   * @param offset
+   *          Offset to start data dump
+   */
+  public static final void Dump(byte[] byt, int len, int offset) {
+    Dump(byt, len, offset, System.out);
+  }
 
-	/**
-	 * Hex dump a byte array
-	 * 
-	 * @param byt
-	 *            Byte array to dump
-	 * @param len
-	 *            Length of data to dump
-	 * @param offset
-	 *            Offset to start data dump
-	 * @param stream
-	 *            Output stream to dump the output to.
-	 */
+  /**
+   * Hex dump a byte array
+   * 
+   * @param byt
+   *          Byte array to dump
+   * @param len
+   *          Length of data to dump
+   * @param offset
+   *          Offset to start data dump
+   * @param stream
+   *          Output stream to dump the output to.
+   */
 
-	public static final void Dump(byte[] byt, int len, int offset,
-			PrintStream stream) {
+  public static final void Dump(byte[] byt, int len, int offset,
+      PrintStream stream) {
 
-		// Create buffers for the ASCII and Hex output
+    // Create buffers for the ASCII and Hex output
 
-		StringBuilder ascBuf = new StringBuilder();
-		StringBuilder hexBuf = new StringBuilder();
+    StringBuilder ascBuf = new StringBuilder();
+    StringBuilder hexBuf = new StringBuilder();
 
-		// Dump 16 byte blocks from the array until the length has been
-		// reached
+    // Dump 16 byte blocks from the array until the length has been
+    // reached
 
-		int dlen = 0;
-		int doff = offset;
-		String posStr = null;
+    int dlen = 0;
+    int doff = offset;
+    String posStr = null;
 
-		while (dlen < len) {
+    while (dlen < len) {
 
-			// Reset the ASCII/Hex buffers
+      // Reset the ASCII/Hex buffers
 
-			ascBuf.setLength(0);
-			hexBuf.setLength(0);
+      ascBuf.setLength(0);
+      hexBuf.setLength(0);
 
-			posStr = generatePositionString(doff);
+      posStr = generatePositionString(doff);
 
-			// Dump a block of data, update the data offset
+      // Dump a block of data, update the data offset
 
-			doff = generateLine(byt, doff, ascBuf, hexBuf);
+      doff = generateLine(byt, doff, ascBuf, hexBuf);
 
-			// Output the current record
+      // Output the current record
 
-			stream.print(posStr);
-			stream.print(hexBuf.toString());
-			stream.println(ascBuf.toString());
+      stream.print(posStr);
+      stream.print(hexBuf.toString());
+      stream.println(ascBuf.toString());
 
-			// Update the dump length
+      // Update the dump length
 
-			dlen += 16;
-		}
-	}
+      dlen += 16;
+    }
+  }
 
-	/**
-	 * Generate a hex string for the specified string
-	 * 
-	 * @param str
-	 *            String
-	 * @return String
-	 */
-	public static final String hexString(String str) {
-		if (str != null)
-			return hexString(str.getBytes());
-		return "";
-	}
+  /**
+   * Generate a hex string for the specified string
+   * 
+   * @param str
+   *          String
+   * @return String
+   */
+  public static final String hexString(String str) {
+    if (str != null)
+      return hexString(str.getBytes());
+    return "";
+  }
 
-	/**
-	 * Generate a hex string for the specified string
-	 * 
-	 * @param str
-	 *            String
-	 * @param gap
-	 *            String
-	 * @return String
-	 */
-	public static final String hexString(String str, String gap) {
-		if (str != null)
-			return hexString(str.getBytes(), gap);
-		return "";
-	}
+  /**
+   * Generate a hex string for the specified string
+   * 
+   * @param str
+   *          String
+   * @param gap
+   *          String
+   * @return String
+   */
+  public static final String hexString(String str, String gap) {
+    if (str != null)
+      return hexString(str.getBytes(), gap);
+    return "";
+  }
 
-	/**
-	 * Generate a hex string for the specified bytes
-	 * 
-	 * @param buf
-	 *            byte[]
-	 * @return String
-	 */
-	public static final String hexString(byte[] buf) {
-		return hexString(buf, 0, buf.length, null);
-	}
+  /**
+   * Generate a hex string for the specified bytes
+   * 
+   * @param buf
+   *          byte[]
+   * @return String
+   */
+  public static final String hexString(byte[] buf) {
+    return hexString(buf, 0, buf.length, null);
+  }
 
-	/**
-	 * Generate a hex string for the specified bytes
-	 * 
-	 * @param buf
-	 *            byte[]
-	 * @param gap
-	 *            String
-	 * @return String
-	 */
-	public static final String hexString(byte[] buf, String gap) {
-		return hexString(buf, 0, buf.length, gap);
-	}
+  /**
+   * Generate a hex string for the specified bytes
+   * 
+   * @param buf
+   *          byte[]
+   * @param gap
+   *          String
+   * @return String
+   */
+  public static final String hexString(byte[] buf, String gap) {
+    return hexString(buf, 0, buf.length, gap);
+  }
 
-	/**
-	 * Generate a hex string for the specified bytes
-	 * 
-	 * @param buf
-	 *            byte[]
-	 * @param off
-	 *            int
-	 * @param len
-	 *            int
-	 * @param gap
-	 *            String
-	 * @return String
-	 */
-	public static final String hexString(byte[] buf, int off, int len,
-			String gap) {
+  /**
+   * Generate a hex string for the specified bytes
+   * 
+   * @param buf
+   *          byte[]
+   * @param off
+   *          int
+   * @param len
+   *          int
+   * @param gap
+   *          String
+   * @return String
+   */
+  public static final String hexString(byte[] buf, int off, int len, String gap) {
 
-		// Check if the buffer is valid
+    // Check if the buffer is valid
 
-		if (buf == null)
-			return "";
+    if (buf == null)
+      return "";
 
-		// Create a string buffer for the hex string
+    // Create a string buffer for the hex string
 
-		int buflen = (buf.length - off) * 2;
-		if (gap != null)
-			buflen += buf.length * gap.length();
+    int buflen = (buf.length - off) * 2;
+    if (gap != null)
+      buflen += buf.length * gap.length();
 
-		StringBuilder hex = new StringBuilder(buflen);
+    StringBuilder hex = new StringBuilder(buflen);
 
-		// Convert the bytes to hex-ASCII
+    // Convert the bytes to hex-ASCII
 
-		for (int i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++) {
 
-			// Get the current byte
+      // Get the current byte
 
-			int curbyt = (int) (buf[off + i] & 0x00FF);
+      int curbyt = (int) (buf[off + i] & 0x00FF);
 
-			// Output the hex string
+      // Output the hex string
 
-			hex.append(Integer.toHexString((curbyt & 0xF0) >> 4));
-			hex.append(Integer.toHexString(curbyt & 0x0F));
+      hex.append(Integer.toHexString((curbyt & 0xF0) >> 4));
+      hex.append(Integer.toHexString(curbyt & 0x0F));
 
-			// Add the gap string, if specified
+      // Add the gap string, if specified
 
-			if (gap != null && i < (len - 1))
-				hex.append(gap);
-		}
+      if (gap != null && i < (len - 1))
+        hex.append(gap);
+    }
 
-		// Return the hex-ASCII string
+    // Return the hex-ASCII string
 
-		return hex.toString();
-	}
+    return hex.toString();
+  }
 
-	/**
-	 * Generate a buffer position string
-	 * 
-	 * @param off
-	 *            int
-	 * @return String
-	 */
-	private static final String generatePositionString(int off) {
+  /**
+   * Generate a buffer position string
+   * 
+   * @param off
+   *          int
+   * @return String
+   */
+  private static final String generatePositionString(int off) {
 
-		// Create a buffer position string
+    // Create a buffer position string
 
-		StringBuilder posStr = new StringBuilder("" + off + " - ");
-		while (posStr.length() < 8)
-			posStr.insert(0, " ");
+    StringBuilder posStr = new StringBuilder("" + off + " - ");
+    while (posStr.length() < 8)
+      posStr.insert(0, " ");
 
-		// Return the string
+    // Return the string
 
-		return posStr.toString();
-	}
+    return posStr.toString();
+  }
 
-	/**
-	 * Output a single line of the hex dump to a debug device
-	 * 
-	 * @param byt
-	 *            Byte array to dump
-	 * @param off
-	 *            Offset to start data dump
-	 * @param ascBuf
-	 *            Buffer for ASCII output
-	 * @param hexBuf
-	 *            Buffer for Hex output
-	 * @return New offset value
-	 */
+  /**
+   * Output a single line of the hex dump to a debug device
+   * 
+   * @param byt
+   *          Byte array to dump
+   * @param off
+   *          Offset to start data dump
+   * @param ascBuf
+   *          Buffer for ASCII output
+   * @param hexBuf
+   *          Buffer for Hex output
+   * @return New offset value
+   */
 
-	private static final int generateLine(byte[] byt, int off,
-			StringBuilder ascBuf, StringBuilder hexBuf) {
+  private static final int generateLine(byte[] byt, int off,
+      StringBuilder ascBuf, StringBuilder hexBuf) {
 
-		// Check if there is enough buffer space to dump 16 bytes
+    // Check if there is enough buffer space to dump 16 bytes
 
-		int dumplen = byt.length - off;
-		if (dumplen > 16)
-			dumplen = 16;
+    int dumplen = byt.length - off;
+    if (dumplen > 16)
+      dumplen = 16;
 
-		// Dump a 16 byte block of data
+    // Dump a 16 byte block of data
 
-		for (int i = 0; i < dumplen; i++) {
+    for (int i = 0; i < dumplen; i++) {
 
-			// Get the current byte
+      // Get the current byte
 
-			int curbyt = (int) (byt[off++] & 0x00FF);
+      int curbyt = (int) (byt[off++] & 0x00FF);
 
-			// Output the hex string
+      // Output the hex string
 
-			hexBuf.append(Integer.toHexString((curbyt & 0xF0) >> 4));
-			hexBuf.append(Integer.toHexString(curbyt & 0x0F));
-			hexBuf.append(" ");
+      hexBuf.append(Integer.toHexString((curbyt & 0xF0) >> 4));
+      hexBuf.append(Integer.toHexString(curbyt & 0x0F));
+      hexBuf.append(" ");
 
-			// Output the character equivalent, if printable
+      // Output the character equivalent, if printable
 
-			if (Character.isLetterOrDigit((char) curbyt)
-					|| Character.getType((char) curbyt) != Character.CONTROL)
-				ascBuf.append((char) curbyt);
-			else
-				ascBuf.append(".");
-		}
+      if (Character.isLetterOrDigit((char) curbyt)
+          || Character.getType((char) curbyt) != Character.CONTROL)
+        ascBuf.append((char) curbyt);
+      else
+        ascBuf.append(".");
+    }
 
-		// Output the hex dump line
+    // Output the hex dump line
 
-		hexBuf.append("  - ");
+    hexBuf.append("  - ");
 
-		// Return the new data offset
+    // Return the new data offset
 
-		return off;
-	}
+    return off;
+  }
 }

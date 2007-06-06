@@ -5,72 +5,61 @@
 		<key>org.exoplatform.services.CIFS.CIFSServiceImpl</key>
 		<type>org.exoplatform.services.CIFS.CIFSServiceImpl</type>
 		<init-params>
-						
+			
+			<!--Server name -->
 			<value-param>
-				<name>command-port</name>
-				<value>21</value>
+				<name>server_name</name>
+				<value>SMBServer</value>
 			</value-param>
 			
+			<!--Worgroup - if not determined used local domain name-->
 			<value-param>
-				<name>data-min-port</name>
-				<value>52000</value>
+				<name>workgroup</name>
+				<value>blabla</value>
 			</value-param>
 			
+			<!--Comment - set server comment-->
 			<value-param>
-				<name>data-max-port</name>
-				<value>53000</value>
+				<name>comment</name>
+				<value>This server is specific SMB server which works with JCR repository.</value>
 			</value-param>
 			
+			<!--Tcp/Ip SMB transport layer use -->
 			<value-param>
-				<name>system</name>
-				<!-- value>Windows_NT</value -->
-				<value>UNIX Type: L8</value>
+				<name>tcpipsmb</name>
+				<value>false</value>
 			</value-param>
 			
+			<!-- use Java implemented NetBIOS SMB transport layer - valid for nonWindows systems-->
 			<value-param>
-				<name>client-side-encoding</name>
-				<value>windows-1251</value>
-				<!-- value>KOI8-R</value -->
+				<name>netbios</name>
+				<value>false</value>
 			</value-param>
 			
+			<!--use JNI NetBIOS SMB transport layer - only for Windows-->
 			<value-param>
-				<name>def-folder-node-type</name>
-				<value>nt:folder</value>
+				<name>winNetBIOS</name>
+				<value>true</value>
 			</value-param>
 			
+			<!--Set NetBIOS name - if param not determined used server_name-->
 			<value-param>
-				<name>def-file-node-type</name>
-				<value>nt:file</value>
+				<name>netbiosname</name>	
+				<value>SMBWinServ</value>
+			</value-param>
+			
+			<!--LANA - if not determined or equal -1 used all available -->			
+			<value-param>
+				<name>lanas</name>	
+				<value>-1</value>
 			</value-param>
 
+			<!-- native API for Win NetBIOS : netbios or winsock -->
 			<value-param>
-				<name>def-file-mime-type</name>				      
-				<value>application/zip</value>
-			</value-param>			
-			
-			<value-param>
-				<name>cache-folder-name</name>
-				<value>../temp/ftp_cache</value>
+				<name>nativeapi</name>	
+				<value>netbios</value><!--winsock-->
 			</value-param>
-			
-			<!-- bytes per second -->
-			<!-- value-param>
-				<name>upload-speed-limit</name>				
-				<value>20480</value>
-			</value-param -->
-			
-			<!-- bytes per second -->
-			<!-- value-param>
-				<name>download-speed-limit</name>				
-				<value>20480</value>				
-			</value-param -->
-
-			<!-- seconds -->			
-			<!-- value-param>
-				<name>timeout</name>
-				<value>60</value>
-			</value-param -->
-
+		
 		</init-params>
 	</component>
 </configuration>

@@ -28,594 +28,593 @@ package org.exoplatform.services.cifs.util;
  */
 public final class WildCard {
 
-	// Multiple character wildcard
+  // Multiple character wildcard
 
-	public static final int MULTICHAR_WILDCARD = '*';
+  public static final int MULTICHAR_WILDCARD = '*';
 
-	// Single character wildcard
+  // Single character wildcard
 
-	public static final int SINGLECHAR_WILDCARD = '?';
+  public static final int SINGLECHAR_WILDCARD = '?';
 
-	// Unicode wildcards
-	//
-	// The spec states :-
-	// translate '?' to '>'
-	// translate '.' to '"' if followed by a '?' or '*'
-	// translate '*' to '<' if followed by a '.'
+  // Unicode wildcards
+  //
+  // The spec states :-
+  // translate '?' to '>'
+  // translate '.' to '"' if followed by a '?' or '*'
+  // translate '*' to '<' if followed by a '.'
 
-	public static final int SINGLECHAR_UNICODE_WILDCARD = '>';
+  public static final int SINGLECHAR_UNICODE_WILDCARD = '>';
 
-	public static final int DOT_UNICODE_WILDCARD = '"';
+  public static final int DOT_UNICODE_WILDCARD = '"';
 
-	public static final int MULTICHAR_UNICODE_WILDCARD = '<';
+  public static final int MULTICHAR_UNICODE_WILDCARD = '<';
 
-	// Wildcard types
+  // Wildcard types
 
-	public static final int WILDCARD_NONE = 0; // no wildcard characters
-												// present in pattern
+  public static final int WILDCARD_NONE = 0; // no wildcard characters
 
-	public static final int WILDCARD_ALL = 1; // '*.*' and '*'
+  // present in pattern
 
-	public static final int WILDCARD_NAME = 2; // '*.ext'
+  public static final int WILDCARD_ALL = 1; // '*.*' and '*'
 
-	public static final int WILDCARD_EXT = 3; // 'name.*'
+  public static final int WILDCARD_NAME = 2; // '*.ext'
 
-	public static final int WILDCARD_COMPLEX = 4; // complex wildcard
+  public static final int WILDCARD_EXT = 3; // 'name.*'
 
-	public static final int WILDCARD_INVALID = -1;
+  public static final int WILDCARD_COMPLEX = 4; // complex wildcard
 
-	// Wildcard pattern and type
+  public static final int WILDCARD_INVALID = -1;
 
-	private String m_pattern;
+  // Wildcard pattern and type
 
-	private int m_type;
+  private String m_pattern;
 
-	// Start/end string to match for name/extension matching
+  private int m_type;
 
-	private String m_matchPart;
+  // Start/end string to match for name/extension matching
 
-	private boolean m_caseSensitive;
+  private String m_matchPart;
 
-	// Complex wildcard pattern
+  private boolean m_caseSensitive;
 
-	private char[] m_patternChars;
+  // Complex wildcard pattern
 
-	/**
-	 * Default constructor
-	 */
-	public WildCard() {
-		setType(WILDCARD_INVALID);
-	}
+  private char[] m_patternChars;
 
-	/**
-	 * Class constructor
-	 * 
-	 * @param pattern
-	 *            String
-	 * @param caseSensitive
-	 *            boolean
-	 */
-	public WildCard(String pattern, boolean caseSensitive) {
-		setPattern(pattern, caseSensitive);
-	}
+  /**
+   * Default constructor
+   */
+  public WildCard() {
+    setType(WILDCARD_INVALID);
+  }
 
-	/**
-	 * Return the wildcard pattern type
-	 * 
-	 * @return int
-	 */
-	public final int isType() {
-		return m_type;
-	}
+  /**
+   * Class constructor
+   * 
+   * @param pattern
+   *          String
+   * @param caseSensitive
+   *          boolean
+   */
+  public WildCard(String pattern, boolean caseSensitive) {
+    setPattern(pattern, caseSensitive);
+  }
 
-	/**
-	 * Check if case sensitive matching is enabled
-	 * 
-	 * @return boolean
-	 */
-	public final boolean isCaseSensitive() {
-		return m_caseSensitive;
-	}
+  /**
+   * Return the wildcard pattern type
+   * 
+   * @return int
+   */
+  public final int isType() {
+    return m_type;
+  }
 
-	/**
-	 * Return the wildcard pattern string
-	 * 
-	 * @return String
-	 */
-	public final String getPattern() {
-		return m_pattern;
-	}
+  /**
+   * Check if case sensitive matching is enabled
+   * 
+   * @return boolean
+   */
+  public final boolean isCaseSensitive() {
+    return m_caseSensitive;
+  }
 
-	/**
-	 * Return the match part for wildcard name and wildcard extension type
-	 * patterns
-	 * 
-	 * @return String
-	 */
-	public final String getMatchPart() {
-		return m_matchPart;
-	}
+  /**
+   * Return the wildcard pattern string
+   * 
+   * @return String
+   */
+  public final String getPattern() {
+    return m_pattern;
+  }
 
-	/**
-	 * Determine if the string matches the wildcard pattern
-	 * 
-	 * @param str
-	 *            String
-	 * @return boolean
-	 */
-	public final boolean matchesPattern(String str) {
+  /**
+   * Return the match part for wildcard name and wildcard extension type
+   * patterns
+   * 
+   * @return String
+   */
+  public final String getMatchPart() {
+    return m_matchPart;
+  }
 
-		// Check the pattern type and compare the string
+  /**
+   * Determine if the string matches the wildcard pattern
+   * 
+   * @param str
+   *          String
+   * @return boolean
+   */
+  public final boolean matchesPattern(String str) {
 
-		boolean sts = false;
+    // Check the pattern type and compare the string
 
-		switch (isType()) {
+    boolean sts = false;
 
-		// Match all wildcard
+    switch (isType()) {
 
-		case WILDCARD_ALL:
-			sts = true;
-			break;
+    // Match all wildcard
 
-		// Match any name
+    case WILDCARD_ALL:
+      sts = true;
+      break;
 
-		case WILDCARD_NAME:
-			if (isCaseSensitive()) {
+    // Match any name
 
-				// Check if the string ends with the required file extension
+    case WILDCARD_NAME:
+      if (isCaseSensitive()) {
 
-				sts = str.endsWith(m_matchPart);
-			} else {
+        // Check if the string ends with the required file extension
 
-				// Normalize the string and compare
+        sts = str.endsWith(m_matchPart);
+      } else {
 
-				String upStr = str.toUpperCase();
-				sts = upStr.endsWith(m_matchPart);
-			}
-			break;
+        // Normalize the string and compare
 
-		// Match any file extension
+        String upStr = str.toUpperCase();
+        sts = upStr.endsWith(m_matchPart);
+      }
+      break;
 
-		case WILDCARD_EXT:
-			if (isCaseSensitive()) {
+    // Match any file extension
 
-				// Check if the string starts with the required file name
+    case WILDCARD_EXT:
+      if (isCaseSensitive()) {
 
-				sts = str.startsWith(m_matchPart);
-			} else {
+        // Check if the string starts with the required file name
 
-				// Normalize the string and compare
+        sts = str.startsWith(m_matchPart);
+      } else {
 
-				String upStr = str.toUpperCase();
-				sts = upStr.startsWith(m_matchPart);
-			}
-			break;
+        // Normalize the string and compare
 
-		// Complex wildcard matching
+        String upStr = str.toUpperCase();
+        sts = upStr.startsWith(m_matchPart);
+      }
+      break;
 
-		case WILDCARD_COMPLEX:
-			if (isCaseSensitive())
-				sts = matchComplexWildcard(str);
-			else {
+    // Complex wildcard matching
 
-				// Normalize the string and compare
+    case WILDCARD_COMPLEX:
+      if (isCaseSensitive())
+        sts = matchComplexWildcard(str);
+      else {
 
-				String upStr = str.toUpperCase();
-				sts = matchComplexWildcard(upStr);
-			}
-			break;
+        // Normalize the string and compare
 
-		// No wildcard characters in pattern, compare strings
+        String upStr = str.toUpperCase();
+        sts = matchComplexWildcard(upStr);
+      }
+      break;
 
-		case WILDCARD_NONE:
-			if (isCaseSensitive()) {
-				if (str.compareTo(m_pattern) == 0)
-					sts = true;
-			} else if (str.equalsIgnoreCase(m_pattern))
-				sts = true;
-			break;
-		}
+    // No wildcard characters in pattern, compare strings
 
-		// Return the wildcard match status
+    case WILDCARD_NONE:
+      if (isCaseSensitive()) {
+        if (str.compareTo(m_pattern) == 0)
+          sts = true;
+      } else if (str.equalsIgnoreCase(m_pattern))
+        sts = true;
+      break;
+    }
 
-		return sts;
-	}
+    // Return the wildcard match status
 
-	/**
-	 * Match a complex wildcard pattern with the specified string
-	 * 
-	 * @param str
-	 *            String
-	 * @return boolean
-	 */
-	protected final boolean matchComplexWildcard(String str) {
+    return sts;
+  }
 
-		// Convert the string to a char array for matching
+  /**
+   * Match a complex wildcard pattern with the specified string
+   * 
+   * @param str
+   *          String
+   * @return boolean
+   */
+  protected final boolean matchComplexWildcard(String str) {
 
-		char[] strChars = str.toCharArray();
+    // Convert the string to a char array for matching
 
-		// Compare the string to the wildcard pattern
+    char[] strChars = str.toCharArray();
 
-		int wpos = 0;
-		int wlen = m_patternChars.length;
+    // Compare the string to the wildcard pattern
 
-		int spos = 0;
-		int slen = strChars.length;
+    int wpos = 0;
+    int wlen = m_patternChars.length;
 
-		char patChar;
-		boolean matchFailed = false;
+    int spos = 0;
+    int slen = strChars.length;
 
-		while (matchFailed == false && wpos < m_patternChars.length) {
+    char patChar;
+    boolean matchFailed = false;
 
-			// Match the current pattern character
+    while (matchFailed == false && wpos < m_patternChars.length) {
 
-			patChar = m_patternChars[wpos++];
+      // Match the current pattern character
 
-			switch (patChar) {
+      patChar = m_patternChars[wpos++];
 
-			// Match single character
+      switch (patChar) {
 
-			case SINGLECHAR_WILDCARD:
-				if (spos < slen)
-					spos++;
-				else
-					matchFailed = true;
-				break;
+      // Match single character
 
-			// Match zero or more characters
+      case SINGLECHAR_WILDCARD:
+        if (spos < slen)
+          spos++;
+        else
+          matchFailed = true;
+        break;
 
-			case MULTICHAR_WILDCARD:
+      // Match zero or more characters
 
-				// Check if there is another character in the wildcard pattern
+      case MULTICHAR_WILDCARD:
 
-				if (wpos < wlen) {
+        // Check if there is another character in the wildcard pattern
 
-					// Check if the character is not a wildcard character
+        if (wpos < wlen) {
 
-					patChar = m_patternChars[wpos];
-					if (patChar != SINGLECHAR_WILDCARD
-							&& patChar != MULTICHAR_WILDCARD) {
+          // Check if the character is not a wildcard character
 
-						// Find the required character in the string
+          patChar = m_patternChars[wpos];
+          if (patChar != SINGLECHAR_WILDCARD && patChar != MULTICHAR_WILDCARD) {
 
-						while (spos < slen && strChars[spos] != patChar)
-							spos++;
-						if (spos >= slen)
-							matchFailed = true;
-					}
-				} else {
+            // Find the required character in the string
 
-					// Multi character wildcard at the end of the pattern, match
-					// all remaining
-					// characters
+            while (spos < slen && strChars[spos] != patChar)
+              spos++;
+            if (spos >= slen)
+              matchFailed = true;
+          }
+        } else {
 
-					spos = slen;
-				}
-				break;
+          // Multi character wildcard at the end of the pattern, match
+          // all remaining
+          // characters
 
-			// Match the pattern and string character
+          spos = slen;
+        }
+        break;
 
-			default:
-				if (spos >= slen || strChars[spos] != patChar)
-					matchFailed = true;
-				else
-					spos++;
-				break;
-			}
-		}
+      // Match the pattern and string character
 
-		// Check if the match was successul and return status
+      default:
+        if (spos >= slen || strChars[spos] != patChar)
+          matchFailed = true;
+        else
+          spos++;
+        break;
+      }
+    }
 
-		if (matchFailed == false && spos == slen)
-			return true;
-		return false;
-	}
+    // Check if the match was successul and return status
 
-	/**
-	 * Set the wildcard pattern string
-	 * 
-	 * @param pattern
-	 *            String
-	 * @param caseSensitive
-	 *            boolean
-	 */
-	public final void setPattern(String pattern, boolean caseSensitive) {
+    if (matchFailed == false && spos == slen)
+      return true;
+    return false;
+  }
 
-		// Save the pattern string and case sensitive flag
+  /**
+   * Set the wildcard pattern string
+   * 
+   * @param pattern
+   *          String
+   * @param caseSensitive
+   *          boolean
+   */
+  public final void setPattern(String pattern, boolean caseSensitive) {
 
-		m_pattern = pattern;
-		m_caseSensitive = caseSensitive;
+    // Save the pattern string and case sensitive flag
 
-		setType(WILDCARD_INVALID);
+    m_pattern = pattern;
+    m_caseSensitive = caseSensitive;
 
-		// Check if the pattern string is valid
+    setType(WILDCARD_INVALID);
 
-		if (pattern == null || pattern.length() == 0)
-			return;
+    // Check if the pattern string is valid
 
-		// Check for the match all wildcard
+    if (pattern == null || pattern.length() == 0)
+      return;
 
-		if (pattern.compareTo("*.*") == 0 || pattern.compareTo("*") == 0) {
-			setType(WILDCARD_ALL);
-			return;
-		}
+    // Check for the match all wildcard
 
-		// Check for a name wildcard, ie. '*.ext'
+    if (pattern.compareTo("*.*") == 0 || pattern.compareTo("*") == 0) {
+      setType(WILDCARD_ALL);
+      return;
+    }
 
-		if (pattern.startsWith("*.")) {
+    // Check for a name wildcard, ie. '*.ext'
 
-			// Split the string to get the extension string
+    if (pattern.startsWith("*.")) {
 
-			if (pattern.length() > 2)
-				m_matchPart = pattern.substring(1);
-			else
-				m_matchPart = "";
+      // Split the string to get the extension string
 
-			// If matching is case insensitive then normalize the string
+      if (pattern.length() > 2)
+        m_matchPart = pattern.substring(1);
+      else
+        m_matchPart = "";
 
-			if (isCaseSensitive() == false)
-				m_matchPart = m_matchPart.toUpperCase();
+      // If matching is case insensitive then normalize the string
 
-			// If the file extension contains wildcards we will need to use a
-			// regular expression
+      if (isCaseSensitive() == false)
+        m_matchPart = m_matchPart.toUpperCase();
 
-			if (containsWildcards(m_matchPart) == false) {
-				setType(WILDCARD_NAME);
-				return;
-			}
-		}
+      // If the file extension contains wildcards we will need to use a
+      // regular expression
 
-		// Check for a file extension wildcard
+      if (containsWildcards(m_matchPart) == false) {
+        setType(WILDCARD_NAME);
+        return;
+      }
+    }
 
-		if (pattern.endsWith(".*")) {
+    // Check for a file extension wildcard
 
-			// Split the string to get the name string
+    if (pattern.endsWith(".*")) {
 
-			if (pattern.length() > 2)
-				m_matchPart = pattern.substring(0, pattern.length() - 2);
-			else
-				m_matchPart = "";
+      // Split the string to get the name string
 
-			// If matching is case insensitive then normalize the string
+      if (pattern.length() > 2)
+        m_matchPart = pattern.substring(0, pattern.length() - 2);
+      else
+        m_matchPart = "";
 
-			if (isCaseSensitive() == false)
-				m_matchPart = m_matchPart.toUpperCase();
+      // If matching is case insensitive then normalize the string
 
-			// If the file name contains wildcards we will need to use a regular
-			// expression
+      if (isCaseSensitive() == false)
+        m_matchPart = m_matchPart.toUpperCase();
 
-			if (containsWildcards(m_matchPart) == false) {
-				setType(WILDCARD_EXT);
-				return;
-			}
-		}
+      // If the file name contains wildcards we will need to use a regular
+      // expression
 
-		// Save the complex wildcard pattern as a char array for later pattern
-		// matching
+      if (containsWildcards(m_matchPart) == false) {
+        setType(WILDCARD_EXT);
+        return;
+      }
+    }
 
-		if (isCaseSensitive() == false)
-			m_patternChars = m_pattern.toUpperCase().toCharArray();
-		else
-			m_patternChars = m_pattern.toCharArray();
+    // Save the complex wildcard pattern as a char array for later pattern
+    // matching
 
-		setType(WILDCARD_COMPLEX);
-	}
+    if (isCaseSensitive() == false)
+      m_patternChars = m_pattern.toUpperCase().toCharArray();
+    else
+      m_patternChars = m_pattern.toCharArray();
 
-	/**
-	 * Set the wildcard type
-	 * 
-	 * @param typ
-	 *            int
-	 */
-	private final void setType(int typ) {
-		m_type = typ;
-	}
+    setType(WILDCARD_COMPLEX);
+  }
 
-	/**
-	 * Return the wildcard as a string
-	 * 
-	 * @return String
-	 */
-	public String toString() {
-		StringBuffer str = new StringBuffer();
-		str.append("[");
-		str.append(getPattern());
-		str.append(",");
-		str.append(isType());
-		str.append(",");
+  /**
+   * Set the wildcard type
+   * 
+   * @param typ
+   *          int
+   */
+  private final void setType(int typ) {
+    m_type = typ;
+  }
 
-		if (m_matchPart != null)
-			str.append(m_matchPart);
+  /**
+   * Return the wildcard as a string
+   * 
+   * @return String
+   */
+  public String toString() {
+    StringBuffer str = new StringBuffer();
+    str.append("[");
+    str.append(getPattern());
+    str.append(",");
+    str.append(isType());
+    str.append(",");
 
-		if (isCaseSensitive())
-			str.append(",Case");
-		else
-			str.append(",NoCase");
-		str.append("]");
+    if (m_matchPart != null)
+      str.append(m_matchPart);
 
-		return str.toString();
-	}
+    if (isCaseSensitive())
+      str.append(",Case");
+    else
+      str.append(",NoCase");
+    str.append("]");
 
-	/**
-	 * Check if the string contains any wildcard characters.
-	 * 
-	 * @return boolean
-	 * @param str
-	 *            java.lang.String
-	 */
-	public final static boolean containsWildcards(String str) {
+    return str.toString();
+  }
 
-		// Check the string for wildcard characters
+  /**
+   * Check if the string contains any wildcard characters.
+   * 
+   * @return boolean
+   * @param str
+   *          java.lang.String
+   */
+  public final static boolean containsWildcards(String str) {
 
-		if (str.indexOf(MULTICHAR_WILDCARD) != -1)
-			return true;
+    // Check the string for wildcard characters
 
-		if (str.indexOf(SINGLECHAR_WILDCARD) != -1)
-			return true;
+    if (str.indexOf(MULTICHAR_WILDCARD) != -1)
+      return true;
 
-		// No wildcards found in the string
+    if (str.indexOf(SINGLECHAR_WILDCARD) != -1)
+      return true;
 
-		return false;
-	}
+    // No wildcards found in the string
 
-	/**
-	 * Check if a string contains any of the Unicode wildcard characters
-	 * 
-	 * @param str
-	 *            String
-	 * @return boolean
-	 */
-	public final static boolean containsUnicodeWildcard(String str) {
+    return false;
+  }
 
-		// Check if the string contains any of the Unicode wildcards
+  /**
+   * Check if a string contains any of the Unicode wildcard characters
+   * 
+   * @param str
+   *          String
+   * @return boolean
+   */
+  public final static boolean containsUnicodeWildcard(String str) {
 
-		if (str.indexOf(SINGLECHAR_UNICODE_WILDCARD) != -1
-				|| str.indexOf(MULTICHAR_UNICODE_WILDCARD) != -1
-				|| str.indexOf(DOT_UNICODE_WILDCARD) != -1)
-			return true;
-		return false;
-	}
+    // Check if the string contains any of the Unicode wildcards
 
-	/**
-	 * Convert the Unicode wildcard string to a standard DOS wildcard string
-	 * 
-	 * @param str
-	 *            String
-	 * @return String
-	 */
-	public final static String convertUnicodeWildcardToDOS(String str) {
+    if (str.indexOf(SINGLECHAR_UNICODE_WILDCARD) != -1
+        || str.indexOf(MULTICHAR_UNICODE_WILDCARD) != -1
+        || str.indexOf(DOT_UNICODE_WILDCARD) != -1)
+      return true;
+    return false;
+  }
 
-		// Create a buffer for the new wildcard string
+  /**
+   * Convert the Unicode wildcard string to a standard DOS wildcard string
+   * 
+   * @param str
+   *          String
+   * @return String
+   */
+  public final static String convertUnicodeWildcardToDOS(String str) {
 
-		StringBuffer newStr = new StringBuffer(str.length());
+    // Create a buffer for the new wildcard string
 
-		// Convert the Unicode wildcard string to a DOS wildcard string
+    StringBuffer newStr = new StringBuffer(str.length());
 
-		for (int i = 0; i < str.length(); i++) {
+    // Convert the Unicode wildcard string to a DOS wildcard string
 
-			// Get the current character
+    for (int i = 0; i < str.length(); i++) {
 
-			char ch = str.charAt(i);
+      // Get the current character
 
-			// Check for a Unicode wildcard character
+      char ch = str.charAt(i);
 
-			if (ch == SINGLECHAR_UNICODE_WILDCARD) {
+      // Check for a Unicode wildcard character
 
-				// Translate to the DOS single character wildcard character
+      if (ch == SINGLECHAR_UNICODE_WILDCARD) {
 
-				ch = SINGLECHAR_WILDCARD;
-			} else if (ch == MULTICHAR_UNICODE_WILDCARD) {
+        // Translate to the DOS single character wildcard character
 
-				// Check if the current character is followed by a '.', if so
-				// then translate to the
-				// DOS multi character
-				// wildcard
+        ch = SINGLECHAR_WILDCARD;
+      } else if (ch == MULTICHAR_UNICODE_WILDCARD) {
 
-				if (i < (str.length() - 1) && str.charAt(i + 1) == '.')
-					ch = MULTICHAR_WILDCARD;
-			} else if (ch == DOT_UNICODE_WILDCARD) {
+        // Check if the current character is followed by a '.', if so
+        // then translate to the
+        // DOS multi character
+        // wildcard
 
-				// Check if the current character is followed by a DOS
-				// single/multi character
-				// wildcard
+        if (i < (str.length() - 1) && str.charAt(i + 1) == '.')
+          ch = MULTICHAR_WILDCARD;
+      } else if (ch == DOT_UNICODE_WILDCARD) {
 
-				if (i < (str.length() - 1)) {
-					char nextCh = str.charAt(i + 1);
-					if (nextCh == SINGLECHAR_WILDCARD
-							|| nextCh == MULTICHAR_WILDCARD
-							|| nextCh == SINGLECHAR_UNICODE_WILDCARD)
-						ch = '.';
-				}
-			}
+        // Check if the current character is followed by a DOS
+        // single/multi character
+        // wildcard
 
-			// Append the character to the translated wildcard string
+        if (i < (str.length() - 1)) {
+          char nextCh = str.charAt(i + 1);
+          if (nextCh == SINGLECHAR_WILDCARD || nextCh == MULTICHAR_WILDCARD
+              || nextCh == SINGLECHAR_UNICODE_WILDCARD)
+            ch = '.';
+        }
+      }
 
-			newStr.append(ch);
-		}
+      // Append the character to the translated wildcard string
 
-		// Return the translated wildcard string
+      newStr.append(ch);
+    }
 
-		return newStr.toString();
-	}
+    // Return the translated wildcard string
 
-	/**
-	 * Convert a wildcard string to a regular expression
-	 * 
-	 * @param path
-	 *            String
-	 * @return String
-	 */
-	public final static String convertToRegexp(String path) {
+    return newStr.toString();
+  }
 
-		// Convert the path to characters, check if the wildcard string ends
-		// with a single character
-		// wildcard
+  /**
+   * Convert a wildcard string to a regular expression
+   * 
+   * @param path
+   *          String
+   * @return String
+   */
+  public final static String convertToRegexp(String path) {
 
-		char[] smbPattern = path.toCharArray();
-		boolean endsWithQ = smbPattern[smbPattern.length - 1] == '?';
+    // Convert the path to characters, check if the wildcard string ends
+    // with a single character
+    // wildcard
 
-		// Build up the regular expression
+    char[] smbPattern = path.toCharArray();
+    boolean endsWithQ = smbPattern[smbPattern.length - 1] == '?';
 
-		StringBuffer sb = new StringBuffer();
-		sb.append('^');
+    // Build up the regular expression
 
-		for (int i = 0; i < smbPattern.length; i++) {
+    StringBuffer sb = new StringBuffer();
+    sb.append('^');
 
-			// Process the current character
+    for (int i = 0; i < smbPattern.length; i++) {
 
-			switch (smbPattern[i]) {
+      // Process the current character
 
-			// Multi character wildcard
+      switch (smbPattern[i]) {
 
-			case '*':
-				sb.append(".*");
-				break;
+      // Multi character wildcard
 
-			// Single character wildcard
+      case '*':
+        sb.append(".*");
+        break;
 
-			case '?':
-				if (endsWithQ) {
-					boolean restQ = true;
-					for (int j = i + 1; j < smbPattern.length; j++) {
-						if (smbPattern[j] != '?') {
-							restQ = false;
-							break;
-						}
-					}
-					if (restQ)
-						sb.append(".?");
-					else
-						sb.append('.');
-				} else
-					sb.append('.');
-				break;
+      // Single character wildcard
 
-			// Escape regular expression special characters
+      case '?':
+        if (endsWithQ) {
+          boolean restQ = true;
+          for (int j = i + 1; j < smbPattern.length; j++) {
+            if (smbPattern[j] != '?') {
+              restQ = false;
+              break;
+            }
+          }
+          if (restQ)
+            sb.append(".?");
+          else
+            sb.append('.');
+        } else
+          sb.append('.');
+        break;
 
-			case '.':
-			case '+':
-			case '\\':
-			case '[':
-			case ']':
-			case '^':
-			case '$':
-			case '(':
-			case ')':
-				sb.append('\\');
-				sb.append(smbPattern[i]);
-				break;
+      // Escape regular expression special characters
 
-			// Normal characters, just pass through
+      case '.':
+      case '+':
+      case '\\':
+      case '[':
+      case ']':
+      case '^':
+      case '$':
+      case '(':
+      case ')':
+        sb.append('\\');
+        sb.append(smbPattern[i]);
+        break;
 
-			default:
-				sb.append(smbPattern[i]);
-				break;
-			}
-		}
-		sb.append('$');
+      // Normal characters, just pass through
 
-		// Return the regular expression string
+      default:
+        sb.append(smbPattern[i]);
+        break;
+      }
+    }
+    sb.append('$');
 
-		return sb.toString();
-	}
+    // Return the regular expression string
+
+    return sb.toString();
+  }
 }

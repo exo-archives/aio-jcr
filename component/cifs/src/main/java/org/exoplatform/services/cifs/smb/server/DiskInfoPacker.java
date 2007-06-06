@@ -25,275 +25,306 @@ import org.exoplatform.services.cifs.util.DataPacker;
 /**
  * Disk information packer class.
  */
-class DiskInfoPacker
-{
+class DiskInfoPacker {
 
-    // Disk information levels
+  // Disk information levels
 
-    public static final int InfoStandard = 1;
-    public static final int InfoVolume = 2;
-    public static final int InfoFsVolume = 0x102;
-    public static final int InfoFsSize = 0x103;
-    public static final int InfoFsDevice = 0x104;
-    public static final int InfoFsAttribute = 0x105;
-    public static final int InfoCifsUnix = 0x200;
-    public static final int InfoMacFsInfo = 0x301;
-    public static final int InfoFullFsSize = 0x3EF;
+  public static final int InfoStandard = 1;
 
-    // Mac support flags
+  public static final int InfoVolume = 2;
 
-    public static final int MacAccessControl = 0x0010;
-    public static final int MacGetSetComments = 0x0020;
-    public static final int MacDesktopDbCalls = 0x0040;
-    public static final int MacUniqueIds = 0x0080;
-    public static final int MacNoStreamsOrMacSupport = 0x0100;
+  public static final int InfoFsVolume = 0x102;
 
-    /**
-     * Class constructor.
-     */
-    public DiskInfoPacker()
-    {
-        super();
-    }
+  public static final int InfoFsSize = 0x103;
 
-    /**
-     * Pack the standard disk information, InfoStandard.
-     * 
-     * @param info SMBDiskInfo to be packed.
-     * @param buf Buffer to pack the data into.
-     */
-    public final static void packStandardInfo(DiskInfo info, DataBuffer buf)
-    {
+  public static final int InfoFsDevice = 0x104;
 
-        // Information format :-
-        // ULONG File system identifier, always 0 ?
-        // ULONG Sectors per allocation unit.
-        // ULONG Total allocation units.
-        // ULONG Total available allocation units.
-        // USHORT Number of bytes per sector.
+  public static final int InfoFsAttribute = 0x105;
 
-        // Pack the file system identifier, 0 = NT file system
+  public static final int InfoCifsUnix = 0x200;
 
-        buf.putZeros(4);
-        // buf.putInt(999);
+  public static final int InfoMacFsInfo = 0x301;
 
-        // Pack the disk unit information
+  public static final int InfoFullFsSize = 0x3EF;
 
-        buf.putInt(info.getBlocksPerAllocationUnit());
-        buf.putInt((int) info.getTotalUnits());
-        buf.putInt((int) info.getFreeUnits());
-        buf.putShort(info.getBlockSize());
-    }
+  // Mac support flags
 
-    /**
-     * Pack the volume label information, InfoVolume.
-     * 
-     * @param info Volume information
-     * @param buf Buffer to pack data into.
-     * @param uni Use Unicode strings if true, else use ASCII strings
-     */
-    public final static void packVolumeInfo(VolumeInfo info, DataBuffer buf, boolean uni)
-    {
+  public static final int MacAccessControl = 0x0010;
 
-        // Information format :-
-        // ULONG Volume serial number
-        // UCHAR Volume label length
-        // STRING Volume label
+  public static final int MacGetSetComments = 0x0020;
 
-        // Pack the volume serial number
+  public static final int MacDesktopDbCalls = 0x0040;
 
-        buf.putInt(info.getSerialNumber());
+  public static final int MacUniqueIds = 0x0080;
 
-        // Pack the volume label length and string
+  public static final int MacNoStreamsOrMacSupport = 0x0100;
 
-        buf.putByte(info.getVolumeLabel().length());
-        buf.putString(info.getVolumeLabel(), uni);
-    }
+  /**
+   * Class constructor.
+   */
+  public DiskInfoPacker() {
+    super();
+  }
 
-    /**
-     * Pack the filesystem size information, InfoFsSize
-     * 
-     * @param info Disk size information
-     * @param buf Buffer to pack data into.
-     */
-    public final static void packFsSizeInformation(DiskInfo info, DataBuffer buf)
-    {
+  /**
+   * Pack the standard disk information, InfoStandard.
+   * 
+   * @param info
+   *          SMBDiskInfo to be packed.
+   * @param buf
+   *          Buffer to pack the data into.
+   */
+  public final static void packStandardInfo(DiskInfo info, DataBuffer buf) {
 
-        // Information format :-
-        // ULONG Disk size (in units)
-        // ULONG Free size (in units)
-        // UINT Unit size in blocks
-        // UINT Block size in bytes
+    // Information format :-
+    // ULONG File system identifier, always 0 ?
+    // ULONG Sectors per allocation unit.
+    // ULONG Total allocation units.
+    // ULONG Total available allocation units.
+    // USHORT Number of bytes per sector.
 
-        buf.putLong(info.getTotalUnits());
-        buf.putLong(info.getFreeUnits());
-        buf.putInt(info.getBlocksPerAllocationUnit());
-        buf.putInt(info.getBlockSize());
-    }
+    // Pack the file system identifier, 0 = NT file system
 
-    /**
-     * Pack the filesystem volume information, InfoFsVolume
-     * 
-     * @param info Volume information
-     * @param buf Buffer to pack data into.
-     * @param uni Use Unicode strings if true, else use ASCII strings
-     */
-    public final static void packFsVolumeInformation(VolumeInfo info, DataBuffer buf, boolean uni)
-    {
+    buf.putZeros(4);
+    // buf.putInt(999);
 
-        // Information format :-
-        // ULONG Volume creation date/time (NT 64bit time fomat)
-        // UINT Volume serial number
-        // UINT Volume label length
-        // SHORT Reserved
-        // STRING Volume label (no null)
+    // Pack the disk unit information
 
-        if (info.hasCreationDateTime())
-            buf.putLong(NTTime.toNTTime(info.getCreationDateTime()));
-        else
-            buf.putZeros(8);
+    buf.putInt(info.getBlocksPerAllocationUnit());
+    buf.putInt((int) info.getTotalUnits());
+    buf.putInt((int) info.getFreeUnits());
+    buf.putShort(info.getBlockSize());
+  }
 
-        if (info.hasSerialNumber())
-            buf.putInt(info.getSerialNumber());
-        else
-            buf.putZeros(4);
+  /**
+   * Pack the volume label information, InfoVolume.
+   * 
+   * @param info
+   *          Volume information
+   * @param buf
+   *          Buffer to pack data into.
+   * @param uni
+   *          Use Unicode strings if true, else use ASCII strings
+   */
+  public final static void packVolumeInfo(VolumeInfo info, DataBuffer buf,
+      boolean uni) {
 
-        int len = info.getVolumeLabel().length();
-        if (uni)
-            len *= 2;
-        buf.putInt(len);
+    // Information format :-
+    // ULONG Volume serial number
+    // UCHAR Volume label length
+    // STRING Volume label
 
-        buf.putZeros(2); // reserved
-        buf.putString(info.getVolumeLabel(), uni, false);
-    }
+    // Pack the volume serial number
 
-    /**
-     * Pack the filesystem device information, InfoFsDevice
-     * 
-     * @param typ Device type
-     * @param devChar Device characteristics
-     * @param buf Buffer to pack data into.
-     */
-    public final static void packFsDevice(int typ, int devChar, DataBuffer buf)
-    {
+    buf.putInt(info.getSerialNumber());
 
-        // Information format :-
-        // UINT Device type
-        // UINT Characteristics
+    // Pack the volume label length and string
 
-        buf.putInt(typ);
-        buf.putInt(devChar);
-    }
+    buf.putByte(info.getVolumeLabel().length());
+    buf.putString(info.getVolumeLabel(), uni);
+  }
 
-    /**
-     * Pack the filesystem attribute information, InfoFsAttribute
-     * 
-     * @param attr Attribute flags
-     * @param maxName Maximum file name component length
-     * @param fsType File system type name
-     * @param uni Unicode strings required
-     * @param buf Buffer to pack data into.
-     */
-    public final static void packFsAttribute(int attr, int maxName, String fsType, boolean uni, DataBuffer buf)
-    {
+  /**
+   * Pack the filesystem size information, InfoFsSize
+   * 
+   * @param info
+   *          Disk size information
+   * @param buf
+   *          Buffer to pack data into.
+   */
+  public final static void packFsSizeInformation(DiskInfo info, DataBuffer buf) {
 
-        // Information format :-
-        // UINT Attribute flags
-        // UINT Maximum filename component length (usually 255)
-        // UINT Filesystem type length
-        // STRING Filesystem type string
+    // Information format :-
+    // ULONG Disk size (in units)
+    // ULONG Free size (in units)
+    // UINT Unit size in blocks
+    // UINT Block size in bytes
 
-        buf.putInt(attr);
-        buf.putInt(maxName);
+    buf.putLong(info.getTotalUnits());
+    buf.putLong(info.getFreeUnits());
+    buf.putInt(info.getBlocksPerAllocationUnit());
+    buf.putInt(info.getBlockSize());
+  }
 
-        if (uni)
-            buf.putInt(fsType.length() * 2);
-        else
-            buf.putInt(fsType.length());
-        buf.putString(fsType, uni, false);
-    }
+  /**
+   * Pack the filesystem volume information, InfoFsVolume
+   * 
+   * @param info
+   *          Volume information
+   * @param buf
+   *          Buffer to pack data into.
+   * @param uni
+   *          Use Unicode strings if true, else use ASCII strings
+   */
+  public final static void packFsVolumeInformation(VolumeInfo info,
+      DataBuffer buf, boolean uni) {
 
-    /**
-     * Pack the Mac filesystem information, InfoMacFsInfo
-     * 
-     * @param diskInfo SMBDiskInfo to be packed.
-     * @param volInfo Volume information to be packed
-     * @param ntfs Filesystem supports NTFS streams
-     * @param buf Buffer to pack the data into.
-     */
-    public final static void packMacFsInformation(DiskInfo diskInfo, VolumeInfo volInfo, boolean ntfs, DataBuffer buf)
-    {
+    // Information format :-
+    // ULONG Volume creation date/time (NT 64bit time fomat)
+    // UINT Volume serial number
+    // UINT Volume label length
+    // SHORT Reserved
+    // STRING Volume label (no null)
 
-        // Information format :-
-        // LARGE_INTEGER Volume creation time (NT format)
-        // LARGE_INTEGER Volume modify time (NT format)
-        // LARGE_INTEGER Volume backup time (NT format)
-        // ULONG Allocation blocks
-        // ULONG Allocation block size (multiple of 512)
-        // ULONG Free blocks on the volume
-        // UCHAR[32] Finder info
-        // LONG Number of files in root directory (zero if unknown)
-        // LONG Number of directories in the root directory (zero if unknown)
-        // LONG Number of files on the volume (zero if unknown)
-        // LONG Number of directories on the volume (zero if unknown)
-        // LONG Mac support flags (big endian)
+    if (info.hasCreationDateTime())
+      buf.putLong(NTTime.toNTTime(info.getCreationDateTime()));
+    else
+      buf.putZeros(8);
 
-        // Pack the volume creation time
+    if (info.hasSerialNumber())
+      buf.putInt(info.getSerialNumber());
+    else
+      buf.putZeros(4);
 
-        if (volInfo.hasCreationDateTime())
-        {
-            long ntTime = NTTime.toNTTime(volInfo.getCreationDateTime());
-            buf.putLong(ntTime);
-            buf.putLong(ntTime);
-            buf.putLong(ntTime);
-        }
-        else
-            buf.putZeros(24);
+    int len = info.getVolumeLabel().length();
+    if (uni)
+      len *= 2;
+    buf.putInt(len);
 
-        // Pack the number of allocation blocks, block size and free block count
+    buf.putZeros(2); // reserved
+    buf.putString(info.getVolumeLabel(), uni, false);
+  }
 
-        buf.putInt((int) diskInfo.getTotalUnits());
-        buf.putInt(diskInfo.getBlockSize() * diskInfo.getBlocksPerAllocationUnit());
-        buf.putInt((int) diskInfo.getFreeUnits());
+  /**
+   * Pack the filesystem device information, InfoFsDevice
+   * 
+   * @param typ
+   *          Device type
+   * @param devChar
+   *          Device characteristics
+   * @param buf
+   *          Buffer to pack data into.
+   */
+  public final static void packFsDevice(int typ, int devChar, DataBuffer buf) {
 
-        // Pack the finder information area
+    // Information format :-
+    // UINT Device type
+    // UINT Characteristics
 
-        buf.putZeros(32);
+    buf.putInt(typ);
+    buf.putInt(devChar);
+  }
 
-        // Pack the file/directory counts
+  /**
+   * Pack the filesystem attribute information, InfoFsAttribute
+   * 
+   * @param attr
+   *          Attribute flags
+   * @param maxName
+   *          Maximum file name component length
+   * @param fsType
+   *          File system type name
+   * @param uni
+   *          Unicode strings required
+   * @param buf
+   *          Buffer to pack data into.
+   */
+  public final static void packFsAttribute(int attr, int maxName,
+      String fsType, boolean uni, DataBuffer buf) {
 
-        buf.putInt(0);
-        buf.putInt(0);
-        buf.putInt(0);
-        buf.putInt(0);
+    // Information format :-
+    // UINT Attribute flags
+    // UINT Maximum filename component length (usually 255)
+    // UINT Filesystem type length
+    // STRING Filesystem type string
 
-        // Pack the Mac support flags
+    buf.putInt(attr);
+    buf.putInt(maxName);
 
-        DataPacker.putIntelInt(ntfs ? 0 : MacNoStreamsOrMacSupport, buf.getBuffer(), buf.getPosition());
-        buf.setPosition(buf.getPosition() + 4);
-    }
+    if (uni)
+      buf.putInt(fsType.length() * 2);
+    else
+      buf.putInt(fsType.length());
+    buf.putString(fsType, uni, false);
+  }
 
-    /**
-     * Pack the filesystem size information, InfoFsSize
-     * 
-     * @param userLimit User free units
-     * @param info Disk size information
-     * @param buf Buffer to pack data into.
-     */
-    public final static void packFullFsSizeInformation(long userLimit, DiskInfo info, DataBuffer buf)
-    {
+  /**
+   * Pack the Mac filesystem information, InfoMacFsInfo
+   * 
+   * @param diskInfo
+   *          SMBDiskInfo to be packed.
+   * @param volInfo
+   *          Volume information to be packed
+   * @param ntfs
+   *          Filesystem supports NTFS streams
+   * @param buf
+   *          Buffer to pack the data into.
+   */
+  public final static void packMacFsInformation(DiskInfo diskInfo,
+      VolumeInfo volInfo, boolean ntfs, DataBuffer buf) {
 
-        // Information format :-
-        // ULONG Disk size (in units)
-        // ULONG User free size (in units)
-        // ULONG Free size (in units)
-        // UINT Unit size in blocks
-        // UINT Block size in bytes
+    // Information format :-
+    // LARGE_INTEGER Volume creation time (NT format)
+    // LARGE_INTEGER Volume modify time (NT format)
+    // LARGE_INTEGER Volume backup time (NT format)
+    // ULONG Allocation blocks
+    // ULONG Allocation block size (multiple of 512)
+    // ULONG Free blocks on the volume
+    // UCHAR[32] Finder info
+    // LONG Number of files in root directory (zero if unknown)
+    // LONG Number of directories in the root directory (zero if unknown)
+    // LONG Number of files on the volume (zero if unknown)
+    // LONG Number of directories on the volume (zero if unknown)
+    // LONG Mac support flags (big endian)
 
-        buf.putLong(info.getTotalUnits());
-        buf.putLong(userLimit);
-        buf.putLong(info.getFreeUnits());
-        buf.putInt(info.getBlocksPerAllocationUnit());
-        buf.putInt(info.getBlockSize());
-    }
+    // Pack the volume creation time
+
+    if (volInfo.hasCreationDateTime()) {
+      long ntTime = NTTime.toNTTime(volInfo.getCreationDateTime());
+      buf.putLong(ntTime);
+      buf.putLong(ntTime);
+      buf.putLong(ntTime);
+    } else
+      buf.putZeros(24);
+
+    // Pack the number of allocation blocks, block size and free block count
+
+    buf.putInt((int) diskInfo.getTotalUnits());
+    buf.putInt(diskInfo.getBlockSize() * diskInfo.getBlocksPerAllocationUnit());
+    buf.putInt((int) diskInfo.getFreeUnits());
+
+    // Pack the finder information area
+
+    buf.putZeros(32);
+
+    // Pack the file/directory counts
+
+    buf.putInt(0);
+    buf.putInt(0);
+    buf.putInt(0);
+    buf.putInt(0);
+
+    // Pack the Mac support flags
+
+    DataPacker.putIntelInt(ntfs ? 0 : MacNoStreamsOrMacSupport,
+        buf.getBuffer(), buf.getPosition());
+    buf.setPosition(buf.getPosition() + 4);
+  }
+
+  /**
+   * Pack the filesystem size information, InfoFsSize
+   * 
+   * @param userLimit
+   *          User free units
+   * @param info
+   *          Disk size information
+   * @param buf
+   *          Buffer to pack data into.
+   */
+  public final static void packFullFsSizeInformation(long userLimit,
+      DiskInfo info, DataBuffer buf) {
+
+    // Information format :-
+    // ULONG Disk size (in units)
+    // ULONG User free size (in units)
+    // ULONG Free size (in units)
+    // UINT Unit size in blocks
+    // UINT Block size in bytes
+
+    buf.putLong(info.getTotalUnits());
+    buf.putLong(userLimit);
+    buf.putLong(info.getFreeUnits());
+    buf.putInt(info.getBlocksPerAllocationUnit());
+    buf.putInt(info.getBlockSize());
+  }
 }

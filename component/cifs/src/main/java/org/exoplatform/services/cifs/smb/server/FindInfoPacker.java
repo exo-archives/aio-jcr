@@ -29,932 +29,928 @@ import org.exoplatform.services.cifs.util.DataBuffer;
  */
 class FindInfoPacker {
 
-	// Enable 8.3 name generation (required for Mac OS9)
+  // Enable 8.3 name generation (required for Mac OS9)
 
-	private static final boolean Enable8Dot3Names = false;
+  private static final boolean Enable8Dot3Names = false;
 
-	// Enable packing of file id
+  // Enable packing of file id
 
-	private static final boolean EnableFileIdPacking = false;
+  private static final boolean EnableFileIdPacking = false;
 
-	// File information levels
+  // File information levels
 
-	public static final int InfoStandard = 1;
+  public static final int InfoStandard = 1;
 
-	public static final int InfoQueryEASize = 2;
+  public static final int InfoQueryEASize = 2;
 
-	public static final int InfoQueryEAFromList = 3;
+  public static final int InfoQueryEAFromList = 3;
 
-	public static final int InfoDirectory = 0x101;
+  public static final int InfoDirectory = 0x101;
 
-	public static final int InfoFullDirectory = 0x102;
+  public static final int InfoFullDirectory = 0x102;
 
-	public static final int InfoNames = 0x103;
+  public static final int InfoNames = 0x103;
 
-	public static final int InfoDirectoryBoth = 0x104;
+  public static final int InfoDirectoryBoth = 0x104;
 
-	public static final int InfoMacHfsInfo = 0x302;
+  public static final int InfoMacHfsInfo = 0x302;
 
-	// File information fixed lengths, includes nulls on strings.
+  // File information fixed lengths, includes nulls on strings.
 
-	public static final int InfoStandardLen = 24;
+  public static final int InfoStandardLen = 24;
 
-	public static final int InfoQueryEASizeLen = 28;
+  public static final int InfoQueryEASizeLen = 28;
 
-	public static final int InfoDirectoryLen = 64;
+  public static final int InfoDirectoryLen = 64;
 
-	public static final int InfoFullDirectoryLen = 68;
+  public static final int InfoFullDirectoryLen = 68;
 
-	public static final int InfoNamesLen = 12;
+  public static final int InfoNamesLen = 12;
 
-	public static final int InfoDirectoryBothLen = 94;
+  public static final int InfoDirectoryBothLen = 94;
 
-	public static final int InfoMacHfsLen = 120;
+  public static final int InfoMacHfsLen = 120;
 
-	/**
-	 * Pack a file information object into the specified buffer, using
-	 * information level 1 format.
-	 * 
-	 * @param info
-	 *            File information to be packed.
-	 * @param buf
-	 *            Data buffer to pack the file information into
-	 * @param infoLevel
-	 *            File information level.
-	 * @param uni
-	 *            Pack Unicode strings if true, else pack ASCII strings
-	 * @return Length of data packed
-	 */
-	public final static int packInfo(FileInfo info, DataBuffer buf,
-			int infoLevel, boolean uni) throws UnsupportedInfoLevelException {
+  /**
+   * Pack a file information object into the specified buffer, using information
+   * level 1 format.
+   * 
+   * @param info
+   *          File information to be packed.
+   * @param buf
+   *          Data buffer to pack the file information into
+   * @param infoLevel
+   *          File information level.
+   * @param uni
+   *          Pack Unicode strings if true, else pack ASCII strings
+   * @return Length of data packed
+   */
+  public final static int packInfo(FileInfo info, DataBuffer buf,
+      int infoLevel, boolean uni) throws UnsupportedInfoLevelException {
 
-		// Determine the information level
+    // Determine the information level
 
-		int curPos = buf.getPosition();
+    int curPos = buf.getPosition();
 
-		switch (infoLevel) {
+    switch (infoLevel) {
 
-		// Standard information
+    // Standard information
 
-		case InfoStandard:
-			packInfoStandard(info, buf, false, uni);
-			break;
+    case InfoStandard:
+      packInfoStandard(info, buf, false, uni);
+      break;
 
-		// Standard information + EA list size
+    // Standard information + EA list size
 
-		case InfoQueryEASize:
-			packInfoStandard(info, buf, true, uni);
-			break;
+    case InfoQueryEASize:
+      packInfoStandard(info, buf, true, uni);
+      break;
 
-		// File name information
+    // File name information
 
-		case InfoNames:
-			packInfoFileName(info, buf, uni);
-			break;
+    case InfoNames:
+      packInfoFileName(info, buf, uni);
+      break;
 
-		// File/directory information
+    // File/directory information
 
-		case InfoDirectory:
-			packInfoDirectory(info, buf, uni);
-			break;
+    case InfoDirectory:
+      packInfoDirectory(info, buf, uni);
+      break;
 
-		// Full file/directory information
+    // Full file/directory information
 
-		case InfoFullDirectory:
-			packInfoDirectoryFull(info, buf, uni);
-			break;
+    case InfoFullDirectory:
+      packInfoDirectoryFull(info, buf, uni);
+      break;
 
-		// Full file/directory information with short name
+    // Full file/directory information with short name
 
-		case InfoDirectoryBoth:
-			packInfoDirectoryBoth(info, buf, uni);
-			break;
+    case InfoDirectoryBoth:
+      packInfoDirectoryBoth(info, buf, uni);
+      break;
 
-		// Pack Macintosh format file information
+    // Pack Macintosh format file information
 
-		case InfoMacHfsInfo:
-			packInfoMacHfs(info, buf, uni);
-			break;
-		}
+    case InfoMacHfsInfo:
+      packInfoMacHfs(info, buf, uni);
+      break;
+    }
 
-		// Check if we packed any data
+    // Check if we packed any data
 
-		if (curPos == buf.getPosition())
-			throw new UnsupportedInfoLevelException();
+    if (curPos == buf.getPosition())
+      throw new UnsupportedInfoLevelException();
 
-		// Return the length of the packed data
+    // Return the length of the packed data
 
-		return buf.getPosition() - curPos;
-	}
+    return buf.getPosition() - curPos;
+  }
 
-	/**
-	 * Calculate the file name offset for the specified information level.
-	 * 
-	 * @param infoLev
-	 *            int
-	 * @param offset
-	 *            int
-	 * @return int
-	 */
-	public final static int calcFileNameOffset(int infoLev, int offset) {
+  /**
+   * Calculate the file name offset for the specified information level.
+   * 
+   * @param infoLev
+   *          int
+   * @param offset
+   *          int
+   * @return int
+   */
+  public final static int calcFileNameOffset(int infoLev, int offset) {
 
-		// Determine the information level
+    // Determine the information level
 
-		int pos = offset;
+    int pos = offset;
 
-		switch (infoLev) {
+    switch (infoLev) {
 
-		// Standard information level
+    // Standard information level
 
-		case InfoStandard:
-			pos += InfoStandard;
-			break;
+    case InfoStandard:
+      pos += InfoStandard;
+      break;
 
-		// Standard + EA size
+    // Standard + EA size
 
-		case InfoQueryEASize:
-			pos += InfoQueryEASizeLen;
-			break;
+    case InfoQueryEASize:
+      pos += InfoQueryEASizeLen;
+      break;
 
-		// File name information
+    // File name information
 
-		case InfoNames:
-			pos += InfoNamesLen;
-			break;
+    case InfoNames:
+      pos += InfoNamesLen;
+      break;
 
-		// File/directory information
+    // File/directory information
 
-		case InfoDirectory:
-			pos += InfoDirectoryLen;
-			break;
+    case InfoDirectory:
+      pos += InfoDirectoryLen;
+      break;
 
-		// File/directory information full
+    // File/directory information full
 
-		case InfoFullDirectory:
-			pos += InfoFullDirectoryLen;
-			break;
+    case InfoFullDirectory:
+      pos += InfoFullDirectoryLen;
+      break;
 
-		// Full file/directory information full plus short name
+    // Full file/directory information full plus short name
 
-		case InfoDirectoryBoth:
-			pos += InfoDirectoryBothLen;
-			break;
-		}
+    case InfoDirectoryBoth:
+      pos += InfoDirectoryBothLen;
+      break;
+    }
 
-		// Return the file name offset
+    // Return the file name offset
 
-		return pos;
-	}
+    return pos;
+  }
 
-	/**
-	 * Calculate the required buffer space for the file information at the
-	 * specified file information level.
-	 * 
-	 * @param info
-	 *            File information
-	 * @param infoLev
-	 *            File information level requested.
-	 * @param resKey
-	 *            true if resume keys are being returned, else false.
-	 * @param uni
-	 *            true if Unicode strings are being used, or false for ASCII
-	 *            strings
-	 * @return int Buffer space required, or -1 if unknown information level.
-	 */
-	public final static int calcInfoSize(FileInfo info, int infoLev,
-			boolean resKey, boolean uni) {
+  /**
+   * Calculate the required buffer space for the file information at the
+   * specified file information level.
+   * 
+   * @param info
+   *          File information
+   * @param infoLev
+   *          File information level requested.
+   * @param resKey
+   *          true if resume keys are being returned, else false.
+   * @param uni
+   *          true if Unicode strings are being used, or false for ASCII strings
+   * @return int Buffer space required, or -1 if unknown information level.
+   */
+  public final static int calcInfoSize(FileInfo info, int infoLev,
+      boolean resKey, boolean uni) {
 
-		// Determine the information level requested
+    // Determine the information level requested
 
-		int len = -1;
-		int nameLen = info.getFileName().length() + 1;
-		if (uni)
-			nameLen *= 2;
+    int len = -1;
+    int nameLen = info.getFileName().length() + 1;
+    if (uni)
+      nameLen *= 2;
 
-		switch (infoLev) {
+    switch (infoLev) {
 
-		// Standard information level
+    // Standard information level
 
-		case InfoStandard:
-			len = InfoStandardLen + nameLen;
-			break;
+    case InfoStandard:
+      len = InfoStandardLen + nameLen;
+      break;
 
-		// Standard + EA size
+    // Standard + EA size
 
-		case InfoQueryEASize:
-			len = InfoQueryEASizeLen + nameLen;
-			break;
+    case InfoQueryEASize:
+      len = InfoQueryEASizeLen + nameLen;
+      break;
 
-		// File name information
+    // File name information
 
-		case InfoNames:
-			len += InfoNamesLen + nameLen;
-			break;
+    case InfoNames:
+      len += InfoNamesLen + nameLen;
+      break;
 
-		// File/directory information
+    // File/directory information
 
-		case InfoDirectory:
-			len = InfoDirectoryLen + nameLen;
-			break;
+    case InfoDirectory:
+      len = InfoDirectoryLen + nameLen;
+      break;
 
-		// File/directory information full
+    // File/directory information full
 
-		case InfoFullDirectory:
-			len += InfoFullDirectoryLen + nameLen;
-			break;
-
-		// Full file/directory information plus short name
+    case InfoFullDirectory:
+      len += InfoFullDirectoryLen + nameLen;
+      break;
 
-		case InfoDirectoryBoth:
-			len = InfoDirectoryBothLen + nameLen;
-			break;
+    // Full file/directory information plus short name
 
-		// Maacintosh information level
-
-		case InfoMacHfsInfo:
-			len = InfoMacHfsLen + nameLen;
-			break;
-		}
+    case InfoDirectoryBoth:
+      len = InfoDirectoryBothLen + nameLen;
+      break;
 
-		// Add extra space for the resume key, if enabled
+    // Maacintosh information level
 
-		if (resKey)
-			len += 4;
+    case InfoMacHfsInfo:
+      len = InfoMacHfsLen + nameLen;
+      break;
+    }
 
-		// Return the buffer length required.
+    // Add extra space for the resume key, if enabled
 
-		return len;
-	}
+    if (resKey)
+      len += 4;
 
-	/**
-	 * Clear the next structure offset
-	 * 
-	 * @param dataBuf
-	 *            DataBuffer
-	 * @param level
-	 *            int
-	 * @param offset
-	 *            int
-	 */
-	public static final void clearNextOffset(DataBuffer buf, int level,
-			int offset) {
+    // Return the buffer length required.
 
-		// Standard information level does not have a next entry offset
+    return len;
+  }
 
-		if (level == InfoStandard)
-			return;
+  /**
+   * Clear the next structure offset
+   * 
+   * @param dataBuf
+   *          DataBuffer
+   * @param level
+   *          int
+   * @param offset
+   *          int
+   */
+  public static final void clearNextOffset(DataBuffer buf, int level, int offset) {
 
-		// Clear the next entry offset
+    // Standard information level does not have a next entry offset
 
-		int curPos = buf.getPosition();
-		buf.setPosition(offset);
-		buf.putInt(0);
-		buf.setPosition(curPos);
-	}
+    if (level == InfoStandard)
+      return;
 
-	/**
-	 * Pack a file information object into the specified buffer. Use the
-	 * standard information level if the EA size flag is false, else add the EA
-	 * size field.
-	 * 
-	 * @param info
-	 *            File information to be packed.
-	 * @param buf
-	 *            Buffer to pack the data into.
-	 * @param EAflag
-	 *            Add EA size field if true.
-	 * @param uni
-	 *            Pack Unicode strings if true, else pack ASCII strings
-	 */
-	protected final static void packInfoStandard(FileInfo info, DataBuffer buf,
-			boolean EAflag, boolean uni) {
+    // Clear the next entry offset
 
-		// Information format :-
-		// SMB_DATE CreationDate
-		// SMB_TIME CreationTime
-		// SMB_DATE LastAccessDate
-		// SMB_TIME LastAccessTime
-		// SMB_DATE LastWriteDate
-		// SMB_TIME LastWriteTime
-		// ULONG File size
-		// ULONG Allocation size
-		// USHORT File attributes
-		// [ ULONG EA size ]
-		// UCHAR File name length
-		// STRING File name, null terminated
+    int curPos = buf.getPosition();
+    buf.setPosition(offset);
+    buf.putInt(0);
+    buf.setPosition(curPos);
+  }
 
-		// Pack the creation date/time
+  /**
+   * Pack a file information object into the specified buffer. Use the standard
+   * information level if the EA size flag is false, else add the EA size field.
+   * 
+   * @param info
+   *          File information to be packed.
+   * @param buf
+   *          Buffer to pack the data into.
+   * @param EAflag
+   *          Add EA size field if true.
+   * @param uni
+   *          Pack Unicode strings if true, else pack ASCII strings
+   */
+  protected final static void packInfoStandard(FileInfo info, DataBuffer buf,
+      boolean EAflag, boolean uni) {
 
-		SMBDate date = new SMBDate(0);
+    // Information format :-
+    // SMB_DATE CreationDate
+    // SMB_TIME CreationTime
+    // SMB_DATE LastAccessDate
+    // SMB_TIME LastAccessTime
+    // SMB_DATE LastWriteDate
+    // SMB_TIME LastWriteTime
+    // ULONG File size
+    // ULONG Allocation size
+    // USHORT File attributes
+    // [ ULONG EA size ]
+    // UCHAR File name length
+    // STRING File name, null terminated
 
-		if (info.hasCreationDateTime()) {
-			date.setTime(info.getCreationDateTime());
-			buf.putShort(date.asSMBDate());
-			buf.putShort(date.asSMBTime());
-		} else
-			buf.putZeros(4);
+    // Pack the creation date/time
 
-		// Pack the last access date/time
+    SMBDate date = new SMBDate(0);
 
-		if (info.hasAccessDateTime()) {
-			date.setTime(info.getAccessDateTime());
-			buf.putShort(date.asSMBDate());
-			buf.putShort(date.asSMBTime());
-		} else
-			buf.putZeros(4);
+    if (info.hasCreationDateTime()) {
+      date.setTime(info.getCreationDateTime());
+      buf.putShort(date.asSMBDate());
+      buf.putShort(date.asSMBTime());
+    } else
+      buf.putZeros(4);
 
-		// Pack the last write date/time
+    // Pack the last access date/time
 
-		if (info.hasModifyDateTime()) {
-			date.setTime(info.getModifyDateTime());
-			buf.putShort(date.asSMBDate());
-			buf.putShort(date.asSMBTime());
-		} else
-			buf.putZeros(4);
+    if (info.hasAccessDateTime()) {
+      date.setTime(info.getAccessDateTime());
+      buf.putShort(date.asSMBDate());
+      buf.putShort(date.asSMBTime());
+    } else
+      buf.putZeros(4);
 
-		// Pack the file size and allocation size
+    // Pack the last write date/time
 
-		buf.putInt(info.getSizeInt());
+    if (info.hasModifyDateTime()) {
+      date.setTime(info.getModifyDateTime());
+      buf.putShort(date.asSMBDate());
+      buf.putShort(date.asSMBTime());
+    } else
+      buf.putZeros(4);
 
-		if (info.getAllocationSize() < info.getSize())
-			buf.putInt(info.getSizeInt());
-		else
-			buf.putInt(info.getAllocationSizeInt());
-
-		// Pack the file attributes
-
-		buf.putShort(info.getFileAttributes());
-
-		// Pack the EA size, always zero
-
-		if (EAflag)
-			buf.putInt(0);
+    // Pack the file size and allocation size
 
-		// Pack the file name
+    buf.putInt(info.getSizeInt());
 
-		if (uni == true) {
+    if (info.getAllocationSize() < info.getSize())
+      buf.putInt(info.getSizeInt());
+    else
+      buf.putInt(info.getAllocationSizeInt());
 
-			// Pack the number of bytes followed by the Unicode name word
-			// aligned
+    // Pack the file attributes
+
+    buf.putShort(info.getFileAttributes());
 
-			buf.putByte(info.getFileName().length() * 2);
-			buf.wordAlign();
-			buf.putString(info.getFileName(), uni, true);
-		} else {
+    // Pack the EA size, always zero
 
-			// Pack the number of bytes followed by the ASCII name
+    if (EAflag)
+      buf.putInt(0);
 
-			buf.putByte(info.getFileName().length());
-			buf.putString(info.getFileName(), uni, true);
-		}
-	}
+    // Pack the file name
 
-	/**
-	 * Pack the file name information
-	 * 
-	 * @param info
-	 *            File information to be packed.
-	 * @param buf
-	 *            Buffer to pack the data into.
-	 * @param uni
-	 *            Pack Unicode strings if true, else pack ASCII strings
-	 */
-	protected final static void packInfoFileName(FileInfo info, DataBuffer buf,
-			boolean uni) {
+    if (uni == true) {
 
-		// Information format :-
-		// ULONG NextEntryOffset
-		// ULONG FileIndex
-		// ULONG FileNameLength
-		// STRING FileName
+      // Pack the number of bytes followed by the Unicode name word
+      // aligned
 
-		// Pack the file id
+      buf.putByte(info.getFileName().length() * 2);
+      buf.wordAlign();
+      buf.putString(info.getFileName(), uni, true);
+    } else {
 
-		int startPos = buf.getPosition();
-		buf.putZeros(4);
-		buf.putInt(EnableFileIdPacking ? info.getFileId() : 0);
+      // Pack the number of bytes followed by the ASCII name
 
-		// Pack the file name length
+      buf.putByte(info.getFileName().length());
+      buf.putString(info.getFileName(), uni, true);
+    }
+  }
 
-		int nameLen = info.getFileName().length();
-		if (uni)
-			nameLen *= 2;
+  /**
+   * Pack the file name information
+   * 
+   * @param info
+   *          File information to be packed.
+   * @param buf
+   *          Buffer to pack the data into.
+   * @param uni
+   *          Pack Unicode strings if true, else pack ASCII strings
+   */
+  protected final static void packInfoFileName(FileInfo info, DataBuffer buf,
+      boolean uni) {
 
-		buf.putInt(nameLen);
+    // Information format :-
+    // ULONG NextEntryOffset
+    // ULONG FileIndex
+    // ULONG FileNameLength
+    // STRING FileName
 
-		// Pack the long file name string
+    // Pack the file id
 
-		buf.putString(info.getFileName(), uni, false);
+    int startPos = buf.getPosition();
+    buf.putZeros(4);
+    buf.putInt(EnableFileIdPacking ? info.getFileId() : 0);
 
-		// Align the buffer pointer and set the offset to the next file
-		// information entry
+    // Pack the file name length
 
-		buf.wordAlign();
+    int nameLen = info.getFileName().length();
+    if (uni)
+      nameLen *= 2;
 
-		int curPos = buf.getPosition();
-		buf.setPosition(startPos);
-		buf.putInt(curPos - startPos);
-		buf.setPosition(curPos);
-	}
+    buf.putInt(nameLen);
 
-	/**
-	 * Pack the file/directory information
-	 * 
-	 * @param info
-	 *            File information to be packed.
-	 * @param buf
-	 *            Buffer to pack the data into.
-	 * @param uni
-	 *            Pack Unicode strings if true, else pack ASCII strings
-	 */
-	protected final static void packInfoDirectory(FileInfo info,
-			DataBuffer buf, boolean uni) {
+    // Pack the long file name string
 
-		// Information format :-
-		// ULONG NextEntryOffset
-		// ULONG FileIndex
-		// LARGE_INTEGER CreationTime
-		// LARGE_INTEGER LastAccessTime
-		// LARGE_INTEGER LastWriteTime
-		// LARGE_INTEGER ChangeTime
-		// LARGE_INTEGER EndOfFile
-		// LARGE_INTEGER AllocationSize
-		// ULONG FileAttributes
-		// ULONG FileNameLength
-		// STRING FileName
+    buf.putString(info.getFileName(), uni, false);
 
-		// Pack the file id
+    // Align the buffer pointer and set the offset to the next file
+    // information entry
 
-		int startPos = buf.getPosition();
-		buf.putZeros(4);
-		buf.putInt(EnableFileIdPacking ? info.getFileId() : 0);
+    buf.wordAlign();
 
-		// Pack the creation date/time
+    int curPos = buf.getPosition();
+    buf.setPosition(startPos);
+    buf.putInt(curPos - startPos);
+    buf.setPosition(curPos);
+  }
 
-		if (info.hasCreationDateTime()) {
-			buf.putLong(NTTime.toNTTime(info.getCreationDateTime()));
-		} else
-			buf.putZeros(8);
+  /**
+   * Pack the file/directory information
+   * 
+   * @param info
+   *          File information to be packed.
+   * @param buf
+   *          Buffer to pack the data into.
+   * @param uni
+   *          Pack Unicode strings if true, else pack ASCII strings
+   */
+  protected final static void packInfoDirectory(FileInfo info, DataBuffer buf,
+      boolean uni) {
 
-		// Pack the last access date/time
+    // Information format :-
+    // ULONG NextEntryOffset
+    // ULONG FileIndex
+    // LARGE_INTEGER CreationTime
+    // LARGE_INTEGER LastAccessTime
+    // LARGE_INTEGER LastWriteTime
+    // LARGE_INTEGER ChangeTime
+    // LARGE_INTEGER EndOfFile
+    // LARGE_INTEGER AllocationSize
+    // ULONG FileAttributes
+    // ULONG FileNameLength
+    // STRING FileName
 
-		if (info.hasAccessDateTime()) {
-			buf.putLong(NTTime.toNTTime(info.getAccessDateTime()));
-		} else
-			buf.putZeros(8);
+    // Pack the file id
 
-		// Pack the last write date/time and change time
+    int startPos = buf.getPosition();
+    buf.putZeros(4);
+    buf.putInt(EnableFileIdPacking ? info.getFileId() : 0);
 
-		if (info.hasModifyDateTime()) {
-			buf.putLong(NTTime.toNTTime(info.getModifyDateTime()));
-			buf.putLong(NTTime.toNTTime(info.getModifyDateTime()));
-		} else
-			buf.putZeros(16);
+    // Pack the creation date/time
 
-		// Pack the file size and allocation size
+    if (info.hasCreationDateTime()) {
+      buf.putLong(NTTime.toNTTime(info.getCreationDateTime()));
+    } else
+      buf.putZeros(8);
 
-		buf.putLong(info.getSize());
+    // Pack the last access date/time
 
-		if (info.getAllocationSize() < info.getSize())
-			buf.putLong(info.getSize());
-		else
-			buf.putLong(info.getAllocationSize());
+    if (info.hasAccessDateTime()) {
+      buf.putLong(NTTime.toNTTime(info.getAccessDateTime()));
+    } else
+      buf.putZeros(8);
 
-		// Pack the file attributes
+    // Pack the last write date/time and change time
 
-		buf.putInt(info.getFileAttributes());
+    if (info.hasModifyDateTime()) {
+      buf.putLong(NTTime.toNTTime(info.getModifyDateTime()));
+      buf.putLong(NTTime.toNTTime(info.getModifyDateTime()));
+    } else
+      buf.putZeros(16);
 
-		// Pack the file name length
+    // Pack the file size and allocation size
 
-		int nameLen = info.getFileName().length();
-		if (uni)
-			nameLen *= 2;
+    buf.putLong(info.getSize());
 
-		buf.putInt(nameLen);
+    if (info.getAllocationSize() < info.getSize())
+      buf.putLong(info.getSize());
+    else
+      buf.putLong(info.getAllocationSize());
 
-		// Pack the long file name string
+    // Pack the file attributes
 
-		buf.putString(info.getFileName(), uni, false);
+    buf.putInt(info.getFileAttributes());
 
-		// Align the buffer pointer and set the offset to the next file
-		// information entry
+    // Pack the file name length
 
-		buf.wordAlign();
+    int nameLen = info.getFileName().length();
+    if (uni)
+      nameLen *= 2;
 
-		int curPos = buf.getPosition();
-		buf.setPosition(startPos);
-		buf.putInt(curPos - startPos);
-		buf.setPosition(curPos);
-	}
+    buf.putInt(nameLen);
 
-	/**
-	 * Pack the full file/directory information
-	 * 
-	 * @param info
-	 *            File information to be packed.
-	 * @param buf
-	 *            Buffer to pack the data into.
-	 * @param uni
-	 *            Pack Unicode strings if true, else pack ASCII strings
-	 */
-	protected final static void packInfoDirectoryFull(FileInfo info,
-			DataBuffer buf, boolean uni) {
+    // Pack the long file name string
 
-		// Information format :-
-		// ULONG NextEntryOffset
-		// ULONG FileIndex
-		// LARGE_INTEGER CreationTime
-		// LARGE_INTEGER LastAccessTime
-		// LARGE_INTEGER LastWriteTime
-		// LARGE_INTEGER ChangeTime
-		// LARGE_INTEGER EndOfFile
-		// LARGE_INTEGER AllocationSize
-		// ULONG FileAttributes
-		// ULONG FileNameLength
-		// ULONG EaSize
-		// STRING FileName
+    buf.putString(info.getFileName(), uni, false);
 
-		// Pack the file id
+    // Align the buffer pointer and set the offset to the next file
+    // information entry
 
-		int startPos = buf.getPosition();
-		buf.putZeros(4);
-		buf.putInt(EnableFileIdPacking ? info.getFileId() : 0);
+    buf.wordAlign();
 
-		// Pack the creation date/time
+    int curPos = buf.getPosition();
+    buf.setPosition(startPos);
+    buf.putInt(curPos - startPos);
+    buf.setPosition(curPos);
+  }
 
-		if (info.hasCreationDateTime()) {
-			buf.putLong(NTTime.toNTTime(info.getCreationDateTime()));
-		} else
-			buf.putZeros(8);
+  /**
+   * Pack the full file/directory information
+   * 
+   * @param info
+   *          File information to be packed.
+   * @param buf
+   *          Buffer to pack the data into.
+   * @param uni
+   *          Pack Unicode strings if true, else pack ASCII strings
+   */
+  protected final static void packInfoDirectoryFull(FileInfo info,
+      DataBuffer buf, boolean uni) {
 
-		// Pack the last access date/time
+    // Information format :-
+    // ULONG NextEntryOffset
+    // ULONG FileIndex
+    // LARGE_INTEGER CreationTime
+    // LARGE_INTEGER LastAccessTime
+    // LARGE_INTEGER LastWriteTime
+    // LARGE_INTEGER ChangeTime
+    // LARGE_INTEGER EndOfFile
+    // LARGE_INTEGER AllocationSize
+    // ULONG FileAttributes
+    // ULONG FileNameLength
+    // ULONG EaSize
+    // STRING FileName
 
-		if (info.hasAccessDateTime()) {
-			buf.putLong(NTTime.toNTTime(info.getAccessDateTime()));
-		} else
-			buf.putZeros(8);
+    // Pack the file id
 
-		// Pack the last write date/time
+    int startPos = buf.getPosition();
+    buf.putZeros(4);
+    buf.putInt(EnableFileIdPacking ? info.getFileId() : 0);
 
-		if (info.hasModifyDateTime()) {
-			buf.putLong(NTTime.toNTTime(info.getModifyDateTime()));
-			buf.putLong(NTTime.toNTTime(info.getModifyDateTime()));
-		} else
-			buf.putZeros(16);
+    // Pack the creation date/time
 
-		// Pack the file size and allocation size
+    if (info.hasCreationDateTime()) {
+      buf.putLong(NTTime.toNTTime(info.getCreationDateTime()));
+    } else
+      buf.putZeros(8);
 
-		buf.putLong(info.getSize());
+    // Pack the last access date/time
 
-		if (info.getAllocationSize() < info.getSize())
-			buf.putLong(info.getSize());
-		else
-			buf.putLong(info.getAllocationSize());
+    if (info.hasAccessDateTime()) {
+      buf.putLong(NTTime.toNTTime(info.getAccessDateTime()));
+    } else
+      buf.putZeros(8);
 
-		// Pack the file attributes
+    // Pack the last write date/time
 
-		buf.putInt(info.getFileAttributes());
+    if (info.hasModifyDateTime()) {
+      buf.putLong(NTTime.toNTTime(info.getModifyDateTime()));
+      buf.putLong(NTTime.toNTTime(info.getModifyDateTime()));
+    } else
+      buf.putZeros(16);
 
-		// Pack the file name length
+    // Pack the file size and allocation size
 
-		int nameLen = info.getFileName().length();
-		if (uni)
-			nameLen *= 2;
+    buf.putLong(info.getSize());
 
-		buf.putInt(nameLen);
+    if (info.getAllocationSize() < info.getSize())
+      buf.putLong(info.getSize());
+    else
+      buf.putLong(info.getAllocationSize());
 
-		// Pack the EA size
+    // Pack the file attributes
 
-		buf.putZeros(4);
+    buf.putInt(info.getFileAttributes());
 
-		// Pack the long file name string
+    // Pack the file name length
 
-		buf.putString(info.getFileName(), uni, false);
+    int nameLen = info.getFileName().length();
+    if (uni)
+      nameLen *= 2;
 
-		// Align the buffer pointer and set the offset to the next file
-		// information entry
+    buf.putInt(nameLen);
 
-		buf.wordAlign();
+    // Pack the EA size
 
-		int curPos = buf.getPosition();
-		buf.setPosition(startPos);
-		buf.putInt(curPos - startPos);
-		buf.setPosition(curPos);
-	}
+    buf.putZeros(4);
 
-	/**
-	 * Pack the full file/directory information
-	 * 
-	 * @param info
-	 *            File information to be packed.
-	 * @param buf
-	 *            Buffer to pack the data into.
-	 * @param uni
-	 *            Pack Unicode strings if true, else pack ASCII strings
-	 */
-	protected final static void packInfoDirectoryBoth(FileInfo info,
-			DataBuffer buf, boolean uni) {
+    // Pack the long file name string
 
-		// Information format :-
-		// ULONG NextEntryOffset
-		// ULONG FileIndex
-		// LARGE_INTEGER CreationTime
-		// LARGE_INTEGER LastAccessTime
-		// LARGE_INTEGER LastWriteTime
-		// LARGE_INTEGER ChangeTime
-		// LARGE_INTEGER EndOfFile
-		// LARGE_INTEGER AllocationSize
-		// ULONG FileAttributes
-		// ULONG FileNameLength
-		// ULONG EaSize
-		// UCHAR ShortNameLength
-		// WCHAR ShortName[12]
-		// STRING FileName
+    buf.putString(info.getFileName(), uni, false);
 
-		// Pack the file id
+    // Align the buffer pointer and set the offset to the next file
+    // information entry
 
-		int startPos = buf.getPosition();
-		buf.putZeros(4);
-		buf.putInt(EnableFileIdPacking ? info.getFileId() : 0);
+    buf.wordAlign();
 
-		// Pack the creation date/time
-
-		if (info.hasCreationDateTime()) {
-			buf.putLong(NTTime.toNTTime(info.getCreationDateTime()));
-		} else
-			buf.putZeros(8);
+    int curPos = buf.getPosition();
+    buf.setPosition(startPos);
+    buf.putInt(curPos - startPos);
+    buf.setPosition(curPos);
+  }
 
-		// Pack the last access date/time
+  /**
+   * Pack the full file/directory information
+   * 
+   * @param info
+   *          File information to be packed.
+   * @param buf
+   *          Buffer to pack the data into.
+   * @param uni
+   *          Pack Unicode strings if true, else pack ASCII strings
+   */
+  protected final static void packInfoDirectoryBoth(FileInfo info,
+      DataBuffer buf, boolean uni) {
 
-		if (info.hasAccessDateTime()) {
-			buf.putLong(NTTime.toNTTime(info.getAccessDateTime()));
-		} else
-			buf.putZeros(8);
+    // Information format :-
+    // ULONG NextEntryOffset
+    // ULONG FileIndex
+    // LARGE_INTEGER CreationTime
+    // LARGE_INTEGER LastAccessTime
+    // LARGE_INTEGER LastWriteTime
+    // LARGE_INTEGER ChangeTime
+    // LARGE_INTEGER EndOfFile
+    // LARGE_INTEGER AllocationSize
+    // ULONG FileAttributes
+    // ULONG FileNameLength
+    // ULONG EaSize
+    // UCHAR ShortNameLength
+    // WCHAR ShortName[12]
+    // STRING FileName
 
-		// Pack the last write date/time and change time
+    // Pack the file id
 
-		if (info.hasModifyDateTime()) {
-			buf.putLong(NTTime.toNTTime(info.getModifyDateTime()));
-			buf.putLong(NTTime.toNTTime(info.getModifyDateTime()));
-		} else
-			buf.putZeros(16);
+    int startPos = buf.getPosition();
+    buf.putZeros(4);
+    buf.putInt(EnableFileIdPacking ? info.getFileId() : 0);
 
-		// Pack the file size and allocation size
+    // Pack the creation date/time
 
-		buf.putLong(info.getSize());
+    if (info.hasCreationDateTime()) {
+      buf.putLong(NTTime.toNTTime(info.getCreationDateTime()));
+    } else
+      buf.putZeros(8);
 
-		if (info.getAllocationSize() < info.getSize())
-			buf.putLong(info.getSize());
-		else
-			buf.putLong(info.getAllocationSize());
+    // Pack the last access date/time
 
-		// Pack the file attributes
+    if (info.hasAccessDateTime()) {
+      buf.putLong(NTTime.toNTTime(info.getAccessDateTime()));
+    } else
+      buf.putZeros(8);
 
-		buf.putInt(info.getFileAttributes());
+    // Pack the last write date/time and change time
 
-		// Pack the file name length
+    if (info.hasModifyDateTime()) {
+      buf.putLong(NTTime.toNTTime(info.getModifyDateTime()));
+      buf.putLong(NTTime.toNTTime(info.getModifyDateTime()));
+    } else
+      buf.putZeros(16);
 
-		int nameLen = info.getFileName().length();
-		if (uni)
-			nameLen *= 2;
+    // Pack the file size and allocation size
 
-		buf.putInt(nameLen);
+    buf.putLong(info.getSize());
 
-		// Pack the EA size
+    if (info.getAllocationSize() < info.getSize())
+      buf.putLong(info.getSize());
+    else
+      buf.putLong(info.getAllocationSize());
 
-		buf.putZeros(4);
+    // Pack the file attributes
 
-		// Pack the short file name length (8.3 name)
+    buf.putInt(info.getFileAttributes());
 
-		pack8Dot3Name(buf, info.getFileName(), uni);
+    // Pack the file name length
 
-		// Pack the long file name string
+    int nameLen = info.getFileName().length();
+    if (uni)
+      nameLen *= 2;
 
-		buf.putString(info.getFileName(), uni, false);
+    buf.putInt(nameLen);
 
-		// Align the buffer pointer and set the offset to the next file
-		// information entry
+    // Pack the EA size
 
-		buf.wordAlign();
+    buf.putZeros(4);
 
-		int curPos = buf.getPosition();
-		buf.setPosition(startPos);
-		buf.putInt(curPos - startPos);
-		buf.setPosition(curPos);
-	}
+    // Pack the short file name length (8.3 name)
 
-	/**
-	 * Pack the Macintosh format file/directory information
-	 * 
-	 * @param info
-	 *            File information to be packed.
-	 * @param buf
-	 *            Buffer to pack the data into.
-	 * @param uni
-	 *            Pack Unicode strings if true, else pack ASCII strings
-	 */
-	protected final static void packInfoMacHfs(FileInfo info, DataBuffer buf,
-			boolean uni) {
+    pack8Dot3Name(buf, info.getFileName(), uni);
 
-		// Information format :-
-		// ULONG NextEntryOffset
-		// ULONG FileIndex
-		// LARGE_INTEGER CreationTime
-		// LARGE_INTEGER LastWriteTime
-		// LARGE_INTEGER ChangeTime
-		// LARGE_INTEGER Data stream length
-		// LARGE_INTEGER Resource stream length
-		// LARGE_INTEGER Data stream allocation size
-		// LARGE_INTEGER Resource stream allocation size
-		// ULONG ExtFileAttributes
-		// UCHAR FLAttrib Macintosh SetFLock, 1 = file locked
-		// UCHAR Pad
-		// UWORD DrNmFls Number of items in a directory, zero for files
-		// ULONG AccessControl
-		// UCHAR FinderInfo[32]
-		// ULONG FileNameLength
-		// UCHAR ShortNameLength
-		// UCHAR Pad
-		// WCHAR ShortName[12]
-		// STRING FileName
-		// LONG UniqueId
+    // Pack the long file name string
 
-		// Pack the file id
+    buf.putString(info.getFileName(), uni, false);
 
-		int startPos = buf.getPosition();
-		buf.putZeros(4);
-		buf.putInt(EnableFileIdPacking ? info.getFileId() : 0);
+    // Align the buffer pointer and set the offset to the next file
+    // information entry
 
-		// Pack the creation date/time
+    buf.wordAlign();
 
-		if (info.hasCreationDateTime()) {
-			buf.putLong(NTTime.toNTTime(info.getCreationDateTime()));
-		} else
-			buf.putZeros(8);
+    int curPos = buf.getPosition();
+    buf.setPosition(startPos);
+    buf.putInt(curPos - startPos);
+    buf.setPosition(curPos);
+  }
 
-		// Pack the last write date/time and change time
+  /**
+   * Pack the Macintosh format file/directory information
+   * 
+   * @param info
+   *          File information to be packed.
+   * @param buf
+   *          Buffer to pack the data into.
+   * @param uni
+   *          Pack Unicode strings if true, else pack ASCII strings
+   */
+  protected final static void packInfoMacHfs(FileInfo info, DataBuffer buf,
+      boolean uni) {
 
-		if (info.hasModifyDateTime()) {
-			buf.putLong(NTTime.toNTTime(info.getModifyDateTime()));
-			buf.putLong(NTTime.toNTTime(info.getModifyDateTime()));
-		} else
-			buf.putZeros(16);
+    // Information format :-
+    // ULONG NextEntryOffset
+    // ULONG FileIndex
+    // LARGE_INTEGER CreationTime
+    // LARGE_INTEGER LastWriteTime
+    // LARGE_INTEGER ChangeTime
+    // LARGE_INTEGER Data stream length
+    // LARGE_INTEGER Resource stream length
+    // LARGE_INTEGER Data stream allocation size
+    // LARGE_INTEGER Resource stream allocation size
+    // ULONG ExtFileAttributes
+    // UCHAR FLAttrib Macintosh SetFLock, 1 = file locked
+    // UCHAR Pad
+    // UWORD DrNmFls Number of items in a directory, zero for files
+    // ULONG AccessControl
+    // UCHAR FinderInfo[32]
+    // ULONG FileNameLength
+    // UCHAR ShortNameLength
+    // UCHAR Pad
+    // WCHAR ShortName[12]
+    // STRING FileName
+    // LONG UniqueId
 
-		// Pack the data stream size and resource stream size (always zero)
+    // Pack the file id
 
-		buf.putLong(info.getSize());
-		buf.putZeros(8);
+    int startPos = buf.getPosition();
+    buf.putZeros(4);
+    buf.putInt(EnableFileIdPacking ? info.getFileId() : 0);
 
-		// Pack the data stream allocation size and resource stream allocation
-		// size (always zero)
+    // Pack the creation date/time
 
-		if (info.getAllocationSize() < info.getSize())
-			buf.putLong(info.getSize());
-		else
-			buf.putLong(info.getAllocationSize());
-		buf.putZeros(8);
+    if (info.hasCreationDateTime()) {
+      buf.putLong(NTTime.toNTTime(info.getCreationDateTime()));
+    } else
+      buf.putZeros(8);
 
-		// Pack the file attributes
+    // Pack the last write date/time and change time
 
-		buf.putInt(info.getFileAttributes());
+    if (info.hasModifyDateTime()) {
+      buf.putLong(NTTime.toNTTime(info.getModifyDateTime()));
+      buf.putLong(NTTime.toNTTime(info.getModifyDateTime()));
+    } else
+      buf.putZeros(16);
 
-		// Pack the file lock and padding byte
+    // Pack the data stream size and resource stream size (always zero)
 
-		buf.putZeros(2);
+    buf.putLong(info.getSize());
+    buf.putZeros(8);
 
-		// Pack the number of items in a directory, always zero for now
+    // Pack the data stream allocation size and resource stream allocation
+    // size (always zero)
 
-		buf.putShort(0);
+    if (info.getAllocationSize() < info.getSize())
+      buf.putLong(info.getSize());
+    else
+      buf.putLong(info.getAllocationSize());
+    buf.putZeros(8);
 
-		// Pack the access control
+    // Pack the file attributes
 
-		buf.putInt(0);
+    buf.putInt(info.getFileAttributes());
 
-		// Pack the finder information
+    // Pack the file lock and padding byte
 
-		buf.putZeros(32);
+    buf.putZeros(2);
 
-		// Pack the file name length
+    // Pack the number of items in a directory, always zero for now
 
-		int nameLen = info.getFileName().length();
-		if (uni)
-			nameLen *= 2;
+    buf.putShort(0);
 
-		buf.putInt(nameLen);
+    // Pack the access control
 
-		// Pack the short file name length (8.3 name) and name
+    buf.putInt(0);
 
-		pack8Dot3Name(buf, info.getFileName(), uni);
+    // Pack the finder information
 
-		// Pack the long file name string
+    buf.putZeros(32);
 
-		buf.putString(info.getFileName(), uni, false);
+    // Pack the file name length
 
-		// Pack the unique id
+    int nameLen = info.getFileName().length();
+    if (uni)
+      nameLen *= 2;
 
-		buf.putInt(0);
+    buf.putInt(nameLen);
 
-		// Align the buffer pointer and set the offset to the next file
-		// information entry
+    // Pack the short file name length (8.3 name) and name
 
-		buf.wordAlign();
+    pack8Dot3Name(buf, info.getFileName(), uni);
 
-		int curPos = buf.getPosition();
-		buf.setPosition(startPos);
-		buf.putInt(curPos - startPos);
-		buf.setPosition(curPos);
-	}
+    // Pack the long file name string
 
-	/**
-	 * Pack a file name as a short 8.3 DOS style name. Packs the short name
-	 * length byte, reserved byte and 8.3 file name string.
-	 * 
-	 * @param buf
-	 *            DataBuffer
-	 * @param fileName
-	 *            String
-	 * @param uni
-	 *            boolean
-	 */
-	private static final void pack8Dot3Name(DataBuffer buf, String fileName,
-			boolean uni) {
+    buf.putString(info.getFileName(), uni, false);
 
-		if (Enable8Dot3Names == false) {
+    // Pack the unique id
 
-			// Pack an emty 8.3 name structure
+    buf.putInt(0);
 
-			buf.putZeros(26);
-		} else {
+    // Align the buffer pointer and set the offset to the next file
+    // information entry
 
-			// Split the file name string into name and extension
+    buf.wordAlign();
 
-			int pos = fileName.lastIndexOf('.');
+    int curPos = buf.getPosition();
+    buf.setPosition(startPos);
+    buf.putInt(curPos - startPos);
+    buf.setPosition(curPos);
+  }
 
-			String namePart = null;
-			String extPart = null;
+  /**
+   * Pack a file name as a short 8.3 DOS style name. Packs the short name length
+   * byte, reserved byte and 8.3 file name string.
+   * 
+   * @param buf
+   *          DataBuffer
+   * @param fileName
+   *          String
+   * @param uni
+   *          boolean
+   */
+  private static final void pack8Dot3Name(DataBuffer buf, String fileName,
+      boolean uni) {
 
-			if (pos != -1) {
+    if (Enable8Dot3Names == false) {
 
-				// Split the file name string
+      // Pack an emty 8.3 name structure
 
-				namePart = fileName.substring(0, pos);
-				extPart = fileName.substring(pos + 1);
-			} else
-				namePart = fileName;
+      buf.putZeros(26);
+    } else {
 
-			// If the name already fits into an 8.3 name we do not need to pack
-			// the short name
+      // Split the file name string into name and extension
 
-			if (namePart.length() <= 8
-					&& (extPart == null || extPart.length() <= 3)) {
+      int pos = fileName.lastIndexOf('.');
 
-				// Pack an emty 8.3 name structure
+      String namePart = null;
+      String extPart = null;
 
-				buf.putZeros(26);
-				return;
-			}
+      if (pos != -1) {
 
-			// Truncate the name and extension parts down to 8.3 sizes
+        // Split the file name string
 
-			if (namePart.length() > 8)
-				namePart = namePart.substring(0, 6) + "~1";
+        namePart = fileName.substring(0, pos);
+        extPart = fileName.substring(pos + 1);
+      } else
+        namePart = fileName;
 
-			if (extPart != null && extPart.length() > 3)
-				extPart = extPart.substring(0, 3);
+      // If the name already fits into an 8.3 name we do not need to pack
+      // the short name
 
-			// Build the 8.3 format string
+      if (namePart.length() <= 8 && (extPart == null || extPart.length() <= 3)) {
 
-			StringBuffer str = new StringBuffer(16);
+        // Pack an emty 8.3 name structure
 
-			str.append(namePart);
-			while (str.length() < 8)
-				str.append(" ");
+        buf.putZeros(26);
+        return;
+      }
 
-			if (extPart != null) {
-				str.append(".");
-				str.append(extPart);
-			} else
-				str.append("    ");
+      // Truncate the name and extension parts down to 8.3 sizes
 
-			// Space pad the string to 12 characters
+      if (namePart.length() > 8)
+        namePart = namePart.substring(0, 6) + "~1";
 
-			while (str.length() < 12)
-				str.append(" ");
+      if (extPart != null && extPart.length() > 3)
+        extPart = extPart.substring(0, 3);
 
-			// Calculate the used length
+      // Build the 8.3 format string
 
-			int len = namePart.length();
-			if (extPart != null)
-				len = extPart.length() + 9;
+      StringBuffer str = new StringBuffer(16);
 
-			len *= 2;
+      str.append(namePart);
+      while (str.length() < 8)
+        str.append(" ");
 
-			// Pack the 8.3 file name structure, always packed as Unicode
+      if (extPart != null) {
+        str.append(".");
+        str.append(extPart);
+      } else
+        str.append("    ");
 
-			buf.putByte(len);
-			buf.putByte(0);
+      // Space pad the string to 12 characters
 
-			buf.putString(str.toString(), true, false);
-		}
-	}
+      while (str.length() < 12)
+        str.append(" ");
+
+      // Calculate the used length
+
+      int len = namePart.length();
+      if (extPart != null)
+        len = extPart.length() + 9;
+
+      len *= 2;
+
+      // Pack the 8.3 file name structure, always packed as Unicode
+
+      buf.putByte(len);
+      buf.putByte(0);
+
+      buf.putString(str.toString(), true, false);
+    }
+  }
 }

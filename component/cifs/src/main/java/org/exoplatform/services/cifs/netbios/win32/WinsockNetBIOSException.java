@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2005 Alfresco, Inc.
  *
@@ -28,83 +27,83 @@ import java.io.IOException;
  * @author GKSpencer
  */
 public class WinsockNetBIOSException extends IOException {
-	private static final long serialVersionUID = 5933702607108016674L;
+  private static final long serialVersionUID = 5933702607108016674L;
 
-	// Winsock error code
+  // Winsock error code
 
-	private int m_errCode;
+  private int m_errCode;
 
-	/**
-	 * Default constructor
-	 */
-	public WinsockNetBIOSException() {
-		super();
-	}
+  /**
+   * Default constructor
+   */
+  public WinsockNetBIOSException() {
+    super();
+  }
 
-	/**
-	 * Class constructor
-	 * 
-	 * @param msg
-	 *            String
-	 */
-	public WinsockNetBIOSException(String msg) {
-		super(msg);
+  /**
+   * Class constructor
+   * 
+   * @param msg
+   *          String
+   */
+  public WinsockNetBIOSException(String msg) {
+    super(msg);
 
-		// Split out the error code
+    // Split out the error code
 
-		if (msg != null) {
-			int pos = msg.indexOf(":");
-			if (pos != -1)
-				m_errCode = Integer.valueOf(msg.substring(0, pos));
-		}
-	}
+    if (msg != null) {
+      int pos = msg.indexOf(":");
+      if (pos != -1)
+        m_errCode = Integer.valueOf(msg.substring(0, pos));
+    }
+  }
 
-	/**
-	 * Class constructor
-	 * 
-	 * @param sts
-	 *            int
-	 */
-	public WinsockNetBIOSException(int sts) {
-		super();
+  /**
+   * Class constructor
+   * 
+   * @param sts
+   *          int
+   */
+  public WinsockNetBIOSException(int sts) {
+    super();
 
-		m_errCode = sts;
-	}
+    m_errCode = sts;
+  }
 
-	/**
-	 * Return the Winsock error code
-	 * 
-	 * @return int
-	 */
-	public final int getErrorCode() {
-		return m_errCode;
-	}
+  /**
+   * Return the Winsock error code
+   * 
+   * @return int
+   */
+  public final int getErrorCode() {
+    return m_errCode;
+  }
 
-	/**
-	 * Set the error code
-	 * 
-	 * @param sts
-	 *            int
-	 */
-	public final void setErrorCode(int sts) {
-		m_errCode = sts;
-	}
+  /**
+   * Set the error code
+   * 
+   * @param sts
+   *          int
+   */
+  public final void setErrorCode(int sts) {
+    m_errCode = sts;
+  }
 
-	/**
-	 * Return the error message string
-	 * 
-	 * @return String
-	 */
-	public String getMessage() {
-		StringBuilder msg = new StringBuilder();
+  /**
+   * Return the error message string
+   * 
+   * @return String
+   */
+  public String getMessage() {
+    StringBuilder msg = new StringBuilder();
 
-		msg.append(super.getMessage());
-		String winsockErr = WinsockError.asString(getErrorCode());
-		if (winsockErr != null) {
-			msg.append(" - ");
-			msg.append(winsockErr);
-		}
+    msg.append(super.getMessage());
+    String winsockErr = WinsockError.asString(getErrorCode());
+    if (winsockErr != null) {
+      msg.append(" - ");
+      msg.append(winsockErr);
+    }
 
-		return msg.toString();
-	}
+    return msg.toString();
+  }
 }

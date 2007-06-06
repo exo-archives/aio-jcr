@@ -22,15 +22,15 @@ package org.exoplatform.services.cifs.netbios.win32;
  * @author GKSpencer
  */
 public class NetBIOSSocketException extends Exception {
-	private static final long serialVersionUID = 2363178480979507007L;
+  private static final long serialVersionUID = 2363178480979507007L;
 
-	/**
-	 * Class constructor
-	 * 
-	 * @param msg
-	 *            String
-	 */
-	public NetBIOSSocketException(String msg) {
-		super(msg);
-	}
+  /**
+   * Class constructor
+   * 
+   * @param msg
+   *          String
+   */
+  public NetBIOSSocketException(String msg) {
+    super(msg);
+  }
 }

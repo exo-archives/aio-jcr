@@ -27,303 +27,302 @@ import org.exoplatform.services.cifs.server.core.SharedDevice;
  */
 public class TreeConnection {
 
-	// Maximum number of open files allowed per connection.
+  // Maximum number of open files allowed per connection.
 
-	public static final int MAXFILES = 8192;
+  public static final int MAXFILES = 8192;
 
-	// Number of initial file slots to allocate. Number of allocated slots will
-	// be doubled
-	// when required until MAXFILES is reached.
+  // Number of initial file slots to allocate. Number of allocated slots will
+  // be doubled
+  // when required until MAXFILES is reached.
 
-	public static final int INITIALFILES = 32;
+  public static final int INITIALFILES = 32;
 
-	// Shared device that the connection is associated with
+  // Shared device that the connection is associated with
 
-	private SharedDevice m_shareDev;
+  private SharedDevice m_shareDev;
 
-	//session to jcr repository workspace, may be null for not disk shares
-	private Session m_jcr_sess;
-		
-	// List of open files on this connection. Count of open file slots used.
+  // session to jcr repository workspace, may be null for not disk shares
+  private Session m_jcr_sess;
 
-	private NetworkFile[] m_files;
+  // List of open files on this connection. Count of open file slots used.
 
-	private int m_fileCount;
+  private NetworkFile[] m_files;
 
-	// Access permission that the user has been granted
+  private int m_fileCount;
 
-	private int m_permission;
-	
-	/**
-	 * Construct a tree connection using the specified shared device name.
-	 * 
-	 * @param shrDev
-	 *            SharedDevice
-	 */
-	public TreeConnection(SharedDevice shrDev) {
-		m_shareDev = shrDev;
-	}
+  // Access permission that the user has been granted
 
-	/**
-	 * Set jcr-session opened for shared device disk type (which represent workspace).  
-	 * 
-	 * @param javax.jcr.Session sess
-	 */
-	public void setSession(Session sess){
-		m_jcr_sess = sess;
-	}
-	
-	/**
-	 * Return jcr-session opened for shared device disk type (which represent workspace).
-	 * 
- 	 * @return javax.jcr.Session
-	 */
-	public Session getSession(){
-		return m_jcr_sess;
-	}
-	
-	/**
-	 * Check if shared device has jcr-session assotiated with him
-	 * @return boolean
-	 */
-	public boolean hasSession(){
-		return false;
-	}
-	
-	/**
-	 * Add a network file to the list of open files for this connection.
-	 * 
-	 * @param file
-	 *            NetworkFile
-	 * @param sess
-	 *            SrvSession
-	 * @return int
-	 */
-	public final int addFile(NetworkFile file, SrvSession sess)
-			throws TooManyFilesException {
+  private int m_permission;
 
-		// Check if the file array has been allocated
+  /**
+   * Construct a tree connection using the specified shared device name.
+   * 
+   * @param shrDev
+   *          SharedDevice
+   */
+  public TreeConnection(SharedDevice shrDev) {
+    m_shareDev = shrDev;
+  }
 
-		if (m_files == null)
-			m_files = new NetworkFile[INITIALFILES];
+  /**
+   * Set jcr-session opened for shared device disk type (which represent
+   * workspace).
+   * 
+   * @param javax.jcr.Session
+   *          sess
+   */
+  public void setSession(Session sess) {
+    m_jcr_sess = sess;
+  }
 
-		// Find a free slot for the network file
+  /**
+   * Return jcr-session opened for shared device disk type (which represent
+   * workspace).
+   * 
+   * @return javax.jcr.Session
+   */
+  public Session getSession() {
+    return m_jcr_sess;
+  }
 
-		int idx = 0;
+  /**
+   * Check if shared device has jcr-session assotiated with him
+   * 
+   * @return boolean
+   */
+  public boolean hasSession() {
+    return false;
+  }
 
-		while (idx < m_files.length && m_files[idx] != null)
-			idx++;
+  /**
+   * Add a network file to the list of open files for this connection.
+   * 
+   * @param file
+   *          NetworkFile
+   * @param sess
+   *          SrvSession
+   * @return int
+   */
+  public final int addFile(NetworkFile file, SrvSession sess)
+      throws TooManyFilesException {
 
-		// Check if we found a free slot
+    // Check if the file array has been allocated
 
-		if (idx == m_files.length) {
+    if (m_files == null)
+      m_files = new NetworkFile[INITIALFILES];
 
-			// The file array needs to be extended, check if we reached the
-			// limit.
+    // Find a free slot for the network file
 
-			if (m_files.length >= MAXFILES)
-				throw new TooManyFilesException();
+    int idx = 0;
 
-			// Extend the file array
+    while (idx < m_files.length && m_files[idx] != null)
+      idx++;
 
-			NetworkFile[] newFiles = new NetworkFile[m_files.length * 2];
-			System.arraycopy(m_files, 0, newFiles, 0, m_files.length);
-			m_files = newFiles;
-		}
+    // Check if we found a free slot
 
-		// Store the network file, update the open file count and return the
-		// index
+    if (idx == m_files.length) {
 
-		m_files[idx] = file;
-		m_fileCount++;
-    
-		return idx;
-	}
+      // The file array needs to be extended, check if we reached the
+      // limit.
 
-	/**
-	 * Close the tree connection, release resources.
-	 * 
-	 * @param sess
-	 *            SrvSession
-	 */
-	public final void closeConnection(SrvSession sess) {
+      if (m_files.length >= MAXFILES)
+        throw new TooManyFilesException();
 
-		// Make sure all files are closed
+      // Extend the file array
 
-		if (openFileCount() > 0) {
+      NetworkFile[] newFiles = new NetworkFile[m_files.length * 2];
+      System.arraycopy(m_files, 0, newFiles, 0, m_files.length);
+      m_files = newFiles;
+    }
 
-			// Close all open files
+    // Store the network file, update the open file count and return the
+    // index
 
-			for (int idx = 0; idx < m_files.length; idx++) {
+    m_files[idx] = file;
+    m_fileCount++;
 
-				// Check if the file is active
+    return idx;
+  }
 
-				if (m_files[idx] != null)
-					removeFile(idx, sess);
-			}
-		}
+  /**
+   * Close the tree connection, release resources.
+   * 
+   * @param sess
+   *          SrvSession
+   */
+  public final void closeConnection(SrvSession sess) {
 
-		// Decrement the active connection count for the shared device
-		m_shareDev.decrementConnectionCount();
-		
-	}
+    // Make sure all files are closed
 
-	/**
-	 * Return the specified network file.
-	 * 
-	 * @return NetworkFile
-	 */
-	public final NetworkFile findFile(int fid) {
+    if (openFileCount() > 0) {
 
-		// Check if the file id and file array are valid
+      // Close all open files
 
-		if (m_files == null || fid >= m_files.length)
-			return null;
+      for (int idx = 0; idx < m_files.length; idx++) {
 
-		// Get the required file details
+        // Check if the file is active
 
-		return m_files[fid];
-	}
+        if (m_files[idx] != null)
+          removeFile(idx, sess);
+      }
+    }
 
-	/**
-	 * Return the length of the file table
-	 * 
-	 * @return int
-	 */
-	public final int getFileTableLength() {
-		if (m_files == null)
-			return 0;
-		return m_files.length;
-	}
+    // Decrement the active connection count for the shared device
+    m_shareDev.decrementConnectionCount();
 
-	
+  }
 
-	/**
-	 * Return the share access permissions that the user has been granted.
-	 * 
-	 * @return int
-	 */
-	public final int getPermission() {
-		return m_permission;
-	}
+  /**
+   * Return the specified network file.
+   * 
+   * @return NetworkFile
+   */
+  public final NetworkFile findFile(int fid) {
 
-	/**
-	 * Deterimine if the access permission for the shared device allows read
-	 * access
-	 * 
-	 * @return boolean
-	 */
-	public final boolean hasReadAccess() {
-		if (m_permission == FileAccess.ReadOnly
-				|| m_permission == FileAccess.Writeable)
-			return true;
-		return false;
-	}
+    // Check if the file id and file array are valid
 
-	/**
-	 * Determine if the access permission for the shared device allows write
-	 * access
-	 * 
-	 * @return boolean
-	 */
-	public final boolean hasWriteAccess() {
-		if (m_permission == FileAccess.Writeable)
-			return true;
-		return false;
-	}
+    if (m_files == null || fid >= m_files.length)
+      return null;
 
+    // Get the required file details
 
+    return m_files[fid];
+  }
 
-	/**
-	 * Check if the user has been granted the required access permission for
-	 * this share.
-	 * 
-	 * @param perm
-	 *            int
-	 * @return boolean
-	 */
-	public final boolean hasPermission(int perm) {
-		if (m_permission >= perm)
-			return true;
-		return false;
-	}
+  /**
+   * Return the length of the file table
+   * 
+   * @return int
+   */
+  public final int getFileTableLength() {
+    if (m_files == null)
+      return 0;
+    return m_files.length;
+  }
 
-	/**
-	 * Return the count of open files on this tree connection.
-	 * 
-	 * @return int
-	 */
-	public final int openFileCount() {
-		return m_fileCount;
-	}
+  /**
+   * Return the share access permissions that the user has been granted.
+   * 
+   * @return int
+   */
+  public final int getPermission() {
+    return m_permission;
+  }
 
-	/**
-	 * Remove all files from the tree connection.
-	 */
-	public final void removeAllFiles() {
+  /**
+   * Deterimine if the access permission for the shared device allows read
+   * access
+   * 
+   * @return boolean
+   */
+  public final boolean hasReadAccess() {
+    if (m_permission == FileAccess.ReadOnly
+        || m_permission == FileAccess.Writeable)
+      return true;
+    return false;
+  }
 
-		// Check if the file array has been allocated
+  /**
+   * Determine if the access permission for the shared device allows write
+   * access
+   * 
+   * @return boolean
+   */
+  public final boolean hasWriteAccess() {
+    if (m_permission == FileAccess.Writeable)
+      return true;
+    return false;
+  }
 
-		if (m_files == null)
-			return;
+  /**
+   * Check if the user has been granted the required access permission for this
+   * share.
+   * 
+   * @param perm
+   *          int
+   * @return boolean
+   */
+  public final boolean hasPermission(int perm) {
+    if (m_permission >= perm)
+      return true;
+    return false;
+  }
 
-		// Clear the file list
+  /**
+   * Return the count of open files on this tree connection.
+   * 
+   * @return int
+   */
+  public final int openFileCount() {
+    return m_fileCount;
+  }
 
-		for (int idx = 0; idx < m_files.length; m_files[idx++] = null)
-			;
-		m_fileCount = 0;
-	}
+  /**
+   * Remove all files from the tree connection.
+   */
+  public final void removeAllFiles() {
 
-	/**
-	 * Remove a network file from the list of open files for this connection.
-	 * 
-	 * @param idx
-	 *            int
-	 * @param sess
-	 *            SrvSession
-	 */
-	public final void removeFile(int idx, SrvSession sess) {
+    // Check if the file array has been allocated
 
-		// Range check the file index
+    if (m_files == null)
+      return;
 
-		if (m_files == null || idx >= m_files.length)
-			return;
+    // Clear the file list
 
+    for (int idx = 0; idx < m_files.length; m_files[idx++] = null)
+      ;
+    m_fileCount = 0;
+  }
 
-		// Remove the file and update the open file count.
+  /**
+   * Remove a network file from the list of open files for this connection.
+   * 
+   * @param idx
+   *          int
+   * @param sess
+   *          SrvSession
+   */
+  public final void removeFile(int idx, SrvSession sess) {
 
-		m_files[idx] = null;
-		m_fileCount--;
-	}
+    // Range check the file index
 
-	/**
-	 * Set the access permission for this share that the user has been granted.
-	 * 
-	 * @param perm
-	 *            int
-	 */
-	public final void setPermission(int perm) {
-		m_permission = perm;
-	}
+    if (m_files == null || idx >= m_files.length)
+      return;
 
-	/**
-	 * Return the tree connection as a string.
-	 * 
-	 * @return java.lang.String
-	 */
-	public String toString() {
-		StringBuffer str = new StringBuffer();
-		str.append("[");
-		str.append(m_shareDev.getName());
-		str.append(",");
-		str.append(m_fileCount);
-		str.append(":");
-		str.append(FileAccess.asString(m_permission));
-		str.append("]");
-		return str.toString();
-	}
-	
-	public SharedDevice getSharedDevice(){
-		return m_shareDev;
-	}
+    // Remove the file and update the open file count.
+
+    m_files[idx] = null;
+    m_fileCount--;
+  }
+
+  /**
+   * Set the access permission for this share that the user has been granted.
+   * 
+   * @param perm
+   *          int
+   */
+  public final void setPermission(int perm) {
+    m_permission = perm;
+  }
+
+  /**
+   * Return the tree connection as a string.
+   * 
+   * @return java.lang.String
+   */
+  public String toString() {
+    StringBuffer str = new StringBuffer();
+    str.append("[");
+    str.append(m_shareDev.getName());
+    str.append(",");
+    str.append(m_fileCount);
+    str.append(":");
+    str.append(FileAccess.asString(m_permission));
+    str.append("]");
+    return str.toString();
+  }
+
+  public SharedDevice getSharedDevice() {
+    return m_shareDev;
+  }
 }

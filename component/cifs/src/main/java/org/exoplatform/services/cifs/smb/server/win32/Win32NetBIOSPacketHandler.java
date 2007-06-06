@@ -35,183 +35,182 @@ import org.exoplatform.services.cifs.smb.server.SMBSrvPacket;
  */
 public class Win32NetBIOSPacketHandler extends PacketHandler {
 
-	// Constants
-	//
-	// Receive error encoding and length masks
+  // Constants
+  //
+  // Receive error encoding and length masks
 
-	private static final int ReceiveErrorMask = 0xFF000000;
+  private static final int ReceiveErrorMask = 0xFF000000;
 
-	private static final int ReceiveLengthMask = 0x0000FFFF;
+  private static final int ReceiveLengthMask = 0x0000FFFF;
 
-	// Network LAN adapter to use
+  // Network LAN adapter to use
 
-	private int m_lana;
+  private int m_lana;
 
-	// NetBIOS session id
+  // NetBIOS session id
 
-	private int m_lsn;
+  private int m_lsn;
 
-	/**
-	 * Class constructor
-	 * 
-	 * @param lana
-	 *            int
-	 * @param lsn
-	 *            int
-	 * @param callerName
-	 *            String
-	 */
-	public Win32NetBIOSPacketHandler(int lana, int lsn, String callerName) {
-		super(SMBSrvPacket.PROTOCOL_WIN32NETBIOS, "Win32NB", "WNB", callerName);
+  /**
+   * Class constructor
+   * 
+   * @param lana
+   *          int
+   * @param lsn
+   *          int
+   * @param callerName
+   *          String
+   */
+  public Win32NetBIOSPacketHandler(int lana, int lsn, String callerName) {
+    super(SMBSrvPacket.PROTOCOL_WIN32NETBIOS, "Win32NB", "WNB", callerName);
 
-		m_lana = lana;
-		m_lsn = lsn;
-	}
+    m_lana = lana;
+    m_lsn = lsn;
+  }
 
-	/**
-	 * Return the LANA number
-	 * 
-	 * @return int
-	 */
-	public final int getLANA() {
-		return m_lana;
-	}
+  /**
+   * Return the LANA number
+   * 
+   * @return int
+   */
+  public final int getLANA() {
+    return m_lana;
+  }
 
-	/**
-	 * Return the NetBIOS session id
-	 * 
-	 * @return int
-	 */
-	public final int getLSN() {
-		return m_lsn;
-	}
+  /**
+   * Return the NetBIOS session id
+   * 
+   * @return int
+   */
+  public final int getLSN() {
+    return m_lsn;
+  }
 
-	/**
-	 * Read a packet from the client
-	 * 
-	 * @param pkt
-	 *            SMBSrvPacket
-	 * @return int
-	 * @throws IOException
-	 */
-	public int readPacket(SMBSrvPacket pkt) throws IOException {
+  /**
+   * Read a packet from the client
+   * 
+   * @param pkt
+   *          SMBSrvPacket
+   * @return int
+   * @throws IOException
+   */
+  public int readPacket(SMBSrvPacket pkt) throws IOException {
 
-		// Wait for a packet on the Win32 NetBIOS session
-		//
-		// As Windows is handling the NetBIOS session layer we only receive the
-		// SMB packet. In order
-		// to be compatible with the other packet handlers we allow for the 4
-		// byte header.
+    // Wait for a packet on the Win32 NetBIOS session
+    //
+    // As Windows is handling the NetBIOS session layer we only receive the
+    // SMB packet. In order
+    // to be compatible with the other packet handlers we allow for the 4
+    // byte header.
 
-		int pktLen = pkt.getBuffer().length;
-		if (pktLen > NetBIOS.MaxReceiveSize)
-			pktLen = NetBIOS.MaxReceiveSize;
+    int pktLen = pkt.getBuffer().length;
+    if (pktLen > NetBIOS.MaxReceiveSize)
+      pktLen = NetBIOS.MaxReceiveSize;
 
-		int rxLen = Win32NetBIOS.Receive(m_lana, m_lsn, pkt.getBuffer(), 4,
-				pktLen - 4);
+    int rxLen = Win32NetBIOS.Receive(m_lana, m_lsn, pkt.getBuffer(), 4,
+        pktLen - 4);
 
-		if ((rxLen & ReceiveErrorMask) != 0) {
+    if ((rxLen & ReceiveErrorMask) != 0) {
 
-			// Check for an incomplete message status code
+      // Check for an incomplete message status code
 
-			int sts = (rxLen & ReceiveErrorMask) >> 24;
+      int sts = (rxLen & ReceiveErrorMask) >> 24;
 
-			if (sts == NetBIOS.NRC_Incomp) {
+      if (sts == NetBIOS.NRC_Incomp) {
 
-				// Check if the packet buffer is already at the maximum size (we
-				// assume the maximum
-				// size is the maximum that RFC NetBIOS can send which is
-				// 17bits)
+        // Check if the packet buffer is already at the maximum size (we
+        // assume the maximum
+        // size is the maximum that RFC NetBIOS can send which is
+        // 17bits)
 
-				if (pkt.getBuffer().length < RFCNetBIOSProtocol.MaxPacketSize) {
+        if (pkt.getBuffer().length < RFCNetBIOSProtocol.MaxPacketSize) {
 
-					// Allocate a new buffer
+          // Allocate a new buffer
 
-					byte[] newbuf = new byte[RFCNetBIOSProtocol.MaxPacketSize];
+          byte[] newbuf = new byte[RFCNetBIOSProtocol.MaxPacketSize];
 
-					// Copy the first part of the received data to the new
-					// buffer
+          // Copy the first part of the received data to the new
+          // buffer
 
-					System.arraycopy(pkt.getBuffer(), 4, newbuf, 4, pktLen - 4);
+          System.arraycopy(pkt.getBuffer(), 4, newbuf, 4, pktLen - 4);
 
-					// Move the new buffer in as the main packet buffer
+          // Move the new buffer in as the main packet buffer
 
-					pkt.setBuffer(newbuf);
+          pkt.setBuffer(newbuf);
 
-					// DEBUG
+          // DEBUG
 
-					// Debug.println("readPacket() extended buffer to " +
-					// pkt.getBuffer().length);
-				}
+          // Debug.println("readPacket() extended buffer to " +
+          // pkt.getBuffer().length);
+        }
 
-				// Set the original receive size
+        // Set the original receive size
 
-				rxLen = (rxLen & ReceiveLengthMask);
+        rxLen = (rxLen & ReceiveLengthMask);
 
-				// Receive the remaining data
-				//
-				// Note: If the second read request is issued with a size of 64K
-				// or 64K-4 it returns
-				// with another incomplete status and returns no data.
+        // Receive the remaining data
+        //
+        // Note: If the second read request is issued with a size of 64K
+        // or 64K-4 it returns
+        // with another incomplete status and returns no data.
 
-				int rxLen2 = Win32NetBIOS.Receive(m_lana, m_lsn, pkt
-						.getBuffer(), rxLen + 4, 32768);
+        int rxLen2 = Win32NetBIOS.Receive(m_lana, m_lsn, pkt.getBuffer(),
+            rxLen + 4, 32768);
 
-				if ((rxLen2 & ReceiveErrorMask) != 0) {
-					sts = (rxLen2 & ReceiveErrorMask) >> 24;
-					throw new IOException(
-							"Win32 NetBIOS multi-part receive failed, sts=0x"
-									+ sts + ", err="
-									+ NetBIOS.getErrorString(sts));
-				}
+        if ((rxLen2 & ReceiveErrorMask) != 0) {
+          sts = (rxLen2 & ReceiveErrorMask) >> 24;
+          throw new IOException(
+              "Win32 NetBIOS multi-part receive failed, sts=0x" + sts
+                  + ", err=" + NetBIOS.getErrorString(sts));
+        }
 
-				// Set the total received data length
+        // Set the total received data length
 
-				rxLen += rxLen2;
-			} else {
+        rxLen += rxLen2;
+      } else {
 
-				// Indicate that the session has closed
+        // Indicate that the session has closed
 
-				return -1;
-			}
-		}
+        return -1;
+      }
+    }
 
-		// Return the received data length
+    // Return the received data length
 
-		return rxLen;
-	}
+    return rxLen;
+  }
 
-	/**
-	 * Write a packet to the client
-	 * 
-	 * @param pkt
-	 *            SMBSrvPacket
-	 * @param len
-	 *            int
-	 * @throws IOException
-	 */
-	public void writePacket(SMBSrvPacket pkt, int len) throws IOException {
+  /**
+   * Write a packet to the client
+   * 
+   * @param pkt
+   *          SMBSrvPacket
+   * @param len
+   *          int
+   * @throws IOException
+   */
+  public void writePacket(SMBSrvPacket pkt, int len) throws IOException {
 
-		// Output the packet on the Win32 NetBIOS session
-		//
-		// As Windows is handling the NetBIOS session layer we do not send the 4
-		// byte header that is
-		// used by the NetBIOS over TCP/IP and native SMB packet handlers.
+    // Output the packet on the Win32 NetBIOS session
+    //
+    // As Windows is handling the NetBIOS session layer we do not send the 4
+    // byte header that is
+    // used by the NetBIOS over TCP/IP and native SMB packet handlers.
 
-		int sts = Win32NetBIOS.Send(m_lana, m_lsn, pkt.getBuffer(), 4, len);
+    int sts = Win32NetBIOS.Send(m_lana, m_lsn, pkt.getBuffer(), 4, len);
 
-		// Do not check the status, if the session has been closed the next
-		// receive will fail
-	}
+    // Do not check the status, if the session has been closed the next
+    // receive will fail
+  }
 
-	/**
-	 * Close the Win32 NetBIOS packet handler. Hangup the NetBIOS session
-	 */
-	public void closeHandler() {
-		super.closeHandler();
+  /**
+   * Close the Win32 NetBIOS packet handler. Hangup the NetBIOS session
+   */
+  public void closeHandler() {
+    super.closeHandler();
 
-		// Hangup the Win32 NetBIOS session
+    // Hangup the Win32 NetBIOS session
 
-		Win32NetBIOS.Hangup(m_lana, m_lsn);
-	}
+    Win32NetBIOS.Hangup(m_lana, m_lsn);
+  }
 }

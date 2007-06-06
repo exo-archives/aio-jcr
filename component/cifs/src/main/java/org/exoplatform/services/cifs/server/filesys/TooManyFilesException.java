@@ -22,22 +22,22 @@ package org.exoplatform.services.cifs.server.filesys;
  * new file open request will be rejected by the server.
  */
 public class TooManyFilesException extends Exception {
-	private static final long serialVersionUID = 4051332218943060273L;
+  private static final long serialVersionUID = 4051332218943060273L;
 
-	/**
-	 * TooManyFilesException constructor.
-	 */
-	public TooManyFilesException() {
-		super();
-	}
+  /**
+   * TooManyFilesException constructor.
+   */
+  public TooManyFilesException() {
+    super();
+  }
 
-	/**
-	 * TooManyFilesException constructor.
-	 * 
-	 * @param s
-	 *            java.lang.String
-	 */
-	public TooManyFilesException(String s) {
-		super(s);
-	}
+  /**
+   * TooManyFilesException constructor.
+   * 
+   * @param s
+   *          java.lang.String
+   */
+  public TooManyFilesException(String s) {
+    super(s);
+  }
 }

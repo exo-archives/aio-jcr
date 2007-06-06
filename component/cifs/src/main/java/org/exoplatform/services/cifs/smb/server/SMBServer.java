@@ -8,8 +8,6 @@ import java.util.Enumeration;
 import java.util.UUID;
 import java.util.Vector;
 
-
-
 import org.exoplatform.services.cifs.ServerConfiguration;
 import org.exoplatform.services.cifs.netbios.NetworkSettings;
 import org.exoplatform.services.cifs.server.NetworkServer;
@@ -28,12 +26,11 @@ import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import javax.jcr.Repository;
 import org.exoplatform.services.log.ExoLogger;
 
-
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.exoplatform.services.jcr.core.ManageableRepository;
+
 /**
  * SMB Server Class
  * 
@@ -46,626 +43,573 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
  * configuration or using the enableAnnouncer() method.
  */
 
-public class SMBServer extends NetworkServer implements Runnable
-	{
+public class SMBServer extends NetworkServer implements Runnable {
 
-	    // Debug logging
+  // Debug logging
 
-	    private static final Log logger =  ExoLogger.getLogger("org.exoplatform.services.CIFS.smb.server.SMBServerS");
+  private static final Log logger = ExoLogger
+      .getLogger("org.exoplatform.services.CIFS.smb.server.SMBServerS");
 
-	    // Server version
+  // Server version
 
-	    private static final String ServerVersion = "1.0.1";
+  private static final String ServerVersion = "1.0.1";
 
-	    // Server thread
+  // Server thread
 
-	    private Thread m_srvThread;
+  private Thread m_srvThread;
 
-	    // Session socket handlers (NetBIOS over TCP/IP, native SMB and/or Win32
-		// NetBIOS)
+  // Session socket handlers (NetBIOS over TCP/IP, native SMB and/or Win32
+  // NetBIOS)
 
-	    private Vector<SessionSocketHandler> m_sessionHandlers;
+  private Vector<SessionSocketHandler> m_sessionHandlers;
 
-	    // Host announcers, server will appear under Network Neighborhood
+  // Host announcers, server will appear under Network Neighborhood
 
-	    private Vector<HostAnnouncer> m_hostAnnouncers;
+  private Vector<HostAnnouncer> m_hostAnnouncers;
 
-	    // Active session list
+  // Active session list
 
-	    private SrvSessionList m_sessions;
+  private SrvSessionList m_sessions;
 
-	    // Server type flags, used when announcing the host
+  // Server type flags, used when announcing the host
 
-	    private int m_srvType = ServerType.WorkStation + ServerType.Server + ServerType.NTServer;
+  private int m_srvType = ServerType.WorkStation + ServerType.Server
+      + ServerType.NTServer;
 
-	    // Server GUID
-	    
-	    private UUID m_serverGUID;
+  // Server GUID
 
-		private RepositoryService m_repositoryService;
-	    
-	    /**
-		 * Create an SMB server using the specified configuration.
-		 * 
-		 * @param serviceRegistry
-		 *            repository connection
-		 * @param cfg
-		 *            ServerConfiguration
-		 */
-	    public SMBServer(ServerConfiguration cfg) throws IOException
-	    {
-	        super("SMB", cfg);
+  private UUID m_serverGUID;
 
-	        // Call the common constructor
-	        CommonConstructor();
-	    }
+  private RepositoryService m_repositoryService;
 
+  /**
+   * Create an SMB server using the specified configuration.
+   * 
+   * @param serviceRegistry
+   *          repository connection
+   * @param cfg
+   *          ServerConfiguration
+   */
+  public SMBServer(ServerConfiguration cfg) throws IOException {
+    super("SMB", cfg);
 
-	    public SMBServer(ServerConfiguration config, RepositoryService repositoryService) throws IOException{
+    // Call the common constructor
+    CommonConstructor();
+  }
 
-	    	super("SMB",config);
-	    	m_repositoryService = repositoryService;
-	    	CommonConstructor();
-		}
+  public SMBServer(ServerConfiguration config,
+      RepositoryService repositoryService) throws IOException {
 
-	    public ManageableRepository getRepository(){
-	    	try{
-	    	return m_repositoryService.getRepository();
-	    	}
-	    	catch(Exception ex){
-	    		ex.printStackTrace();
-	    		return null;
-	    	}
-	    }
+    super("SMB", config);
+    m_repositoryService = repositoryService;
+    CommonConstructor();
+  }
 
-		/**
-		 * Add a session handler
-		 * 
-		 * @param sessHandler
-		 *            SessionSocketHandler
-		 */
-	    public final void addSessionHandler(SessionSocketHandler handler)
-	    {
+  public ManageableRepository getRepository() {
+    try {
+      return m_repositoryService.getRepository();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return null;
+    }
+  }
 
-	        // Check if the session handler list has been allocated
+  /**
+   * Add a session handler
+   * 
+   * @param sessHandler
+   *          SessionSocketHandler
+   */
+  public final void addSessionHandler(SessionSocketHandler handler) {
 
-	        if (m_sessionHandlers == null)
-	            m_sessionHandlers = new Vector<SessionSocketHandler>();
+    // Check if the session handler list has been allocated
 
-	        // Add the session handler
+    if (m_sessionHandlers == null)
+      m_sessionHandlers = new Vector<SessionSocketHandler>();
 
-	        m_sessionHandlers.addElement(handler);
-	    }
+    // Add the session handler
 
-	    /**
-		 * Add a host announcer
-		 * 
-		 * @param announcer
-		 *            HostAnnouncer
-		 */
-	    public final void addHostAnnouncer(HostAnnouncer announcer)
-	    {
+    m_sessionHandlers.addElement(handler);
+  }
 
-	        // Check if the host announcer list has been allocated
+  /**
+   * Add a host announcer
+   * 
+   * @param announcer
+   *          HostAnnouncer
+   */
+  public final void addHostAnnouncer(HostAnnouncer announcer) {
 
-	        if (m_hostAnnouncers == null)
-	            m_hostAnnouncers = new Vector<HostAnnouncer>();
+    // Check if the host announcer list has been allocated
 
-	        // Add the host announcer
+    if (m_hostAnnouncers == null)
+      m_hostAnnouncers = new Vector<HostAnnouncer>();
 
-	        m_hostAnnouncers.addElement(announcer);
-	    }
+    // Add the host announcer
 
-	    /**
-		 * Add a new session to the server
-		 * 
-		 * @param sess
-		 *            SMBSrvSession
-		 */
-	    public final void addSession(SMBSrvSession sess)
-	    {
+    m_hostAnnouncers.addElement(announcer);
+  }
 
-	        // Add the session to the session list
+  /**
+   * Add a new session to the server
+   * 
+   * @param sess
+   *          SMBSrvSession
+   */
+  public final void addSession(SMBSrvSession sess) {
 
-	        m_sessions.addSession(sess);
+    // Add the session to the session list
 
-	        // Propagate the debug settings to the new session
+    m_sessions.addSession(sess);
 
-	        sess.setDebug(getConfiguration().getSessionDebugFlags());
-	    }
+    // Propagate the debug settings to the new session
 
+    sess.setDebug(getConfiguration().getSessionDebugFlags());
+  }
 
-	    /**
-		 * Common constructor code.
-		 */
-	    private void CommonConstructor() throws IOException
-	    {
+  /**
+   * Common constructor code.
+   */
+  private void CommonConstructor() throws IOException {
 
-	        // Set the server version
+    // Set the server version
 
-	        setVersion(ServerVersion);
+    setVersion(ServerVersion);
 
-	        // Create the session socket handler list
+    // Create the session socket handler list
 
-	        m_sessionHandlers = new Vector<SessionSocketHandler>();
+    m_sessionHandlers = new Vector<SessionSocketHandler>();
 
-	        
-	        // Create the active session list
+    // Create the active session list
 
-	        m_sessions = new SrvSessionList();
+    m_sessions = new SrvSessionList();
 
-	        // Set the global domain name
+    // Set the global domain name
 
-	        NetworkSettings.setDomain(getConfiguration().getDomainName());
-	        NetworkSettings.setBroadcastMask(getConfiguration().getBroadcastMask());
-	    }
+    NetworkSettings.setDomain(getConfiguration().getDomainName());
+    NetworkSettings.setBroadcastMask(getConfiguration().getBroadcastMask());
+  }
 
-	    /**
-		 * Close the host announcer, if enabled
-		 */
-	    protected void closeHostAnnouncers()
-	    {
+  /**
+   * Close the host announcer, if enabled
+   */
+  protected void closeHostAnnouncers() {
 
-	        // Check if there are active host announcers
+    // Check if there are active host announcers
 
-	        if (m_hostAnnouncers != null)
-	        {
+    if (m_hostAnnouncers != null) {
 
-	            // Shutdown the host announcers
+      // Shutdown the host announcers
 
-	            for (int i = 0; i < m_hostAnnouncers.size(); i++)
-	            {
+      for (int i = 0; i < m_hostAnnouncers.size(); i++) {
 
-	                // Get the current host announcer from the active list
+        // Get the current host announcer from the active list
 
-	                HostAnnouncer announcer = (HostAnnouncer) m_hostAnnouncers.elementAt(i);
+        HostAnnouncer announcer = (HostAnnouncer) m_hostAnnouncers.elementAt(i);
 
-	                // Shutdown the host announcer
+        // Shutdown the host announcer
 
-	                announcer.shutdownAnnouncer();
-	            }
-	        }
-	    }
+        announcer.shutdownAnnouncer();
+      }
+    }
+  }
 
-	    /**
-		 * Close the session handlers
-		 */
-	    protected void closeSessionHandlers()
-	    {
+  /**
+   * Close the session handlers
+   */
+  protected void closeSessionHandlers() {
 
-	        // Close the session handlers
+    // Close the session handlers
 
-	        for (SessionSocketHandler handler : m_sessionHandlers)
-	        {
+    for (SessionSocketHandler handler : m_sessionHandlers) {
 
-	            // Request the handler to shutdown
+      // Request the handler to shutdown
 
-	            handler.shutdownRequest();
-	        }
+      handler.shutdownRequest();
+    }
 
-	        // Clear the session handler list
+    // Clear the session handler list
 
-	        m_sessionHandlers.removeAllElements();
-	    }
+    m_sessionHandlers.removeAllElements();
+  }
 
-	    
-	    /**
-		 * Return the server comment.
-		 * 
-		 * @return java.lang.String
-		 */
-	    public final String getComment()
-	    {
-	        return getConfiguration().getComment();
-	    }
+  /**
+   * Return the server comment.
+   * 
+   * @return java.lang.String
+   */
+  public final String getComment() {
+    return getConfiguration().getComment();
+  }
 
-	    /**
-		 * Return the server type flags.
-		 * 
-		 * @return int
-		 */
-	    public final int getServerType()
-	    {
-	        return m_srvType;
-	    }
+  /**
+   * Return the server type flags.
+   * 
+   * @return int
+   */
+  public final int getServerType() {
+    return m_srvType;
+  }
 
-	    /**
-		 * Return the per session debug flag settings.
-		 */
-	    public final int getSessionDebug()
-	    {
-	        return getConfiguration().getSessionDebugFlags();
-	    }
+  /**
+   * Return the per session debug flag settings.
+   */
+  public final int getSessionDebug() {
+    return getConfiguration().getSessionDebugFlags();
+  }
 
-	    /**
-		 * Return the active session list
-		 * 
-		 * @return SrvSessionList
-		 */
-	    public final SrvSessionList getSessions()
-	    {
-	        return m_sessions;
-	    }
+  /**
+   * Return the active session list
+   * 
+   * @return SrvSessionList
+   */
+  public final SrvSessionList getSessions() {
+    return m_sessions;
+  }
 
-	    /**
-		 * Start the SMB server.
-		 */
-	    public void run()
-	    {
+  /**
+   * Start the SMB server.
+   */
+  public void run() {
 
-	        // Indicate that the server is active
+    // Indicate that the server is active
 
-	        setActive(true);
+    setActive(true);
 
-	        // Check if we are running under Windows
+    // Check if we are running under Windows
 
-	        boolean isWindows = isWindowsNTOnwards();
+    boolean isWindows = isWindowsNTOnwards();
 
-	        // Generate a GUID for the server based on the server name
-	        
-	        m_serverGUID = UUID.nameUUIDFromBytes( getServerName().getBytes());
-	        
-	        // Debug
+    // Generate a GUID for the server based on the server name
 
-	        if (logger.isInfoEnabled())
-	        {
+    m_serverGUID = UUID.nameUUIDFromBytes(getServerName().getBytes());
 
-	            // Dump the server name and GUID
+    // Debug
 
-	            logger.info("SMB Server " + getServerName() + " starting");
-	            logger.info("GUID " + m_serverGUID);
+    if (logger.isInfoEnabled()) {
 
-	            // Output the authenticator details
+      // Dump the server name and GUID
 
-	            // Display the timezone offset/name
+      logger.info("SMB Server " + getServerName() + " starting");
+      logger.info("GUID " + m_serverGUID);
 
-	            if (getConfiguration().getTimeZone() != null)
-	                logger.info("Server timezone " + getConfiguration().getTimeZone() + ", offset from UTC = "
-	                        + getConfiguration().getTimeZoneOffset() / 60 + "hrs");
-	            else
-	                logger.info("Server timezone offset = " + getConfiguration().getTimeZoneOffset() / 60 + "hrs");
+      // Output the authenticator details
 
-	            // Dump the share list
-	        }
+      // Display the timezone offset/name
 
-	        // Create a server socket to listen for incoming session requests
-	        
-	        try
-	        {
+      if (getConfiguration().getTimeZone() != null)
+        logger.info("Server timezone " + getConfiguration().getTimeZone()
+            + ", offset from UTC = " + getConfiguration().getTimeZoneOffset()
+            / 60 + "hrs");
+      else
+        logger.info("Server timezone offset = "
+            + getConfiguration().getTimeZoneOffset() / 60 + "hrs");
 
-	            // Add the IPC$ named pipe shared device
-	        	SharedDevice adminpipe = new SharedDevice("IPC$",ShareType.ADMINPIPE);
-	        	// Set the device attributes
-	    		adminpipe.setAttributes(SharedDevice.Admin + SharedDevice.Hidden);
+      // Dump the share list
+    }
 
-	    		getShares().addShare(adminpipe);
-	    		
-	            // Clear the server shutdown flag
+    // Create a server socket to listen for incoming session requests
 
-	            setShutdown(false);
+    try {
 
-	            // Get the list of IP addresses the server is bound to
+      // Add the IPC$ named pipe shared device
+      SharedDevice adminpipe = new SharedDevice("IPC$", ShareType.ADMINPIPE);
+      // Set the device attributes
+      adminpipe.setAttributes(SharedDevice.Admin + SharedDevice.Hidden);
 
-	            getServerIPAddresses();
+      getShares().addShare(adminpipe);
 
-	            // Check if the socket connection debug flag is enabled
+      // Clear the server shutdown flag
 
-	            boolean sockDbg = false;
+      setShutdown(false);
 
-	            if ((getSessionDebug() & SMBSrvSession.DBG_SOCKET) != 0)
-	                sockDbg = true;
+      // Get the list of IP addresses the server is bound to
 
-	            // Create the NetBIOS session socket handler, if enabled
+      getServerIPAddresses();
 
-	            if (getConfiguration().hasNetBIOSSMB())
-	            {
+      // Check if the socket connection debug flag is enabled
 
-	                // Create the TCP/IP NetBIOS SMB/CIFS session handler(s), and
-					// host announcer(s) if
-	                // enabled
+      boolean sockDbg = false;
 
-	               // NetBIOSSessionSocketHandler.createSessionHandlers(this, sockDbg);
-	            }
+      if ((getSessionDebug() & SMBSrvSession.DBG_SOCKET) != 0)
+        sockDbg = true;
 
-	            // Create the TCP/IP SMB session socket handler, if enabled
+      // Create the NetBIOS session socket handler, if enabled
 
-	            if (getConfiguration().hasTcpipSMB())
-	            {
+      if (getConfiguration().hasNetBIOSSMB()) {
 
-	                // Create the TCP/IP native SMB session handler(s)
+        // Create the TCP/IP NetBIOS SMB/CIFS session handler(s), and
+        // host announcer(s) if
+        // enabled
 
-	             //   TcpipSMBSessionSocketHandler.createSessionHandlers(this, sockDbg);
-	            }
+        // NetBIOSSessionSocketHandler.createSessionHandlers(this, sockDbg);
+      }
 
-	            // Create the Win32 NetBIOS session handler, if enabled
+      // Create the TCP/IP SMB session socket handler, if enabled
 
-	            if (getConfiguration().hasWin32NetBIOS())
-	            {
+      if (getConfiguration().hasTcpipSMB()) {
 
-	                // Only enable if running under Windows
+        // Create the TCP/IP native SMB session handler(s)
 
-	                if (isWindows == true)
-	                {
+        // TcpipSMBSessionSocketHandler.createSessionHandlers(this, sockDbg);
+      }
 
-	                    // Create the Win32 NetBIOS SMB handler(s), and host
-						// announcer(s) if enabled
+      // Create the Win32 NetBIOS session handler, if enabled
 
-	                    Win32NetBIOSSessionSocketHandler.createSessionHandlers(this, sockDbg);
-	                }
-	            }
+      if (getConfiguration().hasWin32NetBIOS()) {
 
-	            // Check if there are any session handlers installed, if not then
-				// close the server
+        // Only enable if running under Windows
 
-	            if (m_sessionHandlers.size() > 0 || getConfiguration().hasWin32NetBIOS())
-	            {
+        if (isWindows == true) {
 
-	                // Wait for incoming connection requests
+          // Create the Win32 NetBIOS SMB handler(s), and host
+          // announcer(s) if enabled
 
-	                while (hasShutdown() == false)
-	                {
+          Win32NetBIOSSessionSocketHandler.createSessionHandlers(this, sockDbg);
+        }
+      }
 
-	                    // Sleep for a while
+      // Check if there are any session handlers installed, if not then
+      // close the server
 
-	                    try
-	                    {
-	                        Thread.sleep(1000L);
-	                    }
-	                    catch (InterruptedException ex)
-	                    {
-	                    }
-	                }
-	            }
-	            else if (logger.isInfoEnabled())
-	            {
+      if (m_sessionHandlers.size() > 0 || getConfiguration().hasWin32NetBIOS()) {
 
-	                // DEBUG
+        // Wait for incoming connection requests
 
-	                logger.info("No valid session handlers, server closing");
-	            }
-	        }
-	        catch (Exception ex)
-	        {
+        while (hasShutdown() == false) {
 
-	            // Do not report an error if the server has shutdown, closing the
-				// server socket
-	            // causes an exception to be thrown.
+          // Sleep for a while
 
-	            if (hasShutdown() == false)
-	            {
-	                logger.error("Server error : ", ex);
+          try {
+            Thread.sleep(1000L);
+          } catch (InterruptedException ex) {
+          }
+        }
+      } else if (logger.isInfoEnabled()) {
 
-	                // Store the error, fire a server error event
+        // DEBUG
 
-	                setException(ex);
-	            }
-	        }
+        logger.info("No valid session handlers, server closing");
+      }
+    } catch (Exception ex) {
 
-	        // Debug
+      // Do not report an error if the server has shutdown, closing the
+      // server socket
+      // causes an exception to be thrown.
 
-	        if (logger.isInfoEnabled())
-	            logger.info("SMB Server shutting down ...");
+      if (hasShutdown() == false) {
+        logger.error("Server error : ", ex);
 
-	        // Close the host announcer and session handlers
+        // Store the error, fire a server error event
 
-	        closeHostAnnouncers();
-	        closeSessionHandlers();
+        setException(ex);
+      }
+    }
 
-	        // Shutdown the Win32 NetBIOS LANA monitor, if enabled
+    // Debug
 
-	        if (isWindows && Win32NetBIOSLanaMonitor.getLanaMonitor() != null)
-	            Win32NetBIOSLanaMonitor.getLanaMonitor().shutdownRequest();
+    if (logger.isInfoEnabled())
+      logger.info("SMB Server shutting down ...");
 
-	        // Indicate that the server is not active
+    // Close the host announcer and session handlers
 
-	        setActive(false);
-	        
-	    }
+    closeHostAnnouncers();
+    closeSessionHandlers();
 
-	    /**
-		 * Notify the server that a session has been closed.
-		 * 
-		 * @param sess
-		 *            SMBSrvSession
-		 */
-	    protected final void sessionClosed(SMBSrvSession sess)
-	    {
+    // Shutdown the Win32 NetBIOS LANA monitor, if enabled
 
-	        // Remove the session from the active session list
+    if (isWindows && Win32NetBIOSLanaMonitor.getLanaMonitor() != null)
+      Win32NetBIOSLanaMonitor.getLanaMonitor().shutdownRequest();
 
-	        m_sessions.removeSession(sess);
+    // Indicate that the server is not active
 
-	    }
+    setActive(false);
 
-	    /**
-		 * Notify the server that a user has logged on. /emty/
-		 * 
-		 * @param sess
-		 *            SMBSrvSession
-		 */
-	    protected final void sessionLoggedOn(SMBSrvSession sess)
-	    {
+  }
 
-	    }
+  /**
+   * Notify the server that a session has been closed.
+   * 
+   * @param sess
+   *          SMBSrvSession
+   */
+  protected final void sessionClosed(SMBSrvSession sess) {
 
-	    /**
-		 * Notify the server that a session has been closed. /empty/
-		 * 
-		 * @param sess
-		 *            SMBSrvSession
-		 */
-	    protected final void sessionOpened(SMBSrvSession sess)
-	    {
+    // Remove the session from the active session list
 
-	    }
+    m_sessions.removeSession(sess);
 
-	    /**
-		 * Shutdown the SMB server
-		 * 
-		 * @param immediate
-		 *            boolean
-		 */
-	    public final void shutdownServer(boolean immediate)
-	    {
+  }
 
-	        // Indicate that the server is closing
+  /**
+   * Notify the server that a user has logged on. /emty/
+   * 
+   * @param sess
+   *          SMBSrvSession
+   */
+  protected final void sessionLoggedOn(SMBSrvSession sess) {
 
-	        setShutdown(true);
+  }
 
-	        try
-	        {
+  /**
+   * Notify the server that a session has been closed. /empty/
+   * 
+   * @param sess
+   *          SMBSrvSession
+   */
+  protected final void sessionOpened(SMBSrvSession sess) {
 
-	            // Close the session handlers
+  }
 
-	            closeSessionHandlers();
-	        }
-	        catch (Exception ex)
-	        {
-	        }
+  /**
+   * Shutdown the SMB server
+   * 
+   * @param immediate
+   *          boolean
+   */
+  public final void shutdownServer(boolean immediate) {
 
-	        // Close the active sessions
+    // Indicate that the server is closing
 
-	        Enumeration<Integer> enm = m_sessions.enumerate();
+    setShutdown(true);
 
-	        while (enm.hasMoreElements())
-	        {
+    try {
 
-	            // Get the session id and associated session
+      // Close the session handlers
 
-	            Integer sessId = enm.nextElement();
-	            SMBSrvSession sess = (SMBSrvSession) m_sessions.findSession(sessId);
+      closeSessionHandlers();
+    } catch (Exception ex) {
+    }
 
-	            // Close the session
+    // Close the active sessions
 
-	            sess.closeSession();
-	        }
+    Enumeration<Integer> enm = m_sessions.enumerate();
 
-	        // Wait for the main server thread to close
+    while (enm.hasMoreElements()) {
 
-	        if (m_srvThread != null)
-	        {
+      // Get the session id and associated session
 
-	            try
-	            {
-	                m_srvThread.join(3000);
-	            }
-	            catch (Exception ex)
-	            {
-	            }
-	        }
-	    }
+      Integer sessId = enm.nextElement();
+      SMBSrvSession sess = (SMBSrvSession) m_sessions.findSession(sessId);
 
-	    /**
-		 * Start the SMB server in a seperate thread
-		 */
-	    public void startServer()
-	    {
+      // Close the session
 
-	        // Create a seperate thread to run the SMB server
+      sess.closeSession();
+    }
 
-	        m_srvThread = new Thread(this);
-	        m_srvThread.setName("SMB Server");
-	        m_srvThread.setDaemon(true);
+    // Wait for the main server thread to close
 
-	        m_srvThread.start();
-	    }
+    if (m_srvThread != null) {
 
-	    /**
-		 * Determine if we are running under Windows NT onwards
-		 * 
-		 * @return boolean
-		 */
-	    private final boolean isWindowsNTOnwards()
-	    {
+      try {
+        m_srvThread.join(3000);
+      } catch (Exception ex) {
+      }
+    }
+  }
 
-	        // Get the operating system name property
+  /**
+   * Start the SMB server in a seperate thread
+   */
+  public void startServer() {
 
-	        String osName = System.getProperty("os.name");
+    // Create a seperate thread to run the SMB server
 
-	        if (osName.startsWith("Windows"))
-	        {
-	            if (osName.endsWith("95") || osName.endsWith("98") || osName.endsWith("ME"))
-	            {
+    m_srvThread = new Thread(this);
+    m_srvThread.setName("SMB Server");
+    m_srvThread.setDaemon(true);
 
-	                // Windows 95-ME
+    m_srvThread.start();
+  }
 
-	                return false;
-	            }
+  /**
+   * Determine if we are running under Windows NT onwards
+   * 
+   * @return boolean
+   */
+  private final boolean isWindowsNTOnwards() {
 
-	            // Looks like Windows NT onwards
+    // Get the operating system name property
 
-	            return true;
-	        }
+    String osName = System.getProperty("os.name");
 
-	        // Not Windows
+    if (osName.startsWith("Windows")) {
+      if (osName.endsWith("95") || osName.endsWith("98")
+          || osName.endsWith("ME")) {
 
-	        return false;
-	    }
+        // Windows 95-ME
 
-	    /**
-		 * Get the list of local IP addresses
-		 */
-	    private final void getServerIPAddresses()
-	    {
+        return false;
+      }
 
-	        try
-	        {
+      // Looks like Windows NT onwards
 
-	            // Get the local IP address list
+      return true;
+    }
 
-	            Enumeration<NetworkInterface> enm = NetworkInterface.getNetworkInterfaces();
-	            Vector<InetAddress> addrList = new Vector<InetAddress>();
+    // Not Windows
 
-	            while (enm.hasMoreElements())
-	            {
+    return false;
+  }
 
-	                // Get the current network interface
+  /**
+   * Get the list of local IP addresses
+   */
+  private final void getServerIPAddresses() {
 
-	                NetworkInterface ni = enm.nextElement();
+    try {
 
-	                // Get the address list for the current interface
+      // Get the local IP address list
 
-	                Enumeration<InetAddress> addrs = ni.getInetAddresses();
+      Enumeration<NetworkInterface> enm = NetworkInterface
+          .getNetworkInterfaces();
+      Vector<InetAddress> addrList = new Vector<InetAddress>();
 
-	                while (addrs.hasMoreElements())
-	                    addrList.add(addrs.nextElement());
-	            }
+      while (enm.hasMoreElements()) {
 
-	            // Convert the vector of addresses to an array
+        // Get the current network interface
 
-	            if (addrList.size() > 0)
-	            {
+        NetworkInterface ni = enm.nextElement();
 
-	                // Convert the address vector to an array
+        // Get the address list for the current interface
 
-	                InetAddress[] inetAddrs = new InetAddress[addrList.size()];
+        Enumeration<InetAddress> addrs = ni.getInetAddresses();
 
-	                // Copy the address details to the array
+        while (addrs.hasMoreElements())
+          addrList.add(addrs.nextElement());
+      }
 
-	                for (int i = 0; i < addrList.size(); i++)
-	                    inetAddrs[i] = (InetAddress) addrList.elementAt(i);
+      // Convert the vector of addresses to an array
 
-	                // Set the server IP address list
+      if (addrList.size() > 0) {
 
-	                setServerAddresses(inetAddrs);
-	            }
-	        }
-	        catch (Exception ex)
-	        {
+        // Convert the address vector to an array
 
-	            // DEBUG
+        InetAddress[] inetAddrs = new InetAddress[addrList.size()];
 
-	            logger.error("Error getting local IP addresses", ex);
-	        }
-	    }
-	    
-	    /**
-		 * Return the server GUID
-		 * 
-		 * @return UUID
-		 */
-	    public final UUID getServerGUID()
-	    {
-	        return m_serverGUID;
-	    }
-	}
+        // Copy the address details to the array
+
+        for (int i = 0; i < addrList.size(); i++)
+          inetAddrs[i] = (InetAddress) addrList.elementAt(i);
+
+        // Set the server IP address list
+
+        setServerAddresses(inetAddrs);
+      }
+    } catch (Exception ex) {
+
+      // DEBUG
+
+      logger.error("Error getting local IP addresses", ex);
+    }
+  }
+
+  /**
+   * Return the server GUID
+   * 
+   * @return UUID
+   */
+  public final UUID getServerGUID() {
+    return m_serverGUID;
+  }
+}

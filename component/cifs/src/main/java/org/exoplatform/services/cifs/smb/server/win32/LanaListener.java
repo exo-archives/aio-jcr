@@ -26,13 +26,13 @@ package org.exoplatform.services.cifs.smb.server.win32;
  * @author GKSpencer
  */
 public interface LanaListener {
-	/**
-	 * LANA status change callback
-	 * 
-	 * @param lana
-	 *            int
-	 * @param online
-	 *            boolean
-	 */
-	public void lanaStatusChange(int lana, boolean online);
+  /**
+   * LANA status change callback
+   * 
+   * @param lana
+   *          int
+   * @param online
+   *          boolean
+   */
+  public void lanaStatusChange(int lana, boolean online);
 }

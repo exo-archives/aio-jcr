@@ -16,216 +16,213 @@
  */
 package org.exoplatform.services.cifs.server.filesys;
 
-
 /**
  * SMB disk information class.
  * <p>
  * The DiskInfo class contains the details of a remote disk share.
  */
-public class DiskInfo
-{
+public class DiskInfo {
 
-    // Node/share details
+  // Node/share details
 
-    protected String m_nodename;
-    protected String m_share;
+  protected String m_nodename;
 
-    // Total number of allocation units, available allocation units
+  protected String m_share;
 
-    protected long m_totalunits;
-    protected long m_freeunits;
+  // Total number of allocation units, available allocation units
 
-    // Blocks per allocation unit and block size in bytes
+  protected long m_totalunits;
 
-    protected long m_blockperunit;
-    protected long m_blocksize;
+  protected long m_freeunits;
 
-    /**
-     * Construct a blank disk information object.
-     */
-    public DiskInfo()
-    {
-    }
+  // Blocks per allocation unit and block size in bytes
 
-    /**
-     * Class constructor
-     * 
-     * @param shr PCShare
-     * @param totunits int
-     * @param blkunit int
-     * @param blksiz int
-     * @param freeunit int
-     */
-    public DiskInfo(String nodename, String devname, int totunits, int blkunit, int blksiz, int freeunit)
-    {
-        m_nodename = nodename;
-        m_share = devname;
-        
+  protected long m_blockperunit;
 
-        m_totalunits = (long) totunits;
-        m_freeunits = (long) freeunit;
+  protected long m_blocksize;
 
-        m_blockperunit = (long) blkunit;
-        m_blocksize = (long) blksiz;
-    }
+  /**
+   * Construct a blank disk information object.
+   */
+  public DiskInfo() {
+  }
 
-    /**
-     * Class constructor
-     * 
-     * @param shr PCShare
-     * @param totunits long
-     * @param blkunit int
-     * @param blksiz int
-     * @param freeunit long
-     */
-    public DiskInfo(String nodename, String devname, long totunits, int blkunit, int blksiz, long freeunit)
-    {
-        m_nodename = nodename;
-        m_share = devname;
-       
-        m_totalunits = totunits;
-        m_freeunits = freeunit;
+  /**
+   * Class constructor
+   * 
+   * @param shr
+   *          PCShare
+   * @param totunits
+   *          int
+   * @param blkunit
+   *          int
+   * @param blksiz
+   *          int
+   * @param freeunit
+   *          int
+   */
+  public DiskInfo(String nodename, String devname, int totunits, int blkunit,
+      int blksiz, int freeunit) {
+    m_nodename = nodename;
+    m_share = devname;
 
-        m_blockperunit = (long) blkunit;
-        m_blocksize = (long) blksiz;
-    }
+    m_totalunits = (long) totunits;
+    m_freeunits = (long) freeunit;
 
-    /**
-     * Get the block size, in bytes.
-     * 
-     * @return Block size in bytes.
-     */
-    public final int getBlockSize()
-    {
-        return (int) m_blocksize;
-    }
+    m_blockperunit = (long) blkunit;
+    m_blocksize = (long) blksiz;
+  }
 
-    /**
-     * Get the number of blocks per allocation unit.
-     * 
-     * @return Number of blocks per allocation unit.
-     */
-    public final int getBlocksPerAllocationUnit()
-    {
-        return (int) m_blockperunit;
-    }
+  /**
+   * Class constructor
+   * 
+   * @param shr
+   *          PCShare
+   * @param totunits
+   *          long
+   * @param blkunit
+   *          int
+   * @param blksiz
+   *          int
+   * @param freeunit
+   *          long
+   */
+  public DiskInfo(String nodename, String devname, long totunits, int blkunit,
+      int blksiz, long freeunit) {
+    m_nodename = nodename;
+    m_share = devname;
 
-    /**
-     * Get the disk free space in kilobytes.
-     * 
-     * @return Remote disk free space in kilobytes.
-     */
-    public final long getDiskFreeSizeKb()
-    {
-        return (((m_freeunits * m_blockperunit) * m_blocksize) / 1024L);
-    }
+    m_totalunits = totunits;
+    m_freeunits = freeunit;
 
-    /**
-     * Get the disk free space in megabytes.
-     * 
-     * @return Remote disk free space in megabytes.
-     */
-    public final long getDiskFreeSizeMb()
-    {
-        return getDiskFreeSizeKb() / 1024L;
-    }
+    m_blockperunit = (long) blkunit;
+    m_blocksize = (long) blksiz;
+  }
 
-    /**
-     * Get the disk size in kilobytes.
-     * 
-     * @return Remote disk size in kilobytes.
-     */
-    public final long getDiskSizeKb()
-    {
-        return (((m_totalunits * m_blockperunit) * m_blocksize) / 1024L);
-    }
+  /**
+   * Get the block size, in bytes.
+   * 
+   * @return Block size in bytes.
+   */
+  public final int getBlockSize() {
+    return (int) m_blocksize;
+  }
 
-    /**
-     * Get the disk size in megabytes.
-     * 
-     * @return Remote disk size in megabytes.
-     */
-    public final long getDiskSizeMb()
-    {
-        return (getDiskSizeKb() / 1024L);
-    }
+  /**
+   * Get the number of blocks per allocation unit.
+   * 
+   * @return Number of blocks per allocation unit.
+   */
+  public final int getBlocksPerAllocationUnit() {
+    return (int) m_blockperunit;
+  }
 
-    /**
-     * Get the number of free units on this share.
-     * 
-     * @return Number of free units.
-     */
-    public final long getFreeUnits()
-    {
-        return m_freeunits;
-    }
+  /**
+   * Get the disk free space in kilobytes.
+   * 
+   * @return Remote disk free space in kilobytes.
+   */
+  public final long getDiskFreeSizeKb() {
+    return (((m_freeunits * m_blockperunit) * m_blocksize) / 1024L);
+  }
 
-    /**
-     * Return the unit size in bytes
-     * 
-     * @return long
-     */
-    public final long getUnitSize()
-    {
-        return m_blockperunit * m_blocksize;
-    }
+  /**
+   * Get the disk free space in megabytes.
+   * 
+   * @return Remote disk free space in megabytes.
+   */
+  public final long getDiskFreeSizeMb() {
+    return getDiskFreeSizeKb() / 1024L;
+  }
 
-    /**
-     * Get the node name.
-     * 
-     * @return Node name of the remote server.
-     */
-    public final String getNodeName()
-    {
-        return m_nodename;
-    }
+  /**
+   * Get the disk size in kilobytes.
+   * 
+   * @return Remote disk size in kilobytes.
+   */
+  public final long getDiskSizeKb() {
+    return (((m_totalunits * m_blockperunit) * m_blocksize) / 1024L);
+  }
 
-    /**
-     * Get the share name.
-     * 
-     * @return Remote share name.
-     */
-    public final String getShareName()
-    {
-        return m_share;
-    }
+  /**
+   * Get the disk size in megabytes.
+   * 
+   * @return Remote disk size in megabytes.
+   */
+  public final long getDiskSizeMb() {
+    return (getDiskSizeKb() / 1024L);
+  }
 
-    /**
-     * Get the total number of allocation units.
-     * 
-     * @return The total number of allocation units.
-     */
-    public final long getTotalUnits()
-    {
-        return m_totalunits;
-    }
+  /**
+   * Get the number of free units on this share.
+   * 
+   * @return Number of free units.
+   */
+  public final long getFreeUnits() {
+    return m_freeunits;
+  }
 
-    /**
-     * Return the disk information as a string
-     * 
-     * @return String
-     */
-    public String toString()
-    {
-        StringBuffer str = new StringBuffer();
+  /**
+   * Return the unit size in bytes
+   * 
+   * @return long
+   */
+  public final long getUnitSize() {
+    return m_blockperunit * m_blocksize;
+  }
 
-        str.append("[");
-        str.append(getTotalUnits());
-        str.append("/");
-        str.append(getFreeUnits());
-        str.append(",");
-        str.append(getBlockSize());
-        str.append("/");
-        str.append(getBlocksPerAllocationUnit());
+  /**
+   * Get the node name.
+   * 
+   * @return Node name of the remote server.
+   */
+  public final String getNodeName() {
+    return m_nodename;
+  }
 
-        str.append(",");
-        str.append(getDiskSizeMb());
-        str.append("Mb/");
-        str.append(getDiskFreeSizeMb());
-        str.append("Mb");
+  /**
+   * Get the share name.
+   * 
+   * @return Remote share name.
+   */
+  public final String getShareName() {
+    return m_share;
+  }
 
-        str.append("]");
+  /**
+   * Get the total number of allocation units.
+   * 
+   * @return The total number of allocation units.
+   */
+  public final long getTotalUnits() {
+    return m_totalunits;
+  }
 
-        return str.toString();
-    }
+  /**
+   * Return the disk information as a string
+   * 
+   * @return String
+   */
+  public String toString() {
+    StringBuffer str = new StringBuffer();
+
+    str.append("[");
+    str.append(getTotalUnits());
+    str.append("/");
+    str.append(getFreeUnits());
+    str.append(",");
+    str.append(getBlockSize());
+    str.append("/");
+    str.append(getBlocksPerAllocationUnit());
+
+    str.append(",");
+    str.append(getDiskSizeMb());
+    str.append("Mb/");
+    str.append(getDiskFreeSizeMb());
+    str.append("Mb");
+
+    str.append("]");
+
+    return str.toString();
+  }
 }

@@ -5,167 +5,157 @@ import java.util.Hashtable;
 
 import org.exoplatform.services.cifs.smb.ShareType;
 
-
-
-
 /**
  * List of SharedDevices
+ * 
  * @author Karpenko
- *
+ * 
  */
 public class SharedDeviceList {
-	private Hashtable<String, SharedDevice> m_shares;
-	
-	public SharedDeviceList(){
-		m_shares = new Hashtable<String,SharedDevice>();
-	}
-	
-	public SharedDeviceList(SharedDeviceList shares) {
-	      // Allocate the shared device list
+  private Hashtable<String, SharedDevice> m_shares;
 
-        m_shares = new Hashtable<String, SharedDevice>();
+  public SharedDeviceList() {
+    m_shares = new Hashtable<String, SharedDevice>();
+  }
 
-        // Copy the shares from the original list, shallow copy
+  public SharedDeviceList(SharedDeviceList shares) {
+    // Allocate the shared device list
 
-        addShares(shares);
-	 
-	}
-	
-	/**
-	 * Add a shared device to the list.
-	 * 
-	 * @param shr
-	 *            Shared device to be added to the list.
-	 * @return True if the share was added successfully, else false.
-	 */
-    public final boolean addShare(SharedDevice shr)
-    {
+    m_shares = new Hashtable<String, SharedDevice>();
 
-        // Check if a share with the specified name already exists
+    // Copy the shares from the original list, shallow copy
 
-        if (m_shares.containsKey(shr.getName()))
-            return false;
+    addShares(shares);
 
-        // Add the shared device
+  }
 
-        m_shares.put(shr.getName(), shr);
-        return true;
-    }
-    /**
-	 * Find the shared device with the specified name.
-	 * 
-	 * @param name
-	 *            Name of the shared device to find.
-	 * @return SharedDevice with the specified name, else null.
-	 */
-    public final SharedDevice findShare(String name)
-    {
-        return m_shares.get(name);
-    }
+  /**
+   * Add a shared device to the list.
+   * 
+   * @param shr
+   *          Shared device to be added to the list.
+   * @return True if the share was added successfully, else false.
+   */
+  public final boolean addShare(SharedDevice shr) {
 
-    /**
-	 * Find the shared device with the specified name and type
-	 * 
-	 * @param name
-	 *            Name of shared device to find
-	 * @param typ
-	 *            Type of shared device (see ShareType)
-	 * @param nocase
-	 *            Case sensitive search if false, else case insensitive search
-	 * @return SharedDevice with the specified name and type, else null
-	 */
-    public final SharedDevice findShare(String name, int typ, boolean nocase)
-    {
+    // Check if a share with the specified name already exists
 
-        // Enumerate the share list
+    if (m_shares.containsKey(shr.getName()))
+      return false;
 
-        Enumeration<String> keys = m_shares.keys();
+    // Add the shared device
 
-        while (keys.hasMoreElements())
-        {
+    m_shares.put(shr.getName(), shr);
+    return true;
+  }
 
-            // Get the current share name
+  /**
+   * Find the shared device with the specified name.
+   * 
+   * @param name
+   *          Name of the shared device to find.
+   * @return SharedDevice with the specified name, else null.
+   */
+  public final SharedDevice findShare(String name) {
+    return m_shares.get(name);
+  }
 
-            String curName = keys.nextElement();
+  /**
+   * Find the shared device with the specified name and type
+   * 
+   * @param name
+   *          Name of shared device to find
+   * @param typ
+   *          Type of shared device (see ShareType)
+   * @param nocase
+   *          Case sensitive search if false, else case insensitive search
+   * @return SharedDevice with the specified name and type, else null
+   */
+  public final SharedDevice findShare(String name, int typ, boolean nocase) {
 
-            if ((nocase == false && curName.equals(name)) || (nocase == true && curName.equalsIgnoreCase(name)))
-            {
+    // Enumerate the share list
 
-                // Get the shared device and check if the share is of the
-				// required type
+    Enumeration<String> keys = m_shares.keys();
 
-                SharedDevice share = (SharedDevice) m_shares.get(curName);
-                if (share.getType() == typ || typ == ShareType.UNKNOWN)
-                    return share;
-            }
-        }
+    while (keys.hasMoreElements()) {
 
-        // Required share not found
+      // Get the current share name
 
-        return null;
-    }
-    
-    /**
-	 * Add shares from the specified list to this list, using a shallow copy
-	 * 
-	 * @param shrList
-	 *            SharedDeviceList
-	 */
-    public final void addShares(SharedDeviceList shrList)
-    {
+      String curName = keys.nextElement();
 
-        // Copy the shares to this list
+      if ((nocase == false && curName.equals(name))
+          || (nocase == true && curName.equalsIgnoreCase(name))) {
 
-        Enumeration<SharedDevice> enm = shrList.enumerateShares();
+        // Get the shared device and check if the share is of the
+        // required type
 
-        while (enm.hasMoreElements())
-            addShare(enm.nextElement());
-    }
-    
-    /**
-	 * Return an enumeration to allow the shared devices to be listed.
-	 * 
-	 * @return Enumeration<SharedDevice>
-	 */
-    public final Enumeration<SharedDevice> enumerateShares()
-    {
-        return m_shares.elements();
+        SharedDevice share = (SharedDevice) m_shares.get(curName);
+        if (share.getType() == typ || typ == ShareType.UNKNOWN)
+          return share;
+      }
     }
 
-	public int numberOfShares() {
-		return m_shares.size();
-	}
-	
-	public String toString(){
+    // Required share not found
 
-        // Create a buffer to build the string
+    return null;
+  }
 
-        StringBuffer str = new StringBuffer();
-        str.append("[");
+  /**
+   * Add shares from the specified list to this list, using a shallow copy
+   * 
+   * @param shrList
+   *          SharedDeviceList
+   */
+  public final void addShares(SharedDeviceList shrList) {
 
-        // Enumerate the shares
+    // Copy the shares to this list
 
-        Enumeration<String> enm = m_shares.keys();
+    Enumeration<SharedDevice> enm = shrList.enumerateShares();
 
-        while (enm.hasMoreElements())
-        {
-            String name = enm.nextElement();
-            str.append(name);
-            str.append(",");
-        }
+    while (enm.hasMoreElements())
+      addShare(enm.nextElement());
+  }
 
-        // Remove the trailing comma
+  /**
+   * Return an enumeration to allow the shared devices to be listed.
+   * 
+   * @return Enumeration<SharedDevice>
+   */
+  public final Enumeration<SharedDevice> enumerateShares() {
+    return m_shares.elements();
+  }
 
-        if (str.length() > 1)
-            str.setLength(str.length() - 1);
-        str.append("]");
+  public int numberOfShares() {
+    return m_shares.size();
+  }
 
-        // Return the string
+  public String toString() {
 
-        return str.toString();
- 
-	}
+    // Create a buffer to build the string
 
+    StringBuffer str = new StringBuffer();
+    str.append("[");
 
-    
+    // Enumerate the shares
+
+    Enumeration<String> enm = m_shares.keys();
+
+    while (enm.hasMoreElements()) {
+      String name = enm.nextElement();
+      str.append(name);
+      str.append(",");
+    }
+
+    // Remove the trailing comma
+
+    if (str.length() > 1)
+      str.setLength(str.length() - 1);
+    str.append("]");
+
+    // Return the string
+
+    return str.toString();
+
+  }
+
 }

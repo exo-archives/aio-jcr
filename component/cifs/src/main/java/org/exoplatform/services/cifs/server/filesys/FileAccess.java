@@ -23,35 +23,35 @@ package org.exoplatform.services.cifs.server.filesys;
  * share, directory or file.
  */
 public final class FileAccess {
-	// Permissions
+  // Permissions
 
-	public static final int NoAccess = 0;
+  public static final int NoAccess = 0;
 
-	public static final int ReadOnly = 1;
+  public static final int ReadOnly = 1;
 
-	public static final int Writeable = 2;
+  public static final int Writeable = 2;
 
-	/**
-	 * Return the file permission as a string.
-	 * 
-	 * @param perm
-	 *            int
-	 * @return java.lang.String
-	 */
-	public final static String asString(int perm) {
-		String permStr = "";
+  /**
+   * Return the file permission as a string.
+   * 
+   * @param perm
+   *          int
+   * @return java.lang.String
+   */
+  public final static String asString(int perm) {
+    String permStr = "";
 
-		switch (perm) {
-		case NoAccess:
-			permStr = "NoAccess";
-			break;
-		case ReadOnly:
-			permStr = "ReadOnly";
-			break;
-		case Writeable:
-			permStr = "Writeable";
-			break;
-		}
-		return permStr;
-	}
+    switch (perm) {
+    case NoAccess:
+      permStr = "NoAccess";
+      break;
+    case ReadOnly:
+      permStr = "ReadOnly";
+      break;
+    case Writeable:
+      permStr = "Writeable";
+      break;
+    }
+    return permStr;
+  }
 }
