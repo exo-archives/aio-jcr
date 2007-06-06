@@ -3,7 +3,7 @@
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 
-package org.exoplatform.services.CIFS;
+package org.exoplatform.services.cifs;
 
 import java.util.Calendar;
 
