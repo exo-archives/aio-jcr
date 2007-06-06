@@ -16,44 +16,16 @@
   <dependencies>
 	  
     <dependency>
-      <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.component.core</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
-      <scope>compile</scope>
+      <groupId>org.exoplatform.jcr</groupId> 
+      <artifactId>exo.jcr.component.core</artifactId> 
+      <version>${org.exoplatform.jcr.version}</version> 
+      <scope>compile</scope> 
     </dependency>
 
     <dependency>
-      <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.framework.command</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>exo-jcr</groupId>
-      <artifactId>exo-jcr.services.jcr.api</artifactId>
-      <version>1.5</version>
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>exo-jcr</groupId>
-      <artifactId>exo-jcr.services.jcr.impl</artifactId>
-      <version>1.5</version>
-      <scope>compile</scope>
-    </dependency>	  
-	  
-    <dependency>
-      <groupId>commons-chain</groupId>
-      <artifactId>commons-chain</artifactId>
-      <version>1.0</version>
+      <groupId>org.exoplatform.core</groupId>
+      <artifactId>exo.core.component.security</artifactId>
+      <version>${org.exoplatform.core.version}</version>
       <scope>compile</scope>
     </dependency>
 
@@ -63,61 +35,25 @@
       <version>1.0.4</version>
       <scope>compile</scope>
     </dependency>
-
-    <dependency>
-	<groupId>log4j</groupId> 
-	<artifactId>log4j</artifactId> 
-	<version>1.2.8</version> 
-	<scope>compile</scope> 
-    </dependency>
-
-    <dependency>
-      <groupId>exo-platform</groupId>
-      <artifactId>exo-platform.container</artifactId>
-      <version>2.0.3</version>
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>exo-platform</groupId>
-      <artifactId>exo-platform.services.common.api</artifactId>
-      <version>2.0.3</version>
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>exo-platform</groupId>
-      <artifactId>exo-platform.services.command</artifactId>
-      <version>2.0.3</version>
-      <scope>compile</scope>
-    </dependency>	 
 	  
     <dependency>
-	<groupId>junit</groupId> 
-      <artifactId>junit</artifactId> 
-      <version>3.8.1</version> 
-      <scope>test</scope> 
+     <groupId>log4j</groupId> 
+     <artifactId>log4j</artifactId> 
+     <version>1.2.8</version> 
+     <scope>compile</scope> 
     </dependency>
-  	  
+
   </dependencies>
 
   <build>
-	<resources>
-		<resource>
-			<directory>src/main/resources</directory>
+    <resources>
+	<resource>
+   	  <directory>src/main/resources</directory>
         </resource>
     </resources>
 	  
+ 
     <plugins>
-	 <plugin>
-       <groupId>org.apache.maven.plugins</groupId> 
-       <artifactId>maven-compiler-plugin</artifactId> 
-       <configuration>
-         <source>1.5</source> 
-         <target>1.5</target> 
-        <!-- <optimize>${exo.compile.optimize}</optimize> -->
-       </configuration>
-     </plugin>	
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -144,7 +80,6 @@
           </includes>
         </configuration>
       </plugin>
-    </plugins>
-  </build>  
-
+    </plugins>  
+   </build> 
 </project>
