@@ -36,13 +36,11 @@
         <property name="log4j.category.jcr.JDBCStorageConnection" value="DEBUG"/>
         <property name="log4j.category.jcr.NodeImpl" value="DEBUG"/ -->
 
-        <!-- property name="log4j.category.jcr.FrozenNodeInitializer" value="DEBUG"/ -->
-        <!-- property name="log4j.category.jcr.ItemState" value="DEBUG"/ -->
-        <!-- property name="log4j.category.jcr.ItemDataRestoreVisitor" value="DEBUG"/ -->
-
         <!-- property name="log4j.category.jcr.WorkspaceStorageCacheImpl" value="DEBUG"/ -->
         <!-- property name="log4j.category.database.DBSchemaCreator" value="DEBUG"/ -->
         <!-- property name="log4j.category.jcr.WorkspaceDataReplicator" value="DEBUG"/ -->
+        
+        <!-- property name="log4j.category.jcr.WorkspacePersistentDataManager" value="DEBUG"/ -->
 
       </properties-param>
 
