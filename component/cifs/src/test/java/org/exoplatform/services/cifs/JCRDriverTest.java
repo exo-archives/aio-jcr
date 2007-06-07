@@ -30,11 +30,13 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 import junit.framework.TestCase;
 
+//import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
+
 /**
  * Created by The eXo Platform SARL Karpenko Sergey
  */
 
-public class JCRDriverTest extends TestCase {
+public class JCRDriverTest extends /*BaseUsecasesTest*/TestCase {
 
   private RepositoryService repositoryService = null;
 
@@ -51,7 +53,7 @@ public class JCRDriverTest extends TestCase {
   protected void InitializeRepositoryService() {
     try {
       StandaloneContainer
-          .setConfigurationPath("src/main/java/conf/standalone/test-configuration.xml");
+          .setConfigurationPath("src/main/java/conf/standalone/test/test-configuration.xml");
 
       // obtain standalone container
       StandaloneContainer container = StandaloneContainer.getInstance();
