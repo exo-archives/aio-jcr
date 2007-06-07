@@ -451,9 +451,45 @@ public class TestNode extends JcrAPIBaseTest{
     
     NodeIterator i = node.getNodes("sn");
     assertEquals(3l, i.getSize()); 
-    
-  	
    }
 
+  public void testRemoveSameNameSiblings() throws Exception {
+    
+    Node testRoot = root.addNode("snsRemoveTest");
+    session.save();
+    
+    try {
+    
+      Node node1 = testRoot.addNode("_node");
+      node1.setProperty("prop1", "_data1");
+      node1.addMixin("mix:referenceable");
+      Node node2 = testRoot.addNode("_node");
+      node2.setProperty("prop2", "_data2");
+      node2.addMixin("mix:referenceable");
+      
+      testRoot.save();
+      
+      String n1uuid = node1.getUUID();
+      String n2uuid = node2.getUUID();
+      
+      try {
+        
+        node1.remove(); // /snsRemoveTest/_node[2] -> /snsRemoveTest/_node[1]
+        
+        // check  
+        String n2p = node2.getProperty("prop2").getString();
+        assertEquals("A property must be same ", "_data2", n2p);
+        
+        String n2Reorder_uuid = node2.getProperty("uuid").getString();
+        assertEquals("A uuids must be same ", n2uuid, n2Reorder_uuid);
+      } catch(RepositoryException e) {
+        //e.printStackTrace();
+        fail("A property must exists on the node /snsRemoveTest/_node[1] " + e);
+      }
+    } finally {
+      testRoot.remove();
+      session.save();
+    }
+  }
 
 }
