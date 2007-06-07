@@ -11,7 +11,7 @@ import org.exoplatform.services.jcr.RepositoryService;
 
 /**
  * Created by The eXo Platform SARL Author : Karpenko Sergey
- * 
+ * <p>
  * Its standalone server run implementation
  */
 
@@ -28,7 +28,7 @@ public class CIFSServerRun {
       // create standalone container
 
       StandaloneContainer
-          .setConfigurationPath("src/main/java/conf/standalone/test-configuration.xml");
+          .setConfigurationPath("src/main/java/conf/standalone/test/test-configuration.xml");
 
       // obtain standalone container
       StandaloneContainer container = StandaloneContainer.getInstance();

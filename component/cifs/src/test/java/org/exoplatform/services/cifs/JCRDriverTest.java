@@ -22,8 +22,8 @@ import org.exoplatform.services.cifs.server.filesys.FileExistsException;
 import org.exoplatform.services.cifs.server.filesys.FileOpenParams;
 import org.exoplatform.services.cifs.server.filesys.NameCoder;
 import org.exoplatform.services.cifs.server.filesys.TreeConnection;
-import org.exoplatform.services.cifs.smb.SMBDate; 
-// import org.exoplatform.services.cifs.smb.SMBStatus;
+import org.exoplatform.services.cifs.smb.SMBDate; // import
+                                                  // org.exoplatform.services.cifs.smb.SMBStatus;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -65,7 +65,6 @@ public class JCRDriverTest extends TestCase {
       repositoryService = (RepositoryService) container
           .getComponentInstanceOfType(RepositoryService.class);
     } catch (Exception e) {
-
     }
 
   }
@@ -343,8 +342,7 @@ public class JCRDriverTest extends TestCase {
      * 
      * dataNode.setProperty("jcr:mimeType",mimeType);
      * dataNode.setProperty("jcr:lastModified",Calendar.getInstance());
-     * dataNode.setProperty("jcr:data","");
-     *  } catch(Exception e){ fail(); }
+     * dataNode.setProperty("jcr:data",""); } catch(Exception e){ fail(); }
      */
   }
 
