@@ -102,7 +102,7 @@
       <init-params>
                    <properties-param>
                      <name>log.level.config</name>
-                     <property name="org.exoplatform.services.log" value="DEBUG"/>
+                     <property name="org.exoplatform.services.log" value="INFO"/>
                    </properties-param>
       </init-params>
   </component>
