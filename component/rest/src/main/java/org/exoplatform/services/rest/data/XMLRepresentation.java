@@ -17,7 +17,6 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.exoplatform.services.rest.Representation;
 import org.w3c.dom.Document;
 
 /**
@@ -26,14 +25,10 @@ import org.w3c.dom.Document;
  * @version $Id: $
  */
 
-public class XMLRepresentation extends BaseRepresentationMetadata
- implements Representation {
-  
-  private Document document;
+public class XMLRepresentation extends BaseRepresentation<Document> {
   
   public XMLRepresentation(Document xmlDocument) {
-    super("text/xml");
-    this.document = xmlDocument;
+    super(xmlDocument, "text/xml");
   }
   
   /* (non-Javadoc)
@@ -49,19 +44,16 @@ public class XMLRepresentation extends BaseRepresentationMetadata
    * @see org.exoplatform.services.rest.Representation#getString()
    */
   public String getString() throws IOException {
-    
-    if (characterSet != null) {
-      return outputStream().toString(characterSet);
-    } else {
-      return outputStream().toString();
-    }
+    if (this.metaData.getCharacterSet() != null)
+      return outputStream().toString(this.metaData.getCharacterSet());
+    return outputStream().toString();
   }
-
+  
   private ByteArrayOutputStream outputStream() throws IOException {
     try {
       ByteArrayOutputStream os = new ByteArrayOutputStream();
       TransformerFactory.newInstance().newTransformer().transform(
-          new DOMSource(document), new StreamResult(os));
+          new DOMSource(entity), new StreamResult(os));
       return os;
     } catch (TransformerConfigurationException tce) {
       throw new IOException("Couldn't write the XML representation: "

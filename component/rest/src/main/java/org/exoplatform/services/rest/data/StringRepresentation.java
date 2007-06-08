@@ -8,34 +8,28 @@ package org.exoplatform.services.rest.data;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import org.exoplatform.services.rest.Representation;
-
 /**
  * Created by The eXo Platform SARL        .
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
-public class StringRepresentation extends BaseRepresentationMetadata implements Representation {
-
-  private String content;
+public class StringRepresentation extends BaseRepresentation<String> {
 
   public StringRepresentation(String content) {
-    this(content, "text/plain");
+    this(content, MimeTypes.ALL);
   }
 
   public StringRepresentation(String content, String mediaType) {
-    super(mediaType);
-    this.content = content;
-    this.length = this.content.length();
+    super(content, mediaType);
+    this.metaData.setLength(this.entity.length());
   }
 
   public InputStream getStream() {
-    return new ByteArrayInputStream(content.getBytes());
+    return new ByteArrayInputStream(entity.getBytes());
   }
 
-  public String getString() {
-    return content;
+  public String getData() {
+    return entity;
   }
-
 }

@@ -30,15 +30,31 @@ import org.exoplatform.services.rest.container.ResourceContainerResolvingStrateg
  * @version $Id: $
  */
 
+
+/**
+ * For binding and unbinding ResourceContainers
+ *
+ */
 public class ResourceBinder implements Startable {
 
   private List <ResourceDescriptor> resourceDescriptors;
   private List <ResourceContainerResolvingStrategy> bindStrategies;
   private ExoContainerContext containerContext;
   private ExoContainer container;
-  Log logger = ExoLogger.getLogger("ResourceBinder");
+  private Log logger = ExoLogger.getLogger("ResourceBinder");
 
-  public ResourceBinder(InitParams params, ExoContainerContext containerContext) throws Exception {
+  /**
+   * 
+   * set the resolving stratagy. For example annotated
+   * strategy (annotations used for description ResourceContainers 
+   * 
+   * @param params
+   * @param containerContext
+   * @throws Exception
+   */
+  public ResourceBinder(InitParams params,
+      ExoContainerContext containerContext) throws Exception {
+
     this.containerContext = containerContext;
     this.resourceDescriptors = new ArrayList <ResourceDescriptor>();
     this.bindStrategies = new ArrayList <ResourceContainerResolvingStrategy>();
@@ -46,7 +62,9 @@ public class ResourceBinder implements Startable {
     Iterator<ValueParam> i = params.getValueParamIterator();
     while(i.hasNext()) {
       ValueParam v = i.next();
-      ResourceContainerResolvingStrategy ws = (ResourceContainerResolvingStrategy)Class.forName(v.getValue()).newInstance();
+      ResourceContainerResolvingStrategy ws =
+        (ResourceContainerResolvingStrategy)Class.forName(v.getValue()).newInstance();
+
       bindStrategies.add(ws);
     }
   }
@@ -85,19 +103,23 @@ public class ResourceBinder implements Startable {
       URIPattern npattern = newDesc.getURIPattern();
       Method method = newDesc.getServer();
       Class[] requestedParams = method.getParameterTypes();
-      boolean hasRequestRepresentation = false;
-      for(Class param : requestedParams) {
-        if("org.exoplatform.services.rest.Representation".equals(param.getCanonicalName())){
-          if(!hasRequestRepresentation) 
-            hasRequestRepresentation = true;
+      boolean hasRequestEntity = false;
+      for(Class<?> param : requestedParams) {
+
+        if(!"java.lang.String".equals(param.getCanonicalName())){
+          if(!hasRequestEntity) 
+            hasRequestEntity = true;
           else throw new InvalidResourceDescriptorException (
-              "You alredy have one of org.exoplatform.services.rest.Representation object");
-        } else if(!"java.lang.String".equals(param.getCanonicalName())) {
-            throw new InvalidResourceDescriptorException ( "Only java.lang.String " + 
-                "and org.exoplatform.services.rest.Representation object" + 
-                "are alowed to use for ResourceContainer objects");
+              "You alredy have one not annotated object with must represent HTTP Request");
         }
+/*
+        else if(!"java.lang.String".equals(param.getCanonicalName())) {
+            throw new InvalidResourceDescriptorException ("Only java.lang.String " + 
+                "and org.exoplatform.services.rest.data.BaseEntity object" + 
+                "are alowed to use for ResourceContainer objects");
+        } */
       }
+      
       for(ResourceDescriptor storedDesc:resourceDescriptors) {
         URIPattern spattern = storedDesc.getURIPattern();
           // check URI pattern

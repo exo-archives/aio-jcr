@@ -20,8 +20,7 @@ public class AnnotatedParamContainer implements ResourceContainer {
   public Response method1(@URIParam("id") String param) {
     System.out.println(">>>>> -method1 called!!!");
     System.out.println("<<<<< id = " + param);
-    Response res = new Response(RESTStatus.OK);
-    res.setEntity(new StringRepresentation("method1"));
+    Response res = Response.getInstance(RESTStatus.OK, new StringRepresentation("method1"));
     return res;
   }
 }

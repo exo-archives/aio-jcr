@@ -16,6 +16,7 @@ import java.lang.annotation.Target;
  * @author Gennady Azarenkov
  * @version $Id: $
  */
+
 @Target(value={METHOD})
 @Retention(RUNTIME)
 public @interface HTTPMethod {

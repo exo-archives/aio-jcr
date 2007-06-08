@@ -20,7 +20,6 @@ import org.exoplatform.container.ExoContainer;
 
 public class ResourceDispatcher implements Connector {
   
-  
   private List<ResourceDescriptor> resourceDescriptors;
   
   public ResourceDispatcher(ExoContainerContext containerContext) throws Exception {
@@ -44,33 +43,31 @@ public class ResourceDispatcher implements Connector {
         Class[] methodParameters = resource.getMethodParameters();
         Object[] objs = new Object[methodParameters.length];
         for(int i = 0; i < methodParameters.length; i++) {
-          if("org.exoplatform.services.rest.Representation".equals(
-              methodParameters[i].getCanonicalName()))
 
-            objs[i] = request.getEntity();
-            
-            if("java.lang.String".equals(methodParameters[i].getCanonicalName())) {
-              Annotation a = methodParametersAnnotations[i];
+          if(!"java.lang.String".equals(methodParameters[i].getCanonicalName()))
+            objs[i] = request.getEntityDataStream();
+          else {
+            Annotation a = methodParametersAnnotations[i];
 
-              if("org.exoplatform.services.rest.URIParam".equals(
-                  a.annotationType().getCanonicalName())) { 
+            if("org.exoplatform.services.rest.URIParam".equals(
+                a.annotationType().getCanonicalName())) { 
                 
-                URIParam u = (URIParam)a;
-                objs[i] = request.getResourceIdentifier().getParameters().get(u.value());
-              } else if("org.exoplatform.services.rest.HeaderParam".equals(
-                  a.annotationType().getCanonicalName())) {
+              URIParam u = (URIParam)a;
+              objs[i] = request.getResourceIdentifier().getParameters().get(u.value());
+            } else if("org.exoplatform.services.rest.HeaderParam".equals(
+                a.annotationType().getCanonicalName())) {
                 
-                HeaderParam h = (HeaderParam)a;
-                objs[i] = request.getHttpHeaderParameters().get(h.value());
-              } else if("org.exoplatform.services.rest.QueryParam".equals(
-                  a.annotationType().getCanonicalName())) {
+              HeaderParam h = (HeaderParam)a;
+              objs[i] = request.getHttpHeaderParams().get(h.value());
+            } else if("org.exoplatform.services.rest.QueryParam".equals(
+                a.annotationType().getCanonicalName())) {
               
-                QueryParam q = (QueryParam)a;
-                objs[i] = request.getHttpQueryParameters().get(q.value());
-              }
+              QueryParam q = (QueryParam)a;
+              objs[i] = request.getHttpQueryParams().get(q.value());
             }
           }
-          return (Response)resource.getServer().invoke(resource.getResourceContainer(), objs);
+        }
+        return (Response)resource.getServer().invoke(resource.getResourceContainer(), objs);
        }  
     }
     throw new NoSuchMethodException("No method found for " + methodName + " "

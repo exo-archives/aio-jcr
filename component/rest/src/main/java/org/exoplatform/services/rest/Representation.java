@@ -5,8 +5,6 @@
 
 package org.exoplatform.services.rest;
 
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -14,10 +12,7 @@ import java.io.InputStream;
  * @version $Id: $
  */
 
-public interface Representation extends RepresentationMetadata {
-  
-  InputStream getStream() throws IOException;
-//  void write(OutputStream stream);
-  String getString() throws IOException;
-
+public interface Representation<T> extends Entity<T> {
+  String getLocation();
+  void setLocation(String location);
 }

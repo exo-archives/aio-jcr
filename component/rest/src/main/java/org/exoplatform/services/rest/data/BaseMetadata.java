@@ -7,7 +7,7 @@ package org.exoplatform.services.rest.data;
 
 import java.util.Date;
 
-import org.exoplatform.services.rest.RepresentationMetadata;
+import org.exoplatform.services.rest.Metadata;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -15,8 +15,7 @@ import org.exoplatform.services.rest.RepresentationMetadata;
  * @version $Id: $
  */
 
-public abstract class BaseRepresentationMetadata implements
-    RepresentationMetadata {
+public final class BaseMetadata implements Metadata {
 
   protected String characterSet;
   protected String[] encodings;
@@ -26,10 +25,9 @@ public abstract class BaseRepresentationMetadata implements
 
   protected String mediaType;
 
-  public BaseRepresentationMetadata(String mediaType) {
+  public BaseMetadata(String mediaType) {
     this.mediaType = mediaType;
   }
-
 
   public String getMediaType() {
     return mediaType;
@@ -51,45 +49,36 @@ public abstract class BaseRepresentationMetadata implements
     return length;
   }
 
-
   public Date getLastModified() {
     return lastModified;
   }
-
 
   public String getCharacterSet() {
     return characterSet;
   }
 
-
   public void setCharacterSet(String characterSet) {
     this.characterSet = characterSet;
   }
 
+  public void setLength(long length) {
+    this.length = length;
+  }
 
   public void setLastModified(Date lastModified) {
     this.lastModified = lastModified;
   }
 
-
   public void setEncodings(String[] encodings) {
     this.encodings = encodings;
   }
-
 
   public void setLanguages(String[] languages) {
     this.languages = languages;
   }
 
-
-//  public void setLength(long length) {
-//    this.length = length;
-//  }
-
-
   public void setMediaType(String mediaType) {
     this.mediaType = mediaType;
   }
-
 
 }

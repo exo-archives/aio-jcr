@@ -17,6 +17,7 @@ import java.lang.annotation.Target;
  * @author Gennady Azarenkov
  * @version $Id: $
  */
+
 @Target(value={TYPE,METHOD})
 @Retention(RUNTIME)
 public @interface URITemplate {

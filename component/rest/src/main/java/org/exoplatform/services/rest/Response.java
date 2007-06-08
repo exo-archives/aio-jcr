@@ -14,29 +14,30 @@ package org.exoplatform.services.rest;
 
 public class Response extends Message {
   
-  private Representation representation;
+  private Representation<?> representation;
   private int status;
 
-  public Response(int status) {
+  private Response(int status, Representation<?> representation) {
     this.status = status;
+    this.representation = representation;
   }
 
-  public Response(int status, Representation representation) {
-    this.status = status;
+  public static Response getInstance(int status) {
+    return new Response (status, null);
   }
-  
-  public Representation getEntity() {
+
+  public static Response getInstance(int status, Representation<?> representation) {
+    return new Response(status, representation);
+  }
+
+  public Representation<?> getRepresentation() {
     return representation;
   }
 
-  public void setEntity(Representation entity) {
-    this.representation = entity;
+  public void setRepresentation(Representation<?> representation) {
+    this.representation = representation;
   }
   
-  public void setStatus(int status) {
-    this.status = status;
-  }
-
   public int getStatus() {
     return status;
   }

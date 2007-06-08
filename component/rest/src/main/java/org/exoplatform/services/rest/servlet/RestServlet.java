@@ -1,4 +1,4 @@
-package org.exoplatform.services.rest;
+package org.exoplatform.services.rest.servlet;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -9,20 +9,19 @@ import org.apache.commons.logging.Log;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.InputStream;
-import java.util.*;
+import java.io.OutputStream;
 
+import org.exoplatform.services.rest.Request;
+import org.exoplatform.services.rest.Response;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.ExoContainer;
-//import org.exoplatform.services.rest.data.StringRepresentation;
 import org.exoplatform.services.rest.ResourceDispatcher;
-//import org.exoplatform.services.rest.ResourceIdentifier;
-import org.exoplatform.services.rest.servlet.*;
 
 public class RestServlet extends HttpServlet {
 	
   private ExoContainer container;
-  private ResourceDispatcher resRouter;
+  private ResourceDispatcher resDispatcher;
   private static Log logger = ExoLogger.getLogger("RestServlet");
 	
   public void init(){
@@ -33,21 +32,21 @@ public class RestServlet extends HttpServlet {
       logger.error("!!!!! Cann't get current container");
       e.printStackTrace();
     }
-    resRouter = (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
-    if(resRouter == null) {
+    resDispatcher = (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
+    if(resDispatcher == null) {
       logger.info("!!!!! ResourceRouter is null");
     }
     logger.info("CONTAINER:       " + container);
-    logger.info("RESOURCE_ROUTER: " + resRouter);
+    logger.info("RESOURCE_ROUTER: " + resDispatcher);
   }
 	
   public void service(HttpServletRequest httpRequest, HttpServletResponse httpResponse)
     throws IOException, ServletException {
     
-    Request request = ServletUtils.createRequest(httpRequest);
+    Request request = RequestHandler.createRequest(httpRequest);
     try {
-      Response response = resRouter.dispatch(request);
-      InputStream in = response.getEntity().getStream();
+      Response response = resDispatcher.dispatch(request);
+      InputStream in = (InputStream)response.getRepresentation().getData();
       httpResponse.setContentType(response.getAcceptedMediaType());
       httpResponse.setStatus(response.getStatus());
       java.io.OutputStream out = httpResponse.getOutputStream();

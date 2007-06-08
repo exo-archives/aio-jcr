@@ -14,17 +14,14 @@ import org.exoplatform.services.rest.data.MimeTypes;
 
 public abstract class Message {
   
-  protected Representation entity;
+  /**
+   * acceptedMediaType determine the type of data wich 
+   * ResourceContainer can get and serve. This give possibility
+   * to set a different ResourceContainer to serve the same
+   * uri and HTTP method, but with different content type
+   */
   protected String acceptedMediaType = MimeTypes.ALL;
 
-  public Representation getEntity() {
-    return this.entity;
-  }
-
-  public void setEntity(Representation entity) {
-    this.entity = entity;
-  }
-  
   public String getAcceptedMediaType() {
     return acceptedMediaType;
   }

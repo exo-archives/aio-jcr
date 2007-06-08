@@ -17,20 +17,19 @@ import java.util.Map;
 
 public class ResourceIdentifier {
 
-  private Map parameters = null; 
+  private Map<String, String> parameters = null; 
   private URI uri;
   
   public ResourceIdentifier(String uriString) {
-    String str = (uriString.endsWith("/"))?uriString:(uriString+"/");
+    String str = (uriString.endsWith("/")) ? uriString : (uriString+"/");
     this.uri = URI.create(str);
-//    this.uri = new URI(uriString);
   }
   
   public URI getURI() {
     return uri;
   }
   
-  public Map getParameters() throws IllegalStateException {
+  public Map<String, String> getParameters() throws IllegalStateException {
     if(parameters == null)
       throw new IllegalStateException("Prarameters are not initialized. Call initParameters(pattern) first");
     return parameters;
