@@ -769,10 +769,10 @@ public class Win32NetBIOS {
   static {
     // Check if we are running under 64 bit Windows
 
-    String dllName = "src/main/resources/Win32NetBIOS";
+    String dllName = "Win32NetBIOS";
 
     if (X64.isWindows64())
-      dllName = "src/main/resources/Win32NetBIOSx64";
+      dllName = "Win32NetBIOSx64";
 
     // Load the Win32 NetBIOS interface library
 

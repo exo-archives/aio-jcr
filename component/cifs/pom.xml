@@ -13,58 +13,65 @@
   <url>http://www.exoplatform.org</url>
   <description>eXo JCR CIFS Service</description>
 
-  <dependencies>
-	  
-    <dependency>
-      <groupId>org.exoplatform.jcr</groupId> 
-      <artifactId>exo.jcr.component.core</artifactId> 
-      <version>${org.exoplatform.jcr.version}</version> 
-      <scope>compile</scope> 
-    </dependency>
-
-    <dependency>
-      <groupId>org.exoplatform.core</groupId>
-      <artifactId>exo.core.component.security</artifactId>
-      <version>${org.exoplatform.core.version}</version>
-      <scope>compile</scope>
-    </dependency>
-
-    <!--dependency>
-      <groupId>exo-jcr</groupId>
-      <artifactId>exo-jcr.services.jcr.impl</artifactId> 
-      <version>1.5</version>
-      <scope>compile</scope>
-    </dependency-->
-
-    <!--dependency>
-      <groupId>org.exoplatform.core</groupId>
-      <artifactId>exo.core.component.organization.api</artifactId>
-      <version>${org.exoplatform.core.version}</version>
-      <scope>compile</scope>
-    </dependency-->
-
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
-      <scope>compile</scope>
-    </dependency>
-	  
-    <dependency>
-     <groupId>log4j</groupId> 
-     <artifactId>log4j</artifactId> 
-     <version>1.2.8</version> 
-     <scope>compile</scope> 
-    </dependency>
-        
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-
-  </dependencies>
+	<dependencies>
+		
+		<dependency>
+			<groupId>org.exoplatform.jcr</groupId>
+			<artifactId>exo.jcr.component.core</artifactId>
+			<version>${org.exoplatform.jcr.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.exoplatform.core</groupId>
+			<artifactId>exo.core.component.security</artifactId>
+			<version>${org.exoplatform.core.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.exoplatform.kernel</groupId>
+			<artifactId>exo.kernel.container</artifactId> 
+			<version>${org.exoplatform.kernel.version}</version> 
+		</dependency>
+		
+		<!--dependency>
+		<groupId>exo-jcr</groupId>
+		<artifactId>exo-jcr.services.jcr.impl</artifactId> 
+		<version>1.5</version>
+		<scope>compile</scope>
+		</dependency-->
+		
+		<!--dependency>
+		<groupId>org.exoplatform.core</groupId>
+		<artifactId>exo.core.component.organization.api</artifactId>
+		<version>${org.exoplatform.core.version}</version>
+		<scope>compile</scope>
+		</dependency-->
+		
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+			<scope>compile</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.8</version>
+			<scope>compile</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+		
+	
+	</dependencies>
 
   <build>
     <resources>

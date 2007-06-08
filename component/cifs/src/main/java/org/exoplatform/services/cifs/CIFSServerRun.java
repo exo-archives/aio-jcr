@@ -27,15 +27,17 @@ public class CIFSServerRun {
       // create standalone container
 
       StandaloneContainer
-          .setConfigurationPath("src/main/java/conf/standalone/test/test-configuration.xml");
+          .setConfigurationPath("D:/exo/projects/jcr/trunk/component/cifs/src/main/java/conf/standalone/test/test-configuration.xml");
 
       // obtain standalone container
       StandaloneContainer container = StandaloneContainer.getInstance();
 
       // set JAAS auth config
+      
+      //Thread.currentThread().getContextClassLoader().getResource();
       if (System.getProperty("java.security.auth.login.config") == null)
         System.setProperty("java.security.auth.login.config",
-            "src/main/java/conf/standalone/login.conf");
+            "D:/exo/projects/jcr/trunk/component/cifs/src/main/java/conf/standalone/login.conf");
 
       System.out.println("Enter 'x' to shutdown ...");
       boolean shutdown = false;
