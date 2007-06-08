@@ -30,11 +30,11 @@ public class CIFSServiceImpl implements CIFSService, Startable {
 
     repositoryService = rep;
 
-    // if(params==null){
-    config = new ServerConfiguration();
-    /*
-     * } else{ config = new ServerConfiguration(params); }
-     */
+    if (params == null) {
+      config = new ServerConfiguration();
+    } else {
+      config = new ServerConfiguration(params);
+    }
   }
 
   public void start() {

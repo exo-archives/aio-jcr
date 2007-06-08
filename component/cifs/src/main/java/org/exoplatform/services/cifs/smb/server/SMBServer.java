@@ -48,7 +48,7 @@ public class SMBServer extends NetworkServer implements Runnable {
   // Debug logging
 
   private static final Log logger = ExoLogger
-      .getLogger("org.exoplatform.services.CIFS.smb.server.SMBServerS");
+      .getLogger("org.exoplatform.services.CIFS.smb.server.SMBServer");
 
   // Server version
 

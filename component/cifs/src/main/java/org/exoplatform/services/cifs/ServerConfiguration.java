@@ -17,12 +17,15 @@ import org.exoplatform.services.cifs.smb.ServerType;
 import org.exoplatform.services.cifs.util.X64;
 import org.exoplatform.services.log.ExoLogger;
 
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.ValueParam;
+
 /**
  * Service (server) configuration class
  */
 public class ServerConfiguration {
   private static final Log logger = ExoLogger
-      .getLogger("org.exoplatform.smb.protocol");
+      .getLogger("org.exoplatform.services.cifs");
 
   private static final String m_sessDbgStr[] = { "NETBIOS", "STATE",
       "NEGOTIATE", "TREE", "SEARCH", "INFO", "FILE", "FILEIO", "TRANSACT",
@@ -173,6 +176,164 @@ public class ServerConfiguration {
    * Configuration by XML-config
    */
   public ServerConfiguration(InitParams params) {
+    determinePlatformType();
+
+    // set broadcast mask? before netBIOS is used
+    setBroadcastMask("255.255.255.0");
+
+    // Set the CIFS server name
+    ValueParam pServerName = params.getValueParam("server_name");
+    if (pServerName != null) {
+      setServerName(pServerName.getValue());
+    } else
+      setServerName("ServerName");
+
+    // Set the domain/workgroup name
+    /*
+     * ValueParam pDomainName = params.getValueParam("workgroup"); if
+     * (pDomainName != null) { setDomainName(pDomainName.getValue()); } else
+     */
+    setDomainName(getLocalDomainName().toUpperCase());
+
+    // Check for a server comment
+    ValueParam pComment = params.getValueParam("comment");
+    if (pComment != null) {
+      setComment(pComment.getValue());
+    } else
+      setComment("Comment"); // TODO Check is not null in server setup
+
+    // Check for a bind address
+
+    // Check if the host announcer should be enabled
+
+    // Check if NetBIOS SMB is enabled
+    setNetBIOSSMB(false);
+
+    // Check if TCP/IP SMB is enabled
+    setTcpipSMB(false);
+
+    // Check if Win32 NetBIOS is enabled
+    ValueParam pWin32NetBIOSName = params.getValueParam("netbiosname");
+    if (pWin32NetBIOSName != null) {
+      setWin32NetBIOSName(pWin32NetBIOSName.getValue());
+    } else
+      setWin32NetBIOSName(pServerName.getValue());
+
+    // Check if all lanas is available
+    ValueParam pLanas = params.getValueParam("lanas");
+    if (pLanas != null) {
+      setWin32LANA(new Integer(pLanas.getValue()));
+    } else
+      setWin32LANA(-1); // all lanas is available;
+
+    // Check if the native NetBIOS interface has been specified, either
+    // 'winsock' or 'netbios'
+    String nativeAPI = "";
+
+    ValueParam pNativeApi = params.getValueParam("nativeapi");
+    if (pNativeApi != null) {
+      nativeAPI = pNativeApi.getValue();
+    }
+
+    if (nativeAPI != null && nativeAPI.length() > 0) {
+      // Validate the API type
+
+      boolean useWinsock = true;
+
+      if (nativeAPI.equalsIgnoreCase("netbios"))
+        useWinsock = false;
+      else if (nativeAPI.equalsIgnoreCase("winsock") == false) {
+        setSMBServerEnabled(false);
+      }
+
+      // Set the NetBIOS API to use
+
+      setWin32WinsockNetBIOS(useWinsock);
+    }
+
+    // Force the older NetBIOS API code to be used on 64Bit Windows
+
+    if (useWinsockNetBIOS() == true && X64.isWindows64()) {
+      // Log a warning
+
+      logger.warn("Using older Netbios() API code");
+
+      // Use the older NetBIOS API code
+
+      setWin32WinsockNetBIOS(false);
+    }
+
+    // Check if the current operating system is supported by the Win32
+    // NetBIOS handler
+
+    String osName = System.getProperty("os.name");
+    if (osName.startsWith("Windows")
+        && (osName.endsWith("95") == false && osName.endsWith("98") == false && osName
+            .endsWith("ME") == false)) {
+
+      // Call the Win32NetBIOS native code to make sure it is
+      // initialized
+
+      if (Win32NetBIOS.LanaEnumerate() != null) {
+        // Enable Win32 NetBIOS
+
+        setWin32NetBIOS(true);
+      } else {
+        logger.warn("No NetBIOS LANAs available");
+      }
+    } else {
+
+      // Win32 NetBIOS not supported on the current operating system
+
+      setWin32NetBIOS(false);
+    }
+
+    // Check if the host announcer should be enabled
+    // win32 announcer
+    setWin32HostAnnounceInterval(5);
+    setWin32HostAnnouncer(true);
+
+    // Check if NetBIOS and/or TCP/IP SMB have been enabled
+
+    if (hasNetBIOSSMB() == false && hasTcpipSMB() == false
+        && hasWin32NetBIOS() == false) {
+      setSMBServerEnabled(false);
+    } else {
+      setSMBServerEnabled(true);
+    }
+
+    String flags = "Negotiate,Socket,Tree,PktType,StateCache,State,Search,Info,File,FileIO,Echo,Error,Notify";// elem.getAttribute("flags");
+    int sessDbg = 0;
+
+    if (flags != null) {
+
+      // Parse the flags
+
+      flags = flags.toUpperCase();
+      StringTokenizer token = new StringTokenizer(flags, ",");
+
+      while (token.hasMoreTokens()) {
+
+        // Get the current debug flag token
+
+        String dbg = token.nextToken().trim();
+
+        // Find the debug flag name
+
+        int idx = 0;
+
+        while (idx < m_sessDbgStr.length
+            && m_sessDbgStr[idx].equalsIgnoreCase(dbg) == false)
+          idx++;
+        // Set the debug flag
+
+        sessDbg += 1 << idx;
+      }
+    }
+
+    // Set the session debug flags
+
+    setSessionDebugFlags(sessDbg);
 
   }
 

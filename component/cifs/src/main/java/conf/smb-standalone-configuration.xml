@@ -2,8 +2,8 @@
 
 <configuration>
 	<component>
-		<key>org.exoplatform.services.CIFS.CIFSServiceImpl</key>
-		<type>org.exoplatform.services.CIFS.CIFSServiceImpl</type>
+		<key>org.exoplatform.services.cifs.CIFSServiceImpl</key>
+		<type>org.exoplatform.services.cifs.CIFSServiceImpl</type>
 		<init-params>
 			
 			<!--Server name -->
@@ -13,10 +13,10 @@
 			</value-param>
 			
 			<!--Worgroup - if not determined used local domain name-->
-			<value-param>
+			<!--value-param>
 				<name>workgroup</name>
 				<value>blabla</value>
-			</value-param>
+			</value-param-->
 			
 			<!--Comment - set server comment-->
 			<value-param>

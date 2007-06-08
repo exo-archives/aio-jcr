@@ -113,12 +113,12 @@ public class FileOpenParams {
    * @param fileAttr
    *          int
    */
-  public FileOpenParams(String path, int openAction, int accessMode,
+  public @Deprecated FileOpenParams(String path, int openAction, int accessMode,
       int fileAttr) {
 
     // Parse the file path, split into file name and stream if specified
 
-    parseFileName(path);
+    //parseFileName(path);
 
     m_openAction = convertToNTOpenAction(openAction);
     m_accessMode = convertToNTAccessMode(accessMode);
@@ -136,6 +136,7 @@ public class FileOpenParams {
 
   /**
    * Class constructor for Core SMB dialect Open SMB requests
+   * Responsibility for correct stream and path separate laying on caller.
    * 
    * @param path
    *          String
@@ -152,13 +153,11 @@ public class FileOpenParams {
    * @param mode
    *          int
    */
-  public FileOpenParams(String path, int openAction, int accessMode,
+  public @Deprecated FileOpenParams(String path,String stream, int openAction, int accessMode,
       int fileAttr, int gid, int uid, int mode) {
 
-    // Parse the file path, split into file name and stream if specified
-
-    parseFileName(path);
-
+    m_path = path;
+    m_stream = stream;
     m_openAction = convertToNTOpenAction(openAction);
     m_accessMode = convertToNTAccessMode(accessMode);
     m_attr = fileAttr;
@@ -179,8 +178,11 @@ public class FileOpenParams {
 
   /**
    * Class constructor for LanMan SMB dialect OpenAndX requests
+   * Responsibility for correct stream and path separate laying on caller.
    * 
    * @param path
+   *          String
+   * @param stream
    *          String
    * @param openAction
    *          int
@@ -221,9 +223,12 @@ public class FileOpenParams {
   }
 
   /**
-   * Class constructor for NT SMB dialect NTCreateAndX requests
+   * Class constructor for NT SMB dialect NTCreateAndX requests.
+   * Responsibility for correct stream and path separate laying on caller.
    * 
    * @param path
+   *          String
+   * @param stream
    *          String
    * @param openAction
    *          int
@@ -244,14 +249,12 @@ public class FileOpenParams {
    * @param secFlags
    *          int
    */
-  public FileOpenParams(String path, int openAction, int accessMode, int attr,
+  public FileOpenParams(String path, String stream, int openAction, int accessMode, int attr,
       int sharedAccess, long allocSize, int createOption, int rootFID,
       int secLevel, int secFlags) {
 
-    // Parse the file path, split into file name and stream if specified
-
-    parseFileName(path);
-
+    m_path = path;
+    m_stream = stream;
     m_openAction = openAction;
     m_accessMode = accessMode;
     m_attr = attr;

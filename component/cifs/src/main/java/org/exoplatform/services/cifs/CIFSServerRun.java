@@ -6,8 +6,7 @@
 package org.exoplatform.services.cifs;
 
 import org.exoplatform.container.StandaloneContainer;
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.services.jcr.RepositoryService;
+
 
 /**
  * Created by The eXo Platform SARL Author : Karpenko Sergey
@@ -38,49 +37,29 @@ public class CIFSServerRun {
         System.setProperty("java.security.auth.login.config",
             "src/main/java/conf/standalone/login.conf");
 
-      // obtain default repository
-      RepositoryService repositoryService = (RepositoryService) container
-          .getComponentInstanceOfType(RepositoryService.class);
+      System.out.println("Enter 'x' to shutdown ...");
+      boolean shutdown = false;
+      while (shutdown == false) {
 
-      InitParams ip = new InitParams();
+        // Wait for the user to enter the shutdown key
 
-      CIFSServiceImpl service = new CIFSServiceImpl(null, repositoryService);
+        int ch = System.in.read();
 
-      service.start();
-
-      // Only wait for shutdown if the SMB/CIFS server is enabled
-      if (service.getConfiguration().isSMBServerEnabled()) {
-
-        // SMB/CIFS server should have automatically started
-        // Wait for shutdown via the console
-
-        System.out.println("Enter 'x' to shutdown ...");
-        boolean shutdown = false;
-
-        // Wait while the server runs, user may stop the service by
-        // typing a key
-
-        while (shutdown == false) {
-
-          // Wait for the user to enter the shutdown key
-
-          int ch = System.in.read();
-
-          if (ch == 'x' || ch == 'X') {
-            shutdown = true;
-          }
-
-          synchronized (service) {
-            service.wait(20);
-          }
+        if (ch == 'x' || ch == 'X') {
+          shutdown = true;
         }
 
-        // Stop the service
-        service.stop();
+        synchronized (container) {
+          container.wait(20);
+        }
       }
+
+      container.stop();
+
     } catch (Exception ex) {
       ex.printStackTrace();
     }
+
     System.exit(1);
   }
 
