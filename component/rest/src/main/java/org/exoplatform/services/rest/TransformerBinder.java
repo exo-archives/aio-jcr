@@ -31,6 +31,7 @@ public class TransformerBinder implements Startable {
   }
   
   public void bind(EntityTransformer<?> transf) {
+    // TODO add check (not allowed to transformers for the same type of data)
     transformers.add(transf);
   }
   
