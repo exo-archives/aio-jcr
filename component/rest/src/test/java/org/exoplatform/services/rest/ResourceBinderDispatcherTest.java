@@ -50,18 +50,6 @@ public class ResourceBinderDispatcherTest extends TestCase {
     System.out.println("relativize "+new URI("http://localhost/level1").relativize(uri).toASCIIString());
   } 
 
-  public void testTransformerBind() {
-    TransformerBinder tbinder = 
-      (TransformerBinder)container.getComponentInstanceOfType(TransformerBinder.class);
-    assertNotNull(tbinder);
-    StringEntityTransformer transf = new StringEntityTransformer();
-    tbinder.bind(transf);
-    assertEquals(1, tbinder.transformersNumber());
-    tbinder.unbind(transf);
-    assertEquals(0, tbinder.transformersNumber());
-  }
-  
-  
   public void testBind() throws Exception {
     ResourceBinder binder = (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);
     assertNotNull(binder);
