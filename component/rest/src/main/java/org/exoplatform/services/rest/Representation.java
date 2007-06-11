@@ -6,13 +6,17 @@
 package org.exoplatform.services.rest;
 
 
+
 /**
  * Created by The eXo Platform SARL        .
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
-public interface Representation<T> extends Entity<T> {
-  String getLocation();
-  void setLocation(String location);
+public interface Representation<T> {
+//  String getLocation();
+//  void setLocation(String location);
+  T getEntity();
+//  InputStream getStream() throws IOException;
+//  RepresentationMetadata getMetadata();
 }

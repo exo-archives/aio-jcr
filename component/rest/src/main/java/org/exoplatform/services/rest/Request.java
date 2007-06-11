@@ -6,11 +6,10 @@
 package org.exoplatform.services.rest;
 
 import java.io.InputStream;
-import java.util.Map;
-import java.util.Enumeration;
 
 /**
- * Created by The eXo Platform SARL        .
+ * Created by The eXo Platform SARL        .<br/>
+ * HTTP Request object
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -19,8 +18,8 @@ public class Request extends Message {
 
   private String methodName;        // HTTP Method
   private ResourceIdentifier resourceIdentifier;
-  private Map<String, Enumeration<String>> httpHeaderParams;
-  private Map<String, String[]> httpQueryParams;
+  private MultivaluedMetadata headerParams;
+  private MultivaluedMetadata queryParams;
   private InputStream entityDataStream;
 
   /**
@@ -31,41 +30,21 @@ public class Request extends Message {
    * @param httpHeaderParams 
    * @param httpQueryParams
    */
-  protected Request(InputStream entityDataStream, ResourceIdentifier resourceIdentifier, 
-      String methodName, Map<String, Enumeration<String>> httpHeaderParams,
-      Map<String, String[]> httpQueryParams) {
+  public Request(InputStream entityDataStream, ResourceIdentifier resourceIdentifier, 
+      String methodName, MultivaluedMetadata httpHeaderParams,
+      MultivaluedMetadata httpQueryParams) {
 
     this.methodName = methodName;
     this.resourceIdentifier = resourceIdentifier;
     this.entityDataStream = entityDataStream;
-    this.httpQueryParams = httpQueryParams;
-    this.httpHeaderParams = httpHeaderParams;
+    this.queryParams = httpQueryParams;
+    this.headerParams = httpHeaderParams;
   }
   
-  /**
-   * 
-   * Create a new instance of Request
-   * 
-   * @param entityDataStream
-   * @param resourceIdentifier
-   * @param methodName
-   * @param headerParams
-   * @param queryParams
-   * @return Request
-   */
-  public static Request getInstance(InputStream entityDataStream,
-      ResourceIdentifier resourceIdentifier, String methodName,
-      Map<String, Enumeration<String>> headerParams,
-      Map<String, String[]> queryParams) {
-    
-    return new Request(entityDataStream, resourceIdentifier,
-        methodName, headerParams, queryParams);
-  }
-  
-  public InputStream getEntityDataStream() {
+  public InputStream getEntityStream() {
     return this.entityDataStream;
   }
-
+  
   public ResourceIdentifier getResourceIdentifier() {
     return resourceIdentifier;
   }
@@ -78,12 +57,12 @@ public class Request extends Message {
     return methodName;
   }
   
-  public Map<String, Enumeration<String>> getHttpHeaderParams() {
-    return this.httpHeaderParams;
+  public MultivaluedMetadata getHeaderParams() {
+    return this.headerParams;
   }
 
-  public Map<String, String[]> getHttpQueryParams() {
-    return this.httpQueryParams;
+  public MultivaluedMetadata getQueryParams() {
+    return this.queryParams;
   }
 
 }

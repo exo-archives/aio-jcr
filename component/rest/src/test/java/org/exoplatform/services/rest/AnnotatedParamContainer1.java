@@ -6,8 +6,8 @@
 package org.exoplatform.services.rest;
 
 import org.exoplatform.services.rest.container.ResourceContainer;
+import org.exoplatform.services.rest.data.StringEntityTransformer;
 import org.exoplatform.services.rest.data.StringRepresentation;
-import org.exoplatform.services.rest.data.BaseRepresentation;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -22,9 +22,9 @@ public class AnnotatedParamContainer1 implements ResourceContainer {
   public Response method1() {
     System.out.println(">>>>> method1 called!!!");
     System.out.println("<<<<< produce type: html");
-    Response res = Response.getInstance(RESTStatus.OK);
+    Response res = new Response(RESTStatus.OK);
     res.setAcceptedMediaType("text/html");
-    res.setRepresentation(new BaseRepresentation<String>("method1"));
+    res.setRepresentation(new StringRepresentation("method1"));
     return res;
   }
   
@@ -34,7 +34,7 @@ public class AnnotatedParamContainer1 implements ResourceContainer {
   public Response method2() {
     System.out.println(">>>>> method1 called!!!");
     System.out.println("<<<<< produce type: xml");
-    Response res = Response.getInstance(RESTStatus.OK, new StringRepresentation("method2"));
+    Response res = new Response(RESTStatus.OK, new StringRepresentation("method2"), new StringEntityTransformer());
     res.setAcceptedMediaType("text/xml");
     return res;
   }
@@ -48,7 +48,7 @@ public class AnnotatedParamContainer1 implements ResourceContainer {
     System.out.println("<<<<< id1 = " + param1);
     System.out.println("<<<<< id1 = " + param2);
     System.out.println("<<<<< id1 = " + param3);
-    Response res = Response.getInstance(RESTStatus.OK ,new StringRepresentation("method3"));
+    Response res = new Response(RESTStatus.OK ,new StringRepresentation("method3"), new StringEntityTransformer());
     return res;
   }
 }

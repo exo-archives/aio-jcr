@@ -44,8 +44,8 @@ public class XMLRepresentation extends BaseRepresentation<Document> {
    * @see org.exoplatform.services.rest.Representation#getString()
    */
   public String getString() throws IOException {
-    if (this.metaData.getCharacterSet() != null)
-      return outputStream().toString(this.metaData.getCharacterSet());
+    if (getCharacterSet() != null)
+      return outputStream().toString(getCharacterSet());
     return outputStream().toString();
   }
   

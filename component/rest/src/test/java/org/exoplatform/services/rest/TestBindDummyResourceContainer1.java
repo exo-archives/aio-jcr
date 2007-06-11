@@ -6,6 +6,7 @@
 package org.exoplatform.services.rest;
 
 import org.exoplatform.services.rest.container.ResourceContainer;
+import org.exoplatform.services.rest.data.StringEntityTransformer;
 import org.exoplatform.services.rest.data.StringRepresentation;
 
 /**
@@ -19,7 +20,7 @@ public class TestBindDummyResourceContainer1 implements ResourceContainer {
   @ConsumeMimeType
   public Response method1() {
     System.out.println(">>>>> method1 called!!!");
-    Response res = Response.getInstance(RESTStatus.OK, new StringRepresentation("method1"));
+    Response res = new Response(RESTStatus.OK, new StringRepresentation("method1"), new StringEntityTransformer());
     return res;
   }
 }

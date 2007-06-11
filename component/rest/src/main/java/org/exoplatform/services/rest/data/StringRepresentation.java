@@ -5,8 +5,6 @@
 
 package org.exoplatform.services.rest.data;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -22,14 +20,14 @@ public class StringRepresentation extends BaseRepresentation<String> {
 
   public StringRepresentation(String content, String mediaType) {
     super(content, mediaType);
-    this.metaData.setLength(this.entity.length());
+    this.setLength(this.entity.length());
   }
 
-  public InputStream getStream() {
-    return new ByteArrayInputStream(entity.getBytes());
-  }
+//  public InputStream getStream() {
+//    return new ByteArrayInputStream(entity.getBytes());
+//  }
 
-  public String getData() {
+  public String getEntity() {
     return entity;
   }
 }

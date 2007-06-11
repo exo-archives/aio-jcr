@@ -36,7 +36,7 @@ public class SessionActionCatalog extends ActionCatalog {
   public SessionActionCatalog(RepositoryService repService) throws 
   RepositoryException, RepositoryConfigurationException {
     
-    RepositoryImpl rep = (RepositoryImpl)repService.getRepository();
+    RepositoryImpl rep = (RepositoryImpl)repService.getCurrentRepository();
     locFactory = rep.getLocationFactory();
     
     // add predefined actions

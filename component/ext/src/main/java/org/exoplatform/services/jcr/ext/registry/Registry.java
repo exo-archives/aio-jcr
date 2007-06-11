@@ -8,13 +8,18 @@ package org.exoplatform.services.jcr.ext.registry;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.common.NodeWrapper;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 
 /**
  * Created by The eXo Platform SARL        .<br/>
- * JCR based Services Registry abstraction
+ * JCR based Services Registry abstraction.
+ * As interchange object all the methods use Nodes' wrappers to not
+ * to let using an arbitrary Type of Node.
+ * There is 2 phase modification of RegistryEntry
+ * (1) get or create RegistryEntry retrieves or creates new object in memory
+ * and 
+ * (2) register/unregister stores the object permanently  
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
@@ -23,7 +28,7 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
 public abstract class Registry {
   
   /**
-   * Returns existed or newly created RegistryEntry which wraps Node of "exo:registryEntry" type  
+   * Returns existed RegistryEntry which wraps Node of "exo:registryEntry" type  
    * @param sessionProvider
    * @param entryType
    * @param entryName
@@ -32,7 +37,20 @@ public abstract class Registry {
    * @throws RepositoryException
    */
   public abstract RegistryEntryNode getRegistryEntry(SessionProvider sessionProvider, String entryType,
-      String entryName, ManageableRepository repository) throws RepositoryException;
+      String entryName) throws RepositoryException;
+
+  /**
+   * Returns newly created RegistryEntry which wraps Node of "exo:registryEntry" type  
+   * @param sessionProvider
+   * @param entryType
+   * @param entryName
+   * @param repository
+   * @return
+   * @throws RepositoryException
+   */
+  public abstract RegistryEntryNode createRegistryEntry(SessionProvider sessionProvider, String entryType,
+      String entryName) throws RepositoryException;
+
 
   /**
    * Returns Registry object which wraps Node of "exo:registry" type
@@ -42,7 +60,7 @@ public abstract class Registry {
    * @return
    * @throws RepositoryException
    */
-  public abstract RegistryNode getRegistry(SessionProvider sessionProvider, ManageableRepository repository) 
+  public abstract RegistryNode getRegistry(SessionProvider sessionProvider) 
       throws RepositoryException;
 
   /**

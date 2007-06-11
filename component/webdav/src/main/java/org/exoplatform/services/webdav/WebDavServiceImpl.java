@@ -113,7 +113,7 @@ public class WebDavServiceImpl implements WebDavService {
   public ManageableRepository getRepository() throws RepositoryException, RepositoryConfigurationException {
     String repositoryName = config.getRepositoryName();
     if (repositoryName == null) {
-      return repositoryService.getRepository();
+      return repositoryService.getCurrentRepository();
     } else {
       return repositoryService.getRepository(repositoryName);
     }

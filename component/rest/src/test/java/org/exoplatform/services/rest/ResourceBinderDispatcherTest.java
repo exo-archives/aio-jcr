@@ -166,13 +166,13 @@ public class ResourceBinderDispatcherTest extends TestCase {
     binder.bind(dw);
     assertEquals(1, list.size());
 
-    Request request = Request.getInstance(null, new ResourceIdentifier("/level1/myID/level3/"),
+    Request request = new Request(null, new ResourceIdentifier("/level1/myID/level3/"),
         "GET", null, null);
     Response resp = disp.dispatch(request);
-    assertEquals("method1", resp.getRepresentation().getData());
+    assertEquals("method1", resp.getRepresentation().getEntity());
     binder.unbind(dw);
     assertEquals(0, list.size());
-    System.out.println("RESPONSE >>>>>>> " + resp.getRepresentation().getData());
+    System.out.println("RESPONSE >>>>>>> " + resp.getRepresentation().getEntity());
   }
 
   public void testServeAnnotatedClass() throws Exception {
@@ -188,12 +188,12 @@ public class ResourceBinderDispatcherTest extends TestCase {
 
     ByteArrayInputStream ds = new ByteArrayInputStream("hello".getBytes());
     assertNotNull(ds);
-    Request request = Request.getInstance(ds, 
+    Request request = new Request(ds, 
         new ResourceIdentifier("/level1/level2/level3/hello"), "GET", null, null);
     Response resp = disp.dispatch(request);
     StringEntityTransformer transf = new StringEntityTransformer();
     assertTrue(transf.support(String.class));
-    assertEquals("hello", transf.readFrom((java.io.InputStream)resp.getRepresentation().getData()));
+    assertEquals("hello", transf.readFrom((java.io.InputStream)resp.getRepresentation().getEntity()));
     binder.unbind(dw);
     assertEquals(0, list.size());
   }
@@ -210,24 +210,24 @@ public class ResourceBinderDispatcherTest extends TestCase {
     binder.bind(ac1);
     assertEquals(3, list.size());
     ByteArrayInputStream ds = new ByteArrayInputStream("hello".getBytes());
-    Request request = Request.getInstance(null, new ResourceIdentifier("/level1/level2/"),
+    Request request = new Request(null, new ResourceIdentifier("/level1/level2/"),
         "GET", null, null);
     request.setAcceptedMediaType("text/html");
     Response resp = disp.dispatch(request);
     assertEquals("text/html", resp.getAcceptedMediaType());
-    assertEquals("method1", resp.getRepresentation().getData());
+    assertEquals("method1", resp.getRepresentation().getEntity());
     
-    request = Request.getInstance(null, new ResourceIdentifier("/level1/level2/"),
+    request = new Request(null, new ResourceIdentifier("/level1/level2/"),
         "GET", null, null);
     request.setAcceptedMediaType("text/xml");
     resp = disp.dispatch(request);
     assertEquals("text/xml", resp.getAcceptedMediaType());
-    assertEquals("method2", resp.getRepresentation().getData());
+    assertEquals("method2", resp.getRepresentation().getEntity());
     
-    request = Request.getInstance(null,new ResourceIdentifier("/level1/hello/level3/world/level4/good/"),
+    request = new Request(null,new ResourceIdentifier("/level1/hello/level3/world/level4/good/"),
         "POST", null, null);
     resp = disp.dispatch(request);
-    assertEquals("method3", resp.getRepresentation().getData());
+    assertEquals("method3", resp.getRepresentation().getEntity());
     binder.unbind(ac1);
     assertEquals(0, list.size());
   }

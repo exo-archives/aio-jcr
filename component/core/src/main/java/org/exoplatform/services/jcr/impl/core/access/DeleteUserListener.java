@@ -33,7 +33,7 @@ public class DeleteUserListener extends UserEventListener {
   private RepositoryImpl repository;
 
   public DeleteUserListener(RepositoryService jcrService) throws Exception {
-    this.repository = (RepositoryImpl)jcrService.getRepository();
+    this.repository = (RepositoryImpl)jcrService.getCurrentRepository();
   }
 
   public void preSave(User user, boolean isNew, XResources xresources) {

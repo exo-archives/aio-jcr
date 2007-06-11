@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.jcr.ItemExistsException;
+import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -32,6 +34,9 @@ import org.picocontainer.Startable;
  * Centralized collector for JCR based entities (services, apps, users)
  * It contains info about the whole system, i.e. for all repositories
  * used by system. 
+ * 
+ * All operations performed in context of "current" repository,
+ * i.e. RepositoryService.getCurrentRepository()
  * 
  * Each repository has own Registry storage which is placed
  * in workspace configured in "locations" entry like:
@@ -103,22 +108,37 @@ public class RegistryService extends Registry implements Startable {
    * @see org.exoplatform.services.jcr.ext.registry.Registry#getRegistryEntry(org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String, java.lang.String, org.exoplatform.services.jcr.core.ManageableRepository)
    */
   public RegistryEntryNode getRegistryEntry(SessionProvider sessionProvider, String entryType,
-      String entryName, ManageableRepository repository) throws RepositoryException {
+      String entryName) throws RepositoryException {
     String relPath = EXO_REGISTRY+"/"+entryType+"/"+entryName;
-    Node root = rootNode(sessionProvider, repository);
+    Node root = rootNode(sessionProvider, repositoryService.getCurrentRepository());
     if(!root.hasNode(relPath)) {
-      return new RegistryEntryNode(root.addNode(relPath, EXO_REGISTRYENTRY_NT));
+      throw new ItemNotFoundException("Item not found "+relPath);
     } else {
       return new RegistryEntryNode(root.getNode(relPath));
     }
   }
   
   /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.ext.registry.Registry#createRegistryEntry(org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String, java.lang.String, org.exoplatform.services.jcr.core.ManageableRepository)
+   */
+  public RegistryEntryNode createRegistryEntry(SessionProvider sessionProvider, String entryType,
+      String entryName) throws RepositoryException {
+    String relPath = EXO_REGISTRY+"/"+entryType+"/"+entryName;
+    Node root = rootNode(sessionProvider, repositoryService.getCurrentRepository());
+    if(!root.hasNode(relPath)) {
+      return new RegistryEntryNode(root.addNode(relPath, EXO_REGISTRYENTRY_NT));
+    } else {
+      throw new ItemExistsException("Item already exists "+relPath);
+    }
+  }
+
+  
+  /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.registry.Registry#getRegistry(org.exoplatform.services.jcr.ext.common.SessionProvider, org.exoplatform.services.jcr.core.ManageableRepository)
    */
-  public RegistryNode getRegistry(SessionProvider sessionProvider, ManageableRepository repository) 
-    throws RepositoryException{
-    return new RegistryNode(rootNode(sessionProvider, repository).getNode(EXO_REGISTRY));
+  public RegistryNode getRegistry(SessionProvider sessionProvider) 
+    throws RepositoryException {
+    return new RegistryNode(rootNode(sessionProvider, repositoryService.getCurrentRepository()).getNode(EXO_REGISTRY));
   } 
   
 
@@ -141,9 +161,11 @@ public class RegistryService extends Registry implements Startable {
   }
 
   
-  private Node rootNode(SessionProvider sessionProvider, ManageableRepository repository) throws RepositoryException {
-    String repName = repository.getConfiguration().getName();
-    Session session = sessionProvider.getSession(regWorkspaces.get(repName), repository);
+  private Node rootNode(SessionProvider sessionProvider, ManageableRepository repo) throws RepositoryException {
+//    ManageableRepository repo = repositoryService.getRepository(repositoryName);
+
+    String repName = repo.getConfiguration().getName();
+    Session session = sessionProvider.getSession(regWorkspaces.get(repName), repo);
     return session.getRootNode();
   }
 
@@ -215,6 +237,37 @@ public class RegistryService extends Registry implements Startable {
   public void removeRegistryLocation(String repositoryName) {
     regWorkspaces.remove(repositoryName);
   }
+
+  
+  /**
+   * @param sessionProvider
+   * @param entryType
+   * @param entryName
+   * @param repositoryName
+   * @return
+   * @throws RepositoryException
+   */
+  public void initRegistryEntry(String entryType,
+      String entryName) throws RepositoryException, RepositoryConfigurationException {
+    String relPath = EXO_REGISTRY+"/"+entryType+"/"+entryName;
+    for(RepositoryEntry repConfiguration : repConfigurations()){
+      
+      String repName = repConfiguration.getName();
+      SessionProvider sysProvider = SessionProvider.createSystemProvider();
+      Node root = rootNode(sysProvider, repositoryService
+          .getRepository(repName));
+      if (!root.hasNode(relPath)) {
+        RegistryEntryNode ren = new RegistryEntryNode(root.addNode(relPath,
+            EXO_REGISTRYENTRY_NT));
+        register(ren);
+      } else {
+        log.info("The RegistryEntry " + relPath
+            + "is already initialized on repository " + repName);
+      }
+      sysProvider.close();
+    }
+  }
+
   
   public RepositoryService getRepositoryService() {
     return repositoryService;

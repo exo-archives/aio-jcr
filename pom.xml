@@ -118,7 +118,7 @@
     </plugins>
   </build>
 
-  <repositories>
+  <!-- repositories>
     <repository>
       <id>local-jcr</id>
       <url>file:${exo.projects.directory.src}/jcr/trunk/maven/repository</url>
@@ -148,7 +148,7 @@
       <url>https://maven-repository.dev.java.net/nonav/repository</url>
       <layout>legacy</layout>
     </repository>
-  </repositories>
+  </repositories -->
 
   <profiles>
     <profile>

@@ -45,7 +45,7 @@ public class ResourceDispatcher implements Connector {
         for(int i = 0; i < methodParameters.length; i++) {
 
           if(!"java.lang.String".equals(methodParameters[i].getCanonicalName()))
-            objs[i] = request.getEntityDataStream();
+            objs[i] = request.getEntityStream();
           else {
             Annotation a = methodParametersAnnotations[i];
 
@@ -58,12 +58,12 @@ public class ResourceDispatcher implements Connector {
                 a.annotationType().getCanonicalName())) {
                 
               HeaderParam h = (HeaderParam)a;
-              objs[i] = request.getHttpHeaderParams().get(h.value());
+              objs[i] = request.getHeaderParams().get(h.value());
             } else if("org.exoplatform.services.rest.QueryParam".equals(
                 a.annotationType().getCanonicalName())) {
               
               QueryParam q = (QueryParam)a;
-              objs[i] = request.getHttpQueryParams().get(q.value());
+              objs[i] = request.getQueryParams().get(q.value());
             }
           }
         }

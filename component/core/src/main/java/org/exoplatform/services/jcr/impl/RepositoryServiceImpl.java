@@ -116,8 +116,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     return config;
   }
 
-  public ManageableRepository getCurrentRepository() throws RepositoryException,
-      RepositoryConfigurationException {
+  public ManageableRepository getCurrentRepository() throws RepositoryException {
     return getRepository(currentRepositoryName.get());
   }
 
@@ -184,7 +183,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     ConfigurationManager configService = (ConfigurationManager) container
         .getComponentInstanceOfType(ConfigurationManager.class);
 
-    ManageableRepository repository = getRepository();
+    ManageableRepository repository = getCurrentRepository();
     ExtendedNodeTypeManager ntManager = repository.getNodeTypeManager();
     for (int j = 0; j < addNodeTypePlugins.size(); j++) {
       AddNodeTypePlugin plugin = (AddNodeTypePlugin) addNodeTypePlugins.get(j);
@@ -230,7 +229,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
 
   private void addNamespaces(ExoContainer container) throws Exception {
 
-    ManageableRepository repository = getRepository();
+    ManageableRepository repository = getCurrentRepository();
     NamespaceRegistry nsRegistry = repository.getNamespaceRegistry();
 
     for (int j = 0; j < addNamespacesPlugins.size(); j++) {

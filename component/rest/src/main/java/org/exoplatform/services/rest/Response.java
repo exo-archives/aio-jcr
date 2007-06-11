@@ -5,6 +5,10 @@
 
 package org.exoplatform.services.rest;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
+
 
 /**
  * Created by The eXo Platform SARL        .
@@ -14,34 +18,45 @@ package org.exoplatform.services.rest;
 
 public class Response extends Message {
   
-  private Representation<?> representation;
+  private Object entity;
   private int status;
+  private EntityTransformer transformer;
+  private EntityMetadata metadata;
 
-  private Response(int status, Representation<?> representation) {
+  public Response(int status, 
+      EntityMetadata metadata,
+      Object entity,
+      EntityTransformer transformer) { 
     this.status = status;
-    this.representation = representation;
+    this.entity = entity;
+    this.transformer = transformer;
+    this.metadata = metadata;
+  }
+  
+  public Response(int status, EntityMetadata metadata) {
+    this(status, metadata, null, null);
   }
 
-  public static Response getInstance(int status) {
-    return new Response (status, null);
+  public Object getEntity() {
+    return entity;
   }
 
-  public static Response getInstance(int status, Representation<?> representation) {
-    return new Response(status, representation);
-  }
-
-  public Representation<?> getRepresentation() {
-    return representation;
-  }
-
-  public void setRepresentation(Representation<?> representation) {
-    this.representation = representation;
+  public void setEntity(Object entity) {
+    this.entity = entity;
   }
   
   public int getStatus() {
     return status;
   }
+  
+  public void writeEntity(OutputStream entityDataStream) throws IOException {
+    if(transformer != null)
+      transformer.writeTo(entity, entityDataStream);
+  }
 
+  public EntityMetadata getMetadata() {
+    return metadata;
+  }
 
-
+  
 }

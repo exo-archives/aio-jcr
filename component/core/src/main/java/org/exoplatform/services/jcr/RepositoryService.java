@@ -51,8 +51,7 @@ public interface RepositoryService {
    * @throws RepositoryException
    * @throws RepositoryConfigurationException
    */
-  ManageableRepository getCurrentRepository() throws RepositoryException,
-      RepositoryConfigurationException;
+  ManageableRepository getCurrentRepository() throws RepositoryException;
 
   /**
    * @param repositoryName

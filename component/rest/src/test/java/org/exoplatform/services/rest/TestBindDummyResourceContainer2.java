@@ -21,7 +21,7 @@ public class TestBindDummyResourceContainer2 implements ResourceContainer {
   @ConsumeMimeType
   public Response method1() {
     System.out.println(">>>>> method1 called!!!");
-    Response res = Response.getInstance(RESTStatus.OK);
+    Response res = new Response(RESTStatus.OK);
     res.setRepresentation(new StringRepresentation("method1"));
     return res;
   }

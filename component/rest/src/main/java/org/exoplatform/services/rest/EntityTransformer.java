@@ -15,10 +15,10 @@ import java.io.IOException;
 
 public interface EntityTransformer<T> {
   
-  public boolean support(Class<?> type);
+//  public boolean support(Class<?> type);
   
-  public T readFrom(InputStream entityDataStream) throws IOException;
+  T readFrom(InputStream entityDataStream) throws IOException;
 
-  public void writeTo(T entity, OutputStream entityDataStream) throws IOException;
+  void writeTo(T entity, OutputStream entityDataStream) throws IOException;
 
 }

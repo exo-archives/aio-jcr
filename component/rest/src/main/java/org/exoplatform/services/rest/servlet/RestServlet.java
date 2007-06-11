@@ -1,24 +1,23 @@
 package org.exoplatform.services.rest.servlet;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
+
 import org.apache.commons.logging.Log;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import org.exoplatform.services.rest.Request;
-import org.exoplatform.services.rest.Response;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.rest.Connector;
+import org.exoplatform.services.rest.Request;
 import org.exoplatform.services.rest.ResourceDispatcher;
+import org.exoplatform.services.rest.Response;
 
-public class RestServlet extends HttpServlet {
+public class RestServlet extends HttpServlet implements Connector {
 	
   private ExoContainer container;
   private ResourceDispatcher resDispatcher;
@@ -43,19 +42,20 @@ public class RestServlet extends HttpServlet {
   public void service(HttpServletRequest httpRequest, HttpServletResponse httpResponse)
     throws IOException, ServletException {
     
-    Request request = RequestHandler.createRequest(httpRequest);
+    Request request = RequestFactory.createRequest(httpRequest);
     try {
       Response response = resDispatcher.dispatch(request);
-      InputStream in = (InputStream)response.getRepresentation().getData();
+//      InputStream in = (InputStream)response.getRepresentation().getEntity();
       httpResponse.setContentType(response.getAcceptedMediaType());
       httpResponse.setStatus(response.getStatus());
       java.io.OutputStream out = httpResponse.getOutputStream();
-      byte[] buff = new byte[1024];
-      while(true) {
-        int rd = in.read(buff);
-        if(rd < 0) break;
-        out.write(buff, 0, rd);
-      }
+      response.writeEntity(out);
+//      byte[] buff = new byte[1024];
+//      while(true) {
+//        int rd = in.read(buff);
+//        if(rd < 0) break;
+//        out.write(buff, 0, rd);
+//      }
       out.flush();
       out.close();
     }catch(Exception e) {

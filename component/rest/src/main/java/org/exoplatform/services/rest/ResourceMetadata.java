@@ -8,6 +8,7 @@ package org.exoplatform.services.rest;
  * Created by The eXo Platform SARL        .
  * @author Gennady Azarenkov
  * @version $Id: $
+ * @deprecated
  */
 
 public interface ResourceMetadata {

@@ -7,6 +7,7 @@ package org.exoplatform.services.rest;
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
+ * @deprecated
  */
 
 public class HttpStatus {

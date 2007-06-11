@@ -4,13 +4,13 @@
  **************************************************************************/
 package org.exoplatform.services.rest.servlet;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.HashMap;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Enumeration;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.exoplatform.services.rest.MultivaluedMetadata;
 import org.exoplatform.services.rest.Request;
 import org.exoplatform.services.rest.ResourceIdentifier;
 
@@ -23,7 +23,7 @@ import org.exoplatform.services.rest.ResourceIdentifier;
  * RequestHandler helps create REST request from HttpServletRequest 
  *
  */
-public class RequestHandler {
+public class RequestFactory {
   
   /**
    * 
@@ -34,13 +34,18 @@ public class RequestHandler {
    * @throws IOException
    */
   public static Request createRequest (HttpServletRequest httpRequest) throws IOException {
-    InputStream in = httpRequest.getInputStream();
     String pathInfo = httpRequest.getPathInfo();
     String method = httpRequest.getMethod();
-    Map<String, Enumeration<String>> headerParams = parseHttpHeaders(httpRequest);
-    Map<String, String[]> queryParams = parseQueryParams(httpRequest);
-
-    return Request.getInstance(in, new ResourceIdentifier(pathInfo),
+    MultivaluedMetadata headerParams = parseHttpHeaders(httpRequest);
+    MultivaluedMetadata queryParams = parseQueryParams(httpRequest);
+    
+    InputStream in = httpRequest.getInputStream();
+//    // TODO Apply Entity resolving strategy here
+//    String contentType = httpRequest.getContentType();
+//    if(contentType == null)
+//      contentType = "application/octet-stream";
+//    // 
+    return new Request(in, new ResourceIdentifier(pathInfo),
         method, headerParams, queryParams);
   }
 
@@ -51,12 +56,15 @@ public class RequestHandler {
    * @param httpRequest
    * @return Map provide http header in structure Map<String, Enumeration<String>> 
    */
-  public static Map<String, Enumeration<String>> parseHttpHeaders(HttpServletRequest httpRequest) {
-    Map<String, Enumeration<String>> headerParms = new HashMap<String, Enumeration<String>>();
-    Enumeration<String> temp = httpRequest.getHeaderNames();
+  private static MultivaluedMetadata parseHttpHeaders(HttpServletRequest httpRequest) {
+    MultivaluedMetadata headerParms = new MultivaluedMetadata();
+    Enumeration temp = httpRequest.getHeaderNames();
     while(temp.hasMoreElements()) {
-      String k = temp.nextElement();
-      headerParms.put(k, httpRequest.getHeaders(k));
+      String k = (String)temp.nextElement();
+      Enumeration e = httpRequest.getHeaders(k);
+      while(e.hasMoreElements()) {
+        headerParms.add(k, (String)e.nextElement());
+      }
     }
     return headerParms;
   }
@@ -68,12 +76,15 @@ public class RequestHandler {
    * @param httpRequest
    * @return Map provide http query params in structure Map<String, String[]>
    */
-  public static Map<String, String[]> parseQueryParams(HttpServletRequest httpRequest) {
-    Map<String, String[]> queryParams = new HashMap<String, String[]>();
-    Enumeration<String> temp = httpRequest.getParameterNames();
+  private static MultivaluedMetadata parseQueryParams(HttpServletRequest httpRequest) {
+    MultivaluedMetadata queryParams = new MultivaluedMetadata();
+    Enumeration temp = httpRequest.getParameterNames();
     while(temp.hasMoreElements()) {
-      String k = temp.nextElement();
-      queryParams.put(k, httpRequest.getParameterValues(k));
+      String k = (String)temp.nextElement();
+      String[] params = httpRequest.getParameterValues(k);
+      for(int i=0; i<params.length; i++) {
+        queryParams.add(k, params[i]);
+      }
     }
     return queryParams;
   }

@@ -4,11 +4,8 @@
  **************************************************************************/
 package org.exoplatform.services.rest;
 
-import java.io.InputStream;
-
 import org.exoplatform.services.rest.container.ResourceContainer;
-import org.exoplatform.services.rest.data.BaseEntity;
-import org.exoplatform.services.rest.data.BaseRepresentation;
+import org.exoplatform.services.rest.data.StringRepresentation;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -20,12 +17,11 @@ public class AnnotatedContainer implements ResourceContainer {
   
   @HTTPMethod("GET")
   @URITemplate("/level3/{id1}/")
-  public Response method1(InputStream entity, @URIParam("id1") String param) {
+  public Response method1(@URIParam("id1") String param) {
     System.out.println(">>>>> (annot. class) method1 called!!!");
     System.out.println(">>>>> (annot. class) param = " + param);
-    System.out.println(">>>>> (annot. class) entity = " + entity);
-    Response res = Response.getInstance(RESTStatus.OK,
-        new BaseRepresentation<InputStream>(entity));
+    Response res = new Response(RESTStatus.OK);
+    res.setRepresentation(new StringRepresentation("method1"));
     return res;
   }
-}
+} 
