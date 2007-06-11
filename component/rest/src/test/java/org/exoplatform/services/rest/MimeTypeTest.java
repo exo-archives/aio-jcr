@@ -26,7 +26,7 @@ public class MimeTypeTest extends TestCase {
 		assertFalse(mt.hasMimeType("image/jpg"));
 		assertEquals("image/png", mt.getMimeType(0));
 		for(String t : mt.getMimeTypes())
-			System.out.print(t + "--");
+			System.out.print(t + ",");
 	}
 
 }

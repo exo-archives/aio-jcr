@@ -9,13 +9,14 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import org.exoplatform.services.rest.data.MimeTypes;
+
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-
 @Target({METHOD})
 @Retention(RUNTIME)
-public @interface ConsumeMimeType {
-  String value() default "*";
+public @interface ProducedMimeTypes {
+  String value() default MimeTypes.ALL;
 }

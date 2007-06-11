@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 import java.lang.reflect.Method;
-//import java.lang.annotation.Annotation;
+import java.lang.annotation.Annotation;
 
 import org.picocontainer.Startable;
 import org.apache.commons.logging.Log;
@@ -62,10 +62,10 @@ public class ResourceBinder implements Startable {
     Iterator<ValueParam> i = params.getValueParamIterator();
     while(i.hasNext()) {
       ValueParam v = i.next();
-      ResourceContainerResolvingStrategy ws =
+      ResourceContainerResolvingStrategy rs =
         (ResourceContainerResolvingStrategy)Class.forName(v.getValue()).newInstance();
 
-      bindStrategies.add(ws);
+      bindStrategies.add(rs);
     }
   }
   
@@ -99,37 +99,47 @@ public class ResourceBinder implements Startable {
 
   private void validate(List <ResourceDescriptor> newDescriptors)
       throws InvalidResourceDescriptorException {
-    for(ResourceDescriptor newDesc:newDescriptors) {
+    for(ResourceDescriptor newDesc : newDescriptors) {
       URIPattern npattern = newDesc.getURIPattern();
+      String  nmethod = newDesc.getAcceptableMethod();
+ 
+      for(ResourceDescriptor storedDesc:resourceDescriptors) {
+        URIPattern spattern = storedDesc.getURIPattern();
+        String smethod = storedDesc.getAcceptableMethod();
+        // check URI pattern
+        if(spattern.matches(npattern.getString()) ||
+            npattern.matches(spattern.getString())) {
+          // check HTTP method
+          if(smethod.equals(nmethod)) {
+            throw new InvalidResourceDescriptorException("The resource descriptor pattern '"+
+                newDesc.getURIPattern().getString() + "' can not be defined because of existed '"+
+                storedDesc.getURIPattern().getString());
+          }
+        }
+      }
+
       Method method = newDesc.getServer();
       Class[] requestedParams = method.getParameterTypes();
+      Annotation[][] paramAnno = method.getParameterAnnotations();
       boolean hasRequestEntity = false;
-      for(Class<?> param : requestedParams) {
+      for(int i = 0; i < paramAnno.length; i++) {
+        if(paramAnno[i].length == 0) {
+          if(!"java.io.InputStream".equals(requestedParams[i].getCanonicalName()) 
+              && method.getAnnotation(EntityTransformerClass.class) != null
+              && newDesc.getResourceContainer().getClass().getAnnotation(EntityTransformerClass.class) != null) {
 
-        if(!"java.lang.String".equals(param.getCanonicalName())){
+            throw new InvalidResourceDescriptorException (
+            "One not annotated object is not 'java.io.InputStream object',\n" +
+            "but transformer in methods annotation is not specified. This is not allowed!");
+          }
           if(!hasRequestEntity) 
             hasRequestEntity = true;
           else throw new InvalidResourceDescriptorException (
-              "You alredy have one not annotated object with must represent HTTP Request");
+            "One not annotated object with must represent HTTP Request.\n" + 
+            "Not allowed to have this: " + requestedParams[i].getCanonicalName() + "' ");
         }
-/*
-        else if(!"java.lang.String".equals(param.getCanonicalName())) {
-            throw new InvalidResourceDescriptorException ("Only java.lang.String " + 
-                "and org.exoplatform.services.rest.data.BaseEntity object" + 
-                "are alowed to use for ResourceContainer objects");
-        } */
       }
       
-      for(ResourceDescriptor storedDesc:resourceDescriptors) {
-        URIPattern spattern = storedDesc.getURIPattern();
-          // check URI pattern
-        if(spattern.matches(npattern.getString()) ||
-            npattern.matches(spattern.getString())) {
-          throw new InvalidResourceDescriptorException("The resource descriptor pattern '"+
-              newDesc.getURIPattern().getString() + "' can not be defined because of existed '"+
-              storedDesc.getURIPattern().getString());
-        }
-      }
     }
   }
 

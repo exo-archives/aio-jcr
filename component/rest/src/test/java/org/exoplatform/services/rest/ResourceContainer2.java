@@ -5,23 +5,22 @@
 package org.exoplatform.services.rest;
 
 import org.exoplatform.services.rest.container.ResourceContainer;
-import org.exoplatform.services.rest.data.StringRepresentation;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 
-@URITemplate("/level1/level2/")
-public class AnnotatedContainer implements ResourceContainer {
-  
+@EntityTransformerClass("org.exoplatform.services.rest.transformer.StringEntityTransformer")
+public class ResourceContainer2 implements ResourceContainer {
+
   @HTTPMethod("GET")
-  @URITemplate("/level3/{id1}/")
-  public Response method1(@URIParam("id1") String param) {
-    System.out.println(">>>>> (annot. class) method1 called!!!");
-    System.out.println(">>>>> (annot. class) param = " + param);
-    Response res = new Response(RESTStatus.OK);
-    res.setRepresentation(new StringRepresentation("method1"));
-    return res;
+  @URITemplate("/level1/{id}/level3/")
+  @ProducedMimeTypes("text/*")
+  public Response method1(String str, @URIParam("id") String param) {
+    System.out.println(">>>>> method1 called!!! id = " + param);
+    System.out.println(">>>>> entity  type: " + str.getClass().toString() + ", value: " + str);
+    return null;
   }
-} 
+
+}

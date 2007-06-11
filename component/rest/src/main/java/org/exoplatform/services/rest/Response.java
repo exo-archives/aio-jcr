@@ -8,6 +8,8 @@ package org.exoplatform.services.rest;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.exoplatform.services.rest.transformer.EntityTransformer;
+
 
 
 /**
@@ -16,17 +18,17 @@ import java.io.OutputStream;
  * @version $Id: $
  */
 
-public class Response extends Message {
+public class Response<T> {
   
-  private Object entity;
+  private T entity;
   private int status;
-  private EntityTransformer transformer;
+  private EntityTransformer<T> transformer;
   private EntityMetadata metadata;
 
   public Response(int status, 
       EntityMetadata metadata,
-      Object entity,
-      EntityTransformer transformer) { 
+      T entity,
+      EntityTransformer<T> transformer) { 
     this.status = status;
     this.entity = entity;
     this.transformer = transformer;
@@ -41,9 +43,9 @@ public class Response extends Message {
     return entity;
   }
 
-  public void setEntity(Object entity) {
-    this.entity = entity;
-  }
+//  public void setEntity(Object entity) {
+//    this.entity = entity;
+//  }
   
   public int getStatus() {
     return status;

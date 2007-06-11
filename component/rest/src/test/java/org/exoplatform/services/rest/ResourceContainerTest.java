@@ -10,15 +10,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.io.ByteArrayInputStream;
+import java.io.FileOutputStream;
+import java.io.File;
 
 import junit.framework.TestCase;
 
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.rest.container.InvalidResourceDescriptorException;
 import org.exoplatform.services.rest.container.ResourceDescriptor;
-import org.exoplatform.services.rest.data.StringRepresentation;
-import org.exoplatform.services.rest.data.BaseEntity;
-import org.exoplatform.services.rest.data.StringEntityTransformer;
 
 
 /**
@@ -27,7 +26,7 @@ import org.exoplatform.services.rest.data.StringEntityTransformer;
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
  * @version $Id:$
  */
-public class ResourceBinderDispatcherTest extends TestCase {
+public class ResourceContainerTest extends TestCase {
 
   private StandaloneContainer container;
   
@@ -55,7 +54,7 @@ public class ResourceBinderDispatcherTest extends TestCase {
     assertNotNull(binder);
     binder.clear();
     List <ResourceDescriptor> list = binder.getAllDescriptors();
-    AnnotatedParamContainer ac = new AnnotatedParamContainer();
+    ResourceContainer2 ac = new ResourceContainer2();
     binder.bind(ac);
     assertEquals(1, list.size());
     ResourceDescriptor d = list.get(0);
@@ -72,44 +71,15 @@ public class ResourceBinderDispatcherTest extends TestCase {
     assertNotNull(disp);
     ResourceBinder binder = (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);
     assertNotNull(binder);
-    TestBindDummyResourceContainer1 ac1 = new TestBindDummyResourceContainer1();
-    TestBindDummyResourceContainer2 ac2 = new TestBindDummyResourceContainer2();
-    TestBindDummyResourceContainer3 ac3 = new TestBindDummyResourceContainer3();
-    binder.bind(ac1);
     List <ResourceDescriptor> list = binder.getAllDescriptors();
-    assertEquals(1, list.size());
-    try {
-      binder.bind(new TestBindDummyResourceContainer2());
-    }catch(InvalidResourceDescriptorException e) {;}
-    assertEquals(1, list.size());
-    binder.unbind(ac1);
     assertEquals(0, list.size());
-
-    binder.bind(ac2);
-    assertEquals(1, list.size());
+    ResourceContainer3 ac2 = new ResourceContainer3();
     try {
-      binder.bind(new TestBindDummyResourceContainer1());
+      binder.bind(ac2);
     }catch(InvalidResourceDescriptorException e) {;}
-    assertEquals(1, list.size());
+    assertEquals(3, list.size());
     binder.unbind(ac2);
     assertEquals(0, list.size());
-
-    binder.bind(ac1);
-    assertEquals(1, list.size());
-    binder.bind(ac3);
-    assertEquals(2, list.size());
-    binder.unbind(ac1);
-    binder.unbind(ac3);
-    assertEquals(0, list.size());
-
-    binder.bind(ac2);
-    assertEquals(1, list.size());
-    binder.bind(ac3);
-    assertEquals(2, list.size());
-    binder.unbind(ac2);
-    binder.unbind(ac3);
-    assertEquals(0, list.size());
-
   }
 
   public void testParametrizedURIPattern0() throws Exception {
@@ -162,17 +132,17 @@ public class ResourceBinderDispatcherTest extends TestCase {
     assertNotNull(binder);
 
     List <ResourceDescriptor> list = binder.getAllDescriptors();
-    AnnotatedParamContainer dw = new AnnotatedParamContainer();
+    ResourceContainer2 dw = new ResourceContainer2();
     binder.bind(dw);
     assertEquals(1, list.size());
 
-    Request request = new Request(null, new ResourceIdentifier("/level1/myID/level3/"),
-        "GET", null, null);
+    MultivaluedMetadata mm = new MultivaluedMetadata();
+    mm.putSingle("accept", "text/html;q=0.8,text/xml,text/plain;q=0.5");
+    Request request = new Request(new ByteArrayInputStream("test string".getBytes()),
+        new ResourceIdentifier("/level1/myID/level3/"), "GET", mm, null);
     Response resp = disp.dispatch(request);
-    assertEquals("method1", resp.getRepresentation().getEntity());
     binder.unbind(dw);
     assertEquals(0, list.size());
-    System.out.println("RESPONSE >>>>>>> " + resp.getRepresentation().getEntity());
   }
 
   public void testServeAnnotatedClass() throws Exception {
@@ -182,54 +152,21 @@ public class ResourceBinderDispatcherTest extends TestCase {
     assertNotNull(binder);
 
     List <ResourceDescriptor> list = binder.getAllDescriptors();
-    AnnotatedContainer dw = new AnnotatedContainer();
+    ResourceContainer_ dw = new ResourceContainer_();
     binder.bind(dw);
     assertEquals(1, list.size());
 
     ByteArrayInputStream ds = new ByteArrayInputStream("hello".getBytes());
     assertNotNull(ds);
+    MultivaluedMetadata mm = new MultivaluedMetadata();
+    mm.putSingle("accept", "text/plain");
     Request request = new Request(ds, 
-        new ResourceIdentifier("/level1/level2/level3/hello"), "GET", null, null);
+        new ResourceIdentifier("/level1/level2/level3/hello"), "GET", mm, null);
     Response resp = disp.dispatch(request);
-    StringEntityTransformer transf = new StringEntityTransformer();
-    assertTrue(transf.support(String.class));
-    assertEquals("hello", transf.readFrom((java.io.InputStream)resp.getRepresentation().getEntity()));
+    assertEquals("text/plain", resp.getMetadata().getMediaType());
+//    resp.writeEntity(new FileOutputStream(new File("/tmp/test.txt")));
     binder.unbind(dw);
     assertEquals(0, list.size());
   }
 
-  
-  public void testServeWithParametrizedMapping() throws Exception {
-    ResourceDispatcher disp = (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
-    assertNotNull(disp);
-    ResourceBinder binder = (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);
-    assertNotNull(binder);
-    binder.clear();
-    List <ResourceDescriptor> list = binder.getAllDescriptors();
-    AnnotatedParamContainer1 ac1 = new AnnotatedParamContainer1();
-    binder.bind(ac1);
-    assertEquals(3, list.size());
-    ByteArrayInputStream ds = new ByteArrayInputStream("hello".getBytes());
-    Request request = new Request(null, new ResourceIdentifier("/level1/level2/"),
-        "GET", null, null);
-    request.setAcceptedMediaType("text/html");
-    Response resp = disp.dispatch(request);
-    assertEquals("text/html", resp.getAcceptedMediaType());
-    assertEquals("method1", resp.getRepresentation().getEntity());
-    
-    request = new Request(null, new ResourceIdentifier("/level1/level2/"),
-        "GET", null, null);
-    request.setAcceptedMediaType("text/xml");
-    resp = disp.dispatch(request);
-    assertEquals("text/xml", resp.getAcceptedMediaType());
-    assertEquals("method2", resp.getRepresentation().getEntity());
-    
-    request = new Request(null,new ResourceIdentifier("/level1/hello/level3/world/level4/good/"),
-        "POST", null, null);
-    resp = disp.dispatch(request);
-    assertEquals("method3", resp.getRepresentation().getEntity());
-    binder.unbind(ac1);
-    assertEquals(0, list.size());
-  }
-  
 }

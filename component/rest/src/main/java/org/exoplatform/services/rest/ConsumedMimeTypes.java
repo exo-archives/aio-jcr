@@ -4,21 +4,20 @@
  **************************************************************************/
 package org.exoplatform.services.rest;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.IOException;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import org.exoplatform.services.rest.data.MimeTypes;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 
-public interface EntityTransformer<T> {
-  
-//  public boolean support(Class<?> type);
-  
-  T readFrom(InputStream entityDataStream) throws IOException;
-
-  void writeTo(T entity, OutputStream entityDataStream) throws IOException;
-
+@Target({METHOD})
+@Retention(RUNTIME)
+public @interface ConsumedMimeTypes {
+  String value() default MimeTypes.ALL;
 }

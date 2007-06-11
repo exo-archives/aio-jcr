@@ -14,7 +14,7 @@ import java.io.InputStream;
  * @version $Id: $
  */
 
-public class Request extends Message {
+public class Request {
 
   private String methodName;        // HTTP Method
   private ResourceIdentifier resourceIdentifier;

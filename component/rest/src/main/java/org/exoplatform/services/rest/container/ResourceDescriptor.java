@@ -18,11 +18,13 @@ import org.exoplatform.services.rest.URIPattern;
 
 public interface ResourceDescriptor {
   String getAcceptableMethod();
-  String getConsumeMediaType();
-  String getProduceMediaType();
+  String getConsumedMimeTypes();
+  String getProducedMimeTypes();
   ResourceContainer getResourceContainer();
   Method getServer();
   URIPattern getURIPattern();
   Annotation[] getMethodParameterAnnotations();
   Class[] getMethodParameters();
+  String getTransformerName();
+  
 }

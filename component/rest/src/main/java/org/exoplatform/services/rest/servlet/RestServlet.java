@@ -46,7 +46,7 @@ public class RestServlet extends HttpServlet implements Connector {
     try {
       Response response = resDispatcher.dispatch(request);
 //      InputStream in = (InputStream)response.getRepresentation().getEntity();
-      httpResponse.setContentType(response.getAcceptedMediaType());
+      httpResponse.setContentType(response.getMetadata().getMediaType());
       httpResponse.setStatus(response.getStatus());
       java.io.OutputStream out = httpResponse.getOutputStream();
       response.writeEntity(out);
