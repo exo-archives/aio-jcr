@@ -65,7 +65,7 @@ public class JCRDriverTest extends /* BaseUsecasesTest */TestCase {
       // set JAAS auth config
       if (System.getProperty("java.security.auth.login.config") == null)
         System.setProperty("java.security.auth.login.config",
-            "src/main/java/conf/standalone/login.conf");
+            "src/main/resources/login.conf");
 
       // obtain default repository
       repositoryService = (RepositoryService) container

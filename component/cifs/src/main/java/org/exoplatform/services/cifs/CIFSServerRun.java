@@ -5,6 +5,8 @@
 
 package org.exoplatform.services.cifs;
 
+import java.net.URL;
+
 import org.exoplatform.container.StandaloneContainer;
 
 
@@ -25,9 +27,26 @@ public class CIFSServerRun {
 
     try {
       // create standalone container
+      String path = System.getProperty("user.dir");
+      System.out.println(path);
+      
+      //String path_t = org.exoplatform.services.cifs.CIFSServerRun.class.getProtectionDomain().getCodeSource().getLocation().getFile().toString();
+     // String path_t = org.exoplatform.services.cifs.CIFSServerRun.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+     // System.out.println(path_t);
+     // String path_xml = "D:/exo/projects/jcr/trunk/component/cifs"+"/src/main/java/conf/standalone/test/test-configuration.xml";
+     // String path_login = path_t + "!/conf/standalone/login.conf";
+     // System.out.println(path_xml);
+      
+      
+      URL  configurationURL = Thread.currentThread().getContextClassLoader().getResource("conf/standalone/test/test-configuration.xml");
 
-      StandaloneContainer
-          .setConfigurationPath("D:/exo/projects/jcr/trunk/component/cifs/src/main/java/conf/standalone/test/test-configuration.xml");
+      if (configurationURL == null)
+          throw new Exception(
+            "No StandaloneContainer config found. Check if conf/standalone/configuration.xml exists !");
+      
+      System.out.println(configurationURL.toString());
+      
+      StandaloneContainer.setConfigurationURL(configurationURL.toString());
 
       // obtain standalone container
       StandaloneContainer container = StandaloneContainer.getInstance();
@@ -35,10 +54,16 @@ public class CIFSServerRun {
       // set JAAS auth config
       
       //Thread.currentThread().getContextClassLoader().getResource();
-      if (System.getProperty("java.security.auth.login.config") == null)
-        System.setProperty("java.security.auth.login.config",
-            "D:/exo/projects/jcr/trunk/component/cifs/src/main/java/conf/standalone/login.conf");
+      URL  loginURL = Thread.currentThread().getContextClassLoader().getResource("login.conf");
 
+      if (configurationURL == null)
+          throw new Exception(
+            "No login config found. Check if conf/standalone/login.conf exists !");
+
+      
+      if (System.getProperty("java.security.auth.login.config") == null)
+        System.setProperty("java.security.auth.login.config",loginURL.toString());
+            
       System.out.println("Enter 'x' to shutdown ...");
       boolean shutdown = false;
       while (shutdown == false) {

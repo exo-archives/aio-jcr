@@ -1,0 +1,99 @@
+<classpath>
+  <classpathentry kind="src" path="src/main/java"/>
+  <classpathentry kind="src" path="src/main/resources"/>
+  <classpathentry kind="src" path="src/test/java" output="target/test-classes"/>
+  <classpathentry kind="src" path="src/test/resources" output="target/test-classes"/>
+  <classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+  <classpathentry kind="var" path="M2_REPO/javax/portlet/portlet-api/1.0/portlet-api-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/exoplatform/core/exo.core.component.organization.jdbc/2.0.3/exo.core.component.organization.jdbc-2.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.0.1B/jta-1.0.1B.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/exoplatform/kernel/exo.kernel.commons/2.0.3/exo.kernel.commons-2.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/experlog/xapool/1.5.0/xapool-1.5.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/asm/asm/1.5.3/asm-1.5.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar" sourcepath="M2_REPO/junit/junit/3.8.1/junit-3.8.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/bcel/bcel/5.1/bcel-5.1.jar" sourcepath="M2_REPO/bcel/bcel/5.1/bcel-5.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/jotm/jotm_jrmp_stubs/2.0.10/jotm_jrmp_stubs-2.0.10.jar"/>
+  <classpathentry kind="var" path="M2_REPO/pdfbox/pdfbox/0.7.2/pdfbox-0.7.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/xml/parsers/jaxp-api/1.4/jaxp-api-1.4.jar"/>
+  <classpathentry kind="var" path="M2_REPO/poi/poi/3.0-alpha1/poi-3.0-alpha1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/jotm/jotm/2.0.10/jotm-2.0.10.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/servlet/servlet-api/2.3/servlet-api-2.3.jar" sourcepath="M2_REPO/javax/servlet/servlet-api/2.3/servlet-api-2.3-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-chain/commons-chain/1.0/commons-chain-1.0.jar" sourcepath="M2_REPO/commons-chain/commons-chain/1.0/commons-chain-1.0-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate/3.1.2/hibernate-3.1.2.jar" sourcepath="M2_REPO/org/hibernate/hibernate/3.1.2/hibernate-3.1.2-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/xmldb/xmldb-api/20021118/xmldb-api-20021118.jar"/>
+  <classpathentry kind="var" path="M2_REPO/drools/drools-core/2.0/drools-core-2.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/sun/xml/parsers/jaxp-ri/1.4/jaxp-ri-1.4.jar"/>
+  <classpathentry kind="var" path="M2_REPO/xerces/xerces/2.0.2/xerces-2.0.2.jar" sourcepath="M2_REPO/xerces/xerces/2.0.2/xerces-2.0.2-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/exoplatform/core/exo.core.component.xml-processing/2.0.3/exo.core.component.xml-processing-2.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar" sourcepath="M2_REPO/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javagroups/concurrent/2.4.1/concurrent-2.4.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/drools/drools-smftest/2.0/drools-smftest-2.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/xstream/xstream/1.0.2/xstream-1.0.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/drools/drools-smf/2.0/drools-smf-2.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-codec/commons-codec/1.2/commons-codec-1.2.jar">
+    <attributes>
+      <attribute value="jar:file:/D:/exo/maven2/repository/commons-codec/commons-codec/1.2/commons-codec-1.2-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/janino/janino/2.3.2/janino-2.3.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/faces/jsf-api/1.2/jsf-api-1.2.jar" sourcepath="M2_REPO/javax/faces/jsf-api/1.2/jsf-api-1.2-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/poi/poi-scratchpad/3.0-alpha1/poi-scratchpad-3.0-alpha1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/exoplatform/core/exo.core.component.database/2.0.3/exo.core.component.database-2.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/exoplatform/core/exo.core.component.ldap/2.0.3/exo.core.component.ldap-2.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/exoplatform/kernel/exo.kernel.component.command/2.0.3/exo.kernel.component.command-2.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/exoplatform/kernel/exo.kernel.container/2.0.3/exo.kernel.container-2.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/exoplatform/kernel/exo.kernel.component.cache/2.0.3/exo.kernel.component.cache-2.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/antlr/antlr/2.7.6rc1/antlr-2.7.6rc1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2.jar" sourcepath="M2_REPO/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/castor/castor/0.9.7/castor-0.9.7.jar"/>
+  <classpathentry kind="var" path="M2_REPO/jcr/jcr/1.0/jcr-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-digester/commons-digester/1.6/commons-digester-1.6.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/exoplatform/core/exo.core.component.common/2.0.3/exo.core.component.common-2.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/xdoclet/xdoclet-hibernate-module/1.2.3/xdoclet-hibernate-module-1.2.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/howl/howl-logger/0.1.11/howl-logger-0.1.11.jar"/>
+  <classpathentry kind="var" path="M2_REPO/lucene/lucene/1.4.3/lucene-1.4.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/xml-resolver/xml-resolver/1.1/xml-resolver-1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/mail/mail/1.4/mail-1.4.jar" sourcepath="M2_REPO/javax/mail/mail/1.4/mail-1.4-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/resource/connector/1.5/connector-1.5.jar"/>
+  <classpathentry kind="var" path="M2_REPO/drools/drools-java/2.0/drools-java-2.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/cglib/cglib/2.1_3/cglib-2.1_3.jar" sourcepath="M2_REPO/cglib/cglib/2.1_3/cglib-2.1_3-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/resource/connector-api/1.5/connector-api-1.5.jar" sourcepath="M2_REPO/javax/resource/connector-api/1.5/connector-api-1.5-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/c3p0/c3p0/0.8.4.5/c3p0-0.8.4.5.jar"/>
+  <classpathentry kind="var" path="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar" sourcepath="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/xpp3/xpp3/1.1.2a/xpp3-1.1.2a.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/exoplatform/kernel/exo.kernel.component.remote/2.0.3/exo.kernel.component.remote-2.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-dbcp/commons-dbcp/1.2.1/commons-dbcp-1.2.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/exoplatform/tool/exo.tool.framework.junit/2.0.3/exo.tool.framework.junit-2.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/activation/activation/1.1/activation-1.1.jar" sourcepath="M2_REPO/javax/activation/activation/1.1/activation-1.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/objectweb/carol/carol/2.0.5/carol-2.0.5.jar"/>
+  <classpathentry kind="var" path="M2_REPO/groovy/groovy-all/1.0/groovy-all-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/xdoclet/xdoclet/1.2.3/xdoclet-1.2.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.1/commons-lang-2.1.jar" sourcepath="M2_REPO/commons-lang/commons-lang/2.1/commons-lang-2.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/xerces/xercesImpl/2.6.2/xercesImpl-2.6.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javagroups/jgroups-all/2.4.1/jgroups-all-2.4.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-pool/commons-pool/1.2/commons-pool-1.2.jar" sourcepath="M2_REPO/commons-pool/commons-pool/1.2/commons-pool-1.2-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/xdoclet/xdoclet-xdoclet-module/1.2/xdoclet-xdoclet-module-1.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/exoplatform/kernel/exo.kernel.component.common/2.0.3/exo.kernel.component.common-2.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.8/log4j-1.2.8.jar" sourcepath="M2_REPO/log4j/log4j/1.2.8/log4j-1.2.8-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/hsqldb/hsqldb/1.8.0.7/hsqldb-1.8.0.7.jar"/>
+  <classpathentry kind="var" path="M2_REPO/xdoclet/xjavadoc/1.0.3/xjavadoc-1.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/jibx/jibx-run/1.0/jibx-run-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/drools/drools-base/2.0/drools-base-2.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/ehcache/ehcache/1.1/ehcache-1.1.jar" sourcepath="M2_REPO/ehcache/ehcache/1.1/ehcache-1.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.1/commons-collections-3.1.jar" sourcepath="M2_REPO/commons-collections/commons-collections/3.1/commons-collections-3.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/mail/activation/1.0/activation-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/directory-naming/naming-java/0.8/naming-java-0.8.jar"/>
+  <classpathentry kind="var" path="M2_REPO/jmock/jmock/1.0.1/jmock-1.0.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/exoplatform/core/exo.core.component.security/2.0.3/exo.core.component.security-2.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/picocontainer/picocontainer/1.1/picocontainer-1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/html-parser/html-parser/1.6/html-parser-1.6.jar"/>
+  <classpathentry kind="var" path="M2_REPO/quartz/quartz/1.5.0-RC2/quartz-1.5.0-RC2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/jtidy/jtidy/4aug2000r7-dev/jtidy-4aug2000r7-dev.jar" sourcepath="M2_REPO/jtidy/jtidy/4aug2000r7-dev/jtidy-4aug2000r7-dev-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/exoplatform/core/exo.core.component.document/2.0.3/exo.core.component.document-2.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-beanutils/commons-beanutils/1.6/commons-beanutils-1.6.jar"/>
+  <classpathentry kind="var" path="M2_REPO/directory-naming/naming-core/0.8/naming-core-0.8.jar"/>
+  <classpathentry kind="var" path="M2_REPO/jibx/jibx-bind/1.0/jibx-bind-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/exoplatform/jcr/exo.jcr.component.core/1.6/exo.jcr.component.core-1.6.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/exoplatform/core/exo.core.component.organization.api/2.0.3/exo.core.component.organization.api-2.0.3.jar"/>
+</classpath>

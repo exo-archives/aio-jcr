@@ -62,7 +62,6 @@ import org.exoplatform.services.log.ExoLogger;
 
 import org.apache.commons.logging.Log;
 
-
 /**
  * LanMan SMB Protocol Handler Class.
  * <p>
@@ -91,7 +90,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
   /**
    * LanManProtocolHandler constructor.
    */
-  public/* protected */LanManProtocolHandler() {
+  public LanManProtocolHandler() {
     super();
   }
 
@@ -101,7 +100,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
    * @param sess
    *          org.exoplatform.services.CIFS.smbsrv.SMBSrvSession
    */
-  public/* protected */LanManProtocolHandler(SMBSrvSession sess) {
+  public LanManProtocolHandler(SMBSrvSession sess) {
     super(sess);
   }
 
@@ -447,7 +446,67 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
    */
   protected final void procLockingAndX(SMBSrvPacket outPkt)
       throws java.io.IOException, SMBSrvException {
-    logger.debug(":procLockingAndX EMPTY");
+    logger.debug(":procLockingAndX");
+    // Check that the received packet looks like a valid locking andX request
+
+    if (m_smbPkt.checkPacketIsValid(8, 0) == false) {
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
+          SMBStatus.ErrSrv);
+      return;
+    }
+
+    // Get the tree connection details
+
+    TreeConnection conn = m_sess.findConnection(m_smbPkt.getTreeId());
+
+    if (conn == null) {
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInvalidTID, SMBStatus.ErrSrv);
+      return;
+    }
+
+    // Check if the user has the required access permission
+
+    if (conn.hasReadAccess() == false) {
+
+      // User does not have the required access rights
+
+      m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied,
+          SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+      return;
+    }
+
+    // Extract the file lock/unlock parameters
+
+    int fid = m_smbPkt.getParameter(2);
+    int lockType = m_smbPkt.getParameter(3);
+    long lockTmo = m_smbPkt.getParameterLong(4);
+    int lockCnt = m_smbPkt.getParameter(6);
+    int unlockCnt = m_smbPkt.getParameter(7);
+
+    NetworkFile netFile = conn.findFile(fid);
+
+    if (netFile == null) {
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidHandle, SMBStatus.ErrDos);
+      return;
+    }
+
+    // Debug
+
+    if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_LOCK))
+      logger.debug("File Lock [" + netFile.getFileId() + "] : type=0x"
+          + Integer.toHexString(lockType) + ", tmo=" + lockTmo + ", locks="
+          + lockCnt + ", unlocks=" + unlockCnt);
+
+    // Return a success status for now
+
+    outPkt.setParameterCount(2);
+    outPkt.setAndXCommand(0xFF);
+    outPkt.setParameter(1, 0);
+    outPkt.setByteCount(0);
+
+    // Send the lock request response
+
+    m_sess.sendResponseSMB(outPkt);
   }
 
   /**
@@ -551,7 +610,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       return;
     }
 
-    logger.debug("\n	fileName [" + fileName + "] TEMPLATE");
+   // logger.debug("\n	fileName [" + fileName + "] TEMPLATE");
 
     // convert name
 

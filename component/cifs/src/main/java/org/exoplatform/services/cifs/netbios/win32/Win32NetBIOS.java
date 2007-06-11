@@ -19,6 +19,7 @@ package org.exoplatform.services.cifs.netbios.win32;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
