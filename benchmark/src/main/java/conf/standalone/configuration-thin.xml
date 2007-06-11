@@ -208,18 +208,7 @@
     <type>org.exoplatform.services.organization.impl.mock.DummyOrganizationService</type>
   </component>
 
-  <!-- component>
-          <key>org.exoplatform.services.security.SecurityService</key>
-          <type>org.exoplatform.services.security.impl.SecurityServiceImpl</type>
-    <init-params>
-      <value-param>
-        <name>security.authentication</name>
-        <value>standalone</value>
-      </value-param>
-    </init-params>
-  </component -->
-
-  <component>
+    <component>
     <key>org.exoplatform.services.listener.ListenerService</key>
     <type>org.exoplatform.services.listener.ListenerService</type>
     <component-plugins>
@@ -233,7 +222,7 @@
 
   <component> 
     <type>org.exoplatform.services.organization.auth.AuthenticationService</type>
-  </component>  
+  </component>
 
   <component>
     <key>org.exoplatform.services.document.DocumentReaderService</key>
