@@ -322,12 +322,20 @@
     </init-params>
   </component -->
 
-  <component> 
-    <type>org.exoplatform.services.organization.auth.AuthenticationService</type>
+  <component>
+    <key>org.exoplatform.services.listener.ListenerService</key>
+    <type>org.exoplatform.services.listener.ListenerService</type>
+    <component-plugins>
+      <component-plugin>
+        <name>exo.service.authentication.login</name>
+        <set-method>addListener</set-method>
+        <type>org.exoplatform.services.jcr.impl.core.access.JCRAuthenticationListener</type>
+      </component-plugin>
+    </component-plugins>    
   </component>
 
-  <component>
-    <type>org.exoplatform.services.listener.ListenerService</type>
+  <component> 
+    <type>org.exoplatform.services.organization.auth.AuthenticationService</type>
   </component>
 
   <component>
