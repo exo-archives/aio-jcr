@@ -1,7 +1,7 @@
 package org.exoplatform.services.rest.servlet;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -24,16 +24,15 @@ public class RestServlet extends HttpServlet implements Connector {
   private static Log logger = ExoLogger.getLogger("RestServlet");
 	
   public void init(){
-    logger.info(">>>>>>>>>RestServlet init");
     try {
       container = ExoContainerContext.getCurrentContainer();
     }catch(Exception e) {
-      logger.error("!!!!! Cann't get current container");
+      logger.error("Cann't get current container");
       e.printStackTrace();
     }
     resDispatcher = (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
     if(resDispatcher == null) {
-      logger.info("!!!!! ResourceRouter is null");
+      logger.error("RESOURCE_ROUTER is null");
     }
     logger.info("CONTAINER:       " + container);
     logger.info("RESOURCE_ROUTER: " + resDispatcher);
@@ -44,18 +43,11 @@ public class RestServlet extends HttpServlet implements Connector {
     
     Request request = RequestFactory.createRequest(httpRequest);
     try {
-      Response response = resDispatcher.dispatch(request);
-//      InputStream in = (InputStream)response.getRepresentation().getEntity();
+      Response<?> response = resDispatcher.dispatch(request);
       httpResponse.setContentType(response.getMetadata().getMediaType());
       httpResponse.setStatus(response.getStatus());
-      java.io.OutputStream out = httpResponse.getOutputStream();
+      OutputStream out = httpResponse.getOutputStream();
       response.writeEntity(out);
-//      byte[] buff = new byte[1024];
-//      while(true) {
-//        int rd = in.read(buff);
-//        if(rd < 0) break;
-//        out.write(buff, 0, rd);
-//      }
       out.flush();
       out.close();
     }catch(Exception e) {

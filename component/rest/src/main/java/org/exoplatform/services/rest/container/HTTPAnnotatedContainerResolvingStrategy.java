@@ -105,12 +105,12 @@ public class HTTPAnnotatedContainerResolvingStrategy
     private String            producedMimeTypes;
     private Method            servingMethod;
     private Annotation[]      methodParameterAnnotations;
-    private Class[]           methodParameters;
+    private Class<?>[]        methodParameters;
     private ResourceContainer resourceCont;
 
     public HTTPResourceDescriptor(Method method, String name, String uri,
         String transformerName, Annotation[] methodParameterAnnotations,
-        Class[] methodParameters, String consumedMimeTypes, String producedMimeTypes,
+        Class<?>[] methodParameters, String consumedMimeTypes, String producedMimeTypes,
         ResourceContainer resourceCont) {
 
       this.servingMethod = method;
@@ -140,7 +140,7 @@ public class HTTPAnnotatedContainerResolvingStrategy
       return methodParameterAnnotations;
     }
 
-    public Class[] getMethodParameters() {
+    public Class<?>[] getMethodParameters() {
       return methodParameters;
     }
 

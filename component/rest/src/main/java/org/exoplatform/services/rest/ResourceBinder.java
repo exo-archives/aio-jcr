@@ -93,7 +93,7 @@ public class ResourceBinder implements Startable {
     this.resourceDescriptors.clear();
   }
   
-  public List getAllDescriptors() {
+  public List<ResourceDescriptor> getAllDescriptors() {
     return this.resourceDescriptors;
   }
 
@@ -119,7 +119,7 @@ public class ResourceBinder implements Startable {
       }
 
       Method method = newDesc.getServer();
-      Class[] requestedParams = method.getParameterTypes();
+      Class<?>[] requestedParams = method.getParameterTypes();
       Annotation[][] paramAnno = method.getParameterAnnotations();
       boolean hasRequestEntity = false;
       for(int i = 0; i < paramAnno.length; i++) {

@@ -24,7 +24,7 @@ public interface ResourceDescriptor {
   Method getServer();
   URIPattern getURIPattern();
   Annotation[] getMethodParameterAnnotations();
-  Class[] getMethodParameters();
+  Class<?>[] getMethodParameters();
   String getTransformerName();
   
 }

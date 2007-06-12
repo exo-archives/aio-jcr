@@ -32,7 +32,7 @@ public class ResourceDispatcher implements Connector {
     this.resourceDescriptors = binder.getAllDescriptors();
   }
 
-  public Response dispatch(Request request) throws Exception {
+  public Response<?> dispatch(Request request) throws Exception {
     String requestedURI = request.getResourceIdentifier().getURI().getPath();
     String methodName = request.getMethodName();
     
@@ -49,7 +49,7 @@ public class ResourceDispatcher implements Connector {
         
         request.getResourceIdentifier().initParameters(resource.getURIPattern());
         Annotation[] methodParametersAnnotations = resource.getMethodParameterAnnotations();
-        Class[] methodParameters = resource.getMethodParameters();
+        Class<?>[] methodParameters = resource.getMethodParameters();
         Object[] objs = new Object[methodParameters.length];
 
         for (int i = 0; i < methodParametersAnnotations.length; i++) {
@@ -83,7 +83,7 @@ public class ResourceDispatcher implements Connector {
             }
           }
         }
-        return (Response) resource.getServer().invoke(resource.getResourceContainer(), objs);
+        return (Response<?>) resource.getServer().invoke(resource.getResourceContainer(), objs);
       }
     }
     throw new NoSuchMethodException("No method found for " + methodName + " " + requestedURI + " "

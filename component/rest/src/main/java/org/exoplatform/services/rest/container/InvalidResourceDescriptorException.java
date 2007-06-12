@@ -14,22 +14,18 @@ public class InvalidResourceDescriptorException extends Exception {
 
   public InvalidResourceDescriptorException() {
     super();
-    // TODO Auto-generated constructor stub
   }
 
   public InvalidResourceDescriptorException(String message, Throwable cause) {
     super(message, cause);
-    // TODO Auto-generated constructor stub
   }
 
   public InvalidResourceDescriptorException(String message) {
     super(message);
-    // TODO Auto-generated constructor stub
   }
 
   public InvalidResourceDescriptorException(Throwable cause) {
     super(cause);
-    // TODO Auto-generated constructor stub
   }
 
 }
