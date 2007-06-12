@@ -87,7 +87,7 @@ public class ResourceDispatcher implements Connector {
       }
     }
     throw new NoSuchMethodException("No method found for " + methodName + " " + requestedURI + " "
-       + request.getHeaderParams().getFirst("accept"));
+       + acceptedMimeTypes);
   }
 
   private boolean compareMimeTypes(String[] requested, String[] produced) {
