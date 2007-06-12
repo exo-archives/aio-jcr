@@ -124,9 +124,11 @@ public class ResourceBinder implements Startable {
       boolean hasRequestEntity = false;
       for(int i = 0; i < paramAnno.length; i++) {
         if(paramAnno[i].length == 0) {
+
           if(!"java.io.InputStream".equals(requestedParams[i].getCanonicalName()) 
-              && method.getAnnotation(EntityTransformerClass.class) != null
-              && newDesc.getResourceContainer().getClass().getAnnotation(EntityTransformerClass.class) != null) {
+              && method.getAnnotation(EntityTransformerClass.class) == null
+              && newDesc.getResourceContainer().getClass().getAnnotation(
+                  EntityTransformerClass.class) == null) {
 
             throw new InvalidResourceDescriptorException (
             "One not annotated object is not 'java.io.InputStream object',\n" +

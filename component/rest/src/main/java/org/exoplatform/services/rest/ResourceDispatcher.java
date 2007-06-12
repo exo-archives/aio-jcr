@@ -36,7 +36,9 @@ public class ResourceDispatcher implements Connector {
     String requestedURI = request.getResourceIdentifier().getURI().getPath();
     String methodName = request.getMethodName();
     
-    MimeTypes requestedMimeTypes = new MimeTypes(request.getHeaderParams().getFirst("accept"));
+    String acceptedMimeTypes = (request.getHeaderParams().getFirst("accept") != null) ?
+        request.getHeaderParams().getFirst("accept") : MimeTypes.ALL;
+    MimeTypes requestedMimeTypes = new MimeTypes(acceptedMimeTypes);
 
     for (ResourceDescriptor resource : resourceDescriptors) {
       MimeTypes producedMimeTypes = new MimeTypes(resource.getProducedMimeTypes());
