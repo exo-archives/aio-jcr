@@ -17,12 +17,12 @@ public class ResourceContainer_ implements ResourceContainer {
   
   @HTTPMethod("GET")
   @URITemplate("/level3/{id1}/")
-  public Response method1(@URIParam("id1") String param) {
+  public Response<String> method1(@URIParam("id1") String param) {
     System.out.println(">>>>> (annot. class) method1 called!!!");
     System.out.println(">>>>> (annot. class) param = " + param);
     EntityMetadata entityMetadata = new EntityMetadata("text/plain");
     Response<String> resp = new Response<String>(RESTStatus.OK, entityMetadata,
-        "method1", new StringEntityTransformer());
+        ">>>>> response!!!", new StringEntityTransformer());
     return resp;
   }
  

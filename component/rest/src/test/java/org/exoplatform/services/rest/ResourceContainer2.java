@@ -5,6 +5,7 @@
 package org.exoplatform.services.rest;
 
 import org.exoplatform.services.rest.container.ResourceContainer;
+import org.exoplatform.services.rest.transformer.StringEntityTransformer;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -17,10 +18,13 @@ public class ResourceContainer2 implements ResourceContainer {
   @HTTPMethod("GET")
   @URITemplate("/level1/{id}/level3/")
   @ProducedMimeTypes("text/*")
-  public Response method1(String str, @URIParam("id") String param) {
+  public Response<String> method1(String str, @URIParam("id") String param) {
     System.out.println(">>>>> method1 called!!! id = " + param);
     System.out.println(">>>>> entity  type: " + str.getClass().toString() + ", value: " + str);
-    return null;
+    EntityMetadata entityMetadata = new EntityMetadata("text/plain");
+    Response<String> resp = new Response<String>(RESTStatus.OK, entityMetadata,
+        ">>>>> response!!!\n", new StringEntityTransformer());
+    return resp;
   }
 
 }

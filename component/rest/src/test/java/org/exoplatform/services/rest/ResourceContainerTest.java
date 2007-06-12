@@ -141,6 +141,7 @@ public class ResourceContainerTest extends TestCase {
     Request request = new Request(new ByteArrayInputStream("test string".getBytes()),
         new ResourceIdentifier("/level1/myID/level3/"), "GET", mm, null);
     Response resp = disp.dispatch(request);
+    resp.writeEntity(System.out);
     binder.unbind(dw);
     assertEquals(0, list.size());
   }
@@ -165,6 +166,7 @@ public class ResourceContainerTest extends TestCase {
     Response resp = disp.dispatch(request);
     assertEquals("text/plain", resp.getMetadata().getMediaType());
 //    resp.writeEntity(new FileOutputStream(new File("/tmp/test.txt")));
+    resp.writeEntity(System.out);
     binder.unbind(dw);
     assertEquals(0, list.size());
   }

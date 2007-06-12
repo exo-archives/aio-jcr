@@ -6,6 +6,7 @@ package org.exoplatform.services.rest;
 
 
 import org.exoplatform.services.rest.container.ResourceContainer;
+import java.io.InputStream;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -18,7 +19,7 @@ public class ResourceContainer3 implements ResourceContainer {
   @HTTPMethod("POST")
   @URITemplate("/level1/{id}/level3/")
   @EntityTransformerClass("any") // this is just test, here must real class name
-  public Response postMethod(Object o, @URIParam("id") String param) {
+  public Response postMethod(Object o) {
     return null;
   }
 
@@ -30,7 +31,10 @@ public class ResourceContainer3 implements ResourceContainer {
 
   @HTTPMethod("DELETE")
   @URITemplate("/level1/{id}/level3/")
-  public Response delMethod(java.io.InputStream i, @URIParam("id") String param) {
+  // @EntityTransformerClass("any")
+  // transformer is not nessered
+  // (java.io.InputStream represents HTTP request
+  public Response delMethod(InputStream i, @URIParam("id") String param) {
     return null;
   }
 }
