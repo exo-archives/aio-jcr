@@ -284,6 +284,7 @@ public class RepositoryImpl implements ManageableRepository {
           + " remove workspace close all open sessions");
 
     internalRemoveWorkspace(workspaceName);
+    config.getWorkspaceEntries().remove(repositoryContainer.getWorkspaceEntry(workspaceName));
   }
   public void internalRemoveWorkspace(String workspaceName) throws RepositoryException {
     WorkspaceContainer workspaceContainer = null;
@@ -296,8 +297,9 @@ public class RepositoryImpl implements ManageableRepository {
           throw new RepositoryException(e);
       }
       repositoryContainer.unregisterComponentByInstance(workspaceContainer);
+      
     }
-    config.getWorkspaceEntries().remove(repositoryContainer.getWorkspaceEntry(workspaceName));
+    
   }
   
   public boolean canRemoveWorkspace(String workspaceName) throws NoSuchWorkspaceException {

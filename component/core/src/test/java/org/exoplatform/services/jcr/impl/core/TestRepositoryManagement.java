@@ -176,7 +176,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
     workspaceEntry.setContainer(containerEntry);
 
     repositoryEntry.addWorkspace(workspaceEntry);
-    WorkspaceEntry secondWs = TestWorkspaceManagement.getNewWs(null, false,dsName);
+    WorkspaceEntry secondWs = TestWorkspaceManagement.getNewWs(null, false, dsName);
     repositoryEntry.addWorkspace(secondWs);
 
     RepositoryService service = (RepositoryService) container
@@ -184,8 +184,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
     service.createRepository(repositoryEntry);
 
-    RepositoryImpl newRtepository = (RepositoryImpl) service
-        .getRepository("repo4testCanRemove");
+    RepositoryImpl newRtepository = (RepositoryImpl) service.getRepository("repo4testCanRemove");
     try {
 
       Session sess = newRtepository.getSystemSession();
@@ -201,13 +200,12 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
       assertFalse(service.canRemoveRepository("repo4testCanRemove"));
       sess2.logout();
       assertTrue(service.canRemoveRepository("repo4testCanRemove"));
-      
+
     } catch (RepositoryException e) {
       e.printStackTrace();
       fail();
     }
-    
-    
+
   }
 
   public void testRemove() throws Exception {
@@ -238,7 +236,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
     workspaceEntry.setContainer(containerEntry);
 
     repositoryEntry.addWorkspace(workspaceEntry);
-    WorkspaceEntry secondWs = TestWorkspaceManagement.getNewWs(null, false,dsName);
+    WorkspaceEntry secondWs = TestWorkspaceManagement.getNewWs(null, false, dsName);
     repositoryEntry.addWorkspace(secondWs);
 
     RepositoryService service = (RepositoryService) container
@@ -246,14 +244,83 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
     service.createRepository(repositoryEntry);
 
-    RepositoryImpl newRtepository = (RepositoryImpl) service
-        .getRepository("repo4testRemove");
+    RepositoryImpl newRtepository = (RepositoryImpl) service.getRepository("repo4testRemove");
     assertTrue(service.canRemoveRepository("repo4testRemove"));
-    
+
     service.removeRepository("repo4testRemove");
-    
   }
-  
+
+  public void testRemoveOtherThread() throws Exception {
+    RepositoryEntry repositoryEntry = new RepositoryEntry();
+
+    repositoryEntry.setName("repo4RemoveOtherThread");
+    repositoryEntry.setSessionTimeOut(3600000);
+    repositoryEntry
+        .setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy");
+    repositoryEntry.setSecurityDomain("exo-domain");
+    repositoryEntry.setSystemWorkspaceName("ws4RemoveOtherThread");
+    repositoryEntry.setDefaultWorkspaceName("ws4RemoveOtherThread");
+
+    List params = new ArrayList();
+    String dsName = getNewDs();
+    params.add(new SimpleParameterEntry("sourceName", dsName));
+    params.add(new SimpleParameterEntry("db-type", "generic"));
+    params.add(new SimpleParameterEntry("multi-db", "false"));
+    params.add(new SimpleParameterEntry("update-storage", "true"));
+    params.add(new SimpleParameterEntry("max-buffer-size", "204800"));
+    params.add(new SimpleParameterEntry("swap-directory", "target/temp/swap/ws"));
+
+    ContainerEntry containerEntry = new ContainerEntry("org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer",
+        (ArrayList) params);
+    containerEntry.setParameters(params);
+
+    WorkspaceEntry workspaceEntry = new WorkspaceEntry("ws4RemoveOtherThread", "nt:unstructured");
+    workspaceEntry.setContainer(containerEntry);
+
+    repositoryEntry.addWorkspace(workspaceEntry);
+    WorkspaceEntry secondWs = TestWorkspaceManagement.getNewWs(null, false, dsName);
+    repositoryEntry.addWorkspace(secondWs);
+
+    RepositoryService service = (RepositoryService) container
+        .getComponentInstanceOfType(RepositoryService.class);
+
+    service.createRepository(repositoryEntry);
+
+    RepositoryImpl newRtepository = (RepositoryImpl) service.getRepository("repo4RemoveOtherThread");
+    assertTrue(service.canRemoveRepository("repo4RemoveOtherThread"));
+
+     RepositoryRemover remover = new RepositoryRemover("repo4RemoveOtherThread", service);
+    remover.start();
+    Thread.currentThread().sleep(1000 * 10);// 10 sec
+    try {
+      service.getRepository("repo4RemoveOtherThread");
+      fail();
+    } catch (RepositoryException e) {
+      // ok
+    }
+  }
+
+  private class RepositoryRemover extends Thread {
+    private final String            repoName;
+
+    private final RepositoryService service;
+
+    RepositoryRemover(String repoName, RepositoryService service) {
+      this.repoName = repoName;
+      this.service = service;
+
+    }
+
+    public void run() {
+      try {
+      if (service.canRemoveRepository(repoName))
+        service.removeRepository(repoName);
+      } catch (RepositoryException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
   private String getNewDs() throws Exception {
     String newDs = UUIDGenerator.generate();
     Properties properties = new Properties();

@@ -284,6 +284,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
       for (WorkspaceEntry wsEntry : repconfig.getWorkspaceEntries()) {
         repo.internalRemoveWorkspace(wsEntry.getName());
       }
+      repconfig.getWorkspaceEntries().clear();
       RepositoryContainer repositoryContainer = repositoryContainers.get(name);
       repositoryContainer.stopContainer();
       repositoryContainer.stop();
