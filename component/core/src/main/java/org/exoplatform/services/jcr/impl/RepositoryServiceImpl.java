@@ -117,6 +117,8 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
   }
 
   public ManageableRepository getCurrentRepository() throws RepositoryException {
+    if(currentRepositoryName.get() == null)
+      return getDefaultRepository();
     return getRepository(currentRepositoryName.get());
   }
 
