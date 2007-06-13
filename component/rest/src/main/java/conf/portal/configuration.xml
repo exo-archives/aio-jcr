@@ -3,8 +3,8 @@
 <configuration>
 
   <component>
-    <key>org.exoplatform.services.rest.RestServiceImpl</key>
-    <type>org.exoplatform.services.rest.RestServiceImpl</type>
+    <key>org.exoplatform.services.orgservice.RestServiceImpl</key>
+    <type>org.exoplatform.services.orgservice.RestServiceImpl</type>
     <init-params>
 
       <value-param>
