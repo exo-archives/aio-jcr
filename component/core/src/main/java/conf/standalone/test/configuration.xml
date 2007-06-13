@@ -4,7 +4,6 @@
     <key>org.exoplatform.services.log.LogConfigurationInitializer</key>
     <type>org.exoplatform.services.log.LogConfigurationInitializer</type>
     <init-params>
-
       <value-param>
         <name>logger</name>
         <value>org.exoplatform.services.log.impl.BufferedLog4JLogger</value>

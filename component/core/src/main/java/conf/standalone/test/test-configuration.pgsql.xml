@@ -18,7 +18,7 @@
         <name>properties</name>
         <description>Log4J properties</description>
         <property name="log4j.rootLogger" value="INFO, stdout, file"/>
-        <property name="log4j.category.jcr.Test" value="DEBUG, stdout, file"/>
+        <property name="log4j.category.jcr.Test" value="INFO, stdout, file"/>
 
         <property name="log4j.appender.stdout" value="org.apache.log4j.ConsoleAppender"/>
 
