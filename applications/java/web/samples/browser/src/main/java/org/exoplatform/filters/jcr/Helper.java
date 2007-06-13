@@ -16,11 +16,10 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.StandaloneContainer;
 //import org.exoplatform.container.client.http.HttpClientInfo;
+import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.UserProfile;
-import org.exoplatform.services.organization.UserProfileHandler;
-import org.exoplatform.services.security.SecurityService;
+import org.exoplatform.services.organization.auth.AuthenticationService;
+import org.exoplatform.services.organization.auth.Identity;
 
 /**
  * Created by The eXo Platform SARL .
@@ -65,7 +64,10 @@ public class Helper {
         repository = (Repository) ctx.lookup("java:comp/env/jcr/" + repoName);
       }
     }
-
+    StandaloneContainer container_ = StandaloneContainer.getInstance();
+    RepositoryService repositoryService = (RepositoryService) container_
+    .getComponentInstanceOfType(RepositoryService .class);
+    repositoryService.setCurrentRepositoryName(repoName);
     httpRequest.getSession().setAttribute("repo", repository);
     // System.out.println(" -- repository: " + repository);
     return repository;
@@ -86,11 +88,17 @@ public class Helper {
     StandaloneContainer container_ = StandaloneContainer.getInstance();
     HttpSession session = request_.getSession();
     // removeAttributes(session);
-    SecurityService securityService = (SecurityService) container_
-        .getComponentInstanceOfType(SecurityService.class);
-    securityService.setCurrentUser(request_.getRemoteUser());
-    
-    OrganizationService orgService = (OrganizationService) container_
+    AuthenticationService authenticationService = (AuthenticationService) container_
+        .getComponentInstanceOfType(AuthenticationService.class);
+    if (request_.getRemoteUser() != null) {
+      if (authenticationService.getCurrentIdentity() == null) {
+        log.error("Cannot find the identity for user " + request_.getRemoteUser()
+            + ", trying to create the new one");
+        Identity identity = authenticationService.getIdentityBySessionId(request_.getRemoteUser());
+        authenticationService.setCurrentIdentity(identity);
+      }
+    }
+    /*OrganizationService orgService = (OrganizationService) container_
         .getComponentInstanceOfType(OrganizationService.class);
     
     //System.out.println("OrganizationService: " + orgService);
@@ -104,7 +112,7 @@ public class Helper {
       System.out.println("userProfile is null, create one new");
     }
 
-    System.out.println("userProfile: " + userProfile + ", remote: " + request_.getRemoteUser());
+    System.out.println("userProfile: " + userProfile + ", remote: " + request_.getRemoteUser());*/
 
     /*container_.removeSessionContainer(session.getId());
     SessionContainer scontainer_ = container_.createSessionContainer(session.getId());
@@ -125,7 +133,8 @@ public class Helper {
       //newSessionContainer(request_);
       setUser(request_);
     } catch (Exception e) {
-      System.err.println("tuneRequest error " + request_.getRemoteUser() + ", " + e);
+      log.error("tuneRequest error for " + request_.getRemoteUser(), e);
+      //System.err.println("tuneRequest error " + request_.getRemoteUser() + ", " + e);
       //e.printStackTrace();
     }
   }
