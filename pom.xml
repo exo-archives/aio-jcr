@@ -15,7 +15,6 @@
     <module>component/rest</module>
     <module>component/webdav</module>
 
-    <module>configuration</module>
     <module>frameworks/command</module>
     <module>frameworks/web</module>
 
