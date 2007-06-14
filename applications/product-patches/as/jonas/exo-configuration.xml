@@ -14,7 +14,7 @@
   <component>
     <type>org.exoplatform.services.organization.impl.mock.DummyOrganizationService</type>
   </component>
-  <component>
+  <!--<component>
       <key>org.exoplatform.services.command.impl.CommandService</key>
       <type>org.exoplatform.services.command.impl.CommandService</type>
       <component-plugins>
@@ -30,7 +30,7 @@
             </init-params>
         </component-plugin>
       </component-plugins>
-  </component>
+  </component>-->
     <external-component-plugins>
     	<target-component>org.exoplatform.services.listener.ListenerService</target-component>
     	<component-plugin>
