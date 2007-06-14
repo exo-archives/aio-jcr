@@ -51,10 +51,10 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
   protected List<ItemState>     itemAddStates = new ArrayList<ItemState>();
 
   /**
-   * The variable shows necessity of preservation <code>UUID</code>, not
+   * The variable shows necessity of preservation <code>Identifier</code>, not
    * generate new one, at transformation of <code>Item</code>.
    */
-  protected boolean             keepUUIDs;
+  protected boolean             keepIdentifiers;
 
   /**
    * The NodeTypeManager
@@ -70,14 +70,14 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
    * @param destNodeName - Destination node name
    * @param nodeTypeManager - The NodeTypeManager
    * @param dataManager - Source data manager
-   * @param keepUUIDs - Is it necessity to keep <code>UUID</code>
+   * @param keepIdentifiers - Is it necessity to keep <code>Identifier</code>
    */
 
   public DefaultItemDataCopyVisitor(NodeData parent, InternalQName destNodeName,
-      NodeTypeManagerImpl nodeTypeManager, SessionDataManager dataManager, boolean keepUUIDs) {
+      NodeTypeManagerImpl nodeTypeManager, SessionDataManager dataManager, boolean keepIdentifiers) {
     super(dataManager);
 
-    this.keepUUIDs = keepUUIDs;
+    this.keepIdentifiers = keepIdentifiers;
     this.ntManager = nodeTypeManager;
     this.destNodeName = destNodeName;
 
@@ -104,17 +104,17 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
         && qname.equals(Constants.JCR_UUID)) {
 
       values = new ArrayList<ValueData>(1);
-      values.add(new TransientValueData(curParent().getUUID()));
+      values.add(new TransientValueData(curParent().getIdentifier()));
     } else {
       values = property.getValues();
     }
     
     TransientPropertyData newProperty = new TransientPropertyData(QPath
         .makeChildPath(curParent().getQPath(), qname),
-        keepUUIDs?property.getUUID():UUIDGenerator.generate(),
+        keepIdentifiers?property.getIdentifier():UUIDGenerator.generate(),
         -1,
         property.getType(),
-        curParent().getUUID(),
+        curParent().getIdentifier(),
         property.isMultiValued());
     
     newProperty.setValues(values);
@@ -172,10 +172,10 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
     } else 
       newNode.setOrderNumber(node.getOrderNumber()); // has no matter
         
-    if (keepUUIDs)
-      newNode.setUUID(node.getUUID());
+    if (keepIdentifiers)
+      newNode.setIdentifier(node.getIdentifier());
     else
-      newNode.setUUID(UUIDGenerator.generate());
+      newNode.setIdentifier(UUIDGenerator.generate());
 
     parents.push(newNode);
     

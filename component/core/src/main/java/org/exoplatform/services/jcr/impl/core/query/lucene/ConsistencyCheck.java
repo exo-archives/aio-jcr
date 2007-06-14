@@ -273,8 +273,8 @@ class ConsistencyCheck {
                       log.info("Reparing missing node " + n.getQPath().getAsString());
                       Document d = index.createDocument(n);
                       index.addDocument(d);
-                      documents.put(n.getUUID(), d);
-                      pUUID = n.getParentUUID();
+                      documents.put(n.getIdentifier(), d);
+                      pUUID = n.getParentIdentifier();
                     } else
                       pUUID = null;
                     
@@ -346,7 +346,7 @@ class ConsistencyCheck {
                 log.info("Re-indexing duplicate node occurrences in index: " + node.getQPath().getAsString());
                 Document d = index.createDocument(node);
                 index.addDocument(d);
-                documents.put(node.getUUID(), d);
+                documents.put(node.getIdentifier(), d);
 //            } catch (ItemStateException e) {
 //                throw new IOException(e.toString());
             } catch (RepositoryException e) {

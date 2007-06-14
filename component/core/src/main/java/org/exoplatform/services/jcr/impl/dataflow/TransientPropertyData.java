@@ -40,15 +40,15 @@ public class TransientPropertyData extends TransientItemData implements MutableP
 
   /**
    * @param path qpath
-   * @param uuid id
+   * @param identifier id
    * @param version persisted version
    * @param type property type
-   * @param parentUUID parentId
+   * @param parentIdentifier parentId
    * @param multiValued multi-valued state
    */
-  public TransientPropertyData(QPath path, String uuid, int version, int type,
-      String parentUUID, boolean multiValued) {
-    super(path, uuid, version, parentUUID);
+  public TransientPropertyData(QPath path, String identifier, int version, int type,
+      String parentIdentifier, boolean multiValued) {
+    super(path, identifier, version, parentIdentifier);
     this.type = type;
     this.multiValued = multiValued;
   }
@@ -122,7 +122,7 @@ public class TransientPropertyData extends TransientItemData implements MutableP
     TransientPropertyData propData = null;
     QPath path = QPath.makeChildPath(parent.getQPath(), name);
     propData = new TransientPropertyData(path, UUIDGenerator.generate(), -1, type,
-        parent.getUUID(), multiValued);
+        parent.getIdentifier(), multiValued);
 
     return propData;
   }
@@ -154,10 +154,10 @@ public class TransientPropertyData extends TransientItemData implements MutableP
   public TransientPropertyData clone() {
     TransientPropertyData dataCopy = new TransientPropertyData(
         getQPath(), 
-        getUUID(), 
+        getIdentifier(), 
         getPersistedVersion(),
         getType(), 
-        getParentUUID(),
+        getParentIdentifier(),
         isMultiValued());
     
     List<ValueData> copyValues = new ArrayList<ValueData>(); 

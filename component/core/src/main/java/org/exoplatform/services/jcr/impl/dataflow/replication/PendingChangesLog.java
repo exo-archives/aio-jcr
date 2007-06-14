@@ -55,7 +55,7 @@ public class PendingChangesLog {
 
   private List<File>             listFile;
 
-  private String                 uuid;
+  private String                 identifier;
 
   private FileCleaner            fileCleaner;
   
@@ -69,25 +69,25 @@ public class PendingChangesLog {
     containerType = analysisItemDataChangesLog(); 
       //analysisItemDataChangesLog();
     listFile = new ArrayList<File>();
-    uuid = UUIDGenerator.generate();
+    identifier = UUIDGenerator.generate();
     this.fileCleaner = fileCleaner;
   }
 
   public PendingChangesLog(TransactionChangesLog itemDataChangesLog_, 
-      String uuid_, int type, FileCleaner fileCleaner)
+      String identifier, int type, FileCleaner fileCleaner)
       throws IOException {
     itemDataChangesLog = itemDataChangesLog_;
     listInputStream = new ArrayList<InputStream>();
     listFixupStream = new ArrayList<FixupStream>();
     listRandomAccessFile = new ArrayList<RandomAccessFile>();
     listFile = new ArrayList<File>();
-    uuid = uuid_;
+    this.identifier = identifier;
     containerType = type;
     this.fileCleaner = fileCleaner;
   }
   
-  public PendingChangesLog(String uuid, int dataLength) {
-    this.uuid = uuid;
+  public PendingChangesLog(String identifier, int dataLength) {
+    this.identifier = identifier;
     data = new byte[dataLength];
   }
   
@@ -190,8 +190,8 @@ public class PendingChangesLog {
     return containerType;
   }
 
-  public String getUUID() {
-    return uuid;
+  public String getIdentifier() {
+    return identifier;
   }
 
   public static byte[] getAsByteArray(TransactionChangesLog dataChangesLog) throws IOException {

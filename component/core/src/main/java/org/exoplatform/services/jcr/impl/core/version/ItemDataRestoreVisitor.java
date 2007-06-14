@@ -132,7 +132,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
   private ItemData findDelegated(String uuid) {
     if (delegatedChanges != null)
       for (ItemState state: delegatedChanges.getAllStates()) {
-        if (state.getData().getUUID().equals(uuid))
+        if (state.getData().getIdentifier().equals(uuid))
           return state.getData();
       }
     return null;
@@ -223,7 +223,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
             } else {
               throw new ItemExistsException("Item with the same UUID as restored node " + nodePath.getAsString()
                 + " already exists and removeExisting=false. Existed " + sameUuidPath.getAsString()
-                + " " + sameUuidNode.getUUID());
+                + " " + sameUuidNode.getIdentifier());
             }
           }
         }
@@ -276,7 +276,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         (existing != null ? existing.getPersistedVersion() : -1),
         ptName,
         mixins == null ? new InternalQName[0] : mixins,
-        0, parentData.getUUID(), parentData.getACL());
+        0, parentData.getIdentifier(), parentData.getACL());
 
     changes.add(ItemState.createAddedState(restoredData));
 
@@ -401,7 +401,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
           existing = (NodeData) dataManager.getItemData(currentNode(), new QPathEntry(frozen
               .getQPath().getName(), frozen.getQPath().getIndex()));
           if (existing != null) {
-            jcrUuid = existing.getUUID();
+            jcrUuid = existing.getIdentifier();
           } else {
             jcrUuid = UUIDGenerator.generate();
           }
@@ -423,7 +423,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
             } else {
               throw new ItemExistsException("Node with the same UUID as restored child node " + restoredPath.getAsString()
                   + " already exists and removeExisting=false. Existed " + existing.getQPath().getAsString()
-                  + " " + existing.getUUID());
+                  + " " + existing.getIdentifier());
             }
           }
         }
@@ -434,7 +434,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
             frozen.getPrimaryTypeName(),
             frozen.getMixinTypeNames(),
             frozen.getOrderNumber(),
-            currentNode().getUUID(), // parent
+            currentNode().getIdentifier(), // parent
             frozen.getACL());
 
         changes.add(ItemState.createAddedState(restoredData));
@@ -463,7 +463,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
 
     if (currentNode() != null) {
 
-      NodeData frozenParent = (NodeData) dataManager.getItemData(property.getParentUUID());
+      NodeData frozenParent = (NodeData) dataManager.getItemData(property.getParentIdentifier());
 
       InternalQName qname = property.getQPath().getName();
 
@@ -529,7 +529,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
           Constants.JCR_BASEVERSION,
           PropertyType.REFERENCE,
           false,
-          new TransientValueData(frozen.getParentUUID()));
+          new TransientValueData(frozen.getParentIdentifier()));
 
       PropertyData isCheckedOut = TransientPropertyData.createPropertyData(
           restored,
@@ -538,11 +538,11 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
           false,
           new TransientValueData(false));
 
-      NodeData existing = (NodeData) dataManager.getItemData(restored.getUUID());
+      NodeData existing = (NodeData) dataManager.getItemData(restored.getIdentifier());
       if (existing != null && !existing.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH, false)) {
         // copy childs/properties with OnParentVersionAction.IGNORE to the restored node
         ItemDataCopyIgnoredVisitor copyIgnoredVisitor = new ItemDataCopyIgnoredVisitor(
-            (NodeData) dataManager.getItemData(restored.getParentUUID()),
+            (NodeData) dataManager.getItemData(restored.getParentIdentifier()),
             restored.getQPath().getName(),
             ntManager,
             userSession.getTransientNodesManager(), // TODO to use transact manager

@@ -119,18 +119,18 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
 
 
   /**
-   * Used in Single Db Connection classes for UUID related queries
-   * @param uuid
+   * Used in Single Db Connection classes for Identifier related queries
+   * @param identifier
    * @return
    */
-  protected abstract String getInternalId(String uuid);
+  protected abstract String getInternalId(String identifier);
 
   /**
-   * Used in loadXYZRecord methods for extract real UUID from container value.
+   * Used in loadXYZRecord methods for extract real Identifier from container value.
    * @param internalId
    * @return
    */
-  protected abstract String getUuid(String internalId);
+  protected abstract String getIdentifier(String internalId);
 
   // ---------------- WorkspaceStorageConnection -------------
 
@@ -188,7 +188,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     try {
       addNodeRecord(data);
       if (log.isDebugEnabled())
-        log.debug("Node added " + data.getQPath().getAsString() + ", " + data.getUUID() + ", " + data.getPrimaryTypeName().getAsString());
+        log.debug("Node added " + data.getQPath().getAsString() + ", " + data.getIdentifier() + ", " + data.getPrimaryTypeName().getAsString());
 
     } catch (SQLException e) {
       if (log.isDebugEnabled())
@@ -211,7 +211,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         try {
           addReference(data);
         } catch(IOException e) {
-          throw new RepositoryException("Can't read REFERENCE property ("+data.getQPath()+" "+data.getUUID()+") value: " + e.getMessage(), e);
+          throw new RepositoryException("Can't read REFERENCE property ("+data.getQPath()+" "+data.getIdentifier()+") value: " + e.getMessage(), e);
         }
       }
 
@@ -226,7 +226,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
 //      }
 
       if (log.isDebugEnabled())
-        log.debug("Property added " + data.getQPath().getAsString() + ", " + data.getUUID()
+        log.debug("Property added " + data.getQPath().getAsString() + ", " + data.getIdentifier()
             + (data.getValues() != null ? ", values count: " + data.getValues().size() : ", NULL data"));
 
     } catch (IOException e) {
@@ -243,18 +243,18 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   public void delete(NodeData data) throws RepositoryException, UnsupportedOperationException, InvalidItemStateException, IllegalStateException {
     checkIfOpened();
 
-    final String cid = getInternalId(data.getUUID());
+    final String cid = getInternalId(data.getIdentifier());
 
     try {
-      int nc = deleteItemByUUID(cid);
+      int nc = deleteItemByIdentifier(cid);
       if (nc <= 0)
         //log.warn("Error state, a item corresponding the node actually not deleted " + cid);
         throw new InvalidItemStateException("(delete) Node "
-            + data.getQPath().getAsString() + " " + data.getUUID()
+            + data.getQPath().getAsString() + " " + data.getIdentifier()
             + " not found. Probably was deleted by another session ");
 
       if (log.isDebugEnabled())
-        log.debug("Node deleted " + data.getQPath().getAsString() + ", " + data.getUUID() + ", " + ((NodeData) data).getPrimaryTypeName().getAsString());
+        log.debug("Node deleted " + data.getQPath().getAsString() + ", " + data.getIdentifier() + ", " + ((NodeData) data).getPrimaryTypeName().getAsString());
 
     } catch (SQLException e) {
       if (log.isDebugEnabled())
@@ -266,7 +266,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   public void delete(PropertyData data) throws RepositoryException, UnsupportedOperationException, InvalidItemStateException, IllegalStateException {
     checkIfOpened();
 
-    final String cid = getInternalId(data.getUUID());
+    final String cid = getInternalId(data.getIdentifier());
 
     try {
       // delete value
@@ -285,14 +285,14 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       deleteReference(cid);
 
       // delete item
-      int nc = deleteItemByUUID(cid);
+      int nc = deleteItemByIdentifier(cid);
       if (nc <= 0)
         throw new InvalidItemStateException("(delete) Property "
-            + data.getQPath().getAsString() + " " + data.getUUID()
+            + data.getQPath().getAsString() + " " + data.getIdentifier()
             + " not found. Probably was deleted by another session ");
 
       if (log.isDebugEnabled())
-        log.debug("Property deleted " + data.getQPath().getAsString() + ", " + data.getUUID()
+        log.debug("Property deleted " + data.getQPath().getAsString() + ", " + data.getIdentifier()
             + (((PropertyData) data).getValues() != null ? ", values count: " + ((PropertyData) data).getValues().size() : ", NULL data"));      
     
     } catch (IOException e) {
@@ -493,12 +493,12 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   public void update(NodeData data) throws RepositoryException, UnsupportedOperationException, InvalidItemStateException, IllegalStateException {
     checkIfOpened();
     try {
-      String cid = getInternalId(data.getUUID());
+      String cid = getInternalId(data.getIdentifier());
       // order numb update
-      updateNodeByUUID(data.getPersistedVersion(), data.getQPath().getIndex(), data.getOrderNumber(), cid);
+      updateNodeByIdentifier(data.getPersistedVersion(), data.getQPath().getIndex(), data.getOrderNumber(), cid);
 
       if (log.isDebugEnabled())
-        log.debug("Node updated " + data.getQPath().getAsString() + ", " + data.getUUID() + ", " + data.getPrimaryTypeName().getAsString());
+        log.debug("Node updated " + data.getQPath().getAsString() + ", " + data.getIdentifier() + ", " + data.getPrimaryTypeName().getAsString());
 
     } catch (SQLException e) {
       if (log.isDebugEnabled())
@@ -515,10 +515,10 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     checkIfOpened();
 
     try {
-      String cid = getInternalId(data.getUUID());
+      String cid = getInternalId(data.getIdentifier());
 
       // update type
-      updatePropertyByUUID(data.getPersistedVersion(), data.getType(), cid);
+      updatePropertyByIdentifier(data.getPersistedVersion(), data.getType(), cid);
 
       // update reference
       try {
@@ -528,7 +528,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
           addReference(data);
         }
       } catch(IOException e) {
-        throw new RepositoryException("Can't update REFERENCE property ("+data.getQPath()+" "+data.getUUID()+") value: " + e.getMessage(), e);
+        throw new RepositoryException("Can't update REFERENCE property ("+data.getQPath()+" "+data.getIdentifier()+") value: " + e.getMessage(), e);
       }
 
 //      ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data);
@@ -547,7 +547,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       addValues(data);
 
       if (log.isDebugEnabled())
-        log.debug("Property updated " + data.getQPath().getAsString() + ", " + data.getUUID()
+        log.debug("Property updated " + data.getQPath().getAsString() + ", " + data.getIdentifier()
             + (data.getValues() != null ? ", values count: " + data.getValues().size() : ", NULL data"));
 
     } catch (IOException e) {
@@ -567,7 +567,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   public List<NodeData> getChildNodesData(NodeData parent) throws RepositoryException, IllegalStateException {
     checkIfOpened();
     try {
-      ResultSet node = findChildNodesByParentUUID(getInternalId(parent.getUUID()));
+      ResultSet node = findChildNodesByParentIdentifier(getInternalId(parent.getIdentifier()));
       List<NodeData> childrens = new ArrayList<NodeData>();
       while(node.next()) {
         childrens.add((NodeData) itemData(parent.getQPath(), node, I_CLASS_NODE));
@@ -594,7 +594,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   public List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException, IllegalStateException {
     checkIfOpened();
     try {
-      ResultSet prop = findChildPropertiesByParentUUID(getInternalId(parent.getUUID()));
+      ResultSet prop = findChildPropertiesByParentIdentifier(getInternalId(parent.getIdentifier()));
       List<PropertyData> children = new ArrayList<PropertyData>();
       while(prop.next()) {
         children.add((PropertyData) itemData(parent.getQPath(), prop, I_CLASS_PROPERTY));
@@ -642,15 +642,15 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#getItemData(java.lang.String)
    */
-  public ItemData getItemData(String uuid) throws RepositoryException, IllegalStateException {
-    return getItemByUUID(getInternalId(uuid));
+  public ItemData getItemData(String identifier) throws RepositoryException, IllegalStateException {
+    return getItemByIdentifier(getInternalId(identifier));
   }
   
   public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException,
       IllegalStateException {
     
     if (parentData != null) {
-      return getItemByName(parentData.getQPath(), getInternalId(parentData.getUUID()), name);
+      return getItemByName(parentData.getQPath(), getInternalId(parentData.getIdentifier()), name);
     } 
 
     // it's a root node
@@ -660,10 +660,10 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#getReferencesData(java.lang.String)
    */
-  public List<PropertyData> getReferencesData(String nodeUUID) throws RepositoryException, IllegalStateException {
+  public List<PropertyData> getReferencesData(String nodeIdentifier) throws RepositoryException, IllegalStateException {
     checkIfOpened();
     try {
-      ResultSet refProps = findReferences(getInternalId(nodeUUID));
+      ResultSet refProps = findReferences(getInternalId(nodeIdentifier));
       List<PropertyData> references = new ArrayList<PropertyData>();
       while(refProps.next()) {
         references.add((PropertyData) itemData(null, refProps, I_CLASS_PROPERTY));
@@ -682,11 +682,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   // ------------------ Private methods ---------------
 
 
-    protected ItemData getItemByUUID(String cid) throws RepositoryException, IllegalStateException {
+    protected ItemData getItemByIdentifier(String cid) throws RepositoryException, IllegalStateException {
       checkIfOpened();
       ResultSet item = null;
       try {
-        item = findItemByUUID(cid);
+        item = findItemByIdentifier(cid);
         if(item.next()) {
           return itemData(null, item, item.getInt(COLUMN_CLASS));
         }
@@ -845,7 +845,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
 //    }
     
     private QPath traverseQPath(String cpid) throws SQLException, InvalidItemStateException, IllegalNameException {
-      // get item by UUID usecase:
+      // get item by Identifier usecase:
       // find parent path in db by cpid
       if (cpid == null) {
         // root node
@@ -856,9 +856,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         do { 
           ResultSet parent = null;
           try {
-            parent = findItemByUUID(caid);
+            parent = findItemByIdentifier(caid);
             if (!parent.next())
-              throw new InvalidItemStateException("Parent not found, uuid: " + getUuid(caid));
+              throw new InvalidItemStateException("Parent not found, uuid: " + getIdentifier(caid));
             
             QPathEntry qpe = new QPathEntry(
                 InternalQName.parse(parent.getString(COLUMN_NAME)), 
@@ -911,7 +911,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
             cname, cid, cpid, cversion, cptype, cpmultivalued);
       } catch (InvalidItemStateException e) {
         throw new InvalidItemStateException("FATAL: Can't build item path for name " + cname 
-            + " uuid: " + getUuid(cid) + ". " + e);
+            + " uuid: " + getIdentifier(cid) + ". " + e);
       } catch (IllegalNameException e) {
         throw new RepositoryException(e);
       }
@@ -981,7 +981,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
           }
         }
 
-        return new PersistedNodeData(getUuid(cid), qpath, getUuid(cpid), cversion, cnordernumb,
+        return new PersistedNodeData(getIdentifier(cid), qpath, getIdentifier(cpid), cversion, cnordernumb,
             ptName, mixinNames, acl);
 
       } catch (IllegalNameException e) {
@@ -1004,10 +1004,10 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     }
     QPath qpath = QPath.makeChildPath(parentPath, qname);
     
-    String uuid = getUuid(cid);
-    PersistedPropertyData pdata = new PersistedPropertyData(uuid,
+    String identifier = getIdentifier(cid);
+    PersistedPropertyData pdata = new PersistedPropertyData(identifier,
         qpath,
-        getUuid(cpid),
+        getIdentifier(cpid),
         cversion,
         cptype,
         cpmultivalued
@@ -1072,7 +1072,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
           if (!valueRecords.wasNull()) {
             final ValueIOChannel channel = valueStorageProvider.getChannel(storageDesc, pdata, orderNum);
             try {
-              channel.delete(pdata.getUUID());
+              channel.delete(pdata.getIdentifier());
             } finally {
               channel.close();
             }
@@ -1121,7 +1121,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   protected ValueData readValueData(PropertyData pdata, int orderNumber, String storageDesc) throws SQLException, IOException, ValueDataNotFoundException {
     ValueIOChannel channel = valueStorageProvider.getChannel(storageDesc, pdata, orderNumber);
     try {
-      return channel.read(pdata.getUUID(), orderNumber, maxBufferSize);
+      return channel.read(pdata.getIdentifier(), orderNumber, maxBufferSize);
     } finally {
       channel.close();
     } 
@@ -1216,10 +1216,10 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
           streamLength = stream.available(); 
         }
       } else {
-        vdDesc = channel.write(data.getUUID(), vd);
+        vdDesc = channel.write(data.getIdentifier(), vd);
       }
 
-      addValueData(getInternalId(data.getUUID()),i, stream, streamLength, vdDesc); 
+      addValueData(getInternalId(data.getIdentifier()),i, stream, streamLength, vdDesc); 
     }
   } 
 
@@ -1229,22 +1229,22 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   protected abstract void addPropertyRecord(PropertyData prop) throws SQLException;
 
   //protected abstract ResultSet findItemByPath(String path) throws SQLException;
-  protected abstract ResultSet findItemByUUID(String uuid) throws SQLException;
+  protected abstract ResultSet findItemByIdentifier(String identifier) throws SQLException;
   //protected abstract ResultSet findPropertyByPath(String parentId, String path) throws SQLException;
   protected abstract ResultSet findPropertyByName(String parentId, String name) throws SQLException;
   protected abstract ResultSet findItemByName(String parentId, String name, int index) throws SQLException;
 
-  protected abstract ResultSet findChildNodesByParentUUID(String parentUUID) throws SQLException;
-  protected abstract ResultSet findChildPropertiesByParentUUID(String parentUUID) throws SQLException;
+  protected abstract ResultSet findChildNodesByParentIdentifier(String parentIdentifier) throws SQLException;
+  protected abstract ResultSet findChildPropertiesByParentIdentifier(String parentIdentifier) throws SQLException;
 
   protected abstract void addReference(PropertyData data) throws SQLException, IOException;
-  protected abstract void deleteReference(String propertyUuid) throws SQLException;
-  protected abstract ResultSet findReferences(String nodeUuid) throws SQLException;
+  protected abstract void deleteReference(String propertyIdentifier) throws SQLException;
+  protected abstract ResultSet findReferences(String nodeIdentifier) throws SQLException;
 
-  protected abstract int deleteItemByUUID(String uuid) throws SQLException;
+  protected abstract int deleteItemByIdentifier(String identifier) throws SQLException;
   
-  protected abstract int updateNodeByUUID(int version, int index, int orderNumb, String uuid) throws SQLException;
-  protected abstract int updatePropertyByUUID(int version, int type, String uuid) throws SQLException;
+  protected abstract int updateNodeByIdentifier(int version, int index, int orderNumb, String identifier) throws SQLException;
+  protected abstract int updatePropertyByIdentifier(int version, int type, String identifier) throws SQLException;
   
   // -------- values processing ------------
   protected abstract void addValueData(String cid, int orderNumber, InputStream stream, int streamLength, String storageDesc) throws SQLException, IOException;

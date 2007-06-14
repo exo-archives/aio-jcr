@@ -51,7 +51,7 @@ public class ItemDataCopyIgnoredVisitor extends DefaultItemDataCopyVisitor {
       return;
     
     if (curParent() == null) {
-      NodeData existedParent = (NodeData) dataManager.getItemData(property.getParentUUID());
+      NodeData existedParent = (NodeData) dataManager.getItemData(property.getParentIdentifier());
       
       PropertyDefinition pdef = ntManager.findPropertyDefinition(
           property.getQPath().getName(), 
@@ -62,7 +62,7 @@ public class ItemDataCopyIgnoredVisitor extends DefaultItemDataCopyVisitor {
         // parent is not exists as this copy context current parent
         // i.e. it's a IGNOREd property elsewhere at a versionable node descendant. 
         // So, we have to know that this parent WILL exists after restore
-        ItemState contextState = restoredChanges.getItemState(property.getParentUUID());
+        ItemState contextState = restoredChanges.getItemState(property.getParentIdentifier());
         if (contextState != null && !contextState.isDeleted()) {        
           // the node can be stored as IGNOREd in restore set, check an action
         
@@ -89,7 +89,7 @@ public class ItemDataCopyIgnoredVisitor extends DefaultItemDataCopyVisitor {
       parents.pop(); // remove context parent (redo superclass constructor work) 
     } else if (level > 0) {
       if (curParent() == null) {
-        NodeData existedParent = (NodeData) dataManager.getItemData(node.getParentUUID());
+        NodeData existedParent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
         NodeDefinition ndef = ntManager.findNodeDefinition(node.getQPath().getName(), 
             existedParent.getPrimaryTypeName(), existedParent.getMixinTypeNames());
         
@@ -98,7 +98,7 @@ public class ItemDataCopyIgnoredVisitor extends DefaultItemDataCopyVisitor {
           // parent is not exists as this copy context current parent
           // i.e. it's a IGNOREd node elsewhere at a versionable node descendant. 
           // So, we have to know that this parent WILL exists after restore
-          ItemState contextState = restoredChanges.getItemState(node.getParentUUID());
+          ItemState contextState = restoredChanges.getItemState(node.getParentIdentifier());
           if (contextState != null && !contextState.isDeleted()) {
             if (log.isDebugEnabled())
               log.debug("A node " + node.getQPath().getAsString() + " is IGNOREd");

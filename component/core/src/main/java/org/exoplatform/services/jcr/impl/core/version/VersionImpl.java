@@ -24,7 +24,7 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.datamodel.Uuid;
+import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
@@ -141,7 +141,7 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
   }
 
   public void addSuccessor(String successorUuid, PlainChangesLog changesLog) throws RepositoryException {
-    ValueData successorRef = new TransientValueData(new Uuid(successorUuid));
+    ValueData successorRef = new TransientValueData(new Identifier(successorUuid));
     
     TransientPropertyData successorsProp = (TransientPropertyData) dataManager
     .getItemData(nodeData(), new QPathEntry(Constants.JCR_SUCCESSORS, 0));
@@ -162,7 +162,7 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
 
   public void addPredecessor(String predeccessorUuid, PlainChangesLog changesLog) throws RepositoryException {
     
-    ValueData predeccessorRef = new TransientValueData(new Uuid(predeccessorUuid));
+    ValueData predeccessorRef = new TransientValueData(new Identifier(predeccessorUuid));
     
     TransientPropertyData predeccessorsProp = (TransientPropertyData) dataManager
         .getItemData(nodeData(), new QPathEntry(Constants.JCR_PREDECESSORS, 0));
@@ -199,10 +199,10 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
       
       TransientPropertyData newSuccessorsProp = new TransientPropertyData(
           QPath.makeChildPath(nodeData().getQPath(), Constants.JCR_SUCCESSORS, successorsProp.getQPath().getIndex()),
-          successorsProp.getUUID(),
+          successorsProp.getIdentifier(),
           successorsProp.getPersistedVersion(), 
           PropertyType.REFERENCE,
-          nodeData().getUUID(), 
+          nodeData().getIdentifier(), 
           true);
       newSuccessorsProp.setValues(newSuccessors);
       changesLog.add(ItemState.createUpdatedState(newSuccessorsProp));
@@ -228,14 +228,14 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
         throw new RepositoryException("A jcr:successors property read error " + e, e);
       }
 
-      newSuccessors.add(new TransientValueData(new Uuid(addedSuccessorUuid)));
+      newSuccessors.add(new TransientValueData(new Identifier(addedSuccessorUuid)));
       
       TransientPropertyData newSuccessorsProp = new TransientPropertyData(
           QPath.makeChildPath(nodeData().getQPath(), Constants.JCR_SUCCESSORS, successorsProp.getQPath().getIndex()),
-          successorsProp.getUUID(),
+          successorsProp.getIdentifier(),
           successorsProp.getPersistedVersion(), 
           PropertyType.REFERENCE,
-          nodeData().getUUID(), 
+          nodeData().getIdentifier(), 
           true);
       newSuccessorsProp.setValues(newSuccessors);
       changesLog.add(ItemState.createUpdatedState(newSuccessorsProp));
@@ -262,10 +262,10 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
       
       TransientPropertyData newPredecessorsProp = new TransientPropertyData(
           QPath.makeChildPath(nodeData().getQPath(), Constants.JCR_PREDECESSORS, predeccessorsProp.getQPath().getIndex()),
-          predeccessorsProp.getUUID(),
+          predeccessorsProp.getIdentifier(),
           predeccessorsProp.getPersistedVersion(), 
           PropertyType.REFERENCE,
-          nodeData().getUUID(), 
+          nodeData().getIdentifier(), 
           true);
       newPredecessorsProp.setValues(newPredeccessors);
       changesLog.add(ItemState.createUpdatedState(newPredecessorsProp));
@@ -291,14 +291,14 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
         throw new RepositoryException("A jcr:predecessors property read error " + e, e);
       }
       
-      newPredeccessors.add(new TransientValueData(new Uuid(addedPredecessorUuid)));
+      newPredeccessors.add(new TransientValueData(new Identifier(addedPredecessorUuid)));
       
       TransientPropertyData newPredecessorsProp = new TransientPropertyData(
           QPath.makeChildPath(nodeData().getQPath(), Constants.JCR_PREDECESSORS, predeccessorsProp.getQPath().getIndex()),
-          predeccessorsProp.getUUID(),
+          predeccessorsProp.getIdentifier(),
           predeccessorsProp.getPersistedVersion(), 
           PropertyType.REFERENCE,
-          nodeData().getUUID(), 
+          nodeData().getIdentifier(), 
           true);
       newPredecessorsProp.setValues(newPredeccessors);
       changesLog.add(ItemState.createUpdatedState(newPredecessorsProp));
@@ -311,7 +311,7 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     
     checkValid();
     
-    VersionHistoryImpl vhistory = (VersionHistoryImpl) dataManager.getItemByUUID(nodeData().getParentUUID(), true);
+    VersionHistoryImpl vhistory = (VersionHistoryImpl) dataManager.getItemByUUID(nodeData().getParentIdentifier(), true);
      
     
     if (vhistory == null)
@@ -329,7 +329,7 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     
     DataManager dmanager = restoreSession.getTransientNodesManager().getTransactManager();
     
-    NodeData parentData = (NodeData) dmanager.getItemData(nodeData.getParentUUID());
+    NodeData parentData = (NodeData) dmanager.getItemData(nodeData.getParentIdentifier());
     
     NodeData frozenData = (NodeData) dmanager.getItemData(nodeData(), new QPathEntry(Constants.JCR_FROZENNODE, 1));
     

@@ -133,7 +133,7 @@ public class SessionDataManager implements ItemDataConsumer {
   public ItemData getItemData(NodeData parent, QPathEntry[] nameEntrys) throws RepositoryException {
     ItemData currItem = parent;
     int startFrom = 0;
-    if(parent.getUUID().equals(Constants.ROOT_UUID) && nameEntrys[0].equals(Constants.ROOT_PATH.getName()))
+    if(parent.getIdentifier().equals(Constants.ROOT_UUID) && nameEntrys[0].equals(Constants.ROOT_PATH.getName()))
       startFrom = 1;
     
     for (int i = startFrom; i < nameEntrys.length; i++) {
@@ -334,7 +334,7 @@ public class SessionDataManager implements ItemDataConsumer {
       return nodeChanges.size() > 0;
     }
     
-    List<ItemState> states = changesLog.getItemStates(item.getUUID());
+    List<ItemState> states = changesLog.getItemStates(item.getIdentifier());
     if (states.size() > 0) {
       ItemState lastState = states.get(states.size() - 1);
       if (lastState.isAdded() || lastState.isDeleted())
@@ -353,7 +353,7 @@ public class SessionDataManager implements ItemDataConsumer {
       session.getActionHandler().postRead(item);
       
       // check for permission for read
-      NodeImpl parentItem = (NodeImpl) getItemByUUID(data.getParentUUID(), true);
+      NodeImpl parentItem = (NodeImpl) getItemByUUID(data.getParentIdentifier(), true);
       if (accessManager
           .hasPermission(parentItem.getACL(), PermissionType.READ, session.getUserID())) {
         refs.add((PropertyImpl) itemFactory.createItem(data));
@@ -454,7 +454,7 @@ public class SessionDataManager implements ItemDataConsumer {
     
     List <ItemState> deletes = new ArrayList<ItemState>();
     
-    boolean fireEvent = !isNew(itemData.getUUID());
+    boolean fireEvent = !isNew(itemData.getIdentifier());
 
     boolean rootAdded = false;
     for(ItemData data: list) {
@@ -462,7 +462,7 @@ public class SessionDataManager implements ItemDataConsumer {
         rootAdded = true;
       deletes.add(new ItemState(data, ItemState.DELETED, fireEvent, itemData.getQPath(),false));
       
-      ItemImpl pooled = itemsPool.remove(data.getUUID());
+      ItemImpl pooled = itemsPool.remove(data.getIdentifier());
       
       // [PN] 23.12.06 TODO Not all items is pooling during the work
       if (pooled != null) {
@@ -479,7 +479,7 @@ public class SessionDataManager implements ItemDataConsumer {
     if (!rootAdded) {
       deletes.add(new ItemState(itemData, ItemState.DELETED, fireEvent, itemData.getQPath(),false));
       
-      ItemImpl pooled = itemsPool.remove(itemData.getUUID());
+      ItemImpl pooled = itemsPool.remove(itemData.getIdentifier());
       if (pooled != null) {
         pooled.invalidate(); // invalidate immediate
         invalidated.add(pooled);
@@ -495,7 +495,7 @@ public class SessionDataManager implements ItemDataConsumer {
     
     if (!fireEvent)
       // 7 erase evenFire flag if it's a new item 
-      changesLog.eraseEventFire(itemData.getUUID());
+      changesLog.eraseEventFire(itemData.getIdentifier());
     
     changesLog.addAll(deletes); //log.info(changesLog.dump())
     
@@ -514,7 +514,7 @@ public class SessionDataManager implements ItemDataConsumer {
   protected List<ItemState> reindexSameNameSiblings(NodeData cause, ItemDataConsumer dataManager) throws RepositoryException {
     List<ItemState> changes = new ArrayList<ItemState>();
     
-    NodeData parentNodeData = (NodeData) dataManager.getItemData(cause.getParentUUID());
+    NodeData parentNodeData = (NodeData) dataManager.getItemData(cause.getParentIdentifier());
     
 //    QPath parent = cause.getQPath().makeParentPath();
 //    
@@ -525,7 +525,7 @@ public class SessionDataManager implements ItemDataConsumer {
     TransientNodeData nextSibling = (TransientNodeData) dataManager.getItemData(parentNodeData,
         new QPathEntry(cause.getQPath().getName(), cause.getQPath().getIndex() + 1));
     while (nextSibling != null) {
-      if (nextSibling.getUUID().equals(cause.getUUID())) {
+      if (nextSibling.getIdentifier().equals(cause.getIdentifier())) {
         // it's a case of reindex if we deleteing few siblings
         return changes;
       }
@@ -639,7 +639,7 @@ public class SessionDataManager implements ItemDataConsumer {
   }
   private void validateAccessPermissions(ItemState changedItem) throws RepositoryException, AccessDeniedException {
 //    try {
-      NodeData parent = (NodeData) getItemData(changedItem.getData().getParentUUID());
+      NodeData parent = (NodeData) getItemData(changedItem.getData().getParentIdentifier());
       // Add node
       if (parent != null) {
         if (changedItem.getData().isNode() && changedItem.isAdded()) {
@@ -682,7 +682,7 @@ public class SessionDataManager implements ItemDataConsumer {
     if (changedItem.getData().isNode() && changedItem.isAdded()
         && changesLog.getItemState(changedItem.getData().getQPath()).getState() != ItemState.DELETED) {
       // Node not in delete state. It might be a wrong
-      if (!changesLog.getItemState(changedItem.getData().getUUID()).isDeleted()) {
+      if (!changesLog.getItemState(changedItem.getData().getIdentifier()).isDeleted()) {
         NodeData nData = (NodeData) changedItem.getData();
         try {
           NodeImpl node = itemFactory.createNode(nData);
@@ -755,14 +755,14 @@ public class SessionDataManager implements ItemDataConsumer {
     // TODO Add refresh feature for all childs acquired in the session.
     if (!isModified(item)) {
       // if not modified, load data from persistent storage, by UUID first
-      ItemData persisted = transactionableManager.getItemData(item.getUUID());
+      ItemData persisted = transactionableManager.getItemData(item.getIdentifier());
       if (persisted == null) {
         // ...try by path
         persisted = transactionableManager.getItemData(item.getQPath());
       }
       
       if (persisted != null) {
-        itemsPool.reload(item.getUUID(), persisted);
+        itemsPool.reload(item.getIdentifier(), persisted);
       } else {
         throw new InvalidItemStateException(
             "An item is transient only or removed (either by this session or another) " +
@@ -817,11 +817,11 @@ public class SessionDataManager implements ItemDataConsumer {
       if (!state.isDeleted())
         // log.info(">>> Transient " + descendants.put(data.getUUID(), data) + "
         // " + data.getQPath().getAsString());
-        descendants.put(data.getUUID(), data);
+        descendants.put(data.getIdentifier(), data);
       else
         // log.info(">>> Removed " + descendants.remove(data.getUUID()) + " " +
         // data.getQPath().getAsString());
-        descendants.remove(data.getUUID());
+        descendants.remove(data.getIdentifier());
     }
     List<ItemData> retval = new ArrayList<ItemData>();
     Collection<ItemData> desc = descendants.values();
@@ -841,7 +841,7 @@ public class SessionDataManager implements ItemDataConsumer {
       if(action != MERGE_PROPS) {
         List<NodeData> childNodes = dataManager.getChildNodesData((NodeData) parent);
         for (NodeData childNode : childNodes) {
-          ret.put(childNode.getUUID(), childNode);
+          ret.put(childNode.getIdentifier(), childNode);
           
           if (log.isDebugEnabled())
             log.debug("Traverse stored (N) " + childNode.getQPath().getAsString());
@@ -853,7 +853,7 @@ public class SessionDataManager implements ItemDataConsumer {
       if (action != MERGE_NODES) {
         List<PropertyData> childProps = dataManager.getChildPropertiesData((NodeData) parent);
         for (PropertyData childProp : childProps) {
-          ret.put(childProp.getUUID(), childProp);
+          ret.put(childProp.getIdentifier(), childProp);
           
           if (log.isDebugEnabled())
             log.debug("Traverse stored (P) " + childProp.getQPath().getAsString());
@@ -942,7 +942,7 @@ public class SessionDataManager implements ItemDataConsumer {
      * @throws RepositoryException
      */
     ItemImpl reload(ItemData itemData) throws RepositoryException {
-      return reload(itemData.getUUID(), itemData);
+      return reload(itemData.getIdentifier(), itemData);
     }
     
     ItemImpl reload(String uuid, ItemData newItemData) throws RepositoryException {

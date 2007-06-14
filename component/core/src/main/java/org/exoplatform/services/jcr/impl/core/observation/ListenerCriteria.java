@@ -24,7 +24,7 @@ public class ListenerCriteria {
   
   private boolean deep;
 
-  private String[] uuid;
+  private String[] identifier;
 
   private String[] nodeTypeName;
 
@@ -33,11 +33,11 @@ public class ListenerCriteria {
   private SessionImpl session;
 
   public ListenerCriteria(int eventTypes, String absPath, boolean isDeep,
-      String[] uuid, String[] nodeTypeName, boolean noLocal, SessionImpl session) throws RepositoryException {
+      String[] identifier, String[] nodeTypeName, boolean noLocal, SessionImpl session) throws RepositoryException {
     this.eventTypes = eventTypes;
     this.absPath = absPath;
     this.deep = isDeep;
-    this.uuid = uuid;
+    this.identifier = identifier;
     this.nodeTypeName = nodeTypeName;
     this.noLocal = noLocal;
     this.session = session;    
@@ -55,8 +55,8 @@ public class ListenerCriteria {
     return deep;
   }
 
-  public String[] getUuid() {
-    return this.uuid;
+  public String[] getIdentifier() {
+    return this.identifier;
   }
 
   public String[] getNodeTypeName() {

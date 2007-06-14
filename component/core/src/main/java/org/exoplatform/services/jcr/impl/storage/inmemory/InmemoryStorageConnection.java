@@ -38,13 +38,13 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
 
   private TreeMap items;
 
-  private TreeMap uuids;
+  private TreeMap identifiers;
 
   
   InmemoryStorageConnection(String name) {
     items = WorkspaceContainerRegistry.getInstance()
         .getWorkspaceContainer(name);
-    uuids = new TreeMap();
+    identifiers = new TreeMap();
   }
 
   public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException,
@@ -61,12 +61,12 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
     return (ItemData) o;
   }
 
-  public ItemData getItemData(String uuid) throws RepositoryException,
+  public ItemData getItemData(String identifier) throws RepositoryException,
       IllegalStateException {
     Iterator itemsIterator = items.values().iterator();
     while (itemsIterator.hasNext()) {
       ItemData data = (ItemData) itemsIterator.next();
-      if (data.getUUID().equals(uuid))
+      if (data.getIdentifier().equals(identifier))
         return data;
     }
     return null;
@@ -95,17 +95,17 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
     return 0;
   }
 
-  public List<PropertyData> getReferencesData(String uuid) throws RepositoryException,
+  public List<PropertyData> getReferencesData(String identifier) throws RepositoryException,
       IllegalStateException {
     ArrayList<PropertyData> refs = new ArrayList<PropertyData>();
     Iterator it = items.values().iterator();
     while (it.hasNext()) {
       ItemData itemData = (ItemData) it.next();
-      ValueData uuidVal = ((PropertyData) itemData).getValues().get(0);
+      ValueData identifierVal = ((PropertyData) itemData).getValues().get(0);
       try {
         if ((itemData instanceof PropertyData)
             && ((PropertyData) itemData).getType() == PropertyType.REFERENCE
-            && new String(uuidVal.getAsByteArray()).equals(uuid)) {
+            && new String(identifierVal.getAsByteArray()).equals(identifier)) {
 
           refs.add((PropertyData) itemData);
         }

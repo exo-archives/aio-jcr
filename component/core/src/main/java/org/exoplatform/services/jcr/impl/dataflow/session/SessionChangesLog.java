@@ -61,22 +61,22 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
    * 
    * NOTE: this operation may cost more than use of getDescendantsChanges() by path
    * 
-   * @param rootUuid
+   * @param rootIdentifier
    */
-  public List <ItemState> getDescendantsChanges(String rootUuid) {
+  public List <ItemState> getDescendantsChanges(String rootIdentifier) {
     List<ItemState> changesList = new ArrayList <ItemState> ();
     
-    traverseChangesByUUID(rootUuid, changesList);
+    traverseChangesByIdentifier(rootIdentifier, changesList);
     
     return changesList;
   }
   
-  private void traverseChangesByUUID(String uuid, List <ItemState> changesList) {
+  private void traverseChangesByIdentifier(String identifier, List <ItemState> changesList) {
     for(ItemState item: items) {
-      if(item.getData().getUUID().equals(uuid)) {
+      if(item.getData().getIdentifier().equals(identifier)) {
         changesList.add(item);
-      } else if(item.getData().getParentUUID().equals(uuid)) {
-        traverseChangesByUUID(item.getData().getUUID(), changesList); 
+      } else if(item.getData().getParentIdentifier().equals(identifier)) {
+        traverseChangesByIdentifier(item.getData().getIdentifier(), changesList); 
       }
     }
   }
@@ -85,15 +85,15 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
    * An example of use: transient changes of item added and removed in same session.
    * These changes must not fire events in observation. 
    * 
-   * @param uuid
+   * @param identifier
    */
-  public void eraseEventFire(String uuid) {
+  public void eraseEventFire(String identifier) {
     for(ItemState item: items) {
-      if(item.getData().getUUID().equals(uuid)) {
+      if(item.getData().getIdentifier().equals(identifier)) {
         // erase flag
         item.eraseEventFire();
-      } else if(item.getData().getParentUUID().equals(uuid)) {
-        eraseEventFire(item.getData().getUUID()); 
+      } else if(item.getData().getParentIdentifier().equals(identifier)) {
+        eraseEventFire(item.getData().getIdentifier()); 
       }
     }
   }  
@@ -115,10 +115,10 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataChangesLog#getItemStates(java.lang.String)
    */
-  public List<ItemState> getItemStates(String itemUuid) {
+  public List<ItemState> getItemStates(String itemIdentifier) {
     List<ItemState> states = new ArrayList<ItemState>();
     for (ItemState state : getAllStates()) {
-      if (state.getData().getUUID().equals(itemUuid)) {
+      if (state.getData().getIdentifier().equals(itemIdentifier)) {
         states.add(state);
       }
     }
@@ -143,7 +143,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
     for (int i = allStates.size() - 1; i>=0; i--) {
       ItemState state = allStates.get(i); 
       if (!state.isOrderable()
-          && state.getData().getParentUUID().equals(parentData.getUUID())
+          && state.getData().getParentIdentifier().equals(parentData.getIdentifier())
           && state.getData().getQPath().getEntries()[state.getData().getQPath().getEntries().length - 1]
               .isSame(name))
         return state;
@@ -151,12 +151,12 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
     return null;
   }
   
-  public ItemState getItemState(String itemUuid) {
+  public ItemState getItemState(String itemIdentifier) {
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i>=0; i--) {
       ItemState state = allStates.get(i); 
       // [PN] 04.01.07 skip orderable item state
-      if (!state.isOrderable() && state.getData().getUUID().equals(itemUuid))
+      if (!state.isOrderable() && state.getData().getIdentifier().equals(itemIdentifier))
         return state;
     }
     return null;
@@ -174,11 +174,11 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
   }
 
   
-  public List <ItemState> getChildrenChanges(String rootUuid) {
+  public List <ItemState> getChildrenChanges(String rootIdentifier) {
     List <ItemState> list = new ArrayList <ItemState> ();
     for(int i=0; i<items.size(); i++) {
       ItemData item = items.get(i).getData();
-      if(item.getParentUUID().equals(rootUuid) || item.getUUID().equals(rootUuid)) 
+      if(item.getParentIdentifier().equals(rootIdentifier) || item.getIdentifier().equals(rootIdentifier)) 
         list.add(items.get(i));
     }
     return list;
@@ -192,12 +192,12 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
   */
   public Collection <ItemState> getLastChildrenStates(ItemData rootData, boolean forNodes) {
     HashMap <String, ItemState> children = new HashMap <String, ItemState>(); 
-    List <ItemState> changes = getChildrenChanges(rootData.getUUID());
+    List <ItemState> changes = getChildrenChanges(rootData.getIdentifier());
     for (ItemState child : changes) {
       ItemData data = child.getData();
       // add state to result 
       if (data.isNode() == forNodes && !data.equals(rootData))
-        children.put(data.getUUID(), child);
+        children.put(data.getIdentifier(), child);
       
     }
     return children.values();
@@ -215,18 +215,18 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
     
     for(int i=0; i<items.size(); i++) {
       TransientItemData item = (TransientItemData) items.get(i).getData();
-      if (item.getUUID().equals(rootData.getUUID())) {
+      if (item.getIdentifier().equals(rootData.getIdentifier())) {
         // the node
         if (items.get(i).isAdded())
           // if a new item - no modify changes can be
           return new ArrayList<ItemState>();
           
         if (!items.get(i).isDeleted())
-          changes.put(item.getUUID(), items.get(i));
-      } else if (/*!item.isNode() && */item.getParentUUID().equals(rootData.getUUID())) {
+          changes.put(item.getIdentifier(), items.get(i));
+      } else if (/*!item.isNode() && */item.getParentIdentifier().equals(rootData.getIdentifier())) {
         // childs
         //if (!items.get(i).isDeleted())
-        changes.put(item.getUUID(), items.get(i));
+        changes.put(item.getIdentifier(), items.get(i));
       }
     }
     

@@ -44,13 +44,13 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspaceDataManager#getItemData(java.lang.String)
    */
-  public ItemData getItemData(String uuid) throws RepositoryException {
+  public ItemData getItemData(String identifier) throws RepositoryException {
     // 2. Try from cache
-    ItemData data = getCachedItemData(uuid);
+    ItemData data = getCachedItemData(identifier);
 
     // 3. Try from container
     if (data == null) {
-      return getPersistedItemData(uuid);
+      return getPersistedItemData(identifier);
     }
     return data;
   }
@@ -133,9 +133,9 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     
     childNodes = super.getChildNodesData(nodeData);
     if (cache.isEnabled()) {
-      NodeData parentData = (NodeData) cache.get(nodeData.getUUID());
+      NodeData parentData = (NodeData) cache.get(nodeData.getIdentifier());
       if (parentData == null) {
-        parentData = (NodeData) super.getItemData(nodeData.getUUID());
+        parentData = (NodeData) super.getItemData(nodeData.getIdentifier());
       }
       cache.addChildNodes(parentData, childNodes);
     }
@@ -161,9 +161,9 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
 
     childProperties = super.getChildPropertiesData(nodeData);
     if (cache.isEnabled()) {
-      NodeData parentData = (NodeData) cache.get(nodeData.getUUID());
+      NodeData parentData = (NodeData) cache.get(nodeData.getIdentifier());
       if (parentData == null) {
-        parentData = (NodeData) super.getItemData(nodeData.getUUID());
+        parentData = (NodeData) super.getItemData(nodeData.getIdentifier());
       }
       cache.addChildProperties(parentData, childProperties);
     }
@@ -173,8 +173,8 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspaceDataManager#getReferencesData(java.lang.String)
    */
-  public List<PropertyData> getReferencesData(String uuid) throws RepositoryException {
-    return super.getReferencesData(uuid);
+  public List<PropertyData> getReferencesData(String identifier) throws RepositoryException {
+    return super.getReferencesData(identifier);
   }
   
   public WorkspaceStorageCache getCache() {
@@ -239,10 +239,10 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
   }
   
   /** 
-   * Returns an item from cache by UUID or null if the item don't cached.
+   * Returns an item from cache by Identifier or null if the item don't cached.
    */  
-  protected ItemData getCachedItemData(String uuid) throws RepositoryException {
-    return cache.get(uuid);
+  protected ItemData getCachedItemData(String identifier) throws RepositoryException {
+    return cache.get(identifier);
   }
 
   /** 
@@ -250,8 +250,8 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
    * and cache result if non null returned. 
    * @see org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager#getItemData(java.lang.String)
    */
-  protected ItemData getPersistedItemData(String uuid) throws RepositoryException {
-    ItemData data = super.getItemData(uuid);
+  protected ItemData getPersistedItemData(String identifier) throws RepositoryException {
+    ItemData data = super.getItemData(identifier);
     if (data != null && cache.isEnabled()) {
       cache.put(data);
     }

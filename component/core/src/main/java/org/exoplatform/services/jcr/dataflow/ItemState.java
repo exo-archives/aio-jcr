@@ -93,7 +93,7 @@ public class ItemState implements Externalizable {
     this.internallyCreated = isInternalCreated;
     
     if (log.isDebugEnabled())
-      log.debug(nameFromValue(state) + " " + data.getQPath().getAsString() + ",  " + data.getUUID());
+      log.debug(nameFromValue(state) + " " + data.getQPath().getAsString() + ",  " + data.getIdentifier());
    
   
   }

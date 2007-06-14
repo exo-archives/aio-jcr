@@ -74,22 +74,22 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
     boolean isMixReferenceable = ntManager.isNodeType(Constants.MIX_REFERENCEABLE, node.getPrimaryTypeName(), node.getMixinTypeNames());
     deletedExistingPropery = false;
     if (isMixReferenceable) {
-      String uuid = node.getUUID();
-      ItemImpl relItem = dstDataManager.getItemByUUID(uuid, true);
+      String identifier = node.getIdentifier();
+      ItemImpl relItem = dstDataManager.getItemByUUID(identifier, true);
       if (relItem != null) {
         if (removeExisting) {
           deletedExistingPropery = true;
           itemDeletedExistingStates.add(new ItemState(relItem.getData(), ItemState.DELETED, true,
               dstDataManager.getItemByUUID(relItem.getParentUUID(), true).getInternalPath(),level != 0));
         } else {
-          throw new ItemExistsException("Item exists uuid = " + uuid + " name " + relItem.getName());
+          throw new ItemExistsException("Item exists uuid = " + identifier + " name " + relItem.getName());
         }
       }
-      keepUUIDs = true;
+      keepIdentifiers = true;
     }
 
     super.entering(node, level);
-    keepUUIDs = false;
+    keepIdentifiers = false;
   }
   /**
    * Returns the list of item delete existing states
@@ -115,7 +115,7 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
   private boolean itemInItemStateList(List<ItemState> list, String itemId, int state) {
     boolean retval = false;
     for (ItemState itemState : list) {
-      if (itemState.getState() == state && itemState.getData().getUUID().equals(itemId)) {
+      if (itemState.getState() == state && itemState.getData().getIdentifier().equals(itemId)) {
         retval = true;
         break;
       }
@@ -129,10 +129,10 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
     if (deletedExistingPropery && removeExisting) {
       // if parent of this property in destination must be deleted, property
       // must be deleted too.
-      if (itemInItemStateList(itemDeletedExistingStates, property.getParentUUID(),
+      if (itemInItemStateList(itemDeletedExistingStates, property.getParentIdentifier(),
           ItemState.DELETED)) {
         // search destination propery
-        ItemData dstParentNodeData = dstDataManager.getItemByUUID(property.getParentUUID(), true)
+        ItemData dstParentNodeData = dstDataManager.getItemByUUID(property.getParentIdentifier(), true)
             .getData();
         List<PropertyData> dstChildProperties = dstDataManager
             .getChildPropertiesData((NodeData) dstParentNodeData);
@@ -146,7 +146,7 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
         }
         if (dstProperty != null) {
           itemDeletedExistingStates.add(new ItemState(dstProperty, ItemState.DELETED, true,
-              dstDataManager.getItemByUUID(dstProperty.getParentUUID(), true).getInternalPath(),level != 0));
+              dstDataManager.getItemByUUID(dstProperty.getParentIdentifier(), true).getInternalPath(),level != 0));
         } else {
           throw new RepositoryException("Destination propery " + property.getQPath().getAsString()
               + " not found. ");

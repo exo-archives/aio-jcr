@@ -141,15 +141,15 @@ public class ActionLauncher implements ItemsPersistenceListener {
 
   private boolean isUUIDMatch(ListenerCriteria criteria, ItemData item) {
 
-    if (criteria.getUuid() == null)
+    if (criteria.getIdentifier() == null)
       return true;
 
     // assotiated parent is node itself for node and parent for property ????
-    for (int i = 0; i < criteria.getUuid().length; i++) {
-      if (item.isNode() && criteria.getUuid()[i].equals(item.getUUID()))
+    for (int i = 0; i < criteria.getIdentifier().length; i++) {
+      if (item.isNode() && criteria.getIdentifier()[i].equals(item.getIdentifier()))
         return true;
       else if (!item.isNode()
-          && criteria.getUuid()[i].equals(item.getParentUUID()))
+          && criteria.getIdentifier()[i].equals(item.getParentIdentifier()))
         return true;
     }
     return false;
@@ -161,7 +161,7 @@ public class ActionLauncher implements ItemsPersistenceListener {
     if (criteria.getNodeTypeName() == null)
       return true;
 
-    NodeData node = (NodeData) workspaceDataManager.getItemData(item.getParentUUID());
+    NodeData node = (NodeData) workspaceDataManager.getItemData(item.getParentIdentifier());
     if (node == null) {
       return false;
     }

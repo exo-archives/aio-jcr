@@ -184,7 +184,7 @@ public class WorkspaceInitializer {
         UUIDGenerator.generate(),
         -1,
         PropertyType.NAME,
-        nodeData.getUUID(),
+        nodeData.getIdentifier(),
         false);
     primaryType.setValue(new TransientValueData(rootNodeType));
 

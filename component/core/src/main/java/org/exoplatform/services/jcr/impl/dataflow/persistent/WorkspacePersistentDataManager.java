@@ -109,7 +109,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
           if (!path.startsWith(Constants.JCR_SYSTEM_URI)) {
             log.debug("[" + dataContainer.getName() + "] save item: "
                 + ItemState.nameFromValue(state) + " " + path + " "
-                + data.getUUID());
+                + data.getIdentifier());
           }
         }
 

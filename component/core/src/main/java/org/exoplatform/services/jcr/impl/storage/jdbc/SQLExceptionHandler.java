@@ -34,7 +34,7 @@ public class SQLExceptionHandler {
     String message = "["+containerName+"] ";
     String errMessage = e.getMessage();
     String itemInfo = (item.isNode() ? "NODE " : "PROPERTY ")
-      + item.getQPath().getAsString() + " " + item.getUUID()
+      + item.getQPath().getAsString() + " " + item.getIdentifier()
       + (errMessage != null ? ". Cause: " + errMessage : "");
 
     if (errMessage != null) {
@@ -72,11 +72,11 @@ public class SQLExceptionHandler {
     // try detect integrity violation
     RepositoryException ownException = null;
     try {
-      NodeData parent = (NodeData) conn.getItemData(item.getParentUUID());
+      NodeData parent = (NodeData) conn.getItemData(item.getParentIdentifier());
       if (parent != null) {
         // have a parent
         try {
-          ItemData me = conn.getItemData(item.getUUID());
+          ItemData me = conn.getItemData(item.getIdentifier());
           if (me != null) {
             // item already exists
             message += "Item already exists in storage: " + itemInfo;
@@ -103,7 +103,7 @@ public class SQLExceptionHandler {
     String message = "["+containerName+"] ";
     String errMessage = e.getMessage();
     String itemInfo = (item.isNode() ? "NODE " : "PROPERTY ")
-      + item.getQPath().getAsString() + " " + item.getUUID()
+      + item.getQPath().getAsString() + " " + item.getIdentifier()
       + (errMessage != null ? ". Cause: " + errMessage : "");
 
     if (errMessage != null) {
@@ -140,7 +140,7 @@ public class SQLExceptionHandler {
     String message = "["+containerName+"] ";
     String errMessage = e.getMessage();
     String itemInfo = (item.isNode() ? "NODE " : "PROPERTY ")
-      + item.getQPath().getAsString() + " " + item.getUUID()
+      + item.getQPath().getAsString() + " " + item.getIdentifier()
       + (errMessage != null ? ". Cause: " + errMessage : "");
 
     if (errMessage != null)
@@ -158,7 +158,7 @@ public class SQLExceptionHandler {
     // try detect integrity violation
     RepositoryException ownException = null;
     try {
-      ItemData me = conn.getItemData(item.getUUID());
+      ItemData me = conn.getItemData(item.getIdentifier());
       if (me != null) {
         // item already exists
         message += "Item exists but update error " + itemInfo;

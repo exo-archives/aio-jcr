@@ -11,15 +11,15 @@ package org.exoplatform.services.jcr.datamodel;
  * @version $Id: Uuid.java 12843 2007-02-16 09:11:18Z peterit $
  */
 
-public class Uuid {
+public class Identifier {
 	
 	private final String string;
 
-	public Uuid(String stringValue) {
+	public Identifier(String stringValue) {
 		this.string = stringValue;
 	}
 	
-	public Uuid(byte[] value) {
+	public Identifier(byte[] value) {
 		this.string = new String(value);
 	}
 

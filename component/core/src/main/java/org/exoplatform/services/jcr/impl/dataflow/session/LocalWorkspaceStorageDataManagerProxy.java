@@ -98,8 +98,8 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.dataflow.session.WorkspaceStorageDataManagerProxy#getItemData(java.lang.String)
    */
-  public ItemData getItemData(String uuid) throws RepositoryException {
-    return copyItemData(storageDataManager.getItemData(uuid));
+  public ItemData getItemData(String identifier) throws RepositoryException {
+    return copyItemData(storageDataManager.getItemData(identifier));
   }
 
   /* (non-Javadoc)
@@ -122,9 +122,9 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.dataflow.session.WorkspaceStorageDataManagerProxy#getReferencesData(java.lang.String)
    */
-  public List<PropertyData> getReferencesData(String uuid)
+  public List<PropertyData> getReferencesData(String identifier)
       throws RepositoryException {
-    return copyProperties(storageDataManager.getReferencesData(uuid));
+    return copyProperties(storageDataManager.getReferencesData(identifier));
 
   }
 
@@ -166,9 +166,9 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
       if(acl == null) {
         acl = getACL(node.getQPath());
       }
-      return new TransientNodeData(node.getQPath(), node.getUUID(), 
+      return new TransientNodeData(node.getQPath(), node.getIdentifier(), 
         node.getPersistedVersion(), node.getPrimaryTypeName(), node.getMixinTypeNames(),
-        node.getOrderNumber(), node.getParentUUID(), acl);
+        node.getOrderNumber(), node.getParentIdentifier(), acl);
       
     }
 
@@ -176,8 +176,8 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
     PropertyData prop = (PropertyData)item;
     // make a copy
     TransientPropertyData newData = new TransientPropertyData(
-        prop.getQPath(), prop.getUUID(), prop.getPersistedVersion(),
-        prop.getType(), prop.getParentUUID(), prop.isMultiValued());
+        prop.getQPath(), prop.getIdentifier(), prop.getPersistedVersion(),
+        prop.getType(), prop.getParentIdentifier(), prop.isMultiValued());
     
     List <ValueData> values = null;
     // null is possible for deleting items

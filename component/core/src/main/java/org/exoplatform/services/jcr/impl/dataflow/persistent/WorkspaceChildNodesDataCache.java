@@ -44,7 +44,7 @@ public class WorkspaceChildNodesDataCache extends LinkedHashMap<String, List<Nod
         List<NodeData> nodes = eldest.getValue();
         for (NodeData node: nodes) {
           relatedCache.remove(node.getQPath().getAsString());
-          relatedCache.remove(node.getUUID());
+          relatedCache.remove(node.getIdentifier());
         }
         return true;
       } catch (Exception ex) {

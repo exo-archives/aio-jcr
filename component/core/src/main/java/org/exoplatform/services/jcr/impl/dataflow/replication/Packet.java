@@ -53,15 +53,15 @@ public class Packet implements Externalizable {
 
   private long   offset_;
   
-  private String uuid;
+  private String identifier;
   
   private FixupStream fixupStream;
 
   public Packet() {
   }
 
-  public Packet(int type, long size, byte[] buffer, String uuid_) {
-    uuid = uuid_;
+  public Packet(int type, long size, byte[] buffer, String identifier_) {
+    identifier = identifier_;
     type_ = type;
     size_ = size;
     buffer_ = new byte[buffer.length];
@@ -72,24 +72,24 @@ public class Packet implements Externalizable {
     fixupStream = new FixupStream();
   }
 
-  public Packet(int type, String uuid_) {
+  public Packet(int type, String identifier_) {
     type_ = type;
-    uuid = uuid_;
+    identifier = identifier_;
     buffer_ = new byte[1];
     fixupStream = new FixupStream();
   }
   
-  public Packet(int type, FixupStream fs, String uuid_) {
+  public Packet(int type, FixupStream fs, String identifier_) {
     type_ = type;
     fixupStream = fs;
-    uuid = uuid_;
+    identifier = identifier_;
     buffer_ = new byte[1];
   }
   
-  public Packet(int type, FixupStream fs, String uuid_, byte[] buf) {
+  public Packet(int type, FixupStream fs, String identifier_, byte[] buf) {
     type_ = type;
     fixupStream = fs;
-    uuid = uuid_;
+    identifier = identifier_;
     
     buffer_ = new byte[buf.length];
     for (int i = 0; i < buf.length; i++)
@@ -104,8 +104,8 @@ public class Packet implements Externalizable {
     out.writeInt(type_);
     out.writeLong(offset_);
     
-    out.writeInt(uuid.getBytes().length);
-    out.write(uuid.getBytes());
+    out.writeInt(identifier.getBytes().length);
+    out.write(identifier.getBytes());
     
     out.writeInt(fixupStream.getItemSateId());
     out.writeInt(fixupStream.getValueDataId());
@@ -124,15 +124,15 @@ public class Packet implements Externalizable {
     
     byte[] buf = new byte[in.readInt()];
     in.read(buf);
-    uuid = new String(buf/*, "UTF-8"*/);
+    identifier = new String(buf/*, "UTF-8"*/);
     
     int item = in.readInt();
     int value = in.readInt();
     fixupStream = new FixupStream(item, value);
   }
   
-  public String getUUID() {
-    return uuid;
+  public String getIdentifier() {
+    return identifier;
   }
 
   public byte[] getByteArray() {

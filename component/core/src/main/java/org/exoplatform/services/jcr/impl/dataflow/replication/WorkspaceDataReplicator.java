@@ -172,10 +172,10 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
           .getItemDataChangesLog());
       
       if (buf.length > Packet.MAX_PACKET_SIZE){
-        sendBigItemDataChangesLog(buf, container.getUUID());
+        sendBigItemDataChangesLog(buf, container.getIdentifier());
       } else {
         Packet firstPacket = new Packet(Packet.PacketType.ItemDataChangesLog,
-            buf.length, buf, container.getUUID());
+            buf.length, buf, container.getIdentifier());
         sendPacket(firstPacket);
   
         if(log.isDebugEnabled()) {
@@ -194,16 +194,16 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
 
       Packet packet = new Packet(
           Packet.PacketType.First_ItemDataChangesLog_with_Streams, buf.length,
-          buf, container.getUUID());
+          buf, container.getIdentifier());
       sendPacket(packet);
 
       for (int i = 0; i < container.getInputStreams().size(); i++)
         sendStream(container.getInputStreams().get(i), container
-            .getFixupStreams().get(i), container.getUUID());
+            .getFixupStreams().get(i), container.getIdentifier());
 
       Packet lastPacket = new Packet(
           Packet.PacketType.Last_ItemDataChangesLog_with_Streams, container
-              .getUUID());
+              .getIdentifier());
       sendPacket(lastPacket);
       if(log.isDebugEnabled()) {
         log.debug("Send-->ItemDataChangesLog_with_Streams-->");
@@ -241,21 +241,21 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
             .getByteArray());
 
         PendingChangesLog container = new PendingChangesLog(changesLog, packet
-            .getUUID(), PendingChangesLog.Type.ItemDataChangesLog_with_Streams,
+            .getIdentifier(), PendingChangesLog.Type.ItemDataChangesLog_with_Streams,
             fileCleaner);
 
-        mapPendingChangesLog.put(packet.getUUID(), container);
+        mapPendingChangesLog.put(packet.getIdentifier(), container);
         if(log.isDebugEnabled()) 
           log.debug("Item DataChangesLog of type 'ItemDataChangesLog first whith stream'");
         break;
 
       case Packet.PacketType.First_Packet_of_Stream:
-        if (mapPendingChangesLog.containsKey(packet.getUUID())) {
-          container = mapPendingChangesLog.get(packet.getUUID());
+        if (mapPendingChangesLog.containsKey(packet.getIdentifier())) {
+          container = mapPendingChangesLog.get(packet.getIdentifier());
 
           container.getFixupStreams().add(packet.getFixupStream());
 
-          File f = File.createTempFile("tempFile" + packet.getUUID()
+          File f = File.createTempFile("tempFile" + packet.getIdentifier()
               + UUIDGenerator.generate(), ".tmp");
 
           container.getListFile().add(f);
@@ -267,8 +267,8 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
         break;
 
       case Packet.PacketType.Packet_of_Stream:
-        if (mapPendingChangesLog.containsKey(packet.getUUID())) {
-          container = mapPendingChangesLog.get(packet.getUUID());
+        if (mapPendingChangesLog.containsKey(packet.getIdentifier())) {
+          container = mapPendingChangesLog.get(packet.getIdentifier());
 
           RandomAccessFile randomAccessFile = container
               .getRandomAccessFile(packet.getFixupStream());
@@ -281,8 +281,8 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
         break;
 
       case Packet.PacketType.Last_Packet_of_Stream:
-        if (mapPendingChangesLog.containsKey(packet.getUUID())) {
-          container = mapPendingChangesLog.get(packet.getUUID());
+        if (mapPendingChangesLog.containsKey(packet.getIdentifier())) {
+          container = mapPendingChangesLog.get(packet.getIdentifier());
 
           RandomAccessFile randomAccessFile = container
               .getRandomAccessFile(packet.getFixupStream());
@@ -298,44 +298,44 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
         break;
 
       case Packet.PacketType.Last_ItemDataChangesLog_with_Streams:
-        if (mapPendingChangesLog.get(packet.getUUID()) != null)
-          mapPendingChangesLog.get(packet.getUUID()).restore();
+        if (mapPendingChangesLog.get(packet.getIdentifier()) != null)
+          mapPendingChangesLog.get(packet.getIdentifier()).restore();
 
         ItemStateChangesLog dataChangesLog = (mapPendingChangesLog.get(packet
-            .getUUID())).getItemDataChangesLog();
+            .getIdentifier())).getItemDataChangesLog();
         if (dataChangesLog != null) {
           if(log.isDebugEnabled()) {
             log.debug("Send-->ItemDataChangesLog_with_Streams-->");
             log.debug("---------------------");
             log.debug("ItemStates   --> " + dataChangesLog.getAllStates().size());
             log.debug("Streams      --> "
-              + (mapPendingChangesLog.get(packet.getUUID()).getInputStreams()
+              + (mapPendingChangesLog.get(packet.getIdentifier()).getInputStreams()
                   .size()));
             log.debug("---------------------");
           }
 
           this.receive(dataChangesLog);
-          mapPendingChangesLog.remove(packet.getUUID());
+          mapPendingChangesLog.remove(packet.getIdentifier());
         }
         break;
         
       case Packet.PacketType.ItemDataChangesLog_First_Packet:
-        PendingChangesLog bigChangesLog = new PendingChangesLog(packet.getUUID(), (int)packet.getSize());
+        PendingChangesLog bigChangesLog = new PendingChangesLog(packet.getIdentifier(), (int)packet.getSize());
         bigChangesLog.putData((int)packet.getOffset(), packet.getByteArray());
       
-        mapPendingChangesLog.put(packet.getUUID(), bigChangesLog);
+        mapPendingChangesLog.put(packet.getIdentifier(), bigChangesLog);
       break;
 
     case Packet.PacketType.ItemDataChangesLog_Middle_Packet:
-      if (mapPendingChangesLog.get(packet.getUUID()) != null){
-        container = mapPendingChangesLog.get(packet.getUUID());
+      if (mapPendingChangesLog.get(packet.getIdentifier()) != null){
+        container = mapPendingChangesLog.get(packet.getIdentifier());
         container.putData((int)packet.getOffset(), packet.getByteArray());
       }
       break;
       
     case Packet.PacketType.ItemDataChangesLog_Last_Packet:
-      if (mapPendingChangesLog.get(packet.getUUID()) != null){
-        container = mapPendingChangesLog.get(packet.getUUID());
+      if (mapPendingChangesLog.get(packet.getIdentifier()) != null){
+        container = mapPendingChangesLog.get(packet.getIdentifier());
         container.putData((int)packet.getOffset(), packet.getByteArray());
         
         ItemStateChangesLog tempChangesLog = PendingChangesLog.getAsItemDataChangesLog(container.getData());
@@ -349,7 +349,7 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
         }
 
         this.receive(tempChangesLog);
-        mapPendingChangesLog.remove(packet.getUUID());
+        mapPendingChangesLog.remove(packet.getIdentifier());
       }
       
       break;  
@@ -367,10 +367,10 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
     disp.castMessage(members, msg, GroupRequest.GET_NONE/*GET_ALL*/ , 0);
   }
 
-  private void sendStream(InputStream in, FixupStream fixupStream, String uuid)
+  private void sendStream(InputStream in, FixupStream fixupStream, String identifier)
       throws Exception {
     Packet packet = new Packet(Packet.PacketType.First_Packet_of_Stream,
-        fixupStream, uuid);
+        fixupStream, identifier);
     sendPacket(packet);
 
     byte[] buf = new byte[Packet.MAX_PACKET_SIZE];
@@ -381,7 +381,7 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
       while ((len = in.read(buf)) > 0) {
         if (len == buf.length) {
           packet = new Packet(Packet.PacketType.Packet_of_Stream, fixupStream,
-              uuid, buf);
+              identifier, buf);
           packet.setOffset(offset);
           sendPacket(packet);
         } else {
@@ -390,7 +390,7 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
             buffer[i] = buf[i];
 
           packet = new Packet(Packet.PacketType.Last_Packet_of_Stream,
-              fixupStream, uuid, buffer);
+              fixupStream, identifier, buffer);
           packet.setOffset(offset);
           sendPacket(packet);
         }
@@ -406,13 +406,13 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
 
   }
   
-  private void sendBigItemDataChangesLog(byte[] data, String uuid) throws Exception{
+  private void sendBigItemDataChangesLog(byte[] data, String identifier) throws Exception{
     long offset = 0;
     byte[] tempBuffer = new byte[Packet.MAX_PACKET_SIZE];
     
     cutData(data, offset,  tempBuffer);
     
-    Packet firsPacket = new Packet(Packet.PacketType.ItemDataChangesLog_First_Packet, data.length, tempBuffer, uuid);
+    Packet firsPacket = new Packet(Packet.PacketType.ItemDataChangesLog_First_Packet, data.length, tempBuffer, identifier);
     firsPacket.setOffset(offset);
     sendPacket(firsPacket);
     
@@ -425,7 +425,7 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
     while ((data.length - offset) > Packet.MAX_PACKET_SIZE){
       cutData(data, offset,  tempBuffer);
       
-      Packet middlePacket = new Packet(Packet.PacketType.ItemDataChangesLog_Middle_Packet, data.length, tempBuffer, uuid);
+      Packet middlePacket = new Packet(Packet.PacketType.ItemDataChangesLog_Middle_Packet, data.length, tempBuffer, identifier);
       middlePacket.setOffset(offset);
       sendPacket(middlePacket);
       if(log.isDebugEnabled())
@@ -437,7 +437,7 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
     byte[] lastBuffer = new byte[data.length - (int)offset];
     cutData(data, offset,  lastBuffer);
     
-    Packet lastPacket = new Packet(Packet.PacketType.ItemDataChangesLog_Last_Packet, data.length, lastBuffer, uuid);
+    Packet lastPacket = new Packet(Packet.PacketType.ItemDataChangesLog_Last_Packet, data.length, lastBuffer, identifier);
     lastPacket.setOffset(offset);
     sendPacket(lastPacket);   
     

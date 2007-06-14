@@ -686,7 +686,7 @@ public class SessionImpl implements Session, NamespaceAccessor {
     checkNodeImport(node);
 
     NodeImporter handler = new NodeImporter(node);
-    handler.setUuidBehavior(uuidBehavior);
+    handler.setIdentifierBehavior(uuidBehavior);
     handler.setSaveType(NodeImporter.SAVETYPE_UPDATE);
     return handler;
   }

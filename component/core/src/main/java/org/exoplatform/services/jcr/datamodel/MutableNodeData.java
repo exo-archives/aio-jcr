@@ -20,7 +20,7 @@ public interface MutableNodeData extends NodeData, MutableItemData {
 
 	void setMixinTypeNames(InternalQName[] mixinTypeNames);
 
-	void setUUID(String uuid);
+	void setIdentifier(String identifier);
 	
 	void setACL(AccessControlList acl);
 	

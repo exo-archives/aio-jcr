@@ -119,7 +119,7 @@ public class PlainChangesLogImpl implements Externalizable, PlainChangesLog {
   public String dump() {
     String str = "ChangesLog: \n";
     for (int i = 0; i < items.size(); i++)
-      str += " " + items.get(i).getData().getQPath().getAsString() + " " + items.get(i).getData().getUUID() + " "
+      str += " " + items.get(i).getData().getQPath().getAsString() + " " + items.get(i).getData().getIdentifier() + " "
           + ItemState.nameFromValue(items.get(i).getState()) + " \n";
     return str;
   }

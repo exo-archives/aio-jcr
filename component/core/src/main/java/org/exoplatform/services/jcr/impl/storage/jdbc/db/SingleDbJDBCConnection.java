@@ -74,11 +74,11 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
         maxBufferSize, swapDirectory, swapCleaner);
   }
   
-  protected String getInternalId(final String uuid) {
-    return containerName + uuid;
+  protected String getInternalId(final String identifier) {
+    return containerName + identifier;
   }
 
-  protected String getUuid(final String internalId) {
+  protected String getIdentifier(final String internalId) {
     
     if(internalId == null) // possible for root parent
       return null;
@@ -202,9 +202,9 @@ CREATE VIEW JCR_SPROPERTY AS
     else
       insertNode.clearParameters();
     
-    insertNode.setString(1, getInternalId(data.getUUID()));
-    // if root then parent uuid equals space string
-    insertNode.setString(2, data.getParentUUID() == null ? Constants.ROOT_PARENT_UUID : getInternalId(data.getParentUUID()));  
+    insertNode.setString(1, getInternalId(data.getIdentifier()));
+    // if root then parent identifier equals space string
+    insertNode.setString(2, data.getParentIdentifier() == null ? Constants.ROOT_PARENT_UUID : getInternalId(data.getParentIdentifier()));  
     insertNode.setString(3, data.getQPath().getName().getAsString());
     insertNode.setString(4, containerName);
     insertNode.setInt(5, data.getPersistedVersion());
@@ -220,8 +220,8 @@ CREATE VIEW JCR_SPROPERTY AS
     else
       insertProperty.clearParameters();
     
-    insertProperty.setString(1, getInternalId(data.getUUID()));
-    insertProperty.setString(2, getInternalId(data.getParentUUID()));
+    insertProperty.setString(1, getInternalId(data.getIdentifier()));
+    insertProperty.setString(2, getInternalId(data.getParentIdentifier()));
     insertProperty.setString(3, data.getQPath().getName().getAsString());
     insertProperty.setString(4, containerName);
     insertProperty.setInt(5, data.getPersistedVersion());
@@ -245,10 +245,10 @@ CREATE VIEW JCR_SPROPERTY AS
     List<ValueData> values = data.getValues();
     for (int i=0; i<values.size(); i++) {
       ValueData vdata = values.get(i);
-      String refNodeUuid = new String(vdata.getAsByteArray());
+      String refNodeIdentifier = new String(vdata.getAsByteArray());
 
-      insertReference.setString(1, getInternalId(refNodeUuid));
-      insertReference.setString(2, getInternalId(data.getUUID()));
+      insertReference.setString(1, getInternalId(refNodeIdentifier));
+      insertReference.setString(2, getInternalId(data.getIdentifier()));
       insertReference.setInt(3, i);
       insertReference.executeUpdate();
     }
@@ -269,7 +269,7 @@ CREATE VIEW JCR_SPROPERTY AS
   }
 
   @Override
-  protected int deleteItemByUUID(String cid) throws SQLException {
+  protected int deleteItemByIdentifier(String cid) throws SQLException {
     if (deleteItem == null)
       deleteItem = dbConnection.prepareStatement(DELETE_ITEM);
     else
@@ -302,7 +302,7 @@ CREATE VIEW JCR_SPROPERTY AS
 //  }
 
   @Override
-  protected ResultSet findChildNodesByParentUUID(String parentCid) throws SQLException {
+  protected ResultSet findChildNodesByParentIdentifier(String parentCid) throws SQLException {
     if (findNodesByParentId == null)
       findNodesByParentId = dbConnection.prepareStatement(FIND_NODES_BY_PARENTID);
     else
@@ -314,7 +314,7 @@ CREATE VIEW JCR_SPROPERTY AS
   }
   
   @Override
-  protected ResultSet findChildPropertiesByParentUUID(String parentCid) throws SQLException {
+  protected ResultSet findChildPropertiesByParentIdentifier(String parentCid) throws SQLException {
     if (findPropertiesByParentId == null)
       findPropertiesByParentId = dbConnection.prepareStatement(FIND_PROPERTIES_BY_PARENTID);
     else
@@ -378,7 +378,7 @@ CREATE VIEW JCR_SPROPERTY AS
   }
 
   @Override
-  protected ResultSet findItemByUUID(String cid) throws SQLException {
+  protected ResultSet findItemByIdentifier(String cid) throws SQLException {
     if (findItemById == null)
       findItemById = dbConnection.prepareStatement(FIND_ITEM_BY_ID);
     else
@@ -425,7 +425,7 @@ CREATE VIEW JCR_SPROPERTY AS
 //  }    
   
   @Override
-  protected int updateNodeByUUID(int version, int index, int orderNumb, String cid) throws SQLException {
+  protected int updateNodeByIdentifier(int version, int index, int orderNumb, String cid) throws SQLException {
     if (updateNode == null)
       updateNode = dbConnection.prepareStatement(UPDATE_NODE);
     else
@@ -439,7 +439,7 @@ CREATE VIEW JCR_SPROPERTY AS
   }
   
   @Override
-  protected int updatePropertyByUUID(int version, int type, String cid) throws SQLException {
+  protected int updatePropertyByIdentifier(int version, int type, String cid) throws SQLException {
     if (updateProperty == null)
       updateProperty = dbConnection.prepareStatement(UPDATE_PROPERTY);
     else

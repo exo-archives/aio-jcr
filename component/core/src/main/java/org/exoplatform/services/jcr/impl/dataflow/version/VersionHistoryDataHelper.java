@@ -21,7 +21,7 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.datamodel.Uuid;
+import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
@@ -56,9 +56,9 @@ public class VersionHistoryDataHelper extends TransientNodeData {
    * @param ntManager
    */
   public VersionHistoryDataHelper(NodeData source, ItemDataConsumer dataManager, NodeTypeManagerImpl ntManager) {
-    super(source.getQPath(), source.getUUID(), source.getPersistedVersion(), 
+    super(source.getQPath(), source.getIdentifier(), source.getPersistedVersion(), 
         source.getPrimaryTypeName(), source.getMixinTypeNames(), source.getOrderNumber(), 
-        source.getParentUUID(), source.getACL());
+        source.getParentIdentifier(), source.getACL());
     
     this.dataManager = dataManager;
     this.ntManager = ntManager;
@@ -82,8 +82,8 @@ public class VersionHistoryDataHelper extends TransientNodeData {
     TransientNodeData vh = init(versionable, changes);
     
     // TransientItemData
-    this.parentUUID = vh.getParentUUID().intern();
-    this.UUID = vh.getUUID().intern();
+    this.parentIdentifier = vh.getParentIdentifier().intern();
+    this.identifier = vh.getIdentifier().intern();
     this.qpath = vh.getQPath();
     this.persistedVersion = vh.getPersistedVersion();
     
@@ -96,7 +96,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   
   public List<NodeData> getAllVersionsData() throws RepositoryException {
     
-    NodeData vData = (NodeData) dataManager.getItemData(getUUID());
+    NodeData vData = (NodeData) dataManager.getItemData(getIdentifier());
     
     NodeData rootVersion = (NodeData) dataManager.getItemData(vData,new QPathEntry(Constants.JCR_ROOTVERSION,0));
     
@@ -166,8 +166,8 @@ public class VersionHistoryDataHelper extends TransientNodeData {
       if (prop.getQPath().getName().equals(labelQName)) {
         // label found
         try {
-          String versionUuid = new String(prop.getValues().get(0).getAsByteArray());
-          return (NodeData) dataManager.getItemData(versionUuid);
+          String versionIdentifier = new String(prop.getValues().get(0).getAsByteArray());
+          return (NodeData) dataManager.getItemData(versionIdentifier);
         } catch (IllegalStateException e) {
           throw new RepositoryException("Version label data error: " + e.getMessage(), e);
         } catch (IOException e) {
@@ -180,8 +180,8 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   }
   
   private TransientNodeData init(NodeData versionable, PlainChangesLogImpl changes) throws RepositoryException {
-    String versionHistoryUuid = UUIDGenerator.generate();
-    String baseVersionUuid = UUIDGenerator.generate();
+    String versionHistoryIdentifier = UUIDGenerator.generate();
+    String baseVersionIdentifier = UUIDGenerator.generate();
 
     // ----- VERSION STORAGE nodes -----
     // ----- version history -----
@@ -191,12 +191,12 @@ public class VersionHistoryDataHelper extends TransientNodeData {
         rootItem,
         new QPathEntry(Constants.JCR_VERSIONSTORAGE, 1)); //  Constants.JCR_VERSION_STORAGE_PATH
     
-    InternalQName vhName = new InternalQName(null, versionable.getUUID());
+    InternalQName vhName = new InternalQName(null, versionable.getIdentifier());
 
     TransientNodeData versionHistory = TransientNodeData.createNodeData(versionStorageData,
         vhName,
         Constants.NT_VERSIONHISTORY);
-    versionHistory.setUUID(versionHistoryUuid);
+    versionHistory.setIdentifier(versionHistoryIdentifier);
 
     // jcr:primaryType
     TransientPropertyData vhPrimaryType = TransientPropertyData.createPropertyData(versionHistory,
@@ -210,7 +210,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
         Constants.JCR_UUID,
         PropertyType.STRING,
         false);
-    vhUuid.setValue(new TransientValueData(versionHistoryUuid));
+    vhUuid.setValue(new TransientValueData(versionHistoryIdentifier));
 
     // jcr:versionableUuid
     TransientPropertyData vhVersionableUuid = TransientPropertyData
@@ -219,7 +219,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
             Constants.JCR_VERSIONABLEUUID,
             PropertyType.STRING,
             false);
-    vhVersionableUuid.setValue(new TransientValueData(new Uuid(versionable.getUUID())));
+    vhVersionableUuid.setValue(new TransientValueData(new Identifier(versionable.getIdentifier())));
 
     // ------ jcr:versionLabels ------
     NodeData vhVersionLabels = TransientNodeData.createNodeData(versionHistory,
@@ -237,7 +237,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
     NodeData rootVersionData = TransientNodeData.createNodeData(versionHistory,
         Constants.JCR_ROOTVERSION,
         Constants.NT_VERSION,
-        baseVersionUuid);
+        baseVersionIdentifier);
 
     // jcr:primaryType
     TransientPropertyData rvPrimaryType = TransientPropertyData.createPropertyData(rootVersionData,
@@ -251,7 +251,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
         Constants.JCR_UUID,
         PropertyType.STRING,
         false);
-    rvUuid.setValue(new TransientValueData(baseVersionUuid));
+    rvUuid.setValue(new TransientValueData(baseVersionIdentifier));
 
     // jcr:mixinTypes
     TransientPropertyData rvMixinTypes = TransientPropertyData.createPropertyData(rootVersionData,
@@ -277,21 +277,21 @@ public class VersionHistoryDataHelper extends TransientNodeData {
         Constants.JCR_VERSIONHISTORY,
         PropertyType.REFERENCE,
         false);
-    vh.setValue(new TransientValueData(new Uuid(versionHistoryUuid)));
+    vh.setValue(new TransientValueData(new Identifier(versionHistoryIdentifier)));
 
     // jcr:baseVersion
     TransientPropertyData bv = TransientPropertyData.createPropertyData(versionable,
         Constants.JCR_BASEVERSION,
         PropertyType.REFERENCE,
         false);
-    bv.setValue(new TransientValueData(new Uuid(baseVersionUuid)));
+    bv.setValue(new TransientValueData(new Identifier(baseVersionIdentifier)));
 
     // jcr:predecessors
     TransientPropertyData pd = TransientPropertyData.createPropertyData(versionable,
         Constants.JCR_PREDECESSORS,
         PropertyType.REFERENCE,
         true);
-    pd.setValue(new TransientValueData(new Uuid(baseVersionUuid)));
+    pd.setValue(new TransientValueData(new Identifier(baseVersionIdentifier)));
 
     // update all    
     QPath vpath = versionable.getQPath();

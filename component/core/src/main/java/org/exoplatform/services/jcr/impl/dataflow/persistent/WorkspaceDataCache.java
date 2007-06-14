@@ -37,7 +37,7 @@ public class WorkspaceDataCache extends SimpleExoCache {
 
       if (itemData != null) {
         // look for parent in the cache and remove it if found
-        String parentUUID = itemData.getParentUUID();
+        String parentUUID = itemData.getParentIdentifier();
         try {
           NodeData parent = (NodeData) get(parentUUID);
           if (parent != null) {

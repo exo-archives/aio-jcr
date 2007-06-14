@@ -45,10 +45,10 @@ public class TransientNodeData extends TransientItemData implements Comparable,
 
   protected AccessControlList acl;
   
-  public TransientNodeData(QPath path, String uuid, int version,
+  public TransientNodeData(QPath path, String identifier, int version,
       InternalQName primaryTypeName, InternalQName[] mixinTypeNames,
-      int orderNum, String parentUUID, AccessControlList acl) {
-    super(path, uuid, version, parentUUID);
+      int orderNum, String parentIdentifier, AccessControlList acl) {
+    super(path, identifier, version, parentIdentifier);
     this.primaryTypeName = primaryTypeName;
     this.mixinTypeNames = mixinTypeNames;
     this.orderNum = orderNum;    
@@ -112,8 +112,8 @@ public class TransientNodeData extends TransientItemData implements Comparable,
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.MutableNodeData#setUUID(java.lang.String)
    */
-  public void setUUID(String uuid) {
-    UUID = uuid;
+  public void setIdentifier(String identifier) {
+    this.identifier = identifier;
     //this.hashCode = UUID.hashCode();
   }
 
@@ -146,7 +146,7 @@ public class TransientNodeData extends TransientItemData implements Comparable,
     QPath path = QPath.makeChildPath(parent.getQPath(), name);
     nodeData = new TransientNodeData(path,
         UUIDGenerator.generate(), -1, primaryTypeName, 
-        new InternalQName[0], 0, parent.getUUID(), parent.getACL());
+        new InternalQName[0], 0, parent.getIdentifier(), parent.getACL());
     return nodeData;
   }
     
@@ -164,7 +164,7 @@ public class TransientNodeData extends TransientItemData implements Comparable,
     QPath path = QPath.makeChildPath(parent.getQPath(), name, index);
     nodeData = new TransientNodeData(path,
         UUIDGenerator.generate(), -1, primaryTypeName, 
-        new InternalQName[0], 0, parent.getUUID(), parent.getACL());
+        new InternalQName[0], 0, parent.getIdentifier(), parent.getACL());
     return nodeData;
   }
   
@@ -177,12 +177,12 @@ public class TransientNodeData extends TransientItemData implements Comparable,
    * @return
    */
   public static TransientNodeData createNodeData(NodeData parent,
-      InternalQName name, InternalQName primaryTypeName, String uuid) {
+      InternalQName name, InternalQName primaryTypeName, String identifier) {
     TransientNodeData nodeData = null;
     QPath path = QPath.makeChildPath(parent.getQPath(), name);
     nodeData = new TransientNodeData(path,
-        uuid, -1, primaryTypeName, 
-        new InternalQName[0], 0, parent.getUUID(), parent.getACL());
+        identifier, -1, primaryTypeName, 
+        new InternalQName[0], 0, parent.getIdentifier(), parent.getACL());
     return nodeData;
   }
   
@@ -262,12 +262,12 @@ public class TransientNodeData extends TransientItemData implements Comparable,
   public TransientNodeData clone() {
     TransientNodeData dataCopy = new TransientNodeData(
         getQPath(), 
-        getUUID(), 
+        getIdentifier(), 
         getPersistedVersion(),
         getPrimaryTypeName(), 
         getMixinTypeNames(),
         getOrderNumber(),
-        getParentUUID() != null ? getParentUUID() : null,
+        getParentIdentifier() != null ? getParentIdentifier() : null,
         getACL());
         
     return dataCopy;
@@ -282,12 +282,12 @@ public class TransientNodeData extends TransientItemData implements Comparable,
     
     TransientNodeData dataCopy = new TransientNodeData(
         siblingPath, 
-        getUUID(), 
+        getIdentifier(), 
         getPersistedVersion(),
         getPrimaryTypeName(), 
         getMixinTypeNames(),
         getOrderNumber(),
-        getParentUUID() != null ? getParentUUID() : null,
+        getParentIdentifier() != null ? getParentIdentifier() : null,
         getACL());
       
     return dataCopy;

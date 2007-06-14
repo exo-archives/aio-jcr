@@ -86,7 +86,7 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
 
     // merge data
     if(txStarted()) {
-      for (ItemState state: transactionLog.getChildrenChanges(parent.getUUID(), true)) {
+      for (ItemState state: transactionLog.getChildrenChanges(parent.getIdentifier(), true)) {
         nodes.remove(state.getData());
         if(!state.isDeleted())
           nodes.add((NodeData)state.getData());
@@ -104,7 +104,7 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
 
     // merge data
     if(txStarted()) {
-      for(ItemState state: transactionLog.getChildrenChanges(parent.getUUID(), false)) {
+      for(ItemState state: transactionLog.getChildrenChanges(parent.getIdentifier(), false)) {
         props.remove(state.getData());
         if(!state.isDeleted())
           props.add((PropertyData)state.getData());
@@ -152,24 +152,24 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(java.lang.String)
    */
-  public ItemData getItemData(String uuid) throws RepositoryException {
+  public ItemData getItemData(String identifier) throws RepositoryException {
     ItemData data = null;
     if(txStarted()) {
-      ItemState state = transactionLog.getItemState(uuid);
+      ItemState state = transactionLog.getItemState(identifier);
       if(state != null)
         data = state.getData();
     }
     if(data != null)
       return data;
     else
-      return storageDataManager.getItemData(uuid);
+      return storageDataManager.getItemData(identifier);
   }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getReferencesData(java.lang.String)
    */
-  public List<PropertyData> getReferencesData(String uuid) throws RepositoryException {
-    return storageDataManager.getReferencesData(uuid);
+  public List<PropertyData> getReferencesData(String identifier) throws RepositoryException {
+    return storageDataManager.getReferencesData(identifier);
   }
   
   // ---------------  --------

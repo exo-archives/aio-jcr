@@ -64,7 +64,7 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.datamodel.Uuid;
+import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.itemfilters.ItemFilter;
@@ -644,7 +644,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     // Initialize data
     InternalQName[] mixinTypeNames = new InternalQName[0];
-    String uuid = UUIDGenerator.generate();
+    String identifier = UUIDGenerator.generate();
 
     List<NodeData> siblings = dataManager.getChildNodesData(parentNode.nodeData());
     int orderNum = parentNode.getNextChildOrderNum(siblings);
@@ -656,7 +656,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     // create new nodedata, [PN] fix of use index as persisted version
     NodeData nodeData = new TransientNodeData(path,
-        uuid,
+        identifier,
         -1,
         primaryTypeName,
         mixinTypeNames,
@@ -1099,7 +1099,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         if (corrSession.getWorkspace().getNodeTypeManager().isNodeType(Constants.MIX_REFERENCEABLE,
             ancestor.getPrimaryTypeName(),
             ancestor.getMixinTypeNames())) {
-          NodeData corrAncestor = (NodeData) corrDataManager.getItemData(ancestor.getUUID());
+          NodeData corrAncestor = (NodeData) corrDataManager.getItemData(ancestor.getIdentifier());
           if (corrAncestor == null)
             throw new ItemNotFoundException("No corresponding path for ancestor "
                 + ancestor.getQPath().getAsString() + " in " + corrSession.getWorkspace().getName());
@@ -1274,10 +1274,10 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     if (prop != null) {// there was mixin prop
       prop = new TransientPropertyData(prop.getQPath(),
-          prop.getUUID(),
+          prop.getIdentifier(),
           prop.getPersistedVersion(),
           prop.getType(),
-          prop.getParentUUID(),
+          prop.getParentIdentifier(),
           prop.isMultiValued());
 
       prop.setValues(values);
@@ -1595,24 +1595,24 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       throw new LockException("Node " + parent().getPath() + " is locked ");
 
     // the new version UUID 
-    String verUuid = UUIDGenerator.generate();
+    String verIdentifier = UUIDGenerator.generate();
     
     SessionChangesLog changesLog = new SessionChangesLog(session.getId());
 
-    getVersionHistory().addVersion(this.nodeData(), verUuid, changesLog);
+    getVersionHistory().addVersion(this.nodeData(), verIdentifier, changesLog);
 
     changesLog.add(ItemState.createUpdatedState(
         updatePropertyData(Constants.JCR_ISCHECKEDOUT, new TransientValueData(false))));
 
     changesLog.add(ItemState.createUpdatedState(
-        updatePropertyData(Constants.JCR_BASEVERSION, new TransientValueData(new Uuid(verUuid)))));
+        updatePropertyData(Constants.JCR_BASEVERSION, new TransientValueData(new Identifier(verIdentifier)))));
 
     changesLog.add(ItemState.createUpdatedState(
         updatePropertyData(Constants.JCR_PREDECESSORS, new ArrayList<ValueData>())));
 
     dataManager.getTransactManager().save(changesLog); 
 
-    VersionImpl version = (VersionImpl) dataManager.getItemByUUID(verUuid, true);
+    VersionImpl version = (VersionImpl) dataManager.getItemByUUID(verIdentifier, true);
 
     session.getActionHandler().postCheckin(this);
     return version;
@@ -1795,7 +1795,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
           Constants.NT_BASE,
           new InternalQName[0],
           0,
-          nodeData().getUUID(),
+          nodeData().getIdentifier(),
           nodeData().getACL());
 
       dataManager.update(ItemState.createAddedState(nodeData), true);
@@ -1881,15 +1881,15 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       state = ItemState.ADDED;
     }
 
-    nextFail: for (String uuid : failed.keySet()) {
-      NodeImpl versionable = (NodeImpl) session.getNodeByUUID(uuid);
+    nextFail: for (String identifier : failed.keySet()) {
+      NodeImpl versionable = (NodeImpl) session.getNodeByUUID(identifier);
       res.add(versionable);
-      String offendingUuid = failed.get(uuid);
+      String offendingIdentifier = failed.get(identifier);
 
       for (ValueData vd : mergeFailedRefs) {
         try {
-          String mfUuid = new String(vd.getAsByteArray());
-          if (mfUuid.equals(offendingUuid)) {
+          String mfIdentifier = new String(vd.getAsByteArray());
+          if (mfIdentifier.equals(offendingIdentifier)) {
             // offending version is alredy in jcr:mergeFailed, skip it
             continue nextFail;
           }
@@ -1898,7 +1898,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         }
       }
 
-      mergeFailedRefs.add(new TransientValueData(offendingUuid));
+      mergeFailedRefs.add(new TransientValueData(offendingIdentifier));
     }
 
     changes.add(new ItemState(mergeFailed, state, true, getInternalPath(), true));
@@ -1958,8 +1958,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     List<ValueData> mf = new ArrayList<ValueData>();
     for (ValueData mfvd : mergeFailed.getValues()) {
       try {
-        String mfUuid = new String(mfvd.getAsByteArray());
-        if (!mfUuid.equals(version.getUUID()))
+        String mfIdentifier = new String(mfvd.getAsByteArray());
+        if (!mfIdentifier.equals(version.getUUID()))
           mf.add(mfvd);
       } catch (IOException e) {
         throw new RepositoryException("Remove jcr:mergeFailed error " + e, e);
@@ -2248,7 +2248,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     } else if (type.isNodeType(Constants.MIX_REFERENCEABLE)
         && def.getQName().equals(Constants.JCR_UUID)) {
-      vals.add(new TransientValueData(nodeData().getUUID()));
+      vals.add(new TransientValueData(nodeData().getIdentifier()));
 
     } else if (type.isNodeType(Constants.NT_HIERARCHYNODE)
         && def.getQName().equals(Constants.JCR_CREATED)) {
@@ -2378,8 +2378,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     TransientPropertyData permProp = (TransientPropertyData) dataManager.getItemData(nodeData(),
         new QPathEntry(Constants.EXO_PERMISSIONS, 0));
 
-    permProp = new TransientPropertyData(permProp.getQPath(), permProp.getUUID(), permProp
-        .getPersistedVersion(), permProp.getType(), permProp.getParentUUID(), permProp
+    permProp = new TransientPropertyData(permProp.getQPath(), permProp.getIdentifier(), permProp
+        .getPersistedVersion(), permProp.getType(), permProp.getParentIdentifier(), permProp
         .isMultiValued());
 
     permProp.setValues(permValues);
@@ -2541,10 +2541,10 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     TransientPropertyData tdata = new TransientPropertyData(
         QPath.makeChildPath(getInternalPath(), name), 
-        existed.getUUID(), 
+        existed.getIdentifier(), 
         existed.getPersistedVersion(), 
         existed.getType(), 
-        existed.getParentUUID(), 
+        existed.getParentIdentifier(), 
         existed.isMultiValued());
 
     tdata.setValue(value);
@@ -2562,10 +2562,10 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     TransientPropertyData tdata = new TransientPropertyData(
         QPath.makeChildPath(getInternalPath(), name), 
-        existed.getUUID(), 
+        existed.getIdentifier(), 
         existed.getPersistedVersion(), 
         existed.getType(), 
-        existed.getParentUUID(), 
+        existed.getParentIdentifier(), 
         existed.isMultiValued());
 
     if (!existed.isMultiValued())

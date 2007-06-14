@@ -6,7 +6,7 @@
 package org.exoplatform.services.jcr.util;
 
 import org.exoplatform.services.idgenerator.IDGeneratorService;
-import org.exoplatform.services.jcr.datamodel.Uuid;
+import org.exoplatform.services.jcr.datamodel.Identifier;
 
 /**
  * Created by The eXo Platform SARL .
@@ -25,8 +25,8 @@ public class UUIDGenerator {
     UUIDGenerator.idGenerator = idGenerator;
   }
 
-  public Uuid generateUUID(String path) {
-    return new Uuid(idGenerator.generateStringID(path));
+  public Identifier generateUUID(String path) {
+    return new Identifier(idGenerator.generateStringID(path));
   }
 
   public String generateStringUUID(String path) {

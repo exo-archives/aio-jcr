@@ -149,7 +149,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     if (versionData == null)
       throw new RepositoryException("There are no label '" + label + "' in the version history " + getPath());
 
-    VersionImpl version = (VersionImpl) dataManager.getItemByUUID(versionData.getUUID(), true);
+    VersionImpl version = (VersionImpl) dataManager.getItemByUUID(versionData.getIdentifier(), true);
     
     if (version == null)
       throw new VersionException("There are no version with label '" + label + "' in the version history " + getPath());
@@ -174,7 +174,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     checkValid();
     
     NodeData versionData = getVersionDataByLabel(label);
-    if (versionData != null && version.getUUID().equals(versionData.getUUID()))
+    if (versionData != null && version.getUUID().equals(versionData.getIdentifier()))
       return true;
     
     return false;
@@ -366,7 +366,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     SessionChangesLog changesLog = new SessionChangesLog(session.getId());
     
     PropertyData labelData = TransientPropertyData.createPropertyData(labels, labelQName, PropertyType.REFERENCE, 
-        false, new TransientValueData(versionData.getUUID()));
+        false, new TransientValueData(versionData.getIdentifier()));
     changesLog.add(ItemState.createAddedState(labelData));
     
     dataManager.getTransactManager().save(changesLog);
@@ -432,7 +432,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
         throw new RepositoryException(e);
       }
       VersionImpl predecessor = (VersionImpl) dataManager.getItemByUUID(predecessorUuid, true);
-      predecessor.addSuccessor(versionData.getUUID(), changesLog);
+      predecessor.addSuccessor(versionData.getIdentifier(), changesLog);
     }
     
     // jcr:predecessors
@@ -453,7 +453,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     changesLog.add(ItemState.createAddedState(propData));
     
     propData = TransientPropertyData.createPropertyData(frozenData, Constants.JCR_UUID, PropertyType.STRING, 
-        false, new TransientValueData(frozenData.getUUID()));
+        false, new TransientValueData(frozenData.getIdentifier()));
     changesLog.add(ItemState.createAddedState(propData));
     
     NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();

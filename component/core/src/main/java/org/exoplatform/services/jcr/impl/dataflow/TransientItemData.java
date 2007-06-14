@@ -27,9 +27,9 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
   protected QPath qpath;
 
-  protected String UUID;
+  protected String identifier;
 
-  protected String parentUUID;
+  protected String parentIdentifier;
 
   protected int persistedVersion;
   
@@ -38,13 +38,13 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
   /**
    * @param path QPath
-   * @param uuid id
+   * @param identifier id
    * @param version persisted version
-   * @param parentUUID parentId
+   * @param parentIdentifier parentId
    */
-  TransientItemData(QPath path, String uuid, int version, String parentUUID) {
-    this.parentUUID = parentUUID != null ? parentUUID.intern() : null;
-    this.UUID = uuid.intern();
+  TransientItemData(QPath path, String identifier, int version, String parentIdentifier) {
+    this.parentIdentifier = parentIdentifier != null ? parentIdentifier.intern() : null;
+    this.identifier = identifier.intern();
     this.qpath = path;
     this.persistedVersion = version;
     //this.hashCode = initHashCode();
@@ -52,7 +52,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
   
   protected int initHashCode() {
     final int prime = 31;
-    int hcode = prime * UUID.hashCode(); // [PN] 10.02.07 by uuid only
+    int hcode = prime * identifier.hashCode(); // [PN] 10.02.07 by uuid only
     //hcode = prime * hcode + QPath.hashCode();    
     //hcode = prime * hcode + (parentUUID != null ? parentUUID.hashCode() : 0);
     //hcode = prime * hcode + persistedVersion;
@@ -78,8 +78,8 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
    * 
    * @see org.exoplatform.services.jcr.datamodel.ItemData#getUUID()
    */
-  public String getUUID() {
-    return UUID;
+  public String getIdentifier() {
+    return identifier;
   }
 
   /*
@@ -96,8 +96,8 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
    * 
    * @see org.exoplatform.services.jcr.datamodel.ItemData#getParentUUID()
    */
-  public String getParentUUID() {
-    return parentUUID;
+  public String getParentIdentifier() {
+    return parentIdentifier;
   }
 
   /*
@@ -125,7 +125,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
     if (obj instanceof ItemData) {
       //return this.hashCode == obj.hashCode();
       //return getUUID().equals(((ItemData) obj).getUUID());
-      return getUUID().hashCode() == ((ItemData) obj).getUUID().hashCode();
+      return getIdentifier().hashCode() == ((ItemData) obj).getIdentifier().hashCode();
     } 
 
     return false;
@@ -153,11 +153,11 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
     out.writeInt(qpath.getAsString().getBytes().length);
     out.write(qpath.getAsString().getBytes());
 
-    out.writeInt(UUID.getBytes().length);
-    out.write(UUID.getBytes());
+    out.writeInt(identifier.getBytes().length);
+    out.write(identifier.getBytes());
 
-    out.writeInt(parentUUID.getBytes().length);
-    out.write(parentUUID.getBytes());
+    out.writeInt(parentIdentifier.getBytes().length);
+    out.write(parentIdentifier.getBytes());
 
     out.writeInt(persistedVersion);
   }
@@ -178,11 +178,11 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
     buf = new byte[in.readInt()/*UUIDGenerator.UUID_LENGTH*/];
     in.read(buf);
-    UUID = new String(buf , Constants.DEFAULT_ENCODING).intern();
+    identifier = new String(buf , Constants.DEFAULT_ENCODING).intern();
 
     buf = new byte[in.readInt()];
     in.read(buf);
-    parentUUID = new String(buf, Constants.DEFAULT_ENCODING).intern();
+    parentIdentifier = new String(buf, Constants.DEFAULT_ENCODING).intern();
 
     persistedVersion = in.readInt();
     

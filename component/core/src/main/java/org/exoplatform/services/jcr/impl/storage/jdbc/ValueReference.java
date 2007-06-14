@@ -12,18 +12,18 @@ public class ValueReference {
   
   private final int    orderNumber;
 
-  private final String uuid;
+  private final String identifier;
 
-  public ValueReference(String uuid, int orderNumber) {
+  public ValueReference(String identifier, int orderNumber) {
     this.orderNumber = orderNumber;
-    this.uuid = uuid;
+    this.identifier = identifier;
   }
 
   public int getOrderNumber() {
     return orderNumber;
   }
 
-  public String getUuid() {
-    return uuid;
+  public String getIdentifier() {
+    return identifier;
   }
 }

@@ -41,7 +41,7 @@ public abstract class PersistedItemData implements ItemData {
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.ItemData#getUUID()
    */
-  public String getUUID() {
+  public String getIdentifier() {
     return id;
   }
 
@@ -55,7 +55,7 @@ public abstract class PersistedItemData implements ItemData {
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.ItemData#getParentUUID()
    */
-  public String getParentUUID() {
+  public String getParentIdentifier() {
     return parentId;
   }
   
@@ -65,7 +65,7 @@ public abstract class PersistedItemData implements ItemData {
    */
   public boolean equals(Object obj) {
     if (obj instanceof ItemData) {
-      return getUUID().equals(((ItemData) obj).getUUID());
+      return getIdentifier().equals(((ItemData) obj).getIdentifier());
     } else {
       return false;
     }

@@ -84,12 +84,12 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
         maxBufferSize, swapDirectory, swapCleaner);
   }
   
-  protected String getUuid(final String internalId) {
+  protected String getIdentifier(final String internalId) {
     return internalId;
   }
   
-  protected String getInternalId(final String uuid) {
-    return uuid;
+  protected String getInternalId(final String identifier) {
+    return identifier;
   }
 
 
@@ -178,8 +178,8 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
 //    insertItem.executeUpdate();
 
     // INSERT_NODE = "insert into JCR_MITEM(ID, PARENT_ID, NAME, PATH, VERSION, I_CLASS, I_INDEX, N_ORDER_NUM) VALUES(?,?,?,?,?," + I_CLASS_NODE + ",?,?)";
-    insertNode.setString(1, data.getUUID());
-    insertNode.setString(2, data.getParentUUID() == null ? Constants.ROOT_PARENT_UUID : data.getParentUUID()); // if root then parent uuid equals empty string 
+    insertNode.setString(1, data.getIdentifier());
+    insertNode.setString(2, data.getParentIdentifier() == null ? Constants.ROOT_PARENT_UUID : data.getParentIdentifier()); // if root then parent identifier equals empty string 
     insertNode.setString(3, data.getQPath().getName().getAsString());
     insertNode.setInt(4, data.getPersistedVersion());
     insertNode.setInt(5, data.getQPath().getIndex());
@@ -207,8 +207,8 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
 //    insertItem.executeUpdate();
     
     // INSERT_PROPERTY = "insert into JCR_MITEM(ID, PARENT_ID, NAME, PATH, VERSION, I_CLASS, I_INDEX, P_TYPE, P_MULTIVALUED) VALUES(?,?,?,?,?," + I_CLASS_NODE + ",?,?,?)";
-    insertProperty.setString(1, data.getUUID());
-    insertProperty.setString(2, data.getParentUUID());
+    insertProperty.setString(1, data.getIdentifier());
+    insertProperty.setString(2, data.getParentIdentifier());
     insertProperty.setString(3, data.getQPath().getName().getAsString());
     insertProperty.setInt(4, data.getPersistedVersion());
     insertProperty.setInt(5, data.getQPath().getIndex());
@@ -235,10 +235,10 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     for (int i=0; i<values.size(); i++) {
       ValueData vdata = values.get(i);
 //      String refNodeUuid = new String(BLOBUtil.readValue(vdata));
-      String refNodeUuid = new String(vdata.getAsByteArray());
+      String refNodeIdentifier = new String(vdata.getAsByteArray());
 
-      insertReference.setString(1, refNodeUuid);
-      insertReference.setString(2, data.getUUID());
+      insertReference.setString(1, refNodeIdentifier);
+      insertReference.setString(2, data.getIdentifier());
       insertReference.setInt(3, i);
       insertReference.executeUpdate();
     }
@@ -248,18 +248,18 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
    * For REFERENCE properties only
    */
   @Override
-  protected void deleteReference(String propertyUuid) throws SQLException {
+  protected void deleteReference(String propertyIdentifier) throws SQLException {
     if (deleteReference == null)
       deleteReference = dbConnection.prepareStatement(DELETE_REF);
     else
       deleteReference.clearParameters();
     
-    deleteReference.setString(1, propertyUuid);
+    deleteReference.setString(1, propertyIdentifier);
     int r = deleteReference.executeUpdate();
   }
 
   @Override
-  protected int deleteItemByUUID(String uuid) throws SQLException {
+  protected int deleteItemByIdentifier(String identifier) throws SQLException {
     if (deleteItem == null)
       deleteItem = dbConnection.prepareStatement(DELETE_ITEM);
     else
@@ -270,7 +270,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
 //      log.info(rs.getString("PROPERTY_ID"));
 //    }
     
-    deleteItem.setString(1, uuid);
+    deleteItem.setString(1, identifier);
     return deleteItem.executeUpdate();
   }
 
@@ -324,7 +324,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
 //  }
   
   @Override
-  protected int updateNodeByUUID(int version, int index, int orderNumb, String uuid) throws SQLException {
+  protected int updateNodeByIdentifier(int version, int index, int orderNumb, String identifier) throws SQLException {
     if (updateNode == null)
       updateNode = dbConnection.prepareStatement(UPDATE_NODE);
     else
@@ -333,12 +333,12 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     updateNode.setInt(1, version);
     updateNode.setInt(2, index);
     updateNode.setInt(3, orderNumb);
-    updateNode.setString(4, uuid);
+    updateNode.setString(4, identifier);
     return updateNode.executeUpdate();
   }
   
   @Override
-  protected int updatePropertyByUUID(int version, int type, String uuid) throws SQLException {
+  protected int updatePropertyByIdentifier(int version, int type, String identifier) throws SQLException {
     if (updateProperty == null)
       updateProperty = dbConnection.prepareStatement(UPDATE_PROPERTY);
     else
@@ -346,7 +346,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     
     updateProperty.setInt(1, version);
     updateProperty.setInt(2, type);
-    updateProperty.setString(3, uuid);
+    updateProperty.setString(3, identifier);
     return updateProperty.executeUpdate();
   }
   
@@ -398,47 +398,47 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
   }
 
   @Override
-  protected ResultSet findItemByUUID(String uuid) throws SQLException {
+  protected ResultSet findItemByIdentifier(String identifier) throws SQLException {
     if (findItemById == null)
       findItemById = dbConnection.prepareStatement(FIND_ITEM_BY_ID);
     else
       findItemById.clearParameters();
     
-    findItemById.setString(1, uuid);
+    findItemById.setString(1, identifier);
     return findItemById.executeQuery();
   }
 
   @Override
-  protected ResultSet findReferences(String nodeUuid) throws SQLException {
+  protected ResultSet findReferences(String nodeIdentifier) throws SQLException {
     if (findReferences == null)
       findReferences = dbConnection.prepareStatement(FIND_REFERENCES);
     else
       findReferences.clearParameters();
       
-    findReferences.setString(1, nodeUuid);
+    findReferences.setString(1, nodeIdentifier);
     return findReferences.executeQuery();
   }
 
 
   @Override
-  protected ResultSet findChildNodesByParentUUID(String parentUUID) throws SQLException {
+  protected ResultSet findChildNodesByParentIdentifier(String parentIdentifier) throws SQLException {
     if (findNodesByParentId == null)
       findNodesByParentId = dbConnection.prepareStatement(FIND_NODES_BY_PARENTID);
     else
       findNodesByParentId.clearParameters();
     
-    findNodesByParentId.setString(1, parentUUID);
+    findNodesByParentId.setString(1, parentIdentifier);
     return findNodesByParentId.executeQuery();
   }
 
   @Override
-  protected ResultSet findChildPropertiesByParentUUID(String parentUUID) throws SQLException {
+  protected ResultSet findChildPropertiesByParentIdentifier(String parentIdentifier) throws SQLException {
     if (findPropertiesByParentId == null)
       findPropertiesByParentId = dbConnection.prepareStatement(FIND_PROPERTIES_BY_PARENTID);
     else
       findPropertiesByParentId.clearParameters();
     
-    findPropertiesByParentId.setString(1, parentUUID);
+    findPropertiesByParentId.setString(1, parentIdentifier);
     return findPropertiesByParentId.executeQuery();
   }
   

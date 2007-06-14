@@ -98,7 +98,7 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
           currentNode(), Constants.JCR_FROZENMIXINTYPES,
           PropertyType.STRING, mv, values);
     } else {
-      NodeData parent = (NodeData) dataManager.getItemData(property.getParentUUID());
+      NodeData parent = (NodeData) dataManager.getItemData(property.getParentIdentifier());
 
       PropertyDefinition pdef = ntManager.findPropertyDefinition(
           qname,
@@ -167,7 +167,7 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
 
     InternalQName qname = node.getQPath().getName();
 
-    NodeData parent = (NodeData) dataManager.getItemData(node.getParentUUID());
+    NodeData parent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
     NodeDefinition pdef = ntManager.findNodeDefinition(qname, parent.getPrimaryTypeName(), parent.getMixinTypeNames());
     int action = pdef.getOnParentVersion();
 
@@ -188,7 +188,7 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
           node.getPrimaryTypeName(),
           node.getMixinTypeNames(),
           node.getOrderNumber(),
-          currentNode().getUUID(), // parent
+          currentNode().getIdentifier(), // parent
           node.getACL());
 
       contextNodes.push(frozenNode);
@@ -227,7 +227,7 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
             node.getPrimaryTypeName(),
             node.getMixinTypeNames(),
             node.getOrderNumber(),
-            currentNode().getUUID(), // parent
+            currentNode().getIdentifier(), // parent
             node.getACL());
 
         contextNodes.push(frozenNode);

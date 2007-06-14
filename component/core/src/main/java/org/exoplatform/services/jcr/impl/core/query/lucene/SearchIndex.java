@@ -436,10 +436,10 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
             addedNodes.add(itemState.getData());
             //traverseAddedNode((NodeData)itemState.getData(), addedNodes);
           } else if (itemState.getState() == ItemState.DELETED) {
-            removedNodes.add(itemState.getData().getUUID());
+            removedNodes.add(itemState.getData().getIdentifier());
           }
         } else {
-          String parentUUID = itemState.getData().getParentUUID();
+          String parentUUID = itemState.getData().getParentIdentifier();
 
           if (!hasUUID(itemStates, parentUUID)) {
             removedNodes.add(parentUUID);
@@ -466,7 +466,7 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
     
     private boolean hasUUID(List itemStates, String uuid) {
       for(int i=0; i<itemStates.size(); i++) {
-        if(((ItemState)itemStates.get(i)).getData().getUUID().equals(uuid))
+        if(((ItemState)itemStates.get(i)).getData().getIdentifier().equals(uuid))
           return true;
       }
       return false;

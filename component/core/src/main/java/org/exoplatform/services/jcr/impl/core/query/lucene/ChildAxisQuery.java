@@ -353,7 +353,7 @@ class ChildAxisQuery extends Query {
 //                                            || !((NodeState.ChildNodeEntry)
                                                 || !((NodeData) 
                                                 c.get(c.size() - 1))
-                                                .getUUID().equals(uuid)) {
+                                                .getIdentifier().equals(uuid)) {
                                         hits.flip(i);
                                     }
                                 } else {
@@ -365,7 +365,7 @@ class ChildAxisQuery extends Query {
                                             || !((NodeData) 
 //                                            || !((NodeState.ChildNodeEntry) 
                                                 c.get(position - 1))
-                                                .getUUID().equals(uuid)) {
+                                                .getIdentifier().equals(uuid)) {
                                         hits.flip(i);
                                     }
                                 }
@@ -380,7 +380,7 @@ class ChildAxisQuery extends Query {
                                     List c = getOrderedChildNodes(state);
                                     for(Iterator it = c.iterator(); it.hasNext();) {
                                       NodeData d = (NodeData) it.next();
-                                      if(d.getUUID().equals(uuid))
+                                      if(d.getIdentifier().equals(uuid))
                                         entry = d;
                                     }
 
@@ -403,7 +403,7 @@ class ChildAxisQuery extends Query {
   //                                              || !((NodeState.ChildNodeEntry)
                                                   || !((NodeData)
                                                     childNodes.get(childNodes.size() - 1))
-                                                    .getUUID().equals(uuid)) {
+                                                    .getIdentifier().equals(uuid)) {
                                             hits.flip(i);
                                         }
                                     }
@@ -415,7 +415,7 @@ class ChildAxisQuery extends Query {
                                   for(Iterator it = c.iterator(); it.hasNext();) {
                                     
                                     NodeData d = (NodeData) it.next();
-                                    if(d.getUUID().equals(uuid))
+                                    if(d.getIdentifier().equals(uuid))
                                       entry = d;
                                   }
 

@@ -14,7 +14,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 
-import org.exoplatform.services.jcr.datamodel.Uuid;
+import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 
 /**
@@ -27,16 +27,16 @@ public class ReferenceValue extends BaseValue {
 
   public static final int TYPE = PropertyType.REFERENCE;
   
-  private final Uuid uuid;
+  private final Identifier uuid;
 
   public ReferenceValue(Node target) throws IOException, RepositoryException {
     
     // TODO [PN] Use InternalQName instead jcr:uuid string
-    super(TYPE, new TransientValueData(new Uuid(target.getProperty("jcr:uuid").getString())));    
-    this.uuid = new Uuid(target.getProperty("jcr:uuid").getString());
+    super(TYPE, new TransientValueData(new Identifier(target.getProperty("jcr:uuid").getString())));    
+    this.uuid = new Identifier(target.getProperty("jcr:uuid").getString());
   }
 
-  public ReferenceValue(Uuid uuid) throws IOException {
+  public ReferenceValue(Identifier uuid) throws IOException {
     super(TYPE, new TransientValueData(uuid));
     this.uuid = uuid;
   }
@@ -44,7 +44,7 @@ public class ReferenceValue extends BaseValue {
   // [PN] 17.10.06 public is temp. used in VersionHistoryImpl.addVersion() 
   public ReferenceValue(TransientValueData data) throws IOException, RepositoryException {
     super(TYPE, data);
-    this.uuid = new Uuid(getInternalString());
+    this.uuid = new Identifier(getInternalString());
   }
 
   /**
@@ -96,7 +96,7 @@ public class ReferenceValue extends BaseValue {
     return getInternalString();
   }
 
-  public Uuid getUuid() {
+  public Identifier getUuid() {
     return uuid;
   }
   

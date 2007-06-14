@@ -86,8 +86,8 @@ class SysNodeImporter extends ImporterBase {
 
   // private String uuid;
 
-  SysNodeImporter(NodeImpl parent, int uuidBehavior) throws RepositoryException {
-    super(parent, uuidBehavior);
+  SysNodeImporter(NodeImpl parent, int identifierBehavior) throws RepositoryException {
+    super(parent, identifierBehavior);
     this.parent = (NodeData) parent.getData();
     this.tree = new Stack<NodeInfo>();
     this.nodeInfos = new ArrayList<NodeInfo>();
@@ -111,15 +111,15 @@ class SysNodeImporter extends ImporterBase {
 
       NodeData parentNode = null;
       String relPathStr = info.getRelPath();
-      String uuid = null;
-      uuid = traverseNodeInfo(relPathStr, info);
+      String identifier = null;
+      identifier = traverseNodeInfo(relPathStr, info);
 
       // check UUID Behavior of the import
 
       boolean hasMixReferenceable = isReferenceable(nodeTypes);
       if (hasMixReferenceable) {
-        uuid = validateUuidCollision(uuid);
-        if (uuid == null) {
+        identifier = validateIdentifierCollision(identifier);
+        if (identifier == null) {
           throw new RepositoryException("Ipossible state");
         }
       }
@@ -160,13 +160,13 @@ class SysNodeImporter extends ImporterBase {
       // newNode.setACL(node.getACL());
       
       if (hasMixReferenceable)
-        ((TransientNodeData) newNodeData).setUUID(uuid);
+        ((TransientNodeData) newNodeData).setIdentifier(identifier);
 
       itemStatesList.add(new ItemState(newNodeData, ItemState.ADDED, true, parentNode.getQPath()));
 
       if (log.isDebugEnabled())
         log.debug("node: " + newNodeData.getQPath().getAsString() + ", " + path.getIndex() + ", "
-            + newNodeData.getUUID() + ", " + primaryTypeName.getAsString() + ", "
+            + newNodeData.getIdentifier() + ", " + primaryTypeName.getAsString() + ", "
             + (mixinTypeNames.length > 0 ? mixinTypeNames[0].getAsString() + "..." : ""));
 
       for (ParsedPropertyInfo prop : propsParsed) {
@@ -194,7 +194,7 @@ class SysNodeImporter extends ImporterBase {
         PropertyData newProperty = null;
         if (prop.getName().equals(Constants.JCR_UUID) && hasMixReferenceable) {
           newProperty = TransientPropertyData.createPropertyData(newNodeData, prop.getName(), prop
-              .getType(), false, new TransientValueData(newNodeData.getUUID()));
+              .getType(), false, new TransientValueData(newNodeData.getIdentifier()));
 
         } else {
           // determinating is property multivalue;
@@ -351,7 +351,7 @@ class SysNodeImporter extends ImporterBase {
 
   private String traverseNodeInfo(String  path, NodeInfo info) throws PathNotFoundException,
       RepositoryException {
-    String uuid = null;
+    String identifier = null;
     List<PropertyInfo> props = info.getProperties();
 
     for (PropertyInfo prop : props) {
@@ -374,7 +374,7 @@ class SysNodeImporter extends ImporterBase {
               + "/jcr:mixinTypes has empty value(s)");
       } else if (propName.equals(Constants.JCR_UUID)) {
         if (valueList.size() > 0)
-          uuid = new String(valueList.get(0));
+          identifier = new String(valueList.get(0));
         else
           log.warn("Imported property " + path + "/jcr:uuid has empty value");
       }
@@ -403,7 +403,7 @@ class SysNodeImporter extends ImporterBase {
 
       propsParsed.add(new ParsedPropertyInfo(propName, prop.getType(), values));
     }
-    return uuid;
+    return identifier;
 
   }
 
@@ -463,22 +463,22 @@ class SysNodeImporter extends ImporterBase {
     }
   }
 
-  private String validateUuidCollision(String uuid)
+  private String validateIdentifierCollision(String identifier)
       throws AccessDeniedException, RepositoryException {
-    String retUuid = uuid != null ? new String(uuid) : null;
+    String retIdentifier = identifier != null ? new String(identifier) : null;
     try {
 
       ItemDataRemoveVisitor visitor = null;
-      NodeImpl sameUuidNode = (NodeImpl) session.getNodeByUUID(uuid);
+      NodeImpl sameIdentifierNode = (NodeImpl) session.getNodeByUUID(identifier);
       List<ItemState> removedStates = null;
-      switch (uuidBehavior) {
+      switch (identifierBehavior) {
       case ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW:
         // Incoming referenceable nodes are assigned newly created UUIDs
         // upon addition to the workspace. As a result UUID collisions
         // never occur.
 
         // reset UUID and it will be autocreated in session
-        retUuid = UUIDGenerator.generate();
+        retIdentifier = UUIDGenerator.generate();
         ;
         break;
       case ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING:
@@ -505,7 +505,7 @@ class SysNodeImporter extends ImporterBase {
         // session.getTransientNodesManager().delete(sameUuidNode.getData());
         //parent = (NodeData) ((NodeImpl) sameUuidNode.getParent()).getData();
         visitor = new ItemDataRemoveVisitor(session.getTransientNodesManager());
-        sameUuidNode.getData().accept(visitor);
+        sameIdentifierNode.getData().accept(visitor);
         removedStates = visitor.getRemovedStates();
         itemStatesList.addAll(removedStates);
         //itemStatesList.add(ItemState.createDeletedState(sameUuidNode.getData()));
@@ -528,12 +528,12 @@ class SysNodeImporter extends ImporterBase {
         // the workspace.
 
         // replace in same location
-        parent = (NodeData) ((NodeImpl) sameUuidNode.getParent()).getData();
+        parent = (NodeData) ((NodeImpl) sameIdentifierNode.getParent()).getData();
         // sameUuidNode.remove();
         // sameUuidNode.save();
         // session.getTransientNodesManager().delete(sameUuidNode.getData());
         visitor = new ItemDataRemoveVisitor(session.getTransientNodesManager());
-        sameUuidNode.getData().accept(visitor);
+        sameIdentifierNode.getData().accept(visitor);
         removedStates = visitor.getRemovedStates();
         itemStatesList.addAll(removedStates);
         //itemStatesList.add(ItemState.createDeletedState(sameUuidNode.getData()));
@@ -553,7 +553,7 @@ class SysNodeImporter extends ImporterBase {
     } catch (ItemNotFoundException e) {
       // node not found, it's ok - willing create one new
     }
-    return retUuid;
+    return retIdentifier;
   }
 
   private class NodeInfo {

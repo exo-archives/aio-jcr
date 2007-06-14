@@ -192,7 +192,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
         //    the already existing node is removed).        
         SessionDataManager mergeDataManager = mergeSession.getTransientNodesManager();
         for (NodeData corrNode: context.getCorrChildNodes()) {
-          TransientNodeData existedSameUUID = (TransientNodeData) mergeDataManager.getItemData(corrNode.getUUID());
+          TransientNodeData existedSameUUID = (TransientNodeData) mergeDataManager.getItemData(corrNode.getIdentifier());
           if (existedSameUUID != null) {
             //  if an incoming node has the same
             //  UUID as a node already existing in this workspace,
@@ -283,17 +283,17 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
     
     TransientNodeData mergedNode = new TransientNodeData(
         mergePath, 
-        mergeNode.getUUID(), 
+        mergeNode.getIdentifier(), 
         mergeNode.getPersistedVersion(),
         corrNode.getPrimaryTypeName(),
         corrNode.getMixinTypeNames(),
         mergeNode.getOrderNumber(),
-        mergeNode.getParentUUID(),
+        mergeNode.getParentIdentifier(),
         mergeNode.getACL());
     
-    if (!mergeNode.getUUID().equals(corrNode.getUUID())) {
+    if (!mergeNode.getIdentifier().equals(corrNode.getIdentifier())) {
       
-      TransientNodeData existedSameUUID = (TransientNodeData) mergeDataManager.getItemData(corrNode.getUUID());
+      TransientNodeData existedSameUUID = (TransientNodeData) mergeDataManager.getItemData(corrNode.getIdentifier());
       if (existedSameUUID != null) {
         //  if an incoming node has the same
         //  UUID as a node already existing in this workspace,
@@ -325,10 +325,10 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
       PropertyData existed = existedProps.get(cp.getQPath().getName());
       TransientPropertyData mcp = new TransientPropertyData(
               QPath.makeChildPath(mergePath, cp.getQPath().getName()),
-              existed != null ? existed.getUUID() : cp.getUUID(),
+              existed != null ? existed.getIdentifier() : cp.getIdentifier(),
               existed != null ? existed.getPersistedVersion() : cp.getPersistedVersion(),
               cp.getType(), 
-              mergedNode.getUUID(), 
+              mergedNode.getIdentifier(), 
               cp.isMultiValued());
       mcp.setValues(cp.getValues());
       
@@ -359,7 +359,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
       // jcr:mergeFailed property of n,
       // add UUID of n to failedset,
       // doleave(n).
-      failed.put(mergeNode.getUUID(), corrVersion.getUUID());
+      failed.put(mergeNode.getIdentifier(), corrVersion.getIdentifier());
       //versionableStates.add(new VersionableState(mergeNode.getQPath(), FAIL));
       doLeave(mergeNode);
     } else {
@@ -407,7 +407,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
         mergeNode.getPrimaryTypeName(), 
         mergeNode.getMixinTypeNames())) {
       // by UUID
-      return (TransientNodeData) corrDataManager.getItemData(mergeNode.getUUID());
+      return (TransientNodeData) corrDataManager.getItemData(mergeNode.getIdentifier());
     }
     
     // by location
@@ -419,7 +419,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
           mergeAncestor.getPrimaryTypeName(), 
           mergeAncestor.getMixinTypeNames())) {
 
-        NodeData corrAncestor = (NodeData) corrDataManager.getItemData(mergeAncestor.getUUID());
+        NodeData corrAncestor = (NodeData) corrDataManager.getItemData(mergeAncestor.getIdentifier());
         if (corrAncestor != null) {
           QPathEntry[] relQPathEntries = mergePath.getRelPath(mergePath.getDepth() - i);
           QPath corrNodeQPath = QPath.makeChildPath(corrAncestor.getQPath(), relQPathEntries);
@@ -445,7 +445,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
         try {
           String puuid = new String(pv.getAsByteArray());
           
-          if (puuid.equals(corrVersion.getUUID())) 
+          if (puuid.equals(corrVersion.getIdentifier())) 
             return true; // got it
           
           // search in predecessors of the predecessor
@@ -481,7 +481,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
         try {
           String suuid = new String(sv.getAsByteArray());
           
-          if (suuid.equals(corrVersion.getUUID())) 
+          if (suuid.equals(corrVersion.getIdentifier())) 
             return true; // got it
           
           // search in successors of the successor

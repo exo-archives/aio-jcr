@@ -74,7 +74,7 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
   }
 
   protected void validateAccessDenied(PropertyData property) throws RepositoryException {
-    NodeData parent = (NodeData) dataManager.getItemData(property.getParentUUID());
+    NodeData parent = (NodeData) dataManager.getItemData(property.getParentIdentifier());
     
     if (!session.getAccessManager().hasPermission(
         parent.getACL(), PermissionType.READ, session.getUserID())) {
@@ -122,7 +122,7 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
   
   protected void validateReferential(NodeData node) throws RepositoryException {
     
-    List<PropertyData> refs = dataManager.getReferencesData(node.getUUID());
+    List<PropertyData> refs = dataManager.getReferencesData(node.getIdentifier());
     
     // A ReferentialIntegrityException will be thrown on save if this item or an item in its subtree 
     // is currently the target of a REFERENCE property located in this workspace but outside 
@@ -137,7 +137,7 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
         // on the tree(s), we have to remove REFERENCE property before the node
         entering(rpd, currentLevel);
       } else {
-        NodeData refParent = (NodeData) dataManager.getItemData(rpd.getParentUUID());
+        NodeData refParent = (NodeData) dataManager.getItemData(rpd.getParentIdentifier());
         if (!session.getAccessManager().hasPermission(
             refParent.getACL(), PermissionType.READ, session.getUserID())) {
           throw new AccessDeniedException("Access denied " 

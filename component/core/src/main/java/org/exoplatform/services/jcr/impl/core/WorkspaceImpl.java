@@ -484,18 +484,18 @@ public class WorkspaceImpl implements Workspace {
       throw new InvalidItemStateException("Session has pending changes ");
 
     // for restore operation
-    List<String> existedUuids = new ArrayList<String>(); // InWorkspace
+    List<String> existedIdentifiers = new ArrayList<String>(); // InWorkspace
     List<VersionImpl> notExistedVersions = new ArrayList<VersionImpl>();
     LinkedHashMap<VersionImpl, NodeData> existedVersions = new LinkedHashMap<VersionImpl, NodeData>();
 
     TransactionableDataManager dataManager = session.getTransientNodesManager().getTransactManager();
 
     for (Version v : versions) {
-      String versionableUuid = v.getContainingHistory().getVersionableUUID();
-      NodeData node = (NodeData) dataManager.getItemData(versionableUuid);
+      String versionableIdentifier = v.getContainingHistory().getVersionableUUID();
+      NodeData node = (NodeData) dataManager.getItemData(versionableIdentifier);
       if (node != null) {
         existedVersions.put((VersionImpl) v, node);
-        existedUuids.add(versionableUuid);
+        existedIdentifiers.add(versionableIdentifier);
       } else {
         // not found, looking for parent
         // SPEC: For every version V in S that corresponds to a missing node in
@@ -505,22 +505,22 @@ public class WorkspaceImpl implements Workspace {
         // If we have a corr node and her parent in the existed list - all ok,
         // otherwise exception will be thrown.
         NodeData corrNode = null;
-        String versionableParentUuid = null;
+        String versionableParentIdentifier = null;
         if (!v.getSession().getWorkspace().getName().equals(session.getWorkspace().getName())) {
           TransactionableDataManager vDataManager = ((SessionImpl) v.getSession()).getTransientNodesManager().getTransactManager();
-          corrNode = (NodeData) vDataManager.getItemData(versionableUuid);
+          corrNode = (NodeData) vDataManager.getItemData(versionableIdentifier);
           if (corrNode != null)
-            versionableParentUuid = corrNode.getParentUUID();
+            versionableParentIdentifier = corrNode.getParentIdentifier();
           else
-            log.warn("Workspace.restore(). Correspondent node is not found " + versionableUuid);
+            log.warn("Workspace.restore(). Correspondent node is not found " + versionableIdentifier);
         }
-        if (versionableParentUuid != null && existedUuids.contains(versionableParentUuid)) {
+        if (versionableParentIdentifier != null && existedIdentifiers.contains(versionableParentIdentifier)) {
           notExistedVersions.add((VersionImpl) v);
           continue;
         }
         throw new VersionException("No such node (for version, from the array of versions, "
             + "that corresponds to a missing node in the workspace, "
-            + "there must also be a parent in the array). UUID: " + versionableUuid);
+            + "there must also be a parent in the array). UUID: " + versionableIdentifier);
 
       }
     }
@@ -544,12 +544,12 @@ public class WorkspaceImpl implements Workspace {
     }
 
     for (VersionImpl v : notExistedVersions) {
-      String versionableUuid = v.getContainingHistory().getVersionableUUID();
+      String versionableIdentifier = v.getContainingHistory().getVersionableUUID();
       try {
         NodeData node = null;
         for (ItemState change : changesLog.getAllStates()) {
           if (change.isNode() && change.isAdded()
-              && ((NodeData) change.getData()).getUUID().equals(versionableUuid)) {
+              && ((NodeData) change.getData()).getIdentifier().equals(versionableIdentifier)) {
             node = (NodeData) change.getData();
             break;
           }
@@ -561,15 +561,15 @@ public class WorkspaceImpl implements Workspace {
           throw new VersionException(
               "No such node restored before (for version, from the array of versions, "
                   + "that corresponds to a missing node in the workspace, "
-                  + "there must also be a parent in the array). UUID: " + versionableUuid);
+                  + "there must also be a parent in the array). UUID: " + versionableIdentifier);
         }
       } catch (ItemExistsException e) {
         throw new ItemExistsException(
-            "Workspace restore. Can't restore a node not existed before. " + versionableUuid + ". "
+            "Workspace restore. Can't restore a node not existed before. " + versionableIdentifier + ". "
                 + e.getMessage(), e);
       } catch (RepositoryException e) {
         throw new RepositoryException(
-            "Workspace restore. Can't restore a node not existed before. " + versionableUuid
+            "Workspace restore. Can't restore a node not existed before. " + versionableIdentifier
                 + ". Repository error: " + e.getMessage(), e);
       }
     }

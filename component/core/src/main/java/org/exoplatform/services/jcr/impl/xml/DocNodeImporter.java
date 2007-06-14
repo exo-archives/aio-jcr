@@ -67,8 +67,8 @@ class DocNodeImporter extends ImporterBase {
 
   private String                primaryNodeType;
 
-  public DocNodeImporter(NodeImpl parent, int uuidBehavior) throws RepositoryException {
-    super(parent, uuidBehavior);
+  public DocNodeImporter(NodeImpl parent, int identifierBehavior) throws RepositoryException {
+    super(parent, identifierBehavior);
     this.tree = new Stack<NodeData>();
     this.XmlCharactersProperty = null;
     this.XmlCharactersPropertyValue = null;
@@ -109,9 +109,9 @@ class DocNodeImporter extends ImporterBase {
 
     try {
       boolean isMixReferenceable = isReferenceable(nodeTypes);
-      String uuid = validateUuidCollision(nodeName, isMixReferenceable, nodeTypes, props);
-      if (uuid == null) {
-        uuid = UUIDGenerator.generate();
+      String identifier = validateIdentifierCollision(nodeName, isMixReferenceable, nodeTypes, props);
+      if (identifier == null) {
+        identifier = UUIDGenerator.generate();
       }
 
       InternalQName jcrName = locationFactory.parseJCRName(nodeName).getInternalName();
@@ -129,7 +129,7 @@ class DocNodeImporter extends ImporterBase {
       ((TransientNodeData) nodeData).setMixinTypeNames(mixinNodeTypes
           .toArray(new InternalQName[mixinNodeTypes.size()]));
       // newNode.setACL(node.getACL());
-      ((TransientNodeData) nodeData).setUUID(uuid);
+      ((TransientNodeData) nodeData).setIdentifier(identifier);
 
       itemStatesList.add(new ItemState(nodeData, ItemState.ADDED, true, parent().getQPath()));
       tree.push(nodeData);
@@ -167,7 +167,7 @@ class DocNodeImporter extends ImporterBase {
               .parseJCRName(key).getInternalName(), PropertyType.NAME, false, valuesData);
 
         } else if (isMixReferenceable && key.equals("jcr:uuid")) {
-          Value value = session.getValueFactory().createValue(nodeData.getUUID(),
+          Value value = session.getValueFactory().createValue(nodeData.getIdentifier(),
                                                               PropertyType.STRING);
           if (log.isDebugEnabled())
             log.debug("Property STRING: " + key + "=" + value.getString());
@@ -176,7 +176,7 @@ class DocNodeImporter extends ImporterBase {
                                                                  Constants.JCR_UUID,
                                                                  PropertyType.STRING,
                                                                  false,
-                                                                 new TransientValueData(uuid));
+                                                                 new TransientValueData(identifier));
 
         } else {
           PropertyDefinition pDef = getPropertyDefinition(key, nodeTypes);
@@ -358,27 +358,27 @@ class DocNodeImporter extends ImporterBase {
 
   }
 
-  private String validateUuidCollision(String nodeName,
+  private String validateIdentifierCollision(String nodeName,
                                        boolean hasMixReferenceable,
                                        List<ExtendedNodeType> nodeTypes,
                                        HashMap<String, String> props) throws SAXException,
       RepositoryException {
 
-    String uuid = props.get("jcr:uuid");
+    String identifier = props.get("jcr:uuid");
     NodeData parentNodeData = parent();
     ItemDataRemoveVisitor visitor = null;
     List<ItemState> removedStates = null;
-    if (hasMixReferenceable && uuid != null) {
+    if (hasMixReferenceable && identifier != null) {
       try {
-        NodeImpl sameUuidNode = (NodeImpl) session.getNodeByUUID(uuid);
-        switch (uuidBehavior) {
+        NodeImpl sameIdentifierNode = (NodeImpl) session.getNodeByUUID(identifier);
+        switch (identifierBehavior) {
         case ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW:
           // Incoming referenceable nodes are assigned newly created UUIDs
           // upon addition to the workspace. As a result UUID collisions
           // never occur.
 
           // reset UUID and it will be autocreated in session
-          uuid = null;
+          identifier = null;
           break;
         case ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING:
           // If an incoming referenceable node has the same UUID as a node
@@ -389,14 +389,14 @@ class DocNodeImporter extends ImporterBase {
           // workspace that are remote from the location to which the
           // incoming subtree is being written.
 
-          NodeIterator samePatterns = sameUuidNode.getNodes(parentNodeData.getQPath().getName()
+          NodeIterator samePatterns = sameIdentifierNode.getNodes(parentNodeData.getQPath().getName()
               .getName());
           if (samePatterns.hasNext()) {
             throw new ConstraintViolationException(
-                "A uuidBehavior is set to IMPORT_UUID_COLLISION_REMOVE_EXISTING and an incoming node has the same UUID as the node at parentAbsPath or one of its ancestors");
+                "A identifierBehavior is set to IMPORT_UUID_COLLISION_REMOVE_EXISTING and an incoming node has the same UUID as the node at parentAbsPath or one of its ancestors");
           }
           visitor = new ItemDataRemoveVisitor(session, true);
-          sameUuidNode.getData().accept(visitor);
+          sameIdentifierNode.getData().accept(visitor);
           removedStates = visitor.getRemovedStates();
           itemStatesList.addAll(removedStates);
 
@@ -415,9 +415,9 @@ class DocNodeImporter extends ImporterBase {
           // the workspace.
 
           // replace in same location
-          parentNodeData = (NodeData) ((NodeImpl) sameUuidNode.getParent()).getData();
+          parentNodeData = (NodeData) ((NodeImpl) sameIdentifierNode.getParent()).getData();
           visitor = new ItemDataRemoveVisitor(session, true);
-          sameUuidNode.getData().accept(visitor);
+          sameIdentifierNode.getData().accept(visitor);
           removedStates = visitor.getRemovedStates();
           itemStatesList.addAll(removedStates);
           // itemStatesList.add(ItemState.createDeletedState(sameUuidNode.getData()));
@@ -436,7 +436,7 @@ class DocNodeImporter extends ImporterBase {
         // node not found, it's ok - willing create one new
       }
     }
-    return uuid;
+    return identifier;
   }
 
 }

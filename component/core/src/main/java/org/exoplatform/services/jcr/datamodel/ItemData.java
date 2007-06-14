@@ -25,9 +25,9 @@ public interface ItemData {
 	QPath getQPath();
 
 	/**
-	 * @return UUID
+	 * @return identifier
 	 */
-	String getUUID();
+	String getIdentifier();
 
 	/**
 	 * @return number of item version retrieved from container. 
@@ -41,7 +41,7 @@ public interface ItemData {
 	 * @throws IllegalStateException if parent can not be initialized 
 	 * (for example was deleted by other session)
 	 */
-	String getParentUUID();
+	String getParentIdentifier();
 
 	
 	/**

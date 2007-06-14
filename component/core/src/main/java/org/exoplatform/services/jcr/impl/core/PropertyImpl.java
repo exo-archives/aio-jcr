@@ -185,8 +185,8 @@ public class PropertyImpl extends ItemImpl implements Property {
    */
   public Node getNode() throws ValueFormatException, RepositoryException {
     try {
-      String uuid = ((BaseValue) getValue()).getReference();
-      return session.getNodeByUUID(uuid);
+      String identifier = ((BaseValue) getValue()).getReference();
+      return session.getNodeByUUID(identifier);
     } catch (IllegalStateException e) {
       throw new ValueFormatException("PropertyImpl.getNode() failed: " + e);
     }

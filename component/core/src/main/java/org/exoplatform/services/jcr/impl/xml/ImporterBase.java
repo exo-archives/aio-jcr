@@ -41,7 +41,7 @@ import org.xml.sax.ContentHandler;
  */
 abstract public class ImporterBase implements ContentHandler {
 
-  protected int uuidBehavior = -1;
+  protected int identifierBehavior = -1;
     
   protected SessionImpl       session;
   /**
@@ -56,12 +56,12 @@ abstract public class ImporterBase implements ContentHandler {
 
   protected LocationFactory locationFactory;
 
-  ImporterBase(NodeImpl parent, int uuidBehavior) {
+  ImporterBase(NodeImpl parent, int identifierBehavior) {
   
     this.session = (SessionImpl) parent.getSession();
     this.ntManager = (NodeTypeManagerImpl) ((RepositoryImpl) this.session.getRepository()).getNodeTypeManager();
     locationFactory = session.getLocationFactory();
-    this.uuidBehavior = uuidBehavior;
+    this.identifierBehavior = identifierBehavior;
     itemStatesList = new ArrayList<ItemState>();
   }
   
@@ -99,7 +99,7 @@ abstract public class ImporterBase implements ContentHandler {
   protected List<ItemState> getItemStatesList(NodeData parentData, QPathEntry name, int state) {
     List<ItemState> states = new ArrayList<ItemState>();
     for (ItemState itemState : itemStatesList) {
-      if (itemState.getData().getParentUUID().equals(parentData.getUUID())
+      if (itemState.getData().getParentIdentifier().equals(parentData.getIdentifier())
           && itemState.getData().getQPath().getEntries()[itemState.getData().getQPath().getEntries().length - 1]
               .isSame(name)){
         if(state != 0 && state != itemState.getState())
@@ -124,7 +124,7 @@ abstract public class ImporterBase implements ContentHandler {
     
     int newIndex = 1;
     
-    NodeImpl parentNode =  ((NodeImpl) session.getTransientNodesManager().getItemByUUID(parent.getUUID(),true));
+    NodeImpl parentNode =  ((NodeImpl) session.getTransientNodesManager().getItemByUUID(parent.getIdentifier(),true));
         
     //parent must be in local itemStates list
   //  NodeData parentNodeData = null;

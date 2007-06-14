@@ -23,7 +23,7 @@ import java.util.Calendar;
 import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
-import org.exoplatform.services.jcr.datamodel.Uuid;
+import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.util.DateFormatHelper;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
@@ -180,7 +180,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * 
    * @param value
    */
-  public TransientValueData(Uuid value) {
+  public TransientValueData(Identifier value) {
     this(value.getString().getBytes(), 0);
   }
 

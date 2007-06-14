@@ -19,7 +19,7 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
 /**
  * Created by The eXo Platform SARL        . <br>
  * 
- * Includes methods for direct read (by uuid and qPath), node child traversing,
+ * Includes methods for direct read (by identifier and qPath), node child traversing,
  * reference access as well as write single item methods (add, update, delete) and batch operations support.
  * Valid (workable) connection state is "opened" (isOpened() == true). Newly created connection should have "opened" state.
  * The connection becomes "closed" (invalid for using) after calling commit() or rollback() methods. In this case methods calling will cause an IllegalStateException  
@@ -60,17 +60,17 @@ public interface WorkspaceStorageConnection {
   ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException, IllegalStateException;
 
   /**
-   * @param uuid -
+   * @param identifier -
    *          unique identifier
    * @return corresponding stored ItemData or null. Basically used for
    *         Session.getNodeByUUID but not necessarily refers to jcr:uuid
-   *         property (In fact, this uuid should not necessary be equal of
+   *         property (In fact, this identifier should not necessary be equal of
    *         referenceable node's UUID if any) thereby can return NodeData for
    *         not referenceable node data or PropertyData.
    * @throws RepositoryException if some exception occured
    * @throws IllegalStateException if connection is closed
    */
-  ItemData getItemData(String uuid) throws RepositoryException, IllegalStateException;
+  ItemData getItemData(String identifier) throws RepositoryException, IllegalStateException;
   
   
   /**
@@ -91,13 +91,13 @@ public interface WorkspaceStorageConnection {
 
   
   /**
-   * @param UUID of referenceable node
+   * @param Identifier of referenceable node
    * @return list of referenced property data or empty list 
    * @throws RepositoryException if some exception occured
    * @throws IllegalStateException if connection is closed
    * @throws UnsupportedOperationException if operation is not supported 
    */
-  List <PropertyData> getReferencesData(String nodeUUID) throws RepositoryException, IllegalStateException,
+  List <PropertyData> getReferencesData(String nodeIdentifier) throws RepositoryException, IllegalStateException,
                       UnsupportedOperationException;
   
   /**

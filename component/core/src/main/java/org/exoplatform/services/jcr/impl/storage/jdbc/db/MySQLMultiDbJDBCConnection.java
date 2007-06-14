@@ -68,15 +68,15 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
   }
   
   @Override
-  protected ResultSet findChildNodesByParentUUID(String parentUUID) throws SQLException {
+  protected ResultSet findChildNodesByParentIdentifier(String parentIdentifier) throws SQLException {
     return dbConnection.createStatement().executeQuery(
-        String.format(FIND_NODES_BY_PARENTID, "'" + parentUUID + "'"));
+        String.format(FIND_NODES_BY_PARENTID, "'" + parentIdentifier + "'"));
   }
 
   @Override
-  protected ResultSet findChildPropertiesByParentUUID(String parentUUID) throws SQLException {
+  protected ResultSet findChildPropertiesByParentIdentifier(String parentIdentifier) throws SQLException {
     return dbConnection.createStatement().executeQuery(
-        String.format(FIND_PROPERTIES_BY_PARENTID, "'" + parentUUID + "'"));
+        String.format(FIND_PROPERTIES_BY_PARENTID, "'" + parentIdentifier + "'"));
   }
 
 //  @Override
@@ -86,9 +86,9 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
 //  }
 
   @Override
-  protected ResultSet findItemByUUID(String uuid) throws SQLException {
+  protected ResultSet findItemByIdentifier(String identifier) throws SQLException {
     return dbConnection.createStatement().executeQuery(
-        String.format(FIND_ITEM_BY_ID, "'" + uuid + "'"));
+        String.format(FIND_ITEM_BY_ID, "'" + identifier + "'"));
   }
 
 //  @Override
@@ -98,9 +98,9 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
 //  }
 
   @Override
-  protected ResultSet findReferences(String nodeUuid) throws SQLException {
+  protected ResultSet findReferences(String nodeIdentifier) throws SQLException {
     return dbConnection.createStatement().executeQuery(
-        String.format(FIND_REFERENCES, "'" + nodeUuid + "'"));
+        String.format(FIND_REFERENCES, "'" + nodeIdentifier + "'"));
   }
 
   @Override

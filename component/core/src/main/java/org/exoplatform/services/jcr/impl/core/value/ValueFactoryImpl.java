@@ -22,7 +22,7 @@ import javax.jcr.ValueFormatException;
 import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
-import org.exoplatform.services.jcr.datamodel.Uuid;
+import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.JCRName;
 import org.exoplatform.services.jcr.impl.core.JCRPath;
@@ -115,7 +115,7 @@ public class ValueFactoryImpl implements ValueFactory {
         }
       case PropertyType.REFERENCE:
         // return new ReferenceValue(new Uuid(value));
-        return createValue(new Uuid(value));
+        return createValue(new Identifier(value));
       case ExtendedPropertyType.PERMISSION:
         try {
             return PermissionValue.parseValue(value);
@@ -269,7 +269,7 @@ public class ValueFactoryImpl implements ValueFactory {
    * @param value
    * @return NEW ReferenceValue
    */
-  public Value createValue(Uuid value) {
+  public Value createValue(Identifier value) {
     if (value == null)
       return null;
     try {

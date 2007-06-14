@@ -153,10 +153,10 @@ public class NodeIndexer {
 
     // special fields
     // UUID
-    doc.add(new Field(FieldNames.UUID, node.getUUID(), true, true, false));
+    doc.add(new Field(FieldNames.UUID, node.getIdentifier(), true, true, false));
     //System.out.println("UUID "+node.getUUID()+" ");
 
-    String parentUUID = node.getParentUUID();
+    String parentUUID = node.getParentIdentifier();
     //System.out.println("PARENT "+parentUUID);
 
     if(parentUUID != null) {

@@ -116,16 +116,16 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements ItemDataCons
     return initACL(persistentManager.getItemData(qpath));
   }
 
-  public ItemData getItemData(String uuid) throws RepositoryException {
-    return initACL(persistentManager.getItemData(uuid));
+  public ItemData getItemData(String identifier) throws RepositoryException {
+    return initACL(persistentManager.getItemData(identifier));
   }
   
   public List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException {
     return persistentManager.getChildPropertiesData(parent);
   }
 
-  public List<PropertyData> getReferencesData(String uuid) throws RepositoryException {
-    return persistentManager.getReferencesData(uuid);
+  public List<PropertyData> getReferencesData(String identifier) throws RepositoryException {
+    return persistentManager.getReferencesData(identifier);
   }
   
   // ------------ SharedDataManager ----------------------

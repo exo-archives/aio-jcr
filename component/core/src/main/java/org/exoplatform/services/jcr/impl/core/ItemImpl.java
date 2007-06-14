@@ -40,7 +40,7 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.datamodel.Uuid;
+import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
@@ -90,7 +90,7 @@ public abstract class ItemImpl implements Item {
     this.locationFactory = session.getLocationFactory();
     this.valueFactory = session.getValueFactory();
 
-    itemHashCode = (session.getWorkspace().getName() + data.getUUID()).hashCode();
+    itemHashCode = (session.getWorkspace().getName() + data.getIdentifier()).hashCode();
   }
 
   protected void invalidate() {
@@ -326,7 +326,7 @@ public abstract class ItemImpl implements Item {
     QPath qpath = QPath.makeChildPath(parentNode.getInternalPath(), propertyName);
     int state;
 
-    String uuid;
+    String identifier;
     int version;
     PropertyImpl oldProp = null;
     ItemImpl oldItem = dataManager.getItem(parentNode.nodeData(), new QPathEntry(propertyName,0), true);
@@ -335,11 +335,11 @@ public abstract class ItemImpl implements Item {
     NodeTypeManagerImpl ntm = session.getWorkspace().getNodeTypeManager();
     NodeData parentData = (NodeData) parentNode.getData();
     if (oldItem == null || oldItem.isNode()) { // new prop
-      uuid = UUIDGenerator.generate();
+      identifier = UUIDGenerator.generate();
       version = -1;
       if (propertyValues == null){
         //new property null values; 
-          TransientPropertyData nullData = new TransientPropertyData(qpath, uuid, version, PropertyType.UNDEFINED,
+          TransientPropertyData nullData = new TransientPropertyData(qpath, identifier, version, PropertyType.UNDEFINED,
               parentNode.getInternalUUID(), multiValue);
           PropertyImpl nullProperty = new PropertyImpl(nullData,session);
           nullProperty.invalidate();
@@ -362,7 +362,7 @@ public abstract class ItemImpl implements Item {
 //      def = ntm.findPropertyDefinition(propertyName, parentData.getPrimaryTypeName(),
 //          /*parentData.getMixinTypeNames()*/null);
 
-      uuid = oldProp.getInternalUUID();
+      identifier = oldProp.getInternalUUID();
       version = oldProp.getData().getPersistedVersion();
       if (propertyValues == null)
         state = ItemState.DELETED;
@@ -448,7 +448,7 @@ public abstract class ItemImpl implements Item {
     // Check value constraints
     checkValueConstraints(def, valueDataList, propType);
 
-    TransientPropertyData newData = new TransientPropertyData(qpath, uuid, version, propType,
+    TransientPropertyData newData = new TransientPropertyData(qpath, identifier, version, propType,
         parentNode.getInternalUUID(), multiValue);
 
     if (requiredType != PropertyType.UNDEFINED && expectedType != PropertyType.UNDEFINED
@@ -529,25 +529,25 @@ public abstract class ItemImpl implements Item {
       
       // check ref changes
       for (NodeData refNode : refNodes) {
-        List<PropertyData> nodeRefs = dataManager.getReferencesData(refNode.getUUID());
+        List<PropertyData> nodeRefs = dataManager.getReferencesData(refNode.getIdentifier());
         for (PropertyData refProp : nodeRefs) {
           // if ref property is deleted in this session
-          ItemState refState = dataManager.getChangesLog().getItemState(refProp.getUUID());
+          ItemState refState = dataManager.getChangesLog().getItemState(refProp.getIdentifier());
           if (refState != null && refState.isDeleted())
             continue;
           
-          NodeData refParent = (NodeData) dataManager.getItemData(refProp.getParentUUID());
+          NodeData refParent = (NodeData) dataManager.getItemData(refProp.getParentIdentifier());
           AccessControlList acl = refParent.getACL();
           AccessManager am = session.getAccessManager();
 
           if (!am.hasPermission(acl, PermissionType.READ, session.getUserID())) {
             throw new AccessDeniedException("Can not delete node " + refNode.getQPath() + " ("
-                + refNode.getUUID() + ")"
+                + refNode.getIdentifier() + ")"
                 + ". It is currently the target of a REFERENCE property and "
                 + path.getAsString());
           }
           throw new ReferentialIntegrityException("Can not delete node " + refNode.getQPath() + " ("
-              + refNode.getUUID() + ")" + ". It is currently the target of a REFERENCE property "
+              + refNode.getIdentifier() + ")" + ". It is currently the target of a REFERENCE property "
               + path.getAsString());
         }
       }
@@ -578,7 +578,7 @@ public abstract class ItemImpl implements Item {
   }
 
   public String getParentUUID() {
-    return getData().getParentUUID();
+    return getData().getParentIdentifier();
   }
 
   public QPath getInternalPath() {
@@ -610,7 +610,7 @@ public abstract class ItemImpl implements Item {
   }
 
   public String getInternalUUID() {
-    return data.getUUID();
+    return data.getIdentifier();
   }
 
   public JCRPath getLocation() {
@@ -629,7 +629,7 @@ public abstract class ItemImpl implements Item {
 
       nData = (NodeData) getData();
     } else {
-      nData = (NodeData) dataManager.getItemData(data.getParentUUID());
+      nData = (NodeData) dataManager.getItemData(data.getParentIdentifier());
 
       if (nData == null) {
         throw new RepositoryException("FATAL: parent not found for " + this.getPath());
@@ -707,8 +707,8 @@ public abstract class ItemImpl implements Item {
       InternalQName nameValue = locationFactory.parseJCRName(value.getString()).getInternalName();
       return new TransientValueData(nameValue);
     case PropertyType.REFERENCE:
-      Uuid uuid = new Uuid(value.getString());
-      return new TransientValueData(uuid);
+      Identifier identifier = new Identifier(value.getString());
+      return new TransientValueData(identifier);
     case ExtendedPropertyType.PERMISSION:
       PermissionValue permValue = (PermissionValue) value;
       AccessControlEntry ace = new AccessControlEntry(permValue.getIdentity(), permValue

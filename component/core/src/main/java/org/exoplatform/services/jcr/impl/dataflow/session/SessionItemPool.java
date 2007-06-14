@@ -28,8 +28,8 @@ import org.exoplatform.services.jcr.impl.core.PropertyImpl;
     items = new WeakHashMap <String, ItemImpl> ();
   }
   
-  void remove(String uuid) {
-    items.remove(uuid);
+  void remove(String identifier) {
+    items.remove(identifier);
     System.gc();
   } 
   
@@ -38,8 +38,8 @@ import org.exoplatform.services.jcr.impl.core.PropertyImpl;
       items.put(item.getInternalUUID(), item);
   }
 
-  ItemImpl get(String uuid) {
-    return items.get(uuid);
+  ItemImpl get(String identifier) {
+    return items.get(identifier);
   }
 
   ItemImpl get(QPath path) {

@@ -101,7 +101,7 @@ public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
       } else if (qname.equals(Constants.JCR_MERGEFAILED)) {
         return; // skip it
       } else if (qname.equals(Constants.JCR_UUID)) {
-        values.add(new TransientValueData(curParent().getUUID())); // uuid of the parent
+        values.add(new TransientValueData(curParent().getIdentifier())); // uuid of the parent
       } else {
         values = property.getValues(); // copy the property
       }
@@ -111,23 +111,23 @@ public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
         && qname.equals(Constants.JCR_UUID)) {
 
       values = new ArrayList<ValueData>(1);
-      values.add(new TransientValueData(curParent().getUUID()));
+      values.add(new TransientValueData(curParent().getIdentifier()));
     } else {
       values = property.getValues();
     }
     
     TransientPropertyData newProperty = new TransientPropertyData(
         QPath.makeChildPath(curParent().getQPath(), qname),
-        keepUUIDs ? property.getUUID() : UUIDGenerator.generate(),
+        keepIdentifiers ? property.getIdentifier() : UUIDGenerator.generate(),
         -1,
         property.getType(),
-        curParent().getUUID(),
+        curParent().getIdentifier(),
         property.isMultiValued());
     
     newProperty.setValues(values);
     
     if (log.isDebugEnabled())
-      log.debug("entering COPY " + newProperty.getQPath().getAsString() + "; puuid: " + newProperty.getParentUUID() + "; uuid: " + newProperty.getUUID());
+      log.debug("entering COPY " + newProperty.getQPath().getAsString() + "; puuid: " + newProperty.getParentIdentifier() + "; uuid: " + newProperty.getIdentifier());
     
     itemAddStates.add(
         new ItemState(newProperty, ItemState.ADDED, true, ancestorToSave, level != 0));
