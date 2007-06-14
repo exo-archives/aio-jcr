@@ -12,7 +12,7 @@ import java.io.InputStream;
 
 import junit.framework.TestCase;
 
-import org.exoplatform.services.jcr.datamodel.Uuid;
+import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 import org.exoplatform.services.jcr.impl.core.value.BooleanValue;
 import org.exoplatform.services.jcr.impl.core.value.DoubleValue;
@@ -108,7 +108,7 @@ public class TestValueImpl extends TestCase {
 
     
     // default encoded string (utf-8)
-    StringValue sv2 = new StringValue("гена");
+    StringValue sv2 = new StringValue("пїЅпїЅпїЅпїЅ");
     assertEquals(8, sv2.getLength());
     sv2.getStream();
     
@@ -156,7 +156,7 @@ public class TestValueImpl extends TestCase {
 
   public void testNewUuidValueData() throws Exception {
     
-    TransientValueData vd = new  TransientValueData(new Uuid("1234"));
+    TransientValueData vd = new  TransientValueData(new Identifier("1234"));
     assertEquals("1234", new String(vd.getAsByteArray()));
   }  
 

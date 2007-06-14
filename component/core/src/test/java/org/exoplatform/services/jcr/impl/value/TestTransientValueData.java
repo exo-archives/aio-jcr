@@ -16,7 +16,7 @@ import junit.framework.TestCase;
 
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
-import org.exoplatform.services.jcr.datamodel.Uuid;
+import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
@@ -110,7 +110,7 @@ public class TestTransientValueData extends TestCase {
     assertEquals("string", new String(vd.getAsByteArray()));
     
     // default encoded string (utf-8)
-    vd = new  TransientValueData("гена");
+    vd = new  TransientValueData("пїЅпїЅпїЅпїЅ");
     assertEquals(8, vd.getLength());
 
   }
@@ -157,7 +157,7 @@ public class TestTransientValueData extends TestCase {
 
   public void testNewUuidValueData() throws Exception {
     
-    TransientValueData vd = new  TransientValueData(new Uuid("1234"));
+    TransientValueData vd = new  TransientValueData(new Identifier("1234"));
     assertEquals("1234", new String(vd.getAsByteArray()));
   }  
 

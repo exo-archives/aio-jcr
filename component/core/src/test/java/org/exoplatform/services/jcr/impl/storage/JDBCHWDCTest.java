@@ -77,7 +77,7 @@ public class JDBCHWDCTest extends JcrImplBaseTest {
         Constants.NT_UNSTRUCTURED,
         new InternalQName[0], 
         0, 
-        rootData.getUUID(), 
+        rootData.getIdentifier(), 
         acl);
     
     // jcr:primaryType
@@ -93,7 +93,7 @@ public class JDBCHWDCTest extends JcrImplBaseTest {
     // jcr:uuid
     TransientPropertyData uuidData = TransientPropertyData.createPropertyData(nodeData, 
         Constants.JCR_UUID, PropertyType.STRING, 
-        false, new TransientValueData(nodeData.getUUID()));
+        false, new TransientValueData(nodeData.getIdentifier()));
     
     // add
     WorkspaceStorageConnection con = wdContainer.openConnection();
@@ -146,7 +146,7 @@ public class JDBCHWDCTest extends JcrImplBaseTest {
         Constants.NT_UNSTRUCTURED,
         new InternalQName[0], 
         0, 
-        rootData.getUUID(), 
+        rootData.getIdentifier(), 
         acl);
     
     // jcr:primaryType
@@ -162,7 +162,7 @@ public class JDBCHWDCTest extends JcrImplBaseTest {
     // jcr:uuid
     TransientPropertyData uuidData = TransientPropertyData.createPropertyData(nodeData, 
         Constants.JCR_UUID, PropertyType.STRING, 
-        false, new TransientValueData(nodeData.getUUID()));
+        false, new TransientValueData(nodeData.getIdentifier()));
     
     // add
     CompositeChangesLog clog = new TransactionChangesLog();

@@ -109,10 +109,10 @@ public class StorageUpdateTest extends JcrImplBaseTest {
     
     TransientPropertyData bugData = new TransientPropertyData(
         jcrUuid.getQPath(), 
-        jcrUuid.getUUID(), 
+        jcrUuid.getIdentifier(), 
         jcrUuid.getPersistedVersion(),
         jcrUuid.getType(), 
-        jcrUuid.getParentUUID(), 
+        jcrUuid.getParentIdentifier(), 
         jcrUuid.isMultiValued());
     // Set a uuid of source node in Workspace.copy()
     bugData.setValue(new TransientValueData(node_R.getProperty("jcr:uuid").getString()));
@@ -124,7 +124,7 @@ public class StorageUpdateTest extends JcrImplBaseTest {
       conn.update(bugData);
       jdbcConn.getJdbcConnection().commit();
       
-      NodeData parent = (NodeData) session.getTransientNodesManager().getTransactManager().getItemData(jcrUuid.getParentUUID());
+      NodeData parent = (NodeData) session.getTransientNodesManager().getTransactManager().getItemData(jcrUuid.getParentIdentifier());
       QPathEntry[] qentry = bugData.getQPath().getEntries();
       PropertyData persistedBugData = (PropertyData) conn.getItemData(parent, qentry[qentry.length - 1]);
       log.info("node_V node BUG uuid: " + node_V.getUUID() +  ", jcr:uuid: " 

@@ -101,7 +101,7 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     TransientNodeData data = TransientNodeData.createNodeData(parent, new InternalQName(null,
         "testItemReferencePool1"), new InternalQName(Constants.NS_NT_URI, "unstructured"));
 
-    String uuid = data.getUUID();
+    String uuid = data.getIdentifier();
 
     assertEquals(1, pool.size());
     NodeImpl node1 = (NodeImpl) modificationManager.update(ItemState.createAddedState(data), true);
@@ -175,17 +175,17 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     // delete this node ... state should be DELETED
     modificationManager.delete(data);
     assertEquals(2, changesLog.getAllStates().size());
-    List<ItemState> lst = changesLog.getItemStates(data.getUUID());
+    List<ItemState> lst = changesLog.getItemStates(data.getIdentifier());
     assertEquals(2, lst.size());
-    assertEquals(ItemState.DELETED, changesLog.getItemState(data.getUUID()).getState());
+    assertEquals(ItemState.DELETED, changesLog.getItemState(data.getIdentifier()).getState());
 
     // System.out.println(" > 2 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! after
     // testSessionChangesLog> "+modificationManager.dump());
 
     // add the same node ... state should be ADDED again
     node1 = (NodeImpl) modificationManager.update(ItemState.createAddedState(data), true);
-    assertEquals(3, changesLog.getItemStates(data.getUUID()).size());
-    assertEquals(ItemState.ADDED, changesLog.getItemState(data.getUUID()).getState());
+    assertEquals(3, changesLog.getItemStates(data.getIdentifier()).size());
+    assertEquals(ItemState.ADDED, changesLog.getItemState(data.getIdentifier()).getState());
 
     assertEquals(3, changesLog.getAllStates().size());
 
@@ -199,7 +199,7 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     PropertyImpl prop1 = (PropertyImpl) modificationManager
         .update(ItemState.createAddedState(prop), true);
     assertEquals(ItemState.ADDED, changesLog.getItemState(node1.getInternalUUID()).getState());
-    assertEquals(ItemState.ADDED, changesLog.getItemState(prop.getUUID()).getState());
+    assertEquals(ItemState.ADDED, changesLog.getItemState(prop.getIdentifier()).getState());
 
     assertEquals(4, changesLog.getAllStates().size());
 
@@ -239,14 +239,14 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     
     fail("Must fix getItem method");
     
-    assertEquals(prop.getUUID(), modificationManager.getItemData(prop.getUUID()).getUUID());
-    assertEquals(prop1, modificationManager.getItemByUUID(prop.getUUID(), true));
+    assertEquals(prop.getIdentifier(), modificationManager.getItemData(prop.getIdentifier()).getIdentifier());
+    assertEquals(prop1, modificationManager.getItemByUUID(prop.getIdentifier(), true));
 
     assertTrue(modificationManager.hasPendingChanges(data.getQPath()));
     assertFalse(modificationManager.hasPendingChanges(someData.getQPath()));
 
-    assertTrue(modificationManager.isNew(prop.getUUID()));
-    assertFalse(modificationManager.isNew(parent.getUUID()));
+    assertTrue(modificationManager.isNew(prop.getIdentifier()));
+    assertFalse(modificationManager.isNew(parent.getIdentifier()));
 
     assertFalse(modificationManager.isModified(prop));
     modificationManager.update(ItemState.createUpdatedState(prop), true);

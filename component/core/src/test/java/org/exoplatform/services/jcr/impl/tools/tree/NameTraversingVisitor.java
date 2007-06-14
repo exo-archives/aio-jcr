@@ -43,7 +43,7 @@ public class NameTraversingVisitor extends ItemDataTraversingVisitor {
   protected void entering(PropertyData property, int level) throws RepositoryException {
     if ((scope & SCOPE_PROPERTYES) != 0) {
       validNames.add(property.getQPath());
-      validUuids.add(property.getUUID());
+      validUuids.add(property.getIdentifier());
     }
 
   }
@@ -56,7 +56,7 @@ public class NameTraversingVisitor extends ItemDataTraversingVisitor {
   protected void entering(NodeData node, int level) throws RepositoryException {
     if ((scope & SCOPE_PROPERTYES) != 0) {
       validNames.add(node.getQPath());
-      validUuids.add(node.getUUID());
+      validUuids.add(node.getIdentifier());
     }
 
   }
