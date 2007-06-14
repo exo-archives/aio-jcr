@@ -3,10 +3,10 @@
 	name="Calculating the average time of execution of the main JCR API methods"
 	xmlns="http://www.sun.com/japex/testSuite">
 
-	<param name="japex.reportsDirectory" value="target/reports" />
+	<param name="japex.reportsDirectory" value="../reports" />
 	<param name="japex.plotGroupSize" value="5" />
-	<!-- param name="japex.resultUnit" value="ms" / -->
-	<param name="japex.resultUnit" value="tps" />
+	<param name="japex.resultUnit" value="ms" />
+	<!--<param name="japex.resultUnit" value="tps" />-->
 
 
 	<driver name="JCR driver">

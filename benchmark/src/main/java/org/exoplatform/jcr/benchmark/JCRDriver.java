@@ -21,7 +21,7 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SARL .
- * 
+ *
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -68,7 +68,8 @@ public class JCRDriver extends JapexDriverBase {
       credentials = new SimpleCredentials(user, password.toCharArray());
       oneSession = repository.login(credentials, workspace);
       context = new JCRTestContext();
-      context.put(JCRTestContext.THREAD_NUMBER, ++threadCounter);
+      ++threadCounter;
+      context.put(JCRTestContext.THREAD_NUMBER, threadCounter);
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
@@ -118,9 +119,9 @@ public class JCRDriver extends JapexDriverBase {
      +getParam("japex.numberOfThreads")+" "
      +tc.getParam("japex.resultUnit")+" "
      //+tc.getParam("japex.resultValue")+" "
-    
+
      );
-    
+
   }
 
   private synchronized JCRTestBase testInstance(TestCase tc) {

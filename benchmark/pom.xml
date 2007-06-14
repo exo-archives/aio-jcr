@@ -123,7 +123,7 @@
                         <java dir="${basedir}"
                             jar="${basedir}/target/exo.jcr.benchmark-1.6.dir/lib/exo.jcr.benchmark-1.6.jar" fork="true" failonerror="true"
                             maxmemory="256m">
-                            <arg value="${basedir}/target/exo.jcr.benchmark-1.6.dir/conf/JCRAPI-concurrent-reading.xml" />
+                            <arg value="${basedir}/target/exo.jcr.benchmark-1.6.dir/config/JCRAPI-concurrent-reading.xml" />
                             <classpath>
                                 <pathelement path="${classpath}" />
                                 <fileset dir="${basedir}/target">

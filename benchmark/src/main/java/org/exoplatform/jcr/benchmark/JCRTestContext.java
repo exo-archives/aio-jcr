@@ -11,7 +11,7 @@ import javax.jcr.Session;
 
 /**
  * Created by The eXo Platform SARL .
- * 
+ *
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -35,7 +35,7 @@ public final class JCRTestContext extends HashMap<String, Object> {
   public String generateUniqueName(String prefix) {
     // int cnt = (Integer)get(COUNTER);
     // String name = prefix+get(THREAD_NUMBER)+cnt;
-    String name = prefix + get(THREAD_NUMBER);
+    String name = prefix + get(THREAD_NUMBER)+System.nanoTime();
     // put(COUNTER, ++cnt);
     return name;
   }

@@ -10,11 +10,24 @@
       <directory>src/main/java</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-	          <include>**/*.cmd</include>
-	          <include>**/*.sh</include>
-	          <include>**/*.log</include>
 	          <include>**/JCRAPI*.xml</include>
       </includes>
+    </fileSet>
+    <fileSet>
+	      <directory>/</directory>
+	      <outputDirectory>/</outputDirectory>
+	      <includes>
+	        <include>bin/*</include>
+	        <include>config/*</include>
+	      </includes>
+    </fileSet>
+    <fileSet>
+		      <directory>/</directory>
+		      <outputDirectory>/logs</outputDirectory>
+
+		      <excludes>
+		        <exclude>**/*</exclude>
+		      </excludes>
     </fileSet>
   </fileSets>
 
