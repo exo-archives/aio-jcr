@@ -86,8 +86,8 @@ class SysNodeImporter extends ImporterBase {
 
   // private String uuid;
 
-  SysNodeImporter(NodeImpl parent, int identifierBehavior) throws RepositoryException {
-    super(parent, identifierBehavior);
+  SysNodeImporter(NodeImpl parent, int uuidBehavior) throws RepositoryException {
+    super(parent, uuidBehavior);
     this.parent = (NodeData) parent.getData();
     this.tree = new Stack<NodeInfo>();
     this.nodeInfos = new ArrayList<NodeInfo>();
@@ -471,7 +471,7 @@ class SysNodeImporter extends ImporterBase {
       ItemDataRemoveVisitor visitor = null;
       NodeImpl sameIdentifierNode = (NodeImpl) session.getNodeByUUID(identifier);
       List<ItemState> removedStates = null;
-      switch (identifierBehavior) {
+      switch (uuidBehavior) {
       case ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW:
         // Incoming referenceable nodes are assigned newly created UUIDs
         // upon addition to the workspace. As a result UUID collisions

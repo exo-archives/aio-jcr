@@ -41,7 +41,7 @@ import org.xml.sax.ContentHandler;
  */
 abstract public class ImporterBase implements ContentHandler {
 
-  protected int identifierBehavior = -1;
+  protected int uuidBehavior = -1;
     
   protected SessionImpl       session;
   /**
@@ -56,12 +56,12 @@ abstract public class ImporterBase implements ContentHandler {
 
   protected LocationFactory locationFactory;
 
-  ImporterBase(NodeImpl parent, int identifierBehavior) {
+  ImporterBase(NodeImpl parent, int uuidBehavior) {
   
     this.session = (SessionImpl) parent.getSession();
     this.ntManager = (NodeTypeManagerImpl) ((RepositoryImpl) this.session.getRepository()).getNodeTypeManager();
     locationFactory = session.getLocationFactory();
-    this.identifierBehavior = identifierBehavior;
+    this.uuidBehavior = uuidBehavior;
     itemStatesList = new ArrayList<ItemState>();
   }
   

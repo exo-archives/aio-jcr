@@ -55,7 +55,7 @@ public class NodeImporter extends DefaultHandler {
 
   protected NodeImpl        parent;
 
-  protected int             identifierBehavior    = -1;
+  protected int             uuidBehavior    = -1;
 
   private NamespaceRegistry nsReg;
 
@@ -196,9 +196,9 @@ public class NodeImporter extends DefaultHandler {
       throws RepositoryException {
 
     if (NodeTypeRecognizer.recognize(namespaceURI, qName) == NodeTypeRecognizer.SYS) {
-      wrappedHandler = new SysNodeImporter(parent, identifierBehavior);
+      wrappedHandler = new SysNodeImporter(parent, uuidBehavior);
     } else {
-      wrappedHandler = new DocNodeImporter(parent, identifierBehavior);
+      wrappedHandler = new DocNodeImporter(parent, uuidBehavior);
     }
   }
 
@@ -206,20 +206,20 @@ public class NodeImporter extends DefaultHandler {
       ParserConfigurationException, RepositoryException {
 
     if (NodeTypeRecognizer.recognize(is) == NodeTypeRecognizer.SYS) {
-      wrappedHandler = new SysNodeImporter(parent, identifierBehavior);
+      wrappedHandler = new SysNodeImporter(parent, uuidBehavior);
     } else {
-      DocNodeImporter importer = new DocNodeImporter(parent, identifierBehavior);
+      DocNodeImporter importer = new DocNodeImporter(parent, uuidBehavior);
       importer.setSaveOnEnd(isSaveOnEnd());
       wrappedHandler = importer;
     }
   }
 
-  public void setIdentifierBehavior(int identifierBehavior) {
-    this.identifierBehavior = identifierBehavior;
+  public void setUuidBehavior(int uuidBehavior) {
+    this.uuidBehavior = uuidBehavior;
   }
 
-  public int getIdentifierBehavior() {
-    return identifierBehavior;
+  public int getUuidBehavior() {
+    return uuidBehavior;
   }
 
   // ============ org.xml.sax.ErrorHandler implementation ============

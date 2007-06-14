@@ -67,8 +67,8 @@ class DocNodeImporter extends ImporterBase {
 
   private String                primaryNodeType;
 
-  public DocNodeImporter(NodeImpl parent, int identifierBehavior) throws RepositoryException {
-    super(parent, identifierBehavior);
+  public DocNodeImporter(NodeImpl parent, int uuidBehavior) throws RepositoryException {
+    super(parent, uuidBehavior);
     this.tree = new Stack<NodeData>();
     this.XmlCharactersProperty = null;
     this.XmlCharactersPropertyValue = null;
@@ -371,7 +371,7 @@ class DocNodeImporter extends ImporterBase {
     if (hasMixReferenceable && identifier != null) {
       try {
         NodeImpl sameIdentifierNode = (NodeImpl) session.getNodeByUUID(identifier);
-        switch (identifierBehavior) {
+        switch (uuidBehavior) {
         case ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW:
           // Incoming referenceable nodes are assigned newly created UUIDs
           // upon addition to the workspace. As a result UUID collisions
@@ -393,7 +393,7 @@ class DocNodeImporter extends ImporterBase {
               .getName());
           if (samePatterns.hasNext()) {
             throw new ConstraintViolationException(
-                "A identifierBehavior is set to IMPORT_UUID_COLLISION_REMOVE_EXISTING and an incoming node has the same UUID as the node at parentAbsPath or one of its ancestors");
+                "A uuidBehavior is set to IMPORT_UUID_COLLISION_REMOVE_EXISTING and an incoming node has the same UUID as the node at parentAbsPath or one of its ancestors");
           }
           visitor = new ItemDataRemoveVisitor(session, true);
           sameIdentifierNode.getData().accept(visitor);

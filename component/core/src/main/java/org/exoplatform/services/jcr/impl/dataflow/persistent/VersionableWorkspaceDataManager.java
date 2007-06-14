@@ -101,13 +101,13 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
   /**
    * @see org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager#getItemData(java.lang.String)
    */
-  public ItemData getItemData(String uuid) throws RepositoryException {
-    ItemData data = super.getItemData(uuid);
+  public ItemData getItemData(String identifier) throws RepositoryException {
+    ItemData data = super.getItemData(identifier);
     if(data != null)
       return data;
     else if(!this.equals(versionDataManager)) { 
       // try from version storage if not the same
-      data = versionDataManager.getItemData(uuid);
+      data = versionDataManager.getItemData(identifier);
       if(data != null && isSystemDescendant(data.getQPath()))
         return data;
     } 

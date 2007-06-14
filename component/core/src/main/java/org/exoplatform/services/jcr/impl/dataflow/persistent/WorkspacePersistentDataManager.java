@@ -169,10 +169,10 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
    * 
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(String)
    */
-  public ItemData getItemData(final String uuid) throws RepositoryException {
+  public ItemData getItemData(final String identifier) throws RepositoryException {
     final WorkspaceStorageConnection con = dataContainer.openConnection();
     try { 
-      return con.getItemData(uuid);
+      return con.getItemData(identifier);
     } finally {
       con.rollback();
     }
@@ -183,12 +183,12 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
    * 
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getReferencesData(String)
    */
-  public List<PropertyData> getReferencesData(final String uuid)
+  public List<PropertyData> getReferencesData(final String identifier)
       throws RepositoryException {
     
     final WorkspaceStorageConnection con = dataContainer.openConnection();
     try {
-      final List<PropertyData> allRefs = con.getReferencesData(uuid);
+      final List<PropertyData> allRefs = con.getReferencesData(identifier);
       final List<PropertyData> refProps = new ArrayList<PropertyData>();
       for (int i = 0; i < allRefs.size(); i++) {
         PropertyData ref = allRefs.get(i);
