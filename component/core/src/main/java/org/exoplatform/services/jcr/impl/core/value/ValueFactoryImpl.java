@@ -27,6 +27,7 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.JCRName;
 import org.exoplatform.services.jcr.impl.core.JCRPath;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
+import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
@@ -224,7 +225,12 @@ public class ValueFactoryImpl implements ValueFactory {
       throw new ValueFormatException("Node " + value.getPath()
           + " is not referenceable");
     try {
-      return new ReferenceValue(value);
+      if (value instanceof NodeImpl) { 
+        String jcrUuid = ((NodeImpl) value).getInternalUUID(); 
+        return new ReferenceValue(new TransientValueData(jcrUuid));
+      } else {
+        throw new RepositoryException("Its need a NodeImpl instance of Node");
+      }
     } catch (IOException e) {
       e.printStackTrace();
       return null;
