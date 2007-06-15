@@ -99,7 +99,7 @@
                     <execution>
                         <phase>install</phase>
                         <goals>
-                            <goal>directory</goal>
+                            <goal>attached</goal>
                         </goals>
                     </execution>
                 </executions>
