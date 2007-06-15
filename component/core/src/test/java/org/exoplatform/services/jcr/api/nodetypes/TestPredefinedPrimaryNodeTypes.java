@@ -56,8 +56,8 @@ public class TestPredefinedPrimaryNodeTypes extends JcrAPIBaseTest {
     assertTrue("nodeDefs != 0", type.getChildNodeDefinitions().length == 0);
 
     // Property names: [0]=jcr:created, [1]=jcr:lastModified, [2]=jcr:primaryType
-    assertEquals("prop2 name !=jcr:primaryType", "jcr:primaryType", type.getPropertyDefinitions()[1].getName());
-    assertEquals("prop0 name != jcr:created", "jcr:created", type.getPropertyDefinitions()[0].getName());
+    assertEquals("prop2 name !=jcr:primaryType", "jcr:primaryType", type.getPropertyDefinitions()[2].getName());//here was 1 
+    assertEquals("prop0 name != jcr:created", "jcr:created", type.getPropertyDefinitions()[1].getName());//here was [0]
 
     node = root.getNode("node-hi");
     assertNotNull("Prop null ", node.getProperty("jcr:created").toString());
@@ -135,7 +135,7 @@ public class TestPredefinedPrimaryNodeTypes extends JcrAPIBaseTest {
     assertTrue("typePropDefs != 4", type.getPropertyDefinitions().length == 4);
     assertTrue("typeNodeDefs != 0", type.getChildNodeDefinitions().length == 0);
 
-    assertEquals("node0 name != jcr:content", "jcr:content", type.getPropertyDefinitions()[0].getName());
+    assertEquals("node0 name != jcr:content", "jcr:content", type.getPropertyDefinitions()[1].getName());
 
   }
 

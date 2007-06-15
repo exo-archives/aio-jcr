@@ -47,24 +47,24 @@ public class RemoveSameNameSiblingTest extends BaseUsecasesTest{
     Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), WORKSPACE) ;
     Node root = session.getRootNode();
 
-    Node subRoot = root.addNode("u");
+    Node subRoot = root.addNode("u1");
     Node n1 = subRoot.addNode("child", "nt:unstructured");
     Node n2 = subRoot.addNode("child", "nt:unstructured");
     Node n3 = subRoot.addNode("child", "nt:unstructured");
     root.save();
     
-    root.getNode("u/child[3]");
+    root.getNode("u1/child[3]");
     n2 = subRoot.getNode("child[2]");
     log.debug(">>>> SAME NAME start "+n2.getPath()+" "+n2.getIndex());
     n2.remove();        
     root.save(); // reindex child[3] --> child[2]
     
-    log.debug("SIZE >>>"+root.getNode("u").getNodes().getSize());
-    log.debug("SIZE >>>"+session.getRootNode().getNode("u").getNodes().getSize());
+    log.debug("SIZE >>>"+root.getNode("u1").getNodes().getSize());
+    log.debug("SIZE >>>"+session.getRootNode().getNode("u1").getNodes().getSize());
 
     assertEquals(2, subRoot.getNodes().getSize()); 
     try {
-      root.getNode("u/child[2]"); // 
+      root.getNode("u1/child[2]"); // 
     } catch (PathNotFoundException e) {
       fail("A node u/child[2] must exists");
     }

@@ -483,7 +483,7 @@ public class TestNode extends JcrAPIBaseTest{
         String n2Reorder_uuid = node2.getProperty("uuid").getString();
         assertEquals("A uuids must be same ", n2uuid, n2Reorder_uuid);
       } catch(RepositoryException e) {
-        //e.printStackTrace();
+        e.printStackTrace();
         fail("A property must exists on the node /snsRemoveTest/_node[1] " + e);
       }
     } finally {
