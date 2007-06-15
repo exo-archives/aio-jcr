@@ -71,10 +71,8 @@ public class SysExportXmlVisior extends ExportXmlVisitor {
       for (ValueData valueData : values) {
         contentHandler.startElement(SV_NAMESPACE_URI, "value", "sv:value", new AttributesImpl());
 
-        char[] charValue = serializeValueData(valueData,property.getType());
+        writeValueData(valueData,property.getType());
 
-
-        contentHandler.characters(charValue, 0, charValue.length);
         contentHandler.endElement(SV_NAMESPACE_URI, "value", "sv:value");
       }
     } catch (Exception e) {

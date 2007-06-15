@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Random;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -243,11 +244,14 @@ public abstract class BaseStandaloneTest extends TestCase {
 
   protected File createBLOBTempFile(String prefix, int sizeInKb) throws IOException {
     // create test file
-    byte[] data = new byte[1024]; // 1KB
-    Arrays.fill(data, (byte)65); // symbol A
+    byte[] data = new byte[1000]; // 1Kb
+     
     File testFile = File.createTempFile(prefix, ".tmp");
     FileOutputStream tempOut = new FileOutputStream(testFile);
+    Random random = new Random();
+    
     for (int i=0; i<sizeInKb; i++) {
+      random.nextBytes(data);
       tempOut.write(data);
     }
     tempOut.close();

@@ -22,12 +22,11 @@ import javax.jcr.Value;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.PropertyDefinition;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
+import org.apache.ws.commons.util.Base64;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
@@ -82,8 +81,7 @@ class DocNodeImporter extends ImporterBase {
    * @see org.exoplatform.services.jcr.impl.xml.NodeImporter#startElement(java.lang.String,
    *      java.lang.String, java.lang.String, org.xml.sax.Attributes)
    */
-  public void startElement(String namespaceURI, String localName, String qName, Attributes atts)
-      throws SAXException {
+  public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
 
     String nodeName = ISO9075.decode(qName);
     primaryNodeType = "nt:unstructured";
@@ -109,23 +107,20 @@ class DocNodeImporter extends ImporterBase {
 
     try {
       boolean isMixReferenceable = isReferenceable(nodeTypes);
-      String identifier = validateIdentifierCollision(nodeName, isMixReferenceable, nodeTypes, props);
+      String identifier = validateIdentifierCollision(nodeName,
+          isMixReferenceable,
+          nodeTypes,
+          props);
       if (identifier == null) {
         identifier = UUIDGenerator.generate();
       }
 
       InternalQName jcrName = locationFactory.parseJCRName(nodeName).getInternalName();
-      // InternalQPath dstNodePath =
-      // InternalQPath.makeChildPath(parent().getQPath(), jcrName);
-
-      //QPath dstNodePath = QPath.makeChildPath(parent().getQPath(), jcrName);
-      //int nodeIndex = getNodeIndex(dstNodePath);
-      int nodeIndex = getNodeIndex(parent(),jcrName);
+      int nodeIndex = getNodeIndex(parent(), jcrName);
 
       nodeData = TransientNodeData.createNodeData(parent(), jcrName, locationFactory
           .parseJCRName(primaryNodeType).getInternalName(), nodeIndex);
 
-      // newNode.setOrderNumber(node.getOrderNumber());
       ((TransientNodeData) nodeData).setMixinTypeNames(mixinNodeTypes
           .toArray(new InternalQName[mixinNodeTypes.size()]));
       // newNode.setACL(node.getACL());
@@ -149,11 +144,10 @@ class DocNodeImporter extends ImporterBase {
           if (log.isDebugEnabled())
             log.debug("Property NAME: " + key + "=" + props.get(key));
           newProperty = TransientPropertyData.createPropertyData(parent(),
-                                                                 Constants.JCR_PRIMARYTYPE,
-                                                                 PropertyType.NAME,
-                                                                 false,
-                                                                 new TransientValueData(props
-                                                                     .get(key)));
+              Constants.JCR_PRIMARYTYPE,
+              PropertyType.NAME,
+              false,
+              new TransientValueData(props.get(key)));
 
         } else if (key.equals("jcr:mixinTypes")) {
 
@@ -168,50 +162,40 @@ class DocNodeImporter extends ImporterBase {
 
         } else if (isMixReferenceable && key.equals("jcr:uuid")) {
           Value value = session.getValueFactory().createValue(nodeData.getIdentifier(),
-                                                              PropertyType.STRING);
+              PropertyType.STRING);
           if (log.isDebugEnabled())
             log.debug("Property STRING: " + key + "=" + value.getString());
 
           newProperty = TransientPropertyData.createPropertyData(parent(),
-                                                                 Constants.JCR_UUID,
-                                                                 PropertyType.STRING,
-                                                                 false,
-                                                                 new TransientValueData(identifier));
+              Constants.JCR_UUID,
+              PropertyType.STRING,
+              false,
+              new TransientValueData(identifier));
 
         } else {
           PropertyDefinition pDef = getPropertyDefinition(key, nodeTypes);
+          String pb = props.get(key);
           if (pDef.getRequiredType() == PropertyType.BINARY) {
-
+            byte[] decoded = Base64.decode(pb);
             if (log.isDebugEnabled()) {
-              String pb = props.get(key);
+
               if (pb.length() > 512)
                 pb = pb.substring(0, 512);
-              log.debug("Property BINARY: "
-                  + key
-                  + "="
-                  + (pb.length() > 0 ? new String(Base64.decodeBase64(pb.getBytes()))
-                      : "[empty data]"));
+              log.debug("Property BINARY: " + key + "="
+                  + (pb.length() > 0 ? new String(decoded) : "[empty data]"));
             }
 
             newProperty = TransientPropertyData.createPropertyData(parent(),
-                                                                   locationFactory
-                                                                       .parseJCRName(key)
-                                                                       .getInternalName(),
-                                                                   PropertyType.BINARY,
-                                                                   false,
-                                                                   new TransientValueData(
-                                                                       new ByteArrayInputStream(
-                                                                           Base64
-                                                                               .decodeBase64(props
-                                                                                   .get(key)
-                                                                                   .getBytes()))));
+                locationFactory.parseJCRName(key).getInternalName(),
+                PropertyType.BINARY,
+                false,
+                new TransientValueData(new ByteArrayInputStream(decoded)));
 
           } else {
             int pType = pDef.getRequiredType() > 0 ? pDef.getRequiredType() : PropertyType.STRING;
             Value value = session.getValueFactory().createValue(StringConverter
-                                                                    .denormalizeString(props
-                                                                        .get(key)),
-                                                                pType);
+                .denormalizeString(props.get(key)),
+                pType);
             if (log.isDebugEnabled()) {
               String valueAsString = null;
               try {
@@ -253,24 +237,22 @@ class DocNodeImporter extends ImporterBase {
       XmlCharactersProperty.setValue(new TransientValueData(XmlCharactersPropertyValue));
     } else {
       NodeData nodeData = TransientNodeData.createNodeData(parent(),
-                                                           Constants.JCR_XMLTEXT,
-                                                           Constants.NT_UNSTRUCTURED);
+          Constants.JCR_XMLTEXT,
+          Constants.NT_UNSTRUCTURED);
       itemStatesList.add(new ItemState(nodeData, ItemState.ADDED, true, parent().getQPath()));
 
-      TransientPropertyData newProperty = TransientPropertyData
-          .createPropertyData(nodeData,
-                              Constants.JCR_PRIMARYTYPE,
-                              PropertyType.NAME,
-                              false,
-                              new TransientValueData(Constants.NT_UNSTRUCTURED));
+      TransientPropertyData newProperty = TransientPropertyData.createPropertyData(nodeData,
+          Constants.JCR_PRIMARYTYPE,
+          PropertyType.NAME,
+          false,
+          new TransientValueData(Constants.NT_UNSTRUCTURED));
       itemStatesList.add(new ItemState(newProperty, ItemState.ADDED, true, nodeData.getQPath()));
 
-      newProperty = TransientPropertyData
-          .createPropertyData(nodeData,
-                              Constants.JCR_XMLCHARACTERS,
-                              PropertyType.STRING,
-                              false,
-                              new TransientValueData(text.toString()));
+      newProperty = TransientPropertyData.createPropertyData(nodeData,
+          Constants.JCR_XMLCHARACTERS,
+          PropertyType.STRING,
+          false,
+          new TransientValueData(text.toString()));
       itemStatesList.add(new ItemState(newProperty, ItemState.ADDED, true, nodeData.getQPath()));
       XmlCharactersProperty = newProperty;
       XmlCharactersPropertyValue = text.toString();
@@ -314,10 +296,10 @@ class DocNodeImporter extends ImporterBase {
   }
 
   private void parseAttr(String nodeName,
-                         Attributes atts,
-                         List<ExtendedNodeType> nodeTypes,
-                         List<InternalQName> mixinNodeTypes,
-                         HashMap<String, String> props) throws SAXException {
+      Attributes atts,
+      List<ExtendedNodeType> nodeTypes,
+      List<InternalQName> mixinNodeTypes,
+      HashMap<String, String> props) throws SAXException {
     if (atts != null) {
       try {
         for (int i = 0; i < atts.getLength(); i++) {
@@ -359,10 +341,9 @@ class DocNodeImporter extends ImporterBase {
   }
 
   private String validateIdentifierCollision(String nodeName,
-                                       boolean hasMixReferenceable,
-                                       List<ExtendedNodeType> nodeTypes,
-                                       HashMap<String, String> props) throws SAXException,
-      RepositoryException {
+      boolean hasMixReferenceable,
+      List<ExtendedNodeType> nodeTypes,
+      HashMap<String, String> props) throws SAXException, RepositoryException {
 
     String identifier = props.get("jcr:uuid");
     NodeData parentNodeData = parent();
@@ -389,11 +370,12 @@ class DocNodeImporter extends ImporterBase {
           // workspace that are remote from the location to which the
           // incoming subtree is being written.
 
-          NodeIterator samePatterns = sameIdentifierNode.getNodes(parentNodeData.getQPath().getName()
-              .getName());
+          NodeIterator samePatterns = sameIdentifierNode.getNodes(parentNodeData.getQPath()
+              .getName().getName());
           if (samePatterns.hasNext()) {
-            throw new ConstraintViolationException(
-                "A uuidBehavior is set to IMPORT_UUID_COLLISION_REMOVE_EXISTING and an incoming node has the same UUID as the node at parentAbsPath or one of its ancestors");
+            throw new ConstraintViolationException("A uuidBehavior is set to "
+                + "IMPORT_UUID_COLLISION_REMOVE_EXISTING and an incoming node has the same "
+                + "UUID as the node at parentAbsPath or one of its ancestors");
           }
           visitor = new ItemDataRemoveVisitor(session, true);
           sameIdentifierNode.getData().accept(visitor);
@@ -428,8 +410,8 @@ class DocNodeImporter extends ImporterBase {
           // If an incoming referenceable node has the same UUID as a node
           // already existing in the workspace then a SAXException is thrown
           // by the ContentHandler during deserialization.
-          throw new ItemExistsException(
-              "An incoming referenceable node has the same UUID as a node already existing in the workspace!");
+          throw new ItemExistsException("An incoming referenceable node has the same "
+              + "UUID as a node already existing in the workspace!");
         default:
         }
       } catch (ItemNotFoundException e) {

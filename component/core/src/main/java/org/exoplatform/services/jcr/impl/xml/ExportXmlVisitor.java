@@ -5,15 +5,16 @@
 package org.exoplatform.services.jcr.impl.xml;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
-import javax.jcr.Value;
-import javax.jcr.ValueFormatException;
 
-import org.apache.commons.codec.binary.Base64;
+//import org.apache.ws.commons.util.Base64$SAXEncoder;
+import org.apache.ws.commons.util.Base64;
+import org.apache.ws.commons.util.Base64.SAXEncoder;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -21,13 +22,11 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
-import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 import org.exoplatform.services.jcr.impl.dataflow.NodeDataOrderComparator;
 import org.exoplatform.services.jcr.impl.dataflow.PropertyDataOrderComparator;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
-import org.exoplatform.services.jcr.impl.util.StringConverter;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
@@ -41,32 +40,35 @@ public abstract class ExportXmlVisitor extends ItemDataTraversingVisitor {
    * Actual value of each <code>PropertyType.BINARY</code> property is
    * recorded using Base64 encoding
    */
-  public static final int      BINARY_PROCESS = 0;
+  public static final int        BINARY_PROCESS = 0;
 
   /**
    * Any properties of <code>PropertyType.BINARY</code> will be ignored and
    * will not appear in the serialized output
    */
-  public static final int      BINARY_SKIP    = 1;
+  public static final int        BINARY_SKIP    = 1;
 
   /**
    * Serialized only definition of of each <code>PropertyType.BINARY</code>
    * property without values
    */
-  public static final int      BINARY_EMPTY   = 2;
+  public static final int        BINARY_EMPTY   = 2;
 
-  private int                  binaryConduct  = BINARY_PROCESS;
+  private int                    binaryConduct  = BINARY_PROCESS;
 
-  protected boolean            noRecurse;
+  protected boolean              noRecurse;
 
   protected final ContentHandler contentHandler;
 
-  protected final SessionImpl session;
+  protected final SessionImpl    session;
 
-  protected LocationFactory locationFactory;
+  protected LocationFactory      locationFactory;
 
-  public ExportXmlVisitor(ContentHandler handler, SessionImpl session, ItemDataConsumer dataManager,
-      boolean skipBinary, boolean noRecurse) {
+  public ExportXmlVisitor(ContentHandler handler,
+      SessionImpl session,
+      ItemDataConsumer dataManager,
+      boolean skipBinary,
+      boolean noRecurse) {
 
     super(dataManager, noRecurse ? 1 : -1);
     this.session = session;
@@ -116,7 +118,8 @@ public abstract class ExportXmlVisitor extends ItemDataTraversingVisitor {
       contentHandler.endDocument();
     }
   }
-  protected  char[] serializeValueData (ValueData data, int type ) throws Exception {
+
+  protected void writeValueData(ValueData data, int type) throws Exception {
     char[] charValue = "".toCharArray();
     switch (type) {
     case PropertyType.BINARY:
@@ -129,11 +132,27 @@ public abstract class ExportXmlVisitor extends ItemDataTraversingVisitor {
           throw new RepositoryException(e);
         }
       } else {
-//        charValue = new String(Base64.encodeBase64(BLOBUtil.readValue(data)))
-//            .toCharArray();
-        charValue = new String(Base64.encodeBase64(data.getAsByteArray()))
-        .toCharArray();
 
+        InputStream is = data.getAsStream();
+      
+        Base64.SAXEncoder encoder = new Base64.SAXEncoder(new char[4096], 0, null, contentHandler);
+        Base64.EncoderOutputStream eos = new Base64.EncoderOutputStream(encoder);
+
+        byte[] buffer = new byte[4096];
+        int len;
+        while ((len = is.read(buffer)) > 0) {
+          
+          if (len < 4096) {
+            byte[] buffer2 = new byte[len];
+            System.arraycopy(buffer, 0, buffer2, 0, len);
+            buffer = buffer2;
+          }
+          eos.write(buffer);
+
+        }
+        is.close();
+        eos.close();
+        buffer = null;
       }
 
       break;
@@ -141,73 +160,34 @@ public abstract class ExportXmlVisitor extends ItemDataTraversingVisitor {
     case PropertyType.NAME:
     case PropertyType.DATE:
     case PropertyType.PATH:
-      charValue = session.getValueFactory().loadValue(
-          (TransientValueData) data, type).getString().toCharArray();
+      charValue = session.getValueFactory().loadValue((TransientValueData) data, type).getString()
+          .toCharArray();
+      contentHandler.characters(charValue, 0, charValue.length);
       break;
     default:
       charValue = new String(data.getAsByteArray()).toCharArray();
+      contentHandler.characters(charValue, 0, charValue.length);
       break;
     }
-
-    return charValue;
   }
-  
-  private String[] getStrPropValues(PropertyImpl prop, boolean skipBinary)
-      throws ValueFormatException, RepositoryException {
 
-    String[] values = new String[prop.getValueArray().length];
-    if (values.length == 0)
-      return null;
-
-    if (prop.getType() == PropertyType.BINARY) {
-      if (skipBinary) {
-        for (int i = 0; i < values.length; i++)
-          values[i] = "";
-      } else {
-        for (int i = 0; i < values.length; i++) {
-          try {
-            ValueData data = ((BinaryValue) prop.getValueArray()[i]).getInternalData();
-//            String b64s = new String(Base64.encodeBase64(BLOBUtil.readValue(data)));
-//            values[i] = b64s;
-            values[i] = new String(Base64.encodeBase64(data.getAsByteArray()));
-          } catch (IOException e) {
-            throw new RepositoryException("Can't export value data to string: " + e.getMessage(), e);
-          }
-        }
-      }
-    } else {
-      for (int i = 0; i < values.length; i++) {
-        Value val = prop.getValueArray()[i];
-        try {
-          if (val != null)
-            values[i] = StringConverter.normalizeString(val.getString(), true);
-        } catch (ValueFormatException e) {
-          if (!e.getMessage().equals("empty value")) {
-            throw e;
-          }
-        }
-      }
+  protected void startPrefixMapping() throws RepositoryException, SAXException {
+    String[] prefixes = session.getNamespacePrefixes();
+    for (String prefix : prefixes) {
+      // skeep xml prefix
+      if (prefix.equals(Constants.NS_XML_PREFIX))
+        continue;
+      contentHandler.startPrefixMapping(prefix, session.getNamespaceURI(prefix));
     }
-    return values;
-  }
 
- protected void startPrefixMapping() throws RepositoryException, SAXException{
-   String[] prefixes = session.getNamespacePrefixes();
-   for (String prefix : prefixes) {
-     //skeep xml prefix
-     if (prefix.equals(Constants.NS_XML_PREFIX)) continue;
-     contentHandler.startPrefixMapping(prefix, session.getNamespaceURI(prefix));
-   }
+  };
 
- };
-
-  protected void endPrefixMapping() throws RepositoryException, SAXException{
+  protected void endPrefixMapping() throws RepositoryException, SAXException {
     String[] prefixes = session.getNamespacePrefixes();
     for (String prefix : prefixes) {
       contentHandler.endPrefixMapping(prefix);
     }
-  }
-    ;
+  };
 
   @Override
   public void visit(NodeData node) throws RepositoryException {
@@ -221,7 +201,7 @@ public abstract class ExportXmlVisitor extends ItemDataTraversingVisitor {
         Collections.sort(properies, new PropertyDataOrderComparator());
         for (PropertyData data : properies)
           data.accept(this);
-        
+
         if (!isNoRecurse() && currentLevel > 0) {
           List<NodeData> nodes = dataManager.getChildNodesData(node);
           // Sorting nodes
@@ -238,17 +218,16 @@ public abstract class ExportXmlVisitor extends ItemDataTraversingVisitor {
     }
 
   }
-  
+
   private void writeAttribute(String qname, String value) {
-    //buffer.append(" " + qname + "=\"" + value + "\"");
+    // buffer.append(" " + qname + "=\"" + value + "\"");
   }
 
   private void writeNamespaces() throws RepositoryException {
     String[] keys = session.getAllNamespacePrefixes();
-    for(int i=0; i<keys.length; i++)
-      if(keys[i].length() > 0)
-           writeAttribute("xmlns:" + keys[i], session.getNamespaceURIByPrefix(keys[i]));
+    for (int i = 0; i < keys.length; i++)
+      if (keys[i].length() > 0)
+        writeAttribute("xmlns:" + keys[i], session.getNamespaceURIByPrefix(keys[i]));
   }
-  
-  
+
 }

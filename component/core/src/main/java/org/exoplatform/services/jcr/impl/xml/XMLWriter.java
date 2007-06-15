@@ -37,7 +37,6 @@ public class XMLWriter {
     this.nodes = new Stack();
     this.nsWritten = false;
     String enc = System.getProperty("file.encoding");
-   //this.buffer.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
     this.buffer.append("<?xml version=\"1.0\" encoding=\""+enc+"\"?>");
   }
 
@@ -99,24 +98,10 @@ public class XMLWriter {
 
   public void writeText(String text) {
     buffer.append(text);
-    
-    /*
-    if (!nodes.empty()) {
-      if (text.length() > 0)
-        ((Context) nodes.peek()).isOpen = false;
-    } else
-      throw new RuntimeException("Unexpected Empty Stack at Text '" + text + "' !!!");
-    buffer.append(text);
-    */
   }
 
-  public byte[] getBytes() { //throws RepositoryException     
+  public byte[] getBytes() {  
     return buffer.toString().getBytes();
-//    try {
-//      return buffer.toString().getBytes(BaseValue.DEFAULT_ENCODING);
-//    } catch(UnsupportedEncodingException e) {
-//      throw new RepositoryException(BaseValue.DEFAULT_ENCODING + " not supported on this platform", e);
-//    }
   }
 
   public String toString() {
