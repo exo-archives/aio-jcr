@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
-import org.exoplatform.services.jcr.datamodel.Uuid;
+import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.ItemImpl;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
@@ -196,7 +196,7 @@ public class AuditServiceImpl implements AuditService {
     
     SessionImpl session = (SessionImpl)node.getSession();
      
-    InternalQName aiName = new InternalQName(null, ((ItemImpl)node).getData().getUUID());
+    InternalQName aiName = new InternalQName(null, ((ItemImpl)node).getData().getIdentifier());
     //exo:auditHistory
     TransientNodeData ahNode = TransientNodeData.createNodeData((NodeData) storage.getData(),
         aiName, AuditService.EXO_AUDITHISTORY);
@@ -209,7 +209,7 @@ public class AuditServiceImpl implements AuditService {
     // jcr:uuid
     TransientPropertyData ahUuid = TransientPropertyData.createPropertyData(
         ahNode, Constants.JCR_UUID, PropertyType.STRING, false);
-    ahUuid.setValue(new TransientValueData(ahNode.getUUID()));
+    ahUuid.setValue(new TransientValueData(ahNode.getIdentifier()));
 
     // jcr:mixinTypes
     TransientPropertyData ahMixinTypes = TransientPropertyData
@@ -219,7 +219,7 @@ public class AuditServiceImpl implements AuditService {
     //exo:targetNode
     TransientPropertyData ahTargetNode = TransientPropertyData.createPropertyData(
         ahNode, AuditService.EXO_AUDITHISTORY_TARGETNODE, PropertyType.REFERENCE, false);
-    ahTargetNode.setValue(new TransientValueData(((ItemImpl)node).getData().getUUID()));
+    ahTargetNode.setValue(new TransientValueData(((ItemImpl)node).getData().getIdentifier()));
     
     //exo:lastRecord
     TransientPropertyData ahLastRecord = TransientPropertyData.createPropertyData(
@@ -229,7 +229,7 @@ public class AuditServiceImpl implements AuditService {
     //node exo:auditHistory
     TransientPropertyData pAuditHistory = TransientPropertyData
     .createPropertyData((NodeData) ((ItemImpl)node).getData(), AuditService.EXO_AUDITHISTORY,PropertyType.STRING, false);
-    pAuditHistory.setValue(new TransientValueData(new Uuid(ahNode.getUUID())));
+    pAuditHistory.setValue(new TransientValueData(new Identifier(ahNode.getIdentifier())));
 
     
     session.getTransientNodesManager().update(new ItemState(ahNode, ItemState.ADDED, 
@@ -374,7 +374,7 @@ public class AuditServiceImpl implements AuditService {
         // jcr:uuid
         TransientPropertyData exoAuditUuid = TransientPropertyData.createPropertyData(
             exoAuditNode, Constants.JCR_UUID, PropertyType.STRING, false);
-        exoAuditUuid.setValue(new TransientValueData(exoAuditNode.getUUID()));
+        exoAuditUuid.setValue(new TransientValueData(exoAuditNode.getIdentifier()));
         
         
         // jcr:mixinTypes
