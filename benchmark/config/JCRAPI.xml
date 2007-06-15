@@ -24,7 +24,7 @@
 
 		<param name="exo.jaasConf" value="login.conf" />
 		<param name="exo.containerConf"
-			value="conf/standalone/test-configuration-benchmark.xml" />
+			value="../config/test-configuration-benchmark.xml" />
 
 	</driver>
 

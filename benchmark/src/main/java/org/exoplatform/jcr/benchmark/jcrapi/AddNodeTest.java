@@ -13,29 +13,32 @@ import org.exoplatform.jcr.benchmark.JCRTestContext;
 import com.sun.japex.TestCase;
 
 /**
- * Created by The eXo Platform SARL        .
+ * Created by The eXo Platform SARL .
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 public class AddNodeTest extends JCRTestBase {
-  
+
   // just to compare with Japex
-  public long runtime = 0;
-  
+  //public long runtime = 0;
+
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-   //long curTime = System.currentTimeMillis();
-   Session session = context.getSession();
-   String name = context.generateUniqueName("node");
-   session.getRootNode().addNode(name, "nt:unstructured");
-   session.getRootNode().save();
-   //runtime+=(System.currentTimeMillis() - curTime);
+    Session session = context.getSession();
+    String name = context.generateUniqueName("node");
+    try {
+      session.getRootNode().addNode(name, "nt:unstructured");
+      session.getRootNode().save();
+    } catch (Exception e) {
+      e.printStackTrace();
+      session.refresh(false);
+    }
   }
 
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
-    //System.out.println("DO FINISH AddNodeTest "+runtime);
+    // System.out.println("DO FINISH AddNodeTest "+runtime);
   }
-  
-  
+
 }

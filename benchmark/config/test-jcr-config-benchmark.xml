@@ -2,25 +2,24 @@
   <repositories>
     <repository name="db1" system-workspace="ws" default-workspace="ws">
       <security-domain>exo-domain</security-domain>
-      <session-max-age>3600000</session-max-age> 
-      <!-- 60min --> 
       <authentication-policy>org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy</authentication-policy>
       <workspaces>
-
-        <workspace name="ws" auto-init-root-nodetype="nt:unstructured" auto-init-permissions="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove">
+        <workspace name="ws" auto-init-root-nodetype="nt:unstructured">
+          <!-- for system storage -->
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
-              <property name="sourceName" value="jdbcjcr" />
-              <property name="dialect" value="oracle"/>
-              <property name="multi-db" value="false"/>
-              <property name="update-storage" value="false"/>
+              <!-- property name="dialect" value="mysql"/ -->
+              <!-- property name="dialect" value="pgsql"/ -->
+              <property name="sourceName" value="jdbcjcr"/>
+              <property name="multi-db" value="true"/>
+              <property name="update-storage" value="true"/>
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="../temp/swap/ws"/>
             </properties>
             <!-- value-storages>
               <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
                 <properties>
-                  <property name="path" value="target/temp/values/ws"/>
+                  <property name="path" value="../temp/values/ws"/>
                 </properties>
                 <filters>
                   <filter property-type="Binary"/>
@@ -30,15 +29,15 @@
           </container>
           <cache enabled="true">
             <properties>
-              <property name="maxSize" value="100000"/>
-              <property name="liveTime" value="6000"/>
+              <property name="maxSize" value="1000"/>
+              <property name="liveTime" value="1800"/><!-- 30 min -->
             </properties>
           </cache>
-          <!--query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
+          <!-- query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
             <properties>
-              <property name="indexDir" value="temp/index"/>
+              <property name="indexDir" value="../temp/index"/>
             </properties>
-          </query-handler-->
+          </query-handler -->
         </workspace>
       </workspaces>
     </repository>

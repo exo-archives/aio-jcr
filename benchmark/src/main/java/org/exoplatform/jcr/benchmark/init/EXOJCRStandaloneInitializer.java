@@ -28,17 +28,18 @@ public class EXOJCRStandaloneInitializer extends JCRInitializer {
     String containerConf = params.getParam("exo.containerConf");
     try {
       
-      String path = Thread.currentThread().getContextClassLoader().getResource(
-          containerConf).toString();
+      //String path = Thread.currentThread().getContextClassLoader().getResource(
+      //    containerConf).toString();
       
-      StandaloneContainer.setConfigurationURL(path);
+      //StandaloneContainer.addConfigurationPath(path);
+      StandaloneContainer.addConfigurationPath(containerConf);
       StandaloneContainer container = StandaloneContainer.getInstance();
       if (System.getProperty("java.security.auth.login.config") == null)
         System.setProperty("java.security.auth.login.config", Thread.currentThread()
             .getContextClassLoader().getResource(jaasConf).toString());
       RepositoryService repositoryService = (RepositoryService) container
           .getComponentInstanceOfType(RepositoryService.class);
-      repository = repositoryService.getDefaultRepository();
+      repository = repositoryService.getCurrentRepository();
     } catch (Exception e) {
       e.printStackTrace();
     }

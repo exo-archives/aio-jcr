@@ -41,6 +41,8 @@ public class JCRDriver extends JapexDriverBase {
   protected JCRTestContext context;
 
   private JCRTestBase      test;
+  
+  private static final String sessionId = ""+System.currentTimeMillis();
 
   @Override
   public void initializeDriver() {
@@ -67,9 +69,9 @@ public class JCRDriver extends JapexDriverBase {
       workspace = getParam("jcr.workspace");
       credentials = new SimpleCredentials(user, password.toCharArray());
       oneSession = repository.login(credentials, workspace);
-      context = new JCRTestContext();
-      ++threadCounter;
-      context.put(JCRTestContext.THREAD_NUMBER, threadCounter);
+      context = new JCRTestContext(sessionId+"-"+threadCounter++);
+      //++threadCounter;
+      //context.put(JCRTestContext.THREAD_NUMBER, threadCounter);
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
@@ -96,7 +98,14 @@ public class JCRDriver extends JapexDriverBase {
       test.doRun(tc, context);
     } catch (Exception e) {
       e.printStackTrace();
-      throw new RuntimeException(e);
+      //throw new RuntimeException(e);
+      try {
+        Session s = context.getSession();
+        if(s != null)
+          s.refresh(false);
+      } catch (RepositoryException e1) {
+        System.err.println("Can not refresh test session. Reason: "+e1.getMessage());
+      }
     }
   }
 
@@ -109,18 +118,12 @@ public class JCRDriver extends JapexDriverBase {
       throw new RuntimeException(e);
     }
 
-     System.out.println("------------------- FINISH --------------"
-     //+tc.getParam("japex.resultTime")+" "
-     +tc.getParam("japex.actualRunTime")+" "
-     //+tc.getParam("japex.actualRunIterations")+" "
-     //+tc.getParam("japex.warmupTime")+" "
-     +tc.getParam("japex.runIterations")+" "
-     //+tc.getParam("japex.runTime")+" "
-     +getParam("japex.numberOfThreads")+" "
-     +tc.getParam("japex.resultUnit")+" "
-     //+tc.getParam("japex.resultValue")+" "
-
-     );
+//     System.out.println("------------------- FINISH --------------"
+//     +tc.getParam("japex.actualRunTime")+" "
+//     +tc.getParam("japex.runIterations")+" "
+//     +getParam("japex.numberOfThreads")+" "
+//     +tc.getParam("japex.resultUnit")+" "
+//     );
 
   }
 

@@ -18,14 +18,6 @@
             <version>${org.exoplatform.jcr.version}</version>
             <scope>compile</scope>
         </dependency>
-
-        <!--<dependency>
-                    <groupId>exo-jcr</groupId>
-                    <artifactId>exo-jcr.services.jcr.impl</artifactId>
-                    <version>1.5</version>
-                    <scope>compile</scope>
-        </dependency>-->
-
         <dependency>
             <groupId>com.sun.japex</groupId>
             <artifactId>japex</artifactId>
@@ -56,19 +48,21 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
         <!-- For Oracle 10g support (local-jcr repository) -->
+
         <dependency>
             <groupId>ojdbc</groupId>
             <artifactId>ojdbc</artifactId>
             <version>14</version>
-            <scope>compile</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>ojdbc</groupId>
             <artifactId>orai18n</artifactId>
             <version>14</version>
-            <scope>compile</scope>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 
@@ -105,35 +99,18 @@
                     <execution>
                         <phase>install</phase>
                         <goals>
-                            <goal>attached</goal>
+                            <goal>directory</goal>
                         </goals>
                     </execution>
                 </executions>
                 <configuration>
-                    <descriptor>
-                        exo-jcr-benchmark-descriptor.xml
-                    </descriptor>
+                    <descriptors>
+                      <descriptor>
+                        assembly-descriptor.xml
+                      </descriptor>
+                    </descriptors>
                     <finalName>exo.jcr.benchmark</finalName>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <configuration>
-                    <tasks>
-                        <java dir="${basedir}"
-                            jar="${basedir}/target/exo.jcr.benchmark-1.6.dir/lib/exo.jcr.benchmark-1.6.jar" fork="true" failonerror="true"
-                            maxmemory="256m">
-                            <arg value="${basedir}/target/exo.jcr.benchmark-1.6.dir/config/JCRAPI-concurrent-reading.xml" />
-                            <classpath>
-                                <pathelement path="${classpath}" />
-                                <fileset dir="${basedir}/target">
-                                    <include
-                                        name="**/target/exo.jcr.benchmark-${org.exoplatform.jcr.version}.dir/*.jar" />
-                                </fileset>
-                            </classpath>
-                        </java>
-                    </tasks>
-                </configuration>
+               </configuration>
             </plugin>
         </plugins>
     </build>

@@ -11,7 +11,7 @@ import javax.jcr.Session;
 
 /**
  * Created by The eXo Platform SARL .
- *
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -20,9 +20,13 @@ public final class JCRTestContext extends HashMap<String, Object> {
 
   public static final String SESSION       = "session";
 
-  public static final String THREAD_NUMBER = "threadNumber";
-
-  public static final String COUNTER       = "counter";
+  private int counter = 0;
+  
+  private String name;
+  
+  public JCRTestContext(String contextName) {
+    this.name = contextName;
+  }
 
   public void setSession(Session session) {
     put(SESSION, session);
@@ -33,10 +37,8 @@ public final class JCRTestContext extends HashMap<String, Object> {
   }
 
   public String generateUniqueName(String prefix) {
-    // int cnt = (Integer)get(COUNTER);
-    // String name = prefix+get(THREAD_NUMBER)+cnt;
-    String name = prefix + get(THREAD_NUMBER)+System.nanoTime();
-    // put(COUNTER, ++cnt);
-    return name;
+    String uname = prefix+"-"+name+"-"+(counter++);
+    //System.out.println("UNAME >>>> "+uname);
+    return uname;
   }
 }
