@@ -35,18 +35,18 @@ class NodeIteratorImpl implements ScoreNodeIterator {
     /** Logger instance for this class */
   private static Log log = ExoLogger.getLogger("jcr.NodeIteratorImpl");
 
-    /** The UUIDs of the nodes in the result set */
-    protected final String[] uuids;
+    /** The identifiers of the nodes in the result set */
+    protected final String[] identifiers;
 
     /** The score values for the nodes in the result set */
     protected final Float[] scores;
 
-    /** ItemManager to turn UUIDs into Node instances */
+    /** ItemManager to turn identifiers into Node instances */
 //    protected final ItemManager itemMgr;
     protected final SessionDataManager itemMgr;
 
 
-    /** Current position in the UUID array */
+    /** Current position in the identifier array */
     protected int pos = -1;
 
     /** Number of invalid nodes */
@@ -57,16 +57,16 @@ class NodeIteratorImpl implements ScoreNodeIterator {
 
     /**
      * Creates a new <code>NodeIteratorImpl</code> instance.
-     * @param itemMgr the <code>ItemManager</code> to turn UUIDs into
+     * @param itemMgr the <code>ItemManager</code> to turn Identifiers into
      *   <code>Node</code> instances.
-     * @param uuids the UUIDs of the result nodes.
+     * @param identifiers the Identifiers of the result nodes.
      * @param scores the corresponding score values for each result node.
      */
     NodeIteratorImpl(SessionDataManager itemMgr,
-                     String[] uuids,
+                     String[] identifiers,
                      Float[] scores) {
         this.itemMgr = itemMgr;
-        this.uuids = uuids;
+        this.identifiers = identifiers;
         this.scores = scores;
         fetchNext();
     }
@@ -116,7 +116,7 @@ class NodeIteratorImpl implements ScoreNodeIterator {
         if (skipNum < 0) {
             throw new IllegalArgumentException("skipNum must not be negative");
         }
-        if ((pos + skipNum) > uuids.length) {
+        if ((pos + skipNum) > identifiers.length) {
             throw new NoSuchElementException();
         }
         if (skipNum == 0) {
@@ -140,7 +140,7 @@ class NodeIteratorImpl implements ScoreNodeIterator {
      * @return the number of node in this iterator.
      */
     public long getSize() {
-        return uuids.length - invalid;
+        return identifiers.length - invalid;
     }
 
     /**
@@ -190,22 +190,22 @@ class NodeIteratorImpl implements ScoreNodeIterator {
     protected void fetchNext() {
         // reset
         next = null;
-        while (next == null && (pos + 1) < uuids.length) {
+        while (next == null && (pos + 1) < identifiers.length) {
             try {
-                next = (NodeImpl) itemMgr.getItemByUUID(uuids[pos + 1], true);
+                next = (NodeImpl) itemMgr.getItemByIdentifier(identifiers[pos + 1], true);
                 //log.debug("NEXT NODE >>>> "+next.getPath());
             } catch (RepositoryException e) {
                 log.warn("Exception retrieving Node with UUID: "
-                        + uuids[pos + 1] + ": " + e.toString());
+                        + identifiers[pos + 1] + ": " + e.toString());
                 // try next
                 invalid++;
                 //pos++;
             }
             pos++;
         }
-        if (uuids.length == 0) // || (pos + 1) == uuids.length
-          pos = uuids.length;
-        else if ((pos + 1) == uuids.length && next == null) 
+        if (identifiers.length == 0) // || (pos + 1) == uuids.length
+          pos = identifiers.length;
+        else if ((pos + 1) == identifiers.length && next == null) 
           pos++;
     }
 }

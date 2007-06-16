@@ -51,7 +51,7 @@ import org.exoplatform.services.jcr.impl.core.value.ValueConstraintsMatcher;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -231,8 +231,8 @@ public abstract class ItemImpl implements Item {
   
       try {
         
-        // UUID is not changed on ItemImpl
-        return getInternalUUID().equals(((ItemImpl) otherItem).getInternalUUID());
+        // identifier is not changed on ItemImpl
+        return getInternalIdentifier().equals(((ItemImpl) otherItem).getInternalIdentifier());
       } catch (Exception e) {
         log.debug("Item.isSame() failed " + e);
         return false;
@@ -249,7 +249,7 @@ public abstract class ItemImpl implements Item {
    */
   public boolean isNew() {
     if (isValid())
-      return dataManager.isNew(getInternalUUID());
+      return dataManager.isNew(getInternalIdentifier());
     
     // if was removed (is invalid by check), isn't new
     return false;
@@ -335,12 +335,12 @@ public abstract class ItemImpl implements Item {
     NodeTypeManagerImpl ntm = session.getWorkspace().getNodeTypeManager();
     NodeData parentData = (NodeData) parentNode.getData();
     if (oldItem == null || oldItem.isNode()) { // new prop
-      identifier = UUIDGenerator.generate();
+      identifier = IdGenerator.generate();
       version = -1;
       if (propertyValues == null){
         //new property null values; 
           TransientPropertyData nullData = new TransientPropertyData(qpath, identifier, version, PropertyType.UNDEFINED,
-              parentNode.getInternalUUID(), multiValue);
+              parentNode.getInternalIdentifier(), multiValue);
           PropertyImpl nullProperty = new PropertyImpl(nullData,session);
           nullProperty.invalidate();
           return nullProperty; 
@@ -362,7 +362,7 @@ public abstract class ItemImpl implements Item {
 //      def = ntm.findPropertyDefinition(propertyName, parentData.getPrimaryTypeName(),
 //          /*parentData.getMixinTypeNames()*/null);
 
-      identifier = oldProp.getInternalUUID();
+      identifier = oldProp.getInternalIdentifier();
       version = oldProp.getData().getPersistedVersion();
       if (propertyValues == null)
         state = ItemState.DELETED;
@@ -449,7 +449,7 @@ public abstract class ItemImpl implements Item {
     checkValueConstraints(def, valueDataList, propType);
 
     TransientPropertyData newData = new TransientPropertyData(qpath, identifier, version, propType,
-        parentNode.getInternalUUID(), multiValue);
+        parentNode.getInternalIdentifier(), multiValue);
 
     if (requiredType != PropertyType.UNDEFINED && expectedType != PropertyType.UNDEFINED
         && requiredType != expectedType) {
@@ -577,7 +577,7 @@ public abstract class ItemImpl implements Item {
     return data;
   }
 
-  public String getParentUUID() {
+  public String getParentIdentifier() {
     return getData().getParentIdentifier();
   }
 
@@ -597,19 +597,19 @@ public abstract class ItemImpl implements Item {
 //    return dataManager.getItem(path, true);
 //  }
 
-  protected ItemImpl item(String uuid) throws RepositoryException {
-    return dataManager.getItemByUUID(uuid, true);
+  protected ItemImpl item(String identifier) throws RepositoryException {
+    return dataManager.getItemByIdentifier(identifier, true);
   }
 
   protected NodeImpl parent() throws RepositoryException {
-    NodeImpl parent = (NodeImpl) item(getParentUUID());
+    NodeImpl parent = (NodeImpl) item(getParentIdentifier());
     if (parent == null)
       throw new ItemNotFoundException("FATAL: Parent is null for "
-          + getInternalPath().getAsString() + " parent UUID: " + getParentUUID());
+          + getInternalPath().getAsString() + " parent UUID: " + getParentIdentifier());
     return parent;
   }
 
-  public String getInternalUUID() {
+  public String getInternalIdentifier() {
     return data.getIdentifier();
   }
 
@@ -651,7 +651,7 @@ public abstract class ItemImpl implements Item {
         return false;
       
       try {
-        return getInternalUUID().equals(otherItem.getInternalUUID());
+        return getInternalIdentifier().equals(otherItem.getInternalIdentifier());
       } catch (Exception e) {
         return false;
       }

@@ -36,7 +36,7 @@ final class DocNumberCache {
     private static final long LOG_INTERVAL = 1000 * 10;
 
     /**
-     * LRU Map where key=uuid value=reader;docNumber
+     * LRU Map where key=identifier value=reader;docNumber
      */
     private final LRUMap docNumbers;
 
@@ -66,16 +66,16 @@ final class DocNumberCache {
     }
 
     /**
-     * Puts a document number into the cache using a uuid as key. An entry is
+     * Puts a document number into the cache using a identifier as key. An entry is
      * only overwritten if the according reader is younger than the reader
      * associated with the existing entry.
      *
-     * @param uuid the key.
+     * @param identifier the key.
      * @param reader the index reader from where the document number was read.
      * @param n the document number.
      */
-    synchronized void put(String uuid, CachingIndexReader reader, int n) {
-        Entry e = (Entry) docNumbers.get(uuid);
+    synchronized void put(String identifier, CachingIndexReader reader, int n) {
+        Entry e = (Entry) docNumbers.get(identifier);
         if (e != null) {
             // existing entry
             // ignore if reader is older than the one in entry
@@ -93,19 +93,19 @@ final class DocNumberCache {
         }
 
         if (e != null) {
-            docNumbers.put(uuid, e);
+            docNumbers.put(identifier, e);
         }
     }
 
     /**
-     * Returns the cache entry for <code>uuid</code>, or <code>null</code> if
-     * no entry exists for <code>uuid</code>.
+     * Returns the cache entry for <code>identifier</code>, or <code>null</code> if
+     * no entry exists for <code>identifier</code>.
      *
-     * @param uuid the key.
+     * @param identifier the key.
      * @return cache entry or <code>null</code>.
      */
-    synchronized Entry get(String uuid) {
-        Entry entry = (Entry) docNumbers.get(uuid);
+    synchronized Entry get(String identifier) {
+        Entry entry = (Entry) docNumbers.get(identifier);
         if (log.isInfoEnabled()) {
             accesses++;
             if (entry == null) {

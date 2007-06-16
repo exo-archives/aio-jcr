@@ -225,9 +225,9 @@ class ChildAxisQuery extends Query {
         private final BitSet hits;
 
         /**
-         * List of UUIDs of selected nodes
+         * List of Identifierss of selected nodes
          */
-        private List uuids = null;
+        private List identifiers = null;
 
         /**
          * The next document id to return
@@ -288,8 +288,8 @@ class ChildAxisQuery extends Query {
         }
 
         private void calculateChildren() throws IOException {
-            if (uuids == null) {
-                uuids = new ArrayList();
+            if (identifiers == null) {
+                identifiers = new ArrayList();
                 contextScorer.score(new HitCollector() {
                     public void collect(int doc, float score) {
                         hits.set(doc);
@@ -306,10 +306,10 @@ class ChildAxisQuery extends Query {
                     });
                 }
 
-                // read the uuids of the context nodes
+                // read the identifiers of the context nodes
                 for (int i = hits.nextSetBit(0); i >= 0; i = hits.nextSetBit(i + 1)) {
-                    String uuid = reader.document(i).get(FieldNames.UUID);
-                    uuids.add(uuid);
+                    String identifier = reader.document(i).get(FieldNames.UUID);
+                    identifiers.add(identifier);
                 }
 
                 // collect the doc ids of all child nodes. we reuse the existing
@@ -317,7 +317,7 @@ class ChildAxisQuery extends Query {
                 hits.clear();
                 TermDocs docs = reader.termDocs();
                 try {
-                    for (Iterator it = uuids.iterator(); it.hasNext();) {
+                    for (Iterator it = identifiers.iterator(); it.hasNext();) {
                         docs.seek(new Term(FieldNames.PARENT, (String) it.next()));
                         while (docs.next()) {
                             hits.set(docs.doc());
@@ -336,11 +336,11 @@ class ChildAxisQuery extends Query {
                 if (position != LocationStepQueryNode.NONE) {
                     for (int i = hits.nextSetBit(0); i >= 0; i = hits.nextSetBit(i + 1)) {
                         Document node = reader.document(i);
-                        String parentUUID = node.get(FieldNames.PARENT);
-                        String uuid = node.get(FieldNames.UUID);
+                        String parentIdentifier = node.get(FieldNames.PARENT);
+                        String identifier = node.get(FieldNames.UUID);
                         try {
                             //NodeState state = (NodeState) itemMgr.getItemState(new NodeId(parentUUID));
-                            NodeData state = (NodeData) itemMgr.getItemData(parentUUID);
+                            NodeData state = (NodeData) itemMgr.getItemData(parentIdentifier);
                             if (nameTest == null) {
                                 // only select this node if it is the child at
                                 // specified position
@@ -353,7 +353,7 @@ class ChildAxisQuery extends Query {
 //                                            || !((NodeState.ChildNodeEntry)
                                                 || !((NodeData) 
                                                 c.get(c.size() - 1))
-                                                .getIdentifier().equals(uuid)) {
+                                                .getIdentifier().equals(identifier)) {
                                         hits.flip(i);
                                     }
                                 } else {
@@ -365,7 +365,7 @@ class ChildAxisQuery extends Query {
                                             || !((NodeData) 
 //                                            || !((NodeState.ChildNodeEntry) 
                                                 c.get(position - 1))
-                                                .getIdentifier().equals(uuid)) {
+                                                .getIdentifier().equals(identifier)) {
                                         hits.flip(i);
                                     }
                                 }
@@ -380,7 +380,7 @@ class ChildAxisQuery extends Query {
                                     List c = getOrderedChildNodes(state);
                                     for(Iterator it = c.iterator(); it.hasNext();) {
                                       NodeData d = (NodeData) it.next();
-                                      if(d.getIdentifier().equals(uuid))
+                                      if(d.getIdentifier().equals(identifier))
                                         entry = d;
                                     }
 
@@ -403,7 +403,7 @@ class ChildAxisQuery extends Query {
   //                                              || !((NodeState.ChildNodeEntry)
                                                   || !((NodeData)
                                                     childNodes.get(childNodes.size() - 1))
-                                                    .getIdentifier().equals(uuid)) {
+                                                    .getIdentifier().equals(identifier)) {
                                             hits.flip(i);
                                         }
                                     }
@@ -415,7 +415,7 @@ class ChildAxisQuery extends Query {
                                   for(Iterator it = c.iterator(); it.hasNext();) {
                                     
                                     NodeData d = (NodeData) it.next();
-                                    if(d.getIdentifier().equals(uuid))
+                                    if(d.getIdentifier().equals(identifier))
                                       entry = d;
                                   }
 

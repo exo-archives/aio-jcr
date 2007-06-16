@@ -18,7 +18,7 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -114,26 +114,26 @@ public class StorageUpdateManager {
   
   private final boolean multiDB;
 
-  private class JcrUuid {
+  private class JcrIdentifier {
     
     private final String path;
-    private final String nodeUuid;
-    private final String jcrUuid;
+    private final String nodeIdentifier;
+    private final String jcrIdentifier;
     private final String valueId;
     
-    public JcrUuid(String path, String nodeUuid, String valueId, InputStream valueData) throws IOException {
+    public JcrIdentifier(String path, String nodeIdentifier, String valueId, InputStream valueData) throws IOException {
       this.path = path;
-      this.nodeUuid = nodeUuid;
+      this.nodeIdentifier = nodeIdentifier;
       this.valueId = valueId;
-      this.jcrUuid = new String(readUUIDStream(valueData));
+      this.jcrIdentifier = new String(readIdentifierStream(valueData));
     }
 
-    public String getNodeUuid() {
-      return nodeUuid;
+    public String getNodeIdentifier() {
+      return nodeIdentifier;
     }
 
-    public String getJcrUuid() {
-      return jcrUuid;
+    public String getJcrIdentifier() {
+      return jcrIdentifier;
     }
 
     public String getPath() {
@@ -173,7 +173,7 @@ public class StorageUpdateManager {
     
     @Override
     public void updateBody(Connection conn) throws SQLException {
-      fixCopyUuidBug(conn); // to 1.0.1
+      fixCopyIdentifierBug(conn); // to 1.0.1
       fillReferences(conn); // to 1.1
     }
   }
@@ -352,7 +352,7 @@ public class StorageUpdateManager {
    * fix data in the container
    * @throws SQLException
    */
-  private void fixCopyUuidBug(Connection conn) throws SQLException {
+  private void fixCopyIdentifierBug(Connection conn) throws SQLException {
     // TODO fix copy()/import() UUID bug
     
     // need to search all referenceable nodes and fix their 
@@ -366,24 +366,24 @@ public class StorageUpdateManager {
       while (refs.next()) {
         try {
           // TODO jcr:frozenUuid
-          JcrUuid jcrUuid = new JcrUuid(refs.getString("PATH"), 
+          JcrIdentifier jcrIdentifier = new JcrIdentifier(refs.getString("PATH"), 
               refs.getString("NID"), 
               refs.getString("VID"), 
               refs.getBinaryStream("DATA"));
           //log.info("jcr:uuid: " + jcrUuid.getPath() + ", actual:" + jcrUuid.getNodeUuid() + ", existed: " + jcrUuid.getJcrUuid());
-          if (!jcrUuid.getNodeUuid().equals(jcrUuid.getJcrUuid())) {
-            log.info("STORAGE UPDATE >>>: Property jcr:uuid have to be updated with actual value. Property: " + jcrUuid.getPath() 
-                + ", actual:" + jcrUuid.getNodeUuid() + ", existed: " + jcrUuid.getJcrUuid());
+          if (!jcrIdentifier.getNodeIdentifier().equals(jcrIdentifier.getJcrIdentifier())) {
+            log.info("STORAGE UPDATE >>>: Property jcr:uuid have to be updated with actual value. Property: " + jcrIdentifier.getPath() 
+                + ", actual:" + jcrIdentifier.getNodeIdentifier() + ", existed: " + jcrIdentifier.getJcrIdentifier());
 
             update.clearParameters();
             update.setBinaryStream(1, 
-                new ByteArrayInputStream(jcrUuid.getNodeUuid().getBytes()), jcrUuid.getNodeUuid().length());
-            update.setString(2, jcrUuid.getValueId());
+                new ByteArrayInputStream(jcrIdentifier.getNodeIdentifier().getBytes()), jcrIdentifier.getNodeIdentifier().length());
+            update.setString(2, jcrIdentifier.getValueId());
             
             if (update.executeUpdate() != 1) {
-              log.warn("STORAGE UPDATE !!!: More than one jcr:uuid property values were updated. Updated value id: " + jcrUuid.getValueId());
+              log.warn("STORAGE UPDATE !!!: More than one jcr:uuid property values were updated. Updated value id: " + jcrIdentifier.getValueId());
             } else {
-              log.info("STORAGE UPDATE <<<: Property jcr:uuid update successful. Property: " + jcrUuid.getPath());
+              log.info("STORAGE UPDATE <<<: Property jcr:uuid update successful. Property: " + jcrIdentifier.getPath());
             }
             
             // TODO [PN] 27.09.06 Need to be developed more with common versionHistory (of copied nodes) etc.
@@ -403,9 +403,9 @@ public class StorageUpdateManager {
     }
   }
   
-  private void fixCopyFrozenUuidBug(JcrUuid jcrUuid, Connection conn) throws SQLException {
+  private void fixCopyFrozenIdentifierBug(JcrIdentifier jcrIdentifier, Connection conn) throws SQLException {
     String searchCriteria = "'" + Constants.JCR_VERSION_STORAGE_PATH.getAsString() 
-      + ":1[]" + jcrUuid.getNodeUuid() + "%" + Constants.JCR_FROZENUUID.getAsString() + "%' ";
+      + ":1[]" + jcrIdentifier.getNodeIdentifier() + "%" + Constants.JCR_FROZENUUID.getAsString() + "%' ";
     
     ResultSet refs = null;
     PreparedStatement update = null;
@@ -415,14 +415,14 @@ public class StorageUpdateManager {
       //update = conn.prepareStatement(SQL_UPDATE_FROZENJCRUUID);
       while (refs.next()) {
         try {
-          JcrUuid frozenUuid = new JcrUuid(refs.getString("PATH"), 
+          JcrIdentifier frozenIdentifier = new JcrIdentifier(refs.getString("PATH"), 
               refs.getString("NID"), 
               refs.getString("VID"), 
               refs.getBinaryStream("DATA"));
           //log.info("frozenUuid: " + jcrUuid.getPath() + ", actual:" + jcrUuid.getNodeUuid() + ", existed: " + jcrUuid.getJcrUuid());
-          if (!frozenUuid.getNodeUuid().equals(frozenUuid.getJcrUuid())) {
+          if (!frozenIdentifier.getNodeIdentifier().equals(frozenIdentifier.getJcrIdentifier())) {
             log.info("VERSION STORAGE UPDATE >>>: Property jcr:frozenUuid have to be updated with actual value. Property: " 
-                + frozenUuid.getPath() + ", actual:" + jcrUuid.getNodeUuid() + ", existed: " + frozenUuid.getJcrUuid());
+                + frozenIdentifier.getPath() + ", actual:" + jcrIdentifier.getNodeIdentifier() + ", existed: " + frozenIdentifier.getJcrIdentifier());
 
 //            update.clearParameters();
 //            update.setBinaryStream(1, 
@@ -462,19 +462,19 @@ public class StorageUpdateManager {
       update = conn.prepareStatement(SQL_INSERT_REFERENCES);
       while (refs.next()) {
         try {
-          String refNodeUuid = new String(readUUIDStream(refs.getBinaryStream("DATA")));
+          String refNodeIdentifier = new String(readIdentifierStream(refs.getBinaryStream("DATA")));
           //String refNodeUuid = new String(BLOBUtil.readStream(refs.getBinaryStream("DATA")));
-          String refPropertyUuid = refs.getString("PROPERTY_ID");
+          String refPropertyIdentifier = refs.getString("PROPERTY_ID");
           int refOrderNum = refs.getInt("ORDER_NUM");
           
           String refPropertyPath = refs.getString("PATH");
           
           log.info("INSERT REFERENCE >>> Property: " + refPropertyPath + ", " 
-              + refPropertyUuid + ", " + refOrderNum + "; Node UUID: " + refNodeUuid);
+              + refPropertyIdentifier + ", " + refOrderNum + "; Node UUID: " + refNodeIdentifier);
 
           update.clearParameters();
-          update.setString(1, refNodeUuid);
-          update.setString(2, refPropertyUuid);
+          update.setString(1, refNodeIdentifier);
+          update.setString(2, refPropertyIdentifier);
           update.setInt(3, refOrderNum);
           
           if (update.executeUpdate() != 1) {
@@ -496,8 +496,8 @@ public class StorageUpdateManager {
     }
   }  
   
-  private byte[] readUUIDStream(InputStream stream) throws IOException{
-    byte[] buf = new byte[UUIDGenerator.UUID_LENGTH];
+  private byte[] readIdentifierStream(InputStream stream) throws IOException{
+    byte[] buf = new byte[IdGenerator.IDENTIFIER_LENGTH];
     stream.read(buf);
     return buf;
   }

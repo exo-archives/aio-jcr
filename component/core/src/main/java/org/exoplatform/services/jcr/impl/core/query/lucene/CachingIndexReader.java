@@ -107,14 +107,14 @@ class CachingIndexReader extends FilterIndexReader {
 
         if (parent == null) {
             Document doc = document(n);
-            String parentUUID = doc.get(FieldNames.PARENT);
-            if (parentUUID == null || parentUUID.length() == 0) {
+            String parentIdentifier = doc.get(FieldNames.PARENT);
+            if (parentIdentifier == null || parentIdentifier.length() == 0) {
                 parent = DocId.NULL;
             } else {
                 // only create a DocId from document number if there is no
                 // existing DocId
                 if (!existing) {
-                    Term id = new Term(FieldNames.UUID, parentUUID);
+                    Term id = new Term(FieldNames.UUID, parentIdentifier);
                     TermDocs docs = termDocs(id);
                     try {
                         while (docs.next()) {
@@ -129,9 +129,9 @@ class CachingIndexReader extends FilterIndexReader {
                 }
 
                 // if still null, then parent is not in this index, or existing
-                // DocId was invalid. thus, only allowed to create DocId from uuid
+                // DocId was invalid. thus, only allowed to create DocId from identifier
                 if (parent == null) {
-                    parent = DocId.create(parentUUID);
+                    parent = DocId.create(parentIdentifier);
                 }
             }
 

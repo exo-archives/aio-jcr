@@ -32,7 +32,7 @@ import org.exoplatform.services.jcr.datamodel.MutableNodeData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 
 public class TransientNodeData extends TransientItemData implements Comparable,
     MutableNodeData, Externalizable  {
@@ -145,7 +145,7 @@ public class TransientNodeData extends TransientItemData implements Comparable,
     TransientNodeData nodeData = null;
     QPath path = QPath.makeChildPath(parent.getQPath(), name);
     nodeData = new TransientNodeData(path,
-        UUIDGenerator.generate(), -1, primaryTypeName, 
+        IdGenerator.generate(), -1, primaryTypeName, 
         new InternalQName[0], 0, parent.getIdentifier(), parent.getACL());
     return nodeData;
   }
@@ -163,7 +163,7 @@ public class TransientNodeData extends TransientItemData implements Comparable,
     TransientNodeData nodeData = null;
     QPath path = QPath.makeChildPath(parent.getQPath(), name, index);
     nodeData = new TransientNodeData(path,
-        UUIDGenerator.generate(), -1, primaryTypeName, 
+        IdGenerator.generate(), -1, primaryTypeName, 
         new InternalQName[0], 0, parent.getIdentifier(), parent.getACL());
     return nodeData;
   }

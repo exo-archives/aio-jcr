@@ -43,7 +43,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 import org.exoplatform.services.jcr.impl.proccess.WorkerThread;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 import org.picocontainer.Startable;
 
@@ -114,7 +114,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
       long timeOut) throws LockException {
     LockData lData = getLockData((NodeData) node.getData(), SEARCH_EXECMATCH | SEARCH_CLOSEDPARENT);
     if (lData != null) {
-      if (lData.getNodeUuid().equals(node.getInternalUUID())) {
+      if (lData.getNodeIdentifier().equals(node.getInternalIdentifier())) {
         throw new LockException("Node already locked: " + node.getData().getQPath());
       } else if (lData.isDeep()) {
         throw new LockException("Parent node has deep lock.");
@@ -125,12 +125,12 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
       throw new LockException("Some child node is locked.");
     }
 
-    String lockToken = UUIDGenerator.generate();
-    lData = new LockData(node.getInternalUUID(), lockToken, isDeep, isSessionScoped, node
+    String lockToken = IdGenerator.generate();
+    lData = new LockData(node.getInternalIdentifier(), lockToken, isDeep, isSessionScoped, node
         .getSession().getUserID(), timeOut > 0 ? timeOut : lockTimeOut);
 
     lData.addLockHolder(node.getSession().getId());
-    pendingLocks.put(node.getInternalUUID(), lData);
+    pendingLocks.put(node.getInternalIdentifier(), lData);
     tokensMap.put(lockToken, lData);
 
     LockImpl lock = new LockImpl(node.getSession(), lData);
@@ -146,7 +146,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
     LockData lData = getLockData((NodeData) node.getData(), SEARCH_EXECMATCH | SEARCH_CLOSEDPARENT);
 
-    if (lData == null || (!node.getInternalUUID().equals(lData.getNodeUuid()) && !lData.isDeep())) {
+    if (lData == null || (!node.getInternalIdentifier().equals(lData.getNodeIdentifier()) && !lData.isDeep())) {
       throw new LockException("Node not locked: " + node.getData().getQPath());
 
     }
@@ -175,7 +175,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   public boolean isLocked(NodeData node) {
     LockData lData = getLockData(node, SEARCH_EXECMATCH | SEARCH_CLOSEDPARENT);
-    if (lData == null || (!node.getIdentifier().equals(lData.getNodeUuid()) && !lData.isDeep())) {
+    if (lData == null || (!node.getIdentifier().equals(lData.getNodeIdentifier()) && !lData.isDeep())) {
       return false;
     }
     return true;
@@ -198,8 +198,8 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
             // if no session currently holds lock except this
             if (lockData.getLockHolderSize() == 1) {
               try {
-                ((NodeImpl) session.getTransientNodesManager().getItemByUUID(
-                    lockData.getNodeUuid(), true)).unlock();
+                ((NodeImpl) session.getTransientNodesManager().getItemByIdentifier(
+                    lockData.getNodeIdentifier(), true)).unlock();
               } catch (UnsupportedRepositoryOperationException e) {
                 log.error(e.getLocalizedMessage());
               } catch (LockException e) {
@@ -247,10 +247,10 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
           if (pendingLocks.containsKey(nodeIdentifier)) {
             internalLock(nodeIdentifier);
           } else {
-            log.warn("No lock in pendingLocks for uuid " + nodeIdentifier
+            log.warn("No lock in pendingLocks for identifier " + nodeIdentifier
                 + " Probably lock come from replication.");
 
-            String lockToken = UUIDGenerator.generate();
+            String lockToken = IdGenerator.generate();
             ItemState ownerState = getItemState(currChangesLog, Constants.JCR_LOCKOWNER);
             ItemState isDeepState = getItemState(currChangesLog, Constants.JCR_LOCKISDEEP);
             if (ownerState != null && isDeepState != null) {
@@ -460,7 +460,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
       synchronized (locks) {
         for (LockData lock : locks.values()) {
           if (!lock.isSessionScoped() && lock.getTimeToDeath() < 0) {
-            removeLock(lock.getNodeUuid());
+            removeLock(lock.getNodeIdentifier());
           }
         }
       }

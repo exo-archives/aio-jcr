@@ -17,7 +17,7 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
@@ -25,8 +25,8 @@ public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
   private Log      log = ExoLogger.getLogger("jcr.ItemDataCopyVisitor");
   
   public ItemDataCopyVisitor(NodeData parent, InternalQName destNodeName,
-      NodeTypeManagerImpl nodeTypeManager, SessionDataManager dataManager, boolean keepUUIDs) {
-    super(parent, destNodeName, nodeTypeManager, dataManager, keepUUIDs);
+      NodeTypeManagerImpl nodeTypeManager, SessionDataManager dataManager, boolean keepIdentifiers) {
+    super(parent, destNodeName, nodeTypeManager, dataManager, keepIdentifiers);
   }
 
   @Override
@@ -118,7 +118,7 @@ public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
     
     TransientPropertyData newProperty = new TransientPropertyData(
         QPath.makeChildPath(curParent().getQPath(), qname),
-        keepIdentifiers ? property.getIdentifier() : UUIDGenerator.generate(),
+        keepIdentifiers ? property.getIdentifier() : IdGenerator.generate(),
         -1,
         property.getType(),
         curParent().getIdentifier(),
@@ -127,7 +127,7 @@ public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
     newProperty.setValues(values);
     
     if (log.isDebugEnabled())
-      log.debug("entering COPY " + newProperty.getQPath().getAsString() + "; puuid: " + newProperty.getParentIdentifier() + "; uuid: " + newProperty.getIdentifier());
+      log.debug("entering COPY " + newProperty.getQPath().getAsString() + "; pidentifier: " + newProperty.getParentIdentifier() + "; identifier: " + newProperty.getIdentifier());
     
     itemAddStates.add(
         new ItemState(newProperty, ItemState.ADDED, true, ancestorToSave, level != 0));

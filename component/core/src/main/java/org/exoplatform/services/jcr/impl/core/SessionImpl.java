@@ -80,7 +80,7 @@ import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.impl.xml.NodeImporter;
 import org.exoplatform.services.jcr.impl.xml.SysExportXmlVisior;
 import org.exoplatform.services.jcr.impl.xml.XMLWriter;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.xml.sax.ContentHandler;
@@ -143,7 +143,7 @@ public class SessionImpl implements Session, NamespaceAccessor {
     this.workspaceName = workspaceName;
     this.container = container;
     this.live = true;
-    this.id = UUIDGenerator.generate();
+    this.id = IdGenerator.generate();
     // this.lockTokens = new HashSet<String>();
 
     this.repository = (RepositoryImpl) container.getComponentInstanceOfType(RepositoryImpl.class);
@@ -290,7 +290,7 @@ public class SessionImpl implements Session, NamespaceAccessor {
    * @see javax.jcr.Session#getRootNode()
    */
   public Node getRootNode() throws RepositoryException {
-    Item item = nodesManager.getItemByUUID(Constants.ROOT_UUID, true);
+    Item item = nodesManager.getItemByIdentifier(Constants.ROOT_UUID, true);
     if (item != null && item.isNode()) {
       return (NodeImpl) item;
     }
@@ -304,7 +304,7 @@ public class SessionImpl implements Session, NamespaceAccessor {
    * @see javax.jcr.Session#getNodeByUUID(java.lang.String)
    */
   public NodeImpl getNodeByUUID(String uuid) throws ItemNotFoundException, RepositoryException {
-    Item item = nodesManager.getItemByUUID(uuid, true);
+    Item item = nodesManager.getItemByIdentifier(uuid, true);
     // .getAccessibleItemByUUID(uuid);
 
     if (item != null && item.isNode()) {

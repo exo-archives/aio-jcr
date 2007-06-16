@@ -20,7 +20,7 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
  * The class visits each node, all subnodes and all of them properties. It
@@ -111,7 +111,7 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
     
     TransientPropertyData newProperty = new TransientPropertyData(QPath
         .makeChildPath(curParent().getQPath(), qname),
-        keepIdentifiers?property.getIdentifier():UUIDGenerator.generate(),
+        keepIdentifiers?property.getIdentifier():IdGenerator.generate(),
         -1,
         property.getType(),
         curParent().getIdentifier(),
@@ -175,7 +175,7 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
     if (keepIdentifiers)
       newNode.setIdentifier(node.getIdentifier());
     else
-      newNode.setIdentifier(UUIDGenerator.generate());
+      newNode.setIdentifier(IdGenerator.generate());
 
     parents.push(newNode);
     

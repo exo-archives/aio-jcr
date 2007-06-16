@@ -215,7 +215,7 @@ public class ValueConstraintsMatcher {
       
       try {
         ReferenceValue refVal = new ReferenceValue(valueData);
-        NodeImpl refNode = (NodeImpl) session.getNodeByUUID(refVal.getUuid().getString());
+        NodeImpl refNode = (NodeImpl) session.getNodeByUUID(refVal.getIdentifier().getString());
         for (int i=0; invalid && i < constraints.length; i++) {
           String constrString = constraints[i];
           InternalQName constrName = session.getLocationFactory().parseJCRName(constrString).getInternalName();

@@ -226,7 +226,7 @@ public class ValueFactoryImpl implements ValueFactory {
           + " is not referenceable");
     try {
       if (value instanceof NodeImpl) { 
-        String jcrUuid = ((NodeImpl) value).getInternalUUID(); 
+        String jcrUuid = ((NodeImpl) value).getInternalIdentifier(); 
         return new ReferenceValue(new TransientValueData(jcrUuid));
       } else {
         throw new RepositoryException("Its need a NodeImpl instance of Node");

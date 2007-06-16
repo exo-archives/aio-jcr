@@ -51,11 +51,11 @@ public interface QueryHandler {
     void addNode(NodeImpl node) throws RepositoryException, IOException;
 
     /**
-     * Deletes the Node with <code>UUID</code> from the search index.
-     * @param uuid the <code>UUID</code> of the node to delete.
+     * Deletes the Node with <code>Identifier</code> from the search index.
+     * @param identifier the <code>Identifier</code> of the node to delete.
      * @throws IOException if an error occurs while deleting the node.
      */
-    void deleteNode(String uuid) throws IOException;
+    void deleteNode(String identifier) throws IOException;
 
     /**
      * Updates the index in an atomic operation. Some nodes may be removed and

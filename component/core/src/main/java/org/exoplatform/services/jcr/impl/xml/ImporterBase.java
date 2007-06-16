@@ -124,7 +124,7 @@ abstract public class ImporterBase implements ContentHandler {
     
     int newIndex = 1;
     
-    NodeImpl parentNode =  ((NodeImpl) session.getTransientNodesManager().getItemByUUID(parent.getIdentifier(),true));
+    NodeImpl parentNode =  ((NodeImpl) session.getTransientNodesManager().getItemByIdentifier(parent.getIdentifier(),true));
         
     //parent must be in local itemStates list
   //  NodeData parentNodeData = null;

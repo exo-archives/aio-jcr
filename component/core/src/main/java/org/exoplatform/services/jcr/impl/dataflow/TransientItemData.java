@@ -52,7 +52,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
   
   protected int initHashCode() {
     final int prime = 31;
-    int hcode = prime * identifier.hashCode(); // [PN] 10.02.07 by uuid only
+    int hcode = prime * identifier.hashCode(); // [PN] 10.02.07 by identifier only
     //hcode = prime * hcode + QPath.hashCode();    
     //hcode = prime * hcode + (parentUUID != null ? parentUUID.hashCode() : 0);
     //hcode = prime * hcode + persistedVersion;

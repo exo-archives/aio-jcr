@@ -95,11 +95,11 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
   }
   
   
-  public ItemState getItemState(String itemUuid) {
+  public ItemState getItemState(String itemIdentifier) {
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i>=0; i--) {
       ItemState state = allStates.get(i); 
-      if (!state.isOrderable() && state.getData().getIdentifier().equals(itemUuid))
+      if (!state.isOrderable() && state.getData().getIdentifier().equals(itemIdentifier))
         return state;
     }
     return null;
@@ -129,11 +129,11 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
   }
 
   
-  public List <ItemState> getChildrenChanges(String rootUuid, boolean forNodes) {
+  public List <ItemState> getChildrenChanges(String rootIdentifier, boolean forNodes) {
     List <ItemState> list = new ArrayList <ItemState> ();
     for(ItemState state: getAllStates()) {
       ItemData item = state.getData();
-      if(item.getParentIdentifier().equals(rootUuid) && item.isNode() == forNodes) 
+      if(item.getParentIdentifier().equals(rootIdentifier) && item.isNode() == forNodes) 
         list.add(state);
     }
     return list;

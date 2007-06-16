@@ -31,10 +31,10 @@ public interface WorkspaceStorageCache extends ItemsPersistenceListener {
   ItemData get(QPath path);
   
   /**
-   * @param uuid
-   * @return ItemData by UUID or null if not found
+   * @param identifier
+   * @return ItemData by Identifier or null if not found
    */
-  ItemData get(String uuid);
+  ItemData get(String identifier);
   
   /**
    * @param parent

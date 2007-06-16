@@ -29,13 +29,13 @@ abstract class ConsistencyCheckError {
     protected final String message;
 
     /**
-     * The UUID of the affected node.
+     * The identifier of the affected node.
      */
-    protected final String uuid;
+    protected final String identifier;
 
-    ConsistencyCheckError(String message, String uuid) {
+    ConsistencyCheckError(String message, String identifier) {
         this.message = message;
-        this.uuid = uuid;
+        this.identifier = identifier;
     }
 
     /**

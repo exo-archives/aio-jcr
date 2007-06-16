@@ -39,7 +39,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.ISO9075;
 import org.exoplatform.services.jcr.impl.util.StringConverter;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
@@ -112,7 +112,7 @@ class DocNodeImporter extends ImporterBase {
           nodeTypes,
           props);
       if (identifier == null) {
-        identifier = UUIDGenerator.generate();
+        identifier = IdGenerator.generate();
       }
 
       InternalQName jcrName = locationFactory.parseJCRName(nodeName).getInternalName();

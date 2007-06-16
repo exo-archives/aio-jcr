@@ -34,8 +34,8 @@ import org.exoplatform.services.jcr.impl.core.PropertyImpl;
   } 
   
   void put(ItemImpl item) {
-    if(!items.containsKey(item.getInternalUUID()))
-      items.put(item.getInternalUUID(), item);
+    if(!items.containsKey(item.getInternalIdentifier()))
+      items.put(item.getInternalIdentifier(), item);
   }
 
   ItemImpl get(String identifier) {
@@ -51,22 +51,22 @@ import org.exoplatform.services.jcr.impl.core.PropertyImpl;
     return null;
   }
 
-  List <NodeImpl> getChildNodes(String parentUUID) {
+  List <NodeImpl> getChildNodes(String parentIdentifier) {
     List <NodeImpl> children = new ArrayList <NodeImpl> ();
     for(Iterator <ItemImpl> i = items.values().iterator(); i.hasNext();) {
       ItemImpl item = i.next();
-      if(item.getParentUUID().equals(parentUUID)
+      if(item.getParentIdentifier().equals(parentIdentifier)
           && item.isNode())
         children.add((NodeImpl)item);
     }
     return children;
   }
 
-  List <PropertyImpl> getChildProperties(String parentUUID) {
+  List <PropertyImpl> getChildProperties(String parentIdentifier) {
     List <PropertyImpl> children = new ArrayList <PropertyImpl> ();
     for(Iterator <ItemImpl> i = items.values().iterator(); i.hasNext();) {
       ItemImpl item = i.next();
-      if(item.getParentUUID().equals(parentUUID)
+      if(item.getParentIdentifier().equals(parentIdentifier)
           && item.isNode())
         children.add((PropertyImpl)item);
     }

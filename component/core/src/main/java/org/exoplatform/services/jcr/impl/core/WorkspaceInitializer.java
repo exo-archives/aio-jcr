@@ -39,7 +39,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -181,7 +181,7 @@ public class WorkspaceInitializer {
 
     TransientPropertyData primaryType = new TransientPropertyData(QPath.makeChildPath(nodeData
         .getQPath(), Constants.JCR_PRIMARYTYPE),
-        UUIDGenerator.generate(),
+        IdGenerator.generate(),
         -1,
         PropertyType.NAME,
         nodeData.getIdentifier(),

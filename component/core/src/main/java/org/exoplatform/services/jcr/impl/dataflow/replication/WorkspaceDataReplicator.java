@@ -26,7 +26,7 @@ import org.exoplatform.services.jcr.impl.core.lock.LockManagerImpl;
 import org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
 import org.jgroups.Channel;
@@ -101,7 +101,7 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
     this.persistentdataManager = dataManager;
     this.fileCleaner = new FileCleaner(30030);
 
-    this.systemId = UUIDGenerator.generate();
+    this.systemId = IdGenerator.generate();
     this.persistentdataManager.addItemPersistenceListener(this);
     
     String channelName;
@@ -256,7 +256,7 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
           container.getFixupStreams().add(packet.getFixupStream());
 
           File f = File.createTempFile("tempFile" + packet.getIdentifier()
-              + UUIDGenerator.generate(), ".tmp");
+              + IdGenerator.generate(), ".tmp");
 
           container.getListFile().add(f);
           container.getListRandomAccessFiles().add(

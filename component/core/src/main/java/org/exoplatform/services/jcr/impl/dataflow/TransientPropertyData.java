@@ -20,7 +20,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.MutablePropertyData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
  * Created by The eXo Platform SARL.
@@ -121,7 +121,7 @@ public class TransientPropertyData extends TransientItemData implements MutableP
       int type, boolean multiValued) {
     TransientPropertyData propData = null;
     QPath path = QPath.makeChildPath(parent.getQPath(), name);
-    propData = new TransientPropertyData(path, UUIDGenerator.generate(), -1, type,
+    propData = new TransientPropertyData(path, IdGenerator.generate(), -1, type,
         parent.getIdentifier(), multiValued);
 
     return propData;

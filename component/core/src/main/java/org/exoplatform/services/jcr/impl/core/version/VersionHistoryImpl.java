@@ -149,7 +149,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     if (versionData == null)
       throw new RepositoryException("There are no label '" + label + "' in the version history " + getPath());
 
-    VersionImpl version = (VersionImpl) dataManager.getItemByUUID(versionData.getIdentifier(), true);
+    VersionImpl version = (VersionImpl) dataManager.getItemByIdentifier(versionData.getIdentifier(), true);
     
     if (version == null)
       throw new VersionException("There are no version with label '" + label + "' in the version history " + getPath());
@@ -203,7 +203,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     try {
       for (PropertyData prop: labelsList) {
         String versionUuid = new String(prop.getValues().get(0).getAsByteArray());
-        if (versionUuid.equals(((VersionImpl) version).getInternalUUID())) {
+        if (versionUuid.equals(((VersionImpl) version).getInternalIdentifier())) {
           vlabels.add(locationFactory.createJCRName(prop.getQPath().getName()).getAsString());
         }
       }
@@ -236,7 +236,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
 
     // check references. 
     // Note: References from /jcr:system/jcr:versionStorage never included to getReferences!
-    List<PropertyData> refs = dataManager.getReferencesData(version.getInternalUUID());
+    List<PropertyData> refs = dataManager.getReferencesData(version.getInternalIdentifier());
     if(refs.size() > 0)
       throw new ReferentialIntegrityException(
           "There are Reference property pointed to this Version " + refs.get(0).getQPath().getAsString());
@@ -247,7 +247,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     try {
       for (PropertyData vlabel: getData().getVersionLabels()) {
         String versionUuid = new String(vlabel.getValues().get(0).getAsByteArray());
-        if (versionUuid.equals(version.getInternalUUID())) {
+        if (versionUuid.equals(version.getInternalIdentifier())) {
           changes.add(ItemState.createDeletedState(vlabel));
         }
       }
@@ -267,14 +267,14 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     
     try {
       for (ValueData pvalue: predecessorsData.getValues()) {
-        String puuid = new String(pvalue.getAsByteArray());
-        VersionImpl predecessor = (VersionImpl) dataManager.getItemByUUID(puuid, false);
+        String pidentifier = new String(pvalue.getAsByteArray());
+        VersionImpl predecessor = (VersionImpl) dataManager.getItemByIdentifier(pidentifier, false);
         if (predecessor != null) {
           for (ValueData svalue: successorsData.getValues()) {
-            predecessor.removeAddSuccessor(version.getInternalUUID(), new String(svalue.getAsByteArray()), changes);
+            predecessor.removeAddSuccessor(version.getInternalIdentifier(), new String(svalue.getAsByteArray()), changes);
           }
         } else {
-          throw new RepositoryException("A predecessor (" + puuid + ") of the version " + version.getPath() + " is not found.");
+          throw new RepositoryException("A predecessor (" + pidentifier + ") of the version " + version.getPath() + " is not found.");
         }
       }
     } catch(IOException e) {
@@ -283,14 +283,14 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     
     try {
       for (ValueData svalue: successorsData.getValues()) {
-        String suuid = new String(svalue.getAsByteArray());
-        VersionImpl successor = (VersionImpl) dataManager.getItemByUUID(suuid, false);
+        String sidentifier = new String(svalue.getAsByteArray());
+        VersionImpl successor = (VersionImpl) dataManager.getItemByIdentifier(sidentifier, false);
         if (successor != null) {
           for (ValueData pvalue: predecessorsData.getValues()) {
-            successor.removeAddPredecessor(version.getInternalUUID(), new String(pvalue.getAsByteArray()), changes);
+            successor.removeAddPredecessor(version.getInternalIdentifier(), new String(pvalue.getAsByteArray()), changes);
           }
         } else {
-          throw new RepositoryException("A successor (" + suuid + ") of the version " + version.getPath() + " is not found.");
+          throw new RepositoryException("A successor (" + sidentifier + ") of the version " + version.getPath() + " is not found.");
         }
       }
     } catch(IOException e) {
@@ -331,11 +331,11 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     return getData().getVersionDataByLabel(labelQName);
   }
 
-  protected NodeData getVersionDataByUUID(String versionUuid) throws VersionException, RepositoryException {
+  protected NodeData getVersionDataByIdentifier(String versionIdentifier) throws VersionException, RepositoryException {
     
-    NodeData version = (NodeData) dataManager.getItemData(versionUuid);
+    NodeData version = (NodeData) dataManager.getItemData(versionIdentifier);
     if(version == null)
-      throw new VersionException("Version is not found, uuid: " + versionUuid);
+      throw new VersionException("Version is not found, uuid: " + versionIdentifier);
     
     return version;
   }   
@@ -425,13 +425,13 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     // each of the versions identified in V’s jcr:predecessors property.
     List <ValueData> predecessors = ((PropertyData)dataManager.getItemData(versionableNodeData,new QPathEntry(Constants.JCR_PREDECESSORS,0))).getValues();
     for(ValueData predecessorValue : predecessors) {
-      String predecessorUuid;
+      String predecessorIdentifier;
       try {
-        predecessorUuid = new String(predecessorValue.getAsByteArray());
+        predecessorIdentifier = new String(predecessorValue.getAsByteArray());
       } catch (IOException e) {
         throw new RepositoryException(e);
       }
-      VersionImpl predecessor = (VersionImpl) dataManager.getItemByUUID(predecessorUuid, true);
+      VersionImpl predecessor = (VersionImpl) dataManager.getItemByIdentifier(predecessorIdentifier, true);
       predecessor.addSuccessor(versionData.getIdentifier(), changesLog);
     }
     

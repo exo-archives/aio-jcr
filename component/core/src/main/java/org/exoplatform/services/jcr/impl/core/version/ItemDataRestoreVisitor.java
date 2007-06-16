@@ -35,7 +35,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -129,10 +129,10 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
     return parents.push(new NodeDataContext(node)).getNode();
   }
 
-  private ItemData findDelegated(String uuid) {
+  private ItemData findDelegated(String identifier) {
     if (delegatedChanges != null)
       for (ItemState state: delegatedChanges.getAllStates()) {
-        if (state.getData().getIdentifier().equals(uuid))
+        if (state.getData().getIdentifier().equals(identifier))
           return state.getData();
       }
     return null;
@@ -171,37 +171,37 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
     if (log.isDebugEnabled())
       log.debug("Restore: " + nodePath.getAsString() + ", removeExisting=" + removeExisting);
 
-    PropertyData frozenUuid = (PropertyData) dataManager.getItemData(frozen,new QPathEntry(Constants.JCR_FROZENUUID,0));
+    PropertyData frozenIdentifier = (PropertyData) dataManager.getItemData(frozen,new QPathEntry(Constants.JCR_FROZENUUID,0));
     
-    String fuuid = null;
+    String fidentifier = null;
     NodeData existing = null;
     // make new node from frozen
     try {
-      fuuid = new String(frozenUuid.getValues().get(0).getAsByteArray());
-      NodeData sameUuidNodeRestored = (NodeData) findDelegated(fuuid);
-      if (sameUuidNodeRestored != null) {
+      fidentifier = new String(frozenIdentifier.getValues().get(0).getAsByteArray());
+      NodeData sameIdentifierNodeRestored = (NodeData) findDelegated(fidentifier);
+      if (sameIdentifierNodeRestored != null) {
         // already restored from delegated call, remove it as we interested in this version state
-        deleteDelegated(sameUuidNodeRestored.getQPath());
+        deleteDelegated(sameIdentifierNodeRestored.getQPath());
       } else {
-        NodeData sameUuidNode = (NodeData) dataManager.getItemData(fuuid);
-        if (sameUuidNode != null) {
-          QPath sameUuidPath = sameUuidNode.getQPath();
-          if (sameUuidPath.makeParentPath().equals(nodePath.makeParentPath()) && // same parent
-              sameUuidPath.getName().equals(nodePath.getName()) ) { // same name
+        NodeData sameIdentifierNode = (NodeData) dataManager.getItemData(fidentifier);
+        if (sameIdentifierNode != null) {
+          QPath sameIdentifierPath = sameIdentifierNode.getQPath();
+          if (sameIdentifierPath.makeParentPath().equals(nodePath.makeParentPath()) && // same parent
+              sameIdentifierPath.getName().equals(nodePath.getName()) ) { // same name
 
-            if (sameUuidPath.getIndex() != nodePath.getIndex())
+            if (sameIdentifierPath.getIndex() != nodePath.getIndex())
               // but different index, see below... fix it
-              nodePath = QPath.makeChildPath(parentData.getQPath(), name, sameUuidPath.getIndex());
+              nodePath = QPath.makeChildPath(parentData.getQPath(), name, sameIdentifierPath.getIndex());
 
             // if it's a target node
-            existing = sameUuidNode;
+            existing = sameIdentifierNode;
 
             // remove existed node, with validation
             ItemDataRemoveVisitor removeVisitor = new RemoveVisitor();
             removeVisitor.visit(existing);
 
             changes.addAll(removeVisitor.getRemovedStates());
-          } else if (!sameUuidPath.isDescendantOf(nodePath, false)) {
+          } else if (!sameIdentifierPath.isDescendantOf(nodePath, false)) {
             if (removeExisting) {
               final QPath restorePath = nodePath; 
               // remove same uuid node, with validation
@@ -217,21 +217,21 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
               };
 
               ItemDataRemoveVisitor removeVisitor = new RemoveVisitor();
-              removeVisitor.visit(sameUuidNode);
+              removeVisitor.visit(sameIdentifierNode);
 
               changes.addAll(removeVisitor.getRemovedStates());
             } else {
               throw new ItemExistsException("Item with the same UUID as restored node " + nodePath.getAsString()
-                + " already exists and removeExisting=false. Existed " + sameUuidPath.getAsString()
-                + " " + sameUuidNode.getIdentifier());
+                + " already exists and removeExisting=false. Existed " + sameIdentifierPath.getAsString()
+                + " " + sameIdentifierNode.getIdentifier());
             }
           }
         }
       }
     } catch (IllegalStateException e) {
-      throw new RepositoryException("jcr:frozenUuid, error of data read " + frozenUuid.getQPath().getAsString(), e);
+      throw new RepositoryException("jcr:frozenUuid, error of data read " + frozenIdentifier.getQPath().getAsString(), e);
     } catch (IOException e) {
-      throw new RepositoryException("jcr:frozenUuid, error of data read " + frozenUuid.getQPath().getAsString(), e);
+      throw new RepositoryException("jcr:frozenUuid, error of data read " + frozenIdentifier.getQPath().getAsString(), e);
     }
 
     
@@ -272,7 +272,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
 
     // create restored version of the node
     NodeData restoredData = new TransientNodeData(nodePath,
-        fuuid,
+        fidentifier,
         (existing != null ? existing.getPersistedVersion() : -1),
         ptName,
         mixins == null ? new InternalQName[0] : mixins,
@@ -315,12 +315,12 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
       VersionHistoryDataHelper childHistory = null;
       try {
 
-        String vhUuid = new String(
+        String vhIdentifier = new String(
             ((PropertyData) dataManager.getItemData(frozen,new QPathEntry(Constants.JCR_CHILDVERSIONHISTORY,0))).getValues().get(0).getAsByteArray());
 
         NodeData cHistory = null;
-        if ((cHistory = (NodeData) dataManager.getItemData(vhUuid)) == null)
-          throw new RepositoryException("Version history is not found with uuid " + vhUuid);
+        if ((cHistory = (NodeData) dataManager.getItemData(vhIdentifier)) == null)
+          throw new RepositoryException("Version history is not found with uuid " + vhIdentifier);
 
         childHistory = new VersionHistoryDataHelper(cHistory, dataManager, ntManager);
       } catch (IllegalStateException e) {
@@ -329,16 +329,16 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         throw new RepositoryException("jcr:childVersionHistory, error of data read " + cvhpPropPath.getAsString(), e);
       }
 
-      String versionableUuid = null;
+      String versionableIdentifier = null;
       try {
-        versionableUuid = new String(
+        versionableIdentifier = new String(
             ((PropertyData) dataManager.getItemData(childHistory,new QPathEntry(Constants.JCR_VERSIONABLEUUID,0))).getValues().get(0).getAsByteArray());
         
       } catch (IOException e) {
         throw new RepositoryException("jcr:childVersionHistory, error of data read " + cvhpPropPath.getAsString(), e);
       }
 
-      NodeData versionable = (NodeData) dataManager.getItemData(versionableUuid);
+      NodeData versionable = (NodeData) dataManager.getItemData(versionableIdentifier);
       if (versionable != null) {
         // exists,
         // On restore of VN, if the workspace currently has an already
@@ -346,7 +346,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         // removeExisting flag of the restore is set to true, then that
         // instance of C becomes the child of the restored N.
         if (!removeExisting) {
-          throw new ItemExistsException("Item with the same UUID " + versionableUuid
+          throw new ItemExistsException("Item with the same UUID " + versionableIdentifier
               + " as versionable child node " + versionable.getQPath().getAsString()
               + " already exists and removeExisting=false");
         }
@@ -403,7 +403,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
           if (existing != null) {
             jcrUuid = existing.getIdentifier();
           } else {
-            jcrUuid = UUIDGenerator.generate();
+            jcrUuid = IdGenerator.generate();
           }
         }
 

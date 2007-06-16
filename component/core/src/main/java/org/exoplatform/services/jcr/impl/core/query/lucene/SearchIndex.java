@@ -174,7 +174,7 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
     private boolean autoRepair = true;
 
     /**
-     * The uuid resolver cache size.
+     * The identifier resolver cache size.
      * <p/>
      * Default value is: <code>1000</code>.
      */
@@ -191,9 +191,9 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
     private final LocationFactory sysLocationFactory;
     
     /**
-     * The UUID of the root node.
+     * The Identifier of the root node.
      */
-    private final String rootUUID;
+    private final String rootIdentifier;
 
 
 
@@ -222,7 +222,7 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
         this.documentReaderService = ds;
         this.dataManager = dataManager;
         this.sysLocationFactory = sysLocationFactory;
-        this.rootUUID = Constants.ROOT_UUID;
+        this.rootIdentifier = Constants.ROOT_UUID;
     }
 
     /**
@@ -238,7 +238,7 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
             throw new IOException("SearchIndex requires 'path' parameter in configuration!");
         }
         index = new MultiIndex(new File(path), this,
-                dataManager, rootUUID);
+                dataManager, rootIdentifier);
         if (index.getRedoLogApplied() || forceConsistencyCheck) {
             log.info("Running consistency check...");
             try {
@@ -276,12 +276,12 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
     }
 
     /**
-     * Removes the node with <code>uuid</code> from the search index.
-     * @param uuid the UUID of the node to remove from the index.
+     * Removes the node with <code>identifier</code> from the search index.
+     * @param identifier the Identifier of the node to remove from the index.
      * @throws IOException if an error occurs while removing the node from
      * the index.
      */
-    public void deleteNode(String uuid) throws IOException {
+    public void deleteNode(String identifier) throws IOException {
         throw new UnsupportedOperationException("deleteNode");
     }
 
@@ -302,8 +302,8 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
         checkOpen();
         index.update(new AbstractIteratorDecorator(remove) {
             public Object next() {
-                String uuid = (String) super.next();
-                return new Term(FieldNames.UUID, uuid);
+                String identifier = (String) super.next();
+                return new Term(FieldNames.UUID, identifier);
             }
         }, new AbstractIteratorDecorator(add) {
             public Object next() {
@@ -439,14 +439,14 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
             removedNodes.add(itemState.getData().getIdentifier());
           }
         } else {
-          String parentUUID = itemState.getData().getParentIdentifier();
+          String parentIdentifier = itemState.getData().getParentIdentifier();
 
-          if (!hasUUID(itemStates, parentUUID)) {
-            removedNodes.add(parentUUID);
+          if (!hasIdentifier(itemStates, parentIdentifier)) {
+            removedNodes.add(parentIdentifier);
             try {
-              addedNodes.add(dataManager.getItemData(parentUUID));
+              addedNodes.add(dataManager.getItemData(parentIdentifier));
             } catch (RepositoryException e) {
-              log.error("Error indexing node (addNode: " + parentUUID + ").", e);
+              log.error("Error indexing node (addNode: " + parentIdentifier + ").", e);
             }
           }
         }
@@ -464,9 +464,9 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
     }
 
     
-    private boolean hasUUID(List itemStates, String uuid) {
+    private boolean hasIdentifier(List itemStates, String identifier) {
       for(int i=0; i<itemStates.size(); i++) {
-        if(((ItemState)itemStates.get(i)).getData().getIdentifier().equals(uuid))
+        if(((ItemState)itemStates.get(i)).getData().getIdentifier().equals(identifier))
           return true;
       }
       return false;

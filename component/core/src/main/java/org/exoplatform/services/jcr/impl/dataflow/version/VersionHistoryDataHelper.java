@@ -28,7 +28,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.DateFormatHelper;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
  * Created by The eXo Platform SARL
@@ -180,8 +180,8 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   }
   
   private TransientNodeData init(NodeData versionable, PlainChangesLogImpl changes) throws RepositoryException {
-    String versionHistoryIdentifier = UUIDGenerator.generate();
-    String baseVersionIdentifier = UUIDGenerator.generate();
+    String versionHistoryIdentifier = IdGenerator.generate();
+    String baseVersionIdentifier = IdGenerator.generate();
 
     // ----- VERSION STORAGE nodes -----
     // ----- version history -----

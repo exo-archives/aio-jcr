@@ -43,29 +43,29 @@ public interface ItemDataConsumer {
   ItemData getItemData(NodeData parent, QPathEntry name) throws RepositoryException;
 
   /**
-   * @param uuid
-   * @return data by uuid
+   * @param identifier
+   * @return data by identifier
    */
-  ItemData getItemData(String uuid) throws RepositoryException;
+  ItemData getItemData(String identifier) throws RepositoryException;
 
   /**
-   * @param parentUUID
+   * @param parentIdentifier
    * @return children data 
    */
   List <NodeData> getChildNodesData(NodeData parent) throws RepositoryException;
 
   /**
-   * @param parentUUID
+   * @param parentIdentifier
    * @return children data 
    */
   List <PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException;
   
   /**
-   * @param uuid
+   * @param identifier
    * @return
    * @throws RepositoryException
    */
-  List <PropertyData> getReferencesData(String uuid) throws RepositoryException;
+  List <PropertyData> getReferencesData(String identifier) throws RepositoryException;
   
   /**
    * @param path

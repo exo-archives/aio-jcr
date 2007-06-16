@@ -156,12 +156,12 @@ public class NodeIndexer {
     doc.add(new Field(FieldNames.UUID, node.getIdentifier(), true, true, false));
     //System.out.println("UUID "+node.getUUID()+" ");
 
-    String parentUUID = node.getParentIdentifier();
+    String parentIdentifier = node.getParentIdentifier();
     //System.out.println("PARENT "+parentUUID);
 
-    if(parentUUID != null) {
+    if(parentIdentifier != null) {
       //parent = node.getParent();
-      doc.add(new Field(FieldNames.PARENT, parentUUID, true,
+      doc.add(new Field(FieldNames.PARENT, parentIdentifier, true,
           true, false));
       //System.out.println("PARENT "+parentUUID);
       String label = sysLocationFactory.createJCRName(node.getQPath().getName()).getAsString();

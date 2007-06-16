@@ -177,7 +177,7 @@ class QueryImpl implements ExecutableQuery {
               ascSpecs[i] = orderSpecs[i].isAscending();
            }
 
-           List uuids;
+           List identifiers;
            List scores;
 
           // AccessManager accessMgr = session.getAccessManager();
@@ -185,14 +185,14 @@ class QueryImpl implements ExecutableQuery {
           QueryHits result = null;
         try {
             result = index.executeQuery(query, orderProperties, ascSpecs);
-            uuids = new ArrayList(result.length());
+            identifiers = new ArrayList(result.length());
             scores = new ArrayList(result.length());
 
             for (int i = 0; i < result.length(); i++) {
-                String uuid = result.doc(i).get(FieldNames.UUID);
+                String identifier = result.doc(i).get(FieldNames.UUID);
                 // check access
                 // if (accessMgr.isGranted(new NodeId(uuid), AccessManager.READ)) {
-                    uuids.add(uuid);
+                    identifiers.add(identifier);
                     scores.add(new Float(result.score(i)));
                // }
             }
@@ -200,7 +200,7 @@ class QueryImpl implements ExecutableQuery {
         catch (IOException e)
         {
             log.error("Exception while executing query: ", e);
-            uuids = Collections.EMPTY_LIST;
+            identifiers = Collections.EMPTY_LIST;
             scores = Collections.EMPTY_LIST;
         }
         finally {
@@ -257,7 +257,7 @@ class QueryImpl implements ExecutableQuery {
         return new QueryResultImpl(
             //itemMgr,
             session,
-            (String[]) uuids.toArray(new String[uuids.size()]),
+            (String[]) identifiers.toArray(new String[identifiers.size()]),
             (Float[]) scores.toArray(new Float[scores.size()]),
             (InternalQName[]) selectProps.toArray(new InternalQName[selectProps.size()]),
             //    session.getNamespaceResolver(),

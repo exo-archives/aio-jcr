@@ -46,7 +46,7 @@ import org.exoplatform.services.jcr.impl.storage.SystemDataContainerHolder;
 import org.exoplatform.services.jcr.impl.storage.value.StandaloneStoragePluginProvider;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.picocontainer.PicoRegistrationException;
 
 /**
@@ -132,7 +132,7 @@ public class RepositoryContainer extends ExoContainer {
   private void registerRepositoryComponents() throws RepositoryConfigurationException,
       RepositoryException {
 
-    registerComponentImplementation(UUIDGenerator.class);
+    registerComponentImplementation(IdGenerator.class);
 
     registerComponentImplementation(NamespaceDataPersister.class);
     registerComponentImplementation(NamespaceRegistryImpl.class);
@@ -341,7 +341,7 @@ public class RepositoryContainer extends ExoContainer {
     WorkspaceContainer workspaceContainer = getWorkspaceContainer(wsConfig.getName());
 
     // touch independent components
-    workspaceContainer.getComponentInstanceOfType(UUIDGenerator.class);
+    workspaceContainer.getComponentInstanceOfType(IdGenerator.class);
     workspaceContainer.getComponentInstanceOfType(WorkspaceDataReplicator.class);
 
     WorkspaceInitializer wsInitializer = (WorkspaceInitializer) workspaceContainer

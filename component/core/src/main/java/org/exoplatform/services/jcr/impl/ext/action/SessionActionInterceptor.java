@@ -280,7 +280,7 @@ public class SessionActionInterceptor {
     if (catalog == null)
       return;
 
-    NodeData nData = (NodeData) item.getSession().getTransientNodesManager().getItemData(item.getParentUUID());
+    NodeData nData = (NodeData) item.getSession().getTransientNodesManager().getItemData(item.getParentIdentifier());
 
     Condition conditions = new Condition();
     conditions.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.READ);

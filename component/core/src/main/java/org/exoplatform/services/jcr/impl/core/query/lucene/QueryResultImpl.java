@@ -42,9 +42,9 @@ class QueryResultImpl implements QueryResult {
     //private final SessionDataManager itemMgr;
 
     /**
-     * The UUIDs of the result nodes
+     * The identifiers of the result nodes
      */
-    private final String[] uuids;
+    private final String[] identifiers;
 
     /**
      * The scores of the result nodes
@@ -72,7 +72,7 @@ class QueryResultImpl implements QueryResult {
      * Creates a new query result.
      *
      * @param itemMgr     the item manager of the session executing the query.
-     * @param uuids       the UUIDs of the result nodes.
+     * @param identifiers the identifiers of the result nodes.
      * @param scores      the score values of the result nodes.
      * @param selectProps the select properties of the query.
      * @param resolver    the namespace resolver of the session executing the query.
@@ -81,11 +81,11 @@ class QueryResultImpl implements QueryResult {
      */
     public QueryResultImpl(
         SessionImpl session,
-        String[] uuids,
+        String[] identifiers,
         Float[] scores,
         InternalQName[] selectProps,
         boolean docOrder) {
-        this.uuids = uuids;
+        this.identifiers = identifiers;
         this.scores = scores;
         this.selectProps = selectProps;
         this.docOrder = docOrder;
@@ -130,11 +130,11 @@ class QueryResultImpl implements QueryResult {
      * @return a node iterator over the result nodes.
      */
     private ScoreNodeIterator getNodeIterator() {
-      log.debug("getNodeIterator() "+docOrder+" "+uuids.length+" "+scores.length);
+      log.debug("getNodeIterator() "+docOrder+" "+identifiers.length+" "+scores.length);
         if (docOrder) {
-            return new DocOrderNodeIteratorImpl(session.getTransientNodesManager(), uuids, scores);
+            return new DocOrderNodeIteratorImpl(session.getTransientNodesManager(), identifiers, scores);
         } else {
-            return new NodeIteratorImpl(session.getTransientNodesManager(), uuids, scores);
+            return new NodeIteratorImpl(session.getTransientNodesManager(), identifiers, scores);
         }
     }
 }

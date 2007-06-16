@@ -37,11 +37,11 @@ public class WorkspaceDataCache extends SimpleExoCache {
 
       if (itemData != null) {
         // look for parent in the cache and remove it if found
-        String parentUUID = itemData.getParentIdentifier();
+        String parentIdentifier = itemData.getParentIdentifier();
         try {
-          NodeData parent = (NodeData) get(parentUUID);
+          NodeData parent = (NodeData) get(parentIdentifier);
           if (parent != null) {
-            remove(parentUUID);
+            remove(parentIdentifier);
             remove(parent.getQPath().getAsString());
           }
         } catch (Exception ex) {

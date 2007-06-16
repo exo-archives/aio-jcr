@@ -192,14 +192,14 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
         //    the already existing node is removed).        
         SessionDataManager mergeDataManager = mergeSession.getTransientNodesManager();
         for (NodeData corrNode: context.getCorrChildNodes()) {
-          TransientNodeData existedSameUUID = (TransientNodeData) mergeDataManager.getItemData(corrNode.getIdentifier());
-          if (existedSameUUID != null) {
+          TransientNodeData existedSameIdentifier = (TransientNodeData) mergeDataManager.getItemData(corrNode.getIdentifier());
+          if (existedSameIdentifier != null) {
             //  if an incoming node has the same
             //  UUID as a node already existing in this workspace,
             //  the already existing node is removed
             
             RemoveVisitor remover = new RemoveVisitor();
-            existedSameUUID.accept(remover);
+            existedSameIdentifier.accept(remover);
             
             changes.addAll(remover.getRemovedStates());
           }
@@ -293,14 +293,14 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
     
     if (!mergeNode.getIdentifier().equals(corrNode.getIdentifier())) {
       
-      TransientNodeData existedSameUUID = (TransientNodeData) mergeDataManager.getItemData(corrNode.getIdentifier());
-      if (existedSameUUID != null) {
+      TransientNodeData existedSameIdentifier = (TransientNodeData) mergeDataManager.getItemData(corrNode.getIdentifier());
+      if (existedSameIdentifier != null) {
         //  if an incoming node has the same
         //  UUID as a node already existing in this workspace,
         //  the already existing node is removed
         
         RemoveVisitor remover = new RemoveVisitor();
-        existedSameUUID.accept(remover);
+        existedSameIdentifier.accept(remover);
         
         changes.addAll(remover.getRemovedStates());
       }
@@ -443,19 +443,19 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
     if (predecessorsProperty != null)
       for (ValueData pv: predecessorsProperty.getValues()) {
         try {
-          String puuid = new String(pv.getAsByteArray());
+          String pidentifier = new String(pv.getAsByteArray());
           
-          if (puuid.equals(corrVersion.getIdentifier())) 
+          if (pidentifier.equals(corrVersion.getIdentifier())) 
             return true; // got it
           
           // search in predecessors of the predecessor
-          TransientNodeData predecessor = (TransientNodeData) mergeDataManager.getItemData(puuid);
+          TransientNodeData predecessor = (TransientNodeData) mergeDataManager.getItemData(pidentifier);
           if (predecessor != null) {
             if (isPredecessor(predecessor, corrVersion)) {
               return true;
             }
           } else {
-            throw new RepositoryException("Merge. Predecessor is not found by uuid " + puuid + ". Version " 
+            throw new RepositoryException("Merge. Predecessor is not found by uuid " + pidentifier + ". Version " 
                 + mergeSession.getLocationFactory().createJCRPath(mergeVersion.getQPath()).getAsString(false));
           }
         } catch(IOException e) {
@@ -479,19 +479,19 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
     if (successorsProperty != null)
       for (ValueData sv: successorsProperty.getValues()) {
         try {
-          String suuid = new String(sv.getAsByteArray());
+          String sidentifier = new String(sv.getAsByteArray());
           
-          if (suuid.equals(corrVersion.getIdentifier())) 
+          if (sidentifier.equals(corrVersion.getIdentifier())) 
             return true; // got it
           
           // search in successors of the successor
-          TransientNodeData successor = (TransientNodeData) mergeDataManager.getItemData(suuid);
+          TransientNodeData successor = (TransientNodeData) mergeDataManager.getItemData(sidentifier);
           if (successor != null) {
             if (isSuccessor(successor, corrVersion)) {
               return true;
             }
           } else {
-            throw new RepositoryException("Merge. Ssuccessor is not found by uuid " + suuid + ". Version " 
+            throw new RepositoryException("Merge. Ssuccessor is not found by uuid " + sidentifier + ". Version " 
                 + mergeSession.getLocationFactory().createJCRPath(mergeVersion.getQPath()).getAsString(false));
           }
         } catch(IOException e) {

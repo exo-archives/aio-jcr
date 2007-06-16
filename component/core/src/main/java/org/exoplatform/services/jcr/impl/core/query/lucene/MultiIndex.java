@@ -41,7 +41,7 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -196,7 +196,7 @@ class MultiIndex {
   /**
    *
    */
-   private String rootUUID;
+   private String rootIdentifier;
 
   /**
    * Creates a new MultiIndex.
@@ -204,15 +204,15 @@ class MultiIndex {
    * @param indexDir the base file system
    * @param handler the search handler
    * @param dataManager workspace data manager
-   * @param rootUUID uuid of the root node
+   * @param rootIdentifier identifier of the root node
    * @throws IOException if an error occurs
    */
   MultiIndex(File indexDir, SearchIndex handler,
-      WorkspacePersistentDataManager dataManager, String rootUUID) throws IOException
+      WorkspacePersistentDataManager dataManager, String rootIdentifier) throws IOException
   {
    this.indexDir = indexDir;
    this.handler = handler;
-   this.rootUUID = rootUUID;
+   this.rootIdentifier = rootIdentifier;
    this.cache = new DocNumberCache(handler.getCacheSize());
    this.redoLog = new RedoLog(new File(indexDir, REDO_LOG));
    this.dataManager = dataManager;
@@ -274,7 +274,7 @@ class MultiIndex {
     {
      // traverse and index workspace
      executeAndLog(new Start(Action.INTERNAL_TRANSACTION));
-     NodeData rootState = (NodeData) dataManager.getItemData(rootUUID);
+     NodeData rootState = (NodeData) dataManager.getItemData(rootIdentifier);
      createIndex(rootState);
      executeAndLog(new Commit(getTransactionId()));
     }
@@ -316,8 +316,8 @@ class MultiIndex {
 
           boolean flush = false;
           while (remove.hasNext()) {
-              String uuid = ((Term) remove.next()).text();
-              executeAndLog(new DeleteNode(transactionId, uuid));
+              String identifier = ((Term) remove.next()).text();
+              executeAndLog(new DeleteNode(transactionId, identifier));
           }
           while (add.hasNext()) {
               Document doc = (Document) add.next();
@@ -749,14 +749,14 @@ class MultiIndex {
      *                             workspace or if there is no node with
      *                             <code>id</code>.
      */
-    private Document createDocument(String uuid) throws RepositoryException {
+    private Document createDocument(String identifier) throws RepositoryException {
         try {
-            NodeData node = (NodeData) dataManager.getItemData(uuid);
+            NodeData node = (NodeData) dataManager.getItemData(identifier);
             return createDocument(node);
         } catch (ItemNotFoundException e) {
-            throw new RepositoryException("Node " + uuid + " does not exist", e);
+            throw new RepositoryException("Node " + identifier + " does not exist", e);
         } catch (InvalidItemStateException e) {
-            throw new RepositoryException("Error retrieving node: " + uuid, e);
+            throw new RepositoryException("Error retrieving node: " + identifier, e);
         }
     }
 
@@ -1347,13 +1347,13 @@ class MultiIndex {
          */
         private static final int ENTRY_LENGTH = Long.toString(Long.MAX_VALUE).length()
                 + Action.ADD_NODE.length()
-                + UUIDGenerator.UUID_LENGTH
+                + IdGenerator.IDENTIFIER_LENGTH
                 + 2;
 
         /**
-         * The uuid of the node to add.
+         * The identifier of the node to add.
          */
-        final String uuid;
+        final String identifier;
 
         /**
          * The document to add to the index, or <code>null</code> if not available.
@@ -1364,11 +1364,11 @@ class MultiIndex {
          * Creates a new AddNode action.
          *
          * @param transactionId the id of the transaction that executes this action.
-         * @param uuid the uuid of the node to add.
+         * @param identifier the identifier of the node to add.
          */
-        AddNode(long transactionId, String uuid) {
+        AddNode(long transactionId, String identifier) {
             super(transactionId, Action.TYPE_ADD_NODE);
-            this.uuid = uuid;
+            this.identifier = identifier;
         }
 
         /**
@@ -1387,16 +1387,16 @@ class MultiIndex {
          *
          * @param transactionId the id of the transaction that executes this
          *                      action.
-         * @param arguments     the arguments to this action. The uuid of the node
+         * @param arguments     the arguments to this action. The identifier of the node
          *                      to add
          * @return the AddNode action.
          * @throws IllegalArgumentException if the arguments are malformed. Not a
-         *                                  UUID.
+         *                                  Identifier.
          */
         static AddNode fromString(long transactionId, String arguments)
                 throws IllegalArgumentException {
             // simple length check
-            if (arguments.length() != UUIDGenerator.UUID_LENGTH) {
+            if (arguments.length() != IdGenerator.IDENTIFIER_LENGTH) {
                 throw new IllegalArgumentException("arguments is not a uuid");
             }
             return new AddNode(transactionId, arguments);
@@ -1410,7 +1410,7 @@ class MultiIndex {
         public void execute(MultiIndex index) throws IOException {
             if (doc == null) {
                 try {
-                    doc = index.createDocument(uuid);
+                    doc = index.createDocument(identifier);
                     //doc = index.createDocument(NodeId.valueOf(uuid));
                 } catch (RepositoryException e) {
                     // node does not exist anymore
@@ -1431,7 +1431,7 @@ class MultiIndex {
             logLine.append(' ');
             logLine.append(Action.ADD_NODE);
             logLine.append(' ');
-            logLine.append(uuid);
+            logLine.append(identifier);
             return logLine.toString();
         }
     }
@@ -1645,23 +1645,23 @@ class MultiIndex {
          */
         private static final int ENTRY_LENGTH = Long.toString(Long.MAX_VALUE).length()
                 + Action.DELETE_NODE.length()
-                + UUIDGenerator.UUID_LENGTH
+                + IdGenerator.IDENTIFIER_LENGTH
                 + 2;
 
         /**
-         * The uuid of the node to remove.
+         * The identifier of the node to remove.
          */
-        private final String uuid;
+        private final String identifier;
 
         /**
          * Creates a new DeleteNode action.
          *
          * @param transactionId the id of the transaction that executes this action.
-         * @param uuid the uuid of the node to delete.
+         * @param identifier the identifier of the node to delete.
          */
-        DeleteNode(long transactionId, String uuid) {
+        DeleteNode(long transactionId, String identifier) {
             super(transactionId, Action.TYPE_DELETE_NODE);
-            this.uuid = uuid;
+            this.identifier = identifier;
         }
 
         /**
@@ -1669,14 +1669,14 @@ class MultiIndex {
          *
          * @param transactionId the id of the transaction that executes this
          *                      action.
-         * @param arguments     the uuid of the node to delete.
+         * @param arguments     the identifier of the node to delete.
          * @return the DeleteNode action.
          * @throws IllegalArgumentException if the arguments are malformed. Not a
-         *                                  UUID.
+         *                                  Identifier.
          */
         static DeleteNode fromString(long transactionId, String arguments) {
             // simple length check
-            if (arguments.length() != UUIDGenerator.UUID_LENGTH) {
+            if (arguments.length() != IdGenerator.IDENTIFIER_LENGTH) {
                 throw new IllegalArgumentException("arguments is not a uuid");
             }
             return new DeleteNode(transactionId, arguments);
@@ -1688,7 +1688,7 @@ class MultiIndex {
          * @inheritDoc
          */
         public void execute(MultiIndex index) throws IOException {
-            Term idTerm = new Term(FieldNames.UUID, uuid);
+            Term idTerm = new Term(FieldNames.UUID, identifier);
             // if the document cannot be deleted from the volatile index
             // delete it from one of the persistent indexes.
             int num = index.volatileIndex.removeDocument(idTerm);
@@ -1715,7 +1715,7 @@ class MultiIndex {
             logLine.append(' ');
             logLine.append(Action.DELETE_NODE);
             logLine.append(' ');
-            logLine.append(uuid);
+            logLine.append(identifier);
             return logLine.toString();
         }
     }

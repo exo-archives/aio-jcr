@@ -91,12 +91,12 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     
     try {
       for (int i=0; i<successorsValues.size(); i++) {
-        String vuuid = new String(successorsValues.get(i).getAsByteArray());
-        VersionImpl version = (VersionImpl) dataManager.getItemByUUID(vuuid, false);
+        String videntifier = new String(successorsValues.get(i).getAsByteArray());
+        VersionImpl version = (VersionImpl) dataManager.getItemByIdentifier(videntifier, false);
         if (version != null)
           successors[i] = version;
         else
-          throw new RepositoryException("Successor version is not found " + vuuid + ", this version " + getPath());
+          throw new RepositoryException("Successor version is not found " + videntifier + ", this version " + getPath());
       }
     } catch (IOException e) {
       throw new RepositoryException("Successor value read error " + e, e);
@@ -125,12 +125,12 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     
     try {
       for (int i=0; i<predecessorsValues.size(); i++) {
-        String vuuid = new String(predecessorsValues.get(i).getAsByteArray());
-        VersionImpl version = (VersionImpl) dataManager.getItemByUUID(vuuid, false);
+        String videntifier = new String(predecessorsValues.get(i).getAsByteArray());
+        VersionImpl version = (VersionImpl) dataManager.getItemByIdentifier(videntifier, false);
         if (version != null)
           predecessors[i] = version;
         else
-          throw new RepositoryException("Predecessor version is not found " + vuuid + ", this version " + getPath());
+          throw new RepositoryException("Predecessor version is not found " + videntifier + ", this version " + getPath());
       }
     } catch (IOException e) {
       throw new RepositoryException("Predecessor value read error " + e, e);
@@ -140,8 +140,8 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     
   }
 
-  public void addSuccessor(String successorUuid, PlainChangesLog changesLog) throws RepositoryException {
-    ValueData successorRef = new TransientValueData(new Identifier(successorUuid));
+  public void addSuccessor(String successorIdentifier, PlainChangesLog changesLog) throws RepositoryException {
+    ValueData successorRef = new TransientValueData(new Identifier(successorIdentifier));
     
     TransientPropertyData successorsProp = (TransientPropertyData) dataManager
     .getItemData(nodeData(), new QPathEntry(Constants.JCR_SUCCESSORS, 0));
@@ -160,9 +160,9 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     }
   }
 
-  public void addPredecessor(String predeccessorUuid, PlainChangesLog changesLog) throws RepositoryException {
+  public void addPredecessor(String predeccessorIdentifier, PlainChangesLog changesLog) throws RepositoryException {
     
-    ValueData predeccessorRef = new TransientValueData(new Identifier(predeccessorUuid));
+    ValueData predeccessorRef = new TransientValueData(new Identifier(predeccessorIdentifier));
     
     TransientPropertyData predeccessorsProp = (TransientPropertyData) dataManager
         .getItemData(nodeData(), new QPathEntry(Constants.JCR_PREDECESSORS, 0));
@@ -182,7 +182,7 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     }
   }
   
-  void removeSuccessor(String successorUuid, PlainChangesLog changesLog) throws RepositoryException {
+  void removeSuccessor(String successorIdentifier, PlainChangesLog changesLog) throws RepositoryException {
     TransientPropertyData successorsProp = (TransientPropertyData) dataManager
         .getItemData(nodeData(), new QPathEntry(Constants.JCR_SUCCESSORS, 0));
     if (successorsProp != null) {
@@ -190,7 +190,7 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
       
       try {
         for (ValueData sdata: successorsProp.getValues()) {
-          if (!successorUuid.equals(new String(sdata.getAsByteArray())))
+          if (!successorIdentifier.equals(new String(sdata.getAsByteArray())))
             newSuccessors.add(sdata);
         }
       } catch (IOException e) {
@@ -211,7 +211,7 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     }
   }
   
-  void removeAddSuccessor(String removedSuccessorUuid, String addedSuccessorUuid, PlainChangesLog changesLog) throws RepositoryException {
+  void removeAddSuccessor(String removedSuccessorIdentifier, String addedSuccessorIdentifier, PlainChangesLog changesLog) throws RepositoryException {
     
     TransientPropertyData successorsProp = (TransientPropertyData) dataManager
     .getItemData(nodeData(), new QPathEntry(Constants.JCR_SUCCESSORS, 0));
@@ -221,14 +221,14 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
       
       try {
         for (ValueData sdata: successorsProp.getValues()) {
-          if (!removedSuccessorUuid.equals(new String(sdata.getAsByteArray())))
+          if (!removedSuccessorIdentifier.equals(new String(sdata.getAsByteArray())))
             newSuccessors.add(sdata);
         }
       } catch (IOException e) {
         throw new RepositoryException("A jcr:successors property read error " + e, e);
       }
 
-      newSuccessors.add(new TransientValueData(new Identifier(addedSuccessorUuid)));
+      newSuccessors.add(new TransientValueData(new Identifier(addedSuccessorIdentifier)));
       
       TransientPropertyData newSuccessorsProp = new TransientPropertyData(
           QPath.makeChildPath(nodeData().getQPath(), Constants.JCR_SUCCESSORS, successorsProp.getQPath().getIndex()),
@@ -244,7 +244,7 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     }
   }
   
-  void removePredecessor(String predecessorUuid, PlainChangesLog changesLog) throws RepositoryException {
+  void removePredecessor(String predecessorIdentifier, PlainChangesLog changesLog) throws RepositoryException {
     TransientPropertyData predeccessorsProp = (TransientPropertyData) dataManager
     .getItemData(nodeData(), new QPathEntry(Constants.JCR_PREDECESSORS, 0));
     
@@ -253,7 +253,7 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
       
       try {
         for (ValueData sdata: predeccessorsProp.getValues()) {
-          if (!predecessorUuid.equals(new String(sdata.getAsByteArray())))
+          if (!predecessorIdentifier.equals(new String(sdata.getAsByteArray())))
             newPredeccessors.add(sdata);
         }
       } catch (IOException e) {
@@ -274,7 +274,7 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     }
   }
   
-  void removeAddPredecessor(String removedPredecessorUuid, String addedPredecessorUuid, PlainChangesLog changesLog) throws RepositoryException {
+  void removeAddPredecessor(String removedPredecessorIdentifier, String addedPredecessorIdentifier, PlainChangesLog changesLog) throws RepositoryException {
 
     TransientPropertyData predeccessorsProp = (TransientPropertyData) dataManager
     .getItemData(nodeData(), new QPathEntry(Constants.JCR_PREDECESSORS, 0));
@@ -284,14 +284,14 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
       
       try {
         for (ValueData sdata: predeccessorsProp.getValues()) {
-          if (!removedPredecessorUuid.equals(new String(sdata.getAsByteArray())))
+          if (!removedPredecessorIdentifier.equals(new String(sdata.getAsByteArray())))
             newPredeccessors.add(sdata);
         }
       } catch (IOException e) {
         throw new RepositoryException("A jcr:predecessors property read error " + e, e);
       }
       
-      newPredeccessors.add(new TransientValueData(new Identifier(addedPredecessorUuid)));
+      newPredeccessors.add(new TransientValueData(new Identifier(addedPredecessorIdentifier)));
       
       TransientPropertyData newPredecessorsProp = new TransientPropertyData(
           QPath.makeChildPath(nodeData().getQPath(), Constants.JCR_PREDECESSORS, predeccessorsProp.getQPath().getIndex()),
@@ -311,7 +311,7 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     
     checkValid();
     
-    VersionHistoryImpl vhistory = (VersionHistoryImpl) dataManager.getItemByUUID(nodeData().getParentIdentifier(), true);
+    VersionHistoryImpl vhistory = (VersionHistoryImpl) dataManager.getItemByIdentifier(nodeData().getParentIdentifier(), true);
      
     
     if (vhistory == null)

@@ -194,9 +194,9 @@ class DerefQuery extends Query {
         private final BitSet hits;
 
         /**
-         * List of UUIDs of selected nodes
+         * List of identifiers of selected nodes
          */
-        private List uuids = null;
+        private List identifiers = null;
 
         /**
          * The next document id to return
@@ -257,8 +257,8 @@ class DerefQuery extends Query {
         }
 
         private void calculateChildren() throws IOException {
-            if (uuids == null) {
-                uuids = new ArrayList();
+            if (identifiers == null) {
+                identifiers = new ArrayList();
                 contextScorer.score(new HitCollector() {
                     public void collect(int doc, float score) {
                         hits.set(doc);
@@ -275,7 +275,7 @@ class DerefQuery extends Query {
                     });
                 }
 
-                // retrieve uuids of target nodes
+                // retrieve identifiers of target nodes
                 for (int i = hits.nextSetBit(0); i >= 0; i = hits.nextSetBit(i + 1)) {
                   Document doc = reader.document(i);
                     String[] values = doc.getValues(FieldNames.PROPERTIES);
@@ -283,7 +283,7 @@ class DerefQuery extends Query {
 
                     for (int v = 0; v < values.length; v++) {
                         if (values[v].startsWith(prefix)) {
-                            uuids.add(values[v].substring(prefix.length()));
+                            identifiers.add(values[v].substring(prefix.length()));
                         }
                     }
                 }
@@ -291,7 +291,7 @@ class DerefQuery extends Query {
                 // collect the doc ids of all target nodes. we reuse the existing
                 // bitset.
                 hits.clear();
-                for (Iterator it = uuids.iterator(); it.hasNext();) {
+                for (Iterator it = identifiers.iterator(); it.hasNext();) {
                     TermDocs node = reader.termDocs(new Term(FieldNames.UUID, (String) it.next()));
                     try {
                         while (node.next()) {

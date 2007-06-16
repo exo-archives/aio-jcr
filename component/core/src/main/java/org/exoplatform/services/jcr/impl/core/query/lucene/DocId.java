@@ -105,13 +105,13 @@ abstract class DocId {
     }
 
     /**
-     * Creates a <code>DocId</code> based on a node UUID.
+     * Creates a <code>DocId</code> based on a node Identifier.
      *
-     * @param uuid the node uuid.
-     * @return a <code>DocId</code> based on a node UUID.
+     * @param identifier the node identifier.
+     * @return a <code>DocId</code> based on a node Identifier.
      */
-    static DocId create(String uuid) {
-        return new UUIDDocId(uuid);
+    static DocId create(String identifier) {
+        return new IdentifierDocId(identifier);
     }
 
     //--------------------------< internal >------------------------------------
@@ -167,29 +167,29 @@ abstract class DocId {
     }
 
     /**
-     * <code>DocId</code> based on a UUID.
+     * <code>DocId</code> based on a Identifier.
      */
-    private static final class UUIDDocId extends DocId {
+    private static final class IdentifierDocId extends DocId {
 
         /**
-         * The node uuid or <code>null</code> if not set.
+         * The node identifier or <code>null</code> if not set.
          */
-        private final String uuid;
+        private final String identifier;
 
         /**
-         * Creates a <code>DocId</code> based on a Node uuid.
+         * Creates a <code>DocId</code> based on a Node identifier.
          *
-         * @param uuid the Node uuid.
+         * @param identifier the Node identifier.
          */
-        UUIDDocId(String uuid) {
-            this.uuid = uuid;
+        IdentifierDocId(String identifier) {
+            this.identifier = identifier;
         }
 
         /**
          * @inheritDoc
          */
         final int getDocumentNumber(IndexReader reader) throws IOException {
-            Term id = new Term(FieldNames.UUID, uuid);
+            Term id = new Term(FieldNames.UUID, identifier);
             TermDocs docs = reader.termDocs(id);
             int doc = -1;
             try {
@@ -228,7 +228,7 @@ abstract class DocId {
          * @return a String representation for this <code>DocId</code>.
          */
         final public String toString() {
-            return "UUIDDocId(" + uuid + ")";
+            return "IdentifierDocId(" + identifier + ")";
         }
     }
 }

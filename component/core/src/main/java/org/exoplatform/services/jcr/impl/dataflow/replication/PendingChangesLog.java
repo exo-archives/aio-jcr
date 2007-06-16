@@ -26,7 +26,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
  * Created by The eXo Platform SARL Author : Alex Reshetnyak
@@ -69,7 +69,7 @@ public class PendingChangesLog {
     containerType = analysisItemDataChangesLog(); 
       //analysisItemDataChangesLog();
     listFile = new ArrayList<File>();
-    identifier = UUIDGenerator.generate();
+    identifier = IdGenerator.generate();
     this.fileCleaner = fileCleaner;
   }
 

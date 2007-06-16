@@ -44,9 +44,9 @@ public class LockData {
   private String      lockToken;
 
   /**
-   * Uuid of locked node
+   * Identifier of locked node
    */
-  private String      nodeUuid;
+  private String      nodeIdentifier;
 
   /**
    * The owner of the locked node
@@ -68,13 +68,13 @@ public class LockData {
    */
   private long  timeOut;
 
-  public LockData(String nodeUuid,
+  public LockData(String nodeIdentifier,
       String lockToken,
       boolean deep,
       boolean sessionScoped,
       String owner,
       long timeOut) {
-    this.nodeUuid = nodeUuid;
+    this.nodeIdentifier = nodeIdentifier;
     this.lockToken = lockToken;
     this.deep = deep;
     this.sessionScoped = sessionScoped;
@@ -116,10 +116,10 @@ public class LockData {
   }
 
   /**
-   * @return the nodeUuid
+   * @return the nodeIdentifier
    */
-  public String getNodeUuid() {
-    return nodeUuid;
+  public String getNodeIdentifier() {
+    return nodeIdentifier;
   }
 
   public String getOwner() {
@@ -182,10 +182,10 @@ public class LockData {
   }
 
   /**
-   * @param nodeUuid the nodeUuid to set
+   * @param nodeIdentifier the nodeIdentifier to set
    */
-  public void setNodeUuid(String nodeUuid) {
-    this.nodeUuid = nodeUuid;
+  public void setNodeIdentifier(String nodeIdentifier) {
+    this.nodeIdentifier = nodeIdentifier;
   }
 
   public void setOwner(String owner) {

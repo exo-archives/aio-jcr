@@ -85,7 +85,7 @@ import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -149,7 +149,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       return;
     }
 
-    NodeData parent = (NodeData) dataManager.getItemData(getParentUUID());
+    NodeData parent = (NodeData) dataManager.getItemData(getParentIdentifier());
 
     this.definition = session.getWorkspace().getNodeTypeManager()
         .findNodeDefinition(getInternalName(),
@@ -370,7 +370,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     checkValid();
 
     if (isNodeType("mix:referenceable")) {
-      return this.getInternalUUID();
+      return this.getInternalIdentifier();
     }
 
     throw new UnsupportedRepositoryOperationException("Node " + getPath() + " is not referenceable");
@@ -386,7 +386,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     checkValid();
 
-    return new EntityCollection(dataManager.getReferences(getInternalUUID()));
+    return new EntityCollection(dataManager.getReferences(getInternalIdentifier()));
   }
 
   /**
@@ -644,7 +644,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     // Initialize data
     InternalQName[] mixinTypeNames = new InternalQName[0];
-    String identifier = UUIDGenerator.generate();
+    String identifier = IdGenerator.generate();
 
     List<NodeData> siblings = dataManager.getChildNodesData(parentNode.nodeData());
     int orderNum = parentNode.getNextChildOrderNum(siblings);
@@ -661,7 +661,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         primaryTypeName,
         mixinTypeNames,
         orderNum,
-        parentNode.getInternalUUID(),
+        parentNode.getInternalIdentifier(),
         acl);
 
     // Create new Node
@@ -1594,8 +1594,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     if (!parent().checkLocking())
       throw new LockException("Node " + parent().getPath() + " is locked ");
 
-    // the new version UUID 
-    String verIdentifier = UUIDGenerator.generate();
+    // the new version identifier 
+    String verIdentifier = IdGenerator.generate();
     
     SessionChangesLog changesLog = new SessionChangesLog(session.getId());
 
@@ -1612,7 +1612,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     dataManager.getTransactManager().save(changesLog); 
 
-    VersionImpl version = (VersionImpl) dataManager.getItemByUUID(verIdentifier, true);
+    VersionImpl version = (VersionImpl) dataManager.getItemByIdentifier(verIdentifier, true);
 
     session.getActionHandler().postCheckin(this);
     return version;
@@ -1790,7 +1790,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       // .getName(), Constants.NT_BASE);
 
       NodeData nodeData = new TransientNodeData(newPath,
-          UUIDGenerator.generate(),
+          IdGenerator.generate(),
           -1,
           Constants.NT_BASE,
           new InternalQName[0],
@@ -2222,7 +2222,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         dataManager.update(ItemState.createAddedState(TransientNodeData.createNodeData(nodeData(),
             ndImpl.getQName(),
             ((ExtendedNodeType) ndImpl.getDefaultPrimaryType()).getQName(),
-            UUIDGenerator.generate())), true);
+            IdGenerator.generate())), true);
       }
     }
 
@@ -2494,7 +2494,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
           // by UUID
           // getProperty("jcr:uuid") is more correct, but may decrease
           // performance
-          return getInternalUUID().equals(otherNode.getInternalUUID());
+          return getInternalIdentifier().equals(otherNode.getInternalIdentifier());
         }
         // by path
         return getLocation().equals(otherNode.getLocation());

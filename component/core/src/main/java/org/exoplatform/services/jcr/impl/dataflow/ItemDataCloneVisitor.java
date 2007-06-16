@@ -75,12 +75,12 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
     deletedExistingPropery = false;
     if (isMixReferenceable) {
       String identifier = node.getIdentifier();
-      ItemImpl relItem = dstDataManager.getItemByUUID(identifier, true);
+      ItemImpl relItem = dstDataManager.getItemByIdentifier(identifier, true);
       if (relItem != null) {
         if (removeExisting) {
           deletedExistingPropery = true;
           itemDeletedExistingStates.add(new ItemState(relItem.getData(), ItemState.DELETED, true,
-              dstDataManager.getItemByUUID(relItem.getParentUUID(), true).getInternalPath(),level != 0));
+              dstDataManager.getItemByIdentifier(relItem.getParentIdentifier(), true).getInternalPath(),level != 0));
         } else {
           throw new ItemExistsException("Item exists uuid = " + identifier + " name " + relItem.getName());
         }
@@ -132,7 +132,7 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
       if (itemInItemStateList(itemDeletedExistingStates, property.getParentIdentifier(),
           ItemState.DELETED)) {
         // search destination propery
-        ItemData dstParentNodeData = dstDataManager.getItemByUUID(property.getParentIdentifier(), true)
+        ItemData dstParentNodeData = dstDataManager.getItemByIdentifier(property.getParentIdentifier(), true)
             .getData();
         List<PropertyData> dstChildProperties = dstDataManager
             .getChildPropertiesData((NodeData) dstParentNodeData);
@@ -146,7 +146,7 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
         }
         if (dstProperty != null) {
           itemDeletedExistingStates.add(new ItemState(dstProperty, ItemState.DELETED, true,
-              dstDataManager.getItemByUUID(dstProperty.getParentIdentifier(), true).getInternalPath(),level != 0));
+              dstDataManager.getItemByIdentifier(dstProperty.getParentIdentifier(), true).getInternalPath(),level != 0));
         } else {
           throw new RepositoryException("Destination propery " + property.getQPath().getAsString()
               + " not found. ");

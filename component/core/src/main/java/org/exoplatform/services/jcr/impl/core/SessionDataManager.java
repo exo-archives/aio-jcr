@@ -166,21 +166,21 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Finds item data by UUID in this transient storage then in workspace
+   * Finds item data by identifier in this transient storage then in workspace
    * container.
    * 
-   * @param uuid 
+   * @param identifier 
    * @return existed item data or null if not found
    * @throws RepositoryException
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(java.lang.String)
    */
-  public ItemData getItemData(String uuid) throws RepositoryException {
+  public ItemData getItemData(String identifier) throws RepositoryException {
     ItemData data = null; 
     // 1. Try in transient changes
-    ItemState state = changesLog.getItemState(uuid);
+    ItemState state = changesLog.getItemState(identifier);
     if(state == null) {
       // 2. Try from txdatamanager
-      data = transactionableManager.getItemData(uuid);
+      data = transactionableManager.getItemData(identifier);
     } else if (!state.isDeleted()) {
       data = state.getData();
     }
@@ -260,16 +260,16 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Finds item by UUID in this tnsient storage then in workspace container.
+   * Finds item by identifier in this tnsient storage then in workspace container.
    * 
-   * @param uuid
-   * @return item by UUID or null
+   * @param identifier
+   * @return item by identifier or null
    * @throws RepositoryException
    */
-  public ItemImpl getItemByUUID(String uuid, boolean pool)
+  public ItemImpl getItemByIdentifier(String identifier, boolean pool)
       throws RepositoryException {
 
-    ItemData itemData = getItemData(uuid);
+    ItemData itemData = getItemData(identifier);
     
     if (itemData == null)
       return null;
@@ -306,10 +306,10 @@ public class SessionDataManager implements ItemDataConsumer {
     return (changesLog.getDescendantsChanges(path).size() > 0);
   }
 
-  public boolean isNew(String uuid) {
+  public boolean isNew(String identifier) {
 
     // [PN] 16.01.07 Optimized log traversing - use one list for decision
-    List<ItemState> states = changesLog.getItemStates(uuid);
+    List<ItemState> states = changesLog.getItemStates(identifier);
     ItemState lastState = states.size() > 0 ? states.get(states.size() - 1) : null;
     
     if (lastState == null || lastState.isDeleted())
@@ -346,14 +346,14 @@ public class SessionDataManager implements ItemDataConsumer {
     return false;
   }
   
-  List<PropertyImpl> getReferences(String uuid) throws RepositoryException {
+  List<PropertyImpl> getReferences(String identifier) throws RepositoryException {
     List<PropertyImpl> refs = new ArrayList<PropertyImpl>();
-    for (PropertyData data : transactionableManager.getReferencesData(uuid)) {
+    for (PropertyData data : transactionableManager.getReferencesData(identifier)) {
       PropertyImpl item = (PropertyImpl) itemFactory.createItem(data);
       session.getActionHandler().postRead(item);
       
       // check for permission for read
-      NodeImpl parentItem = (NodeImpl) getItemByUUID(data.getParentIdentifier(), true);
+      NodeImpl parentItem = (NodeImpl) getItemByIdentifier(data.getParentIdentifier(), true);
       if (accessManager
           .hasPermission(parentItem.getACL(), PermissionType.READ, session.getUserID())) {
         refs.add((PropertyImpl) itemFactory.createItem(data));
@@ -611,8 +611,8 @@ public class SessionDataManager implements ItemDataConsumer {
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getReferencesData(java.lang.String)
    */
-  public List<PropertyData> getReferencesData(String uuid) throws RepositoryException {
-    return transactionableManager.getReferencesData(uuid); 
+  public List<PropertyData> getReferencesData(String identifier) throws RepositoryException {
+    return transactionableManager.getReferencesData(identifier); 
   }
 
   private  void validate(QPath path) throws RepositoryException,
@@ -900,8 +900,8 @@ public class SessionDataManager implements ItemDataConsumer {
       items = new WeakHashMap<String, ItemImpl>();
     }
 
-    ItemImpl remove(String uuid) {
-      return items.remove(uuid);
+    ItemImpl remove(String identifier) {
+      return items.remove(identifier);
       //System.gc();
     }
     
@@ -910,12 +910,12 @@ public class SessionDataManager implements ItemDataConsumer {
     }
 
     /**
-     * @param uuid
-     * @return true if item with given uuid is pooled
+     * @param identifier
+     * @return true if item with given identifier is pooled
      * @throws RepositoryException
      */
-    boolean contains(String uuid) {
-      return items.containsKey(uuid);
+    boolean contains(String identifier) {
+      return items.containsKey(identifier);
     }
     
     /**
@@ -924,10 +924,10 @@ public class SessionDataManager implements ItemDataConsumer {
      * @throws RepositoryException
      */
     ItemImpl get(ItemImpl newItem) throws RepositoryException {
-      String uuid = newItem.getInternalUUID();
-      ItemImpl item = items.get(uuid);
+      String identifier = newItem.getInternalIdentifier();
+      ItemImpl item = items.get(identifier);
       if (item == null) {
-        items.put(uuid, newItem);
+        items.put(identifier, newItem);
         return newItem;
       } else {
         item.loadData(newItem.getData());
@@ -938,15 +938,15 @@ public class SessionDataManager implements ItemDataConsumer {
     /**
      * Reload an existed item in the pool with given data
      * @param itemData - given data
-     * @return an existed item of null if no item is pooled with a given data UUID
+     * @return an existed item of null if no item is pooled with a given data Identifier
      * @throws RepositoryException
      */
     ItemImpl reload(ItemData itemData) throws RepositoryException {
       return reload(itemData.getIdentifier(), itemData);
     }
     
-    ItemImpl reload(String uuid, ItemData newItemData) throws RepositoryException {
-      ItemImpl item = items.get(uuid);
+    ItemImpl reload(String identifier, ItemData newItemData) throws RepositoryException {
+      ItemImpl item = items.get(identifier);
       if (item != null) {
         item.loadData(newItemData);
         return item;
@@ -962,7 +962,7 @@ public class SessionDataManager implements ItemDataConsumer {
     List<NodeImpl> getNodes(List<NodeImpl> nodes) throws RepositoryException {
       List<NodeImpl> children = new ArrayList<NodeImpl>();
       for (NodeImpl node : nodes) {
-        String id = node.getInternalUUID();
+        String id = node.getInternalIdentifier();
         NodeImpl pooled = (NodeImpl) items.get(id);
         if (pooled == null) {
           items.put(id, node);
@@ -984,7 +984,7 @@ public class SessionDataManager implements ItemDataConsumer {
         throws RepositoryException {
       List<PropertyImpl> children = new ArrayList<PropertyImpl>();
       for (PropertyImpl prop : props) {
-        String id = prop.getInternalUUID();
+        String id = prop.getInternalIdentifier();
         PropertyImpl pooled = (PropertyImpl) items.get(id);
         if (pooled == null) {
           items.put(id, prop);

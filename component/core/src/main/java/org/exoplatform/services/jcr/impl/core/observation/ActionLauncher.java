@@ -73,7 +73,7 @@ public class ActionLauncher implements ItemsPersistenceListener {
             try {
               int eventType = eventType(itemState);
               if (eventType != SKIP_EVENT && isTypeMatch(criteria, eventType)
-                  && isPathMatch(criteria, item) && isUUIDMatch(criteria, item)
+                  && isPathMatch(criteria, item) && isIdentifierMatch(criteria, item)
                   && isNodeTypeMatch(criteria, item)
                   && isSessionMatch(criteria, sessionId)) {
 
@@ -139,7 +139,7 @@ public class ActionLauncher implements ItemsPersistenceListener {
     }
   }
 
-  private boolean isUUIDMatch(ListenerCriteria criteria, ItemData item) {
+  private boolean isIdentifierMatch(ListenerCriteria criteria, ItemData item) {
 
     if (criteria.getIdentifier() == null)
       return true;

@@ -34,7 +34,7 @@ import org.exoplatform.services.jcr.impl.core.value.BaseValue;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -183,7 +183,7 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
 
       QPath frozenPath = QPath.makeChildPath(currentNode().getQPath(), qname, node.getQPath().getIndex());
       frozenNode = new TransientNodeData(frozenPath,
-          UUIDGenerator.generate(),
+          IdGenerator.generate(),
           node.getPersistedVersion(),
           node.getPrimaryTypeName(),
           node.getMixinTypeNames(),
@@ -222,7 +222,7 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
       } else { // behaviour of COPY
         QPath frozenPath = QPath.makeChildPath(currentNode().getQPath(), qname, node.getQPath().getIndex());
         frozenNode = new TransientNodeData(frozenPath,
-            UUIDGenerator.generate(),
+            IdGenerator.generate(),
             node.getPersistedVersion(),
             node.getPrimaryTypeName(),
             node.getMixinTypeNames(),

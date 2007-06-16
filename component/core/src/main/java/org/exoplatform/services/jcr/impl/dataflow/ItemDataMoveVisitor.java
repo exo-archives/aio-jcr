@@ -43,12 +43,12 @@ public class ItemDataMoveVisitor extends DefaultItemDataCopyVisitor {
    * @param dstNodeName Destination node name
    * @param nodeTypeManager - The NodeTypeManager
    * @param dataManager - Source data manager
-   * @param keepUUIDs - Is it necessity to keep <code>UUID</code>
+   * @param keepIdentifiers - Is it necessity to keep <code>Identifiers</code>
    */
 
   public ItemDataMoveVisitor(NodeData parent, InternalQName dstNodeName,
-      NodeTypeManagerImpl nodeTypeManager, SessionDataManager srcDataManager, boolean keepUUIDs) {
-    super(parent, dstNodeName, nodeTypeManager, srcDataManager, keepUUIDs);
+      NodeTypeManagerImpl nodeTypeManager, SessionDataManager srcDataManager, boolean keepIdentifiers) {
+    super(parent, dstNodeName, nodeTypeManager, srcDataManager, keepIdentifiers);
     
     //this.rootParentPath = parent.getQPath();
   }
