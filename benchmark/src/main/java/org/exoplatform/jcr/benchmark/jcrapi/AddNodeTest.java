@@ -20,9 +20,6 @@ import com.sun.japex.TestCase;
  */
 public class AddNodeTest extends JCRTestBase {
 
-  // just to compare with Japex
-  //public long runtime = 0;
-
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
     Session session = context.getSession();

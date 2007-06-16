@@ -38,7 +38,8 @@ public final class JCRTestContext extends HashMap<String, Object> {
 
   public String generateUniqueName(String prefix) {
     String uname = prefix+"-"+name+"-"+(counter++);
-    //System.out.println("UNAME >>>> "+uname);
     return uname;
   }
+  
+  
 }
