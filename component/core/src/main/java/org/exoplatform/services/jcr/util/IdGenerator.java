@@ -13,23 +13,23 @@ import org.exoplatform.services.jcr.datamodel.Identifier;
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov
  *         </a>
- * @version $Id: UUIDGenerator.java 12843 2007-02-16 09:11:18Z peterit $
+ * @version $Id: IdGenerator.java 12843 2007-02-16 09:11:18Z peterit $
  */
 
-public class UUIDGenerator {
-  public static final int UUID_LENGTH = IDGeneratorService.ID_LENGTH;
+public class IdGenerator {
+  public static final int IDENTIFIER_LENGTH = IDGeneratorService.ID_LENGTH;
   
   private static IDGeneratorService idGenerator;
 
-  public UUIDGenerator(IDGeneratorService idGenerator) {
-    UUIDGenerator.idGenerator = idGenerator;
+  public IdGenerator(IDGeneratorService idGenerator) {
+    IdGenerator.idGenerator = idGenerator;
   }
 
-  public Identifier generateUUID(String path) {
+  public Identifier generateId(String path) {
     return new Identifier(idGenerator.generateStringID(path));
   }
 
-  public String generateStringUUID(String path) {
+  public String generateStringId(String path) {
     return idGenerator.generateStringID(path);
   }
 
