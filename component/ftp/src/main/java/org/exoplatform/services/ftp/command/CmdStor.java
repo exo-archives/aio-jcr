@@ -23,7 +23,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.services.ftp.FtpConst;
 import org.exoplatform.services.ftp.config.FtpConfig;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -99,7 +99,7 @@ public class CmdStor extends FtpCommandImpl {
       String cacheFileName = null; 
       if (FtpConst.Commands.CMD_REST.equals(clientSession().getPrevCommand())) {
         String cacheFolderName = clientSession().getFtpServer().getConfiguration().getCacheFolderName();
-        cacheFileName = cacheFolderName + "/" + UUIDGenerator .generate() + FtpConst.FTP_CACHEFILEEXTENTION;
+        cacheFileName = cacheFolderName + "/" + IdGenerator .generate() + FtpConst.FTP_CACHEFILEEXTENTION;
         
         File cacheFile = new File(cacheFileName);
         boolean created = cacheFile.createNewFile();
