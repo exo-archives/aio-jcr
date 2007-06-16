@@ -21,7 +21,7 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
 
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
  * The <code>BinaryValue</code> class implements the committed value state for
@@ -256,7 +256,7 @@ public class BinaryValue /*implements Serializable, StatefulValue*/ extends Base
   public String getReference() throws ValueFormatException, IllegalStateException,
       RepositoryException {
     // TODO Auto-generated method stub
-    byte[] buff = new byte[UUIDGenerator.UUID_LENGTH];
+    byte[] buff = new byte[IdGenerator.IDENTIFIER_LENGTH];
     try {
       stream.read(buff);
     } catch (IOException e) {
