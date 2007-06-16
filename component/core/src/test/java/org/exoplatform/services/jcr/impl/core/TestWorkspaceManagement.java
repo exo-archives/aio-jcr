@@ -19,7 +19,7 @@ import org.exoplatform.services.jcr.config.SimpleParameterEntry;
 import org.exoplatform.services.jcr.config.ValueStorageEntry;
 import org.exoplatform.services.jcr.config.ValueStorageFilterEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
@@ -341,7 +341,7 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
         (ArrayList) params);
     containerEntry.setParameters(params);
 
-    WorkspaceEntry workspaceEntry = new WorkspaceEntry(wsName != null ? wsName : UUIDGenerator
+    WorkspaceEntry workspaceEntry = new WorkspaceEntry(wsName != null ? wsName : IdGenerator
         .generate(), "nt:unstructured");
     workspaceEntry.setContainer(containerEntry);
     

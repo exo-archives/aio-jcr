@@ -14,7 +14,7 @@ import javax.jcr.Session;
 
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.load.blob.TestSwap;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
  * Created by The eXo Platform SARL
@@ -46,7 +46,7 @@ public class CreateThread extends UserThread {
   
   public void createAction() {
     
-    String nodeName = UUIDGenerator.generate();
+    String nodeName = IdGenerator.generate();
     InputStream dataStream = null; 
     try {
       Node testRoot = threadSession.getRootNode().getNode(TestSwap.TEST_ROOT);
@@ -59,7 +59,7 @@ public class CreateThread extends UserThread {
       contentNode.setProperty("jcr:lastModified", Calendar.getInstance());
       this.threadSession.save();
       if (threadLog.isDebugEnabled())
-        threadLog.debug("Create node: " + ntFile.getPath() + ", data: " + data.getInternalUUID());
+        threadLog.debug("Create node: " + ntFile.getPath() + ", data: " + data.getInternalIdentifier());
     } catch(Throwable th) {
       threadLog.error("Create error: " + th.getMessage(), th);
     } finally {

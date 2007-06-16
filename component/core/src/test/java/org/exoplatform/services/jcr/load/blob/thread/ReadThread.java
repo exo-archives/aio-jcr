@@ -66,9 +66,9 @@ public class ReadThread extends UserThread {
           }
           if (dataSize != TestSwap.TEST_FILE_SIZE)
             threadLog.error("Wrong data size. " + dataSize + " but expected " + TestSwap.TEST_FILE_SIZE 
-                + ". " + dataStream + ". " + data.getPath() + " " + data.getInternalUUID());
+                + ". " + dataStream + ". " + data.getPath() + " " + data.getInternalIdentifier());
           else if (threadLog.isDebugEnabled())
-            threadLog.debug("Read node: " + dataStream + ", " + node.getPath() + ", data: " + data.getInternalUUID());
+            threadLog.debug("Read node: " + dataStream + ", " + node.getPath() + ", data: " + data.getInternalIdentifier());
         } catch(RepositoryException e) {
           threadLog.error("Repository error: " + e.getMessage() + ", " + dataSize + " bytes from " + TestSwap.TEST_FILE_SIZE, e);
         } catch(FileNotFoundException e) {

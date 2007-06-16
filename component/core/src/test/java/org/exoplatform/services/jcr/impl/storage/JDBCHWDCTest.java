@@ -25,7 +25,7 @@ import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableDataMan
 import org.exoplatform.services.jcr.impl.dataflow.session.WorkspaceStorageDataManagerProxy;
 import org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 
 public class JDBCHWDCTest extends JcrImplBaseTest {
 
@@ -72,7 +72,7 @@ public class JDBCHWDCTest extends JcrImplBaseTest {
 
     TransientNodeData nodeData = new TransientNodeData(
         path, 
-        UUIDGenerator.generate(), 
+        IdGenerator.generate(), 
         -1, 
         Constants.NT_UNSTRUCTURED,
         new InternalQName[0], 
@@ -141,7 +141,7 @@ public class JDBCHWDCTest extends JcrImplBaseTest {
 
     TransientNodeData nodeData = new TransientNodeData(
         path, 
-        UUIDGenerator.generate(), 
+        IdGenerator.generate(), 
         -1, 
         Constants.NT_UNSTRUCTURED,
         new InternalQName[0], 

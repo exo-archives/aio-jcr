@@ -23,7 +23,7 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.SimpleParameterEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
@@ -322,7 +322,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
   }
 
   private String getNewDs() throws Exception {
-    String newDs = UUIDGenerator.generate();
+    String newDs = IdGenerator.generate();
     Properties properties = new Properties();
     properties.setProperty("driverClassName", "org.hsqldb.jdbcDriver");
     properties.setProperty("url", "jdbc:hsqldb:file:target/temp/data/" + newDs);

@@ -49,7 +49,7 @@ public class DeleteThread extends UserThread {
       try {
         Node node = (Node) threadSession.getItem(nodePath);
         PropertyImpl data = (PropertyImpl) node.getProperty("jcr:content/jcr:data");
-        nodeInfo = "node: " + node.getPath() + ", data: " + data.getInternalUUID();
+        nodeInfo = "node: " + node.getPath() + ", data: " + data.getInternalIdentifier();
         node.remove();
         if (threadLog.isDebugEnabled())
           threadLog.debug("Delete " + nodeInfo);

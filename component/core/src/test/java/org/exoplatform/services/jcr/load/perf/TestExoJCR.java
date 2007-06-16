@@ -16,7 +16,7 @@ import java.util.Calendar;
 import javax.jcr.Node;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
  * Created by The eXo Platform SARL Author : Vitaliy Obmanjuk
@@ -141,7 +141,7 @@ public class TestExoJCR extends JcrAPIBaseTest {
     Node testSavePropertiesShortSession = testRoot.addNode("testSavePropertiesShortSession",
         "nt:unstructured");
     for (int i = 1; i < NODES_COUNT_SHORT_SESSION; i++) {
-      testSavePropertiesShortSession.setProperty("testProperty" + i, UUIDGenerator.generate());
+      testSavePropertiesShortSession.setProperty("testProperty" + i, IdGenerator.generate());
     }
     long startTime = System.currentTimeMillis();
     session.save();
@@ -157,7 +157,7 @@ public class TestExoJCR extends JcrAPIBaseTest {
     Node testSavePropertiesLongSession = testRoot.addNode("testSavePropertiesLongSession",
         "nt:unstructured");
     for (int i = 1; i < NODES_COUNT_LONG_SESSION; i++) {
-      testSavePropertiesLongSession.setProperty("testProperty" + i, UUIDGenerator.generate());
+      testSavePropertiesLongSession.setProperty("testProperty" + i, IdGenerator.generate());
     }
     long startTime = System.currentTimeMillis();
     session.save();
@@ -262,7 +262,7 @@ public class TestExoJCR extends JcrAPIBaseTest {
     for (int i = 1; i < NODES_COUNT_SHORT_SESSION; i++) {
       Node tmpNode = testRemoveProperties.addNode("NodeOfTypeNtUnstructured#" + i,
           "nt:unstructured");
-      tmpNode.setProperty("testProperty", UUIDGenerator.generate());
+      tmpNode.setProperty("testProperty", IdGenerator.generate());
       nodesList.add(tmpNode);
     }
     // session.save();
@@ -306,7 +306,7 @@ public class TestExoJCR extends JcrAPIBaseTest {
     for (int i = 1; i < NODES_COUNT_SHORT_SESSION; i++) {
       Node tmpNode = testSaveRemovedNodes.addNode("NodeOfTypeNtUnstructured#" + i,
           "nt:unstructured");
-      tmpNode.setProperty("testProperty", UUIDGenerator.generate());
+      tmpNode.setProperty("testProperty", IdGenerator.generate());
       nodesList.add(tmpNode);
     }
     session.save();

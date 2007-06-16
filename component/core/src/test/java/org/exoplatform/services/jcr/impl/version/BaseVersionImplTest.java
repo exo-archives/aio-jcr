@@ -24,7 +24,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
  * Created by The eXo Platform SARL
@@ -119,25 +119,25 @@ public class BaseVersionImplTest extends JcrImplBaseTest {
   public void setUp() throws Exception {
     super.setUp();
     
-    rootUuid = UUIDGenerator.generate();
+    rootUuid = IdGenerator.generate();
     
-    frozenUuid = UUIDGenerator.generate();
+    frozenUuid = IdGenerator.generate();
     
-    versionedVersionHistoryUuid = UUIDGenerator.generate();
+    versionedVersionHistoryUuid = IdGenerator.generate();
     
-    nodeUuid1 = UUIDGenerator.generate();
-    nodeUuid2 = UUIDGenerator.generate();
-    nodeUuid3 = UUIDGenerator.generate();
-    nodeUuid31 = UUIDGenerator.generate();
-    nodeUuid32 = UUIDGenerator.generate();
+    nodeUuid1 = IdGenerator.generate();
+    nodeUuid2 = IdGenerator.generate();
+    nodeUuid3 = IdGenerator.generate();
+    nodeUuid31 = IdGenerator.generate();
+    nodeUuid32 = IdGenerator.generate();
     
-    propertyUuid11 = UUIDGenerator.generate();
-    propertyUuid12 = UUIDGenerator.generate();
-    propertyUuid21 = UUIDGenerator.generate();
-    propertyUuid22 = UUIDGenerator.generate();
+    propertyUuid11 = IdGenerator.generate();
+    propertyUuid12 = IdGenerator.generate();
+    propertyUuid21 = IdGenerator.generate();
+    propertyUuid22 = IdGenerator.generate();
     
-    propertyUuid311 = UUIDGenerator.generate();
-    propertyUuid312 = UUIDGenerator.generate();
+    propertyUuid311 = IdGenerator.generate();
+    propertyUuid312 = IdGenerator.generate();
     
     stringDataMultivalued = new ArrayList<ValueData>(); 
     stringDataMultivalued.add(new ByteArrayPersistedValueData("property data 1".getBytes(), 0));

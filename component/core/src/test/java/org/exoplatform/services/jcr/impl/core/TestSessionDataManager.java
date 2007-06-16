@@ -106,7 +106,7 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     assertEquals(1, pool.size());
     NodeImpl node1 = (NodeImpl) modificationManager.update(ItemState.createAddedState(data), true);
     assertEquals(2, pool.size());
-    assertEquals(uuid, node1.getInternalUUID());
+    assertEquals(uuid, node1.getInternalIdentifier());
     System.out.println("item >" + node1.getPath());
     assertTrue(pool.contains(uuid));
     // return the same value
@@ -165,9 +165,9 @@ public class TestSessionDataManager extends JcrImplBaseTest {
 
     NodeImpl node1 = (NodeImpl) modificationManager.update(ItemState.createAddedState(data), true);
     assertEquals(1, changesLog.getAllStates().size());
-    assertNotNull(changesLog.getItemState(node1.getInternalUUID()));
+    assertNotNull(changesLog.getItemState(node1.getInternalIdentifier()));
     assertNotNull(changesLog.getItemState(node1.getInternalPath()));
-    assertEquals(ItemState.ADDED, changesLog.getItemState(node1.getInternalUUID()).getState());
+    assertEquals(ItemState.ADDED, changesLog.getItemState(node1.getInternalIdentifier()).getState());
 
     // System.out.println(" > !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! after
     // testSessionChangesLog> "+modificationManager.dump());
@@ -198,7 +198,7 @@ public class TestSessionDataManager extends JcrImplBaseTest {
 
     PropertyImpl prop1 = (PropertyImpl) modificationManager
         .update(ItemState.createAddedState(prop), true);
-    assertEquals(ItemState.ADDED, changesLog.getItemState(node1.getInternalUUID()).getState());
+    assertEquals(ItemState.ADDED, changesLog.getItemState(node1.getInternalIdentifier()).getState());
     assertEquals(ItemState.ADDED, changesLog.getItemState(prop.getIdentifier()).getState());
 
     assertEquals(4, changesLog.getAllStates().size());
@@ -240,7 +240,7 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     fail("Must fix getItem method");
     
     assertEquals(prop.getIdentifier(), modificationManager.getItemData(prop.getIdentifier()).getIdentifier());
-    assertEquals(prop1, modificationManager.getItemByUUID(prop.getIdentifier(), true));
+    assertEquals(prop1, modificationManager.getItemByIdentifier(prop.getIdentifier(), true));
 
     assertTrue(modificationManager.hasPendingChanges(data.getQPath()));
     assertFalse(modificationManager.hasPendingChanges(someData.getQPath()));
