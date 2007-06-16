@@ -27,7 +27,6 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.log.LogService;
 
 /**
  * This class implements the {@link QueryManager} interface.
@@ -66,7 +65,6 @@ public class QueryManagerImpl implements QueryManager {
      */
     public QueryManagerImpl(SessionImpl session,
                             SearchManager searchMgr) {
-//                            LogService logService) {
         this.session = session;
         this.searchMgr = searchMgr;
     }

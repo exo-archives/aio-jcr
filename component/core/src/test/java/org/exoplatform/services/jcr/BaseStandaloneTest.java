@@ -24,7 +24,6 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.LogService;
 
 /**
  * Created by The eXo Platform SARL .
@@ -49,8 +48,6 @@ public abstract class BaseStandaloneTest extends TestCase {
   protected Workspace workspace;
 
   protected RepositoryService repositoryService;
-
-  protected LogService logService;
 
   protected Node root;
 

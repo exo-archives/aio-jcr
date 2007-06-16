@@ -21,7 +21,6 @@ import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.LogService;
 import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
@@ -43,8 +42,6 @@ public abstract class BaseStandaloneTest extends TestCase {
   protected Workspace workspace;
 
   protected RepositoryService repositoryService;
-
-  protected LogService logService;
 
   protected Node root;
 

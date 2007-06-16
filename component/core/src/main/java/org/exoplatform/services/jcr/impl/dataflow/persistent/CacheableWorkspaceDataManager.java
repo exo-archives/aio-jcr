@@ -32,7 +32,6 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
   /**
    * @param dataContainer
    * @param cache
-   * @param logService
    */
   public CacheableWorkspaceDataManager(WorkspaceDataContainer dataContainer, WorkspaceStorageCacheImpl cache,
        SystemDataContainerHolder systemDataContainerHolder) {

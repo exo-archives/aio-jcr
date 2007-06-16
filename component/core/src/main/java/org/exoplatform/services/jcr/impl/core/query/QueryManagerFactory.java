@@ -17,13 +17,9 @@ public class QueryManagerFactory {
   
   private final SearchManager searchManager;
   
-  //private final LogService logService;
-  
   public QueryManagerFactory(final SearchManager searchManager) {
-//      final LogService logService) {
     super();
     this.searchManager = searchManager;
-    //this.logService = logService;
   }
   
   public QueryManagerImpl getQueryManager(SessionImpl session) {
