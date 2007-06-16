@@ -7,7 +7,7 @@ package org.exoplatform.services.webdav.lock;
 
 import java.util.HashMap;
 
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
  * Created by The eXo Platform SARL
@@ -28,7 +28,7 @@ public class FakeLockTable {
       return null;
     }
     
-    String newLockToken = UUIDGenerator.generate();
+    String newLockToken = IdGenerator.generate();
     
     lockTable.put(resPath, newLockToken);
     
