@@ -36,10 +36,11 @@ public class BaseReplicationTest extends BaseStandaloneTest {
 
   public void setUp() throws Exception {
     //for persistent mode
-    StandaloneContainer.setConfigurationPath("src/test/conf/standalone/test-replication-configuration.xml");
+    StandaloneContainer.addConfigurationPath("src/test/conf/standalone/test-replication-configuration.xml");
+    //StandaloneContainer.setConfigurationPath("src/test/conf/standalone/set-test-replication-configuration.xml");
     
     //for proxy mode
-    //StandaloneContainer.setConfigurationPath("src/test/conf/standalone/test-replication-configuration-for-proxy.xml");
+    //StandaloneContainer.addConfigurationPath("src/test/conf/standalone/test-replication-configuration-for-proxy.xml");
 
     container = StandaloneContainer.getInstance();
 
