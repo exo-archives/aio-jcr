@@ -82,11 +82,6 @@ public abstract class BaseStandaloneTest extends TestCase {
 
   protected void tearDown() throws Exception {
 
-    // [PN] 05.05.06
-    if (true)
-      return ;
-    log.info("tearDown() BEGIN " + getClass().getName() + "." + getName());
-
     if (session != null) {
       try {
         session.refresh(false);
@@ -96,15 +91,14 @@ public abstract class BaseStandaloneTest extends TestCase {
           for (NodeIterator children = rootNode.getNodes(); children.hasNext();) {
             Node node = children.nextNode();
             if (!node.getPath().startsWith("/jcr:system")) {
-              log.info("DELETing ------------- "+node.getPath());
+              //log.info("DELETing ------------- "+node.getPath());
               node.remove();
             }
           }
           session.save();
         }
       } catch (Exception e) {
-        e.printStackTrace();
-        log.error("===== Exception in tearDown() " + e.toString());
+        log.error("tearDown() ERROR " + getClass().getName() + "." + getName() + " " + e, e);
       } finally {
         session.logout();
       }
