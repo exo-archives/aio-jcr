@@ -50,9 +50,9 @@ public abstract class BaseStandaloneTest extends TestCase {
   protected StandaloneContainer container;
 
   public void setUp() throws Exception {
-    
+
        StandaloneContainer
-          .setConfigurationPath("src/main/java/conf/standalone/test/test-configuration.xml");
+          .addConfigurationPath("src/main/java/conf/standalone/test/test-configuration.xml");
 
       container = StandaloneContainer.getInstance();
 
@@ -79,7 +79,7 @@ public abstract class BaseStandaloneTest extends TestCase {
   }
 
   protected void tearDown() throws Exception {
-//    
+//
 //    log.info("tearDown() BEGIN " + getClass().getName() + "." + getName());
 //    if (session != null) {
 //      try {
