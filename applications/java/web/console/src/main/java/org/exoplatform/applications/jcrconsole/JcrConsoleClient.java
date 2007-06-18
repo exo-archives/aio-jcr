@@ -72,7 +72,7 @@ public class JcrConsoleClient {
 
       String confPath = Thread.currentThread().getContextClassLoader().getResource(
           "conf/standalone/jcr-console-configuration.xml").toString();
-      StandaloneContainer.setConfigurationURL(confPath);
+      StandaloneContainer.addConfigurationURL(confPath);
 
       container = StandaloneContainer.getInstance();
 
