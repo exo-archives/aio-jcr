@@ -13,7 +13,7 @@
 	    <param name="japex.classPath" value="../lib/*.jar" />
 		<param name="japex.driverClass"
 			value="org.exoplatform.jcr.benchmark.JCRDriver" />
-		<param name="japex.numberOfThreads" value="400" />
+		<param name="japex.numberOfThreads" value="40" />
 
 		<param name="jcr.initializer"
 			value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializer" />
@@ -30,7 +30,7 @@
 
 		<!-- <param name="japex.runTime" value="20" /> -->
 		<!-- <param name="japex.warmupTime" value="5" /> -->
-<!-- 
+
 	<testCase name="AddNodeTest">
 		<param name="exo.testClass"
 			value="org.exoplatform.jcr.benchmark.jcrapi.AddNodeTest" />
@@ -38,24 +38,26 @@
 		<param name="japex.warmupIterations" value="0" />
 
 	</testCase>
+
+<!--
 	<testCase name="ReadRandomNodeTest">
 		<param name="exo.testClass"
 			value="org.exoplatform.jcr.benchmark.jcrapi.ReadRandomNodeTest" />
-		<param name="japex.runTime" value="20" /> 
+		<param name="japex.runTime" value="20" />
 		<param name="japex.warmupIterations" value="0" />
-		<param name="jcr.nodes" value="300" /> 
+		<param name="jcr.nodes" value="300" />
 
 	</testCase>
--->
 
 	<testCase name="ReadFileWithMetadataTest">
 		<param name="exo.testClass"
 			value="org.exoplatform.jcr.benchmark.jcrapi.ReadFileWithMetadataTest" />
-		<param name="japex.runTime" value="50" /> 
+		<param name="japex.runTime" value="50" />
 		<param name="japex.warmupIterations" value="0" />
-		<param name="jcr.nodes" value="300" /> 
-		<param name="jcr.fileLength" value="10000" /> 
+		<param name="jcr.nodes" value="300" />
+		<param name="jcr.fileLength" value="10000" />
 
 	</testCase>
+-->
 
 </testSuite>

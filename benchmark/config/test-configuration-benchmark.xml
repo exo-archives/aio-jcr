@@ -1,7 +1,39 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <configuration>
-
   <component>
+      <key>org.exoplatform.services.log.LogConfigurationInitializer</key>
+      <type>org.exoplatform.services.log.LogConfigurationInitializer</type>
+      <init-params>
+        <value-param>
+          <name>logger</name>
+          <value>org.exoplatform.services.log.impl.BufferedLog4JLogger</value>
+        </value-param>
+        <value-param>
+          <name>configurator</name>
+          <value>org.exoplatform.services.log.impl.Log4JConfigurator</value>
+        </value-param>
+        <properties-param>
+          <name>properties</name>
+          <description>Log4J properties</description>
+          <property name="log4j.rootLogger" value="INFO, stdout, file"/>
+
+          <property name="log4j.appender.stdout" value="org.apache.log4j.ConsoleAppender"/>
+          <property name="log4j.appender.stdout.threshold" value="INFO"/>
+
+          <property name="log4j.appender.stdout.layout" value="org.apache.log4j.PatternLayout"/>
+          <property name="log4j.appender.stdout.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
+
+          <property name="log4j.appender.file" value="org.apache.log4j.FileAppender"/>
+          <property name="log4j.appender.file.File" value="../logs/jcr.log"/>
+
+          <property name="log4j.appender.file.layout" value="org.apache.log4j.PatternLayout"/>
+          <property name="log4j.appender.file.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
+
+        </properties-param>
+      </init-params>
+  </component>
+
+  <!--<component>
     <key>org.exoplatform.services.jcr.RepositoryService</key>
     <type>org.exoplatform.services.jcr.impl.RepositoryServiceImpl</type>
     <component-plugins>
@@ -24,12 +56,12 @@
           <values-param>
             <name>nodeTypesFiles</name>
             <description>Node types configuration file</description>
-            <value>ext-nodetypes-config.xml</value>
+            <value>jar:/conf/ext-nodetypes-config.xml</value>
           </values-param>
         </init-params>
       </component-plugin>
     </component-plugins>
-  </component>
+  </component>-->
 
   <component>
     <key>org.exoplatform.services.jcr.config.RepositoryServiceConfiguration</key>
@@ -58,10 +90,8 @@
     </init-params>
   </component>
 
-  <component>
-    <key>org.exoplatform.services.naming.InitialContextInitializer</key>
-    <type>org.exoplatform.services.naming.InitialContextInitializer</type>
-    <component-plugins>
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.naming.InitialContextInitializer</target-component>
       <component-plugin>
         <name>bind.datasource</name>
         <set-method>addPlugin</set-method>
@@ -118,15 +148,7 @@
           </properties-param>
         </init-params>
       </component-plugin>
-    </component-plugins>
-    <init-params>
-      <properties-param>
-        <name>default-properties</name>
-        <description>Default initial context properties</description>
-        <property name="java.naming.factory.initial" value="org.exoplatform.services.naming.SimpleContextFactory"/>
-      </properties-param>
-    </init-params>
-  </component>
+  </external-component-plugins>
 
   <remove-configuration>org.exoplatform.services.scheduler.JobSchedulerService</remove-configuration>
   <remove-configuration>org.exoplatform.services.transaction.ExoTransactionService</remove-configuration>
