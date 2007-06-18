@@ -11,16 +11,16 @@ import org.exoplatform.services.jcr.rmi.impl.server.JCRServerImpl;
 
 /**
  * Created by The eXo Platform SARL .
- * 
+ *
  * @author <a href="mailto:lautarul@gmail.com">Roman Pedchenko</a>
  * @version $Id: RMIStarter.java 7175 2006-07-19 07:57:44Z peterit $
  */
 
 public class RMIStarter {
 
-  final static public int DO_BIND = 1; 
+  final static public int DO_BIND = 1;
   final static public int DO_UNBIND = 2;
-  
+
   public static void main(String[] argv) {
     int bindOper = 0;
 
@@ -32,11 +32,11 @@ public class RMIStarter {
           bindOper = DO_UNBIND;
         } else if (i == 1) {
           try {
-            StandaloneContainer.setConfigurationPath(argv[i]);
+            StandaloneContainer.addConfigurationPath(argv[i]);
           } catch(MalformedURLException e) {
             System.out.println("Error: malformed url in repository configuration, didn't set");
           }
-        } 
+        }
       }
     }
     try {
