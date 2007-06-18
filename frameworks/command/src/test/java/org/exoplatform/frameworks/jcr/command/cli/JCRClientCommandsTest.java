@@ -42,7 +42,7 @@ import org.exoplatform.services.jcr.RepositoryService;
  */
 
 public class JCRClientCommandsTest extends TestCase {
-  
+
   private StandaloneContainer container;
   private CommandService cservice;
   private static CliAppContext ctx;
@@ -53,9 +53,9 @@ public class JCRClientCommandsTest extends TestCase {
 
     if (System.getProperty("java.security.auth.login.config") == null)
       System.setProperty("java.security.auth.login.config",
-          "src/resources/login.conf");
+          "src/main/resources/login.conf");
 
-    StandaloneContainer.setConfigurationPath("src/java/conf/standalone/test-configuration.xml");
+    StandaloneContainer.addConfigurationPath("src/main/java/conf/standalone/test-configuration.xml");
 
     container = StandaloneContainer.getInstance();
 
@@ -64,7 +64,7 @@ public class JCRClientCommandsTest extends TestCase {
     cservice = (CommandService)container.getComponentInstanceOfType(CommandService.class);
 
     Credentials cred = new SimpleCredentials("admin", "admin".toCharArray());
-    
+
     //we need to login (see BasicAppContext, 38) and set current item before ctx using
     if (ctx == null) {
       ctx = new CliAppContext(repService.getRepository(), PARAMETERS_KEY, cred);
@@ -79,14 +79,14 @@ public class JCRClientCommandsTest extends TestCase {
     assertNotNull(ctx);
   }
 
-  /*  
+  /*
   /testNode
   /testNode/childOfTestNode
   /testNode/childOfTestNode/childOfTestNode2
   /copyOfTestNode
   /newCopyOfTestNode
   */
-  
+
   public void testLogin() throws Exception {
     params.clear();
     LoginCommand loginCommand = (LoginCommand)cservice.getCatalog("CLI").getCommand("login");
@@ -99,7 +99,7 @@ public class JCRClientCommandsTest extends TestCase {
   }
 
   public void testGetItem() throws Exception {
-    
+
     params.clear();
     GetItemCommand getItemCommand = (GetItemCommand)cservice.getCatalog("CLI").getCommand("getitem");
     params.add("/testNode");
@@ -108,7 +108,7 @@ public class JCRClientCommandsTest extends TestCase {
     System.out.println("[out]:" + ctx.getOutput()) ;
     assertEquals(ctx.getCurrentItem().getName(),"testNode");
   }
-  
+
   public void testGetNode() throws Exception {
     params.clear();
     GetNodeCommand getNodeCommand = (GetNodeCommand)cservice.getCatalog("CLI").getCommand("getnode");
@@ -118,7 +118,7 @@ public class JCRClientCommandsTest extends TestCase {
     System.out.println("[out]:" + ctx.getOutput()) ;
     assertEquals(ctx.getCurrentItem().getName(),"childOfTestNode");
   }
-  
+
   public void testGetProperty() throws Exception {
     params.clear();
     GetPropertyCommand getPropertyCommand = (GetPropertyCommand)cservice.getCatalog("CLI").getCommand("getproperty");
@@ -128,7 +128,7 @@ public class JCRClientCommandsTest extends TestCase {
     System.out.println("[out]:" + ctx.getOutput()) ;
     assertEquals(((Property)ctx.getCurrentItem()).getValue().getString(),"test");
   }
-  
+
   public void testGetNodes() throws Exception {
     System.out.println("=== ls ===");
     params.clear();
@@ -143,7 +143,7 @@ public class JCRClientCommandsTest extends TestCase {
     System.out.println("[out]:" + ctx.getOutput()) ;
     assertTrue(ctx.getOutput().contains("childOfTestNode"));
   }
-  
+
   public void testGetProperties() throws Exception {
     GetPropertiesCommand getPropertiesCommand = (GetPropertiesCommand)cservice.getCatalog("CLI").getCommand("getproperties");
     getPropertiesCommand.execute(ctx);
@@ -159,8 +159,8 @@ public class JCRClientCommandsTest extends TestCase {
     addNodeCommand.execute(ctx);
     System.out.println("[out]:" + ctx.getOutput());
     assertEquals(ctx.getCurrentItem().getName(),"childOfTestNode1");
-  }  
-  
+  }
+
   public void testAddNode2() throws Exception {
     params.clear();
     AddNodeCommand addNodeCommand = (AddNodeCommand)cservice.getCatalog("CLI").getCommand("addnode");
@@ -171,7 +171,7 @@ public class JCRClientCommandsTest extends TestCase {
     System.out.println("[out]:" + ctx.getOutput());
     assertEquals(((Node)ctx.getCurrentItem()).getPrimaryNodeType().getName(),"nt:unstructured");
   }
-  
+
   public void testSetProperty1() throws Exception {
     params.clear();
     SetPropertyCommand setPropertyCommand = (SetPropertyCommand)cservice.getCatalog("CLI").getCommand("setproperty");
@@ -183,7 +183,7 @@ public class JCRClientCommandsTest extends TestCase {
     assertEquals(((Property)ctx.getCurrentItem()).getName(),"propertyName1");
     assertEquals(((Property)ctx.getCurrentItem()).getValue().getString(),"propertyValue1");
   }
-  
+
   public void testSetProperty2() throws Exception {
     params.clear();
     //
@@ -203,7 +203,7 @@ public class JCRClientCommandsTest extends TestCase {
     assertEquals(((Property)ctx.getCurrentItem()).getName(),"propertyName2");
     assertEquals(((Property)ctx.getCurrentItem()).getValue().getLong(), 12345);
   }
-  
+
   public void testContextInfoCommand() throws Exception {
     GetContextInfoCommand getContextInfoCommand = (GetContextInfoCommand)cservice.getCatalog("CLI").getCommand("getcontextinfo");
     getContextInfoCommand.execute(ctx);
@@ -211,14 +211,14 @@ public class JCRClientCommandsTest extends TestCase {
     assertTrue(ctx.getOutput().contains("admin"));
     assertTrue(ctx.getOutput().contains("ws"));
   }
-  
+
   public void testRemoveItemCommand() throws Exception {
     RemoveItemCommand removeItemCommand = (RemoveItemCommand)cservice.getCatalog("CLI").getCommand("remove");
     removeItemCommand.execute(ctx);
     System.out.println("[out]:" + ctx.getOutput()) ;
     assertEquals(((Node)ctx.getCurrentItem()).getName(),"childOfTestNode2");
   }
-  
+
   public void testCopyNodeCommand() throws Exception {
     params.clear();
     CopyNodeCommand copyNodeCommand = (CopyNodeCommand)cservice.getCatalog("CLI").getCommand("copynode");
@@ -229,7 +229,7 @@ public class JCRClientCommandsTest extends TestCase {
     System.out.println("[out]:" + ctx.getOutput()) ;
     assertNotNull(ctx.getSession().getRootNode().getNode("copyOfTestNode"));
   }
-  
+
   public void testMoveNodeCommand() throws Exception {
     params.clear();
     MoveNodeCommand moveNodeCommand = (MoveNodeCommand)cservice.getCatalog("CLI").getCommand("movenode");
@@ -240,7 +240,7 @@ public class JCRClientCommandsTest extends TestCase {
     System.out.println("[out]:" + ctx.getOutput()) ;
     assertNotNull(ctx.getSession().getRootNode().getNode("newCopyOfTestNode"));
   }
-  
+
   public void testHelpCommand() throws Exception {
     params.clear();
     HelpCommand helpCommand = (HelpCommand)cservice.getCatalog("CLI").getCommand("help");
@@ -250,7 +250,7 @@ public class JCRClientCommandsTest extends TestCase {
     System.out.println("[out]:" + ctx.getOutput()) ;
     assertTrue(ctx.getOutput().contains("addnode"));
   }
-  
+
   public void testCdCommand() throws Exception {
     //go to root
     params.clear();
@@ -279,7 +279,7 @@ public class JCRClientCommandsTest extends TestCase {
     getItemCommandRelPath.execute(ctx);
     assertEquals(ctx.getCurrentItem().getName(), "testNode");
   }
-  
+
   public void testFinallyRemoveNodes() throws Exception {
     Node root = ctx.getSession().getRootNode();
     NodeIterator nodeIterator = root.getNodes();
