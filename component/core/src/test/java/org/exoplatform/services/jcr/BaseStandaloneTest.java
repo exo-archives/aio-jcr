@@ -29,7 +29,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SARL .
  *
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: BaseStandaloneTest.java 12672 2007-02-08 16:26:10Z peterit $
+ * @version $Id$
  */
 public abstract class BaseStandaloneTest extends TestCase {
 
@@ -57,11 +57,9 @@ public abstract class BaseStandaloneTest extends TestCase {
 
   public void setUp() throws Exception {
     
-    StandaloneContainer.addConfigurationPath("src/main/java/conf/standalone/test/test-configuration.xml");
-    //StandaloneContainer.setConfigurationPath("src/main/java/conf/standalone/test/test-configuration.xml");
-//    StandaloneContainer
-//    .setConfigurationPath("src/main/java/conf/standalone/test/test-configuration-sjdbc.xml");
-    //.setConfigurationPath("target/classes/conf/standalone/test/test-configuration-sjdbc.xml");
+    StandaloneContainer
+    .addConfigurationPath("src/main/java/conf/standalone/test/test-configuration.xml");
+    //.addConfigurationPath("src/main/java/conf/standalone/test/test-configuration-sjdbc.xml");
 
     container = StandaloneContainer.getInstance();
 
@@ -72,12 +70,8 @@ public abstract class BaseStandaloneTest extends TestCase {
     credentials = new CredentialsImpl("admin", "admin".toCharArray());
 
     repositoryService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
-
     repository = (RepositoryImpl) repositoryService.getDefaultRepository();
 
-//    if (!repository.isWorkspaceInitialized("ws"))
-//      repository.initWorkspace("ws", "nt:unstructured");
-    
     session = (SessionImpl) repository.login(credentials, "ws");
     workspace = session.getWorkspace();
     root = session.getRootNode();
