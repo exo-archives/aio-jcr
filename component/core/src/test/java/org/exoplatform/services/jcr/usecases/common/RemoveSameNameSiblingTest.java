@@ -52,7 +52,7 @@ public class RemoveSameNameSiblingTest extends BaseUsecasesTest{
     Node n2 = subRoot.addNode("child", "nt:unstructured");
     Node n3 = subRoot.addNode("child", "nt:unstructured");
     root.save();
-    
+      
     root.getNode("u1/child[3]");
     n2 = subRoot.getNode("child[2]");
     log.debug(">>>> SAME NAME start "+n2.getPath()+" "+n2.getIndex());

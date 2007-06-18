@@ -32,7 +32,6 @@ public class TestAllActions extends BaseUsecasesTest {
 
   @Override
   public void setUp() throws Exception {
-    // TODO Auto-generated method stub
     super.setUp();
     catalog = (SessionActionCatalog) container
         .getComponentInstanceOfType(SessionActionCatalog.class);
@@ -43,11 +42,9 @@ public class TestAllActions extends BaseUsecasesTest {
     Node currentRoot = rootNode;
     if (parentNodeType != null) {
       currentRoot = currentRoot.addNode("firs_sub_node", parentNodeType);
-      //rootNode.save();
     }
 
     return nodeType != null ? currentRoot.addNode(name, nodeType) : currentRoot.addNode(name);
-
   }
 
   public SessionEventMatcher prepareActionCatalog(Action action,
@@ -87,7 +84,7 @@ public class TestAllActions extends BaseUsecasesTest {
       node.remove();
       session.save();
     } catch (RepositoryException e) {
-      // TODO Auto-generated catch block
+      e.printStackTrace();
       fail("matchByNodeType test fail. " + e.getLocalizedMessage());
     }
 
@@ -147,7 +144,7 @@ public class TestAllActions extends BaseUsecasesTest {
       otherNode.remove();
       session.save();
     } catch (RepositoryException e) {
-      // TODO Auto-generated catch block
+      e.printStackTrace();
       fail("matchDeepPath test fail. " + e.getLocalizedMessage());
     }
 
@@ -200,7 +197,7 @@ public class TestAllActions extends BaseUsecasesTest {
       session.save();
 
     } catch (RepositoryException e) {
-      // TODO Auto-generated catch block
+      e.printStackTrace();
       fail("matchNodeType test fail. " + e.getLocalizedMessage());
     }
 
@@ -210,7 +207,6 @@ public class TestAllActions extends BaseUsecasesTest {
     try {
       Node n1 = root.addNode("n1");
       Node node = prepareNode(root , "firsPath", "nt:folder","nt:folder" );
-     // node.setProperty("content","asdlfija;lsdkjf");
       DummyAction daction = new DummyAction();
       // test by path
       SessionEventMatcher matcher = prepareActionCatalog(daction,
@@ -242,7 +238,7 @@ public class TestAllActions extends BaseUsecasesTest {
       session.save();
 
     } catch (RepositoryException e) {
-      // TODO Auto-generated catch block
+      e.printStackTrace();
       fail("matchParentNodeType test fail. " + e.getLocalizedMessage());
     }
   }
@@ -269,10 +265,5 @@ public class TestAllActions extends BaseUsecasesTest {
 
   public void testActionCheckout() {
     actionTest(new CheckoutActionInfo());
-  }
-  
-  public void testActionAddMixin(){
-    
-    //actionTest(new AddMixinActionInfo());
   }
 }
