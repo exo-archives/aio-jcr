@@ -5,8 +5,14 @@
 
 package org.exoplatform.services.jcr.impl.xml;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,16 +29,17 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
+import org.apache.ws.commons.util.Base64;
+import org.apache.ws.commons.util.Base64.Decoder;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -68,9 +75,9 @@ class SysNodeImporter extends ImporterBase {
 
   private String                   curPropName;
 
-  private String                   curPropType;
+  private int                      curPropType;
 
-  private List<StringBuffer>       curPropValues;
+  private List<ValueInfo>          curPropValues;
 
   private List<NodeInfo>           nodeInfos;
 
@@ -80,18 +87,16 @@ class SysNodeImporter extends ImporterBase {
 
   private List<ParsedPropertyInfo> propsParsed;
 
-  private List<ExtendedNodeType>       nodeTypes;
+  private List<ExtendedNodeType>   nodeTypes;
 
   private InternalQName[]          mixinTypeNames;
-
-  // private String uuid;
 
   SysNodeImporter(NodeImpl parent, int uuidBehavior) throws RepositoryException {
     super(parent, uuidBehavior);
     this.parent = (NodeData) parent.getData();
     this.tree = new Stack<NodeInfo>();
     this.nodeInfos = new ArrayList<NodeInfo>();
-    this.curPropValues = new ArrayList<StringBuffer>();
+    this.curPropValues = new ArrayList<ValueInfo>();
   }
 
   private void buildNode() throws RepositoryException {
@@ -111,19 +116,19 @@ class SysNodeImporter extends ImporterBase {
 
       NodeData parentNode = null;
       String relPathStr = info.getRelPath();
-      String identifier = null;
-      identifier = traverseNodeInfo(relPathStr, info);
+      String uuid = null;
+      uuid = traverseNodeInfo(relPathStr, info);
 
       // check UUID Behavior of the import
 
       boolean hasMixReferenceable = isReferenceable(nodeTypes);
       if (hasMixReferenceable) {
-        identifier = validateIdentifierCollision(identifier);
-        if (identifier == null) {
+        uuid = validateUuidCollision(uuid);
+        if (uuid == null) {
           throw new RepositoryException("Ipossible state");
         }
       }
-      
+
       // serach for parent of this rel path
       int lastPathElem = relPathStr.lastIndexOf("/");
       if (lastPathElem > 0) {
@@ -149,18 +154,21 @@ class SysNodeImporter extends ImporterBase {
 
       InternalQName jcrName = path.getInternalPath().getName();
       QPath dstNodePath = QPath.makeChildPath(parentNode.getQPath(), jcrName);
-      
-      //int nodeIndex = getNodeIndex(dstNodePath);
-      int nodeIndex = getNodeIndex(parentNode,jcrName);
-      
-      NodeData newNodeData = TransientNodeData.createNodeData(parentNode, jcrName, primaryTypeName,nodeIndex);
+
+      // int nodeIndex = getNodeIndex(dstNodePath);
+      int nodeIndex = getNodeIndex(parentNode, jcrName);
+
+      NodeData newNodeData = TransientNodeData.createNodeData(parentNode,
+          jcrName,
+          primaryTypeName,
+          nodeIndex);
 
       // newNode.setOrderNumber(node.getOrderNumber());
       ((TransientNodeData) newNodeData).setMixinTypeNames(mixinTypeNames);
       // newNode.setACL(node.getACL());
-      
+
       if (hasMixReferenceable)
-        ((TransientNodeData) newNodeData).setIdentifier(identifier);
+        ((TransientNodeData) newNodeData).setIdentifier(uuid);
 
       itemStatesList.add(new ItemState(newNodeData, ItemState.ADDED, true, parentNode.getQPath()));
 
@@ -177,10 +185,8 @@ class SysNodeImporter extends ImporterBase {
 
           for (ValueData vdata : vDataList) {
             try {
-//              vals += new String((BLOBUtil.readValue(vdata)))
-//                  + (vDataList.lastIndexOf(vdata) != vDataList.size() - 1 ? "," : "");
               vals += new String(vdata.getAsByteArray())
-              + (vDataList.lastIndexOf(vdata) != vDataList.size() - 1 ? "," : "");
+                  + (vDataList.lastIndexOf(vdata) != vDataList.size() - 1 ? "," : "");
 
             } catch (IOException e) {
               log.error("Debug eror: ", e);
@@ -204,13 +210,13 @@ class SysNodeImporter extends ImporterBase {
               mixinTypeNames);
 
           if (vDataList.size() == 1) {
-            //there is single-value defeniton
+            // there is single-value defeniton
             if (defs.getDefinition(false) != null)
               isMultivalue = false;
-          }else{
-            if (defs.getDefinition(true) == null && defs.getDefinition(false)!=null){
-              throw new ValueFormatException(
-                  "Can not assign multiple-values Value to a single-valued property " + prop.getName());
+          } else {
+            if (defs.getDefinition(true) == null && defs.getDefinition(false) != null) {
+              throw new ValueFormatException("Can not assign multiple-values Value to a single-valued property "
+                  + prop.getName());
             }
           }
           log.debug("Import " + prop.getName() + " size=" + vDataList.size() + " isMultivalue="
@@ -231,11 +237,9 @@ class SysNodeImporter extends ImporterBase {
         node = newNodeData;
       }
     }
-    // return node;
   }
 
-  public void startElement(String namespaceURI, String localName, String qName, Attributes atts)
-      throws SAXException {
+  public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
     if (qName.equals("sv:node")) {
       try {
         String name = "";
@@ -255,21 +259,20 @@ class SysNodeImporter extends ImporterBase {
         tree.push(info);
         nodeInfos.add(info);
       } catch (Exception e) {
-      
+
         throw new SAXException(e.getMessage(), e);
       }
     } else if (qName.equals("sv:property")) {
       // TODO manage UUID
       try {
-        curPropType = atts.getValue("sv:type");
+        curPropType = ExtendedPropertyType.valueFromName(atts.getValue("sv:type"));
         curPropName = atts.getValue("sv:name");
-        curPropValues = new ArrayList<StringBuffer>();
+        curPropValues = new ArrayList<ValueInfo>();
       } catch (Exception e) {
         throw new SAXException(e.getMessage(), e);
       }
     } else if (qName.equals("sv:value")) {
-      // [PN] 30.05.06
-      StringBuffer curPropValue = new StringBuffer();
+      ValueInfo curPropValue = new ValueInfo();
       curPropValues.add(curPropValue);
     } else {
       throw new SAXException("'" + qName
@@ -279,7 +282,6 @@ class SysNodeImporter extends ImporterBase {
 
   public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
     if (qName.equals("sv:node")) {
-      // nodeInfos.add(tree.pop());
       tree.pop();
     } else if (qName.equals("sv:property")) {
       tree.peek().addProperty(curPropName, curPropType, curPropValues);
@@ -291,9 +293,17 @@ class SysNodeImporter extends ImporterBase {
   public void characters(char[] ch, int start, int length) throws SAXException {
     // property values
     if (curPropValues.size() > 0) {
-      StringBuffer curPropValue = curPropValues.get(curPropValues.size() - 1);
-      curPropValue.append(ch, start, length);
-      // curPropValues.add(curPropValue);
+      ValueInfo curPropValue = curPropValues.get(curPropValues.size() - 1);
+      if (curPropType == PropertyType.BINARY) {
+        try {
+
+          curPropValue.getBinaryDecoder().write(ch, start, length);
+        } catch (IOException e) {
+          throw new SAXException(e);
+        }
+      } else {
+        curPropValue.getValue().append(ch, start, length);
+      }
     } else {
       // wrong XML, no sv:value visited before
       log
@@ -315,8 +325,6 @@ class SysNodeImporter extends ImporterBase {
     try {
       buildNode();
     } catch (Exception e) {
-      //e.printStackTrace();
-      // causeException = e;
       throw new SAXException("Error create node from System View document. Exception: "
           + e.getMessage(), e);
     }
@@ -349,32 +357,30 @@ class SysNodeImporter extends ImporterBase {
     return new EntityCollection(list);
   }
 
-  private String traverseNodeInfo(String  path, NodeInfo info) throws PathNotFoundException,
+  private String traverseNodeInfo(String path, NodeInfo info) throws PathNotFoundException,
       RepositoryException {
-    String identifier = null;
+    String uuid = null;
     List<PropertyInfo> props = info.getProperties();
 
     for (PropertyInfo prop : props) {
       InternalQName propName = locationFactory.parseJCRName(prop.getName()).getInternalName();
-      List<StringBuffer> valueList = prop.getValues();
+      List<ValueInfo> valueList = prop.getValues();
 
       if (propName.equals(Constants.JCR_PRIMARYTYPE)) {
         if (valueList.size() > 0) {
-          primaryTypeName = locationFactory.parseJCRName(new String(valueList.get(0)))
+          primaryTypeName = locationFactory.parseJCRName(new String(valueList.get(0).getValue()))
               .getInternalName();
           nodeTypes.add((ExtendedNodeType) ntManager.getNodeType(primaryTypeName));
         } else
-          log.warn("Imported property " + path
-              + "/jcr:primaryType has empty value");
+          log.warn("Imported property " + path + "/jcr:primaryType has empty value");
       } else if (propName.equals(Constants.JCR_MIXINTYPES)) {
         if (valueList.size() > 0) {
           mixinTypeNames = new InternalQName[valueList.size()];
         } else
-          log.warn("Imported property " + path
-              + "/jcr:mixinTypes has empty value(s)");
+          log.warn("Imported property " + path + "/jcr:mixinTypes has empty value(s)");
       } else if (propName.equals(Constants.JCR_UUID)) {
         if (valueList.size() > 0)
-          identifier = new String(valueList.get(0));
+          uuid = new String(valueList.get(0).getValue());
         else
           log.warn("Imported property " + path + "/jcr:uuid has empty value");
       }
@@ -382,11 +388,25 @@ class SysNodeImporter extends ImporterBase {
       List<ValueData> values = new ArrayList<ValueData>(valueList.size());// new
       String valStr = "";
       for (int k = 0; k < valueList.size(); k++) {
-        String val = new String(valueList.get(k));
+
         if (prop.getType() == PropertyType.BINARY) {
-          values.add(((BaseValue) session.getValueFactory().createValue(
-              new ByteArrayInputStream(Base64.decodeBase64(val.getBytes())))).getInternalData());
+          try {
+            InputStream vStream = valueList.get(k).getInputStream();
+            TransientValueData binaryValue = new TransientValueData(vStream);// session.getValueFactory().createValue(valueList.get(k).getInputStream());
+            binaryValue.setMaxBufferSize(session.getValueFactory().getMaxBufferSize());
+            binaryValue.setFileCleaner(session.getValueFactory().getFileCleaner());
+            // Call to spool file into tmp
+            binaryValue.getAsStream();
+            vStream.close();
+            valueList.get(k).remove();
+            values.add(binaryValue);
+
+          } catch (IOException e) {
+            throw new RepositoryException(e);
+          }
+
         } else {
+          String val = new String(valueList.get(k).getValue());
           values.add(((BaseValue) session.getValueFactory().createValue(val, prop.getType()))
               .getInternalData());
           if (propName.equals(Constants.JCR_MIXINTYPES)) {
@@ -403,7 +423,7 @@ class SysNodeImporter extends ImporterBase {
 
       propsParsed.add(new ParsedPropertyInfo(propName, prop.getType(), values));
     }
-    return identifier;
+    return uuid;
 
   }
 
@@ -422,20 +442,14 @@ class SysNodeImporter extends ImporterBase {
         NodeIterator snsNodes = getNodes(parentNode, pathElement.getAsString());
         if (depth < relPathElems.length - 1) {
           // [PN] 08.02.07
-          //pathElement.setIndex((int) snsNodes.getSize());
+          // pathElement.setIndex((int) snsNodes.getSize());
           relPathElems[depth] = pathElement = pathElement.clone((int) snsNodes.getSize());
-          
+
           try {
-            // build current path of the imported node
-//            JCRPath parentPath = locationFactory.createJCRPath(locationFactory
-//                .createJCRPath(parentNode.getQPath()), pathElement.getAsString(false));
-//            parentNode = (NodeData) session.getTransientNodesManager().getItemData(
-//                parentPath.getInternalPath());// (NodeImpl)
-           parentNode = (NodeData) session.getTransientNodesManager().getItemData(parentNode,
+            parentNode = (NodeData) session.getTransientNodesManager().getItemData(parentNode,
                 new QPathEntry(pathElement.getNamespace(), pathElement.getName(), pathElement
                     .getIndex()));// (NodeImpl)
 
-            
             if (log.isDebugEnabled())
               log.debug("BUILD NODE, <<< NEW ANCESTOR for RELATIVE path >>> : '"
                   + parentNode.getQPath().getAsString() + "', depth: " + depth + ", path: '"
@@ -445,8 +459,8 @@ class SysNodeImporter extends ImporterBase {
                 + "', depth: " + depth + ", relPath: '" + path.getAsString(true) + "'");
           }
         } else if (depth == relPathElems.length - 1) {
-          // [PN] 08.02.07          
-          //pathElement.setIndex((int) snsNodes.getSize() + 1);
+          // [PN] 08.02.07
+          // pathElement.setIndex((int) snsNodes.getSize() + 1);
           relPathElems[depth] = pathElement = pathElement.clone((int) snsNodes.getSize() + 1);
         }
         if (log.isDebugEnabled())
@@ -463,13 +477,13 @@ class SysNodeImporter extends ImporterBase {
     }
   }
 
-  private String validateIdentifierCollision(String identifier)
-      throws AccessDeniedException, RepositoryException {
-    String retIdentifier = identifier != null ? new String(identifier) : null;
+  private String validateUuidCollision(String uuid) throws AccessDeniedException,
+      RepositoryException {
+    String retUuid = uuid != null ? new String(uuid) : null;
     try {
 
       ItemDataRemoveVisitor visitor = null;
-      NodeImpl sameIdentifierNode = (NodeImpl) session.getNodeByUUID(identifier);
+      NodeImpl sameUuidNode = (NodeImpl) session.getNodeByUUID(uuid);
       List<ItemState> removedStates = null;
       switch (uuidBehavior) {
       case ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW:
@@ -478,8 +492,7 @@ class SysNodeImporter extends ImporterBase {
         // never occur.
 
         // reset UUID and it will be autocreated in session
-        retIdentifier = IdGenerator.generate();
-        ;
+        retUuid = IdGenerator.generate();
         break;
       case ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING:
         // If an incoming referenceable node has the same UUID as a node
@@ -490,30 +503,11 @@ class SysNodeImporter extends ImporterBase {
         // workspace that are remote from the location to which the
         // incoming subtree is being written.
 
-//        NodeIterator samePatterns = sameUuidNode.getNodes(parentNodeData.getQPath().getName()
-//            .getName());
-//        if (samePatterns.hasNext()) {
-//          throw new ConstraintViolationException(
-//              "A uuidBehavior is set to IMPORT_UUID_COLLISION_REMOVE_EXISTING and an incoming node has the same UUID as the node at parentAbsPath or one of its ancestors");
-//        }
-        // itemDeletedStates.add
-        // remove node
-
-        // itemDeletedStates.add(new ItemState(property, ItemState.DELETED,
-        // true, srcDataManager
-        // .getItemByUUID(property.getParentUUID(), true).getInternalPath()));
-        // session.getTransientNodesManager().delete(sameUuidNode.getData());
-        //parent = (NodeData) ((NodeImpl) sameUuidNode.getParent()).getData();
         visitor = new ItemDataRemoveVisitor(session.getTransientNodesManager());
-        sameIdentifierNode.getData().accept(visitor);
+        sameUuidNode.getData().accept(visitor);
         removedStates = visitor.getRemovedStates();
         itemStatesList.addAll(removedStates);
-        //itemStatesList.add(ItemState.createDeletedState(sameUuidNode.getData()));
-        // sameUuidNode.remove();
-        // sameUuidNode.save();
-        //sameUuidNode = null;
-         
-        
+
         break;
       case ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING:
         // If an incoming referenceable node has the same UUID as a node
@@ -528,32 +522,28 @@ class SysNodeImporter extends ImporterBase {
         // the workspace.
 
         // replace in same location
-        parent = (NodeData) ((NodeImpl) sameIdentifierNode.getParent()).getData();
-        // sameUuidNode.remove();
-        // sameUuidNode.save();
-        // session.getTransientNodesManager().delete(sameUuidNode.getData());
+        parent = (NodeData) ((NodeImpl) sameUuidNode.getParent()).getData();
+
         visitor = new ItemDataRemoveVisitor(session.getTransientNodesManager());
-        sameIdentifierNode.getData().accept(visitor);
+        sameUuidNode.getData().accept(visitor);
         removedStates = visitor.getRemovedStates();
         itemStatesList.addAll(removedStates);
-        //itemStatesList.add(ItemState.createDeletedState(sameUuidNode.getData()));
+        // itemStatesList.add(ItemState.createDeletedState(sameUuidNode.getData()));
 
+        sameUuidNode = null;
 
-        //sameUuidNode = null;
-        
         break;
       case ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW:
         // If an incoming referenceable node has the same UUID as a node
         // already existing in the workspace then a SAXException is thrown
         // by the ContentHandler during deserialization.
-        throw new ItemExistsException(
-            "An incoming referenceable node has the same UUID as a node already existing in the workspace!");
+        throw new ItemExistsException("An incoming referenceable node has the same UUID as a node already existing in the workspace!");
       default:
       }
     } catch (ItemNotFoundException e) {
       // node not found, it's ok - willing create one new
     }
-    return retIdentifier;
+    return retUuid;
   }
 
   private class NodeInfo {
@@ -565,9 +555,8 @@ class SysNodeImporter extends ImporterBase {
       this.relPath = relPath;
     }
 
-    public void addProperty(String name, String typeName, List<StringBuffer> strValues) {
-      int type = ExtendedPropertyType.valueFromName(typeName);
-      PropertyInfo prop = new PropertyInfo(name, type, strValues);
+    public void addProperty(String name, int curPropType, List<ValueInfo> strValues) {
+      PropertyInfo prop = new PropertyInfo(name, curPropType, strValues);
       properties.add(prop);
     }
 
@@ -611,13 +600,13 @@ class SysNodeImporter extends ImporterBase {
 
   private class PropertyInfo {
 
-    private String             name;
+    private String          name;
 
-    private int                type;
+    private int             type;
 
-    private List<StringBuffer> values;
+    private List<ValueInfo> values;
 
-    public PropertyInfo(String name, int type, List<StringBuffer> values) {
+    public PropertyInfo(String name, int type, List<ValueInfo> values) {
       // super();
       this.name = name;
       this.type = type;
@@ -641,8 +630,111 @@ class SysNodeImporter extends ImporterBase {
     /**
      * @return Returns the values.
      */
-    public List<StringBuffer> getValues() {
+    public List<ValueInfo> getValues() {
       return values;
+    }
+  }
+
+  /**
+   * Temporary class for swapping binary values in import.
+   * 
+   * @author ksm
+   */
+  private class ValueInfo {
+
+    private StringBuffer         value;
+
+    private File                 fileBuffer;
+
+    private BufferedOutputStream bos;
+
+    private Base64.Decoder       decoder;
+
+    @Override
+    protected void finalize() throws Throwable {
+      super.finalize();
+      if (fileBuffer != null && fileBuffer.exists())
+        if (!fileBuffer.delete())
+          fileBuffer.deleteOnExit();
+    }
+
+    public ValueInfo() {
+      super();
+    }
+
+    /**
+     * Return string representation of value
+     * 
+     * @return
+     */
+    public StringBuffer getValue() {
+      if (value == null)
+        value = new StringBuffer();
+      return value;
+    }
+
+    /**
+     * Return temporary file with decoded data
+     * 
+     * @return
+     */
+    public File getFileBuffer() {
+      return fileBuffer;
+    }
+
+    /**
+     * 
+     * @return Base64 decoder. It is write decoded incoming data into the
+     *         temporary file
+     * @throws IOException
+     */
+    public Decoder getBinaryDecoder() throws IOException {
+      if (decoder == null) {
+        fileBuffer = File.createTempFile("vinfo", ".tmp");
+        fileBuffer.deleteOnExit();
+        bos = new BufferedOutputStream(new FileOutputStream(fileBuffer));
+        decoder = new Base64.Decoder(1024) {
+          protected void writeBuffer(byte[] pBytes, int pOffset, int pLen) throws IOException {
+            bos.write(pBytes, pOffset, pLen);
+          }
+        };
+      }
+      return decoder;
+    }
+
+    /**
+     * @return InputStream from decoded file
+     * @throws IOException
+     */
+    public InputStream getInputStream() throws IOException {
+      if (fileBuffer != null) {
+        decoder.flush();
+        decoder = null;
+        bos.close();
+        bos = null;
+        return new BufferedInputStream(new FileInputStream(fileBuffer));
+      }
+      return new ByteArrayInputStream(new byte[0]);
+    }
+    /**
+     * Removes all temporary variables and files 
+     * @throws IOException
+     */
+    public void remove() throws IOException {
+
+      value = null;
+      if (decoder != null) {
+        decoder.flush();
+        decoder = null;
+      }
+      if (bos != null) {
+        bos.close();
+        bos = null;
+      }
+      if (fileBuffer != null && fileBuffer.exists()) {
+        if (!fileBuffer.delete())
+          throw new IOException("Cannot remove file " + fileBuffer.getAbsolutePath());
+      }
     }
   }
 
