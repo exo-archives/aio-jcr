@@ -8,10 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.jcr.NamespaceException;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
@@ -105,6 +107,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
       if (sess != null)
         sess.logout();
     }
+    service.removeRepository("repo4TestCreateRepository");
   }
 
   public void testAddNewRepositoryWithSameName() throws Exception {
@@ -286,10 +289,11 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
     service.createRepository(repositoryEntry);
 
-    RepositoryImpl newRtepository = (RepositoryImpl) service.getRepository("repo4RemoveOtherThread");
+    // RepositoryImpl newRepository = (RepositoryImpl)
+    // service.getRepository("repo4RemoveOtherThread");
     assertTrue(service.canRemoveRepository("repo4RemoveOtherThread"));
 
-     RepositoryRemover remover = new RepositoryRemover("repo4RemoveOtherThread", service);
+    RepositoryRemover remover = new RepositoryRemover("repo4RemoveOtherThread", service);
     remover.start();
     Thread.currentThread().sleep(1000 * 10);// 10 sec
     try {
@@ -298,6 +302,153 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
     } catch (RepositoryException e) {
       // ok
     }
+  }
+
+  public void testInitNodeTypes() throws Exception {
+
+    // Test initialization of common node types
+    String REPONAME = "testInitNodeTypesCommonRepository";
+    String WSNAME = "ws4testInitNodeTypes";
+
+    createDafaultRepository(REPONAME, WSNAME);
+    RepositoryService service = (RepositoryService) container
+        .getComponentInstanceOfType(RepositoryService.class);
+
+    RepositoryImpl newRepository = (RepositoryImpl) service.getRepository(REPONAME);
+    Session sess = newRepository.getSystemSession(WSNAME);
+    Node newRoot = sess.getRootNode();
+    try {
+
+      assertNotNull(newRoot);
+
+      assertNotNull(newRoot.getNode("jcr:system"));
+
+      assertNotNull(newRoot.getNode("jcr:system/exo:namespaces"));
+      newRoot.addNode("testNode", "exojcrtest:sub1");
+      sess.save();
+      Node testNode = newRoot.getNode("testNode");
+      assertNotNull(testNode);
+    } catch (RepositoryException e) {
+      fail();
+    }
+    try {
+      newRoot.addNode("testNode2", "exojcrtest:sub2");
+      fail();
+    } catch (NoSuchNodeTypeException e) {
+      // ok
+    }
+    try {
+      newRoot.addNode("testNode2", "exojcrtest:test2");
+      fail();
+    } catch (NoSuchNodeTypeException e) {
+      // ok
+    }
+
+    sess.logout();
+
+    assertTrue(service.canRemoveRepository(REPONAME));
+
+    service.removeRepository(REPONAME);
+
+    // test initialization node types only for one repository
+    REPONAME = "testInitNodeTypesRepository";
+    createDafaultRepository(REPONAME, WSNAME);
+
+    newRepository = (RepositoryImpl) service.getRepository(REPONAME);
+    sess = newRepository.getSystemSession(WSNAME);
+    newRoot = sess.getRootNode();
+
+    try {
+
+      assertNotNull(newRoot);
+
+      assertNotNull(newRoot.getNode("jcr:system"));
+
+      assertNotNull(newRoot.getNode("jcr:system/exo:namespaces"));
+      newRoot.addNode("testNode2", "exojcrtest:sub2");
+      sess.save();
+      Node testNode = newRoot.getNode("testNode2");
+      assertNotNull(testNode);
+    } catch (RepositoryException e) {
+      fail();
+    }
+    try {
+      newRoot.addNode("testNode3", "exojcrtest:test2");
+      fail();
+    } catch (NoSuchNodeTypeException e) {
+      // ok
+    }
+    sess.logout();
+
+    
+    
+    assertTrue(service.canRemoveRepository(REPONAME));
+
+    service.removeRepository(REPONAME);
+    
+    // test initialization node types only for one repository
+    REPONAME = "testInitNodeTypesRepositoryTest2";
+    createDafaultRepository(REPONAME, WSNAME);
+
+    newRepository = (RepositoryImpl) service.getRepository(REPONAME);
+    sess = newRepository.getSystemSession(WSNAME);
+    newRoot = sess.getRootNode();
+
+    try {
+
+      assertNotNull(newRoot);
+
+      assertNotNull(newRoot.getNode("jcr:system"));
+
+      assertNotNull(newRoot.getNode("jcr:system/exo:namespaces"));
+      newRoot.addNode("testNode4", "exojcrtest:test2");
+      sess.save();
+      Node testNode = newRoot.getNode("testNode4");
+      assertNotNull(testNode);
+    } catch (RepositoryException e) {
+      fail();
+    }
+    try {
+      newRoot.addNode("testNode5", "exojcrtest:sub2");
+      fail();
+    } catch (NoSuchNodeTypeException e) {
+      // ok
+    }
+    sess.logout();
+
+    assertTrue(service.canRemoveRepository(REPONAME));
+
+    service.removeRepository(REPONAME);
+    
+    
+    
+    
+    
+    
+  }
+
+  public void testInitNameSpaces() throws Exception {
+    // Test initialization of common node types
+    String REPONAME = "testInitNameSpaces";
+    String WSNAME = "ws4" + REPONAME;
+
+    createDafaultRepository(REPONAME, WSNAME);
+    RepositoryService service = (RepositoryService) container
+        .getComponentInstanceOfType(RepositoryService.class);
+
+    RepositoryImpl newRepository = (RepositoryImpl) service.getRepository(REPONAME);
+    Session sess = newRepository.getSystemSession(WSNAME);
+    
+    assertEquals("http://www.apache.org/jackrabbit/test", sess.getNamespaceURI("test"));
+    assertEquals("http://www.exoplatform.org/jcr/test/1.0", sess.getNamespaceURI("exojcrtest"));
+    
+    try {
+      sess.getNamespaceURI("blabla");
+      fail();
+    } catch (NamespaceException e) {
+      // ok;
+    }
+
   }
 
   private class RepositoryRemover extends Thread {
@@ -313,12 +464,50 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
     public void run() {
       try {
-      if (service.canRemoveRepository(repoName))
-        service.removeRepository(repoName);
+        if (service.canRemoveRepository(repoName))
+          service.removeRepository(repoName);
       } catch (RepositoryException e) {
         e.printStackTrace();
       }
     }
+  }
+
+  private void createDafaultRepository(String repoName, String defaultWs) throws Exception {
+
+    RepositoryEntry repositoryEntry = new RepositoryEntry();
+
+    repositoryEntry.setName(repoName);
+    repositoryEntry.setSessionTimeOut(3600000);
+    repositoryEntry
+        .setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy");
+    repositoryEntry.setSecurityDomain("exo-domain");
+    repositoryEntry.setSystemWorkspaceName(defaultWs);
+    repositoryEntry.setDefaultWorkspaceName(defaultWs);
+
+    List params = new ArrayList();
+    String dsName = getNewDs();
+    params.add(new SimpleParameterEntry("sourceName", dsName));
+    params.add(new SimpleParameterEntry("db-type", "generic"));
+    params.add(new SimpleParameterEntry("multi-db", "false"));
+    params.add(new SimpleParameterEntry("update-storage", "true"));
+    params.add(new SimpleParameterEntry("max-buffer-size", "204800"));
+    params.add(new SimpleParameterEntry("swap-directory", "target/temp/swap/ws"));
+
+    ContainerEntry containerEntry = new ContainerEntry("org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer",
+        (ArrayList) params);
+    containerEntry.setParameters(params);
+
+    WorkspaceEntry workspaceEntry = new WorkspaceEntry(defaultWs, "nt:unstructured");
+    workspaceEntry.setContainer(containerEntry);
+
+    repositoryEntry.addWorkspace(workspaceEntry);
+    WorkspaceEntry secondWs = TestWorkspaceManagement.getNewWs(null, false, dsName);
+    repositoryEntry.addWorkspace(secondWs);
+
+    RepositoryService service = (RepositoryService) container
+        .getComponentInstanceOfType(RepositoryService.class);
+
+    service.createRepository(repositoryEntry);
   }
 
   private String getNewDs() throws Exception {

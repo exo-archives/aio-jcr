@@ -20,7 +20,7 @@ import org.exoplatform.container.xml.PropertiesParam;
  */
 public class AddNamespacesPlugin extends BaseComponentPlugin {
 
-  private Map namespaces = new HashMap();
+  private Map<String,String> namespaces = new HashMap<String, String>();
 
   public AddNamespacesPlugin(InitParams params) {
     PropertiesParam param = params.getPropertiesParam("namespaces");
@@ -30,7 +30,7 @@ public class AddNamespacesPlugin extends BaseComponentPlugin {
     }
   }
 
-  public Map getNamespaces() {
+  public Map<String, String> getNamespaces() {
     return namespaces;
   }
   

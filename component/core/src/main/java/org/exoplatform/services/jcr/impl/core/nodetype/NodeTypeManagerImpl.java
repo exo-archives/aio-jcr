@@ -247,22 +247,6 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     return findNodeDefinition(nodeName, allTypes);
   }
 
-//  public ExtendedNodeType findNodeType(InternalQName nodeTypeName, List<ExtendedNodeType> typesList) throws RepositoryException {
-//    for (ExtendedNodeType nt: typesList) {
-//      if (nt.getQName().equals(nodeTypeName)) {
-//        return nt;
-//      }
-//    }
-//    
-//    throw new RepositoryException("Node type '" + nodeTypeName.getAsString() + "' is not found.");
-//  }
-//  
-//  public ExtendedNodeType findNodeType(InternalQName nodeTypeName, InternalQName primaryType, InternalQName[] mixinTypes) throws RepositoryException {
-//    
-//    List<ExtendedNodeType> allTypes = getNodeTypes(primaryType, mixinTypes);
-//    return findNodeType(nodeTypeName, allTypes);
-//  }
-  
   public boolean isOrderableChildNodesSupported(InternalQName primaryType, InternalQName[] mixinTypes) throws RepositoryException {
     
     for (ExtendedNodeType nt: getNodeTypes(primaryType, mixinTypes)) {
@@ -385,7 +369,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
    *          replaces registerd type with new one
    * @throws RepositoryException
    */
-  public void registerNodeType(Class nodeTypeType, int alreadyExistsBehaviour)
+  public void registerNodeType(Class<ExtendedNodeType> nodeTypeType, int alreadyExistsBehaviour)
       throws RepositoryException, InstantiationException {
 
     registerNodeType((ExtendedNodeType) makeNtFromClass(nodeTypeType), alreadyExistsBehaviour);
@@ -454,13 +438,12 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
   /**
    */
-  /**
-   */
-  private NodeType makeNtFromClass(Class nodeTypeType) throws InstantiationException {
+
+  private NodeType makeNtFromClass(Class<ExtendedNodeType> nodeTypeType) throws InstantiationException {
 
     try {
-      Constructor c = nodeTypeType.getConstructor(new Class[] { NodeTypeManager.class });
-      return (NodeType) c.newInstance(new Object[] { this });
+      Constructor<ExtendedNodeType> c = nodeTypeType.getConstructor(new Class[] { NodeTypeManager.class });
+      return c.newInstance(new Object[] { this });
     } catch (Exception e1) {
       e1.printStackTrace();
       throw new InstantiationException(

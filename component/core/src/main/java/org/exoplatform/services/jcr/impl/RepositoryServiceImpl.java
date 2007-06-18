@@ -5,19 +5,9 @@
 
 package org.exoplatform.services.jcr.impl;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +20,6 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.services.jcr.RepositoryService;
@@ -39,15 +28,11 @@ import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.RepositoryServiceConfiguration;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
-import org.exoplatform.services.jcr.impl.config.RepositoryServiceConfigurationImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionRegistry;
 import org.exoplatform.services.log.ExoLogger;
-import org.jibx.runtime.BindingDirectory;
-import org.jibx.runtime.IBindingFactory;
-import org.jibx.runtime.IMarshallingContext;
-import org.jibx.runtime.JiBXException;
 import org.picocontainer.Startable;
 
 /**
@@ -59,30 +44,29 @@ import org.picocontainer.Startable;
 
 public class RepositoryServiceImpl implements RepositoryService, Startable {
 
-  protected static Log                   log                   = ExoLogger
-                                                                   .getLogger("jcr.RepositoryService");
+  protected static Log                         log                   = ExoLogger
+                                                                         .getLogger("jcr.RepositoryService");
 
-  private RepositoryServiceConfiguration config;
+  private RepositoryServiceConfiguration       config;
 
-  private ThreadLocal<String>            currentRepositoryName = new ThreadLocal<String>();
+  private ThreadLocal<String>                  currentRepositoryName = new ThreadLocal<String>();
 
-  private HashMap<String, RepositoryContainer>                        repositoryContainers  = new HashMap<String, RepositoryContainer>();
+  private HashMap<String, RepositoryContainer> repositoryContainers  = new HashMap<String, RepositoryContainer>();
 
-  private List<ComponentPlugin>                           addNodeTypePlugins;
+  private List<ComponentPlugin>                addNodeTypePlugins;
 
-  private List<ComponentPlugin>                           addNamespacesPlugins;
+  private List<ComponentPlugin>                addNamespacesPlugins;
 
-  private ExoContainerContext            containerContext;
+  private ExoContainerContext                  containerContext;
 
-  private ExoContainer parentContainer;
+  private ExoContainer                         parentContainer;
 
-  public RepositoryServiceImpl(RepositoryServiceConfiguration configuration) throws RepositoryConfigurationException,
-      RepositoryException {
+  public RepositoryServiceImpl(RepositoryServiceConfiguration configuration) {
     this(configuration, null);
   }
 
   public RepositoryServiceImpl(RepositoryServiceConfiguration configuration,
-      ExoContainerContext context) throws RepositoryConfigurationException, RepositoryException {
+      ExoContainerContext context) {
     this.config = configuration;
     addNodeTypePlugins = new ArrayList<ComponentPlugin>();
     addNamespacesPlugins = new ArrayList<ComponentPlugin>();
@@ -106,10 +90,9 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     log.debug("RepositoryServiceimpl() getRepository " + name);
     if (repositoryContainer == null)
       throw new RepositoryException("Repository '" + name + "' not found.");
-    else {
-      return (ManageableRepository) repositoryContainer
-          .getComponentInstanceOfType(Repository.class);
-    }
+
+    return (ManageableRepository) repositoryContainer.getComponentInstanceOfType(Repository.class);
+
   }
 
   public RepositoryServiceConfiguration getConfig() {
@@ -117,7 +100,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
   }
 
   public ManageableRepository getCurrentRepository() throws RepositoryException {
-    if(currentRepositoryName.get() == null)
+    if (currentRepositoryName.get() == null)
       return getDefaultRepository();
     return getRepository(currentRepositoryName.get());
   }
@@ -136,13 +119,13 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
       addNamespacesPlugins.add(plugin);
   }
 
-  public ComponentPlugin removePlugin(String name) {
-    return null;
-  }
-
-  public Collection getPlugins() {
-    return null;
-  }
+// public ComponentPlugin removePlugin(String name) {
+// return null;
+// }
+//
+// public Collection getPlugins() {
+// return null;
+// }
 
   // ------------------- Startable ----------------------------
 
@@ -156,22 +139,21 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
         container = containerContext.getContainer();
 
       init(container);
-
-      addNamespaces(container);
-      addNodeTypes(container);
-
-    } catch (Exception e) {
+    } catch (RepositoryException e) {
       log.error("Error start repository service", e);
-      // e.printStackTrace();
+
+    } catch (RepositoryConfigurationException e) {
+      log.error("Error start repository service", e);
     }
+
   }
 
   public void stop() {
   }
 
-  private void init(ExoContainer parentContainer) throws RepositoryConfigurationException,
+  private void init(ExoContainer container) throws RepositoryConfigurationException,
       RepositoryException {
-    this.parentContainer = parentContainer;
+    this.parentContainer = container;
     List<RepositoryEntry> rEntries = config.getRepositoryConfigurations();
     for (int i = 0; i < rEntries.size(); i++) {
       RepositoryEntry rEntry = rEntries.get(i);
@@ -180,68 +162,74 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     }
   }
 
-  private void addNodeTypes(ExoContainer container) throws Exception {
+  private void registerNodeTypes() throws RepositoryException {
+    for (RepositoryEntry repoConfig : config.getRepositoryConfigurations()) {
+      registerNodeTypes(repoConfig.getName());
+    }
 
-    ConfigurationManager configService = (ConfigurationManager) container
+  }
+
+  private void registerNodeTypes(String repositoryName) throws RepositoryException {
+    ConfigurationManager configService = (ConfigurationManager) parentContainer
         .getComponentInstanceOfType(ConfigurationManager.class);
 
-    ManageableRepository repository = getCurrentRepository();
-    ExtendedNodeTypeManager ntManager = repository.getNodeTypeManager();
+    ExtendedNodeTypeManager ntManager = getRepository(repositoryName).getNodeTypeManager();
+    //
     for (int j = 0; j < addNodeTypePlugins.size(); j++) {
       AddNodeTypePlugin plugin = (AddNodeTypePlugin) addNodeTypePlugins.get(j);
-      List nodeTypesFiles = plugin.getNodeTypesFiles();
-      String nodeTypeFilesName = null;
-      try {
-        // Trying load node types from xml file
-        if (nodeTypesFiles != null && nodeTypesFiles.size() > 0) {
-          for (Iterator iter = nodeTypesFiles.iterator(); iter.hasNext();) {
-            nodeTypeFilesName = (String) iter.next();
-            InputStream inXml = configService.getInputStream(nodeTypeFilesName);
-            // log.info("Trying register nodes from xml-file " +
-            // nodeTypeFilesName);
-            ntManager.registerNodeTypes(inXml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-            // log.info("Nodes is registered from xml-file " +
-            // nodeTypeFilesName);
-          }
-          continue; // Loaded! Go to next element in addNodeTypePlugins
-        } else {
-          log
-              .warn("Empty nodeTypesFiles param found, trying node types from list stored in plugin config");
-        }
-      } catch (Exception e) {
-        log.error("Error load node types from resource: " + nodeTypeFilesName
-            + ", trying node types from list stored in plugin config", e);
-      }
+      List<String> autoNodeTypesFiles = plugin.getNodeTypesFiles(AddNodeTypePlugin.AUTO_CREATED);
+      if (autoNodeTypesFiles != null && autoNodeTypesFiles.size() > 0) {
+        for (String nodeTypeFilesName : autoNodeTypesFiles) {
 
-      // Otherwise - loading node types from list stored in plugin config
-      List nodeTypes = plugin.getNodeTypes();
-      if (nodeTypes != null && nodeTypes.size() > 0) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        for (Iterator iter = nodeTypes.iterator(); iter.hasNext();) {
-          String nodeTypeClassName = (String) iter.next();
-          Class nodeTypeClass = Class.forName(nodeTypeClassName, true, cl);
-          ntManager.registerNodeType(nodeTypeClass, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-          log.info("Node is registered from class " + nodeTypeClassName);
+          InputStream inXml;
+          try {
+            inXml = configService.getInputStream(nodeTypeFilesName);
+          } catch (Exception e) {
+            throw new RepositoryException(e);
+          }
+          log.info("Trying register nodes from xml-file " + nodeTypeFilesName);
+          ntManager.registerNodeTypes(inXml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+          log.info("Nodes is registered from xml-file " + nodeTypeFilesName);
+        }
+        List<String> defaultNodeTypesFiles = plugin.getNodeTypesFiles(repositoryName);
+        if (defaultNodeTypesFiles != null && defaultNodeTypesFiles.size() > 0) {
+          for (String nodeTypeFilesName : defaultNodeTypesFiles) {
+
+            InputStream inXml;
+            try {
+              inXml = configService.getInputStream(nodeTypeFilesName);
+            } catch (Exception e) {
+              throw new RepositoryException(e);
+            }
+            log.info("Trying register nodes from xml-file " + nodeTypeFilesName);
+            ntManager.registerNodeTypes(inXml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+            log.info("Nodes is registered from xml-file " + nodeTypeFilesName);
+          }
         }
       }
     }
   }
 
- 
+  private void addNamespaces() throws RepositoryException {
 
-  private void addNamespaces(ExoContainer container) throws Exception {
+    for (RepositoryEntry repoConfig : config.getRepositoryConfigurations()) {
+      addNamespaces(repoConfig.getName());
+    }
+  }
 
-    ManageableRepository repository = getCurrentRepository();
+  private void addNamespaces(String repositoryName) throws RepositoryException {
+
+    ManageableRepository repository = getRepository(repositoryName);
     NamespaceRegistry nsRegistry = repository.getNamespaceRegistry();
 
     for (int j = 0; j < addNamespacesPlugins.size(); j++) {
       AddNamespacesPlugin plugin = (AddNamespacesPlugin) addNamespacesPlugins.get(j);
-      Map namespaces = plugin.getNamespaces();
+      Map<String, String> namespaces = plugin.getNamespaces();
       try {
-        for (Iterator iter = namespaces.entrySet().iterator(); iter.hasNext();) {
-          Map.Entry namespace = (Map.Entry) iter.next();
-          String prefix = (String) namespace.getKey();
-          String uri = (String) namespace.getValue();
+        for (Map.Entry<String, String> namespace : namespaces.entrySet()) {
+
+          String prefix = namespace.getKey();
+          String uri = namespace.getValue();
 
           // register namespace if not found
           try {
@@ -268,18 +256,19 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     // key=repository_name
     repositoryContainers.put(rEntry.getName(), repositoryContainer);
     repositoryContainer.start();
-    
+
     if (!config.getRepositoryConfigurations().contains(rEntry)) {
       config.getRepositoryConfigurations().add(rEntry);
     }
-    
+    addNamespaces(rEntry.getName());
+    registerNodeTypes(rEntry.getName());
   }
 
   public void removeRepository(String name) throws RepositoryException {
     if (!canRemoveRepository(name))
       throw new RepositoryException("Repository " + name + " in use. If you want to "
           + " remove repository close all open sessions");
-    
+
     try {
       RepositoryEntry repconfig = config.getRepositoryConfiguration(name);
       RepositoryImpl repo = (RepositoryImpl) getRepository(name);
@@ -305,11 +294,12 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
       RepositoryEntry repconfig = config.getRepositoryConfiguration(name);
 
       for (WorkspaceEntry wsEntry : repconfig.getWorkspaceEntries()) {
-        //Check non system workspaces
-        if (!repo.getSystemWorkspaceName().equals(wsEntry.getName())&& !repo.canRemoveWorkspace(wsEntry.getName()))
+        // Check non system workspaces
+        if (!repo.getSystemWorkspaceName().equals(wsEntry.getName())
+            && !repo.canRemoveWorkspace(wsEntry.getName()))
           return false;
       }
-      //check system workspace
+      // check system workspace
       RepositoryContainer repositoryContainer = repositoryContainers.get(name);
       SessionRegistry sessionRegistry = (SessionRegistry) repositoryContainer
           .getComponentInstance(SessionRegistry.class);

@@ -50,7 +50,7 @@ public interface ExtendedNodeTypeManager extends NodeTypeManager {
    * @throws RepositoryException
    * @deprecated
    */
-  void registerNodeType(Class nodeTypeType, int alreadyExistsBehaviour)
+  void registerNodeType(Class<ExtendedNodeType> nodeTypeType, int alreadyExistsBehaviour)
       throws RepositoryException, InstantiationException;
 
   /**

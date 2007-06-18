@@ -163,7 +163,7 @@ public class TestExportDocView extends JcrAPIBaseTest {
 
   public void testExportPdf() throws RepositoryException, IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    // [VO] 24.05.07 export Xml problem
+    //export Xml problem
     Node testPdf = root.addNode("testPdf", "nt:file");
     Node contentTestPdfNode = testPdf.addNode("jcr:content", "nt:resource");
     try {
@@ -192,7 +192,4 @@ public class TestExportDocView extends JcrAPIBaseTest {
     // System.out.println(""+new String(bArray));
 
   }
-
-//  public void testEmpty() {
-//  }
 }
