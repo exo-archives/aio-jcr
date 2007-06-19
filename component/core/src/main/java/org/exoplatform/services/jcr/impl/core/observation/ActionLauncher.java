@@ -73,30 +73,31 @@ public class ActionLauncher implements ItemsPersistenceListener {
         
         SessionImpl userSession = sessionRegistry.getSession(sessionId);
         
-        for (ItemState itemState : subLog.getAllStates()) {
-          if (itemState.isEventFire()) {
-
-            ItemData item = itemState.getData();
-            try {
-              int eventType = eventType(itemState);
-              if (eventType != SKIP_EVENT 
-                  && isTypeMatch(criteria, eventType)
-                  && isPathMatch(criteria, item, userSession) 
-                  && isIdentifierMatch(criteria, item)
-                  && isNodeTypeMatch(criteria, item, userSession)
-                  && isSessionMatch(criteria, sessionId)) {
-
-                String path = userSession.getLocationFactory().createJCRPath(
-                    item.getQPath()).getAsString(false);
-
-                events.add(new EventImpl(eventType, path, userSession.getUserID())); 
+        if (userSession != null)
+          for (ItemState itemState : subLog.getAllStates()) {
+            if (itemState.isEventFire()) {
+  
+              ItemData item = itemState.getData();
+              try {
+                int eventType = eventType(itemState);
+                if (eventType != SKIP_EVENT 
+                    && isTypeMatch(criteria, eventType)
+                    && isPathMatch(criteria, item, userSession) 
+                    && isIdentifierMatch(criteria, item)
+                    && isNodeTypeMatch(criteria, item, userSession)
+                    && isSessionMatch(criteria, sessionId)) {
+  
+                  String path = userSession.getLocationFactory().createJCRPath(
+                      item.getQPath()).getAsString(false);
+  
+                  events.add(new EventImpl(eventType, path, userSession.getUserID())); 
+                }
+              } catch (RepositoryException e) {
+                log.error("Can not fire ActionLauncher.onSaveItems() for "
+                    + item.getQPath().getAsString() + " reason: " + e);
               }
-            } catch (RepositoryException e) {
-              log.error("Can not fire ActionLauncher.onSaveItems() for "
-                  + item.getQPath().getAsString() + " reason: " + e);
             }
           }
-        }
       }
       if (events.size() > 0) {
         // TCK says, no events - no onEvent() action   
