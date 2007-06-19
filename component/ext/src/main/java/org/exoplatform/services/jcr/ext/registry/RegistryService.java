@@ -7,9 +7,21 @@ package org.exoplatform.services.jcr.ext.registry;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import javax.jcr.ItemExistsException;
 import javax.jcr.ItemNotFoundException;
@@ -30,48 +42,47 @@ import org.exoplatform.services.log.ExoLogger;
 import org.picocontainer.Startable;
 
 /**
- * Created by The eXo Platform SARL        . <br/>
- * Centralized collector for JCR based entities (services, apps, users)
- * It contains info about the whole system, i.e. for all repositories
- * used by system. 
- * 
- * All operations performed in context of "current" repository,
- * i.e. RepositoryService.getCurrentRepository()
- * 
- * Each repository has own Registry storage which is placed
- * in workspace configured in "locations" entry like:
- *   <properties-param>
- *      <name>locations</name>
- *      <description>registry locations</description>
- *      <property name="repository1" value="workspace1"/>
- *      <property name="repository2" value="workspace2"/>
- *      
- * The implementation hides storage details from end user       
+ * Created by The eXo Platform SARL . <br/> Centralized collector for JCR based
+ * entities (services, apps, users) It contains info about the whole system,
+ * i.e. for all repositories used by system. All operations performed in context
+ * of "current" repository, i.e. RepositoryService.getCurrentRepository() Each
+ * repository has own Registry storage which is placed in workspace configured
+ * in "locations" entry like: <properties-param> <name>locations</name>
+ * <description>registry locations</description> <property name="repository1"
+ * value="workspace1"/> <property name="repository2" value="workspace2"/> The
+ * implementation hides storage details from end user
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public class RegistryService extends Registry implements Startable {
-  
-  private static Log log = ExoLogger.getLogger("jcr.RegistryService");
-  
-  protected final static String EXO_REGISTRY_NT = "exo:registry";
-  protected final static String EXO_REGISTRYENTRY_NT = "exo:registryEntry";
-  protected final static String EXO_REGISTRYGROUP_NT = "exo:registryGroup";
-  protected final static String NT_FILE = "registry-nodetypes.xml";
 
-  protected final static String EXO_REGISTRY = "exo:registry";
-  protected final static String EXO_REGISTRYENTRY = "exo:registryEntry";
-  
+  private static Log                  log                  = ExoLogger
+                                                               .getLogger("jcr.RegistryService");
 
-  public final static String EXO_SERVICES = "exo:services";
-  public final static String EXO_APPLICATIONS = "exo:applications";
-  public final static String EXO_USERS = "exo:users";
-  
-  protected final Map <String, String> regWorkspaces;
-  protected final RepositoryService repositoryService;
-  
+  protected final static String       EXO_REGISTRY_NT      = "exo:registry";
+
+  protected final static String       EXO_REGISTRYENTRY_NT = "exo:registryEntry";
+
+  protected final static String       EXO_REGISTRYGROUP_NT = "exo:registryGroup";
+
+  protected final static String       NT_FILE              = "registry-nodetypes.xml";
+
+  protected final static String       EXO_REGISTRY         = "exo:registry";
+
+  protected final static String       EXO_REGISTRYENTRY    = "exo:registryEntry";
+
+  public final static String          EXO_SERVICES         = "exo:services";
+
+  public final static String          EXO_APPLICATIONS     = "exo:applications";
+
+  public final static String          EXO_USERS            = "exo:users";
+
+  protected final Map<String, String> regWorkspaces;
+
+  protected final RepositoryService   repositoryService;
+
   /**
    * @param params accepts "locations" properties param
    * @param repositoryService
@@ -79,22 +90,22 @@ public class RegistryService extends Registry implements Startable {
    * @throws RepositoryException
    * @throws FileNotFoundException
    */
-  public RegistryService(InitParams params, RepositoryService repositoryService) 
-  throws RepositoryConfigurationException, RepositoryException {
+  public RegistryService(InitParams params, RepositoryService repositoryService)
+      throws RepositoryConfigurationException {
+  	
     this.repositoryService = repositoryService;
     this.regWorkspaces = new HashMap<String, String>();
-    if(params == null)
+    if (params == null)
       throw new RepositoryConfigurationException("Init parameters expected");
     PropertiesParam props = params.getPropertiesParam("locations");
-    if(params == null)
+    if (props == null)
       throw new RepositoryConfigurationException("Property parameters 'locations' expected");
-
-    for(RepositoryEntry repConfiguration : repConfigurations()){
+    for (RepositoryEntry repConfiguration : repConfigurations()) {
       String repName = repConfiguration.getName();
       String wsName = null;
-      if(props != null) {
+      if (props != null) {
         wsName = props.getProperty(repName);
-        if(wsName == null)
+        if (wsName == null)
           wsName = repConfiguration.getDefaultWorkspaceName();
       } else {
         wsName = repConfiguration.getDefaultWorkspaceName();
@@ -102,97 +113,156 @@ public class RegistryService extends Registry implements Startable {
       addRegistryLocation(repName, wsName);
     }
   }
-  
-  
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.ext.registry.Registry#getRegistryEntry(org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String, java.lang.String, org.exoplatform.services.jcr.core.ManageableRepository)
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.ext.registry.Registry#getRegistryEntry(
+   * org.exoplatform.services.jcr.ext.common.SessionProvider,
+   *      java.lang.String, java.lang.String,
+   *      org.exoplatform.services.jcr.core.ManageableRepository)
    */
-  public RegistryEntryNode getRegistryEntry(SessionProvider sessionProvider, String entryType,
-      String entryName) throws RepositoryException {
-    String relPath = EXO_REGISTRY+"/"+entryType+"/"+entryName;
+  public Document getEntry(SessionProvider sessionProvider, String groupName,
+      String entryName) throws RepositoryConfigurationException, RepositoryException {
+  	
     Node root = rootNode(sessionProvider, repositoryService.getCurrentRepository());
-    if(!root.hasNode(relPath)) {
-      throw new ItemNotFoundException("Item not found "+relPath);
-    } else {
-      return new RegistryEntryNode(root.getNode(relPath));
+    //Node root = rootNode(sessionProvider, repositoryService.getRepository("repository"));
+    String rootPath = (root.getPath().endsWith("/")) ? root.getPath() : root.getPath() + "/";
+    String relPath = EXO_REGISTRY + "/" + groupName + "/" + entryName;
+    if (root.hasNode(relPath)) {
+      try {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        root.getSession().exportDocumentView(rootPath + relPath, out, true, false);
+        return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(
+            new ByteArrayInputStream(out.toByteArray()));
+      } catch(IOException e) {
+        throw new RepositoryException("Can't export node to XML representation");
+      } catch(ParserConfigurationException e) {
+        throw new RepositoryException("Can't export node to XML representation");
+      } catch(SAXException e) {
+        throw new RepositoryException("Can't export node to XML representation");
+      }
     }
+    throw new ItemNotFoundException("Item not found " + relPath);
   }
-  
+
   /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.ext.registry.Registry#createRegistryEntry(org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String, java.lang.String, org.exoplatform.services.jcr.core.ManageableRepository)
+   * @see org.exoplatform.services.jcr.ext.registry.Registry#createEntry(
+   * org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String, org.w3c.dom.Document)
    */
-  public RegistryEntryNode createRegistryEntry(SessionProvider sessionProvider, String entryType,
-      String entryName) throws RepositoryException {
-    String relPath = EXO_REGISTRY+"/"+entryType+"/"+entryName;
-    Node root = rootNode(sessionProvider, repositoryService.getCurrentRepository());
-    if(!root.hasNode(relPath)) {
-      return new RegistryEntryNode(root.addNode(relPath, EXO_REGISTRYENTRY_NT));
-    } else {
-      throw new ItemExistsException("Item already exists "+relPath);
+  public void createEntry(SessionProvider sessionProvider,
+  		String groupName, Document entry) throws RepositoryConfigurationException,
+  		RepositoryException {
+  	
+    Node root = rootNode(sessionProvider,	repositoryService.getCurrentRepository());
+    //Node root = rootNode(sessionProvider, repositoryService.getRepository("repository"));
+    String rootPath = (root.getPath().endsWith("/")) ? root.getPath() : root.getPath() + "/";
+    String relPath = EXO_REGISTRY + "/" + groupName;
+    try {
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      TransformerFactory.newInstance().newTransformer().transform(
+          new DOMSource(entry), new StreamResult(out));
+      root.getSession().importXML(rootPath + relPath,
+      		new ByteArrayInputStream(out.toByteArray()), 1);
+      root.getNode(relPath).save();
+    } catch(IOException ioe) {
+      throw new RepositoryException("Item " + relPath + "can't be created");
+    } catch(ItemExistsException iee) {
+      throw new RepositoryException("Item " + relPath + "alredy exists");
+    } catch(TransformerException te) {
+      throw new RepositoryException("Can't get XML representation from stream");
     }
   }
 
-  
   /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.ext.registry.Registry#getRegistry(org.exoplatform.services.jcr.ext.common.SessionProvider, org.exoplatform.services.jcr.core.ManageableRepository)
+   * @see org.exoplatform.services.jcr.ext.registry.Registry#removeEntry(
+   * org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String, java.lang.String)
    */
-  public RegistryNode getRegistry(SessionProvider sessionProvider) 
-    throws RepositoryException {
-    return new RegistryNode(rootNode(sessionProvider, repositoryService.getCurrentRepository()).getNode(EXO_REGISTRY));
-  } 
-  
-
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.ext.registry.Registry#register(org.exoplatform.services.jcr.ext.registry.Registry.RegistryEntryNode)
-   */
-  public void register(RegistryEntryNode entry) throws RepositoryException {
-    Node node = entry.getNode();
-    node.getParent().save();
-  }
-  
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.ext.registry.Registry#unregister(org.exoplatform.services.jcr.ext.registry.Registry.RegistryEntryNode)
-   */
-  public void unregister(RegistryEntryNode entry) throws RepositoryException {
-    Node node = entry.getNode(); 
+  public void removeEntry (SessionProvider sessionProvider, String groupName,
+      String entryName) throws RepositoryException, RepositoryConfigurationException {
+    
+    String relPath = EXO_REGISTRY + "/" + groupName + "/" + entryName;
+    Node root = rootNode(sessionProvider, repositoryService.getCurrentRepository());
+    //Node root = rootNode(sessionProvider, repositoryService.getRepository("repository"));
+    if (!root.hasNode(relPath))
+      throw new ItemNotFoundException("Item not found " + relPath);
+    Node node = root.getNode(relPath);
     Node parent = node.getParent();
     node.remove();
     parent.save();
   }
 
   
-  private Node rootNode(SessionProvider sessionProvider, ManageableRepository repo) throws RepositoryException {
-//    ManageableRepository repo = repositoryService.getRepository(repositoryName);
+  /**
+   * @param sessionProvider
+   * @param groupName
+   * @param entry
+   * @throws RepositoryConfigurationException
+   * @throws RepositoryException
+   * @throws TransformerException
+   */
+  public void recreateEntry(SessionProvider sessionProvider,
+      String groupName, Document entry) throws RepositoryConfigurationException,
+      RepositoryException {
+    
+    String exEntry = entry.getDocumentElement().getNodeName();
+    removeEntry(sessionProvider, groupName, exEntry);
+    createEntry(sessionProvider, groupName, entry);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.ext.registry.Registry#getRegistry(org.exoplatform.services.jcr.ext.common.SessionProvider,
+   *      org.exoplatform.services.jcr.core.ManageableRepository)
+   */
+  public RegistryNode getRegistry(SessionProvider sessionProvider)
+      throws RepositoryConfigurationException, RepositoryException {
+    return new RegistryNode(rootNode(sessionProvider,
+    		repositoryService.getCurrentRepository()).getNode(EXO_REGISTRY));
+    //return new RegistryNode(rootNode(sessionProvider,
+    //    repositoryService.getRepository("repository")).getNode(EXO_REGISTRY));
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.ext.registry.Registry#register(org.exoplatform.services.jcr.ext.registry.Registry.RegistryEntryNode)
+   */
+
+
+  private Node rootNode(SessionProvider sessionProvider, ManageableRepository repo)
+      throws RepositoryException {
 
     String repName = repo.getConfiguration().getName();
     Session session = sessionProvider.getSession(regWorkspaces.get(repName), repo);
     return session.getRootNode();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.picocontainer.Startable#start()
    */
   public void start() {
-    
     try {
       InputStream xml = getClass().getResourceAsStream(NT_FILE);
-
-      for(RepositoryEntry repConfiguration : repConfigurations()){
+      for (RepositoryEntry repConfiguration : repConfigurations()) {
         String repName = repConfiguration.getName();
-        repositoryService.getRepository(repName).
-        getNodeTypeManager().registerNodeTypes(
-            xml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+        repositoryService.getRepository(repName).getNodeTypeManager().registerNodeTypes(xml,
+            ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
       }
-
       initStorage(false);
     } catch (RepositoryConfigurationException e) {
       e.printStackTrace();
     } catch (RepositoryException e) {
       e.printStackTrace();
-    }  
+    }
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.picocontainer.Startable#stop()
    */
   public void stop() {
@@ -203,16 +273,17 @@ public class RegistryService extends Registry implements Startable {
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
    */
-  public void initStorage(boolean replace) throws RepositoryConfigurationException, RepositoryException {
-    for(RepositoryEntry repConfiguration : repConfigurations()){
+  public void initStorage(boolean replace) throws RepositoryConfigurationException,
+      RepositoryException {
+    for (RepositoryEntry repConfiguration : repConfigurations()) {
       String repName = repConfiguration.getName();
       ManageableRepository rep = repositoryService.getRepository(repName);
       Session sysSession = rep.getSystemSession(regWorkspaces.get(repName));
-      
-      if(sysSession.getRootNode().hasNode(EXO_REGISTRY) && replace) 
-          sysSession.getRootNode().getNode(EXO_REGISTRY).remove();
-      
-      if(!sysSession.getRootNode().hasNode(EXO_REGISTRY)) {
+
+      if (sysSession.getRootNode().hasNode(EXO_REGISTRY) && replace)
+        sysSession.getRootNode().getNode(EXO_REGISTRY).remove();
+
+      if (!sysSession.getRootNode().hasNode(EXO_REGISTRY)) {
         Node rootNode = sysSession.getRootNode().addNode(EXO_REGISTRY, EXO_REGISTRY_NT);
         rootNode.addNode(EXO_SERVICES, EXO_REGISTRYGROUP_NT);
         rootNode.addNode(EXO_APPLICATIONS, EXO_REGISTRYGROUP_NT);
@@ -222,7 +293,7 @@ public class RegistryService extends Registry implements Startable {
       sysSession.logout();
     }
   }
-  
+
   /**
    * @param repositoryName
    * @param workspaceName
@@ -230,7 +301,7 @@ public class RegistryService extends Registry implements Startable {
   public void addRegistryLocation(String repositoryName, String workspaceName) {
     regWorkspaces.put(repositoryName, workspaceName);
   }
-  
+
   /**
    * @param repositoryName
    */
@@ -238,44 +309,39 @@ public class RegistryService extends Registry implements Startable {
     regWorkspaces.remove(repositoryName);
   }
 
-  
   /**
    * @param sessionProvider
-   * @param entryType
+   * @param groupName
    * @param entryName
    * @param repositoryName
    * @return
    * @throws RepositoryException
    */
-  public void initRegistryEntry(String entryType,
-      String entryName) throws RepositoryException, RepositoryConfigurationException {
-    String relPath = EXO_REGISTRY+"/"+entryType+"/"+entryName;
-    for(RepositoryEntry repConfiguration : repConfigurations()){
-      
+  public void initRegistryEntry(String groupName, String entryName) throws RepositoryException,
+      RepositoryConfigurationException {
+  	
+    String relPath = EXO_REGISTRY + "/" + groupName + "/" + entryName;
+    for (RepositoryEntry repConfiguration : repConfigurations()) {
       String repName = repConfiguration.getName();
       SessionProvider sysProvider = SessionProvider.createSystemProvider();
-      Node root = rootNode(sysProvider, repositoryService
-          .getRepository(repName));
+      Node root = rootNode(sysProvider, repositoryService.getRepository(repName));
       if (!root.hasNode(relPath)) {
-        RegistryEntryNode ren = new RegistryEntryNode(root.addNode(relPath,
-            EXO_REGISTRYENTRY_NT));
-        register(ren);
+        root.addNode(relPath, EXO_REGISTRYENTRY_NT);
+        root.save();
       } else {
-        log.info("The RegistryEntry " + relPath
-            + "is already initialized on repository " + repName);
+        log.info("The RegistryEntry " + relPath +
+        		"is already initialized on repository " + repName);
       }
       sysProvider.close();
     }
   }
 
-  
   public RepositoryService getRepositoryService() {
     return repositoryService;
   }
 
-  private List <RepositoryEntry> repConfigurations() {
-    return  (List <RepositoryEntry>)repositoryService.getConfig().getRepositoryConfigurations();
+  private List<RepositoryEntry> repConfigurations() {
+    return (List<RepositoryEntry>) repositoryService.getConfig().getRepositoryConfigurations();
   }
-
 
 }

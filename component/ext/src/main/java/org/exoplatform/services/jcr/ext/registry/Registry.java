@@ -5,9 +5,11 @@
 
 package org.exoplatform.services.jcr.ext.registry;
 
+import org.w3c.dom.Document;
+
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
-
+import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.ext.common.NodeWrapper;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 
@@ -28,31 +30,6 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
 public abstract class Registry {
   
   /**
-   * Returns existed RegistryEntry which wraps Node of "exo:registryEntry" type  
-   * @param sessionProvider
-   * @param entryType
-   * @param entryName
-   * @param repository
-   * @return
-   * @throws RepositoryException
-   */
-  public abstract RegistryEntryNode getRegistryEntry(SessionProvider sessionProvider, String entryType,
-      String entryName) throws RepositoryException;
-
-  /**
-   * Returns newly created RegistryEntry which wraps Node of "exo:registryEntry" type  
-   * @param sessionProvider
-   * @param entryType
-   * @param entryName
-   * @param repository
-   * @return
-   * @throws RepositoryException
-   */
-  public abstract RegistryEntryNode createRegistryEntry(SessionProvider sessionProvider, String entryType,
-      String entryName) throws RepositoryException;
-
-
-  /**
    * Returns Registry object which wraps Node of "exo:registry" type
    * (the whole registry tree)  
    * @param sessionProvider
@@ -61,32 +38,54 @@ public abstract class Registry {
    * @throws RepositoryException
    */
   public abstract RegistryNode getRegistry(SessionProvider sessionProvider) 
-      throws RepositoryException;
+      throws RepositoryConfigurationException, RepositoryException;
 
-  /**
-   * Registers entry (saves the node)  
-   * @param entry
-   * @throws RepositoryException
-   */
-  public abstract void register(RegistryEntryNode entry) throws RepositoryException;
   
   /**
-   * Unregisters entry
-   * @param entry
+   * Returns existed RegistryEntry which wraps Node of "exo:registryEntry" type  
+   * @param sessionProvider
+   * @param entryType
+   * @param entryName
+   * @param repository
+   * @return
    * @throws RepositoryException
    */
-  public abstract void unregister(RegistryEntryNode entry) throws RepositoryException;
-  
- 
-  /**
-   * Internal Node wrapper which ensures the node of "exo:registryEntry" type inside
-   */
-  public final class RegistryEntryNode extends NodeWrapper {
-    protected RegistryEntryNode(final Node node) throws RepositoryException {
-      super(node);
-    }
-  }
+  public abstract Document getEntry(SessionProvider sessionProvider, String groupName,
+      String entryName) throws RepositoryConfigurationException, RepositoryException;
 
+  /**
+   * @param sessionProvider
+   * @param groupName
+   * @param entry
+   * @throws RepositoryConfigurationException
+   * @throws RepositoryException
+   */
+  public abstract void createEntry(SessionProvider sessionProvider,
+  		String groupName, Document entryName) throws RepositoryConfigurationException,
+  		RepositoryException;
+
+  /**
+   * @param sessionProvider
+   * @param groupName
+   * @param entryName
+   * @throws RepositoryConfigurationException
+   * @throws RepositoryException
+   */
+  public abstract void recreateEntry(SessionProvider sessionProvider,
+  		String groupName, Document entryName) throws RepositoryConfigurationException,
+  		RepositoryException;
+
+  /**
+   * @param sessionProvider
+   * @param groupName
+   * @param entryName
+   * @throws RepositoryConfigurationException
+   * @throws RepositoryException
+   */
+  public abstract void removeEntry(SessionProvider sessionProvider,
+  		String groupName, String entryName) throws RepositoryConfigurationException,
+  		RepositoryException;
+  
   /**
    * Internal Node wrapper which ensures the node of "exo:registry" type inside
    */
