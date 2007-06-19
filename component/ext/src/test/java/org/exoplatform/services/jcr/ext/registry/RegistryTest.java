@@ -4,12 +4,28 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.ext.registry;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.List;
+
 import javax.jcr.ItemNotFoundException;
-import javax.jcr.Node;
+
+import org.w3c.dom.Document;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
-import org.exoplatform.services.jcr.ext.registry.Registry.RegistryEntryNode;
+import org.exoplatform.services.rest.Request;
+import org.exoplatform.services.rest.ResourceBinder;
+import org.exoplatform.services.rest.ResourceDispatcher;
+import org.exoplatform.services.rest.ResourceIdentifier;
+import org.exoplatform.services.rest.container.ResourceDescriptor;
+import org.exoplatform.services.rest.MultivaluedMetadata;
+import org.exoplatform.services.rest.Response;
+
 
 public class RegistryTest extends BaseStandaloneTest{
   
@@ -22,7 +38,8 @@ public class RegistryTest extends BaseStandaloneTest{
   public void testInit() throws Exception {
     RegistryService regService = (RegistryService) container
     .getComponentInstanceOfType(RegistryService.class);
-    
+    assertNotNull(regService);
+      
 //    ManageableRepository rep = ((RepositoryService) container
 //    .getComponentInstanceOfType(RepositoryService.class)).getDefaultRepository();
     
@@ -48,29 +65,25 @@ public class RegistryTest extends BaseStandaloneTest{
     SessionProvider sp = new SessionProvider(credentials);
 
     try {
-      regService.getRegistryEntry(sp, RegistryService.EXO_SERVICES, "testService");
+      Document doc = regService.getEntry(sp, RegistryService.EXO_USERS, "exo_user");
       fail("ItemNotFoundException should have been thrown");
-    } catch (ItemNotFoundException e) {
-    }
+    } catch (ItemNotFoundException e) {}
     
-    RegistryEntryNode ren = regService.createRegistryEntry(sp, RegistryService.EXO_SERVICES, "testService");
+    File entryFile = new File("src/test/java/org/exoplatform/services/jcr/ext/registry/exo_user.xml"); 
+    regService.createEntry(sp, RegistryService.EXO_USERS, 
+        DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(entryFile));
     
-    Node node = ren.getNode(); 
-    assertTrue(node.isNew());
-    
-    node.setProperty("test", "test");
-    regService.register(ren);
-    
-    RegistryEntryNode ren1 = regService.getRegistryEntry(sp, RegistryService.EXO_SERVICES, "testService");
-    node = ren1.getNode();
-    assertFalse(node.isNew());
-    assertTrue(node.hasProperty("test"));
+    Document doc = regService.getEntry(sp, RegistryService.EXO_USERS, "exo_user");
+    TransformerFactory.newInstance().newTransformer().transform(
+        new DOMSource(doc), new StreamResult(System.out));
 
-    // unregister
-    //regService.unregister(sp, RegistryService.EXO_SERVICES, "testService", rep);
-    regService.unregister(ren1);
+    regService.recreateEntry(sp, RegistryService.EXO_USERS, 
+        DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(entryFile));
+
+    regService.removeEntry(sp, RegistryService.EXO_USERS, "exo_user");
+    
     try {
-      regService.getRegistryEntry(sp, RegistryService.EXO_SERVICES, "testService");
+      regService.getEntry(sp, RegistryService.EXO_USERS, "exo_user");
       fail("ItemNotFoundException should have been thrown");
     } catch (ItemNotFoundException e) {
     }
@@ -83,4 +96,81 @@ public class RegistryTest extends BaseStandaloneTest{
     
     regService.addRegistryLocation("wrong", "wrong");
   }
+  
+  public void testRESTRegservice() throws Exception {
+    RESTRegistryService restRegService =
+      (RESTRegistryService) container.getComponentInstanceOfType(RESTRegistryService.class);
+    ResourceBinder binder =
+      (ResourceBinder) container.getComponentInstanceOfType(ResourceBinder.class);
+    ResourceDispatcher dispatcher =
+      (ResourceDispatcher) container.getComponentInstanceOfType(ResourceDispatcher.class);
+    assertNotNull(restRegService);
+    assertNotNull(binder);
+    assertNotNull(dispatcher);
+    
+    List<ResourceDescriptor> list = binder.getAllDescriptors();
+    assertEquals(5, list.size());
+
+    MultivaluedMetadata mv = new MultivaluedMetadata();
+    System.out.println("-----REST-----");
+    // registry should be empty
+    Request request = new Request(null, new ResourceIdentifier("/registry/db1/"),
+        "GET", mv, null, "http://localhost:8080/rest/registry/db1/");
+    Response<?> response = dispatcher.dispatch(request);
+    assertEquals(200, response.getStatus());
+    response.writeEntity(System.out);
+    // request to exo:services/exo_service
+    // request status should be 404 (NOT_FOUND)
+    request = new Request(null, new ResourceIdentifier("/registry/db1/" + RegistryService.EXO_SERVICES +
+    		"/exo_service"), "GET", mv, null, "http://localhost:8080/rest/registry/db1/" + 
+    RegistryService.EXO_SERVICES + "/exo_service");
+    response = dispatcher.dispatch(request);
+    assertEquals(404, response.getStatus());
+    response.writeEntity(System.out);
+    // create exo:services/exo_service
+    FileInputStream fin =
+      new FileInputStream(new File("src/test/java/org/exoplatform/services/jcr/ext/registry/exo_service.xml"));
+    request = new Request(fin, new ResourceIdentifier("/registry/db1/" + RegistryService.EXO_SERVICES),
+        "POST", mv, null, "http://localhost:8080/rest/registry/db1/");
+    response = dispatcher.dispatch(request);
+    assertEquals(201, response.getStatus());
+    response.writeEntity(System.out);
+    // request to exo:services/exo_service
+    request = new Request(null, new ResourceIdentifier("/registry/db1/" + RegistryService.EXO_SERVICES +
+        "/exo_service"), "GET", mv, null, "http://localhost:8080/rest/registry/db1/" + 
+        RegistryService.EXO_SERVICES + "/exo_service");
+    response = dispatcher.dispatch(request);
+    assertEquals(200, response.getStatus());
+    response.writeEntity(System.out);
+    // registry
+    request = new Request(null, new ResourceIdentifier("/registry/db1/"),
+        "GET", mv, null, "http://localhost:8080/rest/registry/db1/");
+    response = dispatcher.dispatch(request);
+    assertEquals(200, response.getStatus());
+    response.writeEntity(System.out);
+    // recreate exo:services/exo_service
+    fin = new FileInputStream(
+        new File("src/test/java/org/exoplatform/services/jcr/ext/registry/exo_service.xml"));
+    request = new Request(fin, new ResourceIdentifier("/registry/db1/" + RegistryService.EXO_SERVICES),
+        "PUT", mv, null, "http://localhost:8080/rest/registry/db1/");
+    response = dispatcher.dispatch(request);
+    assertEquals(201, response.getStatus());
+    response.writeEntity(System.out);
+    // delete exo:services/exo_service
+    request = new Request(null, new ResourceIdentifier("/registry/db1/" + RegistryService.EXO_SERVICES +
+        "/exo_service"), "DELETE", mv, null, "http://localhost:8080/rest/registry/db1/" + 
+    RegistryService.EXO_SERVICES + "/exo_service");
+    response = dispatcher.dispatch(request);
+    assertEquals(200, response.getStatus());
+    response.writeEntity(System.out);
+    // request to exo:services/exo_service
+    // request status should be 404 (NOT_FOUND)
+    request = new Request(null, new ResourceIdentifier("/registry/db1/" + RegistryService.EXO_SERVICES +
+    		"/exo_service"), "GET", mv, null, "http://localhost:8080/rest/registry/db1/" + 
+    RegistryService.EXO_SERVICES + "/exo_service");
+    response = dispatcher.dispatch(request);
+    assertEquals(404, response.getStatus());
+    response.writeEntity(System.out);
+  }
+  
 }
