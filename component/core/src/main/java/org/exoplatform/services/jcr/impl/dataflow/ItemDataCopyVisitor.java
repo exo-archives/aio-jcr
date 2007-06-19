@@ -64,14 +64,9 @@ public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
       ItemState vhpState = findLastItemState(vhpPath);
       if (vhpState == null) {
         // need create a new VH
-        // NodeData versionable, PlainChangesLogImpl changes, ItemDataConsumer dataManager, NodeTypeManagerImpl ntManager
-        //PropertyData vhp = (PropertyData) findLastItemState(vhpPath).getData();
-        
         PlainChangesLogImpl changes = new PlainChangesLogImpl();
         VersionHistoryDataHelper vh = new VersionHistoryDataHelper(curParent(), changes, dataManager, ntManager);
         itemAddStates.addAll(changes.getAllStates());
-        
-        //vhp = (PropertyData) findLastItemState(vhpPath).getData();
       }
       
       values = new ArrayList<ValueData>(1);
@@ -79,22 +74,8 @@ public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
       if (qname.equals(Constants.JCR_VERSIONHISTORY)) {
         return; // added in VH create
       } else if (qname.equals(Constants.JCR_PREDECESSORS)) {
-//        QPath rvPath = QPath.makeChildPath(vhp.getQPath(), Constants.JCR_ROOTVERSION);  
-//        PropertyData rvp = (PropertyData) findLastItemState(rvPath).getData();
-//        if (rvp != null) {
-//          values.add(new TransientValueData(rvp.getUUID())); // UUID of jcr:rootVersion  
-//        } else {
-//          throw new VersionException("jcr:predecessors: jcr:rootVersion is not found. " + curParent().getQPath().getAsString());
-//        }
         return; // added in VH create
       } else if (qname.equals(Constants.JCR_BASEVERSION)) {
-//        QPath rvPath = QPath.makeChildPath(vhp.getQPath(), Constants.JCR_ROOTVERSION);  
-//        PropertyData rvp = (PropertyData) findLastItemState(rvPath).getData();
-//        if (rvp != null) {
-//          values.add(new TransientValueData(rvp.getUUID())); // UUID of jcr:rootVersion
-//        } else {
-//          throw new VersionException("jcr:baseVersion: jcr:rootVersion is not found. " + curParent().getQPath().getAsString());
-//        }
         return; // added in VH create
       } else if (qname.equals(Constants.JCR_ISCHECKEDOUT)) {
         values.add(new TransientValueData(true));

@@ -264,29 +264,13 @@ public class SessionDataManager implements ItemDataConsumer {
     session.getActionHandler().postRead(item);
     if (!item.hasPermission(PermissionType.READ)) {
       throw new AccessDeniedException("Access denied, item with id : "
-          + item.getPath() + " (get item by UUID), user "+session.getUserID()+ " has no privileges on reading");
+          + item.getPath() + " (get item by id), user "+session.getUserID()+ " has no privileges on reading");
     }
     if (pool)
       return itemsPool.get(item);
     
     return item;
   }
-
-//  /**
-//   * TODO get from session storage as well
-//   * 
-//   * @param uuid
-//   * @return
-//   * @throws RepositoryException
-//   */
-//  List<PropertyImpl> getReferences(String uuid) throws RepositoryException {
-//    List<PropertyImpl> refs = new ArrayList<PropertyImpl>();
-//    for (PropertyData data : transactionableManager.getReferencesData(uuid)) {
-//      refs.add((PropertyImpl) itemFactory.createItem(data));
-//    }
-//    return refs;
-//  }
-
   
   public boolean hasPendingChanges(QPath path) {
     return (changesLog.getDescendantsChanges(path).size() > 0);
@@ -424,7 +408,7 @@ public class SessionDataManager implements ItemDataConsumer {
       throw new AccessControlException("ACL not found for item " + path.getAsString());
     }
     
-//    NodeData iparent = (NodeData) getItemData(item.getParentUUID());
+//    NodeData iparent = (NodeData) getItemData(item.getParentIdentifier());
 //    if ((item == null || !item.isNode()) && iparent != null) {
 //      QPathEntry[] names = item.getQPath().getEntries();
 //      return transactionableManager.getACL(iparent, names);
@@ -720,8 +704,6 @@ public class SessionDataManager implements ItemDataConsumer {
   }
  
   private void validateMandatoryItem(ItemState changedItem) throws ConstraintViolationException,AccessDeniedException{
-    //NodeImpl node = (NodeImpl) changedItem.getData();
-    // TODO optimize it!
     if (changedItem.getData().isNode() && changedItem.isAdded()
         && changesLog.getItemState(changedItem.getData().getQPath()).getState() != ItemState.DELETED) {
       // Node not in delete state. It might be a wrong
@@ -820,17 +802,9 @@ public class SessionDataManager implements ItemDataConsumer {
     return this.itemsPool;
   }
 
-  /**
-   * 1. for testing
-   * [PN] TODO 28.12.06
-   * 2. for ItemImpl.save() validation
-   * 3. Session.move() 
-   * @return
-   */
   protected SessionChangesLog getChangesLog() {
     return this.changesLog;
   }
-  
   
   /**
    * merges incoming data with changes stored in this log i.e:
@@ -859,12 +833,8 @@ public class SessionDataManager implements ItemDataConsumer {
     for (ItemState state : transientDescendants) {
       ItemData data = state.getData();
       if (!state.isDeleted())
-        // log.info(">>> Transient " + descendants.put(data.getUUID(), data) + "
-        // " + data.getQPath().getAsString());
         descendants.put(data.getIdentifier(), data);
       else
-        // log.info(">>> Removed " + descendants.remove(data.getUUID()) + " " +
-        // data.getQPath().getAsString());
         descendants.remove(data.getIdentifier());
     }
     List<ItemData> retval = new ArrayList<ItemData>();
@@ -946,7 +916,6 @@ public class SessionDataManager implements ItemDataConsumer {
 
     ItemImpl remove(String identifier) {
       return items.remove(identifier);
-      //System.gc();
     }
     
     int size() {

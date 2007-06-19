@@ -260,7 +260,6 @@ public abstract class ItemImpl implements Item {
    */
   public boolean isModified() {
     if (isValid())
-      //return dataManager.isModified(getInternalUUID());
       return dataManager.isModified(getData());
 
     // if was removed (is invalid by check), was modified
@@ -404,20 +403,12 @@ public abstract class ItemImpl implements Item {
       def = ntm.findPropertyDefinitions(propertyName, parentData.getPrimaryTypeName(),
           parentData.getMixinTypeNames()).getDefinition(multiValue);
       
-      // TODO [PN] DEBUG
-//      def = ntm.findPropertyDefinition(propertyName, parentData.getPrimaryTypeName(),null
-//        /*parentData.getMixinTypeNames()*/);
-
       state = ItemState.ADDED;
     } else {
       oldProp = (PropertyImpl) oldItem;
       def = ntm.findPropertyDefinitions(propertyName, parentData.getPrimaryTypeName(),
           parentData.getMixinTypeNames()).getDefinition(oldProp.isMultiValued());
       
-      // TODO [PN] DEBUG      
-//      def = ntm.findPropertyDefinition(propertyName, parentData.getPrimaryTypeName(),
-//          /*parentData.getMixinTypeNames()*/null);
-
       identifier = oldProp.getInternalIdentifier();
       version = oldProp.getData().getPersistedVersion();
       if (propertyValues == null)

@@ -187,8 +187,8 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataMa
     //return initACL(persistentManager.getItemData(qpath));
   }
 
-  public ItemData getItemData(String uuid) throws RepositoryException {
-    return initACL(null, persistentManager.getItemData(uuid));
+  public ItemData getItemData(String identifier) throws RepositoryException {
+    return initACL(null, persistentManager.getItemData(identifier));
   }
   
   public List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException {

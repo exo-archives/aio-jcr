@@ -12,9 +12,9 @@ import java.io.ObjectOutput;
 
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.MutableItemData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
@@ -32,9 +32,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
   protected String parentIdentifier;
 
   protected int persistedVersion;
-  
-  //protected int hashCode;
-  
+   
 
   /**
    * @param path QPath
@@ -47,22 +45,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
     this.identifier = identifier.intern();
     this.qpath = path;
     this.persistedVersion = version;
-    //this.hashCode = initHashCode();
   }
-  
-  protected int initHashCode() {
-    final int prime = 31;
-    int hcode = prime * identifier.hashCode(); // [PN] 10.02.07 by identifier only
-    //hcode = prime * hcode + QPath.hashCode();    
-    //hcode = prime * hcode + (parentUUID != null ? parentUUID.hashCode() : 0);
-    //hcode = prime * hcode + persistedVersion;
-    return hcode; 
-  }
-  
-//  @Override
-//  public int hashCode() {
-//    return hashCode;
-//  }
 
   /*
    * (non-Javadoc)
@@ -76,7 +59,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
   /*
    * (non-Javadoc)
    * 
-   * @see org.exoplatform.services.jcr.datamodel.ItemData#getUUID()
+   * @see org.exoplatform.services.jcr.datamodel.ItemData#getIdentifier()
    */
   public String getIdentifier() {
     return identifier;
@@ -123,18 +106,11 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
       return false;
 
     if (obj instanceof ItemData) {
-      //return this.hashCode == obj.hashCode();
-      //return getUUID().equals(((ItemData) obj).getUUID());
       return getIdentifier().hashCode() == ((ItemData) obj).getIdentifier().hashCode();
     } 
 
     return false;
   }
-  
-//  @Override
-//  public int hashCode() {
-//    return hashCode;
-//  }
 
   /**
    * @return Qname - shortcut for getQPath().getName();
@@ -148,8 +124,6 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
   }
 
   public void writeExternal(ObjectOutput out) throws IOException {
-//    System.out.println("-->TransientItemData--> writeExternal(ObjectOutput out)");
-
     out.writeInt(qpath.getAsString().getBytes().length);
     out.write(qpath.getAsString().getBytes());
 
@@ -163,8 +137,6 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
   }
 
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-//    System.out.println("-->TransientItemData--> readExternal(ObjectInput in)");
-    
     byte[] buf;
 
     try {
@@ -176,7 +148,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
       e.printStackTrace();
     }
 
-    buf = new byte[in.readInt()/*UUIDGenerator.UUID_LENGTH*/];
+    buf = new byte[in.readInt()];
     in.read(buf);
     identifier = new String(buf , Constants.DEFAULT_ENCODING).intern();
 

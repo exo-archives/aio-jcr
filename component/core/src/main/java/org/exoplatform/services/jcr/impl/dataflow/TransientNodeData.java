@@ -110,11 +110,10 @@ public class TransientNodeData extends TransientItemData implements Comparable,
   }
 
   /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.datamodel.MutableNodeData#setUUID(java.lang.String)
+   * @see org.exoplatform.services.jcr.datamodel.MutableNodeData#setId(java.lang.String)
    */
   public void setIdentifier(String identifier) {
     this.identifier = identifier;
-    //this.hashCode = UUID.hashCode();
   }
 
   /* (non-Javadoc)
@@ -228,9 +227,14 @@ public class TransientNodeData extends TransientItemData implements Comparable,
       in.read(buf);
       String sQName = new String(buf, Constants.DEFAULT_ENCODING);
       primaryTypeName = InternalQName.parse(sQName);
-    } catch (IllegalNameException e) {
-      // TODO throw exception 
-      e.printStackTrace();
+    } catch (final IllegalNameException e) {
+      throw new IOException(e.getMessage()) {
+        private static final long serialVersionUID = 3489809179234435267L;
+        @Override
+        public Throwable getCause() {
+          return e;
+        }
+      };
     }
     
     int count = in.readInt();
@@ -243,15 +247,18 @@ public class TransientNodeData extends TransientItemData implements Comparable,
         in.read(buf);
         String sQName = new String(buf, Constants.DEFAULT_ENCODING);
         mixinTypeNames[i] = InternalQName.parse(sQName);
-      } catch (IllegalNameException e) {
-        // TODO throw exception
-        e.printStackTrace();
+      } catch (final IllegalNameException e) {
+        throw new IOException(e.getMessage()) {
+          private static final long serialVersionUID = 3489809179234435268L; // eclipse gen
+          @Override
+          public Throwable getCause() {
+            return e;
+          }
+        };
       }
     }
     
     acl.readExternal(in);
-    // TODO
-    //acl = (AccessControlList)in.readObject();
   }
   //------------------ [  END  ] ------------------
   

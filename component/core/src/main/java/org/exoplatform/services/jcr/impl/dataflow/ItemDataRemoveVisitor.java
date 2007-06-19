@@ -88,7 +88,7 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
         parent.getACL(), PermissionType.READ, session.getUserID())) {
       throw new AccessDeniedException("Access denied "
           + session.getLocationFactory().createJCRPath(property.getQPath()).getAsString(false)
-          + " for " + session.getUserID() + " (get item parent by uuid)");
+          + " for " + session.getUserID() + " (get item parent by id)");
     }
   }
   
@@ -124,7 +124,7 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
         node.getACL(), PermissionType.READ, session.getUserID())) {
       throw new AccessDeniedException("Access denied "
           + session.getLocationFactory().createJCRPath(node.getQPath()).getAsString(false)
-          + " for " + session.getUserID() + " (get item by uuid)");
+          + " for " + session.getUserID() + " (get item by id)");
     }
   }
   
@@ -150,7 +150,7 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
             refParent.getACL(), PermissionType.READ, session.getUserID())) {
           throw new AccessDeniedException("Access denied " 
               + session.getLocationFactory().createJCRPath(rpd.getQPath()).getAsString(false)
-              + " for " + session.getUserID() + " (get reference property parent by uuid)");
+              + " for " + session.getUserID() + " (get reference property parent by id)");
         } 
 
         throw new ReferentialIntegrityException("This node "

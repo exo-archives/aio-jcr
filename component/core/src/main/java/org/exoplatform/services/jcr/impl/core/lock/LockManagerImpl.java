@@ -387,7 +387,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     LockData lData = locks.get(nodeIdentifier);
 
     if (lData == null) {
-      throw new LockException("Node with uuid " + nodeIdentifier + " not locked");
+      throw new LockException("Node with id " + nodeIdentifier + " not locked");
     }
     NodeData parentNode = null;
     try {

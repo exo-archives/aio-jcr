@@ -162,70 +162,11 @@ public class SearchManager implements  Startable {
   ////// ------------------------- Startable -------------------------
 
   public void start() {
-    //    wsDataManager.addItemPersistenceListener(this);
   }
 
   public void stop() {
     close();
   }
-
-  //--------------- ItemPersistenceListener ----------------------------
-
-//  public void onSaveItems(ItemDataChangesLog changesLog) {
-//    // nodes that need to be removed from the index.
-//    Set removedNodes = new HashSet();
-//    // nodes that need to be added to the index.
-//    Set addedNodes = new HashSet();
-//
-//    List <ItemState> itemStates = changesLog.getAllStates();
-//    Iterator items = itemStates.iterator();
-//    while (items.hasNext()) {
-//      ItemState itemState = (ItemState) items.next();
-//
-//      //if(itemImpl.getPath().startsWith("/jcr:system"))
-//      //  continue;
-//
-//      if (itemState.isNode()) {
-//        if (itemState.getState() == ItemState.ADDED
-//            || itemState.getState() == ItemState.AUTO_ADDED) {
-//          addedNodes.add(itemState.getData());
-//          //traverseAddedNode((NodeData)itemState.getData(), addedNodes);
-//        } else if (itemState.getState() == ItemState.DELETED
-//            || itemState.getState() == ItemState.AUTO_DELETED) {
-//          removedNodes.add(itemState.getData().getUUID());
-//        }
-//      } else {
-//        String parentUUID = itemState.getData().getParentUUID();
-//
-//        if (!hasUUID(itemStates, parentUUID)) {
-//          removedNodes.add(parentUUID);
-//          try {
-//            addedNodes.add(wsDataManager.getItemData(parentUUID));
-//          } catch (RepositoryException e) {
-//            log.error("Error indexing node (addNode: " + parentUUID + ").", e);
-//          }
-//        }
-//      }
-//    }
-//    try {
-//      handler.updateNodes(removedNodes.iterator(), addedNodes.iterator());
-//    } catch (RepositoryException e) {
-//      log.error("Error indexing node.", e);
-//    } catch (IOException e) {
-//      log.error("Error indexing node.", e);
-//    } catch (Throwable e) {
-//      e.printStackTrace();
-//      log.error("Error indexing node.", e);
-//    }
-//  }
-//
-//  private boolean hasUUID(List itemStates, String uuid) {
-//    for(int i=0; i<itemStates.size(); i++) {
-//      if(((ItemState)itemStates.get(i)).getData().getUUID().equals(uuid))
-//        return true;
-//    }
-//    return false;
-//  }
 
    /**
      * Creates a new instance of an {@link AbstractQueryImpl} which is not
@@ -261,10 +202,6 @@ public class SearchManager implements  Startable {
     private void initializeQueryHandler() throws RepositoryException {
         // initialize query handler
         try {
-            //handler = (QueryHandler) config.newInstance();
-
-//            QueryHandlerContext context
-//                    = new QueryHandlerContext(wsDataManager, sysLocationFactory);
             handler.init();
         } catch (Exception e) {
             throw new RepositoryException(e.getMessage(), e);

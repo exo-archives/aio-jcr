@@ -202,18 +202,6 @@ public class StorageUpdateManager {
     this.SQL_INSERT_REFERENCES = multiDB ? SQL_INSERT_REFERENCES_MULTIDB : SQL_INSERT_REFERENCES_SINGLEDB;
   }
   
-//  static protected byte[] readInputStream(InputStream aStream) throws IOException {
-//    byte[] buff = new byte[UUIDGenerator.UUID_LENGTH];
-//
-//    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//    int res = 0;
-//    while ((res = aStream.read(buff)) > 0) {
-//      baos.write(buff, 0, res);
-//    }
-//    BLOBUtil.readStream(aStream);
-//    return baos.toByteArray();
-//  }  
-  
   /**
    * Check current storage version and update if updateNow==true 
    * @param ds
@@ -313,48 +301,12 @@ public class StorageUpdateManager {
     // connection.commit(); will be done in checkVersion()
     return REQUIRED_STORAGE_VERSION;
   }
-
-  /**
-   * upadates from ver 1.0 to required
-   * @throws Exception
-   */
-//  private void update100ToRequired() throws Exception {
-//    
-//    Connection conn = null;
-//    try {
-//      conn = ds.getConnection();
-//      conn.setAutoCommit(false);
-//      conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
-//  
-//      // fix before the version update
-//      fixCopyUuidBug(conn);
-//      
-//      PreparedStatement insertVersion = conn.prepareStatement(SQL_UPDATE_VERSION);
-//      insertVersion.setString(1, REQUIRED_STORAGE_VERSION);
-//      insertVersion.executeUpdate();
-//      
-//      conn.commit();
-//    } catch(Exception e) {
-//      if (conn != null) {
-//        try {
-//          conn.rollback();
-//        } catch(SQLException sqle) {
-//          log.warn("Error of update rollback: " + sqle.getMessage(), sqle);
-//        }
-//      }
-//    } finally {
-//      if (conn != null)
-//        conn.close();
-//    }
-//  }
   
   /**
    * fix data in the container
    * @throws SQLException
    */
   private void fixCopyIdentifierBug(Connection conn) throws SQLException {
-    // TODO fix copy()/import() UUID bug
-    
     // need to search all referenceable nodes and fix their 
     // property jcr:uuid with valid value (ID column of JCR_xITEM)
     
@@ -386,8 +338,7 @@ public class StorageUpdateManager {
               log.info("STORAGE UPDATE <<<: Property jcr:uuid update successful. Property: " + jcrIdentifier.getPath());
             }
             
-            // TODO [PN] 27.09.06 Need to be developed more with common versionHistory (of copied nodes) etc.
-            // fixCopyFrozenUuidBug(jcrUuid, conn);
+            // [PN] 27.09.06 Need to be developed more with common versionHistory (of copied nodes) etc.
           }
         } catch(IOException e) {
           log.error("Can't read property value data: " + e.getMessage(), e);
@@ -412,7 +363,6 @@ public class StorageUpdateManager {
     try {
       String sql = SQL_SELECT_FROZENJCRUUID.replaceAll(FROZENJCRUUID, searchCriteria);
       refs = conn.createStatement().executeQuery(SQL_SELECT_FROZENJCRUUID);
-      //update = conn.prepareStatement(SQL_UPDATE_FROZENJCRUUID);
       while (refs.next()) {
         try {
           JcrIdentifier frozenIdentifier = new JcrIdentifier(refs.getString("PATH"), 
@@ -423,17 +373,6 @@ public class StorageUpdateManager {
           if (!frozenIdentifier.getNodeIdentifier().equals(frozenIdentifier.getJcrIdentifier())) {
             log.info("VERSION STORAGE UPDATE >>>: Property jcr:frozenUuid have to be updated with actual value. Property: " 
                 + frozenIdentifier.getPath() + ", actual:" + jcrIdentifier.getNodeIdentifier() + ", existed: " + frozenIdentifier.getJcrIdentifier());
-
-//            update.clearParameters();
-//            update.setBinaryStream(1, 
-//                new ByteArrayInputStream(jcrUuid.getNodeUuid().getBytes()), jcrUuid.getNodeUuid().length());
-//            update.setString(2, jcrUuid.getValueId());
-//            
-//            if (update.executeUpdate() != 1) {
-//              log.warn("VERSION STORAGE UPDATE !!!: More than one jcr:frozenUuid property values were updated. Updated value id: " + jcrUuid.getValueId());
-//            } else {
-//              log.info("VERSION STORAGE UPDATE <<<: Property jcr:uuid update successful. Property: " + jcrUuid.getPath());
-//            }
           }
         } catch(IOException e) {
           log.error("Can't read property value data: " + e.getMessage(), e);
@@ -463,7 +402,6 @@ public class StorageUpdateManager {
       while (refs.next()) {
         try {
           String refNodeIdentifier = new String(readIdentifierStream(refs.getBinaryStream("DATA")));
-          //String refNodeUuid = new String(BLOBUtil.readStream(refs.getBinaryStream("DATA")));
           String refPropertyIdentifier = refs.getString("PROPERTY_ID");
           int refOrderNum = refs.getInt("ORDER_NUM");
           

@@ -216,14 +216,6 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       }
 
       addValues(data);
-      
-//      ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data);
-//      if (channel != null) {
-//        channel.write(data.getUUID(), data.getValues());
-//        channel.close();
-//      } else {
-//        addValues(getInternalId(data.getUUID()), data.getValues());
-//      }
 
       if (log.isDebugEnabled())
         log.debug("Property added " + data.getQPath().getAsString() + ", " + data.getIdentifier()
@@ -268,16 +260,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
 
     final String cid = getInternalId(data.getIdentifier());
 
-    try {
-      // delete value
-//      ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data);
-//      if (channel != null) {
-//        channel.delete(data.getUUID()); // by API UUI, not by cid
-//        channel.close();
-//      } else {
-//        deleteValues(cid);
-//      }
-      
+    try {      
       deleteExternalValues(cid, data);
       deleteValues(cid);
 
@@ -306,185 +289,10 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     }
   }
 
-//  public void delete(ItemData data) throws RepositoryException, UnsupportedOperationException, InvalidItemStateException, IllegalStateException {
-//    checkIfOpened();
-//
-//    final String cid = getInternalId(data.getUUID());
-//
-//    try {
-//      if (data.isNode()) {
-//        if (deleteNode(cid) <= 0) {
-//          // [PN] it's error state, as we actually didn't delete the node (with sub-nodes)
-//          log.warn("Error state, the node (with sub-nodes) is not deleted " + data.getQPath().getAsString());
-//        }
-//      } else {
-//        if (deleteProperty(cid) <= 0) {
-//          // [PN] it's error state, as we actually didn't delete the property
-//          log.warn("Error state, the property item is not deleted " + data.getQPath().getAsString());
-//        }
-//      }
-//
-//      if (log.isDebugEnabled())
-//        if (data.isNode())
-//          log.debug("Node deleted " + data.getQPath().getAsString() + ", " + data.getUUID() + ", " + ((NodeData) data).getPrimaryTypeName().getAsString());
-//        else
-//          log.debug("Property deleted " + data.getQPath().getAsString() + ", " + data.getUUID()
-//              + (((PropertyData) data).getValues() != null ? ", values count: " + ((PropertyData) data).getValues().size() : ", NULL data"));
-//
-//    } catch (SQLException e) {
-//      if (log.isDebugEnabled())
-//        log.error("Item remove. Database error: " + e, e);
-//      exceptionHandler.handleDeleteException(e, data);
-//    }
-//  }
-
-//  /**
-//   * @param cid, must be ready for container (e.g. if single-db then with prefix)
-//   */
-//  protected int deleteNode(String cid) throws SQLException {
-//    int deleted = 0;
-//
-//    int nc = deleteItemByUUID(cid);
-//    if (nc <= 0) {
-//      // [PN] it's error state, as we actually didn't delete a item corresponding the node
-//      log.warn("Error state, a item corresponding the node actually not deleted " + cid);
-//    }
-//    deleted += nc;
-//    return deleted;
-//  }
-//
-//  protected int deleteProperty(String cid) throws SQLException, RepositoryException {
-//
-//    PropertyData data = (PropertyData) getItemByUUID(cid); // by container id
-//
-//    try {
-//      // delete value
-//      ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data);
-//      if (channel != null) {
-//        channel.delete(data.getUUID()); // by API UUI, not by cid
-//        channel.close();
-//      } else {
-//        deleteValues(cid);
-//      }
-//
-//      deleteReference(cid);
-//
-//      // delete item
-//      return deleteItemByUUID(cid);
-//    } catch (IOException e) {
-//      exceptionHandler.handleDeleteException(e, data);
-//      return 0; // will newer returns
-//    }
-//  }
-  
-//  public void doReindex(String itemUuid, String oldQPath, int indexDelimPos, int oldIndexLength, String newIndexStr) throws RepositoryException, UnsupportedOperationException, InvalidItemStateException, IllegalStateException, SQLException {
-//
-//    // TODO reimplement
-//    log.warn("Nodes reordering is not supported currently");
-//    return;
-//    
-//    // internal class for storing reindex result and freeing JDBC statement (i.e. client-cursor)
-//    class ItemId {
-//      private final String cid;
-//      private final String path;
-//      private final int version;
-//      
-//      ItemId(String cid, String path, int version) {
-//        this.cid = cid;
-//        this.path = path;
-//        this.version = version;
-//      }
-//
-//      public String getCid() {
-//        return cid;
-//      }
-//
-//      public String getPath() {
-//        return path;
-//      }
-//
-//      public int getVersion() {
-//        return version;
-//      }
-//    }
-//    
-//    // child nodes
-//    final ResultSet dnrs = findDescendantNodes(itemUuid, oldQPath);
-//    final List<ItemId> descendantNodes = new ArrayList<ItemId>(); 
-//    while (dnrs.next()) {
-//      descendantNodes.add(new ItemId(dnrs.getString(COLUMN_ID), dnrs.getString(COLUMN_PATH), dnrs.getInt(COLUMN_VERSION)));
-//    }
-//    dnrs.close();
-//          
-//    for (ItemId item: descendantNodes) {  
-//      String newDescPath = item.getPath().substring(0, indexDelimPos) + newIndexStr
-//        + item.getPath().substring(indexDelimPos + oldIndexLength);
-//      if (updateItemPathByUUID(newDescPath, item.getVersion() + 1, item.getCid()) <= 0)
-//        log.warn("No nodes was updated during reindex " + item.getPath() + " -> " + newDescPath + ", uuid:" + item.getCid());
-//      else {
-//        // DO IT RECURSIVE
-//        doReindex(item.getCid(), oldQPath, indexDelimPos, oldIndexLength, newIndexStr);
-//
-//        if (log.isDebugEnabled())
-//          log.debug("Reindex node " + item.getPath() + " -> " + newDescPath + ", " + item.getCid());
-//      }
-//    }
-//
-//    // child properties
-//    final ResultSet dprs = findDescendantProperties(itemUuid, oldQPath);
-//    final List<ItemId> descendantProperties = new ArrayList<ItemId>();
-//    while (dprs.next()) {
-//      descendantProperties.add(new ItemId(dprs.getString(COLUMN_ID), dprs.getString(COLUMN_PATH), dprs.getInt(COLUMN_VERSION)));
-//    }
-//    dprs.close();
-//      
-//    for (ItemId item: descendantProperties) {
-//      final String newDescPath = item.getPath().substring(0, indexDelimPos) + newIndexStr
-//        + item.getPath().substring(indexDelimPos + oldIndexLength);
-//      if (updateItemPathByUUID(newDescPath, item.getVersion() + 1, item.getCid()) <= 0)
-//        log.warn("No nodes was updated during reindex " + item.getPath() + " -> " + newDescPath + ", uuid:" + item.getCid());
-//      else if (log.isDebugEnabled())
-//        log.debug("Reindex property " + item.getPath() + " -> " + newDescPath + ", " + item.getCid());
-//    }
-//  }
-
   public void reindex(NodeData oldData, NodeData data) throws RepositoryException, UnsupportedOperationException, InvalidItemStateException, IllegalStateException {
-    // TODO reimplement
+    // TODO remove it
     log.warn("Nodes reordering is not supported currently");
-    return;
-    
-//    checkIfOpened();
-//    try {
-//      String cid = getInternalId(data.getUUID());
-//
-//      String oldQPath = oldData.getQPath().getAsString();
-//      String newQPath = data.getQPath().getAsString();
-//
-//      int indexDelimPos = oldQPath.lastIndexOf(":");
-//      if (newQPath.charAt(indexDelimPos) != ':')
-//        throw new RepositoryException("Reindex. An old and a new node has a different locations in workspace. "
-//            + oldQPath + ", " + newQPath);
-//
-//      indexDelimPos++; // pos of the first char of a index string
-//      
-//      String newIndexStr = newQPath.substring(indexDelimPos);
-//      int oldIndexLength = oldQPath.length() - indexDelimPos;
-//
-//      // reindex node
-//      if (updateItemPathByUUID(newQPath, data.getPersistedVersion() + 1, cid) <= 0)
-//        log.warn("No nodes was updated during reindex " + oldQPath + " -> " + newQPath + ", uuid:" + cid);
-//      else if (log.isDebugEnabled())
-//        log.debug("Reindex root node " + oldQPath + " -> " + newQPath + ", " + cid + ", " + data.getPrimaryTypeName().getAsString());
-//
-//      // reindex childs
-//      doReindex(cid, oldQPath, indexDelimPos, oldIndexLength, newIndexStr);
-//
-//    } catch (RepositoryException e) {
-//      throw new RepositoryException(e);
-//    } catch (Exception e) { // SQL
-//      log.error("Node reindex. Database error: " + e, e);
-//      exceptionHandler.handleUpdateException(e, data);
-//    }
+    return;    
   }
 
   /* (non-Javadoc)
@@ -531,16 +339,6 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         throw new RepositoryException("Can't update REFERENCE property ("+data.getQPath()+" "+data.getIdentifier()+") value: " + e.getMessage(), e);
       }
 
-//      ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data);
-//      if (channel != null) {
-//        channel.delete(data.getUUID()); // by API UUID, not by cid
-//        channel.write(data.getUUID(), data.getValues());
-//        channel.close();
-//      } else {
-//        deleteValues(cid);
-//        addValues(cid, data.getValues());
-//      }
-      
       deleteExternalValues(cid, data);
       deleteValues(cid);
       
@@ -570,15 +368,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       ResultSet node = findChildNodesByParentIdentifier(getInternalId(parent.getIdentifier()));
       List<NodeData> childrens = new ArrayList<NodeData>();
       while(node.next()) {
-        childrens.add((NodeData) itemData(parent.getQPath(), node, I_CLASS_NODE));
-        
-//        if (node.getString(COLUMN_ID) != null) {
-//          childrens.add(loadNodeRecord(parent.getQPath(), node));
-//        } else {
-//          // TODO impoossible state
-//          throw new RepositoryException("FATAL: Not found child node for parent "+parent.getQPath().getAsString()
-//              + ", but child item found " + node.getString(COLUMN_PATH) + " " + getUuid(node.getString(COLUMN_ID)));
-//        }
+        childrens.add((NodeData) itemData(parent.getQPath(), node, I_CLASS_NODE));        
       }
       return childrens;
     } catch (SQLException e) {
@@ -598,14 +388,6 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       List<PropertyData> children = new ArrayList<PropertyData>();
       while(prop.next()) {
         children.add((PropertyData) itemData(parent.getQPath(), prop, I_CLASS_PROPERTY));
-        
-//        if (prop.getString(COLUMN_ID) != null) {
-//          children.add(loadPropertyRecord(parent.getQPath(), prop));
-//        } else {
-//          // TODO impoossible state
-//          throw new RepositoryException("FATAL: Not found child property for parent "+parent.getQPath().getAsString()
-//              + ", but child item found " + prop.getString(COLUMN_PATH) + " " + getUuid(prop.getString(COLUMN_ID)));
-//        }
       }
       return children;
     } catch (SQLException e) {
@@ -614,30 +396,6 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       throw new RepositoryException(e);
     }
   }
-
-//  public ItemData getItemData(QPath qPath) throws RepositoryException, IllegalStateException {
-//    checkIfOpened();
-//    ResultSet item = null;
-//    try {
-//      item = findItemByPath(qPath.getAsString());
-//      if (item.next())
-//        return itemData(null, item, item.getInt(COLUMN_CLASS));
-//      return null;
-//    } catch (SQLException e) {
-//      e.printStackTrace();
-//      throw new RepositoryException(e);
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//      throw new RepositoryException(e);
-//    } finally {
-//      try {
-//        if (item != null)
-//          item.close();
-//      } catch(SQLException e) {
-//        log.error("getItemData() Error close resultset " + e.getMessage());
-//      }
-//    }
-//  }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#getItemData(java.lang.String)
@@ -667,7 +425,6 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       List<PropertyData> references = new ArrayList<PropertyData>();
       while(refProps.next()) {
         references.add((PropertyData) itemData(null, refProps, I_CLASS_PROPERTY));
-        //references.add(loadPropertyRecord(refProps));
       }
       return references;
     } catch (SQLException e) {
@@ -743,107 +500,6 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       }
     }
   
-    /**
-     * @param itemRecord
-     * @return
-     * @throws RepositoryException
-     * @throws SQLException
-     */
-//    private ItemData itemData(ResultSet item) throws RepositoryException, SQLException, IOException {
-//      String cid = item.getString(COLUMN_ID);
-//      
-//      String cpid = item.getString(COLUMN_PARENTID);
-//      // if parent ID is empty string - it's a root node  
-//      cpid = cpid.equals(Constants.ROOT_PARENT_UUID) ? null : cpid;
-//      
-//      int cname = item.getInt(COLUMN_NAME);
-//      int cindex = item.getInt(COLUMN_INDEX);
-//      int cversion = item.getInt(COLUMN_VERSION);
-//      
-//      if (item.getInt(COLUMN_CLASS) == I_CLASS_NODE) {
-//        int cnordernumb = item.getInt(COLUMN_NORDERNUM);
-//        // QPath parentPath, String cname, String cid, String cpid, int cindex, int cversion, int cnordernumb
-//        return loadNodeRecord(null, cname, cid, cpid, cindex, cversion, cnordernumb);
-//      }
-//      return loadPropertyRecord(item);
-//  
-//      // property
-//    }
-  
-//    protected PersistedNodeData loadNodeRecord(String cid, String cpid, int cversion, int cnordernumb) throws RepositoryException, SQLException {
-//  
-//      //QPath qpath = QPath.parse(item.getString(COLUMN_PATH));
-//  
-//      try {
-//        // PRIMARY
-//        //QPath ptPath = QPath.makeChildPath(qpath, Constants.JCR_PRIMARYTYPE);
-//        ResultSet ptProp = findPropertyByName(cid, Constants.JCR_PRIMARYTYPE.getAsString());
-//        
-//        //ResultSet ptProp = findPropertyByPath(cNID, ptPath.getAsString());
-//        if (!ptProp.next()) 
-//          // if (idPrimaryType == null)
-//          throw new PrimaryTypeNotFoundException("FATAL ERROR primary type record not found. Node "
-//              + qpath.getAsString() + ", id " + cid + ", container " + this.containerName, 
-//              null);
-//  
-//        ResultSet ptValue = findValuesByPropertyId(ptProp.getString(COLUMN_ID));
-//  
-//        if (!ptValue.next())
-//          throw new RepositoryException("FATAL ERROR primary type value not found. Node "
-//              + qpath.getAsString() + ", id " + ptProp.getString(COLUMN_ID) + ", container "
-//              + this.containerName);
-//  
-//        byte[] data = ptValue.getBytes(COLUMN_VDATA);
-//        InternalQName ptName = InternalQName.parse(new String((data != null ? data : new byte[] {})));
-//  
-//        // MIXIN
-//        //QPath mtPath = QPath.makeChildPath(qpath, Constants.JCR_MIXINTYPES);
-//        //ResultSet mtProp = findPropertyByPath(cNID, mtPath.getAsString());
-//        ResultSet mtProp = findPropertyByName(cid, Constants.JCR_MIXINTYPES.getAsString());
-//  
-//        InternalQName[] mixinNames = new InternalQName[0];
-//        if (mtProp.next()) {
-//          List<byte[]> mts = new ArrayList<byte[]>();
-//          ResultSet mtValues = findValuesByPropertyId(mtProp.getString(COLUMN_ID));
-//          while (mtValues.next()) {
-//            mts.add(mtValues.getBytes(COLUMN_VDATA));
-//          }
-//          mixinNames = new InternalQName[mts.size()];
-//          for (int i = 0; i < mts.size(); i++) {
-//            mixinNames[i] = InternalQName.parse(new String(mts.get(i)));
-//          }
-//        }
-//  
-//        // ACL
-//        AccessControlList acl;
-//        if (isAccessControllable(mixinNames)) {
-//  
-//          QPath ownerPath = QPath.makeChildPath(qpath, Constants.EXO_OWNER);
-//  
-//          PropertyData ownerData = (PropertyData) getItemData(ownerPath);
-//  
-//          QPath permPath = QPath.makeChildPath(qpath, Constants.EXO_PERMISSIONS);
-//  
-//          PropertyData permData = (PropertyData) getItemData(permPath);
-//  
-//          acl = new AccessControlList(ownerData, permData);
-//        } else {
-//          if (qpath.equals(Constants.ROOT_PATH)) {
-//            // make default ACL for root
-//            acl = new AccessControlList();
-//          } else {
-//            acl = null;
-//          }
-//        }
-//  
-//        return new PersistedNodeData(getUuid(cid), qpath, getUuid(cpid), cversion, cnordernumb,
-//            ptName, mixinNames, acl);
-//  
-//      } catch (IllegalNameException e) {
-//        throw new RepositoryException(e);
-//      }
-//    }
-    
     private QPath traverseQPath(String cpid) throws SQLException, InvalidItemStateException, IllegalNameException {
       // get item by Identifier usecase:
       // find parent path in db by cpid
@@ -911,17 +567,10 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
             cname, cid, cpid, cversion, cptype, cpmultivalued);
       } catch (InvalidItemStateException e) {
         throw new InvalidItemStateException("FATAL: Can't build item path for name " + cname 
-            + " uuid: " + getIdentifier(cid) + ". " + e);
+            + " id: " + getIdentifier(cid) + ". " + e);
       } catch (IllegalNameException e) {
         throw new RepositoryException(e);
       }
-//      int itemClass = itemRecord.getInt(COLUMN_CLASS);
-//      
-//      if (itemClass == I_CLASS_NODE) 
-//        return loadNodeRecord(parentPath, itemRecord);
-//  
-//      // property
-//      return loadPropertyRecord(parentPath, itemRecord);
     }
 
     protected PersistedNodeData loadNodeRecord(QPath parentPath, String cname, String cid, String cpid, int cindex, int cversion, int cnordernumb) throws RepositoryException, SQLException {
@@ -1013,13 +662,6 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         cpmultivalued
     );
 
-//    ValueIOChannel channel = valueStorageProvider.getApplicableChannel(pdata);
-//    if (channel != null) {
-//      values = channel.read(uuid, this.maxBufferSize);
-//      channel.close();
-//    } else {
-//      values = readValues(cid, pdata);
-//    }
     pdata.setValues(readValues(cid, pdata));
     return pdata;
   }  
@@ -1033,32 +675,6 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     }
     return false;
   }
-
-//  protected PersistedPropertyData loadPropertyRecord(ResultSet item) throws RepositoryException, SQLException, IOException {
-//
-//    List<ValueData> values = new ArrayList<ValueData>();
-//    QPath path = QPath.parse(item.getString(COLUMN_PATH));
-//    String cid = item.getString(COLUMN_ID);
-//    String uuid = getUuid(cid);
-//    PersistedPropertyData pdata = new PersistedPropertyData(uuid,
-//        path,
-//        getUuid(item.getString(COLUMN_PARENTID)),
-//        item.getInt(COLUMN_VERSION),
-//        item.getInt(COLUMN_PTYPE),
-//        item.getBoolean(COLUMN_PMULTIVALUED)
-//    );
-//
-//    ValueIOChannel channel = valueStorageProvider.getApplicableChannel(pdata);
-//    if (channel != null) {
-//      values = channel.read(uuid, this.maxBufferSize);
-//      channel.close();
-//    } else {
-//      values = readValues(cid);
-//    }
-//
-//    pdata.setValues(values);
-//    return pdata;
-//  }
 
   private void deleteExternalValues(String cid, PropertyData pdata) throws IOException, ValueDataNotFoundException {
 
@@ -1180,26 +796,10 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     return new ByteArrayPersistedValueData(buffer, orderNumber);
   }
   
-//  protected void addValue(String cid, ValueData data) throws  IOException, SQLException{
-//    InputStream stream = null;
-//    int streamLength = 0;
-//    if (data.isByteArray()) {
-//      byte[] dataBytes = data.getAsByteArray();
-//      stream = new ByteArrayInputStream(dataBytes);
-//      streamLength = dataBytes.length;
-//    } else {
-//      stream = data.getAsStream();
-//      streamLength = stream.available(); // for FileInputStream can be used channel.size() result
-//    }
-//    
-//    addValueData(cid, data.getOrderNumber(), stream, streamLength);
-//  }
-  
   protected void addValues(PropertyData data) throws IOException, SQLException {
     List<ValueData> vdata = data.getValues();
     
     for (int i = 0; i < vdata.size(); i++) {
-      //System.out.println(data.getQPath()+" order:"+i);
       ValueData vd = vdata.get(i);
       vd.setOrderNumber(i);
       ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data, i);
@@ -1228,9 +828,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   protected abstract void addNodeRecord(NodeData data) throws SQLException;
   protected abstract void addPropertyRecord(PropertyData prop) throws SQLException;
 
-  //protected abstract ResultSet findItemByPath(String path) throws SQLException;
   protected abstract ResultSet findItemByIdentifier(String identifier) throws SQLException;
-  //protected abstract ResultSet findPropertyByPath(String parentId, String path) throws SQLException;
   protected abstract ResultSet findPropertyByName(String parentId, String name) throws SQLException;
   protected abstract ResultSet findItemByName(String parentId, String name, int index) throws SQLException;
 

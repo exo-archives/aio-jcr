@@ -74,24 +74,20 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
 
   public List<NodeData> getChildNodesData(NodeData parent)
       throws RepositoryException, IllegalStateException {
-    // TODO Auto-generated method stub
     return null;
   }
 
   public List<PropertyData> getChildPropertiesData(NodeData parent)
       throws RepositoryException, IllegalStateException {
-    // TODO Auto-generated method stub
     return null;
   }
 
   public int getChildNodesCount(NodeData nodeData) throws RepositoryException {
-    // TODO Auto-generated method stub
     return 0;
   }
 
   public int getChildPropertiesCount(NodeData nodeData)
       throws RepositoryException {
-    // TODO Auto-generated method stub
     return 0;
   }
 
@@ -120,17 +116,9 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
       UnsupportedOperationException, InvalidItemStateException,
       IllegalStateException {
 
-    // JCRPath loc = ((ItemImpl)item).getLocation();
     if (items.get(item.getQPath().getAsString()) != null)
       throw new ItemExistsException("WorkspaceContainerImpl.add(Item) item '"
           + item.getQPath().getAsString() + "' already exists!");
-
-    // NodeImpl node = (NodeImpl) item;
-    // InternalQName primaryTypeName =
-    // InternalQName.parse(node.getPrimaryNodeType().getName());
-    // NodeData res =
-    // new TransientNodeData(node.getLocation().getInternalPath(),
-    // node.getLocation().getUUID(), -1, primaryTypeName);
 
     items.put(item.getQPath().getAsString(), item);
     log.debug("InmemoryContainer added node " + item.getQPath().getAsString());
@@ -139,15 +127,10 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
     while (props.hasNext()) {
       add((PropertyData) props.next());
     }
-    // Iterator nodes = item.getChildNodes().iterator();
     Iterator nodes = getChildNodes(item).iterator();
     while (nodes.hasNext()) {
       add((NodeData) nodes.next());
     }
-
-    // log.debug("InmemoryContainer added " + item + " to workspace container: "
-    // + name);//+ "
-    // "+((ItemData)items.get(loc)).getLocation().getInternalPath());
   }
 
   public void add(PropertyData prop) throws RepositoryException,
@@ -191,17 +174,12 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
   }
 
   public void commit() throws IllegalStateException, RepositoryException {
-    // TODO Auto-generated method stub
-
   }
 
   public void rollback() throws IllegalStateException, RepositoryException {
-    // TODO Auto-generated method stub
-
   }
 
   public boolean isOpened() {
-    // TODO Auto-generated method stub
     return false;
   }
 
@@ -217,9 +195,8 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
     String str = "Inmemory WorkspaceContainer Data: \n";
     Iterator i = items.keySet().iterator();
     while (i.hasNext()) {
-      // String s = (String)i.next();
       JCRPath d = (JCRPath) i.next();
-      str += d.getInternalPath() + "\n"; // s+":"+items.get(s)+"\n";
+      str += d.getInternalPath() + "\n"; 
     }
     return str;
   }

@@ -41,12 +41,12 @@ class CacheQPath implements Serializable {
     this.key = key(this.parentId, name);
   }
   
-  protected String key(String parentUuid, QPathEntry[] pathEntries) {
-    return key(parentUuid, pathEntries[pathEntries.length - 1]);
+  protected String key(String parentId, QPathEntry[] pathEntries) {
+    return key(parentId, pathEntries[pathEntries.length - 1]);
   }
   
-  protected String key(String parentUuid, QPathEntry name) {
-    return ((parentUuid != null ? parentUuid : ".") + name.getAsString()).intern();
+  protected String key(String parentId, QPathEntry name) {
+    return ((parentId != null ? parentId : ".") + name.getAsString()).intern();
   }
   
   @Override

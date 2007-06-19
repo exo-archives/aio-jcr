@@ -157,11 +157,8 @@ public class ValueConstraintsMatcher {
     
     // do not use getString because of string consuming
     TransientValueData valueData = (TransientValueData)value;
-    //((BaseValue) value).getInternalData();
-    
     if (type == PropertyType.STRING) {
       try {
-//        String strVal = new String(BLOBUtil.readValue(valueData), Constants.DEFAULT_ENCODING);
         String strVal = new String(valueData.getAsByteArray(), Constants.DEFAULT_ENCODING);
         
         for (int i=0; invalid && i < constraints.length; i++) {
@@ -226,7 +223,6 @@ public class ValueConstraintsMatcher {
       } catch(ItemNotFoundException e) {
         if (log.isDebugEnabled())
           log.debug("Reference constraint node is not found: " + e.getMessage());
-        // TODO [PN] 21.09.06 It's wrong!!! 
         // But if it's a versionHisroy ref property for add mix:versionable... 
         // we haven't a versionHisroy created until save method will be called on this session/item... 
         // it's transient state here.   

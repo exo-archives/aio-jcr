@@ -69,18 +69,7 @@ public class DBInitializer {
     this.creatTriggerPattern = Pattern.compile(SQL_CREATETRIGGER, Pattern.CASE_INSENSITIVE);
     this.dbTriggerNamePattern = Pattern.compile(SQL_TRIGGERNAME, Pattern.CASE_INSENSITIVE);
   }
-  
-//  DBInitializer(String containerName, DataSource dataSource, String script) {
-//    this.dataSource = dataSource;
-//    this.containerName = containerName;
-//    this.script = script;
-//    
-//    this.creatTablePattern = Pattern.compile(SQL_CREATETABLE, Pattern.CASE_INSENSITIVE);
-//    this.dbObjectNamePattern = Pattern.compile(SQL_OBJECTNAME, Pattern.CASE_INSENSITIVE);
-//    this.creatIndexPattern = Pattern.compile(SQL_CREATEINDEX, Pattern.CASE_INSENSITIVE);
-//    this.onTableNamePattern = Pattern.compile(SQL_ONTABLENAME, Pattern.CASE_INSENSITIVE);
-//  }
-  
+
   protected String script(String scriptPath) throws IOException {
     return readScriptResource(scriptPath);
   }
@@ -121,7 +110,7 @@ public class DBInitializer {
     ResultSet trs = conn.getMetaData().getTables(null, null, tableName, null);
     boolean res = false;
     while (trs.next()) {
-      res = true; // TODO check for columns/table type matching etc.
+      res = true; // check for columns/table type matching etc.
     }
     return res;
   }
@@ -132,7 +121,7 @@ public class DBInitializer {
     while (irs.next()) {
       if (irs.getShort("TYPE") != DatabaseMetaData.tableIndexStatistic 
           && irs.getString("INDEX_NAME").equalsIgnoreCase(indexName))
-      res = true; // TODO check for index params matching etc.
+      res = true; // check for index params matching etc.
     }
     return res;
   }

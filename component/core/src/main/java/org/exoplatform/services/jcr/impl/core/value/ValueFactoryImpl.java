@@ -76,8 +76,6 @@ public class ValueFactoryImpl implements ValueFactory {
       case PropertyType.STRING:
         return createValue(new String(value));
       case PropertyType.BINARY:
-        // Warning: applicable if there is real string not binary data
-        // [PN] 15.08.06
         try {
           return createValue(new ByteArrayInputStream(value.getBytes(Constants.DEFAULT_ENCODING)));
         } catch(UnsupportedEncodingException e) {
@@ -109,13 +107,11 @@ public class ValueFactoryImpl implements ValueFactory {
       case PropertyType.NAME:
         try {
           JCRName name = locationFactory.parseJCRName(value);
-          // return new NameValue(name);
           return createValue(name);
         } catch (RepositoryException e) {
           throw new ValueFormatException("Name '" + value + "' is invalid", e);
         }
       case PropertyType.REFERENCE:
-        // return new ReferenceValue(new Uuid(value));
         return createValue(new Identifier(value));
       case ExtendedPropertyType.PERMISSION:
         try {

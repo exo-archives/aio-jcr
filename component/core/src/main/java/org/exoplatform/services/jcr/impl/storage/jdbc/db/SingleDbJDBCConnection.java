@@ -93,21 +93,6 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
    */
   @Override
   protected final void prepareQueries() throws SQLException {
-    /**
-      CREATE INDEX JCR_IDX_SITEM_PARENT_ORD ON JCR_SITEM(I_CLASS, CONTAINER_NAME, PARENT_ID, N_ORDER_NUM, VERSION DESC)
-      /
-      
-CREATE VIEW JCR_SNODE AS 
-    SELECT ID, PARENT_ID, NAME, VERSION, CONTAINER_NAME, I_INDEX, N_ORDER_NUM 
-    FROM JCR_SITEM WHERE I_CLASS=1
-/
-    
-CREATE VIEW JCR_SPROPERTY AS 
-    SELECT ID, PARENT_ID, NAME, VERSION, CONTAINER_NAME, P_TYPE, P_MULTIVALUED 
-  FROM JCR_SITEM WHERE I_CLASS=2
-/
-     * 
-     */
     
     JCR_FK_ITEM_PARENT = "JCR_FK_SITEM_PARENT";
     JCR_FK_NODE_ITEM = "JCR_FK_SNODE_ITEM";
@@ -118,31 +103,12 @@ CREATE VIEW JCR_SPROPERTY AS
     
     FIND_ITEM_BY_ID = "select * from JCR_SITEM where ID=?";
 
-    //FIND_ITEM_BY_PATH = "select * from JCR_SITEM where CONTAINER_NAME=? and PATH=? order by VERSION DESC";
-    
     FIND_ITEM_BY_NAME = "select * from JCR_SITEM"
       + " where CONTAINER_NAME=? and PARENT_ID=? and NAME=? and I_INDEX=? order by I_CLASS, VERSION DESC";
-    
-    // TODO unuse JCR_IDX_MITEM_PARENT_PATH
-//    FIND_CHILD_PROPERTY_BY_PATH = "select *" 
-//      + " from JCR_SPROPERTY"
-//      + " where CONTAINER_NAME=? and PARENT_ID=? and PATH=? order by VERSION DESC";
-    
-//    FIND_CHILD_PROPERTY_BY_PATH = "select *" 
-//      + " from JCR_SITEM"
-//      + " where I_CLASS=2 and CONTAINER_NAME=? and PARENT_ID=? and PATH=? order by VERSION DESC";
-    
-//    FIND_PROPERTY_BY_NAME = "select *" 
-//      + " from JCR_SPROPERTY"
-//      + " where CONTAINER_NAME=? and PARENT_ID=? and NAME=? order by VERSION DESC";
     
     FIND_PROPERTY_BY_NAME = "select *" 
       + " from JCR_SITEM"
       + " where I_CLASS=2 and CONTAINER_NAME=? and PARENT_ID=? and NAME=? order by VERSION DESC";
-    
-//    FIND_REFERENCES = "select P.ID, P.PARENT_ID, P.VERSION, P.P_TYPE, P.P_MULTIVALUED, P.NAME" +
-//      " from JCR_SREF R, JCR_SPROPERTY P" +
-//      " where P.CONTAINER_NAME=? and R.NODE_ID=? and P.ID=R.PROPERTY_ID";
     
     FIND_REFERENCES = "select P.ID, P.PARENT_ID, P.VERSION, P.P_TYPE, P.P_MULTIVALUED, P.NAME" +
       " from JCR_SREF R, JCR_SITEM P" +
@@ -152,19 +118,9 @@ CREATE VIEW JCR_SPROPERTY AS
     FIND_VALUESDATA_BY_PROPERTYID = "select * from JCR_SVALUE where PROPERTY_ID=? order by ORDER_NUM";
     FIND_VALUE_BY_PROPERTYID_OREDERNUMB = "select DATA from JCR_SVALUE where PROPERTY_ID=? and ORDER_NUM=?";
     
-    // TODO Index CONTAINER_NAME, PARENT_ID, N_ORDER_NUM
-//    FIND_NODES_BY_PARENTID = "select * from JCR_SNODE"
-//      + " where CONTAINER_NAME=? and PARENT_ID=?"
-//      + " order by N_ORDER_NUM";
-    
     FIND_NODES_BY_PARENTID = "select * from JCR_SITEM"
       + " where I_CLASS=1 and CONTAINER_NAME=? and PARENT_ID=?"
       + " order by N_ORDER_NUM";
-    
-    // TODO Index CONTAINER_NAME, PARENT_ID, ID    
-//    FIND_PROPERTIES_BY_PARENTID = "select * from JCR_SPROPERTY"
-//      + " where CONTAINER_NAME=? and PARENT_ID=?" 
-//      + " order by ID";
     
     FIND_PROPERTIES_BY_PARENTID = "select * from JCR_SITEM"
       + " where I_CLASS=2 and CONTAINER_NAME=? and PARENT_ID=?" 
@@ -279,28 +235,6 @@ CREATE VIEW JCR_SPROPERTY AS
     return deleteItem.executeUpdate();
   }
 
-//  @Override
-//  protected int deleteNodeByUUID(String cid) throws SQLException {
-//    if (deleteNode == null)
-//      deleteNode = dbConnection.prepareStatement(DELETE_NODE);
-//    else
-//      deleteNode.clearParameters();
-//    
-//    deleteNode.setString(1, cid);
-//    return deleteNode.executeUpdate();
-//  }
-
-//  @Override
-//  protected int deletePropertyByUUID(String cid) throws SQLException {
-//    if (deleteProperty == null)
-//      deleteProperty = dbConnection.prepareStatement(DELETE_PROPERTY);
-//    else
-//      deleteProperty.clearParameters();
-//    
-//    deleteProperty.setString(1, cid);
-//    return deleteProperty.executeUpdate();
-//  }
-
   @Override
   protected ResultSet findChildNodesByParentIdentifier(String parentCid) throws SQLException {
     if (findNodesByParentId == null)
@@ -325,18 +259,6 @@ CREATE VIEW JCR_SPROPERTY AS
     return findPropertiesByParentId.executeQuery();
   }
 
-//  @Override
-//  protected ResultSet findItemByPath(String path) throws SQLException {
-//    if (findItemByPath == null)
-//      findItemByPath = dbConnection.prepareStatement(FIND_ITEM_BY_PATH);
-//    else
-//      findItemByPath.clearParameters();
-//      
-//    findItemByPath.setString(1, containerName);
-//    findItemByPath.setString(2, path);
-//    return findItemByPath.executeQuery();
-//  }
-
   @Override
   protected ResultSet findItemByName(String parentId, String name, int index) throws SQLException {
     if (findItemByName == null)
@@ -351,19 +273,6 @@ CREATE VIEW JCR_SPROPERTY AS
     return findItemByName.executeQuery();
   }
 
-//  @Override
-//  protected ResultSet findPropertyByPath(String parentCid, String path) throws SQLException {
-//    if (findChildPropertyByPath == null)
-//      findChildPropertyByPath = dbConnection.prepareStatement(FIND_CHILD_PROPERTY_BY_PATH);
-//    else
-//      findChildPropertyByPath.clearParameters();
-//
-//    findChildPropertyByPath.setString(1, containerName);
-//    findChildPropertyByPath.setString(2, parentCid);
-//    findChildPropertyByPath.setString(3, path);
-//    return findChildPropertyByPath.executeQuery();
-//  }  
-  
   @Override
   protected ResultSet findPropertyByName(String parentCid, String name) throws SQLException {
     if (findPropertyByName == null)
@@ -400,30 +309,6 @@ CREATE VIEW JCR_SPROPERTY AS
     return findReferences.executeQuery();
   }
 
-//  protected int updateItemVersionByUUID(int versionValue, String cid) throws SQLException {
-//    if (updateItem == null)
-//      updateItem = dbConnection.prepareStatement(UPDATE_ITEM);
-//    else
-//      updateItem.clearParameters();
-//          
-//    updateItem.setInt(1, versionValue);
-//    updateItem.setString(2, cid);
-//    return updateItem.executeUpdate();
-//  }
-  
-//  @Override
-//  protected int updateItemPathByUUID(String qpath, int version, String cid) throws SQLException {
-//    if (updateItemPath == null)
-//      updateItemPath = dbConnection.prepareStatement(UPDATE_ITEM_PATH);
-//    else
-//      updateItemPath.clearParameters();
-//          
-//    updateItemPath.setString(1, qpath);
-//    updateItemPath.setInt(2, version);
-//    updateItemPath.setString(3, cid);
-//    return updateItemPath.executeUpdate();
-//  }    
-  
   @Override
   protected int updateNodeByIdentifier(int version, int index, int orderNumb, String cid) throws SQLException {
     if (updateNode == null)

@@ -38,7 +38,7 @@ public class ItemDataCopyIgnoredVisitor extends DefaultItemDataCopyVisitor {
   
   public ItemDataCopyIgnoredVisitor(NodeData context, InternalQName destNodeName, 
       NodeTypeManagerImpl nodeTypeManager, SessionDataManager dataManager, SessionChangesLog changes) {
-    super(context, destNodeName, nodeTypeManager, dataManager, true); //keepUUIDs = true
+    super(context, destNodeName, nodeTypeManager, dataManager, true); 
     this.restoredChanges = changes;
   }
   

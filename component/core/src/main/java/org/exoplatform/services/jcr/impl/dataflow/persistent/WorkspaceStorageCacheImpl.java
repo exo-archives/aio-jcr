@@ -98,12 +98,12 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * @return
    * @throws Exception
    */
-  public ItemData get(String parentUuid, QPathEntry name) {
+  public ItemData get(String parentId, QPathEntry name) {
     if (!enabled)
       return null;
     
     try {
-      return getItem(parentUuid, name);
+      return getItem(parentId, name);
     } catch (Exception e) {
       return null;
     }

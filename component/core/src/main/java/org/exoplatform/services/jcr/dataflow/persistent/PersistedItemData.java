@@ -39,7 +39,7 @@ public abstract class PersistedItemData implements ItemData {
   }
 
   /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.datamodel.ItemData#getUUID()
+   * @see org.exoplatform.services.jcr.datamodel.ItemData#getIdentifier()
    */
   public String getIdentifier() {
     return id;
@@ -53,7 +53,7 @@ public abstract class PersistedItemData implements ItemData {
   }
 
   /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.datamodel.ItemData#getParentUUID()
+   * @see org.exoplatform.services.jcr.datamodel.ItemData#getParentIdentifier()
    */
   public String getParentIdentifier() {
     return parentId;

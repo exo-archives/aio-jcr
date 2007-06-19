@@ -161,24 +161,12 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
   
   @Override
   protected void addNodeRecord(NodeData data) throws SQLException {
-//    if (insertItem == null)
-//      insertItem = dbConnection.prepareStatement(INSERT_ITEM);
-//    else
-//      insertItem.clearParameters();
     if (insertNode == null)
       insertNode = dbConnection.prepareStatement(INSERT_NODE);
     else
       insertNode.clearParameters();
     
-    // INSERT_ITEM = "insert into JCR_MITEM(ID, NAME, VERSION, PATH) VALUES(?,?,?,?)";
-//    insertItem.setString(1, data.getUUID());
-//    insertItem.setString(2, data.getQPath().getName().getAsString());
-//    insertItem.setInt(3, data.getPersistedVersion());
-//    insertItem.setString(4, data.getQPath().getAsString()); // TODO deprecated
-//    insertItem.executeUpdate();
-
-    // INSERT_NODE = "insert into JCR_MITEM(ID, PARENT_ID, NAME, PATH, VERSION, I_CLASS, I_INDEX, N_ORDER_NUM) VALUES(?,?,?,?,?," + I_CLASS_NODE + ",?,?)";
-    insertNode.setString(1, data.getIdentifier());
+   insertNode.setString(1, data.getIdentifier());
     insertNode.setString(2, data.getParentIdentifier() == null ? Constants.ROOT_PARENT_UUID : data.getParentIdentifier()); // if root then parent identifier equals empty string 
     insertNode.setString(3, data.getQPath().getName().getAsString());
     insertNode.setInt(4, data.getPersistedVersion());
@@ -189,24 +177,11 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
 
   @Override
   protected void addPropertyRecord(PropertyData data) throws SQLException {
-//    if (insertItem == null)
-//      insertItem = dbConnection.prepareStatement(INSERT_ITEM);
-//    else
-//      insertItem.clearParameters();
-    
     if (insertProperty == null)
       insertProperty = dbConnection.prepareStatement(INSERT_PROPERTY);
     else
       insertProperty.clearParameters();
         
-    // INSERT_ITEM = "insert into JCR_MITEM(ID, NAME, VERSION, PATH) VALUES(?,?,?,?)";
-//    insertItem.setString(1, data.getUUID());
-//    insertItem.setString(2, data.getQPath().getName().getAsString());
-//    insertItem.setInt(3, data.getPersistedVersion());
-//    insertItem.setString(4, data.getQPath().getAsString()); // TODO deprecated
-//    insertItem.executeUpdate();
-    
-    // INSERT_PROPERTY = "insert into JCR_MITEM(ID, PARENT_ID, NAME, PATH, VERSION, I_CLASS, I_INDEX, P_TYPE, P_MULTIVALUED) VALUES(?,?,?,?,?," + I_CLASS_NODE + ",?,?,?)";
     insertProperty.setString(1, data.getIdentifier());
     insertProperty.setString(2, data.getParentIdentifier());
     insertProperty.setString(3, data.getQPath().getName().getAsString());
@@ -234,7 +209,6 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     List<ValueData> values = data.getValues();
     for (int i=0; i<values.size(); i++) {
       ValueData vdata = values.get(i);
-//      String refNodeUuid = new String(BLOBUtil.readValue(vdata));
       String refNodeIdentifier = new String(vdata.getAsByteArray());
 
       insertReference.setString(1, refNodeIdentifier);
@@ -265,64 +239,10 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     else
       deleteItem.clearParameters();
 
-//    ResultSet rs = dbConnection.createStatement().executeQuery("select * from jcr_mref where node_id='" + uuid+"'");
-//    while (rs.next()) {
-//      log.info(rs.getString("PROPERTY_ID"));
-//    }
-    
     deleteItem.setString(1, identifier);
     return deleteItem.executeUpdate();
   }
 
-//  @Override
-//  protected int deleteNodeByUUID(String uuid) throws SQLException {
-//    if (deleteNode == null)
-//      deleteNode = dbConnection.prepareStatement(DELETE_NODE);
-//    else
-//      deleteNode.clearParameters();
-//    
-//    deleteNode.setString(1, uuid);
-//    return deleteNode.executeUpdate();
-//  }
-//
-//  @Override
-//  protected int deletePropertyByUUID(String uuid) throws SQLException {
-//    if (deleteProperty == null)
-//      deleteProperty = dbConnection.prepareStatement(DELETE_PROPERTY);
-//    else
-//      deleteProperty.clearParameters();
-//    
-//    deleteProperty.setString(1, uuid);
-//    return deleteProperty.executeUpdate();
-//  }
-
-//  @Override
-//  protected int updateItemPathByUUID(String qname, String qpath, int version, String uuid) throws SQLException {
-//    if (updateItemPath == null)
-//      updateItemPath = dbConnection.prepareStatement(UPDATE_ITEM_PATH);
-//    else
-//      updateItemPath.clearParameters();
-//    
-//    // UPDATE_ITEM_PATH = "update JCR_MITEM set NAME=?, PATH=?, VERSION=? where ID=?";
-//    updateItemPath.setString(1, qname);
-//    updateItemPath.setString(2, qpath);
-//    updateItemPath.setInt(3, version);
-//    updateItemPath.setString(4, uuid);
-//    return updateItemPath.executeUpdate();
-//  }  
-  
-//  @Override
-//  protected int updateItemVersionByUUID(int versionValue, String uuid) throws SQLException {
-//    if (updateItem == null)
-//      updateItem = dbConnection.prepareStatement(UPDATE_ITEM);
-//    else
-//      updateItem.clearParameters();
-//    
-//    updateItem.setInt(1, versionValue);
-//    updateItem.setString(2, uuid);
-//    return updateItem.executeUpdate();
-//  }
-  
   @Override
   protected int updateNodeByIdentifier(int version, int index, int orderNumb, String identifier) throws SQLException {
     if (updateNode == null)
@@ -350,17 +270,6 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     return updateProperty.executeUpdate();
   }
   
-//  @Override
-//  protected ResultSet findItemByPath(String path) throws SQLException {
-//    if (findItemByPath == null)
-//      findItemByPath = dbConnection.prepareStatement(FIND_ITEM_BY_PATH);
-//    else
-//      findItemByPath.clearParameters();
-//    
-//    findItemByPath.setString(1, path);
-//    return findItemByPath.executeQuery();
-//  }
-  
   protected ResultSet findItemByName(String parentId, String name, int index) throws SQLException {
     if (findItemByName == null)
       findItemByName = dbConnection.prepareStatement(FIND_ITEM_BY_NAME);
@@ -372,18 +281,6 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     findItemByName.setInt(3, index);
     return findItemByName.executeQuery();
   }
-  
-//  @Override
-//  protected ResultSet findPropertyByPath(String parentId, String path) throws SQLException {
-//    if (findChildPropertyByPath == null)
-//      findChildPropertyByPath = dbConnection.prepareStatement(FIND_CHILD_PROPERTY_BY_PATH);
-//    else
-//      findChildPropertyByPath.clearParameters();
-//    
-//    findChildPropertyByPath.setString(1, parentId);
-//    findChildPropertyByPath.setString(2, path);
-//    return findChildPropertyByPath.executeQuery();
-//  }
   
   @Override
   protected ResultSet findPropertyByName(String parentId, String name) throws SQLException {

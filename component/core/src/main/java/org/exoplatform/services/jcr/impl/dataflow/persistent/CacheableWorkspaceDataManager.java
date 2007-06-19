@@ -175,49 +175,6 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     return cache.get(parentData.getIdentifier(), name);
   }  
   
-//  protected ItemData getPersistedItemData(QPath qpath) throws RepositoryException {
-//
-//    ItemData parent = null;
-//    QPathEntry[] qentries = qpath.getEntries();
-//    int deep = qentries.length - 1;
-//    
-//    // try find parent from cache
-//    while (deep > 0 && parent == null) { 
-//      QPathEntry[] pentries = new QPathEntry[deep--];  
-//      System.arraycopy(qentries, 0, pentries, 0, pentries.length);
-//      //QPath ppath = new QPath(pentries);
-//      parent = getCachedItemData(ppath);
-//    }
-//    
-//    if (parent == null) {
-//      // so, parent is root
-//      parent = getCachedItemData(Constants.ROOT_UUID);
-//      if (parent == null) {
-//        parent = super.getItemData(Constants.ROOT_UUID);
-//        // put root in the cache
-////        if (parent != null && cache.isEnabled()) {
-////          cache.put(parent);  
-////        }
-//      }
-//    }
-//    // if parent is null, null will be returned.
-//    // Look for node by parent and name.
-//    ItemData pitem = parent; 
-//    while ((++deep) < qentries.length && pitem != null) {
-//      pitem = super.getItemData((NodeData) pitem, qentries[deep]);
-//      // caching each ancestor and final item
-////      if (pitem != null && cache.isEnabled()) {
-////        cache.put(pitem); 
-////      }
-//    }
-//    
-//    // caching final item only
-//    if (pitem != null && cache.isEnabled()) {
-//      cache.put(pitem); 
-//    }
-//    return pitem;
-//  }
-  
   protected ItemData getPersistedItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
 
     ItemData data = null;
@@ -236,7 +193,7 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
   }
 
   /** 
-   * Call {@link org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager#getItemData(java.lang.String) WorkspaceDataManager.getItemDataByUUID(java.lang.String)}
+   * Call {@link org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager#getItemData(java.lang.String) WorkspaceDataManager.getItemDataByIdentifier(java.lang.String)}
    * and cache result if non null returned. 
    * @see org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager#getItemData(java.lang.String)
    */

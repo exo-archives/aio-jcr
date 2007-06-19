@@ -142,9 +142,6 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
   public String dump() {
     String str = "ChangesLog: \n";
     str+=changesLogs.size();
-//    for (int i = 0; i < items.size(); i++)
-//      str += " " + items.get(i).getData().getQPath().getAsString() + " " + items.get(i).getData().getUUID() + " "
-//          + ItemState.nameFromValue(items.get(i).getState()) + " \n";
     return str;
   }
 

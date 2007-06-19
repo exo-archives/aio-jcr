@@ -82,7 +82,7 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
           itemDeletedExistingStates.add(new ItemState(relItem.getData(), ItemState.DELETED, true,
               dstDataManager.getItemByIdentifier(relItem.getParentIdentifier(), true).getInternalPath(),level != 0));
         } else {
-          throw new ItemExistsException("Item exists uuid = " + identifier + " name " + relItem.getName());
+          throw new ItemExistsException("Item exists id = " + identifier + " name " + relItem.getName());
         }
       }
       keepIdentifiers = true;
