@@ -13,6 +13,7 @@ import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.rest.transformer.EntityTransformer;
 import org.exoplatform.services.rest.data.MimeTypes;
+import org.exoplatform.services.rest.RequestedURI;
 
 /**
  * Created by The eXo Platform SARL .
@@ -21,10 +22,19 @@ import org.exoplatform.services.rest.data.MimeTypes;
  * @version $Id: $
  */
 
+/**
+ * ResourceDispatcher finds ResourceContainer with can serve
+ * the Request and send this Request to ResourceDispatcher
+ */
 public class ResourceDispatcher implements Connector {
 
   private List<ResourceDescriptor> resourceDescriptors;
 
+  /**
+   * Constructor gets all binded ResourceContainers from ResourceBinder
+   * @param containerContext ExoContainerContext
+   * @throws Exception
+   */
   public ResourceDispatcher(ExoContainerContext containerContext) throws Exception {
     ExoContainer container = containerContext.getContainer();
     ResourceBinder binder = 
@@ -32,6 +42,11 @@ public class ResourceDispatcher implements Connector {
     this.resourceDescriptors = binder.getAllDescriptors();
   }
 
+  /**
+   * @param request REST request
+   * @return REST response from ResourceContainer
+   * @throws Exception
+   */
   public Response<?> dispatch(Request request) throws Exception {
     String requestedURI = request.getResourceIdentifier().getURI().getPath();
     String methodName = request.getMethodName();
@@ -42,6 +57,8 @@ public class ResourceDispatcher implements Connector {
 
     for (ResourceDescriptor resource : resourceDescriptors) {
       MimeTypes producedMimeTypes = new MimeTypes(resource.getProducedMimeTypes());
+      // Check is this ResourceContainer have appropriated parameters, 
+      // such URIPattern, HTTP method and mimetype
       if (resource.getAcceptableMethod().equalsIgnoreCase(methodName)
           && resource.getURIPattern().matches(requestedURI)
           && (compareMimeTypes(requestedMimeTypes.getMimeTypes(),
@@ -50,17 +67,17 @@ public class ResourceDispatcher implements Connector {
         request.getResourceIdentifier().initParameters(resource.getURIPattern());
         Annotation[] methodParametersAnnotations = resource.getMethodParameterAnnotations();
         Class<?>[] methodParameters = resource.getMethodParameters();
-        Object[] objs = new Object[methodParameters.length];
-
+        Object[] params = new Object[methodParameters.length];
+        // building array of parameters
         for (int i = 0; i < methodParametersAnnotations.length; i++) {
 
           if (methodParametersAnnotations[i] == null) {
-            if("java.io.InputStream".equals(methodParameters[i]))
-              objs[i] = methodParameters[i];
-            else {
+            if("java.io.InputStream".equals(methodParameters[i].getCanonicalName())) {
+              params[i] = request.getEntityStream();
+            } else {
               EntityTransformer<?> transformer =
                 (EntityTransformer<?>)Class.forName(resource.getTransformerName()).newInstance();
-              objs[i] = transformer.readFrom(request.getEntityStream());
+              params[i] = transformer.readFrom(request.getEntityStream());
             }
           } else {
             Annotation a = methodParametersAnnotations[i];
@@ -69,27 +86,39 @@ public class ResourceDispatcher implements Connector {
                 .getCanonicalName())) {
 
               URIParam u = (URIParam) a;
-              objs[i] = request.getResourceIdentifier().getParameters().get(u.value());
+              params[i] = request.getResourceIdentifier().getParameters().get(u.value());
             } else if ("org.exoplatform.services.rest.HeaderParam".equals(a.annotationType()
                 .getCanonicalName())) {
 
               HeaderParam h = (HeaderParam) a;
-              objs[i] = request.getHeaderParams().get(h.value());
+              params[i] = request.getHeaderParams().getFirst(h.value());
             } else if ("org.exoplatform.services.rest.QueryParam".equals(a.annotationType()
                 .getCanonicalName())) {
 
               QueryParam q = (QueryParam) a;
-              objs[i] = request.getQueryParams().get(q.value());
+              params[i] = request.getQueryParams().getFirst(q.value());
+            } else if ("org.exoplatform.services.rest.RequestedURI".equals(a.annotationType()
+                .getCanonicalName())) {
+              RequestedURI r = (RequestedURI) a;
+              if(r.value())
+                params[i] = request.getURI();
             }
           }
         }
-        return (Response<?>) resource.getServer().invoke(resource.getResourceContainer(), objs);
+        return (Response<?>) resource.getServer().invoke(resource.getResourceContainer(), params);
       }
     }
+    // if no one ResourceContainer found
     throw new NoSuchMethodException("No method found for " + methodName + " " + requestedURI + " "
        + acceptedMimeTypes);
   }
 
+  /**
+   * Compared requested and produced mimetypes
+   * @param requested mimetypes from request
+   * @param produced mimetypes wich ResourceContainer can produce
+   * @return
+   */
   private boolean compareMimeTypes(String[] requested, String[] produced) {
     for(String r : requested) {
       for(String p : produced) {

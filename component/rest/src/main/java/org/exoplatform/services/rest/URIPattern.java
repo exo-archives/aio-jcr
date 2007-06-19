@@ -83,7 +83,7 @@ public class URIPattern {
       if (nextPos < 0)
         throw new IllegalArgumentException("Pattern not matched: " + pattern + "," + string);
       if (i == paramNames.length - 1 && tokens[i + 1].equals("/"))
-        ret.put(paramNames[i], string.substring(pos, string.length()));
+        ret.put(paramNames[i], string.substring(pos, string.length() - 1));
       else
         ret.put(paramNames[i], string.substring(pos, nextPos));
       pos = nextPos + tokens[i + 1].length();

@@ -15,6 +15,18 @@ import java.lang.annotation.Target;
  * @version $Id: $
  */
 
+/**
+ * QueryParam define the names of query parameters from HTTP request.
+ * In this way ResourceContainer gets only query parameters wich it needs.
+ * 
+ * For example:
+ * for query string: ?param1=abc&param2=cba
+ * ...
+ * public getMethod(@QueryParam("param1") String qparam) {
+ * ...
+ * }
+ * Method getMethod gets query parameter "param1"(in this example abc) as String qparam
+ */
 @Target(value={PARAMETER})
 @Retention(RUNTIME)
 public @interface QueryParam {

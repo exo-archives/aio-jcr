@@ -62,7 +62,7 @@ public class ResourceContainerTest extends TestCase {
     assertEquals("method1", d.getServer().getName());
     assertEquals("/level1/{id}/level3/", d.getURIPattern().getString());
     
-    binder.unbind(ac);
+    binder.clear();
     assertEquals(0, list.size());
   }
 
@@ -102,7 +102,7 @@ public class ResourceContainerTest extends TestCase {
     assertFalse(pattern.matches("/level1/"));
     Map<String, String> params = pattern.parse("/level1/level2/test/");
     assertEquals(1, params.size());
-    assertEquals("test/", params.get("id"));
+    assertEquals("test", params.get("id"));
   }
 
   public void testParametrizedURIPattern2() throws Exception {
@@ -122,7 +122,7 @@ public class ResourceContainerTest extends TestCase {
     Map<String, String> params = pattern.parse("/level1/level2/test3/level4/test5/");
     assertEquals(2, params.size());
     assertEquals("test3", params.get("id"));
-    assertEquals("test5/", params.get("id2"));
+    assertEquals("test5", params.get("id2"));
   }
 
   public void testServe() throws Exception {
@@ -139,8 +139,44 @@ public class ResourceContainerTest extends TestCase {
     MultivaluedMetadata mm = new MultivaluedMetadata();
     mm.putSingle("accept", "text/html;q=0.8,text/xml,text/plain;q=0.5");
     Request request = new Request(new ByteArrayInputStream("test string".getBytes()),
-        new ResourceIdentifier("/level1/myID/level3/"), "GET", mm, null);
+        new ResourceIdentifier("/level1/myID/level3/"), "GET", mm, null,
+        "http://localhost/rest/service");
     Response resp = disp.dispatch(request);
+    resp.writeEntity(System.out);
+    request = new Request(null, new ResourceIdentifier("/level1/myID/level3/"),
+        "POST", mm, null, null);
+    binder.unbind(dw);
+    assertEquals(0, list.size());
+  }
+
+  public void testServe2() throws Exception {
+    ResourceDispatcher disp =
+      (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
+    assertNotNull(disp);
+    ResourceBinder binder =
+      (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);
+    assertNotNull(binder);
+
+    List <ResourceDescriptor> list = binder.getAllDescriptors();
+    ResourceContainer3 dw = new ResourceContainer3();
+    binder.bind(dw);
+    assertEquals(3, list.size());
+
+    MultivaluedMetadata mm = new MultivaluedMetadata();
+    mm.putSingle("accept", "*/*");
+    Request request = new Request(new ByteArrayInputStream("insert something".getBytes()),
+        new ResourceIdentifier("/level1/myID/level3/"), "POST", mm, null, null);
+    Response resp = disp.dispatch(request);
+    resp.writeEntity(System.out);
+
+    request = new Request(new ByteArrayInputStream("create something".getBytes()),
+        new ResourceIdentifier("/level1/myID/level3/"), "PUT", mm, null, null);
+    resp = disp.dispatch(request);
+    resp.writeEntity(System.out);
+
+    request = new Request(new ByteArrayInputStream("delete something".getBytes()),
+        new ResourceIdentifier("/level1/myID/level3/test"), "DELETE", mm, null, null);
+    resp = disp.dispatch(request);
     resp.writeEntity(System.out);
     binder.unbind(dw);
     assertEquals(0, list.size());
@@ -153,7 +189,7 @@ public class ResourceContainerTest extends TestCase {
     assertNotNull(binder);
 
     List <ResourceDescriptor> list = binder.getAllDescriptors();
-    ResourceContainer_ dw = new ResourceContainer_();
+    ResourceContainerAnnot dw = new ResourceContainerAnnot();
     binder.bind(dw);
     assertEquals(1, list.size());
 
@@ -162,7 +198,7 @@ public class ResourceContainerTest extends TestCase {
     MultivaluedMetadata mm = new MultivaluedMetadata();
     mm.putSingle("accept", "text/plain");
     Request request = new Request(ds, 
-        new ResourceIdentifier("/level1/level2/level3/hello"), "GET", mm, null);
+        new ResourceIdentifier("/level1/level2/level3/myID1/myID2"), "GET", mm, null, null);
     Response resp = disp.dispatch(request);
     assertEquals("text/plain", resp.getMetadata().getMediaType());
 //    resp.writeEntity(new FileOutputStream(new File("/tmp/test.txt")));

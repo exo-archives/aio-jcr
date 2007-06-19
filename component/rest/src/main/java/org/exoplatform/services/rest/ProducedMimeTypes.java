@@ -15,6 +15,10 @@ import org.exoplatform.services.rest.data.MimeTypes;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
+
+/**
+* ProducedMimeTypes defines the produced mimetype for ResourceContainer
+*/
 @Target({METHOD})
 @Retention(RUNTIME)
 public @interface ProducedMimeTypes {

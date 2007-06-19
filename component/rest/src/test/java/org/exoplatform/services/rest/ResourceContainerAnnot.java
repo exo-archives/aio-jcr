@@ -13,16 +13,16 @@ import org.exoplatform.services.rest.transformer.StringEntityTransformer;
  */
 
 @URITemplate("/level1/level2/")
-public class ResourceContainer_ implements ResourceContainer {
+public class ResourceContainerAnnot implements ResourceContainer {
   
   @HTTPMethod("GET")
-  @URITemplate("/level3/{id1}/")
+  @URITemplate("/level3/{id1}/{id2}/")
   public Response<String> method1(@URIParam("id1") String param) {
     System.out.println(">>>>> (annot. class) method1 called!!!");
     System.out.println(">>>>> (annot. class) param = " + param);
     EntityMetadata entityMetadata = new EntityMetadata("text/plain");
     Response<String> resp = new Response<String>(RESTStatus.OK, entityMetadata,
-        ">>>>> response!!!", new StringEntityTransformer());
+        ">>>>> response!!!\n", new StringEntityTransformer());
     return resp;
   }
  

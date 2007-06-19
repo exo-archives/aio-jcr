@@ -6,35 +6,52 @@ package org.exoplatform.services.rest;
 
 
 import org.exoplatform.services.rest.container.ResourceContainer;
+import org.exoplatform.services.rest.transformer.StringEntityTransformer;
+import org.exoplatform.services.rest.transformer.DummyEntityTransformer;
+
 import java.io.InputStream;
+import java.io.IOException;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 
-//@URITemplate("/level1/{id}/level3/")
+@URITemplate("/level1/{id}/level3/")
 public class ResourceContainer3 implements ResourceContainer {
 
   @HTTPMethod("POST")
-  @URITemplate("/level1/{id}/level3/")
-  @EntityTransformerClass("any") // this is just test, here must real class name
-  public Response postMethod(Object o) {
-    return null;
+  @EntityTransformerClass("org.exoplatform.services.rest.transformer.StringEntityTransformer")
+  public Response postMethod(String str, @URIParam("id") String param) {
+    System.out.println("----- POST method called!!! id = " + param);
+    System.out.println("----- entity type: " + str.getClass().toString() + ", value: " + str);
+    EntityMetadata entityMetadata = new EntityMetadata("text/plain");
+    Response<String> resp = new Response<String>(RESTStatus.OK, entityMetadata,
+        "----- POST response!!!\n", new StringEntityTransformer());
+    return resp;
   }
 
   @HTTPMethod("PUT")
-  @URITemplate("/level1/{id}/level3/")
-  public Response putMethod(@URIParam("id") String param) {
-    return null;
+  public Response putMethod(InputStream in, @URIParam("id") String param) throws IOException {
+    System.out.println("----- PUT method called!!! id = " + param);
+    System.out.print("----- entity type: " + in.getClass().toString() +", value: ");
+    DummyEntityTransformer tr = new DummyEntityTransformer(); 
+    tr.writeTo(in, System.out);
+    EntityMetadata entityMetadata = new EntityMetadata("text/plain");
+    Response<String> resp = new Response<String>(RESTStatus.OK, entityMetadata,
+        "----- PUT response!!!\n", new StringEntityTransformer());
+    return resp;
   }
 
   @HTTPMethod("DELETE")
-  @URITemplate("/level1/{id}/level3/")
-  // @EntityTransformerClass("any")
-  // transformer is not nessered
-  // (java.io.InputStream represents HTTP request
-  public Response delMethod(InputStream i, @URIParam("id") String param) {
-    return null;
+  @URITemplate("/{myid}/")
+  @EntityTransformerClass("org.exoplatform.services.rest.transformer.StringEntityTransformer")
+  public Response delMethod(String str, @URIParam("myid") String param) {
+    System.out.println("----- DELETE method called!!! id = " + param);
+    System.out.println("----- entity  type: " + str.getClass().toString() + ", value: " + str);
+    EntityMetadata entityMetadata = new EntityMetadata("text/plain");
+    Response<String> resp = new Response<String>(RESTStatus.OK, entityMetadata,
+        "----- DELETE response!!!\n", new StringEntityTransformer());
+    return resp;
   }
 }

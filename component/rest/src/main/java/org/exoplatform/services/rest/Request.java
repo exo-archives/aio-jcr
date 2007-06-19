@@ -14,9 +14,14 @@ import java.io.InputStream;
  * @version $Id: $
  */
 
+
+/**
+ * Request represents REST request (not HTTP request)
+ */
 public class Request {
 
   private String methodName;        // HTTP Method
+  private String uri;
   private ResourceIdentifier resourceIdentifier;
   private MultivaluedMetadata headerParams;
   private MultivaluedMetadata queryParams;
@@ -32,9 +37,10 @@ public class Request {
    */
   public Request(InputStream entityDataStream, ResourceIdentifier resourceIdentifier, 
       String methodName, MultivaluedMetadata httpHeaderParams,
-      MultivaluedMetadata httpQueryParams) {
+      MultivaluedMetadata httpQueryParams, String uri) {
 
     this.methodName = methodName;
+    this.uri = uri;
     this.resourceIdentifier = resourceIdentifier;
     this.entityDataStream = entityDataStream;
     this.queryParams = httpQueryParams;
@@ -55,6 +61,10 @@ public class Request {
 
   public String getMethodName() {
     return methodName;
+  }
+  
+  public String getURI() {
+    return uri;
   }
   
   public MultivaluedMetadata getHeaderParams() {

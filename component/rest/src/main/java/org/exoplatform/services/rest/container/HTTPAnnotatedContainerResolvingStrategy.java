@@ -41,15 +41,17 @@ public class HTTPAnnotatedContainerResolvingStrategy
     return resources;
   }
 
+//  private HTTPResourceDescriptor methodMapping(String middleUri, Method method,
+//      String ctr, ResourceContainer connector) {
+
   private HTTPResourceDescriptor methodMapping(String middleUri, Method method,
       String ctr, ResourceContainer connector) {
-
     HTTPMethod m = method.getAnnotation(HTTPMethod.class);
     URITemplate u = method.getAnnotation(URITemplate.class);
     ConsumedMimeTypes c = method.getAnnotation(ConsumedMimeTypes.class);
     ProducedMimeTypes p = method.getAnnotation(ProducedMimeTypes.class);
     EntityTransformerClass tr = method.getAnnotation(EntityTransformerClass.class);
-    if (m != null && u != null) {
+    if (m != null && (u != null || !"".equals(middleUri))) {
       Class<?>[] params = method.getParameterTypes();
       Annotation[][] a = method.getParameterAnnotations();
       Annotation[] anno = new Annotation[a.length];
@@ -57,7 +59,7 @@ public class HTTPAnnotatedContainerResolvingStrategy
         if (a[i].length > 0)
           anno[i] = a[i][0];
       }
-      String uri = (!"".equals(middleUri)) ? glueUri(middleUri, u.value()) : u.value();
+      String uri = (!"".equals(middleUri)) ? glueUri(middleUri, u) : u.value();
       String consumedMimeTypes = (c != null) ? c.value() : MimeTypes.ALL; 
       String producedMimeTypes = (p != null) ? p.value() : MimeTypes.ALL; 
       String transformerName = null;
@@ -72,7 +74,10 @@ public class HTTPAnnotatedContainerResolvingStrategy
     return null;
   }
   
-  private String glueUri(String middleUri, String uri) {
+  private String glueUri(String middleUri, URITemplate u) {
+    if(u == null)
+      return middleUri;
+    String uri = u.value();
     if (middleUri.endsWith("/") && uri.startsWith("/"))
       uri = middleUri + uri.replaceFirst("/", "");
     else if (!middleUri.endsWith("/") && !uri.startsWith("/"))
@@ -88,7 +93,12 @@ public class HTTPAnnotatedContainerResolvingStrategy
       return "";
     return ((URITemplate) anno).value();
   }
-
+/*
+  private URITemplate middleUri(Class<?> clazz) {
+    return (URITemplate)clazz.getAnnotation(URITemplate.class);
+  }
+*/
+  
   private String getContainersTransformerName(Class<?> clazz) {
     Annotation anno = clazz.getAnnotation(EntityTransformerClass.class);
     if (anno == null)

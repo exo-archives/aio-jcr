@@ -30,7 +30,8 @@ public class RestServlet extends HttpServlet implements Connector {
       logger.error("Cann't get current container");
       e.printStackTrace();
     }
-    resDispatcher = (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
+    resDispatcher = (ResourceDispatcher)container.getComponentInstanceOfType(
+        ResourceDispatcher.class);
     if(resDispatcher == null) {
       logger.error("RESOURCE_ROUTER is null");
     }
@@ -53,7 +54,8 @@ public class RestServlet extends HttpServlet implements Connector {
     }catch(Exception e) {
       logger.error("!!!!! serve method error");
       e.printStackTrace();
-      httpResponse.sendError(500, "This request cann't be serve by service.\n" + "Check request parameters and try again.");
+      httpResponse.sendError(500, "This request cann't be serve by service.\n" +
+      		"Check request parameters and try again.");
     }
   }
 }

@@ -16,6 +16,9 @@ import org.exoplatform.services.rest.data.MimeTypes;
  * @version $Id: $
  */
 
+/**
+ * ConsumedMimeTypes defines the consumed mimetype for ResourceContainer
+ */
 @Target({METHOD})
 @Retention(RUNTIME)
 public @interface ConsumedMimeTypes {

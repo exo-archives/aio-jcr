@@ -33,7 +33,6 @@ import org.exoplatform.services.rest.container.ResourceContainerResolvingStrateg
 
 /**
  * For binding and unbinding ResourceContainers
- *
  */
 public class ResourceBinder implements Startable {
 
@@ -44,12 +43,11 @@ public class ResourceBinder implements Startable {
   private Log logger = ExoLogger.getLogger("ResourceBinder");
 
   /**
+   * Constructor sets the resolving strategy. Currently HTTPAnnotatedContainerResolvingStrategy
+   * (annotations used for description ResourceContainers) 
    * 
-   * set the resolving stratagy. For example annotated
-   * strategy (annotations used for description ResourceContainers 
-   * 
-   * @param params
-   * @param containerContext
+   * @param params class name for ResourceContainerResolvingStrategy
+   * @param containerContext ExoContainer context
    * @throws Exception
    */
   public ResourceBinder(InitParams params,
@@ -64,11 +62,15 @@ public class ResourceBinder implements Startable {
       ValueParam v = i.next();
       ResourceContainerResolvingStrategy rs =
         (ResourceContainerResolvingStrategy)Class.forName(v.getValue()).newInstance();
-
       bindStrategies.add(rs);
     }
   }
   
+  /**
+   * bind ResourceContainer resourceCont if validation for this container is ok
+   * @param resourceCont
+   * @throws InvalidResourceDescriptorException
+   */
   public void bind(ResourceContainer resourceCont) throws InvalidResourceDescriptorException {
     for(ResourceContainerResolvingStrategy strategy : bindStrategies) {
       List <ResourceDescriptor> resList = strategy.resolve(resourceCont);
@@ -97,6 +99,12 @@ public class ResourceBinder implements Startable {
     return this.resourceDescriptors;
   }
 
+  /**
+   * validation for ResourceContainer.
+   * Not allowed have two ResourceContainers with the same URIPatterns  
+   * @param newDescriptors
+   * @throws InvalidResourceDescriptorException
+   */
   private void validate(List <ResourceDescriptor> newDescriptors)
       throws InvalidResourceDescriptorException {
     for(ResourceDescriptor newDesc : newDescriptors) {
@@ -110,11 +118,11 @@ public class ResourceBinder implements Startable {
         if(spattern.matches(npattern.getString()) ||
             npattern.matches(spattern.getString())) {
           // check HTTP method
-          if(smethod.equals(nmethod)) {
+//          if(smethod.equals(nmethod)) {
             throw new InvalidResourceDescriptorException("The resource descriptor pattern '"+
                 newDesc.getURIPattern().getString() + "' can not be defined because of existed '"+
                 storedDesc.getURIPattern().getString());
-          }
+//          }
         }
       }
 
@@ -145,6 +153,9 @@ public class ResourceBinder implements Startable {
     }
   }
 
+  /* (non-Javadoc)
+   * @see org.picocontainer.Startable#start()
+   */
   public void start() {
     container = containerContext.getContainer();
     List<ResourceContainer> list = 
@@ -158,6 +169,10 @@ public class ResourceBinder implements Startable {
     }
   }
   
+  /* (non-Javadoc)
+   * @see org.picocontainer.Startable#stop()
+   */
   public void stop() {
+    clear();
   }
 }

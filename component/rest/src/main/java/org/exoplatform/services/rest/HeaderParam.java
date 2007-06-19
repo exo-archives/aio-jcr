@@ -17,6 +17,17 @@ import java.lang.annotation.Target;
  * @version $Id: $
  */
 
+/**
+ * HeaderParam define the names of header from HTTP request.
+ * In this way ResourceContainer gets only header parameters wich it needs.
+ * 
+ * For example:
+ * ...
+ * public getMethod(@HeaderParam("accept") String accept_param) {
+ * ...
+ * }
+ * Method getMethod gets header parameter "accept" as String accept_param
+ */
 @Target(value={PARAMETER})
 @Retention(RUNTIME)
 public @interface HeaderParam {

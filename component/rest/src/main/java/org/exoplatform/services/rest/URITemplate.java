@@ -18,6 +18,9 @@ import java.lang.annotation.Target;
  * @version $Id: $
  */
 
+/**
+ * URITemplate defines URI pattern for ResourceContainer
+ */
 @Target(value={TYPE,METHOD})
 @Retention(RUNTIME)
 public @interface URITemplate {

@@ -6,7 +6,6 @@ package org.exoplatform.services.rest;
 
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-import static java.lang.annotation.ElementType.FIELD;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -16,7 +15,20 @@ import java.lang.annotation.Target;
  * @version $Id: $
  */
 
-@Target(value={PARAMETER, FIELD})
+/**
+ * UriParam define the names of URI.
+ * In this way ResourceContainer gets only URI parameters wich it needs.
+ * 
+ * For example:
+ * URI pattern: /level1/{id1}/level2/{id2}/level3
+ * and URI:     /level1/myID1/level2/myID2/level3
+ * ...
+ * public getMethod(@URIParam("id2") String id) {
+ * ...
+ * }
+ * Method getMethod gets URI parameter "id2" (in this example myID2) as String id
+ */
+@Target(value={PARAMETER})
 @Retention(RUNTIME)
 public @interface URIParam {
   String value();

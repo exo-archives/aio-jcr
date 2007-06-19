@@ -40,13 +40,14 @@ public class RequestFactory {
     MultivaluedMetadata queryParams = parseQueryParams(httpRequest);
     
     InputStream in = httpRequest.getInputStream();
+    String uri = httpRequest.getRequestURL().toString();
 //    // TODO Apply Entity resolving strategy here
 //    String contentType = httpRequest.getContentType();
 //    if(contentType == null)
 //      contentType = "application/octet-stream";
 //    // 
     return new Request(in, new ResourceIdentifier(pathInfo),
-        method, headerParams, queryParams);
+        method, headerParams, queryParams, uri);
   }
 
   /**
@@ -57,16 +58,16 @@ public class RequestFactory {
    * @return Map provide http header in structure Map<String, Enumeration<String>> 
    */
   private static MultivaluedMetadata parseHttpHeaders(HttpServletRequest httpRequest) {
-    MultivaluedMetadata headerParms = new MultivaluedMetadata();
+    MultivaluedMetadata headerParams = new MultivaluedMetadata();
     Enumeration temp = httpRequest.getHeaderNames();
     while(temp.hasMoreElements()) {
       String k = (String)temp.nextElement();
       Enumeration e = httpRequest.getHeaders(k);
       while(e.hasMoreElements()) {
-        headerParms.add(k, (String)e.nextElement());
+        headerParams.putSingle(k, (String)e.nextElement());
       }
     }
-    return headerParms;
+    return headerParams;
   }
   
   /**
@@ -83,7 +84,7 @@ public class RequestFactory {
       String k = (String)temp.nextElement();
       String[] params = httpRequest.getParameterValues(k);
       for(int i=0; i<params.length; i++) {
-        queryParams.add(k, params[i]);
+        queryParams.putSingle(k, params[i]);
       }
     }
     return queryParams;

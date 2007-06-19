@@ -17,6 +17,9 @@ import java.lang.annotation.Target;
  * @version $Id: $
  */
 
+/**
+ * HTTPMethod defines HTTP method for ResourceContainer
+ */
 @Target(value={METHOD})
 @Retention(RUNTIME)
 public @interface HTTPMethod {

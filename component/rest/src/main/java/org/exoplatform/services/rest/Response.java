@@ -51,7 +51,7 @@ public class Response<T> {
     return status;
   }
   
-  public void writeEntity(OutputStream entityDataStream) throws IOException {
+  public void writeEntity(OutputStream entityDataStream) throws Exception {
     if(transformer != null)
       transformer.writeTo(entity, entityDataStream);
   }
