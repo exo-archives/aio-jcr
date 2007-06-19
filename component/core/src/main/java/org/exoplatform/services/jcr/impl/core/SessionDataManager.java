@@ -226,25 +226,6 @@ public class SessionDataManager implements ItemDataConsumer {
     return item;
   }
   
-//  private ItemImpl getItem(NodeData parent, QPathEntry[] nameEntrys, boolean pool) throws RepositoryException{
-//    ItemData itemData = getItemData(parent, nameEntrys);
-//    
-//    if (itemData == null)
-//      return null;
-//    
-//    ItemImpl item = itemFactory.createItem(itemData);
-//    session.getActionHandler().postRead(item);
-//    if (!item.hasPermission(PermissionType.READ)) {
-//      throw new AccessDeniedException("Access denied " + item.getPath()
-//          + " for " + session.getUserID() + " (get item by path)");
-//    }
-//
-//    if (pool)
-//      return itemsPool.get(item);
-//    
-//    return item;
-//  }
-
   /**
    * Finds item by identifier in this tnsient storage then in workspace container.
    * 
@@ -384,37 +365,6 @@ public class SessionDataManager implements ItemDataConsumer {
    */
   public  List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException {
     return (List<PropertyData>) merge(parent, transactionableManager, false, MERGE_PROPS);
-  }
-  
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getACL(org.exoplatform.services.jcr.datamodel.InternalQPath)
-   */
-  public AccessControlList getACL1(QPath path) throws RepositoryException {
-    
-    ItemData item = getItemData(path);
-    
-    if (item != null) {
-      if (item.isNode())
-        return ((NodeData) item).getACL();
-      
-      NodeData iparent = (NodeData) getItemData(item.getParentIdentifier());
-      if(iparent != null) 
-        return iparent.getACL();
-      
-      // [PN] as a variant for iparent.getACL()
-      // QPathEntry[] names = item.getQPath().getEntries();
-      // return getACL(iparent, names[names.length - 1]);
-      
-      throw new AccessControlException("ACL not found for item " + path.getAsString());
-    }
-    
-//    NodeData iparent = (NodeData) getItemData(item.getParentIdentifier());
-//    if ((item == null || !item.isNode()) && iparent != null) {
-//      QPathEntry[] names = item.getQPath().getEntries();
-//      return transactionableManager.getACL(iparent, names);
-//    }
-    
-    throw new PathNotFoundException("Get ACL. Item not found " + path.getAsString());
   }
 
   /**

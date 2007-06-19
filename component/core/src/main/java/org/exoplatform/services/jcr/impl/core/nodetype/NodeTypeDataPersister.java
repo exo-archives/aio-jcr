@@ -97,7 +97,7 @@ public class NodeTypeDataPersister {
   }
   
   void saveChanges() throws RepositoryException, InvalidItemStateException {
-    dataManager.save(new TransactionChangesLog(changesLog)); //log.info(changesLog.dump())
+    dataManager.save(new TransactionChangesLog(changesLog)); 
     changesLog.clear();
   }  
 
