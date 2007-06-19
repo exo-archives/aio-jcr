@@ -34,31 +34,6 @@
   <build>
     <finalName>fckeditor</finalName>
     <plugins>
-      <!--<plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-exo-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <sharedDir>${basedir}/patches</sharedDir>
-          <sharedResourcesDir>${basedir}/patches</sharedResourcesDir>
-          <deployJbossDir>${exo.directory.working}/exo-jboss/server/default/deploy</deployJbossDir>
-          <deployWLDir>${exo.directory.working}/../0/deploy</deployWLDir>
-          <domainWLDir>${exo.directory.working}/../exo-bea/user_projects/domains/base_domain</domainWLDir>
-          <serverWLDir>${exo.directory.working}/../exo-bea/weblogic91</serverWLDir>
-          <excludeProjects>
-            junit, jmock, bcel, ehcache, xercesImpl, msv, servlet-api, jibx-bind, isorelax,
-            relaxngDatatype, velocity-dep, saxpath, exo-platform.test.framework, xerces, jtidy,
-            xmldb-api, castor, drools-smftest, jsp-api, xml-apis, xml-resolver, jaxen,
-            commons-logging, xjavadoc, xdoclet-hibernate-module, xdoclet-xdoclet-module, xdoclet,
-            commons-beanutils, commons-collections, commons-digester, jibx-run, xpp3,
-            exo-weblogic-authproviders, exo-weblogic-loginmodule
-          </excludeProjects>
-          <includeToWarClasspath>exo-jcr.services.jcr.api, exo-jcr.services.jcr.rmi.api, jcr-rmi, exo-jcr.frameworks.web</includeToWarClasspath>
-          <includeToEar>exo-jcr.services.jcr.api, exo-jcr.services.jcr.rmi.api, jcr-rmi</includeToEar>
-          <jarsWLToLib>commons-logging, log4j, exo-weblogic-loginmodule</jarsWLToLib>
-          <provsWL>exo-weblogic-authproviders</provsWL>
-        </configuration>
-      </plugin>-->
       <plugin>
          <artifactId>maven-war-plugin</artifactId>
          <configuration>

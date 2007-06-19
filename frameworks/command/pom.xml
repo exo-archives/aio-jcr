@@ -14,12 +14,6 @@
   <description>eXo JCR command framework</description>
 
   <dependencies>
-    <!-- dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.4</version>
-      <scope>provided</scope>
-    </dependency -->
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
@@ -34,13 +28,6 @@
       <version>${org.exoplatform.kernel.version}</version>
       <scope>compile</scope>
     </dependency>
-
-    <!-- dependency>
-      <groupId>exo-platform</groupId>
-      <artifactId>exo-platform.services.cache.impl</artifactId>
-      <version>${exo.platform.version}</version>
-      <scope>compile</scope>
-    </dependency -->
 
     <dependency>
       <groupId>commons-fileupload</groupId>

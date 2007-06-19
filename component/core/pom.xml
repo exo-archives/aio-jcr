@@ -95,49 +95,6 @@
         <scope>compile</scope>
     </dependency>
 
-    <!-- dependency>
-        <groupId>exo-platform</groupId>
-        <artifactId>exo-platform.services.command</artifactId>
-        <version>${exo.platform.version}</version>
-        <scope>compile</scope>
-    </dependency -->
-
-    <!-- dependency>
-        <groupId>exo-platform</groupId>
-        <artifactId>exo-platform.services.database.api</artifactId>
-        <version>${exo.platform.version}</version>
-        <scope>compile</scope>
-    </dependency -->
-
-    <!-- dependency>
-        <groupId>exo-platform</groupId>
-        <artifactId>exo-platform.services.database.impl</artifactId>
-        <version>${exo.platform.version}</version>
-        <scope>compile</scope>
-    </dependency -->
-
-    <!-- dependency>
-        <groupId>org.exoplatform.core</groupId>
-        <artifactId>exo.core.component.xml-processing</artifactId>
-        <version>${org.exoplatform.core.version}</version>
-        <scope>compile</scope>
-    </dependency -->
-
-    <!-- dependency>
-        <groupId>exo-jcr</groupId>
-        <artifactId>exo-jcr.services.jcr.rmi.api</artifactId>
-        <version>${exo.jcr.version}</version>
-        <scope>compile</scope>
-    </dependency -->
-
-    <!-- dependency>
-        <groupId>exo-platform</groupId>
-        <artifactId>exo-platform.services.indexing.impl</artifactId>
-        <version>${exo.platform.version}</version>
-        <scope>compile</scope>
-    </dependency -->
-
-
     <!-- Third party dependencies (eXo JCR API) -->
 
     <dependency>
@@ -527,17 +484,17 @@
                     <include>**/api/version/*Test.java</include>
 
                     <!-- include>**/NodeUUIDTest.java</include -->
-                    
+
                     <!-- eXo tests -->
                     <!-- include>**/api/**/Test*.java</include -->
                     <!-- include>**/impl/**/Test*.java</include -->
-                    
+
                     <!-- include>**/impl/access/Test*.java</include -->
-                    
+
                     <!-- usecases includes -->
                     <!-- include>**/usecases/**/Test*.java</include>
                     <include>**/usecases/**/*Test.java</include -->
-                    
+
                     <!-- load includes -->
                     <!-- include>**/load/**/Test*.java</include -->
                 </includes>
@@ -546,7 +503,7 @@
                     <!-- include>**/TestAll.java</include>
                     <include>**/api/export**/*.java</include>
                     <include>**/api/import**/*.java</include -->
-                    
+
                     <!-- include>**/test/api/version/*UUID*Test.java</include>
                     <include>**/test/api/version/*Reference*Test.java</include -->
                 </excludes>
