@@ -529,17 +529,17 @@
                     <phase>generate-sources</phase>
                     <configuration>
 
-                        <!-- sourceDirectory>${exo.directory.base}/projects/v2.x/exo-jcr/services/jcr/impl/src/java/org/exoplatform/services/jcr/impl/core/query/xpath/</sourceDirectory -->
+                        <!-- sourceDirectory>${exo.directory.base}/projects/jcr/trunk/component/core/src/java/org/exoplatform/services/jcr/impl/core/query/xpath/</sourceDirectory -->
 
-                        <!--<sourceDirectory>${exo.directory.base}/projects/v2.x/exo-jcr/services/jcr/impl/src/java/org/exoplatform/services/jcr/impl/core/query/sql/</sourceDirectory> -->
+                        <!--<sourceDirectory>${exo.directory.base}/projects/jcr/trunk/component/core/src/java/org/exoplatform/services/jcr/impl/core/query/sql/</sourceDirectory> -->
 
-                        <!-- <sourceDirectory>${exo.directory.base}/projects/v2.x/exo-jcr/services/jcr/impl/src/grammar/sql/</sourceDirectory> -->
+                        <!-- <sourceDirectory>${exo.directory.base}/projects/jcr/trunk/component/core/src/grammar/sql/</sourceDirectory> -->
 
-                        <!-- <sourceDirectory>${exo.directory.base}/projects/v2.x/exo-jcr/services/jcr/impl/src/grammar/xpath/</sourceDirectory> -->
+                        <!-- <sourceDirectory>${exo.directory.base}/projects/jcr/trunk/component/core/src/grammar/xpath/</sourceDirectory> -->
 
-                        <!-- outputDirectory>${exo.directory.base}/projects/v2.x/exo-jcr/services/jcr/impl/target/java/org/exoplatform/services/jcr/impl/core/query/xpath/</outputDirectory -->
+                        <!-- outputDirectory>${exo.directory.base}/projects/jcr/trunk/component/core/target/java/org/exoplatform/services/jcr/impl/core/query/xpath/</outputDirectory -->
 
-                        <!-- <outputDirectory>${exo.directory.base}/projects/v2.x/exo-jcr/services/jcr/impl/src/java/org/exoplatform/services/jcr/impl/core/query/sql/</outputDirectory> -->
+                        <!-- <outputDirectory>${exo.directory.base}/projects/jcr/trunk/component/core/src/java/org/exoplatform/services/jcr/impl/core/query/sql/</outputDirectory> -->
                     </configuration>
                     <goals>
                         <!-- goal>javacc</goal -->
