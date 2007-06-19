@@ -22,7 +22,7 @@ public class SimpleListener implements EventListener {
   
   private Log log;
   private String name;
-  private Integer counter;
+  private int counter;
 
   public SimpleListener(String name, Log log, Integer counter) {
     this.log = log;
@@ -42,7 +42,7 @@ public class SimpleListener implements EventListener {
     }
   }
 
-  public Integer getCounter() {
+  public int getCounter() {
     return counter;
   }
 

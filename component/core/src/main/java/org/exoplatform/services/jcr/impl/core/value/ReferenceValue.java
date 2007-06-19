@@ -29,19 +29,11 @@ public class ReferenceValue extends BaseValue {
   
   private final Identifier identifier;
 
-  public ReferenceValue(Node target) throws IOException, RepositoryException {
-    
-    // TODO [PN] Use InternalQName instead jcr:uuid string
-    super(TYPE, new TransientValueData(new Identifier(target.getProperty("jcr:uuid").getString())));    
-    this.identifier = new Identifier(target.getProperty("jcr:uuid").getString());
-  }
-
   public ReferenceValue(Identifier identifier) throws IOException {
     super(TYPE, new TransientValueData(identifier));
     this.identifier = identifier;
   }
 
-  // [PN] 17.10.06 public is temp. used in VersionHistoryImpl.addVersion() 
   public ReferenceValue(TransientValueData data) throws IOException, RepositoryException {
     super(TYPE, data);
     this.identifier = new Identifier(getInternalString());

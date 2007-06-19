@@ -7,10 +7,10 @@ package org.exoplatform.services.jcr.dataflow.persistent;
 
 import java.util.List;
 
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -25,10 +25,12 @@ public interface WorkspaceStorageCache extends ItemsPersistenceListener {
   public static final int PUT_ON_RW_POLICY = 2;
 
   /**
+   * 
+   * @param parentUuid
    * @param path
-   * @return itemData by path or null if not found
+   * @return itemData by parent uuid and item name with index or null if not found
    */
-  ItemData get(QPath path);
+  ItemData get(String parentUuid, QPathEntry name);
   
   /**
    * @param identifier

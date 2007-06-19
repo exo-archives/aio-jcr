@@ -5,16 +5,24 @@
 
 package org.exoplatform.services.jcr.impl.dataflow.persistent;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
+import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
 import org.exoplatform.services.jcr.dataflow.DataManager;
-import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
@@ -86,7 +94,7 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
     return super.getItemData(qpath);
   }
   
-  public ItemData getItemData(NodeData parentData,QPathEntry name) throws RepositoryException {
+  public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
     ItemData data = super.getItemData(parentData,name);
     if(data != null)
       return data;
@@ -114,28 +122,66 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
     return null;
   }
 
-//  public synchronized void save(ItemStateChangesLog changesLog) throws RepositoryException,
-//      InvalidItemStateException {
-//    List<ItemState> changes = changesLog.getAllStates();
-//    List<ItemState> versionChanges = new ArrayList<ItemState>();
-//    List<ItemState> nonVersionChanges = new ArrayList<ItemState>();
-//
-//    if (log.isDebugEnabled())
-//      log.debug("save ver: " + changesLog.dump());
-//
-//    for (int i = 0; i < changes.size(); i++) {
-//      if (isSystemDescendant(changes.get(i).getData().getQPath()) && !this.equals(versionDataManager))
-//        versionChanges.add(changes.get(i));
-//      else
-//        nonVersionChanges.add(changes.get(i));
-//    }
-//
-//    if (!versionChanges.isEmpty())
-//      versionDataManager.save(new PlainChangesLogImpl(versionChanges, changesLog.getSessionId()));
-//
-//    if (!nonVersionChanges.isEmpty())
-//      super.save(new PlainChangesLogImpl(nonVersionChanges, changesLog.getSessionId()));
-//  }
+  public synchronized void save_old(CompositeChangesLog/*ItemStateChangesLog*/ changesLog) throws RepositoryException, InvalidItemStateException {
+    List<ItemState> changes = changesLog.getAllStates();
+    List<ItemState> versionChanges = new ArrayList<ItemState>();
+    List<ItemState> nonVersionChanges = new ArrayList<ItemState>();
+
+    if (log.isDebugEnabled())
+      log.debug("save ver: " + changesLog.dump());
+
+    for (int i = 0; i < changes.size(); i++) {
+      if (isSystemDescendant(changes.get(i).getData().getQPath()) && !this.equals(versionDataManager))
+        versionChanges.add(changes.get(i));
+      else
+        nonVersionChanges.add(changes.get(i));
+    }
+
+    if (!versionChanges.isEmpty())
+      versionDataManager.save(new PlainChangesLogImpl(versionChanges, changesLog.getSystemId()));
+
+    if (!nonVersionChanges.isEmpty())
+      super.save(new PlainChangesLogImpl(nonVersionChanges, changesLog.getSystemId()));
+  }
+  
+  public void save(CompositeChangesLog changesLog) throws RepositoryException, InvalidItemStateException {
+    
+    ChangesLogIterator logIterator = changesLog.getLogIterator();
+    
+    boolean saveVersions = false;
+    TransactionChangesLog versionLog = new TransactionChangesLog();
+    boolean saveNonVersions = false;
+    TransactionChangesLog nonVersionLog = new TransactionChangesLog();
+    
+    while(logIterator.hasNextLog()) {
+      List <ItemState> vstates = new ArrayList<ItemState>();
+      List <ItemState> nvstates = new ArrayList<ItemState>();
+      
+      PlainChangesLog changes = logIterator.nextLog();
+      for(ItemState change: changes.getAllStates()) {
+        if (isSystemDescendant(change.getData().getQPath()) && !this.equals(versionDataManager))
+          vstates.add(change);
+        else
+          nvstates.add(change);
+      }
+      
+      if (vstates.size()>0) {
+        versionLog.addLog(new PlainChangesLogImpl(vstates, changes.getSessionId(),changes.getEventType()));
+        saveVersions = true;
+      }
+      
+      if (nvstates.size()>0) {
+        nonVersionLog.addLog(new PlainChangesLogImpl(nvstates, changes.getSessionId(),changes.getEventType()));
+        saveNonVersions = true;
+      }
+    }
+    
+    if (saveVersions)
+      versionDataManager.save(versionLog);
+
+    if (saveNonVersions)
+      super.save(nonVersionLog);
+  }
   
   private boolean isSystemDescendant(QPath path) {
     return path.equals(Constants.JCR_SYSTEM_PATH) || path.isDescendantOf(Constants.JCR_SYSTEM_PATH, false);

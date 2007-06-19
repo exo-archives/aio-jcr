@@ -5,7 +5,6 @@
 package org.exoplatform.services.jcr.api.reading;
 
 import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;

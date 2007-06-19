@@ -15,7 +15,7 @@ import org.picocontainer.Startable;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: $
+ * @version $Id$
  */
 public final class SessionRegistry implements Startable {
   private final Map<String, SessionImpl> sessionsMap;
@@ -62,7 +62,11 @@ public final class SessionRegistry implements Startable {
     }
     return false;
   }
+  
   public void start() {
+    // [PN] 15.06.07
+    sessionsMap.clear();
+    
     if (timeOut > 0)
       sessionCleaner = new SessionCleaner(DEFAULT_CLEANER_TIMEOUT, timeOut);
   }
@@ -70,6 +74,9 @@ public final class SessionRegistry implements Startable {
   public void stop() {
     if (timeOut > 0)
       sessionCleaner.halt();
+
+    // [PN] 15.06.07    
+    sessionsMap.clear();
   }
 
   private class SessionCleaner extends WorkerThread {

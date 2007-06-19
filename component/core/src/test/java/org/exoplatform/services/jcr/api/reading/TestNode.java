@@ -461,27 +461,19 @@ public class TestNode extends JcrAPIBaseTest{
     try {
     
       Node node1 = testRoot.addNode("_node");
-      node1.setProperty("prop1", "_data1");
-      node1.addMixin("mix:referenceable");
+      node1.setProperty("prop", "_data1");
       Node node2 = testRoot.addNode("_node");
-      node2.setProperty("prop2", "_data2");
-      node2.addMixin("mix:referenceable");
+      node2.setProperty("prop", "_data2");
       
       testRoot.save();
-      
-      String n1uuid = node1.getUUID();
-      String n2uuid = node2.getUUID();
       
       try {
         
         node1.remove(); // /snsRemoveTest/_node[2] -> /snsRemoveTest/_node[1]
         
         // check  
-        String n2p = node2.getProperty("prop2").getString();
+        String n2p = node2.getProperty("prop").getString();
         assertEquals("A property must be same ", "_data2", n2p);
-        
-        String n2Reorder_uuid = node2.getProperty("uuid").getString();
-        assertEquals("A uuids must be same ", n2uuid, n2Reorder_uuid);
       } catch(RepositoryException e) {
         e.printStackTrace();
         fail("A property must exists on the node /snsRemoveTest/_node[1] " + e);

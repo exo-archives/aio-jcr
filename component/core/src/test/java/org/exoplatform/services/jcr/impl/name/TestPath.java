@@ -51,13 +51,13 @@ public class TestPath extends TestCase {
   	assertEquals("", path.getName().getName()); 
   	assertEquals("", path.getName().getNamespace()); 
   	assertEquals(1, path.getIndex());
-  	assertEquals(1, path.getLength());
+  	assertEquals(1, path.getDepth() + 1);
   	assertEquals(Constants.ROOT_URI, path.getAsString());
   	
   	path = QPath.parse("[]:1[]root:2[]node1:1[http://www.exoplatform.com/jcr/exo/1.0]node2:3");
   	assertEquals("[]:1[]root:2[]node1:1[http://www.exoplatform.com/jcr/exo/1.0]node2:3", path.getAsString());
   	assertEquals(3, path.getIndex());
-  	assertEquals(4, path.getLength());
+  	assertEquals(4, path.getDepth());
   	QPath path1 = QPath.parse("[]:1[]root:2[]node1:1[http://www.exoplatform.com/jcr/exo/1.0]node2:3");
   	assertTrue(path.equals(path1));
 

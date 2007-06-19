@@ -79,8 +79,6 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
     }
     
     storageDataManager.save(newLog);
-    
-    //storageDataManager.save(new PlainChangesLogImpl(states, changes.getSessionId()));
   }
 
   /* (non-Javadoc)
@@ -92,7 +90,7 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
     return copyItemData(storageDataManager.getItemData(path));
   }
   
-  public ItemData getItemData(NodeData parentData,QPathEntry name) throws RepositoryException {
+  public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
     return copyItemData(storageDataManager.getItemData(parentData,name));
   }
   /* (non-Javadoc)
@@ -125,22 +123,23 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
   public List<PropertyData> getReferencesData(String identifier)
       throws RepositoryException {
     return copyProperties(storageDataManager.getReferencesData(identifier));
-
   }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getACL(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
-  @Deprecated
-  public AccessControlList getACL(QPath path)
-      throws RepositoryException {
-    AccessControlList acl = storageDataManager.getACL(path);
-    return new AccessControlList(acl.getOwner(), acl.getPermissionEntries());
-  }
+//  public AccessControlList getACL(QPath path)
+//      throws RepositoryException {
+//    AccessControlList acl = storageDataManager.getACL(path);
+//    return new AccessControlList(acl.getOwner(), acl.getPermissionEntries());
+//  }
 
   public AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException {
-    // TODO
-    return null;
+    
+    throw new RepositoryException("getACL() is not usable");
+    
+//    AccessControlList acl = storageDataManager.getACL(parent, name);
+//    return new AccessControlList(acl.getOwner(), acl.getPermissionEntries());
   }
   
   /* (non-Javadoc)
@@ -161,10 +160,10 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
 
       NodeData node = (NodeData)item;
       
-      // it can be null in a case of copying from persisted non AC node
+      // the node ACL can't be are null as ACL manager does care about this
       AccessControlList acl = node.getACL();
       if(acl == null) {
-        acl = getACL(node.getQPath());
+        acl = null; // TODO debug
       }
       return new TransientNodeData(node.getQPath(), node.getIdentifier(), 
         node.getPersistedVersion(), node.getPrimaryTypeName(), node.getMixinTypeNames(),
@@ -194,7 +193,6 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
   private List<NodeData> copyNodes(final List<NodeData> childNodes) throws RepositoryException {
     final List<NodeData> copyOfChildsNodes = new LinkedList<NodeData>();
     synchronized (childNodes) {
-      // TODO [PN] There are a problem with concurrent modification if to use iterator
       for (NodeData nodeData: childNodes) {
         copyOfChildsNodes.add((NodeData) copyItemData(nodeData));
       }
@@ -205,7 +203,6 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
   private List<PropertyData> copyProperties(final List<PropertyData> traverseProperties) throws RepositoryException {
     final List<PropertyData> copyOfChildsProperties = new LinkedList<PropertyData>();
     synchronized (traverseProperties) {
-      // TODO [PN] There are a problem with concurrent modification if to use iterator
       for (PropertyData nodeProperty: traverseProperties) {
         copyOfChildsProperties.add((PropertyData) copyItemData(nodeProperty));
       }

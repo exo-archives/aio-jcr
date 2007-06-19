@@ -5,6 +5,10 @@
 
 package org.exoplatform.services.jcr.impl.core.observation;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import javax.jcr.RepositoryException;
 import javax.jcr.observation.EventListener;
 import javax.jcr.observation.EventListenerIterator;
@@ -12,6 +16,7 @@ import javax.jcr.observation.ObservationManager;
 
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.SessionLifecycleListener;
+import org.exoplatform.services.jcr.impl.util.EntityCollection;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -21,7 +26,9 @@ import org.exoplatform.services.jcr.impl.core.SessionLifecycleListener;
 
 public class ObservationManagerImpl implements ObservationManager, SessionLifecycleListener {
 
-  protected SessionImpl session;
+  protected String sessionId;
+  
+  private List<EventListener> sessionListeners = new ArrayList<EventListener>();
   
   private ObservationManagerRegistry registry;
   
@@ -29,8 +36,8 @@ public class ObservationManagerImpl implements ObservationManager, SessionLifecy
    * Protected constructor for subclasses
    * @param session
    */
-  ObservationManagerImpl(ObservationManagerRegistry registry, SessionImpl session) {
-    this.session = session;
+  ObservationManagerImpl(ObservationManagerRegistry registry, String sessionId) {
+    this.sessionId = sessionId;
     this.registry = registry;
   }
 
@@ -41,8 +48,11 @@ public class ObservationManagerImpl implements ObservationManager, SessionLifecy
   public void addEventListener(EventListener listener, int eventTypes,
       String absPath, boolean isDeep, String[] uuid, String[] nodeTypeName,
       boolean noLocal) throws RepositoryException {
+    
     registry.addEventListener(listener, new ListenerCriteria(eventTypes, absPath,
-        isDeep, uuid, nodeTypeName, noLocal, session));
+        isDeep, uuid, nodeTypeName, noLocal, sessionId));
+    
+    sessionListeners.add(listener);
   }
 
   /**
@@ -51,6 +61,7 @@ public class ObservationManagerImpl implements ObservationManager, SessionLifecy
   public void removeEventListener(EventListener listener)
       throws RepositoryException {
     registry.removeEventListener(listener);
+    sessionListeners.remove(listener);
   }
 
   /**
@@ -58,34 +69,21 @@ public class ObservationManagerImpl implements ObservationManager, SessionLifecy
    */
   public EventListenerIterator getRegisteredEventListeners()
       throws RepositoryException {
-    return registry.getEventListeners();
+    // return a personal copy of registered listeners, no concurrent modification exc will found 
+    return new EntityCollection(new ArrayList<EventListener>(sessionListeners));
   }
   
-  /**
-   * @return Returns the session.
-   */
-  public SessionImpl getSession() {
-    return session;
-  }
-  
-//  /**
-//   * @param session The session to set.
-//   */
-//  public void setSession(SessionImpl session) {
-//    this.session = session;
-//  }
-
   // ************** SessionLifecycleListener ****************
   
   /* 
    * @see org.exoplatform.services.jcr.impl.core.SessionLifecycleListener#onCloseSession(org.exoplatform.services.jcr.impl.core.SessionImpl)
    */
   public void onCloseSession(SessionImpl targetSession) {
-    // clear all event listeners on session created this manager
-    if (this.getSession() == targetSession) {
-      registry.removeSessionEventListeners(targetSession);
-    }
-    session = null;
+    // do nothing, as we need to listen events after the session was logout 
+    
+//    if (this.getSessionId().equals(targetSession.getId())) {
+//      registry.removeSessionEventListeners(targetSession);
+//    }
   }
   
 }

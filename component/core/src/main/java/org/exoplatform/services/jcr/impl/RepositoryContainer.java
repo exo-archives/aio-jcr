@@ -47,7 +47,6 @@ import org.exoplatform.services.jcr.impl.storage.value.StandaloneStoragePluginPr
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.jcr.util.IdGenerator;
-import org.picocontainer.PicoRegistrationException;
 
 /**
  * Created by The eXo Platform SARL .
@@ -67,14 +66,12 @@ public class RepositoryContainer extends ExoContainer {
   public RepositoryContainer(ExoContainer parent, RepositoryEntry config) throws RepositoryException,
       RepositoryConfigurationException {
 
-    // super(parent);
     super(new MX4JComponentAdapterFactory(), parent);
 
     // Defaults:
     if (config.getAccessControl() == null)
       config.setAccessControl(AccessControlPolicy.OPTIONAL);
 
-    // this.name = config.getName();
     this.config = config;
     this.mbeanServer = MBeanServerFactory.createMBeanServer("jcrrep" + getName() + "mx");
 
@@ -213,7 +210,6 @@ public class RepositoryContainer extends ExoContainer {
 
       workspaceContainer.registerComponentImplementation(WorkspaceStorageCacheImpl.class);
 
-      // [PN] 11.12.06
       workspaceContainer.registerComponentImplementation(CacheableWorkspaceDataManager.class);
 
       workspaceContainer.registerComponentImplementation(LocalWorkspaceDataManagerStub.class);
@@ -255,6 +251,7 @@ public class RepositoryContainer extends ExoContainer {
 // registerComponentInstance(new SystemDataContainerHolder(
 // (WorkspaceDataContainer)workspaceContainer.getComponentInstanceOfType(WorkspaceDataContainer.class)));
       }
+      
       wsDataManager.setSystemDataManager(systemDataManager);
 
       if ((config.getReplication() != null) && (config.getReplication().isEnabled())) {
@@ -349,7 +346,6 @@ public class RepositoryContainer extends ExoContainer {
 
     // Init Root and jcr:system if workspace is system workspace
     if (wsConfig.getAutoInitializedRootNt() != null) {
-// && !wsInitializer.isWorkspaceInitialized()) {
       InternalQName rootNodeTypeName = getLocationFactory().parseJCRName(wsConfig
           .getAutoInitializedRootNt()).getInternalName();
       wsInitializer.initWorkspace(rootNodeTypeName);

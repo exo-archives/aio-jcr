@@ -54,10 +54,6 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     this.systemDataContainer = systemDataContainerHolder.getContainer();
   }
   
-  /*
-   * [PN] 28.03.07 Don't use two connection to the same container!
-   * Don't open system connection before it will be needed.
-   */
   public void save(final ItemStateChangesLog changesLog) throws RepositoryException {
 
     final List<ItemState> changes = changesLog.getAllStates();
@@ -76,10 +72,6 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
 
         WorkspaceStorageConnection conn = null;
         if (isSystemPath(data.getQPath())) {
-//            conn = systemConnection = (
-//                systemDataContainer != dataContainer ? systemDataContainer.openConnection() : 
-//                  regularConnection == null ? regularConnection = dataContainer.openConnection() : regularConnection);
-          // !systemDataContainer.equals(dataContainer)
           conn = systemConnection == null ? 
               systemConnection = (
                   systemDataContainer != dataContainer ? // if same as instance
@@ -91,7 +83,6 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
                   : regularConnection == null ? regularConnection = dataContainer.openConnection() : regularConnection)
               : systemConnection;
         } else {
-          //conn = regularConnection == null ? regularConnection = dataContainer.openConnection() : regularConnection;
           conn = regularConnection == null ? 
               regularConnection = (
                   systemDataContainer != dataContainer ? // if same as instance  
@@ -106,11 +97,13 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
         
         if (log.isDebugEnabled()) {
           String path = data.getQPath().getAsString();
-          if (!path.startsWith(Constants.JCR_SYSTEM_URI)) {
+          if (path.indexOf("[]:1[]testroot:1[]node1:1")>0)
+            log.info("[]:1[]testroot:1[]node1:1 -- found");
+          //if (!path.startsWith(Constants.JCR_SYSTEM_URI)) {
             log.debug("[" + dataContainer.getName() + "] save item: "
                 + ItemState.nameFromValue(state) + " " + path + " "
                 + data.getIdentifier());
-          }
+          //}
         }
 
         data.increasePersistedVersion();
@@ -139,7 +132,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
       throw e;
     } catch (RuntimeException e) {
       throw e;
-    } finally { //getReferencesData("dbfaf7cac0a8000301a5dac0017ec5e4")
+    } finally { 
       if (regularConnection != null && regularConnection.isOpened())
         regularConnection.rollback();
       if (systemConnection != null && !systemConnection.equals(regularConnection) && systemConnection.isOpened())
@@ -155,14 +148,6 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(InternalQPath)
    */
   public abstract ItemData getItemData(final QPath qpath) throws RepositoryException;
-//  public ItemData getItemData(final QPath qpath) throws RepositoryException {
-//    final WorkspaceStorageConnection con = dataContainer.openConnection();
-//    try {
-//      return con.getItemData(qpath);
-//    } finally {
-//      con.rollback();
-//    }
-//  }
   
   /*
    * (non-Javadoc)
@@ -238,18 +223,23 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getACL(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
-  @Deprecated
-  public AccessControlList getACL(final QPath qpath) throws RepositoryException {
-    final ItemData data = getItemData(qpath);
-    if(data != null && data.isNode())
-      return ((NodeData)data).getACL();
-
-    return null;
-  }
+//  public AccessControlList getACL(final QPath qpath) throws RepositoryException {
+//    final ItemData data = getItemData(qpath);
+//    if(data != null && data.isNode())
+//      return ((NodeData)data).getACL();
+//
+//    return null;
+//  }
   
   public AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException {
-    // TODO
-    return null;
+    
+    throw new RepositoryException("Usage of getACL(NodeData, QPathEntry) method is unsupported at persistent layer. Call ACL inheritable manager instead.");
+    
+//    final ItemData data = getItemData(parent, name);
+//    if(data != null && data.isNode())
+//      return ((NodeData)data).getACL();
+//
+//    return null;
   }
 
 // ----------------------------------------------
@@ -392,18 +382,6 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     for (ItemsPersistenceListener listener : listeners) {
       listener.onSaveItems(changesLog);
     }
-  }
-  
-  private WorkspaceStorageConnection chooseConnection(QPath path,
-      WorkspaceStorageConnection regularConnection,
-      WorkspaceStorageConnection systemConnection) {
-    
-    if (path.equals(Constants.JCR_SYSTEM_PATH) || 
-        path.isDescendantOf(Constants.JCR_SYSTEM_PATH, false))
-      return systemConnection;
-    else
-      return regularConnection;
-      
   }
   
   private boolean isSystemPath(QPath path) {

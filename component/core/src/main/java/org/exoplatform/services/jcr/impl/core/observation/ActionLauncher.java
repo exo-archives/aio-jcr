@@ -22,6 +22,8 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.core.SessionRegistry;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
@@ -32,28 +34,31 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: ActionLauncher.java 13421 2007-03-15 10:46:47Z geaz $
  */
-
 public class ActionLauncher implements ItemsPersistenceListener {
 
   public final int SKIP_EVENT = Integer.MIN_VALUE; 
   
-  private static Log log = ExoLogger.getLogger("jcr.ActionLauncher");
+  private final Log log = ExoLogger.getLogger("jcr.ActionLauncher");
 
-  private ObservationManagerRegistry observationRegistry;
+  private final ObservationManagerRegistry observationRegistry;
 
-  private WorkspacePersistentDataManager workspaceDataManager;
+  private final WorkspacePersistentDataManager workspaceDataManager;
+  
+  private final SessionRegistry sessionRegistry;
 
   public ActionLauncher(ObservationManagerRegistry registry,
-      WorkspacePersistentDataManager workspaceDataManager) {
+      WorkspacePersistentDataManager workspaceDataManager,
+      SessionRegistry sessionRegistry) {
     this.observationRegistry = registry;
     this.workspaceDataManager = workspaceDataManager;
-    workspaceDataManager.addItemPersistenceListener(this);
+    this.sessionRegistry = sessionRegistry;
+    this.workspaceDataManager.addItemPersistenceListener(this);
   }
 
   public void onSaveItems(ItemStateChangesLog changesLog) {
     EventListenerIterator eventListeners = observationRegistry.getEventListeners();
 
-    while (eventListeners.hasNext()) { // changesLog.dump()
+    while (eventListeners.hasNext()) { 
 
       EventListener listener = eventListeners.nextEventListener();
       ListenerCriteria criteria = observationRegistry.getListenerFilter(listener);
@@ -65,23 +70,26 @@ public class ActionLauncher implements ItemsPersistenceListener {
         
         PlainChangesLog subLog = logIterator.nextLog();
         String sessionId = subLog.getSessionId();
-
+        
+        SessionImpl userSession = sessionRegistry.getSession(sessionId);
+        
         for (ItemState itemState : subLog.getAllStates()) {
           if (itemState.isEventFire()) {
 
             ItemData item = itemState.getData();
             try {
               int eventType = eventType(itemState);
-              if (eventType != SKIP_EVENT && isTypeMatch(criteria, eventType)
-                  && isPathMatch(criteria, item) && isIdentifierMatch(criteria, item)
-                  && isNodeTypeMatch(criteria, item)
+              if (eventType != SKIP_EVENT 
+                  && isTypeMatch(criteria, eventType)
+                  && isPathMatch(criteria, item, userSession) 
+                  && isIdentifierMatch(criteria, item)
+                  && isNodeTypeMatch(criteria, item, userSession)
                   && isSessionMatch(criteria, sessionId)) {
 
-                String path = criteria.getSession().getLocationFactory()
-                    .createJCRPath(item.getQPath()).getAsString(false);
+                String path = userSession.getLocationFactory().createJCRPath(
+                    item.getQPath()).getAsString(false);
 
-                events.add(new EventImpl(eventType, path, criteria.getSession()
-                    .getUserID()));
+                events.add(new EventImpl(eventType, path, userSession.getUserID())); 
               }
             } catch (RepositoryException e) {
               log.error("Can not fire ActionLauncher.onSaveItems() for "
@@ -104,36 +112,36 @@ public class ActionLauncher implements ItemsPersistenceListener {
   }
 
   private boolean isSessionMatch(ListenerCriteria criteria, String sessionId) {
-    if (criteria.getNoLocal() && criteria.getSession().getId().equals(sessionId))
+    if (criteria.getNoLocal() && criteria.getSessionId().equals(sessionId))
       return false;
     return true;
   }
 
-  private boolean isPathMatch(ListenerCriteria criteria, ItemData item) {
+  private boolean isPathMatch(ListenerCriteria criteria, ItemData item, SessionImpl userSession) {
     if (criteria.getAbsPath() == null)
       return true;
     try {
-      QPath cLoc = criteria.getSession().getLocationFactory()
-          .parseAbsPath(criteria.getAbsPath()).getInternalPath();
+      QPath cLoc = userSession.getLocationFactory().parseAbsPath(
+          criteria.getAbsPath()).getInternalPath();
+      
       // 8.3.3 Only events whose associated parent node is at absPath (or
       // within its subtree, if isDeep is true) will be received.
+      
       QPath itemPath = item.getQPath();
+      
       if (item.isNode()) {
-        boolean isAtAbsPathNode = cLoc.equals(itemPath);
-        if (isAtAbsPathNode) {
-          // This is a associated parent node
-          return true; //state == Event.NODE_ADDED          
-        } else if (criteria.isDeep()) {
-          // For descendant
+        if (cLoc.equals(itemPath))
+          // This is a associated parent node for the node
+          return true;
+        else if (criteria.isDeep())
+          // check if the descendant node
           return itemPath.isDescendantOf(cLoc, false);
-        } else {
-          // no path match
-          return false;
-        }
       } else {
-        // property is descendant always
-        return itemPath.isDescendantOf(cLoc, !criteria.isDeep());
+        // check if the descendant property
+        return itemPath.isDescendantOf(cLoc, !criteria.isDeep()); 
       }
+      
+      return false;
     } catch (RepositoryException e) {
       return false;
     }
@@ -156,7 +164,7 @@ public class ActionLauncher implements ItemsPersistenceListener {
 
   }
 
-  private boolean isNodeTypeMatch(ListenerCriteria criteria, ItemData item)
+  private boolean isNodeTypeMatch(ListenerCriteria criteria, ItemData item, SessionImpl userSession)
       throws RepositoryException {
     if (criteria.getNodeTypeName() == null)
       return true;
@@ -166,10 +174,9 @@ public class ActionLauncher implements ItemsPersistenceListener {
       return false;
     }
     
-    NodeTypeManagerImpl ntManager = criteria.getSession().getWorkspace().getNodeTypeManager();
+    NodeTypeManagerImpl ntManager = userSession.getWorkspace().getNodeTypeManager();
 
     for (int i = 0; i < criteria.getNodeTypeName().length; i++) {
-//      if (isType(node, criteria.getNodeTypeName()[i], criteria.getSession()))
       ExtendedNodeType criteriaNT = (ExtendedNodeType) ntManager.getNodeType(criteria.getNodeTypeName()[i]);
       InternalQName[] testQNames;
       if(criteriaNT.isMixin()) {
@@ -208,5 +215,4 @@ public class ActionLauncher implements ItemsPersistenceListener {
     throw new RepositoryException("Unexpected ItemState for Node " + ItemState.nameFromValue(state.getState())
          + " " + state.getData().getQPath().getAsString());
   }
-
 }

@@ -85,17 +85,21 @@ public class QPath implements Comparable {
 
   public QPathEntry[] getRelPath(int relativeDegree) throws IllegalPathException {
 
-    if (relativeDegree > getLength() || getLength() <= 1)
+    int len = getLength() - relativeDegree;
+    //if (relativeDegree > getLength() || getLength() <= 1)
+    if (len < 0)
       throw new IllegalPathException("Relative degree " + relativeDegree
           + " is more than depth for " + getAsString());
 
-    List<QPathEntry> entries = new ArrayList<QPathEntry>();
-
-    // [PN] 12.02.07
-    for (int i = names.length - relativeDegree; i < names.length ; i++)
-      entries.add(names[i]);
-
-    return entries.toArray(new QPathEntry[entries.size()]);
+    QPathEntry[] relPath = new QPathEntry[relativeDegree]; 
+    System.arraycopy(names, len, relPath, 0, relPath.length);
+    
+    return relPath;
+    
+//    List<QPathEntry> entries = new ArrayList<QPathEntry>();
+//    for (int i = names.length - relativeDegree; i < names.length ; i++)
+//      entries.add(names[i]);
+//    return entries.toArray(new QPathEntry[entries.size()]);
   }
 
   /**
@@ -162,10 +166,6 @@ public class QPath implements Comparable {
    * @return last name of this path
    */
   public InternalQName getName() {
-    //InternalQName name = names[getLength() - 1];
-    //return new InternalQName(name.getNamespace(), name.getName());
-
-    // [PN] 07.02.07
     return names[getLength() - 1];
   }
 
@@ -179,7 +179,7 @@ public class QPath implements Comparable {
   /**
    * @return length of names array
    */
-  public int getLength() {
+  protected int getLength() {
     return names.length;
   }
 

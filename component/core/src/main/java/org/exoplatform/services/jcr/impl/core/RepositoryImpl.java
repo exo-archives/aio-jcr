@@ -153,7 +153,7 @@ public class RepositoryImpl implements ManageableRepository {
               + "Probably is not initialized. If so either Initialize it manually or turn on the RepositoryInitializer");
 
     SessionFactory sessionFactory = repositoryContainer.getWorkspaceContainer(workspaceName)
-    .getSessionFactory(); 
+      .getSessionFactory(); 
 
     if (credentials != null)
       return sessionFactory.createSession((CredentialsImpl) authenticationPolicy.authenticate(credentials));
@@ -192,8 +192,7 @@ public class RepositoryImpl implements ManageableRepository {
    * @see org.exoplatform.services.jcr.core.ManageableRepository#getWorkspaceNames()
    */
   public String[] getWorkspaceNames() {
-    List adapters = repositoryContainer
-        .getComponentAdaptersOfType(WorkspaceContainer.class);
+    List adapters = repositoryContainer.getComponentAdaptersOfType(WorkspaceContainer.class);
     String[] workspaceNames = new String[adapters.size()];
     for (int i = 0; i < adapters.size(); i++) {
       ComponentAdapter adapter = (ComponentAdapter) adapters.get(i);

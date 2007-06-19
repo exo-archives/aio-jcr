@@ -16,9 +16,11 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.core.XASession;
 import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableResourceManager;
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.transaction.TransactionException;
 import org.exoplatform.services.transaction.TransactionService;
 import org.exoplatform.services.transaction.impl.jotm.TransactionServiceJotmImpl;
@@ -34,11 +36,13 @@ import org.objectweb.transaction.jta.ResourceManagerEvent;
 public class XASessionImpl extends SessionImpl implements XASession, XAResource,
     ResourceManagerEvent {
 
-  private TransactionService             tService;
+  private final Log log = ExoLogger.getLogger("jcr.XASessionImpl");
+  
+  private final TransactionService             tService;
 
   private int                            txTimeout;
 
-  private TransactionableResourceManager txResourceManager = null;
+  private final TransactionableResourceManager txResourceManager;
 
   private int                            startFlags        = TMNOFLAGS;
 
@@ -51,7 +55,7 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
       TransactionService tService,
       TransactionableResourceManager txResourceManager) throws RepositoryException {
     super(workspaceName, credentials, container);
-    txTimeout = tService.getDefaultTimeout();
+    this.txTimeout = tService.getDefaultTimeout();
     this.tService = tService;
     this.txResourceManager = txResourceManager;
     this.txResourceManager.join(this);

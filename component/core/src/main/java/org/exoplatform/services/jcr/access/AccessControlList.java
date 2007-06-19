@@ -37,18 +37,12 @@ public class AccessControlList implements Externalizable {
 
   private List<AccessControlEntry> aces;
 
-  // private Map permissions;
-
   /**
    * @deprecated use AccessControlList()
    * @param initDefault
    */
   public AccessControlList(boolean initDefault) {
     this();
-    // this.owner = SystemIdentity.SYSTEM;
-    // this.permissions = new HashMap();
-    // // if(initDefault)
-    // permissions.put(SystemIdentity.ANY, PermissionType.ALL);
   }
 
   public AccessControlList() {
@@ -62,12 +56,10 @@ public class AccessControlList implements Externalizable {
    */
   public AccessControlList(String ownerName) {
     this.owner = ownerName;
-    // this.permissions = new HashMap();
     this.aces = new ArrayList<AccessControlEntry>();
     for (String str : PermissionType.ALL) {
       aces.add(new AccessControlEntry(SystemIdentity.ANY, str));
     }
-    // permissions.put(SystemIdentity.ANY, PermissionType.ALL);
   }
 
   public AccessControlList(String owner, List<AccessControlEntry> aces) {
@@ -82,7 +74,6 @@ public class AccessControlList implements Externalizable {
         this.owner = new String(ownerProp.getValues().get(0).getAsByteArray());
 
       if (permissionsProp != null) {
-        // permissions = new HashMap();
         this.aces = new ArrayList<AccessControlEntry>();
         List<ValueData> permValues = permissionsProp.getValues();
 
@@ -90,7 +81,6 @@ public class AccessControlList implements Externalizable {
           String p = new String(permValues.get(i).getAsByteArray());
           StringTokenizer parser = new StringTokenizer(p, AccessControlEntry.DELIMITER);
           aces.add(new AccessControlEntry(parser.nextToken(), parser.nextToken()));
-          // addPermission(parser.nextToken(), parser.nextToken());
         }
       }
     } catch (IOException e) {
@@ -141,9 +131,6 @@ public class AccessControlList implements Externalizable {
     this.owner = owner;
   }
 
-  // public List <AccessControlEntry> getPermissionEntries() {
-  // return aces;
-  // }
   // Create safe copy of list <AccessControlEntry>
   public List<AccessControlEntry> getPermissionEntries() {
     List<AccessControlEntry> list = new ArrayList<AccessControlEntry>();

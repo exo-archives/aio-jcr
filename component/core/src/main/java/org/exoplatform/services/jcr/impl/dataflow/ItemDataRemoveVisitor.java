@@ -20,6 +20,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
@@ -46,11 +47,18 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
   
   protected NodeData removedRoot = null;
   
+  protected QPath ancestorToSave = null;
+  
   // a deletion without any validation
   public ItemDataRemoveVisitor(ItemDataConsumer dataManager) {
+    this(dataManager, null);
+  }
+  
+  public ItemDataRemoveVisitor(ItemDataConsumer dataManager, QPath ancestorToSave) {
     super(dataManager);
     this.session = null;
     this.validate = false;
+    this.ancestorToSave = ancestorToSave;
   }
   
   public ItemDataRemoveVisitor(SessionImpl session, boolean validate) {
@@ -176,7 +184,9 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
       validate(property);
     }
     
-    ItemState state = ItemState.createDeletedState(property);
+    //ItemState state = ItemState.createDeletedState(property);
+    ItemState state = new ItemState(property, ItemState.DELETED, true, 
+        ancestorToSave != null ? ancestorToSave : removedRoot.getQPath()); 
     
     if (!itemRemovedStates.contains(state))
       itemRemovedStates.add(state);
@@ -199,7 +209,10 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
       validate(node);
     }
     
-    itemRemovedStates.add(ItemState.createDeletedState(node));
+    //itemRemovedStates.add(ItemState.createDeletedState(node));
+    ItemState state = new ItemState(node, ItemState.DELETED, true, 
+        ancestorToSave != null ? ancestorToSave : removedRoot.getQPath());
+    itemRemovedStates.add(state);
   }
 
   @Override

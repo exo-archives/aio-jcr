@@ -411,24 +411,22 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
     }
     
     // by location
-    NodeData rootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
     for (int i = 1; i <= mergePath.getDepth(); i++) {
       final QPath ancesstorPath = mergePath.makeAncestorPath(i);
-      NodeData mergeAncestor = (NodeData) mergeDataManager.getItemData(rootData,ancesstorPath);
+      NodeData mergeAncestor = (NodeData) mergeDataManager.getItemData(ancesstorPath);
       if (mergeAncestor != null && mergeNtManager.isNodeType(Constants.MIX_REFERENCEABLE,
           mergeAncestor.getPrimaryTypeName(), 
           mergeAncestor.getMixinTypeNames())) {
 
         NodeData corrAncestor = (NodeData) corrDataManager.getItemData(mergeAncestor.getIdentifier());
         if (corrAncestor != null) {
-          QPathEntry[] relQPathEntries = mergePath.getRelPath(mergePath.getDepth() - i);
-          QPath corrNodeQPath = QPath.makeChildPath(corrAncestor.getQPath(), relQPathEntries);
-          return (TransientNodeData) corrDataManager.getItemData(rootData,corrNodeQPath);
+          QPathEntry[] relPathEntries = mergePath.getRelPath(mergePath.getDepth() - i);
+          return (TransientNodeData) corrDataManager.getItemData(corrAncestor, relPathEntries);
         }
       }
     }
 
-    return (TransientNodeData) corrDataManager.getItemData(rootData,mergePath);
+    return (TransientNodeData) corrDataManager.getItemData(mergePath);
   }   
  
   /**

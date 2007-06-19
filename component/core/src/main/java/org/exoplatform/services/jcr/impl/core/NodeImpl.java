@@ -171,15 +171,10 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     checkValid();
 
     JCRPath itemPath = locationFactory.createJCRPath(getLocation(), relPath);
-
-    NodeData srcRootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
-
-    NodeImpl node = (NodeImpl) dataManager.getItem(srcRootData, itemPath.getInternalPath(), true);
-
+    NodeImpl node = (NodeImpl) dataManager.getItem(itemPath.getInternalPath(), true);
     if (node == null)
       throw new PathNotFoundException("Node not found " + itemPath.getAsString(true));
     return node;
-
   }
 
   /**
@@ -232,12 +227,10 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     checkValid();
     JCRPath itemPath = locationFactory.createJCRPath(getLocation(), relPath);
 
-    NodeData rootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
-
     if (log.isDebugEnabled())
       log.debug("getProperty() " + getLocation() + " " + relPath);
-    Item prop = dataManager.getItem(rootData, itemPath.getInternalPath(), true);
-
+    
+    Item prop = dataManager.getItem(itemPath.getInternalPath(), true);
     if (prop == null || prop.isNode())
       throw new PathNotFoundException("Property not found " + getLocation() + " " + relPath);
 
@@ -463,20 +456,14 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       throw new RepositoryException("The relPath provided must not have an index on its final element. "
           + itemPath.getAsString(false));
 
-    NodeData rootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
-
-    ItemImpl parentItem = dataManager.getItem(rootData,
-        itemPath.makeParentPath().getInternalPath(),
-        true);
-
+    ItemImpl parentItem = dataManager.getItem(itemPath.makeParentPath().getInternalPath(), true);
     if (parentItem == null)
       throw new PathNotFoundException("Parent not found for " + itemPath.getAsString(true));
     if (!parentItem.isNode())
       throw new ConstraintViolationException("Parent item is not a node " + parentItem.getPath());
+    
     NodeImpl parent = (NodeImpl) parentItem;
-
     InternalQName name = itemPath.getName().getInternalName();
-    // Check if parent exists
 
     // find node type
     JCRName nodeTypeName = parent.findNodeType(itemPath.getName().getAsString());
@@ -527,11 +514,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       throw new RepositoryException("The relPath provided must not have an index on its final element. "
           + itemPath.getAsString(false));
 
-    NodeData rootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
-
-    ItemImpl parentItem = dataManager.getItem(rootData,
-        itemPath.makeParentPath().getInternalPath(),
-        true);
+    ItemImpl parentItem = dataManager.getItem(itemPath.makeParentPath().getInternalPath(), true);
 
     if (parentItem == null)
       throw new PathNotFoundException("Parent not found for " + itemPath.getAsString(true));
@@ -1111,8 +1094,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         }
       }
     }
-    NodeData corrRoot = (NodeData) corrDataManager.getItemData(Constants.ROOT_UUID);
-    NodeData corrNode = (NodeData) corrDataManager.getItemData(corrRoot, myPath);
+    NodeData corrNode = (NodeData) corrDataManager.getItemData(myPath);
     if (corrNode != null)
       return corrNode;
 
@@ -1355,9 +1337,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       }
     }
 
-    // TransientPropertyData prop =
-    // (TransientPropertyData)dataManager.getItemData(QPath.
-    // makeChildPath(getInternalPath(), Constants.JCR_MIXINTYPES));
     TransientPropertyData prop = (TransientPropertyData) dataManager.getItemData(nodeData(),
         new QPathEntry(Constants.JCR_MIXINTYPES, 0));
 
@@ -1389,7 +1368,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     checkValid();
 
-    // if (hasSameOrSubtypeMixin((NodeTypeImpl) nodeType(mixinName))) {
     if (hasSameOrSubtypeMixin(nodeType(locationFactory.parseJCRName(mixinName).getInternalName()))) {
       return false;
     }
@@ -1430,14 +1408,12 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     if (srcPath.equals(destPath))
       return;
 
-    NodeData rootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
     // check existence
-    // if (!hasNode(srcName.getName(), srcName.getIndex())) {
-    if (dataManager.getItemData(rootData, srcPath) == null) {
+    if (dataManager.getItemData(srcPath) == null) {
       throw new ItemNotFoundException(getPath() + " has no child node with name "
           + srcPath.getName().getAsString());
     }
-    if (destPath != null && dataManager.getItemData(rootData, destPath) == null) {
+    if (destPath != null && dataManager.getItemData(destPath) == null) {
 
       throw new ItemNotFoundException(getPath() + " has no child node with name "
           + destPath.getName().getAsString());
@@ -1652,12 +1628,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       return true;
 
     if (this.isNodeType(Constants.MIX_VERSIONABLE)) {
-      // QPath path = QPath.makeChildPath(getInternalPath(),
-      // Constants.JCR_ISCHECKEDOUT);
-      // return ((Property) dataManager.getItem(path, false)).getBoolean();
       return ((Property) dataManager.getItem(nodeData(), new QPathEntry(Constants.JCR_ISCHECKEDOUT,
           0), false)).getBoolean();
-      // return property(Constants.JCR_ISCHECKEDOUT).getBoolean();
     }
 
     NodeImpl ancestor = (NodeImpl) getParent();
@@ -1778,17 +1750,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     // JCRPath newPath = locationFactory.createJCRPath(getLocation(), relPath);
     QPath newPath = locationFactory.createJCRPath(getLocation(), relPath).getInternalPath();
     try {
-      // node = (NodeImpl) getNode(relPath);
-      NodeData rootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
-      node = (NodeImpl) dataManager.getItem(rootData, newPath, true);
+      node = (NodeImpl) dataManager.getItem(newPath, true);
     } catch (PathNotFoundException e) {
-
-      // NodeData parentData = (NodeData) dataManager.getItemData(newPath
-      // .makeParentPath());
-      // NodeData nodeData = TransientNodeData.createNodeData(parentData,
-      // newPath
-      // .getName(), Constants.NT_BASE);
-
       NodeData nodeData = new TransientNodeData(newPath,
           IdGenerator.generate(),
           -1,
@@ -1799,8 +1762,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
           nodeData().getACL());
 
       dataManager.update(ItemState.createAddedState(nodeData), true);
-      NodeData rootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
-      node = (NodeImpl) dataManager.getItem(rootData, newPath, true);
+      node = (NodeImpl) dataManager.getItem(newPath, true);
     }
 
     node.restore(version, removeExisting);

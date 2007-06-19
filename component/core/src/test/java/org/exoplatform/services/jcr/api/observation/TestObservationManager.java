@@ -76,9 +76,12 @@ public class TestObservationManager extends JcrAPIBaseTest {
     observationManager.addEventListener(listener, Event.PROPERTY_ADDED|Event.NODE_ADDED, "/", true, new String[]{"0"}, new String[]{"nt:base"}, false);
     assertEquals(1, observationManager.getRegisteredEventListeners().getSize());
     
-    Session session1 = repository.login(credentials, this.workspace.getName()); // the same ws
-    ObservationManager observationManager1 = session1.getWorkspace().getObservationManager();
-    assertEquals(1, observationManager1.getRegisteredEventListeners().getSize());
+    // [PN] 16.06.07
+    // Listener in observation manager is per session, global listeners is registered in observation registry.
+    // Listeners list can be acquired there (Impl level).
+    //Session session1 = repository.login(credentials, this.workspace.getName()); // the same ws
+    //ObservationManager observationManager1 = session1.getWorkspace().getObservationManager();
+    //assertEquals(1, observationManager1.getRegisteredEventListeners().getSize());
 
     Session session2 = repository.login(credentials, "ws2"); // another ws
     ObservationManager observationManager2 = session2.getWorkspace().getObservationManager();

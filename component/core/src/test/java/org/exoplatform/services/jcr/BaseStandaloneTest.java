@@ -68,7 +68,7 @@ public abstract class BaseStandaloneTest extends TestCase {
           "src/main/resources/login.conf");
 
     credentials = new CredentialsImpl("admin", "admin".toCharArray());
-
+    
     repositoryService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
     repository = (RepositoryImpl) repositoryService.getDefaultRepository();
 

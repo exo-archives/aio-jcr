@@ -156,12 +156,13 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
   public JDBCWorkspaceDataContainer(WorkspaceEntry wsConfig,
       RepositoryEntry repConfig,
       InitialContextInitializer contextInit,
-      //LogConfigurationInitializer logCongig,
       ValueStoragePluginProvider valueStorageProvider) throws RepositoryConfigurationException,
       NamingException,
       RepositoryException,
       IOException {
+    
     checkIntegrity(wsConfig, repConfig);
+    
     this.containerName = wsConfig.getName();
     this.multiDb = Boolean.parseBoolean(wsConfig.getContainer().getParameterValue(MULTIDB));
     this.valueStorageProvider = valueStorageProvider;

@@ -55,21 +55,12 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
   }
   
   public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
-//    // 1. Try from cache
-//    ItemData data = getCachedItemData(qpath);
-//
-//    // 2. Try from container
-//    if (data == null) {
-//      data = getPersistedItemData(qpath);
-//    }
-//
-//    return data;
-    
+  
     // [PN] 05.04.07 TODO Remove whole qpath make after the cache refactor
-    QPath qpath = QPath.makeChildPath(parentData.getQPath(), new QPathEntry[]{name});
+    //QPath qpath = QPath.makeChildPath(parentData.getQPath(), new QPathEntry[]{name});
     
     // 1. Try from cache
-    ItemData data = getCachedItemData(qpath);
+    ItemData data = getCachedItemData(parentData, name);
   
     // 2. Try from container
     if (data == null) {
@@ -83,17 +74,17 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
    * @see org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspaceDataManager#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
   public ItemData getItemData(QPath qpath) throws RepositoryException {
-    //throw new RepositoryException("getItemData(QPath path) is deprecated");
+    throw new RepositoryException("getItemData(QPath path) is deprecated");
     
     // 2. Try from cache
-    ItemData data = getCachedItemData(qpath);
-
-    // 3. Try from container
-    if (data == null) {
-      data = getPersistedItemData(qpath);
-    }
-
-    return data;
+//    ItemData data = getCachedItemData(qpath);
+//
+//    // 3. Try from container
+//    if (data == null) {
+//      data = getPersistedItemData(qpath);
+//    }
+//
+//    return data;
   }
 
   /* (non-Javadoc)
@@ -180,52 +171,52 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     return cache;
   }
 
-  protected ItemData getCachedItemData(QPath qpath) throws RepositoryException {
-    return cache.get(qpath);
+  protected ItemData getCachedItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
+    return cache.get(parentData.getIdentifier(), name);
   }  
   
-  protected ItemData getPersistedItemData(QPath qpath) throws RepositoryException {
-
-    ItemData parent = null;
-    QPathEntry[] qentries = qpath.getEntries();
-    int deep = qentries.length - 1;
-    
-    // try find parent from cache
-    while (deep > 0 && parent == null) { 
-      QPathEntry[] pentries = new QPathEntry[deep--];  
-      System.arraycopy(qentries, 0, pentries, 0, pentries.length);
-      QPath ppath = new QPath(pentries);
-      parent = getCachedItemData(ppath);
-    }
-    
-    if (parent == null) {
-      // so, parent is root
-      parent = getCachedItemData(Constants.ROOT_UUID);
-      if (parent == null) {
-        parent = super.getItemData(Constants.ROOT_UUID);
-        // put root in the cache
-//        if (parent != null && cache.isEnabled()) {
-//          cache.put(parent);  
-//        }
-      }
-    }
-    // if parent is null, null will be returned.
-    // Look for node by parent and name.
-    ItemData pitem = parent; 
-    while ((++deep) < qentries.length && pitem != null) {
-      pitem = super.getItemData((NodeData) pitem, qentries[deep]);
-      // caching each ancestor and final item
-//      if (pitem != null && cache.isEnabled()) {
-//        cache.put(pitem); 
+//  protected ItemData getPersistedItemData(QPath qpath) throws RepositoryException {
+//
+//    ItemData parent = null;
+//    QPathEntry[] qentries = qpath.getEntries();
+//    int deep = qentries.length - 1;
+//    
+//    // try find parent from cache
+//    while (deep > 0 && parent == null) { 
+//      QPathEntry[] pentries = new QPathEntry[deep--];  
+//      System.arraycopy(qentries, 0, pentries, 0, pentries.length);
+//      //QPath ppath = new QPath(pentries);
+//      parent = getCachedItemData(ppath);
+//    }
+//    
+//    if (parent == null) {
+//      // so, parent is root
+//      parent = getCachedItemData(Constants.ROOT_UUID);
+//      if (parent == null) {
+//        parent = super.getItemData(Constants.ROOT_UUID);
+//        // put root in the cache
+////        if (parent != null && cache.isEnabled()) {
+////          cache.put(parent);  
+////        }
 //      }
-    }
-    
-    // caching final item only
-    if (pitem != null && cache.isEnabled()) {
-      cache.put(pitem); 
-    }
-    return pitem;
-  }
+//    }
+//    // if parent is null, null will be returned.
+//    // Look for node by parent and name.
+//    ItemData pitem = parent; 
+//    while ((++deep) < qentries.length && pitem != null) {
+//      pitem = super.getItemData((NodeData) pitem, qentries[deep]);
+//      // caching each ancestor and final item
+////      if (pitem != null && cache.isEnabled()) {
+////        cache.put(pitem); 
+////      }
+//    }
+//    
+//    // caching final item only
+//    if (pitem != null && cache.isEnabled()) {
+//      cache.put(pitem); 
+//    }
+//    return pitem;
+//  }
   
   protected ItemData getPersistedItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
 

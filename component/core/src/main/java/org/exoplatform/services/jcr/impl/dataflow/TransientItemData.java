@@ -185,8 +185,6 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
     parentIdentifier = new String(buf, Constants.DEFAULT_ENCODING).intern();
 
     persistedVersion = in.readInt();
-    
-    //hashCode = initHashCode();
   }
 
 }

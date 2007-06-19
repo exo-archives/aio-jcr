@@ -30,17 +30,17 @@ public class ListenerCriteria {
 
   private boolean noLocal;
   
-  private SessionImpl session;
+  private String sessionId;
 
   public ListenerCriteria(int eventTypes, String absPath, boolean isDeep,
-      String[] identifier, String[] nodeTypeName, boolean noLocal, SessionImpl session) throws RepositoryException {
+      String[] identifier, String[] nodeTypeName, boolean noLocal, String sessionId) throws RepositoryException {
     this.eventTypes = eventTypes;
     this.absPath = absPath;
     this.deep = isDeep;
     this.identifier = identifier;
     this.nodeTypeName = nodeTypeName;
     this.noLocal = noLocal;
-    this.session = session;    
+    this.sessionId = sessionId;
   }
 
   public int getEventTypes() {
@@ -67,8 +67,8 @@ public class ListenerCriteria {
     return this.noLocal;
   }
 
-  public SessionImpl getSession() {
-    return this.session;
+  public String getSessionId() {
+    return this.sessionId;
   }
   
 }

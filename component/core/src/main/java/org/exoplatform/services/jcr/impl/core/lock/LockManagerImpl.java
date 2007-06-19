@@ -49,7 +49,7 @@ import org.picocontainer.Startable;
 
 /**
  * Created by The eXo Platform SARL .
- * 
+ *
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: LockManagerImpl.java 13866 2007-03-28 13:39:28Z ksm $
  */
@@ -99,7 +99,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.exoplatform.services.jcr.impl.core.lock.LockManager#lockTokenAdded(org.exoplatform.services.jcr.impl.core.SessionImpl,
    *      java.lang.String)
    */
@@ -139,7 +139,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.exoplatform.services.jcr.impl.core.lock.LockManager#getLock(org.exoplatform.services.jcr.impl.core.NodeImpl)
    */
   public LockImpl getLock(NodeImpl node) throws LockException, RepositoryException {
@@ -166,7 +166,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.exoplatform.services.jcr.impl.core.lock.LockManager#holdsLock(org.exoplatform.services.jcr.impl.core.NodeImpl)
    */
   public boolean holdsLock(NodeData node) throws RepositoryException {
@@ -309,7 +309,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.exoplatform.services.jcr.impl.core.lock.LockManager#lockTokenRemoved(org.exoplatform.services.jcr.impl.core.SessionImpl,
    *      java.lang.String)
    */

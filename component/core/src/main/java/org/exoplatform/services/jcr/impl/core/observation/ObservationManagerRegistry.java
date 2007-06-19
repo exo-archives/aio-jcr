@@ -15,6 +15,7 @@ import javax.jcr.observation.EventListenerIterator;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.core.SessionRegistry;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
 import org.exoplatform.services.log.ExoLogger;
@@ -23,8 +24,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SARL .
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: ObservationManagerRegistry.java 4025 2006-02-06 09:12:12Z
- *          peterit $
+ * @version $Id: ObservationManagerRegistry.java 4025 2006-02-06 09:12:12Z peterit $
  */
 
 public class ObservationManagerRegistry {
@@ -35,14 +35,15 @@ public class ObservationManagerRegistry {
 
   protected ActionLauncher                       launcher;
 
-  public ObservationManagerRegistry(WorkspacePersistentDataManager workspaceDataManager) {
+  public ObservationManagerRegistry(WorkspacePersistentDataManager workspaceDataManager,
+      SessionRegistry sessionRegistry) {
 
     this.listenersMap = new HashMap<EventListener, ListenerCriteria>();
-    this.launcher = new ActionLauncher(this, workspaceDataManager);
+    this.launcher = new ActionLauncher(this, workspaceDataManager, sessionRegistry);
   }
 
   public ObservationManagerImpl createObservationManager(SessionImpl session) {
-    return new ObservationManagerImpl(this, session);
+    return new ObservationManagerImpl(this, session.getId());
   }
 
   public void addEventListener(EventListener listener, ListenerCriteria filter) {
@@ -67,14 +68,13 @@ public class ObservationManagerRegistry {
 
     for (EventListener listener : listenersMap.keySet()) {
       ListenerCriteria criteria = listenersMap.get(listener);
-      if (criteria.getSession() == session) {
+      if (criteria.getSessionId().equals(session.getId())) {
         eventsForRemove.add(listener);
       }
     }
     for (EventListener listener : eventsForRemove) {
       listenersMap.remove(listener);
     }
-    
   }
 
 }

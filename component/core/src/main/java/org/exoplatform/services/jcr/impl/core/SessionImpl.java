@@ -97,47 +97,46 @@ import org.xml.sax.XMLReader;
  */
 public class SessionImpl implements Session, NamespaceAccessor {
 
-  protected static Log                   log = ExoLogger.getLogger("jcr.SessionImpl");
+  private final Log log = ExoLogger.getLogger("jcr.SessionImpl");
 
-  private RepositoryImpl                 repository;
+  private final RepositoryImpl repository;
 
-  private CredentialsImpl                credentials;
+  private final CredentialsImpl credentials;
 
-  private WorkspaceImpl                  workspace;
+  private final WorkspaceImpl workspace;
 
-  protected SessionDataManager           nodesManager;
+  protected final SessionDataManager nodesManager;
 
-  private Map<String, String>            namespaces;
+  private final Map<String, String> namespaces;
 
-  private AccessManager                  accessManager;
+  private final AccessManager accessManager;
 
-  private LocationFactory                locationFactory;
+  private final LocationFactory locationFactory;
 
-  private ValueFactoryImpl               valueFactory;
+  private final ValueFactoryImpl valueFactory;
 
-  private ExoContainer                   container;
+  private final ExoContainer container;
 
-  private LocationFactory                systemLocationFactory;
+  private final LocationFactory systemLocationFactory;
 
-  private LockManagerImpl                lockManager;
+  private final LockManagerImpl lockManager;
 
-  private String                         workspaceName;
+  private final String workspaceName;
 
-  private boolean                        live;
+  private boolean live;
 
-  private List<SessionLifecycleListener> lifecycleListeners;
+  private final List<SessionLifecycleListener> lifecycleListeners;
 
-  private SessionFactory                 sessionFactory;
+  private final SessionFactory sessionFactory;
 
-  private final String                   id;
+  private final String id;
 
-  private SessionActionInterceptor       actionHandler;
+  private final SessionActionInterceptor actionHandler;
 
-  private long                           lastAccessTime;
+  private long lastAccessTime;
 
-  private SessionRegistry                sessionRegistry;
+  private final SessionRegistry sessionRegistry;
 
-  // private static long count = 0;
   SessionImpl(String workspaceName, Credentials credentials, ExoContainer container) throws RepositoryException {
 
     this.workspaceName = workspaceName;
@@ -147,10 +146,8 @@ public class SessionImpl implements Session, NamespaceAccessor {
     // this.lockTokens = new HashSet<String>();
 
     this.repository = (RepositoryImpl) container.getComponentInstanceOfType(RepositoryImpl.class);
-    this.systemLocationFactory = (LocationFactory) container
-        .getComponentInstanceOfType(LocationFactory.class);
-// this.uuidGenerator = (UUIDGenerator)
-// container.getComponentInstanceOfType(UUIDGenerator.class);
+    this.systemLocationFactory = (LocationFactory) container.getComponentInstanceOfType(LocationFactory.class);
+
     this.accessManager = (AccessManager) container.getComponentInstanceOfType(AccessManager.class);
     this.lockManager = (LockManagerImpl) container
         .getComponentInstanceOfType(LockManagerImpl.class);
@@ -192,7 +189,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
     sessionRegistry.registerSession(this);
 
     this.lastAccessTime = System.currentTimeMillis();
-
   }
 
   public String getSessionInfo() {
@@ -265,7 +261,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
   public Session impersonate(Credentials credentials) throws LoginException, RepositoryException {
     if (credentials instanceof CredentialsImpl)
       return sessionFactory.createSession((CredentialsImpl) credentials);
-    // return new SessionImpl(workspaceName, credentials, container);
     else if (credentials instanceof SimpleCredentials) {
       String name = ((SimpleCredentials) credentials).getUserID();
       char[] pswd = ((SimpleCredentials) credentials).getPassword();
@@ -305,7 +300,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
    */
   public NodeImpl getNodeByUUID(String uuid) throws ItemNotFoundException, RepositoryException {
     Item item = nodesManager.getItemByIdentifier(uuid, true);
-    // .getAccessibleItemByUUID(uuid);
 
     if (item != null && item.isNode()) {
       NodeImpl node = (NodeImpl) item;
@@ -323,10 +317,8 @@ public class SessionImpl implements Session, NamespaceAccessor {
    */
   public Item getItem(String absPath) throws PathNotFoundException, RepositoryException {
     JCRPath loc = locationFactory.parseAbsPath(absPath);
-    // ItemImpl item = nodesManager.getItem(loc.getInternalPath(), true);
 
-    NodeData rootData = (NodeData) nodesManager.getItemData(Constants.ROOT_UUID);
-    ItemImpl item = nodesManager.getItem(rootData, loc.getInternalPath(), true);
+    ItemImpl item = nodesManager.getItem(loc.getInternalPath(), true);
     if (item != null)
       return item;
 
@@ -406,7 +398,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
         }
       }
     }
-    // String[] prefixes = getNamespacePrefixes();
     String[] prefixes = workspace.getNamespaceRegistry().getPrefixes();
     for (int i = 0; i < prefixes.length; i++) {
       try {
@@ -452,7 +443,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
     allPrefixes.addAll(namespaces.keySet());
     String[] permanentPrefixes = workspace.getNamespaceRegistry().getPrefixes();
     for (int i = 0; i < permanentPrefixes.length; i++) {
-      // log.info("PREFIX Session.getnamespaceprefixes "+permanentPrefixes[i]);
       String permanentPrefix = permanentPrefixes[i];
       String uri = null;
       try {
@@ -531,10 +521,7 @@ public class SessionImpl implements Session, NamespaceAccessor {
         noRecurse);
 
     JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
-
-    NodeData rootItem = (NodeData) nodesManager.getItemData(Constants.ROOT_UUID);
-    ItemData srcItemData = nodesManager.getItemData(rootItem, srcNodePath.getInternalPath());
-
+    ItemData srcItemData = nodesManager.getItemData(srcNodePath.getInternalPath());
     if (srcItemData == null) {
       throw new PathNotFoundException("No node exists at " + absPath);
     }
@@ -556,7 +543,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
       SAXTransformerFactory saxFact = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
       handler = saxFact.newTransformerHandler();
       handler.setResult(new StreamResult(out));
-
     } catch (javax.xml.transform.TransformerFactoryConfigurationError ex) {
       throw new IOException(ex.getMessage());
     } catch (javax.xml.transform.TransformerConfigurationException ex) {
@@ -586,18 +572,11 @@ public class SessionImpl implements Session, NamespaceAccessor {
 
     JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
 
-    NodeData srcRootData = (NodeData) nodesManager.getItemData(Constants.ROOT_UUID);
-
-    NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcRootData,
-        srcNodePath.getInternalPath(),
-        true);
+    NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcNodePath.getInternalPath(), true);
 
     XMLWriter writer = new XMLWriter(this);
-    //    
     initNodeAsDocView(srcNode, writer, skipBinary, noRecurse);
-    //    
     invokeHandler(writer.getBytes(), contentHandler);
-
   }
 
   /*
@@ -650,11 +629,8 @@ public class SessionImpl implements Session, NamespaceAccessor {
 
       importer.parse(in);
     } catch (IOException e) {
-      // e.printStackTrace();
       throw new InvalidSerializedDataException("importXML failed", e);
     } catch (SAXException e) {
-      // e.printStackTrace();
-      // throw new InvalidSerializedDataException("importXML failed", e);
       Throwable rootCause = e.getException();
       if (rootCause == null) {
         rootCause = getRootCauseException(e);
@@ -662,7 +638,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
       if (rootCause == null) {
         rootCause = e;
       }
-      // rootCause.printStackTrace();
       if (rootCause instanceof ItemExistsException) {
         throw new ItemExistsException("importXML failed", rootCause);
       } else if (rootCause instanceof ConstraintViolationException) {
@@ -670,11 +645,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
       } else {
         throw new InvalidSerializedDataException("importXML failed", e);
       }
-      /*
-       * if (uuidBehavior == ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW) {
-       * throw new ItemExistsException("importXML failed", e); } else { throw
-       * new InvalidSerializedDataException("importXML failed", e); }
-       */
     } catch (ParserConfigurationException e) {
       throw new InvalidSerializedDataException("importXML failed", e);
     }
@@ -741,22 +711,13 @@ public class SessionImpl implements Session, NamespaceAccessor {
       RepositoryException {
 
     JCRPath srcNodePath = getLocationFactory().parseAbsPath(srcAbsPath);
-    // NodeImpl srcNode = (NodeImpl)
-    // nodesManager.getItem(srcNodePath.getInternalPath(), true);
-    NodeData srcRootData = (NodeData) nodesManager.getItemData(Constants.ROOT_UUID);
-
-    NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcRootData,
-        srcNodePath.getInternalPath(),
-        true);
-
+    NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcNodePath.getInternalPath(), true);
     JCRPath destNodePath = getLocationFactory().parseAbsPath(destAbsPath);
     if (destNodePath.isIndexSetExplicitly())
       throw new RepositoryException("The relPath provided must not have an index on its final element. "
           + destNodePath.getAsString(false));
 
-    NodeData dstRootData = (NodeData) nodesManager.getItemData(Constants.ROOT_UUID);
-    NodeImpl destParentNode = (NodeImpl) nodesManager.getItem(dstRootData, destNodePath
-        .makeParentPath().getInternalPath(), true);
+    NodeImpl destParentNode = (NodeImpl) nodesManager.getItem(destNodePath.makeParentPath().getInternalPath(), true);
 
     if (srcNode == null || destParentNode == null) {
       throw new PathNotFoundException("No node exists at " + srcAbsPath
@@ -767,8 +728,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
         ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
 
     // Check for node with destAbsPath name in session
-// NodeImpl destNode = (NodeImpl)
-// nodesManager.getItem(destNodePath.getInternalPath(), true);
     NodeImpl destNode = (NodeImpl) nodesManager.getItem((NodeData) destParentNode.getData(),
         new QPathEntry(destNodePath.getInternalPath().getName(), 0),
         true);
@@ -911,10 +870,9 @@ public class SessionImpl implements Session, NamespaceAccessor {
       if (!noRecurse) {
         if (child.getLocation().getName().getInternalName().equals(Constants.JCR_XMLTEXT)) {
           try {
-            // TODO jcr:xmlcharacters
+            // jcr:xmlcharacters
             String val = StringConverter.normalizeString(child.getProperty("jcr:xmlcharacters")
                 .getString(), false);
-            // System.out.println(">>> TEXT >>>> "+child.getPath()+" "+val);
             writer.writeText(val);
             continue;
           } catch (ValueFormatException e) {

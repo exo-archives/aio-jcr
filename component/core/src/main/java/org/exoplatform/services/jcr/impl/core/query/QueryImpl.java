@@ -112,8 +112,6 @@ public class QueryImpl extends AbstractQueryImpl {
         this.handler = handler;
 
         try {
-            //if (!node.isNodeType(QName.NT_QUERY.toJCRName(session.getNamespaceResolver()))) {
-            //Constants.NT_QUERY
             if (!node.isNodeType("nt:query")) {
                 throw new InvalidQueryException("node is not of type nt:query");
             }
@@ -173,37 +171,25 @@ public class QueryImpl extends AbstractQueryImpl {
             UnsupportedRepositoryOperationException,
             RepositoryException {
 
-      // [PN] 21.12.06
-      
       JCRPath path = session.getLocationFactory().parseAbsPath(absPath);
       QPath qpath = path.getInternalPath();
-      //String parentPath = path.makeParentPath().getAsString(false);
-      //String nodeName = path.getName().getAsString();
-
-      //NodeImpl parent = (NodeImpl)session.getItem(parentPath);
-      NodeData rootData = (NodeData) session.getTransientNodesManager().getItemData(Constants.ROOT_UUID);
-      NodeImpl parent = (NodeImpl) session.getTransientNodesManager().getItem(rootData,qpath.makeParentPath(), false);
+      NodeImpl parent = (NodeImpl) session.getTransientNodesManager().getItem(qpath.makeParentPath(), false);
       if (parent == null)
         throw new PathNotFoundException("Parent not found for " + path.getAsString(false));
 
       // validate as on parent child node
       parent.validateChildNode(qpath.getName(), Constants.NT_QUERY);
       
-      //NodeImpl queryNode = parent.createChildNode(nodeName, "nt:query", false, true);
       NodeData queryData = TransientNodeData.createNodeData((NodeData) parent.getData(), qpath.getName(), Constants.NT_QUERY); 
       NodeImpl queryNode = (NodeImpl) session.getTransientNodesManager().update(ItemState.createAddedState(queryData), false);
       
       queryNode.addAutoCreatedItems(Constants.NT_QUERY);
       // set properties
-      // Value[] vals = new Value[] {session.getValueFactory().createValue(language)};
-      // queryNode.createChildProperty("jcr:language", vals, PropertyType.STRING);
       TransientValueData value = new TransientValueData(language); 
       TransientPropertyData jcrLanguage = TransientPropertyData.createPropertyData(
           queryData, Constants.JCR_LANGUAGE, PropertyType.STRING, false, value);
       session.getTransientNodesManager().update(ItemState.createAddedState(jcrLanguage), false);
       
-      // vals = new Value[] {session.getValueFactory().createValue(statement)};
-      // queryNode.createChildProperty("jcr:statement", vals, PropertyType.STRING);
       value = new TransientValueData(statement); 
       TransientPropertyData jcrStatement = TransientPropertyData.createPropertyData(
           queryData, Constants.JCR_STATEMENT, PropertyType.STRING, false, value);

@@ -47,7 +47,6 @@ public abstract class VersionStorageDescendantNode extends NodeImpl {
       RepositoryException {
 
     super(data, session);
-    
   }
   
   public Node addNode(String relPath, String nodeTypeName) throws ConstraintViolationException {

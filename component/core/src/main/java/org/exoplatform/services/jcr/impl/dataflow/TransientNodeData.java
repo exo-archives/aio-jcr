@@ -37,13 +37,13 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 public class TransientNodeData extends TransientItemData implements Comparable,
     MutableNodeData, Externalizable  {
 
+  protected AccessControlList acl;
+  
   protected InternalQName primaryTypeName;
 
   protected InternalQName[] mixinTypeNames;
 
   protected int orderNum;
-
-  protected AccessControlList acl;
   
   public TransientNodeData(QPath path, String identifier, int version,
       InternalQName primaryTypeName, InternalQName[] mixinTypeNames,
@@ -196,11 +196,10 @@ public class TransientNodeData extends TransientItemData implements Comparable,
 //------------------ [ BEGIN ] ------------------
   public TransientNodeData() {
     super();
+    this.acl = new AccessControlList();
   }
   
   public void writeExternal(ObjectOutput out) throws IOException {
-//    System.out.println("-->TransientNodeData --> writeExternal(ObjectOutput out)");
-    
     super.writeExternal(out);
     
     out.writeInt(orderNum);
@@ -218,8 +217,6 @@ public class TransientNodeData extends TransientItemData implements Comparable,
   }
 
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-//    System.out.println("-->TransientNodeData --> readExternal(ObjectInput in)");
-    
     super.readExternal(in);
      
     orderNum = in.readInt();
@@ -252,7 +249,9 @@ public class TransientNodeData extends TransientItemData implements Comparable,
       }
     }
     
-    acl = (AccessControlList)in.readObject();
+    acl.readExternal(in);
+    // TODO
+    //acl = (AccessControlList)in.readObject();
   }
   //------------------ [  END  ] ------------------
   

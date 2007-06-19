@@ -23,6 +23,7 @@ import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.datamodel.Identifier;
+import org.exoplatform.services.jcr.datamodel.Uuid;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.JCRName;
 import org.exoplatform.services.jcr.impl.core.JCRPath;

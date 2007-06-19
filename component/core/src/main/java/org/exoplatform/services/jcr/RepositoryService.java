@@ -5,7 +5,6 @@
 
 package org.exoplatform.services.jcr;
 
-import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;

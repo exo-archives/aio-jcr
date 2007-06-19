@@ -452,7 +452,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     while ((len = stream.read(buffer)) > 0) {
       out.write(buffer, 0, len);
       total += len;
-      if (total > maxBufferSize)
+      if (log.isDebugEnabled() && total > maxBufferSize)
         log.warn("Potential lack of memory due to call getAsByteArray() on stream data exceeded "
             + total + " bytes");
     }

@@ -14,6 +14,9 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 /**
  * Created by The eXo Platform SARL Author : Peter Nedonosko
  * peter.nedonosko@exoplatform.com.ua 17.03.2006
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id$
  */
 public class WorkspaceDataCache extends SimpleExoCache {
 
@@ -42,7 +45,7 @@ public class WorkspaceDataCache extends SimpleExoCache {
           NodeData parent = (NodeData) get(parentIdentifier);
           if (parent != null) {
             remove(parentIdentifier);
-            remove(parent.getQPath().getAsString());
+            remove(new CacheQPath(parent.getIdentifier(), parent.getQPath()));
           }
         } catch (Exception ex) {
           throw new RuntimeException("Error in " + getClass().getName() + ".removeEldestEntry(): "

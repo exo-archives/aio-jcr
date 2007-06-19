@@ -5,6 +5,7 @@
 
 package org.exoplatform.services.jcr.impl.core;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +50,7 @@ import org.exoplatform.services.jcr.impl.core.value.PathValue;
 import org.exoplatform.services.jcr.impl.core.value.PermissionValue;
 import org.exoplatform.services.jcr.impl.core.value.ValueConstraintsMatcher;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
+import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.util.IdGenerator;
@@ -170,12 +172,8 @@ public abstract class ItemImpl implements Item {
       } else if (n < 0) {
         throw new ItemNotFoundException("Can't get ancestor with ancestor's degree > depth of this item.");
       } else {
-        //JCRPath ancestorLoc = getLocation().makeAncestorPath(n);
-        // return findItemByPath(ancestorLoc);
-        
         final QPath ancestorPath = myPath.makeAncestorPath(n);
-        NodeData rootData = (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
-        return dataManager.getItem(rootData,ancestorPath,true);
+        return dataManager.getItem(ancestorPath, true);
       }
     } catch (PathNotFoundException e) {
       throw new ItemNotFoundException(e.getMessage(), e);
@@ -303,10 +301,68 @@ public abstract class ItemImpl implements Item {
     
     //launch event
     session.getActionHandler().preRemoveItem(parentNode,this);
+    
+    removeVersionable();
+    
     // remove from datamanager
     dataManager.delete(data);
   }
       
+  /**
+   * Check when it's a Node and is versionable will a version history removed.
+   * Case of last version in version history.
+   * 
+   * @throws RepositoryException
+   * @throws ConstraintViolationException
+   * @throws VersionException
+   */
+  protected void removeVersionable() throws RepositoryException, ConstraintViolationException, VersionException {
+    if (isNode()) {
+      NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
+      NodeData node = (NodeData) data; 
+      if (ntManager.isNodeType(Constants.MIX_VERSIONABLE, 
+          node.getPrimaryTypeName(), 
+          node.getMixinTypeNames())) {
+  
+        // mix:versionable
+        // we have to be sure that any versionable node somewhere in repository
+        // doesn't refers to a VH of the node being deleted.
+        RepositoryImpl rep = (RepositoryImpl) session.getRepository();
+        boolean doRemoveVH = true;
+        for (String wsName: rep.getWorkspaceNames()) {
+          if (!session.getWorkspace().getName().equals(wsName)) {
+            SessionImpl wsSession = (SessionImpl) rep.login(session.getCredentials(), wsName);
+            try {
+              if (wsSession.getTransientNodesManager().getItemData(node.getIdentifier()) != null) {
+                doRemoveVH = false;
+                break;
+              }
+            } finally {
+              wsSession.logout();
+            }
+          }
+        }
+        if (doRemoveVH) {
+          // remove VH
+          try {
+            // look up in transact manager (i.e. in persisted or accepted to commit in XE tr.)
+            PropertyData vhpd = (PropertyData) dataManager.getItemData( // getTransactManager().
+                node, new QPathEntry(Constants.JCR_VERSIONHISTORY, 1));
+            String vhUUID = new String(vhpd.getValues().get(0).getAsByteArray()); 
+            
+            NodeData vhnode = (NodeData) dataManager.getItemData(vhUUID);
+            if (vhnode == null)
+              throw new RepositoryException("Version history is not found. Versionable node " 
+                  + node.getQPath().getAsString() + ", uuid: " + node.getIdentifier());
+                        
+            dataManager.delete(vhnode, data.getQPath());
+          } catch(IOException e) {
+            throw new RepositoryException(e);
+          }
+        }
+      }
+    }
+  }
   
   protected PropertyImpl doUpdateProperty(NodeImpl parentNode, InternalQName propertyName,
       Value propertyValue, boolean multiValue, int expectedType) throws ValueFormatException,
@@ -501,12 +557,12 @@ public abstract class ItemImpl implements Item {
     NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
 
     if (isNode()) {
-      // validate referential integrity
+      // validate
+      // 1. referenceable nodes - if a node is deleted and then added, 
+      // referential integrity is unchanged ('move' usecase) 
       QPath path = getInternalPath();
       List<ItemState> changes = dataManager.getChangesLog().getDescendantsChanges(path);
       
-      // referenceable nodes - if a node is deleted and then added, 
-      // referential integrity is unchanged ('move' usecase) 
       List<NodeData> refNodes = new ArrayList<NodeData>();
       
       for (ItemState changedItem : changes) {

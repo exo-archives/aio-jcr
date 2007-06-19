@@ -10,6 +10,7 @@ import java.util.Stack;
 
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -134,10 +135,12 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
     if (ancestorToSave == null){
       ancestorToSave = curParent().getQPath();
     }
+
+    NodeData parent = curParent();
     
     InternalQName qname = null;
 
-    List<NodeData> existedChilds = dataManager.getChildNodesData(curParent());
+    List<NodeData> existedChilds = dataManager.getChildNodesData(parent);
     int newIndex = 1;
     if (level == 0) {
       qname = destNodeName;
@@ -150,33 +153,26 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
     } else {
       qname = node.getQPath().getName();
       newIndex = node.getQPath().getIndex();
-    }
-
-    TransientNodeData newNode = TransientNodeData.createNodeData(
-        curParent(), 
-        qname, 
-        node.getPrimaryTypeName(), 
-        newIndex);
+    }    
     
-    newNode.setMixinTypeNames(node.getMixinTypeNames());
-    newNode.setACL(node.getACL());
-
     // [PN] 05.01.07 Calc order number if parent supports orderable nodes...
     // If ordering is supported by the node type of the parent node of the new location, then the
     // newly moved node is appended to the end of the child node list.
-    if (ntManager.isOrderableChildNodesSupported(curParent().getPrimaryTypeName(), curParent().getMixinTypeNames())) {
+    int orderNum = 0;
+    if (ntManager.isOrderableChildNodesSupported(parent.getPrimaryTypeName(), parent.getMixinTypeNames())) {
       if (existedChilds.size() > 0)
-        newNode.setOrderNumber(existedChilds.get(existedChilds.size() - 1).getOrderNumber() + 1);
-      else
-        newNode.setOrderNumber(0);  
+        orderNum = existedChilds.get(existedChilds.size() - 1).getOrderNumber() + 1;  
     } else 
-      newNode.setOrderNumber(node.getOrderNumber()); // has no matter
-        
-    if (keepIdentifiers)
-      newNode.setIdentifier(node.getIdentifier());
-    else
-      newNode.setIdentifier(IdGenerator.generate());
+      orderNum = node.getOrderNumber(); // has no matter    
 
+    String id = keepIdentifiers ? node.getIdentifier() : IdGenerator.generate();
+    
+    QPath qpath = QPath.makeChildPath(parent.getQPath(), qname, newIndex);
+    
+    TransientNodeData newNode = new TransientNodeData(
+        qpath, id, -1, node.getPrimaryTypeName(),
+        node.getMixinTypeNames(), orderNum, parent.getIdentifier(), node.getACL());
+        
     parents.push(newNode);
     
     // ancestorToSave is a parent node

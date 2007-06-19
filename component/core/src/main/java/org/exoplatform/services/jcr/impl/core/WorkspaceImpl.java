@@ -191,20 +191,11 @@ public class WorkspaceImpl implements Workspace {
     // get source node
     JCRPath srcNodePath = srcSession.getLocationFactory().parseAbsPath(srcAbsPath);
   
-    
-    NodeData srcRootData = (NodeData) srcSession.getTransientNodesManager().getItemData(Constants.ROOT_UUID);
-
-    NodeImpl srcNode = (NodeImpl) srcSession.getTransientNodesManager().getItem(
-        srcRootData,
-        srcNodePath.getInternalPath(),
-        true);
+    NodeImpl srcNode = (NodeImpl) srcSession.getTransientNodesManager().getItem(srcNodePath.getInternalPath(), true);
 
     // get dst parent node
-    NodeData dstRootData = (NodeData) session.getTransientNodesManager()
-        .getItemData(Constants.ROOT_UUID);
-    NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager().getItem(dstRootData,
-        destNodePath.makeParentPath().getInternalPath(),
-        true);        
+    NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager().getItem(
+        destNodePath.makeParentPath().getInternalPath(), true);        
 
     if (srcNode == null || destParentNode == null) {
       throw new PathNotFoundException("No node exists at " + srcAbsPath
@@ -276,19 +267,13 @@ public class WorkspaceImpl implements Workspace {
               + destNodePath.getAsString(false));
     // get source node
     JCRPath srcNodePath = session.getLocationFactory().parseAbsPath(srcAbsPath);
-    NodeData srcRootData = (NodeData) session.getTransientNodesManager()
-        .getItemData(Constants.ROOT_UUID);
-
-    NodeImpl srcNode = (NodeImpl) session.getTransientNodesManager().getItem(srcRootData,
-        srcNodePath.getInternalPath(),
-        true);
+    
+    NodeImpl srcNode = (NodeImpl) session.getTransientNodesManager().getItem(
+        srcNodePath.getInternalPath(), true);
 
     // get dst parent node
-    NodeData dstRootData = (NodeData) session.getTransientNodesManager()
-        .getItemData(Constants.ROOT_UUID);
-    NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager().getItem(dstRootData,
-        destNodePath.makeParentPath().getInternalPath(),
-        true);       
+    NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager().getItem(
+        destNodePath.makeParentPath().getInternalPath(), true);       
 
     if (srcNode == null || destParentNode == null) {
       throw new PathNotFoundException("No node exists at " + srcAbsPath
@@ -367,18 +352,11 @@ public class WorkspaceImpl implements Workspace {
     // get source node
     JCRPath srcNodePath = srcSession.getLocationFactory().parseAbsPath(srcAbsPath);
 
-    NodeData srcRootData = (NodeData) srcSession.getTransientNodesManager()
-        .getItemData(Constants.ROOT_UUID);
+    NodeImpl srcNode = (NodeImpl) srcSession.getTransientNodesManager().getItem(
+        srcNodePath.getInternalPath(), true);
 
-    NodeImpl srcNode = (NodeImpl) srcSession.getTransientNodesManager().getItem(srcRootData,
-        srcNodePath.getInternalPath(),
-        true);
-
-    NodeData dstRootData = (NodeData) session.getTransientNodesManager()
-        .getItemData(Constants.ROOT_UUID);
-    NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager().getItem(dstRootData,
-        destNodePath.makeParentPath().getInternalPath(),
-        true);
+    NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager().getItem(
+        destNodePath.makeParentPath().getInternalPath(), true);
 
     if (srcNode == null || destParentNode == null) {
       throw new PathNotFoundException("No node exists at " + srcAbsPath

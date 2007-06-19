@@ -5,6 +5,7 @@
 
 package org.exoplatform.services.jcr.impl.core;
 
+import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,11 +13,11 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.WeakHashMap;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.InvalidItemStateException;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.ReferentialIntegrityException;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.ConstraintViolationException;
@@ -29,10 +30,11 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
-import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.version.VersionHistoryImpl;
@@ -106,50 +108,39 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Finds item data by internal qpath in this tnsient storage then in workspace
+   * Finds item data by internal qpath in this transient storage then in workspace
    * container.
    * 
-   * @param path
+   * @param path - absolute path
    * @return existed item data or null if not found
    * @throws RepositoryException
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.exoplatform.services.jcr.datamodel.QPath)
    */
-  @Deprecated
   public ItemData getItemData(QPath path) throws RepositoryException {
-    ItemData currItem = getItemData(Constants.ROOT_UUID);
+    NodeData parent = (NodeData) getItemData(Constants.ROOT_UUID);
     
-    int startFrom = 0;
-    if(path.getEntries().length>0 && path.getEntries()[0].equals(Constants.ROOT_PATH.getName()))
-      startFrom = 1;
+    if (path.equals(Constants.ROOT_PATH))
+      return parent;
     
-    for (int i = startFrom; i < path.getEntries().length; i++) {
-      currItem =  getItemData((NodeData) currItem,path.getEntries()[i]);
-      if (currItem == null)
-        break;
-    }
-    return currItem;
+    QPathEntry[] relPathEntries = path.getRelPath(path.getDepth());
+    
+    return getItemData(parent, relPathEntries);    
   }
   
-  public ItemData getItemData(NodeData parent, QPathEntry[] nameEntrys) throws RepositoryException {
-    ItemData currItem = parent;
-    int startFrom = 0;
-    if(parent.getIdentifier().equals(Constants.ROOT_UUID) && nameEntrys[0].equals(Constants.ROOT_PATH.getName()))
-      startFrom = 1;
-    
-    for (int i = startFrom; i < nameEntrys.length; i++) {
-      currItem = getItemData((NodeData) currItem, nameEntrys[i]);
-      if (currItem == null)
+  public ItemData getItemData(NodeData parent, QPathEntry[] relPathEntries) throws RepositoryException {
+    ItemData item = null;
+    for (int i = 0; i < relPathEntries.length; i++) {
+      item = getItemData((NodeData) parent, relPathEntries[i]);
+      
+      if (item == null)
         break;
+      
+      if (item.isNode())
+        parent = (NodeData) item;
+      else if (i < relPathEntries.length - 1)
+        throw new IllegalPathException("Path can not contains a property as the intermediate element");
     }
-    return currItem;
-  }
-  
-  public ItemData getItemData(NodeData parent, QPath relPath) throws RepositoryException {
-//    ItemData currItem = parent;
-//    for (int i = 0; i < relPath.getEntries().length; i++) {
-//      currItem = getItemData((NodeData) currItem, relPath.getEntries()[i]);
-//    }
-    return getItemData(parent,relPath.getEntries());
+    return item;
   }
   
   public ItemData getItemData(NodeData parent, QPathEntry name) throws RepositoryException {
@@ -216,11 +207,9 @@ public class SessionDataManager implements ItemDataConsumer {
    * @return item or null if not found
    * @throws RepositoryException
    */
-  @Deprecated
   public ItemImpl getItem(QPath path, boolean pool) throws RepositoryException {
 
     ItemData itemData = getItemData(path);
-    
     if (itemData == null)
       return null;
     
@@ -236,28 +225,25 @@ public class SessionDataManager implements ItemDataConsumer {
     
     return item;
   }
-  private ItemImpl getItem(NodeData parent, QPathEntry[] nameEntrys, boolean pool) throws RepositoryException{
-    ItemData itemData = getItemData(parent,nameEntrys);
-    
-    if (itemData == null)
-      return null;
-    
-    ItemImpl item = itemFactory.createItem(itemData);
-    session.getActionHandler().postRead(item);
-    if (!item.hasPermission(PermissionType.READ)) {
-      throw new AccessDeniedException("Access denied " + item.getPath()
-          + " for " + session.getUserID() + " (get item by path)");
-    }
-
-    if (pool)
-      return itemsPool.get(item);
-    
-    return item;
-  }
- 
-  public ItemImpl getItem(NodeData parent, QPath relPath, boolean pool) throws RepositoryException{
-    return getItem(parent, relPath.getEntries(),pool);
-  }
+  
+//  private ItemImpl getItem(NodeData parent, QPathEntry[] nameEntrys, boolean pool) throws RepositoryException{
+//    ItemData itemData = getItemData(parent, nameEntrys);
+//    
+//    if (itemData == null)
+//      return null;
+//    
+//    ItemImpl item = itemFactory.createItem(itemData);
+//    session.getActionHandler().postRead(item);
+//    if (!item.hasPermission(PermissionType.READ)) {
+//      throw new AccessDeniedException("Access denied " + item.getPath()
+//          + " for " + session.getUserID() + " (get item by path)");
+//    }
+//
+//    if (pool)
+//      return itemsPool.get(item);
+//    
+//    return item;
+//  }
 
   /**
    * Finds item by identifier in this tnsient storage then in workspace container.
@@ -322,10 +308,6 @@ public class SessionDataManager implements ItemDataConsumer {
     return false;
   }
   
-  
-  /**
-   * [PN] 16.01.07 optimized isModified() for changes log traversing
-   */
   public boolean isModified(ItemData item) {
       
     if (item.isNode()) {
@@ -423,21 +405,80 @@ public class SessionDataManager implements ItemDataConsumer {
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getACL(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
-  @Deprecated
+  public AccessControlList getACL1(QPath path) throws RepositoryException {
+    
+    ItemData item = getItemData(path);
+    
+    if (item != null) {
+      if (item.isNode())
+        return ((NodeData) item).getACL();
+      
+      NodeData iparent = (NodeData) getItemData(item.getParentIdentifier());
+      if(iparent != null) 
+        return iparent.getACL();
+      
+      // [PN] as a variant for iparent.getACL()
+      // QPathEntry[] names = item.getQPath().getEntries();
+      // return getACL(iparent, names[names.length - 1]);
+      
+      throw new AccessControlException("ACL not found for item " + path.getAsString());
+    }
+    
+//    NodeData iparent = (NodeData) getItemData(item.getParentUUID());
+//    if ((item == null || !item.isNode()) && iparent != null) {
+//      QPathEntry[] names = item.getQPath().getEntries();
+//      return transactionableManager.getACL(iparent, names);
+//    }
+    
+    throw new PathNotFoundException("Get ACL. Item not found " + path.getAsString());
+  }
+
+  /**
+   * Search the ACL of the location. A session pending changes will be searched too.  
+   * 
+   * Item path will be traversed from the root node to a last existing item.
+   * 
+   * @param path -  path of an ACL
+   * @return - an item or its parent ancestor ACL
+   * @throws RepositoryException
+   */
   public AccessControlList getACL(QPath path) throws RepositoryException {
     
-    NodeData rootItem = (NodeData) getItemData(Constants.ROOT_UUID);
-    ItemData item = getItemData(rootItem,path);
+    NodeData parent = (NodeData) getItemData(Constants.ROOT_UUID);
+    if (path.equals(Constants.ROOT_PATH))
+      return parent.getACL();
     
-    if(item == null || !item.isNode()) 
-      return transactionableManager.getACL(path);
-
-    return ((NodeData)item).getACL();
+    ItemData item = null;
+    QPathEntry[] relPathEntries = path.getRelPath(path.getDepth());
+    for (int i = 0; i < relPathEntries.length; i++) {
+      item = getItemData((NodeData) parent, relPathEntries[i]);
+      
+      if (item == null)
+        break;
+      
+      if (item.isNode())
+        parent = (NodeData) item;
+      else if (i < relPathEntries.length - 1)
+        throw new IllegalPathException("Get ACL. Path can not contains a property as the intermediate element");
+    }
+    
+    if (item != null && item.isNode())
+      // node ACL
+      return ((NodeData) item).getACL();
+     else 
+      // item not found or it's a property - return parent ACL
+      return parent.getACL();
   }
   
   public AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException {
-    // TODO
-    return null;
+    
+    ItemData item = getItemData(parent, name);
+    if (item != null && item.isNode())
+      // node ACL
+      return ((NodeData) item).getACL();
+     else 
+      // item not found or it's a property - return parent ACL
+      return parent.getACL();
   }
   
   /**
@@ -449,6 +490,10 @@ public class SessionDataManager implements ItemDataConsumer {
    * @throws RepositoryException
    */
   public void delete(ItemData itemData) throws RepositoryException {
+    delete(itemData, itemData.getQPath());
+  }
+  
+  public void delete(ItemData itemData, QPath ancestorToSave) throws RepositoryException {
     
     List<? extends ItemData> list = merge(itemData, transactionableManager, true, MERGE_ITEMS);
     
@@ -460,24 +505,26 @@ public class SessionDataManager implements ItemDataConsumer {
     for(ItemData data: list) {
       if(data.equals(itemData))
         rootAdded = true;
-      deletes.add(new ItemState(data, ItemState.DELETED, fireEvent, itemData.getQPath(),false));
+      deletes.add(new ItemState(data, ItemState.DELETED, fireEvent, ancestorToSave, false));
       
       ItemImpl pooled = itemsPool.remove(data.getIdentifier());
       
-      // [PN] 23.12.06 TODO Not all items is pooling during the work
       if (pooled != null) {
         pooled.invalidate(); // invalidate immediate
         invalidated.add(pooled);
       }
       
       if(log.isDebugEnabled()) {
+        String path = data.getQPath().getAsString();
+        if (path.indexOf("[]:1[]testroot:1[]node1:1")>0)
+          log.info("[]:1[]testroot:1[]node1:1 -- found");
         log.debug("deleted: "+data.getQPath().getAsString());
       }
     }
     
     // 4 add item itself if not added
     if (!rootAdded) {
-      deletes.add(new ItemState(itemData, ItemState.DELETED, fireEvent, itemData.getQPath(),false));
+      deletes.add(new ItemState(itemData, ItemState.DELETED, fireEvent, ancestorToSave, false));
       
       ItemImpl pooled = itemsPool.remove(itemData.getIdentifier());
       if (pooled != null) {
@@ -497,7 +544,7 @@ public class SessionDataManager implements ItemDataConsumer {
       // 7 erase evenFire flag if it's a new item 
       changesLog.eraseEventFire(itemData.getIdentifier());
     
-    changesLog.addAll(deletes); //log.info(changesLog.dump())
+    changesLog.addAll(deletes);
     
     if (itemData.isNode())
       // 8 reindex same-name siblings
@@ -516,12 +563,6 @@ public class SessionDataManager implements ItemDataConsumer {
     
     NodeData parentNodeData = (NodeData) dataManager.getItemData(cause.getParentIdentifier());
     
-//    QPath parent = cause.getQPath().makeParentPath();
-//    
-//    // ping same-name sibling existense
-//    QPath nextSiblingPath = QPath.makeChildPath(parent, 
-//        cause.getQPath().getName(), cause.getQPath().getIndex() + 1);
-    
     TransientNodeData nextSibling = (TransientNodeData) dataManager.getItemData(parentNodeData,
         new QPathEntry(cause.getQPath().getName(), cause.getQPath().getIndex() + 1));
     while (nextSibling != null) {
@@ -537,8 +578,6 @@ public class SessionDataManager implements ItemDataConsumer {
       itemsPool.reload(reindexed);
       
       // next...
-//      nextSiblingPath = QPath.makeChildPath(parent, 
-//          nextSibling.getQPath().getName(), nextSibling.getQPath().getIndex() + 1);
       nextSibling = (TransientNodeData) dataManager.getItemData(parentNodeData,
           new QPathEntry(nextSibling.getQPath().getName(), nextSibling.getQPath().getIndex() + 1));
     }
@@ -574,11 +613,15 @@ public class SessionDataManager implements ItemDataConsumer {
       item = itemsPool.get(item);
     }
     
-    if (log.isDebugEnabled())
+    if (log.isDebugEnabled()) {
+      String path = item.getInternalPath().getAsString();
+      if (path.indexOf("[]:1[]testroot:1[]node1:2")>0)
+        log.info("[]:1[]testroot:1[]node1:2 -- found");
+      
       log.debug(ItemState.nameFromValue(itemState.getState()) + 
           (item.isNode() ? " NODE (order:" + ((NodeImpl) item).nodeData().getOrderNumber() + ")" : " PROPERTY") + ", " +
           item.getPath());
-    
+    }
     return item;
   }
 
@@ -713,14 +756,15 @@ public class SessionDataManager implements ItemDataConsumer {
     List<ItemImpl> rolledBack = new ArrayList<ItemImpl>();
     // backing all invalidated items (acquired ItemImpl instances) to their persisted data
     for (ItemImpl removed: invalidated) {
-      // TODO we use location (JCRPath) stored on ItemImpl as no data found (a result of invalidation)
-      // BUT! Most preferable to use UUID!
       QPath removedPath = removed.getLocation().getInternalPath();
       if (removedPath.equals(item.getQPath()) || removedPath.isDescendantOf(item.getQPath(), false)) {
-        ItemData persisted = transactionableManager.getItemData(removedPath);
-        if (persisted != null) {
-          removed.loadData(persisted);
-          rolledBack.add(removed);
+        NodeData parent = (NodeData) transactionableManager.getItemData(item.getParentIdentifier());
+        if (parent != null) {
+          ItemData persisted = transactionableManager.getItemData(parent, removedPath.getEntries()[removedPath.getDepth()]);
+          if (persisted != null) {
+            removed.loadData(persisted);
+            rolledBack.add(removed);
+          }
         } // else it's transient item
       }
     }
@@ -732,37 +776,37 @@ public class SessionDataManager implements ItemDataConsumer {
   
   
    void refresh(ItemData item) throws InvalidItemStateException, RepositoryException {
-    // Should we do something ?
-    
-    // TODO [PN] 15.01.07 Possible yes. 
-    // USECASE: An existed item java object in hand. 
-    // Node.restore() of a parent - version without this item (remove of the item), 
-    // then version with this item (create one new).
-    // In persistent storage restored another one item with this item path 
-    // and possible different UUID (if not mix:referenceable).
-    // So, when we ask this item (by call of in-hand java object) smth like Node.remove(), Node.getNode() etc.
-    // An implimentation will try to search this item by UUID stored inside this item (in ItemData), 
-    // but this UUID is not found in the storage. 
-    // An exception like 'item not found' will occurs in persistent layer.
-    
-    // We have no way to reload any session scoped item java objects on in-workspace direct write operations  
-    // as we can't access all sessions where this item was acquired.
-    // Also we can't check item state on access-time as by internal contract an item object contains
-    // ItemData with valid UUID and location. If we will broke the contract - we will have 
-    // a decreasing of session scope operations execution time.
-    
-    // So, one way to reflect the item to an actual state is refresh().
-    // TODO Add refresh feature for all childs acquired in the session.
-    if (!isModified(item)) {
-      // if not modified, load data from persistent storage, by UUID first
+    if (!isModified(item) && itemsPool.contains(item.getIdentifier())) {
+      // if not modified but was pooled, load data from persistent storage
       ItemData persisted = transactionableManager.getItemData(item.getIdentifier());
       if (persisted == null) {
         // ...try by path
-        persisted = transactionableManager.getItemData(item.getQPath());
+        NodeData parent = (NodeData) transactionableManager.getItemData(item.getParentIdentifier());
+        if (parent != null) {
+          QPathEntry[] path = item.getQPath().getEntries();
+          persisted = transactionableManager.getItemData(parent, path[path.length - 1]);
+        } // else, the item has an invalid state, will be throwed on save
       }
       
       if (persisted != null) {
+        // the item
         itemsPool.reload(item.getIdentifier(), persisted);
+        
+        // [PN] 18.06.07 the childs is acquired in the session.
+        for (ItemImpl pooled: itemsPool.getDescendats(persisted.getQPath())) {
+          persisted = transactionableManager.getItemData(pooled.getInternalIdentifier());
+          if (persisted == null) {
+            // ...try by path
+            NodeData parent = (NodeData) transactionableManager.getItemData(pooled.getParentIdentifier());
+            if (parent != null) {
+              QPathEntry[] path = pooled.getData().getQPath().getEntries();
+              persisted = transactionableManager.getItemData(parent, path[path.length - 1]);
+            } // else, the item has an invalid state, will be throwed on save
+          }
+          if (persisted != null) {
+            itemsPool.reload(pooled.getInternalIdentifier(), persisted);
+          }
+        }
       } else {
         throw new InvalidItemStateException(
             "An item is transient only or removed (either by this session or another) " +
@@ -995,6 +1039,24 @@ public class SessionDataManager implements ItemDataConsumer {
         }
       }
       return children;
+    }
+    
+    /**
+     * Search for all descendats of given parent path.
+     * 
+     * @parentPath parent path
+     * @return - List of ItemImpl 
+     */
+    List<ItemImpl> getDescendats(QPath parentPath) {
+      List<ItemImpl> desc = new ArrayList<ItemImpl>();
+      
+      Collection<ItemImpl> snapshort = items.values();
+      for (ItemImpl pitem: snapshort) {
+        if (pitem.getData().getQPath().isDescendantOf(parentPath, false))
+          desc.add(pitem);
+      }
+      
+      return desc;
     }
     
     String dump() {

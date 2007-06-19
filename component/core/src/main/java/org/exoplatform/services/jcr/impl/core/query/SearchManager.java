@@ -88,7 +88,6 @@ public class SearchManager implements  Startable {
 
   /**
    * Creates a new <code>SearchManager</code>.
-   * @param session the system session.
    * @param config the search configuration.
    * @param ntReg the node type registry.
    * @param itemMgr the shared item state manager.
@@ -102,11 +101,6 @@ public class SearchManager implements  Startable {
     this.wsDataManager = wsDataManager;
     this.sysLocationFactory = sysLocationFactory;
     this.handler = handler;
-
-    //wsDataManager.addItemPersistenceListener(this);
-
-    // set properties
-
   }
 
   /**

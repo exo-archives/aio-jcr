@@ -8,7 +8,6 @@ package org.exoplatform.services.jcr.impl.access;
 import java.security.AccessControlException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Node;
@@ -21,9 +20,8 @@ import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.core.ExtendedNode;
-import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
-import org.exoplatform.services.jcr.impl.core.PropertyImpl;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SARL        .<br/>
@@ -210,7 +208,6 @@ public class TestAccess extends BaseStandaloneTest {
     // add grandchild node and test if acl is equal to grandparent
     NodeImpl node2 = (NodeImpl)node1.addNode("node1");
     assertEquals(node.getACL(), node2.getACL());
-    
   }
   
   
@@ -319,7 +316,10 @@ public class TestAccess extends BaseStandaloneTest {
     // READ, ADD_NODE permissions for exo1
     // READ permissions for exo2
 
-    assertEquals("exo",((ExtendedNode)accessTestRoot.getNode("testAddNode")).getACL().getOwner());
+    // [PN] 19.06.07 owner it's by whom session was open
+    //assertEquals("exo",((ExtendedNode)accessTestRoot.getNode("testAddNode")).getACL().getOwner());
+    assertEquals(credentials.getUserID(),((ExtendedNode)accessTestRoot.getNode("testAddNode")).getACL().getOwner());
+    
     accessTestRoot.getNode("testAddNode").addNode("ownersNode");
     session.save();
     
@@ -366,7 +366,7 @@ public class TestAccess extends BaseStandaloneTest {
     // READ permissions for exo2
 
     
-    assertEquals("exo",((ExtendedNode)session.getRootNode().getNode("accessTestRoot/testModifyAndReadNode")).getACL().getOwner());
+    assertEquals(credentials.getUserID(),((ExtendedNode)session.getRootNode().getNode("accessTestRoot/testModifyAndReadNode")).getACL().getOwner());
     session.getRootNode().getNode("accessTestRoot/testModifyAndReadNode").addNode("ownersNode");
     session.save();
     
@@ -421,7 +421,6 @@ public class TestAccess extends BaseStandaloneTest {
     // Owner = exo
     // ALL permissions for exo1
     // READ permissions for exo2
-
     
     Session session1 = repository.login(new CredentialsImpl("exo1", "exo1".toCharArray()));
     Session session2 = repository.login(new CredentialsImpl("exo2", "exo2".toCharArray()));
@@ -450,7 +449,7 @@ public class TestAccess extends BaseStandaloneTest {
     
     // get current permissions
     AccessControlList acl = node2.getACL();
-    assertEquals("exo", acl.getOwner());
+    assertEquals(credentials.getUserID(), acl.getOwner());
     assertEquals(5, acl.getPermissionEntries().size());
     
     try {
@@ -468,7 +467,7 @@ public class TestAccess extends BaseStandaloneTest {
     session1.save();
     // default 
     acl = node1.getACL();
-    assertEquals("exo", acl.getOwner());
+    assertEquals(credentials.getUserID(), acl.getOwner());
     assertEquals(PermissionType.ALL.length, acl.getPermissionEntries().size());
     assertEquals(PermissionType.ALL[0], acl.getPermissionEntries().get(0).getPermission());
 

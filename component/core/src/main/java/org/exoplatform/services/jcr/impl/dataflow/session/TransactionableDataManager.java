@@ -64,18 +64,17 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getACL(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
-  @Deprecated
-  public AccessControlList getACL(QPath path) throws RepositoryException {
-    ItemData data = getItemData(path);
-    if(data == null || !data.isNode()) 
-      return storageDataManager.getACL(path);
-    else
-      return ((NodeData)data).getACL();
-  }
+//  public AccessControlList getACL(QPath path) throws RepositoryException {
+//    ItemData data = getItemData(path);
+//    if(data == null || !data.isNode()) 
+//      return storageDataManager.getACL(path);
+//    else
+//      return ((NodeData)data).getACL();
+//  }
   
   public AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException {
-    // TODO
-    return null;
+    return storageDataManager.getACL(parent, name);
+    //throw new RepositoryException("getACL() is not usable");
   }
 
   /* (non-Javadoc)
@@ -117,7 +116,7 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
-  public ItemData getItemData(NodeData parentData,QPathEntry name) throws RepositoryException {
+  public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
     ItemData data = null;
     if(txStarted()) {
       ItemState state = transactionLog.getItemState(parentData,name);
@@ -133,6 +132,7 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
+  @Deprecated
   public ItemData getItemData(QPath path) throws RepositoryException {
     //throw new RepositoryException("getItemData(QPath path) is deprecated");
     
