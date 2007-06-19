@@ -10,7 +10,9 @@ import java.util.List;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeManager;
+import javax.jcr.observation.Event;
 
+import org.exoplatform.services.jcr.api.observation.SimpleListener;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeValue;
 import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
@@ -30,6 +32,7 @@ public class TestNodeTypeRegister extends BaseUsecasesTest {
     superType.add("nt:base");
     nodeTypeValue.setName("exo:testNodeType");
     nodeTypeValue.setPrimaryItemName("");
+    nodeTypeValue.setDeclaredSupertypeNames(superType);
     ExtendedNodeTypeManager extNodeTypeManager = (ExtendedNodeTypeManager) nodeTypeManager;
     try {
       nodeTypeManager.getNodeType("exo:testNodeType");
@@ -48,6 +51,53 @@ public class TestNodeTypeRegister extends BaseUsecasesTest {
 
     try {
       NodeType nodeType = nodeTypeManager.getNodeType("exo:testNodeType");
+      assertNotNull(nodeType);
+    } catch (Exception e) {
+    }
+
+  }
+  
+  
+  public void testRegisterNodeType2() throws Exception {
+    Session session = repository.getSystemSession(repository.getSystemWorkspaceName());
+    
+    SimpleListener listener = new SimpleListener("testSessionOpen", log, 0);
+    session.getWorkspace().getObservationManager().addEventListener(listener, Event.NODE_ADDED, root.getPath(), false, null, null, false);
+    
+    
+    
+    NodeTypeManager nodeTypeManager = session.getWorkspace().getNodeTypeManager();
+    NodeTypeValue nodeTypeValue = new NodeTypeValue();
+
+    nodeTypeValue.setName("exo:testNodeType2");    
+    nodeTypeValue.setMixin(false) ;
+    nodeTypeValue.setOrderableChild(false) ;
+    nodeTypeValue.setPrimaryItemName("") ;
+    List<String> superTypeNames = new ArrayList<String>();
+    superTypeNames.add("nt:base") ;
+    nodeTypeValue.setDeclaredSupertypeNames(superTypeNames);
+    nodeTypeValue.setPrimaryItemName("");
+    
+    ExtendedNodeTypeManager extNodeTypeManager = repositoryService.getRepository().getNodeTypeManager();
+    try {
+      nodeTypeManager.getNodeType("exo:testNodeType2");
+      fail("Node Type is registed");
+    } catch (Exception e) {
+    }
+
+    try {
+      extNodeTypeManager.registerNodeType(nodeTypeValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+    } catch (NullPointerException e) {
+      fail("something wrong and registerNodeType() throws NullPointException");
+      e.printStackTrace();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    session.save();
+    
+    try {
+      NodeType nodeType = nodeTypeManager.getNodeType("exo:testNodeType2");
       assertNotNull(nodeType);
     } catch (Exception e) {
     }
