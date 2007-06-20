@@ -230,7 +230,7 @@ public abstract class BaseStandaloneTest extends TestCase {
 
   protected File createBLOBTempFile(String prefix, int sizeInKb) throws IOException {
     // create test file
-    byte[] data = new byte[1000]; // 1Kb
+    byte[] data = new byte[1024]; // 1Kb
 
     File testFile = File.createTempFile(prefix, ".tmp");
     FileOutputStream tempOut = new FileOutputStream(testFile);

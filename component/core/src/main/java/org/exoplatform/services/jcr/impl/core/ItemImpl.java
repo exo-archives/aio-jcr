@@ -776,7 +776,11 @@ public abstract class ItemImpl implements Item {
       if (!constraints.match(value, type)) {
         String strVal = null;
         try {
-          strVal = ((TransientValueData) value).getString();
+          if (type != PropertyType.BINARY){//[VO]20.06.07, PropertyType.BINARY may have large size 
+           strVal = ((TransientValueData) value).getString();
+          }else{
+            strVal = "PropertyType.BINARY";
+          }
         } catch (Throwable e) {
           log.error("Error of value read: " + e.getMessage(), e);
         }
