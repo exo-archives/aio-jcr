@@ -126,6 +126,7 @@ public class JCRNetworkFile extends NetworkFile {
 
       wrchannel.truncate(len);
       m_fileSize = len;
+      logger.debug("file truncated for "+len+" bytes TEMPORARY");
     } catch (Exception e) {
       throw new IOException(e.getMessage());
     }
