@@ -212,7 +212,7 @@ public class TransientNodeData extends TransientItemData implements Comparable,
       out.write(mixinTypeNames[i].getAsString().getBytes());
     }
     
-    out.writeObject(acl);
+    acl.writeExternal(out);
   }
 
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
