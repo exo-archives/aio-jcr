@@ -24,6 +24,13 @@ import org.exoplatform.services.security.impl.CredentialsImpl;
  */
 public class TestUserIDEvent extends JcrAPIBaseTest  implements EventListener{
 
+  @Override
+  protected void tearDown() throws Exception {
+    session.getWorkspace().getObservationManager().removeEventListener(this);
+    
+    super.tearDown();
+  }
+
   public void testUserId() throws Exception {
         
     session.getWorkspace().getObservationManager().addEventListener(this, Event.NODE_ADDED, root.getPath(), true, null, null, false);
