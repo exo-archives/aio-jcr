@@ -43,7 +43,7 @@
       <value-param>
         <name>conf-path</name>
         <description>JCR configuration file</description>
-        <value>file:src/main/java/conf/standalone/test-jcr-config.xml</value>
+        <value>jar:/conf/standalone/test-jcr-framework-config.xml</value>
       </value-param>
     </init-params>
   </component>

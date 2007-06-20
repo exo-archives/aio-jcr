@@ -55,7 +55,7 @@ public class JCRClientCommandsTest extends TestCase {
       System.setProperty("java.security.auth.login.config",
           "src/main/resources/login.conf");
 
-    StandaloneContainer.addConfigurationPath("src/main/java/conf/standalone/test-configuration.xml");
+    StandaloneContainer.addConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
 
     container = StandaloneContainer.getInstance();
 
