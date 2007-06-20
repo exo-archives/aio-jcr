@@ -133,7 +133,6 @@ public class NodeImporter extends DefaultHandler {
         }
 
       } catch (RepositoryException e) {
-        // TODO Auto-generated catch block
         throw new SAXException(e.getMessage(), e);
     }
   }

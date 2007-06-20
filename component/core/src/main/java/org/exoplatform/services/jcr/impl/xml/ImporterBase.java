@@ -57,7 +57,7 @@ abstract public class ImporterBase implements ContentHandler {
 
   ImporterBase(NodeImpl parent, int uuidBehavior) {
   
-    this.session = (SessionImpl) parent.getSession();
+    this.session = parent.getSession();
     this.ntManager = (NodeTypeManagerImpl) ((RepositoryImpl) this.session.getRepository()).getNodeTypeManager();
     locationFactory = session.getLocationFactory();
     this.uuidBehavior = uuidBehavior;
@@ -125,16 +125,6 @@ abstract public class ImporterBase implements ContentHandler {
     
     NodeImpl parentNode =  ((NodeImpl) session.getTransientNodesManager().getItemByIdentifier(parent.getIdentifier(),true));
         
-    //parent must be in local itemStates list
-  //  NodeData parentNodeData = null;
-//    if (parentNode == null){
-//      parentNodeData = (NodeData) getLocalItemData(path.makeParentPath());
-//      if (parentNodeData == null)
-//        throw new RepositoryException("invalid state getNodeIndex");
-//    }else{
-//      parentNodeData = (NodeData) parentNode.getData();
-//    }
-     
       
     NodeDefinitionImpl nodedef = session.getWorkspace().getNodeTypeManager().findNodeDefinition(name,parent.getPrimaryTypeName(),parent.getMixinTypeNames());
    

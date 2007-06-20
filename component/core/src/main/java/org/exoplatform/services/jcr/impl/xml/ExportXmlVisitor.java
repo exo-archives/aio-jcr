@@ -12,9 +12,7 @@ import java.util.List;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
-//import org.apache.ws.commons.util.Base64$SAXEncoder;
 import org.apache.ws.commons.util.Base64;
-import org.apache.ws.commons.util.Base64.SAXEncoder;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -132,27 +130,21 @@ public abstract class ExportXmlVisitor extends ItemDataTraversingVisitor {
           throw new RepositoryException(e);
         }
       } else {
+        if (data.getLength() < 3 * 1024) {
+          char[] charbuf = Base64.encode(data.getAsByteArray(), 0, (int) data.getLength(), 0, "")
+              .toCharArray();
+          contentHandler.characters(charbuf, 0, charbuf.length);
 
-        InputStream is = data.getAsStream();
-      
-        Base64.SAXEncoder encoder = new Base64.SAXEncoder(new char[4096], 0, null, contentHandler);
-        Base64.EncoderOutputStream eos = new Base64.EncoderOutputStream(encoder);
-
-        byte[] buffer = new byte[4096];
-        int len;
-        while ((len = is.read(buffer)) > 0) {
-          
-          if (len < 4096) {
-            byte[] buffer2 = new byte[len];
-            System.arraycopy(buffer, 0, buffer2, 0, len);
-            buffer = buffer2;
+        } else {
+          InputStream is = data.getAsStream();
+          byte[] buffer = new byte[3 * 1024];
+          int len;
+          while ((len = is.read(buffer)) > 0) {
+            char[] charbuf1 = Base64.encode(buffer, 0, len, 0, "").toCharArray();
+            contentHandler.characters(charbuf1, 0, charbuf1.length);
           }
-          eos.write(buffer);
 
         }
-        is.close();
-        eos.close();
-        buffer = null;
       }
 
       break;
