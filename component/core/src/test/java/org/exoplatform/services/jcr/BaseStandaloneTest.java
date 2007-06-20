@@ -56,9 +56,9 @@ public abstract class BaseStandaloneTest extends TestCase {
   protected StandaloneContainer container;
 
   public void setUp() throws Exception {
-    
+
     StandaloneContainer
-    .addConfigurationPath("src/main/java/conf/standalone/test/test-configuration.xml");
+    .addConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
     //.addConfigurationPath("src/main/java/conf/standalone/test/test-configuration-sjdbc.xml");
 
     container = StandaloneContainer.getInstance();
@@ -68,7 +68,7 @@ public abstract class BaseStandaloneTest extends TestCase {
           "src/main/resources/login.conf");
 
     credentials = new CredentialsImpl("admin", "admin".toCharArray());
-    
+
     repositoryService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
     repository = (RepositoryImpl) repositoryService.getDefaultRepository();
 
@@ -231,11 +231,11 @@ public abstract class BaseStandaloneTest extends TestCase {
   protected File createBLOBTempFile(String prefix, int sizeInKb) throws IOException {
     // create test file
     byte[] data = new byte[1000]; // 1Kb
-     
+
     File testFile = File.createTempFile(prefix, ".tmp");
     FileOutputStream tempOut = new FileOutputStream(testFile);
     Random random = new Random();
-    
+
     for (int i=0; i<sizeInKb; i++) {
       random.nextBytes(data);
       tempOut.write(data);
@@ -250,22 +250,22 @@ public abstract class BaseStandaloneTest extends TestCase {
     try {
       String[] nodeMixins = node.getMixinTypeNames();
       assertEquals("Mixins count is different", mixins.length, nodeMixins.length);
-      
+
       compareMixins(mixins, nodeMixins);
     } catch(RepositoryException e) {
       fail("Mixins isn't accessible on the node " + node.getPath());
     }
   }
-  
+
   protected void compareMixins(String[] mixins, String[] nodeMixins) {
     nextMixin: for (String mixin: mixins) {
       for (String nodeMixin: nodeMixins) {
         if (mixin.equals(nodeMixin))
           continue nextMixin;
       }
-      
+
       fail("Mixin '" + mixin + "' isn't accessible");
     }
-  }  
-  
+  }
+
 }
