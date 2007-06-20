@@ -43,9 +43,23 @@ public final class RegistryEntry {
    * @throws SAXException
    * @throws ParserConfigurationException
    */
-  public static RegistryEntry parse(byte[] bytes) throws IOException, SAXException, ParserConfigurationException {
+  public static RegistryEntry parse(byte[] bytes) throws IOException,
+      SAXException, ParserConfigurationException {
     return new RegistryEntry(DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(
         new ByteArrayInputStream(bytes)));
+  }
+
+  /**
+   * Factory method to create RegistryEntry from stream XML 
+   * @param bytes
+   * @return RegistryEntry
+   * @throws IOException
+   * @throws SAXException
+   * @throws ParserConfigurationException
+   */
+  public static RegistryEntry parse(InputStream in) throws IOException,
+      SAXException, ParserConfigurationException {
+    return new RegistryEntry(DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in));
   }
 
   /**
@@ -53,7 +67,7 @@ public final class RegistryEntry {
    * @throws IOException
    * @throws TransformerException
    */
-  public InputStream getAsInputStream() throws IOException, TransformerException {
+  public InputStream getAsInputStream() throws TransformerException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     TransformerFactory.newInstance().newTransformer().transform(
         new DOMSource(document), new StreamResult(out));

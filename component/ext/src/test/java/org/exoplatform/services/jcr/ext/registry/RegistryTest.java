@@ -25,6 +25,7 @@ import org.exoplatform.services.rest.ResourceIdentifier;
 import org.exoplatform.services.rest.container.ResourceDescriptor;
 import org.exoplatform.services.rest.MultivaluedMetadata;
 import org.exoplatform.services.rest.Response;
+import org.exoplatform.services.rest.transformer.DummyEntityTransformer;
 
 
 public class RegistryTest extends BaseStandaloneTest{
@@ -64,21 +65,23 @@ public class RegistryTest extends BaseStandaloneTest{
 
     SessionProvider sp = new SessionProvider(credentials);
 
+    DummyEntityTransformer dummyTransformer = new DummyEntityTransformer();
+
     try {
-      Document doc = regService.getEntry(sp, RegistryService.EXO_USERS, "exo_user");
+      RegistryEntry entry = regService.getEntry(sp, RegistryService.EXO_USERS, "exo_user");
       fail("ItemNotFoundException should have been thrown");
     } catch (ItemNotFoundException e) {}
     
-    File entryFile = new File("src/test/java/org/exoplatform/services/jcr/ext/registry/exo_user.xml"); 
-    regService.createEntry(sp, RegistryService.EXO_USERS, 
-        DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(entryFile));
+    File entryFile = new File("src/test/java/org/exoplatform/services/jcr/ext/registry/exo_user.xml");
     
-    Document doc = regService.getEntry(sp, RegistryService.EXO_USERS, "exo_user");
-    TransformerFactory.newInstance().newTransformer().transform(
-        new DOMSource(doc), new StreamResult(System.out));
+    regService.createEntry(sp, RegistryService.EXO_USERS,
+        RegistryEntry.parse(new FileInputStream(entryFile)));
+    
+    RegistryEntry entry = regService.getEntry(sp, RegistryService.EXO_USERS, "exo_user");
+    dummyTransformer.writeTo(entry.getAsInputStream(), System.out);
 
     regService.recreateEntry(sp, RegistryService.EXO_USERS, 
-        DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(entryFile));
+        RegistryEntry.parse(new FileInputStream(entryFile)));
 
     regService.removeEntry(sp, RegistryService.EXO_USERS, "exo_user");
     

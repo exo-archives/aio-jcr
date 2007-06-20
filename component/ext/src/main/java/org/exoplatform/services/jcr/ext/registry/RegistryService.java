@@ -28,6 +28,7 @@ import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import static javax.jcr.ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.xml.InitParams;
@@ -100,8 +101,7 @@ public class RegistryService extends Registry implements Startable {
       throw new RepositoryConfigurationException("Init parameters expected");
     PropertiesParam props = params.getPropertiesParam("locations");
     if (props == null)
-      throw new RepositoryConfigurationException(
-          "Property parameters 'locations' expected");
+      throw new RepositoryConfigurationException("Property parameters 'locations' expected");
     for (RepositoryEntry repConfiguration : repConfigurations()) {
       String repName = repConfiguration.getName();
       String wsName = null;
@@ -128,11 +128,6 @@ public class RegistryService extends Registry implements Startable {
       String entryName) throws RepositoryConfigurationException,
       RepositoryException {
 
-//    Node root = rootNode(sessionProvider, repositoryService
-//        .getCurrentRepository());
-//    String rootPath = (root.getPath().endsWith("/")) ? root.getPath() : root
-//        .getPath()
-//        + "/";
     String relPath = EXO_REGISTRY + "/" + groupName + "/" + entryName;
     Session session = session(sessionProvider, repositoryService.getCurrentRepository());
     if (session.getRootNode().hasNode(relPath)) {
@@ -163,21 +158,12 @@ public class RegistryService extends Registry implements Startable {
    *      java.lang.String, org.w3c.dom.Document)
    */
   public void createEntry(SessionProvider sessionProvider,
-  		String groupName, RegistryEntry entry) throws RepositoryConfigurationException,
-  		RepositoryException {
+  		String groupName, RegistryEntry entry) throws RepositoryException {
   	
-// Node root = rootNode(sessionProvider,
-// repositoryService.getCurrentRepository());
-// String rootPath = (root.getPath().endsWith("/")) ? root.getPath() :
-// root.getPath() + "/";
-// String relPath = EXO_REGISTRY + "/" + groupName;
     String path = "/" + EXO_REGISTRY + "/" + groupName;
     try {
       session(sessionProvider, repositoryService.getCurrentRepository()).
-      getWorkspace().importXML(path, entry.getAsInputStream(), 1);
-// root.getSession().importXML(path,
-// new ByteArrayInputStream(out.toByteArray()), 1);
-// root.getNode(relPath).save();
+      getWorkspace().importXML(path, entry.getAsInputStream(), IMPORT_UUID_CREATE_NEW);
     } catch(IOException ioe) {
       throw new RepositoryException("Item " + path + "can't be created");
     } catch(ItemExistsException iee) {
@@ -195,8 +181,7 @@ public class RegistryService extends Registry implements Startable {
    *      java.lang.String, java.lang.String)
    */
   public void removeEntry(SessionProvider sessionProvider, String groupName,
-      String entryName) throws RepositoryException,
-      RepositoryConfigurationException {
+      String entryName) throws RepositoryException {
 
     String relPath = EXO_REGISTRY + "/" + groupName + "/" + entryName;
     Node root = session(sessionProvider, repositoryService
@@ -218,10 +203,8 @@ public class RegistryService extends Registry implements Startable {
    * @throws TransformerException
    */
   public void recreateEntry(SessionProvider sessionProvider, String groupName,
-      RegistryEntry entry) throws RepositoryConfigurationException,
-      RepositoryException {
+      RegistryEntry entry) throws RepositoryException {
 
-    //String exEntry = entry.getDocumentElement().getNodeName();
     removeEntry(sessionProvider, groupName, entry.getName());
     createEntry(sessionProvider, groupName, entry);
   }
@@ -238,15 +221,6 @@ public class RegistryService extends Registry implements Startable {
         repositoryService.getCurrentRepository()).getRootNode()
         .getNode(EXO_REGISTRY));
   }
-
-//  private Node rootNode(SessionProvider sessionProvider,
-//      ManageableRepository repo) throws RepositoryException {
-//
-//    String repName = repo.getConfiguration().getName();
-//    Session session = sessionProvider.getSession(regWorkspaces.get(repName),
-//        repo);
-//    return session.getRootNode();
-//  }
 
   private Session session(SessionProvider sessionProvider,
       ManageableRepository repo) throws RepositoryException {

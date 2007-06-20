@@ -31,6 +31,7 @@ import org.exoplatform.services.rest.RESTStatus;
 import org.exoplatform.services.rest.EntityMetadata;
 import org.exoplatform.services.rest.EntityTransformerClass;
 import org.exoplatform.services.rest.transformer.XMLEntityTransformer;
+import org.exoplatform.services.rest.data.XlinkHref;
 
 
 /**
@@ -43,7 +44,6 @@ public class RESTRegistryService implements ResourceContainer {
   
   private RegistryService regService;
   
-  protected static final String REGISTRY = "registry";
   protected static final String XML_NODE = "entry";
   protected static final String XML_NODE_NAME = "name";
   protected static final String XLINK_HREF = "xlinks:href";
@@ -52,6 +52,9 @@ public class RESTRegistryService implements ResourceContainer {
   protected static final String ERROR_TITLE = "error";
   protected static final String ERROR_STATUS = "status";
   protected static final String ERROR_MESSAGE = "message";
+
+  protected static final String REGISTRY = "registry";
+
   protected static final String EXO_REGISTRY = "exo:registry/";
   
   protected static final String USER = "exo";
@@ -68,25 +71,28 @@ public class RESTRegistryService implements ResourceContainer {
   
   @HTTPMethod("GET")
   public Response<Document> getRegistry(@URIParam("repository") String repository, 
-      @RequestedURI(true) String uri)
+      @RequestedURI(true) String baseURI)
       throws RepositoryException, RepositoryConfigurationException,
-      ParserConfigurationException {
+      ParserConfigurationException, NoSuchMethodException {
 
     regService.getRepositoryService().setCurrentRepositoryName(repository);
     SessionProvider sessionProvider = getSessionProvider();
     RegistryNode registryEntry = regService.getRegistry(sessionProvider);
-    if (registryEntry != null){
+    if (registryEntry != null) {
     	Node registryNode = registryEntry.getNode();
       NodeIterator registryIterator = registryNode.getNodes();
-      Document entry = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+      Document entry =
+        DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+      XlinkHref xlinkHref = new XlinkHref(baseURI,
+          getClass().getMethod("getRegistry", String.class, String.class));
+      
       Element root = entry.createElement(REGISTRY);
-      root.setAttribute(XLINK_NAMESPACE, XLINK_NAMESPACE_URL);
-      root.setAttribute(XLINK_HREF, uri);
+      xlinkHref.putToElement(root);
       while(registryIterator.hasNext()) {
-        Node registry = registryIterator.nextNode();
-        NodeIterator entryIterator = registry.getNodes();
-        while(entryIterator.hasNext())
-          root.appendChild(createXMLNode(entry, entryIterator.nextNode(), uri));
+        NodeIterator entryIterator = registryIterator.nextNode().getNodes();
+        while(entryIterator.hasNext()) {
+          root.appendChild(createXMLNode(entry, entryIterator.nextNode(), xlinkHref.getURI()));
+        }
       }
       entry.appendChild(root);
       sessionProvider.close();
@@ -94,19 +100,16 @@ public class RESTRegistryService implements ResourceContainer {
           entry, new XMLEntityTransformer());
     }
     sessionProvider.close();
-    return new Response<Document>(RESTStatus.NOT_FOUND, new EntityMetadata("text/xml"),
-    		this.createXMLErrorMessage(RESTStatus.NOT_FOUND, "Resource " + uri + " is not available"),
-    		new XMLEntityTransformer());
+    return new Response<Document>(RESTStatus.NOT_FOUND, new EntityMetadata("text/xml"));
   }
   
   private Element createXMLNode(Document doc, Node node,
       String prefixPath) throws RepositoryException {
     
-    Element element = doc.createElement(XML_NODE);
-    element.setAttribute(XML_NODE_NAME, node.getName());
+    Element element = doc.createElement(node.getName());
     String temp = node.getPath();
     String path = temp.substring(EXO_REGISTRY.length() + 1);
-    prefixPath = (prefixPath.endsWith("/")) ? prefixPath : prefixPath + "/";
+//    prefixPath = (prefixPath.endsWith("/")) ? prefixPath : prefixPath + "/";
     element.setAttribute(XLINK_HREF, prefixPath + path);
     return element;
   }
@@ -128,9 +131,7 @@ public class RESTRegistryService implements ResourceContainer {
      	    entry, new XMLEntityTransformer());
     } catch (ItemNotFoundException e) {
       sessionProvider.close();
-      return new Response<Document>(RESTStatus.NOT_FOUND, new EntityMetadata("text/xml"),
-          createXMLErrorMessage(RESTStatus.NOT_FOUND, "Resource " + uri + " is not available"),
-          new XMLEntityTransformer());
+      return new Response<Document>(RESTStatus.NOT_FOUND, new EntityMetadata("text/xml"));
     }
   }
 
@@ -141,6 +142,7 @@ public class RESTRegistryService implements ResourceContainer {
       @URIParam("repository") String repository,
       @URIParam("group") String groupName,
   		@RequestedURI(true) String uri) throws RepositoryConfigurationException {
+    
     regService.getRepositoryService().setCurrentRepositoryName(repository);
   	SessionProvider sessionProvider = getSessionProvider();
   	try {
@@ -149,9 +151,7 @@ public class RESTRegistryService implements ResourceContainer {
       return new Response (RESTStatus.CREATED, new EntityMetadata("text/xml"));
   	} catch (RepositoryException re) {
       sessionProvider.close();
-      return new Response<Document>(RESTStatus.BAD_REQUEST, new EntityMetadata("text/xml"),
-          createXMLErrorMessage(RESTStatus.BAD_REQUEST, "Resource " + " can't be created"),
-          new XMLEntityTransformer());
+      return new Response<Document>(RESTStatus.BAD_REQUEST, new EntityMetadata("text/xml"));
   	} 
   }
 
@@ -173,9 +173,7 @@ public class RESTRegistryService implements ResourceContainer {
     }
     catch (RepositoryException re) {
       sessionProvider.close();
-      return new Response<Document>(RESTStatus.BAD_REQUEST, new EntityMetadata("text/xml"),
-          createXMLErrorMessage(RESTStatus.BAD_REQUEST,
-          "Resource " + " can't be created"), new XMLEntityTransformer());
+      return new Response<Document>(RESTStatus.BAD_REQUEST, new EntityMetadata("text/xml"));
     }
   }
 
@@ -193,22 +191,4 @@ public class RESTRegistryService implements ResourceContainer {
     return new Response (RESTStatus.OK, new EntityMetadata("text/xml"));
   }
   
-
-  private Document createXMLErrorMessage (int status,
-      String message) {
-    try {
-      Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-      Element root = doc.createElement(ERROR_TITLE);
-      Element stat = doc.createElement(ERROR_STATUS);
-      stat.setTextContent(status + "");
-      root.appendChild(stat);
-      Element mess = doc.createElement(ERROR_MESSAGE);
-      mess.setTextContent(message);
-      root.appendChild(mess);
-      doc.appendChild(root);
-      return doc;
-    } catch (ParserConfigurationException pce) {
-      return null;
-    }
-  }
 }
