@@ -34,8 +34,10 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.storage.WorkspaceDataContainerBase;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
-import org.exoplatform.services.jcr.util.UUIDGenerator;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.impl.CredentialsImpl;
 
@@ -114,9 +116,11 @@ public class DataUploader{
 
   protected String                     sFile;
 
-  public int                         countNodes;
+  public int                           countNodes;
 
   protected String                     sMimeType;
+  
+  protected FileCleaner                fileCleaner;
 
   public DataUploader(String[] args) {
     this.mapConfig = parceCommandLine(args);
@@ -132,8 +136,14 @@ public class DataUploader{
     sReadTree = mapConfig.get("-readtree");
     sMimeType = mapConfig.get("-mimeType");
 
-    if (!sVdfile.equals("")) 
+    WorkspaceFileCleanerHolder cleanerHolder = (WorkspaceFileCleanerHolder) container.getComponentInstanceOfType(WorkspaceFileCleanerHolder.class);
+    
+    fileCleaner = cleanerHolder.getFileCleaner();
+
+    if (!sVdfile.equals("")) {
       fileData = new TransientValueData(new FileInputStream(sVdfile));   
+      fileData.setFileCleaner(fileCleaner);
+    }
 
     try {
       StandaloneContainer.setConfigurationPath(sConf);
@@ -355,7 +365,7 @@ public class DataUploader{
 
     AccessControlList acl = new AccessControlList();
 
-    String uuid = UUIDGenerator.generate();
+    String uuid = IdGenerator.generate();
 
     TransientNodeData nodeData = new TransientNodeData(path, uuid, -1, Constants.NT_FOLDER,
         mixinTypeNames, orderNum, parentNode.getInternalUUID(), acl);
@@ -369,14 +379,14 @@ public class DataUploader{
     con.add(nodeData);
 
     TransientPropertyData primaryTypeData = new TransientPropertyData(QPath.makeChildPath(nodeData
-        .getQPath(), Constants.JCR_PRIMARYTYPE), UUIDGenerator.generate(), -1, PropertyType.NAME,
-        nodeData.getUUID(), false);
+        .getQPath(), Constants.JCR_PRIMARYTYPE), IdGenerator.generate(), -1, PropertyType.NAME,
+        nodeData.getIdentifier(), false);
     primaryTypeData.setValue(new TransientValueData(Constants.NT_FOLDER));
     con.add(primaryTypeData);
 
     TransientPropertyData createdData = new TransientPropertyData(QPath.makeChildPath(nodeData
-        .getQPath(), Constants.JCR_CREATED), UUIDGenerator.generate(), -1, PropertyType.DATE,
-        nodeData.getUUID(), false);
+        .getQPath(), Constants.JCR_CREATED), IdGenerator.generate(), -1, PropertyType.DATE,
+        nodeData.getIdentifier(), false);
     createdData.setValue(new TransientValueData(date));
     con.add(createdData);
 
@@ -400,10 +410,10 @@ public class DataUploader{
 
     AccessControlList acl = new AccessControlList();
 
-    String uuid = UUIDGenerator.generate();
+    String uuid = IdGenerator.generate();
 
     TransientNodeData nodeData = new TransientNodeData(path, uuid, -1, primaryType, mixinTypeNames,
-        orderNum, parentNode.getUUID(), acl);
+        orderNum, parentNode.getIdentifier(), acl);
 
     return nodeData;
   }
@@ -415,14 +425,14 @@ public class DataUploader{
     con.add(nodeData);
 
     TransientPropertyData primaryTypeData = new TransientPropertyData(QPath.makeChildPath(nodeData
-        .getQPath(), Constants.JCR_PRIMARYTYPE), UUIDGenerator.generate(), -1, PropertyType.NAME,
-        nodeData.getUUID(), false);
+        .getQPath(), Constants.JCR_PRIMARYTYPE), IdGenerator.generate(), -1, PropertyType.NAME,
+        nodeData.getIdentifier(), false);
     primaryTypeData.setValue(new TransientValueData(Constants.NT_FOLDER));
     con.add(primaryTypeData);
 
     TransientPropertyData createdData = new TransientPropertyData(QPath.makeChildPath(nodeData
-        .getQPath(), Constants.JCR_CREATED), UUIDGenerator.generate(), -1, PropertyType.DATE,
-        nodeData.getUUID(), false);
+        .getQPath(), Constants.JCR_CREATED), IdGenerator.generate(), -1, PropertyType.DATE,
+        nodeData.getIdentifier(), false);
     createdData.setValue(new TransientValueData(date));
     con.add(createdData);
 
@@ -437,20 +447,20 @@ public class DataUploader{
     con.add(nodeData);
 
     TransientPropertyData primaryTypeData = new TransientPropertyData(QPath.makeChildPath(nodeData
-        .getQPath(), Constants.JCR_PRIMARYTYPE), UUIDGenerator.generate(), -1, PropertyType.NAME,
-        nodeData.getUUID(), false);
+        .getQPath(), Constants.JCR_PRIMARYTYPE), IdGenerator.generate(), -1, PropertyType.NAME,
+        nodeData.getIdentifier(), false);
     primaryTypeData.setValue(new TransientValueData(Constants.NT_FILE));
     con.add(primaryTypeData);
 
     TransientPropertyData createdData = new TransientPropertyData(QPath.makeChildPath(nodeData
-        .getQPath(), Constants.JCR_CREATED), UUIDGenerator.generate(), -1, PropertyType.DATE,
-        nodeData.getUUID(), false);
+        .getQPath(), Constants.JCR_CREATED), IdGenerator.generate(), -1, PropertyType.DATE,
+        nodeData.getIdentifier(), false);
     createdData.setValue(new TransientValueData(date));
     con.add(createdData);
 
     TransientPropertyData mixinTypeData = new TransientPropertyData(QPath.makeChildPath(nodeData
-        .getQPath(), Constants.JCR_MIXINTYPES), UUIDGenerator.generate(), -1, PropertyType.NAME,
-        nodeData.getUUID(), true);
+        .getQPath(), Constants.JCR_MIXINTYPES), IdGenerator.generate(), -1, PropertyType.NAME,
+        nodeData.getIdentifier(), true);
     mixinTypeData.setValue(new TransientValueData(DCPropertyQName.dcElementSet));
     con.add(mixinTypeData);
 
@@ -459,32 +469,32 @@ public class DataUploader{
     con.add(contentNode);
 
     TransientPropertyData primaryTypeContenNode = new TransientPropertyData(QPath.makeChildPath(
-        contentNode.getQPath(), Constants.JCR_PRIMARYTYPE), UUIDGenerator.generate(), -1,
-        PropertyType.NAME, contentNode.getUUID(), false);
+        contentNode.getQPath(), Constants.JCR_PRIMARYTYPE), IdGenerator.generate(), -1,
+        PropertyType.NAME, contentNode.getIdentifier(), false);
     primaryTypeContenNode.setValue(new TransientValueData(Constants.NT_RESOURCE));
     con.add(primaryTypeContenNode);
 
     TransientPropertyData uuidPropertyData = new TransientPropertyData(QPath.makeChildPath(
-        contentNode.getQPath(), Constants.JCR_UUID), UUIDGenerator.generate(), -1,
-        PropertyType.STRING, contentNode.getUUID(), false);
-    uuidPropertyData.setValue(new TransientValueData(UUIDGenerator.generate()));
+        contentNode.getQPath(), Constants.JCR_UUID), IdGenerator.generate(), -1,
+        PropertyType.STRING, contentNode.getIdentifier(), false);
+    uuidPropertyData.setValue(new TransientValueData(IdGenerator.generate()));
     con.add(uuidPropertyData);
 
     TransientPropertyData mimeTypePropertyData = new TransientPropertyData(QPath.makeChildPath(
-        contentNode.getQPath(), Constants.JCR_MIMETYPE), UUIDGenerator.generate(), -1,
-        PropertyType.STRING, contentNode.getUUID(), false);
+        contentNode.getQPath(), Constants.JCR_MIMETYPE), IdGenerator.generate(), -1,
+        PropertyType.STRING, contentNode.getIdentifier(), false);
     mimeTypePropertyData.setValue(new TransientValueData(sMimeType/*"image/tiff"*/));
     con.add(mimeTypePropertyData);
 
     TransientPropertyData lastModifiedPropertyData = new TransientPropertyData(QPath.makeChildPath(
-        contentNode.getQPath(), Constants.JCR_LASTMODIFIED), UUIDGenerator.generate(), -1,
-        PropertyType.DATE, contentNode.getUUID(), false);
+        contentNode.getQPath(), Constants.JCR_LASTMODIFIED), IdGenerator.generate(), -1,
+        PropertyType.DATE, contentNode.getIdentifier(), false);
     lastModifiedPropertyData.setValue(new TransientValueData(date));
     con.add(lastModifiedPropertyData);
 
     TransientPropertyData dataPropertyData = new TransientPropertyData(QPath.makeChildPath(
-        contentNode.getQPath(), Constants.JCR_DATA), UUIDGenerator.generate(), -1,
-        PropertyType.BINARY, contentNode.getUUID(), false);
+        contentNode.getQPath(), Constants.JCR_DATA), IdGenerator.generate(), -1,
+        PropertyType.BINARY, contentNode.getIdentifier(), false);
     dataPropertyData.setValue(fData);
     con.add(dataPropertyData);
 
@@ -505,8 +515,8 @@ public class DataUploader{
       InternalQName propertyQName, String propertyContent) throws Exception {
 
     TransientPropertyData dcPropertyData = new TransientPropertyData(QPath.makeChildPath(dcNode
-        .getQPath(), propertyQName), UUIDGenerator.generate(), -1, PropertyType.STRING, dcNode
-        .getUUID(), true);
+        .getQPath(), propertyQName), IdGenerator.generate(), -1, PropertyType.STRING, dcNode
+        .getIdentifier(), true);
     dcPropertyData.setValue(new TransientValueData(propertyContent));
     con.add(dcPropertyData);
   }
