@@ -22,7 +22,7 @@ public class ResourceContainer3 implements ResourceContainer {
 
   @HTTPMethod("POST")
   @EntityTransformerClass("org.exoplatform.services.rest.transformer.StringEntityTransformer")
-  public Response postMethod(String str, @URIParam("id") String param) {
+  public Response<String> postMethod(String str, @URIParam("id") String param) {
     System.out.println("----- POST method called!!! id = " + param);
     System.out.println("----- entity type: " + str.getClass().toString() + ", value: " + str);
     EntityMetadata entityMetadata = new EntityMetadata("text/plain");
@@ -32,7 +32,9 @@ public class ResourceContainer3 implements ResourceContainer {
   }
 
   @HTTPMethod("PUT")
-  public Response putMethod(InputStream in, @URIParam("id") String param) throws IOException {
+  public Response<String> putMethod(InputStream in,
+      @URIParam("id") String param) throws IOException {
+    
     System.out.println("----- PUT method called!!! id = " + param);
     System.out.print("----- entity type: " + in.getClass().toString() +", value: ");
     DummyEntityTransformer tr = new DummyEntityTransformer(); 
@@ -46,7 +48,7 @@ public class ResourceContainer3 implements ResourceContainer {
   @HTTPMethod("DELETE")
   @URITemplate("/{myid}/")
   @EntityTransformerClass("org.exoplatform.services.rest.transformer.StringEntityTransformer")
-  public Response delMethod(String str, @URIParam("myid") String param) {
+  public Response<String> delMethod(String str, @URIParam("myid") String param) {
     System.out.println("----- DELETE method called!!! id = " + param);
     System.out.println("----- entity  type: " + str.getClass().toString() + ", value: " + str);
     EntityMetadata entityMetadata = new EntityMetadata("text/plain");
