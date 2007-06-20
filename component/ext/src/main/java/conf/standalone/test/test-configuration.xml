@@ -35,6 +35,23 @@
     </init-params>
   </component>
 
+  <!-- REST -->
+  <component>
+    <type>org.exoplatform.services.jcr.ext.registry.RESTRegistryService</type>
+  </component>
+  <component>
+    <type>org.exoplatform.services.rest.ResourceDispatcher</type>
+  </component>
+  <component>
+  	<type>org.exoplatform.services.rest.ResourceBinder</type>
+    <init-params>
+    	<value-param>
+    		<name>strategy</name>
+    		<value>org.exoplatform.services.rest.container.HTTPAnnotatedContainerResolvingStrategy</value>
+    	</value-param>
+    </init-params>
+ 	</component>
+
   <component>
       <type>org.exoplatform.services.jcr.ext.registry.RegistryService</type>
       <init-params>
