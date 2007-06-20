@@ -122,7 +122,7 @@ public class RESTRegistryService implements ResourceContainer {
     regService.getRepositoryService().setCurrentRepositoryName(repository);
     SessionProvider sessionProvider = getSessionProvider();
     try {
-      Document entry = regService.getEntry(sessionProvider, groupName, entryName);
+      Document entry = regService.getEntry(sessionProvider, groupName, entryName).getDocument();
       sessionProvider.close();
      	return new Response<Document>(RESTStatus.OK, new EntityMetadata("text/xml"),
      	    entry, new XMLEntityTransformer());
@@ -144,7 +144,7 @@ public class RESTRegistryService implements ResourceContainer {
     regService.getRepositoryService().setCurrentRepositoryName(repository);
   	SessionProvider sessionProvider = getSessionProvider();
   	try {
-  	  regService.createEntry(sessionProvider, groupName, entry);
+  	  regService.createEntry(sessionProvider, groupName, new RegistryEntry(entry));
       sessionProvider.close();
       return new Response (RESTStatus.CREATED, new EntityMetadata("text/xml"));
   	} catch (RepositoryException re) {
@@ -167,7 +167,7 @@ public class RESTRegistryService implements ResourceContainer {
     regService.getRepositoryService().setCurrentRepositoryName(repository);
     SessionProvider sessionProvider = getSessionProvider();
     try {
-      regService.recreateEntry(sessionProvider, groupName, entry);
+      regService.recreateEntry(sessionProvider, groupName, new RegistryEntry(entry));
       sessionProvider.close();
       return new Response (RESTStatus.CREATED, new EntityMetadata("text/xml"));
     }

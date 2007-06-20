@@ -5,13 +5,13 @@
 
 package org.exoplatform.services.jcr.ext.registry;
 
-import org.w3c.dom.Document;
-
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.ext.common.NodeWrapper;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.w3c.dom.Document;
 
 /**
  * Created by The eXo Platform SARL        .<br/>
@@ -50,7 +50,7 @@ public abstract class Registry {
    * @return
    * @throws RepositoryException
    */
-  public abstract Document getEntry(SessionProvider sessionProvider, String groupName,
+  public abstract RegistryEntry getEntry(SessionProvider sessionProvider, String groupName,
       String entryName) throws RepositoryConfigurationException, RepositoryException;
 
   /**
@@ -61,7 +61,7 @@ public abstract class Registry {
    * @throws RepositoryException
    */
   public abstract void createEntry(SessionProvider sessionProvider,
-  		String groupName, Document entryName) throws RepositoryConfigurationException,
+  		String groupName, RegistryEntry entry) throws RepositoryConfigurationException,
   		RepositoryException;
 
   /**
@@ -72,7 +72,7 @@ public abstract class Registry {
    * @throws RepositoryException
    */
   public abstract void recreateEntry(SessionProvider sessionProvider,
-  		String groupName, Document entryName) throws RepositoryConfigurationException,
+  		String groupName, RegistryEntry entry) throws RepositoryConfigurationException,
   		RepositoryException;
 
   /**
