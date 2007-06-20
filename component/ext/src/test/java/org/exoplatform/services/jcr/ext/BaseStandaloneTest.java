@@ -52,13 +52,13 @@ public abstract class BaseStandaloneTest extends TestCase {
   public void setUp() throws Exception {
 
        StandaloneContainer
-          .addConfigurationPath("src/main/java/conf/standalone/test/test-configuration.xml");
+          .addConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
 
       container = StandaloneContainer.getInstance();
 
       if (System.getProperty("java.security.auth.login.config") == null)
         System.setProperty("java.security.auth.login.config",
-            "src/main/resources/login.conf");
+            "src/test/resources/login.conf");
 
       credentials = new CredentialsImpl("exo", "exo".toCharArray());
 
