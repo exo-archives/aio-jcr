@@ -80,19 +80,6 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
     }
     return super.getChildPropertiesData(nodeData);
   }
-
-
-  /**
-   * @see org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager#getItemData(java.lang.String)
-   */
-  public ItemData getItemData(QPath qpath) throws RepositoryException {
-    //throw new RepositoryException("getItemData(QPath path) is deprecated");
-    
-    if(isSystemDescendant(qpath) && !this.equals(versionDataManager)) {
-      return versionDataManager.getItemData(qpath);
-    }
-    return super.getItemData(qpath);
-  }
   
   public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
     ItemData data = super.getItemData(parentData,name);

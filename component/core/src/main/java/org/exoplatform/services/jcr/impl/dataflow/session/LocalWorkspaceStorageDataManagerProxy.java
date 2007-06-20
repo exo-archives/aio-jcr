@@ -80,15 +80,6 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
     
     storageDataManager.save(newLog);
   }
-
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.dataflow.session.WorkspaceStorageDataManagerProxy#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)
-   */
-  public ItemData getItemData(QPath path) throws RepositoryException {
-    //throw new RepositoryException("getItemData(QPath path) is deprecated");
-    
-    return copyItemData(storageDataManager.getItemData(path));
-  }
   
   public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
     return copyItemData(storageDataManager.getItemData(parentData,name));

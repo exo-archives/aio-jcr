@@ -170,8 +170,12 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     checkValid();
 
-    JCRPath itemPath = locationFactory.createJCRPath(getLocation(), relPath);
-    NodeImpl node = (NodeImpl) dataManager.getItem(itemPath.getInternalPath(), true);
+    // [PN] 20.06.07
+    //JCRPath itemPath = locationFactory.createJCRPath(getLocation(), relPath);
+    //NodeImpl node = (NodeImpl) dataManager.getItem(itemPath.getInternalPath(), true);
+    
+    JCRPath itemPath = locationFactory.parseRelPath(relPath);
+    NodeImpl node = (NodeImpl) dataManager.getItem(nodeData(), itemPath.getInternalPath().getEntries(), true);
     if (node == null)
       throw new PathNotFoundException("Node not found " + itemPath.getAsString(true));
     return node;
@@ -225,12 +229,19 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   public Property getProperty(String relPath) throws PathNotFoundException, RepositoryException {
 
     checkValid();
-    JCRPath itemPath = locationFactory.createJCRPath(getLocation(), relPath);
+    
+    // [PN] 20.06.07
+    //JCRPath itemPath = locationFactory.createJCRPath(getLocation(), relPath);
 
+    JCRPath itemPath = locationFactory.parseRelPath(relPath);
+    
     if (log.isDebugEnabled())
       log.debug("getProperty() " + getLocation() + " " + relPath);
+
+    // [PN] 20.06.07
+    //Item prop = dataManager.getItem(itemPath.getInternalPath(), true);
+    Item prop = dataManager.getItem(nodeData(), itemPath.getInternalPath().getEntries(), true);
     
-    Item prop = dataManager.getItem(itemPath.getInternalPath(), true);
     if (prop == null || prop.isNode())
       throw new PathNotFoundException("Property not found " + getLocation() + " " + relPath);
 

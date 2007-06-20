@@ -133,21 +133,21 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)
    */
   @Deprecated
-  public ItemData getItemData(QPath path) throws RepositoryException {
-    //throw new RepositoryException("getItemData(QPath path) is deprecated");
-    
-    ItemData data = null;
-    if(txStarted()) {
-      ItemState state = transactionLog.getItemState(path);
-      if(state != null)
-        data = state.getData();
-    }
-    if(data != null)
-      return data;
-    else
-      return storageDataManager.getItemData(path);
-      //throw new RepositoryException("getItemData(QPath path) is deprecated");
-  }
+//  public ItemData getItemData(QPath path) throws RepositoryException {
+//    //throw new RepositoryException("getItemData(QPath path) is deprecated");
+//    
+//    ItemData data = null;
+//    if(txStarted()) {
+//      ItemState state = transactionLog.getItemState(path);
+//      if(state != null)
+//        data = state.getData();
+//    }
+//    if(data != null)
+//      return data;
+//    else
+//      return storageDataManager.getItemData(path);
+//      //throw new RepositoryException("getItemData(QPath path) is deprecated");
+//  }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(java.lang.String)

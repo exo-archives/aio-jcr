@@ -64,27 +64,13 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
   
     // 2. Try from container
     if (data == null) {
+      //log.info(" >>> data=null " + (parentData != null ? parentData.getQPath().getAsString() : "null_parent") + " " + name.getAsString());
       data = getPersistedItemData(parentData, name);
+    } else {
+      //log.info(" >>> data " + data.getQPath().getAsString());
     }
-    
+         
     return data;
-  }
-
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspaceDataManager#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)
-   */
-  public ItemData getItemData(QPath qpath) throws RepositoryException {
-    throw new RepositoryException("getItemData(QPath path) is deprecated");
-    
-    // 2. Try from cache
-//    ItemData data = getCachedItemData(qpath);
-//
-//    // 3. Try from container
-//    if (data == null) {
-//      data = getPersistedItemData(qpath);
-//    }
-//
-//    return data;
   }
 
   /* (non-Javadoc)

@@ -727,6 +727,7 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
         ItemData removed = (ItemData) exoCache.remove(key);
         if (removed != null && key instanceof CacheQPath) {
           exoCache.remove(removed.getIdentifier());
+          //log.info("selector remove " + removed.getQPath().getAsString());
         }
       } catch(Exception e) {
         log.error(name + ", ByParentRemoveSelector.onSelect() " + parent.getIdentifier() 
@@ -738,13 +739,17 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       if (key instanceof CacheQPath) {
         // path
         CacheQPath path = (CacheQPath) key;
-        if (path.getQPath().isDescendantOf(parent.getQPath(), false))
+        if (path.getQPath().isDescendantOf(parent.getQPath(), false)) {
+          //log.info("select for remove " + path.getQPath().getAsString());
           return true;
+        }
       } else {
         // id
         String id = (String) key;
-        if (id.equals(parent.getIdentifier()))
+        if (id.equals(parent.getIdentifier())) {
+          //log.info("select for remove " + id);
           return true;
+        }
       }
       
       return false;

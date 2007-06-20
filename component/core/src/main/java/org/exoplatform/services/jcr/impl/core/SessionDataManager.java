@@ -117,6 +117,7 @@ public class SessionDataManager implements ItemDataConsumer {
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.exoplatform.services.jcr.datamodel.QPath)
    */
   public ItemData getItemData(QPath path) throws RepositoryException {
+    
     NodeData parent = (NodeData) getItemData(Constants.ROOT_UUID);
     
     if (path.equals(Constants.ROOT_PATH))
@@ -189,6 +190,25 @@ public class SessionDataManager implements ItemDataConsumer {
     if (!item.hasPermission(PermissionType.READ)) {
       throw new AccessDeniedException("Access denied "
           + QPath.makeChildPath(parent.getQPath(), new QPathEntry[] { name }).getAsString()
+          + " for " + session.getUserID() + " (get item by path)");
+    }
+
+    if (pool)
+      return itemsPool.get(item);
+
+    return item;
+  }
+  
+  ItemImpl getItem(NodeData parent, QPathEntry[] relPath, boolean pool) throws RepositoryException {
+    ItemData itemData = getItemData(parent, relPath);
+    if (itemData == null)
+      return null;
+
+    ItemImpl item = itemFactory.createItem(itemData);
+    session.getActionHandler().postRead(item);
+    if (!item.hasPermission(PermissionType.READ)) {
+      throw new AccessDeniedException("Access denied "
+          + QPath.makeChildPath(parent.getQPath(), relPath).getAsString()
           + " for " + session.getUserID() + " (get item by path)");
     }
 

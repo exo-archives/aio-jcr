@@ -147,7 +147,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
    * 
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(InternalQPath)
    */
-  public abstract ItemData getItemData(final QPath qpath) throws RepositoryException;
+  //public abstract ItemData getItemData(final QPath qpath) throws RepositoryException;
   
   /*
    * (non-Javadoc)

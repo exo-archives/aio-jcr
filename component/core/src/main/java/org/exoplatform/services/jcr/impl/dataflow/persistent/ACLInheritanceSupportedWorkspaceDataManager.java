@@ -180,12 +180,6 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataMa
   public ItemData getItemData(NodeData parent, QPathEntry name) throws RepositoryException {
     return initACL(parent, persistentManager.getItemData(parent, name));
   }
-  
-  public ItemData getItemData(QPath qpath) throws RepositoryException {
-    throw new RepositoryException("getItemData(QPath path) is deprecated");
-    
-    //return initACL(persistentManager.getItemData(qpath));
-  }
 
   public ItemData getItemData(String identifier) throws RepositoryException {
     return initACL(null, persistentManager.getItemData(identifier));
