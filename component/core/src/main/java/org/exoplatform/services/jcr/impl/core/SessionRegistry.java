@@ -54,17 +54,21 @@ public final class SessionRegistry implements Startable {
   }
   
   public boolean isInUse(String workspaceName){
-    if (workspaceName == null)
+    if (workspaceName == null){
+      log.info("Session in use "+sessionsMap.size());
       return sessionsMap.size() > 0;
+    }
     for (SessionImpl session : sessionsMap.values()) {
-      if (session.getWorkspace().getName().equals(workspaceName))
+      if (session.getWorkspace().getName().equals(workspaceName)){
+        log.info("Session for workspace "+workspaceName+" in use." +
+        		" Session id:"+session.getId()+ " user: "+session.getUserID());
         return true;
+      }
     }
     return false;
   }
   
   public void start() {
-    // [PN] 15.06.07
     sessionsMap.clear();
     
     if (timeOut > 0)
@@ -74,8 +78,6 @@ public final class SessionRegistry implements Startable {
   public void stop() {
     if (timeOut > 0)
       sessionCleaner.halt();
-
-    // [PN] 15.06.07    
     sessionsMap.clear();
   }
 
