@@ -23,14 +23,14 @@ import org.exoplatform.services.rest.container.ResourceContainer;
 import org.exoplatform.services.rest.URITemplate;
 import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.URIParam;
-import org.exoplatform.services.rest.RequestedURI;
+import org.exoplatform.services.rest.BaseURI;
 import org.exoplatform.services.rest.Response;
 import org.exoplatform.services.rest.RESTStatus;
 import org.exoplatform.services.rest.EntityMetadata;
 import org.exoplatform.services.rest.EntityTransformerClass;
 import org.exoplatform.services.rest.transformer.XMLEntityTransformer;
 import org.exoplatform.services.rest.data.XlinkHref;
-import org.exoplatform.services.rest.data.URIRecover;
+import org.exoplatform.services.rest.data.URIRestorer;
 
 
 /**
@@ -62,12 +62,12 @@ public class RESTRegistryService implements ResourceContainer {
   
   @HTTPMethod("GET")
   public Response<Document> getRegistry(@URIParam("repository") String repository, 
-      @RequestedURI(true) String baseURI)
+      @BaseURI(true) String baseURI)
       throws RepositoryException, RepositoryConfigurationException,
       ParserConfigurationException, NoSuchMethodException {
 
     String[] uriParams = {repository};    
-    String fullURI = baseURI + URIRecover.recoveryURI(uriParams,
+    String fullURI = URIRestorer.restoreURI(baseURI, uriParams,
         getClass().getMethod("getRegistry", String.class, String.class),
         getClass().getAnnotation(URITemplate.class));    
     
@@ -128,7 +128,7 @@ public class RESTRegistryService implements ResourceContainer {
       Document entry,
       @URIParam("repository") String repository,
       @URIParam("group") String groupName,
-  		@RequestedURI(true) String baseURI)
+  		@BaseURI(true) String baseURI)
   		throws RepositoryConfigurationException,
   		RepositoryException,
   		NoSuchMethodException {
@@ -139,8 +139,7 @@ public class RESTRegistryService implements ResourceContainer {
   	  regService.createEntry(sessionProvider, groupName, new RegistryEntry(entry));
       String[] uriParams = {repository, groupName};    
 
-      String fullURI = baseURI + URIRecover.recoveryURI(
-          uriParams,
+      String fullURI = baseURI + URIRestorer.restoreURI(baseURI, uriParams,
           getClass().getMethod("createEntry", Document.class, String.class, String.class, String.class),
           getClass().getAnnotation(URITemplate.class));
       
@@ -161,7 +160,7 @@ public class RESTRegistryService implements ResourceContainer {
   public Response<?> recreateEntry(Document entry,
       @URIParam("repository") String repository,
       @URIParam("group") String groupName,
-      @RequestedURI(true) String baseURI)
+      @BaseURI(true) String baseURI)
       throws RepositoryConfigurationException,
       RepositoryException, NoSuchMethodException {
     
@@ -171,8 +170,7 @@ public class RESTRegistryService implements ResourceContainer {
       regService.recreateEntry(sessionProvider, groupName, new RegistryEntry(entry));
       String[] uriParams = {repository, groupName};    
 
-      String fullURI = baseURI + URIRecover.recoveryURI(
-          uriParams,
+      String fullURI = baseURI + URIRestorer.restoreURI(baseURI, uriParams,
           getClass().getMethod("recreateEntry", Document.class, String.class, String.class, String.class),
           getClass().getAnnotation(URITemplate.class));
       
