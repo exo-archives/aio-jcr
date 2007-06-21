@@ -29,6 +29,8 @@ public class StringEntityTransformer implements EntityTransformer<String> {
   throws IOException {
     
     entityDataStream.write(entityData.getBytes());
+//    entityDataStream.flush();
+//    entityDataStream.close();
   }
 
 }

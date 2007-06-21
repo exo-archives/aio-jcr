@@ -47,7 +47,7 @@ public class RequestFactory {
 //      contentType = "application/octet-stream";
 //    // 
     return new Request(in, new ResourceIdentifier(pathInfo),
-        method, headerParams, queryParams, uri.substring(0, uri.lastIndexOf(pathInfo)));
+        method, headerParams, queryParams, uri.substring(0, uri.lastIndexOf(pathInfo) + 1));
   }
 
   /**

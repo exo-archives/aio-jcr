@@ -43,6 +43,10 @@ public class EntityMetadata {
   public String getMediaType() {
     return metadata.getFirst("Content-Type");
   }
+  
+  public String getLocation() {
+    return metadata.getFirst("Location");
+  }
 
   public void setEncodings(List <String> encodings) {
     metadata.put("Content-Encoding", encodings);
@@ -64,4 +68,9 @@ public class EntityMetadata {
   public void setMediaType(String mediaType) {
     metadata.putSingle("Content-Type", mediaType);
   }
+
+  public void setLocation(String location) {
+    metadata.putSingle("Location", location);
+  }
+
 }

@@ -40,6 +40,8 @@ public class XMLEntityTransformer implements EntityTransformer<Document> {
     } catch (TransformerException tre) {
       throw new IOException("Can't write to output stream");
     }
+ //   entityDataStream.flush();
+//    entityDataStream.close();
   }
 
 }

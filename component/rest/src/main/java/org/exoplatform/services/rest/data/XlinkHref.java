@@ -5,10 +5,7 @@
 
 package org.exoplatform.services.rest.data;
 
-import java.lang.reflect.Method;
 import org.w3c.dom.Element;
-
-import org.exoplatform.services.rest.URITemplate;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -23,17 +20,8 @@ public class XlinkHref {
 
   private String uri;
   
-  public XlinkHref(String baseURI, Method server) {
-    URITemplate clazzURIAnno = server.getClass().getAnnotation(URITemplate.class);
-    URITemplate methodURIAnno = server.getAnnotation(URITemplate.class);
-    String clazzURI = (clazzURIAnno == null) ? "" : clazzURIAnno.value();
-    String methodURI = (methodURIAnno == null) ? "" : methodURIAnno.value();
-    if(clazzURI.endsWith("/") && methodURI.startsWith("/"))
-      this.uri = baseURI + clazzURI + methodURI.replaceFirst("/", "");
-    else if(!clazzURI.endsWith("/") && !methodURI.startsWith("/") && !"".equals(methodURI))
-      this.uri = baseURI + clazzURI + "/" + methodURI;
-    else
-      this.uri = baseURI + clazzURI + methodURI;
+  public XlinkHref(String uri) {
+    this.uri = uri;
   }
 
   public final String getURI() {
@@ -44,4 +32,8 @@ public class XlinkHref {
     parent.setAttributeNS(XLINK_NAMESPACE_URL, XLINK_HREF, uri);
   }
   
+  public void putToElement(Element parent, String extURI) {
+    parent.setAttributeNS(XLINK_NAMESPACE_URL, XLINK_HREF, uri + extURI);
+  }
+
 }

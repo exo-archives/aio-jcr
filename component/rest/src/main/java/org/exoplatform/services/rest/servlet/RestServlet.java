@@ -16,6 +16,7 @@ import org.exoplatform.services.rest.Connector;
 import org.exoplatform.services.rest.Request;
 import org.exoplatform.services.rest.ResourceDispatcher;
 import org.exoplatform.services.rest.Response;
+import org.exoplatform.services.rest.EntityMetadata;
 
 public class RestServlet extends HttpServlet implements Connector {
 	
@@ -45,8 +46,13 @@ public class RestServlet extends HttpServlet implements Connector {
     Request request = RequestFactory.createRequest(httpRequest);
     try {
       Response<?> response = resDispatcher.dispatch(request);
-      httpResponse.setContentType(response.getMetadata().getMediaType());
       httpResponse.setStatus(response.getStatus());
+      EntityMetadata metaData = response.getMetadata();
+      if(metaData != null) {
+        httpResponse.setContentType(metaData.getMediaType());
+        if(metaData.getLocation() != null)
+          httpResponse.setHeader("Location", metaData.getLocation());
+      }
       OutputStream out = httpResponse.getOutputStream();
       response.writeEntity(out);
       out.flush();

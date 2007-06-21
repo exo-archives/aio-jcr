@@ -31,7 +31,8 @@ public class ResourceIdentifier {
   
   public Map<String, String> getParameters() throws IllegalStateException {
     if(parameters == null)
-      throw new IllegalStateException("Prarameters are not initialized. Call initParameters(pattern) first");
+      throw new IllegalStateException(
+          "Prarameters are not initialized. Call initParameters(pattern) first");
     return parameters;
   }
 

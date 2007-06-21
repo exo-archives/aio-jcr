@@ -39,6 +39,10 @@ public class Response<T> {
     this(status, metadata, null, null);
   }
 
+  public Response(int status) {
+    this(status, null, null, null);
+  }
+
   public Object getEntity() {
     return entity;
   }

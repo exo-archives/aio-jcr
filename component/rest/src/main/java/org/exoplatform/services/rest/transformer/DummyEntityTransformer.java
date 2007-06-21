@@ -23,6 +23,8 @@ public class DummyEntityTransformer implements EntityTransformer<InputStream> {
     int rd = -1;
     while((rd = entity.read(buf)) != -1)
       entityDataStream.write(buf, 0, rd);    
+ //   entityDataStream.flush();
+ //   entityDataStream.close();
   }
 
 }
