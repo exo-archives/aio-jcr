@@ -2,8 +2,16 @@ package org.exoplatform.services.jcr.config;
 
 import java.io.InputStream;
 
+import org.exoplatform.container.xml.PropertiesParam;
+
 public interface ConfigurationPersister {
 
+  /**
+   * Init persister 
+   * @return - config data stream
+   */
+  void init(PropertiesParam params) throws RepositoryConfigurationException;
+  
   /**
    * Read config data
    * @return - config data stream
