@@ -127,11 +127,18 @@ public class SessionDataManager implements ItemDataConsumer {
     
     return getItemData(parent, relPathEntries);    
   }
-  
+  /**
+   * Return Item by parent NodeDada and relPathEntries
+   * If relpath is JCRPath.THIS_RELPATH = '.' it return itself
+   * @param parent
+   * @param relPathEntries
+   * @return
+   * @throws RepositoryException
+   */
   public ItemData getItemData(NodeData parent, QPathEntry[] relPathEntries) throws RepositoryException {
-    ItemData item = null;
+    ItemData item = parent;
     for (int i = 0; i < relPathEntries.length; i++) {
-      item = getItemData((NodeData) parent, relPathEntries[i]);
+      item = getItemData(parent, relPathEntries[i]);
       
       if (item == null)
         break;
@@ -145,7 +152,13 @@ public class SessionDataManager implements ItemDataConsumer {
   }
   
   public ItemData getItemData(NodeData parent, QPathEntry name) throws RepositoryException {
+    
+    if (name.getName().equals(JCRPath.PARENT_RELPATH)
+        && name.getNamespace().equals(Constants.NS_DEFAULT_URI)) {
+      return getItemData(parent.getParentIdentifier());
+    }
     ItemData data = null;
+    
     // 1. Try in transient changes
     ItemState state = changesLog.getItemState(parent, name);
     if (state == null) {

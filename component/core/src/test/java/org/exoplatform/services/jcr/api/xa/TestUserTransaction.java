@@ -42,7 +42,7 @@ public class TestUserTransaction extends JcrAPIBaseTest{
   }
   
   private List<Session> openSomeSessions() throws Exception {
-    
+    assertNotNull(txService);
     List<Session> someSessions = new ArrayList<Session>(); 
     
     Session s1 = repository.login(new SimpleCredentials("admin","admin".toCharArray()), session.getWorkspace().getName());
@@ -92,7 +92,7 @@ public class TestUserTransaction extends JcrAPIBaseTest{
   }
 
   public void testCommit() throws Exception {
-    
+    assertNotNull(txService);
     List<Session> someSessions = openSomeSessions();
     
     UserTransaction ut = txService.getUserTransaction();
@@ -115,7 +115,7 @@ public class TestUserTransaction extends JcrAPIBaseTest{
   }
 
   public void testRollback() throws Exception {
-    
+    assertNotNull(txService);
     UserTransaction ut = txService.getUserTransaction();
     
     ut.begin();
@@ -133,7 +133,7 @@ public class TestUserTransaction extends JcrAPIBaseTest{
     } 
   }
   public void testUserTransactionFromJndi() throws Exception {
-
+    assertNotNull(txService);
     InitialContext ctx = new InitialContext();
     Object obj = ctx.lookup("UserTransaction");
     UserTransaction ut = (UserTransaction) obj;
@@ -149,7 +149,7 @@ public class TestUserTransaction extends JcrAPIBaseTest{
   }
   
   public void testReuseUT() throws Exception {
-
+    assertNotNull(txService);
     InitialContext ctx = new InitialContext();
     Object obj = ctx.lookup("UserTransaction");
     UserTransaction ut = (UserTransaction) obj;

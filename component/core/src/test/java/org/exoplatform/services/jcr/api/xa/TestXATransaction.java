@@ -41,6 +41,7 @@ public class TestXATransaction extends JcrAPIBaseTest{
   }
 
   public void testSimpleGlobalTransaction() throws Exception {
+    assertNotNull(ts);
     Xid id = ts.createXid();
     XAResource xares = ((XASession)session).getXAResource();
     xares.start(id, XAResource.TMNOFLAGS);
@@ -54,6 +55,7 @@ public class TestXATransaction extends JcrAPIBaseTest{
   }
   
   public void test2GlobalTransactions() throws Exception {
+    assertNotNull(ts);
     Session s1 = repository.login(new SimpleCredentials("admin","admin".toCharArray()), 
         session.getWorkspace().getName());
     
@@ -96,6 +98,7 @@ public class TestXATransaction extends JcrAPIBaseTest{
 
   }
   public void testLockInTransactions() throws LoginException, NoSuchWorkspaceException, RepositoryException, XAException  {
+    assertNotNull(ts);
     Session s1 = repository.login(new SimpleCredentials("admin","admin".toCharArray()), 
         session.getWorkspace().getName());
     Session s2 = repository.login(new SimpleCredentials("exo","exo".toCharArray()), 

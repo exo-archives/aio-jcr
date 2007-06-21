@@ -170,10 +170,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     checkValid();
 
-    // [PN] 20.06.07
-    //JCRPath itemPath = locationFactory.createJCRPath(getLocation(), relPath);
-    //NodeImpl node = (NodeImpl) dataManager.getItem(itemPath.getInternalPath(), true);
-    
     JCRPath itemPath = locationFactory.parseRelPath(relPath);
     NodeImpl node = (NodeImpl) dataManager.getItem(nodeData(), itemPath.getInternalPath().getEntries(), true);
     if (node == null)
@@ -458,16 +454,20 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       LockException {
 
     checkValid();
-
+    if(JCRPath.THIS_RELPATH.equals(relPath))
+      throw new RepositoryException("Can't add node to the path '"+relPath+"'");
+    
     // Parent can be not the same as this node
-    JCRPath itemPath = locationFactory.createJCRPath(getLocation(), relPath);
-
+ //   JCRPath itemPath = locationFactory.createJCRPath(getLocation(), relPath);
+    JCRPath itemPath = locationFactory.parseRelPath(relPath);
+    
     // Check if there no final index
     if (itemPath.isIndexSetExplicitly())
       throw new RepositoryException("The relPath provided must not have an index on its final element. "
           + itemPath.getAsString(false));
-
-    ItemImpl parentItem = dataManager.getItem(itemPath.makeParentPath().getInternalPath(), true);
+    
+    ItemImpl parentItem = dataManager.getItem(nodeData(), itemPath.makeParentPath().getInternalPath().getEntries(), true);
+    
     if (parentItem == null)
       throw new PathNotFoundException("Parent not found for " + itemPath.getAsString(true));
     if (!parentItem.isNode())
@@ -539,7 +539,40 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     // try to make new node
     return doAddNode(parent, name, ptName);
   }
+  /**
+   * @see javax.jcr.Node#addNode
+   */
+  public Node addNode2(String relPath, String nodeTypeName) throws ItemExistsException,
+      PathNotFoundException,
+      NoSuchNodeTypeException,
+      ConstraintViolationException,
+      RepositoryException,
+      VersionException,
+      LockException {
 
+    checkValid();
+
+    // Parent can be not the same as this node
+    JCRPath itemPath = locationFactory.createJCRPath(getLocation(), relPath);
+    // Check if there no final index
+    if (itemPath.isIndexSetExplicitly())
+      throw new RepositoryException("The relPath provided must not have an index on its final element. "
+          + itemPath.getAsString(false));
+
+    ItemImpl parentItem = dataManager.getItem(itemPath.makeParentPath().getInternalPath(), true);
+
+    if (parentItem == null)
+      throw new PathNotFoundException("Parent not found for " + itemPath.getAsString(true));
+    if (!parentItem.isNode())
+      throw new ConstraintViolationException("Parent item is not a node " + parentItem.getPath());
+    NodeImpl parent = (NodeImpl) parentItem;
+
+    InternalQName name = itemPath.getName().getInternalName();
+    InternalQName ptName = locationFactory.parseJCRName(nodeTypeName).getInternalName();
+
+    // try to make new node
+    return doAddNode(parent, name, ptName);
+  }
   public void validateChildNode(InternalQName name, InternalQName primaryTypeName) throws ItemExistsException,
       RepositoryException,
       ConstraintViolationException,
