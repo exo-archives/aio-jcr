@@ -6,7 +6,7 @@
 package org.exoplatform.services.jcr.config;
 
 /**
- * Created by The eXo Platform SARL        .
+ * Created by The eXo Platform SARL.
  *
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id$
