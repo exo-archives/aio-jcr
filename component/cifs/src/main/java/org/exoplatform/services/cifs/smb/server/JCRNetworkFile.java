@@ -34,6 +34,9 @@ public class JCRNetworkFile extends NetworkFile {
 
   private FileChannel wrchannel;
 
+  private boolean truncfirst=false;
+
+  
   private File tmpfile;
 
   public JCRNetworkFile(Node n) {
@@ -82,7 +85,7 @@ public class JCRNetworkFile extends NetworkFile {
       tmpfile.delete();
       node.save();
 
-      logger.debug("file data cmplitly writed into jcr node TEMPORARY");
+      logger.debug("file data cmpletly writed into jcr node TEMPORARY");
     }
 
     return i;
@@ -121,11 +124,25 @@ public class JCRNetworkFile extends NetworkFile {
 
   public void truncFile(long len) throws IOException {
     try {
-      if (wrchannel == null)
+      if (wrchannel == null){
         createTemporaryFileChannel();
+        truncfirst = true;
+      }
 
+      
       wrchannel.truncate(len);
       m_fileSize = len;
+      
+      if (truncfirst==false){
+        FileInputStream fis = new FileInputStream(tmpfile);
+        node.getNode("jcr:content").getProperty("jcr:data").setValue(fis);
+        fis.close();
+        wrchannel.close();
+        tmpfile.delete();
+        node.save();
+        logger.debug("file data cmpletly writed into jcr node TEMPORARY");
+        return;
+      }
       logger.debug("file truncated for "+len+" bytes TEMPORARY");
     } catch (Exception e) {
       throw new IOException(e.getMessage());

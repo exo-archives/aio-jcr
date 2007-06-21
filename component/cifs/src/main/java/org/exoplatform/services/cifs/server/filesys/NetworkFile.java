@@ -47,7 +47,7 @@ public abstract class NetworkFile {
 
   // File size
 
-  protected long m_fileSize;
+  protected long m_fileSize=0;
 
   // File creation/modify/last access date/time
 

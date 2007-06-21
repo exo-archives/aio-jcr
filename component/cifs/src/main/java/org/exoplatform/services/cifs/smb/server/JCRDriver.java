@@ -539,12 +539,9 @@ public class JCRDriver {
     // Read a block of data from the file
 
     Node n = ((JCRNetworkFile) netFile).getNodeRef();
-    long size = n.getNode("jcr:content").getProperty("jcr:data").getLength();
     InputStream is = n.getNode("jcr:content").getProperty("jcr:data")
         .getStream();
    
-    
-    
     int count;
     long skip_count = is.skip(offset);
     if ((skip_count < offset) || (skip_count == -1)) {
