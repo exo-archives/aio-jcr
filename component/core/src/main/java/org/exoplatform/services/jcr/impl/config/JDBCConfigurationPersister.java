@@ -1,3 +1,8 @@
+/***************************************************************************
+ * Copyright 2001-2007 The eXo Platform SAS         All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ **************************************************************************/
+
 package org.exoplatform.services.jcr.impl.config;
 
 import java.io.ByteArrayInputStream;
@@ -13,11 +18,21 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.jcr.config.ConfigurationPersister;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 
+/**
+ * Repository service configuration persister
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id$
+ */
 public class JDBCConfigurationPersister implements ConfigurationPersister {
 
+  public final static String PARAM_SOURCE_NAME = "sourceName";
+  public final static String PARAM_DIALECT = "dialect";
+  
   public final static String DB_DIALECT_GENERIC = "Generic".intern();
   public final static String DB_DIALECT_ORACLE = "Oracle".intern();
   public final static String DB_DIALECT_PGSQL = "PgSQL".intern();
@@ -33,8 +48,8 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
   
   protected static final String CONFIG_TABLENAME = "jcr_config";
   
-  protected final String sourceName;
-  protected final String dialect;
+  protected String sourceName;
+  protected String dialect;
   
   public class JDBCRepositoryConfigurationNotFoundException extends RepositoryConfigurationException {
     JDBCRepositoryConfigurationNotFoundException(String m) {
@@ -71,9 +86,19 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
     }
   }
   
-  public JDBCConfigurationPersister(String sourceName, String dialect) {
-    this.sourceName = sourceName;
-    this.dialect = dialect;
+  public void init(PropertiesParam params) throws RepositoryConfigurationException {
+    String sourceNameParam = params.getProperty(PARAM_SOURCE_NAME);
+    String dialectParam = params.getProperty(PARAM_DIALECT);
+    if (sourceNameParam == null)
+      throw new RepositoryConfigurationException("Repository service configuration. Source name (sourceName) is expected");
+    
+    this.sourceName = sourceNameParam;
+    this.dialect = dialectParam;
+  }
+  
+  protected void checkInitialized() throws RepositoryConfigurationException {
+    if (sourceName == null)
+      throw new RepositoryConfigurationException("Repository service configuration persister isn not initialized. Call init() before.");
   }
   
   protected Connection openConnection() throws NamingException, SQLException {
@@ -95,6 +120,9 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
   }
   
   public boolean hasConfig() throws RepositoryConfigurationException {
+    
+    checkInitialized();
+    
     try {
       Connection con = openConnection();
       if (isDbInitialized(con)) {
@@ -119,6 +147,9 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
   
   
   public InputStream read() throws RepositoryConfigurationException {
+    
+    checkInitialized();
+    
     try {
       Connection con = openConnection();
       try {
@@ -150,21 +181,25 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
   }
 
   public void write(InputStream confData) throws RepositoryConfigurationException {
+    
+    checkInitialized();
+    
     try {
       Connection con = openConnection();
       try {
         if (!isDbInitialized(con)) {
           // init db
           String binType = "blob";
-          if (dialect.equalsIgnoreCase(DB_DIALECT_GENERIC) || dialect.equalsIgnoreCase(DB_DIALECT_HSQLDB)) {
-            binType = "varbinary(102400)"; // 100Kb
-          } else if (dialect.equalsIgnoreCase(DB_DIALECT_PGSQL)) {
-            binType = "bytea";
-          } else if (dialect.equalsIgnoreCase(DB_DIALECT_MSSQL)) {
-            binType = "varbinary(max)";
-          } else if (dialect.equalsIgnoreCase(DB_DIALECT_SYBASE)) {
-            binType = "varbinary(255)";
-          }
+          if (dialect != null)
+            if (dialect.equalsIgnoreCase(DB_DIALECT_GENERIC) || dialect.equalsIgnoreCase(DB_DIALECT_HSQLDB)) {
+              binType = "varbinary(102400)"; // 100Kb
+            } else if (dialect.equalsIgnoreCase(DB_DIALECT_PGSQL)) {
+              binType = "bytea";
+            } else if (dialect.equalsIgnoreCase(DB_DIALECT_MSSQL)) {
+              binType = "varbinary(max)";
+            } else if (dialect.equalsIgnoreCase(DB_DIALECT_SYBASE)) {
+              binType = "varbinary(255)";
+            }
           
           String sql = "create table " + CONFIG_TABLENAME + " (" +
               "name varchar(64) not null, " +
