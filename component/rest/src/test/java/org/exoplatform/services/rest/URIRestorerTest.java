@@ -13,10 +13,10 @@ import junit.framework.TestCase;
 
 import java.lang.reflect.Method;
 
-import org.exoplatform.services.rest.data.URIRecover;
+import org.exoplatform.services.rest.data.URIRestorer;
 
 
-public class URIRecoverTest extends TestCase {
+public class URIRestorerTest extends TestCase {
 
 	TestedClazz t;
 	protected void setUp() throws Exception {
@@ -65,7 +65,7 @@ public class URIRecoverTest extends TestCase {
 	    String[] uriParams = {param0, param1, param2};
       Method m = getClass().getMethod("method1", String.class, String.class, String.class,
           String.class, String.class, String.class);
-      return URIRecover.recoveryURI(uriParams, m, getClass().getAnnotation(URITemplate.class));
+      return URIRestorer.restoreURI("", uriParams, m, getClass().getAnnotation(URITemplate.class));
     }
 
 	  @URITemplate("/level1/{id1}/level2/{id2}/{id3}/")
@@ -87,7 +87,7 @@ public class URIRecoverTest extends TestCase {
       Method m = getClass().getMethod("method2", String.class, String.class, String.class,
           String.class, String.class, String.class);
       
-      return URIRecover.recoveryURI(uriParams, m, getClass().getAnnotation(URITemplate.class));
+      return URIRestorer.restoreURI("", uriParams, m, getClass().getAnnotation(URITemplate.class));
     }
 	  
 		@URITemplate("/level1/{id1}/level2/{id2}/{id3}/")
@@ -104,7 +104,7 @@ public class URIRecoverTest extends TestCase {
 			Method m = getClass().getMethod("method3", String.class, String.class, String.class,
 			    String.class, String.class, String.class);
 			
-			return URIRecover.recoveryURI(uriParams, m, getClass().getAnnotation(URITemplate.class));
+			return URIRestorer.restoreURI("", uriParams, m, getClass().getAnnotation(URITemplate.class));
 		}
 
 	}

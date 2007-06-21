@@ -19,7 +19,7 @@ public class ResourceContainer2 implements ResourceContainer {
   @URITemplate("/level1/{id}/level3/")
   @ProducedMimeTypes("text/*")
   public Response<String> method1(String str, @URIParam("id") String param,
-      @RequestedURI(true) String uri) {
+      @BaseURI(true) String uri) {
     System.out.println(">>>>> method1 called!!! uri = " + uri +"; id = " + param);
     System.out.println(">>>>> entity  type: " + str.getClass().toString() + ", value: " + str);
     EntityMetadata entityMetadata = new EntityMetadata("text/plain");

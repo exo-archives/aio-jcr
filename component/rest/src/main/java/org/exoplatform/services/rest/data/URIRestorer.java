@@ -17,7 +17,7 @@ import org.exoplatform.services.rest.URIParam;
  * @version $Id: $
  */
 
-public class URIRecover {
+public class URIRestorer {
 	
 
   
@@ -28,7 +28,8 @@ public class URIRecover {
 	 * @param clazzURIAnno
 	 * @return uri string WITHOUT fist slash "/"  
 	 */
-	public static String recoveryURI(String[] uriParams, Method server, URITemplate clazzURIAnno) {
+	public static String restoreURI(String baseURI, String[] uriParams,
+	    Method server, URITemplate clazzURIAnno) {
 	  
 	  List<URIParam> uriAnno = filterURIParamAnnotations(server.getParameterAnnotations());
 		
@@ -62,7 +63,7 @@ public class URIRecover {
 			}
 			result.append(s + "/");
 		}
-		return result.toString();
+		return baseURI + result.toString();
 	}
 
 	private static List<URIParam> filterURIParamAnnotations(Annotation[][] anno) {

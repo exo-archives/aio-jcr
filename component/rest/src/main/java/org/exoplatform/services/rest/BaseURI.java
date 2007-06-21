@@ -17,6 +17,6 @@ import java.lang.annotation.Target;
 
 @Retention(RUNTIME)
 @Target(value={PARAMETER})
-public @interface RequestedURI {
+public @interface BaseURI {
   boolean value() default false;
 }

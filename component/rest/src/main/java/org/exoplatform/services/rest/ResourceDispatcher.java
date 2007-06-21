@@ -13,7 +13,7 @@ import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.rest.transformer.EntityTransformer;
 import org.exoplatform.services.rest.data.MimeTypes;
-import org.exoplatform.services.rest.RequestedURI;
+import org.exoplatform.services.rest.BaseURI;
 
 /**
  * Created by The eXo Platform SARL .
@@ -99,7 +99,7 @@ public class ResourceDispatcher implements Connector {
               params[i] = request.getQueryParams().getFirst(q.value());
             } else if ("org.exoplatform.services.rest.RequestedURI".equals(a.annotationType()
                 .getCanonicalName())) {
-              RequestedURI r = (RequestedURI) a;
+              BaseURI r = (BaseURI) a;
               if(r.value())
                 params[i] = request.getURI();
             }
