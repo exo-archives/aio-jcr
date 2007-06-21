@@ -35,6 +35,13 @@
 			<version>${org.exoplatform.kernel.version}</version> 
 		</dependency>
 		
+		<dependency>
+            <groupId>org.exoplatform.core</groupId> 
+            <artifactId>exo.core.component.security</artifactId> 
+            <version>${org.exoplatform.core.version}</version> 
+	        <scope>compile</scope>
+        </dependency>
+		
 		<!--dependency>
 		<groupId>exo-jcr</groupId>
 		<artifactId>exo-jcr.services.jcr.impl</artifactId> 

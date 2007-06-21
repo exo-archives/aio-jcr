@@ -40,7 +40,7 @@ import junit.framework.TestCase;
  * Created by The eXo Platform SARL Karpenko Sergey
  */
 
-public class JCRDriverTest extends /* BaseUsecasesTest */TestCase {
+public class JCRDriverTest extends TestCase {
 
   private RepositoryService repositoryService = null;
 
@@ -57,7 +57,7 @@ public class JCRDriverTest extends /* BaseUsecasesTest */TestCase {
   protected void InitializeRepositoryService() {
     try {
       StandaloneContainer
-          .setConfigurationPath("src/main/java/conf/standalone/test/test-configuration.xml");
+          .addConfigurationPath("src/main/java/conf/standalone/cifs-configuration.xml");
 
       // obtain standalone container
       StandaloneContainer container = StandaloneContainer.getInstance();
@@ -81,7 +81,7 @@ public class JCRDriverTest extends /* BaseUsecasesTest */TestCase {
     try {
       Credentials credentials = new CredentialsImpl("admin", "admin"
           .toCharArray());
-      s = (SessionImpl) (repositoryService.getRepository().login(credentials,
+      s = (SessionImpl) (repositoryService.getRepository("db1").login(credentials,
           "ws"));
     } catch (Exception e) {
       fail();
@@ -122,7 +122,7 @@ public class JCRDriverTest extends /* BaseUsecasesTest */TestCase {
     try {
       Credentials credentials = new CredentialsImpl("admin", "admin"
           .toCharArray());
-      s = (SessionImpl) (repositoryService.getRepository().login(credentials,
+      s = (SessionImpl) (repositoryService.getRepository("db1").login(credentials,
           "ws"));
     } catch (Exception e) {
       fail();
@@ -162,7 +162,7 @@ public class JCRDriverTest extends /* BaseUsecasesTest */TestCase {
     try {
       Credentials credentials = new CredentialsImpl("admin", "admin"
           .toCharArray());
-      s = (SessionImpl) (repositoryService.getRepository().login(credentials,
+      s = (SessionImpl) (repositoryService.getRepository("db1").login(credentials,
           "ws"));
     } catch (Exception e) {
       fail();
@@ -253,7 +253,7 @@ public class JCRDriverTest extends /* BaseUsecasesTest */TestCase {
     try {
       Credentials credentials = new CredentialsImpl("admin", "admin"
           .toCharArray());
-      s = (SessionImpl) (repositoryService.getRepository().login(credentials,
+      s = (SessionImpl) (repositoryService.getRepository("db1").login(credentials,
           "ws"));
     } catch (Exception e) {
       fail();
@@ -344,7 +344,7 @@ public class JCRDriverTest extends /* BaseUsecasesTest */TestCase {
     try {
       Credentials credentials = new CredentialsImpl("admin", "admin"
           .toCharArray());
-      s = (SessionImpl) (repositoryService.getRepository().login(credentials,
+      s = (SessionImpl) (repositoryService.getRepository("db1").login(credentials,
           "ws"));
     } catch (Exception e) {
       fail();

@@ -3,7 +3,7 @@
 CIFS(SMB) Server Configuration 
 ------------------------------
 
-Server configures at <project path>/src/main/java/conf/standalone/test/test-configuration.xml
+Server configures at <project path>/src/main/java/conf/portal/configuration.xml
 <component><key>org.exoplatform.services.cifs.CIFSServiceImpl</key>...</component>
 Check that server name ("netbiosname" or if not specified "server_name" )is unique in network 
 neighbourhood, it may cause problems.

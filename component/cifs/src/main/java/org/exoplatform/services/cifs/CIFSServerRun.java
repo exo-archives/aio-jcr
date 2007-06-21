@@ -25,22 +25,12 @@ public class CIFSServerRun {
     System.out.println("--------------------------------");
 
     try {
-      // create standalone container
-      /*
-       * URL configurationURL = Thread.currentThread().getContextClassLoader()
-       * .getResource("conf/standalone/test/test-configuration.xml");
-       * 
-       * if (configurationURL == null) throw new Exception( "No
-       * StandaloneContainer config found. Check if
-       * conf/standalone/configuration.xml exists !");
-       * 
-       * StandaloneContainer.setConfigurationURL(configurationURL.toString()); //
-       * obtain standalone container StandaloneContainer container =
-       * StandaloneContainer.getInstance();
-       */
 
       URL configurationURL = Thread.currentThread().getContextClassLoader()
-          .getResource("conf/portal/configuration.xml");
+          .getResource("conf/standalone/cifs-configuration.xml");
+      if (configurationURL == null)
+        throw new Exception(
+            "No configuration found. Check that \"conf/standalone/cifs-configuration.xml\" exists !");
 
       StandaloneContainer.addConfigurationURL(configurationURL.toString());
 
@@ -55,7 +45,7 @@ public class CIFSServerRun {
 
       if (loginURL == null)
         throw new Exception(
-            "No login config found. Check if conf/standalone/login.conf exists !");
+            "No login config found. Check that resource login.conf exists !");
 
       if (System.getProperty("java.security.auth.login.config") == null)
         System.setProperty("java.security.auth.login.config", loginURL
