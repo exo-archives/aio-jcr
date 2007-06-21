@@ -65,7 +65,7 @@ public class RESTRegistryService implements ResourceContainer {
       @BaseURI(true) String baseURI)
       throws RepositoryException, RepositoryConfigurationException,
       ParserConfigurationException, NoSuchMethodException {
-
+    
     String[] uriParams = {repository};    
     String fullURI = URIRestorer.restoreURI(baseURI, uriParams,
         getClass().getMethod("getRegistry", String.class, String.class),
@@ -139,7 +139,7 @@ public class RESTRegistryService implements ResourceContainer {
   	  regService.createEntry(sessionProvider, groupName, new RegistryEntry(entry));
       String[] uriParams = {repository, groupName};    
 
-      String fullURI = baseURI + URIRestorer.restoreURI(baseURI, uriParams,
+      String fullURI = URIRestorer.restoreURI(baseURI, uriParams,
           getClass().getMethod("createEntry", Document.class, String.class, String.class, String.class),
           getClass().getAnnotation(URITemplate.class));
       
@@ -170,7 +170,7 @@ public class RESTRegistryService implements ResourceContainer {
       regService.recreateEntry(sessionProvider, groupName, new RegistryEntry(entry));
       String[] uriParams = {repository, groupName};    
 
-      String fullURI = baseURI + URIRestorer.restoreURI(baseURI, uriParams,
+      String fullURI = URIRestorer.restoreURI(baseURI, uriParams,
           getClass().getMethod("recreateEntry", Document.class, String.class, String.class, String.class),
           getClass().getAnnotation(URITemplate.class));
       
