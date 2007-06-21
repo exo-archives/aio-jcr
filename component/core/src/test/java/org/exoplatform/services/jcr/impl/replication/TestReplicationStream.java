@@ -9,21 +9,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Calendar;
-import java.util.StringTokenizer;
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.RepositoryException;
-import javax.jcr.query.Query;
-import javax.jcr.query.QueryResult;
 
-import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
+import javax.jcr.Node;
 
 /**
  * Created by The eXo Platform SARL Author : Alex Reshetnyak
  * alex.reshetnyak@exoplatform.org.ua reshetnyak.alex@gmail.com 16.01.2007
  * 15:21:45
  * 
- * @version $Id: TestSerialization.java 16.01.2007 15:21:45 rainf0x
+ * @version $Id: TestReplicationStream.java 16.01.2007 15:21:45 rainf0x
  */
 public class TestReplicationStream extends BaseReplicationTest {
 
@@ -62,13 +56,13 @@ public class TestReplicationStream extends BaseReplicationTest {
 
     end = System.currentTimeMillis();
 
-    System.out.println("The time of the adding of 111 nodes: " + ((end - start) / 1000) + " sec");
+    System.out.println("The time of the adding of nt:file : " + ((end - start) / 1000) + " sec");
 
     // COMPARE REPLICATION DATA
     Node sourceNode = root.getNode("cms2").getNode("test").getNode("nnn").getNode("jcr:content");
     InputStream fis = sourceNode.getProperty("jcr:data").getStream();
 
-    Thread.sleep(10 * 1000);
+    Thread.sleep(15 * 1000);
 
     Node desinationNode = root2.getNode("cms2").getNode("test").getNode("nnn").getNode(
         "jcr:content");

@@ -7,11 +7,6 @@ package org.exoplatform.services.jcr.impl.replication;
 import java.util.Calendar;
 
 import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-
-import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**
  * Created by The eXo Platform SARL

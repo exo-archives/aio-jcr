@@ -19,7 +19,7 @@ import org.exoplatform.services.security.impl.CredentialsImpl;
  * Created by The eXo Platform SARL Author : Alex Reshetnyak
  * alex.reshetnyak@exoplatform.org.ua reshetnyak.alex@gmail.com 20.02.2007
  * 17:10:01
- *
+ * 
  * @version $Id: BaseReplicationTest.java 20.02.2007 17:10:01 rainfox
  */
 public class BaseReplicationTest extends BaseStandaloneTest {
@@ -35,12 +35,8 @@ public class BaseReplicationTest extends BaseStandaloneTest {
   protected ValueFactory   valueFactory2;
 
   public void setUp() throws Exception {
-    //for persistent mode
-    StandaloneContainer.addConfigurationPath("src/test/java/conf/standalone/test-replication-configuration.xml");
-    //StandaloneContainer.setConfigurationPath("src/test/conf/standalone/set-test-replication-configuration.xml");
 
-    //for proxy mode
-    //StandaloneContainer.addConfigurationPath("src/test/conf/standalone/test-replication-configuration-for-proxy.xml");
+    StandaloneContainer.addConfigurationPath("src/test/conf/standalone/test-configuration-for-replication.xml");
 
     container = StandaloneContainer.getInstance();
 
@@ -86,8 +82,8 @@ public class BaseReplicationTest extends BaseStandaloneTest {
   protected String getRepositoryName() {
     return null;
   }
-
-//  public void test() throws Exception {
+  
+  public void test() throws Exception {
 //    assertEquals(true,true);
-//  }
+  }
 }
