@@ -258,9 +258,8 @@ public class JCRDriver {
 
         Node contentNode = nodeRef.getNode("jcr:content");
         Property dataProp = contentNode.getProperty("jcr:data");
-
+        
         long size = 0L;
-
         if (dataProp != null) {
           size = dataProp.getLength();
         }
@@ -540,9 +539,12 @@ public class JCRDriver {
     // Read a block of data from the file
 
     Node n = ((JCRNetworkFile) netFile).getNodeRef();
+    long size = n.getNode("jcr:content").getProperty("jcr:data").getLength();
     InputStream is = n.getNode("jcr:content").getProperty("jcr:data")
         .getStream();
-
+   
+    
+    
     int count;
     long skip_count = is.skip(offset);
     if ((skip_count < offset) || (skip_count == -1)) {
@@ -556,7 +558,6 @@ public class JCRDriver {
         // Read count of -1 indicates a read past the end of file
         count = 0;
       }
-
     }
 
     is.close();

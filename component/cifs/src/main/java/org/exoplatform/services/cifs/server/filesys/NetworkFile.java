@@ -1,5 +1,7 @@
 package org.exoplatform.services.cifs.server.filesys;
 
+import java.util.Date;
+
 public abstract class NetworkFile {
   // Granted file access types
 
@@ -400,4 +402,74 @@ public abstract class NetworkFile {
   // abstract public int readFile(byte[] buf, int maxCount, int dataPos, int
   // offset)throws Exception;
 
+  /**
+   * Return the file information as a string.
+   * 
+   * @return File information string.
+   */
+  public String toString() {
+    StringBuffer str = new StringBuffer();
+
+    // Append the file/directory name
+
+    if (m_name != null) {
+      str.append(m_name);
+    }
+
+    // Append the stream name
+    str.append(" - stream[");
+
+    if (m_name != null) {
+      str.append(m_streamName);
+    }
+
+    str.append("] fullname[");
+    if (m_fullName != null) {
+      str.append(m_fullName);
+    }
+
+    // Append the attribute states
+
+    str.append("] atributes[");
+
+    str.append(m_attrib + " ");
+
+    if (isReadOnly())
+      str.append("R");
+    else
+      str.append("-");
+    if (isHidden())
+      str.append("H");
+    else
+      str.append("-");
+    if (isSystem())
+      str.append("S");
+    else
+      str.append("-");
+    if (isDirectory())
+      str.append("D");
+    else
+      str.append("F");
+
+    // Append the file size, in bytes
+
+    str.append("] size[");
+    str.append(m_fileSize);
+
+    // Append the file write date/time, if available
+    str.append("] modifyDate[");
+
+    if (m_modifyDate != 0L) {
+      str.append(" - ");
+      str.append(new Date(m_modifyDate));
+    }
+
+    // Append the file status
+    str.append("] fileStatus[");
+    str.append(m_flags);
+    str.append("]");
+    // Return the file information string
+
+    return str.toString();
+  }
 }

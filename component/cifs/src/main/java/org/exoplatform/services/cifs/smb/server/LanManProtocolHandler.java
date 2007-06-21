@@ -610,7 +610,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       return;
     }
 
-   // logger.debug("\n	fileName [" + fileName + "] TEMPLATE");
+    // logger.debug("\n fileName [" + fileName + "] TEMPLATE");
 
     // convert name
 
@@ -630,7 +630,6 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       fileName = path.toString();
     }
 
-    // DecodeName is in FileOpenParam constructors
     // Check if the file name contains a stream name
     String temp = fileName;
     String stream = null;

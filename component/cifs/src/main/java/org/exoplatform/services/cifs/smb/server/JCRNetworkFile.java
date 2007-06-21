@@ -29,7 +29,7 @@ public class JCRNetworkFile extends NetworkFile {
   private static final Log logger = ExoLogger
       .getLogger("org.exoplatform.services.cifs.smb.server.JCRNetworkFile");
 
-  // private static int id = 0;
+  private static int id = 0;
   private Node node;
 
   private FileChannel wrchannel;
@@ -59,10 +59,10 @@ public class JCRNetworkFile extends NetworkFile {
   }
 
   private void createTemporaryFileChannel() throws Exception {
-    // id++;
+    id++;
 
     String suf = String.valueOf(getFileId());
-    tmpfile = new File("d:\\tf_" + suf + ".adt");
+    tmpfile = new File("d:\\tf_" + suf +id+ ".adt");
     // this.tmpfile = f.createTempFile(t, f)
     wrchannel = new FileOutputStream(tmpfile, true).getChannel();
   }
