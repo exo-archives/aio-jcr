@@ -127,6 +127,13 @@
           <description>JCR configuration file</description>
           <value>jar:/conf/standalone/test-jcr-config.xml</value>
         </value-param>
+        <properties-param>
+          <name>working-conf</name>
+          <description>working-conf</description>
+          <property name="sourceName" value="jdbcjcr"/>
+          <property name="dialect" value="hsqldb"/>
+          <property name="persisterClassName" value="org.exoplatform.services.jcr.impl.config.JDBCConfigurationPersister"/>
+        </properties-param>
       </init-params>
   </component>
 
