@@ -35,8 +35,8 @@ public class BaseReplicationTest extends BaseStandaloneTest {
   protected ValueFactory   valueFactory2;
 
   public void setUp() throws Exception {
-
-    StandaloneContainer.addConfigurationPath("src/test/conf/standalone/test-configuration-for-replication.xml");
+    
+    StandaloneContainer.addConfigurationPath("src/test/java/conf/standalone/test-configuration-for-replication.xml");
 
     container = StandaloneContainer.getInstance();
 
