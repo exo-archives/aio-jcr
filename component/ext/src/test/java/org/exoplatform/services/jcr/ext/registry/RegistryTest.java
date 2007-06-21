@@ -10,12 +10,6 @@ import java.util.List;
 
 import javax.jcr.ItemNotFoundException;
 
-import org.w3c.dom.Document;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.rest.Request;
@@ -115,65 +109,71 @@ public class RegistryTest extends BaseStandaloneTest{
     assertEquals(5, list.size());
 
     MultivaluedMetadata mv = new MultivaluedMetadata();
-    System.out.println("-----REST-----");
+    System.out.println("\n-----REST-----");
     // registry should be empty
     Request request = new Request(null, new ResourceIdentifier("/registry/db1/"),
-        "GET", mv, null, "http://localhost:8080/rest/registry/db1/");
+        "GET", mv, null, "http://localhost:8080/rest/");
     Response<?> response = dispatcher.dispatch(request);
     assertEquals(200, response.getStatus());
     response.writeEntity(System.out);
+    System.out.flush();
+    System.out.println();
     // request to exo:services/exo_service
     // request status should be 404 (NOT_FOUND)
     request = new Request(null, new ResourceIdentifier("/registry/db1/" + RegistryService.EXO_SERVICES +
-    		"/exo_service"), "GET", mv, null, "http://localhost:8080/rest/registry/db1/" + 
+    		"/exo_service"), "GET", mv, null, "http://localhost:8080/rest/" + 
     RegistryService.EXO_SERVICES + "/exo_service");
     response = dispatcher.dispatch(request);
     assertEquals(404, response.getStatus());
-    response.writeEntity(System.out);
     // create exo:services/exo_service
     FileInputStream fin =
       new FileInputStream(new File("src/test/java/org/exoplatform/services/jcr/ext/registry/exo_service.xml"));
     request = new Request(fin, new ResourceIdentifier("/registry/db1/" + RegistryService.EXO_SERVICES),
-        "POST", mv, null, "http://localhost:8080/rest/registry/db1/");
+        "POST", mv, null, "http://localhost:8080/rest/");
     response = dispatcher.dispatch(request);
     assertEquals(201, response.getStatus());
-    response.writeEntity(System.out);
+    System.out.println("CREATED, LOCATION: " + response.getMetadata().getLocation());
     // request to exo:services/exo_service
     request = new Request(null, new ResourceIdentifier("/registry/db1/" + RegistryService.EXO_SERVICES +
-        "/exo_service"), "GET", mv, null, "http://localhost:8080/rest/registry/db1/" + 
+        "/exo_service"), "GET", mv, null, "http://localhost:8080/rest/" + 
         RegistryService.EXO_SERVICES + "/exo_service");
     response = dispatcher.dispatch(request);
     assertEquals(200, response.getStatus());
     response.writeEntity(System.out);
+    System.out.flush();
+    System.out.println();
     // registry
     request = new Request(null, new ResourceIdentifier("/registry/db1/"),
-        "GET", mv, null, "http://localhost:8080/rest/registry/db1/");
+        "GET", mv, null, "http://localhost:8080/rest/");
     response = dispatcher.dispatch(request);
     assertEquals(200, response.getStatus());
     response.writeEntity(System.out);
+    System.out.flush();
+    System.out.println();
     // recreate exo:services/exo_service
     fin = new FileInputStream(
         new File("src/test/java/org/exoplatform/services/jcr/ext/registry/exo_service.xml"));
     request = new Request(fin, new ResourceIdentifier("/registry/db1/" + RegistryService.EXO_SERVICES),
-        "PUT", mv, null, "http://localhost:8080/rest/registry/db1/");
+        "PUT", mv, null, "http://localhost:8080/rest/");
     response = dispatcher.dispatch(request);
     assertEquals(201, response.getStatus());
-    response.writeEntity(System.out);
+    System.out.println("RECREATED, LOCATION: " + response.getMetadata().getLocation());
     // delete exo:services/exo_service
     request = new Request(null, new ResourceIdentifier("/registry/db1/" + RegistryService.EXO_SERVICES +
-        "/exo_service"), "DELETE", mv, null, "http://localhost:8080/rest/registry/db1/" + 
+        "/exo_service"), "DELETE", mv, null, "http://localhost:8080/rest/" + 
     RegistryService.EXO_SERVICES + "/exo_service");
     response = dispatcher.dispatch(request);
     assertEquals(200, response.getStatus());
     response.writeEntity(System.out);
+    System.out.flush();
+    System.out.println();
     // request to exo:services/exo_service
     // request status should be 404 (NOT_FOUND)
     request = new Request(null, new ResourceIdentifier("/registry/db1/" + RegistryService.EXO_SERVICES +
-    		"/exo_service"), "GET", mv, null, "http://localhost:8080/rest/registry/db1/" + 
+    		"/exo_service"), "GET", mv, null, "http://localhost:8080/rest/" + 
     RegistryService.EXO_SERVICES + "/exo_service");
     response = dispatcher.dispatch(request);
     assertEquals(404, response.getStatus());
-    response.writeEntity(System.out);
   }
   
 }

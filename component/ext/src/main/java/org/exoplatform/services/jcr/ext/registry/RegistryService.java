@@ -158,7 +158,8 @@ public class RegistryService extends Registry implements Startable {
    *      java.lang.String, org.w3c.dom.Document)
    */
   public void createEntry(SessionProvider sessionProvider,
-  		String groupName, RegistryEntry entry) throws RepositoryException {
+  		String groupName, RegistryEntry entry) throws
+  		RepositoryConfigurationException, RepositoryException {
   	
     String path = "/" + EXO_REGISTRY + "/" + groupName;
     try {
@@ -181,7 +182,8 @@ public class RegistryService extends Registry implements Startable {
    *      java.lang.String, java.lang.String)
    */
   public void removeEntry(SessionProvider sessionProvider, String groupName,
-      String entryName) throws RepositoryException {
+      String entryName) throws
+      RepositoryException, RepositoryConfigurationException {
 
     String relPath = EXO_REGISTRY + "/" + groupName + "/" + entryName;
     Node root = session(sessionProvider, repositoryService
@@ -203,7 +205,8 @@ public class RegistryService extends Registry implements Startable {
    * @throws TransformerException
    */
   public void recreateEntry(SessionProvider sessionProvider, String groupName,
-      RegistryEntry entry) throws RepositoryException {
+      RegistryEntry entry) throws
+      RepositoryConfigurationException, RepositoryException {
 
     removeEntry(sessionProvider, groupName, entry.getName());
     createEntry(sessionProvider, groupName, entry);
