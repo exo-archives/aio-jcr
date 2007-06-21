@@ -97,7 +97,7 @@ public class ResourceDispatcher implements Connector {
 
               QueryParam q = (QueryParam) a;
               params[i] = request.getQueryParams().getFirst(q.value());
-            } else if ("org.exoplatform.services.rest.RequestedURI".equals(a.annotationType()
+            } else if ("org.exoplatform.services.rest.BaseURI".equals(a.annotationType()
                 .getCanonicalName())) {
               BaseURI r = (BaseURI) a;
               if(r.value())
