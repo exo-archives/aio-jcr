@@ -82,6 +82,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
+import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableDataManager;
 import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
@@ -1221,9 +1222,17 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       return;
     }
 
-    // TODO [PN] Do it in the one transaction
-    session.getTransientNodesManager().getTransactManager().save(changes);
-    session.getWorkspace().clone(srcWorkspaceName, srcPath, this.getPath(), true);
+    TransactionableDataManager pmanager = session.getTransientNodesManager().getTransactManager();
+    
+    session.getWorkspace().clone(srcWorkspaceName, srcPath, this.getPath(), true, changes);
+    pmanager.save(changes);
+    
+    // [PN] need reload this node data, for id change
+    NodeData thisParent = (NodeData) session.getTransientNodesManager().getItemData(getParentIdentifier());
+    QPathEntry[] qpath = getInternalPath().getEntries();
+    NodeData thisNew = (NodeData) pmanager.getItemData(thisParent, qpath[qpath.length - 1]);
+    // reload node impl with old uuid to a new one data
+    session.getTransientNodesManager().getItemsPool().reload(getInternalIdentifier(), thisNew);
   }
 
   /**

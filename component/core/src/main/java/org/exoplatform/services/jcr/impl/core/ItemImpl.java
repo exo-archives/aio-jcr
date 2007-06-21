@@ -344,7 +344,7 @@ public abstract class ItemImpl implements Item {
         if (doRemoveVH) {
           // remove VH
           try {
-            // look up in transact manager (i.e. in persisted or accepted to commit in XE tr.)
+            // look up in transact manager (i.e. in persistence or in changes was accepted to commit in XE tr.)
             PropertyData vhpd = (PropertyData) dataManager.getItemData( // getTransactManager().
                 node, new QPathEntry(Constants.JCR_VERSIONHISTORY, 1));
             String vhUUID = new String(vhpd.getValues().get(0).getAsByteArray()); 

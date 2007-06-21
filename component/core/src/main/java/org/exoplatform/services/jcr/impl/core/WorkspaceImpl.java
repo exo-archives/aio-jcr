@@ -336,6 +336,18 @@ public class WorkspaceImpl implements Workspace {
       VersionException, AccessDeniedException, PathNotFoundException, ItemExistsException,
       RepositoryException {
 
+    PlainChangesLog changes = new PlainChangesLogImpl(session.getId());
+
+    clone(srcWorkspace, srcAbsPath, destAbsPath, removeExisting, changes);
+
+    session.getTransientNodesManager().getTransactManager().save(changes);
+  }
+
+  protected void clone(String srcWorkspace, String srcAbsPath, String destAbsPath,
+      boolean removeExisting, PlainChangesLog changes) throws NoSuchWorkspaceException, ConstraintViolationException,
+      VersionException, AccessDeniedException, PathNotFoundException, ItemExistsException,
+      RepositoryException {
+
     if (srcWorkspace.equals(getName()))
       throw new RepositoryException("Source and destination workspace are equals " + name);
 
@@ -362,6 +374,7 @@ public class WorkspaceImpl implements Workspace {
       throw new PathNotFoundException("No node exists at " + srcAbsPath
           + " or no node exists one level above " + destAbsPath);
     }
+    
     try {
       destParentNode.checkPermission(PermissionType.ADD_NODE);
     } catch (AccessControlException e) {
@@ -400,19 +413,14 @@ public class WorkspaceImpl implements Workspace {
         removeExisting);
     srcNode.getData().accept(initializer);
 
-    // [PN] to do save in one transaction
-    PlainChangesLog changes = new PlainChangesLogImpl(session.getId());
-
     // removeing existing nodes and properties
     if (removeExisting && initializer.getItemDeletedExistingStates(false).size() > 0) {
       changes.addAll(initializer.getItemDeletedExistingStates(true));
     }
 
     changes.addAll(initializer.getItemAddStates());
-
-    session.getTransientNodesManager().getTransactManager().save(changes); // changes.dump()
   }
-
+  
   /**
    * @see javax.jcr.Workspace#getQueryManager
    */
