@@ -51,14 +51,14 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
   protected String sourceName;
   protected String dialect;
   
-  public class JDBCRepositoryConfigurationNotFoundException extends RepositoryConfigurationException {
-    JDBCRepositoryConfigurationNotFoundException(String m) {
+  public class ConfigurationNotFoundException extends RepositoryConfigurationException {
+    ConfigurationNotFoundException(String m) {
       super(m);
     }
   }
   
-  public class JDBCRepositoryConfigurationNotInitializedException extends RepositoryConfigurationException {
-    JDBCRepositoryConfigurationNotInitializedException(String m) {
+  public class ConfigurationNotInitializedException extends RepositoryConfigurationException {
+    ConfigurationNotInitializedException(String m) {
       super(m);
     }
   }
@@ -163,10 +163,10 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
             ConfigDataHolder config = new ConfigDataHolder(res.getBinaryStream("config"));
             return config.getStream();
           } else
-            throw new JDBCRepositoryConfigurationNotFoundException("No configuration data is found in database. Source name " + sourceName);
+            throw new ConfigurationNotFoundException("No configuration data is found in database. Source name " + sourceName);
             
         } else
-          throw new JDBCRepositoryConfigurationNotInitializedException("Configuration table not is found in database. Source name " + sourceName);          
+          throw new ConfigurationNotInitializedException("Configuration table not is found in database. Source name " + sourceName);          
         
       } finally {
         con.close();
@@ -229,7 +229,7 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
                 + " [WARN] Repository service configuration doesn't stored ok. No rows was affected in JDBC operation. Datasource " + sourceName);
           }
         } else
-          throw new JDBCRepositoryConfigurationNotInitializedException("Configuration table can not be created in database. Source name " + sourceName);          
+          throw new ConfigurationNotInitializedException("Configuration table can not be created in database. Source name " + sourceName);          
         
       } finally {
         con.close();
