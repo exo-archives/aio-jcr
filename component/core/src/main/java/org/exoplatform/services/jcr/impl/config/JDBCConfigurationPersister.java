@@ -46,7 +46,7 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
   protected static final String CONFIGNAME = "REPOSITORY-SERVICE-WORKING-CONFIG"; 
   protected static final String C_DATA = "CONFIGDATA";
   
-  protected static final String CONFIG_TABLENAME = "jcr_config";
+  protected static final String CONFIG_TABLENAME = "JCR_CONFIG";
   
   protected String sourceName;
   protected String dialect;
@@ -127,16 +127,18 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
       Connection con = openConnection();
       if (isDbInitialized(con)) {
         // check that data exists
-        PreparedStatement ps = con.prepareStatement("select count(*) from " + CONFIG_TABLENAME + " where name=?");
+        PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) FROM " + CONFIG_TABLENAME + " WHERE NAME=?");
         try {
           ps.setString(1, CONFIGNAME);
           ResultSet res = ps.executeQuery();
-          return res.next();
+          if (res.next()) {
+            return res.getInt(1) > 0;
+          }
         } finally {
           con.close();
         }
-      } else
-        return false;
+      }
+      return false; 
     } catch(final SQLException e) {
       throw new RepositoryConfigurationException("Database exception. " + e, e);
     } catch(final NamingException e) {
@@ -155,7 +157,7 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
       try {
         if (isDbInitialized(con)) {
           
-          PreparedStatement ps = con.prepareStatement("select * from " + CONFIG_TABLENAME + " where name=?");
+          PreparedStatement ps = con.prepareStatement("SELECT * FROM " + CONFIG_TABLENAME + " WHERE name=?");
           ps.setString(1, CONFIGNAME);
           ResultSet res = ps.executeQuery();
           
@@ -189,22 +191,22 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
       try {
         if (!isDbInitialized(con)) {
           // init db
-          String binType = "blob";
+          String binType = "BLOB";
           if (dialect != null)
             if (dialect.equalsIgnoreCase(DB_DIALECT_GENERIC) || dialect.equalsIgnoreCase(DB_DIALECT_HSQLDB)) {
-              binType = "varbinary(102400)"; // 100Kb
+              binType = "VARBINARY(102400)"; // 100Kb
             } else if (dialect.equalsIgnoreCase(DB_DIALECT_PGSQL)) {
-              binType = "bytea";
+              binType = "BYTEA";
             } else if (dialect.equalsIgnoreCase(DB_DIALECT_MSSQL)) {
-              binType = "varbinary(max)";
+              binType = "VARBINARY(max)";
             } else if (dialect.equalsIgnoreCase(DB_DIALECT_SYBASE)) {
-              binType = "varbinary(255)";
+              binType = "VARBINARY(255)";
             }
           
-          String sql = "create table " + CONFIG_TABLENAME + " (" +
-              "name varchar(64) not null, " +
-              "config " + binType + " not null, " +
-              "constraint jcr_config_pk primary key(name))";
+          String sql = "CREATE TABLE " + CONFIG_TABLENAME + " (" +
+              "NAME VARCHAR(64) NOT NULL, " +
+              "CONFIG " + binType + " NOT NULL, " +
+              "CONSTRAINT JCR_CONFIG_PK PRIMARY KEY(NAME))";
           con.createStatement().executeUpdate(sql);
         } 
         
@@ -215,11 +217,11 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
           ConfigDataHolder config = new ConfigDataHolder(confData);
           
           if (hasConfig()) {
-            ps = con.prepareStatement("update " + CONFIG_TABLENAME + " set config=? where name=?");
+            ps = con.prepareStatement("UPDATE " + CONFIG_TABLENAME + " SET CONFIG=? WHERE NAME=?");
             ps.setBinaryStream(1, config.getStream(), config.getLength()); 
             ps.setString(2, CONFIGNAME);
           } else {
-            ps = con.prepareStatement("insert into " + CONFIG_TABLENAME + "(name, config) values (?,?)");
+            ps = con.prepareStatement("INSERT INTO " + CONFIG_TABLENAME + "(NAME, CONFIG) VALUES (?,?)");
             ps.setString(1, CONFIGNAME);
             ps.setBinaryStream(2, config.getStream(), config.getLength());
           }
