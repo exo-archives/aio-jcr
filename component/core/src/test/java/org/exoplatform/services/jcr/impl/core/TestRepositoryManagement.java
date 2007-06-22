@@ -14,6 +14,7 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
+import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
@@ -32,6 +33,20 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * @version $Id: $
  */
 public class TestRepositoryManagement extends JcrImplBaseTest {
+
+  public static int      BINDED_DS_COUNT = 100;
+
+  private static boolean isBinded        = false;
+
+  private int            lastDS          = 0;
+
+  @Override
+  public void setUp() throws Exception {
+    bindDs();
+    super.setUp();
+    
+  }
+
   public void testAddNewRepository() throws Exception {
     RepositoryEntry repositoryEntry = new RepositoryEntry();
 
@@ -380,12 +395,10 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
     }
     sess.logout();
 
-    
-    
     assertTrue(service.canRemoveRepository(REPONAME));
 
     service.removeRepository(REPONAME);
-    
+
     // test initialization node types only for one repository
     REPONAME = "testInitNodeTypesRepositoryTest2";
     createDafaultRepository(REPONAME, WSNAME);
@@ -419,12 +432,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
     assertTrue(service.canRemoveRepository(REPONAME));
 
     service.removeRepository(REPONAME);
-    
-    
-    
-    
-    
-    
+
   }
 
   public void testInitNameSpaces() throws Exception {
@@ -438,10 +446,10 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
     RepositoryImpl newRepository = (RepositoryImpl) service.getRepository(REPONAME);
     Session sess = newRepository.getSystemSession(WSNAME);
-    
+
     assertEquals("http://www.apache.org/jackrabbit/test", sess.getNamespaceURI("test"));
     assertEquals("http://www.exoplatform.org/jcr/test/1.0", sess.getNamespaceURI("exojcrtest"));
-    
+
     try {
       sess.getNamespaceURI("blabla");
       fail();
@@ -472,7 +480,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
     }
   }
 
-  private void createDafaultRepository(String repoName, String defaultWs) throws Exception {
+  public void createDafaultRepository(String repoName, String defaultWs) throws Exception {
 
     RepositoryEntry repositoryEntry = new RepositoryEntry();
 
@@ -510,15 +518,36 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
     service.createRepository(repositoryEntry);
   }
 
-  private String getNewDs() throws Exception {
-    String newDs = IdGenerator.generate();
-    Properties properties = new Properties();
-    properties.setProperty("driverClassName", "org.hsqldb.jdbcDriver");
-    properties.setProperty("url", "jdbc:hsqldb:file:target/temp/data/" + newDs);
-    properties.setProperty("username", "sa");
-    properties.setProperty("password", "");
-    DataSource bds = BasicDataSourceFactory.createDataSource(properties);
-    new InitialContext().bind(newDs, bds);
-    return newDs;
+  public void bindDs() throws Exception {
+    if (!isBinded) {
+      System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
+          "org.exoplatform.services.naming.SimpleContextFactory");
+      for (int i = 0; i < BINDED_DS_COUNT; i++) {
+        String newDs = Integer.toString(i);
+        Properties properties = new Properties();
+        properties.setProperty("driverClassName", "org.hsqldb.jdbcDriver");
+        properties.setProperty("url", "jdbc:hsqldb:file:target/temp/data/" + newDs);
+        properties.setProperty("username", "sa");
+        properties.setProperty("password", "");
+        DataSource bds = BasicDataSourceFactory.createDataSource(properties);
+        new InitialContext().bind(newDs, bds);
+      }
+      isBinded = true;
+    } 
+  }
+
+  public String getNewDs() throws Exception {
+    return Integer.toString(lastDS++);
+  }
+
+  @Override
+  public void initRepository() throws RepositoryException {
+
+    super.initRepository();
+    try {
+      bindDs();
+    } catch (Exception e) {
+      throw new RepositoryException(e);
+    }
   }
 }
