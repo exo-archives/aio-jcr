@@ -189,6 +189,9 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
     try {
       Connection con = openConnection();
       try {
+        
+        con.setAutoCommit(false);
+        
         if (!isDbInitialized(con)) {
           // init db
           String binType = "BLOB";
@@ -232,6 +235,8 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
           }
         } else
           throw new ConfigurationNotInitializedException("Configuration table can not be created in database. Source name " + sourceName);          
+        
+        con.commit();
         
       } finally {
         con.close();
