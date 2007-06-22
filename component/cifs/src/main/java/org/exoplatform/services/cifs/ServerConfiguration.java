@@ -168,7 +168,7 @@ public class ServerConfiguration {
 
   // flag to indicate successful initialization
 
-  private boolean initialised;
+  // private boolean initialised;
 
   // private SharedDeviceList m_shareList;
 
@@ -176,6 +176,7 @@ public class ServerConfiguration {
    * Configuration by XML-config
    */
   public ServerConfiguration(InitParams params) {
+
     determinePlatformType();
 
     // set broadcast mask? before netBIOS is used
@@ -193,7 +194,13 @@ public class ServerConfiguration {
      * ValueParam pDomainName = params.getValueParam("workgroup"); if
      * (pDomainName != null) { setDomainName(pDomainName.getValue()); } else
      */
-    setDomainName(getLocalDomainName().toUpperCase());
+
+    try {
+      setDomainName(getLocalDomainName().toUpperCase());
+    } catch (UnsatisfiedLinkError e) {
+      setSMBServerEnabled(false);
+      return;
+    }
 
     // Check for a server comment
     ValueParam pComment = params.getValueParam("comment");
@@ -353,7 +360,12 @@ public class ServerConfiguration {
 
     // Set the domain/workgroup name
 
-    setDomainName(getLocalDomainName().toUpperCase());
+    try {
+      setDomainName(getLocalDomainName().toUpperCase());
+    } catch (UnsatisfiedLinkError e) {
+      setSMBServerEnabled(false);
+      return;
+    }
 
     // Check for a server comment
 
@@ -895,4 +907,5 @@ public class ServerConfiguration {
     m_winsSecondary = addr;
   }
 
+ 
 }

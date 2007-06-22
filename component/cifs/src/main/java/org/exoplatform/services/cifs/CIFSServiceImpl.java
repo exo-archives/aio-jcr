@@ -7,6 +7,8 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.cifs.server.NetworkServer;
 import org.exoplatform.services.cifs.smb.server.SMBServer;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.cifs.netbios.win32.Win32NetBIOS;
+
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -35,13 +37,20 @@ public class CIFSServiceImpl implements CIFSService, Startable {
     } else {
       config = new ServerConfiguration(params);
     }
+
   }
 
   public void start() {
     try {
-      log.info("Starting CIFS service");
-      server = new SMBServer(config, repositoryService);
-      server.startServer();
+
+      if (config.isSMBServerEnabled()) {
+        log.info("Starting CIFS service");
+        server = new SMBServer(config, repositoryService);
+        server.startServer();
+      } else {
+        log.error("Starting CIFS service error: server not initalized");
+        return;
+      }
     } catch (Exception e) {
       e.printStackTrace();
     }

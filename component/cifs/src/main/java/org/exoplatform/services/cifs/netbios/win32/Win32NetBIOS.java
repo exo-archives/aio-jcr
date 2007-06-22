@@ -772,16 +772,16 @@ public class Win32NetBIOS {
 
     String dllName = "Win32NetBIOS";
 
-    if (X64.isWindows64())
-      dllName = "Win32NetBIOSx64";
+    //if (X64.isWindows64())
+    //  dllName = "Win32NetBIOSx64";
 
     // Load the Win32 NetBIOS interface library
 
     try {
       System.loadLibrary(dllName);
     } catch (Throwable ex) {
-      ex.printStackTrace();
-
+      //ex.printStackTrace();
+      
       // Save the native code load exception
 
       m_loadDLLException = ex;
