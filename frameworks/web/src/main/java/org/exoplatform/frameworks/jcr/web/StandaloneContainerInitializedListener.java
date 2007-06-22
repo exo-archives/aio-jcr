@@ -35,8 +35,6 @@ public class StandaloneContainerInitializedListener implements
    */
   private static final String CONF_URL_PARAMETER = "org.exoplatform.container.standalone.config";
   
-  //private final static String CONTAINER_CONFIG = "conf/standalone/exo-configuration.xml";
-  
   //private final static String CONTAINER_CONFIG = "conf/exo-configuration.xml";
 
   private StandaloneContainer container;
@@ -51,10 +49,8 @@ public class StandaloneContainerInitializedListener implements
     /*if(configurationURL == null) {
       configurationURL = Thread.currentThread().getContextClassLoader().getResource(
           CONTAINER_CONFIG).toString();
-      //configurationURL = "conf/exo-configuration.xml";
     }*/
     try {
-      //StandaloneContainer.setConfigurationURL(configurationURL);
       StandaloneContainer.addConfigurationURL(configurationURL);
       //if configurationURL is still == null StandaloneContainer will search
       //"exo-configuration.xml" in root of AS, then "conf/exo-configuration.xml"
@@ -62,7 +58,6 @@ public class StandaloneContainerInitializedListener implements
     } catch (MalformedURLException e1) {
     }
 
-//    if (container == null) {
     try {
       container = StandaloneContainer.getInstance(Thread.currentThread()
           .getContextClassLoader());
@@ -80,7 +75,6 @@ public class StandaloneContainerInitializedListener implements
     } catch (Exception e) {
       e.printStackTrace();
     }
-// }
 
   }
 

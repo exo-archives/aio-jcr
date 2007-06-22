@@ -48,11 +48,6 @@ public class SimpleSessionFactoryInitializedFilter implements Filter {
 
   private static Log     log    = ExoLogger.getLogger("jcr.SimpleSessionFactoryInitializedFilter");
 
-  // public static final String DEFAULT_USER_NAME =
-  // "org.exoplatform.sample.defaultUserName";
-  // public static final String DEFAULT_USER_PASSWORD =
-  // "org.exoplatform.sample.defaultUserPassword";
-
   private ServletContext servletContext;
 
   private String         userId = null;
@@ -89,28 +84,11 @@ public class SimpleSessionFactoryInitializedFilter implements Filter {
         authenticationService.setCurrentIdentity(identity);
       }
     }
-    //
-    /*
-     * SessionManagerContainer sessionManagerContainer =
-     * (SessionManagerContainer) container; SessionManager sessionManager =
-     * sessionManagerContainer.getSessionManager(); SessionContainer
-     * sessionContainer =
-     * sessionManager.getSessionContainer(httpSession.getId()); if
-     * (sessionContainer == null) { sessionContainer =
-     * sessionManagerContainer.createSessionContainer(httpSession .getId(),
-     * "default"); sessionContainer.setClientInfo(new
-     * HttpClientInfo(httpRequest)); } // attach to current thread
-     * SessionContainer.setInstance(sessionContainer);
-     */
-
     try {
       if (httpRequest.getSession().getAttribute(SingleRepositorySessionFactory.SESSION_FACTORY) == null
           || userChanged(httpRequest, authenticationService)) {
 
         ManageableRepository rep;
-        // cred = new SimpleCredentials(servletContext
-        // .getInitParameter(DEFAULT_USER_NAME), servletContext
-        // .getInitParameter(DEFAULT_USER_PASSWORD).toCharArray());
 
         // (1)try to get Repository from JNDI
         String repositoryName = servletContext.getInitParameter(WebConstants.REPOSITORY_JNDI_NAME);
