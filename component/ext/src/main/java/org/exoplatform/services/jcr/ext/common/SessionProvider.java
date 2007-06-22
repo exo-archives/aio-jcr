@@ -48,7 +48,7 @@ public class SessionProvider {
    * @return System session
    */
   public static SessionProvider createSystemProvider() {
-    return new SessionProvider(new CredentialsImpl(SystemIdentity.SYSTEM, null));
+    return new SessionProvider(new CredentialsImpl(SystemIdentity.SYSTEM, "".toCharArray()));
   }
 
   /**
@@ -56,7 +56,7 @@ public class SessionProvider {
    * @return System session
    */
   public static SessionProvider createAnonimProvider() {
-    return new SessionProvider(new CredentialsImpl(SystemIdentity.ANONIM, null));
+    return new SessionProvider(new CredentialsImpl(SystemIdentity.ANONIM, "".toCharArray()));
   }
 
   
