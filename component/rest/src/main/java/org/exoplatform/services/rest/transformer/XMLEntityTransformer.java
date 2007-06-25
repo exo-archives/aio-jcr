@@ -27,9 +27,9 @@ public class XMLEntityTransformer implements EntityTransformer<Document> {
     try {
       return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(entityDataStream);
     } catch (SAXException saxe) {
-      throw new IOException("Can't read from input stream");
+      throw new IOException("Can't read from input stream " + saxe);
     } catch (ParserConfigurationException pce) {
-      throw new IOException("Can't read from input stream");
+      throw new IOException("Can't read from input stream " + pce);
     }
   }
 
@@ -38,9 +38,9 @@ public class XMLEntityTransformer implements EntityTransformer<Document> {
       TransformerFactory.newInstance().newTransformer().transform(new DOMSource(entity),
           new StreamResult(entityDataStream));
     } catch (TransformerException tre) {
-      throw new IOException("Can't write to output stream");
+      throw new IOException("Can't write to output stream " + tre);
     }
- //   entityDataStream.flush();
+//    entityDataStream.flush();
 //    entityDataStream.close();
   }
 

@@ -14,6 +14,7 @@ import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.Connector;
 import org.exoplatform.services.rest.Request;
+import org.exoplatform.services.rest.ResourceBinder;
 import org.exoplatform.services.rest.ResourceDispatcher;
 import org.exoplatform.services.rest.Response;
 import org.exoplatform.services.rest.EntityMetadata;
@@ -22,6 +23,7 @@ public class RestServlet extends HttpServlet implements Connector {
 	
   private ExoContainer container;
   private ResourceDispatcher resDispatcher;
+  private ResourceBinder resBinder;
   private static Log logger = ExoLogger.getLogger("RestServlet");
 	
   public void init(){
@@ -31,13 +33,19 @@ public class RestServlet extends HttpServlet implements Connector {
       logger.error("Cann't get current container");
       e.printStackTrace();
     }
+    resBinder = (ResourceBinder)container.getComponentInstanceOfType(
+        ResourceBinder.class);
     resDispatcher = (ResourceDispatcher)container.getComponentInstanceOfType(
         ResourceDispatcher.class);
-    if(resDispatcher == null) {
-      logger.error("RESOURCE_ROUTER is null");
+    if(resBinder == null) {
+      logger.error("RESOURCE_BINDER is null");
     }
-    logger.info("CONTAINER:       " + container);
-    logger.info("RESOURCE_ROUTER: " + resDispatcher);
+    if(resDispatcher == null) {
+      logger.error("RESOURCE_DISPATCHER is null");
+    }
+    logger.info("CONTAINER:           " + container);
+    logger.info("RESOURCE_BINDER:     " + resBinder);
+    logger.info("RESOURCE_DISPATCHER: " + resDispatcher);
   }
 	
   public void service(HttpServletRequest httpRequest, HttpServletResponse httpResponse)

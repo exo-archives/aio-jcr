@@ -58,7 +58,6 @@ public class EntityMetadata {
 
   public void setLastModified(Date lastModified) {
     // TODO Auto-generated method stub
-    
   }
 
   public void setLength(long length) {

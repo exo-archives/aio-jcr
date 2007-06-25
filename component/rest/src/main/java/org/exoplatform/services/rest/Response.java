@@ -34,7 +34,7 @@ public class Response<T> {
     this.transformer = transformer;
     this.metadata = metadata;
   }
-  
+/*  
   public Response(int status, EntityMetadata metadata) {
     this(status, metadata, null, null);
   }
@@ -42,8 +42,9 @@ public class Response<T> {
   public Response(int status) {
     this(status, null, null, null);
   }
-
-  public Object getEntity() {
+*/
+  
+  public T getEntity() {
     return entity;
   }
 
@@ -55,7 +56,7 @@ public class Response<T> {
     return status;
   }
   
-  public void writeEntity(OutputStream entityDataStream) throws Exception {
+  public void writeEntity(OutputStream entityDataStream) throws IOException {
     if(transformer != null)
       transformer.writeTo(entity, entityDataStream);
   }
