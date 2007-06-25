@@ -1727,7 +1727,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
     if (shareDev == null
         || (servType != ShareType.UNKNOWN && shareDev.getType() != servType)) {
-      m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive , SMBStatus.ErrDos);
       return;
     }
 
