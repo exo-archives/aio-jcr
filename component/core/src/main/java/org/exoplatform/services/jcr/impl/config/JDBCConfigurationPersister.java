@@ -186,6 +186,7 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
     
     checkInitialized();
     
+    String sql = null;
     try {
       Connection con = openConnection();
       try {
@@ -206,7 +207,7 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
               binType = "VARBINARY(255)";
             }
           
-          String sql = "CREATE TABLE " + CONFIG_TABLENAME + " (" +
+          sql = "CREATE TABLE " + CONFIG_TABLENAME + " (" +
               "NAME VARCHAR(64) NOT NULL, " +
               "CONFIG " + binType + " NOT NULL, " +
               "CONSTRAINT JCR_CONFIG_PK PRIMARY KEY(NAME))";
@@ -220,21 +221,25 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
           ConfigDataHolder config = new ConfigDataHolder(confData);
           
           if (hasConfig()) {
-            ps = con.prepareStatement("UPDATE " + CONFIG_TABLENAME + " SET CONFIG=? WHERE NAME=?");
+            sql = "UPDATE " + CONFIG_TABLENAME + " SET CONFIG=? WHERE NAME=?";
+            ps = con.prepareStatement(sql);
             ps.setBinaryStream(1, config.getStream(), config.getLength()); 
             ps.setString(2, CONFIGNAME);
           } else {
-            ps = con.prepareStatement("INSERT INTO " + CONFIG_TABLENAME + "(NAME, CONFIG) VALUES (?,?)");
+            sql = "INSERT INTO " + CONFIG_TABLENAME + "(NAME, CONFIG) VALUES (?,?)";
+            ps = con.prepareStatement(sql);
             ps.setString(1, CONFIGNAME);
             ps.setBinaryStream(2, config.getStream(), config.getLength());
           }
           
           if (ps.executeUpdate()<=0) {
             System.out.println(this.getClass().getCanonicalName() 
-                + " [WARN] Repository service configuration doesn't stored ok. No rows was affected in JDBC operation. Datasource " + sourceName);
+                + " [WARN] Repository service configuration doesn't stored ok. No rows was affected in JDBC operation. Datasource " 
+                + sourceName + ". SQL: " + sql);
           }
         } else
-          throw new ConfigurationNotInitializedException("Configuration table can not be created in database. Source name " + sourceName);          
+          throw new ConfigurationNotInitializedException("Configuration table can not be created in database. Source name " 
+              + sourceName + ". SQL: " + sql);          
         
         con.commit();
         
@@ -244,7 +249,7 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
     } catch(final IOException e) {
       throw new RepositoryConfigurationException("Configuration read exception. " + e, e);
     } catch(final SQLException e) {
-      throw new RepositoryConfigurationException("Database exception. " + e, e);
+      throw new RepositoryConfigurationException("Database exception. " + e + ". SQL: " + sql, e);
     } catch(final NamingException e) {
       throw new RepositoryConfigurationException("JDNI exception. " + e, e);
     }
