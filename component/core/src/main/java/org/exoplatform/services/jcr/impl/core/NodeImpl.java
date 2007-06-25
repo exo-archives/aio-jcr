@@ -1797,43 +1797,38 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       InvalidItemStateException {
 
     checkValid();
-    
+
     if (JCRPath.THIS_RELPATH.equals(relPath))
       throw new RepositoryException("Can't restore node to the path '" + relPath + "'");
 
-   
+    JCRPath jcrPath = locationFactory.parseRelPath(relPath);
 
-    QPath qPath = locationFactory.parseRelPath(relPath).getInternalPath();
-    ItemData parentItem = null;
-     //Parent node and this is the same node
-    if(qPath.getDepth() == 0){
-      parentItem = dataManager.getItemData(nodeData(),new QPathEntry[0]);
-    }else{
-      parentItem = dataManager.getItemData(nodeData(), qPath.makeParentPath().getEntries());
-    }
-    
-    
+    ItemData parentItem = dataManager.getItemData(nodeData(), jcrPath.makeParentPath()
+        .getInternalPath().getEntries());
+
+  
     if (parentItem == null)
-      throw new PathNotFoundException("Parent not found for " + qPath.getAsString());
+      throw new PathNotFoundException("Parent not found for " + jcrPath.getAsString(true));
     if (!parentItem.isNode())
-      throw new ConstraintViolationException("Parent item is not a node " + qPath.getAsString());
+      throw new ConstraintViolationException("Parent item is not a node "
+          + jcrPath.getAsString(true));
 
-    ItemImpl node = dataManager.getItem((NodeData) parentItem, new QPathEntry(qPath.getName(), 0),true);  
-    
-    if (node == null){
+    ItemImpl node = dataManager.getItem((NodeData) parentItem, new QPathEntry(jcrPath
+        .getInternalPath().getName(), jcrPath.getInternalPath().getIndex()), true);
+
+    if (node == null) {
       // add restored Node
-      NodeData restoreNode = TransientNodeData.createNodeData((NodeData) parentItem,
-          qPath.getName(),
-          Constants.NT_BASE);
+      NodeData restoreNode = TransientNodeData.createNodeData((NodeData) parentItem, jcrPath
+          .getInternalPath().getName(), Constants.NT_BASE, jcrPath.getInternalPath().getIndex());
       restoreNode.setACL(nodeData().getACL());
       dataManager.update(ItemState.createAddedState(restoreNode), true);
 
       node = dataManager.getItemByIdentifier(restoreNode.getIdentifier(), true);
     }
-     
+
     if (!node.isNode())
       throw new ConstraintViolationException("Item is not a node " + node.getPath());
-    
+
     ((Node) node).restore(version, removeExisting);
 
   }
