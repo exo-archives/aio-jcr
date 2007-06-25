@@ -14,9 +14,14 @@ import java.util.List;
 
 public class EntityMetadata {
   
-  protected MultivaluedMetadata metadata = new MultivaluedMetadata();
+  protected MultivaluedMetadata metadata;
   
+  public EntityMetadata() {
+    metadata = new MultivaluedMetadata();
+  }
+
   public EntityMetadata(String mediaType) {
+    metadata = new MultivaluedMetadata();
     setMediaType(mediaType);
   }
   
