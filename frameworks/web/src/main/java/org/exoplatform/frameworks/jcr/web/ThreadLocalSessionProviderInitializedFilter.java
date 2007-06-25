@@ -6,10 +6,7 @@
 package org.exoplatform.frameworks.jcr.web;
 
 import java.io.IOException;
-import java.util.Iterator;
 
-import javax.jcr.Credentials;
-import javax.jcr.SimpleCredentials;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -74,7 +71,7 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
           throw new ServletException(e);
         }
         if(identity != null) {
-          provider =new SessionProvider(null);
+          provider = new SessionProvider(null);
         }
       }
     }
