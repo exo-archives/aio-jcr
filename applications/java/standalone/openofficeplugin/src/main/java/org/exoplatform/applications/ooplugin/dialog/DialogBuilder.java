@@ -8,12 +8,10 @@ package org.exoplatform.applications.ooplugin.dialog;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.exoplatform.applications.ooplugin.Log;
 import org.exoplatform.applications.ooplugin.PlugInDialog;
 import org.exoplatform.applications.ooplugin.Resources;
+import org.exoplatform.applications.ooplugin.config.XmlConfig;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.applications.ooplugin.events.ItemListener;
 import org.w3c.dom.Document;
@@ -47,7 +45,7 @@ import com.sun.star.uno.XComponentContext;
  * @version $Id: $
  */
 
-public class DialogBuilder {
+public class DialogBuilder extends XmlConfig {
   
   public static final String DIALOG_CONFIG = "/config/dialogconfig.xml";
   
@@ -228,8 +226,7 @@ public class DialogBuilder {
   
   public void init() {
     try {
-      InputStream inStream = getClass().getResourceAsStream(DIALOG_CONFIG);
-      Document document = getDocumentFromInputStream(inStream);
+      Document document = getDocumentFromResource(DIALOG_CONFIG);
       
       Node dialogConfigNode = getChildNode(document, XML_DIALOGCONFIG);
       
@@ -244,25 +241,6 @@ public class DialogBuilder {
     } catch (Exception exc) {
       Log.info("Unhandled exception. " + exc.getMessage(), exc);
     }
-  }
-
-  private Document getDocumentFromInputStream(InputStream in) throws Exception {    
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    factory.setNamespaceAware(true);        
-    DocumentBuilder builder = factory.newDocumentBuilder();
-    Document document = builder.parse(in);
-    return document;
-  }  
-
-  public static Node getChildNode(Node node, String childName) {
-    NodeList nodes = node.getChildNodes();
-    for (int i = 0; i < nodes.getLength(); i++) {
-      Node curNode = nodes.item(i);
-      if (curNode.getLocalName() != null && curNode.getLocalName().equals(childName)) {
-        return curNode;
-      }
-    }
-    return null;
   }
   
   private void parseDialog(Node dialogNode) {

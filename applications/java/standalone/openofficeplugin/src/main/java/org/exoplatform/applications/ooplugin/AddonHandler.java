@@ -144,7 +144,7 @@ public class AddonHandler extends WeakBase
   
   public void initialize( Object[] object ) throws com.sun.star.uno.Exception    
   {
-    Log.info("public void initialize( Object[] object ) throws com.sun.star.uno.Exception...");
+    //Log.info("public void initialize( Object[] object ) throws com.sun.star.uno.Exception...");
     if (object.length > 0) {
       xFrame = (XFrame)UnoRuntime.queryInterface(
             XFrame.class, object[0]);
@@ -159,7 +159,7 @@ public class AddonHandler extends WeakBase
   public void dispatch(com.sun.star.util.URL aURL,      
         com.sun.star.beans.PropertyValue[] aArguments ) {
     
-    Log.info("public void dispatch(com.sun.star.util.URL aURL,");
+    //Log.info("public void dispatch(com.sun.star.util.URL aURL,");
     
     try {
       if ( aURL.Protocol.compareTo("org.exoplatform.applications.ooplugin:") == 0 ) {
@@ -203,12 +203,12 @@ public class AddonHandler extends WeakBase
   
   public void addStatusListener(com.sun.star.frame.XStatusListener xControl,
       com.sun.star.util.URL aURL) {
-    Log.info("public void addStatusListener(com.sun.star.frame.XStatusListener xControl,");
+    //Log.info("public void addStatusListener(com.sun.star.frame.XStatusListener xControl,");
   }     
   
   public void removeStatusListener(com.sun.star.frame.XStatusListener xControl,
       com.sun.star.util.URL aURL ) {
-    Log.info("public void removeStatusListener(com.sun.star.frame.XStatusListener xControl,");
+    //Log.info("public void removeStatusListener(com.sun.star.frame.XStatusListener xControl,");
   }
   
   public static void showMessageBox(String sTitle, String sMessage) {

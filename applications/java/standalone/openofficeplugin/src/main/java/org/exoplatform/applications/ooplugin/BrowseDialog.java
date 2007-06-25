@@ -45,7 +45,8 @@ public abstract class BrowseDialog extends PlugInDialog {
   public static final int VNAME_LEN = 3;
   public static final int NAME_LEN = 26;
   public static final int SIZE_LEN = 38;
-  public static final int LASTMODOFIED_SIZE = 68;
+  public static final int LASTMODOFIED_SIZE = 69;
+  public static final int MIMETYPE_SIZE = 89;
   
   public static final String BTN_PREV = "btnPrev";
   public static final String LST_ITEMS = "lstItems";
@@ -53,6 +54,8 @@ public abstract class BrowseDialog extends PlugInDialog {
   public static final String BTN_CANCEL = "btnCancel";
   
   public static final String LBL_TABLEHEAD = "lblTableHead";
+  
+  public static final String MIMETYPE_PROP = "jcr:mimeType";
   
   protected String currentPath = "/";
   
@@ -97,6 +100,11 @@ public abstract class BrowseDialog extends PlugInDialog {
       
       headerValue += "Last Modified";
       while (headerValue.length() < LASTMODOFIED_SIZE) {
+        headerValue += " ";
+      }
+      
+      headerValue += "Mime-Type";
+      while (headerValue.length() < MIMETYPE_SIZE) {
         headerValue += " ";
       }
       
@@ -175,10 +183,14 @@ public abstract class BrowseDialog extends PlugInDialog {
       (DisplayNameProp)response.getProperty(Const.DavProp.DISPLAYNAME);
     ResourceTypeProp resourceTypeProperty =
       (ResourceTypeProp)response.getProperty(Const.DavProp.RESOURCETYPE);
+    
     if (resourceTypeProperty != null && resourceTypeProperty.isCollection()) {
-      fileItem += "> ";
+      fileItem += "[ ";
+      fileItem += displayNameProperty.getDisplayName();
+      fileItem += " ]";
+    } else {
+      fileItem += displayNameProperty.getDisplayName();      
     }
-    fileItem += displayNameProperty.getDisplayName();
     while (fileItem.length() < NAME_LEN) {
       fileItem += " ";
     }
@@ -199,6 +211,17 @@ public abstract class BrowseDialog extends PlugInDialog {
     }
     
     while (fileItem.length() < LASTMODOFIED_SIZE) {
+      fileItem += " ";
+    }
+    
+    CommonProp mimeTypeProperty = (CommonProp)response.getProperty(MIMETYPE_PROP);
+    if (mimeTypeProperty != null) {
+      fileItem += mimeTypeProperty.getValue();
+    } else {
+      showMessageBox("mime type not found!!!");
+    }
+    
+    while (fileItem.length() < MIMETYPE_SIZE) {
       fileItem += " ";
     }
     
@@ -240,6 +263,7 @@ public abstract class BrowseDialog extends PlugInDialog {
         davPropFind.setRequiredProperty(Const.DavProp.GETCONTENTLENGTH);
         davPropFind.setRequiredProperty(Const.DavProp.VERSIONNAME);
         davPropFind.setRequiredProperty(Const.DavProp.COMMENT);
+        davPropFind.setRequiredProperty(MIMETYPE_PROP);
         
         int status = davPropFind.execute();
         
@@ -328,6 +352,7 @@ public abstract class BrowseDialog extends PlugInDialog {
     if (!isCollection(response)) {
       try {
         doOpenRemoteFile(TextUtils.UnEscape(response.getHref(), '%'));
+        Thread.sleep(100);
         xDialog.endExecute();
       } catch (Exception exc) {
         Log.info("Can't open remote file... " + exc.getMessage(), exc);
