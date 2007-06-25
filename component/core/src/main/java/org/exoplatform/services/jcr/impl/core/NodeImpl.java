@@ -227,16 +227,12 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     checkValid();
     
-    // [PN] 20.06.07
-    //JCRPath itemPath = locationFactory.createJCRPath(getLocation(), relPath);
 
     JCRPath itemPath = locationFactory.parseRelPath(relPath);
     
     if (log.isDebugEnabled())
       log.debug("getProperty() " + getLocation() + " " + relPath);
 
-    // [PN] 20.06.07
-    //Item prop = dataManager.getItem(itemPath.getInternalPath(), true);
     Item prop = dataManager.getItem(nodeData(), itemPath.getInternalPath().getEntries(), true);
     
     if (prop == null || prop.isNode())
@@ -2388,15 +2384,21 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * Get an ACL for this node.
+   * Return a copy of  ACL for this node for information purpose only.
    * 
    * @see org.exoplatform.services.jcr.core.ExtendedNode#getACL()
    */
   public AccessControlList getACL() throws RepositoryException {
 
     checkValid();
-
-    return ((NodeData) data).getACL();
+    
+    List<AccessControlEntry> listEntry = new ArrayList<AccessControlEntry>();
+    
+    for (AccessControlEntry aEntry : nodeData().getACL().getPermissionEntries()) {
+      listEntry.add(new AccessControlEntry(aEntry.getIdentity(),aEntry.getPermission()));
+    }
+    
+    return new AccessControlList(nodeData().getACL().getOwner(),listEntry);
   }
 
   private void setACL(AccessControlList acl) {

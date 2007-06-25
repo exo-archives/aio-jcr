@@ -33,10 +33,6 @@ public class AccessControlEntry {
   public String getAsString() {
     return identity + AccessControlEntry.DELIMITER + permission;
   }
-  public static AccessControlEntry parse(String permission) {
-    
-    return null;
-  }
   
   public boolean equals(Object obj) {
     if(obj == this)

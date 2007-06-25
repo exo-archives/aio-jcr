@@ -418,7 +418,7 @@ public class SessionDataManager implements ItemDataConsumer {
     ItemData item = null;
     QPathEntry[] relPathEntries = path.getRelPath(path.getDepth());
     for (int i = 0; i < relPathEntries.length; i++) {
-      item = getItemData((NodeData) parent, relPathEntries[i]);
+      item = getItemData(parent, relPathEntries[i]);
       
       if (item == null)
         break;
