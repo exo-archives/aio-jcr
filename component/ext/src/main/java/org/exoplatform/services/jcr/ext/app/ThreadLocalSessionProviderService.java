@@ -30,8 +30,8 @@ public class ThreadLocalSessionProviderService implements SessionProviderService
   public SessionProvider getSessionProvider(Object key) {
     if(sessionProviderKeeper.get() != null)
       return sessionProviderKeeper.get();
-    else
-      throw new NullPointerException("SessionProvider is not initialized");
+    return null;
+//      throw new NullPointerException("SessionProvider is not initialized");
   }
 
   /* (non-Javadoc)
