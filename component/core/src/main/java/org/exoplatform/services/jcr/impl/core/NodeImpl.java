@@ -274,7 +274,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @return list with actual nodes, that stored in persisten storage
+   * @return list with actual nodes, that stored in persistent storage
    */
   public List<PropertyImpl> childProperties() throws RepositoryException, AccessDeniedException {
 
