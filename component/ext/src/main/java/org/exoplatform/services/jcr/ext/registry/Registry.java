@@ -11,7 +11,6 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.ext.common.NodeWrapper;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
-import org.w3c.dom.Document;
 
 /**
  * Created by The eXo Platform SARL        .<br/>
@@ -51,7 +50,7 @@ public abstract class Registry {
    * @throws RepositoryException
    */
   public abstract RegistryEntry getEntry(SessionProvider sessionProvider, String groupName,
-      String entryName) throws RepositoryConfigurationException, RepositoryException;
+      String entryName) throws RepositoryException;
 
   /**
    * @param sessionProvider
@@ -61,8 +60,7 @@ public abstract class Registry {
    * @throws RepositoryException
    */
   public abstract void createEntry(SessionProvider sessionProvider,
-  		String groupName, RegistryEntry entry) throws RepositoryConfigurationException,
-  		RepositoryException;
+  		String groupName, RegistryEntry entry) throws RepositoryException;
 
   /**
    * @param sessionProvider
@@ -72,8 +70,7 @@ public abstract class Registry {
    * @throws RepositoryException
    */
   public abstract void recreateEntry(SessionProvider sessionProvider,
-  		String groupName, RegistryEntry entry) throws RepositoryConfigurationException,
-  		RepositoryException;
+  		String groupName, RegistryEntry entry) throws RepositoryException;
 
   /**
    * @param sessionProvider
@@ -83,8 +80,7 @@ public abstract class Registry {
    * @throws RepositoryException
    */
   public abstract void removeEntry(SessionProvider sessionProvider,
-  		String groupName, String entryName) throws RepositoryConfigurationException,
-  		RepositoryException;
+  		String groupName, String entryName) throws RepositoryException;
   
   /**
    * Internal Node wrapper which ensures the node of "exo:registry" type inside

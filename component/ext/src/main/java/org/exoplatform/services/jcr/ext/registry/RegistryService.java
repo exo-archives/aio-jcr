@@ -8,20 +8,14 @@ package org.exoplatform.services.jcr.ext.registry;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.IOException;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import javax.jcr.ItemExistsException;
 import javax.jcr.ItemNotFoundException;
@@ -125,8 +119,7 @@ public class RegistryService extends Registry implements Startable {
    *      org.exoplatform.services.jcr.core.ManageableRepository)
    */
   public RegistryEntry getEntry(SessionProvider sessionProvider, String groupName,
-      String entryName) throws RepositoryConfigurationException,
-      RepositoryException {
+      String entryName) throws RepositoryException {
 
     String relPath = EXO_REGISTRY + "/" + groupName + "/" + entryName;
     Session session = session(sessionProvider, repositoryService.getCurrentRepository());
@@ -158,8 +151,7 @@ public class RegistryService extends Registry implements Startable {
    *      java.lang.String, org.w3c.dom.Document)
    */
   public void createEntry(SessionProvider sessionProvider,
-  		String groupName, RegistryEntry entry) throws
-  		RepositoryConfigurationException, RepositoryException {
+  		String groupName, RegistryEntry entry) throws RepositoryException {
   	
     String path = "/" + EXO_REGISTRY + "/" + groupName;
     try {
@@ -182,8 +174,7 @@ public class RegistryService extends Registry implements Startable {
    *      java.lang.String, java.lang.String)
    */
   public void removeEntry(SessionProvider sessionProvider, String groupName,
-      String entryName) throws
-      RepositoryException, RepositoryConfigurationException {
+      String entryName) throws RepositoryException {
 
     String relPath = EXO_REGISTRY + "/" + groupName + "/" + entryName;
     Node root = session(sessionProvider, repositoryService
@@ -205,8 +196,7 @@ public class RegistryService extends Registry implements Startable {
    * @throws TransformerException
    */
   public void recreateEntry(SessionProvider sessionProvider, String groupName,
-      RegistryEntry entry) throws
-      RepositoryConfigurationException, RepositoryException {
+      RegistryEntry entry) throws RepositoryException {
 
     removeEntry(sessionProvider, groupName, entry.getName());
     createEntry(sessionProvider, groupName, entry);
@@ -219,7 +209,8 @@ public class RegistryService extends Registry implements Startable {
    *      org.exoplatform.services.jcr.core.ManageableRepository)
    */
   public RegistryNode getRegistry(SessionProvider sessionProvider)
-      throws RepositoryConfigurationException, RepositoryException {
+      throws RepositoryException {
+    
     return new RegistryNode(session(sessionProvider,
         repositoryService.getCurrentRepository()).getRootNode()
         .getNode(EXO_REGISTRY));
