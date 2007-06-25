@@ -84,9 +84,8 @@ public class RepositoryServiceConfigurationImpl extends RepositoryServiceConfigu
         init(jcrConfigurationInputStream);
         jcrConfigurationInputStream.close();
       }
-    } catch (Exception e1) {
-      e1.printStackTrace();
-      throw new RepositoryConfigurationException("Fail to init from xml! Reason: " + e1);
+    } catch (Exception e) {
+      throw new RepositoryConfigurationException("Fail to init from xml! Reason: " + e, e); 
     }
   }
 
