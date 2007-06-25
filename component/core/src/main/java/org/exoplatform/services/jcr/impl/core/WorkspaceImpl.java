@@ -186,7 +186,7 @@ public class WorkspaceImpl implements Workspace {
     JCRPath destNodePath = session.getLocationFactory().parseAbsPath(destAbsPath);
     if (destNodePath.isIndexSetExplicitly())
       throw new RepositoryException(
-          "The relPath provided must not have an index on its final element. "
+          "The path provided must not have an index on its final element. "
               + destNodePath.getAsString(false));
     // get source node
     JCRPath srcNodePath = srcSession.getLocationFactory().parseAbsPath(srcAbsPath);
@@ -263,7 +263,7 @@ public class WorkspaceImpl implements Workspace {
     JCRPath destNodePath = session.getLocationFactory().parseAbsPath(destAbsPath);
     if (destNodePath.isIndexSetExplicitly())
       throw new RepositoryException(
-          "The relPath provided must not have an index on its final element. "
+          "The path provided must not have an index on its final element. "
               + destNodePath.getAsString(false));
     // get source node
     JCRPath srcNodePath = session.getLocationFactory().parseAbsPath(srcAbsPath);
