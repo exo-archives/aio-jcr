@@ -6,6 +6,8 @@
 package org.exoplatform.frameworks.webdavclient.common;
 
 
+import java.util.ArrayList;
+
 import junit.framework.TestCase;
 
 import org.exoplatform.frameworks.httpclient.Log;
@@ -13,6 +15,9 @@ import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.TestContext;
 import org.exoplatform.frameworks.webdavclient.TestUtils;
 import org.exoplatform.frameworks.webdavclient.commands.DavPropFind;
+import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
+import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
+import org.exoplatform.frameworks.webdavclient.properties.PropApi;
 
 /**
  * Created by The eXo Platform SARL
@@ -28,7 +33,7 @@ public class MimeTypesTest extends TestCase {
     try {
       // retrieve mimetype of file
       {
-        String srcPath = "/production/test";
+        String srcPath = "/production";
         
         DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
         davPropFind.setResourcePath(srcPath);
@@ -42,7 +47,37 @@ public class MimeTypesTest extends TestCase {
         int status = davPropFind.execute();
         Log.info("STATUS: " + status);
         Log.info("REPLY: \r\n" + new String(davPropFind.getResponseDataBuffer()));
-        TestUtils.logXML(davPropFind);
+        //TestUtils.logXML(davPropFind);
+        
+        Multistatus multistatus = davPropFind.getMultistatus();
+        ArrayList<ResponseDoc> responses = multistatus.getResponses();
+        for (int i = 0; i < responses.size(); i++) {
+          ResponseDoc curResponse = responses.get(i);
+          
+          Log.info("RESPONSE: " + curResponse);
+          Log.info("HREF: " + curResponse.getHref());
+          
+          PropApi property = curResponse.getProperty("jcr:mimeType");
+          Log.info("PROPERTY: " + property);
+          if (property != null) {
+            Log.info("NAME: " + property.getName());
+            Log.info("VALUE: " + property.getValue());
+            
+          }
+          
+          
+//          ArrayList<PropApi> properties = curResponse.getProperties();
+//          for (int j = 0; j < properties.size(); j++) {
+//            PropApi curProperty = properties.get(j);
+//            
+//            Log.info("PROPAPI: " + curProperty);
+//            
+//            Log.info("NAME: " + curProperty.getName());
+//            Log.info("VALUE: " + curProperty.getValue());
+//            Log.info("STATUS: " + curProperty.getStatus());
+//            
+//          }
+        }
       }
       
     } catch (Exception exc) {

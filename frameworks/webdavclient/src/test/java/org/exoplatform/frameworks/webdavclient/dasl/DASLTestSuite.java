@@ -18,6 +18,9 @@ public class DASLTestSuite extends TestSuite {
   public DASLTestSuite() {
     
   }
+  
+  public void testVoid() throws Exception {
+  }  
 
 }
 

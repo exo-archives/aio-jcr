@@ -7,6 +7,7 @@ package org.exoplatform.frameworks.webdavclient.documents;
 
 import java.util.ArrayList;
 
+import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.XmlUtil;
 import org.exoplatform.frameworks.webdavclient.properties.PropApi;
@@ -62,8 +63,10 @@ public class ResponseDoc {
       String localName = propertyNode.getLocalName();
       String nameSpace = propertyNode.getNamespaceURI();
       
-      if (localName != null && Const.Dav.NAMESPACE.equals(nameSpace)) {      
+      if (localName != null) {      
+      //if (localName != null && Const.Dav.NAMESPACE.equals(nameSpace)) {      
         PropApi curProp = PropManager.getPropertyByNode(propertyNode, status);
+        Log.info("CUR PROP: " + curProp);
         properties.add(curProp);
       }
       
@@ -79,7 +82,9 @@ public class ResponseDoc {
   public PropApi getProperty(String propertyName) {
     for (int i = 0; i < properties.size(); i++) {
       PropApi curProperty = properties.get(i);
+      Log.info(">> CUR PROPERTY: " + curProperty.getName());
       if (propertyName.equals(curProperty.getName())) {
+        Log.info("FINDED!!!!!!!!!!!!!!!!!!!!!!!!!!");
         return curProperty;
       }
     }

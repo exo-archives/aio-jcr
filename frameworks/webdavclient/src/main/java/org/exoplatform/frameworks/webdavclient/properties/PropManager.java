@@ -38,18 +38,24 @@ public class PropManager {
   
   public static PropApi getPropertyByNode(Node propertyNode, String httpStatus) {
     try {
-      String localName = propertyNode.getLocalName();
+      String nodeName = propertyNode.getLocalName();
+      if (!propertyNode.getNamespaceURI().equals(Const.Dav.NAMESPACE)) {
+        nodeName = propertyNode.getNodeName();
+      }
+      
+      Log.info("LOCAL NAME: " + nodeName);
       
       PropApi curProp = null;
 
       for (int i = 0; i < availableProperties.length; i++) {
-        if (localName.equals(availableProperties[i][0])) {
+        if (nodeName.equals(availableProperties[i][0])) {
           curProp = (PropApi)Class.forName(availableProperties[i][1]).newInstance();
           break;
         }
       }
+      
       if (curProp == null) {
-        curProp = new CommonProp(localName);
+        curProp = new CommonProp(nodeName);
       }
       curProp.setStatus(httpStatus);
       curProp.init(propertyNode);      

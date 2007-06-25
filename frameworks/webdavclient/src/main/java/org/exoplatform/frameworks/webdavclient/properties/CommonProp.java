@@ -5,6 +5,7 @@
 
 package org.exoplatform.frameworks.webdavclient.properties;
 
+import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.w3c.dom.Node;
 
@@ -25,6 +26,8 @@ public class CommonProp implements PropApi {
   
   public CommonProp(String propertyName) {
     this.propertyName = propertyName;
+    
+    Log.info(">>> CTRATE " + propertyName);
   }
   
   public void setStatus(String httpStatus) {
@@ -51,6 +54,7 @@ public class CommonProp implements PropApi {
   public boolean init(Node node) {
     if (status == Const.HttpStatus.OK) {
       propertyValue = node.getTextContent();
+      Log.info("INITED: " + propertyValue);
       return true;
     }
     return false;

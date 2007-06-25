@@ -14,7 +14,7 @@ package org.exoplatform.frameworks.webdavclient;
 
 public class TestContext {
 
-  public static final String HOST = "192.168.0.5";
+  public static final String HOST = "localhost";
   public static final int PORT = 8080;
   
   public static final String SERVLET_PATH = "/webdav/repository";
