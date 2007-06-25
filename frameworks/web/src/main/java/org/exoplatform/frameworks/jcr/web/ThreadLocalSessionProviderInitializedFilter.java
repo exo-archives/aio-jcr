@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import javax.jcr.Credentials;
+import javax.jcr.SimpleCredentials;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -48,7 +49,6 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
 
     authenticationService = (AuthenticationService) container
         .getComponentInstanceOfType(AuthenticationService.class);
-
     providerService = (ThreadLocalSessionProviderService) container
         .getComponentInstanceOfType(ThreadLocalSessionProviderService.class);
   }
@@ -63,22 +63,18 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
 
     String user = httpRequest.getRemoteUser();
     SessionProvider provider = providerService.getSessionProvider(null);
-    
     // is there SessionProvider in current thread?
     if (provider == null) {
       // initialize thread local SessionProvider
       if (user != null) {
-        Identity identity;
+        Identity identity = null;
         try {
           identity = authenticationService.getIdentityBySessionId(user);
         } catch (Exception e) {
           throw new ServletException(e);
         }
-        Iterator credentials = identity.getSubject().getPublicCredentials()
-            .iterator();
-        while (credentials.hasNext()) {
-          if (credentials instanceof Credentials)
-            provider = new SessionProvider((Credentials) credentials);
+        if(identity != null) {
+          provider =new SessionProvider(null);
         }
       }
     }
