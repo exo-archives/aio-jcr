@@ -141,6 +141,10 @@
     <type>org.exoplatform.services.organization.impl.mock.DummyOrganizationService</type>
   </component>
 
+  <component>
+    <type>org.exoplatform.services.jcr.impl.ext.action.SessionActionCatalog</type>
+  </component>
+
   <external-component-plugins>
     <target-component>org.exoplatform.services.naming.InitialContextInitializer</target-component>
       <component-plugin>
