@@ -459,7 +459,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       throw new RepositoryException("Can't add node to the path '"+relPath+"'");
     
     // Parent can be not the same as this node
- //   JCRPath itemPath = locationFactory.createJCRPath(getLocation(), relPath);
     JCRPath itemPath = locationFactory.parseRelPath(relPath);
     
     // Check if there no final index
@@ -1798,27 +1797,45 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       InvalidItemStateException {
 
     checkValid();
+    
+    if (JCRPath.THIS_RELPATH.equals(relPath))
+      throw new RepositoryException("Can't restore node to the path '" + relPath + "'");
 
-    NodeImpl node;
-    // JCRPath newPath = locationFactory.createJCRPath(getLocation(), relPath);
-    QPath newPath = locationFactory.createJCRPath(getLocation(), relPath).getInternalPath();
-    try {
-      node = (NodeImpl) dataManager.getItem(newPath, true);
-    } catch (PathNotFoundException e) {
-      NodeData nodeData = new TransientNodeData(newPath,
-          IdGenerator.generate(),
-          -1,
-          Constants.NT_BASE,
-          new InternalQName[0],
-          0,
-          nodeData().getIdentifier(),
-          nodeData().getACL());
+   
 
-      dataManager.update(ItemState.createAddedState(nodeData), true);
-      node = (NodeImpl) dataManager.getItem(newPath, true);
+    QPath qPath = locationFactory.parseRelPath(relPath).getInternalPath();
+    ItemData parentItem = null;
+     //Parent node and this is the same node
+    if(qPath.getDepth() == 0){
+      parentItem = dataManager.getItemData(nodeData(),new QPathEntry[0]);
+    }else{
+      parentItem = dataManager.getItemData(nodeData(), qPath.makeParentPath().getEntries());
     }
+    
+    
+    if (parentItem == null)
+      throw new PathNotFoundException("Parent not found for " + qPath.getAsString());
+    if (!parentItem.isNode())
+      throw new ConstraintViolationException("Parent item is not a node " + qPath.getAsString());
 
-    node.restore(version, removeExisting);
+    ItemImpl node = dataManager.getItem((NodeData) parentItem, new QPathEntry(qPath.getName(), 0),true);  
+    
+    if (node == null){
+      // add restored Node
+      NodeData restoreNode = TransientNodeData.createNodeData((NodeData) parentItem,
+          qPath.getName(),
+          Constants.NT_BASE);
+      restoreNode.setACL(nodeData().getACL());
+      dataManager.update(ItemState.createAddedState(restoreNode), true);
+
+      node = dataManager.getItemByIdentifier(restoreNode.getIdentifier(), true);
+    }
+     
+    if (!node.isNode())
+      throw new ConstraintViolationException("Item is not a node " + node.getPath());
+    
+    ((Node) node).restore(version, removeExisting);
+
   }
 
   public void restoreByLabel(String versionLabel, boolean removeExisting) throws VersionException,

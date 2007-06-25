@@ -212,7 +212,7 @@ public class SessionDataManager implements ItemDataConsumer {
     return item;
   }
   
-  ItemImpl getItem(NodeData parent, QPathEntry[] relPath, boolean pool) throws RepositoryException {
+  public ItemImpl getItem(NodeData parent, QPathEntry[] relPath, boolean pool) throws RepositoryException {
     ItemData itemData = getItemData(parent, relPath);
     if (itemData == null)
       return null;
