@@ -16,7 +16,7 @@
    <description/>
    <config-property-name>containerConfig</config-property-name>
    <config-property-type>java.lang.String</config-property-type>
-   <config-property-value>conf/exo-configuration.xml</config-property-value>
+   <!--<config-property-value>conf/exo-configuration.xml</config-property-value>-->
   </config-property>
  </resourceadapter>
 </connector>
