@@ -24,7 +24,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * 
  * @version $Id: TestExoJCR.java 12825 2007-02-14 14:18:51Z vetal_ok $
  */
-public class TestExoJCR extends JcrAPIBaseTest {
+public class TestPerformance extends JcrAPIBaseTest {
 
   private Node          testRoot                  = null;
 
@@ -440,25 +440,26 @@ public class TestExoJCR extends JcrAPIBaseTest {
     log.info("[15.1 getProperty short session              ] average time: " + time + "ms");
   }
 
-  protected File createBLOBTempFile(int sizeInKb) throws IOException {
-    return createBLOBTempFile("exo_jcr_test_temp_file_", sizeInKb);
-  }
-
-  protected File createBLOBTempFile(String prefix, int sizeInKb) throws IOException {
-    // create test file
-    int BUFFER_SIZE = 1024; // 1KB
-    byte SYMBOL = 65; // symbol A
-    byte[] data = new byte[BUFFER_SIZE]; // 1KB
-    Arrays.fill(data, (byte) SYMBOL); // symbol A
-    File testFile = File.createTempFile(prefix, ".tmp");
-    FileOutputStream tempOut = new FileOutputStream(testFile);
-    for (int i = 0; i < sizeInKb; i++) {
-      tempOut.write(data);
-    }
-    tempOut.close();
-    testFile.deleteOnExit(); // delete on test exit
-    log.info("Temp file created: " + testFile.getAbsolutePath() + " size: " + testFile.length());
-    return testFile;
-  }
+  // jcr 1.5 case
+//  protected File createBLOBTempFile(int sizeInKb) throws IOException {
+//    return createBLOBTempFile("exo_jcr_test_temp_file_", sizeInKb);
+//  }
+//
+//  protected File createBLOBTempFile(String prefix, int sizeInKb) throws IOException {
+//    // create test file
+//    int BUFFER_SIZE = 1024; // 1KB
+//    byte SYMBOL = 65; // symbol A
+//    byte[] data = new byte[BUFFER_SIZE]; // 1KB
+//    Arrays.fill(data, (byte) SYMBOL); // symbol A
+//    File testFile = File.createTempFile(prefix, ".tmp");
+//    FileOutputStream tempOut = new FileOutputStream(testFile);
+//    for (int i = 0; i < sizeInKb; i++) {
+//      tempOut.write(data);
+//    }
+//    tempOut.close();
+//    testFile.deleteOnExit(); // delete on test exit
+//    log.info("Temp file created: " + testFile.getAbsolutePath() + " size: " + testFile.length());
+//    return testFile;
+//  }
 
 }
