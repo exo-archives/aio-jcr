@@ -96,7 +96,8 @@
               <artifactId>exo.jcr.applications.fckeditor</artifactId>
               <bundleFileName>fckeditor.war</bundleFileName>
               <contextRoot>fckeditor</contextRoot>
-              <excluded>true</excluded>
+              <!--<excluded>true</excluded>-->
+              <excluded>false</excluded>
             </webModule>
           </modules>
         </configuration>
