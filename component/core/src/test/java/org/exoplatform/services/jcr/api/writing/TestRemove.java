@@ -176,11 +176,10 @@ public class TestRemove extends JcrAPIBaseTest{
     }
 
     // allowed here
-    testNode.remove();
     n2.remove();
     n1.remove();
+    testNode.remove();
     session.save();
-
   }
 
   

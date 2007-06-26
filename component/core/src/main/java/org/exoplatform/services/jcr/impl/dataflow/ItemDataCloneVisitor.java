@@ -29,6 +29,8 @@ import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
  * <code>List&lt;ItemState&gt;</code> for clone new nodes and their
  * properties and <b>ItemDeletedExistingStates</b> list for remove existing nodes 
  * if <code>removeExisting</code> is true.
+ * 
+ * @version $Id$
  */
 public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
 
@@ -64,7 +66,7 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
    */
   public ItemDataCloneVisitor(NodeData parent, InternalQName dstNodeName,
       NodeTypeManagerImpl nodeTypeManager, SessionDataManager srcDataManager,
-      SessionDataManager dstDataManager, boolean removeExisting,SessionChangesLog changes) {
+      SessionDataManager dstDataManager, boolean removeExisting, SessionChangesLog changes) {
     super(parent, dstNodeName, nodeTypeManager, srcDataManager, false);
 
     this.dstDataManager = dstDataManager;

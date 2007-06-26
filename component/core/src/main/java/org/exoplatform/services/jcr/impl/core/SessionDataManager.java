@@ -5,11 +5,11 @@
 
 package org.exoplatform.services.jcr.impl.core;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -879,30 +879,72 @@ public class SessionDataManager implements ItemDataConsumer {
    */
   void rollback(ItemData item) throws InvalidItemStateException, RepositoryException {
 
-    // cleaning session changes log (new and updated items)
-    changesLog.remove(item.getQPath());
-
-    List<ItemImpl> rolledBack = new ArrayList<ItemImpl>();
-    // backing all invalidated items (acquired ItemImpl instances) to their
-    // persisted data
-    for (ItemImpl removed : invalidated) {
+    // remove from changes log (Session pending changes)
+    PlainChangesLog slog = changesLog.pushLog(item.getQPath());
+    SessionChangesLog changes = new SessionChangesLog(slog.getAllStates(), session.getId()); 
+    
+    for (Iterator<ItemImpl> removedIter = invalidated.iterator(); removedIter.hasNext();) {
+      ItemImpl removed = removedIter.next();
+      
+      // reload item data
       QPath removedPath = removed.getLocation().getInternalPath();
-      if (removedPath.equals(item.getQPath()) || removedPath.isDescendantOf(item.getQPath(), false)) {
-        NodeData parent = (NodeData) transactionableManager.getItemData(item.getParentIdentifier());
-        if (parent != null) {
-          ItemData persisted = transactionableManager.getItemData(parent,
-              removedPath.getEntries()[removedPath.getDepth()]);
-          if (persisted != null) {
-            removed.loadData(persisted);
-            rolledBack.add(removed);
-          }
-        } // else it's transient item
-      }
+      ItemState rstate = changes.getItemState(removedPath);
+      NodeData parent = (NodeData) transactionableManager.getItemData(rstate.getData().getParentIdentifier());
+      if (parent != null) {
+        ItemData persisted = transactionableManager.getItemData(parent, removedPath.getEntries()[removedPath.getDepth()]);
+        //transactionableManager.getItemData("683be6b2c0a8000301403290318298fa")
+        if (persisted != null)
+          removed.loadData(persisted);
+      } // else it's transient item
+      
+      removedIter.remove();
     }
-
-    for (ItemImpl rolledBackNode : rolledBack) {
-      invalidated.remove(rolledBackNode);
-    }
+    
+//    for (ItemState change: changes.getAllStates()) {
+//      if (change.isDeleted()) {
+//        // if the change item is pooled - reload it from persistent storage
+//        for (Iterator<ItemImpl> removedIter = invalidated.iterator(); removedIter.hasNext();) {
+//          ItemImpl removed = removedIter.next();
+//          
+//          // reload item data
+//          QPath removedPath = removed.getLocation().getInternalPath();
+//          NodeData parent = (NodeData) transactionableManager.getItemData(change.getData().getParentIdentifier());
+//          if (parent != null) {
+//            ItemData persisted = transactionableManager.getItemData(parent, removedPath.getEntries()[removedPath.getDepth()]);
+//            transactionableManager.getItemData("683be6b2c0a8000301403290318298fa")
+//            if (persisted != null)
+//              removed.loadData(persisted);
+//          } // else it's transient item
+//          
+//          removedIter.remove();
+//        }
+//      }
+//    }
+    
+    // TODO [PN] clean it
+//    List<ItemImpl> rolledBack = new ArrayList<ItemImpl>();
+//    // backing all invalidated items (acquired ItemImpl instances) to their persisted data
+//    for (ItemImpl removed : invalidated) {
+//      QPath removedPath = removed.getLocation().getInternalPath();
+//      if (removedPath.equals(item.getQPath()) || removedPath.isDescendantOf(item.getQPath(), false)) {
+//        NodeData parent = (NodeData) transactionableManager.getItemData(item.getParentIdentifier());
+//        if (parent != null) {
+//          ItemData persisted = transactionableManager.getItemData(parent,
+//              removedPath.getEntries()[removedPath.getDepth()]);
+//          if (persisted != null) {
+//            removed.loadData(persisted);
+//            rolledBack.add(removed);
+//          }
+//        } // else it's transient item
+//      }
+//    }
+//
+//    for (ItemImpl rolledBackNode : rolledBack) {
+//      invalidated.remove(rolledBackNode);
+//    }
+    
+    // cleaning session changes log (new and updated items)
+//    changesLog.remove(item.getQPath());
   }
 
   /*

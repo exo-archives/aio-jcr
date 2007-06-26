@@ -34,6 +34,9 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
     super(sessionId);
   }
   
+  public SessionChangesLog(List<ItemState> items, String sessionId) {
+    super(items, sessionId);
+  }
 
   /**
    * Removes the item at the rootPath and all descendants from the log
@@ -124,7 +127,6 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
     }
     return states;
   }
-
   
   /**
    * creates new changes log with rootPath and its descendants of 
@@ -138,6 +140,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
     remove(rootPath);
     return cLog;
   }
+  
   public ItemState getItemState(NodeData parentData,QPathEntry name) throws IllegalPathException {
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i>=0; i--) {
