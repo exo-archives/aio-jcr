@@ -168,7 +168,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
    * 
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getReferencesData(String)
    */
-  public List<PropertyData> getReferencesData(final String identifier)
+  public List<PropertyData> getReferencesData(final String identifier, boolean skipVersionStorage)
       throws RepositoryException {
     
     final WorkspaceStorageConnection con = dataContainer.openConnection();
@@ -177,9 +177,11 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
       final List<PropertyData> refProps = new ArrayList<PropertyData>();
       for (int i = 0; i < allRefs.size(); i++) {
         PropertyData ref = allRefs.get(i);
-        if (!ref.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH, false)) {
+        if (skipVersionStorage) {
+          if (!ref.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH, false))
+            refProps.add(ref);
+        } else
           refProps.add(ref);
-        }
       }
       return refProps;
     } finally {

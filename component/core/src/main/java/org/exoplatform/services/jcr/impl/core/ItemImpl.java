@@ -323,14 +323,41 @@ public abstract class ItemImpl implements Item {
           node.getPrimaryTypeName(), 
           node.getMixinTypeNames())) {
   
+        PropertyData vhpd = (PropertyData) dataManager.getItemData( // getTransactManager().
+            node, new QPathEntry(Constants.JCR_VERSIONHISTORY, 1));
+        String vhID;
+        try {
+          vhID = new String(vhpd.getValues().get(0).getAsByteArray());
+        } catch (IOException e) {
+          throw new RepositoryException(e); 
+        }
+
+        dataManager.removeVersionHistory(vhID, null, data.getQPath());
+      }
+    }
+  }
+  
+  @Deprecated
+  protected void removeVersionable_old() throws RepositoryException, ConstraintViolationException, VersionException {
+    if (isNode()) {
+      NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
+      NodeData node = (NodeData) data; 
+      if (ntManager.isNodeType(Constants.MIX_VERSIONABLE, 
+          node.getPrimaryTypeName(), 
+          node.getMixinTypeNames())) {
+  
         // mix:versionable
         // we have to be sure that any versionable node somewhere in repository
         // doesn't refers to a VH of the node being deleted.
         RepositoryImpl rep = (RepositoryImpl) session.getRepository();
         boolean doRemoveVH = true;
+        SessionImpl sysSession = session; 
         for (String wsName: rep.getWorkspaceNames()) {
           if (!session.getWorkspace().getName().equals(wsName)) {
             SessionImpl wsSession = (SessionImpl) rep.login(session.getCredentials(), wsName);
+            if (session.getRepository().getSystemWorkspaceName().equals(wsName)) {
+              sysSession = wsSession;
+            }
             try {
               if (wsSession.getTransientNodesManager().getItemData(node.getIdentifier()) != null) {
                 doRemoveVH = false;
@@ -347,13 +374,27 @@ public abstract class ItemImpl implements Item {
             // look up in transact manager (i.e. in persistence or in changes was accepted to commit in XE tr.)
             PropertyData vhpd = (PropertyData) dataManager.getItemData( // getTransactManager().
                 node, new QPathEntry(Constants.JCR_VERSIONHISTORY, 1));
-            String vhUUID = new String(vhpd.getValues().get(0).getAsByteArray()); 
+            String vhID = new String(vhpd.getValues().get(0).getAsByteArray());
+
+            NodeData vhnode = (NodeData) dataManager.getItemData(vhID);
             
-            NodeData vhnode = (NodeData) dataManager.getItemData(vhUUID);
             if (vhnode == null)
               throw new RepositoryException("Version history is not found. Versionable node " 
                   + node.getQPath().getAsString() + ", uuid: " + node.getIdentifier());
                         
+            // Check if this VH isn't contained in another one as a child history, 
+            // ask ALL references incl. properties from version storage
+            List<PropertyData> srefs = sysSession.getTransientNodesManager().getReferencesData(vhID, false);
+            for (PropertyData sref: srefs) {
+              if (sref.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH, false)
+                  && !sref.getQPath().isDescendantOf(vhnode.getQPath(), false))
+                // has a reference to the VH in version storage, 
+                // it's a REFERENCE property jcr:childVersionHistory of nt:versionedChild
+                // i.e. this VH is a child history in an another history.
+                // We can't remove this VH now.
+                return;
+            }
+            
             dataManager.delete(vhnode, data.getQPath());
           } catch(IOException e) {
             throw new RepositoryException(e);
@@ -576,7 +617,7 @@ public abstract class ItemImpl implements Item {
       
       // check ref changes
       for (NodeData refNode : refNodes) {
-        List<PropertyData> nodeRefs = dataManager.getReferencesData(refNode.getIdentifier());
+        List<PropertyData> nodeRefs = dataManager.getReferencesData(refNode.getIdentifier(), true);
         for (PropertyData refProp : nodeRefs) {
           // if ref property is deleted in this session
           ItemState refState = dataManager.getChangesLog().getItemState(refProp.getIdentifier());

@@ -73,18 +73,6 @@ public class PersistedNodeData extends PersistedItemData implements NodeData {
     this.acl = acl;
   }
   
-//  /* (non-Javadoc)
-//   * @see org.exoplatform.services.jcr.datamodel.NodeData#getOrderDirection()
-//   */
-//  public int getOrderDirection() {
-//    return 0;
-//  }
-  
-//  public boolean isOrdered() {
-//    // For persisted node data - not ordered always 
-//    return getOrderDirection() != 0;
-//  }
-  
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.ItemData#accept(org.exoplatform.services.jcr.dataflow.ItemDataVisitor)
    */

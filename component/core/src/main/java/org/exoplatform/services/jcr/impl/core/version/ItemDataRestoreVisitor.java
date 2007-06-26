@@ -48,7 +48,7 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
 
-  private static Log log = ExoLogger.getLogger("jcr.ItemDataRestoreVisitor");
+  private final Log log = ExoLogger.getLogger("jcr.ItemDataRestoreVisitor");
 
   protected final boolean removeExisting;
   protected final Stack<NodeDataContext> parents = new Stack<NodeDataContext>();

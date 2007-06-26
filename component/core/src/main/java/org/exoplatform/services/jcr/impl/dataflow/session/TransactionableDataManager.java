@@ -61,19 +61,8 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
   
   // --------------- ItemDataConsumer --------
   
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getACL(org.exoplatform.services.jcr.datamodel.InternalQPath)
-   */
-//  public AccessControlList getACL(QPath path) throws RepositoryException {
-//    ItemData data = getItemData(path);
-//    if(data == null || !data.isNode()) 
-//      return storageDataManager.getACL(path);
-//    else
-//      return ((NodeData)data).getACL();
-//  }
-  
   public AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException {
-    return storageDataManager.getACL(parent, name);
+    return storageDataManager.getACL(parent, name); // TODO
     //throw new RepositoryException("getACL() is not usable");
   }
 
@@ -128,26 +117,6 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
     else
       return storageDataManager.getItemData(parentData,name);
   }
-  
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)
-   */
-  @Deprecated
-//  public ItemData getItemData(QPath path) throws RepositoryException {
-//    //throw new RepositoryException("getItemData(QPath path) is deprecated");
-//    
-//    ItemData data = null;
-//    if(txStarted()) {
-//      ItemState state = transactionLog.getItemState(path);
-//      if(state != null)
-//        data = state.getData();
-//    }
-//    if(data != null)
-//      return data;
-//    else
-//      return storageDataManager.getItemData(path);
-//      //throw new RepositoryException("getItemData(QPath path) is deprecated");
-//  }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(java.lang.String)
@@ -168,8 +137,8 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getReferencesData(java.lang.String)
    */
-  public List<PropertyData> getReferencesData(String identifier) throws RepositoryException {
-    return storageDataManager.getReferencesData(identifier);
+  public List<PropertyData> getReferencesData(String identifier, boolean skipVersionStorage) throws RepositoryException {
+    return storageDataManager.getReferencesData(identifier, skipVersionStorage);
   }
   
   // ---------------  --------
@@ -181,7 +150,6 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
     log.debug("tx start() "+this+" txStarted(): "+txStarted());
     if(!txStarted())
       transactionLog = new TransactionChangesLog();
-//      transactionLog = new SessionChangesLog(session.getId());
   }
   
   /* (non-Javadoc)

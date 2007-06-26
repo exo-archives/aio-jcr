@@ -60,11 +60,13 @@ public interface ItemDataConsumer {
   List <PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException;
   
   /**
-   * @param identifier
-   * @return
+   * @param identifier - referenceable id
+   * @param skipVersionStorage - if true references will be returned according the JSR-170 spec, 
+   * without items from version storage
+   * @return - list of REFERENCE properties
    * @throws RepositoryException
    */
-  List <PropertyData> getReferencesData(String identifier) throws RepositoryException;
+  List <PropertyData> getReferencesData(String identifier, boolean skipVersionStorage) throws RepositoryException;
   
   /**
    * @param path

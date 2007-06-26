@@ -155,7 +155,6 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i>=0; i--) {
       ItemState state = allStates.get(i); 
-      // [PN] 04.01.07 skip orderable item state
       if (!state.isOrderable() && state.getData().getIdentifier().equals(itemIdentifier))
         return state;
     }

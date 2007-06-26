@@ -146,7 +146,7 @@ public class TestInitializingVersionHistory extends JcrAPIBaseTest {
     try {
       // [PN] 02.08.06
       // versionStorage's children should have READ permission for all
-      node = (Node)session1.getItem("/jcr:system/jcr:versionStorage/" + node.getUUID() + "/1");
+      node = (Node)session1.getItem("/jcr:system/jcr:versionStorage/" + node.getVersionHistory().getUUID() + "/1");
       //fail("AccessDeniedException should have been thrown");
     } catch (AccessDeniedException e) {
       fail("versionStorage's children should have READ permission for all");

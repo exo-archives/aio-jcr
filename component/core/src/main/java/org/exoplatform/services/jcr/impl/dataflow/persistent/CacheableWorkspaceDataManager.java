@@ -149,8 +149,8 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspaceDataManager#getReferencesData(java.lang.String)
    */
-  public List<PropertyData> getReferencesData(String identifier) throws RepositoryException {
-    return super.getReferencesData(identifier);
+  public List<PropertyData> getReferencesData(String identifier, boolean skipVersionStorage) throws RepositoryException {
+    return super.getReferencesData(identifier, skipVersionStorage);
   }
   
   public WorkspaceStorageCache getCache() {

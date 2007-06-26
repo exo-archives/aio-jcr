@@ -236,7 +236,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
 
     // check references. 
     // Note: References from /jcr:system/jcr:versionStorage never included to getReferences!
-    List<PropertyData> refs = dataManager.getReferencesData(version.getInternalIdentifier());
+    List<PropertyData> refs = dataManager.getReferencesData(version.getInternalIdentifier(), true);
     if(refs.size() > 0)
       throw new ReferentialIntegrityException(
           "There are Reference property pointed to this Version " + refs.get(0).getQPath().getAsString());

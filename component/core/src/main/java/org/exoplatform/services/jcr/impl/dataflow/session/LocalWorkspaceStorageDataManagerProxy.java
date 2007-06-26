@@ -21,7 +21,6 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -111,26 +110,14 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.dataflow.session.WorkspaceStorageDataManagerProxy#getReferencesData(java.lang.String)
    */
-  public List<PropertyData> getReferencesData(String identifier)
+  public List<PropertyData> getReferencesData(String identifier, boolean skipVersionStorage)
       throws RepositoryException {
-    return copyProperties(storageDataManager.getReferencesData(identifier));
+    return copyProperties(storageDataManager.getReferencesData(identifier, skipVersionStorage));
   }
-
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getACL(org.exoplatform.services.jcr.datamodel.InternalQPath)
-   */
-//  public AccessControlList getACL(QPath path)
-//      throws RepositoryException {
-//    AccessControlList acl = storageDataManager.getACL(path);
-//    return new AccessControlList(acl.getOwner(), acl.getPermissionEntries());
-//  }
 
   public AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException {
     
     throw new RepositoryException("getACL() is not usable");
-    
-//    AccessControlList acl = storageDataManager.getACL(parent, name);
-//    return new AccessControlList(acl.getOwner(), acl.getPermissionEntries());
   }
   
   /* (non-Javadoc)

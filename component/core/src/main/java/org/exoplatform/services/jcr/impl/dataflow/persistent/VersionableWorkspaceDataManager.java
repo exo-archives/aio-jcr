@@ -109,28 +109,6 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
     return null;
   }
 
-  public synchronized void save_old(CompositeChangesLog/*ItemStateChangesLog*/ changesLog) throws RepositoryException, InvalidItemStateException {
-    List<ItemState> changes = changesLog.getAllStates();
-    List<ItemState> versionChanges = new ArrayList<ItemState>();
-    List<ItemState> nonVersionChanges = new ArrayList<ItemState>();
-
-    if (log.isDebugEnabled())
-      log.debug("save ver: " + changesLog.dump());
-
-    for (int i = 0; i < changes.size(); i++) {
-      if (isSystemDescendant(changes.get(i).getData().getQPath()) && !this.equals(versionDataManager))
-        versionChanges.add(changes.get(i));
-      else
-        nonVersionChanges.add(changes.get(i));
-    }
-
-    if (!versionChanges.isEmpty())
-      versionDataManager.save(new PlainChangesLogImpl(versionChanges, changesLog.getSystemId()));
-
-    if (!nonVersionChanges.isEmpty())
-      super.save(new PlainChangesLogImpl(nonVersionChanges, changesLog.getSystemId()));
-  }
-  
   public void save(CompositeChangesLog changesLog) throws RepositoryException, InvalidItemStateException {
     
     ChangesLogIterator logIterator = changesLog.getLogIterator();

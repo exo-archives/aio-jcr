@@ -22,7 +22,7 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.version.FrozenNodeInitializer;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
-import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
@@ -115,6 +115,12 @@ public class BaseVersionImplTest extends JcrImplBaseTest {
   protected NodeTypeManagerImpl ntManager; 
   
   protected FrozenNodeInitializer visitor;
+  
+  protected class TestTransientValueData extends TransientValueData {
+    protected TestTransientValueData(byte[] data, int orderNumb) {
+      super(data, orderNumb);
+    }
+  }
 
   public void setUp() throws Exception {
     super.setUp();
@@ -140,21 +146,21 @@ public class BaseVersionImplTest extends JcrImplBaseTest {
     propertyUuid312 = IdGenerator.generate();
     
     stringDataMultivalued = new ArrayList<ValueData>(); 
-    stringDataMultivalued.add(new ByteArrayPersistedValueData("property data 1".getBytes(), 0));
-    stringDataMultivalued.add(new ByteArrayPersistedValueData("property data 2".getBytes(), 1));
-    stringDataMultivalued.add(new ByteArrayPersistedValueData("property data 3".getBytes(), 2));
+    stringDataMultivalued.add(new TestTransientValueData("property data 1".getBytes(), 0));
+    stringDataMultivalued.add(new TestTransientValueData("property data 2".getBytes(), 1));
+    stringDataMultivalued.add(new TestTransientValueData("property data 3".getBytes(), 2));
     
     stringDataSinglevalued = new ArrayList<ValueData>(); 
-    stringDataSinglevalued.add(new ByteArrayPersistedValueData("property data".getBytes(), 0));
+    stringDataSinglevalued.add(new TestTransientValueData("property data".getBytes(), 0));
     
     longDataSinglevalued = new ArrayList<ValueData>(); 
-    longDataSinglevalued.add(new ByteArrayPersistedValueData(new Long(123456l).toString().getBytes(), 0));
+    longDataSinglevalued.add(new TestTransientValueData(new Long(123456l).toString().getBytes(), 0));
     
     binaryDataSinglevalued = new ArrayList<ValueData>(); 
-    binaryDataSinglevalued.add(new ByteArrayPersistedValueData("property binary data".getBytes(), 0));
+    binaryDataSinglevalued.add(new TestTransientValueData("property binary data".getBytes(), 0));
     
     versionedVersionHistoryData = new ArrayList<ValueData>(); 
-    versionedVersionHistoryData.add(new ByteArrayPersistedValueData(versionedVersionHistoryUuid.getBytes(), 0));
+    versionedVersionHistoryData.add(new TestTransientValueData(versionedVersionHistoryUuid.getBytes(), 0));
     
     changesLog = new SessionChangesLog(session.getId());
     

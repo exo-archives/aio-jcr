@@ -219,7 +219,8 @@ public class BaseVersionTest extends JcrAPIBaseTest {
       nonVersionableNode.remove();
       root.save();
     } catch(InvalidItemStateException e) {
-      log.error("Error of tear down: " + e);    }
+      log.error("Error of tear down: " + e);    
+    }
     
     super.tearDown();
   }

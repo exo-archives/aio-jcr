@@ -51,7 +51,7 @@ public abstract class ItemDataTraversingVisitor implements ItemDataVisitor {
       if (maxLevel == -1 || currentLevel < maxLevel) {
         currentLevel++;
         for(PropertyData data : dataManager.getChildPropertiesData(node))
-          data.accept(this); // data.getQPath().getAsString()
+          data.accept(this); 
         for(NodeData data : dataManager.getChildNodesData(node))
           data.accept(this);
         currentLevel--;

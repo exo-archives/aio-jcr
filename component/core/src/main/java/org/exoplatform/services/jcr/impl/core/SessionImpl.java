@@ -249,7 +249,7 @@ public class SessionImpl implements Session, NamespaceAccessor {
    * 
    * @see javax.jcr.Session#getRepository()
    */
-  public Repository getRepository() {
+  public RepositoryImpl getRepository() {
     return repository;
   }
 

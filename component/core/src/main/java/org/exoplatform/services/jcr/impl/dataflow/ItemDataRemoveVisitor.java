@@ -130,7 +130,7 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
   
   protected void validateReferential(NodeData node) throws RepositoryException {
     
-    List<PropertyData> refs = dataManager.getReferencesData(node.getIdentifier());
+    List<PropertyData> refs = dataManager.getReferencesData(node.getIdentifier(), true);
     
     // A ReferentialIntegrityException will be thrown on save if this item or an item in its subtree 
     // is currently the target of a REFERENCE property located in this workspace but outside 

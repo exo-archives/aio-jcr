@@ -191,7 +191,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
         rootItem,
         new QPathEntry(Constants.JCR_VERSIONSTORAGE, 1)); //  Constants.JCR_VERSION_STORAGE_PATH
     
-    InternalQName vhName = new InternalQName(null, versionable.getIdentifier());
+    InternalQName vhName = new InternalQName(null, versionHistoryIdentifier);
 
     TransientNodeData versionHistory = TransientNodeData.createNodeData(versionStorageData,
         vhName,

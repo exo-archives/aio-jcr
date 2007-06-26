@@ -71,7 +71,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * @param value
    * @param orderNumber
    */
-  private TransientValueData(byte[] value, int orderNumber) {
+  protected TransientValueData(byte[] value, int orderNumber) {
     super(orderNumber);
     this.data = value;
     this.deleteSpoolFile = true;
@@ -84,7 +84,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * 
    * @param orderNumber
    */
-  private TransientValueData(InputStream stream, int orderNumber) {
+  protected TransientValueData(InputStream stream, int orderNumber) {
     super(orderNumber);
     this.tmpStream = stream;
     this.deleteSpoolFile = true;
