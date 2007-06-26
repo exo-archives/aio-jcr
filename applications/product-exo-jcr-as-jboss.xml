@@ -61,6 +61,13 @@
     </dependency>
 
     <dependency>
+		      <groupId>org.exoplatform.jcr</groupId>
+		      <artifactId>exo.jcr.component.cifs</artifactId>
+		      <version>${org.exoplatform.jcr.version}</version>
+		      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.rmi</artifactId>
       <version>${org.exoplatform.jcr.version}</version>
@@ -80,6 +87,8 @@
       <version>${org.exoplatform.jcr.version}</version>
       <scope>runtime</scope>
     </dependency>
+
+
 
   </dependencies>
 
@@ -107,23 +116,29 @@
         <artifactId>maven-antrun-plugin</artifactId>
         <configuration>
           <tasks>
-            <delete dir="${exo.projects.directory.working}/exo-tomcat"
+            <delete dir="${exo.projects.directory.working}/exo-jboss"
               includeEmptyDirs="true" quiet="yes" />
-            <copy todir="${exo.projects.directory.working}/exo-tomcat"
+            <copy todir="${exo.projects.directory.working}/exo-jboss"
               verbose="false" overwrite="true">
               <fileset
-                dir="${exo.projects.directory.dependencies}/${exo.projects.app.tomcat.version}" />
+                dir="${exo.projects.directory.dependencies}/${exo.projects.app.jboss.version}" />
             </copy>
             <copy
-              todir="${exo.projects.directory.working}/exo-tomcat/common/lib/"
+              todir="${exo.projects.directory.working}/exo-jboss/server/default/deploy/exoplatform.sar/"
               verbose="true" overwrite="true">
               <fileset
                 dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/"
                 excludes="**/*.war" />
             </copy>
-            <copy todir="${exo.projects.directory.working}/exo-tomcat/"
+            <copy todir="${exo.projects.directory.working}/exo-jboss/server/default/deploy/"
               verbose="true" overwrite="true">
-              <fileset dir="${basedir}/product-patches/as/tomcat5/" />
+              <fileset dir="${basedir}/product-patches/as/jboss/"
+              excludes="*.xml" />
+            </copy>
+            <copy todir="${exo.projects.directory.working}/exo-jboss/"
+			              verbose="true" overwrite="true">
+			              <fileset dir="${basedir}/product-patches/as/jboss/"
+			              includes="*.xml" />
             </copy>
             <move
               todir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
@@ -141,7 +156,7 @@
               </mapper>
             </move>
             <copy
-              todir="${exo.projects.directory.working}/exo-tomcat/webapps/"
+              todir="${exo.projects.directory.working}/exo-jboss/server/default/deploy/exoplatform.sar"
               verbose="true" flatten="true" overwrite="true">
               <fileset
                 dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/"
@@ -150,8 +165,14 @@
               </fileset>
             </copy>
             <delete
-              dir="${exo.projects.directory.working}/exo-tomcat/webapps/webdav/"
-              includeEmptyDirs="true" quiet="yes" />
+              file="${exo.projects.directory.working}/exo-jboss/server/default/lib/hsqldb.jar"/>
+            <copy
+              todir="${exo.projects.directory.working}/exo-jboss/bin/">
+              <fileset
+                dir="${basedir}/product-patches/as/">
+                <include name="*.dll" />
+              </fileset>
+            </copy>
           </tasks>
         </configuration>
       </plugin>
