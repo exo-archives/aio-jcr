@@ -336,7 +336,7 @@ public class WorkspaceImpl implements Workspace {
       VersionException, AccessDeniedException, PathNotFoundException, ItemExistsException,
       RepositoryException {
 
-    PlainChangesLog changes = new PlainChangesLogImpl(session.getId());
+    SessionChangesLog changes = new SessionChangesLog(session.getId());
 
     clone(srcWorkspace, srcAbsPath, destAbsPath, removeExisting, changes);
 
@@ -344,7 +344,7 @@ public class WorkspaceImpl implements Workspace {
   }
 
   protected void clone(String srcWorkspace, String srcAbsPath, String destAbsPath,
-      boolean removeExisting, PlainChangesLog changes) throws NoSuchWorkspaceException, ConstraintViolationException,
+      boolean removeExisting, SessionChangesLog changes) throws NoSuchWorkspaceException, ConstraintViolationException,
       VersionException, AccessDeniedException, PathNotFoundException, ItemExistsException,
       RepositoryException {
 
@@ -358,7 +358,7 @@ public class WorkspaceImpl implements Workspace {
       throw new RepositoryException("DestPath should not contain an index " + destAbsPath);
 
     // find src node
-    SessionImpl srcSession = ((RepositoryImpl) session.getRepository()).login(session
+    SessionImpl srcSession = session.getRepository().login(session
         .getCredentials(), srcWorkspace);
 
     // get source node
@@ -389,7 +389,14 @@ public class WorkspaceImpl implements Workspace {
         .getItem((NodeData) destParentNode.getData(),
             new QPathEntry(destNodePath.getInternalPath().getName(), 0),
             true);
-    if (destNode != null) {
+    
+    ItemState changesItemState = null;
+
+    if (changes != null) {
+      changesItemState = changes.getItemState(destNodePath.getInternalPath());
+    }
+    
+    if (destNode != null && !(changesItemState != null && changesItemState.isDeleted())) {
       if (!destNode.getDefinition().allowsSameNameSiblings()) {
         // Throw exception
         String msg = "A node with name (" + destAbsPath + ") is already exists.";
@@ -406,11 +413,13 @@ public class WorkspaceImpl implements Workspace {
       throw new LockException("Source parent node " + srcNode.getPath() + " is     locked ");
 
     ItemDataCloneVisitor initializer = new ItemDataCloneVisitor((NodeData) destParentNode.getData(),
+
         destNodePath.getName().getInternalName(),
         getNodeTypeManager(),
         srcSession.getTransientNodesManager(),
         session.getTransientNodesManager(),
-        removeExisting);
+        removeExisting,
+        changes);
     srcNode.getData().accept(initializer);
 
     // removeing existing nodes and properties

@@ -20,6 +20,7 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.ItemImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
+import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 
 /**
  * The class visits each node, all subnodes and all of them properties. It
@@ -34,13 +35,15 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
   private boolean                    removeExisting;
 
   /**
-   * The list of deleded existing item states
+   * The list of deleted existing item states
    */
   protected List<ItemState>          itemDeletedExistingStates = new ArrayList<ItemState>();
 
   protected final SessionDataManager dstDataManager;
 
   private boolean                    deletedExistingPropery    = false;
+
+  private final SessionChangesLog changes;
 
   /**
    * Creates an instance of this class.
@@ -61,28 +64,41 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
    */
   public ItemDataCloneVisitor(NodeData parent, InternalQName dstNodeName,
       NodeTypeManagerImpl nodeTypeManager, SessionDataManager srcDataManager,
-      SessionDataManager dstDataManager, boolean removeExisting) {
+      SessionDataManager dstDataManager, boolean removeExisting,SessionChangesLog changes) {
     super(parent, dstNodeName, nodeTypeManager, srcDataManager, false);
 
     this.dstDataManager = dstDataManager;
     this.removeExisting = removeExisting;
+    this.changes = changes;
   }
 
   @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
 
-    boolean isMixReferenceable = ntManager.isNodeType(Constants.MIX_REFERENCEABLE, node.getPrimaryTypeName(), node.getMixinTypeNames());
+    boolean isMixReferenceable = ntManager.isNodeType(Constants.MIX_REFERENCEABLE, node
+        .getPrimaryTypeName(), node.getMixinTypeNames());
     deletedExistingPropery = false;
     if (isMixReferenceable) {
       String identifier = node.getIdentifier();
       ItemImpl relItem = dstDataManager.getItemByIdentifier(identifier, true);
-      if (relItem != null) {
+      
+      ItemState changesItemState = null;
+      if (changes != null) {
+        changesItemState = changes.getItemState(identifier);
+      }
+      
+      if (relItem != null && !(changesItemState != null && changesItemState.isDeleted())) {
         if (removeExisting) {
           deletedExistingPropery = true;
-          itemDeletedExistingStates.add(new ItemState(relItem.getData(), ItemState.DELETED, true,
-              dstDataManager.getItemByIdentifier(relItem.getParentIdentifier(), true).getInternalPath(),level != 0));
+          itemDeletedExistingStates.add(new ItemState(relItem.getData(),
+              ItemState.DELETED,
+              true,
+              dstDataManager.getItemByIdentifier(relItem.getParentIdentifier(), true)
+                  .getInternalPath(),
+              level != 0));
         } else {
-          throw new ItemExistsException("Item exists id = " + identifier + " name " + relItem.getName());
+          throw new ItemExistsException("Item exists id = " + identifier + " name "
+              + relItem.getName());
         }
       }
       keepIdentifiers = true;
