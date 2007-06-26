@@ -22,7 +22,7 @@ public class DAVConst{
 
   public class Info{
     public static final String sTitle = "eXoDavBrowser Version: 1.6";
-    public static final String sVersion = "Copyright 2001-2006 The eXo Platform SARL. All rights reserved.";
+    public static final String sVersion = "Copyright 2001-2007 The eXo Platform SAS. All rights reserved.";
     public static final String sEXOSite = "http://www.exoplatform.org";
     public static final String sCopyright = "Visit " + sEXOSite;
 

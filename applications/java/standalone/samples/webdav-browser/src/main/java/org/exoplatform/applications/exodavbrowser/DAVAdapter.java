@@ -13,6 +13,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.table.DefaultTableModel;
 
+import org.exoplatform.frameworks.httpclient.TextUtils;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.WebDavContext;
 import org.exoplatform.frameworks.webdavclient.commands.DavCheckIn;
@@ -766,6 +767,7 @@ public class DAVAdapter{
     try {
       DavReport report = new DavReport(getServerLocation());
       report.setResourcePath(sResurcePath + "/" + resurceDisplyName);
+      report.setRequiredProperty(Const.DavProp.CREATORDISPLAYNAME);
       
       int status = report.execute();
       
@@ -782,9 +784,11 @@ public class DAVAdapter{
           CreatorDisplayNameProp pDisplayname = (CreatorDisplayNameProp)curResponse.getProperty(Const.DavProp.CREATORDISPLAYNAME);
           
           //Log.info("" + (i+1) + "CREATOR -->" +pDisplayname.getCreatorDisplayName() + " HREF --> " + curResponse.getHref());
+          
+          String hRef = TextUtils.UnEscape(curResponse.getHref(), '%');
             
           vTemp.add(pDisplayname.getCreatorDisplayName());
-          vTemp.add(curResponse.getHref());
+          vTemp.add(hRef);
           v.add(vTemp);
         }
         
