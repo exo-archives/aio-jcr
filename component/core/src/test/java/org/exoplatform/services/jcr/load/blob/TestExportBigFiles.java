@@ -23,7 +23,7 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class TestExportBigFiles extends JcrAPIBaseTest {
   /**
@@ -32,8 +32,7 @@ public class TestExportBigFiles extends JcrAPIBaseTest {
    * @throws Exception
    */
   public void testBigExportSysView() throws Exception {
-    // 
-    String TEST_FILE = createBLOBTempFile(1024*1024*1024).getAbsolutePath();//1GB
+    String TEST_FILE = createBLOBTempFile(1024*5).getAbsolutePath();//5M
     Node testLocalBigFiles = root.addNode("testLocalBigFiles");
 
     // add file to repository
@@ -99,8 +98,7 @@ public class TestExportBigFiles extends JcrAPIBaseTest {
    * @throws Exception
    */
   public void testBigImportExportDocView() throws Exception {
-    // 300 MB creating file
-    String TEST_FILE2 = createBLOBTempFile(1024*1024*15).getAbsolutePath();
+    String TEST_FILE2 = createBLOBTempFile(1024*5).getAbsolutePath(); // 5M
     Node testLocalBigFiles = root.addNode("testDocView");
 
     // add file to repository

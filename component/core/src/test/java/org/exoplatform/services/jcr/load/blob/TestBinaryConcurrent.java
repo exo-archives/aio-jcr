@@ -6,8 +6,6 @@ package org.exoplatform.services.jcr.load.blob;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,14 +36,16 @@ import org.exoplatform.services.jcr.load.blob.thread.ReadThread;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: TestSwap.java 12535 2007-02-02 15:39:26Z peterit $
  */
-public class TestSwap extends JcrAPIBaseTest {
+public class TestBinaryConcurrent extends JcrAPIBaseTest {
 
   private Node          testBinaryValue   = null;
 
+  // some lines for use in test
   //public final static String LOCAL_BIG_FILE    = "src/test/resources/BigFile.zip";
-  public final static String URL_BIG_MEDIA_FILE= "ftp://exoua.dnsalias.net/pub/video/Lost.Season3.Preview.rus.avi";
+  //public final static String URL_BIG_MEDIA_FILE= "ftp://exoua.dnsalias.net/pub/video/Lost.Season3.Preview.rus.avi";
   //public final static String LOCAL_SMALL_FILE  = "src/test/resources/SmallFile.zip";
   //public final static byte[] LOCAL_SMALL_FILE_DATA  = LOCAL_SMALL_FILE.getBytes();
+  
   public final static String TEST_ROOT  = "blob_test";
   
   public static String TEST_FILE = null;
@@ -65,7 +65,7 @@ public class TestSwap extends JcrAPIBaseTest {
     int dataSize = 0;
     if (TEST_FILE == null) {
       // create test file
-      testFile = createBLOBTempFile(3);
+      testFile = createBLOBTempFile(64);
       dataSize = (int) testFile.length();
       TEST_FILE = testFile.getAbsolutePath();
     } else {
@@ -128,7 +128,7 @@ public class TestSwap extends JcrAPIBaseTest {
     
     // 360 - 60 min
     // 4320 - 12 hours
-    int cycles = 1;
+    int cycles = 30; // 5min
     while (cycles >= 0) {
       Thread.yield();
       try {

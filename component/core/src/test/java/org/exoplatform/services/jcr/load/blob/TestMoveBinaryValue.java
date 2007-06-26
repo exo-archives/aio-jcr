@@ -42,7 +42,7 @@ public class TestMoveBinaryValue extends JcrAPIBaseTest {
     long startTime, endTime;
     startTime = System.currentTimeMillis(); // to get the time of start
     
-    // 300 MB
+    // 300 Kb
     TEST_FILE = createBLOBTempFile(300).getAbsolutePath();
 
     for (int i = 0; i < FILES_COUNT; i++) {
@@ -75,12 +75,12 @@ public class TestMoveBinaryValue extends JcrAPIBaseTest {
       e.printStackTrace();
       fail();
     }
-    
   }
   
 
   protected void tearDown() throws Exception {
-    //root.save();
-    //super.tearDown();
+    testBinaryValue.remove();
+    root.save();
+    super.tearDown();
   }
 }

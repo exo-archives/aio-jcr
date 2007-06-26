@@ -174,7 +174,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     JCRPath itemPath = locationFactory.parseRelPath(relPath);
     NodeImpl node = (NodeImpl) dataManager.getItem(nodeData(), itemPath.getInternalPath().getEntries(), true);
     if (node == null)
-      throw new PathNotFoundException("Node not found " + itemPath.getAsString(true));
+      throw new PathNotFoundException("Node not found " + itemPath.getAsString(false));
     return node;
   }
 
@@ -236,7 +236,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     Item prop = dataManager.getItem(nodeData(), itemPath.getInternalPath().getEntries(), true);
     
     if (prop == null || prop.isNode())
-      throw new PathNotFoundException("Property not found " + getLocation() + " " + relPath);
+      throw new PathNotFoundException("Property not found " + itemPath.getAsString(false));
 
     return (Property) prop;
   }

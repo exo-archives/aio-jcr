@@ -6,15 +6,14 @@
 package org.exoplatform.services.jcr.load.blob;
 
 import java.io.FileInputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 
 import javax.jcr.Node;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
-import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SARL.
@@ -36,8 +35,7 @@ public class TestBinaryValueMultiThreading extends JcrAPIBaseTest {
   private static String REMOTE_SMALL_FILE = "\\\\Exooffice\\public\\Tmp\\resources\\SmallFile.zip";
   private static String URL_BIG_FILE      = "http://localhost:8080/ecm/jcr?workspace=production&path=/BigFile.zip";
   private static String URL_SMALL_FILE    = "http://localhost:8080/ecm/jcr?workspace=production&path=/SmallFile.zip";
-  
-  
+    
   //private static String LOCAL_VERYBIG_MEDIA_FILE    = "D:\\films\\test.avi";  
   //private static String URL_BIG_FILE      = "http://localhost:8080/ecm/jcr?workspace=production&path=/testBinaryValue/BigFile.zip";
   //private static String URL_BIG_FILE      = "http://exooffice:8080/jcr-webdav/repository/production/Lost.Season3.Preview.rus.avi";

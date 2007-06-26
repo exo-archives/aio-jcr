@@ -15,7 +15,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
-import org.exoplatform.services.jcr.load.blob.TestSwap;
+import org.exoplatform.services.jcr.load.blob.TestConcurrent;
 
 /**
  * Created by The eXo Platform SARL
@@ -47,7 +47,7 @@ public class ReadThread extends UserThread {
     int dataSizeInfo = 0;
     try {
       threadSession.refresh(false);
-      Node testRoot = threadSession.getRootNode().getNode(TestSwap.TEST_ROOT);
+      Node testRoot = threadSession.getRootNode().getNode(TestConcurrent.TEST_ROOT);
       NodeIterator nodes = testRoot.getNodes();
       while (nodes.hasNext()) {
         Node node = nodes.nextNode();
@@ -64,13 +64,13 @@ public class ReadThread extends UserThread {
           while ((read = dataStream.read(buff))>=0) {  
             dataSize += read;
           }
-          if (dataSize != TestSwap.TEST_FILE_SIZE)
-            threadLog.error("Wrong data size. " + dataSize + " but expected " + TestSwap.TEST_FILE_SIZE 
+          if (dataSize != TestConcurrent.TEST_FILE_SIZE)
+            threadLog.error("Wrong data size. " + dataSize + " but expected " + TestConcurrent.TEST_FILE_SIZE 
                 + ". " + dataStream + ". " + data.getPath() + " " + data.getInternalIdentifier());
           else if (threadLog.isDebugEnabled())
             threadLog.debug("Read node: " + dataStream + ", " + node.getPath() + ", data: " + data.getInternalIdentifier());
         } catch(RepositoryException e) {
-          threadLog.error("Repository error: " + e.getMessage() + ", " + dataSize + " bytes from " + TestSwap.TEST_FILE_SIZE, e);
+          threadLog.error("Repository error: " + e.getMessage() + ", " + dataSize + " bytes from " + TestConcurrent.TEST_FILE_SIZE, e);
         } catch(FileNotFoundException e) {
           threadLog.error("File not found, stream: " + dataStream + ", " + e.getMessage(), e);
         } finally {
@@ -82,9 +82,9 @@ public class ReadThread extends UserThread {
         //threadLog.info("Read node " + node.getPath());
       }
     } catch(Throwable th) {
-      threadLog.error("Read error: " + th.getMessage() + ", " + dataSizeInfo + " bytes from " + TestSwap.TEST_FILE_SIZE, th);
+      threadLog.error("Read error: " + th.getMessage() + ", " + dataSizeInfo + " bytes from " + TestConcurrent.TEST_FILE_SIZE, th);
     } finally {
-      TestSwap.consumedNodes.addAll(readedNodes);
+      TestConcurrent.consumedNodes.addAll(readedNodes);
     }
   }
 }

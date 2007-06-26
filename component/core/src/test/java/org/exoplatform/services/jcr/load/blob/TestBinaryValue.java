@@ -62,8 +62,8 @@ public class TestBinaryValue extends JcrAPIBaseTest {
     long startTime, endTime;
     startTime = System.currentTimeMillis(); // to get the time of start
     
-    // 300 MB
-    TEST_FILE = createBLOBTempFile(300000).getAbsolutePath();
+    // 300 Kb
+    TEST_FILE = createBLOBTempFile(300).getAbsolutePath();
 
     for (int i = 0; i < FILES_COUNT; i++) {
       Node localBigFile = testLocalBigFiles.addNode("bigFile" + i, "nt:file");
@@ -83,10 +83,6 @@ public class TestBinaryValue extends JcrAPIBaseTest {
     endTime = System.currentTimeMillis();
     log.info("Execution time after adding and saving (local big):" 
         + ((endTime - startTime) / 1000) + "s");
-    
-    // check streams
-//    compareStream(new FileInputStream(TEST_FILE), 
-//      testLocalBigFiles.getProperty("bigFile0/jcr:content/jcr:data").getStream());
   }
   
   /*public void testLocalBigMediaFiles() throws Exception {
@@ -106,7 +102,6 @@ public class TestBinaryValue extends JcrAPIBaseTest {
     endTime = System.currentTimeMillis();
     log.info("Execution time after adding and saving (local big):" 
         + ((endTime - startTime) / 1000) + "s");
-    
   }
   
   // --------------- local stuff for anvanced testing -------------
@@ -213,7 +208,8 @@ public class TestBinaryValue extends JcrAPIBaseTest {
   }*/
 
   protected void tearDown() throws Exception {
-    //root.save();
-    //super.tearDown();
+    testBinaryValue.remove();
+    root.save();
+    super.tearDown();
   }
 }

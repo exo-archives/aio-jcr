@@ -4,14 +4,13 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.load.blob.thread;
 
-import javax.jcr.InvalidItemStateException;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
-import org.exoplatform.services.jcr.load.blob.TestSwap;
+import org.exoplatform.services.jcr.load.blob.TestConcurrent;
 
 /**
  * Created by The eXo Platform SARL Author : Peter Nedonosko
@@ -26,7 +25,7 @@ public class DeleteThread extends UserThread {
   }
   
   public void testAction() {
-    while (process || TestSwap.consumedNodes.size()>0) {
+    while (process || TestConcurrent.consumedNodes.size()>0) {
       deleteAction();
       try {
         sleep(2500);
@@ -38,7 +37,7 @@ public class DeleteThread extends UserThread {
   
   public void deleteAction() {
     
-    final String[] nodes = TestSwap.consumedNodes.toArray(new String[TestSwap.consumedNodes.size()]);
+    final String[] nodes = TestConcurrent.consumedNodes.toArray(new String[TestConcurrent.consumedNodes.size()]);
     try {
       threadSession.refresh(false);
     } catch(RepositoryException th) {
@@ -51,20 +50,21 @@ public class DeleteThread extends UserThread {
         PropertyImpl data = (PropertyImpl) node.getProperty("jcr:content/jcr:data");
         nodeInfo = "node: " + node.getPath() + ", data: " + data.getInternalIdentifier();
         node.remove();
+        threadSession.save();
         if (threadLog.isDebugEnabled())
           threadLog.debug("Delete " + nodeInfo);
       } catch(PathNotFoundException e) {
         threadLog.warn(e.getMessage());
-      //} catch(InvalidItemStateException e) {
+      } catch(RepositoryException e) {
+        try {
+          threadSession.refresh(false);
+        } catch(RepositoryException e1) {
+          threadLog.error("Rollback repository error: " + e1.getMessage() + ". Root exception " + e, e);
+        }
       } catch(Throwable th) {
         threadLog.error("Delete error: " + th.getMessage() + ". " + nodeInfo, th);
       } finally {
-        try {
-          threadSession.save();
-        } catch(RepositoryException e) {
-          threadLog.error("Repository error: " + e.getMessage(), e);
-        }
-        TestSwap.consumedNodes.remove(nodePath);
+        TestConcurrent.consumedNodes.remove(nodePath);
       }
     }
   }
