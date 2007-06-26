@@ -20,6 +20,7 @@
         <layout>legacy</layout>
     </repository>
   </repositories -->
+  
   <pluginRepositories>
     <pluginRepository>
         <id>central</id>
@@ -192,13 +193,6 @@
         <scope>compile</scope>
     </dependency -->
 
-    <!-- dependency>
-        <groupId>c3p0</groupId>
-        <artifactId>c3p0</artifactId>
-        <version>0.8.4.5</version>
-        <scope>compile</scope>
-    </dependency -->
-
     <dependency>
         <groupId>javax.transaction</groupId>
         <artifactId>jta</artifactId>
@@ -330,66 +324,6 @@
 
     <!-- ======================================================================= -->
 
-
-    <!-- dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>servlet-api</artifactId>
-        <version>2.4</version>
-        <scope>provided</scope>
-    </dependency -->
-
-    <!-- dependency>
-        <groupId>commons-digester</groupId>
-        <artifactId>commons-digester</artifactId>
-        <version>1.7</version>
-        <scope>compile</scope>
-    </dependency -->
-
-    <!-- dependency>
-        <groupId>concurrent</groupId>
-        <artifactId>concurrent</artifactId>
-        <version>1.3.2</version>
-        <scope>compile</scope>
-    </dependency -->
-
-    <!-- dependency>
-    <groupId>httpunit</groupId>
-    <artifactId>httpunit</artifactId>
-    <version>1.6</version>
-    <exclusions>
-    <exclusion>
-    <groupId>nekohtml</groupId>
-    <artifactId>nekohtml</artifactId>
-    </exclusion>
-    <exclusion>
-    <groupId>rhino</groupId>
-    <artifactId>js</artifactId>
-    </exclusion>
-    <exclusion>
-    <groupId>xerces</groupId>
-    <artifactId>xmlParserAPIs</artifactId>
-    </exclusion>
-    <exclusion>
-    <groupId>xerces</groupId>
-    <artifactId>xercesImpl</artifactId>
-    </exclusion>
-    </exclusions>
-    </dependency -->
-
-    <!-- TODO REMOVE IT -->
-    <!--dependency>
-    <groupId>xerces</groupId>
-    <artifactId>xercesImpl</artifactId>
-    <version>2.7.1</version>
-    </dependency-->
-
-    <!--dependency>
-    <groupId>xalan</groupId>
-    <artifactId>xalan</artifactId>
-    <version>2.7.0</version>
-    </dependency-->
-
-
 </dependencies>
 
 <build>
@@ -452,8 +386,8 @@
         </testResource>
     </testResources>
 
-    <!-- ztestSourceDirectory>src/test/java</testSourceDirectory -->
-    <testSourceDirectory>src/TCK/java</testSourceDirectory>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
+    <!-- testSourceDirectory>src/TCK/java</testSourceDirectory -->
     <!-- testSourceDirectory>src/notest</testSourceDirectory -->
 
     <testOutputDirectory>target/test-classes</testOutputDirectory>
@@ -474,35 +408,35 @@
                 <includes>
                     <!-- TCK includes -->
 
-                    <include>**/init/TestAll.java</include>
+                    <!-- include>**/init/TestAll.java</include>
 
                     <include>**/api/*Test.java</include>
                     <include>**/api/observation/*Test.java</include>
                     <include>**/api/lock/*Test.java</include>
                     <include>**/api/nodetype/*Test.java</include>
                     <include>**/api/query/*Test.java</include>
-                    <include>**/api/version/*Test.java</include>
+                    <include>**/api/version/*Test.java</include -->
 
-                    <!-- include>**/NodeUUIDTest.java</include -->
-
-                    <!-- eXo tests -->
-                    <!-- include>**/api/**/Test*.java</include -->
+                    <!-- eXo tests, usecases 1.6 -->
+                    <include>**/api/**/Test*.java</include>
+                    <include>**/impl/access/Test*.java</include>
+                    <include>**/usecases/**/Test*.java</include>
+                    <include>**/usecases/**/*Test.java</include>
+                    
                     <!-- include>**/impl/**/Test*.java</include -->
-
-                    <!-- include>**/impl/access/Test*.java</include -->
-
-                    <!-- usecases includes -->
-                    <!-- include>**/usecases/**/Test*.java</include>
-                    <include>**/usecases/**/*Test.java</include -->
+                    <!-- include>**/api/version/Test*.java</include -->
+                    <!-- include>**/version/TestFrozenNodeInitializer.java</include -->
+                    <!-- include>**/TestSameNameSiblingsReindex.java</include -->
 
                     <!-- load includes -->
                     <!-- include>**/load/**/Test*.java</include -->
                 </includes>
 
                 <excludes>
-                    <!-- include>**/TestAll.java</include>
+                    <include>**/api/TestAll.java</include>
+                    <include>**/Base*Test.java</include>
                     <include>**/api/export**/*.java</include>
-                    <include>**/api/import**/*.java</include -->
+                    <include>**/api/import**/*.java</include>
 
                     <!-- include>**/test/api/version/*UUID*Test.java</include>
                     <include>**/test/api/version/*Reference*Test.java</include -->
