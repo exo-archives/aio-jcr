@@ -5,6 +5,7 @@
 
 package org.exoplatform.services.jcr.impl.core;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,6 +20,7 @@ import javax.jcr.InvalidItemStateException;
 import javax.jcr.ReferentialIntegrityException;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.version.VersionException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.access.AccessControlList;
@@ -35,6 +37,7 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.core.version.ChildVersionRemoveVisitor;
 import org.exoplatform.services.jcr.impl.core.version.VersionHistoryImpl;
 import org.exoplatform.services.jcr.impl.core.version.VersionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
@@ -156,7 +159,7 @@ public class SessionDataManager implements ItemDataConsumer {
     }
     return item;
   }
-
+  
   /*
    * (non-Javadoc)
    * 
@@ -167,8 +170,11 @@ public class SessionDataManager implements ItemDataConsumer {
 
     if (name.getName().equals(JCRPath.PARENT_RELPATH)
         && name.getNamespace().equals(Constants.NS_DEFAULT_URI)) {
-      return getItemData(parent.getParentIdentifier());
+      // TODO [PN] 26.06.07 why we ask for a parent by id if we already got it. 
+      //return getItemData(parent.getParentIdentifier());
+      return parent;
     }
+    
     ItemData data = null;
 
     // 1. Try in transient changes
@@ -395,7 +401,7 @@ public class SessionDataManager implements ItemDataConsumer {
    */
   public List<PropertyImpl> getReferences(String identifier) throws RepositoryException {
     List<PropertyImpl> refs = new ArrayList<PropertyImpl>();
-    for (PropertyData data : transactionableManager.getReferencesData(identifier)) {
+    for (PropertyData data : transactionableManager.getReferencesData(identifier, true)) {
       PropertyImpl item = (PropertyImpl) itemFactory.createItem(data);
       session.getActionHandler().postRead(item);
 
@@ -571,13 +577,6 @@ public class SessionDataManager implements ItemDataConsumer {
         pooled.invalidate(); // invalidate immediate
         invalidated.add(pooled);
       }
-
-      if (log.isDebugEnabled()) {
-        String path = data.getQPath().getAsString();
-        if (path.indexOf("[]:1[]testroot:1[]node1:1") > 0)
-          log.info("[]:1[]testroot:1[]node1:1 -- found");
-        log.debug("deleted: " + data.getQPath().getAsString());
-      }
     }
 
     // 4 add item itself if not added
@@ -607,6 +606,74 @@ public class SessionDataManager implements ItemDataConsumer {
     if (itemData.isNode())
       // 8 reindex same-name siblings
       changesLog.addAll(reindexSameNameSiblings((NodeData) itemData, this));
+  }
+  
+  
+  /**
+   * Check when it's a Node and is versionable will a version history removed.
+   * Case of last version in version history.
+   * 
+   * @throws RepositoryException
+   * @throws ConstraintViolationException
+   * @throws VersionException
+   */
+  public void removeVersionHistory(String vhID, QPath containingHistory, QPath ancestorToSave) throws RepositoryException, ConstraintViolationException, VersionException {
+  
+    NodeData vhnode = (NodeData) getItemData(vhID);
+    
+    if (vhnode == null) {
+      ItemState vhState = changesLog.getItemState(vhID);
+      if (vhState.isDeleted())
+        // [PN] 26.06.07 check why we here if VH already isn't exists.
+        // usecase: child version remove when child versionable node is located as child 
+        // of its containing history versionable node.  
+        // We may check this case in ChildVersionRemoveVisitor.
+        return;
+      
+      throw new RepositoryException("Version history is not found. UUID: " + vhID 
+          + ". Context item (ancestor to save) " + ancestorToSave.getAsString());
+    }
+                
+    // mix:versionable
+    // we have to be sure that any versionable node somewhere in repository
+    // doesn't refers to a VH of the node being deleted.
+    RepositoryImpl rep = (RepositoryImpl) session.getRepository();
+    for (String wsName: rep.getWorkspaceNames()) {
+      SessionImpl wsSession = session.getWorkspace().getName().equals(wsName) ? session :
+          (SessionImpl) rep.login(session.getCredentials(), wsName);
+      try {
+        List<PropertyData> srefs = wsSession.getTransientNodesManager().getReferencesData(vhID, false);
+        for (PropertyData sref: srefs) {
+          // Check if this VH isn't referenced from somewhere in workspace 
+          // or isn't contained in another one as a child history.
+          // Ask ALL references incl. properties from version storage.
+          if (sref.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH, false)) {
+            if (!sref.getQPath().isDescendantOf(vhnode.getQPath(), false) 
+                && (containingHistory != null ? !sref.getQPath().isDescendantOf(containingHistory, false) : true))
+              // has a reference to the VH in version storage, 
+              // it's a REFERENCE property jcr:childVersionHistory of nt:versionedChild
+              // i.e. this VH is a child history in an another history.
+              // We can't remove this VH now.
+              return;
+          } else if (wsSession != session) {
+            // has a reference to the VH in traversed workspace,
+            // it's not a version storage, i.e. it's a property of versionable node somewhere in ws.
+            // We can't remove this VH now.
+            return;
+          } // else -- if we has a references in workspace where the VH is being deleted we can remove VH now. 
+        }
+      } finally {
+        if (wsSession != session)
+          wsSession.logout();
+      }
+    }
+    
+    // remove child versions from VH (if found) 
+    ChildVersionRemoveVisitor cvremover = new ChildVersionRemoveVisitor(session, vhnode.getQPath(), ancestorToSave);
+    vhnode.accept(cvremover);
+    
+    // remove VH
+    delete(vhnode, ancestorToSave);
   }
 
   /**
@@ -668,16 +735,6 @@ public class SessionDataManager implements ItemDataConsumer {
     if (pool) {
       item = itemsPool.get(item);
     }
-
-    if (log.isDebugEnabled()) {
-      String path = item.getInternalPath().getAsString();
-      if (path.indexOf("[]:1[]testroot:1[]node1:2") > 0)
-        log.info("[]:1[]testroot:1[]node1:2 -- found");
-
-      log.debug(ItemState.nameFromValue(itemState.getState())
-          + (item.isNode() ? " NODE (order:" + ((NodeImpl) item).nodeData().getOrderNumber() + ")"
-              : " PROPERTY") + ", " + item.getPath());
-    }
     return item;
   }
 
@@ -713,8 +770,8 @@ public class SessionDataManager implements ItemDataConsumer {
    * 
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getReferencesData(java.lang.String)
    */
-  public List<PropertyData> getReferencesData(String identifier) throws RepositoryException {
-    return transactionableManager.getReferencesData(identifier);
+  public List<PropertyData> getReferencesData(String identifier, boolean skipVersionStorage) throws RepositoryException {
+    return transactionableManager.getReferencesData(identifier, skipVersionStorage); 
   }
 
   /**
