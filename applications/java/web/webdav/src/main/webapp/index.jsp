@@ -11,7 +11,7 @@
 <table cellpadding="0" cellspacing="5" border="0" width="100%">
 <tr><td><a href = "/webdav/repository/production">Open WebDav production workspace</a></td></tr>
 <tr><td><br></td></tr>
-<tr><td><a href = "/webdav/app/eXoDavBrowser.jnlp"><img alt="Open WebDav Browser" src="/jcr-webdav/app/images/eXoDavBrowser_launch.png"></a></td></tr>
+<tr><td><a href = "/webdav/app/eXoDavBrowser.jnlp"><img alt="Open WebDav Browser" src="/webdav/app/images/eXoDavBrowser_launch.png"></a></td></tr>
 </table>
 
 </body>
