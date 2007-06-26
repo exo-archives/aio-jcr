@@ -122,7 +122,7 @@
                 dir="${exo.projects.directory.dependencies}/${exo.projects.app.tomcat.version}" />
             </copy>
             <copy
-              todir="${exo.projects.directory.working}/exo-tomcat/common/lib/"
+              todir="${exo.projects.directory.working}/exo-tomcat/lib/"
               verbose="true" overwrite="true">
               <fileset
                 dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/"
