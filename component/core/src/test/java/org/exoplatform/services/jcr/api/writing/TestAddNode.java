@@ -148,7 +148,7 @@ public class TestAddNode extends JcrAPIBaseTest{
     try {
       session2.save();
     fail("InvalidItemStateException should have been thrown");
-  } catch (InvalidItemStateException e) {
+  } catch (ItemExistsException e) {
   }
 
   }

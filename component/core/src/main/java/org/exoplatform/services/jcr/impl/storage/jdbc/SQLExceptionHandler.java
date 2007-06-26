@@ -6,10 +6,12 @@
 package org.exoplatform.services.jcr.impl.storage.jdbc;
 
 import javax.jcr.InvalidItemStateException;
+import javax.jcr.ItemExistsException;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -80,9 +82,20 @@ public class SQLExceptionHandler {
           if (me != null) {
             // item already exists
             message += "Item already exists in storage: " + itemInfo;
-            ownException = new RepositoryException(message, e);
+            ownException = new ItemExistsException(message, e);
             throw ownException;
           }
+          
+          me = conn.getItemData(parent, new QPathEntry(item.getQPath().getName(), item.getQPath()
+              .getIndex()));
+          if (me != null) {
+            message += "Item already exists in storage: " + itemInfo;
+            ownException = new ItemExistsException(message, e);
+            throw ownException;
+          }
+              
+          
+          
         } catch(Exception ep) {
           // item not found or other things but error of item reading
           if (ownException != null) throw ownException;

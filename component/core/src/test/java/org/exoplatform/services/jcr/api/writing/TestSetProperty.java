@@ -9,7 +9,7 @@ package org.exoplatform.services.jcr.api.writing;
 import java.io.ByteArrayInputStream;
 import java.util.GregorianCalendar;
 
-import javax.jcr.InvalidItemStateException;
+import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
@@ -22,7 +22,6 @@ import javax.jcr.version.OnParentVersionAction;
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.value.NameValue;
-import org.exoplatform.services.jcr.impl.core.value.StringValue;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -76,7 +75,7 @@ public class TestSetProperty extends JcrAPIBaseTest {
       log.error("Error delete '" + TEST_MULTIVALUED + "' node", e);
     }
     
-    session = (SessionImpl)repository.login(credentials, WORKSPACE);
+    session = repository.login(credentials, WORKSPACE);
     Node root = session.getRootNode();
     root.getNode("unstructured").remove();
 
@@ -110,7 +109,7 @@ public class TestSetProperty extends JcrAPIBaseTest {
     assertEquals(PropertyType.LONG, node.getProperty("jcr:defaultValues").getValues()[0].getType());
     assertEquals(10, node.getProperty("jcr:defaultValues").getValues()[0].getLong());
     node.save();
-    session = (SessionImpl)repository.login(credentials, WORKSPACE);
+    session = repository.login(credentials, WORKSPACE);
     node = session.getRootNode().getNode("propertyDefNode");
     assertEquals(10, node.getProperty("jcr:defaultValues").getValues()[0].getLong());
   }
@@ -134,7 +133,7 @@ public class TestSetProperty extends JcrAPIBaseTest {
     node.setProperty("jcr:requiredPrimaryTypes", nameValues, PropertyType.NAME);
     node.save();
 
-    session = (SessionImpl)repository.login(credentials, WORKSPACE);
+    session = repository.login(credentials, WORKSPACE);
     node = session.getRootNode().getNode("childNodeDefNode");
     assertEquals(2, node.getProperty("jcr:requiredPrimaryTypes").getValues().length);
   }
@@ -149,7 +148,7 @@ public class TestSetProperty extends JcrAPIBaseTest {
     assertEquals(PropertyType.LONG, node.getProperty("jcr:defaultValues").getValues()[0].getType());
     assertEquals(10, node.getProperty("jcr:defaultValues").getValues()[0].getLong());
     node.save();
-    session = (SessionImpl)repository.login(credentials, WORKSPACE);
+    session = repository.login(credentials, WORKSPACE);
     node = session.getRootNode().getNode("propertyDefNode");
     assertEquals(10, node.getProperty("jcr:defaultValues").getValues()[0].getLong());
   }
@@ -175,7 +174,7 @@ public class TestSetProperty extends JcrAPIBaseTest {
       node.setProperty("jcr:requiredPrimaryTypes", nameValues, PropertyType.NAME);
       node.save();
   
-      session = (SessionImpl)repository.login(credentials, WORKSPACE);
+      session = repository.login(credentials, WORKSPACE);
       node = session.getRootNode().getNode("childNodeDefNode");
       assertEquals(2, node.getProperty("jcr:requiredPrimaryTypes").getValues().length);
     }
@@ -195,7 +194,7 @@ public class TestSetProperty extends JcrAPIBaseTest {
       fail("Error of 'Multivalued Property' length reading. Error: " + e.getMessage());
     }
     
-    SessionImpl newSession = (SessionImpl) repository.login(credentials, WORKSPACE);
+    SessionImpl newSession = repository.login(credentials, WORKSPACE);
     Node test = (Node) newSession.getItem(testMultivalued.getPath());
     assertEquals("Node '" + TEST_MULTIVALUED + "' must have values length 2", 2, 
         test.getProperty("Multivalued Property").getValues().length);
@@ -221,7 +220,7 @@ public class TestSetProperty extends JcrAPIBaseTest {
       fail("Error of 'Multivalued Property' length reading. Error: " + e.getMessage());
     }
     
-    SessionImpl newSession = (SessionImpl) repository.login(credentials, WORKSPACE);
+    SessionImpl newSession = repository.login(credentials, WORKSPACE);
     Node test = (Node) newSession.getItem(testMultivalued.getPath());
     assertEquals("Node '" + TEST_MULTIVALUED + "' must have values length 2", 2, 
         test.getProperty("Multivalued Property").getValues().length);
@@ -273,7 +272,7 @@ public class TestSetProperty extends JcrAPIBaseTest {
     try {
       session2.save();
       fail("InvalidItemStateException should have been thrown");
-    } catch (InvalidItemStateException e) {
+    } catch (ItemExistsException e) {
     }
 
   }
