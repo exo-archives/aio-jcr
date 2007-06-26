@@ -36,7 +36,7 @@ import org.exoplatform.services.jcr.load.blob.thread.ReadThread;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: TestSwap.java 12535 2007-02-02 15:39:26Z peterit $
  */
-public class TestBinaryConcurrent extends JcrAPIBaseTest {
+public class TestConcurrent extends JcrAPIBaseTest {
 
   private Node          testBinaryValue   = null;
 
