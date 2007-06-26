@@ -135,7 +135,7 @@ public class TestPredefinedPrimaryNodeTypes extends JcrAPIBaseTest {
     assertTrue("typePropDefs != 4", type.getPropertyDefinitions().length == 4);
     assertTrue("typeNodeDefs != 0", type.getChildNodeDefinitions().length == 0);
 
-    assertEquals("node0 name != jcr:content", "jcr:content", type.getPropertyDefinitions()[1].getName());
+    assertEquals("node0 name != jcr:content", "jcr:content", type.getPropertyDefinitions()[0].getName());
 
   }
 

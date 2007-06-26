@@ -15,8 +15,9 @@ import java.nio.charset.MalformedInputException;
 import java.nio.charset.UnmappableCharacterException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
@@ -245,34 +246,8 @@ public class NodeTypeImpl implements ExtendedNodeType {
 
 	/** @see javax.jcr.nodetype.NodeType#getPropertyDefs */
 	public PropertyDefinition[] getPropertyDefinitions() {
-//		ArrayList<PropertyDefinition> propertyDefsList = new ArrayList<PropertyDefinition>();
-//		if (declaredPropertyDefinitions != null) {
-//			for (int i = 0; i < declaredPropertyDefinitions.length; i++) {
-//				propertyDefsList.add(declaredPropertyDefinitions[i]);
-//			}
-//		}
-//		NodeType[] supertypes = getSupertypes();
-//		if (supertypes != null) {
-//			for (int i = 0; i < supertypes.length; i++) {
-//				if (supertypes[i].getDeclaredPropertyDefinitions() != null) {
-//					for (int j = 0; j < supertypes[i].getDeclaredPropertyDefinitions().length; j++) {
-//            if (!propertyDefsList.contains(supertypes[i].getDeclaredPropertyDefinitions()[j]))
-//              propertyDefsList.add(supertypes[i].getDeclaredPropertyDefinitions()[j]);
-//					}
-//				}
-//			}
-//		}
-//		if (propertyDefsList.size() > 0) {
-//			PropertyDefinition[] propertyDefs = new PropertyDefinition[propertyDefsList
-//					.size()];
-//			for (int i = 0; i < propertyDefsList.size(); i++) {
-//				propertyDefs[i] = propertyDefsList.get(i);
-//			}
-//			return propertyDefs;
-//		}
-//		return new PropertyDefinition[0];
 	  
-  HashSet<PropertyDefinition> propertyDefsList = new HashSet<PropertyDefinition>();
+  Set<PropertyDefinition> propertyDefsList = new LinkedHashSet<PropertyDefinition>();
   if (declaredPropertyDefinitions != null) {
     for (int i = 0; i < declaredPropertyDefinitions.length; i++) {
       propertyDefsList.add(declaredPropertyDefinitions[i]);
@@ -292,10 +267,6 @@ public class NodeTypeImpl implements ExtendedNodeType {
   if (propertyDefsList.size() > 0) {
     PropertyDefinition[] propertyDefs = new PropertyDefinition[propertyDefsList
         .size()];
-    
-//    for (int i = 0; i < propertyDefsList.size(); i++) {
-//      propertyDefs[i] = propertyDefsList.get(i);
-//    }
     
     return propertyDefsList.toArray(propertyDefs);
   }
