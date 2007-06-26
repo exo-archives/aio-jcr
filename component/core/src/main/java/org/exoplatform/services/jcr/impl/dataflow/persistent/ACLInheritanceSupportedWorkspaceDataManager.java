@@ -12,13 +12,11 @@ import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.SharedDataManager;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -37,50 +35,6 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataMa
   public ACLInheritanceSupportedWorkspaceDataManager(CacheableWorkspaceDataManager persistentManager) {
     this.persistentManager = persistentManager;
   }
-  
-  /**
-   * Load ACL for given item from repository.
-   * 
-   * If the item hasn't one own, a nearest parent's ACL will be used.
-   * 
-   * Applicable for both Node and Property instances. A Property will have a ACL of the parent.
-   */
-  public AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException {
-    // [PN] The ACL, here always exists by contract
-    // get an item by a parent and name, return the item ACL if it's a Node
-    // for Properety it's always is null
-    //ItemData target = getItemData(parent, name);
-    //return target.isNode() ? ((NodeData) target).getACL() : parent.getACL();
-    
-    throw new RepositoryException("getACL() is not usable");
-    
-//    AccessControlList acl = persistentManager.getACL(parent, name);
-//    if(acl == null) {
-//      NodeData data = getNearestACAncestor(qpath);
-//      if(data == null)
-//        throw new RepositoryException("FATAL: Node Data not found for ACL:  " + parent.getQPath().getAsString() + " " + name.getAsString());
-//      acl = data.getACL(); 
-//    }
-//    return acl;
-  }
-
-  /**
-   * finds the nearest access controllable ancestor
-   * @param qpath
-   * @return access controllable node data or root node data(anyway)
-   * @throws RepositoryException
-   */
-//  private NodeData getNearestACAncestor_Old(QPath qpath) throws RepositoryException {
-//    ItemData item = persistentManager.getItemData(qpath);
-//    if (item == null || !item.isNode())
-//      return getNearestACAncestor_Old(qpath.makeParentPath());
-//    else if (((NodeData) item).getACL() != null) 
-////    root or AccessControllable node (root always has ACL)
-//      return (NodeData) item;
-//    else
-//      // Not AccessControllable nor Root node
-//      return getNearestACAncestor_Old(qpath.makeParentPath());
-//  }
   
   /**
    * Traverse items parents in persistent storage for ACL containing parent.
@@ -105,31 +59,6 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataMa
     }
     return null;
   }
-  
-//  private ItemData initACL(ItemData data) throws RepositoryException {
-//    if (data != null && data.isNode()) {
-//      
-//      // ACL
-//      NodeData nData = (NodeData) data;
-//      boolean haveParent = data.getQPath().getDepth()>1;
-//      if (nData.getACL() == null && haveParent) {
-//        //((NodeData) data).setACL(persistentManager.getACL(data.getQPath().makeParentPath()));
-//      }
-//      
-//      // owner
-//      AccessControlList parentACL = null;
-//      if (nData.getACL() != null && nData.getACL().getOwner() == null && haveParent) {
-//        //parentACL = persistentManager.getACL(nData.getQPath().makeParentPath());
-//        if (parentACL != null) {
-//          nData.getACL().setOwner(parentACL.getOwner());
-//        }else{
-//          log.warn("!!!!Parent path "+nData.getQPath().makeParentPath()+" ACL == null;!!!!");
-//        }
-//      }
-//    }
-//
-//    return data;
-//  }
   
   /**
    * 

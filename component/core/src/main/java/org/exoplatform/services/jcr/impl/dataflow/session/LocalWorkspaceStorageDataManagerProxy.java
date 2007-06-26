@@ -114,11 +114,6 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
       throws RepositoryException {
     return copyProperties(storageDataManager.getReferencesData(identifier, skipVersionStorage));
   }
-
-  public AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException {
-    
-    throw new RepositoryException("getACL() is not usable");
-  }
   
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.dataflow.session.WorkspaceStorageDataManagerProxy#getCurrentTime()
@@ -126,7 +121,6 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
   public Calendar getCurrentTime() {
     return storageDataManager.getCurrentTime();
   }
-
   
   private TransientItemData copyItemData(ItemData item) throws RepositoryException {
     
@@ -141,12 +135,11 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
       // the node ACL can't be are null as ACL manager does care about this
       AccessControlList acl = node.getACL();
       if(acl == null) {
-        acl = null; // TODO debug
+        throw new RepositoryException("Node ACL is null. " + node.getQPath().getAsString() + " " + node.getIdentifier());
       }
       return new TransientNodeData(node.getQPath(), node.getIdentifier(), 
         node.getPersistedVersion(), node.getPrimaryTypeName(), node.getMixinTypeNames(),
         node.getOrderNumber(), node.getParentIdentifier(), acl);
-      
     }
 
     // else - property

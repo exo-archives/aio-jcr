@@ -526,12 +526,6 @@ public class SessionDataManager implements ItemDataConsumer {
       return parent.getACL();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getACL(org.exoplatform.services.jcr.datamodel.NodeData,
-   *      org.exoplatform.services.jcr.datamodel.QPathEntry)
-   */
   public AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException {
 
     ItemData item = getItemData(parent, name);

@@ -60,11 +60,6 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
   }
   
   // --------------- ItemDataConsumer --------
-  
-  public AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException {
-    return storageDataManager.getACL(parent, name); // TODO
-    //throw new RepositoryException("getACL() is not usable");
-  }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getChildNodesData(org.exoplatform.services.jcr.datamodel.NodeData)

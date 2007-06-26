@@ -221,17 +221,6 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
       con.rollback();
     }
   }
-  
-  public AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException {
-    
-    throw new RepositoryException("Usage of getACL(NodeData, QPathEntry) method is unsupported at persistent layer. Call ACL inheritable manager instead.");
-    
-//    final ItemData data = getItemData(parent, name);
-//    if(data != null && data.isNode())
-//      return ((NodeData)data).getACL();
-//
-//    return null;
-  }
 
 // ----------------------------------------------
   

@@ -26,12 +26,6 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  * try to get the data from here first, if not found � call super.someMethod
  */
 public interface ItemDataConsumer {
-
-//  /**
-//   * @param path
-//   * @return data by path
-//   */
-  //ItemData getItemData(QPath path) throws RepositoryException;
   
   /**
    * @param parent
@@ -80,6 +74,5 @@ public interface ItemDataConsumer {
    * (3) item at path is a not AccessControllable Node nor Root node and ACL inheritance is not supported by outlined Consumer implementation   
    * @throws RepositoryException
    */
-  //AccessControlList getACL(QPath path) throws RepositoryException;
-  AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException;
+  //AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException;
 }
