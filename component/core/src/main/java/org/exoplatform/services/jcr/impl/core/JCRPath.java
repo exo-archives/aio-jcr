@@ -129,22 +129,22 @@ public class JCRPath {
   
   public String getAsString(boolean showIndex) {
     
-    if (size() == 1)
-      return "/";
-    
-    // [PN] 08.02.07
-//    StringBuffer str = new StringBuffer(128);
-//    for (int i = 1; i < size(); i++) {
-//      str.append("/");
-//      str.append(names[i].getAsStringBuffer(showIndex));
-//    }      
-//    
-//    return str.toString();
-    
+    // [PN] 27.06.07
     String path = "";
-    for (int i = 1; i < names.length; i++) {
-      path += "/" + names[i].getAsString(showIndex);
+    if (isAbsolute()) {
+      if (size() == 1)
+        return "/";
+      
+      for (int i = 1; i < names.length; i++) {
+        path += "/" + names[i].getAsString(showIndex);
+      } 
+    } else { 
+      // relative
+      for (int i = 0; i < names.length; i++) {
+        path += i > 0 ? "/" + names[i].getAsString(showIndex) : names[i].getAsString(showIndex);
+      }
     }
+    
     return path;
   }
 

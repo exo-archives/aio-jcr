@@ -65,7 +65,7 @@ public class TestConcurrent extends JcrAPIBaseTest {
     int dataSize = 0;
     if (TEST_FILE == null) {
       // create test file
-      testFile = createBLOBTempFile(64);
+      testFile = createBLOBTempFile(1024);
       dataSize = (int) testFile.length();
       TEST_FILE = testFile.getAbsolutePath();
     } else {
@@ -116,7 +116,7 @@ public class TestConcurrent extends JcrAPIBaseTest {
       readed.start();
       readers.add(readed);
       try {
-        Thread.sleep(1000);
+        Thread.sleep(5000);
       } catch(InterruptedException e) {
         log.error("Start reader. Sleep error: " + e.getMessage(), e);
       }
@@ -128,7 +128,7 @@ public class TestConcurrent extends JcrAPIBaseTest {
     
     // 360 - 60 min
     // 4320 - 12 hours
-    int cycles = 30; // 5min
+    int cycles = 180; // 5min
     while (cycles >= 0) {
       Thread.yield();
       try {
