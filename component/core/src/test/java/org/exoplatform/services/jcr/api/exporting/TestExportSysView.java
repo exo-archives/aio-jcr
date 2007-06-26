@@ -39,7 +39,7 @@ public class TestExportSysView extends JcrAPIBaseTest {
 
     Node contentNode = file.addNode("jcr:content", "nt:resource");
     contentNode.setProperty("jcr:data", session.getValueFactory().createValue("this is the content", PropertyType.BINARY));
-    contentNode.setProperty("jcr:mimeType", session.getValueFactory().createValue("text/html"));
+	contentNode.setProperty("jcr:mimeType", "application/octet-stream");
     contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(Calendar.getInstance()));
 
     session.save();
@@ -132,15 +132,14 @@ public class TestExportSysView extends JcrAPIBaseTest {
   
   public void testExportPdf() throws RepositoryException, IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    // [VO] 24.05.07 export Xml problem
     Node testPdf = root.addNode("testPdf", "nt:file");
     Node contentTestPdfNode = testPdf.addNode("jcr:content", "nt:resource");
     try {
       File file = createBLOBTempFile(2500);// 2.5M
       log.info("=== File has created, size " + file.length());
       contentTestPdfNode.setProperty("jcr:data", new FileInputStream(file));
-      contentTestPdfNode.setProperty("jcr:mimeType", new StringValue("text/html"));
-    } catch (IOException e) {
+      contentTestPdfNode.setProperty("jcr:mimeType", "application/octet-stream");
+      } catch (IOException e) {
       throw new RepositoryException(e);
     }
     contentTestPdfNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(
@@ -157,8 +156,6 @@ public class TestExportSysView extends JcrAPIBaseTest {
       testPdf.remove();
       session.save();
     }
-    // byte[] bArray = out.toByteArray();
-    // System.out.println(""+new String(bArray));
 
   }
 

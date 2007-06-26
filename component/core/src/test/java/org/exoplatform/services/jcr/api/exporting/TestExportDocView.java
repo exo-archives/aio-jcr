@@ -42,7 +42,7 @@ public class TestExportDocView extends JcrAPIBaseTest {
     Node contentNode = file.addNode("jcr:content", "nt:resource");
     try {
       contentNode.setProperty("jcr:data", new BinaryValue("this is the content"));
-      contentNode.setProperty("jcr:mimeType", new StringValue("text/html"));
+      contentNode.setProperty("jcr:mimeType", "application/octet-stream");
     } catch (IOException e) {
       throw new RepositoryException(e);
     }
@@ -170,7 +170,7 @@ public class TestExportDocView extends JcrAPIBaseTest {
       File file = createBLOBTempFile(2500);// 2.5M
       log.info("=== File has created, size " + file.length());
       contentTestPdfNode.setProperty("jcr:data", new FileInputStream(file));
-      contentTestPdfNode.setProperty("jcr:mimeType", new StringValue("text/html"));
+      contentTestPdfNode.setProperty("jcr:mimeType", "application/octet-stream");
     } catch (IOException e) {
       throw new RepositoryException(e);
     }
