@@ -156,9 +156,6 @@
                 <include name="**/*.war" />
               </fileset>
             </copy>
-            <delete
-              dir="${exo.projects.directory.working}/exo-tomcat/webapps/webdav/"
-              includeEmptyDirs="true" quiet="yes" />
             <copy
               todir="${exo.projects.directory.working}/exo-tomcat/bin/">
               <fileset
