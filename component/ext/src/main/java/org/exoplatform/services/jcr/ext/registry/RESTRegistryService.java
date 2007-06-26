@@ -4,34 +4,33 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.ext.registry;
 
+import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
-import javax.jcr.ItemNotFoundException;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
-
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.registry.Registry.RegistryNode;
-import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
-import org.exoplatform.services.rest.container.ResourceContainer;
-import org.exoplatform.services.rest.URITemplate;
-import org.exoplatform.services.rest.HTTPMethod;
-import org.exoplatform.services.rest.URIParam;
 import org.exoplatform.services.rest.BaseURI;
-import org.exoplatform.services.rest.Response;
-import org.exoplatform.services.rest.RESTStatus;
 import org.exoplatform.services.rest.EntityMetadata;
 import org.exoplatform.services.rest.EntityTransformerClass;
-import org.exoplatform.services.rest.transformer.XMLEntityTransformer;
-import org.exoplatform.services.rest.transformer.StringEntityTransformer;
-import org.exoplatform.services.rest.data.XlinkHref;
+import org.exoplatform.services.rest.HTTPMethod;
+import org.exoplatform.services.rest.RESTStatus;
+import org.exoplatform.services.rest.ResourceDispatcher;
+import org.exoplatform.services.rest.Response;
+import org.exoplatform.services.rest.URIParam;
+import org.exoplatform.services.rest.URITemplate;
+import org.exoplatform.services.rest.container.ResourceContainer;
 import org.exoplatform.services.rest.data.URIRestorer;
+import org.exoplatform.services.rest.data.XlinkHref;
+import org.exoplatform.services.rest.transformer.StringEntityTransformer;
+import org.exoplatform.services.rest.transformer.XMLEntityTransformer;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 
 /**
@@ -45,6 +44,8 @@ public class RESTRegistryService implements ResourceContainer {
   private RegistryService regService;
   
   private ThreadLocalSessionProviderService sessionProviderService;
+  
+  private ResourceDispatcher dispatcher;
 
   protected static final String REGISTRY = "registry";
 
@@ -52,10 +53,13 @@ public class RESTRegistryService implements ResourceContainer {
   
   
   public RESTRegistryService(RegistryService regService,
-      ThreadLocalSessionProviderService sessionProviderService) throws Exception {
+      ThreadLocalSessionProviderService sessionProviderService
+      //ResourceDispatcher dispatcher
+      ) throws Exception {
     
     this.regService = regService;
     this.sessionProviderService = sessionProviderService;
+    this.dispatcher = dispatcher;
   }
 
   
@@ -126,7 +130,7 @@ public class RESTRegistryService implements ResourceContainer {
   @HTTPMethod("POST")
   @URITemplate("/{group}/")
   @EntityTransformerClass("org.exoplatform.services.rest.transformer.XMLEntityTransformer")
-  public Response<?> createEntry(Document entry,
+  public Response<?> createEntry(RegistryEntry entry,
       @URIParam("repository") String repository,
       @URIParam("group") String groupName,
   		@BaseURI(true) String baseURI)
@@ -135,7 +139,8 @@ public class RESTRegistryService implements ResourceContainer {
     regService.getRepositoryService().setCurrentRepositoryName(repository);
     SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null); 
   	try {
-  	  regService.createEntry(sessionProvider, groupName, new RegistryEntry(entry));
+//  	  regService.createEntry(sessionProvider, groupName, new RegistryEntry(entry));
+      regService.createEntry(sessionProvider, groupName, entry);
       String[] uriParams = {repository, groupName};    
 
       String fullURI = URIRestorer.restoreURI(baseURI, uriParams,
@@ -143,8 +148,12 @@ public class RESTRegistryService implements ResourceContainer {
           getClass().getAnnotation(URITemplate.class));
       
       EntityMetadata metaData = new EntityMetadata("text/plain");
-      metaData.setLocation(fullURI + entry.getDocumentElement().getNodeName());
-      
+//      metaData.setLocation(fullURI + entry.getDocumentElement().getNodeName());
+      metaData.setLocation(fullURI + entry.getName());
+    
+      System.out.println("Location: >>>>>>"+fullURI + entry.getName());
+      System.out.println("Location: >>>>>>"+dispatcher.getRuntimeContext().createAbsLocation(entry.getName()));
+          
       sessionProvider.close();
       return new Response<String> (RESTStatus.CREATED, metaData,
           "CREATED", new StringEntityTransformer());
