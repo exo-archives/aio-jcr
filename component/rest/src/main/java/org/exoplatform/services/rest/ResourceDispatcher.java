@@ -5,15 +5,15 @@
 
 package org.exoplatform.services.rest;
 
-import java.util.List;
 import java.lang.annotation.Annotation;
+import java.util.HashMap;
+import java.util.List;
 
-import org.exoplatform.services.rest.container.ResourceDescriptor;
-import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.ExoContainer;
-import org.exoplatform.services.rest.transformer.EntityTransformer;
+import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.services.rest.container.ResourceDescriptor;
 import org.exoplatform.services.rest.data.MimeTypes;
-import org.exoplatform.services.rest.BaseURI;
+import org.exoplatform.services.rest.transformer.EntityTransformer;
 
 /**
  * Created by The eXo Platform SARL .
@@ -29,6 +29,8 @@ import org.exoplatform.services.rest.BaseURI;
 public class ResourceDispatcher implements Connector {
 
   private List<ResourceDescriptor> resourceDescriptors;
+  
+  private ThreadLocal <Context> contextHolder = new ThreadLocal <Context>(); 
 
   /**
    * Constructor gets all binded ResourceContainers from ResourceBinder
@@ -63,8 +65,12 @@ public class ResourceDispatcher implements Connector {
           && resource.getURIPattern().matches(requestedURI)
           && (compareMimeTypes(requestedMimeTypes.getMimeTypes(),
               producedMimeTypes.getMimeTypes()))) {
+        ResourceIdentifier identifier = request.getResourceIdentifier(); 
+        identifier.initParameters(resource.getURIPattern());
         
-        request.getResourceIdentifier().initParameters(resource.getURIPattern());
+        // set initialized context to thread local
+        contextHolder.set(new Context(identifier));
+        
         Annotation[] methodParametersAnnotations = resource.getMethodParameterAnnotations();
         Class<?>[] methodParameters = resource.getMethodParameters();
         Object[] params = new Object[methodParameters.length];
@@ -87,16 +93,19 @@ public class ResourceDispatcher implements Connector {
 
               URIParam u = (URIParam) a;
               params[i] = request.getResourceIdentifier().getParameters().get(u.value());
+              contextHolder.get().setURIParam(u.value(), (String)params[i]);
             } else if ("org.exoplatform.services.rest.HeaderParam".equals(a.annotationType()
                 .getCanonicalName())) {
 
               HeaderParam h = (HeaderParam) a;
               params[i] = request.getHeaderParams().getFirst(h.value());
+              contextHolder.get().setHeaderParam(h.value(), (String)params[i]);
             } else if ("org.exoplatform.services.rest.QueryParam".equals(a.annotationType()
                 .getCanonicalName())) {
 
               QueryParam q = (QueryParam) a;
               params[i] = request.getQueryParams().getFirst(q.value());
+              contextHolder.get().setQueryParam(q.value(), (String)params[i]);
             } else if ("org.exoplatform.services.rest.BaseURI".equals(a.annotationType()
                 .getCanonicalName())) {
               BaseURI r = (BaseURI) a;
@@ -111,6 +120,10 @@ public class ResourceDispatcher implements Connector {
     // if no one ResourceContainer found
     throw new NoSuchMethodException("No method found for " + methodName + " " + requestedURI + " "
        + acceptedMimeTypes);
+  }
+  
+  public Context getRuntimeContext() {
+    return contextHolder.get();
   }
 
   /**
@@ -136,4 +149,35 @@ public class ResourceDispatcher implements Connector {
     return false;
   }
   
+  public class Context {
+    private HashMap<String, String> uriParams;
+    private MultivaluedMetadata headerParams;
+    private MultivaluedMetadata queryParams; 
+    private ResourceIdentifier identifier;
+    
+    public Context(ResourceIdentifier identifier) {
+      this.identifier = identifier;
+      uriParams = new HashMap<String, String>();
+      headerParams = new MultivaluedMetadata();
+      queryParams = new MultivaluedMetadata();
+    }
+    
+    public String createAbsLocation(String additionalPath) {
+      return identifier.getBaseURI()+"/"+
+      identifier.getURI().toASCIIString()+additionalPath;
+    }
+    
+    private void setURIParam(String key, String value) {
+      uriParams.put(key, value);
+    }
+
+    private void setHeaderParam(String key, String value) {
+      headerParams.add(key, value);
+    }
+    
+    private void setQueryParam(String key, String value) {
+      queryParams.add(key, value);
+    }
+    
+  }
 }

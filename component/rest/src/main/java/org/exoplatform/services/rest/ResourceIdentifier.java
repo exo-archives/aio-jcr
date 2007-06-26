@@ -19,16 +19,36 @@ public class ResourceIdentifier {
 
   private Map<String, String> parameters = null; 
   private URI uri;
+  private String baseURI;
   
-  public ResourceIdentifier(String uriString) {
-    String str = (uriString.endsWith("/")) ? uriString : (uriString+"/");
+  public ResourceIdentifier(String baseURI, String relURI) {
+    String str = (relURI.endsWith("/")) ? relURI : (relURI+"/");
     this.uri = URI.create(str);
+    this.baseURI = baseURI;
   }
+  
+  public ResourceIdentifier(String relURI) {
+    this("", relURI);
+  }
+  
+//  public ResourceIdentifier(String uriString) {
+//    String str = (uriString.endsWith("/")) ? uriString : (uriString+"/");
+//    this.uri = URI.create(str);
+//  }
+
   
   public URI getURI() {
     return uri;
   }
   
+  public String getBaseURI() {
+    return baseURI;
+  }
+
+  public void initParameters(URIPattern pattern) {
+    this.parameters = pattern.parse(uri.toASCIIString());
+  }
+
   public Map<String, String> getParameters() throws IllegalStateException {
     if(parameters == null)
       throw new IllegalStateException(
@@ -36,12 +56,9 @@ public class ResourceIdentifier {
     return parameters;
   }
 
-  public void initParameters(URIPattern pattern) {
-    this.parameters = pattern.parse(uri.toASCIIString());
-  }
   
-  public void relativizeAgainst(String shorterURI) {
-    this.uri = URI.create(shorterURI).relativize(uri);
-  }
+//  public void relativizeAgainst(String shorterURI) {
+//    this.uri = URI.create(shorterURI).relativize(uri);
+//  }
 
 }

@@ -46,7 +46,7 @@ public class RequestFactory {
 //    if(contentType == null)
 //      contentType = "application/octet-stream";
 //    // 
-    return new Request(in, new ResourceIdentifier(pathInfo),
+    return new Request(in, new ResourceIdentifier(pathInfo, httpRequest.getServletPath()),
         method, headerParams, queryParams, uri.substring(0, uri.lastIndexOf(pathInfo) + 1));
   }
 
