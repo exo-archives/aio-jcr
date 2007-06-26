@@ -11,5 +11,5 @@
 Application server's specific configs is placed in product-patches/as/ folder.
 Win32NetBIOS.dll - will be placed in root directory of an application server, this dll will be use by CIFS (Windows OS).
 exo-configuration.xml - the main config file for the samles.
-For now you may automatically deploy our samples (including ear) for tomcat 5.x, jboss and jonas application servers.  
+For now you may automatically deploy our samples (including ear) for tomcat, jboss and jonas application servers.  
 Deployment procedure has been tested with tomcat5.x, jboss-4.0.3SP1 and JONAS_4_7_4.
