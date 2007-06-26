@@ -130,7 +130,7 @@ public class RESTRegistryService implements ResourceContainer {
   @HTTPMethod("POST")
   @URITemplate("/{group}/")
   @EntityTransformerClass("org.exoplatform.services.rest.transformer.XMLEntityTransformer")
-  public Response<?> createEntry(RegistryEntry entry,
+  public Response<?> createEntry(Document entry,
       @URIParam("repository") String repository,
       @URIParam("group") String groupName,
   		@BaseURI(true) String baseURI)
@@ -139,8 +139,8 @@ public class RESTRegistryService implements ResourceContainer {
     regService.getRepositoryService().setCurrentRepositoryName(repository);
     SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null); 
   	try {
-//  	  regService.createEntry(sessionProvider, groupName, new RegistryEntry(entry));
-      regService.createEntry(sessionProvider, groupName, entry);
+  	  regService.createEntry(sessionProvider, groupName, new RegistryEntry(entry));
+//      regService.createEntry(sessionProvider, groupName, entry);
       String[] uriParams = {repository, groupName};    
 
       String fullURI = URIRestorer.restoreURI(baseURI, uriParams,
@@ -148,11 +148,13 @@ public class RESTRegistryService implements ResourceContainer {
           getClass().getAnnotation(URITemplate.class));
       
       EntityMetadata metaData = new EntityMetadata("text/plain");
-//      metaData.setLocation(fullURI + entry.getDocumentElement().getNodeName());
-      metaData.setLocation(fullURI + entry.getName());
+      String locname = entry.getDocumentElement().getNodeName();
+
+      metaData.setLocation(fullURI + locname);
+//      metaData.setLocation(fullURI + entry.getName());
     
-      System.out.println("Location: >>>>>>"+fullURI + entry.getName());
-      System.out.println("Location: >>>>>>"+dispatcher.getRuntimeContext().createAbsLocation(entry.getName()));
+      System.out.println("Location: >>>>>>"+fullURI + locname);
+      System.out.println("Location: >>>>>>"+dispatcher.getRuntimeContext().createAbsLocation(locname));
           
       sessionProvider.close();
       return new Response<String> (RESTStatus.CREATED, metaData,
