@@ -170,9 +170,7 @@ public class SessionDataManager implements ItemDataConsumer {
 
     if (name.getName().equals(JCRPath.PARENT_RELPATH)
         && name.getNamespace().equals(Constants.NS_DEFAULT_URI)) {
-      // TODO [PN] 26.06.07 why we ask for a parent by id if we already got it. 
-      //return getItemData(parent.getParentIdentifier());
-      return parent;
+      return getItemData(parent.getParentIdentifier());
     }
     
     ItemData data = null;
