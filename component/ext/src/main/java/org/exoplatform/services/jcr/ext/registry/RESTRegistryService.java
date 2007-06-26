@@ -53,9 +53,8 @@ public class RESTRegistryService implements ResourceContainer {
   
   
   public RESTRegistryService(RegistryService regService,
-      ThreadLocalSessionProviderService sessionProviderService
-      //ResourceDispatcher dispatcher
-      ) throws Exception {
+      ThreadLocalSessionProviderService sessionProviderService,
+      ResourceDispatcher dispatcher ) throws Exception {
     
     this.regService = regService;
     this.sessionProviderService = sessionProviderService;
