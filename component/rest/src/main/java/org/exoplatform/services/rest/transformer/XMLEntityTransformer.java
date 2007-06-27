@@ -21,7 +21,7 @@ import javax.xml.transform.TransformerFactory;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public class XMLEntityTransformer implements EntityTransformer<Document> {
+public class XMLEntityTransformer implements EntityTransformer {
 
   public Document readFrom(InputStream entityDataStream) throws IOException {
     try {
@@ -33,15 +33,16 @@ public class XMLEntityTransformer implements EntityTransformer<Document> {
     }
   }
 
-  public void writeTo(Document entity, OutputStream entityDataStream) throws IOException {
+  public void writeTo(Object entity, OutputStream entityDataStream)
+      throws IOException {
+
+    Document entity_ = (Document)entity;
     try {
-      TransformerFactory.newInstance().newTransformer().transform(new DOMSource(entity),
+      TransformerFactory.newInstance().newTransformer().transform(new DOMSource(entity_),
           new StreamResult(entityDataStream));
     } catch (TransformerException tre) {
       throw new IOException("Can't write to output stream " + tre);
     }
-//    entityDataStream.flush();
-//    entityDataStream.close();
   }
 
 }

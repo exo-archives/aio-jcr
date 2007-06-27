@@ -13,10 +13,10 @@ import java.io.IOException;
  * @version $Id: $
  */
 
-public interface EntityTransformer<T> {
+public interface EntityTransformer {
 
-  public T readFrom(InputStream entityDataStream) throws IOException;
+  public Object readFrom(InputStream entityDataStream) throws IOException;
 
-  public void writeTo(T entity, OutputStream entityDataStream) throws IOException;
+  public void writeTo(Object entity, OutputStream entityDataStream) throws IOException;
 
 }

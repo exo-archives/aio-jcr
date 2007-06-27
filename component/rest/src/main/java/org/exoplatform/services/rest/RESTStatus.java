@@ -25,7 +25,7 @@ public interface RESTStatus {
   public static final int  INTERNAL_ERROR = 500; //HTTP Status-Code 500: Internal Server Error.
   public static final int  LENGTH_REQUIRED = 411;//HTTP Status-Code 411: Length Required.
   public static final int  MOVED_PERM = 301;     //HTTP Status-Code 301: Moved Permanently.
-  public static final int  MOVED_TEMP = 302;     //HTTP Status-Code 302: Temporary Redirect.
+  public static final int  FOUND = 302;          //HTTP Status-Code 302: Temporary Redirect.
   public static final int  MULT_CHOICE = 300;    //HTTP Status-Code 300: Multiple Choices.
   public static final int  NO_CONTENT = 204;     //HTTP Status-Code 204: No Content.
   public static final int  NOT_ACCEPTABLE = 406; //HTTP Status-Code 406: Not Acceptable.
@@ -41,6 +41,7 @@ public interface RESTStatus {
   public static final int  REQ_TOO_LONG = 414;   //HTTP Status-Code 414: Request-URI Too Large.
   public static final int  RESET = 205;          //HTTP Status-Code 205: Reset Content.
   public static final int  SEE_OTHER = 303;      //HTTP Status-Code 303: See Other.
+  public static final int  TEMP_REDIRECT = 307;  //HTTP Status-Code 307: Temporary Redirect.
   public static final int  UNAUTHORIZED = 401;   //HTTP Status-Code 401: Unauthorized.
   public static final int  UNAVAILABLE = 503;    //HTTP Status-Code 503: Service Unavailable.
   public static final int  UNSUPPORTED_TYPE=415; //HTTP Status-Code 415: Unsupported Media Type.

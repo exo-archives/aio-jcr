@@ -49,7 +49,7 @@ public class ResourceDispatcher implements Connector {
    * @return REST response from ResourceContainer
    * @throws Exception
    */
-  public Response<?> dispatch(Request request) throws Exception {
+  public Response dispatch(Request request) throws Exception {
     String requestedURI = request.getResourceIdentifier().getURI().getPath();
     String methodName = request.getMethodName();
     
@@ -81,8 +81,8 @@ public class ResourceDispatcher implements Connector {
             if("java.io.InputStream".equals(methodParameters[i].getCanonicalName())) {
               params[i] = request.getEntityStream();
             } else {
-              EntityTransformer<?> transformer =
-                (EntityTransformer<?>)Class.forName(resource.getTransformerName()).newInstance();
+              EntityTransformer transformer =
+                (EntityTransformer)Class.forName(resource.getTransformerName()).newInstance();
               params[i] = transformer.readFrom(request.getEntityStream());
             }
           } else {
@@ -106,15 +106,10 @@ public class ResourceDispatcher implements Connector {
               QueryParam q = (QueryParam) a;
               params[i] = request.getQueryParams().getFirst(q.value());
               contextHolder.get().setQueryParam(q.value(), (String)params[i]);
-            } else if ("org.exoplatform.services.rest.BaseURI".equals(a.annotationType()
-                .getCanonicalName())) {
-              BaseURI r = (BaseURI) a;
-              if(r.value())
-                params[i] = request.getURI();
             }
           }
         }
-        return (Response<?>) resource.getServer().invoke(resource.getResourceContainer(), params);
+        return (Response) resource.getServer().invoke(resource.getResourceContainer(), params);
       }
     }
     // if no one ResourceContainer found
@@ -162,9 +157,12 @@ public class ResourceDispatcher implements Connector {
       queryParams = new MultivaluedMetadata();
     }
     
+    public String getAbsLocation () {
+      return identifier.getBaseURI() + identifier.getURI().toASCIIString();
+    }
+    
     public String createAbsLocation(String additionalPath) {
-      return identifier.getBaseURI()+"/"+
-      identifier.getURI().toASCIIString()+additionalPath;
+      return getAbsLocation() + additionalPath;
     }
     
     private void setURIParam(String key, String value) {

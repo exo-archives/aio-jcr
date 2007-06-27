@@ -12,19 +12,18 @@ import java.io.IOException;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public class DummyEntityTransformer implements EntityTransformer<InputStream> {
+public class DummyEntityTransformer implements EntityTransformer {
 
   public InputStream readFrom(InputStream entityDataStream) throws IOException {
     return entityDataStream;
   }
 
-  public void writeTo(InputStream entity, OutputStream entityDataStream) throws IOException {
+  public void writeTo(Object entity, OutputStream entityDataStream) throws IOException {
+    InputStream entity_ = (InputStream)entity;
     byte[] buf = new byte[4096];
     int rd = -1;
-    while((rd = entity.read(buf)) != -1)
+    while((rd = entity_.read(buf)) != -1)
       entityDataStream.write(buf, 0, rd);    
-//    entityDataStream.flush();
-//    entityDataStream.close();
   }
 
 }

@@ -14,7 +14,7 @@ import java.io.OutputStream;
  * @version $Id: $
  */
 
-public class StringEntityTransformer implements EntityTransformer<String> {
+public class StringEntityTransformer implements EntityTransformer {
 
   public String readFrom(InputStream entityDataStream) throws IOException {
     StringBuffer sb = new StringBuffer();
@@ -25,12 +25,11 @@ public class StringEntityTransformer implements EntityTransformer<String> {
     return sb.toString();
   }
 
-  public void writeTo(String entityData, OutputStream entityDataStream)
-  throws IOException {
+  public void writeTo(Object entity, OutputStream entityDataStream) 
+      throws IOException {
     
-    entityDataStream.write(entityData.getBytes());
-//    entityDataStream.flush();
-//    entityDataStream.close();
+    String entity_ = (String)entity;
+    entityDataStream.write(entity_.getBytes());
   }
 
 }
