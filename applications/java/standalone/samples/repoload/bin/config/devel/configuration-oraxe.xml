@@ -171,7 +171,7 @@
         <type>org.exoplatform.services.jcr.impl.AddNodeTypePlugin</type>
         <init-params>
           <values-param>
-            <name>nodeTypesFiles</name>
+            <name>autoCreatedInNewRepository</name>
             <description>Node types configuration file</description>
 	    	<value>file:bin/config/ext-nodetypes-config.xml</value>
           </values-param>

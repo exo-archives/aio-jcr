@@ -86,7 +86,7 @@
 			<type>org.exoplatform.services.jcr.impl.AddNodeTypePlugin</type>
 			<init-params>
 				<values-param>
-					<name>nodeTypesFiles</name>
+					<name>autoCreatedInNewRepository</name>
 					<description>Node types configuration file</description>
 					<value>jar:/conf/webdav-nodetypes.xml</value>
 				</values-param>
