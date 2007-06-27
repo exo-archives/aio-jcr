@@ -175,7 +175,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     
     NodeImpl node = (NodeImpl) dataManager.getItem(nodeData(), itemPath.getInternalPath().getEntries(), true);
     if (node == null)
-      throw new PathNotFoundException("Node not found " + node.getLocation().getAsString(false) + ", id: " + itemPath.getAsString(false));
+      throw new PathNotFoundException("Node not found " + getLocation().getAsString(false) + "/" + itemPath.getAsString(false));
     return node;
   }
 
