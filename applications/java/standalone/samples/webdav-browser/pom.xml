@@ -28,6 +28,13 @@
       <version>${org.exoplatform.core.version}</version>
       <scope>provided</scope>
     </dependency>
+    
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.framework.httpclient</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>compile</scope>
+    </dependency>
 
   <!-- dependency>
     <groupId>commons-logging</groupId>
