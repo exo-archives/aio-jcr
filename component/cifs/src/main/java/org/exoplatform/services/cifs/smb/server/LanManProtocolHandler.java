@@ -593,7 +593,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
     // Extract the open file parameters
 
-    int flags = m_smbPkt.getParameter(2);
+    // int flags = m_smbPkt.getParameter(2); //useless
     int access = m_smbPkt.getParameter(3);
     int srchAttr = m_smbPkt.getParameter(4);
     int fileAttr = m_smbPkt.getParameter(5);
@@ -705,11 +705,16 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
             responseAction = FileAction.FileTruncated;
           else
             responseAction = FileAction.FileExisted;
+        } else {
+          m_sess.sendErrorResponseSMB(SMBStatus.DOSFileAlreadyExists,
+              SMBStatus.ErrDos);
+          return;
         }
       }
 
-      if (file != null)
+      if (file != null) {
         fid = conn.addFile(file, getSession());
+      }
 
     } catch (PathNotFoundException e) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSFileNotFound, SMBStatus.ErrDos);
@@ -1727,7 +1732,8 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
     if (shareDev == null
         || (servType != ShareType.UNKNOWN && shareDev.getType() != servType)) {
-      m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive , SMBStatus.ErrDos);
+      m_sess
+          .sendErrorResponseSMB(SMBStatus.NETBadNetworkName, SMBStatus.NetErr);
       return;
     }
 
