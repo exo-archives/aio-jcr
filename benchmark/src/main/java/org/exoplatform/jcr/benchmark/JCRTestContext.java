@@ -18,14 +18,18 @@ import javax.jcr.Session;
 
 public final class JCRTestContext extends HashMap<String, Object> {
 
-  public static final String SESSION       = "session";
+  protected static int     threadCounter = 0;
+  
+  private static final String sessionId = ""+System.currentTimeMillis();
+  
+  public static final String SESSION  = "session";
 
   private int counter = 0;
   
   private String name;
   
-  public JCRTestContext(String contextName) {
-    this.name = contextName;
+  public JCRTestContext() {
+    this.name = sessionId+"-"+(threadCounter++);;
   }
 
   public void setSession(Session session) {

@@ -28,8 +28,6 @@ import com.sun.japex.TestCase;
 
 public class JCRDriver extends JapexDriverBase {
 
-  protected static int     threadCounter = 0;
-
   protected Repository     repository;
 
   protected Session        oneSession;
@@ -42,8 +40,6 @@ public class JCRDriver extends JapexDriverBase {
 
   private JCRTestBase      test;
   
-  private static final String sessionId = ""+System.currentTimeMillis();
-
   @Override
   public void initializeDriver() {
     super.initializeDriver();
@@ -69,9 +65,7 @@ public class JCRDriver extends JapexDriverBase {
       workspace = getParam("jcr.workspace");
       credentials = new SimpleCredentials(user, password.toCharArray());
       oneSession = repository.login(credentials, workspace);
-      context = new JCRTestContext(sessionId+"-"+threadCounter++);
-      //++threadCounter;
-      //context.put(JCRTestContext.THREAD_NUMBER, threadCounter);
+      context = new JCRTestContext();
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
@@ -98,7 +92,6 @@ public class JCRDriver extends JapexDriverBase {
       test.doRun(tc, context);
     } catch (Exception e) {
       e.printStackTrace();
-      //throw new RuntimeException(e);
       try {
         Session s = context.getSession();
         if(s != null)
@@ -117,14 +110,6 @@ public class JCRDriver extends JapexDriverBase {
       e.printStackTrace();
       throw new RuntimeException(e);
     }
-
-//     System.out.println("------------------- FINISH --------------"
-//     +tc.getParam("japex.actualRunTime")+" "
-//     +tc.getParam("japex.runIterations")+" "
-//     +getParam("japex.numberOfThreads")+" "
-//     +tc.getParam("japex.resultUnit")+" "
-//     );
-
   }
 
   private synchronized JCRTestBase testInstance(TestCase tc) {

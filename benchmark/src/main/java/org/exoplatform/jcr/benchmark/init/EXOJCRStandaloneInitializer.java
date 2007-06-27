@@ -12,6 +12,7 @@ import com.sun.japex.Params;
 
 /**
  * Created by The eXo Platform SARL        .
+ * Initializes the local (Current) eXo Repository registered in Standalone eXo Container 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -28,10 +29,6 @@ public class EXOJCRStandaloneInitializer extends JCRInitializer {
     String containerConf = params.getParam("exo.containerConf");
     try {
       
-      //String path = Thread.currentThread().getContextClassLoader().getResource(
-      //    containerConf).toString();
-      
-      //StandaloneContainer.addConfigurationPath(path);
       StandaloneContainer.addConfigurationPath(containerConf);
       StandaloneContainer container = StandaloneContainer.getInstance();
       if (System.getProperty("java.security.auth.login.config") == null)

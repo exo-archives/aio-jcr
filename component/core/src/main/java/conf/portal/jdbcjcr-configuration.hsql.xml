@@ -24,6 +24,7 @@
             <description>ref-addresses</description>
             <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
             <property name="url" value="jdbc:hsqldb:file:../temp/data/exodb"/>
+            <!-- property name="url" value="jdbc:hsqldb:file:/tmp/hsql/exodb"/ -->
             <property name="username" value="sa"/>
             <property name="password" value=""/>
           </properties-param>

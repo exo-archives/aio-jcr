@@ -12,7 +12,7 @@ import com.sun.japex.Params;
 
 /**
  * Created by The eXo Platform SARL .
- * 
+ * Abstract class encapsulates mechanizm of repository initialization
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -21,8 +21,15 @@ public abstract class JCRInitializer {
 
   protected Repository repository;
 
+  /**
+   * Initializes repository
+   * @param params
+   */
   public abstract void initialize(Params params);
 
+  /**
+   * @return repository
+   */
   public final Repository getRepository() {
     return repository;
   }

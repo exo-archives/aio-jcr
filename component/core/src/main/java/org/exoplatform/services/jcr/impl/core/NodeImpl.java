@@ -237,7 +237,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     Item prop = dataManager.getItem(nodeData(), itemPath.getInternalPath().getEntries(), true);
     
     if (prop == null || prop.isNode())
-      throw new PathNotFoundException("Property not found " + itemPath.getAsString(false));
+      throw new PathNotFoundException("Property not found " + itemPath.getAsString(false)+" "+relPath);
 
     return (Property) prop;
   }

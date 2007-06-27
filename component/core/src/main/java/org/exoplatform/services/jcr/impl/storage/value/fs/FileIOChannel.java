@@ -23,41 +23,26 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: FileIOChannel.java 12841 2007-02-16 08:58:38Z peterit $
  */
 
-public class FileIOChannel implements ValueIOChannel {
+public abstract class FileIOChannel implements ValueIOChannel {
   
   protected static Log log = ExoLogger.getLogger("jcr.FileIOChannel");
   
-  protected final File rootDir;
-  protected final FileCleaner cleaner;
+  protected File rootDir;
+  protected FileCleaner cleaner;
   
   public FileIOChannel(File rootDir, FileCleaner cleaner) {
     this.rootDir = rootDir;
     this.cleaner = cleaner;
   }
-  /*
-  public List<ValueData> read(String propertyId, int maxBufferSize) throws IOException {
-    
-    final File[] valueFiles = rootDir.listFiles(new PropertyIDFilter(propertyId));
-    ArrayList<ValueData> data = new ArrayList<ValueData>(valueFiles.length);
-    for (int orderNum = 0; orderNum<valueFiles.length; orderNum++) {
-      ValueData vdata = FileValueIOUtil.readValue(valueFiles[orderNum], orderNum, maxBufferSize, false);
-      data.add(vdata);
-    }
-    return data;
-  }
-
-  public void write(String propertyId, List<ValueData> values)  throws IOException {
-
-    for(ValueData value: values) {
-      String fileName = propertyId + value.getOrderNumber();
-      File file = new File(rootDir, fileName);
-      FileValueIOUtil.writeValue(file, value);
-    }      
-  }
-  */
+  
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#delete(java.lang.String)
+   */
   public boolean delete(String propertyId)  throws IOException {
     
-    final File[] valueFiles = rootDir.listFiles(new PropertyIDFilter(propertyId));
+//    final File[] valueFiles = rootDir.listFiles(new PropertyIDFilter(propertyId));
+    final File[] valueFiles = getFiles(propertyId);
+
     boolean result = true;
     for(File valueFile: valueFiles) {
       if(!valueFile.delete()) {
@@ -68,31 +53,46 @@ public class FileIOChannel implements ValueIOChannel {
     return result;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#close()
+   */
   public void close() {
   }
   
-  private class PropertyIDFilter implements FileFilter {
-    
-    private String id;
-
-    public PropertyIDFilter(String id) {
-      this.id = id;
-    }
-
-    public boolean accept(File file) {
-      return file.getName().startsWith(id);// && !file.getName().endsWith(SharedFile.DELETED_EXTENSION);
-    }
-  }
-
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#read(java.lang.String, int, int)
+   */
   public ValueData read(String propertyId, int orderNumber, int maxBufferSize) throws IOException {
-    File valueFile = new File(rootDir, propertyId + orderNumber);
+//    File valueFile = new File(rootDir, propertyId + orderNumber);
+    File valueFile = getFile(propertyId, orderNumber);
     return FileValueIOUtil.readValue(valueFile, orderNumber, maxBufferSize, false);
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#write(java.lang.String, org.exoplatform.services.jcr.datamodel.ValueData)
+   */
   public String write(String propertyId, ValueData value) throws IOException {
-    String fileName = propertyId + value.getOrderNumber();
-    File file = new File(rootDir, fileName);
+//    String fileName = propertyId + value.getOrderNumber();
+//    File file = new File(rootDir, fileName);
+    File file = getFile(propertyId, value.getOrderNumber());
     FileValueIOUtil.writeValue(file, value);
     return file.getAbsolutePath();
   }
+  
+  /**
+   * creates file by propertyId and order number
+   * @param propertyId
+   * @param orderNumber
+   * @return 
+   */
+  protected abstract File getFile(String propertyId, int orderNumber);
+
+  /**
+   * creates file list by propertyId
+   * @param propertyId
+   * @return
+   */
+  protected abstract File[] getFiles(String propertyId);
+
+  
 }

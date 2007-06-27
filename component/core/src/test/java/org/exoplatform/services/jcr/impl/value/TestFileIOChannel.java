@@ -17,6 +17,7 @@ import junit.framework.TestCase;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.storage.value.fs.FileIOChannel;
+import org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileIOChannel;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
@@ -52,7 +53,7 @@ public class TestFileIOChannel extends TestCase {
     
     
     File root = new File("target");
-    FileIOChannel channel = new FileIOChannel(root, cleaner);
+    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner);
     if(!root.exists())
       throw new Exception("Folder does not exist "+root.getAbsolutePath());
     
@@ -85,7 +86,7 @@ public class TestFileIOChannel extends TestCase {
   public void testWriteToIOChannel() throws Exception {
     File root = new File("target");
     
-    FileIOChannel channel = new FileIOChannel(root, cleaner);
+    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner);
     if(!root.exists())
       throw new Exception("Folder does not exist "+root.getAbsolutePath());
     
@@ -115,7 +116,7 @@ public class TestFileIOChannel extends TestCase {
   
   public void testDeleteFromIOChannel() throws Exception {
     File root = new File("target");
-    FileIOChannel channel = new FileIOChannel(root, cleaner);
+    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner);
     if(!root.exists())
       throw new Exception("Folder does not exist "+root.getAbsolutePath());
     
@@ -148,7 +149,7 @@ public class TestFileIOChannel extends TestCase {
   
   public void testConcurrentReadFromIOChannel() throws Exception {
     File root = new File("target");
-    FileIOChannel channel = new FileIOChannel(root, cleaner);
+    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner);
     if(!root.exists())
       throw new Exception("Folder does not exist "+root.getAbsolutePath());
     
@@ -190,7 +191,7 @@ public class TestFileIOChannel extends TestCase {
 
   public void testDeleteLockedFileFromIOChannel() throws Exception {
     File root = new File("target");
-    FileIOChannel channel = new FileIOChannel(root, cleaner);
+    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner);
     if(!root.exists())
       throw new Exception("Folder does not exist "+root.getAbsolutePath());
     

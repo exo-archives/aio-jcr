@@ -42,20 +42,8 @@ public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugi
 
   private static Log        log              = ExoLogger.getLogger("jcr.ValueStoragePluginFactory");
 
-  // private BinaryValueSwapStorage binarySwap = null;
-
   public StandaloneStoragePluginProvider(WorkspaceEntry wsConfig) throws RepositoryConfigurationException,
       IOException {
-
-    // this(null, wsConfig);
-    // }
-    //  
-    // public StandaloneStoragePluginProvider(BinaryValueSwapStorage binarySwap,
-    // WorkspaceEntry wsConfig)
-    // throws RepositoryException, RepositoryConfigurationException,
-    // NamingException, IOException {
-    //
-    // this.binarySwap = binarySwap;
 
     List<ValueStorageEntry> storages = wsConfig.getContainer().getValueStorages();
 
@@ -94,9 +82,6 @@ public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugi
         plugin.init(props);
         plugin.setFilters(filters);
 
-        // if swapStorage is null swopping will be disabled in anycase
-        // plugin.initBinarySwap(this.binarySwap);
-
         add(plugin);
         log.info("Value Storage Plugin initialized " + plugin);
       }
@@ -120,10 +105,6 @@ public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugi
     }
     return null;
   }
-
-  // public BinaryValueSwapStorage getBinaryValueSwap() {
-  // return binarySwap;
-  // }
 
   public Iterator<ValueStoragePlugin> plugins() {
     return iterator();
