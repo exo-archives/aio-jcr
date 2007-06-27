@@ -6,6 +6,7 @@
 package org.exoplatform.services.jcr.access;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -33,39 +34,37 @@ import org.exoplatform.services.organization.OrganizationService;
 
 public abstract class AccessManager {
 
-  protected static Log log = ExoLogger.getLogger("jcr.AccessManager");
+  protected static Log                          log           = ExoLogger
+                                                                  .getLogger("jcr.AccessManager");
 
-  protected final Map <String, String> parameters;
-  
-  private final OrganizationService orgService;
-  
-  private static ThreadLocal <InvocationContext> contextHolder = new ThreadLocal<InvocationContext>(); 
-  
-  protected AccessManager(RepositoryEntry config, WorkspaceEntry wsConfig
-      ,OrganizationService orgService)
-      throws RepositoryException {
-//    this.accessControlPolicy = config.getAccessControl();
-    this.parameters = new HashMap <String, String>();
-//    AccessManagerEntry amConfig = wsConfig.getAccessManager();
-    if(wsConfig != null && wsConfig.getAccessManager() != null) {
-      List <SimpleParameterEntry> paramList = wsConfig.
-      getAccessManager().getParameters();
-      for(SimpleParameterEntry param : paramList) 
+  protected final Map<String, String>           parameters;
+
+  private final OrganizationService             orgService;
+
+  private static ThreadLocal<InvocationContext> contextHolder = new ThreadLocal<InvocationContext>();
+
+  protected AccessManager(RepositoryEntry config,
+      WorkspaceEntry wsConfig,
+      OrganizationService orgService) throws RepositoryException {
+// this.accessControlPolicy = config.getAccessControl();
+    this.parameters = new HashMap<String, String>();
+// AccessManagerEntry amConfig = wsConfig.getAccessManager();
+    if (wsConfig != null && wsConfig.getAccessManager() != null) {
+      List<SimpleParameterEntry> paramList = wsConfig.getAccessManager().getParameters();
+      for (SimpleParameterEntry param : paramList)
         parameters.put(param.getName(), param.getValue());
     }
     this.orgService = orgService;
   }
-  
 
-  
   protected final InvocationContext context() {
     return contextHolder.get();
   }
-  
+
   public final void setContext(InvocationContext context) {
     contextHolder.set(context);
   }
-  
+
   /**
    * @param acl
    * @param permission
@@ -73,8 +72,7 @@ public abstract class AccessManager {
    * @return
    * @throws RepositoryException
    */
-  public final boolean hasPermission(AccessControlList acl, String permission,
-      String userId) throws RepositoryException {
+  public final boolean hasPermission(AccessControlList acl, String permission, String userId) throws RepositoryException {
     return hasPermission(acl, parseStringPermissions(permission), userId);
   }
 
@@ -84,79 +82,75 @@ public abstract class AccessManager {
    * @param userId
    * @return
    */
-  public boolean hasPermission(AccessControlList acl, String[] permission,
-      String userId) {
-    
+  public boolean hasPermission(AccessControlList acl, String[] permission, String userId) {
+
     if (userId.equals(SystemIdentity.SYSTEM)) {
       // SYSTEM has permission everywhere
       return true;
-    } else if (userId.equals(acl.getOwner())) {      
-      //Current user is owner of node so has all privileges
+    } else if (userId.equals(acl.getOwner())) {
+      // Current user is owner of node so has all privileges
       return true;
-    } else if (userId.equals(SystemIdentity.ANONIM) 
-        && (permission.length > 1 || !permission[0].equals(PermissionType.READ)) ) {
-      //Anonim does not have WRITE permission even for ANY
-      //System.out.println(">>>userId "+userId+" "+permission[0]);
+    } else if (userId.equals(SystemIdentity.ANONIM)
+        && (permission.length > 1 || !permission[0].equals(PermissionType.READ))) {
+      // Anonim does not have WRITE permission even for ANY
+      // System.out.println(">>>userId "+userId+" "+permission[0]);
       return false;
     } else {
       // Check Other with Org service
-      for(AccessControlEntry ace: acl.getPermissionEntries()) {
-        if (isUserMatch(ace.getIdentity(), userId) && 
-            isPermissionMatch(ace.getPermission(), permission))
+      for (AccessControlEntry ace : acl.getPermissionEntries()) {
+        if (isUserMatch(ace.getIdentity(), userId)
+            && isPermissionMatch(ace.getPermission(), permission))
           return true;
       }
     }
-    //log.debug("Has Permission == false for "+userId);
+    // log.debug("Has Permission == false for "+userId);
     return false;
   }
 
   protected boolean isUserMatch(String identity, String userId) {
-    if (identity.equals(SystemIdentity.ANY)) //any
+    if (identity.equals(SystemIdentity.ANY)) // any
       return true;
-    if (identity.indexOf(":") == -1) // || identity.equals(SystemIdentity.ANONIM)) 
+    if (identity.indexOf(":") == -1) // ||
+      // identity.equals(SystemIdentity.ANONIM))
       // just user
       return identity.equals(userId);
-    else {// group
-      Iterator groups;
-      String membershipName = identity.substring(0, identity.indexOf(":"));
-      String groupName = identity.substring(identity.indexOf(":") + 1);
-      try {  
-        groups = orgService.getGroupHandler().findGroupsOfUser(userId).iterator();
+    // group
+    Iterator groups;
+    String membershipName = identity.substring(0, identity.indexOf(":"));
+    String groupName = identity.substring(identity.indexOf(":") + 1);
+    try {
+      groups = orgService.getGroupHandler().findGroupsOfUser(userId).iterator();
+    } catch (Exception e) {
+      log.error("AccessManager.isUserMatch() failed " + e);
+      return false;
+    }
+    
+    if ("*".equals(membershipName)) {
+      
+      while (groups.hasNext()) {
+        Group group = (Group) groups.next();
+        log.debug("Check of user " + userId + " membership. Test if " + groupName + " == "
+            + group.getId() + " " + groupName.equals(group.getId()));
+        if (groupName.equals(group.getId()))
+          return true;
+      }
+      
+    } else {
+      try {
+        Collection memberships = orgService.getMembershipHandler()
+            .findMembershipsByUserAndGroup(userId, groupName);
+        for (Object obj : memberships) {
+          Membership membership = (Membership) obj;
+          if (membership.getMembershipType().equals(membershipName))
+            return true;
+        }
       } catch (Exception e) {
         log.error("AccessManager.isUserMatch() failed " + e);
         return false;
       }
-      if ("*".equals(membershipName)) {
-        while (groups.hasNext()) {
-          Group group = (Group) groups.next();
-          if(log.isDebugEnabled()) {
-            log.debug("Check of user "+userId+" membership. Test if "+
-              groupName+" == "+group.getId()+" "+groupName.equals(group.getId()));
-          }
-          if (groupName.equals(group.getId())) 
-            return true;
-        }
-      } else {
-        while (groups.hasNext()) {
-          Group group = (Group) groups.next();
-          try {
-            Iterator memberships = 
-              orgService.getMembershipHandler().findMembershipsByUserAndGroup(userId, group.getId()).iterator();
-            while (memberships.hasNext()) {
-              Membership membership = (Membership) memberships.next();
-              if (membership.getMembershipType().equals(membershipName))
-                return true;
-            }
-          } catch (Exception e) {
-            log.error("AccessManager.isUserMatch() failed " + e);
-            return false;
-          }
-        }
-      }
-      return false;
     }
+    return false;
   }
-
 
   private static String[] parseStringPermissions(String str) {
     ArrayList permissions = new ArrayList();
@@ -171,10 +165,9 @@ public abstract class AccessManager {
     return perms;
   }
 
-  protected final boolean isPermissionMatch(String existedPermission,
-      String[] testPermissions) {
+  protected final boolean isPermissionMatch(String existedPermission, String[] testPermissions) {
     try {
-      //Value[] values = permProperty.getValues();
+      // Value[] values = permProperty.getValues();
       for (int i = 0; i < testPermissions.length; i++) {
         if (existedPermission.equals(testPermissions[i]))
           return true;
