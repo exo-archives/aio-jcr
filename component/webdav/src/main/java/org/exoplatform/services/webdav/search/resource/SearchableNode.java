@@ -23,6 +23,7 @@ import org.exoplatform.services.webdav.common.resource.AbstractNodeResource;
 import org.exoplatform.services.webdav.common.resource.NodeResource;
 import org.exoplatform.services.webdav.common.resource.WebDavResource;
 import org.exoplatform.services.webdav.common.response.Response;
+import org.exoplatform.services.webdav.common.response.ResponseBuilder;
 import org.exoplatform.services.webdav.search.Search;
 
 /**
@@ -47,6 +48,12 @@ public class SearchableNode extends AbstractNodeResource implements SearchableRe
   }
 
   public ArrayList<Response> doSearch(Search search) throws RepositoryException {
+    try {
+      throw new Exception("Test test.");
+    } catch (Exception exc) {
+      log.info("Unhandled exception. ", exc);
+    }
+    
     QueryManager queryManager = null;
     
     try {
@@ -86,8 +93,11 @@ public class SearchableNode extends AbstractNodeResource implements SearchableRe
       }
 
       WebDavResource resource = new NodeResource(context, curNode);
-      log.info("SEARCHED NAME: " + resource.getName());
-      //responses.add(resource.getResponse(propFindDoc));      
+      log.info("--- SEARCHED NAME: " + resource.getName());
+      
+      ResponseBuilder builder = new ResponseBuilder(resource, propFindDoc);
+      Response response = builder.getOwnResponse();      
+      responses.add(response);      
     }
     
     return responses;
