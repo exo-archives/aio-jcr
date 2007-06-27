@@ -139,12 +139,11 @@ public class ResourceContainerTest extends TestCase {
     MultivaluedMetadata mm = new MultivaluedMetadata();
     mm.putSingle("accept", "text/html;q=0.8,text/xml,text/plain;q=0.5");
     Request request = new Request(new ByteArrayInputStream("test string".getBytes()),
-        new ResourceIdentifier("/level1/myID/level3/"), "GET", mm, null,
-        "http://localhost/rest/service");
+        new ResourceIdentifier("/level1/myID/level3/"), "GET", mm, null);
     Response resp = disp.dispatch(request);
     resp.writeEntity(System.out);
     request = new Request(null, new ResourceIdentifier("/level1/myID/level3/"),
-        "POST", mm, null, null);
+        "POST", mm, null);
     binder.unbind(dw);
     assertEquals(0, list.size());
   }
@@ -165,17 +164,19 @@ public class ResourceContainerTest extends TestCase {
     MultivaluedMetadata mm = new MultivaluedMetadata();
     mm.putSingle("accept", "*/*");
     Request request = new Request(new ByteArrayInputStream("insert something".getBytes()),
-        new ResourceIdentifier("/level1/myID/level3/"), "POST", mm, null, null);
+        new ResourceIdentifier("/level1/myID/level3/"), "POST", mm, null);
     Response resp = disp.dispatch(request);
-    resp.writeEntity(System.out);
+    assertEquals("http://localhost/test/_post", resp.getResponseHeaders().getFirst("Location"));
 
     request = new Request(new ByteArrayInputStream("create something".getBytes()),
-        new ResourceIdentifier("/level1/myID/level3/"), "PUT", mm, null, null);
+        new ResourceIdentifier("/level1/myID/level3/"), "PUT", mm, null);
     resp = disp.dispatch(request);
+    assertEquals("http://localhost/test/_put", resp.getResponseHeaders().getFirst("Location"));
+    assertEquals("text/plain", resp.getMetadata().getMediaType());
     resp.writeEntity(System.out);
 
     request = new Request(new ByteArrayInputStream("delete something".getBytes()),
-        new ResourceIdentifier("/level1/myID/level3/test"), "DELETE", mm, null, null);
+        new ResourceIdentifier("/level1/myID/level3/test"), "DELETE", mm, null);
     resp = disp.dispatch(request);
     resp.writeEntity(System.out);
     binder.unbind(dw);
@@ -194,11 +195,10 @@ public class ResourceContainerTest extends TestCase {
     assertEquals(1, list.size());
 
     ByteArrayInputStream ds = new ByteArrayInputStream("hello".getBytes());
-    assertNotNull(ds);
     MultivaluedMetadata mm = new MultivaluedMetadata();
     mm.putSingle("accept", "text/plain");
     Request request = new Request(ds, 
-        new ResourceIdentifier("/level1/level2/level3/myID1/myID2"), "GET", mm, null, null);
+        new ResourceIdentifier("/level1/level2/level3/myID1/myID2"), "GET", mm, null);
     Response resp = disp.dispatch(request);
     assertEquals("text/plain", resp.getMetadata().getMediaType());
 //    resp.writeEntity(new FileOutputStream(new File("/tmp/test.txt")));

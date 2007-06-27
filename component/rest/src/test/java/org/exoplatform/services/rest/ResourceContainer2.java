@@ -14,17 +14,20 @@ import org.exoplatform.services.rest.transformer.StringEntityTransformer;
 
 @EntityTransformerClass("org.exoplatform.services.rest.transformer.StringEntityTransformer")
 public class ResourceContainer2 implements ResourceContainer {
+  
 
   @HTTPMethod("GET")
   @URITemplate("/level1/{id}/level3/")
   @ProducedMimeTypes("text/*")
-  public Response<String> method1(String str, @URIParam("id") String param,
-      @BaseURI(true) String uri) {
-    System.out.println(">>>>> method1 called!!! uri = " + uri +"; id = " + param);
-    System.out.println(">>>>> entity  type: " + str.getClass().toString() + ", value: " + str);
-    EntityMetadata entityMetadata = new EntityMetadata("text/plain");
-    Response<String> resp = new Response<String>(RESTStatus.OK, entityMetadata,
-        ">>>>> response!!!\n", new StringEntityTransformer());
+  public Response method1(String str, @URIParam("id") String param) {
+    System.out.println(">>> method1 called: id = " + param);
+    System.out.println(">>> request entity - type: " + str.getClass().toString()
+        + "; value: " + str);
+    String e = ">>> this is response entity\n";
+    StringEntityTransformer transformer = new StringEntityTransformer();
+    Response resp =
+      Response.Builder.ok(e).type("text/plain").transformer(transformer).build();
+
     return resp;
   }
 
