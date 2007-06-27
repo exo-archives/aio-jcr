@@ -25,6 +25,7 @@ import org.exoplatform.services.log.ExoLogger;
 public class JCRPath {
 
   public final static String ROOT_PATH = "/";
+  public final static String ROOT_NAME = "";
   
   public final static String THIS_RELPATH = ".";
   public final static String PARENT_RELPATH = "..";
@@ -40,8 +41,8 @@ public class JCRPath {
   public boolean isAbsolute() {
     if (names.length > 0) {
       PathElement first = names[0];
-      if (first.getName().equals(ROOT_PATH)) {
-        return true;
+      if (first.getName().equals(ROOT_NAME)) {
+        return true; 
       }
     }
     return false;
