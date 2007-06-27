@@ -80,10 +80,6 @@ public class ObservationManagerImpl implements ObservationManager, SessionLifecy
    */
   public void onCloseSession(SessionImpl targetSession) {
     // do nothing, as we need to listen events after the session was logout 
-    
-//    if (this.getSessionId().equals(targetSession.getId())) {
-//      registry.removeSessionEventListeners(targetSession);
-//    }
   }
   
 }

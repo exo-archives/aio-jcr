@@ -548,19 +548,6 @@ public class NodeTypeImpl implements ExtendedNodeType {
 		}
 	}
 
-//	private Value getNameValue(String likeNameString)
-//			throws PathNotFoundException, RepositoryException {
-//		NamespaceRegistryImpl namespaceRegistry = new NamespaceRegistryImpl();
-//		LocationFactory factory = new LocationFactory(namespaceRegistry);
-//
-//    ValueFactoryImpl valFact = new ValueFactoryImpl(factory);
-//		Value nameValue = valFact
-//				.createValue(likeNameString, PropertyType.NAME);
-//
-//
-//		return nameValue;
-//	}
-
 	/** @see javax.jcr.nodetype.NodeType#canSetProperty */
 	public boolean canSetProperty(String propertyName, Value[] values) {
 		PropertyDefinition def = getPropertyDefinitions(propertyName)
@@ -857,9 +844,4 @@ public class NodeTypeImpl implements ExtendedNodeType {
     }
     return residual;
   }
-
-  
-  //public NodeTypeValue getValue() {
-  //  return value;
-  //}
 }

@@ -53,7 +53,6 @@ class WorkspaceTraversalResult implements QueryResult {
     /**
      * The namespace resolver of the session.
      */
-    //private final NamespaceResolver resolver;
     private final LocationFactory locationFactory;
 
     /**
@@ -75,16 +74,11 @@ class WorkspaceTraversalResult implements QueryResult {
      * @inheritDoc
      */
     public String[] getColumnNames() throws RepositoryException {
-//        try {
             String[] propNames = new String[properties.length];
             for (int i = 0; i < properties.length; i++) {
                 propNames[i] = locationFactory.createJCRName(properties[i]).getAsString();
             }
             return propNames;
-//        } catch (NoPrefixDeclaredException npde) {
-//            String msg = "encountered invalid property name";
-//            throw new RepositoryException(msg, npde);
-//        }
     }
 
     /**

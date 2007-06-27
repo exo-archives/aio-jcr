@@ -103,12 +103,6 @@ class QueryResultImpl implements QueryResult {
               propNames[i] = session.getLocationFactory().createJCRName(selectProps[i]).getAsString();
             }
             return propNames;
-        //} catch (NoPrefixDeclaredException npde) {
-        //    String msg = "encountered invalid property name";
-        //    log.debug(msg);
-        //    throw new RepositoryException(msg, npde);
-
-        //}
     }
 
     /**

@@ -53,11 +53,6 @@ class ConsistencyCheck {
      */
     private static Log log = ExoLogger.getLogger("jcr.ConsistencyCheck");
 
-    /**
-     * The ItemStateManager of the workspace.
-     */
-    //private final ItemStateManager stateMgr;
-
     private WorkspacePersistentDataManager dataManager;
     /**
      * The index to check.
@@ -277,10 +272,6 @@ class ConsistencyCheck {
                       pIdentifier = n.getParentIdentifier();
                     } else
                       pIdentifier = null;
-                    
-//                    pUUID = n.getParentUUID();
-//                } catch (ItemStateException e) {
-//                    throw new IOException(e.toString());
                 } catch (RepositoryException e) {
                     throw new IOException(e.toString());
                 }
@@ -341,14 +332,11 @@ class ConsistencyCheck {
             index.removeAllDocuments(id);
             // then re-index the node
             try {
-//                NodeState node = (NodeState) stateMgr.getItemState(new NodeId(uuid));
                 NodeData node = (NodeData) dataManager.getItemData(identifier); 
                 log.info("Re-indexing duplicate node occurrences in index: " + node.getQPath().getAsString());
                 Document d = index.createDocument(node);
                 index.addDocument(d);
                 documents.put(node.getIdentifier(), d);
-//            } catch (ItemStateException e) {
-//                throw new IOException(e.toString());
             } catch (RepositoryException e) {
                 throw new IOException(e.toString());
             }

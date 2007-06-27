@@ -579,9 +579,6 @@ public class JCRSQLQueryBuilder implements JCRSQLParserVisitor {
                     } catch (RepositoryException e) {
                         throw new IllegalArgumentException("Illegal name: " + name);
                     } 
-                    //catch (UnknownPrefixException e) {
-                    //    throw new IllegalArgumentException("Unknown prefix: " + name);
-                    //}
                 }
                 // if name test is % this means also search descendants
                 boolean descendant = name == null;

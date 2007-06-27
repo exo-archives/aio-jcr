@@ -191,10 +191,8 @@ class QueryImpl implements ExecutableQuery {
             for (int i = 0; i < result.length(); i++) {
                 String identifier = result.doc(i).get(FieldNames.UUID);
                 // check access
-                // if (accessMgr.isGranted(new NodeId(uuid), AccessManager.READ)) {
                     identifiers.add(identifier);
                     scores.add(new Float(result.score(i)));
-               // }
             }
         }
         catch (IOException e)
@@ -251,16 +249,13 @@ class QueryImpl implements ExecutableQuery {
         selectProps.add(Constants.JCR_PATH);
 
         // add jcr:score if necessary
-        //if (hasTextsearchNode(root.getLocationNode())) {
-           selectProps.add(Constants.JCR_SCORE);
-        //}
+        selectProps.add(Constants.JCR_SCORE);
         return new QueryResultImpl(
             //itemMgr,
             session,
             (String[]) identifiers.toArray(new String[identifiers.size()]),
             (Float[]) scores.toArray(new Float[scores.size()]),
             (InternalQName[]) selectProps.toArray(new InternalQName[selectProps.size()]),
-            //    session.getNamespaceResolver(),
                 orderNode == null && documentOrder);
 
     }

@@ -275,10 +275,6 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
       while (allTypes.hasNext()) {
         NodeType nt = allTypes.nextNodeType();
         NodeType[] superTypes = nt.getSupertypes();
-        //for(int i=0; i<superTypes.length; i++) {
-        //   if(superTypes[i].getName().equals(base.getName()))
-        //     values.add(nt.getName());
-        //}
         if (Arrays.asList(superTypes).contains(base)) {
           values.add(nt.getName());
         }

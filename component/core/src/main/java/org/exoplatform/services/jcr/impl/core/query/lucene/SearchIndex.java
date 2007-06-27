@@ -516,14 +516,6 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
     }
 
     /**
-     * Returns the namespace mappings for the internal representation.
-     * @return the namespace mappings for the internal representation.
-     */
-    //NamespaceMappings getNamespaceMappings() {
-    //    return index.getNamespaceMappings();
-    //}
-
-    /**
      * Creates a lucene <code>Document</code> from a node state using the
      * namespace mappings <code>nsMappings</code>.
      * @param node the node state to index.

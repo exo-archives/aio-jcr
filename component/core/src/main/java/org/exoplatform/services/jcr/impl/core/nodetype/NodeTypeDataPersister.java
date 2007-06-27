@@ -159,14 +159,6 @@ public class NodeTypeDataPersister {
     for (NodeType nt: nodetypes) {
       try {
         addNodeType(nt);
-        
-//        if (nt.getName().equals("nt:file")) {
-//          for (PropertyDefinition pd: nt.getPropertyDefinitions()) {
-//            if (pd.getName().equals("jcr:created")) {
-//              log.info("nt:file-->jcr:created >>> " + OnParentVersionAction.nameFromValue(pd.getOnParentVersion()));
-//            }
-//          }
-//        }
         log.info("Node type " + nt.getName() + " is initialized. ");
       } catch (ItemExistsException e) {
         log.warn("Node exists " + nt.getName() + ". Error: " + e.getMessage());
@@ -579,36 +571,6 @@ public class NodeTypeDataPersister {
                 pdr.getPropertyValue(Constants.JCR_PROTECTED).getBoolean(),
                 pdr.getPropertyValue(Constants.JCR_MULTIPLE).getBoolean(),
                 nameValue.getQName());
-            //NameValue nameValue = (NameValue) pdr.getPropertyValue(Constants.JCR_NAME);
-//            pDef.setName(nameValue.getString());
-//            pDef.setQName(nameValue.getQName());
-//            
-//            
-////            try {
-////            } catch(PathNotFoundException e) {
-////            }
-//            try {
-//              pDef.setAutoCreate(pdr.getPropertyValue(Constants.JCR_AUTOCREATED).getBoolean());
-//              pDef.setMandatory(pdr.getPropertyValue(Constants.JCR_MANDATORY).getBoolean());
-//              pDef.setReadOnly(pdr.getPropertyValue(Constants.JCR_PROTECTED).getBoolean());
-//              pDef.setMultiple(pdr.getPropertyValue(Constants.JCR_MULTIPLE).getBoolean());
-//              pDef.setOnVersion(
-//                  OnParentVersionAction.valueFromName(
-//                      pdr.getPropertyValue(Constants.JCR_ONPARENTVERSION).getString()));
-//              
-//              pDef.setDeclaringNodeType(type);
-//              pDef.setRequiredType(
-//                  ExtendedPropertyType.valueFromName(
-//                      pdr.getPropertyValue(Constants.JCR_REQUIREDTYPE).getString()));
-//            } catch (PathNotFoundException e) {
-//              throw new ConstraintViolationException("Mandatory property did not set."
-//                  + " PropertyDefinition: " + pDef.getName() + ". Type: " + type.getName() + ". Error: "
-//                  + e.getMessage() + ". Node type resistration aborted.");
-//            }
-            
-            
-
-            
             if (log.isDebugEnabled())
               log.debug("Property definitions readed " + pDef.getName() + " " + (System.currentTimeMillis() - ntStart));
             

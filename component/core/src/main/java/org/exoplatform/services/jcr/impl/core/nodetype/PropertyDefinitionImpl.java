@@ -56,10 +56,6 @@ public class PropertyDefinitionImpl extends ItemDefinitionImpl implements Proper
     this.hashCode = (31 * this.hashCode + requiredType)*31 + (multiple ? 0 : 31);
   }
 
-  // public PropertyDefinitionImpl() {
-  // super();
-  // }
-
   /**
    * @see javax.jcr.nodetype.PropertyDefinition#getRequiredType
    */
@@ -99,27 +95,11 @@ public class PropertyDefinitionImpl extends ItemDefinitionImpl implements Proper
   }
 
   /**
-   * @param multiple The multiple to set.
-   */
-  // public void setMultiple(boolean multiple) {
-  // this.multiple = multiple;
-  // }
-  //
-  // /**
-  // * @param requiredType The requiredType to set.
-  // */
-  // public void setRequiredType(int requiredType) {
-  // this.requiredType = requiredType;
-  /**
    * @param valueConstraints The valueConstraints to set.
    */
   public void setValueConstraints(String[] valueConstraints) {
     this.valueConstraints = valueConstraints;
   }
-
-  // public String toString() {
-  // return "PropertyDefImpl: " + name;
-  // }
 
   /**
    * Compare property definitions for equality by name, required type and
@@ -132,17 +112,6 @@ public class PropertyDefinitionImpl extends ItemDefinitionImpl implements Proper
     if (super.equals(obj))
       return true;
     if (obj instanceof PropertyDefinitionImpl) {
-      // PropertyDefinitionImpl pdImpl = (PropertyDefinitionImpl) obj;
-      // boolean sameName = false;
-      // if (this.getQName() == null) {
-      // if (pdImpl.getQName() == null)
-      // sameName = true;
-      // } else {
-      // sameName = this.getQName().equals(pdImpl.getQName());
-      // }
-      //  			
-      // return sameName && this.getRequiredType() == pdImpl.getRequiredType()
-      // && this.isMultiple() == pdImpl.isMultiple() ;
       return obj.hashCode() == hashCode;
     }
     return false;

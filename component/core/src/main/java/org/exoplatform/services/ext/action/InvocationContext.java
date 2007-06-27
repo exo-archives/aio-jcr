@@ -19,11 +19,6 @@ import org.exoplatform.container.ExoContainer;
  */
 
 public class InvocationContext extends HashMap implements Context {
-  
-  
-//  public Object put(Object key, Object value) {
-//     return (super.put(key, value));
-//  }
 
   public Item getCurrentItem() {
     return (Item)get("currentItem");

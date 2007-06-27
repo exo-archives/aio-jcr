@@ -36,12 +36,5 @@ public class ContainerEntry extends MappedParametrizedObjectEntry {
   public void setValueStorages(ArrayList valueStorages) {
     this.valueStorages = valueStorages;
   }
-  
-//  public BinarySwapEntry getBinarySwap() {
-//    return binarySwap;
-//  }
-//
-//  public void setBinarySwap(BinarySwapEntry binarySwap) {
-//    this.binarySwap = binarySwap;
-//  }    
+
 }

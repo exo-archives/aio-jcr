@@ -139,18 +139,6 @@ public abstract class ItemDefinitionImpl implements ExtendedItemDefinition {
   }
 
   /**
-   * @param name
-   *          The name to set.
-   */
-//  public void setName(String name) {
-//    this.name = name;
-//  }
-  
-//  public void setQName(InternalQName qname) {
-//    this.qName = qname;
-//  }
-
-  /**
    * @param onVersion
    *          The onVersion to set.
    */

@@ -1260,9 +1260,4 @@ public class JCRSQLParser/*@bgen(jjtree)*/implements JCRSQLParserTreeConstants, 
 
   final public void disable_tracing() {
   }
-
-//  void setNamespaceResolver(NamespaceResolver resolver) {
-//        this.resolver = resolver;
-//  }
-
 }

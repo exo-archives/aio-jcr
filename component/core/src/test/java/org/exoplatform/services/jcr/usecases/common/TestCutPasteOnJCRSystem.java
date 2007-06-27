@@ -88,11 +88,7 @@ otherAdminSession.refresh(false);
       System.out.println("\n=============>Node is cut:"+newsSrcPath);
     }
     
-//    try {
-      otherAdminSession.getItem(destPath2Paste) ;    
-//    }catch (Exception e) {      
-//      fail("\n!!!!!!!!======>Node isn't moved(pasted) successfully:" +destPath2Paste) ;
-//    }
+    otherAdminSession.getItem(destPath2Paste) ;    
     // add "cms/testNode" to check FAILL
     Node testTaxonomy = null ;
     try {

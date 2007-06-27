@@ -68,17 +68,6 @@ public class NodeIndexer {
 
   protected LocationFactory sysLocationFactory;
 
-//  /**
-//   * Creates a new node indexer.
-//   *
-//   * @param node          the node state to index.
-//   * @param sysLocationFactory sysLocationFactory.
-//   */
-//  protected NodeIndexer(NodeData node, LocationFactory sysLocationFactory) {
-//    this.node = node;
-//    this.sysLocationFactory = sysLocationFactory;
-//  }
-
   /**
    * Creates a new node indexer.
    *
@@ -92,28 +81,6 @@ public class NodeIndexer {
     this.documentReaderService = ds;
     this.dataManager = dataManager;
   }
-
-//  /**
-//   * Creates a lucene Document from a node.
-//   *
-//   * @param node          the node state to index.
-//   * @param sysLocationFactory sysLocationFactory.
-//   * @return the lucene Document.
-//   * @throws RepositoryException if an error occurs while reading property
-//   *                             values from the <code>ItemStateProvider</code>.
-//   */
-//  public static Document createDocument(NodeData node, LocationFactory sysLocationFactory)
-//  throws RepositoryException {
-//
-//    if(node != null)
-//    {
-//	 NodeIndexer indexer = new NodeIndexer(node,
-//        sysLocationFactory);
-//     Document doc = indexer.createDoc();
-//     return doc;
-//    }
-//    else return null;
-//  }
 
   /**
    * Creates a lucene Document from a node.
@@ -207,29 +174,6 @@ public class NodeIndexer {
   }
 
   /**
-   * Wraps the exception <code>e</code> into a <code>RepositoryException</code>
-   * and throws the created exception.
-   *
-   * @param e the base exception.
-   */
-//  private void throwRepositoryException(Exception e) throws RepositoryException {
-//    String msg = "Error while indexing node: " + node.getUUID() + " of "
-//        + "type: " + node.getNodeTypeName();
-//    throw new RepositoryException(msg, e);
-//  }
-
-  /**
-   * Adds a {@link FieldNames#MVP} field to <code>doc</code> with the resolved
-   * <code>name</code> using the internal search index namespace mapping.
-   *
-   * @param doc  the lucene document.
-   * @param name the name of the multi-value property.
-   */
-//  private void addMVPName(Document doc, InternalQName name) {
-//      doc.add(new Field(FieldNames.MVP, propName, false, true, false));
-//  }
-
-  /**
    * Adds a value to the lucene Document.
    *
    * @param doc   the document.
@@ -238,7 +182,6 @@ public class NodeIndexer {
    */
   private void addValue(Document doc, ValueData internalValue, String fieldName, int propType)
   throws RepositoryException {
-    //Object internalValue = value.internalValue();
     switch (propType) {
     case PropertyType.BINARY:
       addBinaryValue(doc, fieldName, internalValue);

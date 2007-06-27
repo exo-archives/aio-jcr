@@ -22,15 +22,6 @@ public class EventImpl implements Event {
 
   private String userId;
 
-//  public EventImpl(int type, ItemData item, SessionImpl session)
-//      throws RepositoryException {
-//
-//    this.type = type;
-//    this.userId = session.getUserID();
-//    this.path = session.getLocationFactory().createJCRPath(item.getQPath())
-//        .getAsString(false);
-//  }
-
   public EventImpl(int type, String path, String userId) {
 
     this.type = type;
@@ -48,7 +39,7 @@ public class EventImpl implements Event {
   /**
    * @see javax.jcr.observation.Event#getPath
    */
-  public String getPath() { //throws RepositoryException {
+  public String getPath() {
     return this.path;
   }
 
@@ -58,9 +49,5 @@ public class EventImpl implements Event {
   public String getUserID() {
     return this.userId;
   }
-
-  //public String dump() {
-  //  return "EventImpl: " + type + " " + path + " " + userId;
-  //}
 
 }

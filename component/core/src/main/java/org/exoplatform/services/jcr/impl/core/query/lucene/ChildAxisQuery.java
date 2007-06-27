@@ -440,11 +440,7 @@ class ChildAxisQuery extends Query {
         private List getOrderedChildNodes(NodeData node) throws RepositoryException {
           List c = itemMgr.getChildNodesData(node);
           Collections.sort(c, new NodeDatasOrderComparator());
-          //for(int i=0; i<c.size(); i++) {
-          //  System.out.println("NODE DATA >>> "+((NodeData)c.get(i)).getQPath().getAsString());
-          //}
           return c;
-          //return new ArrayList(storedNodes);
         }
 
     }
