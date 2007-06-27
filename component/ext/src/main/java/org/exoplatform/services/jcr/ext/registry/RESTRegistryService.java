@@ -15,17 +15,13 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.registry.Registry.RegistryNode;
-import org.exoplatform.services.rest.BaseURI;
-import org.exoplatform.services.rest.EntityMetadata;
 import org.exoplatform.services.rest.EntityTransformerClass;
 import org.exoplatform.services.rest.HTTPMethod;
-import org.exoplatform.services.rest.RESTStatus;
 import org.exoplatform.services.rest.ResourceDispatcher;
 import org.exoplatform.services.rest.Response;
 import org.exoplatform.services.rest.URIParam;
 import org.exoplatform.services.rest.URITemplate;
 import org.exoplatform.services.rest.container.ResourceContainer;
-import org.exoplatform.services.rest.data.URIRestorer;
 import org.exoplatform.services.rest.data.XlinkHref;
 import org.exoplatform.services.rest.transformer.StringEntityTransformer;
 import org.exoplatform.services.rest.transformer.XMLEntityTransformer;
@@ -63,16 +59,11 @@ public class RESTRegistryService implements ResourceContainer {
 
   
   @HTTPMethod("GET")
-  public Response<?> getRegistry(@URIParam("repository") String repository, 
-      @BaseURI(true) String baseURI)
+  public Response getRegistry(@URIParam("repository") String repository)
       throws RepositoryException, RepositoryConfigurationException,
-      ParserConfigurationException, NoSuchMethodException {
-    
-    String[] uriParams = {repository};    
-    String fullURI = URIRestorer.restoreURI(baseURI, uriParams,
-        getClass().getMethod("getRegistry", String.class, String.class),
-        getClass().getAnnotation(URITemplate.class));
-    
+      ParserConfigurationException {
+
+    String furi = dispatcher.getRuntimeContext().getAbsLocation();
     
     regService.getRepositoryService().setCurrentRepositoryName(repository);
     SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null); 
@@ -82,8 +73,7 @@ public class RESTRegistryService implements ResourceContainer {
     	Node registryNode = registryEntry.getNode();
       NodeIterator registryIterator = registryNode.getNodes();
       Document entry = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-      XlinkHref xlinkHref = new XlinkHref(fullURI);
-      
+      XlinkHref xlinkHref = new XlinkHref(furi);
       Element root = entry.createElement(REGISTRY);
       xlinkHref.putToElement(root);
       while(registryIterator.hasNext()) {
@@ -97,125 +87,112 @@ public class RESTRegistryService implements ResourceContainer {
       }
       entry.appendChild(root);
       sessionProvider.close();
-      return new Response<Document> (RESTStatus.OK, new EntityMetadata("text/xml"),
-          entry, new XMLEntityTransformer());
+      return Response.Builder.ok(entry).type("text/xml").transformer(new XMLEntityTransformer()).build();
     }
     sessionProvider.close();
-    return new Response<String> (RESTStatus.NOT_FOUND, new EntityMetadata("text/plain"),
-        "NOT FOUND", new StringEntityTransformer());
+    return Response.Builder.notFound().entity("NOT_FOUND").type("text/plain").transformer(new StringEntityTransformer()).build();
   }
+
   
   @HTTPMethod("GET")
   @URITemplate("/{group}/{entry}/")
-  public Response<?> getEntry(@URIParam("repository") String repository, 
+  public Response getEntry(@URIParam("repository") String repository, 
       @URIParam("group") String groupName,
       @URIParam("entry") String entryName)
       throws RepositoryConfigurationException, RepositoryException {
 
     regService.getRepositoryService().setCurrentRepositoryName(repository);
-    SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null); 
+    SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null);
+    Response response = Response.Builder.serverError().build();
     try {
       Document entry = regService.getEntry(sessionProvider, groupName, entryName).getDocument();
-      sessionProvider.close();
-     	return new Response<Document>(RESTStatus.OK, new EntityMetadata("text/xml"),
-     	    entry, new XMLEntityTransformer());
+      response = 
+        Response.Builder.ok(entry).type("text/xml").transformer(new XMLEntityTransformer()).build();
     } catch (ItemNotFoundException e) {
+      response = 
+        Response.Builder.notFound().entity("NOT_FOUND").type("text/plain").transformer(new StringEntityTransformer()).build();
+    } finally {
       sessionProvider.close();
-      return new Response<String> (RESTStatus.NOT_FOUND, new EntityMetadata("text/plain"),
-          "NOT FOUND", new StringEntityTransformer());
     }
+    return response;
   }
 
   @HTTPMethod("POST")
   @URITemplate("/{group}/")
-  @EntityTransformerClass("org.exoplatform.services.rest.transformer.XMLEntityTransformer")
-  public Response<?> createEntry(Document entry,
+  @EntityTransformerClass("org.exoplatform.services.jcr.ext.registry.RegistryEntryTransformer")
+  public Response createEntry(RegistryEntry entry,
       @URIParam("repository") String repository,
-      @URIParam("group") String groupName,
-  		@BaseURI(true) String baseURI)
-  		throws RepositoryConfigurationException, NoSuchMethodException {
+      @URIParam("group") String groupName)
+  		throws RepositoryConfigurationException {
     
     regService.getRepositoryService().setCurrentRepositoryName(repository);
     SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null); 
+    Response response = Response.Builder.serverError().build();
   	try {
-  	  regService.createEntry(sessionProvider, groupName, new RegistryEntry(entry));
-//      regService.createEntry(sessionProvider, groupName, entry);
-      String[] uriParams = {repository, groupName};    
-
-      String fullURI = URIRestorer.restoreURI(baseURI, uriParams,
-          getClass().getMethod("createEntry", Document.class, String.class, String.class, String.class),
-          getClass().getAnnotation(URITemplate.class));
-      
-      EntityMetadata metaData = new EntityMetadata("text/plain");
-      String locname = entry.getDocumentElement().getNodeName();
-
-      metaData.setLocation(fullURI + locname);
-//      metaData.setLocation(fullURI + entry.getName());
-    
-      System.out.println("Location: >>>>>>"+fullURI + locname);
-      System.out.println("Location: >>>>>>"+dispatcher.getRuntimeContext().createAbsLocation(locname));
-          
-      sessionProvider.close();
-      return new Response<String> (RESTStatus.CREATED, metaData,
-          "CREATED", new StringEntityTransformer());
+      regService.createEntry(sessionProvider, groupName, entry);
+      String locname = entry.getName();
+      String location = dispatcher.getRuntimeContext().createAbsLocation(locname);
+      response =
+        Response.Builder.created(location, location).type("text/plain").transformer(new StringEntityTransformer()).build();
   	} catch (RepositoryException re) {
+      response = 
+        Response.Builder.badRequest().entity("BAD_REQUEST").type("text/plain").transformer(new StringEntityTransformer()).build();
+  	} finally {
       sessionProvider.close();
-      return new Response<String> (RESTStatus.BAD_REQUEST, new EntityMetadata("text/plain"),
-          "BAD REQUEST", new StringEntityTransformer());
-  	} 
+  	}
+  	return response;
+  	
   }
+  
 
   @HTTPMethod("PUT")
   @URITemplate("/{group}/")
-  @EntityTransformerClass("org.exoplatform.services.rest.transformer.XMLEntityTransformer")
-  public Response<?> recreateEntry(Document entry,
+  @EntityTransformerClass("org.exoplatform.services.jcr.ext.registry.RegistryEntryTransformer")
+  public Response recreateEntry(RegistryEntry entry,
       @URIParam("repository") String repository,
-      @URIParam("group") String groupName,
-      @BaseURI(true) String baseURI)
-      throws RepositoryConfigurationException, NoSuchMethodException {
+      @URIParam("group") String groupName)
+      throws RepositoryConfigurationException {
     
     regService.getRepositoryService().setCurrentRepositoryName(repository);
     SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null); 
+    Response response = Response.Builder.serverError().build();
     try {
-      regService.recreateEntry(sessionProvider, groupName, new RegistryEntry(entry));
-      String[] uriParams = {repository, groupName};    
-
-      String fullURI = URIRestorer.restoreURI(baseURI, uriParams,
-          getClass().getMethod("recreateEntry", Document.class, String.class, String.class, String.class),
-          getClass().getAnnotation(URITemplate.class));
-      
-      EntityMetadata metaData = new EntityMetadata("text/plain");
-      metaData.setLocation(fullURI + entry.getDocumentElement().getNodeName());
-      sessionProvider.close();
-      return new Response<String> (RESTStatus.CREATED, metaData,
-          "CREATED", new StringEntityTransformer());
+      regService.recreateEntry(sessionProvider, groupName, entry);
+      String locname = entry.getName();
+      String location = dispatcher.getRuntimeContext().createAbsLocation(locname);
+      response =
+        Response.Builder.created(location, location).type("text/plain").transformer(new StringEntityTransformer()).build();
     }
     catch (RepositoryException re) {
+      response = 
+        Response.Builder.badRequest().entity("BAD_REQUEST").type("text/plain").transformer(new StringEntityTransformer()).build();
+    } finally {
       sessionProvider.close();
-      return new Response<String> (RESTStatus.BAD_REQUEST, new EntityMetadata("text/plain"),
-          "BAD REQUEST", new StringEntityTransformer());
     }
+    return response;
   }
 
 
   @HTTPMethod("DELETE")
   @URITemplate("/{group}/{entry}/")
-  public Response<?> removeEntry(@URIParam("repository") String repository,
+  public Response removeEntry(@URIParam("repository") String repository,
       @URIParam("group") String groupName,
       @URIParam("entry") String entryName)
     throws RepositoryConfigurationException, RepositoryException {
 
     regService.getRepositoryService().setCurrentRepositoryName(repository);
     SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null); 
+    Response response = Response.Builder.serverError().build();
     try {
       regService.removeEntry(sessionProvider, groupName, entryName);
-      return new Response<String> (RESTStatus.OK, new EntityMetadata("text/plain"),
-          "REMOVED", new StringEntityTransformer());
+      response = Response.Builder.noContent().build();
     } catch(ItemNotFoundException e) {
+      response = 
+        Response.Builder.notFound().entity("NOT_FOUND").type("text/plain").transformer(new StringEntityTransformer()).build();
+    } finally {
       sessionProvider.close();
-      return new Response<String> (RESTStatus.NOT_FOUND, new EntityMetadata("text/plain"),
-          "NOT FOUND", new StringEntityTransformer());
     }
+    return response;
   }
   
 }
