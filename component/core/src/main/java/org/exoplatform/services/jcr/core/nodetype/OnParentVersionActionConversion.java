@@ -26,9 +26,7 @@ public class OnParentVersionActionConversion {
 		
 		int r = OnParentVersionAction.IGNORE;  // default
 		try {
-      //System.out.println("OnParentVersionActionConversion: deserializeType: input: " + propertyTypeString);
 			r = OnParentVersionAction.valueFromName(propertyTypeString);
-      //System.out.println("OnParentVersionActionConversion: deserializeType: result: " + r);
 		} catch(IllegalArgumentException e) {
 			//r = PropertyType.TYPENAME_UNDEFINED;
 		} catch(Exception e) {

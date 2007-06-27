@@ -123,7 +123,6 @@ class DocNodeImporter extends ImporterBase {
 
       ((TransientNodeData) nodeData).setMixinTypeNames(mixinNodeTypes
           .toArray(new InternalQName[mixinNodeTypes.size()]));
-      // newNode.setACL(node.getACL());
       ((TransientNodeData) nodeData).setIdentifier(identifier);
 
       itemStatesList.add(new ItemState(nodeData, ItemState.ADDED, true, parent().getQPath()));
@@ -402,7 +401,6 @@ class DocNodeImporter extends ImporterBase {
           sameIdentifierNode.getData().accept(visitor);
           removedStates = visitor.getRemovedStates();
           itemStatesList.addAll(removedStates);
-          // itemStatesList.add(ItemState.createDeletedState(sameUuidNode.getData()));
           tree.push(parentNodeData);
           // sameUuidNode = null;
           break;

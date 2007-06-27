@@ -518,53 +518,10 @@ public class TestAccess extends BaseStandaloneTest {
     
   }
   
-//  
-// public void testAccessJcrSystem() throws Exception {
-//    showPermissions("jcr:system");
-//    
-////    showPermissions("jcr:system/jcr:nodetypes");
-//    Session session1 = repository.login(new CredentialsImpl("exo", "exo".toCharArray()));
-////    try {
-////      session1.checkPermission("/jcr:system/jcr:nodetypes", PermissionType.READ);
-////      fail("AccessControlException should have been thrown");
-////    } catch (AccessControlException e) {
-////    }
-////    try {
-////      ((ExtendedNode)session1.getRootNode().getNode("jcr:system")).checkPermission(PermissionType.READ);
-////      fail("Exception");
-////    } catch (AccessControlException e) {
-////    }
-////
-////    try {
-////      session1.getRootNode().getNode("jcr:system").getNodes();
-////      fail("Exception");
-////    } catch (AccessDeniedException e) {
-////    }
-//
-////    showPermissions("jcr:system");
-//    session1 = repository.login(new CredentialsImpl("admin", "admin".toCharArray()));
-//    session1.checkPermission("/jcr:system/jcr:nodetypes", PermissionType.READ);
-//    ((ExtendedNode)session1.getRootNode().getNode("jcr:system")).checkPermission(PermissionType.READ);
-//    session1.getRootNode().getNode("jcr:system").getNodes();
-//  }
-//  
-//  
-//  
   private void showPermissions(String path) throws RepositoryException {
     NodeImpl node = (NodeImpl)this.repository.getSystemSession().getRootNode().getNode(path);
     AccessControlList acl = node.getACL();
-    //System.out.println("OWNER: "+acl.getOwner());
     System.out.println("DUMP: "+ acl.dump());
-//    Map perms = acl.getPermissionsMap();
-//    Iterator ids = perms.keySet().iterator();
-//    while(ids.hasNext()) {
-//      String id = (String)ids.next();
-//      String[] perm = (String[])perms.get(id);
-//      String permStr = "";
-//      for(int i=0; i<perm.length; i++)
-//        permStr+=perm[i]+",";
-//      System.out.println(" "+id +" --->" +permStr);
-//    }
     
   }
   

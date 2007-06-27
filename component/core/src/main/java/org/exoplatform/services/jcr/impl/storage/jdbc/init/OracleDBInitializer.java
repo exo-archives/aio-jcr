@@ -31,13 +31,6 @@ public class OracleDBInitializer extends DBInitializer {
     try {
       ResultSet srs = conn.createStatement().executeQuery("SELECT " + sequenceName + ".nextval FROM DUAL");
       if (srs.next()) {
-        // TODO Does we have to back the sequence to previous value?
-        //int nextVal = srs.getInt(1);
-        //try {
-        //  conn.createStatement().executeQuery("ALTER SEQUENCE " + sequenceName + " START WITH " + (nextVal - 1));
-        //} catch(SQLException e) {
-        //  log.warn("Sequence " + sequenceName + " detect error " + e);
-        //}
         return true;
       }
       srs.close();
@@ -52,20 +45,12 @@ public class OracleDBInitializer extends DBInitializer {
 
   @Override
   protected boolean isTriggerExists(Connection conn, String triggerName) throws SQLException {
-    //try {
-      //conn.createStatement().executeUpdate("ALTER TRIGGER " + triggerName + " ENABLE");
-      String sql = "SELECT COUNT(trigger_name) FROM all_triggers WHERE trigger_name = '" + triggerName + "'";
-      ResultSet r = conn.createStatement().executeQuery(sql);
-      if (r.next())
-        return r.getInt(1)>0;
-      else
-        return false;
-    //} catch(SQLException e) {
-      // check: ORA-04080: trigger 'xxx' does not exist
-      //if (e.getMessage().indexOf("ORA-04080")>=0)
-      //  return false;
-      //throw e;
-    //}
+    String sql = "SELECT COUNT(trigger_name) FROM all_triggers WHERE trigger_name = '" + triggerName + "'";
+    ResultSet r = conn.createStatement().executeQuery(sql);
+    if (r.next())
+      return r.getInt(1)>0;
+    else
+      return false;
   }
 
   @Override
@@ -84,23 +69,12 @@ public class OracleDBInitializer extends DBInitializer {
   @Override
   protected boolean isIndexExists(Connection conn, String tableName, String indexName)
       throws SQLException {
-
-    //try {
-      // CRASHES WITH ERR: Reason: ORA-02243: invalid ALTER INDEX or ALTER MATERIALIZED VIEW option
-      // conn.createStatement().executeUpdate("ALTER INDEX " + indexName + " ENABLE");
-
-      // use of oracle system view
-      String sql = "SELECT COUNT(index_name) FROM all_indexes WHERE index_name='" + indexName + "'";
-      ResultSet r = conn.createStatement().executeQuery(sql);
-      if (r.next())
-        return r.getInt(1)>0;
-      else
-        return false;
-    //} catch(SQLException e) {
-      // check: ORA-01418: specified index does not exist
-      //if (e.getMessage().indexOf("ORA-01418")>=0)
-      //return false;
-      //throw e;
-    //}
+   // use of oracle system view
+    String sql = "SELECT COUNT(index_name) FROM all_indexes WHERE index_name='" + indexName + "'";
+    ResultSet r = conn.createStatement().executeQuery(sql);
+    if (r.next())
+      return r.getInt(1)>0;
+    else
+      return false;
   }
 }

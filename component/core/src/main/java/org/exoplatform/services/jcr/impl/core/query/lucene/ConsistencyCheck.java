@@ -157,7 +157,6 @@ class ConsistencyCheck {
                 }
                 Document d = reader.document(i);
                 String identifier = d.get(FieldNames.UUID);
-                //NodeImpl node = (NodeImpl)dataManager.getItemByUUID(uuid);
                 if (dataManager.getItemData(identifier) != null) {
                     Document old = (Document) documents.put(identifier, d);
                     if (old != null) {
@@ -185,8 +184,6 @@ class ConsistencyCheck {
                 continue;
             }
             // parent is missing
-            //NodeId parentId = new NodeId(parentUUID);
-            //NodeImpl persistedNode = (NodeImpl)dataManager.getItemDataByUUID(parentUUID);
             if (dataManager.getItemData(identifier) != null) {
                 errors.add(new MissingAncestor(identifier, parentIdentifier));
             } else {
@@ -262,7 +259,6 @@ class ConsistencyCheck {
             String pIdentifier = parentIdentifier;
             while (pIdentifier != null && !documents.containsKey(pIdentifier)) {
                 try {
-                    //NodeImpl n = (NodeState) stateMgr.getItemState(new NodeId(pUUID));
                     NodeData n = (NodeData) dataManager.getItemData(pIdentifier);
                     if (n != null) {
                       log.info("Reparing missing node " + n.getQPath().getAsString());

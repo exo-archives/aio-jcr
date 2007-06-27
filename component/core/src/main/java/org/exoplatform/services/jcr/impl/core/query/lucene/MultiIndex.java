@@ -234,9 +234,6 @@ class MultiIndex {
    attemptDelete();
 
    //read namespace mappings
-   //File mapFile = new File(indexDir, NS_MAPPING_FILE);
-   //nsMappings = new NamespaceMappings(mapFile);
-   //initialize IndexMerger
    merger = new IndexMerger(this);
    merger.setMaxMergeDocs(handler.getMaxMergeDocs());
    merger.setMergeFactor(handler.getMergeFactor());
@@ -580,7 +577,6 @@ class MultiIndex {
       if (multiReader == null)
       {
         List readerList = new ArrayList();   //410647
-        //ReadOnlyIndexReader[] readers = new ReadOnlyIndexReader[indexes.size() + 1];
         for (int i = 0; i < indexes.size(); i++)
         {
          PersistentIndex pIdx = (PersistentIndex) indexes.get(i);
@@ -951,10 +947,8 @@ class MultiIndex {
   private void createIndex(NodeData node)
                     throws IOException, RepositoryException {
       addDocument(createDocument(node));
-      //List children = node.getNodes();
 
     for (Iterator it = dataManager.getChildNodesData(node).iterator(); it.hasNext();) {
-      //NodeState.ChildNodeEntry child = (NodeState.ChildNodeEntry) it.next();
       NodeData childNode = (NodeData) it.next();
       createIndex(childNode);
     }
@@ -1411,7 +1405,6 @@ class MultiIndex {
             if (doc == null) {
                 try {
                     doc = index.createDocument(identifier);
-                    //doc = index.createDocument(NodeId.valueOf(uuid));
                 } catch (RepositoryException e) {
                     // node does not exist anymore
                     log.debug(e.getMessage());

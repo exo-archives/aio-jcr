@@ -661,7 +661,7 @@ public class XMLChar {
            }
         }
         return true;
-    } // isValidName(String):boolean
+    }
     
     /**
      * Returns true if the encoding name is a valid IANA encoding.

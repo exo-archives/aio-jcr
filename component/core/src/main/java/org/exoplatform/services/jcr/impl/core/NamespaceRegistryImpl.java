@@ -43,7 +43,6 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
     DEF_NAMESPACES.put("exo", "http://www.exoplatform.com/jcr/exo/1.0");
     DEF_NAMESPACES.put("xs", "http://www.w3.org/2001/XMLSchema");
     DEF_NAMESPACES.put("fn", "http://www.w3.org/2004/10/xpath-functions");
-    //DEF_NAMESPACES.put("dc", "http://purl.org/dc/elements/1.1");
   }
 
   private HashMap <String, String> namespaces;
@@ -89,20 +88,7 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
  
     Collection values = namespaces.values();
     if (values.contains(uri)) {
-      
-//      String key2Remove = null;
-//      Set keys = namespaces.keySet();
-//      for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-//        String key = (String) iterator.next();
-//        String value = (String) namespaces.get(key);
-//        if (value.equals(uri)) {
-//          key2Remove = key;
-//          break;
-//        }
-//      }
-//      namespaces.remove(key2Remove);
-//      delete(key2Remove);
-      
+ 
       throw new NamespaceException(
         "Re-registration is not supported as may cause integrity problems. (todo issue #46)");
     }
@@ -125,7 +111,7 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
         throw new NamespaceException("Can not remove built-in namespace");
       throw new NamespaceException("Can not change built-in namespace");
     }
-    if (prefix.toLowerCase().startsWith("xml")) //&& namespaces.values().contains(uri) // TCK won't pass
+    if (prefix.toLowerCase().startsWith("xml"))
       throw new NamespaceException(
           "Can not re-assign prefix that start with 'xml'");
     if (uri == null)
@@ -147,11 +133,6 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
   
     throw new NamespaceException(
       "Unregistration is not supported as may cause integrity problems. (todo issue #46)");
-  
-    //persister.removeNamespace(prefix);
-    //persister.saveChanges();
-    
-    //namespaces.remove(prefix);
   }
 
   /* (non-Javadoc)

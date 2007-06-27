@@ -385,25 +385,6 @@ public class TestCopyNode extends JcrAPIBaseTest {
     
   }
   
-//  public void testCloneWithPublicationMixinType() throws Exception {
-//    session = (SessionImpl)repository.getSystemSession("ws");
-//    NodeTypeManagerImpl ntManager = (NodeTypeManagerImpl)session.getWorkspace().getNodeTypeManager();
-//    ntManager.registerNodeType(new PublicationMixinType(ntManager), 0);
-//
-//    Node n = session.getRootNode().addNode("clonedSysNode1", "nt:base");
-//    session.save();
-//    n.addMixin("exo:published");
-//    n.setProperty("exo:startPublication", Calendar.getInstance());
-//    n.setProperty("exo:endPublication", Calendar.getInstance());
-//    n.save();
-//    
-//    session = (SessionImpl)repository.getSystemSession("ws2");
-//    
-//    session.getWorkspace().clone("ws", "/clonedSysNode1", "/xx1", false);
-//    assertEquals(1, session.getRootNode().getNode("xx1").getMixinNodeTypes().length);
-//    assertNotNull(session.getRootNode().getProperty("xx1/exo:endPublication"));    
-//  }
-  
   public void testCloneWithMixinAndRemoveExisting() throws RepositoryException {
     Session session2 = repository.login(credentials, "ws2");
     NodeTypeManagerImpl ntManager = (NodeTypeManagerImpl)session2.getWorkspace().getNodeTypeManager();
@@ -456,53 +437,4 @@ public class TestCopyNode extends JcrAPIBaseTest {
 
     return testNtValue;
   }
-
-  
-  
-//  public class PublicationMixinType extends NodeTypeImpl {
-//
-//    public PublicationMixinType(NodeTypeManager manager) throws NoSuchNodeTypeException, RepositoryException {
-//      super(manager);
-//      
-//      this.name = "exo:published";
-//      // [PN] 27.0.06
-//      this.qName = ((NodeTypeManagerImpl) manager).getLocationFactory().parseJCRName(name).getInternalName();
-//      this.mixin = true;
-//      this.orderableChild = false;
-//      this.primaryItemName = null;
-//      
-//      this.declaredPropertyDefinitions = new PropertyDefinition[2];
-//      this.declaredPropertyDefinitions[0] = new PropertyDefinitionImpl(
-//          "exo:startPublication",      //name
-//          this,                        //declaringNodeType
-//          PropertyType.DATE,           //requiredType
-//          null,                        //valueConstraints 
-//          NULL_VALUES,                 //defaultValues
-//          false,                       //autoCreate       
-//          true,                       //mandatory        
-//          OnParentVersionAction.COPY,  //onVersion        
-//          false,                       //readOnly         
-//          false                        //multiple         
-//          );
-//
-//      this.declaredPropertyDefinitions[1] = new PropertyDefinitionImpl(
-//          "exo:endPublication",        //name
-//          this,                        //declaringNodeType
-//          PropertyType.DATE,           //requiredType
-//          null,                        //valueConstraints 
-//          NULL_VALUES,                 //defaultValues
-//          false,                       //autoCreate       
-//          true,                       //mandatory
-//          OnParentVersionAction.COPY,  //onVersion        
-//          false,                       //readOnly         
-//          false                        //multiple         
-//          );
-//      
-//      this.declaredChildNodeDefinitions = new NodeDefinition[0];
-//
-//    }
-//
-//  }
-
-  
 }

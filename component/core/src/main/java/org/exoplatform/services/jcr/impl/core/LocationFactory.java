@@ -183,13 +183,11 @@ public class LocationFactory {
     if (path == null)
       throw new RepositoryException("Illegal relPath " + path);
 
-    //List list = new ArrayList();
     JCRPath jcrPath = new JCRPath();
     int start = 0;
     if (!absolute)
       start = -1;
     if (isAbsPathParseable(path)) {
-        //path.startsWith("/")) {
       if (!absolute)
         throw new RepositoryException("Illegal relPath " + path);
       parsePathEntry(jcrPath, "");

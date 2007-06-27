@@ -116,30 +116,20 @@ public class NodeIndexer {
   protected Document createDoc() throws RepositoryException {
     Document doc = new Document();
 
-    //NodeData data = (NodeData)node.getActualItemData();
-
-    // special fields
-    // UUID
     doc.add(new Field(FieldNames.UUID, node.getIdentifier(), true, true, false));
-    //System.out.println("UUID "+node.getUUID()+" ");
 
     String parentIdentifier = node.getParentIdentifier();
-    //System.out.println("PARENT "+parentUUID);
 
     if(parentIdentifier != null) {
-      //parent = node.getParent();
       doc.add(new Field(FieldNames.PARENT, parentIdentifier, true,
           true, false));
-      //System.out.println("PARENT "+parentUUID);
       String label = sysLocationFactory.createJCRName(node.getQPath().getName()).getAsString();
       doc.add(new Field(FieldNames.LABEL, label, false, true, false));
-      //System.out.println("LABEL "+label);
     } else { // root
       doc.add(new Field(FieldNames.PARENT, "", true, true, false));
       doc.add(new Field(FieldNames.LABEL, "", false, true, false));
     }
 
-    //List props = node.getChildProperties();
     for (Iterator it = dataManager.getChildPropertiesData(node).iterator(); it.hasNext();) {
       PropertyData prop = (PropertyData)it.next();
 
@@ -248,18 +238,13 @@ public class NodeIndexer {
                          ValueData mimeValue = (ValueData) values.get(0);
                          String mime = new String(mimeValue.getAsByteArray());
 
-//                         InputStream is = internalValue.isByteArray() ? 
-//                             new ByteArrayInputStream(internalValue.getAsByteArray()) : 
-//                               internalValue.getAsStream();
                          InputStream is = internalValue.getAsStream();
-//                         text = documentReaderService.getContentAsText(mime, is);
                          text = documentReaderService.getDocumentReader(mime).getContentAsText(is);
 
                          is.close();
                       }
                       catch(Exception e)
                       {
-                             //e.printStackTrace();
                       }
                    }
                 }
@@ -281,7 +266,6 @@ public class NodeIndexer {
   protected void addBooleanValue(Document doc, String fieldName,
       ValueData internalValue) throws RepositoryException {
     try {
-//      String strValue = new String(BLOBUtil.readValue(internalValue));
       String strValue = new String(internalValue.getAsByteArray());
       doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(
           fieldName, strValue), false, true, false));
@@ -328,8 +312,6 @@ public class NodeIndexer {
     try {
       String strValue = DoubleField.doubleToString(Double.parseDouble(
           new String(internalValue.getAsByteArray())));
-  
-          //new String(BLOBUtil.readValue(internalValue))));
       doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(
           fieldName, strValue), false, true, false));
     } catch(IOException e) {
@@ -352,9 +334,6 @@ public class NodeIndexer {
     try {
       String strValue = LongField.longToString(Long.parseLong(
           new String(internalValue.getAsByteArray())));
-//        new String(BLOBUtil.readValue(internalValue))));
-    
-      //log.debug("ADD long "+strValue+" "+LongField.longToString(Long.parseLong(strValue)));
     
       doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(
           fieldName, strValue), false, true, false));
@@ -376,7 +355,6 @@ public class NodeIndexer {
       ValueData internalValue) throws RepositoryException {
     
     try {
-//      String strValue = new String(BLOBUtil.readValue(internalValue));
       String strValue = new String(internalValue.getAsByteArray());
 
       doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(
@@ -400,11 +378,9 @@ public class NodeIndexer {
       ValueData internalValue) throws RepositoryException {
     
     try {
-      //String strQpath = new String(BLOBUtil.readValue(internalValue));
       String strQpath = new String(internalValue.getAsByteArray());
 
       String strValue = this.sysLocationFactory.createJCRPath(QPath.parse(strQpath)).getAsString(false);
-//      System.out.println("PATH "+strValue);
 
       doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(
           fieldName, strValue), false, true, false));
@@ -428,7 +404,6 @@ public class NodeIndexer {
 
     try {
       String stringValue = new String(internalValue.getAsByteArray());
-      //String stringValue = new String(BLOBUtil.readValue(internalValue));
   
       // simple String
       doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(
@@ -459,7 +434,6 @@ public class NodeIndexer {
       ValueData internalValue) throws RepositoryException {
     
     try {
-      //String strQname = new String(BLOBUtil.readValue(internalValue));
       String strQname = new String(internalValue.getAsByteArray());
 
       String strValue = this.sysLocationFactory.createJCRName(InternalQName.parse(strQname)).getAsString();
@@ -476,7 +450,6 @@ public class NodeIndexer {
       ValueData internalValue) throws RepositoryException {
     
     try {
-      //String strValue = new String(BLOBUtil.readValue(internalValue));
       String strValue = new String(internalValue.getAsByteArray());
 
       doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(

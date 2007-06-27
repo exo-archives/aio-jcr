@@ -143,8 +143,7 @@ public class TestNamespaceRegistry extends JcrAPIBaseTest{
     System.out.println("Node after remove"+n);
     root.save();
 
-    // [PN] Unregisteration of node types its not supported in eXo JCR 1.0.
-    // Will be available at ver.1.1
+    // [PN] Unregisteration of node types its not supported in eXo JCR.
     // (see http://jira.exoplatform.org/browse/JCR-43)
 //    namespaceRegistry.unregisterNamespace("newMapping");
 //    try {
@@ -165,8 +164,6 @@ public class TestNamespaceRegistry extends JcrAPIBaseTest{
 
   public void testReRegiterNamespace() throws RepositoryException {
 
-    // [PN] Reregistration of node types its not supported in eXo JCR 1.0.
-    // Will be available at ver.1.1
     // (see http://jira.exoplatform.org/browse/JCR-43)
     
     //namespaceRegistry.registerNamespace("newMapping", "http://dumb.uri/jcr");

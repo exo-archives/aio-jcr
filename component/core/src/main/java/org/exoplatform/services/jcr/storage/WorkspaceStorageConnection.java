@@ -33,19 +33,6 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  */
 
 public interface WorkspaceStorageConnection {
-  
-  /**
-   * @param qPath -
-   *          item's location path
-   * @return - stored PropertyData wich has exact the same path inside location;
-   *         or stored NodeData which has exact the same path/index if index is
-   *         initialized inside location or index=1 otherwise; null if such a
-   *         location not found
-   * @throws RepositoryException if some exception occured
-   * @throws IllegalStateException if connection is closed
-   */
-  //ItemData getItemData(QPath qPath) throws RepositoryException, IllegalStateException;
-
   /**
    * @param parentData -
    *          the item's parent node data

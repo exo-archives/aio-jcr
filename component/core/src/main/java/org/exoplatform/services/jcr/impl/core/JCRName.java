@@ -78,7 +78,6 @@ public class JCRName {
       return false;
     
   	if (obj instanceof JCRName) {
-        //return this.getInternalName().equals(other.getInternalName());
         return hashCode == obj.hashCode();
   	}
   	return false;

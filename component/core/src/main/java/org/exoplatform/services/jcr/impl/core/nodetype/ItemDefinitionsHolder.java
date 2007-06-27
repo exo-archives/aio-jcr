@@ -83,11 +83,9 @@ public class ItemDefinitionsHolder {
     if(def != null)
       return def;
     Iterator <InternalQName> i = nodeTypesHierarchy.getSuperypes(parentNodeType).iterator();
-//    System.out.println("Supertupes for: "+nodeTypeName);
     while(i.hasNext()) {
       key = new ChildNodeDefKey(parentNodeType, 
           childName, i.next());
-//      System.out.println(">> "+name.getAsString());
       def = nodeDefinitions.get(key);
       if(def != null)
         break;

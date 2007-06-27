@@ -21,15 +21,14 @@ import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
-import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataPersister;
@@ -114,16 +113,10 @@ public class WorkspaceInitializer {
   public NodeData initWorkspace(InternalQName rootNodeType) throws RepositoryException {
 
     if (isWorkspaceInitialized()) {
-      // [PN] 21.02.07 moved to startWorkspace()
-      // initSearchIndex();
-      // [PN] 25.04.07 use UUID instead path
       return (NodeData) dataManager.getItemData(Constants.ROOT_UUID);
     }
 
-    // Init root (/) node
     NodeData root = initRootNode(rootNodeType);
-    // [PN] 21.02.07 moved to startWorkspace()
-    // initSearchIndex();
 
     if (log.isDebugEnabled())
       log.debug("Root node for " + workspaceName + " initialized. NodeType: " + rootNodeType
@@ -313,8 +306,6 @@ public class WorkspaceInitializer {
     ntPersister.initNodetypesRoot(sysNodeData, addACL);
     ntPersister.initStorage(((EntityCollection) ntRegistry.getAllNodeTypes()).getList());
 
-    // TODO To catch exceptions caused by already existing nodes (jcr:system,
-    // jcr:versionStorage)
     return sysNodeData;
   }
 }

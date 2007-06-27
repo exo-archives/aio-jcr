@@ -38,26 +38,6 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
 
   private transient ManageableRepository delegatee = null;
 
-  // private static transient ExoContainer topContainer = null;
-  // private String configName;
-
-  // public BindableRepositoryImpl(ExoContainer container, String config)
-  // throws RepositoryException, RepositoryConfigurationException,
-  // FileNotFoundException, Exception {
-  // topContainer = container;
-  // configName = config;
-  // init();
-  // }
-
-  // private void init() throws RepositoryException,
-  // RepositoryConfigurationException, RepositoryException,
-  // FileNotFoundException, Exception {
-  // //RepositoryEntry config = null;
-  // RepositoryServiceImpl rs =
-  // (RepositoryServiceImpl)topContainer.getComponentInstanceOfType(RepositoryServiceImpl.class);
-  // delegatee = (RepositoryImpl)rs.getRepository(configName);
-  // }
-
   /**
    * @param rep real repository impl
    */
@@ -216,7 +196,6 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
   }
 
   public boolean canRemoveWorkspace(String workspaceName) throws NoSuchWorkspaceException {
-    // TODO Auto-generated method stub
     return delegatee.canRemoveWorkspace(workspaceName);
   }
 

@@ -90,11 +90,6 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
     public static final int DEFAULT_MAX_FIELD_LENGTH = 10000;
 
     /**
-     * Default text filters.
-     */
-    //public static final String DEFAULT_TEXT_FILTERS = TextPlainTextFilter.class.getName();
-
-    /**
      * The actual index
      */
     private MultiIndex index;
@@ -212,9 +207,7 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
         DocumentReaderService ds,
         WorkspacePersistentDataManager dataManager,
         LocationFactory sysLocationFactory)
-        //QueryHandlerContext context) 
     throws RepositoryConfigurationException, IOException {
-        //setTextFilterClasses(DEFAULT_TEXT_FILTERS);
         this.analyzer = new StandardAnalyzer();
         String indexDir = config.getQueryHandler().getParameterValue("indexDir") ;
         indexDir = indexDir.replace("${java.io.tmpdir}", System.getProperty("java.io.tmpdir")) ;
@@ -233,7 +226,6 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
      * @throws IOException if an error occurs while initializing this handler.
      */
     public void init() throws IOException {
-        //QueryHandlerContext context = getContext();
         if (path == null) {
             throw new IOException("SearchIndex requires 'path' parameter in configuration!");
         }
@@ -358,7 +350,6 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
      */
     public void close() {
         index.close();
-        //getContext().destroy();
         closed = true;
         log.info("Search index closed.");
     }
@@ -391,29 +382,6 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
             searcher.close();
         }
         return new QueryHits(hits, reader);
-
-        /*
-        for (int i = 0; i < orderProps.length; i++) {
-            String prop = null;
-            if ("jcr:score".equals(orderProps[i])) {
-                // order on jcr:score does not use the natural order as
-                // implemented in lucene. score ascending in lucene means that
-                // higher scores are first. JCR specs that lower score values
-                // are first.
-                sortFields[i] = new SortField(null, SortField.SCORE, orderSpecs[i]);
-            } else {
-                try {
-                  prop = getContext().getSysLocationFactory()
-                  .createJCRName(orderProps[i]).getAsString();
-                    //prop = orderProps[i].toJCRName(getNamespaceMappings());
-                } catch (RepositoryException e) {
-                  e.printStackTrace();
-                    // will never happen ?
-                }
-                sortFields[i] = new SortField(prop, SharedFieldSortComparator.PROPERTIES, !orderSpecs[i]);
-            }
-        }
-        */
     }
     
     
@@ -434,7 +402,6 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
         if (itemState.isNode()) {
           if (itemState.getState() == ItemState.ADDED) {
             addedNodes.add(itemState.getData());
-            //traverseAddedNode((NodeData)itemState.getData(), addedNodes);
           } else if (itemState.getState() == ItemState.DELETED) {
             removedNodes.add(itemState.getData().getIdentifier());
           }

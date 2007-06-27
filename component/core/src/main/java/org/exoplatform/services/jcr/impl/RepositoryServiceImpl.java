@@ -118,14 +118,6 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
       addNamespacesPlugins.add(plugin);
   }
 
-// public ComponentPlugin removePlugin(String name) {
-// return null;
-// }
-//
-// public Collection getPlugins() {
-// return null;
-// }
-
   // ------------------- Startable ----------------------------
 
   public void start() {

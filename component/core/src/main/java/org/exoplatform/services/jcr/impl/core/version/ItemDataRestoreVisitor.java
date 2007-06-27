@@ -286,7 +286,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
   @Override
   protected void entering(NodeData frozen, int level) throws RepositoryException {
 
-    if (frozen == null) { //changes.dump().substring(3048)
+    if (frozen == null) { 
       if (log.isDebugEnabled())
         log.debug("Visit node " + frozen.getQPath().getAsString() + ", HAS NULL FROZEN NODE");
       return;

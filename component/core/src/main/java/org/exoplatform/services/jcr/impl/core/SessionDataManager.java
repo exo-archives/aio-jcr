@@ -807,13 +807,11 @@ public class SessionDataManager implements ItemDataConsumer {
    */
   private void validateAccessPermissions(ItemState changedItem) throws RepositoryException,
       AccessDeniedException {
-// try {
     NodeData parent = (NodeData) getItemData(changedItem.getData().getParentIdentifier());
     // Add node
     if (parent != null) {
       if (changedItem.getData().isNode() && changedItem.isAdded()) {
-        if (!accessManager.hasPermission(parent.getACL(), PermissionType.ADD_NODE, session
-            .getUserID())) {
+        if (!accessManager.hasPermission(parent.getACL(), PermissionType.ADD_NODE, session.getUserID())) {
           throw new AccessDeniedException("Access denied: ADD_NODE "
               + changedItem.getData().getQPath().getAsString() + " for: " + session.getUserID()
               + " item owner " + parent.getACL().getOwner());
@@ -892,59 +890,12 @@ public class SessionDataManager implements ItemDataConsumer {
       NodeData parent = (NodeData) transactionableManager.getItemData(rstate.getData().getParentIdentifier());
       if (parent != null) {
         ItemData persisted = transactionableManager.getItemData(parent, removedPath.getEntries()[removedPath.getDepth()]);
-        //transactionableManager.getItemData("683be6b2c0a8000301403290318298fa")
         if (persisted != null)
           removed.loadData(persisted);
       } // else it's transient item
       
       removedIter.remove();
     }
-    
-//    for (ItemState change: changes.getAllStates()) {
-//      if (change.isDeleted()) {
-//        // if the change item is pooled - reload it from persistent storage
-//        for (Iterator<ItemImpl> removedIter = invalidated.iterator(); removedIter.hasNext();) {
-//          ItemImpl removed = removedIter.next();
-//          
-//          // reload item data
-//          QPath removedPath = removed.getLocation().getInternalPath();
-//          NodeData parent = (NodeData) transactionableManager.getItemData(change.getData().getParentIdentifier());
-//          if (parent != null) {
-//            ItemData persisted = transactionableManager.getItemData(parent, removedPath.getEntries()[removedPath.getDepth()]);
-//            transactionableManager.getItemData("683be6b2c0a8000301403290318298fa")
-//            if (persisted != null)
-//              removed.loadData(persisted);
-//          } // else it's transient item
-//          
-//          removedIter.remove();
-//        }
-//      }
-//    }
-    
-    // TODO [PN] clean it
-//    List<ItemImpl> rolledBack = new ArrayList<ItemImpl>();
-//    // backing all invalidated items (acquired ItemImpl instances) to their persisted data
-//    for (ItemImpl removed : invalidated) {
-//      QPath removedPath = removed.getLocation().getInternalPath();
-//      if (removedPath.equals(item.getQPath()) || removedPath.isDescendantOf(item.getQPath(), false)) {
-//        NodeData parent = (NodeData) transactionableManager.getItemData(item.getParentIdentifier());
-//        if (parent != null) {
-//          ItemData persisted = transactionableManager.getItemData(parent,
-//              removedPath.getEntries()[removedPath.getDepth()]);
-//          if (persisted != null) {
-//            removed.loadData(persisted);
-//            rolledBack.add(removed);
-//          }
-//        } // else it's transient item
-//      }
-//    }
-//
-//    for (ItemImpl rolledBackNode : rolledBack) {
-//      invalidated.remove(rolledBackNode);
-//    }
-    
-    // cleaning session changes log (new and updated items)
-//    changesLog.remove(item.getQPath());
   }
 
   /*
@@ -1021,7 +972,6 @@ public class SessionDataManager implements ItemDataConsumer {
       boolean deep,
       int action) throws RepositoryException {
     // 1 get ALL persisted descendants
-    // List<ItemData> persistedDescendants = new ArrayList<ItemData>();
     Map<String, ItemData> descendants = new LinkedHashMap<String, ItemData>();
 
     traverseStoredDescendants(rootData, dataManager, false, action, descendants);

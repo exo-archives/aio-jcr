@@ -40,7 +40,7 @@ public class QPath implements Comparable {
       hash = prime * hash + entry.hashCode();
       hash = prime * hash + entry.getIndex();
     }
-    this.hashCode = hash; // prime * hash + this.names.hashCode()
+    this.hashCode = hash; 
   }
 
   public boolean isAbsolute() {
@@ -69,7 +69,6 @@ public class QPath implements Comparable {
    * @return
    */
   public QPath makeAncestorPath(int relativeDegree) throws IllegalPathException {
-    //InternalQPath path = new InternalQPath();
     if (relativeDegree > getLength() || getLength() <= 1) {
       throw new IllegalPathException("Relative degree " + relativeDegree
           + " is more than depth for " + getAsString());
@@ -86,7 +85,6 @@ public class QPath implements Comparable {
   public QPathEntry[] getRelPath(int relativeDegree) throws IllegalPathException {
 
     int len = getLength() - relativeDegree;
-    //if (relativeDegree > getLength() || getLength() <= 1)
     if (len < 0)
       throw new IllegalPathException("Relative degree " + relativeDegree
           + " is more than depth for " + getAsString());
@@ -95,11 +93,6 @@ public class QPath implements Comparable {
     System.arraycopy(names, len, relPath, 0, relPath.length);
     
     return relPath;
-    
-//    List<QPathEntry> entries = new ArrayList<QPathEntry>();
-//    for (int i = names.length - relativeDegree; i < names.length ; i++)
-//      entries.add(names[i]);
-//    return entries.toArray(new QPathEntry[entries.size()]);
   }
 
   /**
@@ -248,7 +241,6 @@ public class QPath implements Comparable {
    *           if string is invalid
    */
   public static QPath parse(String qPath) throws IllegalPathException {
-    //InternalQPath path = new InternalQPath();
     if (qPath == null)
       throw new IllegalPathException("Bad internal path '" + qPath + "'");
 
@@ -283,7 +275,6 @@ public class QPath implements Comparable {
               + "' each intermediate name should have index");
       }
 
-      //path.addEntry(uri, localName, index);
       entries.add(new QPathEntry(uri, localName, index));
     }
     return new QPath(entries.toArray(new QPathEntry[entries.size()]));
@@ -313,7 +304,6 @@ public class QPath implements Comparable {
 
     names[index] = parseEntry(name);
     QPath path = new QPath(names);
-    //path.addEntry(path.parseEntry(name));
     return path;
   }
 

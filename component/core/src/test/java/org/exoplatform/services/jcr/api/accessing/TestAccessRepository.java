@@ -40,17 +40,6 @@ public class TestAccessRepository extends JcrAPIBaseTest {
    * for access to the specified workspace 
    */
   public void testExternalLogin() throws NoSuchWorkspaceException, LoginException, RepositoryException {
-//    try {
-//      Session session = repository.login(null, WORKSPACE);
-//      System.out.println("USER >>>>>>>>>>>>> "+session.getUserID());
-//      fail("Exception should have been thrown");
-//    } catch (LoginException e) {}
-//
-//    PortalContainer.getInstance().
-//        createSessionContainer("my-session", "gena").
-//        setClientInfo(new DummyClientInfo("gena"));
-//    container.createSessionContainer("my-session", "gena").
-//       setClientInfo(new DummyClientInfo("gena"));
 
     // make sure for this thread the user is "exo" 
     Credentials cred = new CredentialsImpl("exo", "exo".toCharArray());

@@ -37,7 +37,6 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
  */
 
 public class TransientValueData extends AbstractValueData implements Externalizable {
-//  , Cloneable {
 
   protected byte[]      data;
 
@@ -273,11 +272,6 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     } else {
       return this;
     }
-    ///////
-
-//    return new TransientValueData(orderNumber, null, tmpStream, 
-//        spoolFile, fileCleaner, maxBufferSize,
-//        tempDirectory);
   }
 
 
@@ -412,17 +406,11 @@ public class TransientValueData extends AbstractValueData implements Externaliza
         this.data = baos.toByteArray();
         baos.close();
       } else { // spool to file
-        //this.fileCleaner.addFile(spoolFile);
         this.data = null;
       }
       this.tmpStream = null;
       spooled = true;
       
-      //------------------------
-//      // TODO
-//      if (baos == null) {
-//        tmpStream = new FileInputStream(spoolFile);
-//      }
       //------------------------
     } catch (IOException e) {
       throw new IllegalStateException(e);
@@ -469,29 +457,20 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   }
   
   public void writeExternal(ObjectOutput out) throws IOException {
-//    System.out.println("-->TransientValueData--> writeExternal(ObjectOutput out)");
     if (this.isByteArray()) {
-//      write 1 - ByteArray
-//      write 2 - InputStream
       out.writeInt(1);
       int f = data.length; 
       out.writeInt(f);
       out.write(data);
-//      out.writeInt(orderNumber);
-//      out.writeInt(maxBufferSize);
     } else {
       out.writeInt(2);
-//      out.writeInt(maxBufferSize);
     }
     out.writeInt(orderNumber);
     out.writeInt(maxBufferSize);
   }
 
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-//    System.out.println("-->TransientValueData--> readExternal(ObjectInput in)");
     int type = in.readInt();
-    //type == 1 --> ByteArray
-    //type == 2 --> InputStream
     
     if (type == 1) {
       data = new byte[in.readInt()];

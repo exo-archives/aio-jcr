@@ -67,7 +67,6 @@ public class ItemsArrayList<E extends ItemData> extends ArrayList<E> {
         
         if (concurrentException != null) {
           log.warn(timestamp + " next accesed with concurrent changes " + next.getQPath().getAsString(), concurrentException);
-          //concurrentException.printStackTrace();
           throw concurrentException;
         }
         
@@ -156,7 +155,6 @@ public class ItemsArrayList<E extends ItemData> extends ArrayList<E> {
    */
   @Override
   public Iterator<E> iterator() {
-    //Iterator<E> iter = super.iterator();
     Iterator<E> iter = new Itr();
     log.info(timestamp + " -- iterator()");
     return iter;

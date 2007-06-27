@@ -63,9 +63,6 @@ public class BindableRepositoryFactory implements ObjectFactory {
         ManageableRepository rep = ((RepositoryService)container.getComponentInstanceOfType(RepositoryService.class))
         .getRepository(repositoryName);
         BindableRepositoryImpl brep = new BindableRepositoryImpl(rep);
-//          BindableRepositoryImpl rep = new BindableRepositoryImpl(
-//              StandaloneContainer.getInstance(), repositoryName);
-        
         cache.put(ref, rep);
         return rep;
       }

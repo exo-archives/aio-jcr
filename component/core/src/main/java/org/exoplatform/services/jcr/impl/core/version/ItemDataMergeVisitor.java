@@ -360,7 +360,6 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
       // add UUID of n to failedset,
       // doleave(n).
       failed.put(mergeNode.getIdentifier(), corrVersion.getIdentifier());
-      //versionableStates.add(new VersionableState(mergeNode.getQPath(), FAIL));
       doLeave(mergeNode);
     } else {
       // if bestEffort = false throw MergeException      

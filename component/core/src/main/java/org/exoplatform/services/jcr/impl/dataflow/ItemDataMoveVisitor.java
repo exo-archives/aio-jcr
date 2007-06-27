@@ -33,9 +33,6 @@ public class ItemDataMoveVisitor extends DefaultItemDataCopyVisitor {
    */
   protected List<ItemState> itemDeletedStates = new ArrayList<ItemState>();
   
-  //protected final InternalQPath rootParentPath;
-  //protected boolean isRename = false;
-  
   /**
    * Creates an instance of this class.
    * 
@@ -49,16 +46,10 @@ public class ItemDataMoveVisitor extends DefaultItemDataCopyVisitor {
   public ItemDataMoveVisitor(NodeData parent, InternalQName dstNodeName,
       NodeTypeManagerImpl nodeTypeManager, SessionDataManager srcDataManager, boolean keepIdentifiers) {
     super(parent, dstNodeName, nodeTypeManager, srcDataManager, keepIdentifiers);
-    
-    //this.rootParentPath = parent.getQPath();
   }
 
   @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
-    // [PN] Check if it's a rename operation
-//    if (level == 0) {
-//      this.isRename = node.getQPath().makeParentPath().equals(rootParentPath);
-//    }
     
     if (ancestorToSave == null){
       ancestorToSave = QPath.getPrimogenitorPath(curParent().getQPath(),node.getQPath());
@@ -66,12 +57,9 @@ public class ItemDataMoveVisitor extends DefaultItemDataCopyVisitor {
 
     super.entering(node, level);
     
-    // [PN] 09.01.07 If it's rename then gen events for the src/dest roots only
-    //if (isRename && level > 0) 
     if (level > 0)
       itemAddStates.get(itemAddStates.size() - 1).eraseEventFire();
     
-    //itemDeletedStates.add(new ItemState(node, ItemState.DELETED, isRename ? level == 0 : true, ancestorToSave));
     itemDeletedStates.add(new ItemState(node, ItemState.DELETED, level == 0, ancestorToSave));
   }
 
@@ -84,11 +72,8 @@ public class ItemDataMoveVisitor extends DefaultItemDataCopyVisitor {
       ((TransientValueData) valueData).lock();
     }
     
-    //if (isRename && level > 1) 
     if (level > 1)
       itemAddStates.get(itemAddStates.size() - 1).eraseEventFire();
-    // [PN] 09.01.07 Fire if not rename, NOTE: level is 1 as root it's a node always (must be)
-    //itemDeletedStates.add(new ItemState(property, ItemState.DELETED, isRename ? level == 1: true, ancestorToSave));
     itemDeletedStates.add(new ItemState(property, ItemState.DELETED, level == 1, ancestorToSave));
   }
 

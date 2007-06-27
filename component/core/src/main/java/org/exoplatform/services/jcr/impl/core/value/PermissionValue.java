@@ -11,7 +11,6 @@ import java.util.StringTokenizer;
 import javax.jcr.ValueFormatException;
 
 import org.exoplatform.services.jcr.access.AccessControlEntry;
-import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
@@ -37,7 +36,6 @@ public class PermissionValue extends BaseValue {
     super(TYPE, data);
     
     try {
-      //String p = new String(BLOBUtil.readValue(data));
       String[] persArray = parse(new String(data.getAsByteArray()));
       this.identity = persArray[0];
       this.permission = persArray[1];
@@ -47,9 +45,7 @@ public class PermissionValue extends BaseValue {
   }
 
   public PermissionValue(String identity, String permission) throws IOException {    
-    // [PN] 18.05.06 toString(identity, permission) instead identity + " " + permission
     super(TYPE, new TransientValueData(asString(identity, permission))); // identity + " " + permission
-    // [PN] 08.02.06
     if (identity != null && identity.indexOf(" ") != -1)
       throw new RuntimeException("Identity should not contain ' '");
     if(permission != null && !permission.equals(PermissionType.READ) &&
@@ -87,7 +83,6 @@ public class PermissionValue extends BaseValue {
   }
 
   protected String getInternalString() throws ValueFormatException {
-    // [PN] 19.05.06
     return asString(identity, permission);
   }
   
@@ -112,10 +107,4 @@ public class PermissionValue extends BaseValue {
   public String getPermission() {
     return permission;
   }
-  
-//  public AccessControlEntry getACE() {
-//    return permission;
-//  }
-  
-  
 }

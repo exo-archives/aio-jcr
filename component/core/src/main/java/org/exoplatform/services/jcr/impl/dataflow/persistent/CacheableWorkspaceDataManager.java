@@ -56,18 +56,12 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
   
   public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
   
-    // [PN] 05.04.07 TODO Remove whole qpath make after the cache refactor
-    //QPath qpath = QPath.makeChildPath(parentData.getQPath(), new QPathEntry[]{name});
-    
     // 1. Try from cache
     ItemData data = getCachedItemData(parentData, name);
   
     // 2. Try from container
     if (data == null) {
-      //log.info(" >>> data=null " + (parentData != null ? parentData.getQPath().getAsString() : "null_parent") + " " + name.getAsString());
       data = getPersistedItemData(parentData, name);
-    } else {
-      //log.info(" >>> data " + data.getQPath().getAsString());
     }
          
     return data;

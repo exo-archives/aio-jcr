@@ -32,8 +32,6 @@ public class PropertyDefinitions {
 			if( (residual && singleDef == null) || !residual) 
 				singleDef = def;
 		}
-//        System.out.println(" "+def.getName()+" "+singleDef+" "+multiDef);
-		
 	}
 	
 	public PropertyDefinition getDefinition(boolean multiple) { 
@@ -46,8 +44,6 @@ public class PropertyDefinitions {
 			return singleDef;
 		
 		return null;
-		
-//		throw new ConstraintViolationException("Definition not found for isMultiple()=="+multiple);
 	}
 	
 	public PropertyDefinition getAnyDefinition() { 
@@ -60,8 +56,6 @@ public class PropertyDefinitions {
 			return singleDef;
 		
 		return null;
-		
-		//throw new ConstraintViolationException("No Definition found ");
 	}
   
 	private void refresh() {

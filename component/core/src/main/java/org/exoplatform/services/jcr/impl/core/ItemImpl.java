@@ -128,30 +128,6 @@ public abstract class ItemImpl implements Item {
     return getLocation().getName().getAsString();
   }
 
-//  public Item getAncestor(int degree) throws ItemNotFoundException, AccessDeniedException, RepositoryException {
-//    try {
-//      // 6.2.8 If depth > n is specified then an ItemNotFoundException is
-//      // thrown.
-//      if (degree < 0)
-//        throw new ItemNotFoundException("Workspace.getAncestor() ancestor's degree < 0.");
-//      int n = getDepth() - degree;
-//      // log.debug("Item.getAncestor(" + degree + ") depth " +
-//      // getDepth()+" "+n);
-//      if (n == 0)
-//        return this;
-//      else if (n < 0)
-//        throw new ItemNotFoundException(
-//            "Workspace.getAncestor() ancestor's degree > depth of this item.");
-//      else {
-//        JCRPath ancestorLoc = getLocation().makeAncestorPath(n);
-//        // return findItemByPath(ancestorLoc);
-//        return item(ancestorLoc);
-//      }
-//    } catch (PathNotFoundException e) {
-//      throw new ItemNotFoundException(e.getMessage(), e);
-//    }
-//  }
-
   /*
    * (non-Javadoc)
    * 
@@ -166,7 +142,6 @@ public abstract class ItemImpl implements Item {
       
       final QPath myPath = getData().getQPath();
       int n = myPath.getDepth() - degree;
-      // log.debug("Item.getAncestor(" + degree + ") depth " + getDepth()+" "+n);
       if (n == 0) {
         return this;
       } else if (n < 0) {
@@ -323,7 +298,7 @@ public abstract class ItemImpl implements Item {
           node.getPrimaryTypeName(), 
           node.getMixinTypeNames())) {
   
-        PropertyData vhpd = (PropertyData) dataManager.getItemData( // getTransactManager().
+        PropertyData vhpd = (PropertyData) dataManager.getItemData(
             node, new QPathEntry(Constants.JCR_VERSIONHISTORY, 1));
         String vhID;
         try {
@@ -372,7 +347,7 @@ public abstract class ItemImpl implements Item {
           // remove VH
           try {
             // look up in transact manager (i.e. in persistence or in changes was accepted to commit in XE tr.)
-            PropertyData vhpd = (PropertyData) dataManager.getItemData( // getTransactManager().
+            PropertyData vhpd = (PropertyData) dataManager.getItemData( 
                 node, new QPathEntry(Constants.JCR_VERSIONHISTORY, 1));
             String vhID = new String(vhpd.getValues().get(0).getAsByteArray());
 
@@ -676,14 +651,6 @@ public abstract class ItemImpl implements Item {
   public InternalQName getInternalName() {
     return getData().getQPath().getName();
   }
-//  @Deprecated
-//  protected ItemImpl item(JCRPath path) throws RepositoryException {
-//    return dataManager.getItem(path.getInternalPath(), true);
-//  }
-//  @Deprecated
-//  protected ItemImpl item(QPath path) throws RepositoryException {
-//    return dataManager.getItem(path, true);
-//  }
 
   protected ItemImpl item(String identifier) throws RepositoryException {
     return dataManager.getItemByIdentifier(identifier, true);

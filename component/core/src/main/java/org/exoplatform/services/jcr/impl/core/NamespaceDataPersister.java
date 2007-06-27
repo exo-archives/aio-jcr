@@ -65,7 +65,6 @@ public class NamespaceDataPersister {
     }
   }
   
-//  void initStorage(NodeData nsSystem, boolean addACL, Map<InternalQName, String> namespaces) {
   public void initStorage(NodeData nsSystem, boolean addACL, Map<String, String> namespaces) 
   throws RepositoryException {
     
@@ -106,10 +105,8 @@ public class NamespaceDataPersister {
     
     nsRoot = root;
     
-//    Iterator<InternalQName> i = namespaces.keySet().iterator();
     Iterator<String> i = namespaces.keySet().iterator();
     while (i.hasNext()) {
-//      InternalQName nsKey = i.next();
       String nsKey = i.next();
       if (nsKey != null) {
         log.debug("Namespace " + nsKey + " " + namespaces.get(nsKey));
@@ -205,11 +202,6 @@ public class NamespaceDataPersister {
     changesLog.clear();
   }
 
-//  void discardChanges() throws RepositoryException, InvalidItemStateException {
-//    changesLog.clear();
-//  }
-  
-  
   private boolean isInialized() {
     return nsRoot != null;
   }

@@ -72,14 +72,6 @@ public interface ExtendedNodeTypeManager extends NodeTypeManager {
    */
   void registerNodeTypes(InputStream xml, int alreadyExistsBehaviour)
       throws RepositoryException;
-
-  /**
-   * Unregisters node type
-   * 
-   * @param name
-   * @throws RepositoryException
-   */
-  // void unregisterNodeType(String name) throws RepositoryException;
   
   NodeType getNodeType(InternalQName qname) throws NoSuchNodeTypeException, RepositoryException;
 }

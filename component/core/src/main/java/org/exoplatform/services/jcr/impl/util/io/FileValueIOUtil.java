@@ -37,7 +37,7 @@ public class FileValueIOUtil {
       } else {
         ByteBuffer buf = ByteBuffer.allocate(size);
         int numRead = channel.read(buf);
-        byte[] arr = new byte[numRead]; // buf.position()
+        byte[] arr = new byte[numRead]; 
         buf.rewind();
         buf.get(arr);
         return new ByteArrayPersistedValueData(arr, orderNum);

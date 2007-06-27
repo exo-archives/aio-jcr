@@ -14,15 +14,5 @@ import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
  * @version $Id: WorkspaceStorageDataManager.java 12843 2007-02-16 09:11:18Z peterit $
  */
 public abstract interface WorkspaceStorageDataManager extends ItemDataConsumer {
-  /**
-   * Saves the list of changes from this storage
-   * @param items for commit
-   * @throws InvalidItemStateException 
-   * @throws UnsupportedOperationException if operation is not supported (it is container for level 1)
-   * @throws RepositoryException if some exception occured
-
-   */
-  //void save(ItemDataChangesLog changes) throws InvalidItemStateException,
-  //UnsupportedOperationException, RepositoryException;
-
+ 
 }

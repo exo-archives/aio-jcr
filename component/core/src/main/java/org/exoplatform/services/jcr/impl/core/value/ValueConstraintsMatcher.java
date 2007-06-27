@@ -146,8 +146,6 @@ public class ValueConstraintsMatcher {
     return new MinMaxConstraint(minValue, maxValue);
   }
   
-  
-  // TODO compile constraints once (in PropertyDefinition), then use it here
   public boolean match(ValueData value, int type) throws ConstraintViolationException, ValueFormatException, IllegalStateException, RepositoryException {
     
     if (constraints == null || constraints.length <= 0)
@@ -239,7 +237,7 @@ public class ValueConstraintsMatcher {
       
     } else if (type == PropertyType.BINARY) {
       
-      long valueLength = valueData.getLength(); // [PN,VO] .getAsByteArray().length
+      long valueLength = valueData.getLength();
       for (int i=0; invalid && i < constraints.length; i++) {
         String constrString = constraints[i]; 
         
@@ -280,7 +278,6 @@ public class ValueConstraintsMatcher {
       } catch (IOException e) {
         throw new RepositoryException(e);
       }
-      //DateFormatHelper format = new DateFormatHelper();
       for (int i=0; invalid && i < constraints.length; i++) {
         String constrString = constraints[i]; 
         
@@ -362,12 +359,6 @@ public class ValueConstraintsMatcher {
       }
     } else if (type == PropertyType.BOOLEAN) {
       // JCR-283, 4.7.17.6 BOOLEAN has no Constraint
-      //String valueBoolean = new BooleanValue(valueData).getString();
-      //for (int i=0; invalid && i < constraints.length; i++) {
-      //  if (constraints[i].equals(valueBoolean)) {
-      //    invalid = false;
-      //  }
-      //}
       invalid = false;
     }
     

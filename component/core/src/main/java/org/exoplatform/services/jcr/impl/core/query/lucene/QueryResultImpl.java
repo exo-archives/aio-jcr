@@ -96,13 +96,11 @@ class QueryResultImpl implements QueryResult {
      * {@inheritDoc}
      */
     public String[] getColumnNames() throws RepositoryException {
-        //try {
-            String[] propNames = new String[selectProps.length];
-            for (int i = 0; i < selectProps.length; i++) {
-                //propNames[i] = selectProps[i].toJCRName(resolver);
-              propNames[i] = session.getLocationFactory().createJCRName(selectProps[i]).getAsString();
-            }
-            return propNames;
+      String[] propNames = new String[selectProps.length];
+      for (int i = 0; i < selectProps.length; i++) {
+        propNames[i] = session.getLocationFactory().createJCRName(selectProps[i]).getAsString();
+      }
+      return propNames;
     }
 
     /**

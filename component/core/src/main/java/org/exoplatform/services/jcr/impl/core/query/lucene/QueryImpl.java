@@ -133,9 +133,6 @@ class QueryImpl implements ExecutableQuery {
      * @throws RepositoryException if an error occurs
      */
     public QueryResult execute() throws RepositoryException {
-       //System.out.println("---------------- QueryImpl Executing query");
-//      log.debug("Executing query: \n" + root.dump());
-//      return null;
       LocationFactory locFactory = session.getLocationFactory();
 
       if (log.isDebugEnabled()) {
@@ -146,7 +143,6 @@ class QueryImpl implements ExecutableQuery {
         if (ALL_NODES.equals(root)) {
             return new WorkspaceTraversalResult(session,
                     new InternalQName[]{Constants.JCR_PATH});
-                    //session.getNamespaceResolver());
         }
 
         Query query;
@@ -180,7 +176,6 @@ class QueryImpl implements ExecutableQuery {
            List identifiers;
            List scores;
 
-          // AccessManager accessMgr = session.getAccessManager();
           // execute it
           QueryHits result = null;
         try {
@@ -226,11 +221,6 @@ class QueryImpl implements ExecutableQuery {
             if (ntName[0] == null) {
                 ntName[0] = Constants.NT_BASE;
             }
-            //String ntJcrName = index.getContext().getSysLocationFactory().createJCRName(ntName[0]).getAsString();
-            //String ntJcrName = locFactory.createJCRName(ntName[0]).getAsString();
-            //NodeType nt = session.getWorkspace().getNodeTypeManager().getNodeType(ntJcrName);
-            //NodeTypeImpl nt = session.getNodeTypeManager().getNodeType(ntName[0]);
-
             NodeType nt = ((NodeTypeManagerImpl)session.getWorkspace().getNodeTypeManager())
               .getNodeType(ntName[0]);
 
@@ -240,7 +230,6 @@ class QueryImpl implements ExecutableQuery {
                 if (!propDefs[i].isMultiple()) {
                   InternalQName qname = locFactory.parseJCRName(propDefs[i].getName()).getInternalName();
                   selectProps.add(qname);
-                    //selectProps.add(((PropertyDefinitionImpl) propDefs[i]).getQName());
                 }
             }
         }

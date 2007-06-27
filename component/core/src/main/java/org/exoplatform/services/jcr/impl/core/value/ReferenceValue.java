@@ -44,7 +44,6 @@ public class ReferenceValue extends BaseValue {
    */
   public Calendar getDate() throws ValueFormatException, IllegalStateException,
       RepositoryException {
-    //setValueConsumed();
 
     throw new ValueFormatException(
         "conversion to date failed: inconvertible types");
@@ -55,7 +54,6 @@ public class ReferenceValue extends BaseValue {
    */
   public long getLong() throws ValueFormatException, IllegalStateException,
       RepositoryException {
-    //setValueConsumed();
 
     throw new ValueFormatException(
         "conversion to long failed: inconvertible types");
@@ -66,7 +64,6 @@ public class ReferenceValue extends BaseValue {
    */
   public boolean getBoolean() throws ValueFormatException,
       IllegalStateException, RepositoryException {
-    //setValueConsumed();
 
     throw new ValueFormatException(
         "conversion to boolean failed: inconvertible types");
@@ -77,7 +74,6 @@ public class ReferenceValue extends BaseValue {
    */
   public double getDouble() throws ValueFormatException, IllegalStateException,
       RepositoryException {
-    //setValueConsumed();
 
     throw new ValueFormatException(
         "conversion to double failed: inconvertible types");

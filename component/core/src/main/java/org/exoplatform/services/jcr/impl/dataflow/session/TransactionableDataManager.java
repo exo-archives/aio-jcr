@@ -52,7 +52,6 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
     try {
       this.storageDataManager = new LocalWorkspaceStorageDataManagerProxy(dataManager, session.getValueFactory());
     } catch (Exception e1) {
-      //log.error("TransactionableDataManager error of read value factory: " + e1.getMessage());
       String infoString = "[Error of read value factory: " + e1.getMessage() + "]";
       throw new RepositoryException(infoString);
     }
@@ -195,7 +194,6 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
     
     if(txStarted())
       transactionLog.addLog(statesLog);
-      //transactionLog.addAll(changes.getAllStates());
     else 
       storageDataManager.save(new TransactionChangesLog(statesLog));
     

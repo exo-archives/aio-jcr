@@ -145,7 +145,6 @@ public class GenericConnectionFactory implements WorkspaceStorageConnectionFacto
         String err = "Error of JDBC connection open. SQLException: " + e.getMessage() 
           + ", SQLState: " + e.getSQLState()
           + ", VendorError: " + e.getErrorCode();
-        //log.error(err, e);
         throw new RepositoryException(err, e);
     }
   }

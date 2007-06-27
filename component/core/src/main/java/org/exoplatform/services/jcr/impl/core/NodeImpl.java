@@ -1729,16 +1729,12 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       ((VersionImpl) version).restore(this, removeExisting);
 
     } catch (UnsupportedRepositoryOperationException e) {
-      // log.error("RESTORE: " + e.getMessage(), e);
       throw e;
     } catch (VersionException e) {
-      // log.error("RESTORE: " + e.getMessage(), e);
       throw e;
     } catch (InvalidItemStateException e) {
-      // log.error("RESTORE: " + e.getMessage(), e);
       throw e;
     } catch (RepositoryException e) {
-      // log.error("RESTORE: " + e.getMessage(), e);
       throw e;
     }
   }
@@ -1839,7 +1835,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         bestEffort);
     this.nodeData().accept(visitor);
 
-    SessionChangesLog changes = visitor.getMergeChanges(); // log.info(changes.dump())
+    SessionChangesLog changes = visitor.getMergeChanges(); 
 
     EntityCollection failedIter = createMergeFailed(failed, changes);
 
@@ -1852,10 +1848,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   private EntityCollection createMergeFailed(Map<String, String> failed, SessionChangesLog changes) throws RepositoryException {
 
     EntityCollection res = new EntityCollection();
-
-    // TransientPropertyData mergeFailed = (TransientPropertyData)
-    // dataManager.getItemData(
-    // QPath.makeChildPath(getInternalPath(), Constants.JCR_MERGEFAILED));
 
     TransientPropertyData mergeFailed = (TransientPropertyData) dataManager.getItemData(nodeData(),
         new QPathEntry(Constants.JCR_MERGEFAILED, 0));
@@ -1941,9 +1933,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   private void removeMergeFailed(Version version, PlainChangesLog changesLog) throws RepositoryException {
 
-    // TransientPropertyData mergeFailed = (TransientPropertyData)
-    // dataManager.getItemData(
-    // QPath.makeChildPath(getInternalPath(), Constants.JCR_MERGEFAILED));
     TransientPropertyData mergeFailed = (TransientPropertyData) dataManager.getItemData(nodeData(),
         new QPathEntry(Constants.JCR_MERGEFAILED, 0));
 
@@ -1960,8 +1949,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         throw new RepositoryException("Remove jcr:mergeFailed error " + e, e);
       }
     }
-
-    // changesLog.add(ItemState.createAddedState(this.getData()));
 
     if (mf.size() > 0) {
       PropertyData mergeFailedRef = TransientPropertyData.createPropertyData(nodeData(),
@@ -2106,18 +2093,10 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     PlainChangesLog changesLog = new PlainChangesLogImpl(new ArrayList<ItemState>(), session
         .getId(), ExtendedEvent.UNLOCK);
 
-    // ItemData lockOwner =
-    // dataManager.getItemData(QPath.makeChildPath(getInternalPath(),
-    // Constants.JCR_LOCKOWNER));
-
     ItemData lockOwner = dataManager.getItemData(nodeData(),
         new QPathEntry(Constants.JCR_LOCKOWNER, 0));
 
     changesLog.add(ItemState.createDeletedState(lockOwner));
-
-    // ItemData lockIsDeep =
-    // dataManager.getItemData(QPath.makeChildPath(getInternalPath(),
-    // Constants.JCR_LOCKISDEEP));
 
     ItemData lockIsDeep = dataManager.getItemData(nodeData(),
         new QPathEntry(Constants.JCR_LOCKISDEEP, 0));
@@ -2231,7 +2210,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       for (ItemState istate: changes.getAllStates()) {
         dataManager.update(istate, true);
       }
-      //initVersionable();
     }
   }
 
@@ -2364,7 +2342,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     List<ValueData> permValues = new ArrayList<ValueData>();
 
     List<AccessControlEntry> aces = acl.getPermissionEntries(); // new
-    // ArrayList<AccessControlEntry>();
     for (AccessControlEntry ace : aces) {
       ValueData vd = new TransientValueData(ace);
       permValues.add(vd);

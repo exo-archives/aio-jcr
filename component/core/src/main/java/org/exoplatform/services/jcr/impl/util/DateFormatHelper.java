@@ -33,7 +33,6 @@ public class DateFormatHelper {
   protected static final String CALENDAR_FIELDS_SEPARATOR = "--";
   
   public Calendar deserialize(String serString) throws ValueFormatException {
-    //System.out.println("Deserialyze date string: [" + serString + "] " + hashCode());
     String[] parts = serString.split(CALENDAR_FIELDS_SEPARATOR);
     if (parts.length == 2) {
       // 22.09.06 [PN] imported from ISO8601.java
@@ -64,7 +63,6 @@ public class DateFormatHelper {
       
       Calendar isoCalendar = Calendar.getInstance();
       isoCalendar.setTime(isoDate);
-      //System.out.println("Parse Calendar fields: [" + parts[1] + "] " + hashCode());
       String[] calendarFields = parts[1].split(CALENDAR_FIELDS_DELIMITER);
       if (calendarFields.length == 4) {
         try {

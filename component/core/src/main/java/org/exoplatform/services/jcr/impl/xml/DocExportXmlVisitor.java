@@ -5,10 +5,8 @@
 package org.exoplatform.services.jcr.impl.xml;
 
 import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
-import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -16,7 +14,6 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.util.ISO9075;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 /**
@@ -30,14 +27,10 @@ public class DocExportXmlVisitor extends ExportXmlVisitor {
   public DocExportXmlVisitor(ContentHandler handler, SessionImpl session, ItemDataConsumer dataManager,
       boolean skipBinary, boolean noRecurse) {
     super(handler, session, dataManager, skipBinary, noRecurse);
-   
-    // this.writer = writer;
-    
   }
 
   @Override
   protected void entering(PropertyData property, int level) throws RepositoryException {
-    // TODO Auto-generated method stub
     InternalQName name = property.getQPath().getName();
     currentAttr.addAttribute(name.getNamespace(),name.getName(),name.getAsString(),"CDATA",locationFactory
         .createJCRName(property.getQPath().getName()).getAsString());
@@ -45,11 +38,6 @@ public class DocExportXmlVisitor extends ExportXmlVisitor {
 
   @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
-//    String name = node.getQPath().getName().getAsString();
-//    if (name.length() == 0) // root node
-//      name = "jcr:root";
-    
-        
     InternalQName internalNodeName = ISO9075.encode(node.getQPath().getName());
 
     String nodeName = ((SessionImpl) session).getLocationFactory().createJCRName(internalNodeName)
@@ -62,22 +50,14 @@ public class DocExportXmlVisitor extends ExportXmlVisitor {
     AttributesImpl atts = new AttributesImpl();
     atts.addAttribute(Constants.JCR_URI, "name", "sv:name", "CDATA", locationFactory
         .createJCRName(node.getQPath().getName()).getAsString());
-
-    
-//    contentHandler.startElement(node.getQPath().getName().getNamespace(),
-//        node.getQPath().getName(), elemName, attrs);
   }
 
   @Override
   protected void leaving(PropertyData property, int level) throws RepositoryException {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
   protected void leaving(NodeData node, int level) throws RepositoryException {
-    // TODO Auto-generated method stub
-
   }
 
 }

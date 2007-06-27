@@ -28,29 +28,6 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
  */
 public abstract class AbstractQueryHandler implements QueryHandler {
 
-//    /**
-//     * The context for this query handler.
-//     */
-//    private QueryHandlerContext context;
-//
-//    /**
-//     * Initializes this query handler by setting all properties in this class
-//     * with appropriate parameter values.
-//     *
-//     * @param context the context for this query handler.
-//     */
-//    public final void init(QueryHandlerContext context) throws IOException {
-//        this.context = context;
-//        doInit();
-//    }
-
-//    /**
-//     * This method must be implemented by concrete sub classes and will be
-//     * called from {@link #init}.
-//     */
-//    protected abstract void doInit() throws IOException;
-
-
     /**
      * This default implementation calls the individual {@link #deleteNode(String)}
      * and {@link #addNode(org.apache.jackrabbit.core.state.NodeState)} methods

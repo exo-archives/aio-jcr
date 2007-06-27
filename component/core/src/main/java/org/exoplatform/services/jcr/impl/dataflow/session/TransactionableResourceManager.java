@@ -44,11 +44,9 @@ public class TransactionableResourceManager { //TransactionableResourceManager
           userSessions.remove(sr);
         }
         
-        // TODO [PN] Check with real XA test and with agressive session logins
         userSessions.add(new SoftReference<XASessionImpl>(userSession));
         txManagers.put(userSession.getUserID(), userSessions);
       } 
-      //joinedList.add(new SoftReference<XASessionImpl>(userSession));
     } else {
       final List<SoftReference<XASessionImpl>> newJoinedList = new ArrayList<SoftReference<XASessionImpl>>();
       newJoinedList.add(new SoftReference<XASessionImpl>(userSession));

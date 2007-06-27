@@ -8,7 +8,6 @@ import java.util.List;
 
 import javax.jcr.RepositoryException;
 
-import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -61,18 +60,4 @@ public interface ItemDataConsumer {
    * @throws RepositoryException
    */
   List <PropertyData> getReferencesData(String identifier, boolean skipVersionStorage) throws RepositoryException;
-  
-  /**
-   * @param path
-   * @return AccessControlList for incoming path:
-   * (1) if item at path is an AccessControllable Node its ACL is returned
-   * (2) if item is Root but not AccessControllable node Defaulr ACL is returned
-   * (3) else if ACL inheritance is supported by outlined Consumer implementation traverse path to find nearest AccessControllable ancestor's or Root node's ACL  
-   * or null in a case if: 
-   * (1) there are no item at path and ACL inheritance is not supported by outlined Consumer implementation
-   * (2) item at path is a Property and ACL inheritance is not supported by outlined Consumer implementation  
-   * (3) item at path is a not AccessControllable Node nor Root node and ACL inheritance is not supported by outlined Consumer implementation   
-   * @throws RepositoryException
-   */
-  //AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException;
 }

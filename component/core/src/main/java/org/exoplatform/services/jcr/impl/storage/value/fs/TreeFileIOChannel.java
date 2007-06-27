@@ -24,19 +24,11 @@ public class TreeFileIOChannel extends FileIOChannel {
   
   @Override
   protected File getFile(String propertyId, int orderNumber) {
-    // TODO parse ID like:
-    // ID = 123456 parsed = 1/2/3/4/5/6
-    // and make new file with name == orderNumber
-    // or 
-    //Long.toHexString(propertyId.hashCode());
     return null;
   }
 
   @Override
   protected File[] getFiles(String propertyId) {
-    // TODO parse ID like:
-    // ID = 123456 parsed = 1/2/3/4/5/6
-    // and return list of files from there
     return null;
   }
 

@@ -254,21 +254,14 @@ public class NodeImporter extends DefaultHandler {
   }
 
   private void warnErrorLog(String message, Throwable exception) {
-//    toErrorLog("[WARN] " + (message != null && message.length() > 0 ? message + "; " : ""),
-//        exception);
     log.warn(message);
   }
 
   private void errorErrorLog(String message, Throwable exception) {
-//    toErrorLog("[ERROR] " + (message != null && message.length() > 0 ? message + "; " : ""),
-//        exception);
     log.error(message);
   }
 
   private void fatalErrorLog(String message, Throwable exception) {
-//    toErrorLog("[FATAL] " + (message != null && message.length() > 0 ? message + "; " : ""),
-//        exception);
-    log.fatal(message);
   }
   @Deprecated
   private void toErrorLog(String message, Throwable exception) {

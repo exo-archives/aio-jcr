@@ -303,7 +303,6 @@ class QueryFormat implements QueryNodeVisitor, QueryConstants {
                 sb.append('\'');
                 sb.append(" OR ");
                 sb.append(locationFactory.createJCRName(Constants.JCR_PATH).getAsString());
-//                sb.append(Constants.JCR_PATH.toJCRName(resolver));
                 sb.append(" LIKE '");
                 for (int i = 0; i < steps.length; i++) {
                     if (steps[i].getNameTest() == null
@@ -318,7 +317,6 @@ class QueryFormat implements QueryNodeVisitor, QueryConstants {
             } else if (containsAllChildrenMatch(node)) {
               sb.append(locationFactory.createJCRName(Constants.JCR_PATH).getAsString());
 
-//                sb.append(Constants.JCR_PATH.toJCRName(resolver));
                 sb.append(" LIKE '");
                 StringBuffer path = new StringBuffer();
                 LocationStepQueryNode[] steps = node.getPathSteps();
@@ -363,8 +361,6 @@ class QueryFormat implements QueryNodeVisitor, QueryConstants {
             if (node.getNameTest().getName().length() > 0) {
                 try {
                   sb.append(locationFactory.createJCRName(node.getNameTest()).getAsString());
-
-//                    sb.append(node.getNameTest().toJCRName(resolver));
                 } catch (RepositoryException e) {
                     exceptions.add(e);
                 }

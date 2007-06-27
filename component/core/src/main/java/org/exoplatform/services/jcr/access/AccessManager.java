@@ -91,7 +91,6 @@ public abstract class AccessManager {
     } else if (userId.equals(SystemIdentity.ANONIM)
         && (permission.length > 1 || !permission[0].equals(PermissionType.READ))) {
       // Anonim does not have WRITE permission even for ANY
-      // System.out.println(">>>userId "+userId+" "+permission[0]);
       return false;
     } else {
       // Check Other with Org service
@@ -107,7 +106,7 @@ public abstract class AccessManager {
   protected boolean isUserMatch(String identity, String userId) {
     if (identity.equals(SystemIdentity.ANY)) // any
       return true;
-    if (identity.indexOf(":") == -1) // || identity.equals(SystemIdentity.ANONIM))
+    if (identity.indexOf(":") == -1) 
       // just user
       return identity.equals(userId);
     // group

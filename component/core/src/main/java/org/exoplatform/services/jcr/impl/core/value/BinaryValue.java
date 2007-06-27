@@ -51,25 +51,6 @@ public class BinaryValue extends BaseValue {
     internalData.setTempDirectory(tempDirectory);
     internalData.setMaxBufferSize(maxFufferSize);
   }
-
-//  /**
-//   * @deprecated
-//   * @param data
-//   * @param fileCleaner
-//   * @param tempDirectory
-//   * @param maxFufferSize
-//   * @throws IOException
-//   * 
-//   */
-//  BinaryValue(TransientValueData data, FileCleaner fileCleaner,
-//      File tempDirectory, int maxFufferSize) throws IOException {
-//    super(TYPE, data);
-//    if(!data.isByteArray()) {
-//      internalData.setFileCleaner(fileCleaner);
-//      internalData.setTempDirectory(tempDirectory);
-//      internalData.setMaxBufferSize(maxFufferSize);
-//    } 
-//  }
   
   BinaryValue(TransientValueData data) throws IOException {
     super(TYPE, data);

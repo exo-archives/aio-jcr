@@ -184,7 +184,6 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
       validate(property);
     }
     
-    //ItemState state = ItemState.createDeletedState(property);
     ItemState state = new ItemState(property, ItemState.DELETED, true, 
         ancestorToSave != null ? ancestorToSave : removedRoot.getQPath()); 
     
@@ -209,7 +208,6 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
       validate(node);
     }
     
-    //itemRemovedStates.add(ItemState.createDeletedState(node));
     ItemState state = new ItemState(node, ItemState.DELETED, true, 
         ancestorToSave != null ? ancestorToSave : removedRoot.getQPath());
     itemRemovedStates.add(state);

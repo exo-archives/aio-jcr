@@ -108,7 +108,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
     
     for (NodeData cnd: dataManager.getChildNodesData(vData)) {
       if (!cnd.getQPath().getName().equals(Constants.JCR_ROOTVERSION) &&
-          ntManager.isNodeType(Constants.NT_VERSION, cnd.getPrimaryTypeName())) // !cnd.getQPath().getName().equals(Constants.JCR_VERSIONLABELS)
+          ntManager.isNodeType(Constants.NT_VERSION, cnd.getPrimaryTypeName())) 
         vChilds.add(cnd);
     }
     

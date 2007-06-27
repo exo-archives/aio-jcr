@@ -67,7 +67,6 @@ public class PendingChangesLog {
     listInputStream = new ArrayList<InputStream>();
     listFixupStream = new ArrayList<FixupStream>();
     containerType = analysisItemDataChangesLog(); 
-      //analysisItemDataChangesLog();
     listFile = new ArrayList<File>();
     identifier = IdGenerator.generate();
     this.fileCleaner = fileCleaner;
@@ -220,7 +219,6 @@ public class PendingChangesLog {
   }
 
   public void restore() throws Exception {
-//    fileCleaner = new FileCleaner(30030);
     for (int i = 0; i < this.listFixupStream.size(); i++) {
       List<ItemState> listItemState = itemDataChangesLog.getAllStates();
       ItemState itemState = listItemState.get(listFixupStream.get(i).getItemSateId());

@@ -50,10 +50,6 @@ public class TestSessionNamespaceRemapping extends JcrAPIBaseTest {
     session.setNamespacePrefix("exo2", "http://www.exoplatform.com/jcr/exo/1.0");
     String[] prefixes = session.getNamespacePrefixes();
     assertTrue(protectedNamespaces.length<=prefixes.length);
-    //for (int i = 0; i < prefixes.length; i++) {
-    //  String prefix = prefixes[i];
-    //  assertTrue(" Wrong prefix "+prefix, ArrayUtils.contains(protectedNamespaces, prefix));
-    //}    
   }
 
   public void testGetNamespaceURI() throws Exception {

@@ -26,11 +26,6 @@ public class FileCleaner extends WorkerThread {
 
   List <File> files = new ArrayList <File> ();
   
-//  public FileCleaner(String name) {
-//    super("FileCleanerThread: "+name, 10000);
-//    
-//  }
-  
   public FileCleaner() {
     this(DEFAULT_TIMEOUT);
   }
@@ -74,8 +69,6 @@ public class FileCleaner extends WorkerThread {
       for (File file : oldFiles) {
         if (file.exists()) { 
           if(!file.delete()) {
-//            System.out.println("File can't be deleted. Will try next time: "
-//              + file.getAbsolutePath());
             log.warn("Could not delete file. Will try next time: "
               + file.getAbsolutePath());
             files.add(new File(file.getAbsolutePath()));
@@ -93,14 +86,13 @@ public class FileCleaner extends WorkerThread {
       Runtime.getRuntime().addShutdownHook(new Thread() {
         public void run() {
           List<File> oldFiles = files;
-          files = null; //new ArrayList<File>();
+          files = null; 
           // synchronize on the list before iterating over it in order
           // to avoid ConcurrentModificationException (JCR-549)
           // @see java.lang.util.Collections.synchronizedList(java.util.List)
           synchronized (oldFiles) {
             for (File file : oldFiles) {
               file.delete();
-//              System.out.println("Delete "+file.getPath()+" "+res);
             }
           }
         }

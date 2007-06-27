@@ -187,8 +187,6 @@ public class TransientPropertyData extends TransientItemData implements MutableP
   }
 
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-//    System.out.println("-->TransientPropertyData --> readExternal(ObjectInput in)");
-
     super.readExternal(in);
         
     type = in.readInt();

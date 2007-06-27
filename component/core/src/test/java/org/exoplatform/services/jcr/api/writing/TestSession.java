@@ -40,9 +40,6 @@ public class TestSession extends JcrAPIBaseTest{
     } catch (PathNotFoundException e) {
     }
 
-    //Node node = root.addNode("nodeType", "exo:mockNodeType");
-    //node.addNode("jcr:childNodeDefinition", "nt:childNodeDefinition");
-    //.setProperty("jcr:defaultValues", new Value[] {new StringValue("testString")});
     Node node = root.addNode("nodeType", "nt:base");
   	session.save();
     root.getNode("nodeType").remove();

@@ -55,14 +55,12 @@ public class EntityCollection
       this.list = list;
 
     this.iter = list.iterator();
-//    this.iter = list.listIterator();
     this.pos = 0;
   }
 
   public EntityCollection() {
     this.list = new ArrayList();
     this.iter = list.iterator();
-//    this.iter = list.listIterator();
     this.pos = 0;
   }
   
@@ -112,14 +110,6 @@ public class EntityCollection
   public long getPosition() {
     return pos;
   }
-
-//  /**
-//   * @see ItemIterator#nextElement()
-//   */
-//  public Item nextItem() {
-//    pos++;
-//    return (Item) iter.next();
-//  }
 
   /**
    * @see Iterator#hasNext()
@@ -206,17 +196,8 @@ public class EntityCollection
    pos++;
    return (Version) iter.next();
  }
-  
 
-  /**
-   * @see HitIterator#nextHit()
-   */
-//    public Hit nextHit() {
-//        pos++;
-//        return (Hit) iter.next();
-//    }
-
-  public void add(Object obj) {
+ public void add(Object obj) {
     pos = 0;
     list.add(obj);
     iter = list.iterator();

@@ -179,14 +179,9 @@ abstract public class ExporterBase {
   protected String getValueAsString(Value value) throws RepositoryException {
     if (value.getType() != PropertyType.BINARY)
       return value.getString();
-      //return StringConverter.normalizeString(value.getString(), false);
-
-    
     ValueData valueData = ((BaseValue) value).getInternalData();
     
     try {
-//      String b64s = new String(Base64.encodeBase64(BLOBUtil.readValue(valueData)));
-//      return b64s;
       return new String(Base64.encodeBase64(valueData.getAsByteArray()));
     } catch(IOException e) {
       throw new RepositoryException("Can't export value to string: " + e.getMessage(), e);
@@ -297,8 +292,6 @@ abstract public class ExporterBase {
   private void propertyProcess(Property property) throws RepositoryException,
       SAXException {
     log.trace("propertyProcess [" + property.getPath() + "]");
-    //System.out.println("propProcess prop " +property.getPath());
-
     startProperty(property);
     Value[] values;
 

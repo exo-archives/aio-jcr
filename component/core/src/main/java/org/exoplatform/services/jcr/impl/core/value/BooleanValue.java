@@ -35,8 +35,6 @@ public class BooleanValue extends BaseValue {
    * @see org.exoplatform.services.jcr.impl.core.value.BaseValue#getDate()
    */
   public Calendar getDate() throws ValueFormatException, IllegalStateException, RepositoryException {
-    //setValueConsumed();
-
     throw new ValueFormatException("conversion to date failed: inconvertible types");
   }
 
@@ -44,31 +42,13 @@ public class BooleanValue extends BaseValue {
    * @see org.exoplatform.services.jcr.impl.core.value.BaseValue#getLong()
    */
   public long getLong() throws ValueFormatException, IllegalStateException, RepositoryException {
-    //setValueConsumed();
-
     throw new ValueFormatException("conversion to long failed: inconvertible types");
   }
-
-//  /**
-//   * @see Value#getBoolean
-//   */
-//  public boolean getBoolean() throws ValueFormatException, IllegalStateException,
-//      RepositoryException {
-//    setValueConsumed();
-//    Boolean bool = new Boolean(getInternalString());
-//    if (bool != null) {
-//      return bool.booleanValue();
-//    } else {
-//      throw new ValueFormatException("empty value");
-//    }
-//  }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.core.value.BaseValue#getDouble()
    */
   public double getDouble() throws ValueFormatException, IllegalStateException, RepositoryException {
-    //setValueConsumed();
-
     throw new ValueFormatException("conversion to double failed: inconvertible types");
   }
 }

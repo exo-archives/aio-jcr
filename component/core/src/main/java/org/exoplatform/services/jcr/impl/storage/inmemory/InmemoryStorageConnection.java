@@ -122,7 +122,6 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
 
     items.put(item.getQPath().getAsString(), item);
     log.debug("InmemoryContainer added node " + item.getQPath().getAsString());
-    // Iterator props = item.getChildProperties().iterator();
     Iterator props = getChildProperties(item).iterator();
     while (props.hasNext()) {
       add((PropertyData) props.next());

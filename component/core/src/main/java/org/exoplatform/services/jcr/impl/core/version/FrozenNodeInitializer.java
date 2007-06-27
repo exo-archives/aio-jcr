@@ -174,7 +174,7 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
     if (log.isDebugEnabled())
       log.debug("Entering node " + node.getQPath().getAsString() + ", " + OnParentVersionAction.nameFromValue(action));
 
-    NodeData frozenNode = null; // (NodeImpl) node;
+    NodeData frozenNode = null;
     if (action == OnParentVersionAction.IGNORE) {
       contextNodes.push(null);
     } else if (action == OnParentVersionAction.ABORT) {

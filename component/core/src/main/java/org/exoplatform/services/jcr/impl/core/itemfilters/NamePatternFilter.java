@@ -43,15 +43,10 @@ public class NamePatternFilter implements ItemFilter {
     return false;
   }
 
-  // TODO [PN] To many calls of the method. Check use of same result in cycles.  
   private boolean estimate(String name, String expr) {
     if (expr.indexOf("*") == -1)
       return name.equals(expr);
-    // [PN] 19.09.06
-    //String regexp = StringUtils.replace(expr,"*", ".*");
-    //System.out.println("regexp: [" + expr + "] -- > [" + regexp + "]");
     String regexp = expr.replaceAll("\\*", ".*");
-    //System.out.println("expr: [" + expr + "] -- > [" + expr1 + "]");
     return Pattern.compile(regexp).matcher(name).matches();
   }
   

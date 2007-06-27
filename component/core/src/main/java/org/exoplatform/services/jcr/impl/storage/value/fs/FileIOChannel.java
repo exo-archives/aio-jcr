@@ -40,7 +40,6 @@ public abstract class FileIOChannel implements ValueIOChannel {
    */
   public boolean delete(String propertyId)  throws IOException {
     
-//    final File[] valueFiles = rootDir.listFiles(new PropertyIDFilter(propertyId));
     final File[] valueFiles = getFiles(propertyId);
 
     boolean result = true;
@@ -63,7 +62,6 @@ public abstract class FileIOChannel implements ValueIOChannel {
    * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#read(java.lang.String, int, int)
    */
   public ValueData read(String propertyId, int orderNumber, int maxBufferSize) throws IOException {
-//    File valueFile = new File(rootDir, propertyId + orderNumber);
     File valueFile = getFile(propertyId, orderNumber);
     return FileValueIOUtil.readValue(valueFile, orderNumber, maxBufferSize, false);
   }
@@ -72,8 +70,6 @@ public abstract class FileIOChannel implements ValueIOChannel {
    * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#write(java.lang.String, org.exoplatform.services.jcr.datamodel.ValueData)
    */
   public String write(String propertyId, ValueData value) throws IOException {
-//    String fileName = propertyId + value.getOrderNumber();
-//    File file = new File(rootDir, fileName);
     File file = getFile(propertyId, value.getOrderNumber());
     FileValueIOUtil.writeValue(file, value);
     return file.getAbsolutePath();

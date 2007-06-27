@@ -28,9 +28,7 @@ public class PropertyTypeConversion {
 		
 		int r = PropertyType.UNDEFINED; 
 		try {
-      //System.out.println("deserializeType: input: " + propertyTypeString);
 			r = ExtendedPropertyType.valueFromName(propertyTypeString);
-      //System.out.println("deserializeType: result: " + r);
 		} catch(IllegalArgumentException e) {
 			//r = PropertyType.TYPENAME_UNDEFINED;
 		} catch(Exception e) {

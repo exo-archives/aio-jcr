@@ -222,8 +222,6 @@ public class NodeTypeImpl implements ExtendedNodeType {
 		NodeType superType = null;
 		try {
 			superType = manager.getNodeType(nodeTypeName);
-      //superType = ((NodeTypeManagerImpl)manager).
-      //  findNodeType(getQName(nodeTypeName));
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException(" NodeTypeImpl.isNodeType (" + superType
@@ -381,8 +379,6 @@ public class NodeTypeImpl implements ExtendedNodeType {
 				} else if (value.getType() == PropertyType.BINARY) {
 					likeDataString = getCharsetString(value.getString(),
 							Constants.DEFAULT_ENCODING);
-					// likeDataString = value.getString(); // This line
-					// can work too, replacing line below
 				} else if (value.getType() == PropertyType.DOUBLE
 						|| value.getType() == PropertyType.LONG) {
 					return checkValueConstraints(constrains, value);
@@ -404,8 +400,6 @@ public class NodeTypeImpl implements ExtendedNodeType {
 				} else if (value.getType() == PropertyType.BINARY) {
 					likeDoubleString = getCharsetString(value.getString(),
 							Constants.DEFAULT_ENCODING);
-					// likeDataString = value.getString(); // This line
-					// can work too, replacing line below
 				} else if (value.getType() == PropertyType.LONG) {
 					return checkValueConstraints(constrains, value);
 				} else {
@@ -426,8 +420,6 @@ public class NodeTypeImpl implements ExtendedNodeType {
 				} else if (value.getType() == PropertyType.BINARY) {
 					likeLongString = getCharsetString(value.getString(),
 							Constants.DEFAULT_ENCODING);
-					// likeDataString = value.getString(); // This line
-					// can work too, replacing line below
 				} else if (value.getType() == PropertyType.DATE) {
 					return true;
 				} else if (value.getType() == PropertyType.DOUBLE) {
@@ -450,11 +442,8 @@ public class NodeTypeImpl implements ExtendedNodeType {
 				} else if (value.getType() == PropertyType.BINARY) {
 					likeNameString = getCharsetString(value.getString(),
 							Constants.DEFAULT_ENCODING);
-					// likeDataString = value.getString(); // This line
-					// can work too, replacing line below
 				} else if (value.getType() == PropertyType.PATH) {
 					String pathString = value.getString();
-					// PathValue pathv = (PathValue) value;
 					String[] pathParts = pathString.split("\\/");
 					if (pathString.startsWith("/")
 							&& (pathParts.length > 1 || pathString.indexOf("[") > 0)) {
@@ -471,8 +460,6 @@ public class NodeTypeImpl implements ExtendedNodeType {
 					} else if (pathString.startsWith("/")
 							&& pathString.lastIndexOf("/") < 1
 							&& pathString.indexOf("[") < 0) {
-						// System.err.println("abs path, one elem, no index: " +
-						// pathString);
 						return checkValueConstraints(constrains, value);
 					} else {
 						return false;
@@ -481,7 +468,6 @@ public class NodeTypeImpl implements ExtendedNodeType {
 					return false;
 				}
 				try {
-					//Value nameValue = getNameValue(likeNameString);
           Value nameValue = manager.getValueFactory().
             createValue(likeNameString, PropertyType.NAME);
 					return nameValue != null
@@ -614,21 +600,13 @@ public class NodeTypeImpl implements ExtendedNodeType {
 	public PropertyDefinitions getPropertyDefinitions(String name) {
 		PropertyDefinitions defs = new PropertyDefinitions();
 
-		//PropertyDefinitionImpl propResidual = null;
 		for (int i = 0; i < getPropertyDefinitions().length; i++) {
 			PropertyDefinitionImpl propDef = (PropertyDefinitionImpl) getPropertyDefinitions()[i];
-			//System.out.println(" >>>>>>> "+propDef.getName()+" "+propDef.isMultiple()+" "+name);
 
 			if (propDef.getName().equals(name) || propDef.isResidualSet()) {
 				defs.setDefinition(propDef);
 			}
-			/*
-			 * if (propDef.getName().equals(name)) {
-			 * defs.setDefinition(propDef); return defs; } else if
-			 * (propDef.isResidualSet()) { propResidual = propDef; }
-			 */
 		}
-		// defs.setDefinition(propResidual);
 		return defs;
 	}
 
@@ -713,15 +691,11 @@ public class NodeTypeImpl implements ExtendedNodeType {
 
   public boolean isChildNodePrimaryTypeAllowed(String typeName) {
     
-    // [PN] 03.08.06 Fix chil nodes defs selection logic
-    //NodeDefinition[] definitions = this.getDeclaredChildNodeDefinitions()
     NodeDefinition[] definitions = this.getChildNodeDefinitions();
     
     NodeType testType;
     try {
       testType = manager.getNodeType(typeName);
-      //testType = (NodeTypeImpl)((NodeTypeManagerImpl)manager).
-      //findNodeType(getQName(typeName));
     } catch (RepositoryException e) {
       throw new RuntimeException("Error " + e);
     }
@@ -729,12 +703,10 @@ public class NodeTypeImpl implements ExtendedNodeType {
     for (int i = 0; i < definitions.length; i++) {
       NodeType[] requiredTypes = definitions[i].getRequiredPrimaryTypes();
       for (int j = 0; j < requiredTypes.length; j++) {
-        //System.out.println("Required : "+requiredTypes[j].getName()+" test "+testType.getName());
         if(((NodeType)requiredTypes[j]).equals(testType))
           return true;
         NodeType[] testSuperTypes = testType.getSupertypes();
         for(int k=0; k<testSuperTypes.length; k++) {
-          //System.out.println("Required : "+requiredTypes[j].getName()+" test super "+testSuperTypes[k].getName());
           if(((NodeType)testSuperTypes[k]).equals((NodeType)requiredTypes[j]))
             return true;
         }
@@ -815,10 +787,8 @@ public class NodeTypeImpl implements ExtendedNodeType {
   public PropertyDefinitions getPropertyDefinitions(InternalQName name) {
     PropertyDefinitions defs = new PropertyDefinitions();
 
-    // PropertyDefinitionImpl propResidual = null;
     for (int i = 0; i < getPropertyDefinitions().length; i++) {
       PropertyDefinitionImpl propDef = (PropertyDefinitionImpl) getPropertyDefinitions()[i];
-       //System.out.println(" ----------- "+propDef.getName()+" "+propDef.isMultiple()+" "+name);
 
       if (propDef.getQName().equals(name) || propDef.isResidualSet()) {
         defs.setDefinition(propDef);
@@ -834,8 +804,6 @@ public class NodeTypeImpl implements ExtendedNodeType {
     NodeDefinition residual = null;
     for (int i = 0; i < getChildNodeDefinitions().length; i++) {
       NodeDefinitionImpl nodeDef = (NodeDefinitionImpl) getChildNodeDefinitions()[i];
-      //System.out.println(">>>> findChildNodeDefinition >> "+nodeDef.getQName().getAsString()+" "+name);
-
       if (nodeDef.getQName().equals(name)) {
         return nodeDef;
       } else if (nodeDef.getName().equals(ExtendedItemDefinition.RESIDUAL_SET)) {

@@ -89,31 +89,24 @@ Caused by: java.lang.ClassCastException: oracle.jdbc.driver.T4CConnection
       prop.setProperty("InitialLimit", String.valueOf(CONNCACHE_MIN_LIMIT));    
       prop.setProperty("MinLimit", String.valueOf(CONNCACHE_MIN_LIMIT));    
       prop.setProperty("MaxLimit", String.valueOf(CONNCACHE_MAX_LIMIT));    
-      //prop.setProperty("MaxStatementsLimit", "2"); 
       prop.setProperty("InactivityTimeout", String.valueOf(CONNCACHE_INACTIVITY_TIMEOUT));  
       prop.setProperty("AbandonedConnectionTimeout", String.valueOf(CONNCACHE_ABADONDED_TIMEOUT)); 
       
-      // ods.setURL(url);
       Method setURL = cds.getClass().getMethod("setURL", new Class[] {String.class});
       setURL.invoke(cds, new Object[] {this.dbUrl});
           
-      //ods.setUser("qaadmin");
       Method setUser = cds.getClass().getMethod("setUser", new Class[] {String.class});
       setUser.invoke(cds, new Object[] {this.dbUserName});
       
-      // ods.setPassword("qa12321");
       Method setPassword = cds.getClass().getMethod("setPassword", new Class[] {String.class});
       setPassword.invoke(cds, new Object[] {this.dbPassword});
       
-      // ods.setConnectionCachingEnabled(true); // be sure set to true
       Method setConnectionCachingEnabled = cds.getClass().getMethod("setConnectionCachingEnabled", new Class[] {boolean.class});
       setConnectionCachingEnabled.invoke(cds, new Object[] {true});
       
-      // ods.setConnectionCacheProperties (prop);
       Method setConnectionCacheProperties = cds.getClass().getMethod("setConnectionCacheProperties", new Class[] {Properties.class});
       setConnectionCacheProperties.invoke(cds, new Object[] {prop});
       
-      // ods.setConnectionCacheName("ImplicitCache01"); // this cache's name
       Method setConnectionCacheName = cds.getClass().getMethod("setConnectionCacheName", new Class[] {String.class});
       setConnectionCacheName.invoke(cds, new Object[] {"EXOJCR_OCI__" + containerName});
       
@@ -145,26 +138,11 @@ Caused by: java.lang.ClassCastException: oracle.jdbc.driver.T4CConnection
   }
 
   protected Connection getCachedConnection() throws NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-//    Method getConnection = ociPool.getClass().getMethod("getConnection", 
-//        new Class[] {String.class, String.class}
-//    );
-//    return (Connection) getConnection.invoke(ociPool, new Object[] {dbUserName, dbPassword});
     
     // NOTE: ociDataSource - actually instance of javax.sql.DataSource 
     Method getConnection = ociDataSource.getClass().getMethod("getConnection", new Class[] {});
     Connection conn = (Connection) getConnection.invoke(ociDataSource, new Object[] {});
     
-//    try {
-//      switch (conn.getTransactionIsolation()) {
-//      case Connection.TRANSACTION_NONE : log.info("TransactionIsolation: TRANSACTION_NONE"); break;
-//      case Connection.TRANSACTION_READ_COMMITTED : log.info("TransactionIsolation: TRANSACTION_READ_COMMITTED"); break;
-//      case Connection.TRANSACTION_READ_UNCOMMITTED : log.info("TransactionIsolation: TRANSACTION_READ_UNCOMMITTED"); break;
-//      case Connection.TRANSACTION_REPEATABLE_READ : log.info("TransactionIsolation: TRANSACTION_REPEATABLE_READ"); break;
-//      case Connection.TRANSACTION_SERIALIZABLE : log.info("TransactionIsolation: TRANSACTION_SERIALIZABLE"); break;
-//      }
-//    } catch (SQLException e) {
-//      log.error(e);
-//    }
     return conn;
   }
 

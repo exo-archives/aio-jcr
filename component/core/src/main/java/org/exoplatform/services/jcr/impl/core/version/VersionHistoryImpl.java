@@ -301,7 +301,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     version.getData().accept(removeVisitor);
     changes.addAll(removeVisitor.getRemovedStates());
     
-    dataManager.getTransactManager().save(changes); // changes.dump()
+    dataManager.getTransactManager().save(changes); 
   }
   
   protected NodeData getVersionData(String versionName) throws VersionException, RepositoryException {

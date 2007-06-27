@@ -56,13 +56,6 @@ public class TestI18nValues extends JcrAPIBaseTest {
     
     testNode = session.getRootNode().addNode(TEST_I18N);
     session.save();
-    
-    // For debug purpose
-//    String s = "";
-//    for (char b: TEST_I18N_CONTENT_LAT.toCharArray()) {
-//      s += UnicodeFormatter.charToUString(b);
-//    }
-//    log.info(s + "\n");    
   }
 
   private boolean equalsBinary(byte[] target, byte[] source) {

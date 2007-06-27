@@ -229,9 +229,6 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     if (!swapDirectory.exists())
       swapDirectory.mkdirs();
 
-    //Context context = new InitialContext();
-    //DataSource dataSource = (DataSource) context.lookup(dbSourceName);
-
     initDatabase();
 
     String suParam = null;
@@ -243,7 +240,6 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
       log.debug("update-storage parameter is not set " + dbSourceName);
     }
 
-    //checkVersion(dataSource, enableStorageUpdate);
     this.storageVersion = StorageUpdateManager.checkVersion(dbSourceName, this.connFactory
         .getJdbcConnection(), multiDb, enableStorageUpdate);
 
@@ -380,9 +376,6 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     DBInitializer dbInitilizer = null;
     String sqlPath = null;
     if (dbDialect == DB_DIALECT_ORACLEOCI) {
-      //if (multiDb)
-      //  throw new RepositoryConfigurationException("Oracle multi database option is not supported now, try to use multi-db=false");
-
       // sample of connection factory customization
       if (dbSourceName != null)
         this.connFactory = defaultConnectionFactory();
@@ -466,13 +459,6 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
 
     return DB_DIALECT_GENERIC; // by default
   }
-
-  // check version of the database
-//  public String checkVersion(DataSource dataSource, boolean enableStorageUpdate) throws RepositoryException {
-//    this.storageVersion = StorageUpdateManager.checkVersion(dbSourceName, dataSource, multiDb, enableStorageUpdate);
-//    
-//    return this.storageVersion;
-//  }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.storage.WorkspaceDataContainer#openConnection()

@@ -139,7 +139,6 @@ public class ContentHandlerWrapper implements ContentHandler {
         + localName + "] qName[" + qName + "]atts count [" + atts.getLength()
         + "]");
 
-    //Attributes newAtts = addNamespaceDefinitionsToAttr(atts);
     if (contentHandler != null) {
       contentHandler.startElement(namespaceURI, localName, qName, atts);
     } else {

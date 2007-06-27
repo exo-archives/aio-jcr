@@ -150,7 +150,6 @@ public abstract class BaseValue implements ExtendedValue {
    */
   public InputStream getStream() throws ValueFormatException,
       RepositoryException {
-    //setStreamConsumed();
     try {
       if(data == null)
         data = new LocalTransientValueData(true);

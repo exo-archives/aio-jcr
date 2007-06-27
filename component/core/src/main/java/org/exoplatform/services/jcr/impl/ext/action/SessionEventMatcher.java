@@ -120,7 +120,6 @@ public class SessionEventMatcher implements ActionMatcher {
     }
     
     return false;
-    //return path.equals(itemPath) || itemPath.isDescendantOf(path, !isDeep);
   }
 
   private boolean isParentNodeTypesMatch(NodeType[] nodeType) {
@@ -128,8 +127,6 @@ public class SessionEventMatcher implements ActionMatcher {
       return true;
     for(InternalQName nt : parentNodeTypeNames) {
       for (NodeType searchNt : nodeType) {
-//        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>REC>>>>>>>>>>> "+
-//            searchNt.getName()+" "+nt+" "+((ExtendedNodeType)searchNt).getQName().equals(nt));
         if(((ExtendedNodeType)searchNt).getQName().equals(nt))
           return true;
       }
@@ -148,8 +145,6 @@ public class SessionEventMatcher implements ActionMatcher {
     }
     
     return false;
-
-//    return nodeTypeName.equals(nodeType); 
   }
   
   private boolean isWorkspaceMatch(String workspace) {

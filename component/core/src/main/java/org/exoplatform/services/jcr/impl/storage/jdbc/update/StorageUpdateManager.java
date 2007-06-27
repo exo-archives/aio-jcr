@@ -229,7 +229,6 @@ public class StorageUpdateManager {
       throw new RepositoryException(e);
     } finally {
       try {
-        //connection.setAutoCommit(true);
         connection.setTransactionIsolation(transactIsolation);
         connection.close();
       } catch(SQLException e) {
@@ -288,7 +287,6 @@ public class StorageUpdateManager {
       if(version.next())
         return version.getString("VERSION");
     } catch (SQLException e) {
-      //e.printStackTrace();
       return FIRST_STORAGE_VERSION;
     } finally {
       if (version != null)
@@ -298,7 +296,6 @@ public class StorageUpdateManager {
     PreparedStatement insertVersion = connection.prepareStatement(SQL_INSERT_VERSION);
     insertVersion.setString(1, REQUIRED_STORAGE_VERSION);
     insertVersion.executeUpdate();
-    // connection.commit(); will be done in checkVersion()
     return REQUIRED_STORAGE_VERSION;
   }
   
@@ -322,7 +319,6 @@ public class StorageUpdateManager {
               refs.getString("NID"), 
               refs.getString("VID"), 
               refs.getBinaryStream("DATA"));
-          //log.info("jcr:uuid: " + jcrUuid.getPath() + ", actual:" + jcrUuid.getNodeUuid() + ", existed: " + jcrUuid.getJcrUuid());
           if (!jcrIdentifier.getNodeIdentifier().equals(jcrIdentifier.getJcrIdentifier())) {
             log.info("STORAGE UPDATE >>>: Property jcr:uuid have to be updated with actual value. Property: " + jcrIdentifier.getPath() 
                 + ", actual:" + jcrIdentifier.getNodeIdentifier() + ", existed: " + jcrIdentifier.getJcrIdentifier());
@@ -369,7 +365,6 @@ public class StorageUpdateManager {
               refs.getString("NID"), 
               refs.getString("VID"), 
               refs.getBinaryStream("DATA"));
-          //log.info("frozenUuid: " + jcrUuid.getPath() + ", actual:" + jcrUuid.getNodeUuid() + ", existed: " + jcrUuid.getJcrUuid());
           if (!frozenIdentifier.getNodeIdentifier().equals(frozenIdentifier.getJcrIdentifier())) {
             log.info("VERSION STORAGE UPDATE >>>: Property jcr:frozenUuid have to be updated with actual value. Property: " 
                 + frozenIdentifier.getPath() + ", actual:" + jcrIdentifier.getNodeIdentifier() + ", existed: " + frozenIdentifier.getJcrIdentifier());

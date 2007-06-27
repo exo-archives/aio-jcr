@@ -157,10 +157,6 @@ class SysNodeImporter extends ImporterBase {
         mixinTypeNames = new InternalQName[0];
 
       InternalQName jcrName = path.getInternalPath().getName();
-      // QPath dstNodePath = QPath.makeChildPath(parentNode.getQPath(),
-      // jcrName);
-
-      // int nodeIndex = getNodeIndex(dstNodePath);
       int nodeIndex = getNodeIndex(parentNode, jcrName);
 
       NodeData newNodeData = TransientNodeData.createNodeData(parentNode,
@@ -168,9 +164,7 @@ class SysNodeImporter extends ImporterBase {
           primaryTypeName,
           nodeIndex);
 
-      // newNode.setOrderNumber(node.getOrderNumber());
       ((TransientNodeData) newNodeData).setMixinTypeNames(mixinTypeNames);
-      // newNode.setACL(node.getACL());
 
       if (hasMixReferenceable)
         ((TransientNodeData) newNodeData).setIdentifier(uuid);
@@ -304,7 +298,6 @@ class SysNodeImporter extends ImporterBase {
         try {
 
           curPropValue.getBinaryDecoder().write(ch, start, length);
-          //curPropValue.getStringBuffer().append(org.apache.commons.codec.binary.Base64.decodeBase64(new String(ch, start, length).getBytes()))
         } catch (IOException e) {
           throw new SAXException(e);
         }
@@ -449,14 +442,12 @@ class SysNodeImporter extends ImporterBase {
 
         NodeIterator snsNodes = getNodes(parentNode, pathElement.getAsString());
         if (depth < relPathElems.length - 1) {
-          // [PN] 08.02.07
-          // pathElement.setIndex((int) snsNodes.getSize());
           relPathElems[depth] = pathElement = pathElement.clone((int) snsNodes.getSize());
 
           try {
             parentNode = (NodeData) session.getTransientNodesManager().getItemData(parentNode,
                 new QPathEntry(pathElement.getNamespace(), pathElement.getName(), pathElement
-                    .getIndex()));// (NodeImpl)
+                    .getIndex()));
 
             if (log.isDebugEnabled())
               log.debug("BUILD NODE, <<< NEW ANCESTOR for RELATIVE path >>> : '"
@@ -467,8 +458,6 @@ class SysNodeImporter extends ImporterBase {
                 + "', depth: " + depth + ", relPath: '" + path.getAsString(true) + "'");
           }
         } else if (depth == relPathElems.length - 1) {
-          // [PN] 08.02.07
-          // pathElement.setIndex((int) snsNodes.getSize() + 1);
           relPathElems[depth] = pathElement = pathElement.clone((int) snsNodes.getSize() + 1);
         }
         if (log.isDebugEnabled())
@@ -536,7 +525,6 @@ class SysNodeImporter extends ImporterBase {
         sameUuidNode.getData().accept(visitor);
         removedStates = visitor.getRemovedStates();
         itemStatesList.addAll(removedStates);
-        // itemStatesList.add(ItemState.createDeletedState(sameUuidNode.getData()));
 
         sameUuidNode = null;
 
@@ -615,7 +603,6 @@ class SysNodeImporter extends ImporterBase {
     private List<DecodedValue> values;
 
     public PropertyInfo(String name, int type, List<DecodedValue> values) {
-      // super();
       this.name = name;
       this.type = type;
       this.values = values;

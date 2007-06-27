@@ -99,7 +99,6 @@ public class ValueFactoryImpl implements ValueFactory {
             path = locationFactory.parseAbsPath(value);
           else
             path = locationFactory.parseRelPath(value);
-          // return new PathValue(path);
           return createValue(path);
         } catch (RepositoryException e) {
           throw new ValueFormatException("Path '" + value + "' is invalid");

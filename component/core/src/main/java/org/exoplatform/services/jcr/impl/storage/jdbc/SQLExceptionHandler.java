@@ -53,8 +53,6 @@ public class SQLExceptionHandler {
       } else if (umsg.indexOf(conn.JCR_FK_PROPERTY_NODE)>=0) {
         // Foreign key PROPERTY->NODE tables vioaltion
         message += "Parent not found (not created) in JCR_NODE table. " + itemInfo;
-        // [PN] 27.07.06 See JCR-170 7.1.1.6 Session.save()
-        //throw new RepositoryException(message, e);
         throw new InvalidItemStateException(message, e);
       } else if (umsg.indexOf(conn.JCR_FK_PROPERTY_ITEM)>=0) {
         // Foreign key PROPERTY->ITEM tables vioaltion

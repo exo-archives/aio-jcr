@@ -95,17 +95,6 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
               : regularConnection;
         }
         
-        if (log.isDebugEnabled()) {
-          String path = data.getQPath().getAsString();
-          if (path.indexOf("[]:1[]testroot:1[]node1:1")>0)
-            log.info("[]:1[]testroot:1[]node1:1 -- found");
-          //if (!path.startsWith(Constants.JCR_SYSTEM_URI)) {
-            log.debug("[" + dataContainer.getName() + "] save item: "
-                + ItemState.nameFromValue(state) + " " + path + " "
-                + data.getIdentifier());
-          //}
-        }
-
         data.increasePersistedVersion();
 
         if (itemState.isAdded()) {
@@ -141,13 +130,6 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     
     notifySaveItems(changesLog);
   }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(InternalQPath)
-   */
-  //public abstract ItemData getItemData(final QPath qpath) throws RepositoryException;
   
   /*
    * (non-Javadoc)

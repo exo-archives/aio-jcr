@@ -88,7 +88,6 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
       throws RepositoryConfigurationException {
 
     mode = rConfig.getReplication().getMode();
-//    log.info(("-----------------------------------MODE --> " + mode + "-----------------------------------");
     if (mode.equals(PROXY_MODE)) {
       this.dataKeeper = new WorkspaceDataManagerProxy(dataManager, searchIndex, lockManager);
     } else if (mode.equals(PERSISTENT_MODE)) {
@@ -134,7 +133,6 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
   public void onSaveItems(ItemStateChangesLog changesLog_) {
     TransactionChangesLog changesLog = (TransactionChangesLog)changesLog_;
     if (changesLog.getSystemId() == null && !isSessionNull(changesLog)) {
-//        && (changesLog.getSessionId() != null)) {
       changesLog.setSystemId(systemId);
       // broadcast messages
       try {
@@ -147,7 +145,6 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
     }
     // else changesLog is from other sources,
     // no needs to broadcast again, ignore silently
-
   }
 
   public void receive(ItemStateChangesLog changesLog_) throws Exception {
@@ -361,7 +358,7 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
   }
 
   private void sendPacket(Packet packet) throws Exception {
-    byte[] buffer = Packet.getAsByteArray(packet);// os.toByteArray();
+    byte[] buffer = Packet.getAsByteArray(packet);
 
     Message msg = new Message(null, null, buffer);
     disp.castMessage(members, msg, GroupRequest.GET_NONE/*GET_ALL*/ , 0);

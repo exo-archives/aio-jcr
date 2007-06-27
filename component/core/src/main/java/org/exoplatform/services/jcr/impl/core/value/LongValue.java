@@ -38,7 +38,6 @@ public class LongValue extends BaseValue {
    * @see Value#getDate
    */
   public Calendar getDate() throws ValueFormatException, IllegalStateException, RepositoryException {
-    //setValueConsumed();
     
     Long longNumber = new Long(getInternalString());
 
@@ -52,27 +51,11 @@ public class LongValue extends BaseValue {
     }
   }
 
-//  /**
-//   * @see Value#getLong
-//   */
-//  public long getLong() throws ValueFormatException, IllegalStateException, RepositoryException {
-//    setValueConsumed();
-//
-//    Long longNumber = new Long(getInternalString());
-//
-//    if (longNumber != null) {
-//      return longNumber.longValue();
-//    } else {
-//      throw new ValueFormatException("empty value");
-//    }
-//  }
-
   /**
    * @see Value#getBoolean
    */
   public boolean getBoolean() throws ValueFormatException, IllegalStateException,
       RepositoryException {
-    //setValueConsumed();
 
     throw new ValueFormatException("conversion to boolean failed: inconvertible types");
   }
@@ -81,8 +64,6 @@ public class LongValue extends BaseValue {
    * @see Value#getDouble
    */
   public double getDouble() throws ValueFormatException, IllegalStateException, RepositoryException {
-    //setValueConsumed();
-    
     Long longNumber = new Long(getInternalString());
 
     if (longNumber != null) {

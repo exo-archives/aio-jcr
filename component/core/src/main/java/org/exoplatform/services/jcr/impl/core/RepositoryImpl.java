@@ -289,7 +289,6 @@ public class RepositoryImpl implements ManageableRepository {
     WorkspaceContainer workspaceContainer = null;
     if (isWorkspaceInitialized(workspaceName)) {
       workspaceContainer =repositoryContainer.getWorkspaceContainer(workspaceName);
-      //workspaceContainer.stop();
       try {
         workspaceContainer.stopContainer();
       } catch (Exception e) {

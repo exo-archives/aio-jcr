@@ -16,13 +16,6 @@
  * limitations under the License.
  */
 package org.exoplatform.services.jcr.impl.core.query.sql;
-/*
-import org.apache.jackrabbit.name.IllegalNameException;
-import org.apache.jackrabbit.name.NamespaceResolver;
-import org.apache.jackrabbit.name.QName;
-import org.apache.jackrabbit.name.UnknownPrefixException;
-import org.apache.jackrabbit.core.query.QueryConstants;
-*/
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -32,8 +25,6 @@ import org.exoplatform.services.jcr.impl.core.query.QueryConstants;
 public class JCRSQLParser/*@bgen(jjtree)*/implements JCRSQLParserTreeConstants, JCRSQLParserConstants {/*@bgen(jjtree)*/
   protected JJTJCRSQLParserState jjtree = new JJTJCRSQLParserState();
   private String statement;
-
-  //private NamespaceAccessor resolver;
 
   private LocationFactory locationFactory;
 
@@ -880,7 +871,6 @@ public class JCRSQLParser/*@bgen(jjtree)*/implements JCRSQLParserTreeConstants, 
         try {
           InternalQName internalQName = locationFactory.parseJCRName(t.image).getInternalName();
           jjtn000.setName(internalQName);
-//          jjtThis.setName(QName.fromJCRName(t.image, resolver));
         } catch (RepositoryException e) {
           {if (true) throw new ParseException(e.getMessage());}
         }
@@ -892,7 +882,6 @@ public class JCRSQLParser/*@bgen(jjtree)*/implements JCRSQLParserTreeConstants, 
             parseJCRName(t.image.substring(1, t.image.length()-1)).getInternalName();
           jjtn000.setName(internalQName);
 
-//          jjtThis.setName(QName.fromJCRName(t.image.substring(1, t.image.length()-1), resolver));
         } catch (RepositoryException e) {
           {if (true) throw new ParseException(e.getMessage());}
         }
@@ -955,7 +944,6 @@ public class JCRSQLParser/*@bgen(jjtree)*/implements JCRSQLParserTreeConstants, 
         try {
           InternalQName internalQName = locationFactory.parseJCRName(t.image).getInternalName();
           jjtn000.setName(internalQName);
-//          jjtThis.setName(QName.fromJCRName(t.image, resolver));
         } catch (RepositoryException e) {
           {if (true) throw new ParseException(e.getMessage());}
         }

@@ -143,7 +143,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
     this.container = container;
     this.live = true;
     this.id = IdGenerator.generate();
-    // this.lockTokens = new HashSet<String>();
 
     this.repository = (RepositoryImpl) container.getComponentInstanceOfType(RepositoryImpl.class);
     this.systemLocationFactory = (LocationFactory) container.getComponentInstanceOfType(LocationFactory.class);
@@ -792,7 +791,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
    * @see javax.jcr.Session#addLockToken(java.lang.String)
    */
   public void addLockToken(String lt) {
-    // lockTokens.add(lt);
     getLockManager().addLockToken(getId(), lt);
   }
 

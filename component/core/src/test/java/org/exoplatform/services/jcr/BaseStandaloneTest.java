@@ -59,6 +59,7 @@ public abstract class BaseStandaloneTest extends TestCase {
 
     StandaloneContainer
     .addConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
+    //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.xml");
     //.addConfigurationPath("src/main/java/conf/standalone/test/test-configuration-sjdbc.xml");
 
     container = StandaloneContainer.getInstance();

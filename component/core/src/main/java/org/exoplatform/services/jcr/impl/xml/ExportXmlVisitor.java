@@ -212,7 +212,6 @@ public abstract class ExportXmlVisitor extends ItemDataTraversingVisitor {
   }
 
   private void writeAttribute(String qname, String value) {
-    // buffer.append(" " + qname + "=\"" + value + "\"");
   }
 
   private void writeNamespaces() throws RepositoryException {

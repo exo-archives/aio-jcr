@@ -198,7 +198,6 @@ public class PropertyImpl extends ItemImpl implements Property {
   public long getLength() throws ValueFormatException, RepositoryException {
 
     return ((BaseValue) getValue()).getLength();
-    //return propertyData.getValues().get(0).getLength();
   }
 
   /**
@@ -237,17 +236,11 @@ public class PropertyImpl extends ItemImpl implements Property {
    */
   private void initDefinitions(boolean multiple) throws RepositoryException, ConstraintViolationException {
 
-    //NodeImpl parent = (NodeImpl) getParent();
-
     NodeType[] nodeTypes = parent().getAllNodeTypes();
     PropertyDefinitions defs = null;
     PropertyDefinitions definitions = null;
     for (int i = 0; i < nodeTypes.length; i++) {
-      //System.out.println(" > >>>> initDefinitions >> "+nodeTypes[i].getName()+" prop: "+getPath()+" parent: "+parent().getPath()+" name: "+getInternalName().getAsString());
-
       defs = ((ExtendedNodeType) nodeTypes[i]).getPropertyDefinitions(getInternalName());
-      //.getPropertyDefinitions(getName());
-      
       if (defs.getAnyDefinition() != null) { // includes residual set
         definitions = defs;
         if (!((PropertyDefinitionImpl) defs.getAnyDefinition()).isResidualSet())
@@ -278,16 +271,6 @@ public class PropertyImpl extends ItemImpl implements Property {
 
     checkValid();
     
-//    List <Value> newValues;
-//    //int type = PropertyType.UNDEFINED;
-//    if (value != null) {
-//      newValues = new ArrayList <Value>();
-//      newValues.add(value);
-//      //type = value.getType();
-//    } else {
-//      newValues = null;
-//    }
-    
     doUpdateProperty(parent(), getInternalName(),
         value, false, PropertyType.UNDEFINED);
 
@@ -300,23 +283,6 @@ public class PropertyImpl extends ItemImpl implements Property {
       LockException, ConstraintViolationException, RepositoryException {
     
     checkValid();
-    
-//    List <Value> newValues = null; 
-//    
-//    //int type = PropertyType.UNDEFINED;
-//    if (values != null) {
-//      newValues = new ArrayList <Value>(values.length);
-//      
-//      for(Value val: values)
-//        newValues.add(val);
-//
-////      if (values[0] != null)
-////        type = values[0].getType();
-////      else
-////        type = PropertyType.UNDEFINED;
-//    } else {
-//      newValues = null;
-//    }
 
     doUpdateProperty(parent(), getInternalName(),
         values, true, PropertyType.UNDEFINED);
@@ -385,7 +351,6 @@ public class PropertyImpl extends ItemImpl implements Property {
    */
   public void setValue(Node value) throws ValueFormatException, VersionException, LockException,
       ConstraintViolationException, RepositoryException {
-    // Uuid uuid = new Uuid(value.getUUID());
     setValue(valueFactory.createValue(value));
   }
 
@@ -400,7 +365,6 @@ public class PropertyImpl extends ItemImpl implements Property {
       strValues = new Value[values.length];
       for (int i = 0; i < values.length; i++)
         strValues[i] = valueFactory.createValue(values[i]);
-      // new StringValue(values[i]);
     }
     setValue(strValues);
   }
@@ -431,8 +395,6 @@ public class PropertyImpl extends ItemImpl implements Property {
    */
   public Value[] getValueArray() throws RepositoryException {
     
-    // [PN] 09.04.06
-    //loadProperty();
     Value[] values = new Value[propertyData.getValues().size()];
     for(int i=0; i<values.length; i++) {
       values[i] = valueFactory.loadValue((TransientValueData)propertyData.getValues().get(i), propertyData.getType());

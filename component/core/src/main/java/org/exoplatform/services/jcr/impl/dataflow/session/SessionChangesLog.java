@@ -225,9 +225,8 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
           
         if (!items.get(i).isDeleted())
           changes.put(item.getIdentifier(), items.get(i));
-      } else if (/*!item.isNode() && */item.getParentIdentifier().equals(rootData.getIdentifier())) {
+      } else if (item.getParentIdentifier().equals(rootData.getIdentifier())) {
         // childs
-        //if (!items.get(i).isDeleted())
         changes.put(item.getIdentifier(), items.get(i));
       }
     }

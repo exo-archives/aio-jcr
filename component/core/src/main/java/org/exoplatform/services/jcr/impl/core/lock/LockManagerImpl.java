@@ -183,7 +183,6 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   public boolean isLockHolder(NodeImpl node) throws RepositoryException {
     LockData lData = getLockData((NodeData) node.getData(), SEARCH_EXECMATCH | SEARCH_CLOSEDPARENT);
-    // getLockData((NodeData) node.getData(), false);
     return lData != null && lData.isLockHolder(node.getSession().getId());
   }
 

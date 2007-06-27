@@ -160,7 +160,6 @@ public class TestSetProperty extends JcrAPIBaseTest {
       try {
         // it converts to required !
         node.setProperty("jcr:requiredPrimaryTypes", values, PropertyType.LONG);
-  //      fail("exception should have been thrown");
       } catch (ValueFormatException e) {
       }
       try {
@@ -169,7 +168,6 @@ public class TestSetProperty extends JcrAPIBaseTest {
       } catch (ValueFormatException e) {
       }
   
-  //    Value[] nameValues = {NameValue.valueOf("jcr:unstructured"), NameValue.valueOf("jcr:base")};
       Value[] nameValues = {valueFactory.createValue("jcr:unstructured", PropertyType.NAME), valueFactory.createValue("jcr:base", PropertyType.NAME)};
       node.setProperty("jcr:requiredPrimaryTypes", nameValues, PropertyType.NAME);
       node.save();

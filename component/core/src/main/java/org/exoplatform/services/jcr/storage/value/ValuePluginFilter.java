@@ -79,9 +79,6 @@ public final class ValuePluginFilter {
    * @return true if this filter criterias match incoming PropertyData
    */
   public boolean match(PropertyData prop, int valueOrderNumer) {
-    // System.out.println("FILTER >>>>.>>>>>>>>>>> "+propertyType+"
-    // "+prop.getType());
-
     if (propertyType == prop.getType()
         && (ancestorPath == null || prop.getQPath().isDescendantOf(ancestorPath, false))
         && (minValueSize == -1 || (prop.getValues().get(valueOrderNumer).getLength() > minValueSize && minValueSize > 0))

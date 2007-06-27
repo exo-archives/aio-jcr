@@ -133,7 +133,6 @@ public class NodeDataReader extends ItemDataReader {
         boolean isSkiped = true;
 
         NodeDataReader cnReader = new NodeDataReader(node, dataManager, valueFactory);
-        // cnReader.read(); // lazy now
 
         NodeInfo nodeInfo = nodes.get(node.getQPath().getName());
         if (nodeInfo != null) {
@@ -165,11 +164,8 @@ public class NodeDataReader extends ItemDataReader {
   }
   
   public void clean() {
-    //nodes = new HashMap<String, NodeInfo>();
     nodes.clear();
-    //nodesByType = new HashMap<String, NodeInfo>();
     nodesByType.clear();
-    //skiped = new ArrayList<NodeData>();
     skiped.clear();
     nodePropertyReader = null;
   }

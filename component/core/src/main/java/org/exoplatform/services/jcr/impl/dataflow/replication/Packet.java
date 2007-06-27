@@ -97,7 +97,6 @@ public class Packet implements Externalizable {
   }
 
   public void writeExternal(ObjectOutput out) throws IOException {
-//    System.out.println("-->Packet--> writeExternal(ObjectOutput out)");
     out.writeInt(buffer_.length);
     out.write(buffer_);
     out.writeLong(size_);
@@ -112,7 +111,6 @@ public class Packet implements Externalizable {
   }
 
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-//    System.out.println("-->Packet--> readExternal(ObjectInput in)");
     int bufSize = in.readInt();
     buffer_ = new byte[bufSize];
     for (int i = 0; i < bufSize; i++)

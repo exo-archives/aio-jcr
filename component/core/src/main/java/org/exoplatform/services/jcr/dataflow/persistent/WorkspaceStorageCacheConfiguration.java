@@ -25,7 +25,4 @@ public interface WorkspaceStorageCacheConfiguration {
   
   int getOnChangePolicy();
   void setOnChangePolicy(int policy);
-  
-  //String getImplementation();
-  //void setImplementation(String implementation);
 }

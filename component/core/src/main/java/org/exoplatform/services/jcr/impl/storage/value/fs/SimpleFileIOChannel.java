@@ -39,7 +39,7 @@ public class SimpleFileIOChannel extends FileIOChannel {
     }
 
     public boolean accept(File file) {
-      return file.getName().startsWith(id);// && !file.getName().endsWith(SharedFile.DELETED_EXTENSION);
+      return file.getName().startsWith(id);
     }
   }
 

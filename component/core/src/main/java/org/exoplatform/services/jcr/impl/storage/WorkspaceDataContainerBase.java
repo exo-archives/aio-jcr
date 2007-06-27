@@ -20,9 +20,6 @@ import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
  */
 
 abstract public class WorkspaceDataContainerBase implements WorkspaceDataContainer {
-
-  //private static long id = System.currentTimeMillis();
-
   public Calendar getCurrentTime() {
     Calendar cal = Calendar.getInstance();
     cal.setTime(new Date());

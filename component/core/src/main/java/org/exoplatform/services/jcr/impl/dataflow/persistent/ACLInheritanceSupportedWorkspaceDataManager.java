@@ -102,7 +102,6 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataMa
   public List<NodeData> getChildNodesData(NodeData parent) throws RepositoryException {
     List<NodeData> nodes = persistentManager.getChildNodesData(parent);
     for(NodeData node: nodes) 
-      //initACL(node);
       initACL(parent, node);
     return nodes;
   }

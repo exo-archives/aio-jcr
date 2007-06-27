@@ -56,7 +56,7 @@ public class StringConverter {
       }
     }
     return new String(strBuf);
-  } // normalizeAndPrint(String)
+  } 
   
   public static String denormalizeString(String s) {
 
@@ -67,8 +67,6 @@ public class StringConverter {
       try {
         DNChar dnc = denormalize(s.substring(i));
         strBuf.append(dnc.getDnChar());
-        //log.info("Denormalize as char. '" + s.substring(i, i + dnc.getDnLength()) + "'-->'" + dnc.getDnChar() + "'"
-        //    + "; " + strBuf.toString() + "; pos:" + i + "; skip:" + dnc.getDnLength());
         i += dnc.getDnLength();
       } catch(IllegalArgumentException e) {
         if (!e.getMessage().equals(ILLEGAL_DNCHAR)) {
@@ -136,7 +134,6 @@ public class StringConverter {
     else if (string.startsWith("_x000A_")) return new DNChar('\n', 7);
     else if (string.startsWith("_x0020_")) return new DNChar(' ', 7);
     else if (string.startsWith("_x005f_")) return new DNChar('_', 7);
-    //else if (string.length()>0) return string.toCharArray()[0];
     else throw new IllegalArgumentException(ILLEGAL_DNCHAR);
   }  
 }

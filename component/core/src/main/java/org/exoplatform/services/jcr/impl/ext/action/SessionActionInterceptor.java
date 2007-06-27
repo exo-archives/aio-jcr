@@ -59,7 +59,6 @@ public class SessionActionInterceptor {
       e.printStackTrace();
     }
     InvocationContext ctx = new InvocationContext();
-    // ctx.put("jcr:newNode", node);
     ctx.put("currentItem", node);
     ctx.put("exocontainer", container);
     ctx.put("event", ExtendedEvent.NODE_ADDED);
@@ -109,15 +108,11 @@ public class SessionActionInterceptor {
     Condition conditions = new Condition();
     conditions.put(SessionEventMatcher.EVENTTYPE_KEY, event);
     try {
-      // NodeImpl parent = (NodeImpl)property.getParent();
-
       conditions.put(SessionEventMatcher.NODETYPE_KEY, ((ExtendedNodeType) parentNode
           .getPrimaryNodeType()).getQName());
       conditions.put(SessionEventMatcher.PARENT_NODETYPES_KEY, parentNode.getAllNodeTypes());
       conditions.put(SessionEventMatcher.PATH_KEY, property.getInternalPath());
-
     } catch (RepositoryException e) {
-      // e.printStackTrace();
     }
     InvocationContext ctx = new InvocationContext();
     ctx.put("currentItem", property);
@@ -136,8 +131,6 @@ public class SessionActionInterceptor {
     try {
       conditions.put(SessionEventMatcher.PARENT_NODETYPES_KEY, node.getAllNodeTypes());
     } catch (RepositoryException e) {
-      // TODO Auto-generated catch block
-      // e.printStackTrace();
     }
     conditions.put(SessionEventMatcher.PATH_KEY, node.getInternalPath());
 

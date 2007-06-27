@@ -52,12 +52,6 @@ public class TestItemLocation extends JcrAPIBaseTest{
     testNode.remove();
     root.save();
     
-//    try {
-//      session.getItem(testNode.getPath());
-//      fail();
-//    } catch (PathNotFoundException e) {
-//    } 
-    
     super.tearDown();
   }
 

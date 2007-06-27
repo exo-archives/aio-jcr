@@ -240,7 +240,6 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     try {
       int nc = deleteItemByIdentifier(cid);
       if (nc <= 0)
-        //log.warn("Error state, a item corresponding the node actually not deleted " + cid);
         throw new InvalidItemStateException("(delete) Node "
             + data.getQPath().getAsString() + " " + data.getIdentifier()
             + " not found. Probably was deleted by another session ");
@@ -583,7 +582,6 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         ResultSet ptProp = findPropertyByName(cid, Constants.JCR_PRIMARYTYPE.getAsString());
 
         if (!ptProp.next())
-          // if (idPrimaryType == null)
           throw new PrimaryTypeNotFoundException("FATAL ERROR primary type record not found. Node "
               + qpath.getAsString() + ", id " + cid + ", container " + this.containerName, 
               null);
@@ -644,7 +642,6 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     
     List<ValueData> values = new ArrayList<ValueData>();
     
-    //QPath path = QPath.parse(item.getString(COLUMN_PATH));
     InternalQName qname;
     try {
       qname = InternalQName.parse(cname);

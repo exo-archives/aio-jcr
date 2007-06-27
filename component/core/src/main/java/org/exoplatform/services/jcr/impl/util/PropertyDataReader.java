@@ -168,21 +168,12 @@ public class PropertyDataReader extends ItemDataReader {
 
   private Value makeValue(ValueData valueData, int type) throws RepositoryException {
     if (valueFactory != null) {
-//      try {
         TransientValueData tvd = ((AbstractValueData)valueData).createTransientCopy(); 
-//          new TransientValueData(
-//            valueData.getAsByteArray(), 
-//            valueData.getOrderNumber()); 
         return valueFactory.loadValue(tvd, type);
-//      } catch (IOException e) {
-//        throw new RepositoryException("Can't make value from value data: " + e.getMessage(), e);
-//      }
     }
     try {
-      // TODO Same logic as in protected constructor StringValue(ValueData) 
       return new StringValue(
           new String(valueData.getAsByteArray(), Constants.DEFAULT_ENCODING));
-//          new String(BLOBUtil.readValue(valueData), Constants.DEFAULT_ENCODING));
     } catch(UnsupportedEncodingException e) {
       try {
         return new StringValue(new String(valueData.getAsByteArray()));

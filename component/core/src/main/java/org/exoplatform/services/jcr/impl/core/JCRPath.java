@@ -179,18 +179,12 @@ public class JCRPath {
     if (size() > 0)
       return names[size() - 1];
     
-    // [PN] 21.09.06
-    //return new JCRName(Constants.NS_DEFAULT_URI, "", Constants.NS_EMPTY_PREFIX);
     return new ThisElement();
   }
 
   public int getIndex() {
     return names[size() - 1].getIndex();
   }
-
-//  void setIndex(int index) {
-//    names[size() - 1].setIndex(index);
-//  }
 
   public boolean isIndexSetExplicitly() {
     return names[size() - 1].isIndexSetExplicitly();
@@ -213,8 +207,6 @@ public class JCRPath {
     }
     if (obj instanceof JCRPath) {
       JCRPath other = (JCRPath) obj;
-      // [PN] 19.09.06
-      //return this.getAsString(true).equals(other.getAsString(true));
       return this.getInternalPath().equals(other.getInternalPath());
     }
     return false;
@@ -268,25 +260,6 @@ public class JCRPath {
 
       return super.equals(obj) && index == ((PathElement) obj).getIndex();
     }
-
-    // [PN] Possible danger overide!
-//    public String getAsString() {
-//      return getAsString(false); 
-//    }
-    
-//    protected StringBuffer getAsStringBuffer(boolean showIndex) {
-//      
-//      StringBuffer str = new StringBuffer(super.getAsString().length() + 5);
-//      str.append(super.getAsString());
-//      
-//      if (showIndex || getIndex() > 1) {
-//        str.append("[");
-//        str.append(getIndex());
-//        str.append("]");
-//      }
-//      
-//      return str;
-//    }
     
     public String getAsString(boolean showIndex) {
       String indexStr;
@@ -295,9 +268,6 @@ public class JCRPath {
       else
         indexStr = "";
       return (super.getAsString() + indexStr).intern(); 
-      
-      // [PN] 08.02.07
-//      return getAsStringBuffer(showIndex).toString();
     }
 
     public boolean isIndexSetExplicitly() {

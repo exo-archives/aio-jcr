@@ -43,7 +43,6 @@ import org.exoplatform.services.jcr.impl.core.query.QueryConstants;
 import org.exoplatform.services.jcr.impl.core.query.QueryNode;
 import org.exoplatform.services.jcr.impl.core.query.QueryRootNode;
 import org.exoplatform.services.jcr.impl.core.query.RelationQueryNode;
-import org.exoplatform.services.jcr.impl.core.query.SearchManager;
 import org.exoplatform.services.jcr.impl.core.query.TextsearchQueryNode;
 import org.exoplatform.services.jcr.impl.util.ISO9075;
 
@@ -327,7 +326,7 @@ public class XPathQueryBuilder implements XPathVisitor, XPathTreeConstants {
             case JJTSTEPEXPR:
                 if (isAttributeAxis(node)) {
                     if (queryNode.getType() == QueryNode.TYPE_RELATION
-                            || queryNode.getType() == QueryNode.TYPE_DEREF //&& ((DerefQueryNode) queryNode).getRefProperty() == null)
+                            || queryNode.getType() == QueryNode.TYPE_DEREF 
                             || queryNode.getType() == QueryNode.TYPE_ORDER
                             || queryNode.getType() == QueryNode.TYPE_PATH
                             || queryNode.getType() == QueryNode.TYPE_TEXTSEARCH) {
@@ -397,8 +396,6 @@ public class XPathQueryBuilder implements XPathVisitor, XPathTreeConstants {
                         InternalQName nt = locationFactory.parseJCRName(ntName).getInternalName();
                         NodeTypeQueryNode nodeType = new NodeTypeQueryNode(loc, nt);
                         loc.addPredicate(nodeType);
-                    //} catch (IllegalNameException e) {
-                    //    exceptions.add(new InvalidQueryException("Not a valid name: " + ntName));
                     } catch (RepositoryException e) {
                         exceptions.add(new InvalidQueryException("Invalid name: " + ntName));
                     }
@@ -517,8 +514,6 @@ public class XPathQueryBuilder implements XPathVisitor, XPathTreeConstants {
             SimpleNode child = (SimpleNode) node.jjtGetChild(0);
             if (child.getId() == JJTQNAME || child.getId() == JJTQNAMEFORITEMTYPE) {
                 try {
-
-                  //InternalQName name = ISO9075.decode(InternalQName.fromJCRName(child.getValue(), resolver));
                   InternalQName name = ISO9075.decode(locationFactory.parseJCRName(child.getValue()).getInternalName());
                     if (queryNode.getType() == QueryNode.TYPE_LOCATION) {
                         if (name.equals(JCR_ROOT)) {
@@ -526,23 +521,16 @@ public class XPathQueryBuilder implements XPathVisitor, XPathTreeConstants {
                         }
                         ((LocationStepQueryNode) queryNode).setNameTest(name);
                     } else if (queryNode.getType() == QueryNode.TYPE_DEREF) {
-//                        InternalQName name = ISO9075.decode(InternalQName.fromJCRName(child.getValue(), resolver));
                         ((DerefQueryNode) queryNode).setRefProperty(name);
                     } else if (queryNode.getType() == QueryNode.TYPE_RELATION) {
-//                        InternalQName name = ISO9075.decode(InternalQName.fromJCRName(child.getValue(), resolver));
                         ((RelationQueryNode) queryNode).setProperty(name);
                     } else if (queryNode.getType() == QueryNode.TYPE_PATH) {
-//                        InternalQName name = ISO9075.decode(InternalQName.fromJCRName(child.getValue(), resolver));
                         root.addSelectProperty(name);
                     } else if (queryNode.getType() == QueryNode.TYPE_ORDER) {
-//                        InternalQName name = ISO9075.decode(InternalQName.fromJCRName(child.getValue(), resolver));
                         root.getOrderNode().addOrderSpec(name, true);
                     } else if (queryNode.getType() == QueryNode.TYPE_TEXTSEARCH) {
-//                        InternalQName name = ISO9075.decode(InternalQName.fromJCRName(child.getValue(), resolver));
                         ((TextsearchQueryNode) queryNode).setPropertyName(name);
                     }
-                //} catch (IllegalNameException e) {
-                //    exceptions.add(new InvalidQueryException("Illegal name: " + child.getValue()));
                 } catch (RepositoryException e) {
                     exceptions.add(new InvalidQueryException("Unknown prefix: " + child.getValue()));
                 }
@@ -610,8 +598,6 @@ public class XPathQueryBuilder implements XPathVisitor, XPathTreeConstants {
                     InternalQName ntName = locationFactory.parseJCRName(rqn.getStringValue()).getInternalName();
                     NodeTypeQueryNode ntNode = new NodeTypeQueryNode(queryNode, ntName);
                     queryNode.addOperand(ntNode);
-                //} catch (IllegalNameException e) {
-                //    exceptions.add(new InvalidQueryException("Not a valid name: " + rqn.getStringValue()));
                 } catch (RepositoryException e) {
                     exceptions.add(new InvalidQueryException("Unknown prefix in name: " + rqn.getStringValue()));
                 }
@@ -840,8 +826,6 @@ public class XPathQueryBuilder implements XPathVisitor, XPathTreeConstants {
                                 InternalQName name = null;
                                 try {
                                     name = ISO9075.decode(locationFactory.parseJCRName(value).getInternalName());
-                                //} catch (IllegalNameException e) {
-                                //    exceptions.add(new InvalidQueryException("Illegal name: " + value));
                                 } catch (RepositoryException e) {
                                     exceptions.add(new InvalidQueryException("Unknown prefix: " + value));
                                 }
@@ -898,8 +882,6 @@ public class XPathQueryBuilder implements XPathVisitor, XPathTreeConstants {
             InternalQName name = ISO9075.decode(locationFactory.parseJCRName(propName).getInternalName());
             spec = new OrderQueryNode.OrderSpec(name, true);
             queryNode.addOrderSpec(spec);
-        //} catch (IllegalNameException e) {
-        //    exceptions.add(new InvalidQueryException("Illegal name: " + child.getValue()));
         } catch (RepositoryException e) {
             exceptions.add(new InvalidQueryException("Unknown prefix: " + child.getValue()));
         }

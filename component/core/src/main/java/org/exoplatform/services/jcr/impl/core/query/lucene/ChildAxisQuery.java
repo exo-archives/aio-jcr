@@ -339,31 +339,24 @@ class ChildAxisQuery extends Query {
                         String parentIdentifier = node.get(FieldNames.PARENT);
                         String identifier = node.get(FieldNames.UUID);
                         try {
-                            //NodeState state = (NodeState) itemMgr.getItemState(new NodeId(parentUUID));
                             NodeData state = (NodeData) itemMgr.getItemData(parentIdentifier);
                             if (nameTest == null) {
                                 // only select this node if it is the child at
                                 // specified position
                                 if (position == LocationStepQueryNode.LAST) {
                                     // only select last
-                                    //List childNodes = state.getChildNodeEntries();
-                                    //List childNodes = state.getChildNodes();
                                     List c = getOrderedChildNodes(state);
                                     if (c.size() == 0
-//                                            || !((NodeState.ChildNodeEntry)
                                                 || !((NodeData) 
                                                 c.get(c.size() - 1))
                                                 .getIdentifier().equals(identifier)) {
                                         hits.flip(i);
                                     }
                                 } else {
-//                                    List childNodes = state.getChildNodeEntries();
-                                    //List childNodes = state.getChildNodes();
                                     List c = getOrderedChildNodes(state);
                                     if (position < 1
                                             || c.size() < position
                                             || !((NodeData) 
-//                                            || !((NodeState.ChildNodeEntry) 
                                                 c.get(position - 1))
                                                 .getIdentifier().equals(identifier)) {
                                         hits.flip(i);
@@ -374,8 +367,6 @@ class ChildAxisQuery extends Query {
                                 // specified position
                                 if (position == LocationStepQueryNode.LAST) {
                                     // only select last
-//                                    NodeState.ChildNodeEntry entry =
-//                                            state.getChildNodeEntry(uuid);
                                     NodeData entry = null;
                                     List c = getOrderedChildNodes(state);
                                     for(Iterator it = c.iterator(); it.hasNext();) {
@@ -390,7 +381,6 @@ class ChildAxisQuery extends Query {
                                     } else {
                                         // only use the last one
                                         InternalQName name = entry.getQPath().getName();
-//                                        List childNodes = state.getChildNodeEntries(name);
                                         List childNodes = new ArrayList();
                                         c = getOrderedChildNodes(state);
                                         for(Iterator it = c.iterator(); it.hasNext();) {
@@ -400,7 +390,6 @@ class ChildAxisQuery extends Query {
                                         }
                                         
                                         if (childNodes.size() == 0
-  //                                              || !((NodeState.ChildNodeEntry)
                                                   || !((NodeData)
                                                     childNodes.get(childNodes.size() - 1))
                                                     .getIdentifier().equals(identifier)) {
@@ -408,8 +397,6 @@ class ChildAxisQuery extends Query {
                                         }
                                     }
                                 } else {
-//                                    NodeState.ChildNodeEntry entry =
-//                                            state.getChildNodeEntry(uuid);
                                   NodeData entry = null;
                                   List c = getOrderedChildNodes(state);
                                   for(Iterator it = c.iterator(); it.hasNext();) {
@@ -448,7 +435,6 @@ class ChildAxisQuery extends Query {
       public int compare(Object o1, Object o2) {
         NodeData n1 = (NodeData) o1;
         NodeData n2 = (NodeData) o2;
-        //return n1.getQPath().getAsString().compareTo(n2.getQPath().getAsString());
         return n1.getOrderNumber() - n2.getOrderNumber();
       }
     }

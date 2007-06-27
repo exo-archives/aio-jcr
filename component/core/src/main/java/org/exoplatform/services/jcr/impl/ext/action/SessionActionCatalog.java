@@ -39,12 +39,6 @@ public class SessionActionCatalog extends ActionCatalog {
     RepositoryImpl rep = (RepositoryImpl)repService.getCurrentRepository();
     locFactory = rep.getLocationFactory();
     
-    // add predefined actions
-//    SessionEventMatcher matcher = new SessionEventMatcher(
-//        ExtendedEvent.PROPERTY_ADDED | ExtendedEvent.PROPERTY_CHANGED, //ExtendedEvent.NODE_ADDED, // | ExtendedEvent.ADD_MIXIN, 
-//        null, true, Constants.NT_RESOURCE, null, null);
-//    addAction(matcher, new AddMetadata());
-    
   }
   
   public void addPlugin(ComponentPlugin plugin) {

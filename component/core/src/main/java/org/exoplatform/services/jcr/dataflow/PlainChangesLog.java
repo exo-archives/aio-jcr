@@ -44,10 +44,4 @@ public interface PlainChangesLog extends ItemStateChangesLog {
    * @deprecated
    */
   void clear();
-  
-//  /**
-//   * clones this changed log
-//   * @return new changes log filled with this changes log data
-//   */
-//  PlainChangesLog copy();
 }

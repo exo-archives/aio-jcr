@@ -47,7 +47,6 @@ import org.exoplatform.services.log.ExoLogger;
 abstract class AbstractIndex {
 
     /** The logger instance for this class */
-    //private static final Logger log = Logger.getLogger(AbstractIndex.class);
     private static Log log = ExoLogger.getLogger("jcr.AbstractIndex");
 
     /** PrintStream that pipes all calls to println(String) into log.info() */

@@ -87,7 +87,6 @@ Caused by: java.lang.ClassCastException: oracle.jdbc.driver.T4CConnection
       );
     
       cpool = cpoolConstructor.newInstance(new Object[] {this.dbUserName, this.dbPassword, this.dbUrl, null});
-      //cpool.setConnectionCachingEnabled(true);
       Method setConnectionCachingEnabled = cpool.getClass().getMethod("setConnectionCachingEnabled", new Class[] {boolean.class});
       setConnectionCachingEnabled.invoke(cpool, new Object[] {true});
     } catch(Throwable e) {
@@ -115,19 +114,7 @@ Caused by: java.lang.ClassCastException: oracle.jdbc.driver.T4CConnection
         log.warn("Oracle OCI connection pool configuration error " + e);
     }
   }
-  
-//  public OracleConnectionFactory (
-//      DataSource dbDataSource, 
-//      String containerName, 
-//      boolean multiDb, 
-//      ValueStoragePluginProvider valueStorageProvider, 
-//      int maxBufferSize, 
-//      File swapDirectory, 
-//      FileCleaner swapCleaner) {
-//    
-//    super(dbDataSource, containerName, multiDb, valueStorageProvider, maxBufferSize, swapDirectory, swapCleaner);    
-//  }
-  
+    
   @Override
   public Connection getJdbcConnection() throws RepositoryException {
     if (ociPool != null)
@@ -141,11 +128,6 @@ Caused by: java.lang.ClassCastException: oracle.jdbc.driver.T4CConnection
   }
 
   protected Connection getPoolConnection() throws NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-//    Method getConnection = ociPool.getClass().getMethod("getConnection", 
-//        new Class[] {String.class, String.class}
-//    );
-//    return (Connection) getConnection.invoke(ociPool, new Object[] {dbUserName, dbPassword});
-    
     Method getConnection = ociPool.getClass().getMethod("getConnection", new Class[] {});
     return (Connection) getConnection.invoke(ociPool, new Object[] {});
   }
@@ -163,7 +145,6 @@ Caused by: java.lang.ClassCastException: oracle.jdbc.driver.T4CConnection
       p1.put(incrName, Integer.toString(CONNPOOL_INCREMENT));
       
       // Enable the initial configuration
-      //cpool.setPoolConfig(p1);
       ociPool.getClass().getMethod("setPoolConfig", new Class[]{Properties.class}).invoke(ociPool, new Object[]{p1});
     }
   }
@@ -176,22 +157,12 @@ Caused by: java.lang.ClassCastException: oracle.jdbc.driver.T4CConnection
       
       log.info(" =========== Oracle OCI connection pool config =========== ");
       
-      //System.out.println(" Min poolsize Limit: " + cpool.getMinLimit());
       log.info(" Min poolsize Limit:\t" + ociPool.getClass().getMethod("getMinLimit", new Class[]{}).invoke(ociPool, new Object[]{}));
-      //.getField("minLimit").get(cpool));
       
-      //System.out.println(" Max poolsize Limit: " + cpool.getMaxLimit());
       log.info(" Max poolsize Limit:\t" + ociPool.getClass().getMethod("getMaxLimit", new Class[]{}).invoke(ociPool, new Object[]{}));
       
-      /*
-        System.out.println (" Connection Increment: " + cpool.getConnectionIncrement());
-        System.out.println (" NoWait: " + cpool.getNoWait());
-        System.out.println (" Timeout: " + cpool.getTimeout());
-       */
-      //System.out.println(" PoolSize: " + cpool.getPoolSize());
       log.info(" PoolSize:\t\t\t" + ociPool.getClass().getMethod("getPoolSize", new Class[]{}).invoke(ociPool, new Object[]{}));
       
-      //System.out.println(" ActiveSize: " + cpool.getActiveSize());
       log.info(" ActiveSize:\t\t" + ociPool.getClass().getMethod("getActiveSize", new Class[]{}).invoke(ociPool, new Object[]{}));
     }
   }

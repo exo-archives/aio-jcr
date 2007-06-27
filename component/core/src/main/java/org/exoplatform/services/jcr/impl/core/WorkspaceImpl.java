@@ -317,7 +317,7 @@ public class WorkspaceImpl implements Workspace {
 
     // [PN] 06.01.07 Use one log - one transaction
     PlainChangesLog changes = new PlainChangesLogImpl(session.getId());  
-    changes.addAll(initializer.getItemDeletedStates(true)); // changes.dump()
+    changes.addAll(initializer.getItemDeletedStates(true)); 
     
     // [PN] 06.01.07 Reindex same-name siblings on the parent after deletion
     changes.addAll(session.getTransientNodesManager().reindexSameNameSiblings(

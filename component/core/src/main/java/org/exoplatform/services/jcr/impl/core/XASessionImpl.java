@@ -119,8 +119,6 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
    */
   public void commit(Xid xid, boolean onePhase) throws XAException {
     try {
-      // [PN] 07.08.06
-      // transactManager.commit();
       txResourceManager.commit(this);
     } catch (TransactionException e) {
       throw new XAException(XAException.XA_RBOTHER);
@@ -147,9 +145,6 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
    * @see javax.transaction.xa.XAResource#forget(javax.transaction.xa.Xid)
    */
   public void forget(Xid xid) throws XAException {
-    // if (log.isDebugEnabled())
-    // log.debug("Forget. Xid:" + xid + ", session: " + getSessionInfo() + ", "
-    // + this);
   }
 
   /*

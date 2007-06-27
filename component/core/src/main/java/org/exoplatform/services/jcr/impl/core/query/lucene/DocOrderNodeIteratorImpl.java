@@ -187,7 +187,6 @@ class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
                         try {
                             NodeImpl node1;
                             try {
-//                                node1 = (NodeImpl) itemMgr.getItem(new NodeId(n1.uuid));
                               node1 = (NodeImpl) itemMgr.getItemByIdentifier(n1.identifier, true);
                               if(node1 == null)
                                 throw new RepositoryException("Node not found for "+n1.identifier);
@@ -199,7 +198,6 @@ class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
                             }
                             NodeImpl node2;
                             try {
-//                                node2 = (NodeImpl) itemMgr.getItem(new NodeId(n2.uuid));
                               node2 = (NodeImpl) itemMgr.getItemByIdentifier(n2.identifier, true);
                               if(node2 == null)
                                 throw new RepositoryException("Node not found for "+n2.identifier);
@@ -209,8 +207,6 @@ class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
                                 invalidIdentifiers.add(n2.identifier);
                                 throw new SortFailedException();
                             }
-//                            Path.PathElement[] path1 = node1.getPrimaryPath().getElements();
-//                            Path.PathElement[] path2 = node2.getPrimaryPath().getElements();
                             QPathEntry[] path1 = node1.getLocation().getInternalPath().getEntries();
                             QPathEntry[] path2 = node2.getLocation().getInternalPath().getEntries();
 
@@ -242,11 +238,9 @@ class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
                             // node1 and node2 then will be child nodes of commonNode
                             node1 = (NodeImpl) node1.getAncestor(commonDepth + 1);
                             node2 = (NodeImpl) node2.getAncestor(commonDepth + 1);
-                            //log.error("\tCommon node: " + commonNode.getPath()+" "+commonDepth);
 
                             for (NodeIterator it = commonNode.getNodes(); it.hasNext();) {
                                 Node child = it.nextNode();
-                                //log.debug("\tChild: " + child.getPath()+" ");
                                 if (child.isSame(node1)) {
                                     return -1;
                                 } else if (child.isSame(node2)) {

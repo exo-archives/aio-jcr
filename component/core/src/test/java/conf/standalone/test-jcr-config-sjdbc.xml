@@ -9,11 +9,11 @@
      </replication-->
       <authentication-policy>org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy</authentication-policy>
       <workspaces>
-        <workspace name="ws" auto-init-root-nodetype="nt:unstructured" auto-init-permissions="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove">
-			<container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
+        <workspace name="ws" auto-init-root-nodetype="nt:unstructured" auto-init-permissions="any read;any add_node;any set_property;any remove">
+            <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="sourceName" value="jdbcjcr"/>
-              <property name="db-type" value="generic"/>
+              <property name="dialect" value="generic"/>
               <!-- property name="db-driver" value="org.hsqldb.jdbcDriver"/>
               <property name="db-url" value="jdbc:hsqldb:file:target/temp/data/portal"/>
               <property name="db-username" value="su"/>
@@ -31,7 +31,7 @@
                 <filters>
                   <filter property-type="Binary" min-value-size="100000"/>
                 </filters>
-              </value-storage>              
+              </value-storage>
             </value-storages -->
           </container>
           <cache enabled="true">
@@ -46,11 +46,11 @@
             </properties>
           </query-handler>
         </workspace>
-        <workspace name="ws1" auto-init-root-nodetype="nt:unstructured">
+        <workspace name="ws1" auto-init-root-nodetype="nt:unstructured" auto-init-permissions="any read;any add_node;any set_property;any remove">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="sourceName" value="jdbcjcr"/>
-              <property name="db-type" value="generic"/>
+              <property name="dialect" value="generic"/>
               <property name="multi-db" value="false"/>
               <property name="update-storage" value="true"/>
               <property name="max-buffer-size" value="204800"/>
@@ -79,11 +79,11 @@
             </properties>
           </query-handler>
         </workspace>
-        <workspace name="ws2" auto-init-root-nodetype="nt:unstructured">
+        <workspace name="ws2" auto-init-root-nodetype="nt:unstructured" auto-init-permissions="any read;any add_node;any set_property;any remove">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="sourceName" value="jdbcjcr"/>
-              <property name="db-type" value="generic"/>
+              <property name="dialect" value="generic"/>
               <property name="multi-db" value="false"/>
               <property name="update-storage" value="true"/>
               <property name="max-buffer-size" value="204800"/>

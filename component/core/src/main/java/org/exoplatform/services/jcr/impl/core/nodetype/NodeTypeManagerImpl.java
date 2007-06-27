@@ -325,8 +325,6 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       throw new RepositoryException("NodeType exo:accessControllable is DISABLED");
     }
     
-//    InternalQName qname = (nodeType instanceof NodeTypeImpl ? ((NodeTypeImpl) nodeType).getQName() : 
-//      (nodeType instanceof WorkspaceNTImpl ? ((WorkspaceNTImpl) nodeType).getQName() : null));
     InternalQName qname  = nodeType.getQName();
     if (qname == null) {
       throw new RepositoryException("NodeType implementation class " + nodeType.getClass().getName() 
@@ -354,7 +352,6 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       log.info("NodeType " + nodeType.getName() + " initialized. " + (System.currentTimeMillis() - start) + " ms");
     } else {
       log.debug("NodeType " + nodeType.getName() + " registered but not initialized (storage is not initialized). " + (System.currentTimeMillis() - start) + " ms");
-      //log.debug("Can't persist node type " + nodeType.getName() + ". Persistent storage is not initialized.");
     }    
   }
 
@@ -380,12 +377,10 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       throws RepositoryException {
 
     if (accessControlPolicy.equals(AccessControlPolicy.DISABLE)) {
-      // && nodeTypeValue.getName().equals("exo:privilegeable")
       List<String> nsupertypes = nodeTypeValue.getDeclaredSupertypeNames();
       if (nsupertypes != null && nsupertypes.contains("exo:privilegeable")
           || nodeTypeValue.getName().equals("exo:privilegeable")) {
         // skip this node, so it's not necessary at this runtime
-        // String msg = "Skiping node '" + nodeTypeValue.getName()
         // + "' -- it's not necessary at this runtime";
         log.warn("Node type " + nodeTypeValue.getName()
             + " is not register due to DISABLE control policy");
@@ -486,7 +481,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       nodeTypes.addAll(loadedNt);
       if (loadedNt.size()>0)
         log.info("NodeTypes (count: " + loadedNt.size() + ") loaded. " + (System.currentTimeMillis() - start) + " ms");
-    } catch (PathNotFoundException e) { //e.printStackTrace()
+    } catch (PathNotFoundException e) { 
       log.warn("NodeTypes storage (/jcr:system/jcr:nodetypes) is not initialized. Only default nodetypes is accessible");
       return;
     }

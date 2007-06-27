@@ -236,8 +236,6 @@ public class Constants {
 
   public static final String JCR_SYSTEM_URI = "[]:1[http://www.jcp.org/jcr/1.0]system:1";
 
-  //public static final String EXO_NAMESPACES_URI = ROOT_URI + JCR_SYSTEM.getAsString() + ":1" + NS_EXO_URI + "namespaces:1";
-  
   public static final InternalQName EXO_NAMESPACE = new InternalQName(NS_EXO_URI, "namespace");
   
   public static final InternalQName EXO_NAMESPACES = new InternalQName(NS_EXO_URI, "namespaces");

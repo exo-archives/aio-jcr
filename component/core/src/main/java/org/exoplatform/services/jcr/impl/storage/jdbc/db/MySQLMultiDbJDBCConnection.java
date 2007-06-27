@@ -79,23 +79,11 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
         String.format(FIND_PROPERTIES_BY_PARENTID, "'" + parentIdentifier + "'"));
   }
 
-//  @Override
-//  protected ResultSet findItemByPath(String path) throws SQLException {
-//    return dbConnection.createStatement().executeQuery(
-//        String.format(FIND_ITEM_BY_PATH, "'" + path + "'"));
-//  }
-
   @Override
   protected ResultSet findItemByIdentifier(String identifier) throws SQLException {
     return dbConnection.createStatement().executeQuery(
         String.format(FIND_ITEM_BY_ID, "'" + identifier + "'"));
   }
-
-//  @Override
-//  protected ResultSet findPropertyByPath(String parentId, String path) throws SQLException {
-//    return dbConnection.createStatement().executeQuery(
-//        String.format(FIND_CHILD_PROPERTY_BY_PATH, "'" + parentId + "'", "'" + path + "'"));
-//  }
 
   @Override
   protected ResultSet findReferences(String nodeIdentifier) throws SQLException {

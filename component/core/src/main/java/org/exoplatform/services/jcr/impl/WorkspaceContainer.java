@@ -39,7 +39,6 @@ public class WorkspaceContainer extends ExoContainer {
       throws RepositoryException, RepositoryConfigurationException {
 
     // Before repository instantiation
-    // super(parent);
     super(new MX4JComponentAdapterFactory(), parent);
 
     repositoryContainer = parent;
@@ -63,9 +62,4 @@ public class WorkspaceContainer extends ExoContainer {
     return (WorkspaceInitializer)getComponentInstanceOfType(WorkspaceInitializer.class);
   }
 
-  //  --------------------------------
-
-//  public BinaryValueSwapStorage getBinarySwap() {
-//    return (BinaryValueSwapStorage)getComponentInstanceOfType(BinaryValueSwapStorage.class);
-//  }  
 }

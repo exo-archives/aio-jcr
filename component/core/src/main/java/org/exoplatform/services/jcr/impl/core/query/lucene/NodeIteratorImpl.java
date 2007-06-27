@@ -193,7 +193,6 @@ class NodeIteratorImpl implements ScoreNodeIterator {
         while (next == null && (pos + 1) < identifiers.length) {
             try {
                 next = (NodeImpl) itemMgr.getItemByIdentifier(identifiers[pos + 1], true);
-                //log.debug("NEXT NODE >>>> "+next.getPath());
             } catch (RepositoryException e) {
                 log.warn("Exception retrieving Node with UUID: "
                         + identifiers[pos + 1] + ": " + e.toString());
@@ -203,7 +202,7 @@ class NodeIteratorImpl implements ScoreNodeIterator {
             }
             pos++;
         }
-        if (identifiers.length == 0) // || (pos + 1) == uuids.length
+        if (identifiers.length == 0) 
           pos = identifiers.length;
         else if ((pos + 1) == identifiers.length && next == null) 
           pos++;

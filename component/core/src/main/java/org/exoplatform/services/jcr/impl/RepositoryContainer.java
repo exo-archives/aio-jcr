@@ -88,8 +88,6 @@ public class RepositoryContainer extends ExoContainer {
 
     try {
 
-      // RepositoryInitializer initializer = new RepositoryInitializer(this,
-      // config);
       init();
 
       load();
@@ -248,8 +246,6 @@ public class RepositoryContainer extends ExoContainer {
         // system workspace
         systemDataManager = wsDataManager;
         registerComponentInstance(systemDataManager);
-// registerComponentInstance(new SystemDataContainerHolder(
-// (WorkspaceDataContainer)workspaceContainer.getComponentInstanceOfType(WorkspaceDataContainer.class)));
       }
       
       wsDataManager.setSystemDataManager(systemDataManager);

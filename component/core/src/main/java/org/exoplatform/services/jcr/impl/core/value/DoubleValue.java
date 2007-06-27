@@ -37,8 +37,6 @@ public class DoubleValue extends BaseValue {
    * @see Value#getDate
    */
   public Calendar getDate() throws ValueFormatException, IllegalStateException, RepositoryException {
-    //setValueConsumed();
-
     Double doubleNumber = new Double(getInternalString());
 
     if (doubleNumber != null) {
@@ -55,8 +53,6 @@ public class DoubleValue extends BaseValue {
    * @see Value#getLong
    */
   public long getLong() throws ValueFormatException, IllegalStateException, RepositoryException {
-    //setValueConsumed();
-
     Double doubleNumber = new Double(getInternalString());
 
     if (doubleNumber != null) {
@@ -71,22 +67,6 @@ public class DoubleValue extends BaseValue {
    */
   public boolean getBoolean() throws ValueFormatException, IllegalStateException,
       RepositoryException {
-    //setValueConsumed();
     throw new ValueFormatException("conversion to boolean failed: inconvertible types");
   }
-
-//  /**
-//   * @see Value#getDouble
-//   */
-//  public double getDouble() throws ValueFormatException, IllegalStateException, RepositoryException {
-//    setValueConsumed();
-//
-//    Double doubleNumber = new Double(getInternalString());
-//
-//    if (doubleNumber != null) {
-//      return doubleNumber.doubleValue();
-//    } else {
-//      throw new ValueFormatException("empty value");
-//    }
-//  }
 }

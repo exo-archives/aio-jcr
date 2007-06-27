@@ -37,14 +37,11 @@ public class ExporterSysView extends ExporterBase {
        atts.addAttribute(SV_NAMESPACE_URI,"name","sv:name",
                          "CDATA",getItemQName(node));
        contentHandler.startElement(SV_NAMESPACE_URI,"node","sv:node",atts);
-       
-//       contentHandler.startElement(SV_NAMESPACE_URI,"node","",atts);
    }
 
    protected void endNode(Node node) throws RepositoryException,
            SAXException {
        contentHandler.endElement(SV_NAMESPACE_URI,"node","sv:node");
-//           contentHandler.endElement(SV_NAMESPACE_URI,"node","");
    }
 
 
@@ -73,7 +70,6 @@ public class ExporterSysView extends ExporterBase {
        
        contentHandler.characters(charValue, 0, charValue.length);
        
-       //System.out.println("exportValue val " +getValueAsString(value));
        contentHandler.endElement(SV_NAMESPACE_URI, "value", "sv:value");
    }
 

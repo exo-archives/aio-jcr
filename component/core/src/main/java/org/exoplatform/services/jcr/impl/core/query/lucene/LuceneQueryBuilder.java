@@ -162,8 +162,6 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
 
     Query q = builder.createLuceneQuery();
 
-    //log.debug("Lucene query: "+q.toString());
-
     if (builder.exceptions.size() > 0) {
       StringBuffer msg = new StringBuffer();
       for (Iterator it = builder.exceptions.iterator(); it.hasNext();) {
@@ -264,7 +262,6 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
       values.add(nodeTypeName);
       NodeTypeManagerImpl ntMgr = (NodeTypeManagerImpl)session.getWorkspace().getNodeTypeManager();
       NodeType base = ntMgr.getNodeType(ntQName);
-      //NodeType base = ntMgr.getNodeType(nodeTypeName);
       
       if (base.isMixin()) {
         field = sysLocationFactory.createJCRName(mixinTypes).getAsString();
@@ -311,7 +308,6 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
 
         tmp.append(sysLocationFactory.createJCRName(node.getPropertyName())
             .getPrefix());
-        //                tmp.append(nsMappings.getPrefix(node.getPropertyName().getNamespaceURI()));
         tmp.append(":").append(FieldNames.FULLTEXT_PREFIX);
         tmp.append(node.getPropertyName().getName());
         fieldname = tmp.toString();
@@ -390,8 +386,6 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
             exceptions.add(e);
           }
           BooleanQuery and = new BooleanQuery();
-          // !!!!!!
-          //and.add(new TermQuery(new Term(FieldNames.PARENT, "")), true, false);
           and.add(new TermQuery(new Term(FieldNames.PARENT,
               Constants.ROOT_UUID)), true, false);
           //
@@ -431,9 +425,6 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
     Query context = (Query) data;
     BooleanQuery andQuery = new BooleanQuery();
 
-    //log.debug("LocationStepQueryNode visited: context: "+context.toString()+" nameTest: "+node.getNameTest());
-    //"predicates: "+node.acceptOperands(this, data).length+" ");
-
     if (context == null) {
       exceptions.add(new IllegalArgumentException("Unsupported query"));
     }
@@ -460,7 +451,6 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
       try {
         String internalName = sysLocationFactory.createJCRName(
             node.getNameTest()).getAsString();
-        //                String internalName = node.getNameTest().toJCRName(nsMappings);
         nameTest = new TermQuery(new Term(FieldNames.LABEL, internalName));
 
       } catch (RepositoryException e) {
@@ -502,7 +492,6 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
           try {
             subQuery = new MatchAllQuery(sysLocationFactory.createJCRName(
                 primaryType).getAsString());
-            //subQuery = new MatchAllQuery(primaryType.toJCRName(nsMappings));
           } catch (RepositoryException e) {
             // will never happen, prefixes are created when unknown
             log.error("Error: " + e);
@@ -547,16 +536,11 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
       exceptions.add(new IllegalArgumentException("Unsupported query"));
     }
     try {
-      //            String refProperty = node.getRefProperty().toJCRName(nsMappings);
       String refProperty = sysLocationFactory.createJCRName(
           node.getRefProperty()).getAsString();
       
-      //log.debug("DerefQueryNode visited:  nameTest:"
-      //    + node.getNameTest().getAsString()+" refProperty: "+node.getRefProperty().getAsString());
-
       String nameTest = null;
       if (node.getNameTest() != null) {
-        //                nameTest = node.getNameTest().toJCRName(nsMappings);
         nameTest = sysLocationFactory.createJCRName(node.getNameTest())
             .getAsString();
       }
@@ -620,7 +604,6 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
 
     String field = "";
     try {
-      //field = node.getProperty().toJCRName(nsMappings);
       field = sysLocationFactory.createJCRName(node.getProperty())
           .getAsString();
     } catch (RepositoryException e) {
