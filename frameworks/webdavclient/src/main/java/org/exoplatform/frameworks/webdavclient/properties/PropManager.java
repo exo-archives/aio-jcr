@@ -43,8 +43,6 @@ public class PropManager {
         nodeName = propertyNode.getNodeName();
       }
       
-      Log.info("LOCAL NAME: " + nodeName);
-      
       PropApi curProp = null;
 
       for (int i = 0; i < availableProperties.length; i++) {

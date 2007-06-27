@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.exoplatform.frameworks.httpclient.Log;
-import org.exoplatform.frameworks.webdavclient.common.MimeTypesTest;
+import org.exoplatform.frameworks.webdavclient.dasl.DASLTestSuite;
 
 /**
  * Created by The eXo Platform SARL
@@ -27,13 +27,13 @@ public class WebDavTests extends TestCase {
 //    suite.addTestSuite(TestTest.class);
 
     
-    suite.addTestSuite(MimeTypesTest.class);
+//    suite.addTestSuite(MimeTypesTest.class);
 //    suite.addTestSuite(CommonTestSuite.class);
 //    suite.addTestSuite(DeltaVTestSuite.class);
 //    suite.addTestSuite(LockTestSuite.class);
 //    suite.addTestSuite(SimpleExportTest.class);
     
-//    suite.addTestSuite(DASLTestSuite.class);
+    suite.addTestSuite(DASLTestSuite.class);
 
     //suite.addTestSuite(OrderTestSuite.class);
     

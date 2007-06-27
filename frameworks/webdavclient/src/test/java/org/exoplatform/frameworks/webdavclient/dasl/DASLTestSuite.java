@@ -16,7 +16,7 @@ import junit.framework.TestSuite;
 public class DASLTestSuite extends TestSuite {
   
   public DASLTestSuite() {
-    
+    addTestSuite(SQLSearchTest.class);
   }
   
   public void testVoid() throws Exception {

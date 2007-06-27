@@ -61,12 +61,11 @@ public class ResponseDoc {
       Node propertyNode = propsNodes.item(i);
       
       String localName = propertyNode.getLocalName();
-      String nameSpace = propertyNode.getNamespaceURI();
+      //String nameSpace = propertyNode.getNamespaceURI();
       
       if (localName != null) {      
       //if (localName != null && Const.Dav.NAMESPACE.equals(nameSpace)) {      
         PropApi curProp = PropManager.getPropertyByNode(propertyNode, status);
-        Log.info("CUR PROP: " + curProp);
         properties.add(curProp);
       }
       
