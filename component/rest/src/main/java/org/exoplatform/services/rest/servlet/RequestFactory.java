@@ -45,9 +45,10 @@ public class RequestFactory {
 //    String contentType = httpRequest.getContentType();
 //    if(contentType == null)
 //      contentType = "application/octet-stream";
-//    // 
-    return new Request(in, new ResourceIdentifier(pathInfo, httpRequest.getServletPath()),
-        method, headerParams, queryParams, uri.substring(0, uri.lastIndexOf(pathInfo) + 1));
+//    //
+    ResourceIdentifier identifier =
+      new ResourceIdentifier(uri.substring(0, uri.lastIndexOf(pathInfo)), pathInfo); 
+    return new Request(in, identifier, method, headerParams, queryParams);
   }
 
   /**
