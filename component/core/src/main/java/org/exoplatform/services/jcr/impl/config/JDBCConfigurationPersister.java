@@ -212,6 +212,13 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
               "CONFIG " + binType + " NOT NULL, " +
               "CONSTRAINT JCR_CONFIG_PK PRIMARY KEY(NAME))";
           con.createStatement().executeUpdate(sql);
+          
+          con.commit();
+          con.close();
+          
+          // one new conn
+          con = openConnection();
+          con.setAutoCommit(false);
         } 
         
         if (isDbInitialized(con)) {
