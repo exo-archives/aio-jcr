@@ -10,16 +10,16 @@
       </properties-param>
     </init-params>
   </component>
-  
+
   <component>
       <type>org.exoplatform.services.jcr.ext.registry.RESTRegistryService</type>
   </component>
-  
+
   <component>
       <type>org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService</type>
   </component>
-  
- 
+
+
   <external-component-plugins>
  		      <target-component>org.exoplatform.services.jcr.RepositoryService</target-component>
  		      <component-plugin>
@@ -39,7 +39,7 @@
  		        <type>org.exoplatform.services.jcr.impl.AddNodeTypePlugin</type>
  		        <init-params>
  		          <values-param>
- 		            <name>nodeTypesFiles</name>
+ 		            <name>autoCreatedInNewRepository</name>
  		            <description>Node types configuration file</description>
  		            <value>jar:/conf/ext-nodetypes-config.xml</value>
  		          </values-param>
