@@ -46,9 +46,7 @@ public abstract class AccessManager {
   protected AccessManager(RepositoryEntry config,
       WorkspaceEntry wsConfig,
       OrganizationService orgService) throws RepositoryException {
-// this.accessControlPolicy = config.getAccessControl();
     this.parameters = new HashMap<String, String>();
-// AccessManagerEntry amConfig = wsConfig.getAccessManager();
     if (wsConfig != null && wsConfig.getAccessManager() != null) {
       List<SimpleParameterEntry> paramList = wsConfig.getAccessManager().getParameters();
       for (SimpleParameterEntry param : paramList)
@@ -103,15 +101,13 @@ public abstract class AccessManager {
           return true;
       }
     }
-    // log.debug("Has Permission == false for "+userId);
     return false;
   }
 
   protected boolean isUserMatch(String identity, String userId) {
     if (identity.equals(SystemIdentity.ANY)) // any
       return true;
-    if (identity.indexOf(":") == -1) // ||
-      // identity.equals(SystemIdentity.ANONIM))
+    if (identity.indexOf(":") == -1) // || identity.equals(SystemIdentity.ANONIM))
       // just user
       return identity.equals(userId);
     // group
@@ -167,7 +163,6 @@ public abstract class AccessManager {
 
   protected final boolean isPermissionMatch(String existedPermission, String[] testPermissions) {
     try {
-      // Value[] values = permProperty.getValues();
       for (int i = 0; i < testPermissions.length; i++) {
         if (existedPermission.equals(testPermissions[i]))
           return true;
