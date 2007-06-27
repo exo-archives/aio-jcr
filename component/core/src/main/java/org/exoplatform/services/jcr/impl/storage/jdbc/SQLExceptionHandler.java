@@ -15,6 +15,24 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
 
 /**
  * Created by The eXo Platform SARL        .
+ * 
+ * The eXo JCR database has constraints can be violated.
+ * 
+ * JCR_PK_XCONTAINER - Can not be exisits two containers with same version
+ * 
+ * JCR_PK_XITEM - Item already exists with this ID
+ * JCR_FK_XITEM_PARENT - Parent not found by ID
+ * JCR_IDX_XITEM_PARENT - Item is already exists with the parent, name, index, type(N/P), persisted version
+ * JCR_IDX_XITEM_PARENT_NAME - Item is already exists with the type(N/P), parent, name, index, persisted version
+ * JCR_IDX_XITEM_PARENT_ID - Item is already exists with the type(N/P), parent, ID, persisted version
+ * 
+ * JCR_PK_XVALUE - Value is already exists with the ID (impossible, ID is autiincremented)
+ * JCR_FK_XVALUE_PROPERTY - There is no property exists for the value.
+ * JCR_IDX_XVALUE_PROPERTY - Value is already exists with the property and order number
+ * 
+ * JCR_PK_XREF - Reference is already exists to the node from property with order number
+ * JCR_IDX_XREF_PROPERTY - Reference is already exists with the property and order number
+ * 
  * @author Peter Nedonosko
  * @version $Id: SQLExceptionHandler.java 13869 2007-03-28 13:50:50Z peterit $
  */
@@ -25,7 +43,6 @@ public class SQLExceptionHandler {
   private final JDBCStorageConnection conn;
   
   // ---------------- SQLException handler -------------------
-  // TODO avoid DB calls!
   
   SQLExceptionHandler(String containerName, JDBCStorageConnection conn) {
     this.containerName = containerName;
@@ -33,40 +50,44 @@ public class SQLExceptionHandler {
   }
 
   protected String handleAddException(Exception e, ItemData item) throws RepositoryException, InvalidItemStateException {
-    String message = "["+containerName+"] ";
+    String message = "["+containerName+"] ADD " + (item.isNode() ? "NODE. " : "PROPERTY. ");
     String errMessage = e.getMessage();
-    String itemInfo = (item.isNode() ? "NODE " : "PROPERTY ")
-      + item.getQPath().getAsString() + " " + item.getIdentifier()
-      + (errMessage != null ? ". Cause: " + errMessage : "");
+    String itemInfo = item.getQPath().getAsString() + ", ID: " 
+      + item.getIdentifier() + ", ParentID: " + item.getParentIdentifier() 
+      + (errMessage != null ? ". Cause >>>> " + errMessage : "");
 
     if (errMessage != null) {
       // try detect error by foreign key names
       String umsg = errMessage.toLowerCase().toUpperCase();
       if (umsg.indexOf(conn.JCR_FK_ITEM_PARENT)>=0) {
-        // we see that error contains JCR_FK_XITEM_PARENT constraint name, so it's constraint violation...
-        message += "Parent not found for " + itemInfo;
+        message += "Parent not found. Item " + itemInfo;
         throw new InvalidItemStateException(message, e);
-      } else if (umsg.indexOf(conn.JCR_FK_NODE_ITEM)>=0) {
-        // Foreign key NODE->ITEM tables vioaltion. A item record not found for node created.
-        message += "Item relation in JCR_ITEM table not found (not created). " + itemInfo;
-        throw new RepositoryException(message, e);
-      } else if (umsg.indexOf(conn.JCR_FK_PROPERTY_NODE)>=0) {
-        // Foreign key PROPERTY->NODE tables vioaltion
-        message += "Parent not found (not created) in JCR_NODE table. " + itemInfo;
-        throw new InvalidItemStateException(message, e);
-      } else if (umsg.indexOf(conn.JCR_FK_PROPERTY_ITEM)>=0) {
-        // Foreign key PROPERTY->ITEM tables vioaltion
-        message += "Item relation in JCR_ITEM table not found (not created). " + itemInfo;
-        throw new RepositoryException(message, e);
-      } else if (umsg.indexOf(conn.JCR_FK_VALUE_PROPERTY)>=0) {
-        // Foreign key VALUE->PROPERTY tables vioaltion
-        message += "Property not found (not created) in JCR_PROPERTY table for values created. " + itemInfo;
-        throw new RepositoryException(message, e);
       } else if (umsg.indexOf(conn.JCR_PK_ITEM)>=0) {
-        // primary key ITEM tables vioaltion
-        message += "An item with given ID already exists in JCR_ITEM table. " + itemInfo;
+        message += "Item already exists. Condition: ID. " + itemInfo;
+        // InvalidItemStateException ! - because it's impossible add new item with existed UUID
+        throw new InvalidItemStateException(message, e);
+      } else if (umsg.indexOf(conn.JCR_IDX_ITEM_PARENT)>=0 || umsg.indexOf(conn.JCR_IDX_ITEM_PARENT_NAME)>=0) {
+        message += "Item is already exists. Condition: parent ID, name, index. " + itemInfo;
+        throw new ItemExistsException(message, e);
+      } else if (umsg.indexOf(conn.JCR_IDX_ITEM_PARENT_ID)>=0) {
+        message += "Item is already exists. Condition: parent ID and ID. " + itemInfo;
+        throw new ItemExistsException(message, e);
+      } else if (umsg.indexOf(conn.JCR_FK_VALUE_PROPERTY)>=0) {
+        message += "Property is not exists but the value is being created. Condition: property ID. " + itemInfo;
         throw new RepositoryException(message, e);
-      }
+      } else if (umsg.indexOf(conn.JCR_IDX_VALUE_PROPERTY)>=0) {
+        message += "Property is already exists. Condition: property ID, order number. " + itemInfo;
+        throw new RepositoryException(message, e);        
+      } else if (umsg.indexOf(conn.JCR_PK_VALUE)>=0) {
+        message += "[FATAL] Value is already exists with the ValueID. Impossible state, check is ValueID is autoincremented. " + itemInfo;
+        throw new RepositoryException(message, e);        
+      } else if (umsg.indexOf(conn.JCR_PK_REF)>=0) {
+        message += "Reference chain is already exists. Condition: node ID, property ID, order number. " + itemInfo;
+        throw new RepositoryException(message, e);        
+      } else if (umsg.indexOf(conn.JCR_IDX_REF_PROPERTY)>=0) {
+        message += "Referenceable property value is already exists. Condition: property ID, order number. " + itemInfo;
+        throw new RepositoryException(message, e);        
+      } 
     }
     
     // try detect integrity violation
@@ -91,8 +112,6 @@ public class SQLExceptionHandler {
             ownException = new ItemExistsException(message, e);
             throw ownException;
           }
-              
-          
           
         } catch(Exception ep) {
           // item not found or other things but error of item reading
@@ -104,66 +123,48 @@ public class SQLExceptionHandler {
       }
     } catch(Exception ep) {
       // no parent or error access it
-      if (ownException != null) throw ownException;
+      if (ownException != null) throw ownException; 
     }
     message += "Error of item add. " + itemInfo;
-    throw new InvalidItemStateException(message, e);
+    throw new InvalidItemStateException(message, e); 
   }
 
   protected String handleDeleteException(Exception e, ItemData item) throws RepositoryException, InvalidItemStateException {
-    String message = "["+containerName+"] ";
+    String message = "["+containerName+"] DELETE " + (item.isNode() ? "NODE. " : "PROPERTY. ");
     String errMessage = e.getMessage();
-    String itemInfo = (item.isNode() ? "NODE " : "PROPERTY ")
-      + item.getQPath().getAsString() + " " + item.getIdentifier()
-      + (errMessage != null ? ". Cause: " + errMessage : "");
+    String itemInfo = item.getQPath().getAsString() + " " + item.getIdentifier()
+      + (errMessage != null ? ". Cause >>>> " + errMessage : "");
 
     if (errMessage != null) {
       // try detect error by foreign key names
       String umsg = errMessage.toLowerCase().toUpperCase();
       if (umsg.indexOf(conn.JCR_FK_ITEM_PARENT)>=0) {
-        // we see that error contains JCR_FK_MNODEPARENT constraint name, so it's constraint violation...
-        message += "Can't delete parent till child exists " + itemInfo;
+        message += "Can not delete parent till childs exists. Item " + itemInfo;
         throw new InvalidItemStateException(message, e);
-      } else if (umsg.indexOf(conn.JCR_FK_NODE_ITEM)>=0) {
-        // Foreign key NODE->ITEM tables vioaltion.
-        message += "Can't delete item till related node exists in JCR_NODE table " + itemInfo;
-        throw new RepositoryException(message, e);
-      } else if (umsg.indexOf(conn.JCR_FK_PROPERTY_NODE)>=0) {
-        // Foreign key PROPERTY->NODE tables vioaltion
-        message += "Can't delete node till child property(ies) exists in JCR_PROPERTY table " + itemInfo;
-        throw new RepositoryException(message, e);
-      } else if (umsg.indexOf(conn.JCR_FK_PROPERTY_ITEM)>=0) {
-        // Foreign key PROPERTY->ITEM tables vioaltion
-        message += "Can't delete item till related property exists in JCR_PROPERTY table " + itemInfo;
-        throw new RepositoryException(message, e);
       } else if (umsg.indexOf(conn.JCR_FK_VALUE_PROPERTY)>=0) {
-        // Foreign key VALUE->PROPERTY tables vioaltion
-        message += "Can't delete property till related property values exists in JCR_VALUE table " + itemInfo;
+        message += "[FATAL] Can not delete property item till it contains values. Condition: property ID. " + itemInfo;
         throw new RepositoryException(message, e);
       }
     }
-    
+      
     message += "Error of item delete " + itemInfo;
     throw new RepositoryException(message, e);
   }
 
   protected String handleUpdateException(Exception e, ItemData item) throws RepositoryException, InvalidItemStateException {
-    String message = "["+containerName+"] ";
+    String message = "["+containerName+"] EDIT " + (item.isNode() ? "NODE. " : "PROPERTY. ");
     String errMessage = e.getMessage();
-    String itemInfo = (item.isNode() ? "NODE " : "PROPERTY ")
-      + item.getQPath().getAsString() + " " + item.getIdentifier()
-      + (errMessage != null ? ". Cause: " + errMessage : "");
+    String itemInfo = item.getQPath().getAsString() + " " + item.getIdentifier()
+      + (errMessage != null ? ". Cause >>>> " + errMessage : "");
 
     if (errMessage != null)
       // try detect error by foreign key names
       if (errMessage.toLowerCase().toUpperCase().indexOf(conn.JCR_FK_VALUE_PROPERTY)>=0) {
-        // Foreign key VALUE->PROPERTY tables vioaltion
-        message += "Property not found (not created) in JCR_PROPERTY table for values updated. " + itemInfo;
+        message += "Property is not exists but the value is being created. Condition: property ID. " + itemInfo;
         throw new RepositoryException(message, e);
       } else if (errMessage.toLowerCase().toUpperCase().indexOf(conn.JCR_PK_ITEM)>=0) {
-        // primary key ITEM tables vioaltion
-        message += "An item with given ID already exists in JCR_ITEM table. " + itemInfo;
-        throw new RepositoryException(message, e);  
+        message += "Item already exists. Condition: ID. " + itemInfo;
+        throw new InvalidItemStateException(message, e);  
       }
 
     // try detect integrity violation
@@ -172,7 +173,7 @@ public class SQLExceptionHandler {
       ItemData me = conn.getItemData(item.getIdentifier());
       if (me != null) {
         // item already exists
-        message += "Item exists but update error " + itemInfo;
+        message += "Item is already exists. But update errors. " + itemInfo;
         ownException = new RepositoryException(message, e);
         throw ownException;
       }

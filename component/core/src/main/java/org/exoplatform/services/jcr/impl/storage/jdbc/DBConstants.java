@@ -12,13 +12,16 @@ package org.exoplatform.services.jcr.impl.storage.jdbc;
 
 public class DBConstants {
   //error constants
-  protected String JCR_FK_ITEM_PARENT;
-  protected String JCR_FK_NODE_ITEM;
-  protected String JCR_FK_PROPERTY_NODE;
-  protected String JCR_FK_PROPERTY_ITEM;
-  protected String JCR_FK_VALUE_PROPERTY;
-  
   protected String JCR_PK_ITEM;
+  protected String JCR_FK_ITEM_PARENT;
+  protected String JCR_IDX_ITEM_PARENT;
+  protected String JCR_IDX_ITEM_PARENT_NAME;
+  protected String JCR_IDX_ITEM_PARENT_ID;
+  protected String JCR_PK_VALUE;
+  protected String JCR_FK_VALUE_PROPERTY;
+  protected String JCR_IDX_VALUE_PROPERTY;
+  protected String JCR_PK_REF;
+  protected String JCR_IDX_REF_PROPERTY;
   
   protected String FIND_ITEM_BY_ID;
   protected String FIND_ITEM_BY_PATH;

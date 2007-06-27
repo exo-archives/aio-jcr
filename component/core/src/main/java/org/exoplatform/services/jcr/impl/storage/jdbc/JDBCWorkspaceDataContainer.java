@@ -391,7 +391,6 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
             swapDirectory,
             swapCleaner);
 
-      //sqlPath = "/conf/storage/jcr-sjdbc.ora.sql";
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.ora.sql";
 
       // a particular db initializer may be configured here too

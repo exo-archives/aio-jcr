@@ -136,7 +136,6 @@ public class TestAddNode extends JcrAPIBaseTest{
     }
 
   }
-  
 
   public void testInvalidItemStateException() throws RepositoryException {
     Node n = session.getRootNode().addNode("sameNode", "nt:base");
@@ -147,10 +146,9 @@ public class TestAddNode extends JcrAPIBaseTest{
     
     try {
       session2.save();
-    fail("InvalidItemStateException should have been thrown");
-  } catch (ItemExistsException e) {
-  }
-
+      fail("InvalidItemStateException should have been thrown");
+    } catch (ItemExistsException e) {
+    }
   }
 
   public void testAddingNodeToDiffWorkspaces() throws RepositoryException {
