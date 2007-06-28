@@ -23,7 +23,7 @@ public class ResourceContainerAnnot implements ResourceContainer {
 
     String entity = ">>> annotated container response!!!\n";
     StringEntityTransformer transformer = new StringEntityTransformer();
-    Response resp = Response.Builder.ok(entity).transformer(transformer).type("text/plain").build();
+    Response resp = Response.Builder.ok(entity).transformer(transformer).mediaType("text/plain").build();
     return resp;
   }
  

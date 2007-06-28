@@ -41,8 +41,8 @@ public class ResponseBuilderTest extends TestCase {
     response.writeEntity(System.out);
     
     response =
-      Response.Builder.ok(entity, new EntityMetadata("text/plain")).build();
-    assertEquals("text/plain", response.getMetadata().getMediaType());
+      Response.Builder.ok(entity, "text/plain").build();
+    assertEquals("text/plain", response.getEntityMetadata().getMediaType());
   }
   
 
@@ -70,9 +70,9 @@ public class ResponseBuilderTest extends TestCase {
     assertEquals(st, response.getStatus());
     String entity = "customtest";
     StringEntityTransformer transformer = new StringEntityTransformer();
-    response = Response.Builder.withStatus(st).entity(entity).type("text/plain").transformer(transformer).build();
+    response = Response.Builder.withStatus(st).entity(entity).mediaType("text/plain").transformer(transformer).build();
     assertEquals("customtest", response.getEntity());
-    assertEquals("text/plain", response.getMetadata().getMediaType());
+    assertEquals("text/plain", response.getEntityMetadata().getMediaType());
     System.out.print("\n" + TEST_NAME);
     response.writeEntity(System.out);
   }

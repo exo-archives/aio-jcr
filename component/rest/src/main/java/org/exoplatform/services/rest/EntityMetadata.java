@@ -15,15 +15,18 @@ import java.util.List;
 public class EntityMetadata {
   
   protected MultivaluedMetadata metadata;
-  
-  public EntityMetadata() {
-    metadata = new MultivaluedMetadata();
+
+  public EntityMetadata(MultivaluedMetadata headers) {
+    this.metadata = headers;
   }
 
-  public EntityMetadata(String mediaType) {
-    metadata = new MultivaluedMetadata();
-    setMediaType(mediaType);
-  }
+//  public EntityMetadata() {
+//    metadata = new MultivaluedMetadata();
+//  }
+//  public EntityMetadata(String mediaType) {
+//    metadata = new MultivaluedMetadata();
+//    setMediaType(mediaType);
+//  }
   
   public String getContentLocation() {
     return metadata.getFirst("Content-Location");
@@ -55,17 +58,7 @@ public class EntityMetadata {
     return null;
   }
   
-/*
-  public Date getLastModified() {
-    try {
-      DateFormat df = DateFormat.getInstance();
-      return df.parse(metadata.getFirst("Last-Modified"));
-    } catch(ParseException pe) {
-      return null;
-    }
-  }
-*/
-  
+
   public String getLastModified() {
     return metadata.getFirst("Last-Modified");
   }
@@ -80,29 +73,29 @@ public class EntityMetadata {
     return metadata.getFirst("Content-Type");
   }
   
-  public void setEncodings(List <String> encodings) {
-    metadata.put("Content-Encoding", encodings);
-  }
+//  public void setEncodings(List <String> encodings) {
+//    metadata.put("Content-Encoding", encodings);
+//  }
 
-  public void setLanguages(List <String> languages) {
-    metadata.put("Content-Language", languages);
-  }
+//  public void setLanguages(List <String> languages) {
+//    metadata.put("Content-Language", languages);
+//  }
 
-  public void setContentLocation(String contentLocation) {
-    metadata.putSingle("Content-Location", contentLocation);
-  }
+//  public void setContentLocation(String contentLocation) {
+//    metadata.putSingle("Content-Location", contentLocation);
+//  }
 
-  public void setLength(int length) {
-    metadata.putSingle("Content-Length", new Integer(length).toString());
-  }
+//  public void setLength(int length) {
+//    metadata.putSingle("Content-Length", new Integer(length).toString());
+//  }
 
-  public void setMediaType(String mediaType) {
-    metadata.putSingle("Content-Type", mediaType);
-  }
+//  public void setMediaType(String mediaType) {
+//    metadata.putSingle("Content-Type", mediaType);
+//  }
 
-  public void setLastModified(Date lastModified) {
-    metadata.putSingle("Last-Modified",
-        DateFormat.getInstance().format(lastModified));
-  }
+//  public void setLastModified(Date lastModified) {
+//    metadata.putSingle("Last-Modified",
+//        DateFormat.getInstance().format(lastModified));
+//  }
 
 }

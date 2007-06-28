@@ -46,7 +46,7 @@ public class ResourceContainer3 implements ResourceContainer {
     String location = "http://localhost/test/_put"; 
     StringEntityTransformer transformer = new StringEntityTransformer();
     Response resp =
-      Response.Builder.created(entity, location).type("text/plain").transformer(transformer).build(); 
+      Response.Builder.created(entity, location).mediaType("text/plain").transformer(transformer).build(); 
     return resp;
   }
 

@@ -59,9 +59,7 @@ public class RESTRegistryService implements ResourceContainer {
 
   
   @HTTPMethod("GET")
-  public Response getRegistry(@URIParam("repository") String repository)
-      throws RepositoryException, RepositoryConfigurationException,
-      ParserConfigurationException {
+  public Response getRegistry(@URIParam("repository") String repository) {
 
     String furi = dispatcher.getRuntimeContext().getAbsLocation();
     
@@ -96,10 +94,10 @@ public class RESTRegistryService implements ResourceContainer {
   
   @HTTPMethod("GET")
   @URITemplate("/{group}/{entry}/")
-  public Response getEntry(@URIParam("repository") String repository, 
+  public Response getEntry(
+      @URIParam("repository") String repository, 
       @URIParam("group") String groupName,
-      @URIParam("entry") String entryName)
-      throws RepositoryConfigurationException, RepositoryException {
+      @URIParam("entry") String entryName) {
 
     regService.getRepositoryService().setCurrentRepositoryName(repository);
     SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null);
@@ -150,8 +148,7 @@ public class RESTRegistryService implements ResourceContainer {
   @EntityTransformerClass("org.exoplatform.services.jcr.ext.registry.RegistryEntryTransformer")
   public Response recreateEntry(RegistryEntry entry,
       @URIParam("repository") String repository,
-      @URIParam("group") String groupName)
-      throws RepositoryConfigurationException {
+      @URIParam("group") String groupName) {
     
     regService.getRepositoryService().setCurrentRepositoryName(repository);
     SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null); 
@@ -175,10 +172,10 @@ public class RESTRegistryService implements ResourceContainer {
 
   @HTTPMethod("DELETE")
   @URITemplate("/{group}/{entry}/")
-  public Response removeEntry(@URIParam("repository") String repository,
+  public Response removeEntry(
+      @URIParam("repository") String repository,
       @URIParam("group") String groupName,
-      @URIParam("entry") String entryName)
-    throws RepositoryConfigurationException, RepositoryException {
+      @URIParam("entry") String entryName) {
 
     regService.getRepositoryService().setCurrentRepositoryName(repository);
     SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null); 

@@ -172,7 +172,7 @@ public class ResourceContainerTest extends TestCase {
         new ResourceIdentifier("/level1/myID/level3/"), "PUT", mm, null);
     resp = disp.dispatch(request);
     assertEquals("http://localhost/test/_put", resp.getResponseHeaders().getFirst("Location"));
-    assertEquals("text/plain", resp.getMetadata().getMediaType());
+    assertEquals("text/plain", resp.getEntityMetadata().getMediaType());
     resp.writeEntity(System.out);
 
     request = new Request(new ByteArrayInputStream("delete something".getBytes()),
@@ -200,7 +200,7 @@ public class ResourceContainerTest extends TestCase {
     Request request = new Request(ds, 
         new ResourceIdentifier("/level1/level2/level3/myID1/myID2"), "GET", mm, null);
     Response resp = disp.dispatch(request);
-    assertEquals("text/plain", resp.getMetadata().getMediaType());
+    assertEquals("text/plain", resp.getEntityMetadata().getMediaType());
 //    resp.writeEntity(new FileOutputStream(new File("/tmp/test.txt")));
     resp.writeEntity(System.out);
     binder.unbind(dw);

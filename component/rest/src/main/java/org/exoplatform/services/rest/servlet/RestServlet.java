@@ -2,9 +2,8 @@ package org.exoplatform.services.rest.servlet;
 
 import java.io.IOException;
 import java.io.OutputStream;
-
-import java.util.Set;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -16,12 +15,11 @@ import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.Connector;
+import org.exoplatform.services.rest.MultivaluedMetadata;
 import org.exoplatform.services.rest.Request;
 import org.exoplatform.services.rest.ResourceBinder;
 import org.exoplatform.services.rest.ResourceDispatcher;
 import org.exoplatform.services.rest.Response;
-import org.exoplatform.services.rest.EntityMetadata;
-import org.exoplatform.services.rest.MultivaluedMetadata;
 
 public class RestServlet extends HttpServlet implements Connector {
 	
@@ -59,7 +57,7 @@ public class RestServlet extends HttpServlet implements Connector {
     try {
       Response response = resDispatcher.dispatch(request);
       httpResponse.setStatus(response.getStatus());
-      tuneResponse(httpResponse, response.getMetadata(), response.getResponseHeaders());
+      tuneResponse(httpResponse, response.getResponseHeaders());
       OutputStream out = httpResponse.getOutputStream();
       response.writeEntity(out);
       out.flush();
@@ -74,28 +72,28 @@ public class RestServlet extends HttpServlet implements Connector {
   
   
   private void tuneResponse(HttpServletResponse httpResponse,
-      EntityMetadata metadata, MultivaluedMetadata responseHeaders) {
+      /*EntityMetadata metadata,*/ MultivaluedMetadata responseHeaders) {
     
-    if(metadata != null) {
-      
-      if(metadata.getMediaType() != null)
-        httpResponse.setContentType(metadata.getMediaType());
-
-      if(metadata.getLength() != -1)
-        httpResponse.setContentLength(metadata.getLength());
-
-      if(metadata.getLastModified() != null)
-        httpResponse.setHeader("Last-Modified", metadata.getLastModified());
-
-      if(metadata.getContentLocation() != null)
-        httpResponse.setHeader("Content-Location", metadata.getContentLocation());
-
-      if(metadata.getEncodings() != null)
-        httpResponse.setHeader("Content-Encoding", metadata.getEncodings());
-
-      if(metadata.getLanguages() != null)
-        httpResponse.setHeader("Content-Language", metadata.getEncodings());
-    }
+//    if(metadata != null) {
+//      
+//      if(metadata.getMediaType() != null)
+//        httpResponse.setContentType(metadata.getMediaType());
+//
+//      if(metadata.getLength() != -1)
+//        httpResponse.setContentLength(metadata.getLength());
+//
+//      if(metadata.getLastModified() != null)
+//        httpResponse.setHeader("Last-Modified", metadata.getLastModified());
+//
+//      if(metadata.getContentLocation() != null)
+//        httpResponse.setHeader("Content-Location", metadata.getContentLocation());
+//
+//      if(metadata.getEncodings() != null)
+//        httpResponse.setHeader("Content-Encoding", metadata.getEncodings());
+//
+//      if(metadata.getLanguages() != null)
+//        httpResponse.setHeader("Content-Language", metadata.getEncodings());
+//    }
     
     if(responseHeaders != null) {
       

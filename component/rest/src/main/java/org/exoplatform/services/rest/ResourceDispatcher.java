@@ -109,7 +109,18 @@ public class ResourceDispatcher implements Connector {
             }
           }
         }
-        return (Response) resource.getServer().invoke(resource.getResourceContainer(), params);
+        
+        Response resp = (Response) resource.getServer().invoke(resource.getResourceContainer(), params);
+        
+        if(!resp.isTransformerInitialized()) {
+          // TODO guess transformer
+          // - from annotated factory
+          // - using Serializable
+          // - using JAXB ?
+        }
+        
+        return resp; 
+
       }
     }
     // if no one ResourceContainer found

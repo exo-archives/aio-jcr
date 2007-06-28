@@ -6,6 +6,7 @@ package org.exoplatform.services.rest;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -24,16 +25,16 @@ public class Response {
   private MultivaluedMetadata responseHeaders;
 
   protected Response(int status, 
-      EntityMetadata metadata,
+      MultivaluedMetadata responseHeaders,
       Object entity,
-      EntityTransformer transformer,
-      MultivaluedMetadata responseHeaders) {
+      EntityTransformer transformer) {
     
     this.status = status;
     this.entity = entity;
     this.transformer = transformer;
-    this.metadata = metadata;
     this.responseHeaders = responseHeaders;
+    this.metadata = new EntityMetadata(responseHeaders);
+
   }
   
   public int getStatus() {
@@ -48,11 +49,11 @@ public class Response {
     return entity;
   }
   
-  public EntityMetadata getMetadata() {
+  public EntityMetadata getEntityMetadata() {
     return metadata;
   }
 
-  public boolean isTransformer() {
+  public boolean isTransformerInitialized() {
     if(transformer != null)
       return true;
     return false;
@@ -73,7 +74,7 @@ public class Response {
     
     int status = -1;
   	Object entity;
-  	EntityMetadata metadata = new EntityMetadata();
+//  	EntityMetadata metadata = new EntityMetadata();
   	MultivaluedMetadata responseHeaders = new MultivaluedMetadata();
   	EntityTransformer transformer;
   	
@@ -84,7 +85,7 @@ public class Response {
   	}
   	
     public Response build() {
-  		return new Response (status, metadata, entity, transformer, responseHeaders);
+  		return new Response (status, responseHeaders, entity, transformer);
   	}
     
   	public static Builder withStatus(int st) {
@@ -102,7 +103,7 @@ public class Response {
   	
   	public static Builder representation(Object e, String type) {
       Builder b = representation(e);
-      b.type(type);
+      b.mediaType(type);
   		return b;
   	}
 
@@ -118,9 +119,9 @@ public class Response {
       return b;
     }
     
-    public static Builder ok(Object e, EntityMetadata md) {
-      Builder b = ok(e);
-      b.metadata(md);
+    public static Builder ok(Object e, String mediaType) {
+      Builder b = ok(e).mediaType(mediaType);
+      //b.metadata(md);
       return b;
     }
     
@@ -137,7 +138,7 @@ public class Response {
       return b;
     }
 
-    public static Builder accpeted() {
+    public static Builder accepted() {
       Builder b = newInstance();
       b.status(RESTStatus.ACCEPTED);
       return b;
@@ -202,23 +203,26 @@ public class Response {
       return this;
     }
 
-    public Builder metadata(EntityMetadata md) {
-      this.metadata = md;
-      return this;
-    }
+//    public Builder metadata(EntityMetadata md) {
+//      this.metadata = md;
+//      return this;
+//    }
     
-    public Builder type(String type) {
-      this.metadata.setMediaType(type);
+    public Builder mediaType(String mediaType) {
+      this.responseHeaders.putSingle("Content-Type", mediaType);
+//      this.metadata.setMediaType(type);
       return this;
     }
     
     public Builder languages (List<String> languages) {
-      this.metadata.setLanguages(languages);
+      this.responseHeaders.put("Content-Language", languages);
+//      this.metadata.setLanguages(languages);
       return this;
     }
     
     public Builder encodings (List<String> encodings) {
-      this.metadata.setEncodings(encodings);
+//      this.metadata.setEncodings(encodings);
+      this.responseHeaders.put("Content-Encoding", encodings);
       return this;
     }
     
@@ -228,7 +232,9 @@ public class Response {
     }
     
     public Builder lastModified (Date lastModified) {
-      this.metadata.setLastModified(lastModified);
+      this.responseHeaders.putSingle("Last-Modified", 
+          DateFormat.getInstance().format(lastModified));
+//      this.metadata.setLastModified(lastModified);
       return this;
     }
     

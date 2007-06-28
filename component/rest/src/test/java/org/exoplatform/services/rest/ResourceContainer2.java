@@ -26,7 +26,7 @@ public class ResourceContainer2 implements ResourceContainer {
     String e = ">>> this is response entity\n";
     StringEntityTransformer transformer = new StringEntityTransformer();
     Response resp =
-      Response.Builder.ok(e).type("text/plain").transformer(transformer).build();
+      Response.Builder.ok(e).mediaType("text/plain").transformer(transformer).build();
 
     return resp;
   }
