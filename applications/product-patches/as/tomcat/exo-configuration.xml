@@ -82,6 +82,30 @@
 			          </properties-param>
 			        </init-params>
        </component-plugin>
+       <component-plugin>
+	           <name>rmi.jcr</name>
+	           <set-method>addPlugin</set-method>
+	           <type>org.exoplatform.services.naming.BindReferencePlugin</type>
+	           <init-params>
+	             <value-param>
+	               <name>bind-name</name>
+	               <value>rmirepository</value>
+	             </value-param>
+	             <value-param>
+	               <name>class-name</name>
+	               <value>javax.jcr.Repository</value>
+	             </value-param>
+	             <value-param>
+	               <name>factory</name>
+	               <value>org.exoplatform.services.jcr.rmi.api.client.ClientRepositoryFactory</value>
+	             </value-param>
+	             <properties-param>
+	               <name>ref-addresses</name>
+	               <description>ref-addresses</description>
+	               <property name="url" value="//localhost:9999/repository"/>
+	             </properties-param>
+	           </init-params>
+       </component-plugin>
 	    </external-component-plugins>
 
   <remove-configuration>org.exoplatform.services.scheduler.JobSchedulerService</remove-configuration>

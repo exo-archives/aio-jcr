@@ -52,7 +52,7 @@
     	<component-plugin>
     		<name>exo.service.authentication.login</name>
     		<set-method>addListener</set-method>
-    		<type>org.exoplatform.services.organization.auth.JbossAuthenticationListener</type>
+    		<type>org.exoplatform.services.organization.auth.TomcatAuthenticationListener</type>
     	</component-plugin>
     </external-component-plugins>
         <external-component-plugins>
@@ -81,6 +81,30 @@
 			            <!-- property name="containerConfig" value="exo-configuration.xml"/ -->
 			          </properties-param>
 			        </init-params>
+       </component-plugin>
+       <component-plugin>
+        <name>rmi.jcr</name>
+        <set-method>addPlugin</set-method>
+        <type>org.exoplatform.services.naming.BindReferencePlugin</type>
+        <init-params>
+          <value-param>
+            <name>bind-name</name>
+            <value>rmirepository</value>
+          </value-param>
+          <value-param>
+            <name>class-name</name>
+            <value>javax.jcr.Repository</value>
+          </value-param>
+          <value-param>
+            <name>factory</name>
+            <value>org.exoplatform.services.jcr.rmi.api.client.ClientRepositoryFactory</value>
+          </value-param>
+          <properties-param>
+            <name>ref-addresses</name>
+            <description>ref-addresses</description>
+            <property name="url" value="//localhost:9999/repository"/>
+          </properties-param>
+        </init-params>
        </component-plugin>
 	    </external-component-plugins>
 
