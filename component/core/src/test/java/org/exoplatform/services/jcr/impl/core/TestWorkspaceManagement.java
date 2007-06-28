@@ -327,7 +327,7 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
     assertFalse(defRep.canRemoveWorkspace(systemWsName));
   }
 
-  protected static WorkspaceEntry getNewWs(String wsName,
+  public static WorkspaceEntry getNewWs(String wsName,
       Boolean isMultiDb,
       String dsName,
       String vsPath) {

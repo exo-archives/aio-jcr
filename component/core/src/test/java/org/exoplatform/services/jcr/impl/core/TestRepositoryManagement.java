@@ -194,7 +194,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
     workspaceEntry.setContainer(containerEntry);
 
     repositoryEntry.addWorkspace(workspaceEntry);
-    WorkspaceEntry secondWs = TestWorkspaceManagement.getNewWs(null, false, dsName);
+    WorkspaceEntry secondWs = TestWorkspaceManagement.getNewWs(null, false, dsName,null);
     repositoryEntry.addWorkspace(secondWs);
 
     RepositoryService service = (RepositoryService) container
@@ -254,7 +254,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
     workspaceEntry.setContainer(containerEntry);
 
     repositoryEntry.addWorkspace(workspaceEntry);
-    WorkspaceEntry secondWs = TestWorkspaceManagement.getNewWs(null, false, dsName);
+    WorkspaceEntry secondWs = TestWorkspaceManagement.getNewWs(null, false, dsName,null);
     repositoryEntry.addWorkspace(secondWs);
 
     RepositoryService service = (RepositoryService) container
@@ -296,7 +296,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
     workspaceEntry.setContainer(containerEntry);
 
     repositoryEntry.addWorkspace(workspaceEntry);
-    WorkspaceEntry secondWs = TestWorkspaceManagement.getNewWs(null, false, dsName);
+    WorkspaceEntry secondWs = TestWorkspaceManagement.getNewWs(null, false, dsName,null);
     repositoryEntry.addWorkspace(secondWs);
 
     RepositoryService service = (RepositoryService) container
@@ -509,7 +509,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
     workspaceEntry.setContainer(containerEntry);
 
     repositoryEntry.addWorkspace(workspaceEntry);
-    WorkspaceEntry secondWs = TestWorkspaceManagement.getNewWs(null, false, dsName);
+    WorkspaceEntry secondWs = TestWorkspaceManagement.getNewWs(null, false, dsName,null);
     repositoryEntry.addWorkspace(secondWs);
 
     RepositoryService service = (RepositoryService) container
