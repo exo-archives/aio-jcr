@@ -36,8 +36,6 @@ public class DateValue extends BaseNonStreamValue implements Serializable, State
   /**
    * This should probably actually be a reference to the ISO8601 utility class.
    */
-  // private static final DateFormat DATE_FORMAT = new SimpleDateFormat(
-  // "yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
   /**
    * Creates an instance for the given <code>Calendar</code> <code>value</code>.
    */
@@ -68,15 +66,6 @@ public class DateValue extends BaseNonStreamValue implements Serializable, State
    *           <code>Calendar</code> instance.
    */
   protected static Calendar toCalendar(String value) throws ValueFormatException {
-    // synchronized (DATE_FORMAT) {
-    // try {
-    // Calendar time = Calendar.getInstance();
-    // time.setTime(DATE_FORMAT.parse(value));
-    // return time;
-    // } catch (ParseException pe) {
-    // throw new ValueFormatException(pe.getMessage());
-    // }
-    // }
     Calendar time = ISO8601.parse(value);
     if (null == time) {
       throw new ValueFormatException();

@@ -51,10 +51,8 @@ public class ClientLock extends ClientObject implements Lock {
     try {
       return getNode(this.node.getSession(), remote.getNode());
     } catch (RemoteException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (RepositoryException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     return null;

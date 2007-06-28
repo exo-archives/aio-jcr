@@ -52,7 +52,6 @@ public class ClientItem extends ClientObject implements Item {
   // For compability with TCK Lock test
   @Override
   public boolean equals(Object obj) {
-    // TODO Auto-generated method stub
     if (super.equals(obj)) {
       return true;
     } else if (obj instanceof Item) {
@@ -60,8 +59,7 @@ public class ClientItem extends ClientObject implements Item {
       try {
         return isSame(anItem);
       } catch (RepositoryException e) {
-        // TODO Auto-generated catch block
-        // e.printStackTrace();
+
       }
     }
     return false;

@@ -250,7 +250,6 @@ public class ClientProperty extends ClientItem implements Property {
    * the referenced node. {@inheritDoc}
    */
   public Node getNode() throws RepositoryException {
-    // return getSession().getNodeByUUID(getString());
     try {
       String uuid = ((ExtendedValue) getValue()).getReference();
       return getSession().getNodeByUUID(uuid);

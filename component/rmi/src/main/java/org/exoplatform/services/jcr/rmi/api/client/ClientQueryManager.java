@@ -59,7 +59,6 @@ public class ClientQueryManager extends ClientObject implements QueryManager {
   /** {@inheritDoc} */
   public Query getQuery(Node node) throws RepositoryException {
     try {
-      // TODO fix this remote node dereferencing hack
       RemoteQuery query = remote.getQuery(node.getPath());
       return getFactory().getQuery(session, query);
     } catch (RemoteException ex) {

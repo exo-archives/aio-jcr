@@ -486,22 +486,6 @@ public class ServerNode extends ServerItem implements RemoteNode {
   /** {@inheritDoc} */
   public RemoteLock getLock() throws RepositoryException, RemoteException {
     try {
-      /*
-       * System.out.print("\n========getLock==========\n");
-       * System.out.println("node.getName=" + node.getName());
-       * System.out.println("node.getName=" + node.getName()); Lock lk =
-       * node.getLock(); System.out.println("lk.toString()=" + lk.toString());
-       * System.out.println("lk.getLockToken()=" + lk.getLockToken());
-       * System.out.println("lk.getLockOwner()=" + lk.getLockOwner());
-       * System.out.println("lk.getNode().getPath()=" + lk.getNode().getPath());
-       * RemoteLock rlock = getFactory().getRemoteLock(lk);
-       * System.out.println("rlock.toString()=" + rlock.toString());
-       * System.out.println("rlock.getLockToken()=" + rlock.getLockToken());
-       * System.out.println("rlock.getLockOwner()=" + rlock.getLockOwner());
-       * //System.out.println("rlock.getNode().getPath()=" +
-       * rlock.getNode().getPath());
-       * System.out.print("\n---------getLock----------\n"); return rlock;
-       */
       return getFactory().getRemoteLock(node.getLock());
     } catch (RepositoryException ex) {
       throw getRepositoryException(ex);

@@ -273,17 +273,6 @@ public class ServerSession extends ServerObject implements RemoteSession {
     }
   }
 
-  // public JCRName getJCRName(String path) {
-  //    
-  // // if (session instanceof SessionImpl){
-  // // ((SessionImpl)session).getJCRName(path)
-  // // }
-  // return null;
-  // TODO Auto-generated method stub
-
-  // return this.locationFactory.;
-
-  // }
 
   public String[] getAllNamespacePrefixes() throws RepositoryException, RemoteException {
     if (session instanceof SessionImpl) {
