@@ -20,7 +20,7 @@ import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.auth.AuthenticationService;
 import org.exoplatform.services.organization.auth.Identity;
-
+import org.exoplatform.services.jcr.rmi.api.client.ClientRepositoryFactory;
 /**
  * Created by The eXo Platform SARL .
  *
@@ -40,10 +40,14 @@ public class Helper {
     }
 
     if (repository == null) {
-      /*
-       * if (useRmi) { RepositoryFactory factory = new RepositoryFactory();
-       * repository = factory.getRepository(repoName); } else {
-       */
+      System.out.println("use rmi="+useRmi+" reponame="+repoName);
+     /*
+	 if (useRmi) { 
+		 ClientRepositoryFactory factory = new ClientRepositoryFactory();
+        repository = factory.getRepository(repoName); 
+		
+	} else {
+	  */    
       InitialContext ctx = new InitialContext();
       try {
         Object obj = ctx.lookup(repoName);
@@ -63,11 +67,14 @@ public class Helper {
 //        e.printStackTrace();
         repository = (Repository) ctx.lookup("java:comp/env/jcr/" + repoName);
       }
-    }
+    
+  }
     StandaloneContainer container_ = StandaloneContainer.getInstance();
     RepositoryService repositoryService = (RepositoryService) container_
     .getComponentInstanceOfType(RepositoryService .class);
+ if (!useRmi) { 
     repositoryService.setCurrentRepositoryName(repoName);
+ }
     httpRequest.getSession().setAttribute("repo", repository);
     // System.out.println(" -- repository: " + repository);
     return repository;
@@ -98,34 +105,6 @@ public class Helper {
         authenticationService.setCurrentIdentity(identity);
       }
     }
-    /*OrganizationService orgService = (OrganizationService) container_
-        .getComponentInstanceOfType(OrganizationService.class);
-    
-    //System.out.println("OrganizationService: " + orgService);
-    UserProfileHandler upHandler = orgService.getUserProfileHandler();
-    //System.out.println("UserProfileHandler: " + upHandler);
-    
-    UserProfile userProfile = upHandler.findUserProfileByName(request_.getRemoteUser());
-    
-    if (userProfile == null) {
-      userProfile = upHandler.createUserProfileInstance();
-      System.out.println("userProfile is null, create one new");
-    }
-
-    System.out.println("userProfile: " + userProfile + ", remote: " + request_.getRemoteUser());*/
-
-    /*container_.removeSessionContainer(session.getId());
-    SessionContainer scontainer_ = container_.createSessionContainer(session.getId());
-    scontainer_.setClientInfo(new HttpClientInfo(request_));
-    scontainer_.setUniqueId(session.getId());
-    OrganizationService orgService = (OrganizationService) container_
-        .getComponentInstanceOfType(OrganizationService.class);
-    UserProfile userProfile = orgService.getUserProfileHandler().findUserProfileByName(
-        scontainer_.getOwner());
-    if (userProfile == null) {
-      userProfile = orgService.getUserProfileHandler().createUserProfileInstance();
-    }
-    scontainer_.registerComponentInstance(UserProfile.class, userProfile);*/
   }
 
   public static void tuneRequest(HttpServletRequest request_) {
