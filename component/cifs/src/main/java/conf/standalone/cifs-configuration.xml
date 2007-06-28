@@ -15,25 +15,25 @@
       <properties-param>
         <name>properties</name>
         <description>Log4J properties</description>
-        <property name="log4j.rootLogger" value="DEBUG, stdout, file"/>
+        <property name="log4j.rootLogger" value="INFO, stdout, file"/>
 
         <property name="log4j.appender.stdout" value="org.apache.log4j.ConsoleAppender"/>
-        <property name="log4j.appender.stdout.threshold" value="DEBUG"/>
+        <property name="log4j.appender.stdout.threshold" value="INFO"/>
 
         <property name="log4j.appender.stdout.layout" value="org.apache.log4j.PatternLayout"/>
         <property name="log4j.appender.stdout.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
 
         <property name="log4j.appender.file" value="org.apache.log4j.FileAppender"/>
-        <property name="log4j.appender.file.File" value="target/jcr.log"/>
+        <property name="log4j.appender.file.File" value="jcr.log"/>
 
         <property name="log4j.appender.file.layout" value="org.apache.log4j.PatternLayout"/>
         <property name="log4j.appender.file.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
 
       </properties-param>
-     
+
     </init-params>
   </component>
-    
+
     <component>
       <key>org.exoplatform.services.jcr.config.RepositoryServiceConfiguration</key>
       <type>org.exoplatform.services.jcr.impl.config.RepositoryServiceConfigurationImpl</type>
@@ -49,7 +49,7 @@
   <component>
     <type>org.exoplatform.services.organization.impl.mock.DummyOrganizationService</type>
   </component>
-	
+
   <external-component-plugins>
     <target-component>org.exoplatform.services.naming.InitialContextInitializer</target-component>
       <component-plugin>
@@ -133,8 +133,8 @@
           </properties-param>
         </init-params>
      </component-plugin>
-	 </external-component-plugins> 
-	
+	 </external-component-plugins>
+
   <remove-configuration>org.exoplatform.services.scheduler.JobSchedulerService</remove-configuration>
   <remove-configuration>org.exoplatform.services.transaction.ExoTransactionService</remove-configuration>
 </configuration>
