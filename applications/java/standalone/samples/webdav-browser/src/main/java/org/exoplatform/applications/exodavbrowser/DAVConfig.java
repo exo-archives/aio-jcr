@@ -26,7 +26,7 @@ public class DAVConfig{
  public Vector ReadConfig(String token, boolean multiline ){
    
    Vector info = new Vector();
-   info.add("http://localhost:8080/jcr-webdav/repository");
+   info.add("http://127.0.0.1:8080/webdav/repository");
    String userPath = System.getProperty( "user.home" );
    if (userPath == null)
        userPath = "";
