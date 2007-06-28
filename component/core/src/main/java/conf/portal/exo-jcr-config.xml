@@ -31,7 +31,8 @@
                   <filter property-type="Binary"/>
                 </filters>
               </value-storage>
-            </value-storages>                                     </container>
+            </value-storages>                                     
+         </container>
          <cache enabled="true">
           <properties>
             <property name="maxSize" value="5000"/>

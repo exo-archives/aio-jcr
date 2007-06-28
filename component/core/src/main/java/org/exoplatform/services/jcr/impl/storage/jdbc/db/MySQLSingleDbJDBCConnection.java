@@ -22,9 +22,9 @@ import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: MySQLMultiDbJDBCConnection.java 13869 2007-03-28 13:50:50Z peterit $
  */
-public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
+public class MySQLSingleDbJDBCConnection extends SingleDbJDBCConnection {
 
-  public MySQLMultiDbJDBCConnection(Connection dbConnection,
+  public MySQLSingleDbJDBCConnection(Connection dbConnection,
       String containerName, ValueStoragePluginProvider valueStorageProvider,
       int maxBufferSize, File swapDirectory, FileCleaner swapCleaner) throws SQLException {
   
@@ -36,7 +36,7 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
   protected void addNodeRecord(NodeData data) throws SQLException {
     // check if parent exists
     if (data.getParentIdentifier() != null) {
-      ResultSet item = findItemByIdentifier(data.getParentIdentifier());
+      ResultSet item = findItemByIdentifier(getIdentifier(data.getParentIdentifier()));
       try {
         if(!item.next())
           throw new SQLException("Parent is not found. Behaviour of " + JCR_FK_ITEM_PARENT);
@@ -51,7 +51,7 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
   protected void addPropertyRecord(PropertyData data) throws SQLException {
     // check if parent exists
     if (data.getParentIdentifier() != null) {
-      ResultSet item = findItemByIdentifier(data.getParentIdentifier());
+      ResultSet item = findItemByIdentifier(getIdentifier(data.getParentIdentifier()));
       try {
         if(!item.next())
           throw new SQLException("Parent is not found. Behaviour of " + JCR_FK_ITEM_PARENT);

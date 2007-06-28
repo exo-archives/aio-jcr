@@ -65,7 +65,7 @@ public class MySQLConnectionFactory extends GenericConnectionFactory {
             swapCleaner);
       }
       
-      return new SingleDbJDBCConnection(
+      return new MySQLSingleDbJDBCConnection(
           getJdbcConnection(), 
           containerName, 
           valueStorageProvider, 

@@ -170,7 +170,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     else
       insertNode.clearParameters();
     
-   insertNode.setString(1, data.getIdentifier());
+    insertNode.setString(1, data.getIdentifier());
     insertNode.setString(2, data.getParentIdentifier() == null ? Constants.ROOT_PARENT_UUID : data.getParentIdentifier()); // if root then parent identifier equals empty string 
     insertNode.setString(3, data.getQPath().getName().getAsString());
     insertNode.setInt(4, data.getPersistedVersion());
