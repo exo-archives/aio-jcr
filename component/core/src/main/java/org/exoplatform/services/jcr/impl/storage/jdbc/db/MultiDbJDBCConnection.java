@@ -354,7 +354,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     
     if (stream == null) {
       // [PN] store vd reference to external storage etc.
-      insertValue.setNull(1, Types.BLOB);
+      insertValue.setNull(1, Types.BINARY);
       insertValue.setString(4, storageDesc);
     } else {
       insertValue.setBinaryStream(1, stream, streamLength);
