@@ -21,6 +21,12 @@
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.core</artifactId>
       <version>${org.exoplatform.jcr.version}</version>
+      <exclusions>
+	              <exclusion>
+	                  <groupId>com.sun.xml.parsers</groupId>
+	                  <artifactId>jaxp-ri</artifactId>
+	              </exclusion>
+        </exclusions>
       <scope>runtime</scope>
     </dependency>
 
