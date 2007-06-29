@@ -59,7 +59,9 @@ public class RESTRegistryService implements ResourceContainer {
 
   
   @HTTPMethod("GET")
-  public Response getRegistry(@URIParam("repository") String repository) {
+  public Response getRegistry(@URIParam("repository") String repository) 
+   throws RepositoryException, RepositoryConfigurationException,
+   ParserConfigurationException {
 
     String furi = dispatcher.getRuntimeContext().getAbsLocation();
     
@@ -85,10 +87,10 @@ public class RESTRegistryService implements ResourceContainer {
       }
       entry.appendChild(root);
       sessionProvider.close();
-      return Response.Builder.ok(entry).type("text/xml").transformer(new XMLEntityTransformer()).build();
+      return Response.Builder.ok(entry, "text/xml").transformer(new XMLEntityTransformer()).build();
     }
     sessionProvider.close();
-    return Response.Builder.notFound().entity("NOT_FOUND").type("text/plain").transformer(new StringEntityTransformer()).build();
+    return Response.Builder.notFound().entity("NOT_FOUND", "text/plain").transformer(new StringEntityTransformer()).build();
   }
 
   
@@ -97,7 +99,8 @@ public class RESTRegistryService implements ResourceContainer {
   public Response getEntry(
       @URIParam("repository") String repository, 
       @URIParam("group") String groupName,
-      @URIParam("entry") String entryName) {
+      @URIParam("entry") String entryName) 
+  throws RepositoryException, RepositoryConfigurationException {
 
     regService.getRepositoryService().setCurrentRepositoryName(repository);
     SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null);
@@ -105,10 +108,10 @@ public class RESTRegistryService implements ResourceContainer {
     try {
       Document entry = regService.getEntry(sessionProvider, groupName, entryName).getDocument();
       response = 
-        Response.Builder.ok(entry).type("text/xml").transformer(new XMLEntityTransformer()).build();
+        Response.Builder.ok(entry, "text/xml").transformer(new XMLEntityTransformer()).build();
     } catch (ItemNotFoundException e) {
       response = 
-        Response.Builder.notFound().entity("NOT_FOUND").type("text/plain").transformer(new StringEntityTransformer()).build();
+        Response.Builder.notFound().entity("NOT_FOUND", "text/plain").transformer(new StringEntityTransformer()).build();
     } finally {
       sessionProvider.close();
     }
@@ -131,10 +134,10 @@ public class RESTRegistryService implements ResourceContainer {
       String locname = entry.getName();
       String location = dispatcher.getRuntimeContext().createAbsLocation(locname);
       response =
-        Response.Builder.created(location, location).type("text/plain").transformer(new StringEntityTransformer()).build();
+        Response.Builder.created(location, location).mediaType("text/plain").transformer(new StringEntityTransformer()).build();
   	} catch (RepositoryException re) {
       response = 
-        Response.Builder.badRequest().entity("BAD_REQUEST").type("text/plain").transformer(new StringEntityTransformer()).build();
+        Response.Builder.badRequest().entity("BAD_REQUEST","text/plain").transformer(new StringEntityTransformer()).build();
   	} finally {
       sessionProvider.close();
   	}
@@ -148,7 +151,8 @@ public class RESTRegistryService implements ResourceContainer {
   @EntityTransformerClass("org.exoplatform.services.jcr.ext.registry.RegistryEntryTransformer")
   public Response recreateEntry(RegistryEntry entry,
       @URIParam("repository") String repository,
-      @URIParam("group") String groupName) {
+      @URIParam("group") String groupName) 
+  throws RepositoryException, RepositoryConfigurationException {
     
     regService.getRepositoryService().setCurrentRepositoryName(repository);
     SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null); 
@@ -158,11 +162,11 @@ public class RESTRegistryService implements ResourceContainer {
       String locname = entry.getName();
       String location = dispatcher.getRuntimeContext().createAbsLocation(locname);
       response =
-        Response.Builder.created(location, location).type("text/plain").transformer(new StringEntityTransformer()).build();
+        Response.Builder.created(location, location).mediaType("text/plain").transformer(new StringEntityTransformer()).build();
     }
     catch (RepositoryException re) {
       response = 
-        Response.Builder.badRequest().entity("BAD_REQUEST").type("text/plain").transformer(new StringEntityTransformer()).build();
+        Response.Builder.badRequest().entity("BAD_REQUEST", "text/plain").transformer(new StringEntityTransformer()).build();
     } finally {
       sessionProvider.close();
     }
@@ -175,7 +179,8 @@ public class RESTRegistryService implements ResourceContainer {
   public Response removeEntry(
       @URIParam("repository") String repository,
       @URIParam("group") String groupName,
-      @URIParam("entry") String entryName) {
+      @URIParam("entry") String entryName) 
+  throws RepositoryException, RepositoryConfigurationException {
 
     regService.getRepositoryService().setCurrentRepositoryName(repository);
     SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null); 
@@ -185,7 +190,7 @@ public class RESTRegistryService implements ResourceContainer {
       response = Response.Builder.noContent().build();
     } catch(ItemNotFoundException e) {
       response = 
-        Response.Builder.notFound().entity("NOT_FOUND").type("text/plain").transformer(new StringEntityTransformer()).build();
+        Response.Builder.notFound().entity("NOT_FOUND", "text/plain").transformer(new StringEntityTransformer()).build();
     } finally {
       sessionProvider.close();
     }

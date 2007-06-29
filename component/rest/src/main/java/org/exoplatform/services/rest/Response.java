@@ -202,6 +202,13 @@ public class Response {
       entity = e;
       return this;
     }
+   
+   public Builder entity(Object e, String mediaType) {
+     entity = e;
+     this.responseHeaders.putSingle("Content-Type", mediaType);
+     return this;
+   }
+
 
 //    public Builder metadata(EntityMetadata md) {
 //      this.metadata = md;
