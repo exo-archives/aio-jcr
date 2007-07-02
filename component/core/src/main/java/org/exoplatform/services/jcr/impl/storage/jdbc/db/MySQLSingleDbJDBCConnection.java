@@ -36,7 +36,7 @@ public class MySQLSingleDbJDBCConnection extends SingleDbJDBCConnection {
   protected void addNodeRecord(NodeData data) throws SQLException {
     // check if parent exists
     if (data.getParentIdentifier() != null) {
-      ResultSet item = findItemByIdentifier(getIdentifier(data.getParentIdentifier()));
+      ResultSet item = findItemByIdentifier(getInternalId(data.getParentIdentifier()));
       try {
         if(!item.next())
           throw new SQLException("Parent is not found. Behaviour of " + JCR_FK_ITEM_PARENT);
@@ -51,7 +51,7 @@ public class MySQLSingleDbJDBCConnection extends SingleDbJDBCConnection {
   protected void addPropertyRecord(PropertyData data) throws SQLException {
     // check if parent exists
     if (data.getParentIdentifier() != null) {
-      ResultSet item = findItemByIdentifier(getIdentifier(data.getParentIdentifier()));
+      ResultSet item = findItemByIdentifier(getInternalId(data.getParentIdentifier()));
       try {
         if(!item.next())
           throw new SQLException("Parent is not found. Behaviour of " + JCR_FK_ITEM_PARENT);
