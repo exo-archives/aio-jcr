@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.HashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -22,12 +23,12 @@ import org.exoplatform.services.rest.ResourceDispatcher;
 import org.exoplatform.services.rest.Response;
 
 public class RestServlet extends HttpServlet implements Connector {
-	
+  
   private ExoContainer container;
   private ResourceDispatcher resDispatcher;
   private ResourceBinder resBinder;
   private static Log logger = ExoLogger.getLogger("RestServlet");
-	
+  
   public void init(){
     try {
       container = ExoContainerContext.getCurrentContainer();
@@ -49,7 +50,7 @@ public class RestServlet extends HttpServlet implements Connector {
     logger.info("RESOURCE_BINDER:     " + resBinder);
     logger.info("RESOURCE_DISPATCHER: " + resDispatcher);
   }
-	
+  
   public void service(HttpServletRequest httpRequest, HttpServletResponse httpResponse)
     throws IOException, ServletException {
     
@@ -66,42 +67,22 @@ public class RestServlet extends HttpServlet implements Connector {
       logger.error("!!!!! serve method error");
       e.printStackTrace();
       httpResponse.sendError(500, "This request cann't be serve by service.\n" +
-      		"Check request parameters and try again.");
+          "Check request parameters and try again.");
     }
   }
   
   
   private void tuneResponse(HttpServletResponse httpResponse,
-      /*EntityMetadata metadata,*/ MultivaluedMetadata responseHeaders) {
-    
-//    if(metadata != null) {
-//      
-//      if(metadata.getMediaType() != null)
-//        httpResponse.setContentType(metadata.getMediaType());
-//
-//      if(metadata.getLength() != -1)
-//        httpResponse.setContentLength(metadata.getLength());
-//
-//      if(metadata.getLastModified() != null)
-//        httpResponse.setHeader("Last-Modified", metadata.getLastModified());
-//
-//      if(metadata.getContentLocation() != null)
-//        httpResponse.setHeader("Content-Location", metadata.getContentLocation());
-//
-//      if(metadata.getEncodings() != null)
-//        httpResponse.setHeader("Content-Encoding", metadata.getEncodings());
-//
-//      if(metadata.getLanguages() != null)
-//        httpResponse.setHeader("Content-Language", metadata.getEncodings());
-//    }
+      MultivaluedMetadata responseHeaders) {
     
     if(responseHeaders != null) {
-      
-      Set<String> keys = responseHeaders.keySet();
+
+      HashMap<String, String> headers =  responseHeaders.getAll();
+      Set<String> keys = headers.keySet();
       Iterator<String> ikeys = keys.iterator();
       while (ikeys.hasNext()) {
         String key = ikeys.next();
-        httpResponse.setHeader(key, responseHeaders.getFirst(key));
+        httpResponse.setHeader(key, headers.get(key));
       }
     }
   }

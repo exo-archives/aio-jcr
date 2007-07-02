@@ -73,39 +73,38 @@ public class Response {
   public static class Builder {
     
     int status = -1;
-  	Object entity;
-//  	EntityMetadata metadata = new EntityMetadata();
-  	MultivaluedMetadata responseHeaders = new MultivaluedMetadata();
-  	EntityTransformer transformer;
-  	
-  	protected Builder() {}
-  	
-  	protected static synchronized Builder newInstance() {
-  		return new Builder();
-  	}
-  	
-    public Response build() {
-  		return new Response (status, responseHeaders, entity, transformer);
-  	}
+    Object entity;
+    MultivaluedMetadata responseHeaders = new MultivaluedMetadata();
+    EntityTransformer transformer;
     
-  	public static Builder withStatus(int st) {
-  	  Builder b = new Builder();
-  	  b.status(st);
-  	  return b;
-  	}
-  	
-  	public static Builder representation(Object e) {
-  	  Builder b = new Builder ();
-  	  b.status(RESTStatus.OK);
-  	  b.entity(e);
-  	  return b;
-  	}
-  	
-  	public static Builder representation(Object e, String type) {
+    protected Builder() {}
+    
+    protected static synchronized Builder newInstance() {
+      return new Builder();
+    }
+    
+    public Response build() {
+      return new Response (status, responseHeaders, entity, transformer);
+    }
+    
+    public static Builder withStatus(int st) {
+      Builder b = new Builder();
+      b.status(st);
+      return b;
+    }
+    
+    public static Builder representation(Object e) {
+      Builder b = new Builder ();
+      b.status(RESTStatus.OK);
+      b.entity(e);
+      return b;
+    }
+    
+    public static Builder representation(Object e, String type) {
       Builder b = representation(e);
       b.mediaType(type);
-  		return b;
-  	}
+      return b;
+    }
 
     public static Builder ok() {
       Builder b = newInstance();
@@ -121,7 +120,6 @@ public class Response {
     
     public static Builder ok(Object e, String mediaType) {
       Builder b = ok(e).mediaType(mediaType);
-      //b.metadata(md);
       return b;
     }
     
@@ -209,26 +207,17 @@ public class Response {
      return this;
    }
 
-
-//    public Builder metadata(EntityMetadata md) {
-//      this.metadata = md;
-//      return this;
-//    }
-    
     public Builder mediaType(String mediaType) {
       this.responseHeaders.putSingle("Content-Type", mediaType);
-//      this.metadata.setMediaType(type);
       return this;
     }
     
     public Builder languages (List<String> languages) {
       this.responseHeaders.put("Content-Language", languages);
-//      this.metadata.setLanguages(languages);
       return this;
     }
     
     public Builder encodings (List<String> encodings) {
-//      this.metadata.setEncodings(encodings);
       this.responseHeaders.put("Content-Encoding", encodings);
       return this;
     }
@@ -241,7 +230,6 @@ public class Response {
     public Builder lastModified (Date lastModified) {
       this.responseHeaders.putSingle("Last-Modified", 
           DateFormat.getInstance().format(lastModified));
-//      this.metadata.setLastModified(lastModified);
       return this;
     }
     
