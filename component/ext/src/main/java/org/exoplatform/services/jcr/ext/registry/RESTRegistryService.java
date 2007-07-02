@@ -152,7 +152,7 @@ public class RESTRegistryService implements ResourceContainer {
   public Response recreateEntry(RegistryEntry entry,
       @URIParam("repository") String repository,
       @URIParam("group") String groupName) 
-  throws RepositoryException, RepositoryConfigurationException {
+  throws RepositoryConfigurationException {
     
     regService.getRepositoryService().setCurrentRepositoryName(repository);
     SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null); 
