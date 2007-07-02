@@ -1,30 +1,31 @@
 <assembly>
   <id>${org.exoplatform.jcr.version}</id>
   <formats>
-    <format>dir</format>
-    <!--<format>jar</format>-->
+      <format>dir</format>
+      <!--<format>jar</format>-->
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <fileSet>
-      <directory>target/classes</directory>
+      <directory>/</directory>
       <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>bin/*</include>
+      </includes>
     </fileSet>
-  </fileSets>
+    </fileSets>
 
   <dependencySets>
     <dependencySet>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory>/lib</outputDirectory>
       <unpack>false</unpack>
       <scope>runtime</scope>
       <includes>
         <include>jcr:jcr</include>
         <include>org.exoplatform.jcr:exo.jcr.component.core</include>
         <include>org.exoplatform.jcr:exo.jcr.component.rmi</include>
-        <include>
-          org.exoplatform.jcr:exo.jcr.applications.rmi-client
-        </include>
-      </includes>
+        <include>org.exoplatform.jcr:exo.jcr.applications.rmi-client</include>
+		</includes>
     </dependencySet>
   </dependencySets>
 </assembly>

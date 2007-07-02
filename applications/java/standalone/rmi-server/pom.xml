@@ -101,55 +101,53 @@
       <version>1.8.0.7</version>
       <scope>compile</scope>
     </dependency>
-
   </dependencies>
-
   <build>
     <plugins>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.1</version>
-        <executions>
-          <execution>
-            <phase>install</phase>
-            <goals>
-              <goal>attached</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <descriptors>
-            <descriptor>rmi-server-descriptor.xml</descriptor>
-            <descriptor>rmi-server-codebase-descriptor.xml</descriptor>
-          </descriptors>
-          <finalName>rmi-server</finalName>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <configuration>
-          <tasks>
-            <java dir="${basedir}"
-              className="org.exoplatform.connectors.jcr.RMIStarter"
-              fork="true" failonerror="true" maxmemory="128m">
-              <jvmarg
-                value="-Djava.security.auth.login.config=res/jaas.conf" />
-              <jvmarg
-                value="-Djava.rmi.server.codebase=file:/${basedir}/target/rmi-server-codebase.dir/" />
-              <jvmarg value="-Djava.security.policy=res/java.policy" />
-              <arg value="bind" />
-              <arg value="res/configuration.xml" />
-              <classpath>
-                <pathelement path="${classpath}" />
-                <fileset dir="${basedir}/target">
-                  <include name="**/rmi-server-1.6.dir/*.jar" />
-                </fileset>
-              </classpath>
-            </java>
-          </tasks>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
+            <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <configuration>
+                      <archive>
+                        <manifest>
+                          <addClasspath>true</addClasspath>
+                          <!--<classpathPrefix>lib</classpathPrefix>-->
+                          <mainClass>org/exoplatform/connectors/jcr/RMIStarter</mainClass>
+                        </manifest>
+                      </archive>
+                    </configuration>
+                  </plugin>
+			 <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <!--<source>1.5</source>
+                        <target>1.5</target>-->
+                    <excludes>
+                        <exclude>**/Jackrabbit*.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.1</version>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <descriptors>
+                      <descriptor>
+                        assembly-descriptor.xml
+                      </descriptor>
+                    </descriptors>
+                    <finalName>rmi-server</finalName>
+               </configuration>
+            </plugin>
+        </plugins>
+ </build>
 </project>
