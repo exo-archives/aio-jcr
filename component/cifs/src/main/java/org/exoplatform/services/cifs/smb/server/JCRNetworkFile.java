@@ -30,13 +30,13 @@ public class JCRNetworkFile extends NetworkFile {
       .getLogger("org.exoplatform.services.cifs.smb.server.JCRNetworkFile");
 
   private static int id = 0;
+
   private Node node;
 
   private FileChannel wrchannel;
 
-  private boolean truncfirst=false;
+  private boolean truncfirst = false;
 
-  
   private File tmpfile;
 
   public JCRNetworkFile(Node n) {
@@ -46,11 +46,6 @@ public class JCRNetworkFile extends NetworkFile {
 
   public JCRNetworkFile() {
     super();
-    try {
-      // this.createTemporaryFileChannel();
-    } catch (Exception e) {
-
-    }
   }
 
   public void setNodeRef(Node n) {
@@ -63,10 +58,10 @@ public class JCRNetworkFile extends NetworkFile {
 
   private void createTemporaryFileChannel() throws Exception {
     id++;
-
     String suf = String.valueOf(getFileId());
-    tmpfile = new File("d:\\tf_" + suf +id+ ".adt");
-    // this.tmpfile = f.createTempFile(t, f)
+    tmpfile = File.createTempFile("tf_" + suf + id, ".tmp");
+    tmpfile.deleteOnExit();
+
     wrchannel = new FileOutputStream(tmpfile, true).getChannel();
   }
 
@@ -124,16 +119,15 @@ public class JCRNetworkFile extends NetworkFile {
 
   public void truncFile(long len) throws IOException {
     try {
-      if (wrchannel == null){
+      if (wrchannel == null) {
         createTemporaryFileChannel();
         truncfirst = true;
       }
 
-      
       wrchannel.truncate(len);
       m_fileSize = len;
-      
-      if (truncfirst==false){
+
+      if (truncfirst == false) {
         FileInputStream fis = new FileInputStream(tmpfile);
         node.getNode("jcr:content").getProperty("jcr:data").setValue(fis);
         fis.close();
@@ -143,9 +137,27 @@ public class JCRNetworkFile extends NetworkFile {
         logger.debug("file data cmpletly writed into jcr node TEMPORARY");
         return;
       }
-      logger.debug("file truncated for "+len+" bytes TEMPORARY");
+      logger.debug("file truncated for " + len + " bytes TEMPORARY");
     } catch (Exception e) {
       throw new IOException(e.getMessage());
+    }
+  }
+
+  /**
+   * This metod is called whan NetworkFile is destroys
+   */
+  public void remove() {
+    try {
+      if (wrchannel != null)
+        wrchannel.close();
+      if (tmpfile != null)
+        tmpfile.delete();
+
+      // here is the reason save changes in node
+      // node.save();
+    } catch (IOException e) {
+      // for debug purposes TEMPORARY
+      e.printStackTrace();
     }
   }
 }

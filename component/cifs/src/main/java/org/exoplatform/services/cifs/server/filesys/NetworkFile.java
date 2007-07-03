@@ -472,4 +472,8 @@ public abstract class NetworkFile {
 
     return str.toString();
   }
+  
+  public void remove(){
+    
+  }
 }

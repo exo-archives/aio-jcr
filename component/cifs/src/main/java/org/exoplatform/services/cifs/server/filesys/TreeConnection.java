@@ -269,7 +269,10 @@ public class TreeConnection {
 
     // Clear the file list
 
-    for (int idx = 0; idx < m_files.length; m_files[idx++] = null)
+    for (int idx = 0; idx < m_files.length;idx++){
+      //m_files
+      m_files[idx] = null;
+    }
       ;
     m_fileCount = 0;
   }
