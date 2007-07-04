@@ -31,12 +31,6 @@ public class ResourceIdentifier {
     this("", relURI);
   }
   
-//  public ResourceIdentifier(String uriString) {
-//    String str = (uriString.endsWith("/")) ? uriString : (uriString+"/");
-//    this.uri = URI.create(str);
-//  }
-
-  
   public URI getURI() {
     return uri;
   }
@@ -56,9 +50,5 @@ public class ResourceIdentifier {
     return parameters;
   }
 
-  
-//  public void relativizeAgainst(String shorterURI) {
-//    this.uri = URI.create(shorterURI).relativize(uri);
-//  }
 
 }

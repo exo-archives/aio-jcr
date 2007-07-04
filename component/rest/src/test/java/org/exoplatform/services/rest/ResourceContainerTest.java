@@ -132,8 +132,8 @@ public class ResourceContainerTest extends TestCase {
     assertNotNull(binder);
 
     List <ResourceDescriptor> list = binder.getAllDescriptors();
-    ResourceContainer2 dw = new ResourceContainer2();
-    binder.bind(dw);
+    ResourceContainer2 resourceContainer = new ResourceContainer2();
+    binder.bind(resourceContainer);
     assertEquals(1, list.size());
 
     MultivaluedMetadata mm = new MultivaluedMetadata();
@@ -144,7 +144,7 @@ public class ResourceContainerTest extends TestCase {
     resp.writeEntity(System.out);
     request = new Request(null, new ResourceIdentifier("/level1/myID/level3/"),
         "POST", mm, null);
-    binder.unbind(dw);
+    binder.unbind(resourceContainer);
     assertEquals(0, list.size());
   }
 
@@ -157,8 +157,8 @@ public class ResourceContainerTest extends TestCase {
     assertNotNull(binder);
 
     List <ResourceDescriptor> list = binder.getAllDescriptors();
-    ResourceContainer3 dw = new ResourceContainer3();
-    binder.bind(dw);
+    ResourceContainer3 resourceContainer = new ResourceContainer3();
+    binder.bind(resourceContainer);
     assertEquals(3, list.size());
 
     MultivaluedMetadata mm = new MultivaluedMetadata();
@@ -179,7 +179,7 @@ public class ResourceContainerTest extends TestCase {
         new ResourceIdentifier("/level1/myID/level3/test"), "DELETE", mm, null);
     resp = disp.dispatch(request);
     resp.writeEntity(System.out);
-    binder.unbind(dw);
+    binder.unbind(resourceContainer);
     assertEquals(0, list.size());
   }
 
@@ -207,4 +207,24 @@ public class ResourceContainerTest extends TestCase {
     assertEquals(0, list.size());
   }
 
+  public void testJAXBTransformetion() throws Exception {
+    ResourceDispatcher disp = (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
+    assertNotNull(disp);
+    ResourceBinder binder = (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);
+    assertNotNull(binder);
+
+    List <ResourceDescriptor> list = binder.getAllDescriptors();
+    ResourceContainerJAXB resourceContainer = new ResourceContainerJAXB();
+    binder.bind(resourceContainer);
+    assertEquals(1, list.size());
+
+    MultivaluedMetadata mm = new MultivaluedMetadata();
+    Request request = new Request(null, new ResourceIdentifier("/test/jaxb"), "GET", mm, null);
+    Response resp = disp.dispatch(request);
+    assertEquals("text/xml", resp.getEntityMetadata().getMediaType());
+//    resp.writeEntity(new FileOutputStream(new File("/tmp/output.xml")));
+    resp.writeEntity(System.out);
+    binder.unbind(resourceContainer);
+    assertEquals(0, list.size());
+  }
 }

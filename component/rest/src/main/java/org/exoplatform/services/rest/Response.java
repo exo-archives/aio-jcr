@@ -10,7 +10,8 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.exoplatform.services.rest.transformer.EntityTransformer;
+import org.exoplatform.services.rest.transformer.EntityTransformerFactory;
+
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -21,17 +22,17 @@ public class Response {
   private int status;
   private EntityMetadata metadata;
   private Object entity;
-  private EntityTransformer transformer;
+  private EntityTransformerFactory transformerFactory;
   private MultivaluedMetadata responseHeaders;
 
   protected Response(int status, 
       MultivaluedMetadata responseHeaders,
       Object entity,
-      EntityTransformer transformer) {
+      EntityTransformerFactory transformerFactory) {
     
     this.status = status;
     this.entity = entity;
-    this.transformer = transformer;
+    this.transformerFactory = transformerFactory;
     this.responseHeaders = responseHeaders;
     this.metadata = new EntityMetadata(responseHeaders);
 
@@ -54,18 +55,24 @@ public class Response {
   }
 
   public boolean isTransformerInitialized() {
-    if(transformer != null)
+    if(transformerFactory != null)
       return true;
     return false;
   }
   
-  public void setTransformer(EntityTransformer transformer) {
-    this.transformer = transformer;
+  public boolean isEntityInitialized() {
+    if(entity != null)
+      return true;
+    return false;
+  }
+
+  public void setTransformer(EntityTransformerFactory transformerFactory) {
+    this.transformerFactory = transformerFactory;
   }
   
   public void writeEntity (OutputStream outputEntityStream) throws IOException {
-    if(transformer != null)
-      transformer.writeTo(entity, outputEntityStream);
+    if(transformerFactory != null)
+      transformerFactory.newTransformer().writeTo(entity, outputEntityStream);
   }
 
   
@@ -75,7 +82,7 @@ public class Response {
     int status = -1;
     Object entity;
     MultivaluedMetadata responseHeaders = new MultivaluedMetadata();
-    EntityTransformer transformer;
+    EntityTransformerFactory transformerFactory;
     
     protected Builder() {}
     
@@ -84,7 +91,7 @@ public class Response {
     }
     
     public Response build() {
-      return new Response (status, responseHeaders, entity, transformer);
+      return new Response (status, responseHeaders, entity, transformerFactory);
     }
     
     public static Builder withStatus(int st) {
@@ -238,8 +245,8 @@ public class Response {
       return this;
     }
     
-    public Builder transformer(EntityTransformer tr) {
-      this.transformer = tr;
+    public Builder transformer(EntityTransformerFactory trf) {
+      this.transformerFactory = trf;
       return this;
     }
   }

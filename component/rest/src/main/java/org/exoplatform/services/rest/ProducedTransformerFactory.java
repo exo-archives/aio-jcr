@@ -15,12 +15,8 @@ import java.lang.annotation.Target;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-
-/**
- * This annotation defines transformer name for ResourceContainer.
- */
 @Retention(RUNTIME)
 @Target(value={TYPE,METHOD})
-public @interface EntityTransformerClass {
+public @interface ProducedTransformerFactory {
   String value();
 }

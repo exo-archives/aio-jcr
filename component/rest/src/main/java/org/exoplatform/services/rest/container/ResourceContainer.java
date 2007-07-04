@@ -5,8 +5,6 @@
 
 package org.exoplatform.services.rest.container;
 
-
-
 /**
  * Created by The eXo Platform SARL        . </br>
  * 

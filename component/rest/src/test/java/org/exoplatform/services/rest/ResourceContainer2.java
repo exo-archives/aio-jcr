@@ -12,9 +12,9 @@ import org.exoplatform.services.rest.transformer.StringEntityTransformer;
  * @version $Id: $
  */
 
-@EntityTransformerClass("org.exoplatform.services.rest.transformer.StringEntityTransformer")
+@ConsumedTransformerFactory("org.exoplatform.services.rest.StringEntityTransformerFactory")
+@ProducedTransformerFactory("org.exoplatform.services.rest.StringEntityTransformerFactory")
 public class ResourceContainer2 implements ResourceContainer {
-  
 
   @HTTPMethod("GET")
   @URITemplate("/level1/{id}/level3/")
@@ -26,7 +26,7 @@ public class ResourceContainer2 implements ResourceContainer {
     String e = ">>> this is response entity\n";
     StringEntityTransformer transformer = new StringEntityTransformer();
     Response resp =
-      Response.Builder.ok(e).mediaType("text/plain").transformer(transformer).build();
+      Response.Builder.ok(e, "text/plain").build();
 
     return resp;
   }

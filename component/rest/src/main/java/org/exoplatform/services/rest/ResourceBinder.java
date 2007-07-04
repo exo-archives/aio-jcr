@@ -118,11 +118,9 @@ public class ResourceBinder implements Startable {
         if(spattern.matches(npattern.getString()) ||
             npattern.matches(spattern.getString())) {
           // check HTTP method
-//          if(smethod.equals(nmethod)) {
             throw new InvalidResourceDescriptorException("The resource descriptor pattern '"+
                 newDesc.getURIPattern().getString() + "' can not be defined because of existed '"+
                 storedDesc.getURIPattern().getString());
-//          }
         }
       }
 
@@ -134,9 +132,9 @@ public class ResourceBinder implements Startable {
         if(paramAnno[i].length == 0) {
 
           if(!"java.io.InputStream".equals(requestedParams[i].getCanonicalName()) 
-              && method.getAnnotation(EntityTransformerClass.class) == null
+              && method.getAnnotation(ConsumedTransformerFactory.class) == null
               && newDesc.getResourceContainer().getClass().getAnnotation(
-                  EntityTransformerClass.class) == null) {
+                  ConsumedTransformerFactory.class) == null) {
 
             throw new InvalidResourceDescriptorException (
             "One not annotated object is not 'java.io.InputStream object',\n" +

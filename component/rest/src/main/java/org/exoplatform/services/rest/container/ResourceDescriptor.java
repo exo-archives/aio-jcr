@@ -25,6 +25,6 @@ public interface ResourceDescriptor {
   URIPattern getURIPattern();
   Annotation[] getMethodParameterAnnotations();
   Class<?>[] getMethodParameters();
-  String getTransformerName();
-  
+  String getConsumedTransformerFactoryName();
+  String getProducedTransformerFactoryName();
 }

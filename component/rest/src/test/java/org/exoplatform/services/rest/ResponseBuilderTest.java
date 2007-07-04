@@ -15,6 +15,7 @@ import org.exoplatform.services.rest.transformer.*;
 public class ResponseBuilderTest extends TestCase {
   
   private final static String TEST_NAME = ">>>ResponseBuilderTest: ";
+  StringEntityTransformerFactory transformerFactory = new StringEntityTransformerFactory();
   
   public void testError() {
     Response response = Response.Builder.serverError().build();
@@ -33,8 +34,7 @@ public class ResponseBuilderTest extends TestCase {
     assertEquals(RESTStatus.OK, response.getStatus());
 
     String entity = "oktest\n";
-    StringEntityTransformer transformer = new StringEntityTransformer();
-    response = Response.Builder.ok(entity).transformer(transformer).build();
+    response = Response.Builder.ok(entity).transformer(transformerFactory).build();
     assertEquals(RESTStatus.OK, response.getStatus());
     assertEquals("oktest\n", response.getEntity());
     System.out.print("\n" + TEST_NAME);
@@ -53,9 +53,8 @@ public class ResponseBuilderTest extends TestCase {
     Response response = Response.Builder.created(location).build();
     assertEquals(location, response.getResponseHeaders().getFirst("Location"));
     
-    StringEntityTransformer transformer = new StringEntityTransformer();
     response =
-      Response.Builder.created(location, location).transformer(transformer).build();
+      Response.Builder.created(location, location).transformer(transformerFactory).build();
     assertEquals(location, response.getResponseHeaders().getFirst("Location"));
     assertEquals(location, response.getEntity());
     System.out.print("\n" + TEST_NAME);
@@ -69,8 +68,9 @@ public class ResponseBuilderTest extends TestCase {
     Response response = Response.Builder.newInstance().status(st).build();
     assertEquals(st, response.getStatus());
     String entity = "customtest";
-    StringEntityTransformer transformer = new StringEntityTransformer();
-    response = Response.Builder.withStatus(st).entity(entity).mediaType("text/plain").transformer(transformer).build();
+    response = Response.Builder.withStatus(st).entity(entity, "text/plain")
+        .transformer(transformerFactory).build();
+    
     assertEquals("customtest", response.getEntity());
     assertEquals("text/plain", response.getEntityMetadata().getMediaType());
     System.out.print("\n" + TEST_NAME);

@@ -11,9 +11,11 @@ import java.util.List;
 
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.services.rest.container.InvalidResourceDescriptorException;
 import org.exoplatform.services.rest.container.ResourceDescriptor;
 import org.exoplatform.services.rest.data.MimeTypes;
 import org.exoplatform.services.rest.transformer.EntityTransformer;
+import org.exoplatform.services.rest.transformer.EntityTransformerFactory;
 
 /**
  * Created by The eXo Platform SARL .
@@ -28,6 +30,12 @@ import org.exoplatform.services.rest.transformer.EntityTransformer;
  */
 public class ResourceDispatcher implements Connector {
 
+  private static final String STREAM = "java.io.InputStream";
+  private static final String URI_PARAM = "org.exoplatform.services.rest.URIParam";
+  private static final String HEADER_PARAM = "org.exoplatform.services.rest.HeaderParam";
+  private static final String QUERY_PARAM = "org.exoplatform.services.rest.QueryParam";
+
+  
   private List<ResourceDescriptor> resourceDescriptors;
   
   private ThreadLocal <Context> contextHolder = new ThreadLocal <Context>(); 
@@ -53,8 +61,9 @@ public class ResourceDispatcher implements Connector {
     String requestedURI = request.getResourceIdentifier().getURI().getPath();
     String methodName = request.getMethodName();
     
-    String acceptedMimeTypes = (request.getHeaderParams().getFirst("accept") != null) ?
-        request.getHeaderParams().getFirst("accept") : MimeTypes.ALL;
+    String acceptedMimeTypes = (request.getHeaderParams().getAll().get("accept") != null) ?
+        request.getHeaderParams().getAll().get("accept") : MimeTypes.ALL;
+        
     MimeTypes requestedMimeTypes = new MimeTypes(acceptedMimeTypes);
 
     for (ResourceDescriptor resource : resourceDescriptors) {
@@ -78,33 +87,27 @@ public class ResourceDispatcher implements Connector {
         for (int i = 0; i < methodParametersAnnotations.length; i++) {
 
           if (methodParametersAnnotations[i] == null) {
-            if("java.io.InputStream".equals(methodParameters[i].getCanonicalName())) {
+            if(STREAM.equals(methodParameters[i].getCanonicalName())) {
               params[i] = request.getEntityStream();
             } else {
-              EntityTransformer transformer =
-                (EntityTransformer)Class.forName(resource.getTransformerName()).newInstance();
+              EntityTransformerFactory transformerFactory =
+                (EntityTransformerFactory)Class.forName(resource.getConsumedTransformerFactoryName()).newInstance();
+              EntityTransformer transformer = transformerFactory.newTransformer();
               params[i] = transformer.readFrom(request.getEntityStream());
             }
           } else {
             Annotation a = methodParametersAnnotations[i];
-
-            if ("org.exoplatform.services.rest.URIParam".equals(a.annotationType()
-                .getCanonicalName())) {
-
+            if (URI_PARAM.equals(a.annotationType().getCanonicalName())) {
               URIParam u = (URIParam) a;
               params[i] = request.getResourceIdentifier().getParameters().get(u.value());
               contextHolder.get().setURIParam(u.value(), (String)params[i]);
-            } else if ("org.exoplatform.services.rest.HeaderParam".equals(a.annotationType()
-                .getCanonicalName())) {
-
+            } else if (HEADER_PARAM.equals(a.annotationType().getCanonicalName())) {
               HeaderParam h = (HeaderParam) a;
-              params[i] = request.getHeaderParams().getFirst(h.value());
+              params[i] = request.getHeaderParams().getAll().get(h.value());
               contextHolder.get().setHeaderParam(h.value(), (String)params[i]);
-            } else if ("org.exoplatform.services.rest.QueryParam".equals(a.annotationType()
-                .getCanonicalName())) {
-
+            } else if (QUERY_PARAM.equals(a.annotationType().getCanonicalName())) {
               QueryParam q = (QueryParam) a;
-              params[i] = request.getQueryParams().getFirst(q.value());
+              params[i] = request.getQueryParams().getAll().get(q.value());
               contextHolder.get().setQueryParam(q.value(), (String)params[i]);
             }
           }
@@ -112,11 +115,8 @@ public class ResourceDispatcher implements Connector {
         
         Response resp = (Response) resource.getServer().invoke(resource.getResourceContainer(), params);
         
-        if(!resp.isTransformerInitialized()) {
-          // TODO guess transformer
-          // - from annotated factory
-          // - using Serializable
-          // - using JAXB ?
+        if(!resp.isTransformerInitialized() && resp.isEntityInitialized()) {
+          resp.setTransformer(getTransformerFactory(resource));
         }
         
         return resp; 
@@ -130,6 +130,19 @@ public class ResourceDispatcher implements Connector {
   
   public Context getRuntimeContext() {
     return contextHolder.get();
+  }
+  
+  private EntityTransformerFactory getTransformerFactory(ResourceDescriptor resource)
+      throws InvalidResourceDescriptorException {
+    
+    try {
+      return (EntityTransformerFactory) Class
+          .forName(resource.getProducedTransformerFactoryName()).newInstance();
+    } catch (Exception e) {
+      throw new InvalidResourceDescriptorException (
+          "Could not get EntityTransformerFactory from Response" +
+          " or annotation to ResourceDescriptor. Exception: " + e);
+    }
   }
 
   /**
