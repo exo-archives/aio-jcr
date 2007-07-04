@@ -107,13 +107,12 @@ public class ResourceBinder implements Startable {
    */
   private void validate(List <ResourceDescriptor> newDescriptors)
       throws InvalidResourceDescriptorException {
+    
     for(ResourceDescriptor newDesc : newDescriptors) {
       URIPattern npattern = newDesc.getURIPattern();
-      String  nmethod = newDesc.getAcceptableMethod();
  
       for(ResourceDescriptor storedDesc:resourceDescriptors) {
         URIPattern spattern = storedDesc.getURIPattern();
-        String smethod = storedDesc.getAcceptableMethod();
         // check URI pattern
         if(spattern.matches(npattern.getString()) ||
             npattern.matches(spattern.getString())) {
