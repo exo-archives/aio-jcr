@@ -2,7 +2,7 @@
  * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
-package org.exoplatform.services.jcr.ext.registry;
+package org.exoplatform.services.jcr.ext.registry.transformer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +12,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 import javax.xml.transform.TransformerException;
 
+import org.exoplatform.services.jcr.ext.registry.RegistryEntry;
 import org.exoplatform.services.rest.transformer.EntityTransformer;
 import org.exoplatform.services.rest.transformer.DummyEntityTransformer;
 

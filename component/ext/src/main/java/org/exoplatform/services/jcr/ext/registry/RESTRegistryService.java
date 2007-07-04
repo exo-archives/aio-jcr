@@ -15,16 +15,17 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.registry.Registry.RegistryNode;
-import org.exoplatform.services.rest.EntityTransformerClass;
+import org.exoplatform.services.jcr.ext.registry.transformer.StringEntityTransformerFactory;
+import org.exoplatform.services.rest.ConsumedTransformerFactory;
+import org.exoplatform.services.rest.ProducedTransformerFactory;
 import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.ResourceDispatcher;
 import org.exoplatform.services.rest.Response;
 import org.exoplatform.services.rest.URIParam;
 import org.exoplatform.services.rest.URITemplate;
+import org.exoplatform.services.rest.RESTMethod;
 import org.exoplatform.services.rest.container.ResourceContainer;
 import org.exoplatform.services.rest.data.XlinkHref;
-import org.exoplatform.services.rest.transformer.StringEntityTransformer;
-import org.exoplatform.services.rest.transformer.XMLEntityTransformer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -43,9 +44,15 @@ public class RESTRegistryService implements ResourceContainer {
   
   private ResourceDispatcher dispatcher;
 
-  protected static final String REGISTRY = "registry";
+  private static final String REGISTRY = "registry";
 
-  protected static final String EXO_REGISTRY = "exo:registry/";
+  private static final String EXO_REGISTRY = "exo:registry/";
+  
+  private static final String STRING_TRANSFORMER_FACTORY = "org.exoplatform.services.jcr.ext.registry.transformer.StringEntityTransformerFactory";
+  
+  private static final String XML_TRANSFORMER_FACTORY = "org.exoplatform.services.jcr.ext.registry.transformer.XMLEntityTransformerFactory";
+  
+  private static final String REGISTRY_ENTRY_TARNSFORMER_FACTORY = "org.exoplatform.services.jcr.ext.registry.transformer.RegistryEntryTransformerFactory"; 
   
   
   public RESTRegistryService(RegistryService regService,
@@ -58,7 +65,8 @@ public class RESTRegistryService implements ResourceContainer {
   }
 
   
-  @HTTPMethod("GET")
+  @HTTPMethod(RESTMethod.GET)
+  @ProducedTransformerFactory(XML_TRANSFORMER_FACTORY)
   public Response getRegistry(@URIParam("repository") String repository) 
    throws RepositoryException, RepositoryConfigurationException,
    ParserConfigurationException {
@@ -87,15 +95,17 @@ public class RESTRegistryService implements ResourceContainer {
       }
       entry.appendChild(root);
       sessionProvider.close();
-      return Response.Builder.ok(entry, "text/xml").transformer(new XMLEntityTransformer()).build();
+      return Response.Builder.ok(entry, "text/xml").build();
     }
     sessionProvider.close();
-    return Response.Builder.notFound().entity("NOT_FOUND", "text/plain").transformer(new StringEntityTransformer()).build();
+    return Response.Builder.notFound().entity("NOT_FOUND", "text/plain")
+        .transformer(new StringEntityTransformerFactory()).build();
   }
 
   
-  @HTTPMethod("GET")
+  @HTTPMethod(RESTMethod.GET)
   @URITemplate("/{group}/{entry}/")
+  @ProducedTransformerFactory(XML_TRANSFORMER_FACTORY)
   public Response getEntry(
       @URIParam("repository") String repository, 
       @URIParam("group") String groupName,
@@ -108,19 +118,21 @@ public class RESTRegistryService implements ResourceContainer {
     try {
       Document entry = regService.getEntry(sessionProvider, groupName, entryName).getDocument();
       response = 
-        Response.Builder.ok(entry, "text/xml").transformer(new XMLEntityTransformer()).build();
+        Response.Builder.ok(entry, "text/xml").build();
     } catch (ItemNotFoundException e) {
       response = 
-        Response.Builder.notFound().entity("NOT_FOUND", "text/plain").transformer(new StringEntityTransformer()).build();
+        Response.Builder.notFound().entity("NOT_FOUND", "text/plain")
+            .transformer(new StringEntityTransformerFactory()).build();
     } finally {
       sessionProvider.close();
     }
     return response;
   }
 
-  @HTTPMethod("POST")
+  @HTTPMethod(RESTMethod.POST)
   @URITemplate("/{group}/")
-  @EntityTransformerClass("org.exoplatform.services.jcr.ext.registry.RegistryEntryTransformer")
+  @ConsumedTransformerFactory(REGISTRY_ENTRY_TARNSFORMER_FACTORY)
+  @ProducedTransformerFactory(STRING_TRANSFORMER_FACTORY)
   public Response createEntry(RegistryEntry entry,
       @URIParam("repository") String repository,
       @URIParam("group") String groupName)
@@ -134,10 +146,10 @@ public class RESTRegistryService implements ResourceContainer {
       String locname = entry.getName();
       String location = dispatcher.getRuntimeContext().createAbsLocation(locname);
       response =
-        Response.Builder.created(location, location).mediaType("text/plain").transformer(new StringEntityTransformer()).build();
+        Response.Builder.created(location, location).mediaType("text/plain").build();
   	} catch (RepositoryException re) {
       response = 
-        Response.Builder.badRequest().entity("BAD_REQUEST","text/plain").transformer(new StringEntityTransformer()).build();
+        Response.Builder.badRequest().entity("BAD_REQUEST","text/plain").build();
   	} finally {
       sessionProvider.close();
   	}
@@ -146,9 +158,10 @@ public class RESTRegistryService implements ResourceContainer {
   }
   
 
-  @HTTPMethod("PUT")
-  @URITemplate("/{group}/")
-  @EntityTransformerClass("org.exoplatform.services.jcr.ext.registry.RegistryEntryTransformer")
+  @HTTPMethod(RESTMethod.PUT)
+  @URITemplate("/{group}/")  
+  @ConsumedTransformerFactory(REGISTRY_ENTRY_TARNSFORMER_FACTORY)
+  @ProducedTransformerFactory(STRING_TRANSFORMER_FACTORY)
   public Response recreateEntry(RegistryEntry entry,
       @URIParam("repository") String repository,
       @URIParam("group") String groupName) 
@@ -162,11 +175,11 @@ public class RESTRegistryService implements ResourceContainer {
       String locname = entry.getName();
       String location = dispatcher.getRuntimeContext().createAbsLocation(locname);
       response =
-        Response.Builder.created(location, location).mediaType("text/plain").transformer(new StringEntityTransformer()).build();
+        Response.Builder.created(location, location).mediaType("text/plain").build();
     }
     catch (RepositoryException re) {
       response = 
-        Response.Builder.badRequest().entity("BAD_REQUEST", "text/plain").transformer(new StringEntityTransformer()).build();
+        Response.Builder.badRequest().entity("BAD_REQUEST", "text/plain").build();
     } finally {
       sessionProvider.close();
     }
@@ -174,8 +187,9 @@ public class RESTRegistryService implements ResourceContainer {
   }
 
 
-  @HTTPMethod("DELETE")
+  @HTTPMethod(RESTMethod.DELETE)
   @URITemplate("/{group}/{entry}/")
+  @ProducedTransformerFactory(STRING_TRANSFORMER_FACTORY)
   public Response removeEntry(
       @URIParam("repository") String repository,
       @URIParam("group") String groupName,
@@ -190,7 +204,7 @@ public class RESTRegistryService implements ResourceContainer {
       response = Response.Builder.noContent().build();
     } catch(ItemNotFoundException e) {
       response = 
-        Response.Builder.notFound().entity("NOT_FOUND", "text/plain").transformer(new StringEntityTransformer()).build();
+        Response.Builder.notFound().entity("NOT_FOUND", "text/plain").build();
     } finally {
       sessionProvider.close();
     }
