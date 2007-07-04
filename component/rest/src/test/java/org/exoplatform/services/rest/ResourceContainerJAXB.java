@@ -6,8 +6,6 @@ package org.exoplatform.services.rest;
 
 import java.math.BigDecimal;
 
-import javax.xml.bind.JAXBContext;
-
 import org.exoplatform.services.rest.container.ResourceContainer;
 import org.exoplatform.services.rest.generated.*;
 

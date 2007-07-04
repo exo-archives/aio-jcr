@@ -6,8 +6,6 @@ package org.exoplatform.services.rest;
 
 import junit.framework.TestCase;
 
-import org.exoplatform.services.rest.transformer.*;
-
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $

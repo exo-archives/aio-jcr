@@ -7,6 +7,7 @@ package org.exoplatform.services.rest;
 import org.exoplatform.services.rest.transformer.EntityTransformerFactory;
 import org.exoplatform.services.rest.transformer.EntityTransformer;
 import org.exoplatform.services.rest.transformer.StringEntityTransformer;
+
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
