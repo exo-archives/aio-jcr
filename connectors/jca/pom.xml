@@ -26,6 +26,10 @@
 	                  <groupId>com.sun.xml.parsers</groupId>
 	                  <artifactId>jaxp-ri</artifactId>
 	              </exclusion>
+	              <exclusion>
+				      <groupId>javax.servlet</groupId>
+				      <artifactId>servlet-api</artifactId>
+	              </exclusion>
         </exclusions>
       <scope>runtime</scope>
     </dependency>
