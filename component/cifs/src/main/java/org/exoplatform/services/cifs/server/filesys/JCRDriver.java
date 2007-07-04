@@ -1,7 +1,8 @@
-/**
- * 
- */
-package org.exoplatform.services.cifs.smb.server;
+/***************************************************************************
+ * Copyright 2001-2007 The eXo Platform SAS          All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ **************************************************************************/
+package org.exoplatform.services.cifs.server.filesys;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -35,7 +36,7 @@ import org.exoplatform.services.cifs.server.filesys.NameCoder;
 import org.exoplatform.services.cifs.server.filesys.NetworkFile;
 import org.exoplatform.services.cifs.server.filesys.SearchContext;
 import org.exoplatform.services.cifs.server.filesys.TreeConnection;
-import org.exoplatform.services.cifs.smb.server.JCRNetworkFile;
+import org.exoplatform.services.cifs.server.filesys.JCRNetworkFile;
 import org.exoplatform.services.cifs.smb.server.SMBSrvSession;
 import org.exoplatform.services.cifs.util.WildCard;
 import org.exoplatform.services.jcr.impl.core.JCRPath;
@@ -203,8 +204,9 @@ public class JCRDriver {
 
       if (params.isOverwrite() && netFile != null) {
         // Truncate the file to zero length
-        ((JCRNetworkFile) netFile).truncFile(params.getAllocationSize());
-
+        
+        ((JCRNetworkFile) netFile).truncateFile(params.getAllocationSize());
+        
       }
 
       // Debug
@@ -498,7 +500,7 @@ public class JCRDriver {
     }
   }
 
-  public static int writeFile(SMBSrvSession m_sess, TreeConnection conn,
+  public static long writeFile(SMBSrvSession m_sess, TreeConnection conn,
       NetworkFile netFile, byte[] buf, int dataPos, int dataLen, int offset)
       throws Exception {
     return netFile.writeFile(buf, dataPos, dataLen, offset);
@@ -576,7 +578,7 @@ public class JCRDriver {
     if (netFile.isDirectory())
       throw new AccessDeniedException();
 
-    ((JCRNetworkFile) netFile).truncFile(wrtoff);
+    ((JCRNetworkFile) netFile).truncateFile(wrtoff);
 
   }
 

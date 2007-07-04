@@ -1,9 +1,9 @@
 /***************************************************************************
- * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SAS          All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 
-package org.exoplatform.services.cifs.smb.server;
+package org.exoplatform.services.cifs.server.filesys;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -65,7 +65,7 @@ public class JCRNetworkFile extends NetworkFile {
     wrchannel = new FileOutputStream(tmpfile, true).getChannel();
   }
 
-  public int writeFile(byte[] buf, int dataPos, int dataLen, int offset)
+  public long writeFile(byte[] buf, int dataPos, int dataLen, long offset)
       throws Exception {
     if (wrchannel == null)
       createTemporaryFileChannel();
@@ -86,7 +86,33 @@ public class JCRNetworkFile extends NetworkFile {
     return i;
   }
 
-  public void flush() throws Exception {
+  public void truncateFile(long siz) throws IOException {
+    try {
+      if (wrchannel == null) {
+        createTemporaryFileChannel();
+        truncfirst = true;
+      }
+
+      wrchannel.truncate(siz);
+      m_fileSize = siz;
+
+      if (truncfirst == false) {
+        FileInputStream fis = new FileInputStream(tmpfile);
+        node.getNode("jcr:content").getProperty("jcr:data").setValue(fis);
+        fis.close();
+        wrchannel.close();
+        tmpfile.delete();
+        node.save();
+        logger.debug("file data cmpletly writed into jcr node TEMPORARY");
+        return;
+      }
+      logger.debug("file truncated for " + siz + " bytes TEMPORARY");
+    } catch (Exception e) {
+      throw new IOException(e.getMessage());
+    }
+    
+  }
+  public void flushFile() throws Exception {
     try {
       if (tmpfile != null) {
         FileInputStream st = new FileInputStream(tmpfile);
@@ -103,46 +129,8 @@ public class JCRNetworkFile extends NetworkFile {
     } catch (Exception e) {
       e.printStackTrace();
     }
-
+    
   }
-
-  /*
-   * not used
-   * 
-   */
-  /*
-   * public int readFile(byte[] buf, int maxCount, int dataPos, int offset)
-   * throws Exception { Node n = getNodeRef(); InputStream is =
-   * n.getNode("jcr:content").getProperty("jcr:data").getStream(); return
-   * is.read(buf,offset,maxCount); }
-   */
-
-  public void truncFile(long len) throws IOException {
-    try {
-      if (wrchannel == null) {
-        createTemporaryFileChannel();
-        truncfirst = true;
-      }
-
-      wrchannel.truncate(len);
-      m_fileSize = len;
-
-      if (truncfirst == false) {
-        FileInputStream fis = new FileInputStream(tmpfile);
-        node.getNode("jcr:content").getProperty("jcr:data").setValue(fis);
-        fis.close();
-        wrchannel.close();
-        tmpfile.delete();
-        node.save();
-        logger.debug("file data cmpletly writed into jcr node TEMPORARY");
-        return;
-      }
-      logger.debug("file truncated for " + len + " bytes TEMPORARY");
-    } catch (Exception e) {
-      throw new IOException(e.getMessage());
-    }
-  }
-
   /**
    * This metod is called whan NetworkFile is destroys
    */
@@ -160,4 +148,24 @@ public class JCRNetworkFile extends NetworkFile {
       e.printStackTrace();
     }
   }
+
+  
+  public void closeFile() throws Exception{
+    remove();
+  }
+
+  public long seekFile(long pos, int typ) throws Exception{
+    return 0;
+  }
+  
+  public int readFile(byte[] buf, int len, int pos, long fileOff)
+  throws Exception{
+    return 0;
+  }
+
+  public void openFile(boolean createFlag) throws IOException {
+    // TODO Auto-generated method stub
+    
+  }
+  
 }
