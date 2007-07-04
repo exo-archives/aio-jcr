@@ -5,8 +5,8 @@ CIFS(SMB) Server Configuration
 
 Server configures at <project path>/src/main/java/conf/portal/configuration.xml
 <component><key>org.exoplatform.services.cifs.CIFSServiceImpl</key>...</component>
-Check that server name ("netbiosname" or if not specified "server_name" )is unique in network 
-neighbourhood, it may cause problems.
+Check that server name (<name>netbiosname</name>) is unique in network neighbourhood, it may cause problems.
+
 
 CIFSService is designed as multiplatform application, but at that moment we support only 
 Windows systems and only using NetBIOS transport protocol. So if you use (for example) Linux

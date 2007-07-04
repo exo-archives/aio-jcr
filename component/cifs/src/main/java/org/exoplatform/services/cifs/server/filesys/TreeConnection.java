@@ -1,18 +1,26 @@
 /*
- * Copyright (C) 2005 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.server.filesys;
 
@@ -31,8 +39,8 @@ public class TreeConnection {
 
   public static final int MAXFILES = 8192;
 
-  // Number of initial file slots to allocate. Number of allocated slots will
-  // be doubled
+  // Number of initial file slots to allocate. Number of allocated slots will be
+  // doubled
   // when required until MAXFILES is reached.
 
   public static final int INITIALFILES = 32;
@@ -40,8 +48,8 @@ public class TreeConnection {
   // Shared device that the connection is associated with
 
   private SharedDevice m_shareDev;
-
-  // session to jcr repository workspace, may be null for not disk shares
+  
+  //session to jcr repository workspace, may be null for not disk shares
   private Session m_jcr_sess;
 
   // List of open files on this connection. Count of open file slots used.
@@ -55,13 +63,14 @@ public class TreeConnection {
   private int m_permission;
 
   /**
-   * Construct a tree connection using the specified shared device name.
+   * Construct a tree connection using the specified shared device.
    * 
    * @param shrDev
    *          SharedDevice
    */
   public TreeConnection(SharedDevice shrDev) {
     m_shareDev = shrDev;
+    //m_shareDev.incrementConnectionCount();
   }
 
   /**
@@ -74,7 +83,7 @@ public class TreeConnection {
   public void setSession(Session sess) {
     m_jcr_sess = sess;
   }
-
+  
   /**
    * Return jcr-session opened for shared device disk type (which represent
    * workspace).
@@ -84,7 +93,7 @@ public class TreeConnection {
   public Session getSession() {
     return m_jcr_sess;
   }
-
+  
   /**
    * Check if shared device has jcr-session assotiated with him
    * 
@@ -93,7 +102,7 @@ public class TreeConnection {
   public boolean hasSession() {
     return false;
   }
-
+  
   /**
    * Add a network file to the list of open files for this connection.
    * 
@@ -122,8 +131,7 @@ public class TreeConnection {
 
     if (idx == m_files.length) {
 
-      // The file array needs to be extended, check if we reached the
-      // limit.
+      // The file array needs to be extended, check if we reached the limit.
 
       if (m_files.length >= MAXFILES)
         throw new TooManyFilesException();
@@ -135,12 +143,10 @@ public class TreeConnection {
       m_files = newFiles;
     }
 
-    // Store the network file, update the open file count and return the
-    // index
+    // Store the network file, update the open file count and return the index
 
     m_files[idx] = file;
     m_fileCount++;
-
     return idx;
   }
 
@@ -168,8 +174,8 @@ public class TreeConnection {
     }
 
     // Decrement the active connection count for the shared device
-    m_shareDev.decrementConnectionCount();
 
+    m_shareDev.decrementConnectionCount();
   }
 
   /**
@@ -235,6 +241,15 @@ public class TreeConnection {
   }
 
   /**
+   * Return the shared device that this tree connection is using.
+   * 
+   * @return SharedDevice
+   */
+  public final SharedDevice getSharedDevice() {
+    return m_shareDev;
+  }
+
+  /**
    * Check if the user has been granted the required access permission for this
    * share.
    * 
@@ -269,10 +284,7 @@ public class TreeConnection {
 
     // Clear the file list
 
-    for (int idx = 0; idx < m_files.length;idx++){
-      //m_files
-      m_files[idx] = null;
-    }
+    for (int idx = 0; idx < m_files.length; m_files[idx++] = null)
       ;
     m_fileCount = 0;
   }
@@ -316,16 +328,12 @@ public class TreeConnection {
   public String toString() {
     StringBuffer str = new StringBuffer();
     str.append("[");
-    str.append(m_shareDev.getName());
+    str.append(m_shareDev.toString());
     str.append(",");
     str.append(m_fileCount);
     str.append(":");
     str.append(FileAccess.asString(m_permission));
     str.append("]");
     return str.toString();
-  }
-
-  public SharedDevice getSharedDevice() {
-    return m_shareDev;
   }
 }

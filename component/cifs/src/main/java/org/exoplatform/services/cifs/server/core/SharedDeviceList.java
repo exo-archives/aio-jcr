@@ -1,32 +1,67 @@
+/*
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
+ */
 package org.exoplatform.services.cifs.server.core;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import org.exoplatform.services.cifs.smb.ShareType;
-
 /**
- * List of SharedDevices
- * 
- * @author Karpenko
- * 
+ * <p>
+ * List of shared devices.
  */
 public class SharedDeviceList {
+
+  // Shared device list
+
   private Hashtable<String, SharedDevice> m_shares;
 
+  /**
+   * SharedDeviceList constructor.
+   */
   public SharedDeviceList() {
+
+    // Allocate the shared device list
+
     m_shares = new Hashtable<String, SharedDevice>();
   }
 
-  public SharedDeviceList(SharedDeviceList shares) {
+  /**
+   * Copy constructor
+   * 
+   * @param shrList
+   *          SharedDeviceList
+   */
+  public SharedDeviceList(SharedDeviceList shrList) {
+
     // Allocate the shared device list
 
     m_shares = new Hashtable<String, SharedDevice>();
 
     // Copy the shares from the original list, shallow copy
 
-    addShares(shares);
-
+    addShares(shrList);
   }
 
   /**
@@ -47,6 +82,45 @@ public class SharedDeviceList {
 
     m_shares.put(shr.getName(), shr);
     return true;
+  }
+
+  /**
+   * Add shares from the specified list to this list, using a shallow copy
+   * 
+   * @param shrList
+   *          SharedDeviceList
+   */
+  public final void addShares(SharedDeviceList shrList) {
+
+    // Copy the shares to this list
+
+    Enumeration<SharedDevice> enm = shrList.enumerateShares();
+
+    while (enm.hasMoreElements())
+      addShare(enm.nextElement());
+  }
+
+  /**
+   * Delete the specified shared device from the list.
+   * 
+   * @param name
+   *          String Name of the shared resource to remove from the list.
+   * @return SharedDevice that has been removed from the list, else null.
+   */
+  public final SharedDevice deleteShare(String name) {
+
+    // Remove the shared device from the list
+
+    return (SharedDevice) m_shares.remove(name);
+  }
+
+  /**
+   * Return an enumeration to allow the shared devices to be listed.
+   * 
+   * @return Enumeration<SharedDevice>
+   */
+  public final Enumeration<SharedDevice> enumerateShares() {
+    return m_shares.elements();
   }
 
   /**
@@ -86,8 +160,7 @@ public class SharedDeviceList {
       if ((nocase == false && curName.equals(name))
           || (nocase == true && curName.equalsIgnoreCase(name))) {
 
-        // Get the shared device and check if the share is of the
-        // required type
+        // Get the shared device and check if the share is of the required type
 
         SharedDevice share = (SharedDevice) m_shares.get(curName);
         if (share.getType() == typ || typ == ShareType.UNKNOWN)
@@ -101,34 +174,26 @@ public class SharedDeviceList {
   }
 
   /**
-   * Add shares from the specified list to this list, using a shallow copy
+   * Return the number of shared devices in the list.
    * 
-   * @param shrList
-   *          SharedDeviceList
+   * @return int
    */
-  public final void addShares(SharedDeviceList shrList) {
-
-    // Copy the shares to this list
-
-    Enumeration<SharedDevice> enm = shrList.enumerateShares();
-
-    while (enm.hasMoreElements())
-      addShare(enm.nextElement());
-  }
-
-  /**
-   * Return an enumeration to allow the shared devices to be listed.
-   * 
-   * @return Enumeration<SharedDevice>
-   */
-  public final Enumeration<SharedDevice> enumerateShares() {
-    return m_shares.elements();
-  }
-
-  public int numberOfShares() {
+  public final int numberOfShares() {
     return m_shares.size();
   }
 
+  /**
+   * Remove all shared devices from the share list
+   */
+  public final void removeAllShares() {
+    m_shares.clear();
+  }
+
+  /**
+   * Return the share list as a string
+   * 
+   * @return String
+   */
   public String toString() {
 
     // Create a buffer to build the string
@@ -155,7 +220,5 @@ public class SharedDeviceList {
     // Return the string
 
     return str.toString();
-
   }
-
 }

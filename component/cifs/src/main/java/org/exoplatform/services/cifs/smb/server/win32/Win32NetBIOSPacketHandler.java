@@ -1,18 +1,26 @@
 /*
- * Copyright (C) 2005 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.smb.server.win32;
 
@@ -98,10 +106,10 @@ public class Win32NetBIOSPacketHandler extends PacketHandler {
 
     // Wait for a packet on the Win32 NetBIOS session
     //
-    // As Windows is handling the NetBIOS session layer we only receive the
-    // SMB packet. In order
-    // to be compatible with the other packet handlers we allow for the 4
-    // byte header.
+    // As Windows is handling the NetBIOS session layer we only receive the SMB
+    // packet. In order
+    // to be compatible with the other packet handlers we allow for the 4 byte
+    // header.
 
     int pktLen = pkt.getBuffer().length;
     if (pktLen > NetBIOS.MaxReceiveSize)
@@ -118,10 +126,9 @@ public class Win32NetBIOSPacketHandler extends PacketHandler {
 
       if (sts == NetBIOS.NRC_Incomp) {
 
-        // Check if the packet buffer is already at the maximum size (we
-        // assume the maximum
-        // size is the maximum that RFC NetBIOS can send which is
-        // 17bits)
+        // Check if the packet buffer is already at the maximum size (we assume
+        // the maximum
+        // size is the maximum that RFC NetBIOS can send which is 17bits)
 
         if (pkt.getBuffer().length < RFCNetBIOSProtocol.MaxPacketSize) {
 
@@ -129,8 +136,7 @@ public class Win32NetBIOSPacketHandler extends PacketHandler {
 
           byte[] newbuf = new byte[RFCNetBIOSProtocol.MaxPacketSize];
 
-          // Copy the first part of the received data to the new
-          // buffer
+          // Copy the first part of the received data to the new buffer
 
           System.arraycopy(pkt.getBuffer(), 4, newbuf, 4, pktLen - 4);
 
@@ -150,8 +156,8 @@ public class Win32NetBIOSPacketHandler extends PacketHandler {
 
         // Receive the remaining data
         //
-        // Note: If the second read request is issued with a size of 64K
-        // or 64K-4 it returns
+        // Note: If the second read request is issued with a size of 64K or
+        // 64K-4 it returns
         // with another incomplete status and returns no data.
 
         int rxLen2 = Win32NetBIOS.Receive(m_lana, m_lsn, pkt.getBuffer(),
@@ -199,8 +205,8 @@ public class Win32NetBIOSPacketHandler extends PacketHandler {
 
     int sts = Win32NetBIOS.Send(m_lana, m_lsn, pkt.getBuffer(), 4, len);
 
-    // Do not check the status, if the session has been closed the next
-    // receive will fail
+    // Do not check the status, if the session has been closed the next receive
+    // will fail
   }
 
   /**

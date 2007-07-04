@@ -1,3 +1,7 @@
+/***************************************************************************
+ * Copyright 2001-2007 The eXo Platform SAS          All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ **************************************************************************/
 package org.exoplatform.services.cifs;
 
 import java.io.IOException;
@@ -17,7 +21,6 @@ import org.exoplatform.services.cifs.smb.ServerType;
 import org.exoplatform.services.cifs.util.X64;
 import org.exoplatform.services.log.ExoLogger;
 
-import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 
 /**
@@ -156,21 +159,11 @@ public class ServerConfiguration {
 
   private int m_tzOffset;
 
-  // JCE provider class name
-
-  // private String m_jceProviderClass;
-
   // Local server name and domain/workgroup name
 
   private String m_localName;
 
   private String m_localDomain;
-
-  // flag to indicate successful initialization
-
-  // private boolean initialised;
-
-  // private SharedDeviceList m_shareList;
 
   /*
    * Configuration by XML-config
@@ -190,10 +183,6 @@ public class ServerConfiguration {
       setServerName("ServerName");
 
     // Set the domain/workgroup name
-    /*
-     * ValueParam pDomainName = params.getValueParam("workgroup"); if
-     * (pDomainName != null) { setDomainName(pDomainName.getValue()); } else
-     */
 
     try {
       setDomainName(getLocalDomainName().toUpperCase());
@@ -309,7 +298,7 @@ public class ServerConfiguration {
       setSMBServerEnabled(true);
     }
 
-    String flags = "Negotiate,Socket,Tree,PktType,StateCache,State,Search,Info,File,FileIO,Echo,Error,Notify";// elem.getAttribute("flags");
+    String flags = "NETBIOS,Negotiate,Socket,Tree,PktType,StateCache,State,Search,Info,File,FileIO,Echo,Error,Notify,IPC,DCERPC,STREAMS";// elem.getAttribute("flags");
     int sessDbg = 0;
 
     if (flags != null) {
@@ -457,79 +446,13 @@ public class ServerConfiguration {
       setSMBServerEnabled(true);
     }
 
-    // Check if WINS servers are configured
-    /*
-     * elem = config.getConfigElement("WINS");
-     * 
-     * if (elem != null) { // Get the primary WINS server
-     * 
-     * ConfigElement priWinsElem = elem.getChild("primary");
-     * 
-     * if (priWinsElem == null || priWinsElem.getValue().length() == 0) throw
-     * new AlfrescoRuntimeException("No primary WINS server configured"); //
-     * Validate the WINS server address
-     * 
-     * InetAddress primaryWINS = null;
-     * 
-     * try { primaryWINS = InetAddress.getByName(priWinsElem.getValue()); }
-     * catch (UnknownHostException ex) { throw new
-     * AlfrescoRuntimeException("Invalid primary WINS server address, " +
-     * priWinsElem.getValue()); } // Check if a secondary WINS server has been
-     * specified
-     * 
-     * ConfigElement secWinsElem = elem.getChild("secondary"); InetAddress
-     * secondaryWINS = null;
-     * 
-     * if (secWinsElem != null) { // Validate the secondary WINS server address
-     * 
-     * try { secondaryWINS = InetAddress.getByName(secWinsElem.getValue()); }
-     * catch (UnknownHostException ex) { throw new
-     * AlfrescoRuntimeException("Invalid secondary WINS server address, " +
-     * secWinsElem.getValue()); } } // Set the WINS server address(es)
-     * 
-     * setPrimaryWINSServer(primaryWINS); if (secondaryWINS != null)
-     * setSecondaryWINSServer(secondaryWINS); // Pass the setting to the NetBIOS
-     * session class
-     * 
-     * NetBIOSSession.setWINSServer(primaryWINS); } // Check if WINS is
-     * configured, if we are running on Windows and socket // based NetBIOS is
-     * enabled
-     * 
-     * else if (hasNetBIOSSMB() && getPlatformType() == PlatformType.WINDOWS) { //
-     * Get the WINS server list
-     * 
-     * String winsServers = Win32NetBIOS.getWINSServerList();
-     * 
-     * if (winsServers != null) { // Use the first WINS server address for now
-     * 
-     * StringTokenizer tokens = new StringTokenizer(winsServers, ","); String
-     * addr = tokens.nextToken();
-     * 
-     * try { // Convert to a network address and check if the WINS server // is
-     * accessible
-     * 
-     * InetAddress winsAddr = InetAddress.getByName(addr);
-     * 
-     * Socket winsSocket = new Socket(); InetSocketAddress sockAddr = new
-     * InetSocketAddress( winsAddr, RFCNetBIOSProtocol.NAME_PORT);
-     * 
-     * winsSocket.connect(sockAddr, 3000); winsSocket.close(); // Set the
-     * primary WINS server address
-     * 
-     * setPrimaryWINSServer(winsAddr); // Debug
-     * 
-     * if (logger.isDebugEnabled()) logger.debug("Configuring to use WINS server " +
-     * addr); } catch (IOException ex) { if ( logger.isDebugEnabled())
-     * logger.debug("Failed to connect to auto WINS server " + addr); } } }
-     */
-
     // Check if session debug is enabled
     // Check for session debug flags
     // "NETBIOS", "STATE", "NEGOTIATE", "TREE", "SEARCH", "INFO", "FILE",
     // "FILEIO", "TRANSACT", "ECHO", "ERROR", "IPC", "LOCK", "PKTTYPE",
     // "DCERPC", "STATECACHE", "NOTIFY",
     // "STREAMS", "SOCKET"
-    String flags = "Negotiate,Socket,Tree,PktType,StateCache,State,Search,Info,File,FileIO,Echo,Error,Notify";// elem.getAttribute("flags");
+    String flags = "Negotiate,Socket,Tree,PktType,StateCache,State,Search,Info,File,FileIO,Echo,Error,Notify,NETBIOS,IPC,DCERPC,STREAMS";// elem.getAttribute("flags");
     int sessDbg = 0;
 
     if (flags != null) {
@@ -609,7 +532,6 @@ public class ServerConfiguration {
 
   private void setSMBBindAddress(InetAddress bindAddr) {
     m_smbBindAddress = bindAddr;
-
   }
 
   private void setComment(String string) {
@@ -640,14 +562,6 @@ public class ServerConfiguration {
     return m_name;
   }
 
-  /**
-   * Return global Shared device list
-   * 
-   * @return SharedDeviceList
-   */
-  // public SharedDeviceList getShares() {
-  // return m_shareList;
-  // }
   public int getSessionDebugFlags() {
 
     return m_sessDebug;
@@ -764,7 +678,7 @@ public class ServerConfiguration {
     dialects.AddDialect(Dialect.LanMan1);
     dialects.AddDialect(Dialect.LanMan2);
     dialects.AddDialect(Dialect.LanMan2_1);
-    // dialects.AddDialect(Dialect.NT);
+    // dialects.AddDialect(Dialect.NT); //TODO it going to be included soon
 
     return dialects;
   }
@@ -907,5 +821,4 @@ public class ServerConfiguration {
     m_winsSecondary = addr;
   }
 
- 
 }

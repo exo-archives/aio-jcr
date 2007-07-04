@@ -1,24 +1,34 @@
 /*
- * Copyright (C) 2005 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.smb.server;
 
 import java.io.IOException;
 
-// import org.exoplatform.services.CIFS.server.filesys.NetworkFile;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.exoplatform.services.cifs.server.filesys.NetworkFile;
 import org.exoplatform.services.cifs.server.filesys.TooManyFilesException;
 import org.exoplatform.services.cifs.server.filesys.TreeConnection;
 import org.exoplatform.services.cifs.smb.PacketType;
@@ -29,9 +39,6 @@ import org.exoplatform.services.cifs.smb.dcerpc.server.DCEPipeFile;
 import org.exoplatform.services.cifs.smb.dcerpc.server.DCEPipeHandler;
 import org.exoplatform.services.cifs.util.DataBuffer;
 import org.exoplatform.services.cifs.util.DataPacker;
-import org.exoplatform.services.log.ExoLogger;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * <p>
@@ -42,8 +49,8 @@ class IPCHandler {
 
   // Debug logging
 
-  private static final Log logger = ExoLogger
-      .getLogger("org.exoplatform.services.CIFS.smb.server.IPCHandler");
+  private static final Log logger = LogFactory
+      .getLog("org.alfresco.smb.protocol");
 
   /**
    * Process a request made on the IPC$ remote admin named pipe.
@@ -60,17 +67,16 @@ class IPCHandler {
   public static void processIPCRequest(SMBSrvSession sess, SMBSrvPacket outPkt)
       throws java.io.IOException, SMBSrvException {
 
-    // Get the received packet from the session and verify that the
-    // connection is valid
+    // Get the received packet from the session and verify that the connection
+    // is valid
 
     SMBSrvPacket smbPkt = sess.getReceivePacket();
 
-    // Get the tree id from the received packet and validate that it is a
-    // valid
+    // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
     int treeId = smbPkt.getTreeId();
-    TreeConnection conn = sess.findConnection(treeId);
+    TreeConnection conn = sess.findTreeConnection(treeId);
 
     if (conn == null) {
       sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -80,7 +86,7 @@ class IPCHandler {
     // Debug
 
     if (logger.isDebugEnabled() && sess.hasDebug(SMBSrvSession.DBG_IPC))
-      logger.debug("IPC$ Request [" + treeId + "] - cmd = "
+      logger.debug("IPC$ Request [" + smbPkt.getTreeId() + "] - cmd = "
           + smbPkt.getPacketTypeString());
 
     // Determine the SMB command
@@ -149,9 +155,9 @@ class IPCHandler {
    * @param outPkt
    *          SMBSrvPacket
    */
-  protected static void procTransaction(SrvTransactBuffer tbuf,
-      SMBSrvSession sess, SMBSrvPacket outPkt) throws IOException,
-      SMBSrvException {
+  protected static void procTransaction(
+      SrvTransactBuffer tbuf, SMBSrvSession sess, SMBSrvPacket outPkt)
+      throws IOException, SMBSrvException {
 
     // Debug
 
@@ -179,8 +185,7 @@ class IPCHandler {
       procSetNamedPipeHandleState(sess, tbuf, outPkt);
       break;
 
-    // Named pipe transation request, pass the request to the DCE/RPC
-    // handler
+    // Named pipe transation request, pass the request to the DCE/RPC handler
 
     case NamedPipeTransaction.TransactNmPipe:
       DCERPCHandler.processDCERPCRequest(sess, tbuf, outPkt);
@@ -220,8 +225,8 @@ class IPCHandler {
 
     // Debug
 
-    if (logger.isDebugEnabled())
-      logger.debug("IPC$ Open file = [" + fileName + "]");
+    if (logger.isDebugEnabled() && sess.hasDebug(SMBSrvSession.DBG_IPC))
+      logger.debug("IPC$ Open file = " + fileName);
 
     // Check if the requested IPC$ file is valid
 
@@ -232,9 +237,8 @@ class IPCHandler {
     }
 
     // Get the tree connection details
-
     int treeId = rxPkt.getTreeId();
-    TreeConnection conn = sess.findConnection(treeId);
+    TreeConnection conn = sess.findTreeConnection(treeId);
 
     if (conn == null) {
       sess.sendErrorResponseSMB(SMBStatus.SRVInvalidTID, SMBStatus.ErrSrv);
@@ -244,8 +248,7 @@ class IPCHandler {
     // Create a network file for the special pipe
 
     DCEPipeFile pipeFile = new DCEPipeFile(pipeType);
-    // READONLY = 0; WRITEONLY = 1; READWRITE = 2;
-    pipeFile.setGrantedAccess(DCEPipeFile.READWRITE);
+    pipeFile.setGrantedAccess(NetworkFile.READWRITE);
 
     // Add the file to the list of open files for this tree connection
 
@@ -255,8 +258,7 @@ class IPCHandler {
       fid = conn.addFile(pipeFile, sess);
     } catch (TooManyFilesException ex) {
 
-      // Too many files are open on this connection, cannot open any more
-      // files.
+      // Too many files are open on this connection, cannot open any more files.
 
       sess
           .sendErrorResponseSMB(SMBStatus.DOSTooManyOpenFiles, SMBStatus.ErrDos);
@@ -451,12 +453,10 @@ class IPCHandler {
       return;
     }
 
-    // Get the tree id from the received packet and validate that it is a
-    // valid
+    // Get the tree id from the received packet and validate that it is a valid
     // connection id.
-
     int treeId = rxPkt.getTreeId();
-    TreeConnection conn = sess.findConnection(treeId);
+    TreeConnection conn = sess.findTreeConnection(treeId);
 
     if (conn == null) {
       sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -476,7 +476,7 @@ class IPCHandler {
     // Debug
 
     if (logger.isDebugEnabled() && sess.hasDebug(SMBSrvSession.DBG_IPC))
-      logger.debug("IPC$ File close [" + treeId + "] fid=" + fid);
+      logger.debug("IPC$ File close [" + rxPkt.getTreeId() + "] fid=" + fid);
 
     // Remove the file from the connections list of open files
 
@@ -497,16 +497,17 @@ class IPCHandler {
    * 
    * @param sess
    *          SMBSrvSession
+   * @param vc
+   *          VirtualCircuit
    * @param tbuf
    *          SrvTransactBuffer
    * @param outPkt
    *          SMBSrvPacket
    */
   protected static void procSetNamedPipeHandleState(SMBSrvSession sess,
-      SrvTransactBuffer tbuf, SMBSrvPacket outPkt) throws IOException,
-      SMBSrvException {
+      SrvTransactBuffer tbuf, SMBSrvPacket outPkt)
+      throws IOException, SMBSrvException {
 
-    logger.debug("IPCHandler::procSetNamedPipeHandleState");
     // Get the request parameters
 
     DataBuffer setupBuf = tbuf.getSetupBuffer();
@@ -518,12 +519,11 @@ class IPCHandler {
 
     // Get the connection for the request
 
-    TreeConnection conn = sess.findConnection(tbuf.getTreeId());
+    TreeConnection conn = sess.findTreeConnection(tbuf.getTreeId());
 
     // Get the IPC pipe file for the specified file id
 
     DCEPipeFile netFile = (DCEPipeFile) conn.findFile(fid);
-
     if (netFile == null) {
       sess.sendErrorResponseSMB(SMBStatus.DOSInvalidHandle, SMBStatus.ErrDos);
       return;
@@ -532,12 +532,12 @@ class IPCHandler {
     // Debug
 
     if (logger.isDebugEnabled() && sess.hasDebug(SMBSrvSession.DBG_IPC))
-      logger.debug("  SetNmPHandState pipe=" + netFile + ", fid=" + fid
-          + ", state=0x" + Integer.toHexString(state));
+      logger.debug("  SetNmPHandState pipe=" + netFile.getName() + ", fid="
+          + fid + ", state=0x" + Integer.toHexString(state));
 
     // Store the named pipe state
 
-    // netFile.setPipeState(state);
+    netFile.setPipeState(state);
 
     // Setup the response packet
 
@@ -562,12 +562,10 @@ class IPCHandler {
       SMBSrvPacket rxPkt, SMBSrvPacket outPkt) throws IOException,
       SMBSrvException {
 
-    // Get the tree id from the received packet and validate that it is a
-    // valid
+    // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    int treeId = rxPkt.getTreeId();
-    TreeConnection conn = sess.findConnection(treeId);
+    TreeConnection conn = sess.findTreeConnection(rxPkt.getTreeId());
 
     if (conn == null) {
       sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.NTErr);
@@ -604,8 +602,8 @@ class IPCHandler {
     // Debug
 
     if (logger.isDebugEnabled() && sess.hasDebug(SMBSrvSession.DBG_IPC))
-      logger.debug("NT Create AndX [" + treeId + "] name=" + fileName
-          + ", flags=0x" + Integer.toHexString(flags) + ", attr=0x"
+      logger.debug("NT Create AndX [" + rxPkt.getTreeId() + "] name="
+          + fileName + ", flags=0x" + Integer.toHexString(flags) + ", attr=0x"
           + Integer.toHexString(attrib) + ", allocSize=" + allocSize);
 
     // Check if the pipe name is a short or long name
@@ -631,7 +629,7 @@ class IPCHandler {
     // Create a network file for the special pipe
 
     DCEPipeFile pipeFile = new DCEPipeFile(pipeType);
-    pipeFile.setGrantedAccess(2);
+    pipeFile.setGrantedAccess(NetworkFile.READWRITE);
 
     // Add the file to the list of open files for this tree connection
 
@@ -641,8 +639,7 @@ class IPCHandler {
       fid = conn.addFile(pipeFile, sess);
     } catch (TooManyFilesException ex) {
 
-      // Too many files are open on this connection, cannot open any more
-      // files.
+      // Too many files are open on this connection, cannot open any more files.
 
       sess.sendErrorResponseSMB(SMBStatus.Win32InvalidHandle, SMBStatus.NTErr);
       return;

@@ -1,18 +1,26 @@
 /*
- * Copyright (C) 2005 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.netbios;
 
@@ -29,152 +37,151 @@ import java.net.UnknownHostException;
  * Singleton class that allows multiple users of the socket.
  */
 public class NetBIOSDatagramSocket {
-	// Global NetBIOS datagram socket instance
+  // Global NetBIOS datagram socket instance
 
-	private static NetBIOSDatagramSocket m_nbSocket;
+  private static NetBIOSDatagramSocket m_nbSocket;
 
-	// Default port and bind address
+  // Default port and bind address
 
-	private static int m_defPort = RFCNetBIOSProtocol.DATAGRAM;
+  private static int m_defPort = RFCNetBIOSProtocol.DATAGRAM;
 
-	private static InetAddress m_defBindAddr;
+  private static InetAddress m_defBindAddr;
 
-	// Datagram socket
+  // Datagram socket
 
-	private DatagramSocket m_socket;
+  private DatagramSocket m_socket;
 
-	// Broadcast address
+  // Broadcast address
 
-	private InetAddress m_broadcastAddr;
+  private InetAddress m_broadcastAddr;
 
-	/**
-	 * Class constructor
-	 * 
-	 * @exception SocketException
-	 * @exception UnknownHostException
-	 */
-	private NetBIOSDatagramSocket() throws SocketException,
-			UnknownHostException {
+  /**
+   * Class constructor
+   * 
+   * @exception SocketException
+   * @exception UnknownHostException
+   */
+  private NetBIOSDatagramSocket() throws SocketException, UnknownHostException {
 
-		// Create the datagram socket
+    // Create the datagram socket
 
-		if (m_defBindAddr == null)
-			m_socket = new DatagramSocket(m_defPort);
-		else
-			m_socket = new DatagramSocket(m_defPort, m_defBindAddr);
+    if (m_defBindAddr == null)
+      m_socket = new DatagramSocket(m_defPort);
+    else
+      m_socket = new DatagramSocket(m_defPort, m_defBindAddr);
 
-		// Generate the broadcast mask
+    // Generate the broadcast mask
 
-		if (m_defBindAddr == null)
-			m_broadcastAddr = InetAddress.getByName(NetworkSettings
-					.GenerateBroadcastMask(null));
-		else
-			m_broadcastAddr = InetAddress.getByName(NetworkSettings
-					.GenerateBroadcastMask(m_defBindAddr.getHostAddress()));
-	}
+    if (m_defBindAddr == null)
+      m_broadcastAddr = InetAddress.getByName(NetworkSettings
+          .GenerateBroadcastMask(null));
+    else
+      m_broadcastAddr = InetAddress.getByName(NetworkSettings
+          .GenerateBroadcastMask(m_defBindAddr.getHostAddress()));
+  }
 
-	/**
-	 * Return the global NetBIOS datagram instance
-	 * 
-	 * @return NetBIOSDatagramSocket
-	 * @exception SocketException
-	 * @exception UnknownHostException
-	 */
-	public final static synchronized NetBIOSDatagramSocket getInstance()
-			throws SocketException, UnknownHostException {
+  /**
+   * Return the global NetBIOS datagram instance
+   * 
+   * @return NetBIOSDatagramSocket
+   * @exception SocketException
+   * @exception UnknownHostException
+   */
+  public final static synchronized NetBIOSDatagramSocket getInstance()
+      throws SocketException, UnknownHostException {
 
-		// Check if the datagram socket has been created
+    // Check if the datagram socket has been created
 
-		if (m_nbSocket == null)
-			m_nbSocket = new NetBIOSDatagramSocket();
+    if (m_nbSocket == null)
+      m_nbSocket = new NetBIOSDatagramSocket();
 
-		// Return the global NetBIOS datagram socket instance
+    // Return the global NetBIOS datagram socket instance
 
-		return m_nbSocket;
-	}
+    return m_nbSocket;
+  }
 
-	/**
-	 * Set the default port to use
-	 * 
-	 * @param port
-	 *            int
-	 */
-	public final static void setDefaultPort(int port) {
-		m_defPort = port;
-	}
+  /**
+   * Set the default port to use
+   * 
+   * @param port
+   *          int
+   */
+  public final static void setDefaultPort(int port) {
+    m_defPort = port;
+  }
 
-	/**
-	 * Set the address to bind the datagram socket to
-	 * 
-	 * @param bindAddr
-	 *            InetAddress
-	 */
-	public final static void setBindAddress(InetAddress bindAddr) {
-		m_defBindAddr = bindAddr;
-	}
+  /**
+   * Set the address to bind the datagram socket to
+   * 
+   * @param bindAddr
+   *          InetAddress
+   */
+  public final static void setBindAddress(InetAddress bindAddr) {
+    m_defBindAddr = bindAddr;
+  }
 
-	/**
-	 * Receive a NetBIOS datagram
-	 * 
-	 * @param dgram
-	 *            NetBIOSDatagram
-	 * @return int
-	 * @exception IOException
-	 */
-	public final int receiveDatagram(NetBIOSDatagram dgram) throws IOException {
+  /**
+   * Receive a NetBIOS datagram
+   * 
+   * @param dgram
+   *          NetBIOSDatagram
+   * @return int
+   * @exception IOException
+   */
+  public final int receiveDatagram(NetBIOSDatagram dgram) throws IOException {
 
-		// Create a datagram packet using the NetBIOS datagram buffer
+    // Create a datagram packet using the NetBIOS datagram buffer
 
-		DatagramPacket pkt = new DatagramPacket(dgram.getBuffer(), dgram
-				.getBuffer().length);
+    DatagramPacket pkt = new DatagramPacket(dgram.getBuffer(), dgram
+        .getBuffer().length);
 
-		// Receive a datagram
+    // Receive a datagram
 
-		m_socket.receive(pkt);
-		return pkt.getLength();
-	}
+    m_socket.receive(pkt);
+    return pkt.getLength();
+  }
 
-	/**
-	 * Send a NetBIOS datagram
-	 * 
-	 * @param dgram
-	 *            NetBIOSDatagram
-	 * @param destAddr
-	 *            InetAddress
-	 * @param destPort
-	 *            int
-	 * @exception IOException
-	 */
-	public final void sendDatagram(NetBIOSDatagram dgram, InetAddress destAddr,
-			int destPort) throws IOException {
+  /**
+   * Send a NetBIOS datagram
+   * 
+   * @param dgram
+   *          NetBIOSDatagram
+   * @param destAddr
+   *          InetAddress
+   * @param destPort
+   *          int
+   * @exception IOException
+   */
+  public final void sendDatagram(NetBIOSDatagram dgram, InetAddress destAddr,
+      int destPort) throws IOException {
 
-		// Create a datagram packet using the NetBIOS datagram buffer
+    // Create a datagram packet using the NetBIOS datagram buffer
 
-		DatagramPacket pkt = new DatagramPacket(dgram.getBuffer(), dgram
-				.getLength(), destAddr, destPort);
+    DatagramPacket pkt = new DatagramPacket(dgram.getBuffer(), dgram
+        .getLength(), destAddr, destPort);
 
-		// Send the NetBIOS datagram
+    // Send the NetBIOS datagram
 
-		m_socket.send(pkt);
-	}
+    m_socket.send(pkt);
+  }
 
-	/**
-	 * Send a broadcast NetBIOS datagram
-	 * 
-	 * @param dgram
-	 *            NetBIOSDatagram
-	 * @exception IOException
-	 */
-	public final void sendBroadcastDatagram(NetBIOSDatagram dgram)
-			throws IOException {
+  /**
+   * Send a broadcast NetBIOS datagram
+   * 
+   * @param dgram
+   *          NetBIOSDatagram
+   * @exception IOException
+   */
+  public final void sendBroadcastDatagram(NetBIOSDatagram dgram)
+      throws IOException {
 
-		// Create a datagram packet using the NetBIOS datagram buffer
+    // Create a datagram packet using the NetBIOS datagram buffer
 
-		DatagramPacket pkt = new DatagramPacket(dgram.getBuffer(), dgram
-				.getLength(), m_broadcastAddr, m_defPort);
+    DatagramPacket pkt = new DatagramPacket(dgram.getBuffer(), dgram
+        .getLength(), m_broadcastAddr, m_defPort);
 
-		// Send the NetBIOS datagram
+    // Send the NetBIOS datagram
 
-		m_socket.send(pkt);
-	}
+    m_socket.send(pkt);
+  }
 }

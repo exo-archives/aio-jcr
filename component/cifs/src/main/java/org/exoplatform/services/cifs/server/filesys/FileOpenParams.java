@@ -1,18 +1,26 @@
 /*
- * Copyright (C) 2005 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.server.filesys;
 
@@ -101,6 +109,12 @@ public class FileOpenParams {
 
   private int m_mode = -1;
 
+  // File type and symbolic name
+
+  private int m_fileType;
+
+  private String m_symName;
+
   /**
    * Class constructor for Core SMB dialect Open SMB requests
    * 
@@ -134,47 +148,6 @@ public class FileOpenParams {
     m_secLevel = -1;
   }
 
-  /**
-   * Class constructor for Core SMB dialect Open SMB requests
-   * Responsibility for correct stream and path separate laying on caller.
-   * 
-   * @param path
-   *          String
-   * @param openAction
-   *          int
-   * @param accessMode
-   *          int
-   * @param fileAttr
-   *          int
-   * @param gid
-   *          int
-   * @param uid
-   *          int
-   * @param mode
-   *          int
-   */
-  public @Deprecated FileOpenParams(String path,String stream, int openAction, int accessMode,
-      int fileAttr, int gid, int uid, int mode) {
-
-    m_path = path;
-    m_stream = stream;
-    m_openAction = convertToNTOpenAction(openAction);
-    m_accessMode = convertToNTAccessMode(accessMode);
-    m_attr = fileAttr;
-
-    // Check if the diectory attribute is set
-
-    if (FileAttribute.isDirectory(m_attr))
-      m_createOptions = WinNT.CreateDirectory;
-
-    // No security settings
-
-    m_secLevel = -1;
-
-    m_gid = gid;
-    m_uid = uid;
-    m_mode = mode;
-  }
 
   /**
    * Class constructor for LanMan SMB dialect OpenAndX requests
@@ -475,6 +448,24 @@ public class FileOpenParams {
   }
 
   /**
+   * Return the file type
+   * 
+   * @return int
+   */
+  public final int isFileType() {
+    return m_fileType;
+  }
+
+  /**
+   * Return the symbolic link name
+   * 
+   * @return String
+   */
+  public final String getSymbolicLinkName() {
+    return m_symName;
+  }
+
+  /**
    * Return the shared access mode, zero equals allow any shared access
    * 
    * @return int
@@ -592,6 +583,16 @@ public class FileOpenParams {
    */
   public final void setCreateOption(int flag) {
     m_createOptions = m_createOptions | flag;
+  }
+
+  /**
+   * Set the file type
+   * 
+   * @param typ
+   *          int
+   */
+  public final void setFileType(int typ) {
+    m_fileType = typ;
   }
 
   /**

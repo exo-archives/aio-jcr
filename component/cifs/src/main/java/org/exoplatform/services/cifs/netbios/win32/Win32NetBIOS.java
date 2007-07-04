@@ -1,31 +1,36 @@
 /*
- * Copyright (C) 2005 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.netbios.win32;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.exoplatform.services.cifs.netbios.NetBIOSName;
-import org.exoplatform.services.cifs.netbios.win32.NetBIOS;
-import org.exoplatform.services.cifs.netbios.win32.WinsockNetBIOSException;
 import org.exoplatform.services.cifs.util.DataBuffer;
 import org.exoplatform.services.cifs.util.IPAddress;
 import org.exoplatform.services.cifs.util.X64;
@@ -75,8 +80,8 @@ public class Win32NetBIOS {
     if (isInitialized() == false)
       return false;
 
-    // Check if there are any valid LANAs, if not then NetBIOS is not
-    // enabled or network
+    // Check if there are any valid LANAs, if not then NetBIOS is not enabled or
+    // network
     // adapters that have NetBIOS enabled are not currently enabled
 
     int[] lanas = LanaEnum();
@@ -172,8 +177,7 @@ public class Win32NetBIOS {
 
       buf.skipBytes(9);
 
-      // Source address field format should be 0.0.n.n.n.n for TCP/IP
-      // address
+      // Source address field format should be 0.0.n.n.n.n for TCP/IP address
 
       if (buf.getByte() == 0 && buf.getByte() == 0) {
 
@@ -186,8 +190,7 @@ public class Win32NetBIOS {
         ipAddr[2] = (byte) buf.getByte();
         ipAddr[3] = (byte) buf.getByte();
 
-        // Add the address to the list of TCP/IP addresses for the
-        // NetBIOS name
+        // Add the address to the list of TCP/IP addresses for the NetBIOS name
 
         nbName.addIPAddress(ipAddr);
 
@@ -220,8 +223,8 @@ public class Win32NetBIOS {
    * @return int[]
    */
   public static int[] LanaEnumerate() {
-    // Make sure that there is an active network adapter as making calls to
-    // the LanaEnum native call
+    // Make sure that there is an active network adapter as making calls to the
+    // LanaEnum native call
     // causes problems when there are no active network adapters.
 
     boolean adapterAvail = false;
@@ -569,7 +572,7 @@ public class Win32NetBIOS {
       String ipAddr = niEnum.nextElement();
       NetworkInterface ni = niList.get(ipAddr);
 
-      if (ni.getDisplayName().equalsIgnoreCase(name)) {
+      if (ni.getName().equalsIgnoreCase(name)) {
 
         // Return the LANA for the network adapters TCP/IP address
 
@@ -609,8 +612,8 @@ public class Win32NetBIOS {
 
         while (addrEnum.hasMoreElements()) {
 
-          // Get the address and add the adapter to the list indexed
-          // via the numeric IP
+          // Get the address and add the adapter to the list indexed via the
+          // numeric IP
           // address string
 
           InetAddress addr = addrEnum.nextElement();
@@ -772,16 +775,16 @@ public class Win32NetBIOS {
 
     String dllName = "Win32NetBIOS";
 
-    //if (X64.isWindows64())
-    //  dllName = "Win32NetBIOSx64";
+    if (X64.isWindows64())
+      dllName = "Win32NetBIOSx64";
 
     // Load the Win32 NetBIOS interface library
 
     try {
       System.loadLibrary(dllName);
     } catch (Throwable ex) {
-      //ex.printStackTrace();
-      
+      ex.printStackTrace();
+
       // Save the native code load exception
 
       m_loadDLLException = ex;

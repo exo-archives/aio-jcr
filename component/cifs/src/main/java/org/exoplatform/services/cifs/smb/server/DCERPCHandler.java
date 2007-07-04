@@ -1,23 +1,33 @@
 /*
- * Copyright (C) 2005 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.smb.server;
 
 import java.io.IOException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.exoplatform.services.cifs.netbios.RFCNetBIOSProtocol;
 import org.exoplatform.services.cifs.server.filesys.TreeConnection;
 import org.exoplatform.services.cifs.smb.DataType;
@@ -34,15 +44,13 @@ import org.exoplatform.services.cifs.smb.dcerpc.server.DCEPipeFile;
 import org.exoplatform.services.cifs.smb.dcerpc.server.DCESrvPacket;
 import org.exoplatform.services.cifs.util.DataBuffer;
 import org.exoplatform.services.cifs.util.DataPacker;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * DCE/RPC Protocol Handler Class
  */
 public class DCERPCHandler {
   private static final Log logger = LogFactory
-      .getLog("org.exoplatform.services.cifs.smb.server");
+      .getLog("org.alfresco.smb.protocol");
 
   /**
    * Process a DCE/RPC request
@@ -60,12 +68,10 @@ public class DCERPCHandler {
       SMBSrvTransPacket srvTrans, SMBSrvPacket outPkt) throws IOException,
       SMBSrvException {
 
-    // Get the tree id from the received packet and validate that it is a
-    // valid
+    // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    int treeId = srvTrans.getTreeId();
-    TreeConnection conn = sess.findConnection(treeId);
+    TreeConnection conn = sess.findTreeConnection(srvTrans.getTreeId());
 
     if (conn == null) {
       sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -115,8 +121,7 @@ public class DCERPCHandler {
 
     // Always only one fragment as the data either fits into the first reply
     // fragment or the
-    // client will read the remaining data by issuing read requests on the
-    // pipe
+    // client will read the remaining data by issuing read requests on the pipe
 
     int flags = DCESrvPacket.FLG_ONLYFRAG;
 
@@ -150,8 +155,8 @@ public class DCERPCHandler {
       sts = SMBStatus.NTBufferOverflow;
     } else {
 
-      // Clear the DCE/RPC pipe buffered data, the reply will fit into a
-      // single response
+      // Clear the DCE/RPC pipe buffered data, the reply will fit into a single
+      // response
       // packet
 
       pipeFile.setBufferedData(null);
@@ -189,6 +194,8 @@ public class DCERPCHandler {
    * 
    * @param sess
    *          SMBSrvSession
+   * @param vc
+   *          VirtualCircuit
    * @param tbuf
    *          TransactBuffer
    * @param outPkt
@@ -197,10 +204,9 @@ public class DCERPCHandler {
    * @exception SMBSrvException
    */
   public static final void processDCERPCRequest(SMBSrvSession sess,
-      TransactBuffer tbuf, SMBSrvPacket outPkt) throws IOException,
-      SMBSrvException {
+      TransactBuffer tbuf, SMBSrvPacket outPkt)
+      throws IOException, SMBSrvException {
 
-    logger.debug("DCERPCHandler::processDCERPCRequest");
     // Check if the transaction buffer has setup and data buffers
 
     if (tbuf.hasSetupBuffer() == false || tbuf.hasDataBuffer() == false) {
@@ -209,12 +215,10 @@ public class DCERPCHandler {
       return;
     }
 
-    // Get the tree id from the received packet and validate that it is a
-    // valid
+    // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    int treeId = tbuf.getTreeId();
-    TreeConnection conn = sess.findConnection(treeId);
+    TreeConnection conn = sess.findTreeConnection(tbuf.getTreeId());
 
     if (conn == null) {
       sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -265,8 +269,7 @@ public class DCERPCHandler {
 
     // Always only one fragment as the data either fits into the first reply
     // fragment or the
-    // client will read the remaining data by issuing read requests on the
-    // pipe
+    // client will read the remaining data by issuing read requests on the pipe
 
     int flags = DCESrvPacket.FLG_ONLYFRAG;
 
@@ -300,8 +303,8 @@ public class DCERPCHandler {
       sts = SMBStatus.NTBufferOverflow;
     } else {
 
-      // Clear the DCE/RPC pipe buffered data, the reply will fit into a
-      // single response
+      // Clear the DCE/RPC pipe buffered data, the reply will fit into a single
+      // response
       // packet
 
       pipeFile.setBufferedData(null);
@@ -350,12 +353,10 @@ public class DCERPCHandler {
       SMBSrvPacket inPkt, SMBSrvPacket outPkt) throws IOException,
       SMBSrvException {
 
-    // Get the tree id from the received packet and validate that it is a
-    // valid
+    // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    int treeId = inPkt.getTreeId();
-    TreeConnection conn = sess.findConnection(treeId);
+    TreeConnection conn = sess.findTreeConnection(inPkt.getTreeId());
 
     if (conn == null) {
       sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -480,12 +481,10 @@ public class DCERPCHandler {
       SMBSrvPacket inPkt, SMBSrvPacket outPkt) throws IOException,
       SMBSrvException {
 
-    // Get the tree id from the received packet and validate that it is a
-    // valid
+    // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    int treeId = inPkt.getTreeId();
-    TreeConnection conn = sess.findConnection(treeId);
+    TreeConnection conn = sess.findTreeConnection(inPkt.getTreeId());
 
     if (conn == null) {
       sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -724,8 +723,8 @@ public class DCERPCHandler {
       pipeFile.setMaxTransmitFragmentSize(maxTxSize);
       pipeFile.setMaxReceiveFragmentSize(maxRxSize);
 
-      // Create an output DCE buffer for the reply and add the bind
-      // acknowledge header
+      // Create an output DCE buffer for the reply and add the bind acknowledge
+      // header
 
       DCEBuffer txBuf = new DCEBuffer();
       txBuf.putBindAckHeader(dceBuf.getHeaderValue(DCEBuffer.HDR_CALLID));

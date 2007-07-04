@@ -1,18 +1,26 @@
 /*
- * Copyright (C) 2005 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.server.filesys;
 
@@ -61,7 +69,7 @@ public class FileInfo implements Serializable {
 
   // File name string
 
-  protected String m_name = "def";
+  protected String m_name;
 
   // 8.3 format file name
 
@@ -119,11 +127,14 @@ public class FileInfo implements Serializable {
 
   private boolean m_deleteOnClose;
 
+  // File type
+
+  private int m_fileType;
+
   // Set file information flags
   //
-  // Used to indicate which values in the file information object are valid
-  // and should be used to
-  // set
+  // Used to indicate which values in the file information object are valid and
+  // should be used to set
   // the file information.
 
   private int m_setFlags;
@@ -533,6 +544,15 @@ public class FileInfo implements Serializable {
   }
 
   /**
+   * Return the file type
+   * 
+   * @return int
+   */
+  public final int isFileType() {
+    return m_fileType;
+  }
+
+  /**
    * Determine if the group id field has been set
    * 
    * @return boolean
@@ -618,9 +638,7 @@ public class FileInfo implements Serializable {
    *          FileInfo
    */
   public final void copyFrom(FileInfo finfo) {
-
     m_name = finfo.getFileName();
-
     m_path = finfo.getPath();
 
     m_size = finfo.getSize();
@@ -834,6 +852,16 @@ public class FileInfo implements Serializable {
   }
 
   /**
+   * Set the file type
+   * 
+   * @param typ
+   *          int
+   */
+  public final void setFileType(int typ) {
+    m_fileType = typ;
+  }
+
+  /**
    * Set the set file information flags to indicated which values are to be set
    * 
    * @param setFlags
@@ -877,8 +905,8 @@ public class FileInfo implements Serializable {
 
     if (m_path != null) {
       str.append(m_path);
-      if (!m_path.endsWith("/"))
-        str.append("/");
+      if (!m_path.endsWith("\\"))
+        str.append("\\");
     }
 
     // Append the file name
@@ -907,7 +935,7 @@ public class FileInfo implements Serializable {
     if (isDirectory())
       str.append("D");
     else
-      str.append("F");
+      str.append("-");
 
     // Append the file size, in bytes
 

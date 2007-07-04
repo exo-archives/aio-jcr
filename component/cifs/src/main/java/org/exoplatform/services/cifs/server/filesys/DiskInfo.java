@@ -1,20 +1,30 @@
 /*
- * Copyright (C) 2005 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.server.filesys;
+
+import org.exoplatform.services.cifs.smb.PCShare;
 
 /**
  * SMB disk information class.
@@ -61,10 +71,12 @@ public class DiskInfo {
    * @param freeunit
    *          int
    */
-  public DiskInfo(String nodename, String devname, int totunits, int blkunit,
-      int blksiz, int freeunit) {
-    m_nodename = nodename;
-    m_share = devname;
+  public DiskInfo(PCShare shr, int totunits, int blkunit, int blksiz,
+      int freeunit) {
+    if (shr != null) {
+      m_nodename = shr.getNodeName();
+      m_share = shr.getShareName();
+    }
 
     m_totalunits = (long) totunits;
     m_freeunits = (long) freeunit;
@@ -73,6 +85,35 @@ public class DiskInfo {
     m_blocksize = (long) blksiz;
   }
 
+  /**
+   * Class constructor
+   * 
+   * @param shr
+   *          PCShare
+   * @param totunits
+   *          long
+   * @param blkunit
+   *          int
+   * @param blksiz
+   *          int
+   * @param freeunit
+   *          long
+   */
+  public DiskInfo(PCShare shr, long totunits, int blkunit, int blksiz,
+      long freeunit) {
+    if (shr != null) {
+      m_nodename = shr.getNodeName();
+      m_share = shr.getShareName();
+    }
+
+    m_totalunits = totunits;
+    m_freeunits = freeunit;
+
+    m_blockperunit = (long) blkunit;
+    m_blocksize = (long) blksiz;
+  }
+
+  
   /**
    * Class constructor
    * 
@@ -98,7 +139,6 @@ public class DiskInfo {
     m_blockperunit = (long) blkunit;
     m_blocksize = (long) blksiz;
   }
-
   /**
    * Get the block size, in bytes.
    * 

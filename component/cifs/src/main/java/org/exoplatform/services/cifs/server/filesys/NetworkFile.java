@@ -1,8 +1,41 @@
+/*
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
+ */
 package org.exoplatform.services.cifs.server.filesys;
 
-import java.util.Date;
+import java.io.IOException;
+import java.nio.channels.FileLock;
 
+/**
+ * <p>
+ * The network file represents a file or directory on a filesystem. The server
+ * keeps track of the open files on a per session basis.
+ * <p>
+ * This class may be extended as required by your own disk driver class.
+ */
 public abstract class NetworkFile {
+
   // Granted file access types
 
   public static final int READONLY = 0;
@@ -47,7 +80,7 @@ public abstract class NetworkFile {
 
   // File size
 
-  protected long m_fileSize=0;
+  protected long m_fileSize = 0;
 
   // File creation/modify/last access date/time
 
@@ -69,9 +102,12 @@ public abstract class NetworkFile {
 
   private int m_flags;
 
-  public NetworkFile() {
-  }
-
+  /**
+   * Create a network file object with the specified file identifier.
+   * 
+   * @param fid
+   *          int
+   */
   public NetworkFile(int fid) {
     m_fid = fid;
   }
@@ -116,20 +152,35 @@ public abstract class NetworkFile {
     m_name = name;
   }
 
-  public void setGrantedAccess(int i) {
-    m_grantedAccess = i;
+  public NetworkFile() {
+    // TODO Auto-generated constructor stub
   }
 
-  public String getName() {
-    return m_name;
+  /**
+   * Return the parent directory identifier
+   * 
+   * @return int
+   */
+  public final int getDirectoryId() {
+    return m_dirId;
   }
 
-  public int getFileId() {
-    return m_fid;
-  }
-
-  public int getFileAttributes() {
+  /**
+   * Return the file attributes.
+   * 
+   * @return int
+   */
+  public final int getFileAttributes() {
     return m_attrib;
+  }
+
+  /**
+   * Return the file identifier.
+   * 
+   * @return int
+   */
+  public final int getFileId() {
+    return m_fid;
   }
 
   /**
@@ -150,7 +201,7 @@ public abstract class NetworkFile {
     return (int) (m_fileSize & 0x0FFFFFFFFL);
   }
 
-  /**
+ /**
    * Return the full name, relative to the share.
    * 
    * @return java.lang.String
@@ -169,6 +220,107 @@ public abstract class NetworkFile {
       return m_fullName + m_streamName;
     else
       return m_fullName;
+  }
+
+  /**
+   * Return the granted file access mode.
+   */
+  public final int getGrantedAccess() {
+    return m_grantedAccess;
+  }
+
+  /**
+   * Return the file/directory name.
+   * 
+   * @return java.lang.String
+   */
+  public String getName() {
+    return m_name;
+  }
+
+  /**
+   * Return the stream id, zero indicates the main file stream
+   * 
+   * @return int
+   */
+  public final int getStreamId() {
+    return m_streamId;
+  }
+
+  /**
+   * Return the stream name, if this is a stream
+   * 
+   * @return String
+   */
+  public final String getStreamName() {
+    return m_streamName;
+  }
+
+  /**
+   * Return the unique file identifier
+   * 
+   * @return long
+   */
+  public final long getUniqueId() {
+    return m_uniqueId;
+  }
+
+  /**
+   * Determine if the file has been closed.
+   * 
+   * @return boolean
+   */
+  public final boolean isClosed() {
+    return m_closed;
+  }
+
+  /**
+   * Return the directory file attribute status.
+   * 
+   * @return true if the file is a directory, else false.
+   */
+
+  public final boolean isDirectory() {
+    return (m_attrib & FileAttribute.Directory) != 0 ? true : false;
+  }
+
+  /**
+   * Return the hidden file attribute status.
+   * 
+   * @return true if the file is hidden, else false.
+   */
+
+  public final boolean isHidden() {
+    return (m_attrib & FileAttribute.Hidden) != 0 ? true : false;
+  }
+
+  /**
+   * Return the read-only file attribute status.
+   * 
+   * @return true if the file is read-only, else false.
+   */
+
+  public final boolean isReadOnly() {
+    return (m_attrib & FileAttribute.ReadOnly) != 0 ? true : false;
+  }
+
+  /**
+   * Return the system file attribute status.
+   * 
+   * @return true if the file is a system file, else false.
+   */
+
+  public final boolean isSystem() {
+    return (m_attrib & FileAttribute.System) != 0 ? true : false;
+  }
+
+  /**
+   * Return the archived attribute status
+   * 
+   * @return boolean
+   */
+  public final boolean isArchived() {
+    return (m_attrib & FileAttribute.Archive) != 0 ? true : false;
   }
 
   /**
@@ -263,11 +415,6 @@ public abstract class NetworkFile {
     return m_modifyDate;
   }
 
-  public int getGrantedAccess() {
-
-    return m_grantedAccess;
-  }
-
   /**
    * Set the file attributes, as specified by the SMBFileAttribute class.
    * 
@@ -276,6 +423,36 @@ public abstract class NetworkFile {
    */
   public final void setAttributes(int attrib) {
     m_attrib = attrib;
+  }
+
+  /**
+   * Set, or clear, the delete on close flag
+   * 
+   * @param del
+   *          boolean
+   */
+  public final void setDeleteOnClose(boolean del) {
+    setStatusFlag(DeleteOnClose, del);
+  }
+
+  /**
+   * Set the parent directory identifier
+   * 
+   * @param dirId
+   *          int
+   */
+  public final void setDirectoryId(int dirId) {
+    m_dirId = dirId;
+  }
+
+  /**
+   * Set the file identifier.
+   * 
+   * @param fid
+   *          int
+   */
+  public final void setFileId(int fid) {
+    m_fid = fid;
   }
 
   /**
@@ -296,6 +473,76 @@ public abstract class NetworkFile {
    */
   public final void setFileSize(int siz) {
     m_fileSize = (long) siz;
+  }
+
+  /**
+   * Set the full file name, relative to the share.
+   * 
+   * @param name
+   *          java.lang.String
+   */
+  public final void setFullName(String name) {
+    m_fullName = name;
+  }
+
+  /**
+   * Set the granted file access mode.
+   * 
+   * @param mode
+   *          int
+   */
+  public final void setGrantedAccess(int mode) {
+    m_grantedAccess = mode;
+  }
+
+  /**
+   * Set the file name.
+   * 
+   * @param name
+   *          String
+   */
+  public final void setName(String name) {
+    m_name = name;
+  }
+
+  /**
+   * set/clear the I/O pending flag
+   * 
+   * @param pending
+   *          boolean
+   */
+  public final void setIOPending(boolean pending) {
+    setStatusFlag(IOPending, pending);
+  }
+
+  /**
+   * Set the stream id
+   * 
+   * @param id
+   *          int
+   */
+  public final void setStreamId(int id) {
+    m_streamId = id;
+  }
+
+  /**
+   * Set the stream name
+   * 
+   * @param name
+   *          String
+   */
+  public final void setStreamName(String name) {
+    m_streamName = name;
+  }
+
+  /**
+   * Set the file closed state.
+   * 
+   * @param b
+   *          boolean
+   */
+  public final synchronized void setClosed(boolean b) {
+    m_closed = b;
   }
 
   /**
@@ -329,151 +576,127 @@ public abstract class NetworkFile {
   }
 
   /**
-   * Determine if the file has been closed.
+   * Set/clear a file status flag
    * 
-   * @return boolean
-   */
-  public final boolean isClosed() {
-    return m_closed;
-  }
-
-  /**
-   * Return the directory file attribute status.
-   * 
-   * @return true if the file is a directory, else false.
-   */
-
-  public final boolean isDirectory() {
-    return (m_attrib & FileAttribute.Directory) != 0 ? true : false;
-  }
-
-  /**
-   * Return the hidden file attribute status.
-   * 
-   * @return true if the file is hidden, else false.
-   */
-
-  public final boolean isHidden() {
-    return (m_attrib & FileAttribute.Hidden) != 0 ? true : false;
-  }
-
-  /**
-   * Return the read-only file attribute status.
-   * 
-   * @return true if the file is read-only, else false.
-   */
-
-  public final boolean isReadOnly() {
-    return (m_attrib & FileAttribute.ReadOnly) != 0 ? true : false;
-  }
-
-  /**
-   * Return the system file attribute status.
-   * 
-   * @return true if the file is a system file, else false.
-   */
-
-  public final boolean isSystem() {
-    return (m_attrib & FileAttribute.System) != 0 ? true : false;
-  }
-
-  /**
-   * Return the archived attribute status
-   * 
-   * @return boolean
-   */
-  public final boolean isArchived() {
-    return (m_attrib & FileAttribute.Archive) != 0 ? true : false;
-  }
-
-  /**
-   * Set the file closed state.
-   * 
-   * @param b
+   * @param flag
+   *          int
+   * @param sts
    *          boolean
    */
-  public final synchronized void setClosed(boolean b) {
-    m_closed = b;
+  protected final synchronized void setStatusFlag(int flag, boolean sts) {
+    boolean state = (m_flags & flag) != 0;
+    if (sts == true && state == false)
+      m_flags += flag;
+    else if (sts == false && state == true)
+      m_flags -= flag;
   }
-
-  abstract public int writeFile(byte[] buf, int dataPos, int dataLen, int offset)
-      throws Exception;
-
-  // abstract public int readFile(byte[] buf, int maxCount, int dataPos, int
-  // offset)throws Exception;
 
   /**
-   * Return the file information as a string.
+   * Set the unique file identifier
    * 
-   * @return File information string.
+   * @param id
+   *          long
    */
-  public String toString() {
-    StringBuffer str = new StringBuffer();
-
-    // Append the file/directory name
-
-    if (m_name != null) {
-      str.append(m_name);
-    }
-
-    // Append the stream name
-    str.append(" - stream[");
-
-    if (m_name != null) {
-      str.append(m_streamName);
-    }
-
-    str.append("] fullname[");
-    if (m_fullName != null) {
-      str.append(m_fullName);
-    }
-
-    // Append the attribute states
-
-    str.append("] atributes[");
-
-    str.append(m_attrib + " ");
-
-    if (isReadOnly())
-      str.append("R");
-    else
-      str.append("-");
-    if (isHidden())
-      str.append("H");
-    else
-      str.append("-");
-    if (isSystem())
-      str.append("S");
-    else
-      str.append("-");
-    if (isDirectory())
-      str.append("D");
-    else
-      str.append("F");
-
-    // Append the file size, in bytes
-
-    str.append("] size[");
-    str.append(m_fileSize);
-
-    // Append the file write date/time, if available
-    str.append("] modifyDate[");
-
-    if (m_modifyDate != 0L) {
-      str.append(" - ");
-      str.append(new Date(m_modifyDate));
-    }
-
-    // Append the file status
-    str.append("] fileStatus[");
-    str.append(m_flags);
-    str.append("]");
-    // Return the file information string
-
-    return str.toString();
+  protected final void setUniqueId(long id) {
+    m_uniqueId = id;
   }
-  
-  public void remove(){
-    
+
+  /**
+   * Set the unique id using the file and directory id
+   * 
+   * @param fid
+   *          int
+   * @param did
+   *          int
+   */
+  protected final void setUniqueId(int fid, int did) {
+    long ldid = (long) did;
+    long lfid = (long) fid;
+    m_uniqueId = (ldid << 32) + lfid;
   }
+
+  /**
+   * Set the unique id using the full path string
+   * 
+   * @param path
+   *          String
+   */
+  protected final void setUniqueId(String path) {
+    m_uniqueId = (long) path.toUpperCase().hashCode();
+  }
+
+  /**
+   * Open the file
+   * 
+   * @param createFlag
+   *          boolean
+   * @exception IOException
+   */
+  public abstract void openFile(boolean createFlag) throws IOException;
+
+  /**
+   * Read from the file.
+   * 
+   * @param buf
+   *          byte[]
+   * @param len
+   *          int
+   * @param pos
+   *          int
+   * @param fileOff
+   *          long
+   * @return Length of data read.
+   * @exception IOException
+   */
+  public abstract int readFile(byte[] buf, int len, int pos, long fileOff)
+      throws Exception;
+
+  /**
+   * Write a block of data to the file.
+   * 
+   * @param buf
+   *          byte[]
+   * @param len
+   *          int
+   * @param pos
+   *          int
+   * @param fileOff
+   *          long
+   * @exception IOException
+   */
+  public abstract long writeFile(byte[] buf, int len, int pos, long fileOff)
+      throws Exception;
+
+  /**
+   * Seek to the specified file position.
+   * 
+   * @param pos
+   *          long
+   * @param typ
+   *          int
+   * @return int
+   * @exception IOException
+   */
+  public abstract long seekFile(long pos, int typ) throws Exception;
+
+  /**
+   * Flush any buffered output to the file
+   * 
+   * @throws IOException
+   */
+  public abstract void flushFile() throws Exception;
+
+  /**
+   * Truncate the file to the specified file size
+   * 
+   * @param siz
+   *          long
+   * @exception IOException
+   */
+  public abstract void truncateFile(long siz) throws Exception;
+
+  /**
+   * Close the database file
+   */
+  public abstract void closeFile() throws Exception;
 }

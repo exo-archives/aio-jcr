@@ -1,18 +1,26 @@
 /*
- * Copyright (C) 2005 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.netbios;
 
@@ -27,1919 +35,1892 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.exoplatform.services.cifs.smb.NetworkSession;
 import org.exoplatform.services.cifs.util.DataPacker;
 import org.exoplatform.services.cifs.util.HexDump;
 import org.exoplatform.services.cifs.util.StringList;
-import org.exoplatform.services.log.ExoLogger;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * NetBIOS session class.
  */
 public final class NetBIOSSession implements NetworkSession {
-	private static final Log logger = ExoLogger.getLogger("org.exoplatform.services.CIFS.netbios.NetBIOSSession");
-	
-	// Constants
-	//
-	// Caller name template
+  private static final Log logger = LogFactory
+      .getLog("org.alfresco.smb.protocol.netbios");
 
-	public static final int MaxCallerNameTemplateLength = 8;
+  // Constants
+  //
+  // Caller name template
 
-	public static final char SessionIdChar = '#';
+  public static final int MaxCallerNameTemplateLength = 8;
 
-	public static final char JVMIdChar = '@';
+  public static final char SessionIdChar = '#';
 
-	public static final String ValidTemplateChars = "@#_";
+  public static final char JVMIdChar = '@';
 
-	// Default find name buffer size
+  public static final String ValidTemplateChars = "@#_";
 
-	private static final int FindNameBufferSize = 2048;
+  // Default find name buffer size
 
-	// Default socket timeout, in milliseconds
+  private static final int FindNameBufferSize = 2048;
 
-	private static int _defTimeout = RFCNetBIOSProtocol.TMO;
+  // Default socket timeout, in milliseconds
 
-	// Remote socket to connect to, default is 139.
+  private static int _defTimeout = RFCNetBIOSProtocol.TMO;
 
-	private int m_remotePort;
+  // Remote socket to connect to, default is 139.
 
-	// Socket used to connect and read/write to remote host
+  private int m_remotePort;
 
-	private Socket m_nbSocket;
+  // Socket used to connect and read/write to remote host
 
-	// Input and output data streams, from the socket network connection
+  private Socket m_nbSocket;
 
-	private DataInputStream m_nbIn;
+  // Input and output data streams, from the socket network connection
 
-	private DataOutputStream m_nbOut;
+  private DataInputStream m_nbIn;
 
-	// Send/receive timeout, in milliseconds
+  private DataOutputStream m_nbOut;
 
-	private int m_tmo = _defTimeout;
+  // Send/receive timeout, in milliseconds
 
-	// Local and remote name types
+  private int m_tmo = _defTimeout;
 
-	private char m_locNameType = NetBIOSName.FileServer;
+  // Local and remote name types
 
-	private char m_remNameType = NetBIOSName.FileServer;
+  private char m_locNameType = NetBIOSName.FileServer;
 
-	// Unique session identifier, used to generate a unique caller name when
-	// opening a new session
+  private char m_remNameType = NetBIOSName.FileServer;
 
-	private static int m_sessIdx = 0;
+  // Unique session identifier, used to generate a unique caller name when
+  // opening a new session
 
-	// Unique JVM id, used to generate a unique caller name when multiple JVMs
-	// may be running on the
-	// same
-	// host
+  private static int m_sessIdx = 0;
 
-	private static int m_jvmIdx = 0;
+  // Unique JVM id, used to generate a unique caller name when multiple JVMs may
+  // be running on the
+  // same
+  // host
 
-	// Caller name template string. The template is used to create a unique
-	// caller name when opening
-	// a new session.
-	// The template is appended to the local host name, which may be truncated
-	// to allow room for the
-	// template to be
-	// appended and still be within the 16 character NetBIOS name limit.
-	//
-	// The caller name generation replaces '#' characters with a zero padded
-	// session index as a hex
-	// value and '@'
-	// characters with a zero padded JVM index. Multiple '#' and/or '@'
-	// characters can be specified
-	// to indicate the
-	// field width. Any other characters in the template are passed through to
-	// the final caller name
-	// string.
-	//
-	// The maximum template string length is 8 characters to allow for at least
-	// 8 characters from
-	// the host name.
+  private static int m_jvmIdx = 0;
 
-	private static String m_callerTemplate = "_##";
+  // Caller name template string. The template is used to create a unique caller
+  // name when opening
+  // a new session.
+  // The template is appended to the local host name, which may be truncated to
+  // allow room for the
+  // template to be
+  // appended and still be within the 16 character NetBIOS name limit.
+  //
+  // The caller name generation replaces '#' characters with a zero padded
+  // session index as a hex
+  // value and '@'
+  // characters with a zero padded JVM index. Multiple '#' and/or '@' characters
+  // can be specified
+  // to indicate the
+  // field width. Any other characters in the template are passed through to the
+  // final caller name
+  // string.
+  //
+  // The maximum template string length is 8 characters to allow for at least 8
+  // characters from
+  // the host name.
 
-	// Truncated host name, caller name generation appends the caller template
-	// result to this string
+  private static String m_callerTemplate = "_##";
 
-	private static String m_localNamePart;
+  // Truncated host name, caller name generation appends the caller template
+  // result to this string
 
-	// Transaction identifier, used for datagrams
+  private static String m_localNamePart;
 
-	private static short m_tranIdx = 1;
+  // Transaction identifier, used for datagrams
 
-	// RFC NetBIOS name service datagram socket
+  private static short m_tranIdx = 1;
 
-	private static DatagramSocket m_dgramSock = null;
+  // RFC NetBIOS name service datagram socket
 
-	// Debug enable flag
+  private static DatagramSocket m_dgramSock = null;
 
-	private static boolean m_debug = false;
+  // Debug enable flag
 
-	// Subnet mask, required for broadcast name lookup requests
+  private static boolean m_debug = false;
 
-	private static String m_subnetMask = null;
-
-	// WINS server address
+  // Subnet mask, required for broadcast name lookup requests
+
+  private static String m_subnetMask = null;
+
+  // WINS server address
+
+  private static InetAddress m_winsServer;
+
+  // Name lookup types
+
+  public static final int DNSOnly = 1;
+
+  public static final int WINSOnly = 2;
+
+  public static final int WINSAndDNS = 3;
+
+  // Flag to control whether name lookups use WINS/NetBIOS lookup or DNS
+
+  private static int m_lookupType = WINSAndDNS;
+
+  // NetBIOS name lookup timeout value.
+
+  private static int m_lookupTmo = 500;
+
+  // Flag to control use of the '*SMBSERVER' name when connecting to a file
+  // server
+
+  private static boolean m_useWildcardFileServer = true;
+
+  /**
+   * NetBIOS session class constructor. Create a NetBIOS session with the
+   * default socket number and no current network connection.
+   */
+  public NetBIOSSession() {
+    m_remotePort = RFCNetBIOSProtocol.PORT;
+    m_nbSocket = null;
+  }
+
+  /**
+   * NetBIOS session class constructor
+   * 
+   * @param tmo
+   *          Send/receive timeout value in milliseconds
+   */
+  public NetBIOSSession(int tmo) {
+    m_tmo = tmo;
+    m_remotePort = RFCNetBIOSProtocol.PORT;
+    m_nbSocket = null;
+  }
+
+  /**
+   * NetBIOS session class constructor
+   * 
+   * @param tmo
+   *          Send/receive timeout value in milliseconds
+   * @param port
+   *          Remote port to connect to
+   */
+  public NetBIOSSession(int tmo, int port) {
+    m_tmo = tmo;
+    m_remotePort = port;
+    m_nbSocket = null;
+  }
 
-	private static InetAddress m_winsServer;
-
-	// Name lookup types
-
-	public static final int DNSOnly = 1;
-
-	public static final int WINSOnly = 2;
-
-	public static final int WINSAndDNS = 3;
-
-	// Flag to control whether name lookups use WINS/NetBIOS lookup or DNS
-
-	private static int m_lookupType = WINSAndDNS;
-
-	// NetBIOS name lookup timeout value.
-
-	private static int m_lookupTmo = 500;
-
-	// Flag to control use of the '*SMBSERVER' name when connecting to a file
-	// server
-
-	private static boolean m_useWildcardFileServer = true;
-
-	/**
-	 * NetBIOS session class constructor. Create a NetBIOS session with the
-	 * default socket number and no current network connection.
-	 */
-	public NetBIOSSession() {
-		m_remotePort = RFCNetBIOSProtocol.PORT;
-		m_nbSocket = null;
-	}
-
-	/**
-	 * NetBIOS session class constructor
-	 * 
-	 * @param tmo
-	 *            Send/receive timeout value in milliseconds
-	 */
-	public NetBIOSSession(int tmo) {
-		m_tmo = tmo;
-		m_remotePort = RFCNetBIOSProtocol.PORT;
-		m_nbSocket = null;
-	}
-
-	/**
-	 * NetBIOS session class constructor
-	 * 
-	 * @param tmo
-	 *            Send/receive timeout value in milliseconds
-	 * @param port
-	 *            Remote port to connect to
-	 */
-	public NetBIOSSession(int tmo, int port) {
-		m_tmo = tmo;
-		m_remotePort = port;
-		m_nbSocket = null;
-	}
+  /**
+   * Return the protocol name
+   * 
+   * @return String
+   */
+  public final String getProtocolName() {
+    return "TCP/IP NetBIOS";
+  }
 
-	/**
-	 * Return the protocol name
-	 * 
-	 * @return String
-	 */
-	public final String getProtocolName() {
-		return "TCP/IP NetBIOS";
-	}
+  /**
+   * Determine if the session is connected to a remote host
+   * 
+   * @return boolean
+   */
+  public final boolean isConnected() {
 
-	/**
-	 * Determine if the session is connected to a remote host
-	 * 
-	 * @return boolean
-	 */
-	public final boolean isConnected() {
+    // Check if the socket is valid
 
-		// Check if the socket is valid
+    if (m_nbSocket == null)
+      return false;
+    return true;
+  }
 
-		if (m_nbSocket == null)
-			return false;
-		return true;
-	}
+  /**
+   * Check if there is data available on this network session
+   * 
+   * @return boolean
+   * @exception IOException
+   */
+  public final boolean hasData() throws IOException {
 
-	/**
-	 * Check if there is data available on this network session
-	 * 
-	 * @return boolean
-	 * @exception IOException
-	 */
-	public final boolean hasData() throws IOException {
+    // Check if the connection is active
 
-		// Check if the connection is active
+    if (m_nbSocket == null || m_nbIn == null)
+      return false;
 
-		if (m_nbSocket == null || m_nbIn == null)
-			return false;
+    // Check if there is data available
 
-		// Check if there is data available
+    return m_nbIn.available() > 0 ? true : false;
+  }
 
-		return m_nbIn.available() > 0 ? true : false;
-	}
+  /**
+   * Convert a host name string into RFC NetBIOS format.
+   * 
+   * @param hostName
+   *          Host name to be converted.
+   * @return Converted host name string.
+   */
+  public static String ConvertName(String hostName) {
+    return ConvertName(hostName, NetBIOSName.FileServer);
+  }
 
-	/**
-	 * Convert a host name string into RFC NetBIOS format.
-	 * 
-	 * @param hostName
-	 *            Host name to be converted.
-	 * @return Converted host name string.
-	 */
-	public static String ConvertName(String hostName) {
-		return ConvertName(hostName, NetBIOSName.FileServer);
-	}
+  /**
+   * Convert a host name string into RFC NetBIOS format.
+   * 
+   * @param hostName
+   *          Host name to be converted.
+   * @param nameType
+   *          NetBIOS name type, added as the 16th byte of the name before
+   *          conversion.
+   * @return Converted host name string.
+   */
+  public static String ConvertName(String hostName, char nameType) {
 
-	/**
-	 * Convert a host name string into RFC NetBIOS format.
-	 * 
-	 * @param hostName
-	 *            Host name to be converted.
-	 * @param nameType
-	 *            NetBIOS name type, added as the 16th byte of the name before
-	 *            conversion.
-	 * @return Converted host name string.
-	 */
-	public static String ConvertName(String hostName, char nameType) {
+    // Build the name string with the name type, make sure that the host
+    // name is uppercase.
 
-		// Build the name string with the name type, make sure that the host
-		// name is uppercase.
+    StringBuffer hName = new StringBuffer(hostName.toUpperCase());
 
-		StringBuffer hName = new StringBuffer(hostName.toUpperCase());
+    if (hName.length() > 15)
+      hName.setLength(15);
 
-		if (hName.length() > 15)
-			hName.setLength(15);
+    // Space pad the name then add the NetBIOS name type
 
-		// Space pad the name then add the NetBIOS name type
+    while (hName.length() < 15)
+      hName.append(' ');
+    hName.append(nameType);
 
-		while (hName.length() < 15)
-			hName.append(' ');
-		hName.append(nameType);
+    // Convert the NetBIOS name string to the RFC NetBIOS name format
 
-		// Convert the NetBIOS name string to the RFC NetBIOS name format
+    String convstr = new String("ABCDEFGHIJKLMNOP");
+    StringBuffer nameBuf = new StringBuffer(32);
 
-		String convstr = new String("ABCDEFGHIJKLMNOP");
-		StringBuffer nameBuf = new StringBuffer(32);
+    int idx = 0;
 
-		int idx = 0;
+    while (idx < hName.length()) {
 
-		while (idx < hName.length()) {
+      // Get the current character from the host name string
 
-			// Get the current character from the host name string
+      char ch = hName.charAt(idx++);
 
-			char ch = hName.charAt(idx++);
+      if (ch == ' ') {
 
-			if (ch == ' ') {
+        // Append an encoded <SPACE> character
 
-				// Append an encoded <SPACE> character
+        nameBuf.append("CA");
+      } else {
 
-				nameBuf.append("CA");
-			} else {
+        // Append octet for the current character
 
-				// Append octet for the current character
+        nameBuf.append(convstr.charAt((int) ch / 16));
+        nameBuf.append(convstr.charAt((int) ch % 16));
+      }
 
-				nameBuf.append(convstr.charAt((int) ch / 16));
-				nameBuf.append(convstr.charAt((int) ch % 16));
-			}
+    } // end while
 
-		} // end while
+    // Return the encoded string
 
-		// Return the encoded string
+    return nameBuf.toString();
+  }
 
-		return nameBuf.toString();
-	}
+  /**
+   * Convert an encoded NetBIOS name to a normal name string
+   * 
+   * @param buf
+   *          Buffer that contains the NetBIOS encoded name
+   * @param off
+   *          Offset that the name starts within the buffer
+   * @return Normal NetBIOS name string
+   */
+  public static String DecodeName(byte[] buf, int off) {
 
-	/**
-	 * Convert an encoded NetBIOS name to a normal name string
-	 * 
-	 * @param buf
-	 *            Buffer that contains the NetBIOS encoded name
-	 * @param off
-	 *            Offset that the name starts within the buffer
-	 * @return Normal NetBIOS name string
-	 */
-	public static String DecodeName(byte[] buf, int off) {
+    // Convert the RFC NetBIOS name string to a normal NetBIOS name string
 
-		// Convert the RFC NetBIOS name string to a normal NetBIOS name string
+    String convstr = new String("ABCDEFGHIJKLMNOP");
+    StringBuffer nameBuf = new StringBuffer(16);
 
-		String convstr = new String("ABCDEFGHIJKLMNOP");
-		StringBuffer nameBuf = new StringBuffer(16);
+    int idx = 0;
+    char ch1, ch2;
 
-		int idx = 0;
-		char ch1, ch2;
+    while (idx < 32) {
 
-		while (idx < 32) {
+      // Get the current encoded character pair from the encoded name string
 
-			// Get the current encoded character pair from the encoded name
-			// string
+      ch1 = (char) buf[off + idx];
+      ch2 = (char) buf[off + idx + 1];
 
-			ch1 = (char) buf[off + idx];
-			ch2 = (char) buf[off + idx + 1];
+      if (ch1 == 'C' && ch2 == 'A') {
 
-			if (ch1 == 'C' && ch2 == 'A') {
+        // Append a <SPACE> character
 
-				// Append a <SPACE> character
+        nameBuf.append(' ');
+      } else {
 
-				nameBuf.append(' ');
-			} else {
+        // Convert back to a character code
 
-				// Convert back to a character code
+        int val = convstr.indexOf(ch1) << 4;
+        val += convstr.indexOf(ch2);
 
-				int val = convstr.indexOf(ch1) << 4;
-				val += convstr.indexOf(ch2);
+        // Append the current character to the decoded name
 
-				// Append the current character to the decoded name
+        nameBuf.append((char) (val & 0xFF));
+      }
 
-				nameBuf.append((char) (val & 0xFF));
-			}
+      // Update the encoded string index
 
-			// Update the encoded string index
+      idx += 2;
 
-			idx += 2;
+    } // end while
 
-		} // end while
+    // Return the decoded string
 
-		// Return the decoded string
+    return nameBuf.toString();
+  }
 
-		return nameBuf.toString();
-	}
+  /**
+   * Convert an encoded NetBIOS name to a normal name string
+   * 
+   * @param encnam
+   *          RFC NetBIOS encoded name
+   * @return Normal NetBIOS name string
+   */
 
-	/**
-	 * Convert an encoded NetBIOS name to a normal name string
-	 * 
-	 * @param encnam
-	 *            RFC NetBIOS encoded name
-	 * @return Normal NetBIOS name string
-	 */
+  public static String DecodeName(String encnam) {
 
-	public static String DecodeName(String encnam) {
+    // Check if the encoded name string is valid, must be 32 characters
 
-		// Check if the encoded name string is valid, must be 32 characters
+    if (encnam == null || encnam.length() != 32)
+      return "";
 
-		if (encnam == null || encnam.length() != 32)
-			return "";
+    // Convert the RFC NetBIOS name string to a normal NetBIOS name string
 
-		// Convert the RFC NetBIOS name string to a normal NetBIOS name string
+    String convstr = new String("ABCDEFGHIJKLMNOP");
+    StringBuffer nameBuf = new StringBuffer(16);
 
-		String convstr = new String("ABCDEFGHIJKLMNOP");
-		StringBuffer nameBuf = new StringBuffer(16);
+    int idx = 0;
+    char ch1, ch2;
 
-		int idx = 0;
-		char ch1, ch2;
+    while (idx < 32) {
 
-		while (idx < 32) {
+      // Get the current encoded character pair from the encoded name string
 
-			// Get the current encoded character pair from the encoded name
-			// string
+      ch1 = encnam.charAt(idx);
+      ch2 = encnam.charAt(idx + 1);
 
-			ch1 = encnam.charAt(idx);
-			ch2 = encnam.charAt(idx + 1);
+      if (ch1 == 'C' && ch2 == 'A') {
 
-			if (ch1 == 'C' && ch2 == 'A') {
+        // Append a <SPACE> character
 
-				// Append a <SPACE> character
+        nameBuf.append(' ');
+      } else {
 
-				nameBuf.append(' ');
-			} else {
+        // Convert back to a character code
 
-				// Convert back to a character code
+        int val = convstr.indexOf(ch1) << 4;
+        val += convstr.indexOf(ch2);
 
-				int val = convstr.indexOf(ch1) << 4;
-				val += convstr.indexOf(ch2);
+        // Append the current character to the decoded name
 
-				// Append the current character to the decoded name
+        nameBuf.append((char) (val & 0xFF));
+      }
 
-				nameBuf.append((char) (val & 0xFF));
-			}
+      // Update the encoded string index
 
-			// Update the encoded string index
+      idx += 2;
 
-			idx += 2;
+    } // end while
 
-		} // end while
+    // Return the decoded string
 
-		// Return the decoded string
+    return nameBuf.toString();
+  }
 
-		return nameBuf.toString();
-	}
+  /**
+   * Convert a host name string into RFC NetBIOS format.
+   * 
+   * @param hostName
+   *          Host name to be converted.
+   * @param nameType
+   *          NetBIOS name type, added as the 16th byte of the name before
+   *          conversion.
+   * @param buf
+   *          Buffer to write the encoded name into.
+   * @param off
+   *          Offset within the buffer to start writing.
+   * @return Buffer position
+   */
+  public static int EncodeName(String hostName, char nameType, byte[] buf,
+      int off) {
 
-	/**
-	 * Convert a host name string into RFC NetBIOS format.
-	 * 
-	 * @param hostName
-	 *            Host name to be converted.
-	 * @param nameType
-	 *            NetBIOS name type, added as the 16th byte of the name before
-	 *            conversion.
-	 * @param buf
-	 *            Buffer to write the encoded name into.
-	 * @param off
-	 *            Offset within the buffer to start writing.
-	 * @return Buffer position
-	 */
-	public static int EncodeName(String hostName, char nameType, byte[] buf,
-			int off) {
+    // Build the name string with the name type, make sure that the host
+    // name is uppercase.
 
-		// Build the name string with the name type, make sure that the host
-		// name is uppercase.
+    StringBuffer hName = new StringBuffer(hostName.toUpperCase());
 
-		StringBuffer hName = new StringBuffer(hostName.toUpperCase());
+    if (hName.length() > 15)
+      hName.setLength(15);
 
-		if (hName.length() > 15)
-			hName.setLength(15);
+    // Space pad the name then add the NetBIOS name type
 
-		// Space pad the name then add the NetBIOS name type
+    while (hName.length() < 15)
+      hName.append(' ');
+    hName.append(nameType);
 
-		while (hName.length() < 15)
-			hName.append(' ');
-		hName.append(nameType);
+    // Convert the NetBIOS name string to the RFC NetBIOS name format
 
-		// Convert the NetBIOS name string to the RFC NetBIOS name format
+    String convstr = new String("ABCDEFGHIJKLMNOP");
+    int idx = 0;
+    int bufpos = off;
 
-		String convstr = new String("ABCDEFGHIJKLMNOP");
-		int idx = 0;
-		int bufpos = off;
+    // Set the name length byte
 
-		// Set the name length byte
+    buf[bufpos++] = 0x20;
 
-		buf[bufpos++] = 0x20;
+    // Copy the encoded NetBIOS name to the buffer
 
-		// Copy the encoded NetBIOS name to the buffer
+    while (idx < hName.length()) {
 
-		while (idx < hName.length()) {
+      // Get the current character from the host name string
 
-			// Get the current character from the host name string
+      char ch = hName.charAt(idx++);
 
-			char ch = hName.charAt(idx++);
+      if (ch == ' ') {
 
-			if (ch == ' ') {
+        // Append an encoded <SPACE> character
 
-				// Append an encoded <SPACE> character
+        buf[bufpos++] = (byte) 'C';
+        buf[bufpos++] = (byte) 'A';
+      } else {
 
-				buf[bufpos++] = (byte) 'C';
-				buf[bufpos++] = (byte) 'A';
-			} else {
+        // Append octet for the current character
 
-				// Append octet for the current character
+        buf[bufpos++] = (byte) convstr.charAt((int) ch / 16);
+        buf[bufpos++] = (byte) convstr.charAt((int) ch % 16);
+      }
 
-				buf[bufpos++] = (byte) convstr.charAt((int) ch / 16);
-				buf[bufpos++] = (byte) convstr.charAt((int) ch % 16);
-			}
+    } // end while
 
-		} // end while
+    // Null terminate the string
 
-		// Null terminate the string
+    buf[bufpos++] = 0;
+    return bufpos;
+  }
 
-		buf[bufpos++] = 0;
-		return bufpos;
-	}
+  /**
+   * Find a NetBIOS name on the network
+   * 
+   * @param nbname
+   *          NetBIOS name to search for, not yet RFC encoded
+   * @param nbType
+   *          Name type, appended as the 16th byte of the name
+   * @param tmo
+   *          Timeout value for receiving incoming datagrams
+   * @return NetBIOS name details
+   * @exception java.io.IOException
+   *              If an I/O error occurs
+   */
+  public static NetBIOSName FindName(String nbName, char nbType, int tmo)
+      throws java.io.IOException {
 
-	/**
-	 * Find a NetBIOS name on the network
-	 * 
-	 * @param nbname
-	 *            NetBIOS name to search for, not yet RFC encoded
-	 * @param nbType
-	 *            Name type, appended as the 16th byte of the name
-	 * @param tmo
-	 *            Timeout value for receiving incoming datagrams
-	 * @return NetBIOS name details
-	 * @exception java.io.IOException
-	 *                If an I/O error occurs
-	 */
-	public static NetBIOSName FindName(String nbName, char nbType, int tmo)
-			throws java.io.IOException {
+    // Call the main FindName method
 
-		// Call the main FindName method
+    return FindName(new NetBIOSName(nbName, nbType, false), tmo);
+  }
 
-		return FindName(new NetBIOSName(nbName, nbType, false), tmo);
-	}
+  /**
+   * Find a NetBIOS name on the network
+   * 
+   * @param nbname
+   *          NetBIOS name to search for
+   * @param tmo
+   *          Timeout value for receiving incoming datagrams
+   * @return NetBIOS name details
+   * @exception java.io.IOException
+   *              If an I/O error occurs
+   */
+  public static NetBIOSName FindName(NetBIOSName nbName, int tmo)
+      throws java.io.IOException {
 
-	/**
-	 * Find a NetBIOS name on the network
-	 * 
-	 * @param nbname
-	 *            NetBIOS name to search for
-	 * @param tmo
-	 *            Timeout value for receiving incoming datagrams
-	 * @return NetBIOS name details
-	 * @exception java.io.IOException
-	 *                If an I/O error occurs
-	 */
-	public static NetBIOSName FindName(NetBIOSName nbName, int tmo)
-			throws java.io.IOException {
+    // Get the local address details
 
-		// Get the local address details
+    InetAddress locAddr = InetAddress.getLocalHost();
 
-		InetAddress locAddr = InetAddress.getLocalHost();
+    // Create a datagram socket
 
-		// Create a datagram socket
+    if (m_dgramSock == null) {
 
-		if (m_dgramSock == null) {
+      // Create a datagram socket
 
-			// Create a datagram socket
+      m_dgramSock = new DatagramSocket();
+    }
 
-			m_dgramSock = new DatagramSocket();
-		}
+    // Set the datagram socket timeout, in milliseconds
 
-		// Set the datagram socket timeout, in milliseconds
+    m_dgramSock.setSoTimeout(tmo);
 
-		m_dgramSock.setSoTimeout(tmo);
+    // Create a name lookup NetBIOS packet
 
-		// Create a name lookup NetBIOS packet
+    NetBIOSPacket nbpkt = new NetBIOSPacket();
+    nbpkt.buildNameQueryRequest(nbName, m_tranIdx++);
 
-		NetBIOSPacket nbpkt = new NetBIOSPacket();
-		nbpkt.buildNameQueryRequest(nbName, m_tranIdx++);
+    // Get the local host numeric address
 
-		// Get the local host numeric address
+    String locIP = locAddr.getHostAddress();
+    int dotIdx = locIP.indexOf('.');
+    if (dotIdx == -1)
+      return null;
 
-		String locIP = locAddr.getHostAddress();
-		int dotIdx = locIP.indexOf('.');
-		if (dotIdx == -1)
-			return null;
+    // If a WINS server has been configured the request is sent directly to the
+    // WINS server, if
+    // not then a broadcast is done on the local subnet.
 
-		// If a WINS server has been configured the request is sent directly to
-		// the WINS server, if
-		// not then a broadcast is done on the local subnet.
+    InetAddress destAddr = null;
 
-		InetAddress destAddr = null;
+    if (hasWINSServer() == false) {
 
-		if (hasWINSServer() == false) {
+      // Check if the subnet mask has been set, if not then generate a subnet
+      // mask
 
-			// Check if the subnet mask has been set, if not then generate a
-			// subnet mask
+      if (getSubnetMask() == null)
+        GenerateSubnetMask(null);
 
-			if (getSubnetMask() == null)
-				GenerateSubnetMask(null);
+      // Build a broadcast destination address
 
-			// Build a broadcast destination address
+      destAddr = InetAddress.getByName(getSubnetMask());
+    } else {
 
-			destAddr = InetAddress.getByName(getSubnetMask());
-		} else {
+      // Use the WINS server address
 
-			// Use the WINS server address
+      destAddr = getWINSServer();
+    }
 
-			destAddr = getWINSServer();
-		}
+    // Build the name lookup request
 
-		// Build the name lookup request
+    DatagramPacket dgram = new DatagramPacket(nbpkt.getBuffer(), nbpkt
+        .getLength(), destAddr, RFCNetBIOSProtocol.NAME_PORT);
 
-		DatagramPacket dgram = new DatagramPacket(nbpkt.getBuffer(), nbpkt
-				.getLength(), destAddr, RFCNetBIOSProtocol.NAME_PORT);
+    // Allocate a receive datagram packet
 
-		// Allocate a receive datagram packet
+    byte[] rxbuf = new byte[FindNameBufferSize];
+    DatagramPacket rxdgram = new DatagramPacket(rxbuf, rxbuf.length);
 
-		byte[] rxbuf = new byte[FindNameBufferSize];
-		DatagramPacket rxdgram = new DatagramPacket(rxbuf, rxbuf.length);
+    // Create a NetBIOS packet using the receive buffer
 
-		// Create a NetBIOS packet using the receive buffer
+    NetBIOSPacket rxpkt = new NetBIOSPacket(rxbuf);
 
-		NetBIOSPacket rxpkt = new NetBIOSPacket(rxbuf);
+    // DEBUG
 
-		// DEBUG
+    if (m_debug)
+      nbpkt.DumpPacket(false);
 
-		if (m_debug)
-			nbpkt.DumpPacket(false);
+    // Send the find name datagram
 
-		// Send the find name datagram
+    m_dgramSock.send(dgram);
 
-		m_dgramSock.send(dgram);
+    // Receive a reply datagram
 
-		// Receive a reply datagram
+    boolean rxOK = false;
 
-		boolean rxOK = false;
+    do {
 
-		do {
+      // Receive a datagram packet
 
-			// Receive a datagram packet
+      m_dgramSock.receive(rxdgram);
 
-			m_dgramSock.receive(rxdgram);
+      // DEBUG
 
-			// DEBUG
+      if (logger.isDebugEnabled() && m_debug) {
+        logger.debug("NetBIOS: Rx Datagram");
+        rxpkt.DumpPacket(false);
+      }
 
-			if (logger.isDebugEnabled() && m_debug) {
-				logger.debug("NetBIOS: Rx Datagram");
-				rxpkt.DumpPacket(false);
-			}
+      // Check if this is a valid response datagram
 
-			// Check if this is a valid response datagram
+      if (rxpkt.isResponse() && rxpkt.getOpcode() == NetBIOSPacket.RESP_QUERY)
+        rxOK = true;
 
-			if (rxpkt.isResponse()
-					&& rxpkt.getOpcode() == NetBIOSPacket.RESP_QUERY)
-				rxOK = true;
+    } while (!rxOK);
 
-		} while (!rxOK);
+    // Get the list of names from the response, should only be one name
 
-		// Get the list of names from the response, should only be one name
+    NetBIOSNameList nameList = rxpkt.getAnswerNameList();
+    if (nameList != null && nameList.numberOfNames() > 0)
+      return nameList.getName(0);
+    return null;
+  }
 
-		NetBIOSNameList nameList = rxpkt.getAnswerNameList();
-		if (nameList != null && nameList.numberOfNames() > 0)
-			return nameList.getName(0);
-		return null;
-	}
+  /**
+   * Build a list of nodes that own the specified NetBIOS name.
+   * 
+   * @param nbname
+   *          NetBIOS name to search for, not yet RFC encoded
+   * @param nbType
+   *          Name type, appended as the 16th byte of the name
+   * @param tmo
+   *          Timeout value for receiving incoming datagrams
+   * @return List of node name Strings
+   * @exception java.io.IOException
+   *              If an I/O error occurs
+   */
+  public static StringList FindNameList(String nbName, char nbType, int tmo)
+      throws IOException {
 
-	/**
-	 * Build a list of nodes that own the specified NetBIOS name.
-	 * 
-	 * @param nbname
-	 *            NetBIOS name to search for, not yet RFC encoded
-	 * @param nbType
-	 *            Name type, appended as the 16th byte of the name
-	 * @param tmo
-	 *            Timeout value for receiving incoming datagrams
-	 * @return List of node name Strings
-	 * @exception java.io.IOException
-	 *                If an I/O error occurs
-	 */
-public static StringList FindNameList(String nbName, char nbType, int tmo) throws IOException
-    {
+    // Get the local address details
 
-        // Get the local address details
+    InetAddress locAddr = InetAddress.getLocalHost();
 
-        InetAddress locAddr = InetAddress.getLocalHost();
+    // Create a datagram socket
 
-        // Create a datagram socket
+    if (m_dgramSock == null) {
 
-        if (m_dgramSock == null)
-        {
+      // Create a datagram socket
 
-            // Create a datagram socket
+      m_dgramSock = new DatagramSocket();
+    }
 
-            m_dgramSock = new DatagramSocket();
-        }
+    // Set the datagram socket timeout, in milliseconds
 
-        // Set the datagram socket timeout, in milliseconds
+    m_dgramSock.setSoTimeout(tmo);
 
-        m_dgramSock.setSoTimeout(tmo);
+    // Create a name lookup NetBIOS packet
 
-        // Create a name lookup NetBIOS packet
+    NetBIOSPacket nbpkt = new NetBIOSPacket();
 
-        NetBIOSPacket nbpkt = new NetBIOSPacket();
+    nbpkt.setTransactionId(m_tranIdx++);
+    nbpkt.setOpcode(NetBIOSPacket.NAME_QUERY);
+    nbpkt.setFlags(NetBIOSPacket.FLG_BROADCAST);
+    nbpkt.setQuestionCount(1);
+    nbpkt.setQuestionName(nbName, nbType, NetBIOSPacket.NAME_TYPE_NB,
+        NetBIOSPacket.NAME_CLASS_IN);
 
-        nbpkt.setTransactionId(m_tranIdx++);
-        nbpkt.setOpcode(NetBIOSPacket.NAME_QUERY);
-        nbpkt.setFlags(NetBIOSPacket.FLG_BROADCAST);
-        nbpkt.setQuestionCount(1);
-        nbpkt.setQuestionName(nbName, nbType, NetBIOSPacket.NAME_TYPE_NB, NetBIOSPacket.NAME_CLASS_IN);
+    // Get the local host numeric address
 
-        // Get the local host numeric address
+    String locIP = locAddr.getHostAddress();
+    int dotIdx = locIP.indexOf('.');
+    if (dotIdx == -1)
+      return null;
 
-        String locIP = locAddr.getHostAddress();
-        int dotIdx = locIP.indexOf('.');
-        if (dotIdx == -1)
-            return null;
+    // If a WINS server has been configured the request is sent directly to the
+    // WINS server, if
+    // not then a broadcast is done on the local subnet.
 
-        // If a WINS server has been configured the request is sent directly to
-		// the WINS server, if
-        // not then a broadcast is done on the local subnet.
+    InetAddress destAddr = null;
 
-        InetAddress destAddr = null;
+    if (hasWINSServer() == false) {
 
-        if (hasWINSServer() == false)
-        {
+      // Check if the subnet mask has been set, if not then generate a subnet
+      // mask
 
-            // Check if the subnet mask has been set, if not then generate a
-			// subnet mask
+      if (getSubnetMask() == null)
+        GenerateSubnetMask(null);
 
-            if (getSubnetMask() == null)
-                GenerateSubnetMask(null);
+      // Build a broadcast destination address
 
-            // Build a broadcast destination address
+      destAddr = InetAddress.getByName(getSubnetMask());
+    } else {
 
-            destAddr = InetAddress.getByName(getSubnetMask());
-        }
-        else
-        {
+      // Use the WINS server address
 
-            // Use the WINS server address
+      destAddr = getWINSServer();
+    }
 
-            destAddr = getWINSServer();
-        }
+    // Build the request datagram
 
-        // Build the request datagram
+    DatagramPacket dgram = new DatagramPacket(nbpkt.getBuffer(), nbpkt
+        .getLength(), destAddr, RFCNetBIOSProtocol.NAME_PORT);
 
-        DatagramPacket dgram = new DatagramPacket(nbpkt.getBuffer(), nbpkt.getLength(), destAddr,
-                RFCNetBIOSProtocol.NAME_PORT);
+    // Allocate a receive datagram packet
 
-        // Allocate a receive datagram packet
+    byte[] rxbuf = new byte[FindNameBufferSize];
+    DatagramPacket rxdgram = new DatagramPacket(rxbuf, rxbuf.length);
 
-        byte[] rxbuf = new byte[FindNameBufferSize];
-        DatagramPacket rxdgram = new DatagramPacket(rxbuf, rxbuf.length);
+    // Create a NetBIOS packet using the receive buffer
 
-        // Create a NetBIOS packet using the receive buffer
+    NetBIOSPacket rxpkt = new NetBIOSPacket(rxbuf);
 
-        NetBIOSPacket rxpkt = new NetBIOSPacket(rxbuf);
+    // DEBUG
+
+    if (m_debug)
+      nbpkt.DumpPacket(false);
+
+    // Create a vector to store the remote host addresses
+
+    Vector<InetAddress> addrList = new Vector<InetAddress>();
+
+    // Calculate the end time, to stop receiving datagrams
+
+    long endTime = System.currentTimeMillis() + tmo;
+
+    // Send the find name datagram
+
+    m_dgramSock.send(dgram);
+
+    // Receive reply datagrams
+
+    do {
+
+      // Receive a datagram packet
+
+      try {
+        m_dgramSock.receive(rxdgram);
 
         // DEBUG
 
-        if (m_debug)
-            nbpkt.DumpPacket(false);
-
-        // Create a vector to store the remote host addresses
-
-        Vector<InetAddress> addrList = new Vector<InetAddress>();
-
-        // Calculate the end time, to stop receiving datagrams
-
-        long endTime = System.currentTimeMillis() + tmo;
-
-        // Send the find name datagram
-
-        m_dgramSock.send(dgram);
-
-        // Receive reply datagrams
-
-        do
-        {
-
-            // Receive a datagram packet
-
-            try
-            {
-                m_dgramSock.receive(rxdgram);
-
-                // DEBUG
-
-                if (logger.isDebugEnabled() && m_debug)
-                {
-                    logger.debug("NetBIOS: Rx Datagram");
-                    rxpkt.DumpPacket(false);
-                }
-
-                // Check if this is a valid response datagram
-
-                if (rxpkt.isResponse() && rxpkt.getOpcode() == NetBIOSPacket.RESP_QUERY)
-                {
-
-                    // Get the address of the remote host for this datagram and
-					// add it to the list
-                    // of responders
-
-                    addrList.add(rxdgram.getAddress());
-                }
-            }
-            catch (java.io.IOException ex)
-            {
-
-                // DEBUG
-
-                if (logger.isDebugEnabled() && m_debug)
-                    logger.debug(ex.toString());
-            }
-
-        } while (System.currentTimeMillis() < endTime);
-
-        // Check if we received any replies
-
-        if (addrList.size() == 0)
-            return null;
-
-        // Create a node name list
-
-        StringList nameList = new StringList();
-
-        // Convert the reply addresses to node names
-
-        for (int i = 0; i < addrList.size(); i++)
-        {
-
-            // Get the current address from the list
-
-            InetAddress addr = addrList.elementAt(i);
-
-            // Convert the address to a node name string
-
-            String name = NetBIOSName(addr.getHostName());
-
-            // Check if the name is already in the name list
-
-            if (!nameList.containsString(name))
-                nameList.addString(name);
+        if (logger.isDebugEnabled() && m_debug) {
+          logger.debug("NetBIOS: Rx Datagram");
+          rxpkt.DumpPacket(false);
         }
 
-        // Return the node name list
+        // Check if this is a valid response datagram
 
-        return nameList;
+        if (rxpkt.isResponse() && rxpkt.getOpcode() == NetBIOSPacket.RESP_QUERY) {
+
+          // Get the address of the remote host for this datagram and add it to
+          // the list
+          // of responders
+
+          addrList.add(rxdgram.getAddress());
+        }
+      } catch (java.io.IOException ex) {
+
+        // DEBUG
+
+        if (logger.isDebugEnabled() && m_debug)
+          logger.debug(ex.toString());
+      }
+
+    } while (System.currentTimeMillis() < endTime);
+
+    // Check if we received any replies
+
+    if (addrList.size() == 0)
+      return null;
+
+    // Create a node name list
+
+    StringList nameList = new StringList();
+
+    // Convert the reply addresses to node names
+
+    for (int i = 0; i < addrList.size(); i++) {
+
+      // Get the current address from the list
+
+      InetAddress addr = addrList.elementAt(i);
+
+      // Convert the address to a node name string
+
+      String name = NetBIOSName(addr.getHostName());
+
+      // Check if the name is already in the name list
+
+      if (!nameList.containsString(name))
+        nameList.addString(name);
     }
-	/**
-	 * Get the NetBIOS name list for the specified IP address
-	 * 
-	 * @param ipAddr
-	 *            String
-	 * @return NetBIOSNameList
-	 */
-	public static NetBIOSNameList FindNamesForAddress(String ipAddr)
-			throws UnknownHostException, SocketException {
 
-		// Create a datagram socket
+    // Return the node name list
 
-		if (m_dgramSock == null) {
+    return nameList;
+  }
 
-			// Create a datagram socket
+  /**
+   * Get the NetBIOS name list for the specified IP address
+   * 
+   * @param ipAddr
+   *          String
+   * @return NetBIOSNameList
+   */
+  public static NetBIOSNameList FindNamesForAddress(String ipAddr)
+      throws UnknownHostException, SocketException {
 
-			m_dgramSock = new DatagramSocket();
-		}
+    // Create a datagram socket
 
-		// Set the datagram socket timeout, in milliseconds
+    if (m_dgramSock == null) {
 
-		m_dgramSock.setSoTimeout(2000);
+      // Create a datagram socket
 
-		// Create a name lookup NetBIOS packet
+      m_dgramSock = new DatagramSocket();
+    }
 
-		NetBIOSPacket nbpkt = new NetBIOSPacket();
+    // Set the datagram socket timeout, in milliseconds
 
-		nbpkt.setTransactionId(m_tranIdx++);
-		nbpkt.setOpcode(NetBIOSPacket.NAME_QUERY);
-		nbpkt.setFlags(NetBIOSPacket.FLG_BROADCAST);
-		nbpkt.setQuestionCount(1);
-		nbpkt.setQuestionName("*\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
-				NetBIOSName.WorkStation, NetBIOSPacket.NAME_TYPE_NBSTAT,
-				NetBIOSPacket.NAME_CLASS_IN);
+    m_dgramSock.setSoTimeout(2000);
 
-		// Send the request to the specified address
+    // Create a name lookup NetBIOS packet
 
-		InetAddress destAddr = InetAddress.getByName(ipAddr);
-		DatagramPacket dgram = new DatagramPacket(nbpkt.getBuffer(), nbpkt
-				.getLength(), destAddr, RFCNetBIOSProtocol.NAME_PORT);
+    NetBIOSPacket nbpkt = new NetBIOSPacket();
 
-		// Allocate a receive datagram packet
+    nbpkt.setTransactionId(m_tranIdx++);
+    nbpkt.setOpcode(NetBIOSPacket.NAME_QUERY);
+    nbpkt.setFlags(NetBIOSPacket.FLG_BROADCAST);
+    nbpkt.setQuestionCount(1);
+    nbpkt.setQuestionName("*\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+        NetBIOSName.WorkStation, NetBIOSPacket.NAME_TYPE_NBSTAT,
+        NetBIOSPacket.NAME_CLASS_IN);
 
-		byte[] rxbuf = new byte[FindNameBufferSize];
-		DatagramPacket rxdgram = new DatagramPacket(rxbuf, rxbuf.length);
+    // Send the request to the specified address
 
-		// Create a NetBIOS packet using the receive buffer
+    InetAddress destAddr = InetAddress.getByName(ipAddr);
+    DatagramPacket dgram = new DatagramPacket(nbpkt.getBuffer(), nbpkt
+        .getLength(), destAddr, RFCNetBIOSProtocol.NAME_PORT);
 
-		NetBIOSPacket rxpkt = new NetBIOSPacket(rxbuf);
+    // Allocate a receive datagram packet
 
-		// DEBUG
+    byte[] rxbuf = new byte[FindNameBufferSize];
+    DatagramPacket rxdgram = new DatagramPacket(rxbuf, rxbuf.length);
 
-		if (logger.isDebugEnabled() && m_debug)
-			nbpkt.DumpPacket(false);
+    // Create a NetBIOS packet using the receive buffer
 
-		// Create a vector to store the remote hosts NetBIOS names
+    NetBIOSPacket rxpkt = new NetBIOSPacket(rxbuf);
 
-		NetBIOSNameList nameList = null;
+    // DEBUG
 
-		try {
+    if (logger.isDebugEnabled() && m_debug)
+      nbpkt.DumpPacket(false);
 
-			// Send the name query datagram
+    // Create a vector to store the remote hosts NetBIOS names
 
-			m_dgramSock.send(dgram);
+    NetBIOSNameList nameList = null;
 
-			// Receive a datagram packet
+    try {
 
-			m_dgramSock.receive(rxdgram);
+      // Send the name query datagram
 
-			// DEBUG
+      m_dgramSock.send(dgram);
 
-			if (logger.isDebugEnabled() && m_debug) {
-				logger.debug("NetBIOS: Rx Datagram");
-				rxpkt.DumpPacket(false);
-			}
+      // Receive a datagram packet
 
-			// Check if this is a valid response datagram
+      m_dgramSock.receive(rxdgram);
 
-			if (rxpkt.isResponse()
-					&& rxpkt.getOpcode() == NetBIOSPacket.RESP_QUERY
-					&& rxpkt.getAnswerCount() >= 1) {
+      // DEBUG
 
-				// Get the received name list
+      if (logger.isDebugEnabled() && m_debug) {
+        logger.debug("NetBIOS: Rx Datagram");
+        rxpkt.DumpPacket(false);
+      }
 
-				nameList = rxpkt.getAdapterStatusNameList();
+      // Check if this is a valid response datagram
 
-				// If the name list is valid update the names with the original
-				// address that was connected to
+      if (rxpkt.isResponse() && rxpkt.getOpcode() == NetBIOSPacket.RESP_QUERY
+          && rxpkt.getAnswerCount() >= 1) {
 
-				if (nameList != null) {
-					for (int i = 0; i < nameList.numberOfNames(); i++) {
-						NetBIOSName nbName = nameList.getName(i);
-						nbName.addIPAddress(destAddr.getAddress());
-					}
-				}
-			}
-		} catch (java.io.IOException ex) {
+        // Get the received name list
 
-			// DEBUG
+        nameList = rxpkt.getAdapterStatusNameList();
 
-			if (logger.isDebugEnabled() && m_debug)
-				logger.debug(ex.toString());
+        // If the name list is valid update the names with the original address
+        // that was connected to
 
-			// Unknown host
+        if (nameList != null) {
+          for (int i = 0; i < nameList.numberOfNames(); i++) {
+            NetBIOSName nbName = nameList.getName(i);
+            nbName.addIPAddress(destAddr.getAddress());
+          }
+        }
+      }
+    } catch (java.io.IOException ex) {
 
-			throw new UnknownHostException(ipAddr);
-		}
+      // DEBUG
 
-		// Return the NetBIOS name list
+      if (logger.isDebugEnabled() && m_debug)
+        logger.debug(ex.toString());
 
-		return nameList;
-	}
+      // Unknown host
 
-	/**
-	 * Determine the subnet mask from the local hosts TCP/IP address
-	 * 
-	 * @param addr
-	 *            TCP/IP address to set the subnet mask for, in
-	 *            'nnn.nnn.nnn.nnn' format.
-	 */
-	public static String GenerateSubnetMask(String addr)
-			throws java.net.UnknownHostException {
+      throw new UnknownHostException(ipAddr);
+    }
 
-		// Set the TCP/IP address string
+    // Return the NetBIOS name list
 
-		String localIP = addr;
+    return nameList;
+  }
 
-		// Get the local TCP/IP address, if a null string has been specified
+  /**
+   * Determine the subnet mask from the local hosts TCP/IP address
+   * 
+   * @param addr
+   *          TCP/IP address to set the subnet mask for, in 'nnn.nnn.nnn.nnn'
+   *          format.
+   */
+  public static String GenerateSubnetMask(String addr)
+      throws java.net.UnknownHostException {
 
-		if (localIP == null)
-			localIP = InetAddress.getLocalHost().getHostAddress();
+    // Set the TCP/IP address string
 
-		// Find the location of the first dot in the TCP/IP address
+    String localIP = addr;
 
-		int dotPos = localIP.indexOf('.');
-		if (dotPos != -1) {
+    // Get the local TCP/IP address, if a null string has been specified
 
-			// Extract the leading IP address value
+    if (localIP == null)
+      localIP = InetAddress.getLocalHost().getHostAddress();
 
-			String ipStr = localIP.substring(0, dotPos);
-			int ipVal = Integer.valueOf(ipStr).intValue();
+    // Find the location of the first dot in the TCP/IP address
 
-			// Determine the subnet mask to use
+    int dotPos = localIP.indexOf('.');
+    if (dotPos != -1) {
 
-			if (ipVal <= 127) {
+      // Extract the leading IP address value
 
-				// Class A address
+      String ipStr = localIP.substring(0, dotPos);
+      int ipVal = Integer.valueOf(ipStr).intValue();
 
-				m_subnetMask = "" + ipVal + ".255.255.255";
-			} else if (ipVal <= 191) {
+      // Determine the subnet mask to use
 
-				// Class B adddress
+      if (ipVal <= 127) {
 
-				dotPos++;
-				while (localIP.charAt(dotPos) != '.'
-						&& dotPos < localIP.length())
-					dotPos++;
+        // Class A address
 
-				if (dotPos < localIP.length())
-					m_subnetMask = localIP.substring(0, dotPos) + ".255.255";
-			} else if (ipVal <= 223) {
+        m_subnetMask = "" + ipVal + ".255.255.255";
+      } else if (ipVal <= 191) {
 
-				// Class C address
+        // Class B adddress
 
-				dotPos++;
-				int dotCnt = 1;
-
-				while (dotCnt < 3 && dotPos < localIP.length()) {
+        dotPos++;
+        while (localIP.charAt(dotPos) != '.' && dotPos < localIP.length())
+          dotPos++;
 
-					// Check if the current character is a dot
-
-					if (localIP.charAt(dotPos++) == '.')
-						dotCnt++;
-				}
-
-				if (dotPos < localIP.length())
-					m_subnetMask = localIP.substring(0, dotPos - 1) + ".255";
-			}
-		}
-
-		// Check if the subnet mask has been set, if not then use a general
-		// broadcast mask
-
-		if (m_subnetMask == null) {
-
-			// Invalid TCP/IP address string format, use a general broadcast
-			// mask
-			// for now.
-
-			m_subnetMask = "255.255.255.255";
-		}
-
-		// DEBUG
-
-		if (logger.isDebugEnabled() && m_debug)
-			logger.debug("NetBIOS: Set subnet mask to " + m_subnetMask);
-
-		// Return the subnet mask string
-
-		return m_subnetMask;
-	}
-
-	/**
-	 * Get the WINS/NetBIOS name lookup timeout, in milliseconds.
-	 * 
-	 * @return int
-	 */
-	public static int getLookupTimeout() {
-		return m_lookupTmo;
-	}
-
-	/**
-	 * Return the name lookup type that is used when setting up new sessions,
-	 * valid values are DNSOnly, WINSOnly, WINSAndDNS. DNSOnly is the default
-	 * type.
-	 * 
-	 * @return int
-	 */
-	public static int getLookupType() {
-		return m_lookupType;
-	}
-
-	/**
-	 * Return the subnet mask string
-	 * 
-	 * @return Subnet mask string, in 'nnn.nnn.nnn.nnn' format
-	 */
-	public static String getSubnetMask() {
-		return m_subnetMask;
-	}
-
-	/**
-	 * Determine if the WINS server address is configured
-	 * 
-	 * @return boolean
-	 */
-	public final static boolean hasWINSServer() {
-		return m_winsServer != null ? true : false;
-	}
-
-	/**
-	 * Return the WINS server address
-	 * 
-	 * @return InetAddress
-	 */
-	public final static InetAddress getWINSServer() {
-		return m_winsServer;
-	}
-
-	/**
-	 * Determine if SMB session debugging is enabled
-	 * 
-	 * @return true if debugging is enabled, else false.
-	 */
-	public static boolean isDebug() {
-		return m_debug;
-	}
-
-	/**
-	 * Return the next session index
-	 * 
-	 * @return int
-	 */
-	private final static synchronized int getSessionId() {
-		return m_sessIdx++;
-	}
-
-	/**
-	 * Return the JVM unique id, used when generating caller names
-	 * 
-	 * @return int
-	 */
-	public final static int getJVMIndex() {
-		return m_jvmIdx;
-	}
-
-	/**
-	 * Convert the TCP/IP host name to a NetBIOS name string.
-	 * 
-	 * @return java.lang.String
-	 * @param hostName
-	 *            java.lang.String
-	 */
-	public static String NetBIOSName(String hostName) {
-
-		// Check if the host name contains a domain name
-
-		String nbName = new String(hostName.toUpperCase());
-		int pos = nbName.indexOf(".");
-
-		if (pos != -1) {
-
-			// Strip the domain name for the NetBIOS name
-
-			nbName = nbName.substring(0, pos);
-		}
-
-		// Return the NetBIOS name string
-
-		return nbName;
-	}
-
-	/**
-	 * Enable/disable NetBIOS session debugging
-	 * 
-	 * @param dbg
-	 *            true to enable debugging, else false
-	 */
-	public static void setDebug(boolean dbg) {
-		m_debug = dbg;
-	}
-
-	/**
-	 * Set the WINS/NetBIOS name lookup timeout value, in milliseconds.
-	 * 
-	 * @param tmo
-	 *            int
-	 */
-	public static void setLookupTimeout(int tmo) {
-		if (tmo >= 250)
-			m_lookupTmo = tmo;
-	}
-
-	/**
-	 * Set the name lookup type(s) to be used when opening new sessions, valid
-	 * values are DNSOnly, WINSOnly, WINSAndDNS. DNSOnly is the default type.
-	 * 
-	 * @param typ
-	 *            int
-	 */
-	public static void setLookupType(int typ) {
-		if (typ >= DNSOnly && typ <= WINSAndDNS)
-			m_lookupType = typ;
-	}
+        if (dotPos < localIP.length())
+          m_subnetMask = localIP.substring(0, dotPos) + ".255.255";
+      } else if (ipVal <= 223) {
 
-	/**
-	 * Set the subnet mask string
-	 * 
-	 * @param subnet
-	 *            Subnet mask string, in 'nnn.nnn.nnn.nnn' format
-	 */
-	public static void setSubnetMask(String subnet) {
-		m_subnetMask = subnet;
-	}
+        // Class C address
 
-	/**
-	 * Set the WINS server address
-	 * 
-	 * @param addr
-	 *            InetAddress
-	 */
-	public final static void setWINSServer(InetAddress addr) {
-		m_winsServer = addr;
-	}
-
-	/**
-	 * Get the NetBIOS adapter status for the specified node.
-	 * 
-	 * @return java.util.Vector
-	 * @param nodeName
-	 *            java.lang.String
-	 */
-	private static Vector AdapterStatus(String nodeName)
-			throws java.io.IOException {
-
-		// Create the socket
-
-		DatagramSocket nameSock = new DatagramSocket();
-
-		// Enable the timeout on the socket
-
-		nameSock.setSoTimeout(2000);
+        dotPos++;
+        int dotCnt = 1;
 
-		// Create an adapter status NetBIOS packet
+        while (dotCnt < 3 && dotPos < localIP.length()) {
 
-		NetBIOSPacket nbpkt = new NetBIOSPacket();
+          // Check if the current character is a dot
 
-		// nbpkt.setTransactionId( m_tranIdx++);
-		nbpkt.setTransactionId(9999);
-		nbpkt.setOpcode(NetBIOSPacket.NAME_QUERY);
-		nbpkt.setFlags(NetBIOSPacket.FLG_BROADCAST);
-		nbpkt.setQuestionCount(1);
-		nbpkt.setQuestionName(nodeName, NetBIOSName.WorkStation,
-				NetBIOSPacket.NAME_TYPE_NBSTAT, NetBIOSPacket.NAME_CLASS_IN);
+          if (localIP.charAt(dotPos++) == '.')
+            dotCnt++;
+        }
+
+        if (dotPos < localIP.length())
+          m_subnetMask = localIP.substring(0, dotPos - 1) + ".255";
+      }
+    }
+
+    // Check if the subnet mask has been set, if not then use a general
+    // broadcast mask
+
+    if (m_subnetMask == null) {
+
+      // Invalid TCP/IP address string format, use a general broadcast mask
+      // for now.
+
+      m_subnetMask = "255.255.255.255";
+    }
+
+    // DEBUG
 
-		// Build a broadcast destination address
-
-		InetAddress destAddr = InetAddress.getByName(nodeName);
-		DatagramPacket dgram = new DatagramPacket(nbpkt.getBuffer(), nbpkt
-				.getLength(), destAddr, RFCNetBIOSProtocol.NAME_PORT);
-
-		// Allocate a receive datagram packet
+    if (logger.isDebugEnabled() && m_debug)
+      logger.debug("NetBIOS: Set subnet mask to " + m_subnetMask);
 
-		byte[] rxbuf = new byte[512];
-		DatagramPacket rxdgram = new DatagramPacket(rxbuf, rxbuf.length);
-
-		// Create a NetBIOS packet using the receive buffer
-
-		NetBIOSPacket rxpkt = new NetBIOSPacket(rxbuf);
+    // Return the subnet mask string
 
-		// DEBUG
-
-		if (logger.isDebugEnabled() && m_debug)
-			nbpkt.DumpPacket(false);
+    return m_subnetMask;
+  }
 
-		// Send the find name datagram
+  /**
+   * Get the WINS/NetBIOS name lookup timeout, in milliseconds.
+   * 
+   * @return int
+   */
+  public static int getLookupTimeout() {
+    return m_lookupTmo;
+  }
+
+  /**
+   * Return the name lookup type that is used when setting up new sessions,
+   * valid values are DNSOnly, WINSOnly, WINSAndDNS. DNSOnly is the default
+   * type.
+   * 
+   * @return int
+   */
+  public static int getLookupType() {
+    return m_lookupType;
+  }
+
+  /**
+   * Return the subnet mask string
+   * 
+   * @return Subnet mask string, in 'nnn.nnn.nnn.nnn' format
+   */
+  public static String getSubnetMask() {
+    return m_subnetMask;
+  }
+
+  /**
+   * Determine if the WINS server address is configured
+   * 
+   * @return boolean
+   */
+  public final static boolean hasWINSServer() {
+    return m_winsServer != null ? true : false;
+  }
+
+  /**
+   * Return the WINS server address
+   * 
+   * @return InetAddress
+   */
+  public final static InetAddress getWINSServer() {
+    return m_winsServer;
+  }
+
+  /**
+   * Determine if SMB session debugging is enabled
+   * 
+   * @return true if debugging is enabled, else false.
+   */
+  public static boolean isDebug() {
+    return m_debug;
+  }
+
+  /**
+   * Return the next session index
+   * 
+   * @return int
+   */
+  private final static synchronized int getSessionId() {
+    return m_sessIdx++;
+  }
+
+  /**
+   * Return the JVM unique id, used when generating caller names
+   * 
+   * @return int
+   */
+  public final static int getJVMIndex() {
+    return m_jvmIdx;
+  }
+
+  /**
+   * Convert the TCP/IP host name to a NetBIOS name string.
+   * 
+   * @return java.lang.String
+   * @param hostName
+   *          java.lang.String
+   */
+  public static String NetBIOSName(String hostName) {
+
+    // Check if the host name contains a domain name
+
+    String nbName = new String(hostName.toUpperCase());
+    int pos = nbName.indexOf(".");
+
+    if (pos != -1) {
+
+      // Strip the domain name for the NetBIOS name
+
+      nbName = nbName.substring(0, pos);
+    }
+
+    // Return the NetBIOS name string
+
+    return nbName;
+  }
+
+  /**
+   * Enable/disable NetBIOS session debugging
+   * 
+   * @param dbg
+   *          true to enable debugging, else false
+   */
+  public static void setDebug(boolean dbg) {
+    m_debug = dbg;
+  }
+
+  /**
+   * Set the WINS/NetBIOS name lookup timeout value, in milliseconds.
+   * 
+   * @param tmo
+   *          int
+   */
+  public static void setLookupTimeout(int tmo) {
+    if (tmo >= 250)
+      m_lookupTmo = tmo;
+  }
 
-		nameSock.send(dgram);
+  /**
+   * Set the name lookup type(s) to be used when opening new sessions, valid
+   * values are DNSOnly, WINSOnly, WINSAndDNS. DNSOnly is the default type.
+   * 
+   * @param typ
+   *          int
+   */
+  public static void setLookupType(int typ) {
+    if (typ >= DNSOnly && typ <= WINSAndDNS)
+      m_lookupType = typ;
+  }
 
-		// Receive a reply datagram
+  /**
+   * Set the subnet mask string
+   * 
+   * @param subnet
+   *          Subnet mask string, in 'nnn.nnn.nnn.nnn' format
+   */
+  public static void setSubnetMask(String subnet) {
+    m_subnetMask = subnet;
+  }
 
-		boolean rxOK = false;
+  /**
+   * Set the WINS server address
+   * 
+   * @param addr
+   *          InetAddress
+   */
+  public final static void setWINSServer(InetAddress addr) {
+    m_winsServer = addr;
+  }
+
+  /**
+   * Get the NetBIOS adapter status for the specified node.
+   * 
+   * @return java.util.Vector
+   * @param nodeName
+   *          java.lang.String
+   */
+  private static Vector AdapterStatus(String nodeName)
+      throws java.io.IOException {
 
-		do {
+    // Create the socket
 
-			// Receive a datagram packet
+    DatagramSocket nameSock = new DatagramSocket();
 
-			nameSock.receive(rxdgram);
+    // Enable the timeout on the socket
 
-			// DEBUG
+    nameSock.setSoTimeout(2000);
 
-			if (logger.isDebugEnabled() && m_debug) {
-				logger.debug("NetBIOS: Rx Datagram");
-				rxpkt.DumpPacket(false);
-			}
+    // Create an adapter status NetBIOS packet
 
-			// Check if this is a valid response datagram
+    NetBIOSPacket nbpkt = new NetBIOSPacket();
 
-			if (rxpkt.isResponse()
-					&& rxpkt.getOpcode() == NetBIOSPacket.RESP_QUERY)
-				rxOK = true;
+    // nbpkt.setTransactionId( m_tranIdx++);
+    nbpkt.setTransactionId(9999);
+    nbpkt.setOpcode(NetBIOSPacket.NAME_QUERY);
+    nbpkt.setFlags(NetBIOSPacket.FLG_BROADCAST);
+    nbpkt.setQuestionCount(1);
+    nbpkt.setQuestionName(nodeName, NetBIOSName.WorkStation,
+        NetBIOSPacket.NAME_TYPE_NBSTAT, NetBIOSPacket.NAME_CLASS_IN);
 
-		} while (!rxOK);
+    // Build a broadcast destination address
 
-		// Return the remote host address
+    InetAddress destAddr = InetAddress.getByName(nodeName);
+    DatagramPacket dgram = new DatagramPacket(nbpkt.getBuffer(), nbpkt
+        .getLength(), destAddr, RFCNetBIOSProtocol.NAME_PORT);
 
-		return null;
-	}
+    // Allocate a receive datagram packet
 
-	/**
-	 * Connect to a remote host.
-	 * 
-	 * @param remHost
-	 *            Remote host node name/NetBIOS name.
-	 * @param locName
-	 *            Local name/NetBIOS name.
-	 * @param remAddr
-	 *            Optional remote address, if null then lookup will be done to
-	 *            convert name to address
-	 * @exception java.io.IOException
-	 *                I/O error occurred.
-	 * @exception java.net.UnknownHostException
-	 *                Remote host is unknown.
-	 */
-	public void Open(String remHost, String locName, String remAddr)
-			throws java.io.IOException, java.net.UnknownHostException {
+    byte[] rxbuf = new byte[512];
+    DatagramPacket rxdgram = new DatagramPacket(rxbuf, rxbuf.length);
 
-		// Debug mode
+    // Create a NetBIOS packet using the receive buffer
 
-		if (logger.isDebugEnabled() && m_debug)
-			logger.debug("NetBIOS: Call " + remHost);
+    NetBIOSPacket rxpkt = new NetBIOSPacket(rxbuf);
 
-		// Convert the remote host name to an address
+    // DEBUG
 
-		boolean dnsLookup = false;
-		InetAddress addr = null;
+    if (logger.isDebugEnabled() && m_debug)
+      nbpkt.DumpPacket(false);
 
-		// Set the remote address is specified
+    // Send the find name datagram
 
-		if (remAddr != null) {
+    nameSock.send(dgram);
 
-			// Use the specified remote address
+    // Receive a reply datagram
 
-			addr = InetAddress.getByName(remAddr);
-		} else {
+    boolean rxOK = false;
 
-			// Try a WINS/NetBIOS type name lookup, if enabled
+    do {
 
-			if (getLookupType() != DNSOnly) {
-				try {
-					NetBIOSName netName = FindName(remHost,
-							NetBIOSName.FileServer, 500);
-					if (netName != null && netName.numberOfAddresses() > 0)
-						addr = InetAddress.getByName(netName
-								.getIPAddressString(0));
-				} catch (Exception ex) {
-				}
-			}
+      // Receive a datagram packet
 
-			// Try a DNS type name lookup, if enabled
+      nameSock.receive(rxdgram);
 
-			if (addr == null && getLookupType() != WINSOnly) {
-				addr = InetAddress.getByName(remHost);
-				dnsLookup = true;
-			}
-		}
+      // DEBUG
 
-		// Check if we translated the remote host name to an address
+      if (logger.isDebugEnabled() && m_debug) {
+        logger.debug("NetBIOS: Rx Datagram");
+        rxpkt.DumpPacket(false);
+      }
 
-		if (addr == null)
-			throw new java.net.UnknownHostException(remHost);
+      // Check if this is a valid response datagram
 
-		// Debug mode
+      if (rxpkt.isResponse() && rxpkt.getOpcode() == NetBIOSPacket.RESP_QUERY)
+        rxOK = true;
 
-		if (logger.isDebugEnabled() && m_debug)
-			logger.debug("NetBIOS: Remote node hase address "
-					+ addr.getHostAddress() + " ("
-					+ (dnsLookup ? "DNS" : "WINS") + ")");
+    } while (!rxOK);
 
-		// Determine the remote name to call
+    // Return the remote host address
 
-		String remoteName = null;
+    return null;
+  }
 
-		if (getRemoteNameType() == NetBIOSName.FileServer
-				&& useWildcardFileServerName() == true)
-			remoteName = "*SMBSERVER";
-		else
-			remoteName = remHost;
+  /**
+   * Connect to a remote host.
+   * 
+   * @param remHost
+   *          Remote host node name/NetBIOS name.
+   * @param locName
+   *          Local name/NetBIOS name.
+   * @param remAddr
+   *          Optional remote address, if null then lookup will be done to
+   *          convert name to address
+   * @exception java.io.IOException
+   *              I/O error occurred.
+   * @exception java.net.UnknownHostException
+   *              Remote host is unknown.
+   */
+  public void Open(String remHost, String locName, String remAddr)
+      throws java.io.IOException, java.net.UnknownHostException {
 
-		// Open a session to the remote server
+    // Debug mode
 
-		int resp = openSession(remoteName, addr);
+    if (logger.isDebugEnabled() && m_debug)
+      logger.debug("NetBIOS: Call " + remHost);
 
-		// Check the server response
+    // Convert the remote host name to an address
 
-		if (resp == RFCNetBIOSProtocol.SESSION_ACK)
-			return;
-		else if (resp == RFCNetBIOSProtocol.SESSION_REJECT) {
+    boolean dnsLookup = false;
+    InetAddress addr = null;
 
-			// Try the connection again with the remote host name
+    // Set the remote address is specified
 
-			if (remoteName.equals(remHost) == false)
-				resp = openSession(remHost, addr);
+    if (remAddr != null) {
 
-			// Check if we got a valid response this time
+      // Use the specified remote address
 
-			if (resp == RFCNetBIOSProtocol.SESSION_ACK)
-				return;
+      addr = InetAddress.getByName(remAddr);
+    } else {
 
-			// Server rejected the connection
+      // Try a WINS/NetBIOS type name lookup, if enabled
 
-			throw new java.io.IOException("NetBIOS session reject");
-		} else if (resp == RFCNetBIOSProtocol.SESSION_RETARGET)
-			throw new java.io.IOException("NetBIOS ReTarget");
+      if (getLookupType() != DNSOnly) {
+        try {
+          NetBIOSName netName = FindName(remHost, NetBIOSName.FileServer, 500);
+          if (netName != null && netName.numberOfAddresses() > 0)
+            addr = InetAddress.getByName(netName.getIPAddressString(0));
+        } catch (Exception ex) {
+        }
+      }
 
-		// Invalid session response, hangup the session
+      // Try a DNS type name lookup, if enabled
 
-		Close();
-		throw new java.io.IOException("Invalid NetBIOS response, 0x"
-				+ Integer.toHexString(resp));
-	}
+      if (addr == null && getLookupType() != WINSOnly) {
+        addr = InetAddress.getByName(remHost);
+        dnsLookup = true;
+      }
+    }
 
-	/**
-	 * Open a NetBIOS session to a remote server
-	 * 
-	 * @param remoteName
-	 *            String
-	 * @param addr
-	 *            InetAddress
-	 * @return int
-	 * @exception IOException
-	 */
-	private final int openSession(String remoteName, InetAddress addr)
-			throws IOException {
+    // Check if we translated the remote host name to an address
 
-		// Create the socket
+    if (addr == null)
+      throw new java.net.UnknownHostException(remHost);
 
-		m_nbSocket = new Socket(addr, m_remotePort);
+    // Debug mode
 
-		// Enable the timeout on the socket, and disable Nagle algorithm
+    if (logger.isDebugEnabled() && m_debug)
+      logger.debug("NetBIOS: Remote node hase address " + addr.getHostAddress()
+          + " (" + (dnsLookup ? "DNS" : "WINS") + ")");
 
-		m_nbSocket.setSoTimeout(m_tmo);
-		m_nbSocket.setTcpNoDelay(true);
+    // Determine the remote name to call
 
-		// Attach input/output streams to the socket
+    String remoteName = null;
 
-		m_nbIn = new DataInputStream(m_nbSocket.getInputStream());
-		m_nbOut = new DataOutputStream(m_nbSocket.getOutputStream());
+    if (getRemoteNameType() == NetBIOSName.FileServer
+        && useWildcardFileServerName() == true)
+      remoteName = "*SMBSERVER";
+    else
+      remoteName = remHost;
 
-		// Allocate a buffer to receive the session response
+    // Open a session to the remote server
 
-		byte[] inpkt = new byte[RFCNetBIOSProtocol.SESSRESP_LEN];
+    int resp = openSession(remoteName, addr);
 
-		// Create the from/to NetBIOS names
+    // Check the server response
 
-		NetBIOSName fromName = createUniqueCallerName();
-		NetBIOSName toName = new NetBIOSName(remoteName, getRemoteNameType(),
-				false);
+    if (resp == RFCNetBIOSProtocol.SESSION_ACK)
+      return;
+    else if (resp == RFCNetBIOSProtocol.SESSION_REJECT) {
 
-		// Debug
+      // Try the connection again with the remote host name
 
-		if (logger.isDebugEnabled() && m_debug)
-			logger.debug("NetBIOS: Call from " + fromName + " to " + toName);
+      if (remoteName.equals(remHost) == false)
+        resp = openSession(remHost, addr);
 
-		// Build the session request packet
+      // Check if we got a valid response this time
 
-		NetBIOSPacket nbPkt = new NetBIOSPacket();
-		nbPkt.buildSessionSetupRequest(fromName, toName);
+      if (resp == RFCNetBIOSProtocol.SESSION_ACK)
+        return;
 
-		// Send the session request packet
+      // Server rejected the connection
 
-		m_nbOut.write(nbPkt.getBuffer(), 0, nbPkt.getLength());
+      throw new java.io.IOException("NetBIOS session reject");
+    } else if (resp == RFCNetBIOSProtocol.SESSION_RETARGET)
+      throw new java.io.IOException("NetBIOS ReTarget");
 
-		// Allocate a buffer for the session request response, and read the
-		// response
+    // Invalid session response, hangup the session
 
-		int resp = -1;
+    Close();
+    throw new java.io.IOException("Invalid NetBIOS response, 0x"
+        + Integer.toHexString(resp));
+  }
 
-		if (m_nbIn.read(inpkt, 0, RFCNetBIOSProtocol.SESSRESP_LEN) >= RFCNetBIOSProtocol.HEADER_LEN) {
+  /**
+   * Open a NetBIOS session to a remote server
+   * 
+   * @param remoteName
+   *          String
+   * @param addr
+   *          InetAddress
+   * @return int
+   * @exception IOException
+   */
+  private final int openSession(String remoteName, InetAddress addr)
+      throws IOException {
 
-			// Check the session request response
+    // Create the socket
 
-			resp = (int) (inpkt[0] & 0xFF);
+    m_nbSocket = new Socket(addr, m_remotePort);
 
-			// Debug mode
+    // Enable the timeout on the socket, and disable Nagle algorithm
 
-			if (logger.isDebugEnabled() && m_debug)
-				logger.debug("NetBIOS: Rx "
-						+ NetBIOSPacket.getTypeAsString(resp));
-		}
+    m_nbSocket.setSoTimeout(m_tmo);
+    m_nbSocket.setTcpNoDelay(true);
 
-		// Check for a positive response
+    // Attach input/output streams to the socket
 
-		if (resp != RFCNetBIOSProtocol.SESSION_ACK) {
+    m_nbIn = new DataInputStream(m_nbSocket.getInputStream());
+    m_nbOut = new DataOutputStream(m_nbSocket.getOutputStream());
 
-			// Close the socket and streams
+    // Allocate a buffer to receive the session response
 
-			m_nbIn.close();
-			m_nbIn = null;
+    byte[] inpkt = new byte[RFCNetBIOSProtocol.SESSRESP_LEN];
 
-			m_nbOut.close();
-			m_nbOut = null;
+    // Create the from/to NetBIOS names
 
-			m_nbSocket.close();
-			m_nbSocket = null;
-		}
+    NetBIOSName fromName = createUniqueCallerName();
+    NetBIOSName toName = new NetBIOSName(remoteName, getRemoteNameType(), false);
 
-		// Return the response code
+    // Debug
 
-		return resp;
-	}
+    if (logger.isDebugEnabled() && m_debug)
+      logger.debug("NetBIOS: Call from " + fromName + " to " + toName);
 
-	/**
-	 * Return the local NetBIOS name type.
-	 * 
-	 * @return char
-	 */
-	public char getLocalNameType() {
-		return m_locNameType;
-	}
+    // Build the session request packet
 
-	/**
-	 * Return the remote NetBIOS name type.
-	 * 
-	 * @return char
-	 */
-	public char getRemoteNameType() {
-		return m_remNameType;
-	}
+    NetBIOSPacket nbPkt = new NetBIOSPacket();
+    nbPkt.buildSessionSetupRequest(fromName, toName);
 
-	/**
-	 * Get the session timeout value
-	 * 
-	 * @return NetBIOS session timeout value
-	 */
-	public int getTimeout() {
-		return m_tmo;
-	}
+    // Send the session request packet
 
-	/**
-	 * Close the NetBIOS session.
-	 * 
-	 * @exception IOException
-	 *                If an I/O error occurs
-	 */
-	public void Close() throws IOException {
+    m_nbOut.write(nbPkt.getBuffer(), 0, nbPkt.getLength());
 
-		// Debug mode
+    // Allocate a buffer for the session request response, and read the response
 
-		if (logger.isDebugEnabled() && m_debug)
-			logger.debug("NetBIOS: HangUp");
+    int resp = -1;
 
-		// Close the session if active
+    if (m_nbIn.read(inpkt, 0, RFCNetBIOSProtocol.SESSRESP_LEN) >= RFCNetBIOSProtocol.HEADER_LEN) {
 
-		if (m_nbSocket != null) {
-			m_nbSocket.close();
-			m_nbSocket = null;
-		}
-	}
+      // Check the session request response
 
-	/**
-	 * Receive a data packet from the remote host.
-	 * 
-	 * @param buf
-	 *            Byte buffer to receive the data into.
-	 * @param tmo
-	 *            Receive timeout in milliseconds, or zero for no timeout
-	 * @return Length of the received data.
-	 * @exception java.io.IOException
-	 *                I/O error occurred.
-	 */
-	public int Receive(byte[] buf, int tmo) throws java.io.IOException {
+      resp = (int) (inpkt[0] & 0xFF);
 
-		// Set the read timeout
+      // Debug mode
 
-		if (tmo != m_tmo) {
-			m_nbSocket.setSoTimeout(tmo);
-			m_tmo = tmo;
-		}
+      if (logger.isDebugEnabled() && m_debug)
+        logger.debug("NetBIOS: Rx " + NetBIOSPacket.getTypeAsString(resp));
+    }
 
-		// Read a data packet, dump any session keep alive packets
+    // Check for a positive response
 
-		int pkttyp;
-		int rdlen;
+    if (resp != RFCNetBIOSProtocol.SESSION_ACK) {
 
-		do {
+      // Close the socket and streams
 
-			// Read a packet header
+      m_nbIn.close();
+      m_nbIn = null;
 
-			rdlen = m_nbIn.read(buf, 0, RFCNetBIOSProtocol.HEADER_LEN);
+      m_nbOut.close();
+      m_nbOut = null;
 
-			// Debug mode
+      m_nbSocket.close();
+      m_nbSocket = null;
+    }
 
-			if (logger.isDebugEnabled() && m_debug)
-				logger.debug("NetBIOS: Read " + rdlen + " bytes");
+    // Return the response code
 
-			// Check if a header was received
+    return resp;
+  }
 
-			if (rdlen < RFCNetBIOSProtocol.HEADER_LEN)
-				throw new java.io.IOException("NetBIOS Short Read");
+  /**
+   * Return the local NetBIOS name type.
+   * 
+   * @return char
+   */
+  public char getLocalNameType() {
+    return m_locNameType;
+  }
 
-			// Get the packet type from the header
+  /**
+   * Return the remote NetBIOS name type.
+   * 
+   * @return char
+   */
+  public char getRemoteNameType() {
+    return m_remNameType;
+  }
 
-			pkttyp = (int) (buf[0] & 0xFF);
+  /**
+   * Get the session timeout value
+   * 
+   * @return NetBIOS session timeout value
+   */
+  public int getTimeout() {
+    return m_tmo;
+  }
 
-		} while (pkttyp == RFCNetBIOSProtocol.SESSION_KEEPALIVE);
+  /**
+   * Close the NetBIOS session.
+   * 
+   * @exception IOException
+   *              If an I/O error occurs
+   */
+  public void Close() throws IOException {
 
-		// Debug mode
+    // Debug mode
 
-		if (logger.isDebugEnabled() && m_debug)
-			logger.debug("NetBIOS: Rx Pkt Type = " + pkttyp + ", "
-					+ Integer.toHexString(pkttyp));
+    if (logger.isDebugEnabled() && m_debug)
+      logger.debug("NetBIOS: HangUp");
 
-		// Check that the packet is a session data packet
+    // Close the session if active
 
-		if (pkttyp != RFCNetBIOSProtocol.SESSION_MESSAGE)
-			throw new java.io.IOException("NetBIOS Unknown Packet Type, "
-					+ pkttyp);
+    if (m_nbSocket != null) {
+      m_nbSocket.close();
+      m_nbSocket = null;
+    }
+  }
 
-		// Extract the data size from the packet header
+  /**
+   * Receive a data packet from the remote host.
+   * 
+   * @param buf
+   *          Byte buffer to receive the data into.
+   * @param tmo
+   *          Receive timeout in milliseconds, or zero for no timeout
+   * @return Length of the received data.
+   * @exception java.io.IOException
+   *              I/O error occurred.
+   */
+  public int Receive(byte[] buf, int tmo) throws java.io.IOException {
 
-		int pktlen = (int) DataPacker.getShort(buf, 2);
-		if (logger.isDebugEnabled() && m_debug)
-			logger.debug("NetBIOS: Rx Data Len = " + pktlen);
+    // Set the read timeout
 
-		// Check if the user buffer is long enough to contain the data
+    if (tmo != m_tmo) {
+      m_nbSocket.setSoTimeout(tmo);
+      m_tmo = tmo;
+    }
 
-		if (buf.length < (pktlen + RFCNetBIOSProtocol.HEADER_LEN)) {
+    // Read a data packet, dump any session keep alive packets
 
-			// Debug mode
+    int pkttyp;
+    int rdlen;
 
-			logger.debug("NetBIOS: Rx Pkt Type = " + pkttyp + ", "
-					+ Integer.toHexString(pkttyp));
-			logger.debug("NetBIOS: Rx Buf Too Small pkt=" + pktlen + " buflen="
-					+ buf.length);
-			HexDump.Dump(buf, 16, 0);
+    do {
 
-			throw new java.io.IOException("NetBIOS Recv Buffer Too Small (pkt="
-					+ pktlen + "/buf=" + buf.length + ")");
-		}
+      // Read a packet header
 
-		// Read the data part of the packet into the users buffer, this may take
-		// several reads
+      rdlen = m_nbIn.read(buf, 0, RFCNetBIOSProtocol.HEADER_LEN);
 
-		int totlen = 0;
-		int offset = RFCNetBIOSProtocol.HEADER_LEN;
+      // Debug mode
 
-		while (pktlen > 0) {
+      if (logger.isDebugEnabled() && m_debug)
+        logger.debug("NetBIOS: Read " + rdlen + " bytes");
 
-			// Read the data
+      // Check if a header was received
 
-			rdlen = m_nbIn.read(buf, offset, pktlen);
+      if (rdlen < RFCNetBIOSProtocol.HEADER_LEN)
+        throw new java.io.IOException("NetBIOS Short Read");
 
-			// Update the received length and remaining data length
+      // Get the packet type from the header
 
-			totlen += rdlen;
-			pktlen -= rdlen;
+      pkttyp = (int) (buf[0] & 0xFF);
 
-			// Update the user buffer offset as more reads will be required
-			// to complete the data read
+    } while (pkttyp == RFCNetBIOSProtocol.SESSION_KEEPALIVE);
 
-			offset += rdlen;
+    // Debug mode
 
-		} // end while reading data
+    if (logger.isDebugEnabled() && m_debug)
+      logger.debug("NetBIOS: Rx Pkt Type = " + pkttyp + ", "
+          + Integer.toHexString(pkttyp));
 
-		// Return the received data length, not including the NetBIOS header
+    // Check that the packet is a session data packet
 
-		return totlen;
-	}
+    if (pkttyp != RFCNetBIOSProtocol.SESSION_MESSAGE)
+      throw new java.io.IOException("NetBIOS Unknown Packet Type, " + pkttyp);
 
-	/**
-	 * Send a data packet to the remote host.
-	 * 
-	 * @param data
-	 *            Byte array containing the data to be sent.
-	 * @param siz
-	 *            Length of the data to send.
-	 * @return true if the data was sent successfully, else false.
-	 * @exception java.io.IOException
-	 *                I/O error occurred.
-	 */
-	public boolean Send(byte[] data, int siz) throws java.io.IOException {
+    // Extract the data size from the packet header
 
-		// Check that the session is valid
+    int pktlen = (int) DataPacker.getShort(buf, 2);
+    if (logger.isDebugEnabled() && m_debug)
+      logger.debug("NetBIOS: Rx Data Len = " + pktlen);
 
-		if (m_nbSocket == null)
-			return false;
+    // Check if the user buffer is long enough to contain the data
 
-		// Debug mode
+    if (buf.length < (pktlen + RFCNetBIOSProtocol.HEADER_LEN)) {
 
-		if (logger.isDebugEnabled() && m_debug)
-			logger.debug("NetBIOS: Tx " + siz + " bytes");
+      // Debug mode
 
-		// Fill in the NetBIOS message header, this is already allocated as
-		// part of the users buffer.
+      logger.debug("NetBIOS: Rx Pkt Type = " + pkttyp + ", "
+          + Integer.toHexString(pkttyp));
+      logger.debug("NetBIOS: Rx Buf Too Small pkt=" + pktlen + " buflen="
+          + buf.length);
+      HexDump.Dump(buf, 16, 0);
 
-		data[0] = (byte) RFCNetBIOSProtocol.SESSION_MESSAGE;
-		data[1] = (byte) 0;
+      throw new java.io.IOException("NetBIOS Recv Buffer Too Small (pkt="
+          + pktlen + "/buf=" + buf.length + ")");
+    }
 
-		DataPacker.putShort((short) siz, data, 2);
+    // Read the data part of the packet into the users buffer, this may take
+    // several reads
 
-		// Output the data packet
+    int totlen = 0;
+    int offset = RFCNetBIOSProtocol.HEADER_LEN;
 
-		int bufSiz = siz + RFCNetBIOSProtocol.HEADER_LEN;
-		m_nbOut.write(data, 0, bufSiz);
-		return true;
-	}
+    while (pktlen > 0) {
 
-	/**
-	 * Set the local NetBIOS name type for this session.
-	 * 
-	 * @param nameType
-	 *            int
-	 */
-	public void setLocalNameType(char nameType) {
-		m_locNameType = nameType;
-	}
+      // Read the data
 
-	/**
-	 * Set the remote NetBIOS name type.
-	 * 
-	 * @param param
-	 *            char
-	 */
-	public void setRemoteNameType(char nameType) {
-		m_remNameType = nameType;
-	}
+      rdlen = m_nbIn.read(buf, offset, pktlen);
 
-	/**
-	 * Set the session timeout value
-	 * 
-	 * @param tmo
-	 *            Session timeout value
-	 */
-	public void setTimeout(int tmo) {
-		m_tmo = tmo;
-	}
+      // Update the received length and remaining data length
 
-	/**
-	 * Set the caller session name template string that is appended to the local
-	 * host name to create a unique caller name.
-	 * 
-	 * @param template
-	 *            String
-	 * @exception NameTemplateExcepition
-	 */
-	public final static void setCallerNameTemplate(String template)
-			throws NameTemplateException {
+      totlen += rdlen;
+      pktlen -= rdlen;
 
-		// Check if the template string is valid, is not too long
+      // Update the user buffer offset as more reads will be required
+      // to complete the data read
 
-		if (template == null || template.length() == 0
-				|| template.length() > MaxCallerNameTemplateLength)
-			throw new NameTemplateException("Invalid template string, "
-					+ template);
+      offset += rdlen;
 
-		// Template must contain at least one session id template character
+    } // end while reading data
 
-		if (template.indexOf(SessionIdChar) == -1)
-			throw new NameTemplateException(
-					"No session id character in template");
+    // Return the received data length, not including the NetBIOS header
 
-		// Check if the template contains any invalid characters
+    return totlen;
+  }
 
-		for (int i = 0; i < template.length(); i++) {
-			if (ValidTemplateChars.indexOf(template.charAt(i)) == -1)
-				throw new NameTemplateException(
-						"Invalid character in template, '" + template.charAt(i)
-								+ "'");
-		}
+  /**
+   * Send a data packet to the remote host.
+   * 
+   * @param data
+   *          Byte array containing the data to be sent.
+   * @param siz
+   *          Length of the data to send.
+   * @return true if the data was sent successfully, else false.
+   * @exception java.io.IOException
+   *              I/O error occurred.
+   */
+  public boolean Send(byte[] data, int siz) throws java.io.IOException {
 
-		// Set the caller name template string
+    // Check that the session is valid
 
-		m_callerTemplate = template;
+    if (m_nbSocket == null)
+      return false;
 
-		// Clear the local name part string so that it will be regenerated to
-		// match the new template
-		// string
+    // Debug mode
 
-		m_localNamePart = null;
-	}
+    if (logger.isDebugEnabled() && m_debug)
+      logger.debug("NetBIOS: Tx " + siz + " bytes");
 
-	/**
-	 * Set the JVM index, used to generate unique caller names when multiple
-	 * JVMs are run on the same host.
-	 * 
-	 * @param jvmIdx
-	 *            int
-	 */
-	public final static void setJVMIndex(int jvmIdx) {
-		if (jvmIdx >= 0)
-			m_jvmIdx = jvmIdx;
-	}
+    // Fill in the NetBIOS message header, this is already allocated as
+    // part of the users buffer.
 
-	/**
-	 * Create a unique caller name for a new NetBIOS session. The unique name
-	 * contains the local host name plus an index that is unique for this JVM,
-	 * plus an optional JVM index.
-	 * 
-	 * @return NetBIOSName
-	 */
-	private final NetBIOSName createUniqueCallerName() {
+    data[0] = (byte) RFCNetBIOSProtocol.SESSION_MESSAGE;
+    data[1] = (byte) 0;
 
-		// Check if the local name part has been set
+    DataPacker.putShort((short) siz, data, 2);
 
-		if (m_localNamePart == null) {
+    // Output the data packet
 
-			String localName = null;
+    int bufSiz = siz + RFCNetBIOSProtocol.HEADER_LEN;
+    m_nbOut.write(data, 0, bufSiz);
+    return true;
+  }
 
-			try {
-				localName = InetAddress.getLocalHost().getHostName();
-			} catch (Exception ex) {
-			}
+  /**
+   * Set the local NetBIOS name type for this session.
+   * 
+   * @param nameType
+   *          int
+   */
+  public void setLocalNameType(char nameType) {
+    m_locNameType = nameType;
+  }
 
-			// Check if the name contains a domain
+  /**
+   * Set the remote NetBIOS name type.
+   * 
+   * @param param
+   *          char
+   */
+  public void setRemoteNameType(char nameType) {
+    m_remNameType = nameType;
+  }
 
-			int pos = localName.indexOf(".");
+  /**
+   * Set the session timeout value
+   * 
+   * @param tmo
+   *          Session timeout value
+   */
+  public void setTimeout(int tmo) {
+    m_tmo = tmo;
+  }
 
-			if (pos != -1)
-				localName = localName.substring(0, pos);
+  /**
+   * Set the caller session name template string that is appended to the local
+   * host name to create a unique caller name.
+   * 
+   * @param template
+   *          String
+   * @exception NameTemplateExcepition
+   */
+  public final static void setCallerNameTemplate(String template)
+      throws NameTemplateException {
 
-			// Truncate the name if the host name plus the template is longer
-			// than 15 characters.
+    // Check if the template string is valid, is not too long
 
-			int nameLen = 16 - m_callerTemplate.length();
+    if (template == null || template.length() == 0
+        || template.length() > MaxCallerNameTemplateLength)
+      throw new NameTemplateException("Invalid template string, " + template);
 
-			if (localName.length() > nameLen)
-				localName = localName.substring(0, nameLen - 1);
+    // Template must contain at least one session id template character
 
-			// Set the local host name part
+    if (template.indexOf(SessionIdChar) == -1)
+      throw new NameTemplateException("No session id character in template");
 
-			m_localNamePart = localName.toUpperCase();
-		}
+    // Check if the template contains any invalid characters
 
-		// Get a unique session id and the unique JVM id
+    for (int i = 0; i < template.length(); i++) {
+      if (ValidTemplateChars.indexOf(template.charAt(i)) == -1)
+        throw new NameTemplateException("Invalid character in template, '"
+            + template.charAt(i) + "'");
+    }
 
-		int sessId = getSessionId();
-		int jvmId = getJVMIndex();
+    // Set the caller name template string
 
-		// Build the NetBIOS name string
+    m_callerTemplate = template;
 
-		StringBuffer nameBuf = new StringBuffer(16);
+    // Clear the local name part string so that it will be regenerated to match
+    // the new template
+    // string
 
-		nameBuf.append(m_localNamePart);
+    m_localNamePart = null;
+  }
 
-		// Process the caller name template string
+  /**
+   * Set the JVM index, used to generate unique caller names when multiple JVMs
+   * are run on the same host.
+   * 
+   * @param jvmIdx
+   *          int
+   */
+  public final static void setJVMIndex(int jvmIdx) {
+    if (jvmIdx >= 0)
+      m_jvmIdx = jvmIdx;
+  }
 
-		int idx = 0;
-		int len = -1;
+  /**
+   * Create a unique caller name for a new NetBIOS session. The unique name
+   * contains the local host name plus an index that is unique for this JVM,
+   * plus an optional JVM index.
+   * 
+   * @return NetBIOSName
+   */
+  private final NetBIOSName createUniqueCallerName() {
 
-		while (idx < m_callerTemplate.length()) {
+    // Check if the local name part has been set
 
-			// Get the current template character
+    if (m_localNamePart == null) {
 
-			char ch = m_callerTemplate.charAt(idx++);
+      String localName = null;
 
-			switch (ch) {
+      try {
+        localName = InetAddress.getLocalHost().getHostName();
+      } catch (Exception ex) {
+      }
 
-			// Session id
+      // Check if the name contains a domain
 
-			case SessionIdChar:
-				len = findRepeatLength(m_callerTemplate, idx, SessionIdChar);
-				appendZeroPaddedHexValue(sessId, len, nameBuf);
-				idx += len - 1;
-				break;
+      int pos = localName.indexOf(".");
 
-			// JVM id
+      if (pos != -1)
+        localName = localName.substring(0, pos);
 
-			case JVMIdChar:
-				len = findRepeatLength(m_callerTemplate, idx, JVMIdChar);
-				appendZeroPaddedHexValue(jvmId, len, nameBuf);
-				idx += len - 1;
-				break;
+      // Truncate the name if the host name plus the template is longer than 15
+      // characters.
 
-			// Pass any other characters through to the name string
+      int nameLen = 16 - m_callerTemplate.length();
 
-			default:
-				nameBuf.append(ch);
-				break;
-			}
-		}
+      if (localName.length() > nameLen)
+        localName = localName.substring(0, nameLen - 1);
 
-		// Create the NetBIOS name object
+      // Set the local host name part
 
-		return new NetBIOSName(nameBuf.toString(), getLocalNameType(), false);
-	}
+      m_localNamePart = localName.toUpperCase();
+    }
 
-	/**
-	 * Find the length of the character block in the specified string
-	 * 
-	 * @param str
-	 *            String
-	 * @param pos
-	 *            int
-	 * @param ch
-	 *            char
-	 * @return int
-	 */
-	private final int findRepeatLength(String str, int pos, char ch) {
-		int len = 1;
+    // Get a unique session id and the unique JVM id
 
-		while (pos < str.length() && str.charAt(pos++) == ch)
-			len++;
-		return len;
-	}
+    int sessId = getSessionId();
+    int jvmId = getJVMIndex();
 
-	/**
-	 * Append a zero filled hex string to the specified string
-	 * 
-	 * @param val
-	 *            int
-	 * @param len
-	 *            int
-	 * @param str
-	 *            StringBuffer
-	 */
-	private final void appendZeroPaddedHexValue(int val, int len,
-			StringBuffer str) {
+    // Build the NetBIOS name string
 
-		// Create the hex string of the value
+    StringBuffer nameBuf = new StringBuffer(16);
 
-		String hex = Integer.toHexString(val);
+    nameBuf.append(m_localNamePart);
 
-		// Pad the final string as required
+    // Process the caller name template string
 
-		for (int i = 0; i < len - hex.length(); i++)
-			str.append("0");
-		str.append(hex);
-	}
+    int idx = 0;
+    int len = -1;
 
-	/**
-	 * Return the default socket timeout value
-	 * 
-	 * @return int
-	 */
-	public static final int getDefaultTimeout() {
-		return _defTimeout;
-	}
+    while (idx < m_callerTemplate.length()) {
 
-	/**
-	 * Set the default socket timeout for new sessions
-	 * 
-	 * @param tmo
-	 *            int
-	 */
-	public static final void setDefaultTimeout(int tmo) {
-		_defTimeout = tmo;
-	}
+      // Get the current template character
 
-	/**
-	 * Return the use wildcard file server name flag status. If true the target
-	 * name when conencting to a remote file server will be '*SMBSERVER', if
-	 * false the remote name will be used.
-	 * 
-	 * @return boolean
-	 */
-	public static final boolean useWildcardFileServerName() {
-		return m_useWildcardFileServer;
-	}
+      char ch = m_callerTemplate.charAt(idx++);
 
-	/**
-	 * Set the use wildcard file server name flag. If true the target name when
-	 * conencting to a remote file server will be '*SMBSERVER', if false the
-	 * remote name will be used.
-	 * 
-	 * @param useWildcard
-	 *            boolean
-	 */
-	public static final void setWildcardFileServerName(boolean useWildcard) {
-		m_useWildcardFileServer = useWildcard;
-	}
+      switch (ch) {
 
-	/**
-	 * Finalize the NetBIOS session object
-	 */
-	protected void finalize() {
+      // Session id
 
-		// Close the socket
+      case SessionIdChar:
+        len = findRepeatLength(m_callerTemplate, idx, SessionIdChar);
+        appendZeroPaddedHexValue(sessId, len, nameBuf);
+        idx += len - 1;
+        break;
 
-		if (m_nbSocket != null) {
-			try {
-				m_nbSocket.close();
-			} catch (java.io.IOException ex) {
-			}
-			m_nbSocket = null;
-		}
-	}
+      // JVM id
+
+      case JVMIdChar:
+        len = findRepeatLength(m_callerTemplate, idx, JVMIdChar);
+        appendZeroPaddedHexValue(jvmId, len, nameBuf);
+        idx += len - 1;
+        break;
+
+      // Pass any other characters through to the name string
+
+      default:
+        nameBuf.append(ch);
+        break;
+      }
+    }
+
+    // Create the NetBIOS name object
+
+    return new NetBIOSName(nameBuf.toString(), getLocalNameType(), false);
+  }
+
+  /**
+   * Find the length of the character block in the specified string
+   * 
+   * @param str
+   *          String
+   * @param pos
+   *          int
+   * @param ch
+   *          char
+   * @return int
+   */
+  private final int findRepeatLength(String str, int pos, char ch) {
+    int len = 1;
+
+    while (pos < str.length() && str.charAt(pos++) == ch)
+      len++;
+    return len;
+  }
+
+  /**
+   * Append a zero filled hex string to the specified string
+   * 
+   * @param val
+   *          int
+   * @param len
+   *          int
+   * @param str
+   *          StringBuffer
+   */
+  private final void appendZeroPaddedHexValue(int val, int len, StringBuffer str) {
+
+    // Create the hex string of the value
+
+    String hex = Integer.toHexString(val);
+
+    // Pad the final string as required
+
+    for (int i = 0; i < len - hex.length(); i++)
+      str.append("0");
+    str.append(hex);
+  }
+
+  /**
+   * Return the default socket timeout value
+   * 
+   * @return int
+   */
+  public static final int getDefaultTimeout() {
+    return _defTimeout;
+  }
+
+  /**
+   * Set the default socket timeout for new sessions
+   * 
+   * @param tmo
+   *          int
+   */
+  public static final void setDefaultTimeout(int tmo) {
+    _defTimeout = tmo;
+  }
+
+  /**
+   * Return the use wildcard file server name flag status. If true the target
+   * name when conencting to a remote file server will be '*SMBSERVER', if false
+   * the remote name will be used.
+   * 
+   * @return boolean
+   */
+  public static final boolean useWildcardFileServerName() {
+    return m_useWildcardFileServer;
+  }
+
+  /**
+   * Set the use wildcard file server name flag. If true the target name when
+   * conencting to a remote file server will be '*SMBSERVER', if false the
+   * remote name will be used.
+   * 
+   * @param useWildcard
+   *          boolean
+   */
+  public static final void setWildcardFileServerName(boolean useWildcard) {
+    m_useWildcardFileServer = useWildcard;
+  }
+
+  /**
+   * Finalize the NetBIOS session object
+   */
+  protected void finalize() {
+
+    // Close the socket
+
+    if (m_nbSocket != null) {
+      try {
+        m_nbSocket.close();
+      } catch (java.io.IOException ex) {
+      }
+      m_nbSocket = null;
+    }
+  }
 }

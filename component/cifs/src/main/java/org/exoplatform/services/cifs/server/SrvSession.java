@@ -1,18 +1,26 @@
 /*
- * Copyright (C) 2005-2006 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.server;
 
@@ -22,10 +30,11 @@ import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
+import org.exoplatform.container.client.ClientInfo;
 import org.exoplatform.services.cifs.server.auth.AuthContext;
 import org.exoplatform.services.cifs.server.core.SharedDevice;
 import org.exoplatform.services.cifs.server.core.SharedDeviceList;
-
+import org.exoplatform.services.transaction.TransactionService;
 
 /**
  * Server Session Base Class
@@ -54,15 +63,9 @@ public abstract class SrvSession {
 
   private boolean m_loggedOn;
 
-  // Client details
-
-  // private ClientInfo m_clientInfo;
-
   // Debug flags for this session
 
   private int m_debug;
-
-  private String m_dbgPrefix;
 
   // Session shutdown flag
 
@@ -76,7 +79,7 @@ public abstract class SrvSession {
 
   private String m_remoteName;
 
-  // Authentication token, used during logon
+  // Authentication token, used during logon TODO is it?
 
   private Object m_authToken;
 
@@ -86,11 +89,13 @@ public abstract class SrvSession {
 
   // List of dynamic/temporary shares created for this session
 
-  SharedDeviceList m_shares;
+  private SharedDeviceList m_dynamicShares;
 
   // Active transaction and read/write flag
 
   private UserTransaction m_transaction;
+
+  // UserTransaction m_transaction;
 
   private boolean m_readOnlyTrans;
 
@@ -122,8 +127,22 @@ public abstract class SrvSession {
     setRemoteName(remName);
   }
 
-  public SrvSession() {
-    // TODO Auto-generated constructor stub
+  /**
+   * Add a dynamic share to the list of shares created for this session
+   * 
+   * @param shrDev
+   *          SharedDevice
+   */
+  public final void addDynamicShare(SharedDevice shrDev) {
+
+    // Check if the dynamic share list must be allocated
+
+    if (m_dynamicShares == null)
+      m_dynamicShares = new SharedDeviceList();
+
+    // Add the new share to the list
+
+    m_dynamicShares.addShare(shrDev);
   }
 
   /**
@@ -179,21 +198,40 @@ public abstract class SrvSession {
   }
 
   /**
-   * Check if the session has valid client information
+   * Check if the session has an authentication context
    * 
    * @return boolean
    */
-  // public final boolean hasClientInformation() {
-  // return m_clientInfo != null ? true : false;
-  // }
+  public final boolean hasAuthenticationContext() {
+    return m_authContext != null ? true : false;
+  }
+
   /**
-   * Return the client information
+   * Return the authentication context for this sesion
    * 
-   * @return ClientInfo
+   * @return AuthContext
    */
-  // public final ClientInfo getClientInformation() {
-  // return m_clientInfo;
-  // }
+  public final AuthContext getAuthenticationContext() {
+    return m_authContext;
+  }
+
+  /**
+   * Determine if the session has any dynamic shares
+   * 
+   * @return boolean
+   */
+  public final boolean hasDynamicShares() {
+    return m_dynamicShares != null ? true : false;
+  }
+
+  /**
+   * Return the list of dynamic shares created for this session
+   * 
+   * @return SharedDeviceList
+   */
+  public final SharedDeviceList getDynamicShares() {
+    return m_dynamicShares;
+  }
 
   /**
    * Determine if the protocol type has been set
@@ -282,14 +320,15 @@ public abstract class SrvSession {
   }
 
   /**
-   * Set the client information
+   * Set the authentication context, used during the initial session setup phase
    * 
-   * @param client
-   *          ClientInfo
+   * @param ctx
+   *          AuthContext
    */
-  // public final void setClientInformation(ClientInfo client) {
-  // m_clientInfo = client;
-  // }
+  public final void setAuthenticationContext(AuthContext ctx) {
+    m_authContext = ctx;
+  }
+
   /**
    * Set the debug output interface.
    * 
@@ -298,16 +337,6 @@ public abstract class SrvSession {
    */
   public final void setDebug(int flgs) {
     m_debug = flgs;
-  }
-
-  /**
-   * Set the debug output prefix for this session
-   * 
-   * @param prefix
-   *          String
-   */
-  public final void setDebugPrefix(String prefix) {
-    m_dbgPrefix = prefix;
   }
 
   /**
@@ -386,6 +415,12 @@ public abstract class SrvSession {
   public void closeSession() {
     // Release any dynamic shares owned by this session
 
+    if (hasDynamicShares()) {
+
+      // Close the dynamic shares
+
+      // getServer().getShareMapper().deleteShares(this);
+    }
   }
 
   /**
@@ -398,8 +433,8 @@ public abstract class SrvSession {
    * @return boolean
    * @exception AlfrescoRuntimeException
    */
-  public final boolean beginTransaction(UserTransaction transService,
-      boolean readOnly) {// throws AlfrescoRuntimeException {
+  private final boolean beginTransaction(TransactionService transService,
+      boolean readOnly) {
     boolean created = false;
 
     // If there is an active transaction check that it is the required type
@@ -462,7 +497,6 @@ public abstract class SrvSession {
   /**
    * End a transaction by either committing or rolling back
    * 
-   * @exception AlfrescoRuntimeException
    */
   public final void endTransaction() {
     // Check if there is an active transaction
@@ -488,7 +522,6 @@ public abstract class SrvSession {
         m_transaction = null;
       }
     }
-
   }
 
   /**
@@ -510,69 +543,4 @@ public abstract class SrvSession {
     m_transaction = null;
     return trans;
   }
-
-  /**
-   * Check if the session has an authentication context
-   * 
-   * @return boolean
-   */
-  public final boolean hasAuthenticationContext() {
-    return m_authContext != null ? true : false;
-  }
-
-  /**
-   * Return the authentication context for this sesion
-   * 
-   * @return AuthContext
-   */
-  public final AuthContext getAuthenticationContext() {
-    return m_authContext;
-  }
-
-  /**
-   * Set the authentication context, used during the initial session setup phase
-   * 
-   * @param ctx
-   *          AuthContext
-   */
-  public final void setAuthenticationContext(AuthContext ctx) {
-    m_authContext = ctx;
-  }
-
-  /**
-   * Return dynamic sahres;
-   * 
-   * @return SharedDeviceList
-   */
-  public SharedDeviceList getShares() {
-    return m_shares;
-  }
-
-  /**
-   * Determine if the session has any dynamic shares
-   * 
-   * @return boolean
-   */
-  public final boolean hasDynamicShares() {
-    return m_shares != null ? true : false;
-  }
-
-  /**
-   * Add a dynamic share to the list of shares created for this session
-   * 
-   * @param shrDev
-   *          SharedDevice
-   */
-  public final void addDynamicShare(SharedDevice shrDev) {
-
-    // Check if the dynamic share list must be allocated
-
-    if (m_shares == null)
-      m_shares = new SharedDeviceList();
-
-    // Add the new share to the list
-
-    m_shares.addShare(shrDev);
-  }
-
 }

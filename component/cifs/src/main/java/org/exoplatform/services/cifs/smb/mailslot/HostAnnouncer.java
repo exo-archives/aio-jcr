@@ -1,13 +1,38 @@
+/*
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
+ */
 package org.exoplatform.services.cifs.smb.mailslot;
 
 import java.io.IOException;
 
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.exoplatform.services.cifs.netbios.NetBIOSName;
 import org.exoplatform.services.cifs.netbios.win32.WinsockNetBIOSException;
 import org.exoplatform.services.cifs.smb.ServerType;
+import org.exoplatform.services.cifs.smb.TransactionNames;
 import org.exoplatform.services.cifs.util.StringList;
-import org.exoplatform.services.log.ExoLogger;
 
 /**
  * <p>
@@ -19,8 +44,8 @@ public abstract class HostAnnouncer extends Thread {
 
   // Debug logging
 
-  protected static final Log logger = ExoLogger
-      .getLogger("org.exoplatform.services.cifs.smb.mailslot.HostAnnouncer");
+  protected static final Log logger = LogFactory
+      .getLog("org.alfresco.smb.protocol.mailslot");
 
   // Shutdown announcement interval and message count
 
@@ -49,7 +74,7 @@ public abstract class HostAnnouncer extends Thread {
 
   private int m_interval;
 
-  // Server type flags, SMBServerInfo
+  // Server type flags, see org.alfresco.filesys.smb.SMBServerInfo
 
   private int m_srvtype = ServerType.WorkStation + ServerType.Server;
 
@@ -65,8 +90,8 @@ public abstract class HostAnnouncer extends Thread {
 
   private int m_errorCount;
 
-  // Shutdown flag, host announcer should remove the announced name as it
-  // shuts down
+  // Shutdown flag, host announcer should remove the announced name as it shuts
+  // down
 
   private boolean m_shutdown = false;
 
@@ -224,7 +249,7 @@ public abstract class HostAnnouncer extends Thread {
 
     // Create the mailslot SMB
 
-    m_smbPkt.initializeMailslotSMB("\\MAILSLOT\\BROWSE", data, pos);
+    m_smbPkt.initializeMailslotSMB(TransactionNames.MailslotBrowse, data, pos);
   }
 
   /**
@@ -285,8 +310,8 @@ public abstract class HostAnnouncer extends Thread {
           }
         } else {
 
-          // Reset the sleep interval to the starting interval as the
-          // network connection
+          // Reset the sleep interval to the starting interval as the network
+          // connection
           // is not
           // available
 
@@ -297,16 +322,14 @@ public abstract class HostAnnouncer extends Thread {
 
         sleep(sleepTime);
 
-        // Update the sleep interval, if the network connection is
-        // enabled
+        // Update the sleep interval, if the network connection is enabled
 
         if (isNetworkEnabled() && sleepTime < sleepNormal) {
 
           // Double the sleep interval until it exceeds the configured
           // announcement
           // interval.
-          // This is to send out more broadcasts when the server first
-          // starts.
+          // This is to send out more broadcasts when the server first starts.
 
           sleepTime *= 2;
           if (sleepTime > sleepNormal)
@@ -346,8 +369,8 @@ public abstract class HostAnnouncer extends Thread {
     if ((m_srvtype & ServerType.Server) != 0)
       m_srvtype -= ServerType.Server;
 
-    // Send out a number of host announcement to remove the host name(s)
-    // from Network
+    // Send out a number of host announcement to remove the host name(s) from
+    // Network
     // Neighborhood
 
     for (int j = 0; j < SHUTDOWN_COUNT; j++) {

@@ -1,32 +1,39 @@
 /*
- * Copyright (C) 2005-2006 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.smb.server.win32;
 
 import java.util.BitSet;
 
 import org.apache.commons.logging.Log;
-
+import org.apache.commons.logging.LogFactory;
 import org.exoplatform.services.cifs.ServerConfiguration;
 import org.exoplatform.services.cifs.netbios.win32.NetBIOSSocket;
 import org.exoplatform.services.cifs.netbios.win32.Win32NetBIOS;
 import org.exoplatform.services.cifs.netbios.win32.WinsockNetBIOSException;
 import org.exoplatform.services.cifs.smb.mailslot.Win32NetBIOSHostAnnouncer;
 import org.exoplatform.services.cifs.smb.server.SMBServer;
-import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Win32 NetBIOS LANA Monitor Class
@@ -44,8 +51,8 @@ public class Win32NetBIOSLanaMonitor extends Thread {
 
   // Debug logging
 
-  private static final Log logger = ExoLogger
-      .getLogger("org.exoplatform.services.cifs.smb.server.win32.Win32NetBIOSLanaMonitor");
+  private static final Log logger = LogFactory
+      .getLog("org.alfresco.smb.protocol");
 
   // Global LANA monitor
 
@@ -193,8 +200,7 @@ public class Win32NetBIOSLanaMonitor extends Thread {
 
     m_shutdown = false;
 
-    // If Winsock NetBIOS is not enabled then initialize the sockets
-    // interface
+    // If Winsock NetBIOS is not enabled then initialize the sockets interface
 
     ServerConfiguration config = m_server.getConfiguration();
 
@@ -255,8 +261,8 @@ public class Win32NetBIOSLanaMonitor extends Thread {
             if (logger.isDebugEnabled() && hasDebug())
               logger.debug("Win32 NetBIOS found new LANA, " + lana);
 
-            // Create a single Win32 NetBIOS session handler using
-            // the specified LANA
+            // Create a single Win32 NetBIOS session handler using the specified
+            // LANA
 
             sessHandler = new Win32NetBIOSSessionSocketHandler(m_server, lana,
                 hasDebug());
@@ -277,8 +283,7 @@ public class Win32NetBIOSLanaMonitor extends Thread {
               sessHandler = null;
             }
 
-            // If the session handler was initialized successfully
-            // add it to the
+            // If the session handler was initialized successfully add it to the
             // SMB/CIFS server
 
             if (sessHandler != null) {
@@ -287,8 +292,7 @@ public class Win32NetBIOSLanaMonitor extends Thread {
 
               m_server.addSessionHandler(sessHandler);
 
-              // Run the NetBIOS session handler in a seperate
-              // thread
+              // Run the NetBIOS session handler in a seperate thread
 
               Thread nbThread = new Thread(sessHandler);
               nbThread.setName("Win32NB_Handler_" + lana);
@@ -310,8 +314,7 @@ public class Win32NetBIOSLanaMonitor extends Thread {
                     sessHandler, config.getDomainName(), config
                         .getWin32HostAnnounceInterval());
 
-                // Add the host announcer to the SMB/CIFS server
-                // list
+                // Add the host announcer to the SMB/CIFS server list
 
                 m_server.addHostAnnouncer(hostAnnouncer);
                 hostAnnouncer.start();
@@ -323,8 +326,8 @@ public class Win32NetBIOSLanaMonitor extends Thread {
                       + lana);
               }
 
-              // Set the LANA in the available LANA list, and set
-              // the current status to online
+              // Set the LANA in the available LANA list, and set the current
+              // status to online
 
               m_lanas.set(lana);
               m_lanaSts.set(lana, true);
@@ -337,8 +340,7 @@ public class Win32NetBIOSLanaMonitor extends Thread {
             // Check if the LANA has just come back online
 
             if (m_lanaSts.get(lana) == false) {
-              // Change the LANA status to indicate the LANA is
-              // back online
+              // Change the LANA status to indicate the LANA is back online
 
               m_lanaSts.set(lana, true);
 
@@ -372,8 +374,7 @@ public class Win32NetBIOSLanaMonitor extends Thread {
             // Check if there is an associated listener for the LANA
 
             if (m_listeners != null && m_listeners[i] != null) {
-              // Notify the LANA listener that the LANA is now
-              // offline
+              // Notify the LANA listener that the LANA is now offline
 
               m_listeners[i].lanaStatusChange(i, false);
             }

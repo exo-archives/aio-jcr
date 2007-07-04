@@ -1,18 +1,26 @@
 /*
- * Copyright (C) 2005-2006 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.smb.server;
 
@@ -24,23 +32,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-// import org.exoplatform.services.CIFS.server.core.DeviceInterface;
-// import org.exoplatform.services.CIFS.server.core.SharedDevice;
-// import org.exoplatform.services.CIFS.server.filesys.DiskDeviceContext;
-// import org.exoplatform.services.CIFS.server.filesys.DiskInterface;
-// import org.exoplatform.services.CIFS.server.filesys.NetworkFile;
-// import org.exoplatform.services.CIFS.server.filesys.SearchContext;
-// import org.exoplatform.services.CIFS.smb.server.notify.NotifyRequest;
-// import org.exoplatform.services.CIFS.smb.server.notify.NotifyRequestList;
-// import org.alfresco.filesys.server.auth.NTLanManAuthContext;
-// import org.alfresco.filesys.smb.server.SecurityMode;
-
-import org.apache.commons.logging.Log; // import
-// org.apache.commons.logging.LogFactory;
-
-import org.exoplatform.services.log.ExoLogger; // import javax.jcr.Session;
-// import javax.jcr.Credentials;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.exoplatform.services.cifs.netbios.NetBIOSException;
 import org.exoplatform.services.cifs.netbios.NetBIOSName;
 import org.exoplatform.services.cifs.netbios.NetBIOSPacket;
@@ -48,8 +41,10 @@ import org.exoplatform.services.cifs.netbios.NetBIOSSession;
 import org.exoplatform.services.cifs.netbios.RFCNetBIOSProtocol;
 import org.exoplatform.services.cifs.server.SrvSession;
 import org.exoplatform.services.cifs.server.auth.NTLanManAuthContext;
+import org.exoplatform.services.cifs.server.core.ShareType;
 import org.exoplatform.services.cifs.server.core.SharedDevice;
 import org.exoplatform.services.cifs.server.filesys.DiskInfo;
+import org.exoplatform.services.cifs.server.filesys.NetworkFile;
 import org.exoplatform.services.cifs.server.filesys.SearchContext;
 import org.exoplatform.services.cifs.server.filesys.TooManyConnectionsException;
 import org.exoplatform.services.cifs.server.filesys.TreeConnection;
@@ -63,12 +58,9 @@ import org.exoplatform.services.cifs.smb.PacketType;
 import org.exoplatform.services.cifs.smb.SMBDate;
 import org.exoplatform.services.cifs.smb.SMBErrorText;
 import org.exoplatform.services.cifs.smb.SMBStatus;
-import org.exoplatform.services.cifs.smb.ShareType; // import
-// org.exoplatform.services.cifs.smb.dcerpc.info.ShareInfo;
 import org.exoplatform.services.cifs.util.DataPacker;
 import org.exoplatform.services.cifs.util.StringList;
-
-// import org.alfresco.filesys.server.auth.AlfrescoAuthenticator;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * SMB Session Class
@@ -79,8 +71,6 @@ import org.exoplatform.services.cifs.util.StringList;
  * <p>
  * The server session holds the context of a particular session, including the
  * list of open files and active searches.
- * 
- * @notes Nothing to change.
  */
 public class SMBSrvSession extends SrvSession implements Runnable {
   // Debug logging
@@ -111,10 +101,11 @@ public class SMBSrvSession extends SrvSession implements Runnable {
   private static final int MaxSearches = 256;
 
   // Maximum multiplexed packets allowed (client can send up to this many SMBs
-  // before waiting for a response)
+  // before waiting for
+  // a response)
   //
-  // Setting NTMaxMultiplexed to one will disable asynchronous notifications
-  // on the client
+  // Setting NTMaxMultiplexed to one will disable asynchronous notifications on
+  // the client
 
   public static final int LanManMaxMultiplexed = 1;
 
@@ -124,8 +115,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
   public static final int MaxVirtualCircuits = 0;
 
-  // Packet handler used to send/receive SMB packets over a particular
-  // protocol
+  // Packet handler used to send/receive SMB packets over a particular protocol
 
   private PacketHandler m_pktHandler;
 
@@ -139,8 +129,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
   private SMBSrvPacket m_smbPkt;
 
-  // Protocol handler for this session, depends upon the negotiated SMB
-  // dialect
+  // Protocol handler for this session, depends upon the negotiated SMB dialect
 
   private ProtocolHandler m_handler;
 
@@ -162,19 +151,17 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
   private Hashtable<Integer, TreeConnection> m_connections;
 
-  private int m_treeId;
+  private int k_treeId;
 
   // Active search list for this session
 
   private SearchContext[] m_search;
 
   private int m_searchCount;
-
+  
   // Active transaction details
 
   private SrvTransactBuffer m_transact;
-
-  // Notify change requests and notifications pending flag
 
   // Default SMB/CIFS flags and flags2, ORed with the SMB packet flags/flags2
   // before sending a
@@ -183,8 +170,6 @@ public class SMBSrvSession extends SrvSession implements Runnable {
   private int m_defFlags;
 
   private int m_defFlags2;
-
-  private boolean m_is_standalone_test = false;
 
   // Asynchrnous response packet queue
   //
@@ -208,7 +193,6 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
   // Session setup object, temporarily stored by an authenticator when the
   // authentication is multi-stage
-
   private Object m_setupObject;
 
   // Debug flag values
@@ -220,9 +204,11 @@ public class SMBSrvSession extends SrvSession implements Runnable {
   public static final int DBG_NEGOTIATE = 0x00000004; // Protocol negotiate
 
   // phase
+
   public static final int DBG_TREE = 0x00000008; // Tree
 
   // connection/disconnection
+
   public static final int DBG_SEARCH = 0x00000010; // File/directory search
 
   public static final int DBG_INFO = 0x00000020; // Information requests
@@ -250,11 +236,12 @@ public class SMBSrvSession extends SrvSession implements Runnable {
   public static final int DBG_NOTIFY = 0x00010000; // Asynchronous change
 
   // notification
+
   public static final int DBG_STREAMS = 0x00020000; // NTFS streams
 
-  public static final int DBG_SOCKET = 0x00040000; // NetBIOS/native SMB
+  public static final int DBG_SOCKET = 0x00040000; // NetBIOS/native SMB socket
 
-  // socket connections
+  // connections
 
   /**
    * Class constructor.
@@ -276,8 +263,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
     m_buf = new byte[DefaultBufferSize];
     m_smbPkt = new SMBSrvPacket(m_buf);
 
-    // If this is a TCPIP SMB or Win32 NetBIOS session then bypass the
-    // NetBIOS session setup
+    // If this is a TCPIP SMB or Win32 NetBIOS session then bypass the NetBIOS
+    // session setup
     // phase.
 
     if (isProtocol() == SMBSrvPacket.PROTOCOL_TCPIP
@@ -295,22 +282,6 @@ public class SMBSrvSession extends SrvSession implements Runnable {
   }
 
   /**
-   * JUST FOR STANDALONE TEST
-   * 
-   * @param pkt
-   *          SMBSrvPacket
-   * @param dialect
-   * @param is
-   *          standalone test used
-   */
-  public SMBSrvSession(SMBSrvPacket pkt, int dialect, boolean b) {
-    super();
-    m_smbPkt = pkt;
-    m_dialect = dialect;
-    m_is_standalone_test = b;
-  }
-
-  /**
    * Return the session protocol type
    * 
    * @return int
@@ -320,95 +291,21 @@ public class SMBSrvSession extends SrvSession implements Runnable {
   }
 
   /**
-   * Add a new connection to this session. Return the allocated tree id for the
-   * new connection.
+   * Return the tree connection details for the specified tree id.
    * 
-   * @return int Allocated tree id (connection id).
-   * @param shrDev
-   *          SharedDevice
+   * @param treeId
+   *          int
+   * @return TreeConnection
    */
-  public/* protected */int addConnection(SharedDevice shrDev)
-      throws TooManyConnectionsException {
-
-    // Check if the connection array has been allocated
+  protected final TreeConnection findTreeConnection(int treeId) {
+    // Check if the tree id and connection array are valid
 
     if (m_connections == null)
-      m_connections = new Hashtable<Integer, TreeConnection>(DefaultConnections);
+      return null;
 
-    // Allocate an id for the tree connection
+    // Get the required tree connection details
 
-    int treeId = 0;
-
-    synchronized (m_connections) {
-
-      // Check if the tree connection table is full
-
-      if (m_connections.size() == MaxConnections)
-        throw new TooManyConnectionsException();
-
-      // Find a free slot in the connection array
-
-      treeId = (m_treeId++ & TreeIdMask);
-      Integer key = new Integer(treeId);
-
-      while (m_connections.contains(key)) {
-
-        // Try another tree id for the new connection
-
-        treeId = (m_treeId++ & TreeIdMask);
-        key = new Integer(treeId);
-      }
-
-      // Store the new tree connection
-
-      m_connections.put(key, new TreeConnection(shrDev));
-    }
-
-    // Return the allocated tree id
-
-    return treeId;
-  }
-
-  /**
-   * Allocate a slot in the active searches list for a new search.
-   * 
-   * @return int Search slot index, or -1 if there are no more search slots
-   *         available.
-   */
-  protected final int allocateSearchSlot() {
-    // Check if the search array has been allocated
-
-    if (m_search == null)
-      m_search = new SearchContext[DefaultSearches];
-
-    // Find a free slot for the new search
-
-    int idx = 0;
-
-    while (idx < m_search.length && m_search[idx] != null)
-      idx++;
-
-    // Check if we found a free slot
-
-    if (idx == m_search.length) {
-
-      // The search array needs to be extended, check if we reached the
-      // limit.
-
-      if (m_search.length >= MaxSearches)
-        return -1;
-
-      // Extend the search array
-
-      SearchContext[] newSearch = new SearchContext[m_search.length * 2];
-      System.arraycopy(m_search, 0, newSearch, 0, m_search.length);
-      m_search = newSearch;
-    }
-
-    // Return the allocated search slot index
-
-    m_searchCount++;
-    return idx;
+    return (TreeConnection) m_connections.get(new Integer(treeId));
   }
 
   /**
@@ -416,13 +313,12 @@ public class SMBSrvSession extends SrvSession implements Runnable {
    * change notification requests.
    */
   protected final void cleanupSession() {
-
     // Debug
 
     if (logger.isDebugEnabled() && hasDebug(DBG_STATE))
       logger.debug("Cleanup session, treeConns=" + getConnectionCount());
 
-    // Check if there are any active searches
+    // TODO Check if there are any active searches
 
     // Check if there are open tree connections
 
@@ -450,9 +346,9 @@ public class SMBSrvSession extends SrvSession implements Runnable {
         logger.debug("Error committing transaction", ex);
     }
 
-    // Check if there are active change notification requests
+    // TODO Check if there are active change notification requests
 
-    // Delete any temporary shares that were created for this session
+    // TODO Delete any temporary shares that were created for this session
   }
 
   /**
@@ -483,8 +379,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
     try {
 
-      // Set the session into a hangup state and indicate that we have
-      // shutdown the session
+      // Set the session into a hangup state and indicate that we have shutdown
+      // the session
 
       setState(SMBSrvSessionState.NBHANGUP);
       setShutdown(true);
@@ -494,6 +390,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
       m_pktHandler.closeHandler();
     } catch (Exception ex) {
     }
+
   }
 
   /**
@@ -512,39 +409,12 @@ public class SMBSrvSession extends SrvSession implements Runnable {
   }
 
   /**
-   * Return the tree connection details for the specified tree id.
-   * 
-   * @param treeId
-   *          int
-   * @return TreeConnection
-   */
-  public/* protected */final TreeConnection findConnection(int treeId) {
-    // Check if the tree id and connection array are valid
-
-    if (m_connections == null)
-      return null;
-
-    // Get the required tree connection details
-
-    return (TreeConnection) m_connections.get(new Integer(treeId));
-  }
-
-  /**
    * Return the input/output metwork buffer for this session.
    * 
    * @return byte[]
    */
   protected final byte[] getBuffer() {
     return m_buf;
-  }
-
-  /**
-   * Return the count of active connections for this session.
-   * 
-   * @return int
-   */
-  public final int getConnectionCount() {
-    return m_connections != null ? m_connections.size() : 0;
   }
 
   /**
@@ -696,24 +566,6 @@ public class SMBSrvSession extends SrvSession implements Runnable {
   }
 
   /**
-   * Determine if the session has a setup object
-   * 
-   * @return boolean
-   */
-  public final boolean hasSetupObject() {
-    return m_setupObject != null;
-  }
-
-  /**
-   * Return the session setup object
-   * 
-   * @return Object
-   */
-  public final Object getSetupObject() {
-    return m_setupObject;
-  }
-
-  /**
    * Return the session state
    * 
    * @return int
@@ -736,6 +588,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
       logger.debug("## Session closing - " + reason);
 
     // Set the session into a NetBIOS hangup state
+
     setState(SMBSrvSessionState.NBHANGUP);
   }
 
@@ -746,6 +599,34 @@ public class SMBSrvSession extends SrvSession implements Runnable {
    */
   public final boolean hasMacintoshExtensions() {
     return getSMBServer().getConfiguration().hasMacintoshExtensions();
+  }
+
+  /**
+   * Determine if the session has a setup object
+   * 
+   * @return boolean
+   */
+  public final boolean hasSetupObject() {
+    return m_setupObject != null;
+  }
+
+  /**
+   * Return the session setup object
+   * 
+   * @return Object
+   */
+  public final Object getSetupObject() {
+    return m_setupObject;
+  }
+
+  /**
+   * Set the setup object
+   * 
+   * @param obj
+   *          Object
+   */
+  public final void setSetupObject(Object obj) {
+    m_setupObject = obj;
   }
 
   /**
@@ -817,31 +698,15 @@ public class SMBSrvSession extends SrvSession implements Runnable {
    *          int
    */
   protected void setState(int state) {
-
     // Debug
 
     if (logger.isDebugEnabled() && hasDebug(DBG_STATE))
       logger.debug("State changed to "
           + SMBSrvSessionState.getStateAsString(state));
 
-    // Clear the setup object if the new state is the main session state
-
-    if (state == SMBSrvSessionState.SMBSESSION)
-      m_setupObject = null;
-
     // Change the session state
 
     m_state = state;
-  }
-
-  /**
-   * Set the setup object
-   * 
-   * @param obj
-   *          Object
-   */
-  public final void setSetupObject(Object obj) {
-    m_setupObject = obj;
   }
 
   /**
@@ -852,8 +717,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
   protected void procNetBIOSSessionRequest() throws IOException,
       NetBIOSException {
 
-    // Check if the received packet contains enough data for a NetBIOS
-    // session request packet.
+    // Check if the received packet contains enough data for a NetBIOS session
+    // request packet.
 
     NetBIOSPacket nbPkt = new NetBIOSPacket(m_buf);
 
@@ -866,8 +731,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
     if (m_buf[4] != (byte) 32 || m_buf[38] != (byte) 32)
       throw new NetBIOSException("NBREQ Invalid NetBIOS name data");
 
-    // Extract the from/to NetBIOS encoded names, and convert to normal
-    // strings.
+    // Extract the from/to NetBIOS encoded names, and convert to normal strings.
 
     StringBuffer nbName = new StringBuffer(32);
     for (int i = 0; i < 32; i++)
@@ -985,8 +849,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
     while (dataLen > 0) {
 
-      // Decode an SMB dialect string from the data block, always ASCII
-      // strings
+      // Decode an SMB dialect string from the data block, always ASCII strings
 
       diaStr = DataPacker.getDataString(DataType.Dialect, m_buf, dataPos,
           dataLen, false);
@@ -997,13 +860,12 @@ public class SMBSrvSession extends SrvSession implements Runnable {
         dialects.addString(diaStr);
       } else {
 
-        // Invalid dialect block in the negotiate packet, send an error
-        // response and hangup
+        // Invalid dialect block in the negotiate packet, send an error response
+        // and hangup
         // the session.
 
         sendErrorResponseSMB(SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
         setState(SMBSrvSessionState.NBHANGUP);
-
         return;
       }
 
@@ -1016,7 +878,6 @@ public class SMBSrvSession extends SrvSession implements Runnable {
     // Find the highest level SMB dialect that the server and client both
     // support
 
-    logger.debug("client side valid dialects :" + dialects);
     DialectSelector dia = getSMBServer().getConfiguration()
         .getEnabledDialects();
     int diaIdx = -1;
@@ -1027,22 +888,21 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
       if (dia.hasDialect(i)) {
 
-        // Check if the client supports the current dialect. If the
-        // current dialect is a
-        // higher level dialect than the currently nominated dialect,
-        // update the nominated
+        // Check if the client supports the current dialect. If the current
+        // dialect is a
+        // higher level dialect than the currently nominated dialect, update the
+        // nominated
         // dialect index.
 
         for (int j = 0; j < Dialect.SMB_PROT_MAXSTRING; j++) {
 
-          // Check if the dialect string maps to the current dialect
-          // index
+          // Check if the dialect string maps to the current dialect index
 
           if (Dialect.DialectType(j) == i
               && dialects.containsString(Dialect.DialectString(j))) {
 
-            // Update the selected dialect type, if the current
-            // dialect is a newer
+            // Update the selected dialect type, if the current dialect is a
+            // newer
             // dialect
 
             if (i > diaIdx)
@@ -1070,13 +930,13 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
       m_dialect = diaIdx;
 
-      // Convert the dialect type to an index within the clients SMB
-      // dialect list
+      // Convert the dialect type to an index within the clients SMB dialect
+      // list
 
       diaIdx = dialects.findString(Dialect.DialectTypeString(diaIdx));
 
-      // Allocate a protocol handler for the negotiated dialect, if we
-      // cannot get a protocol
+      // Allocate a protocol handler for the negotiated dialect, if we cannot
+      // get a protocol
       // handler then bounce the request.
 
       m_handler = ProtocolFactory.getHandler(m_dialect);
@@ -1092,10 +952,9 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
         m_handler.setSession(this);
       } else {
-        logger
-            .debug("Could not get a protocol handler for the selected SMB dialect");
-        // Could not get a protocol handler for the selected SMB
-        // dialect, indicate to the
+
+        // Could not get a protocol handler for the selected SMB dialect,
+        // indicate to the
         // client that no suitable dialect available.
 
         diaIdx = -1;
@@ -1103,15 +962,13 @@ public class SMBSrvSession extends SrvSession implements Runnable {
     }
 
     // Check if the extended security flag has been set by the client
-    /* !WARNING */
-    boolean extendedSecurity = false;// (m_smbPkt.getFlags2() &
-    // SMBSrvPacket.FLG2_EXTENDEDSECURITY)
-    // != 0 ? true : false;
+    // !WARNING
+    boolean extendedSecurity = false;
 
     // Build the negotiate response SMB for Core dialect
 
     if (m_dialect == -1 || m_dialect <= Dialect.CorePlus) {
-      logger.debug("built negotiate resp SMB for core");
+
       // Core dialect negotiate response, or no valid dialect response
 
       m_smbPkt.setParameterCount(1);
@@ -1121,35 +978,27 @@ public class SMBSrvSession extends SrvSession implements Runnable {
       m_smbPkt.setTreeId(0);
       m_smbPkt.setUserId(0);
     } else if (m_dialect <= Dialect.LanMan2_1) {
-      logger.debug("dialect is LanMan21");
+
       // We are using case sensitive pathnames and long file names
 
       m_smbPkt.setFlags(SMBSrvPacket.FLG_CASELESS);
       m_smbPkt.setFlags2(SMBSrvPacket.FLG2_LONGFILENAMES);
 
-      // Access the authenticator for this server and determine if the
-      // server is in share or
-      // user level security mode.
-
       // LanMan dialect negotiate response
 
       m_smbPkt.setParameterCount(13);
       m_smbPkt.setParameter(0, diaIdx);
-
       // TODO security mode must be provided by some security/autentication
       // manager
       int securityMode = SecurityMode.UserMode
           + SecurityMode.EncryptedPasswords;
-
       m_smbPkt.setParameter(1, securityMode);
       m_smbPkt.setParameter(2, LanManBufferSize);
-      m_smbPkt.setParameter(3, LanManMaxMultiplexed); // maximum
-      // multiplexed
+      m_smbPkt.setParameter(3, LanManMaxMultiplexed); // maximum multiplexed
       // requests
-      m_smbPkt.setParameter(4, MaxVirtualCircuits); // maximum number of
-      // virtual circuits
-      m_smbPkt.setParameter(5, 0); // read/write raw
-      // mode support
+      m_smbPkt.setParameter(4, MaxVirtualCircuits); // maximum number of virtual
+      // circuits
+      m_smbPkt.setParameter(5, 0); // read/write raw mode support
 
       // Create a session token, using the system clock
 
@@ -1183,7 +1032,6 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
       try {
         // Pack the remaining negotiate response fields
-        // auth.generateNegotiateResponse( this, m_smbPkt, extendedSecurity);
 
         // Pack the negotiate response for NT/LanMan challenge/response
         // authentication
@@ -1236,7 +1084,6 @@ public class SMBSrvSession extends SrvSession implements Runnable {
         // Set the packet length
 
         m_smbPkt.setByteCount(pos - m_smbPkt.getByteOffset());
-
       } catch (Exception ex) {
         // Log the error
 
@@ -1256,8 +1103,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
       setDefaultFlags2(SMBSrvPacket.FLG2_LONGFILENAMES
           + SMBSrvPacket.FLG2_UNICODE);
 
-      // Access the authenticator for this server and determine if the
-      // server is in share or
+      // Access the authenticator for this server and determine if the server is
+      // in share or
       // user level security mode.
 
       // NT dialect negotiate response
@@ -1270,11 +1117,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
           + SecurityMode.EncryptedPasswords;
       nt.packByte(securityMode);
       nt.packWord(NTMaxMultiplexed); // maximum multiplexed requests
-      // setting to 1 will disable
-      // change notify requests from
-      // the client
-      nt.packWord(MaxVirtualCircuits); // maximum number of virtual
-      // circuits
+      // setting to 1 will disable change notify requests from the client
+      nt.packWord(MaxVirtualCircuits); // maximum number of virtual circuits
 
       int maxBufSize = m_smbPkt.getBuffer().length
           - RFCNetBIOSProtocol.HEADER_LEN;
@@ -1286,14 +1130,14 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
       nt.packInt((int) (System.currentTimeMillis() & 0xFFFFFFFFL));
 
-      // Set server capabilities, switch off extended security if the
-      // client does not support it
+      // Set server capabilities, switch off extended security if the client
+      // does not support it
 
       int srvCapabs = Capability.Unicode + Capability.RemoteAPIs
           + Capability.NTSMBs + Capability.NTFind + Capability.NTStatus
           + Capability.LargeFiles + Capability.LargeRead
           + Capability.LargeWrite;
-      ;
+
       if (extendedSecurity == false)
         srvCapabs &= ~Capability.ExtendedSecurity;
 
@@ -1309,7 +1153,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
       // Encryption key length
 
-      nt.packByte(8);// or 24
+      nt.packByte(8); // or 24
 
       m_smbPkt.setFlags(getDefaultFlags());
       m_smbPkt.setFlags2(getDefaultFlags2());
@@ -1322,7 +1166,6 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
       try {
         // Pack the remaining negotiate response fields
-        // auth.generateNegotiateResponse( this, m_smbPkt, extendedSecurity);
 
         // Pack the negotiate response for NT/LanMan challenge/response
         // authentication
@@ -1398,8 +1241,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
     m_pktHandler.writePacket(m_smbPkt, m_smbPkt.getLength());
 
-    // Check if the negotiated SMB dialect supports the session setup
-    // command, if not then
+    // Check if the negotiated SMB dialect supports the session setup command,
+    // if not then
     // bypass the session setup phase.
 
     if (m_dialect == -1)
@@ -1468,10 +1311,10 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
       while (m_state != SMBSrvSessionState.NBHANGUP) {
 
-        // Set the current receive length to -1 to indicate that the
-        // session thread is not
-        // currently processing an SMB packet. This is used by the
-        // asynchronous response code
+        // Set the current receive length to -1 to indicate that the session
+        // thread is not
+        // currently processing an SMB packet. This is used by the asynchronous
+        // response code
         // to determine when it can send the response.
 
         m_rxlen = -1;
@@ -1485,8 +1328,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
         if (m_rxlen == 0)
           continue;
 
-        // Check if there is no more data, the other side has dropped
-        // the connection
+        // Check if there is no more data, the other side has dropped the
+        // connection
 
         if (m_rxlen == -1) {
           hangupSession("Remote disconnect");
@@ -1515,17 +1358,13 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
         case SMBSrvSessionState.SMBNEGOTIATE:
           procSMBNegotiate();
-
-          // TODO maybe here is reason to transfer dynamic shares create to
-          // somewhere else
+          
           mapWorkspacesAsShares();
           break;
 
         // SMB session setup
 
         case SMBSrvSessionState.SMBSESSSETUP:
-          if (logger.isInfoEnabled())
-            logger.info("SMBSESSSETUP");
           m_handler.runProtocol();
           break;
 
@@ -1623,8 +1462,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
     if (m_handler.runProtocol() == false) {
 
-      // The sessions protocol handler did not process the request, return
-      // an unsupported
+      // The sessions protocol handler did not process the request, return an
+      // unsupported
       // SMB error status.
 
       sendErrorResponseSMB(SMBStatus.SRVNotSupported, SMBStatus.ErrSrv);
@@ -1634,8 +1473,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
     while (hasAsynchResponse()) {
 
-      // Remove the current asynchronous response SMB packet and send to
-      // the client
+      // Remove the current asynchronous response SMB packet and send to the
+      // client
 
       SMBSrvPacket asynchPkt = removeFirstAsynchResponse();
       sendResponseSMB(asynchPkt, asynchPkt.getLength());
@@ -1657,9 +1496,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
    * @exception IOException
    */
   public final void sendResponseSMB(SMBSrvPacket pkt) throws IOException {
-    if (!isStandaloneTest()) {
-      sendResponseSMB(pkt, pkt.getLength());
-    }
+    sendResponseSMB(pkt, pkt.getLength());
   }
 
   /**
@@ -1748,10 +1585,19 @@ public class SMBSrvSession extends SrvSession implements Runnable {
     // Check if long error codes are required by the client
 
     if (m_smbPkt.isLongErrorCode()) {
-
       // Return the long/NT status code
 
-      sendErrorResponseSMB(ntCode, SMBStatus.NTErr);
+      if (ntCode != -1) {
+
+        // Use the 32bit NT error code
+
+        sendErrorResponseSMB(ntCode, SMBStatus.NTErr);
+      } else {
+
+        // Use the DOS error code
+
+        sendErrorResponseSMB(stdCode, stdClass);
+      }
     } else {
 
       // Return the standard/DOS error code
@@ -1820,7 +1666,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
     // Debug
 
     if (logger.isDebugEnabled() && hasDebug(DBG_ERROR))
-      logger.info("Error : Cmd = " + m_smbPkt.getPacketTypeString() + " - "
+      logger.debug("Error : Cmd = " + m_smbPkt.getPacketTypeString() + " - "
           + SMBErrorText.ErrorString(errClass, errCode));
   }
 
@@ -1838,8 +1684,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
   public final boolean sendAsynchResponseSMB(SMBSrvPacket pkt, int len)
       throws IOException {
 
-    // Check if there is an SMB currently being processed or pending data
-    // from the client
+    // Check if there is an SMB currently being processed or pending data from
+    // the client
 
     boolean sts = false;
 
@@ -1918,6 +1764,15 @@ public class SMBSrvSession extends SrvSession implements Runnable {
     // Return the SMB packet from the head of the queue
 
     return m_asynchQueue.remove(0);
+  }
+
+  /**
+   * Return the count of active connections for this session.
+   * 
+   * @return int
+   */
+  public final int getConnectionCount() {
+    return m_connections != null ? m_connections.size() : 0;
   }
 
   /**
@@ -2033,14 +1888,95 @@ public class SMBSrvSession extends SrvSession implements Runnable {
   }
 
   /**
-   * JUST FOR STANDALONE TEST
+   * Add a new connection to this session. Return the allocated tree id for the
+   * new connection.
+   * 
+   * @return int Allocated tree id (connection id).
+   * @param shrDev
+   *          SharedDevice
    */
-  public void setStandaloneTest(boolean b) {
-    m_is_standalone_test = b;
-  }
+   protected int addConnection(SharedDevice shrDev)
+      throws TooManyConnectionsException {
 
-  public boolean isStandaloneTest() {
-    return m_is_standalone_test;
+    // Check if the connection array has been allocated
+
+    if (m_connections == null)
+      m_connections = new Hashtable<Integer, TreeConnection>(DefaultConnections);
+
+    // Allocate an id for the tree connection
+
+    int treeId = 0;
+
+    synchronized (m_connections) {
+
+      // Check if the tree connection table is full
+
+      if (m_connections.size() == MaxConnections)
+        throw new TooManyConnectionsException();
+
+      // Find a free slot in the connection array
+
+      treeId = (k_treeId++ & TreeIdMask);
+      Integer key = new Integer(treeId);
+
+      while (m_connections.contains(key)) {
+
+        // Try another tree id for the new connection
+
+        treeId = (k_treeId++ & TreeIdMask);
+        key = new Integer(treeId);
+      }
+
+      // Store the new tree connection
+
+      m_connections.put(key, new TreeConnection(shrDev));
+    }
+
+    // Return the allocated tree id
+
+    return treeId;
   }
+   
+   /**
+    * Allocate a slot in the active searches list for a new search.
+    * 
+    * @return int Search slot index, or -1 if there are no more search slots
+    *         available.
+    */
+   protected final int allocateSearchSlot() {
+     // Check if the search array has been allocated
+
+     if (m_search == null)
+       m_search = new SearchContext[DefaultSearches];
+
+     // Find a free slot for the new search
+
+     int idx = 0;
+
+     while (idx < m_search.length && m_search[idx] != null)
+       idx++;
+
+     // Check if we found a free slot
+
+     if (idx == m_search.length) {
+
+       // The search array needs to be extended, check if we reached the
+       // limit.
+
+       if (m_search.length >= MaxSearches)
+         return -1;
+
+       // Extend the search array
+
+       SearchContext[] newSearch = new SearchContext[m_search.length * 2];
+       System.arraycopy(m_search, 0, newSearch, 0, m_search.length);
+       m_search = newSearch;
+     }
+
+     // Return the allocated search slot index
+
+     m_searchCount++;
+     return idx;
+   }
 
 }

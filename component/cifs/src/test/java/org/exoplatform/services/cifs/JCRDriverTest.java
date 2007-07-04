@@ -14,25 +14,23 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
 
+import junit.framework.TestCase;
+
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.container.StandaloneContainer;
-
-import org.exoplatform.services.cifs.smb.server.JCRDriver;
 import org.exoplatform.services.cifs.server.filesys.AccessMode;
 import org.exoplatform.services.cifs.server.filesys.FileAction;
 import org.exoplatform.services.cifs.server.filesys.FileAttribute;
 import org.exoplatform.services.cifs.server.filesys.FileExistsException;
 import org.exoplatform.services.cifs.server.filesys.FileInfo;
 import org.exoplatform.services.cifs.server.filesys.FileOpenParams;
+import org.exoplatform.services.cifs.server.filesys.JCRDriver;
 import org.exoplatform.services.cifs.server.filesys.NameCoder;
 import org.exoplatform.services.cifs.server.filesys.TreeConnection;
-import org.exoplatform.services.cifs.smb.SMBDate; // import
-// org.exoplatform.services.cifs.smb.SMBStatus;
+import org.exoplatform.services.cifs.smb.SMBDate;
 import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-
-import junit.framework.TestCase;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 
 // import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 

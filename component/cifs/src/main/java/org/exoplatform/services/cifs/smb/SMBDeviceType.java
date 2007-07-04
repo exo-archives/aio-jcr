@@ -1,18 +1,26 @@
 /*
- * Copyright (C) 2005 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.smb;
 
@@ -24,45 +32,45 @@ package org.exoplatform.services.cifs.smb;
  */
 public class SMBDeviceType {
 
-	// Device type constants
+  // Device type constants
 
-	public static final int Disk = 0;
+  public static final int Disk = 0;
 
-	public static final int Printer = 1;
+  public static final int Printer = 1;
 
-	public static final int Comm = 2;
+  public static final int Comm = 2;
 
-	public static final int Pipe = 3;
+  public static final int Pipe = 3;
 
-	public static final int Unknown = -1;
+  public static final int Unknown = -1;
 
-	/**
-	 * Convert the device type to a string
-	 * 
-	 * @param devtyp
-	 *            Device type
-	 * @return Device type string
-	 */
-	public static String asString(int devtyp) {
-		String devStr = null;
+  /**
+   * Convert the device type to a string
+   * 
+   * @param devtyp
+   *          Device type
+   * @return Device type string
+   */
+  public static String asString(int devtyp) {
+    String devStr = null;
 
-		switch (devtyp) {
-		case Disk:
-			devStr = "Disk";
-			break;
-		case Printer:
-			devStr = "Printer";
-			break;
-		case Pipe:
-			devStr = "Pipe";
-			break;
-		case Comm:
-			devStr = "Comm";
-			break;
-		default:
-			devStr = "Unknown";
-			break;
-		}
-		return devStr;
-	}
+    switch (devtyp) {
+    case Disk:
+      devStr = "Disk";
+      break;
+    case Printer:
+      devStr = "Printer";
+      break;
+    case Pipe:
+      devStr = "Pipe";
+      break;
+    case Comm:
+      devStr = "Comm";
+      break;
+    default:
+      devStr = "Unknown";
+      break;
+    }
+    return devStr;
+  }
 }

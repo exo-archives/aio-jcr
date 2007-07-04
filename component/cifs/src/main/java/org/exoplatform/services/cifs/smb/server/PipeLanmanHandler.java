@@ -1,43 +1,48 @@
 /*
- * Copyright (C) 2005 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.smb.server;
 
 import java.io.IOException;
 import java.util.Enumeration;
 
-// import org.exoplatform.services.CIFS.server.core.ShareType;
-// import org.exoplatform.services.CIFS.server.core.SharedDevice;
-// import org.exoplatform.services.CIFS.server.core.SharedDeviceList;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.exoplatform.services.cifs.server.core.ShareType;
 import org.exoplatform.services.cifs.server.core.SharedDevice;
 import org.exoplatform.services.cifs.server.core.SharedDeviceList;
 import org.exoplatform.services.cifs.smb.PacketType;
 import org.exoplatform.services.cifs.smb.SMBStatus;
-import org.exoplatform.services.cifs.smb.ShareType;
 import org.exoplatform.services.cifs.smb.TransactBuffer;
 import org.exoplatform.services.cifs.util.DataBuffer;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * IPC$ Transaction handler for \PIPE\LANMAN requests.
  */
 class PipeLanmanHandler {
   private static final Log logger = LogFactory
-      .getLog("org.exoplatform.services.cifs.smb.server.PipeLanmanProtocol");
+      .getLog("org.alfresco.smb.protocol");
 
   // Server capability flags
 
@@ -230,8 +235,7 @@ class PipeLanmanHandler {
     if (logger.isDebugEnabled() && sess.hasDebug(SMBSrvSession.DBG_IPC))
       logger.debug("NetServerGetInfo infoLevel=" + infoLevel);
 
-    // Check if the information level requested and data descriptor string
-    // match
+    // Check if the information level requested and data descriptor string match
 
     if (infoLevel == 1 && dataDesc.compareTo("B16BBDz") == 0) {
 
@@ -328,8 +332,7 @@ class PipeLanmanHandler {
     if (logger.isDebugEnabled() && sess.hasDebug(SMBSrvSession.DBG_IPC))
       logger.debug("NetShareEnum infoLevel=" + infoLevel);
 
-    // Check if the information level requested and data descriptor string
-    // match
+    // Check if the information level requested and data descriptor string match
 
     if (infoLevel == 1 && dataDesc.compareTo("B13BWz") == 0) {
 
@@ -379,8 +382,8 @@ class PipeLanmanHandler {
         dataBuf.putStringPointer(strPos);
 
         if (shrDev.getComments() != null)
-          strPos = dataBuf.putStringAt(shrDev.getComments(), strPos, false,
-              true);
+          strPos = dataBuf
+              .putStringAt(shrDev.getComments(), strPos, false, true);
         else
           strPos = dataBuf.putStringAt("", strPos, false, true);
       }
@@ -440,8 +443,7 @@ class PipeLanmanHandler {
       logger.debug("NetShareGetInfo - " + shareName + ", infoLevel="
           + infoLevel);
 
-    // Check if the information level requested and data descriptor string
-    // match
+    // Check if the information level requested and data descriptor string match
 
     if (infoLevel == 1 && dataDesc.compareTo("B13BWz") == 0) {
 
@@ -566,8 +568,7 @@ class PipeLanmanHandler {
     if (logger.isDebugEnabled() && sess.hasDebug(SMBSrvSession.DBG_IPC))
       logger.debug("NetWkstaGetInfo infoLevel=" + infoLevel);
 
-    // Check if the information level requested and data descriptor string
-    // match
+    // Check if the information level requested and data descriptor string match
 
     if ((infoLevel == 1 && dataDesc.compareTo("zzzBBzzz") == 0)
         || (infoLevel == 10 && dataDesc.compareTo("zzzBBzz") == 0)) {

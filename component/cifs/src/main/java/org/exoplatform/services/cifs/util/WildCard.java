@@ -1,18 +1,26 @@
 /*
- * Copyright (C) 2005 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.util;
 
@@ -51,9 +59,8 @@ public final class WildCard {
 
   // Wildcard types
 
-  public static final int WILDCARD_NONE = 0; // no wildcard characters
-
-  // present in pattern
+  public static final int WILDCARD_NONE = 0; // no wildcard characters present
+                                              // in pattern
 
   public static final int WILDCARD_ALL = 1; // '*.*' and '*'
 
@@ -285,8 +292,8 @@ public final class WildCard {
           }
         } else {
 
-          // Multi character wildcard at the end of the pattern, match
-          // all remaining
+          // Multi character wildcard at the end of the pattern, match all
+          // remaining
           // characters
 
           spos = slen;
@@ -356,8 +363,8 @@ public final class WildCard {
       if (isCaseSensitive() == false)
         m_matchPart = m_matchPart.toUpperCase();
 
-      // If the file extension contains wildcards we will need to use a
-      // regular expression
+      // If the file extension contains wildcards we will need to use a regular
+      // expression
 
       if (containsWildcards(m_matchPart) == false) {
         setType(WILDCARD_NAME);
@@ -506,8 +513,8 @@ public final class WildCard {
         ch = SINGLECHAR_WILDCARD;
       } else if (ch == MULTICHAR_UNICODE_WILDCARD) {
 
-        // Check if the current character is followed by a '.', if so
-        // then translate to the
+        // Check if the current character is followed by a '.', if so then
+        // translate to the
         // DOS multi character
         // wildcard
 
@@ -515,8 +522,8 @@ public final class WildCard {
           ch = MULTICHAR_WILDCARD;
       } else if (ch == DOT_UNICODE_WILDCARD) {
 
-        // Check if the current character is followed by a DOS
-        // single/multi character
+        // Check if the current character is followed by a DOS single/multi
+        // character
         // wildcard
 
         if (i < (str.length() - 1)) {
@@ -546,8 +553,8 @@ public final class WildCard {
    */
   public final static String convertToRegexp(String path) {
 
-    // Convert the path to characters, check if the wildcard string ends
-    // with a single character
+    // Convert the path to characters, check if the wildcard string ends with a
+    // single character
     // wildcard
 
     char[] smbPattern = path.toCharArray();

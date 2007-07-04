@@ -1,18 +1,26 @@
 /*
- * Copyright (C) 2005-2006 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.smb.server.win32;
 
@@ -102,24 +110,22 @@ public class WinsockNetBIOSPacketHandler extends PacketHandler {
 
       rxlen = m_sessSock.read(pkt.getBuffer(), 4, pkt.getBufferLength() - 4);
 
-      // Check if the buffer is not big enough to receive the entire
-      // packet, extend the buffer
+      // Check if the buffer is not big enough to receive the entire packet,
+      // extend the buffer
       // and read the remaining part of the packet
 
       if (rxlen == ReceiveBufferSizeError) {
 
-        // Check if the packet buffer is already at the maximum size (we
-        // assume the maximum
-        // size is the maximum that RFC NetBIOS can send which is
-        // 17bits)
+        // Check if the packet buffer is already at the maximum size (we assume
+        // the maximum
+        // size is the maximum that RFC NetBIOS can send which is 17bits)
 
         if (pkt.getBuffer().length < RFCNetBIOSProtocol.MaxPacketSize) {
           // Set the initial receive size, assume a full read
 
           rxlen = pkt.getBufferLength() - 4;
 
-          // Allocate a new buffer, copy the existing data to the new
-          // buffer
+          // Allocate a new buffer, copy the existing data to the new buffer
 
           byte[] newbuf = new byte[RFCNetBIOSProtocol.MaxPacketSize];
           System.arraycopy(pkt.getBuffer(), 4, newbuf, 4, rxlen);
@@ -178,8 +184,8 @@ public class WinsockNetBIOSPacketHandler extends PacketHandler {
 
     int txlen = m_sessSock.write(pkt.getBuffer(), 4, len);
 
-    // Do not check the status, if the session has been closed the next
-    // receive will fail
+    // Do not check the status, if the session has been closed the next receive
+    // will fail
   }
 
   /**

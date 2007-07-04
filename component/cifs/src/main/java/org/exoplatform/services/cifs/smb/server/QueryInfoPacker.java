@@ -1,23 +1,29 @@
 /*
- * Copyright (C) 2005 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.smb.server;
 
-// import org.exoplatform.services.CIFS.smb.server.ntfs.StreamInfo;
-// import org.exoplatform.services.CIFS.smb.server.ntfs.StreamInfoList;
 import org.exoplatform.services.cifs.server.filesys.FileInfo;
 import org.exoplatform.services.cifs.server.filesys.UnsupportedInfoLevelException;
 import org.exoplatform.services.cifs.smb.FileInfoLevel;
@@ -527,63 +533,7 @@ public class QueryInfoPacker {
     buf.putString(streamName, uni, false);
   }
 
-  /**
-   * Pack the stream information (level 0x109)
-   * 
-   * @param streams
-   *          List of streams
-   * @param buf
-   *          Buffer to pack data into
-   * @param uni
-   *          Pack unicode strings
-   * @return int
-   */
-  /*
-   * public static int packStreamFileInfo(StreamInfoList streams, DataBuffer
-   * buf, boolean uni) {
-   *  // Information format :- // ULONG OffsetToNextStreamInfo // ULONG
-   * NameLength (in bytes) // LARGE_INTEGER StreamSize // LARGE_INTEGER
-   * StreamAlloc // WCHAR StreamName[]
-   *  // Loop through the available streams
-   * 
-   * int curPos = buf.getPosition(); int startPos = curPos; int pos = 0;
-   * 
-   * for (int i = 0; i < streams.numberOfStreams(); i++) {
-   *  // Get the current stream information
-   * 
-   * StreamInfo sinfo = streams.getStreamAt(i);
-   *  // Skip the offset to the next stream information structure
-   * 
-   * buf.putInt(0);
-   *  // Set the stream name length
-   * 
-   * int nameLen = sinfo.getName().length(); if (uni) nameLen *= 2;
-   * buf.putInt(nameLen);
-   *  // Stream size
-   * 
-   * buf.putLong(sinfo.getSize());
-   *  // Allocation size
-   * 
-   * if (sinfo.getAllocationSize() < sinfo.getSize())
-   * buf.putLong(sinfo.getSize()); else buf.putLong(sinfo.getAllocationSize());
-   * 
-   * buf.putString(sinfo.getName(), uni, false);
-   *  // Word align the buffer
-   * 
-   * buf.wordAlign();
-   *  // Fill in the offset to the next stream information, if this is not //
-   * the last stream
-   * 
-   * if (i < (streams.numberOfStreams() - 1)) {
-   *  // Fill in the offset from the current stream information // structure to
-   * the next
-   * 
-   * pos = buf.getPosition(); buf.setPosition(startPos); buf.putInt(pos -
-   * startPos); buf.setPosition(pos); startPos = pos; } }
-   *  // Return the data length
-   * 
-   * return buf.getPosition() - curPos; }
-   */
+
   /**
    * Pack the compression information (level 0x10B)
    * 

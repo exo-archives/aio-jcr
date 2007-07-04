@@ -1,19 +1,7 @@
-/*
- * Copyright (C) 2005-2006 Alfresco, Inc.
- *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
- */
+/***************************************************************************
+ * Copyright 2001-2007 The eXo Platform SAS          All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ **************************************************************************/
 package org.exoplatform.services.cifs.smb.server;
 
 import java.io.IOException;
@@ -31,6 +19,8 @@ import org.exoplatform.services.cifs.server.filesys.FileAttribute;
 import org.exoplatform.services.cifs.server.filesys.FileExistsException;
 import org.exoplatform.services.cifs.server.filesys.FileInfo;
 import org.exoplatform.services.cifs.server.filesys.FileOpenParams;
+import org.exoplatform.services.cifs.server.filesys.JCRDriver;
+import org.exoplatform.services.cifs.server.filesys.JCRNetworkFile;
 import org.exoplatform.services.cifs.server.filesys.NameCoder;
 import org.exoplatform.services.cifs.server.filesys.NetworkFile;
 import org.exoplatform.services.cifs.server.filesys.TooManyConnectionsException;
@@ -44,7 +34,7 @@ import org.exoplatform.services.cifs.smb.SMBStatus;
 import org.exoplatform.services.cifs.util.DataPacker;
 import org.exoplatform.services.log.ExoLogger;
 
-/**
+/** 
  * Core SMB protocol handler class.
  */
 class CoreProtocolHandler extends ProtocolHandler {
@@ -65,6 +55,12 @@ class CoreProtocolHandler extends ProtocolHandler {
   // Maximum value that can be stored in a parameter word
 
   private static final int MaxWordValue = 0x0000FFFF;
+  
+  // Invalid file name characters
+
+  private static final String InvalidFileNameChars = "\"/[]:+|<>=;,*?";
+
+  private static final String InvalidFileNameCharsSearch = "\"/[]:+|<>=;,";
 
   // SMB packet class
 
@@ -142,7 +138,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -251,7 +247,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -335,7 +331,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -469,7 +465,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -636,7 +632,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -756,7 +752,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -959,7 +955,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -1107,7 +1103,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -1274,7 +1270,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -1425,7 +1421,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -1483,7 +1479,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -1718,7 +1714,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -1843,7 +1839,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -1980,7 +1976,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -2063,7 +2059,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -2125,7 +2121,7 @@ class CoreProtocolHandler extends ProtocolHandler {
       if (wrtcnt == 0) {
         JCRDriver.truncateFile(m_sess, conn, netFile, wrtoff);
       } else {
-        wrtlen = JCRDriver.writeFile(m_sess, conn, netFile, buf, pos, wrtcnt,
+        wrtlen = (int)JCRDriver.writeFile(m_sess, conn, netFile, buf, pos, wrtcnt,
             (int) wrtoff);
       }
     } catch (java.io.IOException ex) {

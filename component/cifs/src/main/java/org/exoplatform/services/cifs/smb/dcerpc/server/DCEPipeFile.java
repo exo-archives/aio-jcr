@@ -1,24 +1,30 @@
 /*
- * Copyright (C) 2005 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.smb.dcerpc.server;
 
 import java.io.IOException;
-
-//import org.alfresco.filesys.server.filesys.NetworkFile;
 
 import org.exoplatform.services.cifs.server.filesys.NetworkFile;
 import org.exoplatform.services.cifs.smb.dcerpc.DCEBuffer;
@@ -30,221 +36,220 @@ import org.exoplatform.services.cifs.smb.dcerpc.DCEPipeType;
  * Contains the details and state of a DCE/RPC special named pipe.
  */
 public class DCEPipeFile extends NetworkFile {
-	// Maximum receive/transmit DCE fragment size
 
-	private int m_maxRxFragSize;
+  // Maximum receive/transmit DCE fragment size
 
-	private int m_maxTxFragSize;
+  private int m_maxRxFragSize;
 
-	// Named pipe state flags
+  private int m_maxTxFragSize;
 
-	private int m_state;
+  // Named pipe state flags
 
-	// DCE/RPC handler for this named pipe
+  private int m_state;
 
-	private DCEHandler m_handler;
+  // DCE/RPC handler for this named pipe
 
-	// Current DCE buffered data
+  private DCEHandler m_handler;
 
-	private DCEBuffer m_dceData;
+  // Current DCE buffered data
 
-	/**
-	 * Class constructor
-	 * 
-	 * @param id
-	 *            int
-	 */
-	public DCEPipeFile(int id) {
-		this.m_fid = id;
-		this.m_name =DCEPipeType.getTypeAsString(id);
+  private DCEBuffer m_dceData;
 
-		// Set the DCE/RPC request handler for the pipe
+  /**
+   * Class constructor
+   * 
+   * @param id
+   *          int
+   */
+  public DCEPipeFile(int id) {
+    super(id);
+    setName(DCEPipeType.getTypeAsString(id));
 
-		setRequestHandler(DCEPipeHandler.getHandlerForType(id));
-	}
+    // Set the DCE/RPC request handler for the pipe
 
-	/**
-	 * Return the maximum receive fragment size
-	 * 
-	 * @return int
-	 */
-	public final int getMaxReceiveFragmentSize() {
-		return m_maxRxFragSize;
-	}
+    setRequestHandler(DCEPipeHandler.getHandlerForType(id));
+  }
 
-	/**
-	 * Return the maximum transmit fragment size
-	 * 
-	 * @return int
-	 */
-	public final int getMaxTransmitFragmentSize() {
-		return m_maxTxFragSize;
-	}
+  /**
+   * Return the maximum receive fragment size
+   * 
+   * @return int
+   */
+  public final int getMaxReceiveFragmentSize() {
+    return m_maxRxFragSize;
+  }
 
-	/**
-	 * Return the named pipe state
-	 * 
-	 * @return int
-	 */
-	public final int getPipeState() {
-		return m_state;
-	}
+  /**
+   * Return the maximum transmit fragment size
+   * 
+   * @return int
+   */
+  public final int getMaxTransmitFragmentSize() {
+    return m_maxTxFragSize;
+  }
 
-	/**
-	 * Return the pipe type id
-	 * 
-	 * @return int
-	 */
-	public final int getPipeId() {
-		return m_fid;
-	}
+  /**
+   * Return the named pipe state
+   * 
+   * @return int
+   */
+  public final int getPipeState() {
+    return m_state;
+  }
 
-	/**
-	 * Determine if the pipe has a request handler
-	 * 
-	 * @return boolean
-	 */
-	public final boolean hasRequestHandler() {
-		return m_handler != null ? true : false;
-	}
+  /**
+   * Return the pipe type id
+   * 
+   * @return int
+   */
+  public final int getPipeId() {
+    return getFileId();
+  }
 
-	/**
-	 * Return the pipes DCE/RPC handler
-	 * 
-	 * @return DCEHandler
-	 */
-	public final DCEHandler getRequestHandler() {
-		return m_handler;
-	}
+  /**
+   * Determine if the pipe has a request handler
+   * 
+   * @return boolean
+   */
+  public final boolean hasRequestHandler() {
+    return m_handler != null ? true : false;
+  }
 
-	/**
-	 * Determine if the pipe has any buffered data
-	 * 
-	 * @return boolean
-	 */
-	public final boolean hasBufferedData() {
-		return m_dceData != null ? true : false;
-	}
+  /**
+   * Return the pipes DCE/RPC handler
+   * 
+   * @return DCEHandler
+   */
+  public final DCEHandler getRequestHandler() {
+    return m_handler;
+  }
 
-	/**
-	 * Get the buffered data for the pipe
-	 * 
-	 * @return DCEBuffer
-	 */
-	public final DCEBuffer getBufferedData() {
-		return m_dceData;
-	}
+  /**
+   * Determine if the pipe has any buffered data
+   * 
+   * @return boolean
+   */
+  public final boolean hasBufferedData() {
+    return m_dceData != null ? true : false;
+  }
 
-	/**
-	 * Set buffered data for the pipe
-	 * 
-	 * @param buf
-	 *            DCEBuffer
-	 */
-	public final void setBufferedData(DCEBuffer buf) {
-		m_dceData = buf;
-	}
+  /**
+   * Get the buffered data for the pipe
+   * 
+   * @return DCEBuffer
+   */
+  public final DCEBuffer getBufferedData() {
+    return m_dceData;
+  }
 
-	/**
-	 * Set the maximum receive fragment size
-	 * 
-	 * @param siz
-	 *            int
-	 */
-	public final void setMaxReceiveFragmentSize(int siz) {
-		m_maxRxFragSize = siz;
-	}
+  /**
+   * Set buffered data for the pipe
+   * 
+   * @param buf
+   *          DCEBuffer
+   */
+  public final void setBufferedData(DCEBuffer buf) {
+    m_dceData = buf;
+  }
 
-	/**
-	 * Set the maximum transmit fragment size
-	 * 
-	 * @param siz
-	 *            int
-	 */
-	public final void setMaxTransmitFragmentSize(int siz) {
-		m_maxTxFragSize = siz;
-	}
+  /**
+   * Set the maximum receive fragment size
+   * 
+   * @param siz
+   *          int
+   */
+  public final void setMaxReceiveFragmentSize(int siz) {
+    m_maxRxFragSize = siz;
+  }
 
-	/**
-	 * Set the named pipe state flags
-	 * 
-	 * @param state
-	 *            int
-	 */
-	public final void setPipeState(int state) {
-		m_state = state;
-	}
+  /**
+   * Set the maximum transmit fragment size
+   * 
+   * @param siz
+   *          int
+   */
+  public final void setMaxTransmitFragmentSize(int siz) {
+    m_maxTxFragSize = siz;
+  }
 
-	/**
-	 * Set the pipes DCE/RPC handler
-	 * 
-	 * @param handler
-	 *            DCEHandler
-	 */
-	public final void setRequestHandler(DCEHandler handler) {
-		m_handler = handler;
-	}
+  /**
+   * Set the named pipe state flags
+   * 
+   * @param state
+   *          int
+   */
+  public final void setPipeState(int state) {
+    m_state = state;
+  }
 
-	/**
-	 * Dump the file details
-	 */
-	public final void DumpFile() {
-		System.out.println("** DCE/RPC Named Pipe: " + getName());
-		System.out.println("  File ID : " + m_fid);
-		System.out.println("  State   : 0x"
-				+ Integer.toHexString(getPipeState()));
-		System.out.println("  Max Rx  : " + getMaxReceiveFragmentSize());
-		System.out.println("  Max Tx  : " + getMaxTransmitFragmentSize());
-		System.out.println("  Handler : " + getRequestHandler());
-	}
+  /**
+   * Set the pipes DCE/RPC handler
+   * 
+   * @param handler
+   *          DCEHandler
+   */
+  public final void setRequestHandler(DCEHandler handler) {
+    m_handler = handler;
+  }
 
-	/**
-	 * @see NetworkFile#closeFile()
-	 */
-	public void closeFile() throws IOException {
-	}
+  /**
+   * Dump the file details
+   */
+  public final void DumpFile() {
+    System.out.println("** DCE/RPC Named Pipe: " + getName());
+    System.out.println("  File ID : " + getFileId());
+    System.out.println("  State   : 0x" + Integer.toHexString(getPipeState()));
+    System.out.println("  Max Rx  : " + getMaxReceiveFragmentSize());
+    System.out.println("  Max Tx  : " + getMaxTransmitFragmentSize());
+    System.out.println("  Handler : " + getRequestHandler());
+  }
 
-	/**
-	 * @see NetworkFile#openFile(boolean)
-	 */
-	public void openFile(boolean createFlag) throws IOException {
-	}
+  /**
+   * @see NetworkFile#closeFile()
+   */
+  public void closeFile() throws IOException {
+  }
 
-	
+  /**
+   * @see NetworkFile#openFile(boolean)
+   */
+  public void openFile(boolean createFlag) throws IOException {
+  }
 
-	/**
-	 * Flush any buffered output to the file
-	 * 
-	 * @throws IOException
-	 */
-	public void flushFile() throws IOException {
-	}
-
-	/**
-	 * @see NetworkFile#seekFile(long, int)
-	 */
-	public long seekFile(long pos, int typ) throws IOException {
-		return 0;
-	}
-
-	/**
-	 * @see NetworkFile#truncateFile(long)
-	 */
-	public void truncateFile(long siz) throws IOException {
-	}
-
-  public int writeFile(byte[] buf, int dataPos, int dataLen, int offset) throws Exception {
+  /**
+   * @see NetworkFile#readFile(byte[], int, int, long)
+   */
+  public int readFile(byte[] buf, int len, int pos, long fileOff)
+      throws Exception {
     return 0;
   }
 
-  public int readFile(byte[] buf, int maxCount, int dataPos, int offset) throws Exception {
+  /**
+   * Flush any buffered output to the file
+   * 
+   * @throws IOException
+   */
+  public void flushFile() throws IOException {
+  }
+
+  /**
+   * @see NetworkFile#seekFile(long, int)
+   */
+  public long seekFile(long pos, int typ) throws IOException {
     return 0;
   }
 
-	
+  /**
+   * @see NetworkFile#truncateFile(long)
+   */
+  public void truncateFile(long siz) throws IOException {
+  }
 
- 
- 
-
-
+  /**
+   * @see NetworkFile#writeFile(byte[], int, int, long)
+   */
+  public long writeFile(byte[] buf, int len, int pos, long fileOff)
+      throws Exception {
+    return 0;
+  }
 }

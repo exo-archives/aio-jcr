@@ -1,3 +1,7 @@
+/***************************************************************************
+ * Copyright 2001-2007 The eXo Platform SAS          All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ **************************************************************************/
 package org.exoplatform.services.cifs;
 
 import org.picocontainer.Startable;
@@ -7,12 +11,11 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.cifs.server.NetworkServer;
 import org.exoplatform.services.cifs.smb.server.SMBServer;
 import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.cifs.netbios.win32.Win32NetBIOS;
 
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL Author : Karpenko Sergey
+ * Created by The eXo Platform SAS Author : Karpenko Sergey
  * 
  */
 

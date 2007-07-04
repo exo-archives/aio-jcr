@@ -1,18 +1,26 @@
 /*
- * Copyright (C) 2005 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.smb.server;
 
@@ -391,8 +399,7 @@ class FindInfoPacker {
 
     if (uni == true) {
 
-      // Pack the number of bytes followed by the Unicode name word
-      // aligned
+      // Pack the number of bytes followed by the Unicode name word aligned
 
       buf.putByte(info.getFileName().length() * 2);
       buf.wordAlign();
@@ -443,8 +450,8 @@ class FindInfoPacker {
 
     buf.putString(info.getFileName(), uni, false);
 
-    // Align the buffer pointer and set the offset to the next file
-    // information entry
+    // Align the buffer pointer and set the offset to the next file information
+    // entry
 
     buf.wordAlign();
 
@@ -533,8 +540,8 @@ class FindInfoPacker {
 
     buf.putString(info.getFileName(), uni, false);
 
-    // Align the buffer pointer and set the offset to the next file
-    // information entry
+    // Align the buffer pointer and set the offset to the next file information
+    // entry
 
     buf.wordAlign();
 
@@ -628,8 +635,8 @@ class FindInfoPacker {
 
     buf.putString(info.getFileName(), uni, false);
 
-    // Align the buffer pointer and set the offset to the next file
-    // information entry
+    // Align the buffer pointer and set the offset to the next file information
+    // entry
 
     buf.wordAlign();
 
@@ -729,8 +736,8 @@ class FindInfoPacker {
 
     buf.putString(info.getFileName(), uni, false);
 
-    // Align the buffer pointer and set the offset to the next file
-    // information entry
+    // Align the buffer pointer and set the offset to the next file information
+    // entry
 
     buf.wordAlign();
 
@@ -802,8 +809,8 @@ class FindInfoPacker {
     buf.putLong(info.getSize());
     buf.putZeros(8);
 
-    // Pack the data stream allocation size and resource stream allocation
-    // size (always zero)
+    // Pack the data stream allocation size and resource stream allocation size
+    // (always zero)
 
     if (info.getAllocationSize() < info.getSize())
       buf.putLong(info.getSize());
@@ -851,8 +858,8 @@ class FindInfoPacker {
 
     buf.putInt(0);
 
-    // Align the buffer pointer and set the offset to the next file
-    // information entry
+    // Align the buffer pointer and set the offset to the next file information
+    // entry
 
     buf.wordAlign();
 
@@ -899,8 +906,8 @@ class FindInfoPacker {
       } else
         namePart = fileName;
 
-      // If the name already fits into an 8.3 name we do not need to pack
-      // the short name
+      // If the name already fits into an 8.3 name we do not need to pack the
+      // short name
 
       if (namePart.length() <= 8 && (extPart == null || extPart.length() <= 3)) {
 

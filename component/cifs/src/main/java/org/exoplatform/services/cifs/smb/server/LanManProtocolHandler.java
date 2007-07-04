@@ -1,19 +1,7 @@
-/*
- * Copyright (C) 2005-2006 Alfresco, Inc.
- *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
- */
+/***************************************************************************
+ * Copyright 2001-2007 The eXo Platform SAS          All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ **************************************************************************/
 package org.exoplatform.services.cifs.smb.server;
 
 import java.io.FileNotFoundException;
@@ -30,13 +18,16 @@ import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.version.VersionException;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.cifs.netbios.RFCNetBIOSProtocol;
+import org.exoplatform.services.cifs.server.core.ShareType;
 import org.exoplatform.services.cifs.server.core.SharedDevice;
 import org.exoplatform.services.cifs.server.filesys.DiskInfo;
 import org.exoplatform.services.cifs.server.filesys.FileAccess;
 import org.exoplatform.services.cifs.server.filesys.FileAction;
 import org.exoplatform.services.cifs.server.filesys.FileInfo;
 import org.exoplatform.services.cifs.server.filesys.FileOpenParams;
+import org.exoplatform.services.cifs.server.filesys.JCRDriver;
 import org.exoplatform.services.cifs.server.filesys.NameCoder;
 import org.exoplatform.services.cifs.server.filesys.NetworkFile;
 import org.exoplatform.services.cifs.server.filesys.SearchContext;
@@ -52,15 +43,11 @@ import org.exoplatform.services.cifs.smb.PCShare;
 import org.exoplatform.services.cifs.smb.PacketType;
 import org.exoplatform.services.cifs.smb.SMBDate;
 import org.exoplatform.services.cifs.smb.SMBStatus;
-import org.exoplatform.services.cifs.smb.ShareType;
-import org.exoplatform.services.cifs.smb.server.OpenAndX;
 import org.exoplatform.services.cifs.util.DataBuffer;
 import org.exoplatform.services.cifs.util.DataPacker;
-import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
-
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * LanMan SMB Protocol Handler Class.
@@ -313,7 +300,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       // Set the file permission that this user has been granted for this
       // share
 
-      TreeConnection tree = m_sess.findConnection(treeId);
+      TreeConnection tree = m_sess.findTreeConnection(treeId);
       tree.setPermission(filePerm);
 
       Session s = null;
@@ -389,7 +376,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // Get the tree connection details
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.SRVInvalidTID, SMBStatus.ErrSrv);
@@ -457,7 +444,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
     // Get the tree connection details
 
-    TreeConnection conn = m_sess.findConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.SRVInvalidTID, SMBStatus.ErrSrv);
@@ -551,7 +538,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // Get the tree connection details
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.SRVInvalidTID, SMBStatus.ErrSrv);
@@ -807,7 +794,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // Get the tree connection details
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.SRVInvalidTID, SMBStatus.ErrSrv);
@@ -968,7 +955,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -1067,7 +1054,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     try {
       Node path = (Node) sess.getItem(oldNamePath);
     } catch (PathNotFoundException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.ERRBadPath, SMBStatus.ErrDos);
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSFileNotFound, SMBStatus.ErrDos);
       return;
     } catch (RepositoryException e) {
       m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
@@ -1078,7 +1065,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     try {
       Node path = (Node) sess.getItem(newNamePath);
     } catch (PathNotFoundException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.ERRBadPath, SMBStatus.ErrDos);
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSFileNotFound, SMBStatus.ErrDos);
       return;
     } catch (RepositoryException e) {
       m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
@@ -1089,7 +1076,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     try {
       n_oldFile = (Node) sess.getItem(oldName);
     } catch (PathNotFoundException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.ERRBadFile, SMBStatus.ErrDos);
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSDirectoryInvalid, SMBStatus.ErrDos);
       return;
     } catch (RepositoryException e) {
       m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
@@ -1364,7 +1351,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess
@@ -1493,7 +1480,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess
@@ -1751,7 +1738,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // Set the file permission that this user has been granted for this
     // share
 
-    TreeConnection tree = m_sess.findConnection(treeId);
+    TreeConnection tree = m_sess.findTreeConnection(treeId);
     tree.setPermission(filePerm);
 
     Session s = null;
@@ -1820,7 +1807,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // Get the tree connection details
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.SRVInvalidTID, SMBStatus.ErrSrv);
@@ -1879,7 +1866,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     try {
       // Write to the file
 
-      wrtlen = JCRDriver.writeFile(m_sess, conn, netFile, buf, dataPos,
+      wrtlen = (int)JCRDriver.writeFile(m_sess, conn, netFile, buf, dataPos,
           dataLen, offset);
     } catch (java.io.IOException ex) {
 
@@ -2058,7 +2045,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       int treeId = m_smbPkt.getTreeId();
       TreeConnection conn = null;
       if (treeId != -1)
-        conn = m_sess.findConnection(treeId);
+        conn = m_sess.findTreeConnection(treeId);
 
       if (conn != null) {
 
@@ -2162,7 +2149,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // Get the tree connection details
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.SRVInvalidTID, SMBStatus.ErrSrv);
@@ -2423,7 +2410,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // Get the tree connection details
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.SRVInvalidTID, SMBStatus.ErrSrv);
@@ -2637,7 +2624,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // Get the tree connection details
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.SRVInvalidTID, SMBStatus.ErrSrv);
@@ -2809,7 +2796,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // Get the tree connection details
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess

@@ -5,7 +5,6 @@ package org.exoplatform.services.cifs.server.core;
 
 import org.exoplatform.services.cifs.server.filesys.DiskInfo;
 import org.exoplatform.services.cifs.server.filesys.VolumeInfo;
-import org.exoplatform.services.cifs.smb.ShareType;
 
 /**
  * This class is a wrapper of share device abstraction (in JCR it means

@@ -1,18 +1,26 @@
 /*
- * Copyright (C) 2005 Alfresco, Inc.
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
  *
- * Licensed under the Mozilla Public License version 1.1 
- * with a permitted attribution clause. You may obtain a
- * copy of the License at
- *
- *   http://www.alfresco.org/legal/license.txt
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.smb.mailslot;
 
@@ -32,133 +40,129 @@ import org.exoplatform.services.cifs.smb.server.win32.Win32NetBIOSSessionSocketH
  */
 public class Win32NetBIOSHostAnnouncer extends HostAnnouncer {
 
-	// Number of send errors before marking the LANA as offline
+  // Number of send errors before marking the LANA as offline
 
-	private static final int SendErrorCount = 3;
+  private static final int SendErrorCount = 3;
 
-	// Associated session handler
+  // Associated session handler
 
-	Win32NetBIOSSessionSocketHandler m_handler;
+  Win32NetBIOSSessionSocketHandler m_handler;
 
-	/**
-	 * Create a host announcer.
-	 * 
-	 * @param sessHandler
-	 *            Win32NetBIOSSessionSocketHandler
-	 * @param domain
-	 *            Domain name to announce to
-	 * @param intval
-	 *            Announcement interval, in minutes
-	 */
-	public Win32NetBIOSHostAnnouncer(Win32NetBIOSSessionSocketHandler handler,
-			String domain, int intval) {
+  /**
+   * Create a host announcer.
+   * 
+   * @param sessHandler
+   *          Win32NetBIOSSessionSocketHandler
+   * @param domain
+   *          Domain name to announce to
+   * @param intval
+   *          Announcement interval, in minutes
+   */
+  public Win32NetBIOSHostAnnouncer(Win32NetBIOSSessionSocketHandler handler,
+      String domain, int intval) {
 
-		// Save the handler
+    // Save the handler
 
-		m_handler = handler;
+    m_handler = handler;
 
-		// Add the host to the list of names to announce
+    // Add the host to the list of names to announce
 
-		addHostName(handler.getServerName());
-		setDomain(domain);
-		setInterval(intval);
-	}
+    addHostName(handler.getServerName());
+    setDomain(domain);
+    setInterval(intval);
+  }
 
-	/**
-	 * Return the LANA
-	 * 
-	 * @return int
-	 */
-	public final int getLana() {
-		return m_handler.getLANANumber();
-	}
+  /**
+   * Return the LANA
+   * 
+   * @return int
+   */
+  public final int getLana() {
+    return m_handler.getLANANumber();
+  }
 
-	/**
-	 * Return the host name NetBIOS number
-	 * 
-	 * @return int
-	 */
-	public final int getNameNumber() {
-		return m_handler.getNameNumber();
-	}
+  /**
+   * Return the host name NetBIOS number
+   * 
+   * @return int
+   */
+  public final int getNameNumber() {
+    return m_handler.getNameNumber();
+  }
 
-	/**
-	 * Initialize the host announcer.
-	 * 
-	 * @exception Exception
-	 */
-	protected void initialize() throws Exception {
+  /**
+   * Initialize the host announcer.
+   * 
+   * @exception Exception
+   */
+  protected void initialize() throws Exception {
 
-		// Set the thread name
+    // Set the thread name
 
-		setName("Win32HostAnnouncer_L" + getLana());
-	}
+    setName("Win32HostAnnouncer_L" + getLana());
+  }
 
-	/**
-	 * Determine if the network connection used for the host announcement is
-	 * valid
-	 * 
-	 * @return boolean
-	 */
-	public boolean isNetworkEnabled() {
-		return m_handler.isLANAValid();
-	}
+  /**
+   * Determine if the network connection used for the host announcement is valid
+   * 
+   * @return boolean
+   */
+  public boolean isNetworkEnabled() {
+    return m_handler.isLANAValid();
+  }
 
-	/**
-	 * Send an announcement broadcast.
-	 * 
-	 * @param hostName
-	 *            Host name being announced
-	 * @param buf
-	 *            Buffer containing the host announcement mailslot message.
-	 * @param offset
-	 *            Offset to the start of the host announcement message.
-	 * @param len
-	 *            Host announcement message length.
-	 */
-	protected void sendAnnouncement(String hostName, byte[] buf, int offset,
-			int len) throws Exception {
+  /**
+   * Send an announcement broadcast.
+   * 
+   * @param hostName
+   *          Host name being announced
+   * @param buf
+   *          Buffer containing the host announcement mailslot message.
+   * @param offset
+   *          Offset to the start of the host announcement message.
+   * @param len
+   *          Host announcement message length.
+   */
+  protected void sendAnnouncement(String hostName, byte[] buf, int offset,
+      int len) throws Exception {
 
-		// Build the destination NetBIOS name using the domain/workgroup name
+    // Build the destination NetBIOS name using the domain/workgroup name
 
-		NetBIOSName destNbName = new NetBIOSName(getDomain(),
-				NetBIOSName.MasterBrowser, false);
-		byte[] destName = destNbName.getNetBIOSName();
+    NetBIOSName destNbName = new NetBIOSName(getDomain(),
+        NetBIOSName.MasterBrowser, false);
+    byte[] destName = destNbName.getNetBIOSName();
 
-		// Send the host announce datagram via the Win32 Netbios() API call
+    // Send the host announce datagram via the Win32 Netbios() API call
 
-		int sts = Win32NetBIOS.SendDatagram(getLana(), getNameNumber(),
-				destName, buf, 0, len);
-		if (sts != NetBIOS.NRC_GoodRet) {
-			// Log the error
+    int sts = Win32NetBIOS.SendDatagram(getLana(), getNameNumber(), destName,
+        buf, 0, len);
+    if (sts != NetBIOS.NRC_GoodRet) {
+      // Log the error
 
-			if (logger.isErrorEnabled())
-				logger.error("Host announce error "
-						+ " (LANA " + getLana()
-						+ ")" + " status " + NetBIOS.getErrorString(sts));
+      if (logger.isErrorEnabled())
+        logger.error("Host announce error " + NetBIOS.getErrorString(-sts)
+            + " (LANA " + getLana() + ")");
 
-			// Update the error count
+      // Update the error count
 
-			if (incrementErrorCount() == SendErrorCount) {
-				// Mark the LANA as offline
+      if (incrementErrorCount() == SendErrorCount) {
+        // Mark the LANA as offline
 
-				m_handler.lanaStatusChange(getLana(), false);
+        m_handler.lanaStatusChange(getLana(), false);
 
-				// Clear the error count
+        // Clear the error count
 
-				clearErrorCount();
+        clearErrorCount();
 
-				// Log the error
+        // Log the error
 
-				if (logger.isErrorEnabled())
-					logger
-							.error("Marked LANA as unavailable due to send errors");
-			}
-		} else {
-			// Clear the error count
-			if (logger.isInfoEnabled())
-				logger.info("Annonce is sended!");
-			clearErrorCount();
-		}
-	}
+        if (logger.isErrorEnabled())
+          logger.error("Marked LANA as unavailable due to send errors");
+      }
+    } else {
+      // Clear the error count
+
+      clearErrorCount();
+    }
+  }
 }

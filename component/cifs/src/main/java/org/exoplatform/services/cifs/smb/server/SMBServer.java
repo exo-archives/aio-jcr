@@ -1,3 +1,27 @@
+/*
+ * Copyright (C) 2005-2007 Alfresco Software Limited.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+ * As a special exception to the terms and conditions of version 2.0 of 
+ * the GPL, you may redistribute this Program in connection with Free/Libre 
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's 
+ * FLOSS exception.  You should have recieved a copy of the text describing 
+ * the FLOSS exception, and it is also available here: 
+ * http://www.alfresco.com/legal/licensing"
+ */
 package org.exoplatform.services.cifs.smb.server;
 
 import java.io.FileNotFoundException;
@@ -8,28 +32,23 @@ import java.util.Enumeration;
 import java.util.UUID;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.exoplatform.services.cifs.ServerConfiguration;
 import org.exoplatform.services.cifs.netbios.NetworkSettings;
 import org.exoplatform.services.cifs.server.NetworkServer;
-import org.exoplatform.services.cifs.server.SrvSession;
 import org.exoplatform.services.cifs.server.SrvSessionList;
+import org.exoplatform.services.cifs.server.core.ShareType;
 import org.exoplatform.services.cifs.server.core.SharedDevice;
 import org.exoplatform.services.cifs.server.core.SharedDeviceList;
 import org.exoplatform.services.cifs.smb.SMBException;
 import org.exoplatform.services.cifs.smb.ServerType;
-import org.exoplatform.services.cifs.smb.ShareType;
 import org.exoplatform.services.cifs.smb.mailslot.HostAnnouncer;
 import org.exoplatform.services.cifs.smb.server.win32.Win32NetBIOSLanaMonitor;
 import org.exoplatform.services.cifs.smb.server.win32.Win32NetBIOSSessionSocketHandler;
 import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
-import javax.jcr.Repository;
-import org.exoplatform.services.log.ExoLogger;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * SMB Server Class
@@ -42,7 +61,6 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
  * Network Neighborhood, by enabling the host announcer in the server
  * configuration or using the enableAnnouncer() method.
  */
-
 public class SMBServer extends NetworkServer implements Runnable {
 
   // Debug logging
@@ -80,7 +98,7 @@ public class SMBServer extends NetworkServer implements Runnable {
 
   private UUID m_serverGUID;
 
-  private RepositoryService m_repositoryService;
+  private RepositoryService k_repositoryService;
 
   /**
    * Create an SMB server using the specified configuration.
@@ -97,21 +115,20 @@ public class SMBServer extends NetworkServer implements Runnable {
     CommonConstructor();
   }
 
+  /**
+   * Create an SMB server using the specified configuration and repository
+   * Service
+   * 
+   * @param config
+   * @param repositoryService
+   * @throws IOException
+   */
   public SMBServer(ServerConfiguration config,
       RepositoryService repositoryService) throws IOException {
 
     super("SMB", config);
-    m_repositoryService = repositoryService;
+    k_repositoryService = repositoryService;
     CommonConstructor();
-  }
-
-  public ManageableRepository getRepository() {
-    try {
-      return m_repositoryService.getRepository();
-    } catch (Exception ex) {
-      ex.printStackTrace();
-      return null;
-    }
   }
 
   /**
@@ -293,7 +310,7 @@ public class SMBServer extends NetworkServer implements Runnable {
       logger.info("SMB Server " + getServerName() + " starting");
       logger.info("GUID " + m_serverGUID);
 
-      // Output the authenticator details
+      // TODO Output the authenticator details
 
       // Display the timezone offset/name
 
@@ -305,7 +322,7 @@ public class SMBServer extends NetworkServer implements Runnable {
         logger.info("Server timezone offset = "
             + getConfiguration().getTimeZoneOffset() / 60 + "hrs");
 
-      // Dump the share list
+      // TODO Dump the share list
     }
 
     // Create a server socket to listen for incoming session requests
@@ -313,6 +330,7 @@ public class SMBServer extends NetworkServer implements Runnable {
     try {
 
       // Add the IPC$ named pipe shared device
+
       SharedDevice adminpipe = new SharedDevice("IPC$", ShareType.ADMINPIPE);
       // Set the device attributes
       adminpipe.setAttributes(SharedDevice.Admin + SharedDevice.Hidden);
@@ -338,8 +356,8 @@ public class SMBServer extends NetworkServer implements Runnable {
 
       if (getConfiguration().hasNetBIOSSMB()) {
 
-        // Create the TCP/IP NetBIOS SMB/CIFS session handler(s), and
-        // host announcer(s) if
+        // Create the TCP/IP NetBIOS SMB/CIFS session handler(s), and host
+        // announcer(s) if
         // enabled
 
         // NetBIOSSessionSocketHandler.createSessionHandlers(this, sockDbg);
@@ -362,15 +380,15 @@ public class SMBServer extends NetworkServer implements Runnable {
 
         if (isWindows == true) {
 
-          // Create the Win32 NetBIOS SMB handler(s), and host
-          // announcer(s) if enabled
+          // Create the Win32 NetBIOS SMB handler(s), and host announcer(s) if
+          // enabled
 
           Win32NetBIOSSessionSocketHandler.createSessionHandlers(this, sockDbg);
         }
       }
 
-      // Check if there are any session handlers installed, if not then
-      // close the server
+      // Check if there are any session handlers installed, if not then close
+      // the server
 
       if (m_sessionHandlers.size() > 0 || getConfiguration().hasWin32NetBIOS()) {
 
@@ -393,8 +411,8 @@ public class SMBServer extends NetworkServer implements Runnable {
       }
     } catch (Exception ex) {
 
-      // Do not report an error if the server has shutdown, closing the
-      // server socket
+      // Do not report an error if the server has shutdown, closing the server
+      // socket
       // causes an exception to be thrown.
 
       if (hasShutdown() == false) {
@@ -403,6 +421,7 @@ public class SMBServer extends NetworkServer implements Runnable {
         // Store the error, fire a server error event
 
         setException(ex);
+
       }
     }
 
@@ -424,7 +443,6 @@ public class SMBServer extends NetworkServer implements Runnable {
     // Indicate that the server is not active
 
     setActive(false);
-
   }
 
   /**
@@ -442,23 +460,23 @@ public class SMBServer extends NetworkServer implements Runnable {
   }
 
   /**
-   * Notify the server that a user has logged on. /emty/
+   * Notify the server that a user has logged on.
    * 
    * @param sess
    *          SMBSrvSession
    */
   protected final void sessionLoggedOn(SMBSrvSession sess) {
-
+    // its empty and reserved for possible listeners
   }
 
   /**
-   * Notify the server that a session has been closed. /empty/
+   * Notify the server that a session has been closed.
    * 
    * @param sess
    *          SMBSrvSession
    */
   protected final void sessionOpened(SMBSrvSession sess) {
-
+    // its empty and reserved for possible listeners
   }
 
   /**
@@ -611,5 +629,14 @@ public class SMBServer extends NetworkServer implements Runnable {
    */
   public final UUID getServerGUID() {
     return m_serverGUID;
+  }
+  
+  public ManageableRepository getRepository() {
+    try {
+      return k_repositoryService.getRepository();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return null;
+    }
   }
 }
