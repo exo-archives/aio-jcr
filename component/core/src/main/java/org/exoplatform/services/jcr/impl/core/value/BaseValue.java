@@ -19,7 +19,7 @@ import org.exoplatform.services.jcr.core.value.ExtendedValue;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.AbstractValueData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
-import org.exoplatform.services.jcr.impl.util.DateFormatHelper;
+import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -83,9 +83,9 @@ public abstract class BaseValue implements ExtendedValue {
         data = new LocalTransientValueData(false);
 
       if (type == PropertyType.DATE)
-        return new DateFormatHelper().deserialize(new String(data.getAsByteArray(), Constants.DEFAULT_ENCODING));
+        return new JCRDateFormat().deserialize(new String(data.getAsByteArray(), Constants.DEFAULT_ENCODING));
 
-      return new DateFormatHelper().parse(new String(data.getAsByteArray(), Constants.DEFAULT_ENCODING));
+      return JCRDateFormat.parse(new String(data.getAsByteArray(), Constants.DEFAULT_ENCODING));
     } catch(UnsupportedEncodingException e) {
       throw new RepositoryException(Constants.DEFAULT_ENCODING + " not supported on this platform", e);
     } catch (IOException e) {

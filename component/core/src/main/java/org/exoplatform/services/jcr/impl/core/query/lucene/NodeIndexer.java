@@ -40,7 +40,7 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
-import org.exoplatform.services.jcr.impl.util.DateFormatHelper;
+import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -287,7 +287,7 @@ public class NodeIndexer {
       ValueData internalValue) throws RepositoryException {
 
     try {
-      Calendar cal = new DateFormatHelper().deserialize(new String(internalValue.getAsByteArray(), Constants.DEFAULT_ENCODING));
+      Calendar cal = new JCRDateFormat().deserialize(new String(internalValue.getAsByteArray(), Constants.DEFAULT_ENCODING));
       String strValue = DateField.dateToString(cal.getTime());
     
       doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(

@@ -19,7 +19,6 @@ import javax.jcr.Value;
 import javax.jcr.ValueFactory;
 import javax.jcr.ValueFormatException;
 
-import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.datamodel.Identifier;
@@ -29,6 +28,7 @@ import org.exoplatform.services.jcr.impl.core.JCRPath;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 
@@ -88,9 +88,7 @@ public class ValueFactoryImpl implements ValueFactory {
       case PropertyType.DOUBLE:
         return createValue(Double.parseDouble(value));
       case PropertyType.DATE:
-        Calendar cal = ISO8601.parse(value);
-        if (cal == null) // illegal value - parse returns null
-          throw new ValueFormatException("Date '" + value + "' is invalid");
+        Calendar cal = JCRDateFormat.parse(value);
         return createValue(cal);
       case PropertyType.PATH:
         try {

@@ -9,12 +9,12 @@
   <modules>
     <module>component/core</module>
     <module>component/ext</module>
-    <module>component/cifs</module>
 
     <module>component/rmi</module>
     <module>component/ftp</module>
     <module>component/rest</module>
     <module>component/webdav</module>
+    <module>component/cifs</module>
 
     <module>frameworks/command</module>
     <module>frameworks/web</module>

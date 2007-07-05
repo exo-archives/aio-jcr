@@ -16,11 +16,9 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 
-import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.value.BaseValue.LocalTransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
-import org.exoplatform.services.jcr.impl.util.DateFormatHelper;
+import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 
 /**
  * a date value implementation.
@@ -50,7 +48,7 @@ public class DateValue extends BaseValue {
   protected String getInternalString() throws ValueFormatException, RepositoryException {
     Calendar date = getInternalCalendar();
     if (date != null) {
-      return ISO8601.format(date);
+      return JCRDateFormat.format(date);
     } else {
       throw new ValueFormatException("empty value");
     }

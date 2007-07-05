@@ -29,7 +29,6 @@ import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
 
-import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedItemDefinition;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionValue;
@@ -39,6 +38,7 @@ import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.value.NameValue;
+import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 
 /**
  * Created by The eXo Platform SARL .
@@ -385,9 +385,10 @@ public class NodeTypeImpl implements ExtendedNodeType {
 				} else {
 					return false;
 				}
-				Calendar calDate = ISO8601.parse(likeDataString);
-				return calDate != null
-						&& checkValueConstraints(constrains, value);
+        // try parse...
+				Calendar calDate = JCRDateFormat.parse(likeDataString);
+        // validate
+				return checkValueConstraints(constrains, value); // TODO [PN] calDate != null && 
 			} catch (Exception e) {
 				// Hm, this is not date format string
 				return false;

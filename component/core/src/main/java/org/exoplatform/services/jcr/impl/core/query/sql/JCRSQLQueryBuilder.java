@@ -29,10 +29,10 @@ import java.util.NoSuchElementException;
 import java.util.WeakHashMap;
 
 import javax.jcr.RepositoryException;
+import javax.jcr.ValueFormatException;
 import javax.jcr.query.InvalidQueryException;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
@@ -49,6 +49,7 @@ import org.exoplatform.services.jcr.impl.core.query.QueryNode;
 import org.exoplatform.services.jcr.impl.core.query.QueryRootNode;
 import org.exoplatform.services.jcr.impl.core.query.RelationQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.TextsearchQueryNode;
+import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -494,8 +495,12 @@ public class JCRSQLQueryBuilder implements JCRSQLParserVisitor {
             } else if (literal.getType() == QueryConstants.TYPE_STRING) {
                 node = new RelationQueryNode(parent, propertyName, stringValue, operationType);
             } else if (literal.getType() == QueryConstants.TYPE_TIMESTAMP) {
-                Calendar c = ISO8601.parse(stringValue);
-                node = new RelationQueryNode(parent, propertyName, c.getTime(), operationType);
+                try {
+                  Calendar c = JCRDateFormat.parse(stringValue);
+                  node = new RelationQueryNode(parent, propertyName, c.getTime(), operationType);
+                } catch (ValueFormatException e) {
+                  throw new IllegalArgumentException("Can not parse TIMESTAMP " + stringValue + ". " + e.getMessage(), e);  
+                }
             }
         } catch (java.text.ParseException e) {
             throw new IllegalArgumentException(e.toString());

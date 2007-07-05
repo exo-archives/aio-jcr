@@ -24,9 +24,9 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import javax.jcr.RepositoryException;
+import javax.jcr.ValueFormatException;
 import javax.jcr.query.InvalidQueryException;
 
-import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
@@ -45,6 +45,7 @@ import org.exoplatform.services.jcr.impl.core.query.QueryRootNode;
 import org.exoplatform.services.jcr.impl.core.query.RelationQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.TextsearchQueryNode;
 import org.exoplatform.services.jcr.impl.util.ISO9075;
+import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 
 /**
  * Query builder that translates a XPath statement into a query tree structure.
@@ -688,11 +689,13 @@ public class XPathQueryBuilder implements XPathVisitor, XPathTreeConstants {
                             String value = literal.getValue();
                             // strip quotes
                             value = value.substring(1, value.length() - 1);
-                            Calendar c = ISO8601.parse(value);
-                            if (c == null) {
-                                exceptions.add(new InvalidQueryException("Unable to parse string literal for xs:dateTime: " + value));
-                            } else {
-                                rel.setDateValue(c.getTime());
+                            try {
+                              Calendar c = JCRDateFormat.parse(value);
+                              rel.setDateValue(c.getTime());
+                            } catch (ValueFormatException e) {
+                              exceptions.add(new InvalidQueryException(
+                                      "Unable to parse string literal for xs:dateTime: " 
+                                      + value + ". " + e.getMessage(), e));
                             }
                         } else {
                             exceptions.add(new InvalidQueryException("Wrong argument type for xs:dateTime"));

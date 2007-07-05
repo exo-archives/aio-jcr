@@ -5,28 +5,18 @@
 
 package org.exoplatform.services.jcr.usecases.index;
 
-import java.util.Calendar;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Calendar;
 
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
-import javax.jcr.nodetype.NodeType;
-import javax.jcr.NodeIterator;
-import javax.jcr.RepositoryException;
-import javax.jcr.Property;
 
-import org.exoplatform.services.jcr.impl.core.NodeImpl;
-import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.exoplatform.services.jcr.datamodel.PropertyData;
-import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
-import org.exoplatform.services.jcr.impl.core.value.StringValue;
-import org.exoplatform.services.jcr.impl.core.query.lucene.NodeIndexer;
-import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
-
-import org.exoplatform.services.document.DocumentReaderService;
 import org.exoplatform.container.StandaloneContainer;
+import org.exoplatform.services.document.DocumentReaderService;
+import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 
 /**
  * Created by The eXo Platform SARL.

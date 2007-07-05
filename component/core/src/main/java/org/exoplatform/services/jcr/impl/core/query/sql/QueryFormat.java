@@ -25,7 +25,6 @@ import java.util.TimeZone;
 import javax.jcr.RepositoryException;
 import javax.jcr.query.InvalidQueryException;
 
-import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
@@ -45,6 +44,7 @@ import org.exoplatform.services.jcr.impl.core.query.QueryNodeVisitor;
 import org.exoplatform.services.jcr.impl.core.query.QueryRootNode;
 import org.exoplatform.services.jcr.impl.core.query.RelationQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.TextsearchQueryNode;
+import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
  
 /**
  * Implements the query node tree serialization into a String.
@@ -493,9 +493,10 @@ class QueryFormat implements QueryNodeVisitor, QueryConstants {
         } else if (node.getValueType() == TYPE_STRING) {
             b.append("'").append(node.getStringValue().replaceAll("'", "''")).append("'");
         } else if (node.getValueType() == TYPE_DATE || node.getValueType() == TYPE_TIMESTAMP) {
+            // TODO [PN] TimeZone UTC is used, but may be any
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
             cal.setTime(node.getDateValue());
-            b.append("TIMESTAMP '").append(ISO8601.format(cal)).append("'");
+            b.append("TIMESTAMP '").append(JCRDateFormat.format(cal)).append("'");
         } else {
             exceptions.add(new InvalidQueryException("Invalid type: " + node.getValueType()));
         }

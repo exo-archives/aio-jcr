@@ -27,7 +27,7 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
-import org.exoplatform.services.jcr.impl.util.DateFormatHelper;
+import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
@@ -131,7 +131,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
 
       Calendar created = null;
       try {
-        created = new DateFormatHelper().deserialize(new String(createdData.getValues().get(0)
+        created = new JCRDateFormat().deserialize(new String(createdData.getValues().get(0)
             .getAsByteArray()));
       } catch (IOException e) {
         throw new RepositoryException(e);

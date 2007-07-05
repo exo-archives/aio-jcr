@@ -25,7 +25,7 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.util.DateFormatHelper;
+import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
@@ -135,7 +135,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * @param value
    */
   public TransientValueData(Calendar value) {
-    this(new DateFormatHelper().serialize(value), 0);
+    this(new JCRDateFormat().serialize(value), 0);
   }
 
   /**

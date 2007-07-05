@@ -15,7 +15,6 @@ import javax.jcr.ValueFormatException;
 import javax.jcr.nodetype.ConstraintViolationException;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -25,6 +24,7 @@ import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -146,7 +146,7 @@ public class ValueConstraintsMatcher {
     return new MinMaxConstraint(minValue, maxValue);
   }
   
-  public boolean match(ValueData value, int type) throws ConstraintViolationException, ValueFormatException, IllegalStateException, RepositoryException {
+  public boolean match(ValueData value, int type) throws ConstraintViolationException, IllegalStateException, RepositoryException {
     
     if (constraints == null || constraints.length <= 0)
       return true;
@@ -286,33 +286,37 @@ public class ValueConstraintsMatcher {
         
         MinMaxConstraint constraint = parseAsMinMax(constrString);
         
-        Calendar min = constraint.getMin().getThreshold().length() > 0 ? 
-            ISO8601.parse(constraint.getMin().getThreshold()) : 
-              null;
-        if (min != null)
-          if (constraint.getMin().isExclusive()) {
-            if (valueCalendar.compareTo(min) > 0)
-              minInvalid = false;
-          } else {
-            if (valueCalendar.compareTo(min) >= 0)
-              minInvalid = false;
-          }
-        else
+        try {
+          if (constraint.getMin().getThreshold().length() > 0) {
+            Calendar min = JCRDateFormat.parse(constraint.getMin().getThreshold());
+            if (constraint.getMin().isExclusive()) {
+              if (valueCalendar.compareTo(min) > 0)
+                minInvalid = false;
+            } else {
+              if (valueCalendar.compareTo(min) >= 0)
+                minInvalid = false;
+            }
+          } else 
+            minInvalid = false;
+        } catch(ValueFormatException e) {
           minInvalid = false;
+        }
         
-        Calendar max = constraint.getMax().getThreshold().length() > 0 ? 
-            ISO8601.parse(constraint.getMax().getThreshold()) : 
-              null;
-        if (max != null)    
-          if (constraint.getMax().isExclusive()) {
-            if (valueCalendar.compareTo(max) < 0)
-              maxInvalid = false;
-          } else {
-            if (valueCalendar.compareTo(max) <= 0)
-              maxInvalid = false;
-          }
-        else
+        try {
+          if (constraint.getMax().getThreshold().length() > 0) {
+            Calendar max = JCRDateFormat.parse(constraint.getMax().getThreshold());
+            if (constraint.getMax().isExclusive()) {
+              if (valueCalendar.compareTo(max) < 0)
+                maxInvalid = false;
+            } else {
+              if (valueCalendar.compareTo(max) <= 0)
+                maxInvalid = false;
+            }
+          } else
+            maxInvalid = false;
+        } catch(ValueFormatException e) {
           maxInvalid = false;
+        }
         
         invalid = maxInvalid | minInvalid;
       }

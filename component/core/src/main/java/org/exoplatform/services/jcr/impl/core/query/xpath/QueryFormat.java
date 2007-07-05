@@ -24,11 +24,9 @@ import java.util.TimeZone;
 import javax.jcr.RepositoryException;
 import javax.jcr.query.InvalidQueryException;
 
-import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
-import org.exoplatform.services.jcr.impl.core.NoPrefixDeclaredException;
 import org.exoplatform.services.jcr.impl.core.query.AndQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.DerefQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.ExactQueryNode;
@@ -45,6 +43,7 @@ import org.exoplatform.services.jcr.impl.core.query.QueryRootNode;
 import org.exoplatform.services.jcr.impl.core.query.RelationQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.TextsearchQueryNode;
 import org.exoplatform.services.jcr.impl.util.ISO9075;
+import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 
 /**
  * Implements the query node tree serialization into a String.
@@ -405,7 +404,7 @@ class QueryFormat implements QueryNodeVisitor, QueryConstants {
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
             cal.setTime(node.getDateValue());
             b.append(jcrName(XPathQueryBuilder.XS_DATETIME));
-            b.append("('").append(ISO8601.format(cal)).append("')");
+            b.append("('").append(JCRDateFormat.format(cal)).append("')");
         } else if (node.getValueType() == TYPE_POSITION) {
             if (node.getPositionValue() == LocationStepQueryNode.LAST) {
                 b.append("last()");
