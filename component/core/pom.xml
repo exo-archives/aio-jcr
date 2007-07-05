@@ -387,8 +387,8 @@
     </testResources>
 
     <!-- testSourceDirectory>src/test/java</testSourceDirectory -->
-    <testSourceDirectory>src/TCK/java</testSourceDirectory>
-    <!-- testSourceDirectory>src/notest</testSourceDirectory -->
+    <!-- testSourceDirectory>src/TCK/java</testSourceDirectory -->
+    <testSourceDirectory>src/notest</testSourceDirectory>
 
     <testOutputDirectory>target/test-classes</testOutputDirectory>
 
@@ -408,17 +408,14 @@
                 <includes>
                     <!-- TCK includes -->
 
-                    <include>**/init/TestAll.java</include>
+                    <!-- include>**/init/TestAll.java</include>
 
                     <include>**/api/*Test.java</include>
                     <include>**/api/observation/*Test.java</include>
                     <include>**/api/lock/*Test.java</include>
                     <include>**/api/nodetype/*Test.java</include>
                     <include>**/api/query/*Test.java</include>
-                    <include>**/api/version/*Test.java</include>
-
-                    <!-- include>**/api/NodeTest.java</include>
-                    <include>**/api/SessionTest.java</include -->
+                    <include>**/api/version/*Test.java</include -->
 
                     <!-- eXo tests, usecases 1.6 -->
                     <!-- include>**/api/**/Test*.java</include>
@@ -426,14 +423,7 @@
                     <include>**/usecases/**/Test*.java</include>
                     <include>**/usecases/**/*Test.java</include -->
                     
-                    <!-- include>**/TestValue.java</include -->
-                    <!-- include>**/TestCorrespondingNode.java</include>
-                    <include>**/TestValueConstraints.java</include -->
-
                     <!-- include>**/impl/**/Test*.java</include -->
-                    <!-- include>**/api/version/Test*.java</include -->
-                    <!-- include>**/version/TestFrozenNodeInitializer.java</include -->
-                    <!-- include>**/TestSameNameSiblingsReindex.java</include -->
 
                     <!-- load includes -->
                     <!-- include>**/load/blob/TestConcurrent.java</include -->
