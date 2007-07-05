@@ -122,6 +122,170 @@ public class TestValue extends JcrAPIBaseTest{
       fail("not good exception thrown");
     }
   }
+  
+  public void testGetDateFromString() throws RepositoryException {
+    // try set value as string with ISO date
+    Value value = session.getValueFactory().createValue("2007-07-04T14:24:03.123+01:00");
+    try {
+      value.getDate();
+    } catch (ValueFormatException e) {
+      fail("Exception should not have been thrown");
+    } catch (RepositoryException e) {
+      fail("not good exception thrown");
+    }
+    
+    // try set value as string with ISO date (Zulu TZ - i.e. GMT/UTC)
+    value = session.getValueFactory().createValue("1985-07-04T14:24:03.123Z");
+    try {
+      value.getDate();
+    } catch (ValueFormatException e) {
+      fail("Exception should not have been thrown");
+    } catch (RepositoryException e) {
+      fail("not good exception thrown");
+    }    
+    
+    // try set value as string with ISO date + RFC 822 TZ
+    value = session.getValueFactory().createValue("2007-07-04T14:24:03.123-0800");
+    try {
+      value.getDate();
+    } catch (ValueFormatException e) {
+      fail("Exception should not have been thrown");
+    } catch (RepositoryException e) {
+      fail("not good exception thrown");
+    }        
+    
+    // try set value as string with ISO date
+    value = session.getValueFactory().createValue("2007-07-04T14:24:03+01:00");
+    try {
+      value.getDate();
+    } catch (ValueFormatException e) {
+      fail("Exception should not have been thrown");
+    } catch (RepositoryException e) {
+      fail("not good exception thrown");
+    }
+    
+    // try set value as string with ISO date (Zulu TZ - i.e. GMT/UTC)
+    value = session.getValueFactory().createValue("2007-07-04T14:24:03Z");
+    try {
+      value.getDate();
+    } catch (ValueFormatException e) {
+      fail("Exception should not have been thrown");
+    } catch (RepositoryException e) {
+      fail("not good exception thrown");
+    }
+    
+    // try set value as string with ISO date + RFC 822 TZ
+    value = session.getValueFactory().createValue("2007-07-04T14:24:03+0200");
+    try {
+      value.getDate();
+    } catch (ValueFormatException e) {
+      fail("Exception should not have been thrown");
+    } catch (RepositoryException e) {
+      fail("not good exception thrown");
+    }
+    
+    // try set value as string with simple date
+    value = session.getValueFactory().createValue("2007-07-04T14:24:03");
+    try {
+      value.getDate();
+    } catch (ValueFormatException e) {
+      fail("Exception should not have been thrown");
+    } catch (RepositoryException e) {
+      fail("not good exception thrown");
+    }    
+    
+    // try set value as string with ISO date
+    value = session.getValueFactory().createValue("2007-07-04T14:24+03:00");
+    try {
+      value.getDate();
+    } catch (ValueFormatException e) {
+      fail("Exception should not have been thrown");
+    } catch (RepositoryException e) {
+      fail("not good exception thrown");
+    }    
+    
+    // try set value as string with ISO date + RFC 822 TZ
+    value = session.getValueFactory().createValue("2007-07-04T14:24-0700");
+    try {
+      value.getDate();
+    } catch (ValueFormatException e) {
+      fail("Exception should not have been thrown");
+    } catch (RepositoryException e) {
+      fail("not good exception thrown");
+    }
+    
+    // try set value as string with ISO date
+    value = session.getValueFactory().createValue("2007-07-04T14:24");
+    try {
+      value.getDate();
+    } catch (ValueFormatException e) {
+      fail("Exception should not have been thrown");
+    } catch (RepositoryException e) {
+      fail("not good exception thrown");
+    }    
+    
+    // try set value as string with ISO date
+    value = session.getValueFactory().createValue("2007-07-04");
+    try {
+      value.getDate();
+    } catch (ValueFormatException e) {
+      fail("Exception should not have been thrown");
+    } catch (RepositoryException e) {
+      fail("not good exception thrown");
+    }    
+    
+    // try set value as string with ISO date
+    value = session.getValueFactory().createValue("1988-11");
+    try {
+      value.getDate();
+    } catch (ValueFormatException e) {
+      fail("Exception should not have been thrown");
+    } catch (RepositoryException e) {
+      fail("not good exception thrown");
+    }    
+    
+    // try set value as string with ISO date
+    value = session.getValueFactory().createValue(2017);
+    try {
+      value.getDate(); //value.getDate().getTime()
+    } catch (ValueFormatException e) {
+      fail("Exception should not have been thrown");
+    } catch (RepositoryException e) {
+      fail("not good exception thrown");
+    }
+    
+    // ERA tests
+
+    // try set value as string with ISO date    
+    value = session.getValueFactory().createValue("-0104-07-04T14:24:03.123+04:00");
+    try {
+      value.getDate();
+    } catch (ValueFormatException e) {
+      fail("Exception should not have been thrown");
+    } catch (RepositoryException e) {
+      fail("not good exception thrown");
+    }
+    
+    // try set value as string with ISO date
+    value = session.getValueFactory().createValue(-117);
+    try {
+      value.getDate();
+    } catch (ValueFormatException e) {
+      fail("Exception should not have been thrown");
+    } catch (RepositoryException e) {
+      fail("not good exception thrown");
+    }
+    
+    // try set value as string with ISO date + RFC 822 TZ
+    value = session.getValueFactory().createValue("-0027-07-04T14:24:03-0400");
+    try {
+      value.getDate();
+    } catch (ValueFormatException e) {
+      fail("Exception should not have been thrown");
+    } catch (RepositoryException e) {
+      fail("not good exception thrown");
+    }    
+  }
 
   public void testGetBoolean() throws RepositoryException {
     Value value = valueFactory.createValue(10l);

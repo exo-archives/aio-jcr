@@ -81,15 +81,16 @@ public abstract class BaseValue implements ExtendedValue {
     try {
       if(data == null)
         data = new LocalTransientValueData(false);
-      return new DateFormatHelper().deserialize(new String(data.getAsByteArray(), Constants.DEFAULT_ENCODING));
+      if (type == PropertyType.DATE)
+        return new DateFormatHelper().deserialize(new String(data.getAsByteArray(), Constants.DEFAULT_ENCODING));
+      else
+        return new DateFormatHelper().parse(new String(data.getAsByteArray(), Constants.DEFAULT_ENCODING));
     } catch(UnsupportedEncodingException e) {
       throw new RepositoryException(Constants.DEFAULT_ENCODING + " not supported on this platform", e);
     } catch (IOException e) {
       throw new ValueFormatException("conversion to date failed: " + e.getMessage(), e);
     } 
-
   }
-
 
   /* (non-Javadoc)
    * @see javax.jcr.Value#getType()
@@ -97,7 +98,6 @@ public abstract class BaseValue implements ExtendedValue {
   public final int getType() {
     return type;
   }
-
 
   /* (non-Javadoc)
    * @see javax.jcr.Value#getDate()
