@@ -116,7 +116,7 @@ public class ResourceDispatcher implements Connector {
         Response resp = (Response) resource.getServer().invoke(resource.getResourceContainer(), params);
         
         if(!resp.isTransformerInitialized() && resp.isEntityInitialized()) {
-          resp.setTransformer(getTransformerFactory(resource));
+          resp.setTransformer(getTransformer(resource));
         }
         
         return resp; 
@@ -132,12 +132,13 @@ public class ResourceDispatcher implements Connector {
     return contextHolder.get();
   }
   
-  private EntityTransformerFactory getTransformerFactory(ResourceDescriptor resource)
+  private EntityTransformer getTransformer(ResourceDescriptor resource)
       throws InvalidResourceDescriptorException {
     
     try {
-      return (EntityTransformerFactory) Class
+      EntityTransformerFactory factory =  (EntityTransformerFactory) Class
           .forName(resource.getProducedTransformerFactoryName()).newInstance();
+      return factory.newTransformer();
     } catch (Exception e) {
       throw new InvalidResourceDescriptorException (
           "Could not get EntityTransformerFactory from Response" +

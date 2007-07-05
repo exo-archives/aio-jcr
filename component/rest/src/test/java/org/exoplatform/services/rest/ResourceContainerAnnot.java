@@ -5,6 +5,7 @@
 package org.exoplatform.services.rest;
 
 import org.exoplatform.services.rest.container.ResourceContainer;
+import org.exoplatform.services.rest.transformer.StringEntityTransformer;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -20,8 +21,8 @@ public class ResourceContainerAnnot implements ResourceContainer {
     System.out.println(">>>>> (annot. class) param = " + param);
 
     String entity = ">>> annotated container response!!!\n";
-    StringEntityTransformerFactory transformerFactory = new StringEntityTransformerFactory();
-    Response resp = Response.Builder.ok(entity, "text/plain").transformer(transformerFactory).build();
+    StringEntityTransformer transformer = new StringEntityTransformer();
+    Response resp = Response.Builder.ok(entity, "text/plain").transformer(transformer).build();
     return resp;
   }
  

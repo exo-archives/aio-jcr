@@ -16,8 +16,11 @@ import org.exoplatform.services.rest.generated.*;
 @URITemplate("/test/jaxb/")
 public class ResourceContainerJAXB implements ResourceContainer{
 
+  private static final String JAXB_TRANSFORMER = "org.exoplatform.services.rest." +
+  "transformer.JAXBEntityTransformerFactory";
+
   @HTTPMethod("GET")
-  @ProducedTransformerFactory("org.exoplatform.services.rest.JAXBEntityTransformerFactory")
+  @ProducedTransformerFactory(JAXB_TRANSFORMER)
   public Response method1() throws Exception {
     System.out.println(">>> JAXBTransformation");
     Book book = new Book();

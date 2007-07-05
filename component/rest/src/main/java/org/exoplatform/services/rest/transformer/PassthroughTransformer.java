@@ -12,7 +12,7 @@ import java.io.IOException;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public class DummyEntityTransformer implements EntityTransformer {
+public class PassthroughTransformer implements EntityTransformer {
 
   public InputStream readFrom(InputStream entityDataStream) throws IOException {
     return entityDataStream;

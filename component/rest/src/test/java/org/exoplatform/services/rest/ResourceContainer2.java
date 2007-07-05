@@ -11,13 +11,16 @@ import org.exoplatform.services.rest.container.ResourceContainer;
  * @version $Id: $
  */
 
-@ConsumedTransformerFactory("org.exoplatform.services.rest.StringEntityTransformerFactory")
-@ProducedTransformerFactory("org.exoplatform.services.rest.StringEntityTransformerFactory")
 public class ResourceContainer2 implements ResourceContainer {
 
+  private static final String STRING_TRANSFORMER = "org.exoplatform.services.rest." +
+  		"transformer.StringEntityTransformerFactory";
+  
   @HTTPMethod("GET")
   @URITemplate("/level1/{id}/level3/")
   @ProducedMimeTypes("text/*")
+  @ConsumedTransformerFactory(STRING_TRANSFORMER)
+  @ProducedTransformerFactory(STRING_TRANSFORMER)
   public Response method1(String str, @URIParam("id") String param) {
     System.out.println(">>> method1 called: id = " + param);
     System.out.println(">>> request entity - type: " + str.getClass().toString()
@@ -27,6 +30,10 @@ public class ResourceContainer2 implements ResourceContainer {
       Response.Builder.ok(e, "text/plain").build();
 
     return resp;
+  }
+  
+  public void methodHu() {
+    
   }
 
 }
