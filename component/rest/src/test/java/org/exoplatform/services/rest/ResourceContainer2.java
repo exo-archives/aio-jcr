@@ -31,9 +31,4 @@ public class ResourceContainer2 implements ResourceContainer {
 
     return resp;
   }
-  
-  public void methodHu() {
-    
-  }
-
 }
