@@ -140,4 +140,15 @@
     </plugins>
   </build>
 
+  <pluginRepositories>
+  
+    <pluginRepository>
+      <id>exoplatform</id>
+      <url>http://svn.exoplatform.org/maven</url>
+    </pluginRepository>
+    
+  </pluginRepositories>
+ 
+
+
 </project>
