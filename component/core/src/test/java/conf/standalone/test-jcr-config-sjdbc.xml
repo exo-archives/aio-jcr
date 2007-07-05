@@ -23,7 +23,7 @@
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="target/temp/swap/ws"/>
             </properties>
-            <!-- value-storages>
+            <value-storages>
               <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws" />
@@ -32,7 +32,7 @@
                   <filter property-type="Binary" min-value-size="100000"/>
                 </filters>
               </value-storage>
-            </value-storages -->
+            </value-storages>
           </container>
           <cache enabled="true">
             <properties>
@@ -56,7 +56,7 @@
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="target/temp/swap/ws1"/>
             </properties>
-            <!-- value-storages>
+            <value-storages>
               <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws1"/>
@@ -65,7 +65,7 @@
                   <filter property-type="Binary"/>
                 </filters>
               </value-storage>
-            </value-storages -->
+            </value-storages>
           </container>
           <cache enabled="true">
             <properties>
@@ -89,7 +89,7 @@
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="target/temp/swap/ws2"/>
             </properties>
-            <!-- value-storages>
+            <value-storages>
               <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws2"/>
@@ -98,7 +98,7 @@
                   <filter property-type="Binary"/>
                 </filters>
               </value-storage>
-            </value-storages -->
+            </value-storages>
           </container>
           <cache enabled="true">
             <properties>

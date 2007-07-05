@@ -226,7 +226,25 @@ public class DateFormatHelper {
         return super.format(source);
     }
   }
+
+  /**
+   * Format date using complete date plus hours, minutes, seconds and a decimal fraction of a second format.
+   * I.e. format to JCR date value string representation. 
+   * 
+   * @param date
+   * @return
+   */
+  public String format(Calendar date) {
+    return new ISO8601DateFormat(COMPLETE_DATETIMEMSZ_FORMAT).formatISO(date);
+  }
   
+  /**
+   * Parse string using possible formats list.
+   * 
+   * @param dateString - date string
+   * @return - calendar
+   * @throws ValueFormatException
+   */  
   public Calendar parse(String dateString) throws ValueFormatException {
     return parse(dateString, FORMATS);
   }
@@ -235,7 +253,7 @@ public class DateFormatHelper {
     String problems = "";
     for (String format: formats) {
       try {
-        Calendar isoDate = parse(dateString, format);
+        Calendar isoDate = new ISO8601DateFormat(format).parseISO(dateString);
         return isoDate; // done
       } catch(ValueFormatException e) {
         problems += format + " -- " + e.getMessage() + " \n";
@@ -244,19 +262,14 @@ public class DateFormatHelper {
     
     throw new ValueFormatException("Can not parse " + dateString + " as Date. " + problems); // "Can not parse " + dateString + " as Date, problems: " + 
   }
-  
+    
   /**
-   * Parse string as date with given format.
+   * Deserialize string (of JCR Value) to the date.
    * 
-   * @param dateString - date string
-   * @param javaFormat - SimpleDateFormat compliant formt string 
-   * @return - calendar
+   * @param serString
+   * @return
    * @throws ValueFormatException
    */
-  public Calendar parse(String dateString, String javaFormat) throws ValueFormatException {
-    return new ISO8601DateFormat(javaFormat).parseISO(dateString);
-  }
-  
   public Calendar deserialize(String serString) throws ValueFormatException {
     String[] parts = serString.split(CALENDAR_FIELDS_SEPARATOR);
     if (parts.length == 2) {
@@ -288,6 +301,12 @@ public class DateFormatHelper {
     throw new ValueFormatException("Can't deserialize calendar string [" + serString + "]");
   }
   
+  /**
+   * Serialize date (of JCR Value) to the string.
+   * 
+   * @param date
+   * @return
+   */
   public byte[] serialize(Calendar date) {
     
     String calendarString = CALENDAR_FIELDS_SEPARATOR 
@@ -296,8 +315,6 @@ public class DateFormatHelper {
       + date.getMinimalDaysInFirstWeek() + CALENDAR_FIELDS_DELIMITER 
       + date.getTimeZone().getID();
     
-    ISO8601DateFormat formater = new ISO8601DateFormat(COMPLETE_DATETIMEMSZ_FORMAT);
-    
-    return (formater.formatISO(date) + calendarString).getBytes(); 
-  }    
+    return (format(date) + calendarString).getBytes(); 
+  } 
 }

@@ -20,7 +20,7 @@
         <layout>legacy</layout>
     </repository>
   </repositories -->
-  
+
   <pluginRepositories>
     <pluginRepository>
         <id>central</id>
@@ -245,20 +245,20 @@
     <!-- ===== Databases JDBC support ===== -->
 
     <!-- For MySQL support -->
-    <dependency>
+    <!-- dependency>
     <groupId>mysql</groupId>
     <artifactId>mysql-connector-java</artifactId>
     <version>3.1.11</version>
     <scope>compile</scope>
-    </dependency>
+    </dependency -->
 
     <!-- For PostgresSQL support -->
-    <dependency>
+    <!-- dependency>
     <groupId>postgresql</groupId>
     <artifactId>postgresql</artifactId>
     <version>8.1-407.jdbc3</version>
     <scope>compile</scope>
-    </dependency>
+    </dependency -->
 
     <!-- For Oracle 10g support (local-jcr repository) -->
     <!-- dependency>
@@ -386,8 +386,8 @@
         </testResource>
     </testResources>
 
-    <testSourceDirectory>src/test/java</testSourceDirectory>
-    <!-- testSourceDirectory>src/TCK/java</testSourceDirectory -->
+    <!-- testSourceDirectory>src/test/java</testSourceDirectory -->
+    <testSourceDirectory>src/TCK/java</testSourceDirectory>
     <!-- testSourceDirectory>src/notest</testSourceDirectory -->
 
     <testOutputDirectory>target/test-classes</testOutputDirectory>
@@ -408,28 +408,28 @@
                 <includes>
                     <!-- TCK includes -->
 
-                    <!-- include>**/init/TestAll.java</include>
+                    <include>**/init/TestAll.java</include>
 
                     <include>**/api/*Test.java</include>
                     <include>**/api/observation/*Test.java</include>
                     <include>**/api/lock/*Test.java</include>
                     <include>**/api/nodetype/*Test.java</include>
                     <include>**/api/query/*Test.java</include>
-                    <include>**/api/version/*Test.java</include -->
-                    
+                    <include>**/api/version/*Test.java</include>
+
                     <!-- include>**/api/NodeTest.java</include>
                     <include>**/api/SessionTest.java</include -->
 
                     <!-- eXo tests, usecases 1.6 -->
-                    <include>**/api/**/Test*.java</include>
+                    <!-- include>**/api/**/Test*.java</include>
                     <include>**/impl/access/Test*.java</include>
                     <include>**/usecases/**/Test*.java</include>
-                    <include>**/usecases/**/*Test.java</include>
+                    <include>**/usecases/**/*Test.java</include -->
                     
-                    <!-- include>**/TestCopyNode.java</include>
-                    <include>**/TestCorrespondingNode.java</include>
+                    <!-- include>**/TestValue.java</include -->
+                    <!-- include>**/TestCorrespondingNode.java</include>
                     <include>**/TestValueConstraints.java</include -->
-                    
+
                     <!-- include>**/impl/**/Test*.java</include -->
                     <!-- include>**/api/version/Test*.java</include -->
                     <!-- include>**/version/TestFrozenNodeInitializer.java</include -->
@@ -440,12 +440,12 @@
                 </includes>
 
                 <excludes>
-                    <include>**/api/TestAll.java</include>
+                    <!-- include>**/api/TestAll.java</include>
                     <include>**/Base*Test.java</include>
                     <include>**/api/export**/*.java</include>
-                    <include>**/api/import**/*.java</include>
+                    <include>**/api/import**/*.java</include -->
 
-					<!-- include>**/test/api/version/*UUID*Test.java</include>
+                    <!-- include>**/test/api/version/*UUID*Test.java</include>
                     <include>**/test/api/version/*Reference*Test.java</include -->
                 </excludes>
                 <systemProperties>
