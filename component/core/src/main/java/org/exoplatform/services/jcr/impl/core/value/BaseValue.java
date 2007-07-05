@@ -27,18 +27,18 @@ import org.exoplatform.services.log.ExoLogger;
  * classes implementing the <code>Value</code> interfaces.
  *
  * @author Gennady Azarenkov
- * 
+ *
  * @version $Id: BaseValue.java 12841 2007-02-16 08:58:38Z peterit $
 
  */
 public abstract class BaseValue implements ExtendedValue {
-  
+
   protected static Log log = ExoLogger.getLogger("jcr.BinaryValue");
 
   protected final int type;
 
   protected LocalTransientValueData data;
-  
+
   protected TransientValueData internalData;
 
   /**
@@ -59,7 +59,7 @@ public abstract class BaseValue implements ExtendedValue {
    * @throws RepositoryException if another error occurs.
    */
   protected String getInternalString() throws ValueFormatException, RepositoryException {
-    
+
     try {
       if(data == null)
         data = new LocalTransientValueData(false);
@@ -68,7 +68,7 @@ public abstract class BaseValue implements ExtendedValue {
       throw new RepositoryException(Constants.DEFAULT_ENCODING + " not supported on this platform", e);
     } catch (IOException e) {
       throw new ValueFormatException("conversion to string failed: " + e.getMessage(), e);
-    } 
+    }
   }
 
   /**
@@ -81,15 +81,16 @@ public abstract class BaseValue implements ExtendedValue {
     try {
       if(data == null)
         data = new LocalTransientValueData(false);
+
       if (type == PropertyType.DATE)
         return new DateFormatHelper().deserialize(new String(data.getAsByteArray(), Constants.DEFAULT_ENCODING));
-      else
-        return new DateFormatHelper().parse(new String(data.getAsByteArray(), Constants.DEFAULT_ENCODING));
+
+      return new DateFormatHelper().parse(new String(data.getAsByteArray(), Constants.DEFAULT_ENCODING));
     } catch(UnsupportedEncodingException e) {
       throw new RepositoryException(Constants.DEFAULT_ENCODING + " not supported on this platform", e);
     } catch (IOException e) {
       throw new ValueFormatException("conversion to date failed: " + e.getMessage(), e);
-    } 
+    }
   }
 
   /* (non-Javadoc)
@@ -166,7 +167,7 @@ public abstract class BaseValue implements ExtendedValue {
       RepositoryException {
     return getInternalString();
   }
-  
+
   /**
    * @return
    * @throws ValueFormatException
@@ -185,11 +186,11 @@ public abstract class BaseValue implements ExtendedValue {
   public TransientValueData getInternalData() {
     return internalData;
   }
-  
+
   /**
-   * Returns the length of the value in bytes if the value is a PropertyType.BINARY, 
-   * otherwise it returns the number of characters needed to display the value in its string form 
-   * as defined in 6.2.6 Property Type Conversion. 
+   * Returns the length of the value in bytes if the value is a PropertyType.BINARY,
+   * otherwise it returns the number of characters needed to display the value in its string form
+   * as defined in 6.2.6 Property Type Conversion.
    * Returns if the implementation cannot determine the length of the value..
    */
   public long getLength() {
@@ -198,8 +199,8 @@ public abstract class BaseValue implements ExtendedValue {
     else
       return data.getLength();
   }
-  
-  
+
+
   /* (non-Javadoc)
    * @see java.lang.Object#equals(java.lang.Object)
    */
@@ -215,7 +216,7 @@ public abstract class BaseValue implements ExtendedValue {
     }
     return false;
   }
-  
+
 
   public int getOrderNumber(){
     return data.getOrderNumber();
@@ -223,19 +224,19 @@ public abstract class BaseValue implements ExtendedValue {
   public void setOrderNumber(int order){
     data.setOrderNumber(order);
   }
-  
+
   /**
-   * 
+   *
    *
    */
   protected class LocalTransientValueData extends AbstractValueData {
-    
+
     protected InputStream stream;
-    
+
     protected byte[] bytes;
-    
+
     protected final long length;
-    
+
     /**
      * constructor creates brand new stream or brand new byte array copying shared data
      * @param data
@@ -272,7 +273,7 @@ public abstract class BaseValue implements ExtendedValue {
     public boolean isByteArray() {
       return bytes != null;
     }
-    
+
     private boolean streamConsumed() {
       return stream != null;
     }
