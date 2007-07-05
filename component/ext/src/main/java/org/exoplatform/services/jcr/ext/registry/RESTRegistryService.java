@@ -15,7 +15,7 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.registry.Registry.RegistryNode;
-import org.exoplatform.services.jcr.ext.registry.transformer.StringEntityTransformerFactory;
+import org.exoplatform.services.rest.transformer.StringEntityTransformer;
 import org.exoplatform.services.rest.ConsumedTransformerFactory;
 import org.exoplatform.services.rest.ProducedTransformerFactory;
 import org.exoplatform.services.rest.HTTPMethod;
@@ -48,9 +48,9 @@ public class RESTRegistryService implements ResourceContainer {
 
   private static final String EXO_REGISTRY = "exo:registry/";
   
-  private static final String STRING_TRANSFORMER_FACTORY = "org.exoplatform.services.jcr.ext.registry.transformer.StringEntityTransformerFactory";
+  private static final String STRING_TRANSFORMER_FACTORY = "org.exoplatform.services.rest.transformer.StringEntityTransformerFactory";
   
-  private static final String XML_TRANSFORMER_FACTORY = "org.exoplatform.services.jcr.ext.registry.transformer.XMLEntityTransformerFactory";
+  private static final String XML_TRANSFORMER_FACTORY = "org.exoplatform.services.rest.transformer.XMLEntityTransformerFactory";
   
   private static final String REGISTRY_ENTRY_TARNSFORMER_FACTORY = "org.exoplatform.services.jcr.ext.registry.transformer.RegistryEntryTransformerFactory"; 
   
@@ -99,7 +99,7 @@ public class RESTRegistryService implements ResourceContainer {
     }
     sessionProvider.close();
     return Response.Builder.notFound().entity("NOT_FOUND", "text/plain")
-        .transformer(new StringEntityTransformerFactory()).build();
+        .transformer(new StringEntityTransformer()).build();
   }
 
   
@@ -122,7 +122,7 @@ public class RESTRegistryService implements ResourceContainer {
     } catch (ItemNotFoundException e) {
       response = 
         Response.Builder.notFound().entity("NOT_FOUND", "text/plain")
-            .transformer(new StringEntityTransformerFactory()).build();
+            .transformer(new StringEntityTransformer()).build();
     } finally {
       sessionProvider.close();
     }

@@ -14,7 +14,7 @@ import javax.xml.transform.TransformerException;
 
 import org.exoplatform.services.jcr.ext.registry.RegistryEntry;
 import org.exoplatform.services.rest.transformer.EntityTransformer;
-import org.exoplatform.services.rest.transformer.DummyEntityTransformer;
+import org.exoplatform.services.rest.transformer.PassthroughTransformer;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -34,9 +34,9 @@ public class RegistryEntryTransformer implements EntityTransformer {
 
   public void writeTo(Object entity, OutputStream entityDataStream) throws IOException {
     RegistryEntry regEntry = (RegistryEntry)entity;
-    DummyEntityTransformer dummyTransformer = new DummyEntityTransformer();
+    PassthroughTransformer transformer = new PassthroughTransformer();
     try {
-      dummyTransformer.writeTo(regEntry.getAsInputStream(), entityDataStream);
+      transformer.writeTo(regEntry.getAsInputStream(), entityDataStream);
     } catch (TransformerException tre) {
       throw new IOException("Can't get RegistryEntry as stream " + tre);
     }

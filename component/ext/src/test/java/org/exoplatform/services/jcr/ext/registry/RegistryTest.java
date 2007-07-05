@@ -19,7 +19,7 @@ import org.exoplatform.services.rest.ResourceIdentifier;
 import org.exoplatform.services.rest.container.ResourceDescriptor;
 import org.exoplatform.services.rest.MultivaluedMetadata;
 import org.exoplatform.services.rest.Response;
-import org.exoplatform.services.rest.transformer.DummyEntityTransformer;
+import org.exoplatform.services.rest.transformer.PassthroughTransformer;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 
 
@@ -65,8 +65,6 @@ public class RegistryTest extends BaseStandaloneTest{
 
 //    SessionProvider sp = new SessionProvider(credentials);
 
-    DummyEntityTransformer dummyTransformer = new DummyEntityTransformer();
-
     try {
       regService.getEntry(sessionProviderService.getSessionProvider(null),
       		RegistryService.EXO_USERS, "exo_user");
@@ -80,7 +78,8 @@ public class RegistryTest extends BaseStandaloneTest{
     
     RegistryEntry entry = regService.getEntry(sessionProviderService.getSessionProvider(null),
     		RegistryService.EXO_USERS, "exo_user");
-    dummyTransformer.writeTo(entry.getAsInputStream(), System.out);
+    PassthroughTransformer transformer = new PassthroughTransformer();
+    transformer.writeTo(entry.getAsInputStream(), System.out);
 
     regService.recreateEntry(sessionProviderService.getSessionProvider(null), RegistryService.EXO_USERS, 
         RegistryEntry.parse(new FileInputStream(entryFile)));
