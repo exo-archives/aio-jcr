@@ -47,11 +47,12 @@ public class DateValue extends BaseValue {
    */
   protected String getInternalString() throws ValueFormatException, RepositoryException {
     Calendar date = getInternalCalendar();
+
     if (date != null) {
       return JCRDateFormat.format(date);
-    } else {
-      throw new ValueFormatException("empty value");
-    }
+    } 
+    
+    throw new ValueFormatException("empty value");
   }
 
   /**

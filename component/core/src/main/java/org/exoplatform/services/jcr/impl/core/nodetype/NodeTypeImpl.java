@@ -388,7 +388,7 @@ public class NodeTypeImpl implements ExtendedNodeType {
         // try parse...
 				Calendar calDate = JCRDateFormat.parse(likeDataString);
         // validate
-				return checkValueConstraints(constrains, value); // TODO [PN] calDate != null && 
+				return checkValueConstraints(constrains, value); 
 			} catch (Exception e) {
 				// Hm, this is not date format string
 				return false;

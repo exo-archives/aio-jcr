@@ -16,12 +16,12 @@ import javax.jcr.version.VersionException;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
@@ -131,8 +131,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
 
       Calendar created = null;
       try {
-        created = new JCRDateFormat().deserialize(new String(createdData.getValues().get(0)
-            .getAsByteArray()));
+        created = new JCRDateFormat().deserialize(new String(createdData.getValues().get(0).getAsByteArray()));
       } catch (IOException e) {
         throw new RepositoryException(e);
       }

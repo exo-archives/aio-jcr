@@ -51,6 +51,21 @@ import org.exoplatform.services.log.ExoLogger;
        TwoDigitHours:
              Digit Digit
        like -8000       
+       
+     It's a pb found. If we will set property with date contains timezone different to the current.
+     And will get property as string after that. We will have a date with the current timezone, actualy the date 
+     will be same but in different tz.
+    
+     "2023-07-05T19:28:00.000-0300" --> "2023-07-06T01:28:00.000+0300" - it's same date, but... print is different.
+    
+      The pb can be solved in SimpleDateFormat be setting the formatter timezone before the format procedure.
+     
+      TimeZone tz = TimeZone.getTimeZone("GMT-03:00");
+      Calendar cdate = Calendar.getInstance();
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+      sdf.setTimeZone(tz);
+      Date d = sdf.parse(javaDate);
+      log.info("parse " + sdf.format(d)); // print date in GMT-03:00 timezone       
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: DateFormatHelper.java 12841 2007-02-16 08:58:38Z peterit $
