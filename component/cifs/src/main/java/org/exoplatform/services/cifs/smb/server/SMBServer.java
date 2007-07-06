@@ -43,6 +43,7 @@ import org.exoplatform.services.cifs.server.NetworkServer;
 import org.exoplatform.services.cifs.server.SrvSessionList;
 import org.exoplatform.services.cifs.server.core.ShareType;
 import org.exoplatform.services.cifs.server.core.SharedDevice;
+import org.exoplatform.services.cifs.server.core.SharedDeviceList;
 import org.exoplatform.services.cifs.smb.ServerType;
 import org.exoplatform.services.cifs.smb.mailslot.HostAnnouncer;
 import org.exoplatform.services.cifs.smb.server.win32.Win32NetBIOSLanaMonitor;
@@ -102,21 +103,6 @@ public class SMBServer extends NetworkServer implements Runnable {
 
   private RepositoryService repositoryService;
 
-  // /**
-  // * Create an SMB server using the specified configuration.
-  // *
-  // * @param serviceRegistry
-  // * repository connection
-  // * @param cfg
-  // * ServerConfiguration
-  // */
-  // public SMBServer(ServerConfiguration cfg) throws IOException {
-  // super("SMB", cfg);
-  //
-  // // Call the common constructor
-  // CommonConstructor();
-  // }
-
   /**
    * Create an SMB server using the specified configuration and repository
    * Service
@@ -128,8 +114,9 @@ public class SMBServer extends NetworkServer implements Runnable {
   public SMBServer(ServerConfiguration config,
       RepositoryService repositoryService) throws IOException {
 
-    super("SMB", config);
+    super(config);
     this.repositoryService = repositoryService;
+
     // Set the server version
 
     setVersion(ServerVersion);
@@ -146,7 +133,6 @@ public class SMBServer extends NetworkServer implements Runnable {
 
     NetworkSettings.setDomain(getConfiguration().getDomainName());
     NetworkSettings.setBroadcastMask(getConfiguration().getBroadcastMask());
-
   }
 
   /**
@@ -201,29 +187,6 @@ public class SMBServer extends NetworkServer implements Runnable {
 
     sess.setDebug(getConfiguration().getSessionDebugFlags());
   }
-
-  // /**
-  // * Common constructor code.
-  // */
-  // private void CommonConstructor() throws IOException {
-  //
-  // // Set the server version
-  //
-  // setVersion(ServerVersion);
-  //
-  // // Create the session socket handler list
-  //
-  // m_sessionHandlers = new Vector<SessionSocketHandler>();
-  //
-  // // Create the active session list
-  //
-  // m_sessions = new SrvSessionList();
-  //
-  // // Set the global domain name
-  //
-  // NetworkSettings.setDomain(getConfiguration().getDomainName());
-  // NetworkSettings.setBroadcastMask(getConfiguration().getBroadcastMask());
-  // }
 
   /**
    * Close the host announcer, if enabled
@@ -328,8 +291,6 @@ public class SMBServer extends NetworkServer implements Runnable {
       logger.info("SMB Server " + getServerName() + " starting");
       logger.info("GUID " + m_serverGUID);
 
-      // TODO Output the authenticator details
-
       // Display the timezone offset/name
 
       if (getConfiguration().getTimeZone() != null)
@@ -340,7 +301,17 @@ public class SMBServer extends NetworkServer implements Runnable {
         logger.info("Server timezone offset = "
             + getConfiguration().getTimeZoneOffset() / 60 + "hrs");
 
-      // TODO Dump the share list
+      // Dispaly constant (server's) shares and available workspaces
+      /*
+       * SharedDeviceList shrList = getShares(); StringBuffer str = new
+       * StringBuffer(" Server shares :"); str.append(shrList.toString());
+       * 
+       * str.append("["); String[] ws = getWorkspaceList(); if (ws != null) {
+       * for (int i = 0; i < ws.length; i++) str.append(ws[i]); }
+       * str.append("]");
+       * 
+       * logger.info(str.toString());
+       */
     }
 
     // Create a server socket to listen for incoming session requests
@@ -648,7 +619,15 @@ public class SMBServer extends NetworkServer implements Runnable {
   public final UUID getServerGUID() {
     return m_serverGUID;
   }
-  
+
+  /**
+   * Return set of available workspaces.
+   * <p>
+   * Its depends from repository configuration, and may be configured directly
+   * in server configuration file.
+   * 
+   * @return String[] list of available workspaces
+   */
   public String[] getWorkspaceList() {
     String[] wsList = getConfiguration().getWorkspaceList();
     Repository repo;
@@ -670,26 +649,28 @@ public class SMBServer extends NetworkServer implements Runnable {
     }
   }
 
-
-  public Repository getRepository() throws RepositoryConfigurationException, RepositoryException, NamingException {
+  /**
+   * Return repository which used by server.
+   * <p>
+   * It may be ManageableRepository in eXo - jcr case.
+   * 
+   * @return Repository repository
+   * @throws RepositoryConfigurationException
+   * @throws RepositoryException
+   * @throws NamingException
+   */
+  public Repository getRepository() throws RepositoryConfigurationException,
+      RepositoryException, NamingException {
 
     String repoName = getConfiguration().getRepoName();
     boolean isJndi = getConfiguration().isFromJndi();
-    
+
     if (repoName == null) {
       return repositoryService.getDefaultRepository();
     } else {
-      // obtain reository object from JNDI or from eXo Container
+      // obtain repository object from JNDI or from eXo Container
       return isJndi ? (Repository) new InitialContext().lookup(repoName)
           : repositoryService.getRepository(repoName);
     }
-
-
-    // try {
-    // return repositoryService.getRepository();
-    // } catch (Exception ex) {
-    // ex.printStackTrace();
-    // return null;
-    // }
   }
 }

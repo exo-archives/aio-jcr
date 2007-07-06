@@ -79,7 +79,7 @@ public abstract class SrvSession {
 
   private String m_remoteName;
 
-  // Authentication token, used during logon TODO is it?
+  // Authentication token, used during logon
 
   private Object m_authToken;
 
@@ -419,7 +419,7 @@ public abstract class SrvSession {
 
       // Close the dynamic shares
 
-      // getServer().getShareMapper().deleteShares(this);
+      m_dynamicShares.removeAllShares();
     }
   }
 

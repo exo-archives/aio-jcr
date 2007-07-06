@@ -169,13 +169,12 @@ public class ServerConfiguration {
   private String m_localName;
 
   private String m_localDomain;
-  
+
   private String[] workspaceList;
 
   private String repoName;
-  
+
   private boolean fromJndi = true;
-  
 
   /*
    * Configuration by XML-config
@@ -342,30 +341,28 @@ public class ServerConfiguration {
     // Set the session debug flags
 
     setSessionDebugFlags(sessDbg);
-    
 
     // repo params
-    
+
     ValueParam repoParam;
     repoParam = params.getValueParam("jndi-repository-name");
-    
-    if(repoParam == null) {
+
+    if (repoParam == null) {
       fromJndi = false;
       repoParam = params.getValueParam("repository-name");
     }
-    if(repoParam != null) {
+    if (repoParam != null) {
       repoName = repoParam.getValue();
     }
-    
-    if(repoName == null)
-      logger.warn("Neither jndi-repository-name nor repository-name is set. Default repository will be obtained");
-    
+
+    if (repoName == null)
+      logger
+          .warn("Neither jndi-repository-name nor repository-name is set. Default repository will be obtained");
+
     ValueParam wsParam = params.getValueParam("workspaces");
-    if(wsParam != null) {
+    if (wsParam != null) {
       workspaceList = wsParam.getValue().split(",");
     }
-
-
   }
 
   /**

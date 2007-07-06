@@ -6,6 +6,8 @@
 		<type>org.exoplatform.services.cifs.CIFSServiceImpl</type>
 		<init-params>
 
+			<!-- Repository configuration -->
+				
 			<value-param>
 				<name>repository-name</name>
 				<value>db1</value>
@@ -16,6 +18,14 @@
 				<value>repo-db1</value>
 			</value-param>
 
+			<!--Available workspaces - used if non eXo-repository used -->
+			<!--value-param>
+				<name>workspaces</name>
+				<value>ws,ws1,ws2</value>
+			</value-param-->
+			
+			<!-- Server Configuration -->
+			
 			<!--Server name -->
 			<value-param>
 				<name>server_name</name>
@@ -23,7 +33,8 @@
 			</value-param>
 
 			<!--Worgroup - if not determined used local domain name-->
-			<!--value-param>
+			
+				<!--value-param>
 			<name>workgroup</name>
 			<value>blabla</value>
 			</value-param-->
@@ -57,7 +68,7 @@
 			<!--Set NetBIOS name - if param not determined used server_name-->
 			<value-param>
 				<name>netbiosname</name>
-				<value>ExoCIFS</value>
+				<value>UniqServer</value>
 			</value-param>
 
 			<!--LANA - if not determined or equal -1 used all available -->

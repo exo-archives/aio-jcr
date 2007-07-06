@@ -40,7 +40,7 @@ public class SharedDevice {
 
   private int m_maxUses = -1; // unlimited
 
-  private int m_curUses;
+  private int m_curUses = 0;
 
   private DiskInfo m_diskinfo;
 

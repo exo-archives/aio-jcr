@@ -34,35 +34,31 @@ public class CIFSServiceImpl implements CIFSService, Startable {
   private ServerConfiguration config = null;
 
   private RepositoryService repositoryService;
-  
+
   private NetworkServer server;
-  
-  public CIFSServiceImpl(InitParams params, RepositoryService repositoryService) 
-  throws RepositoryException, RepositoryConfigurationException, NamingException {
-  
+
+  public CIFSServiceImpl(InitParams params, RepositoryService repositoryService)
+      throws RepositoryException, RepositoryConfigurationException,
+      NamingException {
+
     this.repositoryService = repositoryService;
-    
+
     config = new ServerConfiguration(params);
-    
-//    if (params == null) {
-//      config = new ServerConfiguration();
-//    } else {
-//      config = new ServerConfiguration(params);
-//    }
-
-
   }
 
   public void start() {
-    
+
     try {
 
       if (config.isSMBServerEnabled()) {
         log.info("Starting CIFS service");
         server = new SMBServer(config, repositoryService);
-//        server = new SMBServer(config, repository, workspaceList);
         server.startServer();
-        log.info("CIFS service is started server name: "+config.getServerName()+" on repository: "+((config.getRepoName()==null)?"default":config.getRepoName()));
+        log.info("CIFS service is started server name: "
+            + config.getServerName()
+            + " on repository: "
+            + ((config.getRepoName() == null) ? "default" : config
+                .getRepoName()));
       } else {
         log.error("Starting CIFS service error: server not initalized");
         return;
@@ -77,7 +73,6 @@ public class CIFSServiceImpl implements CIFSService, Startable {
     try {
       if (server != null)
         server.shutdownServer(false);
-//      repositoryService = null;
     } catch (Exception e) {
       e.printStackTrace();
     }

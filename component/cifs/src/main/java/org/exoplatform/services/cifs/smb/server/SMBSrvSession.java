@@ -101,8 +101,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
   private static final int MaxSearches = 256;
 
   // Maximum multiplexed packets allowed (client can send up to this many SMBs
-  // before waiting for
-  // a response)
+  // before waiting for a response)
   //
   // Setting NTMaxMultiplexed to one will disable asynchronous notifications on
   // the client
@@ -112,6 +111,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
   public static final int NTMaxMultiplexed = 4;
 
   // Maximum number of virtual circuits
+  // TODO virtual circuit is not implemented, but probably will
 
   public static final int MaxVirtualCircuits = 0;
 
@@ -158,8 +158,10 @@ public class SMBSrvSession extends SrvSession implements Runnable {
   private SearchContext[] m_search;
 
   private int m_searchCount;
-  
+
   // Active transaction details
+
+  // TODO Think about transactions
 
   private SrvTransactBuffer m_transact;
 
@@ -318,7 +320,19 @@ public class SMBSrvSession extends SrvSession implements Runnable {
     if (logger.isDebugEnabled() && hasDebug(DBG_STATE))
       logger.debug("Cleanup session, treeConns=" + getConnectionCount());
 
-    // TODO Check if there are any active searches
+    // Check if there are any active searches
+    if (m_search != null) {
+
+      // Close all active searches
+
+      for (int idx = 0; idx < m_search.length; idx++) {
+
+        // Check if the current search slot is active
+
+        if (m_search[idx] != null)
+          deallocateSearchSlot(idx);
+      }
+    }
 
     // Check if there are open tree connections
 
@@ -327,7 +341,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
         // Close all active tree connections
 
-        Enumeration<TreeConnection> enm = m_connections.elements();
+        //TODO for m_connections.elements() must be checking opened files and correct closing 
 
         m_connections.clear();
       }
@@ -348,7 +362,13 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
     // TODO Check if there are active change notification requests
 
-    // TODO Delete any temporary shares that were created for this session
+    // Delete any temporary shares that were created for this session
+    if (hasDynamicShares()) {
+
+      // Close the dynamic shares
+
+      getDynamicShares().removeAllShares();
+    }
   }
 
   /**
@@ -1358,7 +1378,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
         case SMBSrvSessionState.SMBNEGOTIATE:
           procSMBNegotiate();
-          
+
           mapWorkspacesAsShares();
           break;
 
@@ -1804,13 +1824,16 @@ public class SMBSrvSession extends SrvSession implements Runnable {
   }
 
   /**
-   * Generate dynamic shares for each workspace in JCR repository
+   * Generate dynamic shares for each workspace in JCR repository.
    * 
    */
   private void mapWorkspacesAsShares() {
-    
+
     String[] wks = ((SMBServer) getServer()).getWorkspaceList();
-    
+
+    // TODO review the share devise context (DiskInfo and VolumeInfo);
+
+    // Here is makined same device properties for each workspace representation
     DiskInfo di = new DiskInfo(null, null, 2560000, 64, 512, 2304000);
 
     int c = 0;
@@ -1819,6 +1842,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
       SharedDevice dev = new SharedDevice(wks[i], ShareType.DISK);
       dev.setDiskInfo(di);
       dev.setVolumeInfo(vi);
+
       // Check if current workspace already do not represented in servers
       // SharedDeviceList
       if (getServer().getShares().findShare(dev.getName()) == null) {
@@ -1896,7 +1920,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
    * @param shrDev
    *          SharedDevice
    */
-   protected int addConnection(SharedDevice shrDev)
+  protected int addConnection(SharedDevice shrDev)
       throws TooManyConnectionsException {
 
     // Check if the connection array has been allocated
@@ -1937,47 +1961,47 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
     return treeId;
   }
-   
-   /**
-    * Allocate a slot in the active searches list for a new search.
-    * 
-    * @return int Search slot index, or -1 if there are no more search slots
-    *         available.
-    */
-   protected final int allocateSearchSlot() {
-     // Check if the search array has been allocated
 
-     if (m_search == null)
-       m_search = new SearchContext[DefaultSearches];
+  /**
+   * Allocate a slot in the active searches list for a new search.
+   * 
+   * @return int Search slot index, or -1 if there are no more search slots
+   *         available.
+   */
+  protected final int allocateSearchSlot() {
+    // Check if the search array has been allocated
 
-     // Find a free slot for the new search
+    if (m_search == null)
+      m_search = new SearchContext[DefaultSearches];
 
-     int idx = 0;
+    // Find a free slot for the new search
 
-     while (idx < m_search.length && m_search[idx] != null)
-       idx++;
+    int idx = 0;
 
-     // Check if we found a free slot
+    while (idx < m_search.length && m_search[idx] != null)
+      idx++;
 
-     if (idx == m_search.length) {
+    // Check if we found a free slot
 
-       // The search array needs to be extended, check if we reached the
-       // limit.
+    if (idx == m_search.length) {
 
-       if (m_search.length >= MaxSearches)
-         return -1;
+      // The search array needs to be extended, check if we reached the
+      // limit.
 
-       // Extend the search array
+      if (m_search.length >= MaxSearches)
+        return -1;
 
-       SearchContext[] newSearch = new SearchContext[m_search.length * 2];
-       System.arraycopy(m_search, 0, newSearch, 0, m_search.length);
-       m_search = newSearch;
-     }
+      // Extend the search array
 
-     // Return the allocated search slot index
+      SearchContext[] newSearch = new SearchContext[m_search.length * 2];
+      System.arraycopy(m_search, 0, newSearch, 0, m_search.length);
+      m_search = newSearch;
+    }
 
-     m_searchCount++;
-     return idx;
-   }
+    // Return the allocated search slot index
+
+    m_searchCount++;
+    return idx;
+  }
 
 }
