@@ -13,6 +13,7 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
+import javax.naming.InitialContext;
 
 import junit.framework.TestCase;
 
@@ -42,18 +43,43 @@ public class JCRDriverTest extends TestCase {
 
   private RepositoryService repositoryService = null;
 
-  public JCRDriverTest() {
-    super();
-    InitializeRepositoryService();
-  }
-
-  public JCRDriverTest(String str) {
-    super(str);
-    InitializeRepositoryService();
-  }
+//  public JCRDriverTest() {
+//    super();
+//    InitializeRepositoryService();
+//  }
+//
+//  public JCRDriverTest(String str) {
+//    super(str);
+//    InitializeRepositoryService();
+//  }
 
   protected void InitializeRepositoryService() {
-    try {
+//    try {
+//      StandaloneContainer
+//          .addConfigurationPath("src/main/java/conf/standalone/cifs-configuration.xml");
+//
+//      // obtain standalone container
+//      StandaloneContainer container = StandaloneContainer.getInstance();
+//
+//      // set JAAS auth config
+//      if (System.getProperty("java.security.auth.login.config") == null)
+//        System.setProperty("java.security.auth.login.config",
+//            "src/main/resources/login.conf");
+//
+//      // obtain default repository
+//      repositoryService = (RepositoryService) container
+//          .getComponentInstanceOfType(RepositoryService.class);
+//
+//      System.out.println("REPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP "
+//          + repositoryService);
+//    } catch (Exception e) {
+//    }
+//
+  }
+
+  public void setUp() throws Exception {
+    if (repositoryService == null) {
+      
       StandaloneContainer
           .addConfigurationPath("src/main/java/conf/standalone/cifs-configuration.xml");
 
@@ -68,48 +94,58 @@ public class JCRDriverTest extends TestCase {
       // obtain default repository
       repositoryService = (RepositoryService) container
           .getComponentInstanceOfType(RepositoryService.class);
-    } catch (Exception e) {
+
+
     }
 
   }
 
-  public void testCreateNode_File() {
+  public void testCreateNode_File() throws Exception {
+    
+    InitialContext ctx = new InitialContext();
+    
+    System.out.println(">>>>>>>>>>>>>>>"+ctx.lookup("repo-db1"));
+    
     Session s = null;
 
-    try {
-      Credentials credentials = new CredentialsImpl("admin", "admin"
-          .toCharArray());
-      s = (SessionImpl) (repositoryService.getRepository("db1").login(credentials,
-          "ws"));
-    } catch (Exception e) {
-      fail();
-      return;
-    }
+    // try {
+    Credentials credentials = new CredentialsImpl("admin", "admin"
+        .toCharArray());
 
-    try {
-      JCRDriver.createNode(s, "/subfolder/exp_test1.txt", true);
-    } catch (PathNotFoundException e) {
-      fail();
-    } catch (RepositoryException e) {
-      fail();
-    } catch (Exception e) {
-      fail();
-    }
+    if (repositoryService == null)
+      throw new Exception("repositoryService is NULL!!!");
 
-    try {
-      Node n = (Node) s.getItem("/subfolder/exp_test1.txt");
+    s = (SessionImpl) (repositoryService.getRepository("db1").login(
+        credentials, "ws"));
+    // } catch (Exception e) {
+    // fail();
+    // return;
+    // }
 
-      assertTrue(n.isNodeType("nt:file"));
-      assertTrue(n.hasNode("jcr:content"));
-      Node cont = n.getNode("jcr:content");
-      assertTrue(cont.hasProperty("jcr:data"));
+    // try {
+    JCRDriver.createNode(s, "/subfolder/exp_test1.txt", true);
+    // } catch (PathNotFoundException e) {
+    // fail();
+    // } catch (RepositoryException e) {
+    // fail();
+    // } catch (Exception e) {
+    // fail();
+    // }
 
-      cont = null;
-      n.remove();
-    } catch (Exception e) {
-      fail();
+    // try {
+    Node n = (Node) s.getItem("/subfolder/exp_test1.txt");
 
-    }
+    assertTrue(n.isNodeType("nt:file"));
+    assertTrue(n.hasNode("jcr:content"));
+    Node cont = n.getNode("jcr:content");
+    assertTrue(cont.hasProperty("jcr:data"));
+
+    cont = null;
+    n.remove();
+    // } catch (Exception e) {
+    // fail();
+    //
+    // }
     s.logout();
 
   }
@@ -120,8 +156,8 @@ public class JCRDriverTest extends TestCase {
     try {
       Credentials credentials = new CredentialsImpl("admin", "admin"
           .toCharArray());
-      s = (SessionImpl) (repositoryService.getRepository("db1").login(credentials,
-          "ws"));
+      s = (SessionImpl) (repositoryService.getRepository("db1").login(
+          credentials, "ws"));
     } catch (Exception e) {
       fail();
       return;
@@ -160,8 +196,8 @@ public class JCRDriverTest extends TestCase {
     try {
       Credentials credentials = new CredentialsImpl("admin", "admin"
           .toCharArray());
-      s = (SessionImpl) (repositoryService.getRepository("db1").login(credentials,
-          "ws"));
+      s = (SessionImpl) (repositoryService.getRepository("db1").login(
+          credentials, "ws"));
     } catch (Exception e) {
       fail();
       return;
@@ -251,8 +287,8 @@ public class JCRDriverTest extends TestCase {
     try {
       Credentials credentials = new CredentialsImpl("admin", "admin"
           .toCharArray());
-      s = (SessionImpl) (repositoryService.getRepository("db1").login(credentials,
-          "ws"));
+      s = (SessionImpl) (repositoryService.getRepository("db1").login(
+          credentials, "ws"));
     } catch (Exception e) {
       fail();
       return;
@@ -342,8 +378,8 @@ public class JCRDriverTest extends TestCase {
     try {
       Credentials credentials = new CredentialsImpl("admin", "admin"
           .toCharArray());
-      s = (SessionImpl) (repositoryService.getRepository("db1").login(credentials,
-          "ws"));
+      s = (SessionImpl) (repositoryService.getRepository("db1").login(
+          credentials, "ws"));
     } catch (Exception e) {
       fail();
       return;

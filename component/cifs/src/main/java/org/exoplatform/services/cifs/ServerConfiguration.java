@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.StringTokenizer;
 
+import javax.jcr.Repository;
+import javax.naming.InitialContext;
+
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.container.xml.InitParams;
@@ -19,6 +22,8 @@ import org.exoplatform.services.cifs.smb.Dialect;
 import org.exoplatform.services.cifs.smb.DialectSelector;
 import org.exoplatform.services.cifs.smb.ServerType;
 import org.exoplatform.services.cifs.util.X64;
+import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.log.ExoLogger;
 
 import org.exoplatform.container.xml.ValueParam;
@@ -164,6 +169,13 @@ public class ServerConfiguration {
   private String m_localName;
 
   private String m_localDomain;
+  
+  private String[] workspaceList;
+
+  private String repoName;
+  
+  private boolean fromJndi = true;
+  
 
   /*
    * Configuration by XML-config
@@ -330,6 +342,29 @@ public class ServerConfiguration {
     // Set the session debug flags
 
     setSessionDebugFlags(sessDbg);
+    
+
+    // repo params
+    
+    ValueParam repoParam;
+    repoParam = params.getValueParam("jndi-repository-name");
+    
+    if(repoParam == null) {
+      fromJndi = false;
+      repoParam = params.getValueParam("repository-name");
+    }
+    if(repoParam != null) {
+      repoName = repoParam.getValue();
+    }
+    
+    if(repoName == null)
+      logger.warn("Neither jndi-repository-name nor repository-name is set. Default repository will be obtained");
+    
+    ValueParam wsParam = params.getValueParam("workspaces");
+    if(wsParam != null) {
+      workspaceList = wsParam.getValue().split(",");
+    }
+
 
   }
 
@@ -819,6 +854,18 @@ public class ServerConfiguration {
    */
   public final void setSecondaryWINSServer(InetAddress addr) {
     m_winsSecondary = addr;
+  }
+
+  public boolean isFromJndi() {
+    return fromJndi;
+  }
+
+  public String[] getWorkspaceList() {
+    return workspaceList;
+  }
+
+  public String getRepoName() {
+    return repoName;
   }
 
 }

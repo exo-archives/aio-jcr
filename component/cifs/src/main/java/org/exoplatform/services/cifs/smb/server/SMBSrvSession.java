@@ -1808,8 +1808,9 @@ public class SMBSrvSession extends SrvSession implements Runnable {
    * 
    */
   private void mapWorkspacesAsShares() {
-    String[] wks = ((SMBServer) getServer()).getRepository()
-        .getWorkspaceNames();
+    
+    String[] wks = ((SMBServer) getServer()).getWorkspaceList();
+    
     DiskInfo di = new DiskInfo(null, null, 2560000, 64, 512, 2304000);
 
     int c = 0;

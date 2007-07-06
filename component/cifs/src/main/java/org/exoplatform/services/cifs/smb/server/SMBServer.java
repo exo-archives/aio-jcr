@@ -24,7 +24,6 @@
  */
 package org.exoplatform.services.cifs.smb.server;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -32,21 +31,24 @@ import java.util.Enumeration;
 import java.util.UUID;
 import java.util.Vector;
 
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.exoplatform.services.cifs.ServerConfiguration;
 import org.exoplatform.services.cifs.netbios.NetworkSettings;
 import org.exoplatform.services.cifs.server.NetworkServer;
 import org.exoplatform.services.cifs.server.SrvSessionList;
 import org.exoplatform.services.cifs.server.core.ShareType;
 import org.exoplatform.services.cifs.server.core.SharedDevice;
-import org.exoplatform.services.cifs.server.core.SharedDeviceList;
-import org.exoplatform.services.cifs.smb.SMBException;
 import org.exoplatform.services.cifs.smb.ServerType;
 import org.exoplatform.services.cifs.smb.mailslot.HostAnnouncer;
 import org.exoplatform.services.cifs.smb.server.win32.Win32NetBIOSLanaMonitor;
 import org.exoplatform.services.cifs.smb.server.win32.Win32NetBIOSSessionSocketHandler;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -98,22 +100,22 @@ public class SMBServer extends NetworkServer implements Runnable {
 
   private UUID m_serverGUID;
 
-  private RepositoryService k_repositoryService;
+  private RepositoryService repositoryService;
 
-  /**
-   * Create an SMB server using the specified configuration.
-   * 
-   * @param serviceRegistry
-   *          repository connection
-   * @param cfg
-   *          ServerConfiguration
-   */
-  public SMBServer(ServerConfiguration cfg) throws IOException {
-    super("SMB", cfg);
-
-    // Call the common constructor
-    CommonConstructor();
-  }
+  // /**
+  // * Create an SMB server using the specified configuration.
+  // *
+  // * @param serviceRegistry
+  // * repository connection
+  // * @param cfg
+  // * ServerConfiguration
+  // */
+  // public SMBServer(ServerConfiguration cfg) throws IOException {
+  // super("SMB", cfg);
+  //
+  // // Call the common constructor
+  // CommonConstructor();
+  // }
 
   /**
    * Create an SMB server using the specified configuration and repository
@@ -127,8 +129,24 @@ public class SMBServer extends NetworkServer implements Runnable {
       RepositoryService repositoryService) throws IOException {
 
     super("SMB", config);
-    k_repositoryService = repositoryService;
-    CommonConstructor();
+    this.repositoryService = repositoryService;
+    // Set the server version
+
+    setVersion(ServerVersion);
+
+    // Create the session socket handler list
+
+    m_sessionHandlers = new Vector<SessionSocketHandler>();
+
+    // Create the active session list
+
+    m_sessions = new SrvSessionList();
+
+    // Set the global domain name
+
+    NetworkSettings.setDomain(getConfiguration().getDomainName());
+    NetworkSettings.setBroadcastMask(getConfiguration().getBroadcastMask());
+
   }
 
   /**
@@ -184,28 +202,28 @@ public class SMBServer extends NetworkServer implements Runnable {
     sess.setDebug(getConfiguration().getSessionDebugFlags());
   }
 
-  /**
-   * Common constructor code.
-   */
-  private void CommonConstructor() throws IOException {
-
-    // Set the server version
-
-    setVersion(ServerVersion);
-
-    // Create the session socket handler list
-
-    m_sessionHandlers = new Vector<SessionSocketHandler>();
-
-    // Create the active session list
-
-    m_sessions = new SrvSessionList();
-
-    // Set the global domain name
-
-    NetworkSettings.setDomain(getConfiguration().getDomainName());
-    NetworkSettings.setBroadcastMask(getConfiguration().getBroadcastMask());
-  }
+  // /**
+  // * Common constructor code.
+  // */
+  // private void CommonConstructor() throws IOException {
+  //
+  // // Set the server version
+  //
+  // setVersion(ServerVersion);
+  //
+  // // Create the session socket handler list
+  //
+  // m_sessionHandlers = new Vector<SessionSocketHandler>();
+  //
+  // // Create the active session list
+  //
+  // m_sessions = new SrvSessionList();
+  //
+  // // Set the global domain name
+  //
+  // NetworkSettings.setDomain(getConfiguration().getDomainName());
+  // NetworkSettings.setBroadcastMask(getConfiguration().getBroadcastMask());
+  // }
 
   /**
    * Close the host announcer, if enabled
@@ -631,12 +649,47 @@ public class SMBServer extends NetworkServer implements Runnable {
     return m_serverGUID;
   }
   
-  public ManageableRepository getRepository() {
+  public String[] getWorkspaceList() {
+    String[] wsList = getConfiguration().getWorkspaceList();
+    Repository repo;
     try {
-      return k_repositoryService.getRepository();
-    } catch (Exception ex) {
-      ex.printStackTrace();
-      return null;
+      repo = getRepository();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+    if (repo instanceof ManageableRepository) {
+      return ((ManageableRepository) repo).getWorkspaceNames();
+    } else {
+      if (wsList != null) {
+        return wsList;
+      } else {
+        throw new RuntimeException(
+            "Non-eXo JCR does not support dynamic workspace list. Please set 'workspaces' "
+                + "parameter with comma delimited workspace names available to browsing.");
+      }
+    }
+  }
+
+
+  public Repository getRepository() throws RepositoryConfigurationException, RepositoryException, NamingException {
+
+    String repoName = getConfiguration().getRepoName();
+    boolean isJndi = getConfiguration().isFromJndi();
+    
+    if (repoName == null) {
+      return repositoryService.getDefaultRepository();
+    } else {
+      // obtain reository object from JNDI or from eXo Container
+      return isJndi ? (Repository) new InitialContext().lookup(repoName)
+          : repositoryService.getRepository(repoName);
+    }
+
+
+    // try {
+    // return repositoryService.getRepository();
+    // } catch (Exception ex) {
+    // ex.printStackTrace();
+    // return null;
+    // }
   }
 }
