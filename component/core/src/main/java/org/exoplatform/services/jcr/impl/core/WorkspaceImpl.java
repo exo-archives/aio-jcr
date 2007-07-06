@@ -404,22 +404,24 @@ public class WorkspaceImpl implements Workspace {
       }
     }
 
-    // Check if versionable ancestor is not checked-in
-    if (!srcNode.isCheckedOut())
-      throw new VersionException("Source parent node " + srcNode.getPath()
-          + " or its nearest ancestor is checked-in");
-    // Check locking
-    if (!srcNode.checkLocking())
-      throw new LockException("Source parent node " + srcNode.getPath() + " is     locked ");
+    // TODO [PN] 06.07.07 Commented as this is out of JSR-170
+//    // Check if versionable ancestor is not checked-in
+//    if (!destParentNode.isCheckedOut())
+//      throw new VersionException("Source parent node " + srcNode.getPath()
+//          + " or its nearest ancestor is checked-in");
+//    
+//    // Check locking
+//    if (!destParentNode.checkLocking())
+//      throw new LockException("Source parent node " + srcNode.getPath() + " is     locked ");
 
     ItemDataCloneVisitor initializer = new ItemDataCloneVisitor((NodeData) destParentNode.getData(),
-
         destNodePath.getName().getInternalName(),
         getNodeTypeManager(),
         srcSession.getTransientNodesManager(),
         session.getTransientNodesManager(),
         removeExisting,
         changes);
+    
     srcNode.getData().accept(initializer);
 
     // removeing existing nodes and properties
