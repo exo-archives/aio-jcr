@@ -15,9 +15,7 @@ import java.lang.annotation.Target;
  * Created by The eXo Platform SARL        .
  * @author Gennady Azarenkov
  * @version $Id: $
- */
-
-/**
+ * 
  * HeaderParam define the names of header from HTTP request.
  * In this way ResourceContainer gets only header parameters wich it needs.
  * 

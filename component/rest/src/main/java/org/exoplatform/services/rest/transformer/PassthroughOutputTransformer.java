@@ -4,26 +4,24 @@
  **************************************************************************/
 package org.exoplatform.services.rest.transformer;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.IOException;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public class PassthroughTransformer implements EntityTransformer {
+public class PassthroughOutputTransformer extends OutputEntityTransformer {
 
-  public InputStream readFrom(InputStream entityDataStream) throws IOException {
-    return entityDataStream;
-  }
-
-  public void writeTo(Object entity, OutputStream entityDataStream) throws IOException {
+	@Override
+	public void writeTo(Object entity, OutputStream entityDataStream)
+			throws IOException {
     InputStream entity_ = (InputStream)entity;
     byte[] buf = new byte[4096];
     int rd = -1;
     while((rd = entity_.read(buf)) != -1)
       entityDataStream.write(buf, 0, rd);    
-  }
+	}
 
 }

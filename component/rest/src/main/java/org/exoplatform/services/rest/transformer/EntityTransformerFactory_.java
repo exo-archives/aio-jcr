@@ -8,10 +8,16 @@ package org.exoplatform.services.rest.transformer;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public class XMLEntityTransformerFactory implements EntityTransformerFactory {
-
-  public EntityTransformer newTransformer() {
-    return new XMLEntityTransformer();
+public class EntityTransformerFactory_ {
+  
+	private Class<? extends GenericEntityTransformer> transformerType;
+	
+	public EntityTransformerFactory_(Class<? extends GenericEntityTransformer> transformerType) {
+		this.transformerType = transformerType;
+	}
+	
+  public GenericEntityTransformer newTransformer() throws Exception {
+  	return transformerType.newInstance();
   }
-
+  
 }

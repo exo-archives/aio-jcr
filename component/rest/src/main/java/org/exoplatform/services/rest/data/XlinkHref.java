@@ -12,7 +12,6 @@ import org.w3c.dom.Element;
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-
 public class XlinkHref {
 
   private static final String XLINK_HREF = "xlinks:href";

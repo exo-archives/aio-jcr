@@ -13,11 +13,13 @@ import java.util.List;
 import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.URIPattern;
 import org.exoplatform.services.rest.URITemplate;
-import org.exoplatform.services.rest.ConsumedTransformerFactory;
-import org.exoplatform.services.rest.ProducedTransformerFactory;
+import org.exoplatform.services.rest.InputTransformer;
+import org.exoplatform.services.rest.OutputTransformer;
 import org.exoplatform.services.rest.ConsumedMimeTypes;
 import org.exoplatform.services.rest.ProducedMimeTypes;
 import org.exoplatform.services.rest.data.MimeTypes;
+import org.exoplatform.services.rest.transformer.InputEntityTransformer;
+import org.exoplatform.services.rest.transformer.OutputEntityTransformer;
 
 /**
  * Created by The eXo Platform SARL .
@@ -25,7 +27,6 @@ import org.exoplatform.services.rest.data.MimeTypes;
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-
 public class HTTPAnnotatedContainerResolvingStrategy
     implements ResourceContainerResolvingStrategy {
 
@@ -81,14 +82,15 @@ public class HTTPAnnotatedContainerResolvingStrategy
 
     private String httpMethodName;
     private URIPattern uriPattern;
-    private String consumedTransformerFactoryName;
-    private String producedTransformerFactoryName;
     private String consumedMimeTypes;
     private String producedMimeTypes;
+    private Class<? extends InputEntityTransformer> inputTransformerType;
+    private Class<? extends OutputEntityTransformer> outputTransformerType;
     private Method servingMethod;
     private Annotation[] methodParameterAnnotations;
     private Class<?>[] methodParameters;
     private ResourceContainer resourceContainer;
+    
 
     public HTTPResourceDescriptor(Method method, String httpMethodName, String uri,
         ResourceContainer resourceContainer) {
@@ -108,24 +110,22 @@ public class HTTPAnnotatedContainerResolvingStrategy
       producedMimeTypes = (producedMimeTypesAnnotation != null) ? producedMimeTypesAnnotation.value() :
         MimeTypes.ALL;
       
-      ConsumedTransformerFactory containerConsumedTransformerFactory =
-        resourceContainer.getClass().getAnnotation(ConsumedTransformerFactory.class);
-      if(containerConsumedTransformerFactory != null &&
-          method.getAnnotation(ConsumedTransformerFactory.class) == null) {
-        consumedTransformerFactoryName = containerConsumedTransformerFactory.value();
-      } else if(method.getAnnotation(ConsumedTransformerFactory.class) != null) {
-          consumedTransformerFactoryName =
-            method.getAnnotation(ConsumedTransformerFactory.class).value();
+      InputTransformer containerInputTransformer = 
+      	resourceContainer.getClass().getAnnotation(InputTransformer.class);
+      InputTransformer methodInputTransformer = method.getAnnotation(InputTransformer.class);
+      if(containerInputTransformer != null && methodInputTransformer == null) {
+      	inputTransformerType = containerInputTransformer.value();
+      } else if(methodInputTransformer != null) {
+      	inputTransformerType = methodInputTransformer.value();
       }
 
-      ProducedTransformerFactory containerProducedTransformerFactory =
-        resourceContainer.getClass().getAnnotation(ProducedTransformerFactory.class);
-      if(containerProducedTransformerFactory != null &&
-          method.getAnnotation(ProducedTransformerFactory.class) == null) { 
-          producedTransformerFactoryName = containerProducedTransformerFactory.value();
-      } else if(method.getAnnotation(ProducedTransformerFactory.class) != null) {
-          producedTransformerFactoryName =
-            method.getAnnotation(ProducedTransformerFactory.class).value();
+      OutputTransformer containerOutputTransformer = 
+      	resourceContainer.getClass().getAnnotation(OutputTransformer.class);
+      OutputTransformer methodOutputTransformer = method.getAnnotation(OutputTransformer.class);
+      if(containerOutputTransformer != null && methodOutputTransformer == null) {
+      	outputTransformerType = containerOutputTransformer.value();
+      } else if(methodOutputTransformer != null) {
+      	outputTransformerType = methodOutputTransformer.value();
       }
     }
     
@@ -137,12 +137,12 @@ public class HTTPAnnotatedContainerResolvingStrategy
       return servingMethod;
     }
 
-    public String getConsumedTransformerFactoryName() {
-      return consumedTransformerFactoryName;
+    public Class<? extends InputEntityTransformer> getInputTransformerType() {
+      return inputTransformerType;
     }
 
-    public String getProducedTransformerFactoryName() {
-      return producedTransformerFactoryName;
+    public Class<? extends OutputEntityTransformer> getOutputTransformerType() {
+      return outputTransformerType;
     }
 
     public Annotation[] getMethodParameterAnnotations() {

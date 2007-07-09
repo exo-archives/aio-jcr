@@ -13,9 +13,7 @@ import java.lang.annotation.Target;
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
- */
-
-/**
+ * 
  * UriParam define the names of URI.
  * In this way ResourceContainer gets only URI parameters wich it needs.
  * 

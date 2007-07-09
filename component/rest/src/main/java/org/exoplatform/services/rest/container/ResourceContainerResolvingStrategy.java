@@ -12,7 +12,6 @@ import java.util.List;
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-
 public interface ResourceContainerResolvingStrategy {
   List <ResourceDescriptor> resolve(ResourceContainer c);
 }

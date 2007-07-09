@@ -4,14 +4,13 @@
  **************************************************************************/
 package org.exoplatform.services.rest;
 
+import junit.framework.TestCase;
+import org.exoplatform.services.rest.data.MimeTypes;
+
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-
-import junit.framework.TestCase;
-import org.exoplatform.services.rest.data.MimeTypes;
-
 public class MimeTypeTest extends TestCase {
 	
 	MimeTypes mt;

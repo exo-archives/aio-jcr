@@ -16,7 +16,6 @@ import junit.framework.TestCase;
 public class EntityMetadataTest extends TestCase {
   
   public void testMetadataLang() {
-    
     List<String> langs = new ArrayList <String> ();
     langs.add("en");
     langs.add("ru");
@@ -25,25 +24,17 @@ public class EntityMetadataTest extends TestCase {
     MultivaluedMetadata headers = new MultivaluedMetadata();
     headers.put("Content-Language", langs);
     EntityMetadata md = new EntityMetadata(headers);
-
-    //md.setLanguages(langs);
     assertEquals("en,ru,da,de", md.getLanguages());
   }
 
   public void testMetadataEncod() {
-    //EntityMetadata md = new EntityMetadata();
-    
     List<String> encs = new ArrayList <String> ();
     encs.add("compress;q=0.5");
     encs.add("gzip;q=1.0");
     MultivaluedMetadata headers = new MultivaluedMetadata();
     headers.put("Content-Encoding", encs);
     EntityMetadata md = new EntityMetadata(headers);
-
-//    md.setLanguages(encs);
-    
     assertEquals("compress;q=0.5,gzip;q=1.0", md.getEncodings());
-    
   }
 
 }

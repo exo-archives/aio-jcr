@@ -8,7 +8,6 @@ package org.exoplatform.services.rest.data;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-
 public class MimeTypes {
 	
   public static final String ALL = "*/*";

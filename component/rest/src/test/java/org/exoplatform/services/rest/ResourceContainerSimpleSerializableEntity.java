@@ -4,19 +4,19 @@
  **************************************************************************/
 package org.exoplatform.services.rest;
 
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.ElementType.METHOD;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import org.exoplatform.services.rest.container.ResourceContainer;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-@Retention(RUNTIME)
-@Target(value={TYPE,METHOD})
-public @interface ProducedTransformerFactory {
-  String value();
+public class ResourceContainerSimpleSerializableEntity implements ResourceContainer {
+	
+  @HTTPMethod("GET")
+  @URITemplate("/test/serializable/")
+	public Response method1(SimpleSerializableEntity t) {
+  	System.out.println("\n>>> serializable entity: " + t.data);
+  	t.data = ">>> this is response data";
+		return Response.Builder.ok(t).build();
+	}
 }

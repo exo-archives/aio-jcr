@@ -9,13 +9,14 @@ import java.lang.reflect.Method;
 import java.lang.annotation.Annotation;
 
 import org.exoplatform.services.rest.URIPattern;
+import org.exoplatform.services.rest.transformer.InputEntityTransformer;
+import org.exoplatform.services.rest.transformer.OutputEntityTransformer;
 
 /**
  * Created by The eXo Platform SARL        .
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-
 public interface ResourceDescriptor {
   String getAcceptableMethod();
   String getConsumedMimeTypes();
@@ -25,6 +26,6 @@ public interface ResourceDescriptor {
   URIPattern getURIPattern();
   Annotation[] getMethodParameterAnnotations();
   Class<?>[] getMethodParameters();
-  String getConsumedTransformerFactoryName();
-  String getProducedTransformerFactoryName();
+  Class<? extends OutputEntityTransformer> getOutputTransformerType();
+  Class<? extends InputEntityTransformer> getInputTransformerType();
 }

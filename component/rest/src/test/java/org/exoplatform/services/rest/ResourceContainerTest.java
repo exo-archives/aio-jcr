@@ -10,14 +10,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.io.ByteArrayInputStream;
+//import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 //import java.io.FileOutputStream;
 //import java.io.File;
+//import org.w3c.dom.Document;
 
 import junit.framework.TestCase;
 
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.rest.container.InvalidResourceDescriptorException;
 import org.exoplatform.services.rest.container.ResourceDescriptor;
+//import org.exoplatform.services.rest.transformer.XMLInputTransformer;
+//import org.exoplatform.services.rest.transformer.XMLOutputTransformer;
 
 
 /**
@@ -218,8 +223,10 @@ public class ResourceContainerTest extends TestCase {
     binder.bind(resourceContainer);
     assertEquals(1, list.size());
 
+    FileInputStream f = new FileInputStream("src/test/resources/book-in.xml");
+    
     MultivaluedMetadata mm = new MultivaluedMetadata();
-    Request request = new Request(null, new ResourceIdentifier("/test/jaxb"), "GET", mm, null);
+    Request request = new Request(f, new ResourceIdentifier("/test/jaxb"), "GET", mm, null);
     Response resp = disp.dispatch(request);
     assertEquals("text/xml", resp.getEntityMetadata().getMediaType());
 //    resp.writeEntity(new FileOutputStream(new File("/tmp/output.xml")));
@@ -227,4 +234,24 @@ public class ResourceContainerTest extends TestCase {
     binder.unbind(resourceContainer);
     assertEquals(0, list.size());
   }
+  
+  public void testTesting() throws Exception {
+  	ResourceDispatcher disp = (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
+  	assertNotNull(disp);
+  	ResourceBinder binder = (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);
+  	assertNotNull(binder);
+  	
+  	List <ResourceDescriptor> list = binder.getAllDescriptors();
+  	ResourceContainerSimpleSerializableEntity resourceContainer = new ResourceContainerSimpleSerializableEntity();
+  	binder.bind(resourceContainer);
+  	assertEquals(1, list.size());
+  	
+    MultivaluedMetadata mm = new MultivaluedMetadata();
+    Request request =
+    	new Request(new ByteArrayInputStream("this is request data".getBytes()),
+    			new ResourceIdentifier("/test/serializable"), "GET", mm, null);
+    Response resp = disp.dispatch(request);
+    resp.writeEntity(System.out);
+  }
+
 }

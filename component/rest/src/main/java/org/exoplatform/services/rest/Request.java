@@ -12,10 +12,7 @@ import java.io.InputStream;
  * HTTP Request object
  * @author Gennady Azarenkov
  * @version $Id: $
- */
-
-
-/**
+ * 
  * Request represents REST request (not HTTP request)
  */
 public class Request {

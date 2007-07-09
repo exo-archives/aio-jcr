@@ -5,6 +5,7 @@
 
 package org.exoplatform.services.rest;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
@@ -28,10 +29,7 @@ import org.exoplatform.services.rest.container.ResourceContainerResolvingStrateg
  * Created by The eXo Platform SARL        .
  * @author Gennady Azarenkov
  * @version $Id: $
- */
-
-
-/**
+ * 
  * For binding and unbinding ResourceContainers
  */
 public class ResourceBinder implements Startable {
@@ -99,6 +97,14 @@ public class ResourceBinder implements Startable {
     return this.resourceDescriptors;
   }
 
+  public static boolean doesClassImplementsSerializableEntity(Class<?> clazz) {
+		for (Class<?> interf : clazz.getInterfaces()) {
+			if(interf.isAssignableFrom(SerializableEntity.class))
+				return true;
+		}
+		return false;
+	}
+
   /**
    * validation for ResourceContainer.
    * Not allowed have two ResourceContainers with the same URIPatterns  
@@ -129,11 +135,13 @@ public class ResourceBinder implements Startable {
       boolean hasRequestEntity = false;
       for(int i = 0; i < paramAnno.length; i++) {
         if(paramAnno[i].length == 0) {
-
-          if(!"java.io.InputStream".equals(requestedParams[i].getCanonicalName()) 
-              && method.getAnnotation(ConsumedTransformerFactory.class) == null
+					//check is entity serializable. If entity serializable
+					//transformer is not required. See interface SerializableEntity
+          if(!requestedParams[i].isAssignableFrom(InputStream.class) 
+              && method.getAnnotation(InputTransformer.class) == null
               && newDesc.getResourceContainer().getClass().getAnnotation(
-                  ConsumedTransformerFactory.class) == null) {
+              		InputTransformer.class) == null
+              && !doesClassImplementsSerializableEntity(requestedParams[i])) {
 
             throw new InvalidResourceDescriptorException (
             "One not annotated object is not 'java.io.InputStream object',\n" +
@@ -161,7 +169,7 @@ public class ResourceBinder implements Startable {
       try {
         bind(c);
       } catch(InvalidResourceDescriptorException irde) {
-        logger.error("Cann't add ResourceContainer Component: " + c.getClass().getName());
+        logger.error("Can't add ResourceContainer Component: " + c.getClass().getName());
       }
     }
   }

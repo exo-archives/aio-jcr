@@ -6,6 +6,8 @@ package org.exoplatform.services.rest;
 
 import java.math.BigDecimal;
 
+import org.exoplatform.services.rest.transformer.JAXBInputTransformer;
+import org.exoplatform.services.rest.transformer.JAXBOutputTransformer;
 import org.exoplatform.services.rest.container.ResourceContainer;
 import org.exoplatform.services.rest.generated.*;
 
@@ -16,14 +18,19 @@ import org.exoplatform.services.rest.generated.*;
 @URITemplate("/test/jaxb/")
 public class ResourceContainerJAXB implements ResourceContainer{
 
-  private static final String JAXB_TRANSFORMER = "org.exoplatform.services.rest." +
-  "transformer.JAXBEntityTransformerFactory";
 
   @HTTPMethod("GET")
-  @ProducedTransformerFactory(JAXB_TRANSFORMER)
-  public Response method1() throws Exception {
+  @InputTransformer(JAXBInputTransformer.class)
+  @OutputTransformer(JAXBOutputTransformer.class)
+  public Response method1(Book book) throws Exception {
     System.out.println(">>> JAXBTransformation");
-    Book book = new Book();
+    System.out.println("==Book Card==");
+    System.out.println("===> tittle: " + book.getTitle());
+		System.out.println("===> author: " + book.getAuthor());
+		System.out.println("===> currency price: " + book.getPrice().getCurrency());
+		System.out.println("===> currency member price: " + book.getMemberPrice().getCurrency());
+		System.out.println("===> price: " + book.getPrice().getValue());
+		System.out.println("===> member price: " + book.getMemberPrice().getValue());
     book.setTitle("Red Hat Enterprise Linux 5 Administration Unleashed");
     book.setAuthor("Tammy Fox");
     book.setSendByPost(false);

@@ -16,9 +16,7 @@ import java.lang.annotation.Target;
  * Created by The eXo Platform SARL        .
  * @author Gennady Azarenkov
  * @version $Id: $
- */
-
-/**
+ *
  * URITemplate defines URI pattern for ResourceContainer
  */
 @Target(value={TYPE,METHOD})

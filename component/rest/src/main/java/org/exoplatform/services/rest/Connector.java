@@ -4,6 +4,7 @@
  */
 
 package org.exoplatform.services.rest;
+
 /**
  * Created by The eXo Platform SARL        .<br/>
  * Abstraction which "encapsulates the activities of accessing resources and 
@@ -19,7 +20,5 @@ package org.exoplatform.services.rest;
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-
 public interface Connector {
-
 }

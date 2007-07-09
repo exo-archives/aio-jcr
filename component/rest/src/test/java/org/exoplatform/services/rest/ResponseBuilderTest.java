@@ -6,7 +6,7 @@ package org.exoplatform.services.rest;
 
 import junit.framework.TestCase;
 
-import org.exoplatform.services.rest.transformer.StringEntityTransformer;;
+import org.exoplatform.services.rest.transformer.StringOutputTransformer;;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -15,7 +15,7 @@ import org.exoplatform.services.rest.transformer.StringEntityTransformer;;
 public class ResponseBuilderTest extends TestCase {
   
   private final static String TEST_NAME = ">>>ResponseBuilderTest: ";
-  StringEntityTransformer transformer = new StringEntityTransformer();
+  StringOutputTransformer transformer = new StringOutputTransformer();
   
   public void testError() {
     Response response = Response.Builder.serverError().build();
@@ -29,7 +29,6 @@ public class ResponseBuilderTest extends TestCase {
   }
   
   public void testOk () throws Exception {
-    
     Response response = Response.Builder.ok().build();
     assertEquals(RESTStatus.OK, response.getStatus());
 
@@ -47,7 +46,6 @@ public class ResponseBuilderTest extends TestCase {
   
 
   public void testCreated () throws Exception {
-
     String location = "http://localhost/test";
 
     Response response = Response.Builder.created(location).build();
@@ -63,7 +61,6 @@ public class ResponseBuilderTest extends TestCase {
 
   
   public void testCustom() throws Exception {
-
     int st = 306; // this is for test builder with custom status
     Response response = Response.Builder.newInstance().status(st).build();
     assertEquals(st, response.getStatus());

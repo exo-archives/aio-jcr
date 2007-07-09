@@ -12,6 +12,5 @@ package org.exoplatform.services.rest.container;
  * @version $Id: $
  * 
  */
-
 public interface ResourceContainer {
 }

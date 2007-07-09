@@ -4,12 +4,12 @@
  */
 
 package org.exoplatform.services.rest;
+
 /**
  * Created by The eXo Platform SARL        .
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-
 public interface RESTStatus {
   public static final int  ACCEPTED = 202;       //HTTP Status-Code 202: Accepted.
   public static final int  BAD_GATEWAY = 502;    //HTTP Status-Code 502: Bad Gateway.

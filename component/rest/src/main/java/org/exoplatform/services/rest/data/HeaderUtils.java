@@ -11,7 +11,6 @@ import java.util.regex.Matcher;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-
 public class HeaderUtils {
 	
   private static Pattern spacePattern = Pattern.compile("(\\s+)");

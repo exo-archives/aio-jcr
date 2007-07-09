@@ -15,9 +15,7 @@ import java.lang.annotation.Target;
  * Created by The eXo Platform SARL        .
  * @author Gennady Azarenkov
  * @version $Id: $
- */
-
-/**
+ * 
  * HTTPMethod defines HTTP method for ResourceContainer
  */
 @Target(value={METHOD})

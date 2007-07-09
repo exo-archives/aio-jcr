@@ -16,7 +16,6 @@ import java.util.List;
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-
 public class MultivaluedMetadata extends HashMap<String, List<String>> {
   
   public void add(String key, String value) {

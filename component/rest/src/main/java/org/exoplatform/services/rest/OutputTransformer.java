@@ -4,21 +4,24 @@
  **************************************************************************/
 package org.exoplatform.services.rest;
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import org.exoplatform.services.rest.data.MimeTypes;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.ElementType.METHOD;
+
+import org.exoplatform.services.rest.transformer.OutputEntityTransformer;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  * 
- * ConsumedMimeTypes defines the consumed mimetype for ResourceContainer
+ * define entity output transformer
  */
-@Target({METHOD})
 @Retention(RUNTIME)
-public @interface ConsumedMimeTypes {
-  String value() default MimeTypes.ALL;
+@Target({TYPE, METHOD})
+public @interface OutputTransformer {
+	Class<? extends OutputEntityTransformer> value();
 }
+

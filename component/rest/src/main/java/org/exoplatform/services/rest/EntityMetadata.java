@@ -42,5 +42,4 @@ public class EntityMetadata {
     return metadata.getFirst("Content-Type");
   }
   
-
 }

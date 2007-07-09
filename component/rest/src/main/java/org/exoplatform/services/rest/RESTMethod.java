@@ -4,12 +4,12 @@
  */
 
 package org.exoplatform.services.rest;
+
 /**
  * Created by The eXo Platform SARL        .
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-
 public interface RESTMethod {
   public static final String GET = "GET";
   public static final String PUT = "PUT";

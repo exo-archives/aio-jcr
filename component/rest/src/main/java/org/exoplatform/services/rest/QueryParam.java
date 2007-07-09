@@ -13,9 +13,7 @@ import java.lang.annotation.Target;
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
- */
-
-/**
+ * 
  * QueryParam define the names of query parameters from HTTP request.
  * In this way ResourceContainer gets only query parameters wich it needs.
  * 

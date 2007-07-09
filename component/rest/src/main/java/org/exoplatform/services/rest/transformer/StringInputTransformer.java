@@ -4,32 +4,23 @@
  **************************************************************************/
 package org.exoplatform.services.rest.transformer;
 
-import java.io.InputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-
+import java.io.InputStream;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
+public class StringInputTransformer extends InputEntityTransformer {
 
-public class StringEntityTransformer implements EntityTransformer {
-
-  public String readFrom(InputStream entityDataStream) throws IOException {
+	@Override
+	public String readFrom(InputStream entityDataStream) throws IOException {
     StringBuffer sb = new StringBuffer();
     int rd = -1;
     while((rd = entityDataStream.read()) != -1) {
       sb.append((char)rd);
     }
     return sb.toString();
-  }
-
-  public void writeTo(Object entity, OutputStream entityDataStream) 
-      throws IOException {
-    
-    String entity_ = (String)entity;
-    entityDataStream.write(entity_.getBytes());
   }
 
 }

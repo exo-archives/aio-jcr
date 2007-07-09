@@ -5,43 +5,25 @@
 package org.exoplatform.services.rest.transformer;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public class JAXBEntityTransformer implements EntityTransformer {
+public class JAXBOutputTransformer extends OutputEntityTransformer {
 
-  private JAXBContext jaxbContext;
-
-  public JAXBEntityTransformer(String contextPath) throws JAXBException{
-    jaxbContext = JAXBContext.newInstance(contextPath);
-  }
-  
-  public JAXBEntityTransformer(Class... classes) throws JAXBException{
-    jaxbContext = JAXBContext.newInstance(classes);
-  }
-
-  public Object readFrom(InputStream entityDataStream) throws IOException {
-    try {
-      return jaxbContext.createUnmarshaller().unmarshal(entityDataStream);
-    } catch(JAXBException jaxbe) {
-      throw new IOException("Can't transform InputStream to Object: " + jaxbe);
-    }
-  }
-
-  public void writeTo(Object entity, OutputStream entityDataStream) throws IOException {
+	@Override
+	public void writeTo(Object entity, OutputStream entityDataStream)
+			throws IOException {
     try{
+    	JAXBContext jaxbContext = JAXBContext.newInstance(entity.getClass());
       jaxbContext.createMarshaller().marshal(entity, entityDataStream);
     } catch(JAXBException jaxbe) {
       throw new IOException("Can't transform Object to OutputStream: " + jaxbe);
     }
-  }
+ 	}
 
 }

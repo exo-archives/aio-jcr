@@ -6,7 +6,9 @@ package org.exoplatform.services.rest;
 
 
 import org.exoplatform.services.rest.container.ResourceContainer;
-import org.exoplatform.services.rest.transformer.PassthroughTransformer;
+import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
+import org.exoplatform.services.rest.transformer.StringInputTransformer;
+import org.exoplatform.services.rest.transformer.StringOutputTransformer;
 
 import java.io.InputStream;
 import java.io.IOException;
@@ -18,33 +20,25 @@ import java.io.IOException;
 @URITemplate("/level1/{id}/level3/")
 public class ResourceContainer3 implements ResourceContainer {
 
-  private static final String STRING_TRANSFORMER = "org.exoplatform.services.rest." +
-  "transformer.StringEntityTransformerFactory";
-
   @HTTPMethod("POST")
-  @ConsumedTransformerFactory(STRING_TRANSFORMER)
+  @InputTransformer(StringInputTransformer.class)
   public Response postMethod(String str, @URIParam("id") String param) {
-    
     System.out.println("--- POST method called: id = " + param);
     System.out.println("--- request entity - type: " + str.getClass().toString()
         + "; value: " + str);
-    
     Response resp = Response.Builder.created("http://localhost/test/_post").build(); 
-
     return resp;
   }
 
   // ConsumedTransformerFactory is not defined here becouse
   // request entity represented by InputStream
   @HTTPMethod("PUT")
-  @ProducedTransformerFactory(STRING_TRANSFORMER)
+  @OutputTransformer(StringOutputTransformer.class)
   public Response putMethod(InputStream in, @URIParam("id") String param) throws IOException {
-    
     System.out.println("--- PUT method called: id = " + param);
     System.out.println("--- entity type: " + in.getClass().toString() +", value: ");
-    PassthroughTransformer tr = new PassthroughTransformer(); 
+    PassthroughOutputTransformer tr = new PassthroughOutputTransformer(); 
     tr.writeTo(in, System.out);
-
     String entity = "--- PUT response\n";
     String location = "http://localhost/test/_put"; 
     Response resp =
@@ -54,11 +48,10 @@ public class ResourceContainer3 implements ResourceContainer {
 
   @HTTPMethod("DELETE")
   @URITemplate("/{myid}/")
-  @ConsumedTransformerFactory(STRING_TRANSFORMER)
+  @InputTransformer(StringInputTransformer.class)
   public Response delMethod(String str, @URIParam("myid") String param) {
-    System.out.println("----- DELETE method called: id = " + param);
-    System.out.println("----- entity type: " + str.getClass().toString() + ", value: " + str);
-
+    System.out.println("--- DELETE method called: id = " + param);
+    System.out.println("--- entity type: " + str.getClass().toString() + ", value: " + str);
     Response resp = Response.Builder.ok().build();
     return resp;
   }

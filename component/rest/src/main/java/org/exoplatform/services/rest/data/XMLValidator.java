@@ -35,7 +35,6 @@ import org.exoplatform.container.xml.*;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-
 public class  XMLValidator {
 	private Map <String, Schema> schemas; 
 

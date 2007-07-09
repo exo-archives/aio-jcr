@@ -17,11 +17,8 @@ import org.exoplatform.services.rest.ResourceIdentifier;
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
- */
-
-/**
- * RequestHandler helps create REST request from HttpServletRequest 
  *
+ * RequestHandler helps create REST request from HttpServletRequest 
  */
 public class RequestFactory {
   

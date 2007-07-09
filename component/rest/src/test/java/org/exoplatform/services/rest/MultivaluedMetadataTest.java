@@ -17,7 +17,6 @@ public class MultivaluedMetadataTest extends TestCase {
   
   public void testMetadataLang() {
     MultivaluedMetadata md = new MultivaluedMetadata();
-    
     List<String> langs = new ArrayList <String> ();
     langs.add("en");
     langs.add("ru");
@@ -29,7 +28,6 @@ public class MultivaluedMetadataTest extends TestCase {
 
   public void testMetadataEncod() {
     MultivaluedMetadata md = new MultivaluedMetadata();
-    
     List<String> encs = new ArrayList <String> ();
     encs.add("compress;q=0.5");
     encs.add("gzip;q=1.0");

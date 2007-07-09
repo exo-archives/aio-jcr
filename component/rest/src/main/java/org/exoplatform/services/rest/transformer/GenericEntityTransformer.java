@@ -4,23 +4,9 @@
  **************************************************************************/
 package org.exoplatform.services.rest.transformer;
 
-import javax.xml.bind.JAXBException;
-
-
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public class JAXBEntityTransformerFactory implements EntityTransformerFactory {
-
-  private static final String packageName = "org.exoplatform.services.rest.generated";
-  
-  public JAXBEntityTransformer newTransformer() {
-    try {
-      return new JAXBEntityTransformer(packageName);
-    } catch(JAXBException jaxbe) {
-      return null;
-    }
-  }
-
+public interface GenericEntityTransformer {
 }
