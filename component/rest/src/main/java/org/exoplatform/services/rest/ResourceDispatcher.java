@@ -16,7 +16,7 @@ import org.exoplatform.services.rest.container.ResourceDescriptor;
 import org.exoplatform.services.rest.data.MimeTypes;
 import org.exoplatform.services.rest.transformer.InputEntityTransformer;
 import org.exoplatform.services.rest.transformer.OutputEntityTransformer;
-import org.exoplatform.services.rest.transformer.EntityTransformerFactory_;
+import org.exoplatform.services.rest.transformer.EntityTransformerFactory;
 
 /**
  * Created by The eXo Platform SARL .
@@ -96,7 +96,7 @@ public class ResourceDispatcher implements Connector {
 								params[i] = se;
 							} else {
 								//entity is not serializable (interface SerializableEntity)
-								EntityTransformerFactory_ factory = new EntityTransformerFactory_(
+								EntityTransformerFactory factory = new EntityTransformerFactory(
 										resource.getInputTransformerType());
 								InputEntityTransformer transformer = (InputEntityTransformer) factory
 										.newTransformer();
@@ -145,7 +145,7 @@ public class ResourceDispatcher implements Connector {
 			throws InvalidResourceDescriptorException {
 
 		try {
-			EntityTransformerFactory_ factory = new EntityTransformerFactory_(resource
+			EntityTransformerFactory factory = new EntityTransformerFactory(resource
 					.getOutputTransformerType());
 			return (OutputEntityTransformer) factory.newTransformer();
 		} catch (Exception e) {

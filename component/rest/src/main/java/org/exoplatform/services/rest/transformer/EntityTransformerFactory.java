@@ -8,11 +8,11 @@ package org.exoplatform.services.rest.transformer;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public class EntityTransformerFactory_ {
+public class EntityTransformerFactory {
   
 	private Class<? extends GenericEntityTransformer> transformerType;
 	
-	public EntityTransformerFactory_(Class<? extends GenericEntityTransformer> transformerType) {
+	public EntityTransformerFactory(Class<? extends GenericEntityTransformer> transformerType) {
 		this.transformerType = transformerType;
 	}
 	
