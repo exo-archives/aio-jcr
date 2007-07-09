@@ -143,6 +143,7 @@ public class ResourceContainerTest extends TestCase {
 
     MultivaluedMetadata mm = new MultivaluedMetadata();
     mm.putSingle("accept", "text/html;q=0.8,text/xml,text/plain;q=0.5");
+    mm.putSingle("test", "test_header");
     Request request = new Request(new ByteArrayInputStream("test string".getBytes()),
         new ResourceIdentifier("/level1/myID/level3/"), "GET", mm, null);
     Response resp = disp.dispatch(request);
