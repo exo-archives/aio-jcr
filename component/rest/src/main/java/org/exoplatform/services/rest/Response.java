@@ -404,6 +404,17 @@ public class Response {
       this.transformer = trf;
       return this;
     }
+    
+    /**
+     * add response header
+     * @param key
+     * @param value
+     * @return Builder
+     */
+    public Builder header(String key, String value) {
+      this.responseHeaders.putSingle(key, value);
+      return this;
+    }
   }
   
 }

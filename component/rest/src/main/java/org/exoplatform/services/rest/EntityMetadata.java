@@ -21,11 +21,11 @@ public class EntityMetadata {
   }
 
   public String getEncodings() {
-    return metadata.getAll().get("Content-Encoding");
+    return metadata.get("Content-Encoding");
   }
 
   public String getLanguages() {
-    return metadata.getAll().get("Content-Language");
+    return metadata.get("Content-Language");
   }
   
   public String getLastModified() {

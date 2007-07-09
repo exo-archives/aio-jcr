@@ -57,8 +57,9 @@ public class ResourceDispatcher implements Connector {
 		String requestedURI = request.getResourceIdentifier().getURI().getPath();
 		String methodName = request.getMethodName();
 
-		String acceptedMimeTypes = (request.getHeaderParams().getAll()
-				.get("accept") != null) ? request.getHeaderParams().getAll().get("accept") : MimeTypes.ALL;
+		String acceptedMimeTypes =
+		  (request.getHeaderParams().get("accept") != null) 
+		  ? request.getHeaderParams().get("accept") : MimeTypes.ALL;
 
 		MimeTypes requestedMimeTypes = new MimeTypes(acceptedMimeTypes);
 
@@ -112,11 +113,11 @@ public class ResourceDispatcher implements Connector {
 							contextHolder.get().setURIParam(u.value(), (String) params[i]);
 						} else if(a.annotationType().isAssignableFrom(HeaderParam.class)) {
 							HeaderParam h = (HeaderParam) a;
-							params[i] = request.getHeaderParams().getAll().get(h.value());
+							params[i] = request.getHeaderParams().get(h.value());
 							contextHolder.get().setHeaderParam(h.value(), (String) params[i]);
 						} else if(a.annotationType().isAssignableFrom(QueryParam.class)) {
 							QueryParam q = (QueryParam) a;
-							params[i] = request.getQueryParams().getAll().get(q.value());
+							params[i] = request.getQueryParams().get(q.value());
 							contextHolder.get().setQueryParam(q.value(), (String) params[i]);
 						}
 					}

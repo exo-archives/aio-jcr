@@ -16,23 +16,30 @@ import java.util.List;
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-public class MultivaluedMetadata extends HashMap<String, List<String>> {
+public class MultivaluedMetadata  {
+
+  private HashMap<String, List<String>> data = new HashMap<String, List<String>>();
+  
+  public void put(String key, List<String> vals) {
+    data.put(key.toLowerCase(), vals);
+  }
   
   public void add(String key, String value) {
-    List<String> vals = get(key);
+    List<String> vals = data.get(key);
     if(vals == null)
       vals = new ArrayList<String>();
     vals.add(value);
+    put(key.toLowerCase(), vals);
   }
 
   public void putSingle(String key, String value) {
     List<String> vals = new ArrayList<String>();
     vals.add(value);
-    put(key, vals);
+    put(key.toLowerCase(), vals);
   }
   
   public String getFirst(String key) {
-    List<String> vals = get(key);
+    List<String> vals = data.get(key.toLowerCase());
     if(vals == null || vals.size() == 0)
       return null;
     return vals.get(0);
@@ -40,15 +47,24 @@ public class MultivaluedMetadata extends HashMap<String, List<String>> {
   
   public HashMap<String, String> getAll() {
     HashMap<String, String> h = new HashMap<String, String> ();
-    Set<String> keys = keySet();
+    Set<String> keys = data.keySet();
     Iterator<String> ikeys = keys.iterator();
     while (ikeys.hasNext()) {
       String key = ikeys.next();
-      List<String> value = get(key);
+      List<String> value = data.get(key);
       if(value != null)
         h.put(key, convertToString(value));
     }  
     return h;
+  }
+
+  public String get(String key) {
+    key = key.toLowerCase();
+    List <String> vals = data.get(key);
+    if(vals != null) {
+      return convertToString(data.get(key));
+    }
+    return null;
   }
   
   private String convertToString(List<String> list) {
@@ -59,5 +75,5 @@ public class MultivaluedMetadata extends HashMap<String, List<String>> {
       sb.append(t + ",");
     return sb.deleteCharAt(sb.length() - 1).toString();
   }
-
+  
 }
