@@ -1,0 +1,213 @@
+<project>
+  <parent>
+    <groupId>org.exoplatform.jcr</groupId>
+    <artifactId>config</artifactId>
+    <version>1.6</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>exo.product.jcr</artifactId>
+  <packaging>jar</packaging>
+  <version>${org.exoplatform.jcr.version}</version>
+  <name>eXo JCR Product</name>
+  <url>http://www.exoplatform.org</url>
+  <description>eXo JCR Product</description>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.applications.fckeditor</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <type>war</type>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.applications.browser</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <type>war</type>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.applications.webdav</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <type>war</type>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.ext</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.ftp</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.webdav</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+		      <groupId>org.exoplatform.jcr</groupId>
+		      <artifactId>exo.jcr.component.cifs</artifactId>
+		      <version>${org.exoplatform.jcr.version}</version>
+		      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.rmi</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.framework.command</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.framework.web</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+	      <groupId>org.exoplatform.jcr</groupId>
+	      <artifactId>exo.jcr.connectors.localadapter</artifactId>
+	      <version>${org.exoplatform.jcr.version}</version>
+	      <type>rar</type>
+	      <scope>runtime</scope>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.1</version>
+        <executions>
+          <execution>
+            <phase>install</phase>
+            <goals>
+              <goal>assembly</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <descriptors>
+            <descriptor>product-exo-jcr-as-descriptor.xml</descriptor>
+          </descriptors>
+          <finalName>lib</finalName>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <configuration>
+          <tasks>
+            <!--deleting AS-->
+            <delete dir="${exo.projects.directory.working}/exo-jonas"
+              includeEmptyDirs="true" quiet="yes" />
+            <!--copying the AS-->
+            <copy todir="${exo.projects.directory.working}/exo-jonas"
+              verbose="false" overwrite="true">
+              <fileset dir="${exo.projects.directory.dependencies}/${exo.projects.app.jonas.version}" />
+            </copy>
+            <!--copying jars-->
+            <copy
+              todir="${exo.projects.directory.working}/exo-jonas/lib/apps/"
+              verbose="true" overwrite="true">
+              <fileset dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir">
+                <exclude name="**/*.war" />
+                <exclude name="**/*.rar" />
+              </fileset>
+            </copy>
+            <!--copying patch directory-->
+            <copy todir="${exo.projects.directory.working}/exo-jonas/"
+              verbose="true" overwrite="true">
+              <fileset dir="${basedir}/product-patches/as/jonas/" />
+            </copy>
+            <!--renaming wars-->
+            <move
+              todir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+              <fileset
+                dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+                <include name="**/*.war" />
+              </fileset>
+              <mapper>
+                <chainedmapper>
+                  <flattenmapper />
+                  <globmapper
+                    from="exo.jcr.applications.*-${org.exoplatform.jcr.version}.war"
+                    to="*.war" casesensitive="no" />
+                </chainedmapper>
+              </mapper>
+            </move>
+            <!--renaming rars-->
+			            <move
+			              todir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+			              <fileset
+			                dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+			                <include name="**/*.rar" />
+			              </fileset>
+			              <mapper>
+			                <chainedmapper>
+			                  <flattenmapper />
+			                  <globmapper
+			                    from="exo.jcr.connectors.*-${org.exoplatform.jcr.version}.rar"
+			                    to="*.rar" casesensitive="no" />
+			                </chainedmapper>
+			              </mapper>
+            </move>
+            <!--copying wars and rars-->
+            <copy
+              todir="${exo.projects.directory.working}/exo-jonas/apps/autoload/exoplatform.ear/"
+              verbose="true" flatten="true" overwrite="true">
+              <fileset
+                dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/"
+                casesensitive="yes">
+                <include name="**/*.war" />
+                <include name="**/*.rar" />
+              </fileset>
+            </copy>
+            <delete
+              file="${exo.projects.directory.working}/exo-jonas/lib/commons/jonas/hsqldb.jar"/>
+            <!--replacing hsqldb with new version-->
+            <copy
+              todir="${exo.projects.directory.working}/exo-jonas/lib/commons/jonas/">
+              <fileset
+                dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+                <include name="**/hsqldb*.jar" />
+              </fileset>
+            </copy>
+            <copy
+			              todir="${exo.projects.directory.working}/exo-jonas/bin/">
+			              <fileset
+			                dir="${basedir}/product-patches/as/">
+			                <include name="*.dll" />
+			              </fileset>
+            </copy>
+          </tasks>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

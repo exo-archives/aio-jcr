@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app
+PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+"http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+    <display-name>Webdav JCR Server</display-name>
+
+    <!-- ====================================================================== -->
+    <!-- W E B D A V  S E R V L E T                                              -->
+    <!-- ====================================================================== -->
+
+	<listener>
+		<listener-class>org.exoplatform.frameworks.jcr.web.StandaloneContainerInitializedListener</listener-class>
+	</listener>
+
+	<servlet>
+		<servlet-name>WebdavServer</servlet-name>
+		<description>
+            	eXo - Platform Webdav Server.
+		</description>
+		<servlet-class>org.exoplatform.frameworks.jcr.webdav.ExoJCRWebdavServlet</servlet-class>
+	    <load-on-startup>4</load-on-startup>
+    </servlet>
+
+  <servlet>
+    <servlet-name>LinkServlet</servlet-name>
+    <description>
+      eXo - Platform LnkGenerator Servlet.
+    </description>
+    <servlet-class>org.exoplatform.frameworks.jcr.webdav.LnkGeneratorServlet</servlet-class>
+    <load-on-startup>4</load-on-startup>
+  </servlet>
+
+  <servlet>
+		<servlet-name>JnlpDownloadServlet</servlet-name>
+		<servlet-class>jnlp.sample.servlet.JnlpDownloadServlet</servlet-class>
+	</servlet>
+
+    <servlet-mapping>
+	    <servlet-name>WebdavServer</servlet-name>
+	    <url-pattern>/repository/*</url-pattern>
+    </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>LinkServlet</servlet-name>
+    <url-pattern>/lnkgenerator/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+		<servlet-name>JnlpDownloadServlet</servlet-name>
+		<url-pattern>*.jnlp</url-pattern>
+	</servlet-mapping>
+
+   	<servlet-mapping>
+		<servlet-name>JnlpDownloadServlet</servlet-name>
+ 		<url-pattern>*.jar</url-pattern>
+	</servlet-mapping>
+
+    <!-- The Welcome File List for IBM WebSphere -->
+	<welcome-file-list>
+			<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+
+</web-app>
+

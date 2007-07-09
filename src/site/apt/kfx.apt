@@ -1,0 +1,156 @@
+                                    -----------------
+                                    Kofax integration
+                                    -----------------
+
+Kofax integration
+
+* Introduction
+
+  Ascent Capture is a solution that allows scanning documents, extracting
+  information and releasing it to external modules for storage and further
+  processing. It is developed by {{{http://www.kofax.com}Kofax}}, a California
+  based company, part of {{{http://www.dicomgroup.com}DICOM Group}}, a global
+  leader in Electronic Document Exchange.
+
+  {{{http://www.exoplatform.com}eXo Platform}} is a cutting-edge product line of
+  Portal oriented solutions. One of them is
+  {{{http://docs.exoplatform.org/exo-documents/exo-jcr.site/index.html}eXo JCR}}
+  (which stands for "Java Content Repository"). It can be considered as a
+  standard compliant database to store structured information, such as
+  enterprise documents. Another one is
+  {{{http://docs.exoplatform.org/exo-documents/exo-ecm.site/index.html}eXo ECM}}
+  ("Enterprise Content Management"). It is built on top of the former and
+  enables to handle the complete lifecycle of documents, including capturing,
+  storing, management, publishing and backup.
+  
+  It makes perfect sense to merge Ascent Capture and eXo Platform and obtain a
+  comprehensive chained solution, leveraging best of both components :
+  <extraction> for Ascent Capture, <storage> and <management> for eXo Platform.
+
+* Concepts
+
+  In Ascent Capture, the export of images and data is done through a "Release
+  Script", a Windows COM component that implements specific interfaces. eXo
+  Platform, on his side, is developed in Java. As a consequence, a means had to
+  be found to enable cross platform invokation. It was decided to select
+  {{{http://www.webdav.org}WebDAV}} ("Web-based Distributed Authoring and
+  Versioning", sometimes abbreviated as "DAV").
+  
+  WebDAV is an extension to the HTTP protocol which allows users to
+  collaboratively edit and manage files on remote web servers. It is opened and
+  standardized by a working group. There exists many clients supporting WebDAV,
+  such as Windows, Linux, Mac OS X, MS Office, Adobe Acrobat... It is also the
+  preferred protocol for remote access to the JCR in eXo Platform. Two things
+  are allowed. First, users can access Ascent Capture released documents
+  from any available client on their machine. A typical example is the Windows
+  Explorer. Second, it should be possible to leverage the eXo Release
+  Script to access <<any WebDAV repository>>.
+
+[images/kfx_bigpicture.jpg] Big picture
+
+  The eXo Release Script releases a document in three steps:
+  
+      [[1]] First, a node is created in the JCR, at a location specified by the
+  configuration. It represents the structured document. The name of this node
+  is obtained from the document data. Its default type is <<<kfx:document>>>.
+  This is a convention node type in eXo Platform which allows to identify
+  all Ascent Capture released documents. Of course, custom node types can be
+  defined to specify accurately the document structure and ensure the
+  consistency of the repository.
+  
+      [[2]] Then, child files are added to this node. They consist of Ascent
+  Capture artifacts, which can be of types PDF, TIFF and text.
+  
+      [[3]] Finally, properties are set on the main node. They represent the
+  extracted information, more precisely the values of the Ascent index and batch
+  fields. The mapping between Ascent data fields and JCR properties is
+  configured when setting up the script. Two sets of destination JCR properties
+  are available :
+
+    * The structural properties hold content data contained by the scanned
+  document. Typical Examples are "name", "address" or "customer identifier".
+  Those properties are often prefixed by the "kfx:" namespace, wich gives
+  <<<kfx:name>>>, <<<kfx:address>>> or <<<kfx:customer_identifier>>>.
+  
+    * The metadata properties hold content that describe the document. Examples
+  are "title", "date" or "description". Those properties are often part of the
+  "Dublin Core" (http://dublincore.org/") set, which are grouped into the "dc:"
+  namespace. Example : <<<dc:title>>>, <<<dc:date>>> or <<<dc:description>>>.
+  eXo Platform allows to define any additional set of metadata that best fit
+  your business requirements.
+
+  Once the documents are stored in the JCR, customed actions can be launched to
+  modify, check, or start a Content Validation workflow. They can also be
+  visualized or edited thanks to templates. A generic template is provided. It
+  basically lists each "kfx:" prefixed property and allows downloading binary
+  files. This template can be customized to reproduce faithfully the original
+  document look.
+
+[images/kfx_template.jpg] Generic template showing a sample document
+  
+* Installation
+
+  The Release Script has been tested with Ascent Capture 7.0 Service Pack 3.
+
+      [[1]] Install the Microsoft .Net framework 2.0 Redistributable Package
+   available at
+   {{http://www.microsoft.com/downloads/details.aspx?FamilyID=0856eacb-4362-4b0d-8edd-aab15c5e04f5&displaylang=en}}.
+
+      [[2]] Download the eXo Release Script from the project forge at
+  {{http://forge.objectweb.org/project/showfiles.php?group_id=151}}. Unzip
+  the obtained package in any directory.
+   
+      [[3]] Launch the Ascent Capture Administration module, select the
+  "Release Script Manager" menu and click on the "Add button". Select the file
+  called "eXo.inf" in the directory containing the extracted Release Script
+  files.
+  
+  If the installation is successful, the eXo Release Script has been added to
+  the list of available Release Scripts.
+
+* Configuration
+
+  The eXo Release Script setup dialog is divided into three tabs.
+  
+    The <Connection> tab allows providing information to access the JCR, such
+    as WebDAV URI, user name and password. In some eXo configuration, you might
+    have to append the name of the portal at the end of the password, like
+    "exo@ecm".
+
+[images/kfx_setupconnection.jpg] Connection tab
+
+    The <Destination> tab enables to specify the JCR path where the documents
+    are stored by the Release Script. By convention, the first element of the
+    path is the name of the JCR Workspace, for instance <<</draft>>>. It is also
+    possible to specify the Node Type that will be used. Finally, the name of
+    the nodes should be linked with an Ascent Capture data field.
+  
+[images/kfx_setupdestination.jpg] Destination tab
+    
+    The <Mapping> tab enables to link Ascent Capture data fields with JCR
+    properties. To add a mapping, first select a data field in the combobox.
+    The index fields and batch fields items are prefixed with respectively the
+    <<<index_fields>>> and <<<batch_fields>>> keywords. Then insert a JCR
+    Property name and click on the "Add" button.
+
+[images/kfx_setupmapping.jpg] Mapping tab
+
+* Online demo
+
+[images/kfx_demo.jpg] Online demonstration
+
+  {{{http://download.forge.objectweb.org/exoplatform/ascent_capture_release_script_demo.htm}Start Demo !}}
+
+
+* Troubleshooting and support
+
+  The release script might end up with the following error message : <<<MKCOL
+  returned a wrong status : 403 FORBIDDEN>>>. This happens in the case a
+  document already exists with the same name in the JCR. Indeed, for safety
+  reason, the document cannot be overriden. It should be renamed or removed
+  beforehand.
+
+  Generally speaking, the eXo Release Script appends information to the Ascent
+  Capture logs. They can be helpful while diagnosing problems. For any question
+  or feedback, please post a message to the mailing list
+  {{mailto:exoplatform@objectweb.org}}.

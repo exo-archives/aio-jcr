@@ -1,0 +1,117 @@
+<project>
+    <parent>
+        <groupId>org.exoplatform.jcr</groupId>
+        <artifactId>config</artifactId>
+        <version>1.6</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>exo.jcr.benchmark</artifactId>
+    <packaging>jar</packaging>
+    <version>${org.exoplatform.jcr.version}</version>
+    <name>eXo JCR benchmark</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.exoplatform.jcr</groupId>
+            <artifactId>exo.jcr.component.core</artifactId>
+            <version>${org.exoplatform.jcr.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.japex</groupId>
+            <artifactId>japex</artifactId>
+            <version>1.0.25</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>1.6.5</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.0.4</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>2.0</version>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.xml</groupId>
+                    <artifactId>jsr173</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- For Oracle 10g support (local-jcr repository) -->
+
+        <dependency>
+            <groupId>ojdbc</groupId>
+            <artifactId>ojdbc</artifactId>
+            <version>14</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ojdbc</groupId>
+            <artifactId>orai18n</artifactId>
+            <version>14</version>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <configuration>
+                      <archive>
+                        <manifest>
+                          <addClasspath>true</addClasspath>
+                          <!--<classpathPrefix>lib</classpathPrefix>-->
+                          <mainClass>com.sun.japex.Japex</mainClass>
+                        </manifest>
+                      </archive>
+                    </configuration>
+                  </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <!--<source>1.5</source>
+                        <target>1.5</target>-->
+                    <excludes>
+                        <exclude>**/Jackrabbit*.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.1</version>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <descriptors>
+                      <descriptor>
+                        assembly-descriptor.xml
+                      </descriptor>
+                    </descriptors>
+                    <finalName>exo.jcr.benchmark</finalName>
+               </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

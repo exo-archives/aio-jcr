@@ -1,0 +1,1 @@
+"%JAVA_HOME%\bin\jarsigner.exe" -keystore key\Key_for_eXoDavBrowser eXoDavBrowser-1.6.jar eXo

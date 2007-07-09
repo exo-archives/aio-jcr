@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite
+	name="Calculating the average time of execution of the main JCR API methods"
+	xmlns="http://www.sun.com/japex/testSuite">
+
+	<param name="japex.reportsDirectory" value="reports" />
+	<param name="japex.plotGroupSize" value="5" />
+	<!-- param name="japex.resultUnit" value="ms" / -->
+	<param name="japex.resultUnit" value="tps" />
+
+	<driver name="1TH">
+		<param name="japex.classPath" value="../lib/*.jar" />
+		<param name="japex.driverClass"
+			value="org.exoplatform.jcr.benchmark.JCRDriver" />
+		<param name="japex.numberOfThreads" value="1" />
+
+		<param name="jcr.initializer"
+			value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializer" />
+		<param name="jcr.user" value="admin" />
+		<param name="jcr.password" value="admin" />
+		<param name="jcr.workspace" value="ws" />
+		<param name="jcr.sessionPolicy" value="single" />
+
+		<!-- param name="exo.description" value="JCR Internal API" / -->
+		<param name="exo.jaasConf" value="login.conf" />
+		<param name="exo.containerConf" value="conf/standalone/configuration-thin.xml" />
+	</driver>
+
+	<driver name="5TH">
+		<param name="japex.classPath" value="../lib/*.jar" />
+		<param name="japex.driverClass"
+			value="org.exoplatform.jcr.benchmark.JCRDriver" />
+		<param name="japex.numberOfThreads" value="5" />
+
+		<param name="jcr.initializer"
+			value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializer" />
+		<param name="jcr.user" value="admin" />
+		<param name="jcr.password" value="admin" />
+		<param name="jcr.workspace" value="ws" />
+		<param name="jcr.sessionPolicy" value="single" />
+
+		<!-- param name="exo.description" value="JCR Internal API" / -->
+		<param name="exo.jaasConf" value="login.conf" />
+		<param name="exo.containerConf" value="conf/standalone/configuration-thin.xml" />
+	</driver>
+
+	<driver name="10TH">
+		<param name="japex.classPath" value="../lib/*.jar" />
+		<param name="japex.driverClass"
+			value="org.exoplatform.jcr.benchmark.JCRDriver" />
+		<param name="japex.numberOfThreads" value="10" />
+
+		<param name="jcr.initializer"
+			value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializer" />
+		<param name="jcr.user" value="admin" />
+		<param name="jcr.password" value="admin" />
+		<param name="jcr.workspace" value="ws" />
+		<param name="jcr.sessionPolicy" value="single" />
+
+		<!-- param name="exo.description" value="JCR Internal API" / -->
+		<param name="exo.jaasConf" value="login.conf" />
+		<param name="exo.containerConf" value="conf/standalone/configuration-thin.xml" />
+	</driver>
+
+	<testCase name="Rading nt:file ">
+		<param name="exo.testClass" value="org.exoplatform.jcr.benchmark.volumetry.WriteNTFile" />
+		<param name="japex.runIterations" value="1" />
+		<param name="japex.prepareIterations" value="1" />
+		
+		<param name="test.testroot" value="/volumetry/root2" />
+		<param name="test.mimetype" value="audio/mpeg" />
+		<param name="test.file" value="../bin/scale.mp3" />
+		<param name="test.iteration" value="1" />
+		<param name="test.readdc" value="true" />
+		<param name="test.readproperty" value="true" />
+		<param name="test.readfile" value="true" />
+		<param name="test.writelog" value="false" />
+	        <param name="test.concurrent" value="false" />
+	</testCase>
+
+	<testCase name="Concurrent reading nt:file">
+		<param name="exo.testClass" value="org.exoplatform.jcr.benchmark.volumetry.WriteNTFile" />
+		<param name="japex.runIterations" value="1" />
+		<param name="japex.prepareIterations" value="1" />
+		
+		<param name="test.testroot" value="/volumetry/root2" />
+		<param name="test.mimetype" value="audio/mpeg" />
+		<param name="test.file" value="../bin/scale.mp3" />
+		<param name="test.iteration" value="1" />
+		<param name="test.readdc" value="true" />
+		<param name="test.readproperty" value="true" />
+		<param name="test.readfile" value="true" />
+		<param name="test.writelog" value="false" />
+	        <param name="test.concurrent" value="true" />
+	</testCase>
+
+</testSuite>

@@ -1,0 +1,35 @@
+<catalog name="WEBDAV">
+	
+	<!-- common -->	
+	<command name="COPY" className="org.exoplatform.services.webdav.common.command.CopyCommand" />
+	<command name="DELETE" className="org.exoplatform.services.webdav.common.command.DeleteCommand" />
+	<command name="GET" className="org.exoplatform.services.webdav.common.command.GetCommand" />
+	<command name="HEAD" className="org.exoplatform.services.webdav.common.command.HeadCommand" />
+	<command name="MKCOL" className="org.exoplatform.services.webdav.common.command.MkColCommand" />
+	<command name="MOVE" className="org.exoplatform.services.webdav.common.command.MoveCommand" />
+	<command name="OPTIONS" className="org.exoplatform.services.webdav.common.command.OptionsCommand" />
+	<command name="POST" className="org.exoplatform.services.webdav.common.command.PostCommand" />
+	<command name="PROPFIND" className="org.exoplatform.services.webdav.common.command.PropfindCommand" />
+	<command name="PROPPATCH" className="org.exoplatform.services.webdav.common.command.PropPatchCommand" />
+	<command name="PUT" className="org.exoplatform.services.webdav.common.command.PutCommand" />
+
+	<!-- deltav -->
+	<command name="CHECKIN" className="org.exoplatform.services.webdav.deltav.command.CheckInCommand" />
+	<command name="CHECKOUT" className="org.exoplatform.services.webdav.deltav.command.CheckOutCommand" />
+	<command name="MERGE" className="org.exoplatform.services.webdav.deltav.command.MergeCommand" />
+	<command name="REPORT" className="org.exoplatform.services.webdav.deltav.command.ReportCommand" />
+	<command name="RESTORE" className="org.exoplatform.services.webdav.deltav.command.RestoreCommand" />
+	<command name="UNCHECKOUT" className="org.exoplatform.services.webdav.deltav.command.UnCheckOutCommand" />
+	<command name="VERSION-CONTROL" className="org.exoplatform.services.webdav.deltav.command.VersionControlCommand" />
+	
+	<!-- lock -->	
+	<command name="LOCK" className="org.exoplatform.services.webdav.lock.command.LockCommand" />
+	<command name="UNLOCK" className="org.exoplatform.services.webdav.lock.command.UnLockCommand" />	
+	
+	<!-- order -->	
+	<command name="ORDERPATCH" className="org.exoplatform.services.webdav.order.command.OrderPatchCommand" />
+
+	<!-- search -->	
+	<command name="SEARCH" className="org.exoplatform.services.webdav.search.command.SearchCommand" />
+	
+</catalog>
