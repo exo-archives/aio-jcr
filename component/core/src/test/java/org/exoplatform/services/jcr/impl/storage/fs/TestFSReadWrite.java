@@ -1,5 +1,5 @@
 /***************************************************************************
- * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SAS         All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 package org.exoplatform.services.jcr.impl.storage.fs;
@@ -22,7 +22,7 @@ import junit.framework.TestCase;
 import org.exoplatform.services.jcr.util.SIDGenerator;
 
 /**
- * Created by The eXo Platform SARL
+ * Created by The eXo Platform SAS
  * 10.07.2007
  *  
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
@@ -437,4 +437,17 @@ public class TestFSReadWrite extends TestCase {
     log.info("Delete -- " + (System.currentTimeMillis() - time));
   }
 
+  public void testRangeTreeXXReadName() {
+//    List<File> files = createTreePrefixXCase();
+//    
+//    long time = System.currentTimeMillis();
+//    for (File f: files) {
+//      readTreePrefixXFiles(new NameFilter(f.getName()));
+//    }
+//    log.info(getName() + " -- " + (System.currentTimeMillis() - time));
+//    
+//    time = System.currentTimeMillis();
+//    deleteFiles(files);
+//    log.info("Delete -- " + (System.currentTimeMillis() - time));
+  }
 }
