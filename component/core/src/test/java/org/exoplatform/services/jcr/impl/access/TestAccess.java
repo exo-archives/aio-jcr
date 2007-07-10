@@ -17,10 +17,12 @@ import javax.jcr.Session;
 import org.exoplatform.services.jcr.BaseStandaloneTest;
 import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;
+import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
@@ -517,6 +519,70 @@ public class TestAccess extends BaseStandaloneTest {
     assertEquals(PermissionType.ALL.length+1, node.getACL().getPermissionEntries().size());
     
   }
+  /**
+   * check if the setPermission(String identity, String[] permission) completely replace
+   * permissions of the identity.
+   * @throws Exception
+   */
+  public void testReplacePermission() throws Exception {
+    ExtendedNode node = (ExtendedNode) accessTestRoot.addNode("testReplacePermission");
+    node.addMixin("exo:accessControllable");
+
+    node.setPermission("exo1", PermissionType.ALL);
+    assertEquals(PermissionType.ALL.length*2, node.getACL().getPermissionEntries().size());
+
+    System.out.println("Access contr " + node.isNodeType("exo:accessControllable"));
+    
+    node.setPermission("exo1", new String[] { PermissionType.READ });
+    assertEquals(PermissionType.ALL.length+1, node.getACL().getPermissionEntries().size());
+
+    node.removePermission("exo1");
+    assertEquals(PermissionType.ALL.length, node.getACL().getPermissionEntries().size());
+    
+  }
+  
+  /**
+   * check if the removePermission(String identity, String permission) remove specified
+   * permissions of the identity.
+   * @throws Exception
+   */
+  public void testRemoveSpecified() throws Exception {
+    AccessManager accessManager = ((SessionImpl) accessTestRoot.getSession()).getAccessManager();
+
+    ExtendedNode node = (ExtendedNode) accessTestRoot.addNode("testRemoveSpecified");
+    node.addMixin("exo:accessControllable");
+
+    node.setPermission("exo1", PermissionType.ALL);
+    assertEquals(PermissionType.ALL.length * 2, node.getACL().getPermissionEntries().size());
+
+    node.setPermission("exo2", PermissionType.ALL);
+    accessTestRoot.save();
+    
+    Session session1 = repository.login(new CredentialsImpl("exo2", "exo2".toCharArray()));
+    ExtendedNode testRemoveSpecifiedNode = (ExtendedNode) session1.getRootNode()
+        .getNode("accessTestRoot").getNode("testRemoveSpecified");
+    testRemoveSpecifiedNode.removePermission(SystemIdentity.ANY);
+
+    assertTrue(accessManager.hasPermission(testRemoveSpecifiedNode.getACL(),
+        PermissionType.READ,
+        "exo1"));
+    testRemoveSpecifiedNode.removePermission("exo1", PermissionType.READ);
+    assertTrue(accessManager.hasPermission(testRemoveSpecifiedNode.getACL(),
+        PermissionType.SET_PROPERTY,
+        "exo1"));
+    assertFalse(accessManager.hasPermission(testRemoveSpecifiedNode.getACL(),
+        PermissionType.READ,
+        "exo1"));
+    assertTrue(accessManager.hasPermission(testRemoveSpecifiedNode.getACL(),
+        PermissionType.READ,
+        "exo2"));
+    assertFalse(accessManager.hasPermission(testRemoveSpecifiedNode.getACL(),
+        PermissionType.READ,
+        SystemIdentity.ANY));
+    testRemoveSpecifiedNode.remove();
+    session1.save();
+  }
+  
   
   private void showPermissions(String path) throws RepositoryException {
     NodeImpl node = (NodeImpl)this.repository.getSystemSession().getRootNode().getNode(path);

@@ -2428,6 +2428,27 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   /*
    * (non-Javadoc)
    * 
+   * @see org.exoplatform.services.jcr.core.ExtendedNode#removePermission(java.lang.String,java.lang.String)
+   */
+  public void removePermission(String identity, String permission) throws RepositoryException,
+      AccessControlException {
+
+    if (!isNodeType(Constants.EXO_PRIVILEGEABLE))
+      throw new AccessControlException("Node is not exo:privilegeable " + getPath());
+
+    checkPermission(PermissionType.CHANGE_PERMISSION);
+
+    AccessControlList acl = new AccessControlList(getACL().getOwner(), getACL()
+        .getPermissionEntries());
+    acl.removePermissions(identity, permission);
+    updatePermissions(acl);
+    setACL(acl);
+
+  }
+  
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.core.ExtendedNode#setPermission(java.lang.String,
    *      java.lang.String[])
    */
@@ -2441,6 +2462,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     checkPermission(PermissionType.CHANGE_PERMISSION);
     AccessControlList acl = new AccessControlList(getACL().getOwner(), getACL()
         .getPermissionEntries());
+    acl.removePermissions(identity);
     acl.addPermissions(identity, permission);
     updatePermissions(acl);
     setACL(acl);

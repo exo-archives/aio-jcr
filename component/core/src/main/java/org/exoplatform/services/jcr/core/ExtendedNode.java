@@ -53,7 +53,7 @@ public interface ExtendedNode extends Node {
   void clearACL() throws RepositoryException, AccessControlException;
 
   /**
-   * Removes permissions for perticular identity
+   * Removes permissions for particular identity
    * 
    * @param identity
    * @throws RepositoryException
@@ -61,6 +61,14 @@ public interface ExtendedNode extends Node {
    */
   void removePermission(String identity) throws RepositoryException, AccessControlException;
 
+  /**
+   * Removes specified permission for particular identity
+   * 
+   * @param identity
+   * @throws RepositoryException
+   * @throws AccessControlException
+   */
+  void removePermission(String identity, String permission) throws RepositoryException, AccessControlException;
   /**
    * Sets permissions for particular identity
    * 

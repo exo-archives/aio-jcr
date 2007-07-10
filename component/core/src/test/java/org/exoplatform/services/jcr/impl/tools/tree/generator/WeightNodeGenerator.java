@@ -4,7 +4,6 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.impl.tools.tree.generator;
 
-import java.util.HashSet;
 import java.util.Random;
 
 import javax.jcr.ItemExistsException;
@@ -15,11 +14,6 @@ import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.version.VersionException;
 
-import org.exoplatform.services.jcr.datamodel.QPath;
-import org.exoplatform.services.jcr.impl.core.NodeImpl;
-import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.tools.tree.NameTraversingVisitor;
-
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
@@ -28,6 +22,10 @@ public class WeightNodeGenerator implements NodeGenerator {
   private int maxDepth;
 
   private int maxWidth;
+
+  protected Node currentNode;
+
+  private static final Random  random = new Random();
 
   public WeightNodeGenerator(int maxDepth, int maxWidth) {
     super();
@@ -51,7 +49,7 @@ public class WeightNodeGenerator implements NodeGenerator {
     this.maxWidth = maxWidth;
   }
 
-  private void addNodes(Node parentNode, int level) throws ItemExistsException,
+  protected void addNodes(Node parentNode, int level) throws ItemExistsException,
       PathNotFoundException,
       VersionException,
       ConstraintViolationException,
@@ -59,16 +57,19 @@ public class WeightNodeGenerator implements NodeGenerator {
       RepositoryException {
     if (level >= maxDepth)
       return;
-    int maxNodesOnLevel = (int) Math.round((new Double(maxWidth) / new Double(maxDepth)) * level);
-    maxNodesOnLevel = maxNodesOnLevel != 0 ? maxNodesOnLevel : 1;
-    Random random = new Random();
+    //int maxNodesOnLevel = (int) Math.round((new Double(maxWidth) / new Double(maxDepth)) * level);
+    //maxNodesOnLevel = maxNodesOnLevel != 0 ? maxNodesOnLevel : 1;
+    int maxNodesOnLevel =  random.nextInt(maxWidth)+1;
     for (int i = 0; i < maxNodesOnLevel; i++) {
-      Node node = parentNode.addNode("node_level_" + level + "_number_" + i + "_"
+      currentNode = parentNode.addNode("node_level_" + level + "_number_" + i + "_"
           + random.nextInt(Integer.MAX_VALUE));
-      addNodes(node, level + 1);
+      addProperties() ;
+      addNodes(currentNode, level + 1);
     }
   }
-
+  protected void addProperties() throws RepositoryException{
+    
+  }
   public void genereteTree(Node root) throws ItemExistsException,
       PathNotFoundException,
       VersionException,

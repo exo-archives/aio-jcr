@@ -120,6 +120,16 @@ public class AccessControlList implements Externalizable {
       aces.remove(del);
   }
 
+  public void removePermissions(String identity, String permission) {
+    List<AccessControlEntry> aces4Del = new ArrayList<AccessControlEntry>();
+    for (AccessControlEntry a : aces) {
+      if (a.getIdentity().equals(identity) && a.getPermission().equals(permission))
+        aces4Del.add(a);
+    }
+    for (AccessControlEntry del : aces4Del)
+      aces.remove(del);
+  }
+
   /**
    * @return Returns the owner.
    */
@@ -138,6 +148,15 @@ public class AccessControlList implements Externalizable {
       list.add(new AccessControlEntry(entry.getIdentity(), entry.getPermission()));
     }
     return list;
+  }
+
+  public List<String> getPermissions(String identity) {
+    List<String> permissions = new ArrayList<String>();
+    for (AccessControlEntry entry : aces) {
+      if (entry.getIdentity().equals(identity))
+        permissions.add(entry.getPermission());
+    }
+    return permissions;
   }
 
   public boolean equals(Object obj) {
