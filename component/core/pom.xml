@@ -504,12 +504,10 @@
 	      	<artifactId>maven-checkstyle-plugin</artifactId>
 	      	<version>2.1</version>
 	      	<configuration>
-	      		<configLocation>
-	      			src/test/resources/exo-checkstyle-checker.xml
-	      		</configLocation>
+	      		<configLocation>src/test/resources/exo-checkstyle-checker.xml</configLocation>
 	      	</configuration>
 	      </plugin>
-	      
+
     </plugins>
 </build>
 </project>
