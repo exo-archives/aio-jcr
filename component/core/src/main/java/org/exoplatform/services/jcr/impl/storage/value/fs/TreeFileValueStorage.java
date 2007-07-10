@@ -16,7 +16,6 @@ import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
  */
 
 public class TreeFileValueStorage extends FileValueStorage {
-
   
   @Override
   public ValueIOChannel openIOChannel() throws IOException {

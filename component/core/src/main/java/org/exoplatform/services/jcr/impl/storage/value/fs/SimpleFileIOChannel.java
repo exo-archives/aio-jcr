@@ -11,13 +11,26 @@ import java.io.FileFilter;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
- * Created by The eXo Platform SARL        .
+ * Created by The eXo Platform SAS
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class SimpleFileIOChannel extends FileIOChannel {
+  
+  protected class PropertyIDFilter implements FileFilter {
+    
+    private String id;
 
+    public PropertyIDFilter(String id) {
+      this.id = id;
+    }
+
+    public boolean accept(File file) {
+      return file.getName().startsWith(id);
+    }
+  }  
+  
   public SimpleFileIOChannel(File rootDir, FileCleaner cleaner) {
     super(rootDir, cleaner);
   }
@@ -29,18 +42,4 @@ public class SimpleFileIOChannel extends FileIOChannel {
   protected File[] getFiles(String propertyId) {
     return rootDir.listFiles(new PropertyIDFilter(propertyId));
   }
-
-  private class PropertyIDFilter implements FileFilter {
-    
-    private String id;
-
-    public PropertyIDFilter(String id) {
-      this.id = id;
-    }
-
-    public boolean accept(File file) {
-      return file.getName().startsWith(id);
-    }
-  }
-
 }

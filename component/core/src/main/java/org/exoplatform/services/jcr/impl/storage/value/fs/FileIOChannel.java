@@ -17,15 +17,17 @@ import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL        .
+ * Created by The eXo Platform SAS       .
  * 
  * @author Gennady Azarenkov
- * @version $Id: FileIOChannel.java 12841 2007-02-16 08:58:38Z peterit $
+ * @version $Id$
  */
 
 public abstract class FileIOChannel implements ValueIOChannel {
   
   protected static Log log = ExoLogger.getLogger("jcr.FileIOChannel");
+  
+  public static final int IOBUFFER_SIZE = 32 * 1024; // 32 K
   
   protected File rootDir;
   protected FileCleaner cleaner;
@@ -35,7 +37,7 @@ public abstract class FileIOChannel implements ValueIOChannel {
     this.cleaner = cleaner;
   }
   
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#delete(java.lang.String)
    */
   public boolean delete(String propertyId)  throws IOException {
@@ -52,13 +54,13 @@ public abstract class FileIOChannel implements ValueIOChannel {
     return result;
   }
 
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#close()
    */
   public void close() {
   }
   
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#read(java.lang.String, int, int)
    */
   public ValueData read(String propertyId, int orderNumber, int maxBufferSize) throws IOException {
@@ -66,7 +68,7 @@ public abstract class FileIOChannel implements ValueIOChannel {
     return FileValueIOUtil.readValue(valueFile, orderNumber, maxBufferSize, false);
   }
 
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#write(java.lang.String, org.exoplatform.services.jcr.datamodel.ValueData)
    */
   public String write(String propertyId, ValueData value) throws IOException {
@@ -89,6 +91,4 @@ public abstract class FileIOChannel implements ValueIOChannel {
    * @return
    */
   protected abstract File[] getFiles(String propertyId);
-
-  
 }
