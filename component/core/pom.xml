@@ -422,7 +422,7 @@
                     <include>**/impl/access/Test*.java</include>
                     <include>**/usecases/**/Test*.java</include>
                     <include>**/usecases/**/*Test.java</include -->
-                    
+
                     <!-- include>**/impl/**/Test*.java</include -->
 
                     <!-- load includes -->
@@ -488,7 +488,7 @@
 				    <directory>src/main/resources</directory>
 				    <includes>
 				      <includes>binding*.xml</includes>
-				    </includes>			   
+				    </includes>
 				  </configuration>
 				  <executions>
 				    <execution>
@@ -496,8 +496,20 @@
 				        <goal>bind</goal>
 				      </goals>
 				    </execution>
-				  </executions>			
+				  </executions>
 				</plugin>
+
+	      <plugin>
+	      	<groupId>org.apache.maven.plugins</groupId>
+	      	<artifactId>maven-checkstyle-plugin</artifactId>
+	      	<version>2.1</version>
+	      	<configuration>
+	      		<configLocation>
+	      			src/test/resources/exo-checkstyle-checker.xml
+	      		</configLocation>
+	      	</configuration>
+	      </plugin>
+	      
     </plugins>
 </build>
 </project>
