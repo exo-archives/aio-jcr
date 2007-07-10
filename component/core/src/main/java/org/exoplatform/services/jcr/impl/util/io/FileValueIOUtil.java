@@ -16,6 +16,7 @@ import java.nio.channels.FileChannel;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.FileStreamPersistedValueData;
+import org.exoplatform.services.jcr.impl.storage.value.fs.FileIOChannel;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -55,7 +56,7 @@ public class FileValueIOUtil {
       byte[] buff = value.getAsByteArray();
       out.write(buff);
     } else {
-      byte[] buffer = new byte[0x2000];
+      byte[] buffer = new byte[FileIOChannel.IOBUFFER_SIZE]; //was 0x2000 = 8K
       int len;
       InputStream in = value.getAsStream();
       while ((len = in.read(buffer)) > 0) {
