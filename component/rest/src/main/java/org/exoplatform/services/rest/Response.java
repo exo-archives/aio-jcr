@@ -84,11 +84,7 @@ public class Response {
    * @throws IOException
    */
   public void writeEntity (OutputStream outputEntityStream) throws IOException {
-  	if(!isEntityInitialized())
-  		return;
-  	if(ResourceBinder.doesClassImplementsSerializableEntity(entity.getClass()))
-  		((SerializableEntity)entity).writeObject(outputEntityStream);
-  	else if(transformer != null) 
+  	if(transformer != null) 
   		transformer.writeTo(entity, outputEntityStream);
   }
 
@@ -413,6 +409,16 @@ public class Response {
      */
     public Builder header(String key, String value) {
       this.responseHeaders.putSingle(key, value);
+      return this;
+    }
+    
+    /**
+     * add response headers
+     * @param headers
+     * @return Builder
+     */
+    public Builder headers(MultivaluedMetadata headers) {
+      this.responseHeaders = headers;
       return this;
     }
   }

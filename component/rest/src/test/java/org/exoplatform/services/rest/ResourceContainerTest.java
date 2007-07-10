@@ -169,12 +169,12 @@ public class ResourceContainerTest extends TestCase {
 
     MultivaluedMetadata mm = new MultivaluedMetadata();
     mm.putSingle("accept", "*/*");
-    Request request = new Request(new ByteArrayInputStream("insert something".getBytes()),
+    Request request = new Request(new ByteArrayInputStream("create something".getBytes()),
         new ResourceIdentifier("/level1/myID/level3/"), "POST", mm, null);
     Response resp = disp.dispatch(request);
     assertEquals("http://localhost/test/_post", resp.getResponseHeaders().getFirst("Location"));
 
-    request = new Request(new ByteArrayInputStream("create something".getBytes()),
+    request = new Request(new ByteArrayInputStream("recreate something".getBytes()),
         new ResourceIdentifier("/level1/myID/level3/"), "PUT", mm, null);
     resp = disp.dispatch(request);
     assertEquals("http://localhost/test/_put", resp.getResponseHeaders().getFirst("Location"));
@@ -236,7 +236,7 @@ public class ResourceContainerTest extends TestCase {
     assertEquals(0, list.size());
   }
   
-  public void testTesting() throws Exception {
+  public void testSerializable() throws Exception {
   	ResourceDispatcher disp = (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
   	assertNotNull(disp);
   	ResourceBinder binder = (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);

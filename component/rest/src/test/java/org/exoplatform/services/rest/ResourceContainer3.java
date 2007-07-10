@@ -7,6 +7,7 @@ package org.exoplatform.services.rest;
 
 import org.exoplatform.services.rest.container.ResourceContainer;
 import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
+import org.exoplatform.services.rest.transformer.PassthroughInputTransformer;
 import org.exoplatform.services.rest.transformer.StringInputTransformer;
 import org.exoplatform.services.rest.transformer.StringOutputTransformer;
 
@@ -33,10 +34,11 @@ public class ResourceContainer3 implements ResourceContainer {
   // ConsumedTransformerFactory is not defined here becouse
   // request entity represented by InputStream
   @HTTPMethod("PUT")
+  @InputTransformer(PassthroughInputTransformer.class)
   @OutputTransformer(StringOutputTransformer.class)
   public Response putMethod(InputStream in, @URIParam("id") String param) throws IOException {
     System.out.println("--- PUT method called: id = " + param);
-    System.out.println("--- entity type: " + in.getClass().toString() +", value: ");
+    System.out.print("--- entity type: " + in.getClass().toString() +", value: ");
     PassthroughOutputTransformer tr = new PassthroughOutputTransformer(); 
     tr.writeTo(in, System.out);
     String entity = "--- PUT response\n";

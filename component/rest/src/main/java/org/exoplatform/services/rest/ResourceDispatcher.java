@@ -7,7 +7,6 @@ package org.exoplatform.services.rest;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.List;
-import java.io.InputStream;
 
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
@@ -84,27 +83,12 @@ public class ResourceDispatcher implements Connector {
 				Object[] params = new Object[methodParameters.length];
 				// building array of parameters
 				for (int i = 0; i < methodParametersAnnotations.length; i++) {
-
 					if (methodParametersAnnotations[i] == null) {
-						if (methodParameters[i].isAssignableFrom(InputStream.class)) {
-							params[i] = request.getEntityStream();
-						} else {
-							//check is entity serializable. If entity serializable
-							//transformer is not required. See interface SerializableEntity
-							if(ResourceBinder.doesClassImplementsSerializableEntity(methodParameters[i])) {
-								SerializableEntity se = (SerializableEntity) methodParameters[i].newInstance();
-								se.readObject(request.getEntityStream());
-								params[i] = se;
-							} else {
-								//entity is not serializable (interface SerializableEntity)
-								EntityTransformerFactory factory = new EntityTransformerFactory(
-										resource.getInputTransformerType());
-								InputEntityTransformer transformer = (InputEntityTransformer) factory
-										.newTransformer();
-								transformer.setType(methodParameters[i]);
-								params[i] = transformer.readFrom(request.getEntityStream());
-							}
-						}
+					  EntityTransformerFactory factory = new EntityTransformerFactory(
+					      resource.getInputTransformerType());
+					  InputEntityTransformer transformer = (InputEntityTransformer) factory.newTransformer();
+					  transformer.setType(methodParameters[i]);
+					  params[i] = transformer.readFrom(request.getEntityStream());
 					} else {
 						Annotation a = methodParametersAnnotations[i];
 						if (a.annotationType().isAssignableFrom(URIParam.class)) {
@@ -126,10 +110,9 @@ public class ResourceDispatcher implements Connector {
 				Response resp = (Response) resource.getServer().invoke(
 						resource.getResourceContainer(), params);
 
-				if (!resp.isTransformerInitialized() && resp.isEntityInitialized()) {
-					if(!ResourceBinder.doesClassImplementsSerializableEntity(resp.getEntity().getClass()))
-						resp.setTransformer(getTransformer(resource));
-				}
+				if (!resp.isTransformerInitialized() && resp.isEntityInitialized())
+				  resp.setTransformer(getTransformer(resource));
+				
 				return resp;
 			}
 		}

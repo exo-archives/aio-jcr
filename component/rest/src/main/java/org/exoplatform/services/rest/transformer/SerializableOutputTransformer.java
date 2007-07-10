@@ -4,15 +4,20 @@
  **************************************************************************/
 package org.exoplatform.services.rest.transformer;
 
-import java.io.IOException;
 import java.io.OutputStream;
+import java.io.IOException;
+
+import org.exoplatform.services.rest.SerializableEntity;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public abstract class OutputEntityTransformer implements GenericOutputEntityTransformer {
-	
-  abstract public void writeTo(Object entity, OutputStream entityDataStream) throws IOException;
-	
+public class SerializableOutputTransformer extends OutputEntityTransformer {
+  
+  public void writeTo(Object entity, OutputStream entityDataStream) throws IOException{
+    SerializableEntity se = (SerializableEntity)entity;
+    se.writeObject(entityDataStream);
+  }
+  
 }

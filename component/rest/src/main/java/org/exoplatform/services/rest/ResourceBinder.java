@@ -5,7 +5,6 @@
 
 package org.exoplatform.services.rest;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
@@ -97,14 +96,6 @@ public class ResourceBinder implements Startable {
     return this.resourceDescriptors;
   }
 
-  public static boolean doesClassImplementsSerializableEntity(Class<?> clazz) {
-		for (Class<?> interf : clazz.getInterfaces()) {
-			if(interf.isAssignableFrom(SerializableEntity.class))
-				return true;
-		}
-		return false;
-	}
-
   /**
    * validation for ResourceContainer.
    * Not allowed have two ResourceContainers with the same URIPatterns  
@@ -135,22 +126,18 @@ public class ResourceBinder implements Startable {
       boolean hasRequestEntity = false;
       for(int i = 0; i < paramAnno.length; i++) {
         if(paramAnno[i].length == 0) {
-					//check is entity serializable. If entity serializable
-					//transformer is not required. See interface SerializableEntity
-          if(!requestedParams[i].isAssignableFrom(InputStream.class) 
-              && method.getAnnotation(InputTransformer.class) == null
-              && newDesc.getResourceContainer().getClass().getAnnotation(
-              		InputTransformer.class) == null
-              && !doesClassImplementsSerializableEntity(requestedParams[i])) {
+          if(method.getAnnotation(InputTransformer.class) == null
+              && newDesc.getResourceContainer().getClass()
+              .getAnnotation(InputTransformer.class) == null) {
 
             throw new InvalidResourceDescriptorException (
-            "One not annotated object is not 'java.io.InputStream object',\n" +
-            "but transformer in methods annotation is not specified. This is not allowed!");
+            "One not annotated object found, but transformer in methods(class)" +
+            " annotation is not specified. This is not allowed!");
           }
           if(!hasRequestEntity) 
             hasRequestEntity = true;
           else throw new InvalidResourceDescriptorException (
-            "One not annotated object with must represent HTTP Request.\n" + 
+            "Only one not annotated object with must represent HTTP Request.\n" + 
             "Not allowed to have this: " + requestedParams[i].getCanonicalName() + "' ");
         }
       }

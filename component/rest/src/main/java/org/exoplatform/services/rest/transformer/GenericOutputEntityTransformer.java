@@ -11,8 +11,8 @@ import java.io.OutputStream;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public abstract class OutputEntityTransformer implements GenericOutputEntityTransformer {
-	
-  abstract public void writeTo(Object entity, OutputStream entityDataStream) throws IOException;
-	
+public interface GenericOutputEntityTransformer extends GenericEntityTransformer {
+  
+  public void writeTo(Object entity, OutputStream entityDataStream) throws IOException;
+
 }

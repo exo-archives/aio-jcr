@@ -5,6 +5,8 @@
 package org.exoplatform.services.rest;
 
 import org.exoplatform.services.rest.container.ResourceContainer;
+import org.exoplatform.services.rest.transformer.SerializableInputTransformer;
+import org.exoplatform.services.rest.transformer.SerializableOutputTransformer;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -14,6 +16,8 @@ public class ResourceContainerSimpleSerializableEntity implements ResourceContai
 	
   @HTTPMethod("GET")
   @URITemplate("/test/serializable/")
+  @InputTransformer(SerializableInputTransformer.class)
+  @OutputTransformer(SerializableOutputTransformer.class)
 	public Response method1(SimpleSerializableEntity t) {
   	System.out.println("\n>>> serializable entity: " + t.data);
   	t.data = ">>> this is response data";

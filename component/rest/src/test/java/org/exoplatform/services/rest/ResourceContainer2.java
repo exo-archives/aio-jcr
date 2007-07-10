@@ -21,8 +21,7 @@ public class ResourceContainer2 implements ResourceContainer {
   @OutputTransformer(StringOutputTransformer.class)
   public Response method1(String str, @URIParam("id") String param, @HeaderParam("tESt") String test) {
     System.out.println(">>> method1 called: id = " + param);
-    System.out.println(">>> request entity - type: " + str.getClass().toString()
-        + "; value: " + str);
+    System.out.println(">>> request entity - type: " + str.getClass().toString()+ "; value: " + str);
     System.out.println(">>> header test: " + test);
     String e = ">>> this is response entity\n";
     Response resp = Response.Builder.ok(e, "text/plain").build();

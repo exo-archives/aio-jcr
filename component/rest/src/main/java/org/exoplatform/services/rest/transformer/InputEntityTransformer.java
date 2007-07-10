@@ -11,7 +11,7 @@ import java.io.InputStream;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public abstract class InputEntityTransformer implements GenericEntityTransformer {
+public abstract class InputEntityTransformer implements GenericInputEntityTransformer {
 	
 	protected Class<?> entityType;
 	
