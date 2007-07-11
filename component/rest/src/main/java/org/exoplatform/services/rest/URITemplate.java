@@ -13,11 +13,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
+ * URITemplate defines URI pattern for ResourceContainer
+ * 
  * Created by The eXo Platform SARL        .
  * @author Gennady Azarenkov
  * @version $Id: $
- *
- * URITemplate defines URI pattern for ResourceContainer
  */
 @Target(value={TYPE,METHOD})
 @Retention(RUNTIME)

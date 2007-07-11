@@ -129,6 +129,11 @@ public class URIPattern {
     return true;
   }
 
+  /**
+   * check is two URIPattern matches
+   * @param another the another URIPattern
+   * @return the result of comparison
+   */
   public boolean matches(URIPattern another) {
     int minSize = (tokens.length <= another.getTokens().length) ? tokens.length : another
         .getTokens().length;
@@ -147,18 +152,7 @@ public class URIPattern {
     return pattern;
   }
 
-  public int hashCode() {
-    return pattern.hashCode();
-  }
-
-  public boolean equals(Object obj) {
-    if ((!(obj instanceof URIPattern)) || (obj == null))
-      return false;
-    return pattern.equals(((URIPattern) obj).pattern);
-  }
-
-  // temporary!!!
-  public String[] getTokens() {
+  private String[] getTokens() {
     return tokens;
   }
 }

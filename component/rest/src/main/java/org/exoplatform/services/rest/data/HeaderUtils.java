@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 /**
+ * This class has the set of utils for work with HTTP headers.
+ * 
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
@@ -15,6 +17,14 @@ public class HeaderUtils {
 	
   private static Pattern spacePattern = Pattern.compile("(\\s+)");
 
+  /**
+   * Parse the string in the form of "text/xml;q=0.9,text/plain;q=0.7"
+   * into array of string and sort it by priority "q".
+   * Example string above can be parse in array {"text/xml", "text/plain"}
+   * 
+   * @param s the string whish should be parsed 
+   * @return resul array
+   */
   public static String[] parse(String s) {
 		if(s != null && s.length() != 0) {
 		  s = normalizeAccepString(s);
@@ -25,6 +35,12 @@ public class HeaderUtils {
 		return null;
 	}
 	
+	/**
+	 * Remove white spase from string
+	 * 
+	 * @param s the startinf strin
+	 * @return the resul string
+	 */
 	public static String normalizeAccepString(String s) {
 	  Matcher m = spacePattern.matcher(s);
 	  return m.replaceAll("");

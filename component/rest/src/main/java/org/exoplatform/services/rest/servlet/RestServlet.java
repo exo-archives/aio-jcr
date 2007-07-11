@@ -27,16 +27,24 @@ import org.exoplatform.services.rest.ResourceDispatcher;
 import org.exoplatform.services.rest.Response;
 
 /**
+ * This servlet is front-end for the REST engine.
+ * Servlet get HTTP request then produce REST request with 
+ * helps by org.exoplatform.services.rest.servlet.RequestFactory. <br/>
+ * @see   org.exoplatform.services.rest.servlet.RequestFactory
+ * 
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 public class RestServlet extends HttpServlet implements Connector {
-  
+
   private ExoContainer container;
   private ResourceDispatcher resDispatcher;
   private ResourceBinder resBinder;
   private static Log logger = ExoLogger.getLogger("RestServlet");
   
+  /* (non-Javadoc)
+   * @see javax.servlet.GenericServlet#init()
+   */
   public void init(){
     try {
       container = ExoContainerContext.getCurrentContainer();
@@ -59,6 +67,9 @@ public class RestServlet extends HttpServlet implements Connector {
     logger.info("RESOURCE_DISPATCHER: " + resDispatcher);
   }
   
+  /* (non-Javadoc)
+   * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+   */
   public void service(HttpServletRequest httpRequest, HttpServletResponse httpResponse)
     throws IOException, ServletException {
     
@@ -72,7 +83,7 @@ public class RestServlet extends HttpServlet implements Connector {
       out.flush();
       out.close();
     }catch(Exception e) {
-      logger.error("!!!!! serve method error");
+      logger.error(">>>>> !!!!! serve method error");
       e.printStackTrace();
       httpResponse.sendError(500, "This request cann't be serve by service.\n" +
           "Check request parameters and try again.");
@@ -80,6 +91,11 @@ public class RestServlet extends HttpServlet implements Connector {
   }
   
   
+  /**
+   * Tune HTTP response
+   * @param httpResponse HTTP response
+   * @param responseHeaders HTTP response headers
+   */
   private void tuneResponse(HttpServletResponse httpResponse,
       MultivaluedMetadata responseHeaders) {
     

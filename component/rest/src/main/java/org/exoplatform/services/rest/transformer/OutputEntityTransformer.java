@@ -8,11 +8,19 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
+ * Basic implementation of GenericOutputEntityTransformer
+ * 
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 public abstract class OutputEntityTransformer implements GenericOutputEntityTransformer {
 	
+  /**
+   * Write entity to OutputStream.
+   * @param entity the Object which should be writed
+   * @param entityDataStream the OutputStream
+   * @throws IOException
+   */
   abstract public void writeTo(Object entity, OutputStream entityDataStream) throws IOException;
 	
 }

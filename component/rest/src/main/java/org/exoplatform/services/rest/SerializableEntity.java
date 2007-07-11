@@ -9,11 +9,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
+ * Object implement this interface should be able to read/write
+ * entity data by own methods.
+ * 
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
- * 
- * object implement this interface should be able to read/write entity data
- * whithout any transformers (See InputEntityTransformers, OutputEntitytransformers)
  */
 public interface SerializableEntity {
 	public void readObject(InputStream in) throws IOException;

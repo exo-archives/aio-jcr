@@ -10,11 +10,18 @@ import java.io.IOException;
 import org.exoplatform.services.rest.SerializableEntity;
 
 /**
+ * This type of transformers can work which objects which implement
+ * interface SerializableEntity. Transformer use own method of
+ * Object for reading object from input stream.
+ *  
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 public class SerializableInputTransformer extends InputEntityTransformer {
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.rest.transformer.InputEntityTransformer#readFrom(java.io.InputStream)
+   */
   public SerializableEntity readFrom(InputStream entityDataStream) throws IOException {
     try {
       SerializableEntity se = (SerializableEntity)entityType.newInstance();

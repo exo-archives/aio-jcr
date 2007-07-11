@@ -6,6 +6,9 @@ package org.exoplatform.services.rest.transformer;
 
 
 /**
+ * Implementations of GenericOutputEntityTransformer can write
+ * given object to OutputStream.
+ * 
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */

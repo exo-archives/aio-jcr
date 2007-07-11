@@ -8,11 +8,19 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
+ * This transformer does not do any transformation.
+ * It can be usefull when ResourceContainer does not request
+ * about building Object from stream and ResourceContainer needs 
+ * input stream without any changes.
+ * 
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 public class PassthroughInputTransformer extends InputEntityTransformer {
 
+	/* (non-Javadoc)
+	 * @see org.exoplatform.services.rest.transformer.InputEntityTransformer#readFrom(java.io.InputStream)
+	 */
 	@Override
 	public Object readFrom(InputStream entityDataStream) throws IOException {
 		return entityDataStream;

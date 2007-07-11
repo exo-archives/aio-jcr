@@ -12,10 +12,11 @@ import java.lang.annotation.Target;
 import org.exoplatform.services.rest.data.MimeTypes;
 
 /**
+ * ConsumedMimeTypes defines the consumed mimetype for ResourceContainer.
+ * By default mimetypes set to ALL mimetype
+ * 
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
- * 
- * ConsumedMimeTypes defines the consumed mimetype for ResourceContainer
  */
 @Target({METHOD})
 @Retention(RUNTIME)

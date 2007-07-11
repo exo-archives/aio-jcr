@@ -30,6 +30,9 @@ import org.exoplatform.services.rest.transformer.OutputEntityTransformer;
 public class HTTPAnnotatedContainerResolvingStrategy
     implements ResourceContainerResolvingStrategy {
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.rest.container.ResourceContainerResolvingStrategy#resolve(org.exoplatform.services.rest.container.ResourceContainer)
+   */
   public List<ResourceDescriptor> resolve(ResourceContainer resourceContainer) {
     
     List<ResourceDescriptor> resources = new ArrayList<ResourceDescriptor>();

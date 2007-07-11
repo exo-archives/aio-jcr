@@ -5,6 +5,10 @@
 package org.exoplatform.services.rest.transformer;
 
 /**
+ * Abstraction of GenericEntityTransformer type.
+ * Implementations of GenericInputEntityTransformer
+ * can build some objects from given InputStream
+ *  
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */

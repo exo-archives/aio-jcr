@@ -15,11 +15,16 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 
 /**
+ * This type of transformer can write XML in output stream.
+ *  
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 public class XMLOutputTransformer extends OutputEntityTransformer {
 
+	/* (non-Javadoc)
+	 * @see org.exoplatform.services.rest.transformer.OutputEntityTransformer#writeTo(java.lang.Object, java.io.OutputStream)
+	 */
 	@Override
 	public void writeTo(Object entity, OutputStream entityDataStream)
 			throws IOException {

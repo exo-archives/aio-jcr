@@ -18,13 +18,12 @@ import org.exoplatform.services.rest.transformer.OutputEntityTransformer;
 import org.exoplatform.services.rest.transformer.EntityTransformerFactory;
 
 /**
- * Created by The eXo Platform SARL .
+ * Created by The eXo Platform SARL.<br/>
+ * ResourceDispatcher finds ResourceContainer with
+ * can serve the Request and calls method it.
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
-
- * ResourceDispatcher finds ResourceContainer with can serve the Request and
- * send this Request to ResourceDispatcher
  */
 public class ResourceDispatcher implements Connector {
 
@@ -47,8 +46,8 @@ public class ResourceDispatcher implements Connector {
 	}
 
 	/**
-	 * @param request
-	 *          REST request
+	 * Dispatchs Request to method of ResourceContainer
+	 * @param request  REST request
 	 * @return REST response from ResourceContainer
 	 * @throws Exception
 	 */
@@ -121,6 +120,10 @@ public class ResourceDispatcher implements Connector {
 				+ requestedURI + " " + acceptedMimeTypes);
 	}
 
+	/**
+	 * Get runtime context 
+	 * @return the runtimeContext
+	 */
 	public Context getRuntimeContext() {
 		return contextHolder.get();
 	}
@@ -163,6 +166,11 @@ public class ResourceDispatcher implements Connector {
 		return false;
 	}
 
+	/**
+	 * Keep runtime context and later it can be used for getting some
+	 * runtime information in ResourceContainer. For example full URL
+	 * to the requested resource.  
+	 */
 	public class Context {
 		private HashMap<String, String> uriParams;
 		private MultivaluedMetadata headerParams;
@@ -176,10 +184,19 @@ public class ResourceDispatcher implements Connector {
 			queryParams = new MultivaluedMetadata();
 		}
 
+		/**
+		 * Retrun absolute location to the requested resource
+		 * @return the absolte location
+		 */
 		public String getAbsLocation() {
 			return identifier.getBaseURI() + identifier.getURI().toASCIIString();
 		}
 
+		/**
+		 * Add additation path to absolute loaction and return result
+		 * @param additionalPath the additional path
+		 * @return absolute location
+		 */
 		public String createAbsLocation(String additionalPath) {
 			return getAbsLocation() + additionalPath;
 		}
@@ -189,11 +206,11 @@ public class ResourceDispatcher implements Connector {
 		}
 
 		private void setHeaderParam(String key, String value) {
-			headerParams.add(key, value);
+			headerParams.putSingle(key, value);
 		}
 
 		private void setQueryParam(String key, String value) {
-			queryParams.add(key, value);
+			queryParams.putSingle(key, value);
 		}
 
 	}

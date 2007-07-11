@@ -6,6 +6,7 @@ package org.exoplatform.services.rest;
 
 import junit.framework.TestCase;
 
+import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.rest.transformer.StringOutputTransformer;;
 
 /**
@@ -19,22 +20,22 @@ public class ResponseBuilderTest extends TestCase {
   
   public void testError() {
     Response response = Response.Builder.serverError().build();
-    assertEquals(RESTStatus.INTERNAL_ERROR, response.getStatus());
+    assertEquals(HTTPStatus.INTERNAL_ERROR, response.getStatus());
 
     response = Response.Builder.notFound().build();
-    assertEquals(RESTStatus.NOT_FOUND, response.getStatus());
+    assertEquals(HTTPStatus.NOT_FOUND, response.getStatus());
 
     response = Response.Builder.forbidden().build();
-    assertEquals(RESTStatus.FORBIDDEN, response.getStatus());
+    assertEquals(HTTPStatus.FORBIDDEN, response.getStatus());
   }
   
   public void testOk () throws Exception {
     Response response = Response.Builder.ok().build();
-    assertEquals(RESTStatus.OK, response.getStatus());
+    assertEquals(HTTPStatus.OK, response.getStatus());
 
     String entity = "oktest\n";
     response = Response.Builder.ok(entity).transformer(transformer).build();
-    assertEquals(RESTStatus.OK, response.getStatus());
+    assertEquals(HTTPStatus.OK, response.getStatus());
     assertEquals("oktest\n", response.getEntity());
     System.out.print("\n" + TEST_NAME);
     response.writeEntity(System.out);

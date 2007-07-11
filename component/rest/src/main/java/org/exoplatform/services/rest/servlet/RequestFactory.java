@@ -7,8 +7,6 @@ package org.exoplatform.services.rest.servlet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -25,11 +23,10 @@ import org.exoplatform.services.rest.ResourceIdentifier;
 public class RequestFactory {
   
   /**
-   * 
    * Create REST request
    * 
-   * @param httpRequest 
-   * @return REST request
+   * @param httpRequest HTTP request  
+   * @return REST request REST request
    * @throws IOException
    */
   public static Request createRequest (HttpServletRequest httpRequest) throws IOException {
@@ -51,7 +48,6 @@ public class RequestFactory {
   }
 
   /**
-   * 
    * Parse headers from http request
    * 
    * @param httpRequest
@@ -64,14 +60,13 @@ public class RequestFactory {
       String k = (String)temp.nextElement();
       Enumeration e = httpRequest.getHeaders(k);
       while(e.hasMoreElements()) {
-        headerParams.add(k, (String)e.nextElement());
+        headerParams.putSingle(k, (String)e.nextElement());
       }
     }
     return headerParams;
   }
   
   /**
-   * 
    * Parse query parameters from http request 
    * 
    * @param httpRequest
@@ -84,7 +79,7 @@ public class RequestFactory {
       String k = (String)temp.nextElement();
       String[] params = httpRequest.getParameterValues(k);
       for(int i=0; i<params.length; i++) {
-        queryParams.add(k, params[i]);
+        queryParams.putSingle(k, params[i]);
       }
     }
     return queryParams;

@@ -6,11 +6,12 @@
 package org.exoplatform.services.rest.container;
 
 /**
- * Created by The eXo Platform SARL        . </br>
+ * Created by The eXo Platform SARL. <br/>
+ * Abstraction of REST request handler 
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
- * 
  */
 public interface ResourceContainer {
+  
 }

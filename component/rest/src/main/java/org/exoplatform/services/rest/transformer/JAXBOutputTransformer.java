@@ -10,11 +10,20 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 /**
+ * Write given Object OututStream using JAXB transformation.
+ * Java Architecture for XML Binding (JAXB) allows create and edit XML
+ * using familiar Java objects.<br/>
+ * JAXB is particularly useful when the specification is complex and changing.
+ * This class can marshal Java Object to XML as stream.
+ * 
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 public class JAXBOutputTransformer extends OutputEntityTransformer {
 
+	/* (non-Javadoc)
+	 * @see org.exoplatform.services.rest.transformer.OutputEntityTransformer#writeTo(java.lang.Object, java.io.OutputStream)
+	 */
 	@Override
 	public void writeTo(Object entity, OutputStream entityDataStream)
 			throws IOException {

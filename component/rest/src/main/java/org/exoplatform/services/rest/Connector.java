@@ -12,8 +12,8 @@ package org.exoplatform.services.rest;
  * present an abstract interface for component communication, 
  * enhancing simplicity by providing a clean separation of 
  * concerns and hiding the underlying implementation of 
- * resources and communication mechanisms"
- * " REST connectors provide a generic interface for accessing 
+ * resources and communication mechanisms"<br/>
+ * "REST connectors provide a generic interface for accessing 
  * and manipulating the value set of a resource, regardless of 
  * how the membership function is defined or the type of software 
  * that is handling the request"
@@ -21,4 +21,5 @@ package org.exoplatform.services.rest;
  * @version $Id: $
  */
 public interface Connector {
+  
 }

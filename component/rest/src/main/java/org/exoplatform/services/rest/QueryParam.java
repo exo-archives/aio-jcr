@@ -11,19 +11,20 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
- * @version $Id: $
- * 
  * QueryParam define the names of query parameters from HTTP request.
  * In this way ResourceContainer gets only query parameters wich it needs.
- * 
  * For example:
  * for query string: ?param1=abc&param2=cba
+ * <pre>
  * ...
  * public getMethod(@QueryParam("param1") String qparam) {
  * ...
  * }
+ * </pre>
  * Method getMethod gets query parameter "param1"(in this example abc) as String qparam
+ * 
+ * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
+ * @version $Id: $
  */
 @Target(value={PARAMETER})
 @Retention(RUNTIME)

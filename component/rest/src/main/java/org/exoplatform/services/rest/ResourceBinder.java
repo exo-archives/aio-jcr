@@ -25,11 +25,11 @@ import org.exoplatform.services.rest.container.ResourceContainerResolvingStrateg
 
 
 /**
- * Created by The eXo Platform SARL        .
+ * Created by The eXo Platform SARL        .<br/>
+ * For binding and unbinding ResourceContainers
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
- * 
- * For binding and unbinding ResourceContainers
  */
 public class ResourceBinder implements Startable {
 
@@ -40,7 +40,8 @@ public class ResourceBinder implements Startable {
   private Log logger = ExoLogger.getLogger("ResourceBinder");
 
   /**
-   * Constructor sets the resolving strategy. Currently HTTPAnnotatedContainerResolvingStrategy
+   * Constructor sets the resolving strategy.
+   * Currently HTTPAnnotatedContainerResolvingStrategy
    * (annotations used for description ResourceContainers) 
    * 
    * @param params class name for ResourceContainerResolvingStrategy
@@ -64,9 +65,9 @@ public class ResourceBinder implements Startable {
   }
   
   /**
-   * bind ResourceContainer resourceCont if validation for this container is ok
-   * @param resourceCont
-   * @throws InvalidResourceDescriptorException
+   * Bind ResourceContainer resourceCont if validation for this container is ok
+   * @param resourceCont the Resource Container
+   * @throws InvalidResourceDescriptorException if validation filed.
    */
   public void bind(ResourceContainer resourceCont) throws InvalidResourceDescriptorException {
     for(ResourceContainerResolvingStrategy strategy : bindStrategies) {
@@ -76,18 +77,24 @@ public class ResourceBinder implements Startable {
     }
   }
 
+  /**
+   * Unbind single ResourceContainer
+   * @param resourceCont the ResourceContainer which should be unbinded
+   */
   public void unbind(ResourceContainer resourceCont) {
     int i=0;
     List <ResourceDescriptor> tmp = new ArrayList <ResourceDescriptor> (resourceDescriptors);  
     for(ResourceDescriptor resource : tmp) {
-      if(resource.getResourceContainer().equals(resourceCont)) {
+      if(resource.getResourceContainer().equals(resourceCont))
         resourceDescriptors.remove(i);
-      } else {
+      else
         i++;
-      }
     }
   }
   
+  /**
+   * Clear the list of ResourceContainer description.
+   */
   public void clear() {
     this.resourceDescriptors.clear();
   }
@@ -97,8 +104,9 @@ public class ResourceBinder implements Startable {
   }
 
   /**
-   * validation for ResourceContainer.
-   * Not allowed have two ResourceContainers with the same URIPatterns  
+   * Validation for ResourceContainer.
+   * Not allowed have two ResourceContainers with the same URIPatterns
+   * And ALL ResourceContainers must have the reqired annotation  
    * @param newDescriptors
    * @throws InvalidResourceDescriptorException
    */
@@ -124,6 +132,7 @@ public class ResourceBinder implements Startable {
       Class<?>[] requestedParams = method.getParameterTypes();
       Annotation[][] paramAnno = method.getParameterAnnotations();
       boolean hasRequestEntity = false;
+      // check method parameters
       for(int i = 0; i < paramAnno.length; i++) {
         if(paramAnno[i].length == 0) {
           if(method.getAnnotation(InputTransformer.class) == null

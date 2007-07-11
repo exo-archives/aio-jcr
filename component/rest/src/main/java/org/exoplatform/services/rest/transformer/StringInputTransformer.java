@@ -8,11 +8,16 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
+ * This type of transformer can read java.lang.String objects from input stream. 
+ * 
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 public class StringInputTransformer extends InputEntityTransformer {
 
+	/* (non-Javadoc)
+	 * @see org.exoplatform.services.rest.transformer.InputEntityTransformer#readFrom(java.io.InputStream)
+	 */
 	@Override
 	public String readFrom(InputStream entityDataStream) throws IOException {
     StringBuffer sb = new StringBuffer();

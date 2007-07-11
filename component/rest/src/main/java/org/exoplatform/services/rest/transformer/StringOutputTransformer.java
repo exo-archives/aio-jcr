@@ -8,11 +8,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
+ * This type of transformer can write java.lang.String objects in output stream.
+ *  
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 public class StringOutputTransformer extends OutputEntityTransformer {
 
+	/* (non-Javadoc)
+	 * @see org.exoplatform.services.rest.transformer.OutputEntityTransformer#writeTo(java.lang.Object, java.io.OutputStream)
+	 */
 	@Override
 	public void writeTo(Object entity, OutputStream entityDataStream)
 			throws IOException {
