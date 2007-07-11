@@ -26,8 +26,9 @@ import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.ResourceDispatcher;
 import org.exoplatform.services.rest.Response;
 import org.exoplatform.services.rest.URIParam;
+//import org.exoplatform.services.rest.HeaderParam;
 import org.exoplatform.services.rest.URITemplate;
-import org.exoplatform.services.rest.RESTMethod;
+import org.exoplatform.common.http.HTTPMethods;
 import org.exoplatform.services.rest.container.ResourceContainer;
 import org.exoplatform.services.rest.data.XlinkHref;
 import org.w3c.dom.Document;
@@ -59,7 +60,7 @@ public class RESTRegistryService implements ResourceContainer {
 		this.dispatcher = dispatcher;
 	}
 
-	@HTTPMethod(RESTMethod.GET)
+	@HTTPMethod(HTTPMethods.GET)
 	@InputTransformer(XMLInputTransformer.class)
 	@OutputTransformer(XMLOutputTransformer.class)
 	public Response getRegistry(@URIParam("repository")
@@ -100,7 +101,7 @@ public class RESTRegistryService implements ResourceContainer {
 				.transformer(new StringOutputTransformer()).build();
 	}
 
-	@HTTPMethod(RESTMethod.GET)
+	@HTTPMethod(HTTPMethods.GET)
 	@URITemplate("/{group}/{entry}/")
 	@OutputTransformer(RegistryEntryOutputTransformer.class)
 	public Response getEntry(@URIParam("repository")
@@ -126,15 +127,14 @@ public class RESTRegistryService implements ResourceContainer {
 		return response;
 	}
 
-	@HTTPMethod(RESTMethod.POST)
+	@HTTPMethod(HTTPMethods.POST)
 	@URITemplate("/{group}/")
 	@InputTransformer(RegistryEntryInputTransformer.class)
 	@OutputTransformer(StringOutputTransformer.class)
 	public Response createEntry(RegistryEntry entry, @URIParam("repository")
-	String repository, @URIParam("group")
-	String groupName) throws RepositoryConfigurationException {
+	String repository, @URIParam("group") String groupName) throws RepositoryConfigurationException {
 
-		regService.getRepositoryService().setCurrentRepositoryName(repository);
+	  regService.getRepositoryService().setCurrentRepositoryName(repository);
 		SessionProvider sessionProvider = sessionProviderService
 				.getSessionProvider(null);
 		Response response = Response.Builder.serverError().build();
@@ -154,7 +154,7 @@ public class RESTRegistryService implements ResourceContainer {
 		return response;
 	}
 
-	@HTTPMethod(RESTMethod.PUT)
+	@HTTPMethod(HTTPMethods.PUT)
 	@URITemplate("/{group}/")
 	@InputTransformer(RegistryEntryInputTransformer.class)
 	@OutputTransformer(StringOutputTransformer.class)
@@ -182,7 +182,7 @@ public class RESTRegistryService implements ResourceContainer {
 		return response;
 	}
 
-	@HTTPMethod(RESTMethod.DELETE)
+	@HTTPMethod(HTTPMethods.DELETE)
 	@URITemplate("/{group}/{entry}/")
 	@OutputTransformer(StringOutputTransformer.class)
 	public Response removeEntry(@URIParam("repository")
