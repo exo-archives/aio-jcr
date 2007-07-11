@@ -6,7 +6,6 @@
 package org.exoplatform.services.jcr.impl.storage.value.fs;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 
 import org.apache.commons.logging.Log;
@@ -29,8 +28,8 @@ public abstract class FileIOChannel implements ValueIOChannel {
   
   public static final int IOBUFFER_SIZE = 32 * 1024; // 32 K
   
-  protected File rootDir;
-  protected FileCleaner cleaner;
+  protected final File rootDir;
+  protected final FileCleaner cleaner;
   
   public FileIOChannel(File rootDir, FileCleaner cleaner) {
     this.rootDir = rootDir;

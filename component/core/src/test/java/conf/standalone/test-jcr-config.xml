@@ -29,12 +29,12 @@
               <property name="swap-directory" value="target/temp/swap/ws"/>
             </properties>
             <value-storages>
-              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
+              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws"/>
                 </properties>
                 <filters>
-                  <filter property-type="Binary" min-value-size="100000"/>
+                  <filter property-type="Binary" min-value-size="10000"/>
                 </filters>
               </value-storage>
             </value-storages>

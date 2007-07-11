@@ -20,11 +20,11 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class FileCleaner extends WorkerThread {
   
-  private static final long DEFAULT_TIMEOUT = 10000;
+  protected static final long DEFAULT_TIMEOUT = 10000;
   
   protected static Log log = ExoLogger.getLogger("jcr.FileCleaner");
 
-  List <File> files = new ArrayList <File> ();
+  protected List <File> files = new ArrayList <File> ();
   
   public FileCleaner() {
     this(DEFAULT_TIMEOUT);
@@ -38,7 +38,6 @@ public class FileCleaner extends WorkerThread {
     registerShutdownHook();
     log.info("FileCleaner instantiated name= "+getName()+" timeout= "+timeout);
   }
-
   
   /**
    * @param file
@@ -58,8 +57,8 @@ public class FileCleaner extends WorkerThread {
       
     super.halt();
   }
-
-  /* (non-Javadoc)
+  
+  /**
    * @see org.exoplatform.services.jcr.impl.proccess.WorkerThread#callPeriodically()
    */
   protected void callPeriodically() throws Exception {
@@ -67,13 +66,14 @@ public class FileCleaner extends WorkerThread {
       List<File> oldFiles = files;
       files = new ArrayList<File>();
       for (File file : oldFiles) {
-        if (file.exists()) { 
+        if (file.exists()) {
+          String ftype = file.isDirectory() ? "Directory" : "File";
           if(!file.delete()) {
-            log.warn("Could not delete file. Will try next time: "
+            log.warn("Could not delete " + ftype.toLowerCase() + ". Will try next time: "
               + file.getAbsolutePath());
             files.add(new File(file.getAbsolutePath()));
-          } else {
-            log.debug("File deleted : " + file.getAbsolutePath());
+          } else if (log.isDebugEnabled()) {
+            log.debug(ftype + " deleted : " + file.getAbsolutePath());
           }
         }
       }

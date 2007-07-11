@@ -25,21 +25,19 @@ import org.exoplatform.services.log.ExoLogger;
 
 public abstract class FileValueStorage extends ValueStoragePlugin {
 
-  protected static Log log = ExoLogger.getLogger("jcr.SimpleFileValueStorage");
+  protected static Log log = ExoLogger.getLogger("jcr.FileValueStorage");
 
   public final static String PATH = "path";
 
   protected File rootDir;
 
-  protected final FileCleaner cleaner;
+  protected FileCleaner cleaner;
 
   public FileValueStorage() {
     this.cleaner = new FileCleaner();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /** 
    * @see org.exoplatform.services.jcr.storage.value.ValueStoragePlugin#init(java.util.Properties)
    */
   public void init(Properties props) throws IOException,
@@ -48,18 +46,14 @@ public abstract class FileValueStorage extends ValueStoragePlugin {
   }
 
 
-  /*
-   * (non-Javadoc)
-   * 
+  /** 
    * @see org.exoplatform.services.jcr.storage.value.ValueStoragePlugin#checkConsistency(org.exoplatform.services.jcr.storage.WorkspaceStorageConnection)
    */
   public void checkConsistency(WorkspaceStorageConnection dataConnection) {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /** 
    * @see org.exoplatform.services.jcr.storage.value.ValueStoragePlugin#match(java.lang.String,
    *      org.exoplatform.services.jcr.datamodel.PropertyData, int)
    */

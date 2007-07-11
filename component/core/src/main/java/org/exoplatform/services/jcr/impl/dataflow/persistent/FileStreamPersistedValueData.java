@@ -12,7 +12,6 @@ import java.io.InputStream;
 
 import org.exoplatform.services.jcr.impl.dataflow.AbstractValueData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
-import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -32,28 +31,28 @@ public class FileStreamPersistedValueData extends AbstractValueData {
     this.temp = temp;
   }
   
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#getAsStream()
+  /**
+   *  @see org.exoplatform.services.jcr.datamodel.AbstractValueData#getAsStream()
    */
   public InputStream getAsStream() throws IOException {
     return new FileInputStream(file);
   }
   
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#getAsByteArray()
    */
   public byte[] getAsByteArray() throws IllegalStateException {
     throw new IllegalStateException("It is illegal to call on FileStreamPersistedValueData due to potential lack of memory");
   }
   
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#getLength()
    */
   public long getLength() {
     return file.length();
   }
   
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#isByteArray()
    */
   public boolean isByteArray() {
@@ -75,5 +74,4 @@ public class FileStreamPersistedValueData extends AbstractValueData {
       super.finalize();
     }
   }
-
 }
