@@ -4,8 +4,6 @@
  **************************************************************************/
 package org.exoplatform.services.rest.transformer;
 
-import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -13,6 +11,4 @@ import java.io.OutputStream;
  */
 public interface GenericOutputEntityTransformer extends GenericEntityTransformer {
   
-  public void writeTo(Object entity, OutputStream entityDataStream) throws IOException;
-
 }
