@@ -32,7 +32,7 @@ public class TestFSReadWrite extends TestCase {
 
   private static Logger log = Logger.getLogger("org.exoplatform.services.jcr.impl.storage.fs");
 
-  public static final int FILES_COUNT = 100000;
+  public static final int FILES_COUNT = 50000;
 
   protected File testRoot = null;
 
@@ -247,6 +247,39 @@ public class TestFSReadWrite extends TestCase {
     }
     return this.files = files;
   }
+  
+  protected String buildPathX8(String fileName) {
+    char[] chs = fileName.toCharArray();
+    String path = "";
+    final int xLength = 8;
+    for (int i=0; i<xLength; i++) {
+      path += File.separator + chs[i];
+    }
+    path += File.separator + fileName.substring(xLength); 
+    return path;
+  }
+  
+  protected List<File> createTreeX8Case() {
+    List<File> files = new ArrayList<File>();
+    for (int i=0; i<FILES_COUNT; i++) {
+      String fileName = SIDGenerator.generate();
+      File dir = new File(testRoot.getAbsolutePath() + File.separator + buildPathX8(fileName));
+      dir.mkdirs();
+      File f = new File(dir.getAbsolutePath() + File.separator + fileName);
+      try {
+        FileOutputStream fos = new FileOutputStream(f);
+        try {
+          fos.write(("qazws").getBytes());
+        } finally {
+          fos.close();
+          files.add(f);
+        }
+      } catch (IOException e) {
+        log.log(Level.WARNING, "File can't be created " + f, e);
+      }
+    }
+    return this.files = files;
+  }
 
   protected void readFiles(NameFilter filter) {
     readFiles(testRoot, filter);
@@ -283,6 +316,34 @@ public class TestFSReadWrite extends TestCase {
 
   protected void readTreeXFiles(File root, NameFilter filter) {
     String dirPath = root.getAbsolutePath() + buildPathX(filter.getName());
+    File dir = new File(dirPath);
+    String[] ls = filter != null ? dir.list(filter) : dir.list();
+    if (ls == null) {
+      log.log(Level.WARNING, "Dir not found " + dir.getAbsolutePath());
+      fail("Dir not found " + dir.getAbsolutePath());
+    }
+
+    for (String file: ls) {
+      File f = new File(dir.getAbsolutePath() + File.separator + file);
+      if (f.isDirectory()) {
+        // dir
+        fail("The file can't be a dir but found " + f.getAbsolutePath());
+      } else {
+        // file
+        try {
+          FileInputStream fis = new FileInputStream(f);
+          fis.close();
+        } catch (FileNotFoundException e) {
+          log.log(Level.WARNING, "File not found " + file, e);
+        } catch (IOException e) {
+          log.log(Level.WARNING, "File IO error " + file, e);
+        }
+      }
+    }
+  }
+  
+  protected void readTreeX8Files(File root, NameFilter filter) {
+    String dirPath = root.getAbsolutePath() + buildPathX8(filter.getName());
     File dir = new File(dirPath);
     String[] ls = filter != null ? dir.list(filter) : dir.list();
     if (ls == null) {
@@ -395,7 +456,7 @@ public class TestFSReadWrite extends TestCase {
     log.info(getName() + " -- " + (System.currentTimeMillis() - time));
   }
 
-  public void testHierarchyTreeXReadName() {
+  public void _testHierarchyTreeXReadName() {
     List<File> files = createTreeXCase();
 
     long time = System.currentTimeMillis();
@@ -409,7 +470,7 @@ public class TestFSReadWrite extends TestCase {
     log.info("Delete -- " + (System.currentTimeMillis() - time));
   }
 
-  public void testHierarchyTreeXXReadName() {
+  public void _testHierarchyTreeXXReadName() {
     List<File> files = createTreeXXCase();
 
     long time = System.currentTimeMillis();
@@ -423,7 +484,7 @@ public class TestFSReadWrite extends TestCase {
     log.info("Delete -- " + (System.currentTimeMillis() - time));
   }
 
-  public void testHierarchyTreePrefixXReadName() {
+  public void _testHierarchyTreePrefixXReadName() {
     List<File> files = createTreePrefixXCase();
 
     long time = System.currentTimeMillis();
@@ -436,18 +497,21 @@ public class TestFSReadWrite extends TestCase {
     deleteFiles(files);
     log.info("Delete -- " + (System.currentTimeMillis() - time));
   }
+  
+  public void testHierarchyTreeX8ReadName() {
+    long time = System.currentTimeMillis();
+    List<File> files = createTreeX8Case();
+    log.info(getName() + " ADD -- " + (System.currentTimeMillis() - time));
+    
+    time = System.currentTimeMillis();
+    for (File f: files) {
+      readTreeX8Files(testRoot, new NameFilter(f.getName()));
+    }
+    log.info(getName() + " READ -- " + (System.currentTimeMillis() - time));
 
-  public void testRangeTreeXXReadName() {
-//    List<File> files = createTreePrefixXCase();
-//    
-//    long time = System.currentTimeMillis();
-//    for (File f: files) {
-//      readTreePrefixXFiles(new NameFilter(f.getName()));
-//    }
-//    log.info(getName() + " -- " + (System.currentTimeMillis() - time));
-//    
-//    time = System.currentTimeMillis();
-//    deleteFiles(files);
-//    log.info("Delete -- " + (System.currentTimeMillis() - time));
+    time = System.currentTimeMillis();
+    deleteFiles(files);
+    log.info(getName() + " DELETE -- " + (System.currentTimeMillis() - time));
   }
+
 }
