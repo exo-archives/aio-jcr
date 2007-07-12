@@ -22,7 +22,7 @@ public class HeaderUtils {
    * into array of string and sort it by priority "q".
    * Example string above can be parse in array {"text/xml", "text/plain"}
    * 
-   * @param s the string whish should be parsed 
+   * @param s the string which should be parsed 
    * @return resul array
    */
   public static String[] parse(String s) {
