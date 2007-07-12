@@ -81,6 +81,9 @@ public class HTTPAnnotatedContainerResolvingStrategy
   }
   
   
+  /**
+   * Consists information about ResourceContainer
+   */
   public class HTTPResourceDescriptor implements ResourceDescriptor {
 
     private String httpMethodName;
@@ -95,6 +98,12 @@ public class HTTPAnnotatedContainerResolvingStrategy
     private ResourceContainer resourceContainer;
     
 
+    /**
+     * @param method the method of class ResourceContainer
+     * @param httpMethodName HTTP method name
+     * @param uri URI for serving by current method of ResourceContainer
+     * @param resourceContainer ResourceContainer
+     */
     public HTTPResourceDescriptor(Method method, String httpMethodName, String uri,
         ResourceContainer resourceContainer) {
 
@@ -132,42 +141,72 @@ public class HTTPAnnotatedContainerResolvingStrategy
       }
     }
     
+    /* (non-Javadoc)
+     * @see org.exoplatform.services.rest.container.ResourceDescriptor#getResourceContainer()
+     */
     public ResourceContainer getResourceContainer() {
       return resourceContainer;
     }
 
+    /* (non-Javadoc)
+     * @see org.exoplatform.services.rest.container.ResourceDescriptor#getServer()
+     */
     public Method getServer() {
       return servingMethod;
     }
 
+    /* (non-Javadoc)
+     * @see org.exoplatform.services.rest.container.ResourceDescriptor#getInputTransformerType()
+     */
     public Class<? extends InputEntityTransformer> getInputTransformerType() {
       return inputTransformerType;
     }
 
+    /* (non-Javadoc)
+     * @see org.exoplatform.services.rest.container.ResourceDescriptor#getOutputTransformerType()
+     */
     public Class<? extends OutputEntityTransformer> getOutputTransformerType() {
       return outputTransformerType;
     }
 
+    /* (non-Javadoc)
+     * @see org.exoplatform.services.rest.container.ResourceDescriptor#getMethodParameterAnnotations()
+     */
     public Annotation[] getMethodParameterAnnotations() {
       return methodParameterAnnotations;
     }
 
+    /* (non-Javadoc)
+     * @see org.exoplatform.services.rest.container.ResourceDescriptor#getMethodParameters()
+     */
     public Class<?>[] getMethodParameters() {
       return methodParameters;
     }
 
+    /* (non-Javadoc)
+     * @see org.exoplatform.services.rest.container.ResourceDescriptor#getURIPattern()
+     */
     public URIPattern getURIPattern() {
       return uriPattern;
     }
 
+    /* (non-Javadoc)
+     * @see org.exoplatform.services.rest.container.ResourceDescriptor#getAcceptableMethod()
+     */
     public String getAcceptableMethod() {
       return httpMethodName;
     }
 
+    /* (non-Javadoc)
+     * @see org.exoplatform.services.rest.container.ResourceDescriptor#getConsumedMimeTypes()
+     */
     public String getConsumedMimeTypes() {
       return consumedMimeTypes;
     }
 
+    /* (non-Javadoc)
+     * @see org.exoplatform.services.rest.container.ResourceDescriptor#getProducedMimeTypes()
+     */
     public String getProducedMimeTypes() {
       return producedMimeTypes;
     }

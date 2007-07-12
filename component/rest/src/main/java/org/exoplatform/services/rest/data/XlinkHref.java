@@ -8,9 +8,9 @@ package org.exoplatform.services.rest.data;
 import org.w3c.dom.Element;
 
 /**
- * Can add xlink:href into given Element of DOM structure
+ * Created by The eXo Platform SARL.<br/>
+ * Can add xlink:href into given Element of DOM structure.
  * 
- * Created by The eXo Platform SARL        .
  * @author Gennady Azarenkov
  * @version $Id: $
  */

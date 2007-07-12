@@ -11,7 +11,6 @@ import java.io.InputStream;
  * Created by The eXo Platform SARL.<br/>
  * Request represents REST request (not HTTP request)
  * 
- * HTTP Request object
  * @author Gennady Azarenkov
  * @version $Id: $
  */
