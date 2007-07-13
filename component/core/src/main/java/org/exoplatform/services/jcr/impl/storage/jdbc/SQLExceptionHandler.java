@@ -22,16 +22,16 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  * 
  * JCR_PK_XITEM - Item already exists with this ID
  * JCR_FK_XITEM_PARENT - Parent not found by ID
- * JCR_IDX_XITEM_PARENT - Item is already exists with the parent, name, index, type(N/P), persisted version
- * JCR_IDX_XITEM_PARENT_NAME - Item is already exists with the type(N/P), parent, name, index, persisted version
- * JCR_IDX_XITEM_PARENT_ID - Item is already exists with the type(N/P), parent, ID, persisted version
+ * JCR_IDX_XITEM_PARENT - Item already exists with the parent, name, index, type(N/P), persisted version
+ * JCR_IDX_XITEM_PARENT_NAME - Item already exists with the type(N/P), parent, name, index, persisted version
+ * JCR_IDX_XITEM_PARENT_ID - Item already exists with the type(N/P), parent, ID, persisted version
  * 
- * JCR_PK_XVALUE - Value is already exists with the ID (impossible, ID is autiincremented)
+ * JCR_PK_XVALUE - Value already exists with the ID (impossible, ID is autiincremented)
  * JCR_FK_XVALUE_PROPERTY - There is no property exists for the value.
- * JCR_IDX_XVALUE_PROPERTY - Value is already exists with the property and order number
+ * JCR_IDX_XVALUE_PROPERTY - Value already exists with the property and order number
  * 
- * JCR_PK_XREF - Reference is already exists to the node from property with order number
- * JCR_IDX_XREF_PROPERTY - Reference is already exists with the property and order number
+ * JCR_PK_XREF - Reference already exists to the node from property with order number
+ * JCR_IDX_XREF_PROPERTY - Reference already exists with the property and order number
  * 
  * @author Peter Nedonosko
  * @version $Id: SQLExceptionHandler.java 13869 2007-03-28 13:50:50Z peterit $
@@ -67,25 +67,25 @@ public class SQLExceptionHandler {
         // InvalidItemStateException ! - because it's impossible add new item with existed UUID
         throw new InvalidItemStateException(message, e);
       } else if (umsg.indexOf(conn.JCR_IDX_ITEM_PARENT)>=0 || umsg.indexOf(conn.JCR_IDX_ITEM_PARENT_NAME)>=0) {
-        message += "Item is already exists. Condition: parent ID, name, index. " + itemInfo;
+        message += "Item already exists. Condition: parent ID, name, index. " + itemInfo;
         throw new ItemExistsException(message, e);
       } else if (umsg.indexOf(conn.JCR_IDX_ITEM_PARENT_ID)>=0) {
-        message += "Item is already exists. Condition: parent ID and ID. " + itemInfo;
+        message += "Item already exists. Condition: parent ID and ID. " + itemInfo;
         throw new ItemExistsException(message, e);
       } else if (umsg.indexOf(conn.JCR_FK_VALUE_PROPERTY)>=0) {
-        message += "Property is not exists but the value is being created. Condition: property ID. " + itemInfo;
+        message += "Property is not exist but the value is being created. Condition: property ID. " + itemInfo;
         throw new RepositoryException(message, e);
       } else if (umsg.indexOf(conn.JCR_IDX_VALUE_PROPERTY)>=0) {
-        message += "Property is already exists. Condition: property ID, order number. " + itemInfo;
+        message += "Property already exists. Condition: property ID, order number. " + itemInfo;
         throw new RepositoryException(message, e);        
       } else if (umsg.indexOf(conn.JCR_PK_VALUE)>=0) {
-        message += "[FATAL] Value is already exists with the ValueID. Impossible state, check is ValueID is autoincremented. " + itemInfo;
+        message += "[FATAL] Value already exists with the ValueID. Impossible state, check is ValueID is autoincremented. " + itemInfo;
         throw new RepositoryException(message, e);        
       } else if (umsg.indexOf(conn.JCR_PK_REF)>=0) {
-        message += "Reference chain is already exists. Condition: node ID, property ID, order number. " + itemInfo;
+        message += "Reference chain already exists. Condition: node ID, property ID, order number. " + itemInfo;
         throw new RepositoryException(message, e);        
       } else if (umsg.indexOf(conn.JCR_IDX_REF_PROPERTY)>=0) {
-        message += "Referenceable property value is already exists. Condition: property ID, order number. " + itemInfo;
+        message += "Referenceable property value already exists. Condition: property ID, order number. " + itemInfo;
         throw new RepositoryException(message, e);        
       } 
     }
@@ -173,7 +173,7 @@ public class SQLExceptionHandler {
       ItemData me = conn.getItemData(item.getIdentifier());
       if (me != null) {
         // item already exists
-        message += "Item is already exists. But update errors. " + itemInfo;
+        message += "Item already exists. But update errors. " + itemInfo;
         ownException = new RepositoryException(message, e);
         throw ownException;
       }
