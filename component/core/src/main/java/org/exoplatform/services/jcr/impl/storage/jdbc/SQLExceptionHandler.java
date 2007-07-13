@@ -63,7 +63,7 @@ public class SQLExceptionHandler {
         message += "Parent not found. Item " + itemInfo;
         throw new InvalidItemStateException(message, e);
       } else if (umsg.indexOf(conn.JCR_PK_ITEM)>=0) {
-        message += "Item already exists. Condition: ID. " + itemInfo;
+        message += "Item is already exists. Condition: ID. " + itemInfo;
         // InvalidItemStateException ! - because it's impossible add new item with existed UUID
         throw new InvalidItemStateException(message, e);
       } else if (umsg.indexOf(conn.JCR_IDX_ITEM_PARENT)>=0 || umsg.indexOf(conn.JCR_IDX_ITEM_PARENT_NAME)>=0) {
