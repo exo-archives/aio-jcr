@@ -226,9 +226,6 @@ public class WorkspaceImpl implements Workspace {
     if (!srcNode.isCheckedOut())
       throw new VersionException("Source parent node " + srcNode.getPath()
           + " or its nearest ancestor is checked-in");
-    // Check locking
-    if (!srcNode.checkLocking())
-      throw new LockException("Source parent node " + srcNode.getPath() + " is locked ");
     
     ItemDataCopyVisitor initializer = new ItemDataCopyVisitor(
         (NodeData) destParentNode.getData(),

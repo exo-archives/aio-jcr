@@ -162,5 +162,36 @@ public class TestLock extends JcrAPIBaseTest {
       fail("error while adding same name node: " + e);
     }
   }  
-  
+  public void testCopyLockedNode() throws Exception {
+    Session session1 = repository.login(new CredentialsImpl("admin", "admin".toCharArray()), "ws");
+    Node nodeToCopyLock = session1.getRootNode().addNode("node2testCopyLockedNode");
+    if (nodeToCopyLock.canAddMixin("mix:lockable"))
+      nodeToCopyLock.addMixin("mix:lockable");
+    session1.save();
+    Lock lock = nodeToCopyLock.lock(true, false);// boolean isSessionScoped
+    // in ECM we are using lock(true, true) without saving lockToken
+    assertTrue(nodeToCopyLock.isLocked());
+    
+    Session session2 = repository.login(new CredentialsImpl("exo1", "exo1".toCharArray()), "ws");
+    
+    Node lockedNode = session2.getRootNode().getNode("node2testCopyLockedNode"); 
+    
+    assertTrue(nodeToCopyLock.isLocked());
+    
+    Node destParent =  session2.getRootNode().addNode("destParent");
+    session2.save();
+    session2.getWorkspace().copy(lockedNode.getPath(),destParent.getPath()+"/"+lockedNode.getName());
+    Node destCopyNode  = destParent.getNode("node2testCopyLockedNode");
+    
+    assertFalse(destCopyNode.isLocked());
+    try {
+      destCopyNode.lock(true,true);
+    } catch (RepositoryException e) {
+      fail("to lock node");
+    }
+    assertTrue(destCopyNode.isLocked());
+    
+    destCopyNode.unlock();
+    nodeToCopyLock.unlock();
+  }
 }

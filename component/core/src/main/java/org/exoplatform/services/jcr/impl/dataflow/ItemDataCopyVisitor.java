@@ -22,56 +22,66 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
 
-  private Log      log = ExoLogger.getLogger("jcr.ItemDataCopyVisitor");
-  
-  public ItemDataCopyVisitor(NodeData parent, InternalQName destNodeName,
-      NodeTypeManagerImpl nodeTypeManager, SessionDataManager dataManager, boolean keepIdentifiers) {
+  private Log log = ExoLogger.getLogger("jcr.ItemDataCopyVisitor");
+
+  public ItemDataCopyVisitor(NodeData parent,
+      InternalQName destNodeName,
+      NodeTypeManagerImpl nodeTypeManager,
+      SessionDataManager dataManager,
+      boolean keepIdentifiers) {
     super(parent, destNodeName, nodeTypeManager, dataManager, keepIdentifiers);
   }
 
   @Override
   protected void entering(PropertyData property, int level) throws RepositoryException {
-    
+
     if (log.isDebugEnabled())
       log.debug("entering " + property.getQPath().getAsString());
-    
+
     // don't using super
     InternalQName qname = property.getQPath().getName();
-    
+
     List<ValueData> values;
-    
+
     if (ntManager.isNodeType(Constants.MIX_VERSIONABLE,
         curParent().getPrimaryTypeName(),
         curParent().getMixinTypeNames())) {
       // versionable node copy
-//    [mix:versionable] > mix:referenceable
-//        mixin
-//        - jcr:versionHistory (reference) mandatory protected
-//        < 'nt:versionHistory'
-//        - jcr:baseVersion (reference) mandatory protected
-//        ignore
-//        < 'nt:version'
-//        - jcr:isCheckedOut (boolean) = 'true' mandatory
-//        autocreated protected ignore
-//        - jcr:predecessors (reference) mandatory protected
-//        multiple
-//        < 'nt:version'
-//        - jcr:mergeFailed (reference) protected multiple abort
-//        < 'nt:version'      
-      
-      // before manipulate with version stuuf we have create a one new VH right here!
+      // [mix:versionable] > mix:referenceable
+      // mixin
+      // - jcr:versionHistory (reference) mandatory protected
+      // < 'nt:versionHistory'
+      // - jcr:baseVersion (reference) mandatory protected
+      // ignore
+      // < 'nt:version'
+      // - jcr:isCheckedOut (boolean) = 'true' mandatory
+      // autocreated protected ignore
+      // - jcr:predecessors (reference) mandatory protected
+      // multiple
+      // < 'nt:version'
+      // - jcr:mergeFailed (reference) protected multiple abort
+      // < 'nt:version'
+
+      // before manipulate with version stuuf we have create a one new VH right
+      // here!
       QPath vhpPath = QPath.makeChildPath(curParent().getQPath(), Constants.JCR_VERSIONHISTORY);
       ItemState vhpState = findLastItemState(vhpPath);
       if (vhpState == null) {
         // need create a new VH
         PlainChangesLogImpl changes = new PlainChangesLogImpl();
-        VersionHistoryDataHelper vh = new VersionHistoryDataHelper(curParent(), changes, dataManager, ntManager);
+        VersionHistoryDataHelper vh = new VersionHistoryDataHelper(curParent(),
+            changes,
+            dataManager,
+            ntManager);
         itemAddStates.addAll(changes.getAllStates());
       }
-      
+
       values = new ArrayList<ValueData>(1);
-      
-      if (qname.equals(Constants.JCR_VERSIONHISTORY)) {
+      if (qname.equals(Constants.JCR_LOCKISDEEP)) {
+        return;
+      } else if (qname.equals(Constants.JCR_LOCKOWNER)) {
+        return;
+      } else if (qname.equals(Constants.JCR_VERSIONHISTORY)) {
         return; // added in VH create
       } else if (qname.equals(Constants.JCR_PREDECESSORS)) {
         return; // added in VH create
@@ -82,7 +92,10 @@ public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
       } else if (qname.equals(Constants.JCR_MERGEFAILED)) {
         return; // skip it
       } else if (qname.equals(Constants.JCR_UUID)) {
-        values.add(new TransientValueData(curParent().getIdentifier())); // uuid of the parent
+        values.add(new TransientValueData(curParent().getIdentifier())); // uuid
+                                                                          // of
+                                                                          // the
+                                                                          // parent
       } else {
         values = property.getValues(); // copy the property
       }
@@ -94,26 +107,31 @@ public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
       values = new ArrayList<ValueData>(1);
       values.add(new TransientValueData(curParent().getIdentifier()));
     } else {
+      //http://jira.exoplatform.org/browse/JCR-294
+      if (qname.equals(Constants.JCR_LOCKISDEEP)) {
+        return;
+      } else if (qname.equals(Constants.JCR_LOCKOWNER)) {
+        return;
+      }
       values = property.getValues();
     }
-    
-    TransientPropertyData newProperty = new TransientPropertyData(
-        QPath.makeChildPath(curParent().getQPath(), qname),
+
+    TransientPropertyData newProperty = new TransientPropertyData(QPath.makeChildPath(curParent()
+        .getQPath(), qname),
         keepIdentifiers ? property.getIdentifier() : IdGenerator.generate(),
         -1,
         property.getType(),
         curParent().getIdentifier(),
         property.isMultiValued());
-    
+
     newProperty.setValues(values);
-    
+
     if (log.isDebugEnabled())
-      log.debug("entering COPY " + newProperty.getQPath().getAsString() + "; pidentifier: " + newProperty.getParentIdentifier() + "; identifier: " + newProperty.getIdentifier());
-    
-    itemAddStates.add(
-        new ItemState(newProperty, ItemState.ADDED, true, ancestorToSave, level != 0));
+      log.debug("entering COPY " + newProperty.getQPath().getAsString() + "; pidentifier: "
+          + newProperty.getParentIdentifier() + "; identifier: " + newProperty.getIdentifier());
+
+    itemAddStates
+        .add(new ItemState(newProperty, ItemState.ADDED, true, ancestorToSave, level != 0));
   }
-  
-  
-  
+
 }
