@@ -22,7 +22,9 @@ public class XMLInputTransformer extends InputEntityTransformer {
 	@Override
 	public Document readFrom(InputStream entityDataStream) throws IOException {
 		try {
-			return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(entityDataStream);
+		  DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		  factory.setNamespaceAware(true);
+			return factory.newDocumentBuilder().parse(entityDataStream);
 		} catch (SAXException saxe) {
 			throw new IOException("Can't read from input stream " + saxe);
 		} catch (ParserConfigurationException pce) {
