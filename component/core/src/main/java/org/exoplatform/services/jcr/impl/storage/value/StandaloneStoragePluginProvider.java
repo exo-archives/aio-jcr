@@ -118,18 +118,15 @@ public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugi
     }
   }
 
-  public ValueIOChannel getChannel(String valueDataDescriptor,
-      PropertyData prop,
-      int valueOrderNumer) throws IOException, ValueDataNotFoundException {
+  public ValueIOChannel getChannel(String valueDataDescriptor,PropertyData prop) throws IOException, ValueDataNotFoundException {
     Iterator<ValueStoragePlugin> plugins = iterator();
     while (plugins.hasNext()) {
       ValueStoragePlugin plugin = plugins.next();
-      if (plugin.match(valueDataDescriptor, prop, valueOrderNumer)) {
+      if (plugin.match(valueDataDescriptor, prop)) {
         return plugin.openIOChannel();
       }
     }
     throw new ValueDataNotFoundException("No value storage found for value "
-        + valueDataDescriptor + " from property " + prop.getQPath() + " order number"
-        + valueOrderNumer);
+        + valueDataDescriptor + " from property " + prop.getQPath());
   }
 }

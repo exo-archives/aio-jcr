@@ -13,7 +13,7 @@
       <authentication-policy>org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy</authentication-policy>
       <workspaces>
         <workspace name="ws" auto-init-root-nodetype="nt:unstructured">
-		  <!-- for system storage -->
+          <!-- for system storage -->
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="sourceName" value="jdbcjcr"/>
@@ -34,7 +34,7 @@
                   <property name="path" value="target/temp/values/ws"/>
                 </properties>
                 <filters>
-                  <filter property-type="Binary" min-value-size="10000"/>
+                  <filter property-type="Binary"/>
                 </filters>
               </value-storage>
             </value-storages>
@@ -63,8 +63,8 @@
               <property name="swap-directory" value="target/temp/swap/ws1"/>
               <property name="db-type" value="generic"/>
             </properties>
-            <!-- value-storages>
-              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
+            <value-storages>
+              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws1"/>
                 </properties>
@@ -72,7 +72,7 @@
                   <filter property-type="Binary"/>
                 </filters>
               </value-storage>
-            </value-storages -->
+            </value-storages>
           </container>
           <cache enabled="true">
             <properties>
@@ -97,8 +97,8 @@
               <property name="swap-directory" value="target/temp/swap/ws2"/>
               <property name="db-type" value="generic"/>
             </properties>
-            <!-- value-storages>
-              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
+            <value-storages>
+              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws2"/>
                 </properties>
@@ -106,7 +106,7 @@
                   <filter property-type="Binary"/>
                 </filters>
               </value-storage>
-            </value-storages -->
+            </value-storages>
           </container>
           <cache enabled="true">
             <properties>

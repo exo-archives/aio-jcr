@@ -72,20 +72,67 @@ public class TreeFileValueStorage extends FileValueStorage {
     
     @Override
     protected File getFile(String propertyId, int orderNumber) {
-      File dir = new File(rootDir.getAbsolutePath() + buildPathXX(propertyId));
+      File dir = new File(rootDir.getAbsolutePath() + buildPath(propertyId));
       dir.mkdirs();
       return new TreeFile(dir.getAbsolutePath() + File.separator + propertyId + orderNumber);
     }
 
     @Override
     protected File[] getFiles(String propertyId) {
-      String[] fileNames = rootDir.list();
+      File dir = new File(rootDir.getAbsolutePath() + buildPath(propertyId));
+      String[] fileNames = dir.list();
+      if (fileNames == null)
+        log.warn("no files found");
       File[] files = new File[fileNames.length];
       for (int i=0; i<fileNames.length; i++) {
-        files[i] = new TreeFile(rootDir.getAbsolutePath() + File.separator + fileNames[i]);
+        files[i] = new TreeFile(dir.getAbsolutePath() + File.separator + fileNames[i]);
       }
       return files;
     }
+    
+    protected String buildPath(String fileName) {
+      return buildPathX8(fileName);
+    }
+    
+    // not useful, as it slow in read/write
+    protected String buildPathX(String fileName) {
+      char[] chs = fileName.toCharArray();
+      String path = "";
+      for (char ch: chs) {
+        path += File.separator + ch;
+      }
+      return path;
+    }
+    
+    // best for now, 12.07.07
+    protected String buildPathX8(String fileName) {
+      final int xLength = 8;
+      char[] chs = fileName.toCharArray();
+      String path = "";
+      for (int i=0; i<xLength; i++) {
+        path += File.separator + chs[i];
+      }
+      path += fileName.substring(xLength);
+      return path;
+    }
+    
+    protected String buildPathXX2X4(String fileName) {
+      final int xxLength = 4;
+      final int xLength = 8;
+      boolean xxBlock = true;
+      char[] chs = fileName.toCharArray();
+      String path = "";
+      for (int xxi = 0; xxi<xxLength; xxi++) {
+        char ch = chs[xxi];
+        path += xxBlock ? File.separator + ch : ch;
+        xxBlock = !xxBlock;
+      }
+      for (int xi=xxLength; xi<xLength; xi++) {
+        path += File.separator + chs[xi];
+      }
+      path += fileName.substring(xLength);
+      return path;
+    }    
     
     protected String buildPathXX(String fileName) {
       char[] chs = fileName.toCharArray();
@@ -98,16 +145,17 @@ public class TreeFileValueStorage extends FileValueStorage {
       return path;
     }
     
-    protected String buildPathXX3(String fileName) {
+    protected String buildPathXX8(String fileName) {
+      final int xxLength = 16; // length / 2 = xx length  
       char[] chs = fileName.toCharArray();
       String path = "";
       boolean block = true;
-      for (int i=0; i<6; i++) {
+      for (int i=0; i<xxLength; i++) {
         char ch = chs[i];
         path += block ? File.separator + ch : ch;
         block = !block;
       }
-      path += fileName.substring(6);
+      path += fileName.substring(xxLength);
       return path;
     }
   }

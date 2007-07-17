@@ -32,16 +32,15 @@ import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
-import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.core.value.ExtendedValue;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
@@ -50,7 +49,6 @@ import org.exoplatform.services.jcr.impl.core.value.PathValue;
 import org.exoplatform.services.jcr.impl.core.value.PermissionValue;
 import org.exoplatform.services.jcr.impl.core.value.ValueConstraintsMatcher;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
-import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.util.IdGenerator;
@@ -60,7 +58,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SARL .
  * 
  * @author Gennady Azarenkov
- * @version $Id: ItemImpl.java 13679 2007-03-22 16:44:26Z vetal_ok $
+ * @version $Id$
  */
 
 public abstract class ItemImpl implements Item {
@@ -79,8 +77,7 @@ public abstract class ItemImpl implements Item {
 
   protected ValueFactoryImpl valueFactory;
 
-  protected int itemHashCode = 0; // [PN]
-                                                                                  // 19.04.06
+  protected int itemHashCode = 0;
 
   ItemImpl(ItemData data, SessionImpl session) throws RepositoryException {
 
@@ -128,9 +125,7 @@ public abstract class ItemImpl implements Item {
     return getLocation().getName().getAsString();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /** 
    * @see javax.jcr.Item#getAncestor(int)
    */  
   public Item getAncestor(int degree) throws ItemNotFoundException, AccessDeniedException, RepositoryException {
@@ -155,9 +150,7 @@ public abstract class ItemImpl implements Item {
     }
   }  
 
-  /*
-   * (non-Javadoc)
-   * 
+  /** 
    * @see javax.jcr.Item#getParent()
    */
   public Node getParent() throws ItemNotFoundException, AccessDeniedException, RepositoryException {
@@ -170,27 +163,21 @@ public abstract class ItemImpl implements Item {
     return parent();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /** 
    * @see javax.jcr.Item#getSession()
    */
   public SessionImpl getSession() {
     return session;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /** 
    * @see javax.jcr.Item#getDepth()
    */
   public int getDepth() {
     return getLocation().getDepth();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /** 
    * @see javax.jcr.Item#isSame(javax.jcr.Item)
    */
   public boolean isSame(Item otherItem) {
@@ -215,9 +202,7 @@ public abstract class ItemImpl implements Item {
     return false;    
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /** 
    * @see javax.jcr.Item#isNew()
    */
   public boolean isNew() {
@@ -228,9 +213,7 @@ public abstract class ItemImpl implements Item {
     return false;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /**
    * @see javax.jcr.Item#isModified()
    */
   public boolean isModified() {
@@ -241,9 +224,7 @@ public abstract class ItemImpl implements Item {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /** 
    * @see javax.jcr.Item#remove()
    */
   public void remove() throws RepositoryException, ConstraintViolationException, VersionException,LockException {
@@ -434,21 +415,19 @@ public abstract class ItemImpl implements Item {
       }
     }
     if (def != null && def.isProtected())
-      throw new ConstraintViolationException("Can not set protected property " + getPath());
+      throw new ConstraintViolationException("Can not set protected property " + locationFactory.createJCRPath(qpath).getAsString(false));
 
     
     if (multiValue && (def == null || (oldProp!= null && !oldProp.isMultiValued()))){
       throw new ValueFormatException(
-          "Can not assign multiple-values Value to a single-valued property " + getPath());
+          "Can not assign multiple-values Value to a single-valued property " + locationFactory.createJCRPath(qpath).getAsString(false));
     }
     
     if(!multiValue && (def == null || (oldProp!= null && oldProp.isMultiValued()))){
       throw new ValueFormatException(
-          "Can not assign single-value Value to a multiple-valued property " + getPath());
+          "Can not assign single-value Value to a multiple-valued property " + locationFactory.createJCRPath(qpath).getAsString(false));
     }
     
- 
-
     if (!parentNode.isCheckedOut())
       throw new VersionException("Node " + parentNode.getPath()
           + " or its nearest ancestor is checked-in");
@@ -456,10 +435,6 @@ public abstract class ItemImpl implements Item {
     // Check locking
     if (!parentNode.checkLocking())
       throw new LockException("Node " + parentNode.getPath() + " is locked ");
-
-
-    
-
 
     List<ValueData> valueDataList = new ArrayList<ValueData>();
 
@@ -533,7 +508,7 @@ public abstract class ItemImpl implements Item {
     } else {
       if (def.isMandatory()) {
         throw new ConstraintViolationException(
-            "Can not remove (by setting null value) mandatory property " + getPath());
+            "Can not remove (by setting null value) mandatory property " + locationFactory.createJCRPath(qpath).getAsString(false));
       } 
       //launch event
       session.getActionHandler().preRemoveItem(parentNode,oldProp);
@@ -541,14 +516,10 @@ public abstract class ItemImpl implements Item {
       prop =  oldProp;
     }
     
-    
     return prop;
-
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /**
    * @see javax.jcr.Item#save()
    */
   public void save() throws ReferentialIntegrityException, AccessDeniedException, LockException,
@@ -619,9 +590,7 @@ public abstract class ItemImpl implements Item {
     dataManager.commit(getInternalPath());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /**
    * @see javax.jcr.Item#refresh(boolean)
    */
   public void refresh(boolean keepChanges) throws InvalidItemStateException, RepositoryException {
@@ -693,10 +662,6 @@ public abstract class ItemImpl implements Item {
     return session.getAccessManager().hasPermission(nData.getACL(), action, session.getUserID());
   }
 
-  /**
-   * @author [PN] 18.04.06
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof ItemImpl) {
@@ -777,7 +742,6 @@ public abstract class ItemImpl implements Item {
   private void checkValueConstraints(PropertyDefinition def, List<ValueData> newValues, int type)
       throws ConstraintViolationException, RepositoryException {
 
-    // [PN] 20.09.06
     ValueConstraintsMatcher constraints = new ValueConstraintsMatcher(def.getValueConstraints(), session);
 
     for (ValueData value : newValues) {

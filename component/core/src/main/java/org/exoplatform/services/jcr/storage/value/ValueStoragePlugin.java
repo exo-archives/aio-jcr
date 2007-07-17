@@ -56,6 +56,6 @@ public abstract class ValueStoragePlugin {
    */
   public abstract void checkConsistency(WorkspaceStorageConnection dataConnection);
   
-  public abstract boolean match(String valueDataDescriptor, PropertyData prop, int valueOrderNumer);
+  public abstract boolean match(String valueDataDescriptor, PropertyData prop);
 }
 

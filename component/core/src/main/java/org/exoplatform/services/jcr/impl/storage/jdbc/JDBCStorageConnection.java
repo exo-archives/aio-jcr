@@ -679,11 +679,13 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
 
       final ResultSet valueRecords = findValuesByPropertyId(cid);
       try {
-        while (valueRecords.next()) {
-          final int orderNum = valueRecords.getInt(COLUMN_VORDERNUM);
+        // [PN] 12.07.07 if (... instead while (...
+        // so, we don't need iterate throught each value of the property
+        // IO channel will do this work according the existed files on FS
+        if (valueRecords.next()) {
           final String storageDesc = valueRecords.getString(COLUMN_VSTORAGE_DESC);
           if (!valueRecords.wasNull()) {
-            final ValueIOChannel channel = valueStorageProvider.getChannel(storageDesc, pdata, orderNum);
+            final ValueIOChannel channel = valueStorageProvider.getChannel(storageDesc, pdata);
             try {
               channel.delete(pdata.getIdentifier());
             } finally {
@@ -732,7 +734,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   }
 
   protected ValueData readValueData(PropertyData pdata, int orderNumber, String storageDesc) throws SQLException, IOException, ValueDataNotFoundException {
-    ValueIOChannel channel = valueStorageProvider.getChannel(storageDesc, pdata, orderNumber);
+    ValueIOChannel channel = valueStorageProvider.getChannel(storageDesc, pdata);
     try {
       return channel.read(pdata.getIdentifier(), orderNumber, maxBufferSize);
     } finally {

@@ -23,7 +23,11 @@
               <property name="swap-directory" value="../temp/swap/production"/>
             </properties>
             <value-storages>
-              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
+              <!-- SimpleFileValueStorage and TreeFileValueStorage is not compatible in storage format, 
+              	i.e. storage made by one, can't be readed by another.
+              	TreeFileValueStorage optimized for store with a big number of values. -->
+              <!-- value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage" -->
+              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="../temp/values/production"/>
                 </properties>

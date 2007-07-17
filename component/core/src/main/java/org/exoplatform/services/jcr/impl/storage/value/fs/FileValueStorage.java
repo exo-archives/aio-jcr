@@ -45,7 +45,6 @@ public abstract class FileValueStorage extends ValueStoragePlugin {
     prepareRootDir(props.getProperty(PATH));
   }
 
-
   /** 
    * @see org.exoplatform.services.jcr.storage.value.ValueStoragePlugin#checkConsistency(org.exoplatform.services.jcr.storage.WorkspaceStorageConnection)
    */
@@ -58,8 +57,7 @@ public abstract class FileValueStorage extends ValueStoragePlugin {
    *      org.exoplatform.services.jcr.datamodel.PropertyData, int)
    */
   @Override
-  public boolean match(String valueDataDescriptor, PropertyData prop,
-      int valueOrderNumer) {
+  public boolean match(String valueDataDescriptor, PropertyData prop) {
     return valueDataDescriptor.startsWith(rootDir.getAbsolutePath());
   }
 

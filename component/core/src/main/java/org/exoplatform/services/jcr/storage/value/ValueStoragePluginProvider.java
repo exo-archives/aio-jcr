@@ -34,7 +34,7 @@ public interface ValueStoragePluginProvider {
    * @throws IOException
    * @throws ValueDataNotFoundException
    */
-  ValueIOChannel getChannel(String valueDataDescriptor, PropertyData prop, int valueOrderNumer) throws IOException,
+  ValueIOChannel getChannel(String valueDataDescriptor, PropertyData prop) throws IOException,
       ValueDataNotFoundException;
 
   /**
