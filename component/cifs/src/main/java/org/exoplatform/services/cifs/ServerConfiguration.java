@@ -182,6 +182,11 @@ public class ServerConfiguration {
   public ServerConfiguration(InitParams params) {
 
     determinePlatformType();
+    //temporary system check
+    if (getPlatformType() != PlatformType.WINDOWS){
+      setSMBServerEnabled(false);
+      return;    
+    }
 
     // set broadcast mask? before netBIOS is used
     setBroadcastMask("255.255.255.0");
@@ -194,10 +199,14 @@ public class ServerConfiguration {
       setServerName("ServerName");
 
     // Set the domain/workgroup name
+    // also Win32netBios.dll availability check
 
     try {
       setDomainName(getLocalDomainName().toUpperCase());
     } catch (UnsatisfiedLinkError e) {
+      setSMBServerEnabled(false);
+      return;
+    } catch (Exception e) {
       setSMBServerEnabled(false);
       return;
     }
@@ -704,13 +713,13 @@ public class ServerConfiguration {
   public DialectSelector getEnabledDialects() {
     DialectSelector dialects = new DialectSelector();
 
-    // dialects.AddDialect(Dialect.Core);
+    dialects.AddDialect(Dialect.Core);
     dialects.AddDialect(Dialect.DOSLanMan1);
     dialects.AddDialect(Dialect.DOSLanMan2);
     dialects.AddDialect(Dialect.LanMan1);
     dialects.AddDialect(Dialect.LanMan2);
     dialects.AddDialect(Dialect.LanMan2_1);
-    // dialects.AddDialect(Dialect.NT); //TODO it going to be included soon
+    dialects.AddDialect(Dialect.NT);
 
     return dialects;
   }

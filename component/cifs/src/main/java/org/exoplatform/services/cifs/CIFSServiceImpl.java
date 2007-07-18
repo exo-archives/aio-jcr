@@ -49,11 +49,6 @@ public class CIFSServiceImpl implements CIFSService, Startable {
 
   public void start() {
 
-    // Here is temporary OS check
-    String osName = System.getProperty("os.name");
-
-    if (osName.startsWith("Windows")) {
-
       try {
 
         if (config.isSMBServerEnabled()) {
@@ -72,11 +67,6 @@ public class CIFSServiceImpl implements CIFSService, Startable {
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
-    } else {
-      // platform is not windows so do nothing
-      log.info("Platfom type is not Windows, server not initialized!");
-    }
-
   }
 
   public void stop() {
