@@ -12,6 +12,7 @@ import javax.naming.NamingException;
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
+import org.exoplatform.services.cifs.ServerConfiguration.PlatformType;
 import org.exoplatform.services.cifs.server.NetworkServer;
 import org.exoplatform.services.cifs.smb.server.SMBServer;
 import org.exoplatform.services.jcr.RepositoryService;
@@ -48,24 +49,34 @@ public class CIFSServiceImpl implements CIFSService, Startable {
 
   public void start() {
 
-    try {
+    // Here is temporary OS check
+    String osName = System.getProperty("os.name");
 
-      if (config.isSMBServerEnabled()) {
-        log.info("Starting CIFS service");
-        server = new SMBServer(config, repositoryService);
-        server.startServer();
-        log.info("CIFS service is started server name: "
-            + config.getServerName()
-            + " on repository: "
-            + ((config.getRepoName() == null) ? "default" : config
-                .getRepoName()));
-      } else {
-        log.error("Starting CIFS service error: server not initalized");
-        return;
+    if (osName.startsWith("Windows")) {
+
+      try {
+
+        if (config.isSMBServerEnabled()) {
+          log.info("Starting CIFS service");
+          server = new SMBServer(config, repositoryService);
+          server.startServer();
+          log.info("CIFS service is started server name: "
+              + config.getServerName()
+              + " on repository: "
+              + ((config.getRepoName() == null) ? "default" : config
+                  .getRepoName()));
+        } else {
+          log.error("Starting CIFS service error: server not initalized");
+          return;
+        }
+      } catch (Exception e) {
+        throw new RuntimeException(e);
       }
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+    } else {
+      // platform is not windows so do nothing
+      log.info("Platfom type is not Windows, server not initialized!");
     }
+
   }
 
   public void stop() {
