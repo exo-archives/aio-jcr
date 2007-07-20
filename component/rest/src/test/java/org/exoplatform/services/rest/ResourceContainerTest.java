@@ -55,13 +55,14 @@ public class ResourceContainerTest extends TestCase {
   } 
 
   public void testBind() throws Exception {
-    ResourceBinder binder = (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);
+    ResourceBinder binder = (ResourceBinder)container
+        .getComponentInstanceOfType(ResourceBinder.class);
     assertNotNull(binder);
     binder.clear();
     List <ResourceDescriptor> list = binder.getAllDescriptors();
     ResourceContainer2 ac = new ResourceContainer2();
     binder.bind(ac);
-    assertEquals(1, list.size());
+    assertEquals(2, list.size());
     ResourceDescriptor d = list.get(0);
     assertEquals("GET", d.getAcceptableMethod());
     assertEquals("method1", d.getServer().getName());
@@ -139,7 +140,7 @@ public class ResourceContainerTest extends TestCase {
     List <ResourceDescriptor> list = binder.getAllDescriptors();
     ResourceContainer2 resourceContainer = new ResourceContainer2();
     binder.bind(resourceContainer);
-    assertEquals(1, list.size());
+    assertEquals(2, list.size());
 
     MultivaluedMetadata mm = new MultivaluedMetadata();
     mm.putSingle("accept", "text/html;q=0.8,text/xml,text/plain;q=0.5");
@@ -148,8 +149,11 @@ public class ResourceContainerTest extends TestCase {
         new ResourceIdentifier("/level1/myID/level3/"), "GET", mm, null);
     Response resp = disp.dispatch(request);
     resp.writeEntity(System.out);
-    request = new Request(null, new ResourceIdentifier("/level1/myID/level3/"),
-        "POST", mm, null);
+    request = new Request(new ByteArrayInputStream("test string".getBytes()),
+        new ResourceIdentifier("/level1/myID/level3/"), "POST", mm, null);
+    resp = disp.dispatch(request);
+    System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
+    resp.writeEntity(System.out);
     binder.unbind(resourceContainer);
     assertEquals(0, list.size());
   }
@@ -170,20 +174,23 @@ public class ResourceContainerTest extends TestCase {
     MultivaluedMetadata mm = new MultivaluedMetadata();
     mm.putSingle("accept", "*/*");
     Request request = new Request(new ByteArrayInputStream("create something".getBytes()),
-        new ResourceIdentifier("/level1/myID/level3/"), "POST", mm, null);
+        new ResourceIdentifier("/level1/myID/le vel3/"), "POST", mm, null);
     Response resp = disp.dispatch(request);
     assertEquals("http://localhost/test/_post", resp.getResponseHeaders().getFirst("Location"));
 
     request = new Request(new ByteArrayInputStream("recreate something".getBytes()),
-        new ResourceIdentifier("/level1/myID/level3/"), "PUT", mm, null);
+        new ResourceIdentifier("/level1/myID/le vel3/"), "PUT", mm, null);
     resp = disp.dispatch(request);
+    System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
     assertEquals("http://localhost/test/_put", resp.getResponseHeaders().getFirst("Location"));
     assertEquals("text/plain", resp.getEntityMetadata().getMediaType());
+    System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
     resp.writeEntity(System.out);
 
     request = new Request(new ByteArrayInputStream("delete something".getBytes()),
-        new ResourceIdentifier("/level1/myID/level3/test"), "DELETE", mm, null);
+        new ResourceIdentifier("/level1/myID/le vel3/test"), "DELETE", mm, null);
     resp = disp.dispatch(request);
+    System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
     resp.writeEntity(System.out);
     binder.unbind(resourceContainer);
     assertEquals(0, list.size());
@@ -206,6 +213,7 @@ public class ResourceContainerTest extends TestCase {
     Request request = new Request(ds, 
         new ResourceIdentifier("/level1/level2/level3/myID1/myID2"), "GET", mm, null);
     Response resp = disp.dispatch(request);
+    System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
     assertEquals("text/plain", resp.getEntityMetadata().getMediaType());
 //    resp.writeEntity(new FileOutputStream(new File("/tmp/test.txt")));
     resp.writeEntity(System.out);
@@ -229,6 +237,7 @@ public class ResourceContainerTest extends TestCase {
     MultivaluedMetadata mm = new MultivaluedMetadata();
     Request request = new Request(f, new ResourceIdentifier("/test/jaxb"), "GET", mm, null);
     Response resp = disp.dispatch(request);
+    System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
     assertEquals("text/xml", resp.getEntityMetadata().getMediaType());
 //    resp.writeEntity(new FileOutputStream(new File("/tmp/output.xml")));
     resp.writeEntity(System.out);

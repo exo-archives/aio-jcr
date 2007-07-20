@@ -27,4 +27,13 @@ public class SerializableOutputTransformer extends OutputEntityTransformer {
     se.writeObject(entityDataStream);
   }
   
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.rest.transformer.OutputEntityTransformer#getContentLength(java.lang.Object)
+   */
+  public long getContentLength(Object entity) {
+    // There is no informetion about Object consisted in
+    // SerializableEntity. So Resource must setup Content-Length header.
+    return -1;
+  }
+  
 }

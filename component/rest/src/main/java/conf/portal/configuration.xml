@@ -3,19 +3,6 @@
 <configuration>
 
   <component>
-    <key>org.exoplatform.services.orgservice.RestServiceImpl</key>
-    <type>org.exoplatform.services.orgservice.RestServiceImpl</type>
-    <init-params>
-
-      <value-param>
-        <name>auth-header</name>
-        <value>Basic realm="eXo-Platform REST Server"</value>
-      </value-param>
-
-    </init-params>
-  </component>
-
-  <component>
     <type>org.exoplatform.services.rest.ResourceDispatcher</type>
   </component>
   <component>

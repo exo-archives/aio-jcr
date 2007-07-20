@@ -70,6 +70,16 @@ public class Response {
     return entity;
   }
   
+  /**
+   * Content-Length header
+   * @return content length in bytes
+   */
+  public long countLength() {
+    if(transformer != null)
+      return transformer.getContentLength(entity);
+    return  -1;
+  }
+  
   public EntityMetadata getEntityMetadata() {
     return metadata;
   }
@@ -408,6 +418,16 @@ public class Response {
     public Builder lastModified (Date lastModified) {
       this.responseHeaders.putSingle("Last-Modified", 
           DateFormat.getInstance().format(lastModified));
+      return this;
+    }
+
+    /**
+     * set Content-Length header
+     * @param Content-Length size of data in bytes
+     * @return the Builder with added "Content-Length" header
+     */
+    public Builder contentLenght (long length) {
+      this.responseHeaders.putSingle("Content-Length", length +"");
       return this;
     }
     

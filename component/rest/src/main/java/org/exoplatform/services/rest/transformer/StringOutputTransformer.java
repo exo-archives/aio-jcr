@@ -24,5 +24,12 @@ public class StringOutputTransformer extends OutputEntityTransformer {
 		String entity_ = (String)entity;
 		entityDataStream.write(entity_.getBytes());
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.exoplatform.services.rest.transformer.OutputEntityTransformer#getContentLength(java.lang.Object)
+	 */
+	public long getContentLength(Object entity) {
+    return ((String)entity).getBytes().length;
+	}
 
 }

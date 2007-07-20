@@ -7,6 +7,12 @@ package org.exoplatform.services.rest.transformer;
 import java.io.IOException;
 import java.io.OutputStream;
 
+//import java.io.File;
+//import java.io.FileInputStream;
+//import java.io.FileOutputStream;
+import java.io.*;
+
+
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -22,6 +28,8 @@ import org.w3c.dom.Document;
  */
 public class XMLOutputTransformer extends OutputEntityTransformer {
 
+  private long length = 0;
+  
 	/* (non-Javadoc)
 	 * @see org.exoplatform.services.rest.transformer.OutputEntityTransformer#writeTo(java.lang.Object, java.io.OutputStream)
 	 */
@@ -35,6 +43,46 @@ public class XMLOutputTransformer extends OutputEntityTransformer {
     } catch (TransformerException tre) {
       throw new IOException("Can't write to output stream " + tre);
     }
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.exoplatform.services.rest.transformer.OutputEntityTransformer#getContentLength(java.lang.Object)
+	 */
+	public long getContentLength(Object entity) {
+	  try {
+	    countContentLenght(entity);
+	  } catch(IOException ioe) {
+	    return -1;
+	  }
+	  return (length > 0) ? length : -1;
+	}
+
+
+	private void countContentLenght(Object entity)
+	    throws IOException {
+	  
+	  final Object entity_ = entity;
+    final PipedOutputStream pou = new PipedOutputStream();
+    final PipedInputStream pin = new PipedInputStream(pou);
+
+    new Thread() {
+      public void run() {
+        try {
+          writeTo(entity_, pou);
+          pou.flush();
+          pou.close();
+        } catch (Exception e) {
+          length = 0;
+        }
+      }
+    }.start();
+    
+    int rd = -1;
+    byte[] buff = new byte[1024];
+    while ((rd = pin.read(buff)) != -1)
+      length+=rd;
+    pin.close();
+
 	}
 
 }

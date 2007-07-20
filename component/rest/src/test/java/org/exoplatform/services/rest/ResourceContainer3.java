@@ -18,7 +18,7 @@ import java.io.IOException;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-@URITemplate("/level1/{id}/level3/")
+@URITemplate("/level1/{id}/le vel3/")
 public class ResourceContainer3 implements ResourceContainer {
 
   @HTTPMethod("POST")

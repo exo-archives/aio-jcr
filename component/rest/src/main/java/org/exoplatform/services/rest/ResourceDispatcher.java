@@ -110,8 +110,12 @@ public class ResourceDispatcher implements Connector {
 				Response resp = (Response) resource.getServer().invoke(
 						resource.getResourceContainer(), params);
 
+				
 				if (!resp.isTransformerInitialized() && resp.isEntityInitialized())
 				  resp.setTransformer(getTransformer(resource));
+				
+				if(resp.getEntityMetadata().getLength() < 0)
+				  resp.getResponseHeaders().putSingle("Content-Length", resp.countLength()+"");
 				
 				return resp;
 			}

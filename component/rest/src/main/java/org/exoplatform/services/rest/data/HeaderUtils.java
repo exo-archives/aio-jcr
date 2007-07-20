@@ -50,7 +50,8 @@ public class HeaderUtils {
 		float q = Float.valueOf(s);
 		if(q >= 0f && q <= 1.0f)
 			return q;
-		throw new IllegalArgumentException("Invalid quality value, must be between 0 and 1");
+		throw new IllegalArgumentException("Invalid quality value," +
+				" must be between 0 and 1");
 			
 	}
 	
