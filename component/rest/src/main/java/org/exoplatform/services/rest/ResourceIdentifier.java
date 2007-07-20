@@ -4,7 +4,6 @@
  */
 package org.exoplatform.services.rest;
 
-import java.net.URI;
 import java.util.Map;
 
 /**
@@ -17,7 +16,7 @@ import java.util.Map;
 public class ResourceIdentifier {
 
   private Map<String, String> parameters = null; 
-  private URI uri;
+  private String uri;
   private String baseURI;
   
   /**
@@ -25,8 +24,7 @@ public class ResourceIdentifier {
    * @param relURI the relative URI
    */
   public ResourceIdentifier(String baseURI, String relURI) {
-    String str = (relURI.endsWith("/")) ? relURI : (relURI+"/");
-    this.uri = URI.create(str);
+    this.uri = (relURI.endsWith("/")) ? relURI : (relURI+"/");
     this.baseURI = baseURI;
   }
   
@@ -41,7 +39,7 @@ public class ResourceIdentifier {
   /**
    * @return the relative URI
    */
-  public URI getURI() {
+  public String getURI() {
     return uri;
   }
   
@@ -57,7 +55,7 @@ public class ResourceIdentifier {
    * @param pattern the URIPattern @see org.exoplatform.services.rest.URIPattern
    */
   public void initParameters(URIPattern pattern) {
-    this.parameters = pattern.parse(uri.toASCIIString());
+    this.parameters = pattern.parse(uri);
   }
 
   /**
