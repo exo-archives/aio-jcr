@@ -52,7 +52,8 @@ public class ResourceDispatcher implements Connector {
 	 * @throws Exception
 	 */
 	public Response dispatch(Request request) throws Exception {
-		String requestedURI = request.getResourceIdentifier().getURI().getPath();
+		String requestedURI = request.getResourceIdentifier().getURI();
+		
 		String methodName = request.getMethodName();
 
 		String acceptedMimeTypes =
@@ -189,7 +190,7 @@ public class ResourceDispatcher implements Connector {
 		 * @return the absolte location
 		 */
 		public String getAbsLocation() {
-			return identifier.getBaseURI() + identifier.getURI().toASCIIString();
+			return identifier.getBaseURI() + identifier.getURI();
 		}
 
 		/**
