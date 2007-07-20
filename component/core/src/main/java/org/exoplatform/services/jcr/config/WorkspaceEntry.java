@@ -28,7 +28,8 @@ public class WorkspaceEntry {
 
   private AccessManagerEntry accessManager;
 
-  private long               lockTimeOut = -1;
+  private LockManagerEntry   lockManager;
+
 
   private String             autoInitPermissions;
 
@@ -128,13 +129,7 @@ public class WorkspaceEntry {
     this.accessManager = accessManager;
   }
 
-  public long getLockTimeOut() {
-    return lockTimeOut;
-  }
-
-  public void setLockTimeOut(long lockTimeOut) {
-    this.lockTimeOut = lockTimeOut;
-  }
+  
 
   public String getAutoInitPermissions() {
     return autoInitPermissions;
@@ -142,5 +137,13 @@ public class WorkspaceEntry {
 
   public void setAutoInitPermissions(String autoInitPermissions) {
     this.autoInitPermissions = autoInitPermissions;
+  }
+
+  public LockManagerEntry getLockManager() {
+    return lockManager;
+  }
+
+  public void setLockManager(LockManagerEntry lockManager) {
+    this.lockManager = lockManager;
   }
 }

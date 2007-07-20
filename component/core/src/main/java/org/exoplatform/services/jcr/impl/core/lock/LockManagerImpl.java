@@ -20,7 +20,6 @@ import javax.jcr.lock.LockException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.access.SystemIdentity;
-import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
@@ -31,7 +30,6 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
@@ -49,7 +47,7 @@ import org.picocontainer.Startable;
 
 /**
  * Created by The eXo Platform SARL .
- *
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: LockManagerImpl.java 13866 2007-03-28 13:39:28Z ksm $
  */
@@ -57,7 +55,7 @@ import org.picocontainer.Startable;
 public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecycleListener,
     LockManager, Startable {
   // 30 min
-  private static final long             DEFAULT_TIMEOUT     = 1800;                           // sec
+  private static final long             DEFAULT_TIMEOUT     = 1800;                                // sec
 
   private static final int              SEARCH_EXECMATCH    = 1;
 
@@ -65,8 +63,8 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   private static final int              SEARCH_CLOSEDCHILD  = 4;
 
-  private static Log                    log                 = ExoLogger
-                                                                .getLogger("jcr.LockManager");
+  private final Log                     log                 = ExoLogger
+                                                                .getLogger("jcr.lock.LockManager");
 
   // NodeIdentifier -- lockData
   private WeakHashMap<String, LockData> locks;
@@ -85,10 +83,17 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   private LockRemover                   lockRemover;
 
-  public LockManagerImpl(WorkspacePersistentDataManager dataManager, WorkspaceEntry config) {
-    this.dataManager = dataManager;
+  private final LockPersister           persister;
 
-    lockTimeOut = config.getLockTimeOut() > 0 ? config.getLockTimeOut() : DEFAULT_TIMEOUT;
+  public LockManagerImpl(WorkspacePersistentDataManager dataManager,
+      WorkspaceEntry config,
+      LockPersister persister) {
+
+    this.dataManager = dataManager;
+    this.persister = persister;
+    if (config.getLockManager() != null)
+      lockTimeOut = config.getLockManager().getTimeout() > 0 ? config.getLockManager().getTimeout()
+          : DEFAULT_TIMEOUT;
 
     locks = new WeakHashMap<String, LockData>();
     pendingLocks = new WeakHashMap<String, LockData>();
@@ -97,9 +102,19 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     dataManager.addItemPersistenceListener(this);
   }
 
+  /**
+   * Constructor for workspace without LockPersister
+   * 
+   * @param dataManager
+   * @param config
+   */
+  public LockManagerImpl(WorkspacePersistentDataManager dataManager, WorkspaceEntry config) {
+    this(dataManager, config, null);
+  }
+
   /*
    * (non-Javadoc)
-   *
+   * 
    * @see org.exoplatform.services.jcr.impl.core.lock.LockManager#lockTokenAdded(org.exoplatform.services.jcr.impl.core.SessionImpl,
    *      java.lang.String)
    */
@@ -110,7 +125,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     }
   }
 
-  public synchronized Lock addPendingLock(NodeImpl node, boolean isDeep, boolean isSessionScoped,
+  public synchronized Lock addPendingLock(NodeImpl node,
+      boolean isDeep,
+      boolean isSessionScoped,
       long timeOut) throws LockException {
     LockData lData = getLockData((NodeData) node.getData(), SEARCH_EXECMATCH | SEARCH_CLOSEDPARENT);
     if (lData != null) {
@@ -139,14 +156,15 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /*
    * (non-Javadoc)
-   *
+   * 
    * @see org.exoplatform.services.jcr.impl.core.lock.LockManager#getLock(org.exoplatform.services.jcr.impl.core.NodeImpl)
    */
   public LockImpl getLock(NodeImpl node) throws LockException, RepositoryException {
 
     LockData lData = getLockData((NodeData) node.getData(), SEARCH_EXECMATCH | SEARCH_CLOSEDPARENT);
 
-    if (lData == null || (!node.getInternalIdentifier().equals(lData.getNodeIdentifier()) && !lData.isDeep())) {
+    if (lData == null
+        || (!node.getInternalIdentifier().equals(lData.getNodeIdentifier()) && !lData.isDeep())) {
       throw new LockException("Node not locked: " + node.getData().getQPath());
 
     }
@@ -166,7 +184,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /*
    * (non-Javadoc)
-   *
+   * 
    * @see org.exoplatform.services.jcr.impl.core.lock.LockManager#holdsLock(org.exoplatform.services.jcr.impl.core.NodeImpl)
    */
   public boolean holdsLock(NodeData node) throws RepositoryException {
@@ -175,7 +193,8 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   public boolean isLocked(NodeData node) {
     LockData lData = getLockData(node, SEARCH_EXECMATCH | SEARCH_CLOSEDPARENT);
-    if (lData == null || (!node.getIdentifier().equals(lData.getNodeIdentifier()) && !lData.isDeep())) {
+    if (lData == null
+        || (!node.getIdentifier().equals(lData.getNodeIdentifier()) && !lData.isDeep())) {
       return false;
     }
     return true;
@@ -197,8 +216,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
             // if no session currently holds lock except this
             if (lockData.getLockHolderSize() == 1) {
               try {
-                ((NodeImpl) session.getTransientNodesManager().getItemByIdentifier(
-                    lockData.getNodeIdentifier(), true)).unlock();
+                ((NodeImpl) session.getTransientNodesManager().getItemByIdentifier(lockData
+                    .getNodeIdentifier(),
+                    true)).unlock();
               } catch (UnsupportedRepositoryOperationException e) {
                 log.error(e.getLocalizedMessage());
               } catch (LockException e) {
@@ -257,10 +277,14 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
               String owner = new String(((((TransientPropertyData) (ownerState.getData()))
                   .getValues()).get(0)).getAsByteArray(), Constants.DEFAULT_ENCODING);
 
-              boolean isDeep = Boolean.valueOf(
-                  new String(((((TransientPropertyData) (isDeepState.getData())).getValues())
-                      .get(0)).getAsByteArray(), Constants.DEFAULT_ENCODING)).booleanValue();
-              LockData lData = new LockData(nodeIdentifier, lockToken, isDeep, false, owner,
+              boolean isDeep = Boolean.valueOf(new String(((((TransientPropertyData) (isDeepState
+                  .getData())).getValues()).get(0)).getAsByteArray(), Constants.DEFAULT_ENCODING))
+                  .booleanValue();
+              LockData lData = new LockData(nodeIdentifier,
+                  lockToken,
+                  isDeep,
+                  false,
+                  owner,
                   lockTimeOut);
               lData.addLockHolder(currChangesLog.getSessionId());
               locks.put(nodeIdentifier, lData);
@@ -278,7 +302,8 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
           for (ItemState itemState : currChangesLog.getAllStates()) {
 
             // this is a node and node is locked
-            if (itemState.getData().isNode() && locks.containsKey(itemState.getData().getIdentifier())) {
+            if (itemState.getData().isNode()
+                && locks.containsKey(itemState.getData().getIdentifier())) {
               nodeIdentifier = itemState.getData().getIdentifier();
               if (itemState.isDeleted()) {
                 removedLock.add(nodeIdentifier);
@@ -308,7 +333,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /*
    * (non-Javadoc)
-   *
+   * 
    * @see org.exoplatform.services.jcr.impl.core.lock.LockManager#lockTokenRemoved(org.exoplatform.services.jcr.impl.core.SessionImpl,
    *      java.lang.String)
    */
@@ -366,6 +391,10 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     LockData ldata = pendingLocks.get(nodeIdentifier);
     if (ldata != null) {
       locks.put(nodeIdentifier, ldata);
+
+      if (persister != null) {
+        persister.add(ldata);
+      }
       pendingLocks.remove(nodeIdentifier);
     } else {
       throw new LockException("No lock in pending locks");
@@ -403,6 +432,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     tokensMap.remove(lData.getLockToken(sessionId));
     locks.remove(nodeIdentifier);
     lData.setLive(false);
+    if (persister != null) {
+      persister.remove(lData);
+    }
     lData = null;
   }
 
@@ -411,7 +443,8 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     try {
       nData = (NodeData) dataManager.getItemData(nodeIdentifier);
       PlainChangesLog changesLog = new PlainChangesLogImpl(new ArrayList<ItemState>(),
-          SystemIdentity.SYSTEM, ExtendedEvent.UNLOCK);
+          SystemIdentity.SYSTEM,
+          ExtendedEvent.UNLOCK);
 
       ItemData lockOwner = dataManager.getItemData(nData,
           new QPathEntry(Constants.JCR_LOCKOWNER, 1));

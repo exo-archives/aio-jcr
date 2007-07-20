@@ -32,6 +32,7 @@ import org.exoplatform.services.jcr.impl.core.SessionRegistry;
 import org.exoplatform.services.jcr.impl.core.WorkspaceInitializer;
 import org.exoplatform.services.jcr.impl.core.access.DefaultAccessManagerImpl;
 import org.exoplatform.services.jcr.impl.core.lock.LockManagerImpl;
+import org.exoplatform.services.jcr.impl.core.lock.LockPersister;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataPersister;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.observation.ObservationManagerRegistry;
@@ -212,6 +213,18 @@ public class RepositoryContainer extends ExoContainer {
 
       workspaceContainer.registerComponentImplementation(LocalWorkspaceDataManagerStub.class);
       workspaceContainer.registerComponentImplementation(ObservationManagerRegistry.class);
+      //Lock manager and Lock persister is a optional parameters
+      if (wsConfig.getLockManager() != null && wsConfig.getLockManager().getPersister() != null) {
+        try {
+
+          Class containerType = Class.forName(wsConfig.getLockManager().getPersister().getType());
+          workspaceContainer.registerComponentImplementation(containerType);
+
+        } catch (ClassNotFoundException e) {
+          throw new RepositoryConfigurationException("Class not found for workspace data container "
+              + wsConfig.getUniqueName() + ": " + e);
+        }
+      }
       workspaceContainer.registerComponentImplementation(LockManagerImpl.class);
 
       if (wsConfig.getQueryHandler() != null) {

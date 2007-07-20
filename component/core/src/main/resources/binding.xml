@@ -63,7 +63,15 @@
       <collection name="properties" field="parameters" usage="optional" 
                 item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"/>
     </structure>
-	<value name="lock-time-out" field="lockTimeOut" usage="optional"/>
+    
+    <structure name="lock-manager" field="lockManager" usage="optional">
+        <value name="time-out" field="timeout" usage="optional"/>
+        <structure name="persister" field="persister" usage="optional">
+           <value name="class" field="type" style="attribute"/>
+           <collection name="properties" field="parameters" usage="optional" 
+                item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"/>
+        </structure>
+     </structure>
   </mapping>
   
   <mapping name="property" class="org.exoplatform.services.jcr.config.SimpleParameterEntry">

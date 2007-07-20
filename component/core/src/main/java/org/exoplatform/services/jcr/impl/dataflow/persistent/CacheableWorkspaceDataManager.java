@@ -9,12 +9,10 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.storage.SystemDataContainerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
