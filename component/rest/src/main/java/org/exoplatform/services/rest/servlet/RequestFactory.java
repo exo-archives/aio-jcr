@@ -15,10 +15,10 @@ import org.exoplatform.services.rest.Request;
 import org.exoplatform.services.rest.ResourceIdentifier;
 
 /**
+ * RequestFactory helps create REST request from HttpServletRequest
+ *  
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
- *
- * RequestHandler helps create REST request from HttpServletRequest 
  */
 public class RequestFactory {
   
@@ -36,14 +36,19 @@ public class RequestFactory {
     MultivaluedMetadata queryParams = parseQueryParams(httpRequest);
     
     InputStream in = httpRequest.getInputStream();
-    String uri = httpRequest.getRequestURL().toString();
 //    // TODO Apply Entity resolving strategy here
 //    String contentType = httpRequest.getContentType();
 //    if(contentType == null)
 //      contentType = "application/octet-stream";
 //    //
+    String port = (httpRequest.getServerPort() == 80) ? "" : ":" + httpRequest.getServerPort();
+
+    String baseURI = httpRequest.getScheme() + "://" +
+      httpRequest.getServerName() + port +
+      httpRequest.getContextPath();
+    
     ResourceIdentifier identifier =
-      new ResourceIdentifier(uri.substring(0, uri.lastIndexOf(pathInfo)), pathInfo); 
+      new ResourceIdentifier(baseURI, pathInfo);
     return new Request(in, identifier, method, headerParams, queryParams);
   }
 
