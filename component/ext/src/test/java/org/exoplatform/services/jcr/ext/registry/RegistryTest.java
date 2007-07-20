@@ -128,6 +128,7 @@ public class RegistryTest extends BaseStandaloneTest{
     Request request = new Request(null, new ResourceIdentifier(baseURI, extURI), "GET", mv, null);
     Response response = dispatcher.dispatch(request);
     assertEquals(200, response.getStatus());
+    System.out.println(">>> Content-Length: " + response.getEntityMetadata().getLength());
     response.writeEntity(System.out);
     System.out.println();
     // request to exo:services/exo_service
@@ -145,6 +146,7 @@ public class RegistryTest extends BaseStandaloneTest{
         "POST", mv, null);
     response = dispatcher.dispatch(request);
     assertEquals(201, response.getStatus());
+    System.out.println(">>> Content-Length: " + response.getEntityMetadata().getLength());
     response.writeEntity(System.out);
     System.out.println("\nRESPONSE HEADERS, LOCATION: " + response.getResponseHeaders().getFirst("Location"));
 
@@ -154,6 +156,7 @@ public class RegistryTest extends BaseStandaloneTest{
         "/exo_service"), "GET", mv, null);
     response = dispatcher.dispatch(request);
     assertEquals(200, response.getStatus());
+    System.out.println(">>> Content-Length: " + response.getEntityMetadata().getLength());
     response.writeEntity(System.out);
     System.out.println();
 
@@ -161,6 +164,7 @@ public class RegistryTest extends BaseStandaloneTest{
     request = new Request(null, new ResourceIdentifier(baseURI, extURI), "GET", mv, null);
     response = dispatcher.dispatch(request);
     assertEquals(200, response.getStatus());
+    System.out.println(">>> Content-Length: " + response.getEntityMetadata().getLength());
     response.writeEntity(System.out);
     System.out.println();
 
@@ -177,6 +181,7 @@ public class RegistryTest extends BaseStandaloneTest{
         "/exo_service"), "DELETE", mv, null);
     response = dispatcher.dispatch(request);
     assertEquals(204, response.getStatus());
+    System.out.println(">>> Content-Length: " + response.getEntityMetadata().getLength());
     response.writeEntity(System.out);
     System.out.println();
     
@@ -186,6 +191,7 @@ public class RegistryTest extends BaseStandaloneTest{
     		"/exo_service"), "GET", mv, null);
     response = dispatcher.dispatch(request);
     assertEquals(404, response.getStatus());
+    System.out.println(">>> Content-Length: " + response.getEntityMetadata().getLength());
     response.writeEntity(System.out);
     System.out.println();
  
