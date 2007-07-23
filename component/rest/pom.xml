@@ -119,8 +119,8 @@
                     	<include name="org/**"/>
                     </fileset>
                 	</copy>
-                	<echo>Building documentation</echo>
-                	<javadoc destdir="target/javadoc" packagenames="org.exoplatform.services.rest.*" sourcepath="src/main/java"/>
+                	<!--echo>Building documentation</echo>
+                	<javadoc destdir="target/javadoc" packagenames="org.exoplatform.services.rest.*" sourcepath="src/main/java"/-->
                 </tasks>
               </configuration>
             </execution>

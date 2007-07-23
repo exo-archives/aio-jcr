@@ -83,7 +83,7 @@ public class ResourceContainerTest extends TestCase {
     try {
       binder.bind(ac2);
     }catch(InvalidResourceDescriptorException e) {;}
-    assertEquals(3, list.size());
+    assertEquals(4, list.size());
     binder.unbind(ac2);
     assertEquals(0, list.size());
   }
@@ -169,7 +169,7 @@ public class ResourceContainerTest extends TestCase {
     List <ResourceDescriptor> list = binder.getAllDescriptors();
     ResourceContainer3 resourceContainer = new ResourceContainer3();
     binder.bind(resourceContainer);
-    assertEquals(3, list.size());
+    assertEquals(4, list.size());
 
     MultivaluedMetadata mm = new MultivaluedMetadata();
     mm.putSingle("accept", "*/*");
@@ -192,6 +192,13 @@ public class ResourceContainerTest extends TestCase {
     resp = disp.dispatch(request);
     System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
     resp.writeEntity(System.out);
+
+    request = new Request(new ByteArrayInputStream("get something".getBytes()),
+        new ResourceIdentifier("/level1/myID/le vel3/test"), "get", mm, null);
+    resp = disp.dispatch(request);
+    System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
+    resp.writeEntity(System.out);
+    
     binder.unbind(resourceContainer);
     assertEquals(0, list.size());
   }
@@ -261,6 +268,7 @@ public class ResourceContainerTest extends TestCase {
     	new Request(new ByteArrayInputStream("this is request data".getBytes()),
     			new ResourceIdentifier("/test/serializable"), "GET", mm, null);
     Response resp = disp.dispatch(request);
+    System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
     resp.writeEntity(System.out);
   }
 

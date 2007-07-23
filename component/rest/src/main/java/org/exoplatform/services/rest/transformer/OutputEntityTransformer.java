@@ -23,11 +23,4 @@ public abstract class OutputEntityTransformer implements GenericOutputEntityTran
    */
   abstract public void writeTo(Object entity, OutputStream entityDataStream) throws IOException;
   
-  /**
-   * Try count content length after serialization
-   * @param entity the Object for serialization
-   * @return size of Object in bytes
-   */
-  abstract public long getContentLength(Object entity); 
-	
 }

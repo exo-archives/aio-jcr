@@ -6,7 +6,7 @@ package org.exoplatform.services.rest.transformer;
 
 import java.io.OutputStream;
 import java.io.IOException;
-
+ 
 import org.exoplatform.services.rest.SerializableEntity;
 
 /**
@@ -25,15 +25,6 @@ public class SerializableOutputTransformer extends OutputEntityTransformer {
   public void writeTo(Object entity, OutputStream entityDataStream) throws IOException{
     SerializableEntity se = (SerializableEntity)entity;
     se.writeObject(entityDataStream);
-  }
-  
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.rest.transformer.OutputEntityTransformer#getContentLength(java.lang.Object)
-   */
-  public long getContentLength(Object entity) {
-    // There is no informetion about Object consisted in
-    // SerializableEntity. So Resource must setup Content-Length header.
-    return -1;
   }
   
 }

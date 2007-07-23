@@ -5,7 +5,10 @@
 package org.exoplatform.services.rest;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
@@ -70,15 +73,60 @@ public class Response {
     return entity;
   }
   
+  
   /**
    * Content-Length header
    * @return content length in bytes
    */
-  public long countLength() {
-    if(transformer != null)
-      return transformer.getContentLength(entity);
-    return  -1;
+  private long length = 0;
+  public long countContentLength() {
+  	// check is transformer available and is not 
+  	// entity represented by InputStream. Can't read
+  	// from Stream!!! (after reading Stream is empty)
+    if(transformer != null && 
+    		!InputStream.class.isInstance(entity)) {
+      final PipedOutputStream pou = new PipedOutputStream();
+      final PipedInputStream pin = new PipedInputStream();
+      
+    	try {
+    	  pin.connect(pou);
+				new Thread() {
+					public void run() {
+						try {
+							transformer.writeTo(entity, pou);
+						} catch (IOException e) {
+						  length = -1;
+						}
+						finally {
+						  try {
+						    pou.flush();
+						    pou.close();
+						  } catch (IOException ioe) {
+						    ;						    
+						  }
+						}
+					}
+				}.start();
+
+				int rd = -1;
+				byte[] buff = new byte[1024];
+				while ((rd = pin.read(buff)) != -1)
+					length += rd;
+			} catch (IOException ioe) {
+				length = -1;
+			}
+			finally {
+        try {
+          pin.close();
+        } catch (IOException ioe) {
+          length = -1;
+        }
+			}
+	    return length;
+    }
+    return -1;
   }
+  
   
   public EntityMetadata getEntityMetadata() {
     return metadata;

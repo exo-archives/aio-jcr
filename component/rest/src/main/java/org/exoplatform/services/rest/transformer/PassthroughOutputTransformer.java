@@ -32,12 +32,4 @@ public class PassthroughOutputTransformer extends OutputEntityTransformer {
       entityDataStream.write(buf, 0, rd);    
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.exoplatform.services.rest.transformer.OutputEntityTransformer#getContentLength(java.lang.Object)
-	 */
-	public long getContentLength(Object entity) {
-	  // For InputStream content size is unknown
-	  return -1;
-	}
-
 }

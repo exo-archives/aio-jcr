@@ -8,8 +8,10 @@ import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.container.InvalidResourceDescriptorException;
 import org.exoplatform.services.rest.container.ResourceDescriptor;
 import org.exoplatform.services.rest.data.MimeTypes;
@@ -29,6 +31,8 @@ public class ResourceDispatcher implements Connector {
 
 	private List<ResourceDescriptor> resourceDescriptors;
 	private ThreadLocal<Context> contextHolder = new ThreadLocal<Context>();
+  private Log logger = ExoLogger.getLogger("rest.ResourceDispatcher");
+
 
 	/**
 	 * Constructor gets all binded ResourceContainers from ResourceBinder
@@ -114,8 +118,13 @@ public class ResourceDispatcher implements Connector {
 				if (!resp.isTransformerInitialized() && resp.isEntityInitialized())
 				  resp.setTransformer(getTransformer(resource));
 				
-				if(resp.getEntityMetadata().getLength() < 0)
-				  resp.getResponseHeaders().putSingle("Content-Length", resp.countLength()+"");
+				if(resp.getEntityMetadata().getLength() < 0) {
+				  long contentLength = resp.countContentLength();
+				  if(contentLength == -1)
+				    logger.warn("Length of content can't be counted." +
+				    		" May be data represented by InputStream. Content-Length header: -1");
+				  resp.getResponseHeaders().putSingle("Content-Length", contentLength+"");
+				}
 				
 				return resp;
 			}

@@ -12,6 +12,7 @@ import org.exoplatform.services.rest.transformer.StringInputTransformer;
 import org.exoplatform.services.rest.transformer.StringOutputTransformer;
 
 import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 /**
@@ -31,8 +32,6 @@ public class ResourceContainer3 implements ResourceContainer {
     return resp;
   }
 
-  // ConsumedTransformerFactory is not defined here becouse
-  // request entity represented by InputStream
   @HTTPMethod("PUT")
   @InputTransformer(PassthroughInputTransformer.class)
   @OutputTransformer(StringOutputTransformer.class)
@@ -55,6 +54,21 @@ public class ResourceContainer3 implements ResourceContainer {
     System.out.println("--- DELETE method called: id = " + param);
     System.out.println("--- entity type: " + str.getClass().toString() + ", value: " + str);
     Response resp = Response.Builder.ok().build();
+    return resp;
+  }
+
+  @HTTPMethod("GET")
+  @InputTransformer(PassthroughInputTransformer.class)
+  @OutputTransformer(PassthroughOutputTransformer.class)
+  public Response getMethod(InputStream in, @URIParam("id") String param) throws IOException {
+    System.out.println("--- GET method called: id = " + param);
+    System.out.print("--- entity type: " + in.getClass().toString() +", value: ");
+    PassthroughOutputTransformer tr = new PassthroughOutputTransformer(); 
+    tr.writeTo(in, System.out);
+    String entity = "--- GET response\n This response is represented by Stream" +
+    		" , so Content-Length can't be counted!\n";
+    Response resp =
+      Response.Builder.ok(new ByteArrayInputStream(entity.getBytes()), "text/plain").build(); 
     return resp;
   }
 }
