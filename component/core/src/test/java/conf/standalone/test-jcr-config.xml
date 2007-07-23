@@ -29,7 +29,7 @@
               <property name="swap-directory" value="target/temp/swap/ws"/>
             </properties>
             <value-storages>
-              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws"/>
                 </properties>
@@ -37,6 +37,16 @@
                   <filter property-type="Binary"/>
                 </filters>
               </value-storage>
+              <!-- value-storage class="org.exoplatform.services.jcr.impl.storage.value.s3.SimpleS3ValueStorage">
+                <properties>
+                  <property name="bucket" value="jcr"/>
+                  <property name="aws_access_key" value="INSERT YOUR AWS ACCESS KEY ID HERE"/>
+                  <property name="aws_secret_access_key" value="INSERT YOUR AWS SECRET ACCESS KEY HERE"/>
+                </properties>
+                <filters>
+                  <filter property-type="Binary"/>
+                </filters>
+              </value-storage-->
             </value-storages>
           </container>
           <cache enabled="true">
@@ -71,14 +81,24 @@
               <property name="db-type" value="generic"/>
             </properties>
             <value-storages>
-              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+              <!-- value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws1"/>
                 </properties>
                 <filters>
                   <filter property-type="Binary"/>
                 </filters>
-              </value-storage>
+              </value-storage-->
+              <!-- value-storage class="org.exoplatform.services.jcr.impl.storage.value.s3.SimpleS3ValueStorage">
+                <properties>
+                  <property name="bucket" value="jcr2"/>
+                  <property name="aws_access_key" value="INSERT YOUR AWS ACCESS KEY ID HERE"/>
+                  <property name="aws_secret_access_key" value="INSERT YOUR AWS SECRET ACCESS KEY HERE"/>
+                </properties>
+                <filters>
+                  <filter property-type="Binary"/>
+                </filters>
+              </value-storage-->
             </value-storages>
           </container>
           <cache enabled="true">
@@ -105,14 +125,24 @@
               <property name="db-type" value="generic"/>
             </properties>
             <value-storages>
-              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+              <!-- value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws2"/>
                 </properties>
                 <filters>
                   <filter property-type="Binary"/>
                 </filters>
-              </value-storage>
+              </value-storage-->
+              <!-- value-storage class="org.exoplatform.services.jcr.impl.storage.value.s3.SimpleS3ValueStorage">
+                <properties>
+                  <property name="bucket" value="jcr3"/>
+                  <property name="aws_access_key" value="INSERT YOUR AWS ACCESS KEY ID HERE"/>
+                  <property name="aws_secret_access_key" value="INSERT YOUR AWS SECRET ACCESS KEY HERE"/>
+                </properties>
+                <filters>
+                  <filter property-type="Binary"/>
+                </filters>
+              </value-storage-->
             </value-storages>
           </container>
           <cache enabled="true">
