@@ -55,7 +55,7 @@ import org.picocontainer.Startable;
 public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecycleListener,
     LockManager, Startable {
   // 30 min
-  private static final long             DEFAULT_TIMEOUT     = 1800;                                // sec
+  private static final long             DEFAULT_TIMEOUT     = 1000*60*30;                                // sec
 
   private static final int              SEARCH_EXECMATCH    = 1;
 
@@ -462,15 +462,15 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
   }
 
   public void start() {
-    // Comment by Hoa Pham: 
-    //Don't use LockRemover now
-    // Please uncomment when fixed CPU performance issuse  
-    //lockRemover = new LockRemover(lockTimeOut);
+
+    log.info("Start LockRemover with time out " + lockTimeOut
+        + " mills . If this value small you will have a high CPU usage ");
+
+    lockRemover = new LockRemover(lockTimeOut);
   }
 
   public void stop() {
-
-    //lockRemover.halt();
+    lockRemover.halt();
   }
 
   private class LockRemover extends WorkerThread {
