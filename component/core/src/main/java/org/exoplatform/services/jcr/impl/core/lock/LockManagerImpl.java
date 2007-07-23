@@ -462,12 +462,15 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
   }
 
   public void start() {
-    lockRemover = new LockRemover(lockTimeOut);
+    // Comment by Hoa Pham: 
+    //Don't use LockRemover now
+    // Please uncomment when fixed CPU performance issuse  
+    //lockRemover = new LockRemover(lockTimeOut);
   }
 
   public void stop() {
 
-    lockRemover.halt();
+    //lockRemover.halt();
   }
 
   private class LockRemover extends WorkerThread {
