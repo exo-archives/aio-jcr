@@ -55,16 +55,16 @@ import org.picocontainer.Startable;
 public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecycleListener,
     LockManager, Startable {
   // 30 min
-  private static final long             DEFAULT_TIMEOUT     = 1000*60*30;                                // sec
+  private static final long             DEFAULT_LOCK_TIMEOUT = 1000 * 60 * 30;                      // sec
 
-  private static final int              SEARCH_EXECMATCH    = 1;
+  private static final int              SEARCH_EXECMATCH     = 1;
 
-  private static final int              SEARCH_CLOSEDPARENT = 2;
+  private static final int              SEARCH_CLOSEDPARENT  = 2;
 
-  private static final int              SEARCH_CLOSEDCHILD  = 4;
+  private static final int              SEARCH_CLOSEDCHILD   = 4;
 
-  private final Log                     log                 = ExoLogger
-                                                                .getLogger("jcr.lock.LockManager");
+  private final Log                     log                  = ExoLogger
+                                                                 .getLogger("jcr.lock.LockManager");
 
   // NodeIdentifier -- lockData
   private WeakHashMap<String, LockData> locks;
@@ -93,7 +93,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     this.persister = persister;
     if (config.getLockManager() != null)
       lockTimeOut = config.getLockManager().getTimeout() > 0 ? config.getLockManager().getTimeout()
-          : DEFAULT_TIMEOUT;
+          : DEFAULT_LOCK_TIMEOUT;
 
     locks = new WeakHashMap<String, LockData>();
     pendingLocks = new WeakHashMap<String, LockData>();
@@ -462,11 +462,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
   }
 
   public void start() {
-
-    log.info("Start LockRemover with time out " + lockTimeOut
-        + " mills . If this value small you will have a high CPU usage ");
-
-    lockRemover = new LockRemover(lockTimeOut);
+    lockRemover = new LockRemover();
   }
 
   public void stop() {
@@ -474,10 +470,10 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
   }
 
   private class LockRemover extends WorkerThread {
-    private static final long DEFAULT_TIMEOUT = 15000; // 15sec
+    private static final long DEFAULT_THREAD_TIMEOUT = 30000; // 30sec
 
     public LockRemover() {
-      this(DEFAULT_TIMEOUT);
+      this(DEFAULT_THREAD_TIMEOUT);
     }
 
     public LockRemover(long timeout) {
