@@ -524,7 +524,7 @@
       </plugin>
       <!-- This is plugin for generating code coverage reports.   -->
       <!-- Comment it if you do not like to produce such reports and use emma. -->
-      <plugin>
+      <!--plugin>
       	<artifactId>maven-antrun-plugin</artifactId>
       	<executions>
       		<execution>
@@ -556,7 +556,7 @@
       			<goals>
       				<goal>run</goal>
       			</goals>
-      		</execution>
+      		</execution-->
       		<!-- This section is for TCK tests only. -->
       		<!--<execution>
             <id>1</id>
@@ -597,7 +597,7 @@
               <goal>run</goal>
             </goals>
           </execution>-->
-      		<execution>
+      		<!--execution>
       			<id>2</id>
       			<phase>test</phase>
       			<configuration>
@@ -649,7 +649,7 @@
     				<version>1.6.5</version>
     			</dependency>
       	</dependencies>
-      </plugin>
+      </plugin-->
    </plugins>
   </build>
 <reporting>
