@@ -14,14 +14,13 @@ import static java.lang.annotation.ElementType.METHOD;
 import org.exoplatform.services.rest.transformer.InputEntityTransformer;
 
 /**
- * Define entity input transformer for ResourceContainer.
- * Transformer is used for deserialization entity stream.
- * 
+ * Define entity input transformer for ResourceContainer. Transformer is used
+ * for deserialization entity stream.
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 @Retention(RUNTIME)
-@Target({TYPE, METHOD})
+@Target({ TYPE, METHOD })
 public @interface InputTransformer {
-	Class<? extends InputEntityTransformer> value();
+  Class < ? extends InputEntityTransformer > value();
 }

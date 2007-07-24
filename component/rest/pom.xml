@@ -12,6 +12,15 @@
   <name>eXo REST Service</name>
   <description>eXo REST</description>
   
+  <pluginRepositories>
+  
+    <pluginRepository>
+      <id>exoplatform</id>
+      <url>http://svn.exoplatform.org/maven</url>
+    </pluginRepository>
+    
+  </pluginRepositories>
+
   <dependencies>
     <dependency>
       <groupId>org.exoplatform.kernel</groupId>
@@ -75,12 +84,20 @@
       <artifactId>maven-jaxb2-plugin</artifactId>
       <version>0.1</version>
     </dependency>
-
+    
+    <!-- ================== EMMA ===================== -->
+    <!-- dependency>
+    	<groupId>emma</groupId>
+    	<artifactId>emma</artifactId>
+    	<version>2.0.5312</version>
+    	<scope>compile</scope>
+    </dependency --> 
+    <!-- ============================================= -->
   </dependencies>  
 
   <build>
+
     <plugins>
-    
     	<plugin>
       	<groupId>org.jvnet.jaxb2.maven2</groupId>
         	<artifactId>maven-jaxb2-plugin</artifactId>
@@ -101,16 +118,16 @@
           	</args>
         </configuration>
       </plugin>
-      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
           <executions>
             <execution>
+            <id>0</id>
               <goals>
                 <goal>run</goal>
               </goals>
-              <phase>process-classes</phase>
+              <phase>test-compile</phase>
               <configuration>
                 <tasks>
                   <echo>copy files gnerated by JAXB to test source directory</echo>
@@ -119,39 +136,112 @@
                     	<include name="org/**"/>
                     </fileset>
                 	</copy>
-                	<!--echo>Building documentation</echo>
-                	<javadoc destdir="target/javadoc" packagenames="org.exoplatform.services.rest.*" sourcepath="src/main/java"/-->
+                	<!-- echo>Building documentation</echo>
+                	<javadoc destdir="target/javadoc"
+                	packagenames="org.exoplatform.services.rest.*"
+                	sourcepath="src/main/java"/-->
+                	<!-- ======================= EMMA RUN ========================== -->
+	      					<!-- echo
+  	    						message="[EMMA] Start instrumenting classes..." />
+    	  					<taskdef resource="emma_ant.properties"
+      							classpathref="maven.dependency.classpath" />
+      						<emma enabled="true">
+      							<instr mode="overwrite"
+      								metadatafile="target/emma/metadata.em">
+      								<filter excludes="*orgservice*" />
+      								<filter excludes="*http*" />
+      								<filter excludes="*generated*" />
+	      							<instrpath>
+  	    								<dirset dir="${basedir}/target">
+    	  									<include name="test-classes" />
+      										<include name="classes" />
+      									</dirset>
+      								</instrpath>
+      							</instr>
+      						</emma -->
+                	<!-- ======================================================== -->
                 </tasks>
               </configuration>
             </execution>
+            <execution>
+            	<id>1</id>
+            	<phase>test</phase>
+            	<configuration>
+            		<tasks>
+                	<!-- ======================= EMMA Report ========================== -->
+ 	      					<!-- echo
+  	    						message="[EMMA] Start report generation..." />
+    	  					<taskdef resource="emma_ant.properties"
+      							classpathref="maven.dependency.classpath" />
+      						<emma enabled="true">
+      						<report>
+      							<sourcepath>
+      								<dirset dir="${basedir}">
+      									<include name="src/**/java" />
+      								</dirset>
+      							</sourcepath>
+      							<fileset dir="target/emma">
+      								<include name="*.e*" />
+      							</fileset>
+      							<html
+      								outfile="target/emma/coverage.html" />
+      						</report>
+      					</emma-->
+      					<!-- ============================================================ -->
+            		</tasks>
+            	</configuration>
+            	<goals>
+            		<goal>run</goal>
+            	</goals>
+            </execution>
           </executions>
+		<!--  ======================== EMMA DEPENDENCIES ========================= -->
+      	<!-- dependencies>
+      		<dependency>
+      			<groupId>emma</groupId>
+      			<artifactId>emma</artifactId>
+      			<version>2.0.5312</version>
+      		</dependency>
+      		<dependency>
+      			<groupId>emma</groupId>
+      			<artifactId>emma_ant</artifactId>
+      			<version>2.0.5312</version>
+      		</dependency>
+      		<dependency>
+    				<groupId>junit</groupId>
+    				<artifactId>junit</artifactId>
+    				<version>3.8.2</version>
+    			</dependency>
+    			<dependency>
+    				<groupId>ant</groupId>
+    				<artifactId>ant-junit</artifactId>
+    				<version>1.6.5</version>
+    			</dependency>
+      	</dependencies -->
+		<!-- ======================================================== -->          
       </plugin>
-
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>2.0</version>
-            <configuration>
-              <skip>${exo.test.skip}</skip>
-              <useFile>true</useFile>
-              <includes>
-                <include>**/*.java</include>
-              </includes>
-            </configuration>
-        </plugin>
-        
+      <plugin>
+	      <groupId>org.apache.maven.plugins</groupId>
+  	    <artifactId>maven-surefire-plugin</artifactId>
+    	  <version>2.0</version>
+        <configuration>
+      	  <skip>${exo.test.skip}</skip>
+          <useFile>true</useFile>
+          <includes>
+        		<include>**/*.java</include>
+        	</includes>
+		<!--  ======================== EMMA ========================= -->
+	        <systemProperties>
+  	       	<property>
+    	     		<name>emma.coverage.out.file</name>
+      	     		<value>target/emma/coverage.ec</value>
+           	</property>
+          </systemProperties>
+		<!-- ======================================================== -->          
+      	</configuration>
+      </plugin>
     </plugins>
-  </build>
-  
-  <pluginRepositories>
-  
-    <pluginRepository>
-      <id>exoplatform</id>
-      <url>http://svn.exoplatform.org/maven</url>
-    </pluginRepository>
-    
-  </pluginRepositories>
- 
 
+  </build>
 
 </project>

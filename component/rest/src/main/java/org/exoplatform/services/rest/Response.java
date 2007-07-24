@@ -17,13 +17,11 @@ import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.rest.transformer.OutputEntityTransformer;
 
 /**
- * REST Response
- * 
+ * REST Response.
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 public class Response {
-  
   private int status;
   private EntityMetadata metadata;
   private Object entity;
@@ -31,16 +29,13 @@ public class Response {
   private MultivaluedMetadata responseHeaders;
 
   /**
-   * @param status the HTTP status 
+   * @param status the HTTP status
    * @param responseHeaders the HTTP headers
    * @param entity the representation requested object
-   * @param transformer the entity serializator 
+   * @param transformer the entity serializator
    */
-  protected Response(int status, 
-      MultivaluedMetadata responseHeaders,
-      Object entity,
+  protected Response(int status, MultivaluedMetadata responseHeaders, Object entity,
       OutputEntityTransformer transformer) {
-    
     this.status = status;
     this.entity = entity;
     this.transformer = transformer;
@@ -48,23 +43,23 @@ public class Response {
     this.metadata = new EntityMetadata(responseHeaders);
 
   }
-  
+
   /**
-   * HTTP status of response
+   * HTTP status of response.
    * @return the HTTP status
    */
   public int getStatus() {
     return status;
   }
-  
+
   /**
-   * HTTP headers
+   * HTTP headers.
    * @return the HTTP headers for response
    */
   public MultivaluedMetadata getResponseHeaders() {
     return responseHeaders;
   }
-  
+
   /**
    * Body of HTTP response. Entity is a representation of requeted resource.
    * @return the entity
@@ -72,84 +67,81 @@ public class Response {
   public Object getEntity() {
     return entity;
   }
-  
-  
+
   /**
-   * Content-Length header
+   * Content-Length header.
    * @return content length in bytes
    */
   private long length = 0;
   public long countContentLength() {
-  	// check is transformer available and is not 
-  	// entity represented by InputStream. Can't read
-  	// from Stream!!! (after reading Stream is empty)
-    if(transformer != null && 
-    		!InputStream.class.isInstance(entity)) {
+    // check is transformer available and is not
+    // entity represented by InputStream. Can't read
+    // from Stream!!! (after reading Stream is empty)
+    if (transformer != null && !InputStream.class.isInstance(entity)) {
       final PipedOutputStream pou = new PipedOutputStream();
       final PipedInputStream pin = new PipedInputStream();
-      
-    	try {
-    	  pin.connect(pou);
-				new Thread() {
-					public void run() {
-						try {
-							transformer.writeTo(entity, pou);
-						} catch (IOException e) {
-						  length = -1;
-						}
-						finally {
-						  try {
-						    pou.flush();
-						    pou.close();
-						  } catch (IOException ioe) {
-						    ;						    
-						  }
-						}
-					}
-				}.start();
 
-				int rd = -1;
-				byte[] buff = new byte[1024];
-				while ((rd = pin.read(buff)) != -1)
-					length += rd;
-			} catch (IOException ioe) {
-				length = -1;
-			}
-			finally {
+      try {
+        pin.connect(pou);
+        new Thread() {
+          public void run() {
+            try {
+              transformer.writeTo(entity, pou);
+            } catch (IOException e) {
+              length = -1;
+            } finally {
+              try {
+                pou.flush();
+                pou.close();
+              } catch (IOException ioe) {
+                ;
+              }
+            }
+          }
+        }.start();
+
+        int rd = -1;
+        byte[] buff = new byte[1024];
+        while ((rd = pin.read(buff)) != -1) {
+          length += rd;
+        }
+      } catch (IOException ioe) {
+        length = -1;
+      } finally {
         try {
           pin.close();
         } catch (IOException ioe) {
           length = -1;
         }
-			}
-	    return length;
+      }
+      return length;
     }
     return -1;
   }
-  
-  
+
   public EntityMetadata getEntityMetadata() {
     return metadata;
   }
 
   /**
-   * Is transformer initialized
+   * Is transformer initialized.
    * @return the state of OutputEntityTransformer
    */
   public boolean isTransformerInitialized() {
-    if(transformer != null)
+    if (transformer != null) {
       return true;
+    }
     return false;
   }
-  
+
   /**
-   * Is entity initialized. For HTTP it means has request
-   * entity body or not.
+   * Is entity initialized. For HTTP it means has request entity body or not.
    * @return the entity state
    */
   public boolean isEntityInitialized() {
-    if(entity != null)
+    if (entity != null) {
       return true;
+    }
     return false;
   }
 
@@ -160,31 +152,31 @@ public class Response {
   public void setTransformer(OutputEntityTransformer transformer) {
     this.transformer = transformer;
   }
-  
+
   /**
-   * Write entity to output stream
+   * Write entity to output stream.
    * @param outputEntityStream the output stream for writing entity
-   * @throws IOException
+   * @throws IOException Input/Output Exception
    */
-  public void writeEntity (OutputStream outputEntityStream) throws IOException {
-  	if(transformer != null) 
-  		transformer.writeTo(entity, outputEntityStream);
+  public void writeEntity(OutputStream outputEntityStream) throws IOException {
+    if (transformer != null) {
+      transformer.writeTo(entity, outputEntityStream);
+    }
   }
 
-  
-  
   /**
-   * REST Response builder
+   * REST Response builder.
    */
   public static class Builder {
-    
+
     int status = -1;
     Object entity;
     MultivaluedMetadata responseHeaders = new MultivaluedMetadata();
     OutputEntityTransformer transformer;
-    
-    protected Builder() {}
-    
+
+    protected Builder() {
+    }
+
     /**
      * Create a new instance of builder.
      * @return the new instance of Builder
@@ -192,17 +184,17 @@ public class Response {
     protected static synchronized Builder newInstance() {
       return new Builder();
     }
-    
+
     /**
-     * create REST Response with parameters collected by Builder
+     * create REST Response with parameters collected by Builder.
      * @return the REST Response
      */
     public Response build() {
-      return new Response (status, responseHeaders, entity, transformer);
+      return new Response(status, responseHeaders, entity, transformer);
     }
-    
+
     /**
-     * create Builder with selected status
+     * create Builder with selected status.
      * @param st the HTTP status
      * @return the new instance of Builder whith status: st
      */
@@ -211,9 +203,9 @@ public class Response {
       b.status(st);
       return b;
     }
-    
+
     /**
-     * create Builder with HTTP status 200 (OK) and entity
+     * create Builder with HTTP status 200 (OK) and entity.
      * @param e the entity
      * @return the new Builder instance with status 200 (OK) and entity
      */
@@ -223,12 +215,13 @@ public class Response {
       b.entity(e);
       return b;
     }
-    
+
     /**
-     * create Builder with HTTP status 200 (OK),entity and set entity type
+     * create Builder with HTTP status 200 (OK), entity and set entity type.
      * @param e the entity
      * @param type the entity type
-     * @return the new instance of Builder with status 200 (OK), entity and media type 
+     * @return the new instance of Builder with status 200 (OK), entity and
+     *         media type
      */
     public static Builder representation(Object e, String type) {
       Builder b = representation(e);
@@ -237,7 +230,7 @@ public class Response {
     }
 
     /**
-     * create Builder with HTTP status 200 (OK)
+     * create Builder with HTTP status 200 (OK).
      * @return new instance of Builder with status 200 (OK)
      */
     public static Builder ok() {
@@ -247,7 +240,7 @@ public class Response {
     }
 
     /**
-     * create Builder with HTTP status 200 (OK) and entity
+     * create Builder with HTTP status 200 (OK) and entity.
      * @param e the entity
      * @return the new Builder instance with status 200 (OK) and entity
      */
@@ -256,20 +249,20 @@ public class Response {
       b.entity(e);
       return b;
     }
-    
+
     /**
-     * create Builder with HTTP status 200 (OK),entity and set entity type
+     * create Builder with HTTP status 200 (OK),entity and set entity type.
      * @param e the entity
      * @param mediaType the entity type
-     * @return the new instance of Builder with status 200 (OK), entity and media type 
+     * @return the new instance of Builder with status 200 (OK), entity and media type
      */
     public static Builder ok(Object e, String mediaType) {
       Builder b = ok(e).mediaType(mediaType);
       return b;
     }
-    
+
     /**
-     * create Builder with status 201 (CREATED)
+     * create Builder with status 201 (CREATED).
      * @param location the location created resources
      * @return the new instance of Builder with status 201 (CREATED) and header Location
      */
@@ -281,11 +274,11 @@ public class Response {
     }
 
     /**
-     * create Builder with status 201 (CREATED) and entity
+     * create Builder with status 201 (CREATED) and entity.
      * @param e the entity
      * @param location the location created resources
-     * @return the new instance of Builder with status 201 (CREATED), header Location
-     * and Location in entity body  
+     * @return the new instance of Builder with status 201 (CREATED),
+     * header Location and Location in entity body
      */
     public static Builder created(Object e, String location) {
       Builder b = created(location);
@@ -294,7 +287,7 @@ public class Response {
     }
 
     /**
-     * create Builder with HTTP status 202 (ACCEPTED)
+     * create Builder with HTTP status 202 (ACCEPTED).
      * @return the new instance of Builder with status 202 (ACCEPTED)
      */
     public static Builder accepted() {
@@ -304,7 +297,7 @@ public class Response {
     }
 
     /**
-     * create Builder with HTTP status 204 (NO CONTENT)
+     * create Builder with HTTP status 204 (NO CONTENT).
      * @return the new instance of Builder with status 204 (NO CONTENT)
      */
     public static Builder noContent() {
@@ -314,7 +307,7 @@ public class Response {
     }
 
     /**
-     * created Builder with HTTP status 307 (TEMPORARY REDIRECT)
+     * created Builder with HTTP status 307 (TEMPORARY REDIRECT).
      * @param location the new resource location
      * @return the new instance of Builder with status 307 (TEMPORARY REDIRECT)
      */
@@ -326,7 +319,7 @@ public class Response {
     }
 
     /**
-     * create Builder with HTTP status 304 (NOT MODIFIED)
+     * create Builder with HTTP status 304 (NOT MODIFIED).
      * @return the new instance of Builder with status 304 (NOT MODIFIED)
      */
     public static Builder notModified() {
@@ -336,7 +329,7 @@ public class Response {
     }
 
     /**
-     * create Builder with HTTP status 304 (NOT MODIFIED) and HTTP EntityTag
+     * create Builder with HTTP status 304 (NOT MODIFIED) and HTTP EntityTag.
      * @param tag the HTTP EntityTag
      * @return the new instance of Builder with status 304 (NOT MODIFIED) and HTTP EntityTag
      */
@@ -347,7 +340,7 @@ public class Response {
     }
 
     /**
-     * create Builder with HTTP status 403 (FORBIDDEN)
+     * create Builder with HTTP status 403 (FORBIDDEN).
      * @return the new instance of Builder with status 403 (FORBIDDEN)
      */
     public static Builder forbidden() {
@@ -355,9 +348,9 @@ public class Response {
       b.status(HTTPStatus.FORBIDDEN);
       return b;
     }
-    
+
     /**
-     * create Builder with HTTP status 404 (NOT FOUND)
+     * create Builder with HTTP status 404 (NOT FOUND).
      * @return the new instance of Builder with status 404 (NOT FOUND)
      */
     public static Builder notFound() {
@@ -367,7 +360,7 @@ public class Response {
     }
 
     /**
-     * create Builder with HTTP status 400 (BAD REQUEST)
+     * create Builder with HTTP status 400 (BAD REQUEST).
      * @return the new instance of Builder with status 400 (BAD REQUEST)
      */
     public static Builder badRequest() {
@@ -377,7 +370,7 @@ public class Response {
     }
 
     /**
-     * create Builder with HTTP status 500 (INTERNAL SERVER ERROR)
+     * create Builder with HTTP status 500 (INTERNAL SERVER ERROR).
      * @return the new instance of Builder with status 500 (INTERNAL SERVER ERROR)
      */
     public static Builder serverError() {
@@ -385,9 +378,9 @@ public class Response {
       b.status(HTTPStatus.INTERNAL_ERROR);
       return b;
     }
-    
+
     /**
-     * return Buider with changed status
+     * return Buider with changed status.
      * @param st the HTTP status
      * @return the Builder with changed status
      */
@@ -396,91 +389,91 @@ public class Response {
       return this;
     }
 
-   /**
-   * add entity to the Builder
-   * @param e the entity (object with represents requested resource) 
-   * @return the Builder with added entity
-   */
-  public Builder entity(Object e) {
+    /**
+     * add entity to the Builder.
+     * @param e the entity (object with represents requested resource)
+     * @return the Builder with added entity
+     */
+    public Builder entity(Object e) {
       entity = e;
       return this;
     }
-   
-   /**
-   * add entity to the Buider and set entity Content-Type
-   * @param e the entity (object with represents requested resource)
-   * @param mediaType the entity media type
-   * @return the Builder with added entity and media type
-   */
-  public Builder entity(Object e, String mediaType) {
-     entity = e;
-     this.responseHeaders.putSingle("Content-Type", mediaType);
-     return this;
-   }
 
     /**
-     * set entity Content-Type
+     * add entity to the Buider and set entity Content-Type.
+     * @param e the entity (object with represents requested resource)
      * @param mediaType the entity media type
-     * @return the Builder with added media type 
+     * @return the Builder with added entity and media type
+     */
+    public Builder entity(Object e, String mediaType) {
+      entity = e;
+      this.responseHeaders.putSingle("Content-Type", mediaType);
+      return this;
+    }
+
+    /**
+     * set entity Content-Type.
+     * @param mediaType the entity media type
+     * @return the Builder with added media type
      */
     public Builder mediaType(String mediaType) {
       this.responseHeaders.putSingle("Content-Type", mediaType);
       return this;
     }
-    
+
     /**
-     * set Content-Language
-     * @param languages the List<String> of language
+     * set Content-Language.
+     * @param languages the List &lt; String &gt; of language
      * @return the Builder with added header "Content-Language"
      */
-    public Builder languages (List<String> languages) {
+    public Builder languages(List < String > languages) {
       this.responseHeaders.put("Content-Language", languages);
-      return this;
-    }
-    
-    /**
-     * set Content-Encoding
-     * @param encodings the List<String> of content encoding 
-     * @return the Builder with added header "Content-Encoding"
-     */
-    public Builder encodings (List<String> encodings) {
-      this.responseHeaders.put("Content-Encoding", encodings);
-      return this;
-    }
-    
-    /**
-     * set Location header
-     * @param location the Location string
-     * @return the Builder with added "Location" header 
-     */
-    public Builder locations (String location) {
-      this.responseHeaders.putSingle("Location", location);
-      return this;
-    }
-    
-    /**
-     * set Last-Modified header
-     * @param lastModified the date of last change in resource
-     * @return the Builder with added "Last-Modified" header
-     */
-    public Builder lastModified (Date lastModified) {
-      this.responseHeaders.putSingle("Last-Modified", 
-          DateFormat.getInstance().format(lastModified));
       return this;
     }
 
     /**
-     * set Content-Length header
+     * set Content-Encoding.
+     * @param encodings the List &lt; String &gt; of content encoding
+     * @return the Builder with added header "Content-Encoding"
+     */
+    public Builder encodings(List < String > encodings) {
+      this.responseHeaders.put("Content-Encoding", encodings);
+      return this;
+    }
+
+    /**
+     * set Location header.
+     * @param location the Location string
+     * @return the Builder with added "Location" header
+     */
+    public Builder locations(String location) {
+      this.responseHeaders.putSingle("Location", location);
+      return this;
+    }
+
+    /**
+     * set Last-Modified header.
+     * @param lastModified the date of last change in resource
+     * @return the Builder with added "Last-Modified" header
+     */
+    public Builder lastModified(Date lastModified) {
+      this.responseHeaders
+          .putSingle("Last-Modified", DateFormat.getInstance().format(lastModified));
+      return this;
+    }
+
+    /**
+     * set Content-Length header.
      * @param Content-Length size of data in bytes
      * @return the Builder with added "Content-Length" header
      */
-    public Builder contentLenght (long length) {
-      this.responseHeaders.putSingle("Content-Length", length +"");
+    public Builder contentLenght(long length) {
+      this.responseHeaders.putSingle("Content-Length", length + "");
       return this;
     }
-    
+
     /**
-     * set HTTP EntityTag header
+     * set HTTP EntityTag header.
      * @param tag the HTTP entity tag
      * @return the Builder with added "ETag" header
      */
@@ -488,20 +481,20 @@ public class Response {
       this.responseHeaders.putSingle("ETag", tag);
       return this;
     }
-    
+
     /**
-     * set OutputEntityTransformer
-     * @param trf the output transformer.
-     * @see org.exoplatform.services.rest.transformer.OutputEntityTransformer 
+     * set OutputEntityTransformer.
+     * @param trf the output transformer
+     * @see org.exoplatform.services.rest.transformer.OutputEntityTransformer
      * @return the Buider with added entity transformer
      */
     public Builder transformer(OutputEntityTransformer trf) {
       this.transformer = trf;
       return this;
     }
-    
+
     /**
-     * add response single header
+     * add response single header.
      * @param key the key
      * @param value the value
      * @return the Builder with added single header
@@ -510,16 +503,16 @@ public class Response {
       this.responseHeaders.putSingle(key, value);
       return this;
     }
-    
+
     /**
-     * set response headers
+     * set response headers.
      * @param headers key-values pair of HTTP reponse header
-     * @return the Builder with new sets of HTTP headers 
+     * @return the Builder with new sets of HTTP headers
      */
     public Builder headers(MultivaluedMetadata headers) {
       this.responseHeaders = headers;
       return this;
     }
   }
-  
+
 }

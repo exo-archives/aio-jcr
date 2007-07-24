@@ -9,8 +9,7 @@ import org.w3c.dom.Element;
 
 /**
  * Created by The eXo Platform SARL.<br/>
- * Can add xlink:href into given Element of DOM structure.
- * 
+ * Can add xlink:href into given Element of DOM structure.<br/>
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -22,23 +21,22 @@ public class XlinkHref {
   private String uri;
   
   /**
-   * @param uri uri
+   * @param u new uri
    */
-  public XlinkHref(String uri) {
-    this.uri = uri;
+  public XlinkHref(String u) {
+    this.uri = u;
   }
 
   /**
-   * Get uri
-   * @return uri
+   * Get uri.
+   * @return uri current uri
    */
   public final String getURI() {
     return uri;
   }
   
   /**
-   * Add xlink to given element of DOM structure
-   * 
+   * Add xlink to given element of DOM structure.
    * @param parent element
    */
   public void putToElement(Element parent) {
@@ -46,7 +44,7 @@ public class XlinkHref {
   }
   
   /**
-   * Add external suffix to uri an d then insert xlink into element of DOM
+   * Add external suffix to uri an d then insert xlink into element of DOM.
    * @param parent element
    * @param extURI external suffix for uri
    */

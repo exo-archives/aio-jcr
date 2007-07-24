@@ -14,7 +14,7 @@ package org.exoplatform.common.http;
  */
 public interface HTTPStatus {
   /**
-   * HTTP Status-Code 202: Accepted
+   * HTTP Status-Code 202: Accepted.
    */
   public static final int  ACCEPTED = 202;
   
@@ -181,13 +181,12 @@ public interface HTTPStatus {
   /**
    * HTTP Status-Code 415: Unsupported Media Type.
    */
-  public static final int  UNSUPPORTED_TYPE=415;
+  public static final int  UNSUPPORTED_TYPE = 415;
   
   /**
    * HTTP Status-Code 305: Use Proxy.
    */
   public static final int  USE_PROXY = 305;
-  
   
   /**
    * HTTP Status-Code 505: HTTP Version Not Supported.

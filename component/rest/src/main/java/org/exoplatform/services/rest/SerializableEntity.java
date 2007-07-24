@@ -10,8 +10,7 @@ import java.io.OutputStream;
 
 /**
  * Object implement this interface should be able to read/write
- * entity data by own methods.
- * 
+ * entity data by own methods.<br/>
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */

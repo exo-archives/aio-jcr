@@ -14,32 +14,31 @@ import org.exoplatform.services.rest.transformer.OutputEntityTransformer;
 
 /**
  * Created by The eXo Platform SARL. <br/>
- * Abstraction of resource description.
- * 
+ * Abstraction of resource description.<br/>
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 public interface ResourceDescriptor {
   /**
-   * HTTP method for serving by ResourceContainer
+   * HTTP method for serving by ResourceContainer.
    * @return HTTP method name
    */
   String getAcceptableMethod();
   
   /**
-   * Discribe mime type(s) which RessourceContainer can consume 
+   * Discribe mime type(s) which RessourceContainer can consume. 
    * @return mime type(s)
    */
   String getConsumedMimeTypes();
   
   /**
-   * Discribe mime type(s) which RessourceContainer can produce 
+   * Discribe mime type(s) which RessourceContainer can produce. 
    * @return mime type(s)
    */
   String getProducedMimeTypes();
   
   /**
-   * Object of ResourecContainer
+   * Object of ResourecContainer.
    * @return ResourceContainer
    */
   ResourceContainer getResourceContainer();
@@ -52,35 +51,35 @@ public interface ResourceDescriptor {
   Method getServer();
   
   /**
-   * Return URIPattern object
+   * Return URIPattern object.
    * @return URIPattern
    */
   URIPattern getURIPattern();
   
   /**
-   * Return the array of annotation for method parameters
+   * Return the array of annotation for method parameters.
    * @return method parameter annotations
    */
   Annotation[] getMethodParameterAnnotations();
   
   /**
-   * Return the array of types method parameters
+   * Return the array of types method parameters.
    * @return meethod parameters types
    */
-  Class<?>[] getMethodParameters();
+  Class < ? > [] getMethodParameters();
   
   /**
    * Return Class of OutputEntityTransformer. ResourceDispatcher uses this class
    * for creation instance of OutputEntityTransformer.
    * @return Class of OutputEntityTransformer
    */
-  Class<? extends OutputEntityTransformer> getOutputTransformerType();
+  Class < ? extends OutputEntityTransformer > getOutputTransformerType();
   
   /**
    * Return Class of InputEntityTransformer. ResourceDispatcher uses this class
    * for creation instance of InputEntityTransformer.
    * @return Class of InputEntityTransformer
    */
-  Class<? extends InputEntityTransformer> getInputTransformerType();
+  Class < ? extends InputEntityTransformer > getInputTransformerType();
   
 }

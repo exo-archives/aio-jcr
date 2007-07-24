@@ -12,22 +12,20 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Created by The eXo Platform SARL.<br/>
- * HeaderParam define the names of header from HTTP request.
- * In this way ResourceContainer gets only header parameters wich it needs.
- * For example:
+ * Created by The eXo Platform SARL.<br/> HeaderParam define the names of
+ * header from HTTP request. In this way ResourceContainer gets only header
+ * parameters wich it needs. For example:<br/>
  * <pre>
  * ...
- * public getMethod(@HeaderParam("accept") String accept_param) {
+ * public getMethod(@HeaderParam(&quot;accept&quot;) String accept_param) {
  * ...
  * }
- * </pre>
- * Method getMethod gets header parameter "accept" as String accept_param
- * 
+ * </pre><br/>
+ * Method getMethod gets header parameter "accept" as String accept_param.<br/>
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-@Target(value={PARAMETER})
+@Target(value = { PARAMETER })
 @Retention(RUNTIME)
 public @interface HeaderParam {
   String value();

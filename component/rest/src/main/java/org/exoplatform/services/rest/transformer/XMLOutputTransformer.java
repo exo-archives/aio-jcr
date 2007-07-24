@@ -16,25 +16,25 @@ import org.w3c.dom.Document;
 
 /**
  * This type of transformer can write XML in output stream.
- *  
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 public class XMLOutputTransformer extends OutputEntityTransformer {
 
-	/* (non-Javadoc)
-	 * @see org.exoplatform.services.rest.transformer.OutputEntityTransformer#writeTo(java.lang.Object, java.io.OutputStream)
-	 */
-	@Override
-	public void writeTo(Object entity, OutputStream entityDataStream)
-			throws IOException {
-    Document entity_ = (Document)entity;
+  /*
+   * (non-Javadoc)
+   * @see org.exoplatform.services.rest.transformer.OutputEntityTransformer#writeTo
+   *      (java.lang.Object, java.io.OutputStream)
+   */
+  @Override
+  public final void writeTo(Object entity, OutputStream entityDataStream) throws IOException {
+    Document e = (Document) entity;
     try {
-      TransformerFactory.newInstance().newTransformer().transform(new DOMSource(entity_),
+      TransformerFactory.newInstance().newTransformer().transform(new DOMSource(e),
           new StreamResult(entityDataStream));
     } catch (TransformerException tre) {
       throw new IOException("Can't write to output stream " + tre);
     }
-	}
+  }
 
 }

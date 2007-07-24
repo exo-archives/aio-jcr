@@ -2,7 +2,7 @@
  * @(#)RoRequest.java					0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
- *  Copyright (C) 1996-2001 Ronald Tschalär
+ *  Copyright (C) 1996-2001 Ronald Tschalï¿½r
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -32,50 +32,48 @@
 
 package org.exoplatform.common.http.client;
 
-
 /**
- * This interface represents the read-only interface of an http request.
- * It is the compile-time type passed to various handlers which might
- * need the request info but musn't modify the request.
- *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * This interface represents the read-only interface of an http request. It is
+ * the compile-time type passed to various handlers which might need the request
+ * info but musn't modify the request.
+ * 
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalï¿½r
  */
-public interface RoRequest
-{
-    /**
-     * @return the HTTPConnection this request is associated with
-     */
-    public HTTPConnection getConnection();
+public interface RoRequest {
+  /**
+   * @return the HTTPConnection this request is associated with
+   */
+  public HTTPConnection getConnection();
 
-    /**
-     * @return the request method
-     */
-    public String getMethod();
+  /**
+   * @return the request method
+   */
+  public String getMethod();
 
-    /**
-     * @return the request-uri
-     */
-    public String getRequestURI();
+  /**
+   * @return the request-uri
+   */
+  public String getRequestURI();
 
-    /**
-     * @return the headers making up this request
-     */
-    public NVPair[] getHeaders();
+  /**
+   * @return the headers making up this request
+   */
+  public NVPair[] getHeaders();
 
-    /**
-     * @return the body of this request
-     */
-    public byte[] getData();
+  /**
+   * @return the body of this request
+   */
+  public byte[] getData();
 
-    /**
-     * @return the output stream on which the body is written
-     */
-    public HttpOutputStream getStream();
+  /**
+   * @return the output stream on which the body is written
+   */
+  public HttpOutputStream getStream();
 
-    /**
-     * @return true if the modules or handlers for this request may popup
-     *         windows or otherwise interact with the user
-     */
-    public boolean allowUI();
+  /**
+   * @return true if the modules or handlers for this request may popup windows
+   *         or otherwise interact with the user
+   */
+  public boolean allowUI();
 }

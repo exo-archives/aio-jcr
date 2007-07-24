@@ -2,7 +2,7 @@
  * @(#)RetryException.java				0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
- *  Copyright (C) 1996-2001 Ronald Tschalär
+ *  Copyright (C) 1996-2001 Ronald Tschalï¿½r
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -35,71 +35,64 @@ package org.exoplatform.common.http.client;
 import java.io.IOException;
 
 /**
- * Signals that an exception was thrown and caught, and the request was
- * retried.
- *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * Signals that an exception was thrown and caught, and the request was retried.
+ * 
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalï¿½r
  */
-class RetryException extends IOException
-{
-    /** the request to retry */
-    Request     request  = null;
+class RetryException extends IOException {
+  /** the request to retry */
+  Request        request    = null;
 
-    /** the response associated with the above request */
-    Response    response = null;
+  /** the response associated with the above request */
+  Response       response   = null;
 
-    /** the start of the liked list */
-    RetryException first = null;
+  /** the start of the liked list */
+  RetryException first      = null;
 
-    /** the next exception in the list */
-    RetryException next  = null;
+  /** the next exception in the list */
+  RetryException next       = null;
 
-    /** the original exception which caused the connection to be closed. */
-    IOException exception = null;
+  /** the original exception which caused the connection to be closed. */
+  IOException    exception  = null;
 
-    /** was this exception generated because of an abnormal connection reset? */
-    boolean conn_reset = true;
+  /** was this exception generated because of an abnormal connection reset? */
+  boolean        conn_reset = true;
 
-    /** restart processing? */
-    boolean restart = false;
+  /** restart processing? */
+  boolean        restart    = false;
 
+  /**
+   * Constructs an RetryException with no detail message. A detail message is a
+   * String that describes this particular exception.
+   */
+  public RetryException() {
+    super();
+  }
 
-    /**
-     * Constructs an RetryException with no detail message.
-     * A detail message is a String that describes this particular exception.
-     */
-    public RetryException()
-    {
-	super();
-    }
+  /**
+   * Constructs an RetryException class with the specified detail message. A
+   * detail message is a String that describes this particular exception.
+   * 
+   * @param s the String containing a detail message
+   */
+  public RetryException(String s) {
+    super(s);
+  }
 
+  // Methods
 
-    /**
-     * Constructs an RetryException class with the specified detail message.
-     * A detail message is a String that describes this particular exception.
-     *
-     * @param s the String containing a detail message
-     */
-    public RetryException(String s)
-    {
-	super(s);
-    }
+  /**
+   * Inserts this exception into the list.
+   * 
+   * @param re the retry exception after which to add this one
+   */
+  void addToListAfter(RetryException re) {
+    if (re == null)
+      return;
 
-
-    // Methods
-
-    /**
-     * Inserts this exception into the list.
-     *
-     * @param re the retry exception after which to add this one
-     */
-    void addToListAfter(RetryException re)
-    {
-	if (re == null)  return;
-
-	if (re.next != null)
-	    this.next = re.next;
-	re.next = this;
-    }
+    if (re.next != null)
+      this.next = re.next;
+    re.next = this;
+  }
 }

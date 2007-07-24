@@ -2,7 +2,7 @@
  * @(#)AuthSchemeNotImplException.java			0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
- *  Copyright (C) 1996-2001 Ronald Tschalär
+ *  Copyright (C) 1996-2001 Ronald Tschalï¿½r
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -32,35 +32,30 @@
 
 package org.exoplatform.common.http.client;
 
-
 /**
  * Signals that the handling of a authorization scheme is not implemented.
- *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * 
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalï¿½r
  */
-public class AuthSchemeNotImplException extends ModuleException
-{
+public class AuthSchemeNotImplException extends ModuleException {
 
-    /**
-     * Constructs an AuthSchemeNotImplException with no detail message.
-     * A detail message is a String that describes this particular exception.
-     */
-    public AuthSchemeNotImplException()
-    {
-	super();
-    }
+  /**
+   * Constructs an AuthSchemeNotImplException with no detail message. A detail
+   * message is a String that describes this particular exception.
+   */
+  public AuthSchemeNotImplException() {
+    super();
+  }
 
-
-    /**
-     * Constructs an AuthSchemeNotImplException class with the specified
-     * detail message.  A detail message is a String that describes this
-     * particular exception.
-     *
-     * @param msg the String containing a detail message
-     */
-    public AuthSchemeNotImplException(String msg)
-    {
-	super(msg);
-    }
+  /**
+   * Constructs an AuthSchemeNotImplException class with the specified detail
+   * message. A detail message is a String that describes this particular
+   * exception.
+   * 
+   * @param msg the String containing a detail message
+   */
+  public AuthSchemeNotImplException(String msg) {
+    super(msg);
+  }
 }

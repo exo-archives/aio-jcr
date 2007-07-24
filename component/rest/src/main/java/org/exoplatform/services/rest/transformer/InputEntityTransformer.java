@@ -13,34 +13,34 @@ import java.io.InputStream;
  * @version $Id: $
  */
 public abstract class InputEntityTransformer implements GenericInputEntityTransformer {
-	
-	/**
-	 * type of Objects which InputEntityTransformer can serve
-	 */
-	protected Class<?> entityType;
-	
-	/**
-	 * Set the type of Objects which should be serve by InputEntityTransformer
-	 * @param entityType the type of entity
-	 */
-	public void setType(Class<?> entityType) {
-		this.entityType = entityType;
-	}
 
-	/**
-	 * Get the type of served Objects
-	 * @return type of served object
-	 */
-	public Class<?> getType() {
-		return entityType;
-	}
+  /**
+   * type of Objects which InputEntityTransformer can serve.
+   */
+  protected Class < ? > entityType;
 
-	/**
-	 * Build Objects from given InputStream.
-	 * @param entityDataStream from this InputStream Object should be readed
-	 * @return Object
-	 * @throws IOException
-	 */
-	abstract public Object readFrom(InputStream entityDataStream) throws IOException;
+  /**
+   * Set the type of Objects which should be serve by InputEntityTransformer.
+   * @param entityType the type of entity
+   */
+  public final void setType(Class < ? > entityType) {
+    this.entityType = entityType;
+  }
+
+  /**
+   * Get the type of served Objects.
+   * @return type of served object
+   */
+  public final Class < ? > getType() {
+    return entityType;
+  }
+
+  /**
+   * Build Objects from given InputStream.
+   * @param entityDataStream from this InputStream Object should be readed
+   * @return Object builded Object
+   * @throws IOException Input/Output Exception
+   */
+  abstract public Object readFrom(InputStream entityDataStream) throws IOException;
 
 }

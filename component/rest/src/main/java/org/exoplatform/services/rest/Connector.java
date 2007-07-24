@@ -6,7 +6,7 @@
 package org.exoplatform.services.rest;
 
 /**
- * Created by The eXo Platform SARL        .<br/>
+ * Created by The eXo Platform SARL.<br/>
  * Abstraction which "encapsulates the activities of accessing resources and 
  * transferring resource representations. The connectors 
  * present an abstract interface for component communication, 
@@ -21,5 +21,4 @@ package org.exoplatform.services.rest;
  * @version $Id: $
  */
 public interface Connector {
-  
 }

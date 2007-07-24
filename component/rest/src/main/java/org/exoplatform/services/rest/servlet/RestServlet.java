@@ -28,10 +28,9 @@ import org.exoplatform.services.rest.Response;
 
 /**
  * This servlet is front-end for the REST engine.
- * Servlet get HTTP request then produce REST request with 
+ * Servlet get HTTP request then produce REST request with
  * helps by org.exoplatform.services.rest.servlet.RequestFactory. <br/>
- * @see   org.exoplatform.services.rest.servlet.RequestFactory
- * 
+ * @see   org.exoplatform.services.rest.servlet.RequestFactory<br/>
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
@@ -42,24 +41,21 @@ public class RestServlet extends HttpServlet implements Connector {
   private ResourceBinder resBinder;
   private static Log logger = ExoLogger.getLogger("RestServlet");
   
-  /* (non-Javadoc)
-   * @see javax.servlet.GenericServlet#init()
-   */
-  public void init(){
+  public void init() {
     try {
       container = ExoContainerContext.getCurrentContainer();
-    }catch(Exception e) {
+    } catch (Exception e) {
       logger.error("Cann't get current container");
       e.printStackTrace();
     }
-    resBinder = (ResourceBinder)container.getComponentInstanceOfType(
+    resBinder = (ResourceBinder) container.getComponentInstanceOfType(
         ResourceBinder.class);
-    resDispatcher = (ResourceDispatcher)container.getComponentInstanceOfType(
+    resDispatcher = (ResourceDispatcher) container.getComponentInstanceOfType(
         ResourceDispatcher.class);
-    if(resBinder == null) {
+    if (resBinder == null) {
       logger.error("RESOURCE_BINDER is null");
     }
-    if(resDispatcher == null) {
+    if (resDispatcher == null) {
       logger.error("RESOURCE_DISPATCHER is null");
     }
     logger.info("CONTAINER:           " + container);
@@ -68,11 +64,11 @@ public class RestServlet extends HttpServlet implements Connector {
   }
   
   /* (non-Javadoc)
-   * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+   * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest,
+   * javax.servlet.http.HttpServletResponse)
    */
   public void service(HttpServletRequest httpRequest, HttpServletResponse httpResponse)
     throws IOException, ServletException {
-    
     Request request = RequestFactory.createRequest(httpRequest);
     try {
       Response response = resDispatcher.dispatch(request);
@@ -82,14 +78,13 @@ public class RestServlet extends HttpServlet implements Connector {
       response.writeEntity(out);
       out.flush();
       out.close();
-    }catch(Exception e) {
+    } catch(Exception e) {
       logger.error(">>>>> !!!!! serve method error");
       e.printStackTrace();
       httpResponse.sendError(500, "This request cann't be serve by service.\n" +
           "Check request parameters and try again.");
     }
   }
-  
   
   /**
    * Tune HTTP response
@@ -98,9 +93,7 @@ public class RestServlet extends HttpServlet implements Connector {
    */
   private void tuneResponse(HttpServletResponse httpResponse,
       MultivaluedMetadata responseHeaders) {
-    
     if(responseHeaders != null) {
-
       HashMap<String, String> headers =  responseHeaders.getAll();
       Set<String> keys = headers.keySet();
       Iterator<String> ikeys = keys.iterator();

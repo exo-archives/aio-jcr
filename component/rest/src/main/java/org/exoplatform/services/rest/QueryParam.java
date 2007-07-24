@@ -21,12 +21,11 @@ import java.lang.annotation.Target;
  * ...
  * }
  * </pre>
- * Method getMethod gets query parameter "param1"(in this example abc) as String qparam
- * 
+ * Method getMethod gets query parameter "param1"(in this example abc) as String qparam.<br/>
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-@Target(value={PARAMETER})
+@Target(value = {PARAMETER})
 @Retention(RUNTIME)
 public @interface QueryParam {
   String value();

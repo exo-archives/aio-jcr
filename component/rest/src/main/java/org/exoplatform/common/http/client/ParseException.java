@@ -2,7 +2,7 @@
  * @(#)ParseException.java				0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
- *  Copyright (C) 1996-2001 Ronald Tschalär
+ *  Copyright (C) 1996-2001 Ronald Tschalï¿½r
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -32,36 +32,31 @@
 
 package org.exoplatform.common.http.client;
 
-
 /**
- * Signals that something went wrong while parsing data. Usually means the
- * input data was invalid.
- *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * Signals that something went wrong while parsing data. Usually means the input
+ * data was invalid.
+ * 
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalï¿½r
  */
-public class ParseException extends Exception
-{
+public class ParseException extends Exception {
 
-    /**
-     * Constructs an ParseException with no detail message.
-     * A detail message is a String that describes this particular exception.
-     */
-    public ParseException()
-    {
-	super();
-    }
+  /**
+   * Constructs an ParseException with no detail message. A detail message is a
+   * String that describes this particular exception.
+   */
+  public ParseException() {
+    super();
+  }
 
-
-    /**
-     * Constructs an ParseException class with the specified detail message.
-     * A detail message is a String that describes this particular exception.
-     *
-     * @param s the String containing a detail message
-     */
-    public ParseException(String s)
-    {
-	super(s);
-    }
+  /**
+   * Constructs an ParseException class with the specified detail message. A
+   * detail message is a String that describes this particular exception.
+   * 
+   * @param s the String containing a detail message
+   */
+  public ParseException(String s) {
+    super(s);
+  }
 
 }

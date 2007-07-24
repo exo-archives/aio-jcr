@@ -12,13 +12,12 @@ import java.lang.annotation.Target;
 import org.exoplatform.services.rest.data.MimeTypes;
 
 /**
- * ProducedMimeTypes defines the produced mimetype for ResourceContainer
- * By default mimetypes set to ALL mimetype
- * 
+ * ProducedMimeTypes defines the produced mimetype for ResourceContainer By
+ * default mimetypes set to ALL mimetype.
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-@Target({METHOD})
+@Target({ METHOD })
 @Retention(RUNTIME)
 public @interface ProducedMimeTypes {
   String value() default MimeTypes.ALL;

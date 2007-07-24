@@ -13,23 +13,22 @@ import org.xml.sax.SAXException;
 
 /**
  * This type of transformer can read XML from input stream.
- *  
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 public class XMLInputTransformer extends InputEntityTransformer {
 
-	@Override
-	public Document readFrom(InputStream entityDataStream) throws IOException {
-		try {
-		  DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		  factory.setNamespaceAware(true);
-			return factory.newDocumentBuilder().parse(entityDataStream);
-		} catch (SAXException saxe) {
-			throw new IOException("Can't read from input stream " + saxe);
-		} catch (ParserConfigurationException pce) {
-			throw new IOException("Can't read from input stream " + pce);
-		}
-	}
+  @Override
+  public final Document readFrom(InputStream entityDataStream) throws IOException {
+    try {
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      factory.setNamespaceAware(true);
+      return factory.newDocumentBuilder().parse(entityDataStream);
+    } catch (SAXException saxe) {
+      throw new IOException("Can't read from input stream " + saxe);
+    } catch (ParserConfigurationException pce) {
+      throw new IOException("Can't read from input stream " + pce);
+    }
+  }
 
 }

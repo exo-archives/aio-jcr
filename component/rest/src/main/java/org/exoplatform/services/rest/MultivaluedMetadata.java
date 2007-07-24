@@ -12,97 +12,102 @@ import java.util.Set;
 import java.util.List;
 
 /**
- * Created by The eXo Platform SARL .<br/>
- * A map of key-value pair. Each key can have few value
+ * Created by The eXo Platform SARL .<br/> A map of key-value pair. Each key
+ * can have few value.<br/>
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-public class MultivaluedMetadata  {
+public class MultivaluedMetadata {
 
-  private HashMap<String, List<String>> data = new HashMap<String, List<String>>();
-  
+  private HashMap < String, List < String > > data = new HashMap < String, List < String > >();
+
   /**
-   * Set key's value to one item list of values
+   * Set key's value to one item list of values.
    * @param key the key
    * @param vals the value
    */
-  public void put(String key, List<String> vals) {
+  public void put(String key, List < String > vals) {
     data.put(key.toLowerCase(), vals);
   }
-  
+
   /**
-   * Add one more value to the curent list of values
+   * Add one more value to the curent list of values.
    * @param key the key
    * @param value the value to be add
    */
   public void putSingle(String key, String value) {
-    List<String> vals = new ArrayList<String>();
-    if(vals == null)
-      vals = new ArrayList<String>();
+    List < String > vals = new ArrayList < String >();
+    if (vals == null) {
+      vals = new ArrayList < String >();
+    }
     vals.add(value);
     put(key.toLowerCase(), vals);
   }
-  
+
   /**
-   * Return the first value of the key
+   * Return the first value of the key.
    * @param key the key
    * @return the value
    */
   public String getFirst(String key) {
-    List<String> vals = data.get(key.toLowerCase());
-    if(vals == null || vals.size() == 0)
+    List < String > vals = data.get(key.toLowerCase());
+    if (vals == null || vals.size() == 0) {
       return null;
+    }
     return vals.get(0);
   }
-  
+
   /**
-   * Return the all pair key-values and values convert from List<String>
-   * to the String. This may be used to set HTTP headers
+   * Return the all pair key-values and values convert from List &lt;String&gt; to the
+   * String. This may be used to set HTTP headers.
    * @return key-valies pair represet by HashMap
    */
-  public HashMap<String, String> getAll() {
-    HashMap<String, String> h = new HashMap<String, String> ();
-    Set<String> keys = data.keySet();
-    Iterator<String> ikeys = keys.iterator();
+  public HashMap < String, String > getAll() {
+    HashMap < String, String > h = new HashMap < String, String >();
+    Set < String > keys = data.keySet();
+    Iterator < String > ikeys = keys.iterator();
     while (ikeys.hasNext()) {
       String key = ikeys.next();
-      List<String> vals = data.get(key);
-      if(vals != null)
+      List < String > vals = data.get(key);
+      if (vals != null) {
         h.put(key, convertToString(vals));
-    }  
+      }
+    }
     return h;
   }
 
   /**
-   * Return values and values convert from List<String>
-   * to the String. This may be used to set HTTP headers
+   * Return values and values convert from &lt;String&gt; to the String. This may
+   * be used to set HTTP headers.
    * @param key the key
    * @return the value
    */
   public String get(String key) {
-    List <String> vals = getList(key.toLowerCase());
-    if(vals != null)
+    List < String > vals = getList(key.toLowerCase());
+    if (vals != null) {
       return convertToString(vals);
+    }
     return null;
   }
-  
+
   /**
-   * Return values represented by List<String> 
+   * Return values represented by List&lt;String&gt;.
    * @param key the key
    * @return the value
    */
-  public List<String> getList(String key) {
+  public List < String > getList(String key) {
     return data.get(key.toLowerCase());
   }
 
-  private String convertToString(List<String> list) {
-    if(list.size() == 0)
+  private String convertToString(List < String > list) {
+    if (list.size() == 0) {
       return null;
+    }
     StringBuffer sb = new StringBuffer();
-    for(String t : list)
+    for (String t : list) {
       sb.append(t + ",");
+    }
     return sb.deleteCharAt(sb.length() - 1).toString();
   }
-  
 }

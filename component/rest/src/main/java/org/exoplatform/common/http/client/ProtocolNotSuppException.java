@@ -2,7 +2,7 @@
  * @(#)ProtocolNotSuppException.java			0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
- *  Copyright (C) 1996-2001 Ronald Tschalär
+ *  Copyright (C) 1996-2001 Ronald Tschalï¿½r
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -36,32 +36,29 @@ import java.io.IOException;
 
 /**
  * Signals that the protocol is not supported.
- *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * 
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalï¿½r
  */
-public class ProtocolNotSuppException extends IOException
-{
+public class ProtocolNotSuppException extends IOException {
 
-    /**
-     * Constructs an ProtocolNotSuppException with no detail message.
-     * A detail message is a String that describes this particular exception.
-     */
-    public ProtocolNotSuppException()
-    {
-	super();
-    }
+  /**
+   * Constructs an ProtocolNotSuppException with no detail message. A detail
+   * message is a String that describes this particular exception.
+   */
+  public ProtocolNotSuppException() {
+    super();
+  }
 
-
-    /**
-     * Constructs an ProtocolNotSuppException class with the specified
-     * detail message.  A detail message is a String that describes this
-     * particular exception.
-     * @param s the String containing a detail message
-     */
-    public ProtocolNotSuppException(String s)
-    {
-	super(s);
-    }
+  /**
+   * Constructs an ProtocolNotSuppException class with the specified detail
+   * message. A detail message is a String that describes this particular
+   * exception.
+   * 
+   * @param s the String containing a detail message
+   */
+  public ProtocolNotSuppException(String s) {
+    super(s);
+  }
 
 }

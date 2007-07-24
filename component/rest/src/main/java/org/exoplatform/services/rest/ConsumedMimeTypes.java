@@ -14,11 +14,10 @@ import org.exoplatform.services.rest.data.MimeTypes;
 /**
  * ConsumedMimeTypes defines the consumed mimetype for ResourceContainer.
  * By default mimetypes set to ALL mimetype
- * 
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-@Target({METHOD})
+@Target({ METHOD })
 @Retention(RUNTIME)
 public @interface ConsumedMimeTypes {
   String value() default MimeTypes.ALL;

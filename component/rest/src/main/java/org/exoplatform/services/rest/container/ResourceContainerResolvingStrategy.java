@@ -19,5 +19,5 @@ public interface ResourceContainerResolvingStrategy {
    * @param resourceContainer the ResourceContainer which should be added.
    * @return the collection of ResourceDescription
    */
-  List <ResourceDescriptor> resolve(ResourceContainer resourceContainer);
+  List < ResourceDescriptor > resolve(ResourceContainer resourceContainer);
 }

@@ -14,15 +14,13 @@ import static java.lang.annotation.ElementType.METHOD;
 import org.exoplatform.services.rest.transformer.OutputEntityTransformer;
 
 /**
- * Define entity output transformer. 
- * Output transformer is used for serialization entity.
- * 
+ * Define entity output transformer. Output transformer is used for
+ * serialization entity.
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 @Retention(RUNTIME)
-@Target({TYPE, METHOD})
+@Target({ TYPE, METHOD })
 public @interface OutputTransformer {
-	Class<? extends OutputEntityTransformer> value();
+  Class < ? extends OutputEntityTransformer > value();
 }
-
