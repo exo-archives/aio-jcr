@@ -28,6 +28,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
@@ -454,7 +455,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
           1));
       changesLog.add(ItemState.createDeletedState(lockIsDeep));
 
-      dataManager.save(changesLog);
+      dataManager.save(new TransactionChangesLog(changesLog));
     } catch (RepositoryException e) {
       log.error("Error occur during removing lock");
     }
