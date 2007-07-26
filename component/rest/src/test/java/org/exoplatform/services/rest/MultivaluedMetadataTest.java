@@ -23,7 +23,7 @@ public class MultivaluedMetadataTest extends TestCase {
     langs.add("da");
     langs.add("de");
     md.put("Content-Language",langs);
-    assertEquals("en,ru,da,de", md.getAll().get("content-language"));
+    assertEquals("en, ru, da, de", md.getAll().get("content-language"));
   }
 
   public void testMetadataEncod() {
@@ -32,8 +32,7 @@ public class MultivaluedMetadataTest extends TestCase {
     encs.add("compress;q=0.5");
     encs.add("gzip;q=1.0");
     md.put("Content-Encoding", encs);
-    assertEquals("compress;q=0.5,gzip;q=1.0", md.getAll().get("content-encoding"));
-    
+    assertEquals("compress;q=0.5, gzip;q=1.0", md.getAll().get("content-encoding"));
   }
 
 }

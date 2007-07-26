@@ -20,7 +20,7 @@ public class HeaderUtils {
    */
   private HeaderUtils() {}
 
-  private static Pattern spacePattern = Pattern.compile("(\\s+)");
+  private static final Pattern SPACE_PATTERN = Pattern.compile("(\\s+)");
 
   /**
    * Parse the string in the form of "text/xml;q=0.9,text/plain;q=0.7" into
@@ -45,7 +45,7 @@ public class HeaderUtils {
    * @return the resul string
    */
   public static String normalizeAccepString(String s) {
-    Matcher m = spacePattern.matcher(s);
+    Matcher m = SPACE_PATTERN.matcher(s);
     return m.replaceAll("");
   }
 

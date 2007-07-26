@@ -119,6 +119,11 @@ public class Response {
     return -1;
   }
 
+  /**
+   * EntityMetadata gives possibility to view some response headers by use method get.<br/>
+   * For example:<br/><pre>metadata.getMediaType()</pre> - Content-Type header.
+   * @return @see org.exoplatform.services.rest.EntityMetadata
+   */
   public EntityMetadata getEntityMetadata() {
     return metadata;
   }
@@ -511,6 +516,15 @@ public class Response {
      */
     public Builder headers(MultivaluedMetadata headers) {
       this.responseHeaders = headers;
+      return this;
+    }
+    
+    /**
+     * @param c @see org.exoplatform.services.rest.CacheControl
+     * @return the Builder with added Cache-Control header
+     */
+    public Builder cacheControl(CacheControl c) {
+      this.responseHeaders.putSingle("Cache-Control", c.getAsString());
       return this;
     }
   }

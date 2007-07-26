@@ -67,8 +67,12 @@ public class ResourceContainer3 implements ResourceContainer {
     tr.writeTo(in, System.out);
     String entity = "--- GET response\n This response is represented by Stream" +
     		" , so Content-Length can't be counted!\n";
-    Response resp =
-      Response.Builder.ok(new ByteArrayInputStream(entity.getBytes()), "text/plain").build(); 
+    CacheControl cache = new CacheControl();
+    cache.setPublicCacheable(!cache.isPublicCacheable()); // ~:)
+    cache.setPrivateCacheable(true);
+    cache.setNoTransform(false);
+    Response resp = Response.Builder.ok(new ByteArrayInputStream(entity.getBytes()),
+        "text/plain").cacheControl(cache).build(); 
     return resp;
   }
 }

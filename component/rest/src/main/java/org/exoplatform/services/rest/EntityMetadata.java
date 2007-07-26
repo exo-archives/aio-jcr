@@ -86,4 +86,8 @@ public class EntityMetadata {
   public String getMediaType() {
     return metadata.getFirst("Content-Type");
   }
+  
+  public String getCacheControl() {
+    return metadata.getFirst("Cache-Control");
+  }
 }

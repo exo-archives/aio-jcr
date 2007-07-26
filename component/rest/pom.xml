@@ -243,5 +243,15 @@
     </plugins>
 
   </build>
-
+	<reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <configLocation>src/test/resources/exo-checkstyle-checker.xml</configLocation>
+        </configuration>
+      </plugin>
+    </plugins>
+</reporting>
 </project>

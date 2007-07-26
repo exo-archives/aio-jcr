@@ -36,7 +36,7 @@ public class ResourceBinder implements Startable {
   private List < ResourceContainerResolvingStrategy > bindStrategies;
   private ExoContainerContext containerContext;
   private ExoContainer container;
-  private Log logger = ExoLogger.getLogger("rest.ResourceBinder");
+  private static Log logger = ExoLogger.getLogger("ResourceBinder");
 
   /**
    * Constructor sets the resolving strategy.

@@ -12,9 +12,8 @@ import java.util.Set;
 import java.util.List;
 
 /**
- * Created by The eXo Platform SARL .<br/> A map of key-value pair. Each key
- * can have few value.<br/>
- * 
+ * Created by The eXo Platform SARL .<br/> A map of key-value pair.
+ * Each key can have few value.<br/>
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -106,8 +105,11 @@ public class MultivaluedMetadata {
     }
     StringBuffer sb = new StringBuffer();
     for (String t : list) {
-      sb.append(t + ",");
+      if (sb.length() > 0) {
+        sb.append(", ");
+      }
+      sb.append(t);
     }
-    return sb.deleteCharAt(sb.length() - 1).toString();
+    return sb.toString();
   }
 }

@@ -153,6 +153,7 @@ public class ResourceContainerTest extends TestCase {
         new ResourceIdentifier("/level1/myID/level3/"), "POST", mm, null);
     resp = disp.dispatch(request);
     System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
+    System.out.println(">>> Cache-Control: " + resp.getEntityMetadata().getCacheControl());
     resp.writeEntity(System.out);
     binder.unbind(resourceContainer);
     assertEquals(0, list.size());
@@ -185,18 +186,21 @@ public class ResourceContainerTest extends TestCase {
     assertEquals("http://localhost/test/_put", resp.getResponseHeaders().getFirst("Location"));
     assertEquals("text/plain", resp.getEntityMetadata().getMediaType());
     System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
+    System.out.println(">>> Cache-Control: " + resp.getEntityMetadata().getCacheControl());
     resp.writeEntity(System.out);
 
     request = new Request(new ByteArrayInputStream("delete something".getBytes()),
         new ResourceIdentifier("/level1/myID/le vel3/test"), "DELETE", mm, null);
     resp = disp.dispatch(request);
     System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
+    System.out.println(">>> Cache-Control: " + resp.getEntityMetadata().getCacheControl());
     resp.writeEntity(System.out);
 
     request = new Request(new ByteArrayInputStream("get something".getBytes()),
         new ResourceIdentifier("/level1/myID/le vel3/test"), "get", mm, null);
     resp = disp.dispatch(request);
     System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
+    System.out.println(">>> Cache-Control: " + resp.getEntityMetadata().getCacheControl());
     resp.writeEntity(System.out);
     
     binder.unbind(resourceContainer);
@@ -221,6 +225,7 @@ public class ResourceContainerTest extends TestCase {
         new ResourceIdentifier("/level1/level2/level3/myID1/myID2"), "GET", mm, null);
     Response resp = disp.dispatch(request);
     System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
+    System.out.println(">>> Cache-Control: " + resp.getEntityMetadata().getCacheControl());
     assertEquals("text/plain", resp.getEntityMetadata().getMediaType());
 //    resp.writeEntity(new FileOutputStream(new File("/tmp/test.txt")));
     resp.writeEntity(System.out);
@@ -245,6 +250,7 @@ public class ResourceContainerTest extends TestCase {
     Request request = new Request(f, new ResourceIdentifier("/test/jaxb"), "GET", mm, null);
     Response resp = disp.dispatch(request);
     System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
+    System.out.println(">>> Cache-Control: " + resp.getEntityMetadata().getCacheControl());
     assertEquals("text/xml", resp.getEntityMetadata().getMediaType());
 //    resp.writeEntity(new FileOutputStream(new File("/tmp/output.xml")));
     resp.writeEntity(System.out);
@@ -269,6 +275,7 @@ public class ResourceContainerTest extends TestCase {
     			new ResourceIdentifier("/test/serializable"), "GET", mm, null);
     Response resp = disp.dispatch(request);
     System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
+    System.out.println(">>> Cache-Control: " + resp.getEntityMetadata().getCacheControl());
     resp.writeEntity(System.out);
   }
 

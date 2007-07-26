@@ -29,7 +29,7 @@ public class ResourceDispatcher implements Connector {
 
   private List < ResourceDescriptor > resourceDescriptors;
   private ThreadLocal < Context > contextHolder = new ThreadLocal < Context >();
-  private Log logger = ExoLogger.getLogger("rest.ResourceDispatcher");
+  private static Log logger = ExoLogger.getLogger("ResourceDispatcher");
 
   /**
    * Constructor gets all binded ResourceContainers from ResourceBinder.
@@ -100,10 +100,10 @@ public class ResourceDispatcher implements Connector {
 
         Response resp =
           (Response) resource.getServer().invoke(resource.getResourceContainer(), params);
+        
         if (!resp.isTransformerInitialized() && resp.isEntityInitialized()) {
           resp.setTransformer(getTransformer(resource));
         }
-
         if (resp.getEntityMetadata().getLength() < 0) {
           long contentLength = resp.countContentLength();
           if (contentLength == -1) {
@@ -111,6 +111,9 @@ public class ResourceDispatcher implements Connector {
                 + " May be data represented by InputStream. Content-Length header: -1");
           }
           resp.getResponseHeaders().putSingle("Content-Length", contentLength + "");
+        }
+        if (resp.getEntityMetadata().getCacheControl() == null) {
+          resp.getResponseHeaders().putSingle("Cache-Control", new CacheControl().getAsString());
         }
 
         return resp;
