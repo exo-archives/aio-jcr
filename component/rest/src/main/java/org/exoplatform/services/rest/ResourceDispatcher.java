@@ -112,6 +112,7 @@ public class ResourceDispatcher implements Connector {
           }
           resp.getResponseHeaders().putSingle("Content-Length", contentLength + "");
         }
+//TODO solution about default Cache-Control        
 //        if (resp.getEntityMetadata().getCacheControl() == null) {
 //          resp.getResponseHeaders().putSingle("Cache-Control", new CacheControl().getAsString());
 //        }
