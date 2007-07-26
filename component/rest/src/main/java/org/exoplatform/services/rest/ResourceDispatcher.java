@@ -112,9 +112,9 @@ public class ResourceDispatcher implements Connector {
           }
           resp.getResponseHeaders().putSingle("Content-Length", contentLength + "");
         }
-        if (resp.getEntityMetadata().getCacheControl() == null) {
-          resp.getResponseHeaders().putSingle("Cache-Control", new CacheControl().getAsString());
-        }
+//        if (resp.getEntityMetadata().getCacheControl() == null) {
+//          resp.getResponseHeaders().putSingle("Cache-Control", new CacheControl().getAsString());
+//        }
 
         return resp;
       }
