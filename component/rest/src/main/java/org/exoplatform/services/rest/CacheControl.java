@@ -90,7 +90,7 @@ public class CacheControl {
       appendString(buff, getSMaxAge() + "");
     }
     for (Map.Entry < String, String > entry : getCacheExtension().entrySet()) {
-      appendWithSingleParameter(buff, entry.getKey(), addQuotes(entry.getValue()));
+      appendWithSingleParameter(buff, entry.getKey(), entry.getValue());
     }
     return buff.toString();
   }
@@ -389,7 +389,7 @@ public class CacheControl {
     localBuff.append(s);
     if (param != null && param.length() > 0) {
       localBuff.append("=");
-      localBuff.append(param);
+      localBuff.append(addQuotes(param));
     }
     appendString(buff, localBuff.toString());
   }
