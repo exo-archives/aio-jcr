@@ -9,12 +9,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.net.HttpURLConnection;
 
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.InputStreamPersistedValueData;
-import org.exoplatform.common.http.HTTPStatus;
 
 import org.apache.commons.logging.Log;
 
@@ -45,7 +45,7 @@ public class S3ValueIOUtil {
 
     GetResponse resp = conn.get(bucket, s3fielName, null);
     int responseCode = resp.connection.getResponseCode();
-    if (responseCode != HTTPStatus.OK)
+    if (responseCode != HttpURLConnection.HTTP_OK)
       throw new IOException("Filed read data from S3 storage. HTTP status "
           + responseCode);
 
@@ -81,7 +81,7 @@ public class S3ValueIOUtil {
     int responseCode = resp.connection.getResponseCode();
     if (debug)
       logger.info("==>Read from S3: STATUS = " + responseCode);
-    if (responseCode != HTTPStatus.OK)
+    if (responseCode != HttpURLConnection.HTTP_OK)
       return false;
     return true;
   }
@@ -94,7 +94,7 @@ public class S3ValueIOUtil {
        new AWSAuthConnection(awsAccessKey, awsSecretAccessKey);
      Response resp = conn.createBucket(bucket, null);
      int responseCode = resp.connection.getResponseCode();
-     if (responseCode != HTTPStatus.OK)
+     if (responseCode != HttpURLConnection.HTTP_OK)
        throw new IOException("Can't create BUCKET on S3 storage. HTTP status "
            + responseCode);
 
@@ -112,7 +112,7 @@ public class S3ValueIOUtil {
         ? new ByteArrayInputStream(value.getAsByteArray()) : value.getAsStream();
     Response resp = conn.put(bucket, key, new S3Object(valueStream, null), null);
     int responseCode = resp.connection.getResponseCode();
-    if (responseCode != HTTPStatus.OK)
+    if (responseCode != HttpURLConnection.HTTP_OK)
       throw new IOException("Filed PUT data to S3 storage. HTTP status "
           + responseCode);
 
@@ -128,7 +128,7 @@ public class S3ValueIOUtil {
       new AWSAuthConnection(awsAccessKey, awsSecretAccessKey);
     Response resp = conn.delete(bucket, key, null);
     int responseCode = resp.connection.getResponseCode();
-    if (responseCode != HTTPStatus.NO_CONTENT)
+    if (responseCode != HttpURLConnection.HTTP_NO_CONTENT)
       return false;
 //      throw new IOException("Filed DELETE data from S3 storage. HTTP status "
 //          + responseCode);
