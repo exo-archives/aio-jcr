@@ -18,7 +18,7 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
  */
 
 public class MapStoredSessionProviderService implements SessionProviderService{
-  
+
   private HashMap <Object, SessionProvider> providers;
 
   public MapStoredSessionProviderService() {
@@ -46,8 +46,10 @@ public class MapStoredSessionProviderService implements SessionProviderService{
    * @see org.exoplatform.services.jcr.ext.app.SessionProviderService#removeSessionProvider(java.lang.Object)
    */
   public void removeSessionProvider(Object key) {
-    getSessionProvider(key).close();
-    providers.remove(key);
+    if(providers.containsKey(key)) {
+      getSessionProvider(key).close();
+      providers.remove(key); 
+    }    
   }
 
 }
