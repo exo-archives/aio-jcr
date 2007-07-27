@@ -259,13 +259,6 @@
     	<scope>compile</scope>
     </dependency>
 
-    <dependency>
-    	<groupId>org.exoplatform.jcr</groupId>
-    	<artifactId>exo.jcr.component.rest</artifactId>
-    	<version>1.6</version>
-    	<scope>compile</scope>
-    </dependency>
-
     <!-- ===== Databases JDBC support ===== -->
 
     <!-- For MySQL support -->
@@ -411,7 +404,7 @@
     </testResources>
 
     <testSourceDirectory>src/test/java</testSourceDirectory>
-    <!--<testSourceDirectory>src/TCK/java</testSourceDirectory>-->
+    <!--testSourceDirectory>src/TCK/java</testSourceDirectory-->
     <!--<testSourceDirectory>src/notest</testSourceDirectory>-->
 
     <testOutputDirectory>target/test-classes</testOutputDirectory>
@@ -426,7 +419,7 @@
             <forkMode>once</forkMode>
             <childDelegation>true</childDelegation>            
               <!-- TCK tests, uncomment <execution id #1> in maven-antrun-plugin -->
-              <!--<includes>
+              <!--includes>
               	<include>**/api/*Test.java</include>
               	<include>**/api/observation/*Test.java</include>
               	<include>**/api/lock/*Test.java</include>
@@ -438,7 +431,7 @@
                 <exclude>**/init/*</exclude>
                 <exclude>**/api/**/*Abstract*Test.java</exclude>
                 <exclude>**/*$*</exclude>nested classes prb, http://jira.codehaus.org/browse/SUREFIRE-288                
-              </excludes>-->
+              </excludes-->
               <!-- eXo tests, usecases -->
               <includes>        
               	<include>**/api/**/Test*.java</include>
@@ -524,10 +517,10 @@
       </plugin>
       <!-- This is plugin for generating code coverage reports.   -->
       <!-- Comment it if you do not like to produce such reports and use emma. -->
-      <!--plugin>
+      <plugin>
       	<artifactId>maven-antrun-plugin</artifactId>
       	<executions>
-      		<execution>
+      		<!-- execution>
       			<id>0</id>
       			<phase>test-compile</phase>
       			<configuration>
@@ -558,7 +551,7 @@
       			</goals>
       		</execution-->
       		<!-- This section is for TCK tests only. -->
-      		<!--<execution>
+      		<!--execution>
             <id>1</id>
       			<phase>test-compile</phase>            
             <configuration>
@@ -596,7 +589,7 @@
             <goals>
               <goal>run</goal>
             </goals>
-          </execution>-->
+          </execution-->
       		<!--execution>
       			<id>2</id>
       			<phase>test</phase>
@@ -625,7 +618,7 @@
       			<goals>
       				<goal>run</goal>
       			</goals>
-      		</execution>
+      		</execution-->
       	</executions>
       	<dependencies>
       		<dependency>
@@ -649,7 +642,7 @@
     				<version>1.6.5</version>
     			</dependency>
       	</dependencies>
-      </plugin-->
+      </plugin>
    </plugins>
   </build>
 <reporting>
