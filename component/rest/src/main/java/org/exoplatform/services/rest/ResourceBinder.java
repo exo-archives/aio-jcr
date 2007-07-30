@@ -23,7 +23,6 @@ import org.exoplatform.services.rest.container.ResourceDescriptor;
 import org.exoplatform.services.rest.container.ResourceContainer;
 import org.exoplatform.services.rest.container.ResourceContainerResolvingStrategy;
 
-
 /**
  * Created by The eXo Platform SARL.<br/>
  * For binding and unbinding ResourceContainers.<br/>
@@ -72,7 +71,8 @@ public class ResourceBinder implements Startable {
       List < ResourceDescriptor > resList = strategy.resolve(resourceCont);
       validate(resList);
       resourceDescriptors.addAll(resList);
-      logger.info("==>>>> Bind new ResourceContainer: " + resourceCont);
+      logger.info("Bind new ResourceContainer: " + resourceCont);
+sortResources(resourceDescriptors, 0 , resourceDescriptors.size()-1);
     }
   }
 
@@ -118,17 +118,22 @@ public class ResourceBinder implements Startable {
     
     for (ResourceDescriptor newDesc : newDescriptors) {
       URIPattern npattern = newDesc.getURIPattern();
+      String nhttpMethod = newDesc.getAcceptableMethod();
  
       for (ResourceDescriptor storedDesc : resourceDescriptors) {
         URIPattern spattern = storedDesc.getURIPattern();
+        String shttpMethod = storedDesc.getAcceptableMethod();
         // check URI pattern
-        if (spattern.matches(npattern.getString())
-            || npattern.matches(spattern.getString())) {
-          // check HTTP method
+//        if (spattern.matches(npattern).getString()) 
+//            || npattern.matches(spattern).getString())) {
+        if (spattern.matches(npattern) || npattern.matches(spattern)) {
+          // check HTTP method.
+          if (shttpMethod.equalsIgnoreCase(nhttpMethod)) {
             throw new InvalidResourceDescriptorException("The resource descriptor pattern '"
                 + newDesc.getURIPattern().getString()
                 + "' can not be defined because of existed '"
                 + storedDesc.getURIPattern().getString());
+          }
         }
       }
 
@@ -159,6 +164,36 @@ public class ResourceBinder implements Startable {
       }
     }
   }
+  
+  private List < ResourceDescriptor > sortResources(List < ResourceDescriptor > l, int i0, int k0) {
+    int i = i0;
+    int k = k0;
+    if (k0 > i0) {
+      while (i <= k) {
+        if (resourceDescriptors.get(i).getURIPattern().getParamNames().size()
+            < resourceDescriptors.get(k).getURIPattern().getParamNames().size()) {
+          swapResources(l, i, k);
+        }
+        i++;
+        k--;
+        if (i0 < k) {
+          sortResources(l, i0, k);
+        }
+        if (i < k0) {
+          sortResources(l, i, k0);
+        }
+      }
+    }
+    return l;
+  }
+  
+  private void swapResources(List < ResourceDescriptor >l, int i, int k) {
+    Object o = l.get(i);
+    l.set(i, l.remove(k));
+    l.add(k, (ResourceDescriptor)o);
+  }
+  
+  
 
   /* (non-Javadoc)
    * @see org.picocontainer.Startable#start()

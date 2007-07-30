@@ -8,10 +8,10 @@ import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
+//import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.services.log.ExoLogger;
+//import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.container.InvalidResourceDescriptorException;
 import org.exoplatform.services.rest.container.ResourceDescriptor;
 import org.exoplatform.services.rest.data.MimeTypes;
@@ -29,7 +29,7 @@ public class ResourceDispatcher implements Connector {
 
   private List < ResourceDescriptor > resourceDescriptors;
   private ThreadLocal < Context > contextHolder = new ThreadLocal < Context >();
-  private static Log logger = ExoLogger.getLogger("ResourceDispatcher");
+//  private static Log logger = ExoLogger.getLogger("ResourceDispatcher");
 
   /**
    * Constructor gets all binded ResourceContainers from ResourceBinder.
@@ -55,7 +55,6 @@ public class ResourceDispatcher implements Connector {
     String acceptedMimeTypes = (request.getHeaderParams().get("accept") != null) ? request
         .getHeaderParams().get("accept") : MimeTypes.ALL;
     MimeTypes requestedMimeTypes = new MimeTypes(acceptedMimeTypes);
-
     for (ResourceDescriptor resource : resourceDescriptors) {
       MimeTypes producedMimeTypes = new MimeTypes(resource.getProducedMimeTypes());
       // Check is this ResourceContainer have appropriated parameters,
@@ -97,7 +96,6 @@ public class ResourceDispatcher implements Connector {
             }
           }
         }
-
         Response resp =
           (Response) resource.getServer().invoke(resource.getResourceContainer(), params);
         
@@ -106,10 +104,10 @@ public class ResourceDispatcher implements Connector {
         }
         if (resp.getEntityMetadata().getLength() < 0) {
           long contentLength = resp.countContentLength();
-          if (contentLength == -1) {
-            logger.warn("Length of content can't be counted."
-                + " May be data represented by InputStream. Content-Length header: -1");
-          }
+//          if (contentLength == -1) {
+//            logger.warn("Length of content can't be counted."
+//                + " May be data represented by InputStream. Content-Length header: -1");
+//          }
           resp.getResponseHeaders().putSingle("Content-Length", contentLength + "");
         }
 //TODO solution about default Cache-Control        
@@ -123,6 +121,13 @@ public class ResourceDispatcher implements Connector {
     // if no one ResourceContainer found
     throw new NoSuchMethodException("No method found for " + methodName + " " + requestedURI + " "
         + acceptedMimeTypes);
+  }
+  
+  
+  private void hu() {
+    for (ResourceDescriptor resource : resourceDescriptors) {
+        System.out.println("------------------------"+resource.getServer().getName());
+    }
   }
 
   /**

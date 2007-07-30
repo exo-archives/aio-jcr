@@ -131,7 +131,74 @@ public class ResourceContainerTest extends TestCase {
     assertEquals("test5", params.get("id2"));
   }
 
-  public void testServe() throws Exception {
+  public void testParametrizedURIPattern3() throws Exception {
+    // two params
+    URIPattern pattern = new URIPattern("/level1/{id1}/{id2}/{id3}/");
+    assertEquals(3, pattern.getParamNames().size());
+    
+    assertTrue(pattern.matches("/level1/t/e/st/"));
+    assertTrue(pattern.matches("/level1/level/2/te/st/"));
+    assertTrue(pattern.matches("/level1/le/vel/2/"));
+    assertTrue(pattern.matches("/level1/level2/te/st/"));
+
+    Map<String, String> params = pattern.parse("/level1/t/e/s/t/");
+    assertEquals(3, params.size());
+    assertEquals("t",  params.get("id1"));
+    assertEquals("e",  params.get("id2"));
+    assertEquals("s/t", params.get("id3"));
+    try {
+      params = pattern.parse("/level1/tes/t/");
+      fail("Exception should be here");
+    } catch(Exception e) {}
+  }
+
+  public void testParametrizedURIPattern4() throws Exception {
+    URIPattern pattern = new URIPattern("/level1/{id1}/");
+    assertEquals(1, pattern.getParamNames().size());
+    assertTrue(pattern.matches("/level1/l/e/v/e/l/2/t/e/s/t/"));
+  }
+
+  public void testServe0() throws Exception {
+    ResourceDispatcher disp = (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
+    assertNotNull(disp);
+    ResourceBinder binder = (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);
+    assertNotNull(binder);
+
+    List <ResourceDescriptor> list = binder.getAllDescriptors();
+    ResourceContainerGET resourceContainerGET = new ResourceContainerGET();
+    binder.bind(resourceContainerGET);
+    assertEquals(1, list.size());
+
+    ResourceContainerPOST resourceContainerPOST = new ResourceContainerPOST();
+    binder.bind(resourceContainerPOST);
+    assertEquals(2, list.size());
+
+    ResourceContainerGET resourceContainerGET1 = new ResourceContainerGET();
+    ResourceContainerPOST resourceContainerPOST1 = new ResourceContainerPOST();
+    try {
+      binder.bind(resourceContainerGET1);
+      fail("Bind for this component shuold be failed!");
+    } catch(Exception e) {}
+    assertEquals(2, list.size());
+    try {
+      binder.bind(resourceContainerPOST1);
+      fail("Bind for this component shuold be failed!");
+    } catch(Exception e) {}
+    assertEquals(2, list.size());
+
+    MultivaluedMetadata mm = new MultivaluedMetadata();
+    Request request = new Request(null, new ResourceIdentifier("/level1/get/"),
+        "GET", mm, null);
+    disp.dispatch(request);
+    request = new Request(null, new ResourceIdentifier("/level1/post/"),
+        "POST", mm, null);
+    disp.dispatch(request);
+    binder.unbind(resourceContainerGET);
+    binder.unbind(resourceContainerPOST);
+    assertEquals(0, list.size());
+  }
+
+  public void testServe1() throws Exception {
     ResourceDispatcher disp = (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
     assertNotNull(disp);
     ResourceBinder binder = (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);
@@ -204,6 +271,32 @@ public class ResourceContainerTest extends TestCase {
     assertEquals(0, list.size());
   }
 
+  public void testServe3() throws Exception {
+    ResourceDispatcher disp =
+      (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
+    assertNotNull(disp);
+    ResourceBinder binder =
+      (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);
+    assertNotNull(binder);
+
+    List <ResourceDescriptor> list = binder.getAllDescriptors();
+    ResourceContainer4 resourceContainer = new ResourceContainer4();
+    binder.bind(resourceContainer);
+    assertEquals(3, list.size());
+
+    MultivaluedMetadata mm = new MultivaluedMetadata();
+    mm.putSingle("accept", "*/*");
+    Request request = new Request(null, new ResourceIdentifier("/level1/myID1/"), "GET", mm, null);
+    disp.dispatch(request);
+    request = new Request(null, new ResourceIdentifier("/level1/myID1/myID2/"), "GET", mm, null);
+    disp.dispatch(request);
+    request = new Request(null, new ResourceIdentifier("/level1/my/I/D/1/m/y/I/D/2/"), "GET", mm, null);
+    disp.dispatch(request);
+    
+    binder.unbind(resourceContainer);
+    assertEquals(0, list.size());
+  }
+  
   public void testServeAnnotatedClass() throws Exception {
     ResourceDispatcher disp = (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
     assertNotNull(disp);

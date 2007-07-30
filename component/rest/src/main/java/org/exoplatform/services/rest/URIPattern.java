@@ -142,7 +142,7 @@ public class URIPattern {
     int minSize = (tokens.length <= another.getTokens().length) ? tokens.length : another
         .getTokens().length;
     for (int i = 0; i < minSize; i++) {
-      if (!tokens[i].equals(another.getTokens())) {
+      if (!tokens[i].equals(another.getTokens()[i])) {
         return false;
       }
     }
