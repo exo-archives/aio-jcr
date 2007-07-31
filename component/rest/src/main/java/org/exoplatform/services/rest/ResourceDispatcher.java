@@ -123,13 +123,6 @@ public class ResourceDispatcher implements Connector {
         + acceptedMimeTypes);
   }
   
-  
-  private void hu() {
-    for (ResourceDescriptor resource : resourceDescriptors) {
-        System.out.println("------------------------"+resource.getServer().getName());
-    }
-  }
-
   /**
    * Get runtime context.
    * @return the runtimeContext
