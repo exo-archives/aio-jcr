@@ -632,7 +632,7 @@ public class SessionDataManager implements ItemDataConsumer {
     RepositoryImpl rep = (RepositoryImpl) session.getRepository();
     for (String wsName: rep.getWorkspaceNames()) {
       SessionImpl wsSession = session.getWorkspace().getName().equals(wsName) ? session :
-          (SessionImpl) rep.login(session.getCredentials(), wsName);
+          (SessionImpl) rep.getSystemSession(wsName);
       try {
         List<PropertyData> srefs = wsSession.getTransientNodesManager().getReferencesData(vhID, false);
         for (PropertyData sref: srefs) {

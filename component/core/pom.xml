@@ -403,35 +403,30 @@
         </testResource>
     </testResources>
 
-    <testSourceDirectory>src/test/java</testSourceDirectory>
-    <!--testSourceDirectory>src/TCK/java</testSourceDirectory-->
-    <!--<testSourceDirectory>src/notest</testSourceDirectory>-->
+    <!-- testSourceDirectory>src/test/java</testSourceDirectory -->
+    <!-- testSourceDirectory>src/TCK/java</testSourceDirectory -->
+    <testSourceDirectory>src/notest</testSourceDirectory>
 
     <testOutputDirectory>target/test-classes</testOutputDirectory>
 
     <plugins>
-
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <!--<version>2.3</version>-->
+            <version>2.0</version>
             <configuration>
-            <forkMode>once</forkMode>
             <childDelegation>true</childDelegation>            
               <!-- TCK tests, uncomment <execution id #1> in maven-antrun-plugin -->
-              <!--includes>
+              <!-- includes>
+                <include>**/init/TestAll.java</include>
+                
               	<include>**/api/*Test.java</include>
               	<include>**/api/observation/*Test.java</include>
               	<include>**/api/lock/*Test.java</include>
               	<include>**/api/nodetype/*Test.java</include>
               	<include>**/api/query/*Test.java</include>
               	<include>**/api/version/*Test.java</include>
-              </includes>
-              <excludes>
-                <exclude>**/init/*</exclude>
-                <exclude>**/api/**/*Abstract*Test.java</exclude>
-                <exclude>**/*$*</exclude>nested classes prb, http://jira.codehaus.org/browse/SUREFIRE-288                
-              </excludes-->
+              </includes -->
               <!-- eXo tests, usecases -->
               <includes>        
               	<include>**/api/**/Test*.java</include>
@@ -447,7 +442,7 @@
               	<include>**/api/TestAll.java</include>
               </excludes>
 
-              <systemProperties>
+              <!-- systemProperties>
                 	<property>
                 		<name>test.repository</name>
                 		<value>db1</value>
@@ -464,7 +459,7 @@
                 		<name>emma.coverage.out.file</name>
                 		<value>target/emma/coverage.ec</value>
                 	</property>
-                </systemProperties>
+                </systemProperties -->
             </configuration>
         </plugin>
 

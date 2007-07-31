@@ -29,7 +29,7 @@
               <property name="swap-directory" value="target/temp/swap/ws"/>
             </properties>
             <value-storages>
-              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
+              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws"/>
                 </properties>
@@ -81,7 +81,7 @@
               <property name="db-type" value="generic"/>
             </properties>
             <value-storages>
-              <!-- value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
+              <!-- value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws1"/>
                 </properties>
@@ -125,7 +125,7 @@
               <property name="db-type" value="generic"/>
             </properties>
             <value-storages>
-              <!-- value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
+              <!-- value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws2"/>
                 </properties>
