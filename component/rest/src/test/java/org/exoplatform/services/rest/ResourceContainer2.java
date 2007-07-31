@@ -38,7 +38,7 @@ public class ResourceContainer2 implements ResourceContainer {
   @ProducedMimeTypes("text/*")
   @InputTransformer(StringInputTransformer.class)
   @OutputTransformer(XMLOutputTransformer.class)
-  public Response method11(String str,
+  public Response method2(String str,
       @URIParam("id") String param,
       @HeaderParam("tESt") String test) throws Exception {
     

@@ -72,7 +72,26 @@ public class ResourceBinder implements Startable {
       validate(resList);
       resourceDescriptors.addAll(resList);
       logger.info("Bind new ResourceContainer: " + resourceCont);
-sortResources(resourceDescriptors, 0 , resourceDescriptors.size()-1);
+      // After binding new component(s) to the ResourceDescriptor list
+      // it must be sorted by number of parameter in URITemplate.
+      // The resources which have more parameters must be at the
+      // begin of list, the resources which have less parameter 
+      // must be ay the and of it.
+      // See example:
+      // @HTTPMethod("GET")
+      // @URITemplate("/level1/{id1}/"
+      // public void method1() {
+      // ....
+      // }
+      // @HTTPMethod("GET")
+      // @URITemplate("/level1/{id1}/{id2}/"
+      // public void method1() {
+      // ....
+      // }
+      // For URI "/level1/te/st/" both URITemplate are valide.
+      // First method: id1 = "te/st"
+      // Second method: id1 = "te", id2 = "st"
+      sortResources(0 , resourceDescriptors.size()-1);
     }
   }
 
@@ -124,8 +143,6 @@ sortResources(resourceDescriptors, 0 , resourceDescriptors.size()-1);
         URIPattern spattern = storedDesc.getURIPattern();
         String shttpMethod = storedDesc.getAcceptableMethod();
         // check URI pattern
-//        if (spattern.matches(npattern).getString()) 
-//            || npattern.matches(spattern).getString())) {
         if (spattern.matches(npattern) || npattern.matches(spattern)) {
           // check HTTP method.
           if (shttpMethod.equalsIgnoreCase(nhttpMethod)) {
@@ -165,32 +182,31 @@ sortResources(resourceDescriptors, 0 , resourceDescriptors.size()-1);
     }
   }
   
-  private List < ResourceDescriptor > sortResources(List < ResourceDescriptor > l, int i0, int k0) {
+  private void sortResources(int i0, int k0) {
     int i = i0;
     int k = k0;
     if (k0 > i0) {
       while (i <= k) {
         if (resourceDescriptors.get(i).getURIPattern().getParamNames().size()
             < resourceDescriptors.get(k).getURIPattern().getParamNames().size()) {
-          swapResources(l, i, k);
+          swapResources(i, k);
         }
         i++;
         k--;
         if (i0 < k) {
-          sortResources(l, i0, k);
+          sortResources(i0, k);
         }
         if (i < k0) {
-          sortResources(l, i, k0);
+          sortResources(i, k0);
         }
       }
     }
-    return l;
   }
   
-  private void swapResources(List < ResourceDescriptor >l, int i, int k) {
-    Object o = l.get(i);
-    l.set(i, l.remove(k));
-    l.add(k, (ResourceDescriptor)o);
+  private void swapResources(int i, int k) {
+    Object o = resourceDescriptors.get(i);
+    resourceDescriptors.set(i, resourceDescriptors.remove(k));
+    resourceDescriptors.add(k, (ResourceDescriptor)o);
   }
   
   

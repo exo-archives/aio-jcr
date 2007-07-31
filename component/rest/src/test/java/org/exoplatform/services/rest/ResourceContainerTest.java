@@ -221,6 +221,7 @@ public class ResourceContainerTest extends TestCase {
     resp = disp.dispatch(request);
     System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
     resp.writeEntity(System.out);
+    System.out.println();
     binder.unbind(resourceContainer);
     assertEquals(0, list.size());
   }
@@ -282,7 +283,7 @@ public class ResourceContainerTest extends TestCase {
     List <ResourceDescriptor> list = binder.getAllDescriptors();
     ResourceContainer4 resourceContainer = new ResourceContainer4();
     binder.bind(resourceContainer);
-    assertEquals(3, list.size());
+    assertEquals(5, list.size());
 
     MultivaluedMetadata mm = new MultivaluedMetadata();
     mm.putSingle("accept", "*/*");
@@ -290,7 +291,13 @@ public class ResourceContainerTest extends TestCase {
     disp.dispatch(request);
     request = new Request(null, new ResourceIdentifier("/level1/myID1/myID2/"), "GET", mm, null);
     disp.dispatch(request);
-    request = new Request(null, new ResourceIdentifier("/level1/my/I/D/1/m/y/I/D/2/"), "GET", mm, null);
+    request = new Request(null, new ResourceIdentifier("/level1/myID1/myID2/myID3/"), "GET", mm, null);
+    disp.dispatch(request);
+    request = new Request(null, new ResourceIdentifier("/level1/myID1/myID2/myID3/myID4/"), "GET", mm, null);
+    disp.dispatch(request);
+    request = new Request(null, new ResourceIdentifier("/level1/myID1/myID2/myID3/myID4/myID5/"), "GET", mm, null);
+    disp.dispatch(request);
+    request = new Request(null, new ResourceIdentifier("/level1/myID1/myID2/myID3/myID4/m/y/I/D/5"), "GET", mm, null);
     disp.dispatch(request);
     
     binder.unbind(resourceContainer);
