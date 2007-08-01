@@ -13,8 +13,6 @@ import javax.jcr.Session;
 
 import org.apache.commons.chain.Command;
 import org.apache.commons.chain.Context;
-import org.apache.commons.logging.Log;
-import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.WebDavCommandContext;
 import org.exoplatform.services.webdav.common.request.WebDavRequest;
 import org.exoplatform.services.webdav.common.resource.factory.ResourceFactory;
@@ -29,8 +27,6 @@ import org.exoplatform.services.webdav.common.response.WebDavResponse;
 
 public abstract class WebDavCommand implements Command {
 
-  private static Log log = ExoLogger.getLogger("jcr.WebDavCommand");
-
   protected ThreadLocal<WebDavCommandContext> commandContext = new ThreadLocal<WebDavCommandContext>();
 
   public final boolean execute(Context context) throws Exception {
@@ -39,16 +35,7 @@ public abstract class WebDavCommand implements Command {
     boolean status = false;
 
     try {
-
-      try {
-        status = process();
-      } catch (Exception exc) {
-        log.info("Unhandled exception. " + exc.getMessage(), exc);
-        System.out.println("Exception. " + exc);
-        exc.printStackTrace();
-        throw exc;
-      }
-
+      status = process();
     } catch (LoginException lexc) {
       String wwwAuthencticate = davContext().getConfig().getAuthHeader();
       davResponse().answerUnAuthorized(wwwAuthencticate);

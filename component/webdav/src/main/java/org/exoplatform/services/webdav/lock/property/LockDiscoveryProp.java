@@ -138,7 +138,7 @@ public class LockDiscoveryProp extends AbstractDAVProperty {
     elActiveLock.appendChild(elDepth);
     if (depth < 0) {
       elDepth.setTextContent("Infinity");
-      //elTimeOut.setTextContent("" + (100*24*60*60));
+      //elDep.setTextContent("" + (100*24*60*60));
     } else {
       elDepth.setTextContent(String.format("%s", depth));
     }
@@ -150,8 +150,8 @@ public class LockDiscoveryProp extends AbstractDAVProperty {
     Element elTimeOut = rootDoc.createElement(DavConst.DAV_PREFIX + DavProperty.TIMEOUT);
     elActiveLock.appendChild(elTimeOut);
     if ("".equals(timeOut)) {
-      //elTimeOut.setTextContent("Infinity");
-      elTimeOut.setTextContent("" + (100*24*60*60));
+      elTimeOut.setTextContent("Infinity");
+      //elTimeOut.setTextContent("" + (100*24*60*60));
     } else {
       elTimeOut.setTextContent(timeOut);
     }
