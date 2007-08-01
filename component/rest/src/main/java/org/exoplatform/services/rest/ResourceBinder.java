@@ -92,7 +92,7 @@ public class ResourceBinder implements Startable {
       // For URI "/level1/te/st/" both URITemplate are valide.
       // First method: id1 = "te/st"
       // Second method: id1 = "te", id2 = "st"
-      sortResources(0 , resourceDescriptors.size()-1);
+      sortResources(0 , resourceDescriptors.size() - 1);
     }
   }
 
@@ -194,14 +194,14 @@ public class ResourceBinder implements Startable {
         while ((i < k0 )
             && (
                 resourceDescriptors.get(i).getURIPattern().getParamNames().size()
-                < middleElementParameterArrayLength )
+                > middleElementParameterArrayLength )
                 ) {
           i++;
         }
         while ((k > i0 )
             && (
                 resourceDescriptors.get(k).getURIPattern().getParamNames().size()
-                > middleElementParameterArrayLength )
+                < middleElementParameterArrayLength )
                 ) {
           k--;
         }

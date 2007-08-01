@@ -70,10 +70,10 @@ public class HeaderUtils {
     if (k0 > i0) {
       float middleQvalue = getQvalue(s[(i0 + k0) / 2]);
       while (i <= k) {
-        while (i < k0 && getQvalue(s[i]) < middleQvalue) {
+        while (i < k0 && getQvalue(s[i]) > middleQvalue) {
           i++;
         }
-        while (k > i0 && getQvalue(s[k]) > middleQvalue) {
+        while (k > i0 && getQvalue(s[k]) < middleQvalue) {
           k--;
         }
         if (i <= k) {
