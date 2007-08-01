@@ -60,25 +60,33 @@ public class HeaderUtils {
     throw new IllegalArgumentException("Invalid quality value " + q + ", must be between 0 and 1");
   }
 
+  
   /*
    * sort array by quality. The strings with higher quality go first.
    */
-  private static String[] sortByQvalue(String s[], int lo0, int hi0) {
-    int lo = lo0;
-    int hi = hi0;
-    if (hi0 > lo0) {
-      while (lo <= hi) {
-        if (getQvalue(s[lo]) <= getQvalue(s[hi])) {
-          swap(s, lo, hi);
+  private static String[] sortByQvalue(String s[], int i0, int k0) {
+    int i = i0;
+    int k = k0;
+    if (k0 > i0) {
+      float middleQvalue = getQvalue(s[(i0 + k0) / 2]);
+      while (i <= k) {
+        while (i < k0 && getQvalue(s[i]) < middleQvalue) {
+          i++;
         }
-        lo++;
-        hi--;
-        if (lo0 < hi) {
-          sortByQvalue(s, lo0, hi);
+        while (k > i0 && getQvalue(s[k]) > middleQvalue) {
+          k--;
         }
-        if (lo < hi0) {
-          sortByQvalue(s, lo, hi0);
+        if (i <= k) {
+          swap(s, i, k);
+          i++;
+          k--;
         }
+      }
+      if (i0 < k) {
+        sortByQvalue(s, i0, k);
+      }
+      if (i < k0) {
+        sortByQvalue(s, i, k0);
       }
     }
     return s;
@@ -103,10 +111,10 @@ public class HeaderUtils {
     return s;
   }
 
-  private static void swap(String a[], int i, int j) {
-    String t = a[i];
-    a[i] = a[j];
-    a[j] = t;
+  private static void swap(String s[], int i, int j) {
+    String t = s[i];
+    s[i] = s[j];
+    s[j] = t;
   }
 
 }

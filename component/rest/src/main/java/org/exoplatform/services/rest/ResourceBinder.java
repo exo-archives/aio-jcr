@@ -60,7 +60,8 @@ public class ResourceBinder implements Startable {
       bindStrategies.add(rs);
     }
   }
-  
+
+ 
   /**
    * Bind ResourceContainer resourceCont if validation for this container is ok.
    * @param resourceCont the Resource Container
@@ -181,24 +182,40 @@ public class ResourceBinder implements Startable {
       }
     }
   }
+
   
   private void sortResources(int i0, int k0) {
     int i = i0;
     int k = k0;
     if (k0 > i0) {
+      int middleElementParameterArrayLength =
+        resourceDescriptors.get((i0 + k0) / 2).getURIPattern().getParamNames().size();
       while (i <= k) {
-        if (resourceDescriptors.get(i).getURIPattern().getParamNames().size()
-            < resourceDescriptors.get(k).getURIPattern().getParamNames().size()) {
+        while ((i < k0 )
+            && (
+                resourceDescriptors.get(i).getURIPattern().getParamNames().size()
+                < middleElementParameterArrayLength )
+                ) {
+          i++;
+        }
+        while ((k > i0 )
+            && (
+                resourceDescriptors.get(k).getURIPattern().getParamNames().size()
+                > middleElementParameterArrayLength )
+                ) {
+          k--;
+        }
+        if(i <= k) {        
           swapResources(i, k);
+          i++;
+          k--;
         }
-        i++;
-        k--;
-        if (i0 < k) {
-          sortResources(i0, k);
-        }
-        if (i < k0) {
-          sortResources(i, k0);
-        }
+      }
+      if (i0 < k) {
+        sortResources(i0, k);
+      }
+      if (i < k0) {
+        sortResources(i, k0);
       }
     }
   }
@@ -208,6 +225,7 @@ public class ResourceBinder implements Startable {
     resourceDescriptors.set(i, resourceDescriptors.remove(k));
     resourceDescriptors.add(k, (ResourceDescriptor)o);
   }
+  
   
   
 
