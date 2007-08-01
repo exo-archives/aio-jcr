@@ -29,24 +29,24 @@ public class TestI18nValues extends JcrAPIBaseTest {
 
   static protected String TEST_I18N = "I18N Node"; 
   
-  static protected String TEST_I18N_PROP = "testProp";
+  static public String TEST_I18N_PROP = "testProp";
   
   // Cyrillic, 'Hello world' + some chars
-  static protected String TEST_I18N_CONTENT_CYR = "\u041f\u0440\u0438\u0432\u0457\u0442\u0490\u044a\u0020\u043c\u0438\u0440\u0462";
+  static public String TEST_I18N_CONTENT_CYR = "\u041f\u0440\u0438\u0432\u0457\u0442\u0490\u044a\u0020\u043c\u0438\u0440\u0462";
   // Hebrew, 'Hello world'
-  static protected String TEST_I18N_CONTENT_IL = "\u05e9\u05dc\u05d5\u05dd\u0020\u05e2\u05d5\u05dc\u05dd";
+  static public String TEST_I18N_CONTENT_IL = "\u05e9\u05dc\u05d5\u05dd\u0020\u05e2\u05d5\u05dc\u05dd";
   // European funny characters
-  static protected String TEST_I18N_CONTENT_LAT = "H\u0158l\u1e37o \u1e84\u00F6r\u013b\u01fc"; 
+  static public String TEST_I18N_CONTENT_LAT = "H\u0158l\u1e37o \u1e84\u00F6r\u013b\u01fc"; 
   // Some Arabic characters (characters mix, it's not a word)
-  static protected String TEST_I18N_CONTENT_ARAB = "Hello w\u0680r\u0628\u069d";
+  static public String TEST_I18N_CONTENT_ARAB = "Hello w\u0680r\u0628\u069d";
   // Some Japan characters (Katakana, Hiragana mix, it's not a word)
-  static protected String TEST_I18N_CONTENT_JP = "H\u30a9l\u30ddo w\u3060r\u308b\u304a";
+  static public String TEST_I18N_CONTENT_JP = "H\u30a9l\u30ddo w\u3060r\u308b\u304a";
   // Some China characters (Bopomofo, Bopomofo ext. mix, it's not a word)
-  static protected String TEST_I18N_CONTENT_CH = "H\u3115l\u312bo w\u3108r\u31a9\u31ae";  
+  static public String TEST_I18N_CONTENT_CH = "H\u3115l\u312bo w\u3108r\u31a9\u31ae";  
   // Some African characters (Ethiopic chars, it's not a word)
-  static protected String TEST_I18N_CONTENT_AFR = "Hello w\u1233r\u127b\u1383";
+  static public String TEST_I18N_CONTENT_AFR = "Hello w\u1233r\u127b\u1383";
   // Some Indic characters (Bengali, Kannada, Devanagara mix, it's not a word)
-  static protected String TEST_I18N_CONTENT_INDIA = "H\u09a3l\u09edo \u0cb2\u0c8br\u0911\u090c";
+  static public String TEST_I18N_CONTENT_INDIA = "H\u09a3l\u09edo \u0cb2\u0c8br\u0911\u090c";
   
   protected Node testNode = null;
   
@@ -309,5 +309,27 @@ public class TestI18nValues extends JcrAPIBaseTest {
   public void testSetBinaryAsStreamAFR() throws RepositoryException {
     log.info("Testing African BINARY string as STREAM");
     setBinaryAsStream(TEST_I18N_CONTENT_AFR);
-  }      
+  }    
+  
+  //************* path
+  public void testPath() throws RepositoryException {
+    testNode.addNode(TEST_I18N_CONTENT_CYR).setProperty(TEST_I18N_CONTENT_LAT, "aaa");
+    
+    testNode.save();
+    
+    Session s1 = repository.login(credentials);
+    Node tr = (Node) s1.getItem(testNode.getPath());
+    
+    try {
+      Node iNode = tr.getNode(TEST_I18N_CONTENT_CYR);
+      //log.info(iNode.getPath()); // wrong out in eclipse due to fonts
+      Property iProp = iNode.getProperty(TEST_I18N_CONTENT_LAT);
+      //log.info(iProp.getPath());
+    } catch(RepositoryException e) {
+      fail(e.getMessage());
+    }    
+    
+    s1.logout();
+  }
+  
 }
