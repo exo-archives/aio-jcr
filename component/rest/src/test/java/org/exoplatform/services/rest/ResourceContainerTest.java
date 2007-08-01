@@ -63,10 +63,6 @@ public class ResourceContainerTest extends TestCase {
     ResourceContainer2 ac = new ResourceContainer2();
     binder.bind(ac);
     assertEquals(2, list.size());
-    ResourceDescriptor d = list.get(0);
-    assertEquals("GET", d.getAcceptableMethod());
-    assertEquals("method1", d.getServer().getName());
-    assertEquals("/level1/{id}/level3/", d.getURIPattern().getString());
     
     binder.clear();
     assertEquals(0, list.size());
@@ -90,11 +86,11 @@ public class ResourceContainerTest extends TestCase {
 
   public void testParametrizedURIPattern0() throws Exception {
     // no params
-    URIPattern pattern = new URIPattern("/level1/level2");
+    URIPattern pattern = new URIPattern("/level1/level2/");
     assertEquals(0, pattern.getParamNames().size());
-    assertTrue(pattern.matches("/level1/level2"));
-    assertFalse(pattern.matches("/level11/level2"));
-    assertFalse(pattern.matches("/level11/level2/level3"));
+    assertTrue(pattern.matches("/level1/level2/"));
+    assertFalse(pattern.matches("/level11/level2/"));
+    assertFalse(pattern.matches("/level11/level2/level3/"));
   }
 
   public void testParametrizedURIPattern1() throws Exception {

@@ -34,7 +34,7 @@ public class ResourceContainer2 implements ResourceContainer {
   }
 
   @HTTPMethod("POST")
-  @URITemplate("/level1/{id}/level3/")
+  @URITemplate("/{id}/level3/")
   @ProducedMimeTypes("text/*")
   @InputTransformer(StringInputTransformer.class)
   @OutputTransformer(XMLOutputTransformer.class)
