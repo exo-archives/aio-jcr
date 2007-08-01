@@ -187,6 +187,10 @@ public class ResourceDispatcher implements Connector {
       queryParams = new MultivaluedMetadata();
     }
 
+    public String getContextHref() {
+      return identifier.getBaseURI();
+    }
+    
     /**
      * Retrun absolute location to the requested resource.
      * @return the absolte location
