@@ -41,6 +41,9 @@ public class URIPattern {
     for (int i = 0; matcher.find(); i++) {
       paramNames[i] = patternString.substring(matcher.start() + 1, matcher.end() - 1);
     }
+    if (numParams > 0) {
+      assert paramNames[numParams - 1] != null;
+    }
     this.pattern = patternString;
     params = Collections.unmodifiableSet(new HashSet(Arrays.asList(paramNames)));
   }

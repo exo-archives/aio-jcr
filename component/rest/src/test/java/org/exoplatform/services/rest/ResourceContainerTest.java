@@ -34,10 +34,15 @@ import org.exoplatform.services.rest.container.ResourceDescriptor;
 public class ResourceContainerTest extends TestCase {
 
   private StandaloneContainer container;
+  private ResourceBinder binder;
+  private ResourceDispatcher dispatcher;
   
   public void setUp() throws Exception {
     StandaloneContainer.setConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
     container = StandaloneContainer.getInstance();
+    binder = (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);
+    binder.clear();
+    dispatcher = (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
   }
 
   public void testIdentifier() throws Exception {
@@ -55,8 +60,6 @@ public class ResourceContainerTest extends TestCase {
   } 
 
   public void testBind() throws Exception {
-    ResourceBinder binder = (ResourceBinder)container
-        .getComponentInstanceOfType(ResourceBinder.class);
     assertNotNull(binder);
     binder.clear();
     List <ResourceDescriptor> list = binder.getAllDescriptors();
@@ -69,9 +72,7 @@ public class ResourceContainerTest extends TestCase {
   }
 
   public void testBind2() throws Exception {
-    ResourceDispatcher disp = (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
-    assertNotNull(disp);
-    ResourceBinder binder = (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);
+    assertNotNull(dispatcher);
     assertNotNull(binder);
     List <ResourceDescriptor> list = binder.getAllDescriptors();
     assertEquals(0, list.size());
@@ -128,7 +129,7 @@ public class ResourceContainerTest extends TestCase {
   }
 
   public void testParametrizedURIPattern3() throws Exception {
-    // two params
+    // three params
     URIPattern pattern = new URIPattern("/level1/{id1}/{id2}/{id3}/");
     assertEquals(3, pattern.getParamNames().size());
     
@@ -144,7 +145,7 @@ public class ResourceContainerTest extends TestCase {
     assertEquals("s/t", params.get("id3"));
     try {
       params = pattern.parse("/level1/tes/t/");
-      fail("Exception should be here");
+      fail("Exception should be here!");
     } catch(Exception e) {}
   }
 
@@ -155,11 +156,8 @@ public class ResourceContainerTest extends TestCase {
   }
 
   public void testServe0() throws Exception {
-    ResourceDispatcher disp = (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
-    assertNotNull(disp);
-    ResourceBinder binder = (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);
+    assertNotNull(dispatcher);
     assertNotNull(binder);
-
     List <ResourceDescriptor> list = binder.getAllDescriptors();
     ResourceContainerGET resourceContainerGET = new ResourceContainerGET();
     binder.bind(resourceContainerGET);
@@ -185,19 +183,17 @@ public class ResourceContainerTest extends TestCase {
     MultivaluedMetadata mm = new MultivaluedMetadata();
     Request request = new Request(null, new ResourceIdentifier("/level1/get/"),
         "GET", mm, null);
-    disp.dispatch(request);
+    dispatcher.dispatch(request);
     request = new Request(null, new ResourceIdentifier("/level1/post/"),
         "POST", mm, null);
-    disp.dispatch(request);
+    dispatcher.dispatch(request);
     binder.unbind(resourceContainerGET);
     binder.unbind(resourceContainerPOST);
     assertEquals(0, list.size());
   }
 
   public void testServe1() throws Exception {
-    ResourceDispatcher disp = (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
-    assertNotNull(disp);
-    ResourceBinder binder = (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);
+    assertNotNull(dispatcher);
     assertNotNull(binder);
 
     List <ResourceDescriptor> list = binder.getAllDescriptors();
@@ -210,11 +206,11 @@ public class ResourceContainerTest extends TestCase {
     mm.putSingle("test", "test_header");
     Request request = new Request(new ByteArrayInputStream("test string".getBytes()),
         new ResourceIdentifier("/level1/myID/level3/"), "GET", mm, null);
-    Response resp = disp.dispatch(request);
+    Response resp = dispatcher.dispatch(request);
     resp.writeEntity(System.out);
     request = new Request(new ByteArrayInputStream("test string".getBytes()),
         new ResourceIdentifier("/level1/myID/level3/"), "POST", mm, null);
-    resp = disp.dispatch(request);
+    resp = dispatcher.dispatch(request);
     System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
     resp.writeEntity(System.out);
     System.out.println();
@@ -223,11 +219,7 @@ public class ResourceContainerTest extends TestCase {
   }
 
   public void testServe2() throws Exception {
-    ResourceDispatcher disp =
-      (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
-    assertNotNull(disp);
-    ResourceBinder binder =
-      (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);
+    assertNotNull(dispatcher);
     assertNotNull(binder);
 
     List <ResourceDescriptor> list = binder.getAllDescriptors();
@@ -239,12 +231,12 @@ public class ResourceContainerTest extends TestCase {
     mm.putSingle("accept", "*/*");
     Request request = new Request(new ByteArrayInputStream("create something".getBytes()),
         new ResourceIdentifier("/level1/myID/le vel3/"), "POST", mm, null);
-    Response resp = disp.dispatch(request);
+    Response resp = dispatcher.dispatch(request);
     assertEquals("http://localhost/test/_post", resp.getResponseHeaders().getFirst("Location"));
 
     request = new Request(new ByteArrayInputStream("recreate something".getBytes()),
         new ResourceIdentifier("/level1/myID/le vel3/"), "PUT", mm, null);
-    resp = disp.dispatch(request);
+    resp = dispatcher.dispatch(request);
     System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
     assertEquals("http://localhost/test/_put", resp.getResponseHeaders().getFirst("Location"));
     assertEquals("text/plain", resp.getEntityMetadata().getMediaType());
@@ -253,13 +245,13 @@ public class ResourceContainerTest extends TestCase {
 
     request = new Request(new ByteArrayInputStream("delete something".getBytes()),
         new ResourceIdentifier("/level1/myID/le vel3/test"), "DELETE", mm, null);
-    resp = disp.dispatch(request);
+    resp = dispatcher.dispatch(request);
     System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
     resp.writeEntity(System.out);
 
     request = new Request(new ByteArrayInputStream("get something".getBytes()),
         new ResourceIdentifier("/level1/myID/le vel3/test"), "get", mm, null);
-    resp = disp.dispatch(request);
+    resp = dispatcher.dispatch(request);
     System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
     System.out.println(">>> Cache-Control: " + resp.getEntityMetadata().getCacheControl());
     resp.writeEntity(System.out);
@@ -269,11 +261,7 @@ public class ResourceContainerTest extends TestCase {
   }
 
   public void testServe3() throws Exception {
-    ResourceDispatcher disp =
-      (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
-    assertNotNull(disp);
-    ResourceBinder binder =
-      (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);
+    assertNotNull(dispatcher);
     assertNotNull(binder);
 
     List <ResourceDescriptor> list = binder.getAllDescriptors();
@@ -284,26 +272,24 @@ public class ResourceContainerTest extends TestCase {
     MultivaluedMetadata mm = new MultivaluedMetadata();
     mm.putSingle("accept", "*/*");
     Request request = new Request(null, new ResourceIdentifier("/level1/myID1/"), "GET", mm, null);
-    disp.dispatch(request);
+    dispatcher.dispatch(request);
     request = new Request(null, new ResourceIdentifier("/level1/myID1/myID2/"), "GET", mm, null);
-    disp.dispatch(request);
+    dispatcher.dispatch(request);
     request = new Request(null, new ResourceIdentifier("/level1/myID1/myID2/myID3/"), "GET", mm, null);
-    disp.dispatch(request);
+    dispatcher.dispatch(request);
     request = new Request(null, new ResourceIdentifier("/level1/myID1/myID2/myID3/myID4/"), "GET", mm, null);
-    disp.dispatch(request);
+    dispatcher.dispatch(request);
     request = new Request(null, new ResourceIdentifier("/level1/myID1/myID2/myID3/myID4/myID5/"), "GET", mm, null);
-    disp.dispatch(request);
+    dispatcher.dispatch(request);
     request = new Request(null, new ResourceIdentifier("/level1/myID1/myID2/myID3/myID4/m/y/I/D/5"), "GET", mm, null);
-    disp.dispatch(request);
+    dispatcher.dispatch(request);
     
     binder.unbind(resourceContainer);
     assertEquals(0, list.size());
   }
   
   public void testServeAnnotatedClass() throws Exception {
-    ResourceDispatcher disp = (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
-    assertNotNull(disp);
-    ResourceBinder binder = (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);
+    assertNotNull(dispatcher);
     assertNotNull(binder);
 
     List <ResourceDescriptor> list = binder.getAllDescriptors();
@@ -316,7 +302,7 @@ public class ResourceContainerTest extends TestCase {
     mm.putSingle("accept", "text/plain");
     Request request = new Request(ds, 
         new ResourceIdentifier("/level1/level2/level3/myID1/myID2"), "GET", mm, null);
-    Response resp = disp.dispatch(request);
+    Response resp = dispatcher.dispatch(request);
     System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
     assertEquals("text/plain", resp.getEntityMetadata().getMediaType());
 //    resp.writeEntity(new FileOutputStream(new File("/tmp/test.txt")));
@@ -326,9 +312,7 @@ public class ResourceContainerTest extends TestCase {
   }
 
   public void testJAXBTransformetion() throws Exception {
-    ResourceDispatcher disp = (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
-    assertNotNull(disp);
-    ResourceBinder binder = (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);
+    assertNotNull(dispatcher);
     assertNotNull(binder);
 
     List <ResourceDescriptor> list = binder.getAllDescriptors();
@@ -340,7 +324,7 @@ public class ResourceContainerTest extends TestCase {
     
     MultivaluedMetadata mm = new MultivaluedMetadata();
     Request request = new Request(f, new ResourceIdentifier("/test/jaxb"), "GET", mm, null);
-    Response resp = disp.dispatch(request);
+    Response resp = dispatcher.dispatch(request);
     System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
     System.out.println(">>> Cache-Control: " + resp.getEntityMetadata().getCacheControl());
     assertEquals("text/xml", resp.getEntityMetadata().getMediaType());
@@ -351,9 +335,7 @@ public class ResourceContainerTest extends TestCase {
   }
   
   public void testSerializable() throws Exception {
-  	ResourceDispatcher disp = (ResourceDispatcher)container.getComponentInstanceOfType(ResourceDispatcher.class);
-  	assertNotNull(disp);
-  	ResourceBinder binder = (ResourceBinder)container.getComponentInstanceOfType(ResourceBinder.class);
+  	assertNotNull(dispatcher);
   	assertNotNull(binder);
   	
   	List <ResourceDescriptor> list = binder.getAllDescriptors();
@@ -365,7 +347,7 @@ public class ResourceContainerTest extends TestCase {
     Request request =
     	new Request(new ByteArrayInputStream("this is request data".getBytes()),
     			new ResourceIdentifier("/test/serializable"), "GET", mm, null);
-    Response resp = disp.dispatch(request);
+    Response resp = dispatcher.dispatch(request);
     System.out.println(">>> Content-Length: " + resp.getEntityMetadata().getLength());
     resp.writeEntity(System.out);
   }

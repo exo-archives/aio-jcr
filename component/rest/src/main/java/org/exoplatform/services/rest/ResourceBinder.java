@@ -221,9 +221,9 @@ public class ResourceBinder implements Startable {
   }
   
   private void swapResources(int i, int k) {
-    Object o = resourceDescriptors.get(i);
-    resourceDescriptors.set(i, resourceDescriptors.remove(k));
-    resourceDescriptors.add(k, (ResourceDescriptor)o);
+    ResourceDescriptor temp = resourceDescriptors.get(i);
+    resourceDescriptors.set(i, resourceDescriptors.get(k));
+    resourceDescriptors.set(k, temp);
   }
   
   

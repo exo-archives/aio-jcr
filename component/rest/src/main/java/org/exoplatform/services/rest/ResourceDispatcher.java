@@ -55,10 +55,12 @@ public class ResourceDispatcher implements Connector {
     String acceptedMimeTypes = (request.getHeaderParams().get("accept") != null) ? request
         .getHeaderParams().get("accept") : MimeTypes.ALL;
     MimeTypes requestedMimeTypes = new MimeTypes(acceptedMimeTypes);
+    int j = 0;
     for (ResourceDescriptor resource : resourceDescriptors) {
       MimeTypes producedMimeTypes = new MimeTypes(resource.getProducedMimeTypes());
       // Check is this ResourceContainer have appropriated parameters,
       // such URIPattern, HTTP method and mimetype
+      
       if (resource.getAcceptableMethod().equalsIgnoreCase(methodName)
           && resource.getURIPattern().matches(requestedURI)
           && (compareMimeTypes(requestedMimeTypes.getMimeTypes(), producedMimeTypes.getMimeTypes()))) {
@@ -114,9 +116,9 @@ public class ResourceDispatcher implements Connector {
 //        if (resp.getEntityMetadata().getCacheControl() == null) {
 //          resp.getResponseHeaders().putSingle("Cache-Control", new CacheControl().getAsString());
 //        }
-
         return resp;
       }
+      j++;
     }
     // if no one ResourceContainer found
     throw new NoSuchMethodException("No method found for " + methodName + " " + requestedURI + " "
