@@ -449,6 +449,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     } else if (dbDialect == DB_DIALECT_DERBY) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.derby.sql";
+      dbInitilizer = defaultDBInitializer(sqlPath);
     } else if (dbDialect == DB_DIALECT_DB2) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.db2.sql";
