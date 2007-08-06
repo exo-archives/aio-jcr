@@ -17,8 +17,10 @@
         <name>properties</name>
         <description>Log4J properties</description>
         <property name="log4j.rootLogger" value="INFO, stdout, file"/>
+
         <!-- property name="log4j.category.jcr.TransactionableDataManager" value="DEBUG, stdout, file"/>
         <property name="log4j.category.jcr.WorkspaceDataManager" value="DEBUG, stdout, file"/ -->
+
         <property name="log4j.category.jcr.JDBCWorkspaceDataContainer" value="DEBUG, stdout, file"/>
         <property name="log4j.category.jcr.Test" value="DEBUG, stdout, file"/>
 
@@ -28,43 +30,11 @@
         <property name="log4j.appender.stdout.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
 
         <property name="log4j.appender.file" value="org.apache.log4j.FileAppender"/>
-        <property name="log4j.appender.file.File" value="temp/logs/jcr.log"/>
+        <property name="log4j.appender.file.File" value="logs/jcr.log"/>
 
         <property name="log4j.appender.file.layout" value="org.apache.log4j.PatternLayout"/>
         <property name="log4j.appender.file.layout.ConversionPattern" value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
       </properties-param>
-
-      <!-- value-param>
-        <name>logger</name>
-        <value>org.exoplatform.services.log.impl.BufferedSimpleLog</value>
-      </value-param>
-      <value-param>
-        <name>configurator</name>
-        <value>org.exoplatform.services.log.impl.SimpleLogConfigurator</value>
-      </value-param>
-      <properties-param>
-        <name>properties</name>
-        <description>SimpleLog properties</description>
-        <property name="org.apache.commons.logging.simplelog.defaultlog" value="debug"/>
-        <property name="org.apache.commons.logging.simplelog.showdatetime" value="true"/>
-      </properties-param -->
-
-      <!-- value-param>
-        <name>logger</name>
-        <value>org.exoplatform.services.log.impl.BufferedJdk14Logger</value>
-      </value-param>
-      <value-param>
-        <name>configurator</name>
-        <value>org.exoplatform.services.log.impl.Jdk14Configurator</value>
-      </value-param>
-      <properties-param>
-        <name>properties</name>
-        <description>jdk1.4 Logger properties</description>
-        <property name="handlers" value="java.util.logging.ConsoleHandler"/>
-        <property name=".level" value="FINE"/>
-        <property name="java.util.logging.ConsoleHandler.level" value="FINE"/>
-      </properties-param -->
-
     </init-params>
   </component>
 
@@ -117,36 +87,6 @@
     <key>org.exoplatform.services.naming.InitialContextInitializer</key>
     <type>org.exoplatform.services.naming.InitialContextInitializer</type>
     <component-plugins>
-      <!--component-plugin>
-        <name>bind.datasource</name>
-        <set-method>addPlugin</set-method>
-        <type>org.exoplatform.services.naming.BindReferencePlugin</type>
-        <init-params>
-          <value-param>
-            <name>bind-name</name>
-            <value>jdbcjcr</value>
-          </value-param>
-          <value-param>
-            <name>class-name</name>
-            <value>javax.sql.DataSource</value>
-          </value-param>
-          <value-param>
-            <name>factory</name>
-            <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
-          </value-param>
-          <properties-param>
-            <name>ref-addresses</name>
-            <description>ref-addresses</description>
-            <property name="driverClassName" value="oracle.jdbc.OracleDriver"/>
-            <property name="url" value="jdbc:oracle:thin:@192.168.0.10:1521/XE"/>
-            <property name="username" value="DCTIADMIN"/>
-            <property name="password" value="DCTI12321"/>
-            <property name="maxActive" value="20"/>
-            <property name="maxIdle" value="2"/>
-            <property name="initialSize" value="2"/>
-          </properties-param>
-        </init-params>
-      </component-plugin -->
             <!-- Resource configuration for UserTransaction
                use JOTM
               -->
@@ -181,12 +121,6 @@
         <description>Default initial context properties</description>
         <property name="java.naming.factory.initial" value="org.exoplatform.services.naming.SimpleContextFactory"/>
       </properties-param>
-      <!-- properties-param>
-        <name>mandatory-properties</name>
-        <description>Mandatory initial context properties</description>
-        <property name="java.naming.factory.initial" value="org.exoplatform.services.naming.SimpleContextFactory"/>
-        <property name="java.naming.provider.url" value="rmi://localhost:9999"/>
-      </properties-param -->
     </init-params>
   </component>
 
@@ -203,7 +137,7 @@
               <name>namespaces</name>
               <property name="test" value="http://www.apache.org/jackrabbit/test"/>
               <property name="exojcrtest" value="http://www.exoplatform.org/jcr/exojcrtest"/>
-	      <property name="dc" value="http://purl.org/dc/elements/1.1/" /> 
+          <property name="dc" value="http://purl.org/dc/elements/1.1/" />
             </properties-param>
           </init-params>
       </component-plugin>
@@ -215,7 +149,7 @@
           <values-param>
             <name>autoCreatedInNewRepository</name>
             <description>Node types configuration file</description>
-	    <value>file:ext-nodetypes-config.xml</value>
+        <value>file:ext-nodetypes-config.xml</value>
           </values-param>
         </init-params>
       </component-plugin>
@@ -235,7 +169,7 @@
   </component>
 
   <component>
-    <type>org.exoplatform.services.jcr.impl.mock.DummyOrganizationService</type>
+    <type>org.exoplatform.services.organization.impl.mock.DummyOrganizationService</type>
   </component>
 
   <component>
