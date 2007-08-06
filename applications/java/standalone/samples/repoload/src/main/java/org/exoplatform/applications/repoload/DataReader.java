@@ -238,7 +238,7 @@ public class DataReader {
     sReadOnly = mapConfig.get("-read");
 
     try {
-      StandaloneContainer.setConfigurationPath(sConf);
+      StandaloneContainer.addConfigurationPath(sConf);
 
       container = StandaloneContainer.getInstance();
 

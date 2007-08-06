@@ -35,24 +35,22 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.storage.WorkspaceDataContainerBase;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
-import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
- * Created by The eXo Platform SARL
- * Author : Alex Reshetnyak
- *          alex.reshetnyak@exoplatform.org.ua
- *          reshetnyak.alex@gmail.com		
- * 05.04.2007 17:14:45 
- * @version $Id: DataUploader.java 05.04.2007 17:14:45 rainfox 
+ * Created by The eXo Platform SARL Author : Alex Reshetnyak
+ * alex.reshetnyak@exoplatform.org.ua reshetnyak.alex@gmail.com 05.04.2007
+ * 17:14:45
+ * 
+ * @version $Id: DataUploader.java 05.04.2007 17:14:45 rainfox
  */
-public class DataUploader{
+public class DataUploader {
 
   protected Log log = ExoLogger.getLogger("repload.DataUploader");
-  
+
   protected static class DCPropertyQName {
     public static InternalQName dcElementSet;
 
@@ -67,7 +65,8 @@ public class DataUploader{
     public static InternalQName dcPublisher;
   }
 
-  protected String[]                   args;         
+  protected String[]                   args;
+
   protected HashMap<String, String>    mapConfig;
 
   protected String                     tree        = "10-5-5-5";
@@ -119,7 +118,7 @@ public class DataUploader{
   public int                           countNodes;
 
   protected String                     sMimeType;
-  
+
   protected FileCleaner                fileCleaner;
 
   public DataUploader(String[] args) {
@@ -135,18 +134,16 @@ public class DataUploader{
     sVdfile = mapConfig.get("-vdfile");
     sReadTree = mapConfig.get("-readtree");
     sMimeType = mapConfig.get("-mimeType");
-
-    WorkspaceFileCleanerHolder cleanerHolder = (WorkspaceFileCleanerHolder) container.getComponentInstanceOfType(WorkspaceFileCleanerHolder.class);
     
-    fileCleaner = cleanerHolder.getFileCleaner();
+    fileCleaner = new FileCleaner();
 
     if (!sVdfile.equals("")) {
-      fileData = new TransientValueData(new FileInputStream(sVdfile));   
+      fileData = new TransientValueData(new FileInputStream(sVdfile));
       fileData.setFileCleaner(fileCleaner);
     }
 
     try {
-      StandaloneContainer.setConfigurationPath(sConf);
+      StandaloneContainer.addConfigurationPath(sConf);
 
       container = StandaloneContainer.getInstance();
 
@@ -193,24 +190,24 @@ public class DataUploader{
     }
 
     try {
-      if (sRoot.startsWith("/")){
+      if (sRoot.startsWith("/")) {
         rootTestNode = (NodeImpl) session.getItem(sRoot);
         log.info("--->>> Node " + sRoot + " exist");
-      } else 
+      } else
         new Exception("Test root is not absolute path: " + sRoot);
-      
+
     } catch (PathNotFoundException e) {
       try {
-         
-//        root.addNode(sRoot);
+
+        // root.addNode(sRoot);
         rootTestNode = addNodes(sRoot, root);
         session.save();
         log.info("--->>> Node " + sRoot + " create");
-//        rootTestNode = (NodeImpl) root.getNode(sRoot);
+        // rootTestNode = (NodeImpl) root.getNode(sRoot);
         if (rootTestNode != null)
           log.info("--->>> rootTestNode");
       } catch (Exception ee) {
-        log.error( "Can not create roottest node: " + sRoot, ee);
+        log.error("Can not create roottest node: " + sRoot, ee);
       }
     }
 
@@ -222,27 +219,27 @@ public class DataUploader{
         .getInternalName();
     DCPropertyQName.dcPublisher = locationFactory.parseJCRName("dc:publisher").getInternalName();
   }
-  
-  private NodeImpl addNodes( String sRoot, NodeImpl parentNode) throws Exception {
+
+  private NodeImpl addNodes(String sRoot, NodeImpl parentNode) throws Exception {
     String mas[] = sRoot.split("/");
-    
-    NodeImpl temp = parentNode; 
-    
-    for (int i = 1; i < mas.length; i++){
-      if(temp.hasNode(mas[i]))
-        temp = (NodeImpl)temp.getNode(mas[i]); 
+
+    NodeImpl temp = parentNode;
+
+    for (int i = 1; i < mas.length; i++) {
+      if (temp.hasNode(mas[i]))
+        temp = (NodeImpl) temp.getNode(mas[i]);
       else {
-        temp = (NodeImpl)temp.addNode(mas[i]);
+        temp = (NodeImpl) temp.addNode(mas[i]);
         session.save();
       }
     }
-    
+
     return temp;
   }
 
   public void uploadData() throws Exception {
-    long start, end, temp, localStart, localEnd; 
-    
+    long start, end, temp, localStart, localEnd;
+
     int tree[] = getTree(mapConfig.get("-tree"));
 
     log.info(">>>>>>>>>>>---------- Upload data ----------<<<<<<<<<<<<");
@@ -253,10 +250,10 @@ public class DataUploader{
 
     date = Calendar.getInstance();
 
-    countNodes = 0/*tree[0] * tree[1] * tree[2] * tree[3]*/;
+    countNodes = 0/* tree[0] * tree[1] * tree[2] * tree[3] */;
 
     start = System.currentTimeMillis();
-    
+
     for (int i = 1; i <= tree[0]; i++) {
       try {
         TransientNodeData nodeData_L1 = addNode(connection, sName + i, i, rootTestNode, date);
@@ -265,11 +262,11 @@ public class DataUploader{
           TransientNodeData nodeData_L2 = addNode(connection, sName + j, j, nodeData_L1, date);
 
           localStart = System.currentTimeMillis();
-          
+
           for (int k = 1; k <= tree[2]; k++) {
             TransientNodeData nodeData_L3 = addNode(connection, sName + k, k, nodeData_L2, date);
 
-            for (int index = 1; index <= tree[3]; index++){
+            for (int index = 1; index <= tree[3]; index++) {
               addNode_file(connection, sFile + index, index, nodeData_L3, date, fileData);
               countNodes++;
             }
@@ -277,41 +274,41 @@ public class DataUploader{
             connection.commit();
             connection = getConnection();
 
-            log.info("Node " + i + " - " + j + " - " + k + " - " + "[1..." + tree[3]
-                + "] add");
+            log.info("Node " + i + " - " + j + " - " + k + " - " + "[1..." + tree[3] + "] add");
           }
-         
+
           localEnd = System.currentTimeMillis();
-                    
-          log.info("\tThe time of adding of " + tree[2]*tree[3] + " nodes: "+ ((localEnd - localStart) / 1000.0) + " sec"  );
-          log.info("\tTotal adding time " + countNodes + " nodes: "+ ((localEnd - start) / 1000.0) + " sec"  );
+
+          log.info("\tThe time of adding of " + tree[2] * tree[3] + " nodes: "
+              + ((localEnd - localStart) / 1000.0) + " sec");
+          log.info("\tTotal adding time " + countNodes + " nodes: " + ((localEnd - start) / 1000.0)
+              + " sec");
         }
       } catch (Exception e) {
         connection.rollback();
         log.error(">>>>>>>>>>>---------- Upload data Exception ----------<<<<<<<<<<<<", e);
       }
     }
-    
+
     end = System.currentTimeMillis();
-    log.info("The time of the adding of " + countNodes + " nodes: "
-        + ((end - start) / 1000.0) + " sec");
+    log.info("The time of the adding of " + countNodes + " nodes: " + ((end - start) / 1000.0)
+        + " sec");
   }
-  
-  public void uploadDataTh(){
+
+  public void uploadDataTh() {
     int tree[] = getTree(mapConfig.get("-tree"));
-    
+
     Thread[] threads = new Thread[tree[0]];
     DataUploaderTh[] uploaderThs = new DataUploaderTh[tree[0]];
-    
-    
+
     for (int i = 0; i < threads.length; i++) {
-      uploaderThs[i] = new DataUploaderTh(args, workspaceDataContainer, rootTestNode, i+1);
+      uploaderThs[i] = new DataUploaderTh(args, workspaceDataContainer, rootTestNode, i + 1);
       threads[i] = new Thread(uploaderThs[i]);
     }
-    
-    for (int i = 0; i < threads.length; i++) 
-      threads[i].start(); 
-//    threads[0].start();
+
+    for (int i = 0; i < threads.length; i++)
+      threads[i].start();
+    // threads[0].start();
   }
 
   public void readData() {
@@ -332,17 +329,17 @@ public class DataUploader{
               for (int s = 1; s <= tree[3]; s++) {
                 NodeImpl n_4 = getNode(n_3, sFile + s);
 
-                NodeImpl sourceNode = getNode( n_4, "jcr:content");
-                InputStream fis = getProperty( sourceNode, "jcr:data").getStream();
+                NodeImpl sourceNode = getNode(n_4, "jcr:content");
+                InputStream fis = getProperty(sourceNode, "jcr:data").getStream();
 
-                Value[] t = getProperty( n_4, "dc:title").getValues();
+                Value[] t = getProperty(n_4, "dc:title").getValues();
                 String tit = t[0].getString();
 
-                Value[] d = getProperty( n_4, "dc:description").getValues();
+                Value[] d = getProperty(n_4, "dc:description").getValues();
                 String des = d[0].getString();
 
-                log.info("--->>> Node " + mapConfig.get("-root") + "/" + (sName + i)
-                    + "/" + (sName + j) + "/" + (sName + k) + "/" + (sFile + s) + " exist : "
+                log.info("--->>> Node " + mapConfig.get("-root") + "/" + (sName + i) + "/"
+                    + (sName + j) + "/" + (sName + k) + "/" + (sFile + s) + " exist : "
                     + fis.available() + " b   |   dc:title --> " + tit
                     + "   |   dc:description --> " + des);
 
@@ -368,7 +365,7 @@ public class DataUploader{
     String uuid = IdGenerator.generate();
 
     TransientNodeData nodeData = new TransientNodeData(path, uuid, -1, Constants.NT_FOLDER,
-        mixinTypeNames, orderNum, parentNode.getInternalUUID(), acl);
+        mixinTypeNames, orderNum, parentNode.getInternalIdentifier(), acl);
 
     return nodeData;
   }
@@ -483,7 +480,7 @@ public class DataUploader{
     TransientPropertyData mimeTypePropertyData = new TransientPropertyData(QPath.makeChildPath(
         contentNode.getQPath(), Constants.JCR_MIMETYPE), IdGenerator.generate(), -1,
         PropertyType.STRING, contentNode.getIdentifier(), false);
-    mimeTypePropertyData.setValue(new TransientValueData(sMimeType/*"image/tiff"*/));
+    mimeTypePropertyData.setValue(new TransientValueData(sMimeType/* "image/tiff" */));
     con.add(mimeTypePropertyData);
 
     TransientPropertyData lastModifiedPropertyData = new TransientPropertyData(QPath.makeChildPath(
@@ -504,11 +501,11 @@ public class DataUploader{
   private void addDcElementSet(WorkspaceStorageConnection con, TransientNodeData nodeData)
       throws Exception {
 
-    addDCProperty(con, nodeData, DCPropertyQName.dcTitle, "Title");
-    addDCProperty(con, nodeData, DCPropertyQName.dcCreator, "Creator");
-    addDCProperty(con, nodeData, DCPropertyQName.dcSubject, "Subject");
-    addDCProperty(con, nodeData, DCPropertyQName.dcDescription, "Description");
-    addDCProperty(con, nodeData, DCPropertyQName.dcPublisher, "Publisher");
+    addDCProperty(con, nodeData, DCPropertyQName.dcTitle, "T123456789");
+    addDCProperty(con, nodeData, DCPropertyQName.dcCreator, "C123456789");
+    addDCProperty(con, nodeData, DCPropertyQName.dcSubject, "S123456789");
+    addDCProperty(con, nodeData, DCPropertyQName.dcDescription, "D123456789");
+    addDCProperty(con, nodeData, DCPropertyQName.dcPublisher, "P123456789");
   }
 
   private void addDCProperty(WorkspaceStorageConnection con, TransientNodeData dcNode,
@@ -530,15 +527,16 @@ public class DataUploader{
       throw new PathNotFoundException("Node not found " + itemPath.getAsString(true));
     return node;
   }
-  
-  public Property getProperty(NodeImpl node,String relPath) throws PathNotFoundException, RepositoryException {
+
+  public Property getProperty(NodeImpl node, String relPath) throws PathNotFoundException,
+      RepositoryException {
     JCRPath itemPath = locationFactory.createJCRPath(node.getLocation(), relPath);
-    
+
     Item prop = dataManager.getItem(itemPath.getInternalPath(), true);
-    if(prop == null || prop.isNode())
+    if (prop == null || prop.isNode())
       throw new PathNotFoundException("Property not found " + itemPath.getAsString(false));
-    
-    return (Property)prop;
+
+    return (Property) prop;
   }
 
   protected int[] getTree(String sTree) {
@@ -553,8 +551,8 @@ public class DataUploader{
   protected WorkspaceStorageConnection getConnection() throws Exception {
     return workspaceDataContainer.openConnection();
   }
-  
-  public WorkspaceDataContainerBase getWorkspaceDataContainer(){
+
+  public WorkspaceDataContainerBase getWorkspaceDataContainer() {
     return workspaceDataContainer;
   }
 
@@ -569,11 +567,11 @@ public class DataUploader{
     map.put("-readtree", "false");
     map.put("-read", "");
     map.put("-readdc", "false");
-    map.put("-threads","1");
+    map.put("-threads", "1");
     map.put("-iteration", "1");
     map.put("-concurrent", "false");
     map.put("-mimeType", "image/tiff");
-    map.put("-api","false");
+    map.put("-api", "false");
 
     for (int i = 0; i < args.length; i++) {
       String[] params = args[i].split("=");
@@ -588,5 +586,5 @@ public class DataUploader{
 
     return map;
   }
-  
+
 }
