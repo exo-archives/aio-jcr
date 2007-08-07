@@ -17,7 +17,8 @@
     <structure name="replication" field="replication" usage="optional">
       <value name="enabled" field="enabled" style="attribute"/>
         <value name="mode" field="mode" style="attribute"/>
-        <value name="test-mode" field="testMode" style="attribute" usage="optional"/>	
+        <value name="bind-ip-address" field="bindIPAddress" style="attribute"/>        
+        <value name="test-mode" field="testMode" style="attribute" usage="optional"/>
       <value name="channel-config" field="channelConfig" style="attribute"/>
    </structure>
 		
