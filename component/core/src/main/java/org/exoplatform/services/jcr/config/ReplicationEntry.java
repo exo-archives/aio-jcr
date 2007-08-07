@@ -19,6 +19,8 @@ public class ReplicationEntry {
   
   private String mode;
   
+  private String bindIPAddress;
+  
   private boolean testMode;
   
   public ReplicationEntry() {
@@ -47,6 +49,14 @@ public class ReplicationEntry {
 
   public void setMode(String mode) {
     this.mode = mode;
+  }
+  
+  public String getBindIPAddress() {
+    return bindIPAddress;
+  }
+  
+  public void setBindIPAddress(String ipAddress) {
+    this.bindIPAddress = ipAddress;
   }
 
   public boolean isTestMode(){
