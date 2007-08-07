@@ -88,7 +88,7 @@ public class Response {
             try {
               transformer.writeTo(entity, pou);
             } catch (IOException e) {
-              length = -1;
+              length = 0;
             } finally {
               try {
                 pou.flush();
@@ -106,17 +106,16 @@ public class Response {
           length += rd;
         }
       } catch (IOException ioe) {
-        length = -1;
+        length = 0;
       } finally {
         try {
           pin.close();
         } catch (IOException ioe) {
-          length = -1;
+          length = 0;
         }
       }
-      return length;
     }
-    return -1;
+    return length;
   }
 
   /**

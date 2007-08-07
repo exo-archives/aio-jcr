@@ -104,11 +104,11 @@ public class ResourceDispatcher implements Connector {
         if (!resp.isTransformerInitialized() && resp.isEntityInitialized()) {
           resp.setTransformer(getTransformer(resource));
         }
-        if (resp.getEntityMetadata().getLength() < 0) {
+        if (resp.getEntityMetadata().getLength() == 0) {
           long contentLength = resp.countContentLength();
-//          if (contentLength == -1) {
+//          if (contentLength == 0) {
 //            logger.warn("Length of content can't be counted."
-//                + " May be data represented by InputStream. Content-Length header: -1");
+//                + " May be data represented by InputStream. Content-Length header: 0");
 //          }
           resp.getResponseHeaders().putSingle("Content-Length", contentLength + "");
         }

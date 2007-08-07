@@ -74,7 +74,7 @@ public class EntityMetadata {
     if (metadata.getFirst("Content-Length") != null) {
       return new Integer(metadata.getFirst("Content-Length"));
     }
-    return -1;
+    return 0;
   }
 
   /**
