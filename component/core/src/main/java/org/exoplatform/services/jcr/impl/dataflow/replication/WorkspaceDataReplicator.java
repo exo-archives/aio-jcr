@@ -5,11 +5,22 @@
 
 package org.exoplatform.services.jcr.impl.dataflow.replication;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
+import java.io.StringBufferInputStream;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -50,42 +61,42 @@ import org.jgroups.util.Util;
  * @version $Id$
  */
 
-public class WorkspaceDataReplicator implements ItemsPersistenceListener,
-    MembershipListener, RequestHandler {
+public class WorkspaceDataReplicator implements ItemsPersistenceListener, MembershipListener,
+    RequestHandler {
 
-  private final static String PERSISTENT_MODE = "persistent";
+  private final static String                 PERSISTENT_MODE = "persistent";
 
-  private final static String PROXY_MODE = "proxy";
+  private final static String                 PROXY_MODE      = "proxy";
 
-  protected static Log log = ExoLogger.getLogger("jcr.WorkspaceDataReplicator");
+  protected static Log                        log             = ExoLogger
+                                                                  .getLogger("jcr.WorkspaceDataReplicator");
 
   private final CacheableWorkspaceDataManager persistentdataManager;
 
-  private final String systemId;
+  private final String                        systemId;
 
-  private Channel channel;
+  private Channel                             channel;
 
-  private MessageDispatcher disp;
+  private MessageDispatcher                   disp;
 
-  private HashMap<String, PendingChangesLog> mapPendingChangesLog;
+  private HashMap<String, PendingChangesLog>  mapPendingChangesLog;
 
-  private Vector<Address> members;
+  private Vector<Address>                     members;
 
-  private ItemDataKeeper dataKeeper;
+  private ItemDataKeeper                      dataKeeper;
 
-  private String mode;
+  private String                              mode;
 
-  private FileCleaner fileCleaner;
+  private FileCleaner                         fileCleaner;
 
   public WorkspaceDataReplicator(CacheableWorkspaceDataManager dataManager,
-      WorkspaceEntry wsConfig, RepositoryEntry rConfig)
-      throws RepositoryConfigurationException {
+      WorkspaceEntry wsConfig, RepositoryEntry rConfig) throws RepositoryConfigurationException {
     this(dataManager, null, null, wsConfig, rConfig);
   }
 
   public WorkspaceDataReplicator(CacheableWorkspaceDataManager dataManager,
-      SearchIndex searchIndex, LockManagerImpl lockManager, WorkspaceEntry wsConfig, RepositoryEntry rConfig)
-      throws RepositoryConfigurationException {
+      SearchIndex searchIndex, LockManagerImpl lockManager, WorkspaceEntry wsConfig,
+      RepositoryEntry rConfig) throws RepositoryConfigurationException {
 
     mode = rConfig.getReplication().getMode();
     if (mode.equals(PROXY_MODE)) {
@@ -102,42 +113,41 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
 
     this.systemId = IdGenerator.generate();
     this.persistentdataManager.addItemPersistenceListener(this);
-    
+
     String channelName;
-    
+
     if (rConfig.getReplication().isTestMode())
       channelName = "Test_Channel";
     else
-     channelName = wsConfig.getUniqueName();
-    
+      channelName = wsConfig.getUniqueName();
+
     try {
-      String localAdaress = getLocalIP(Util.getFirstNonLoopbackAddress());
+      String bindIPAdaress = rConfig.getReplication().getBindIPAddress();
       String propsTCP_NIO = rConfig.getReplication().getChannelConfig();
-      String props = propsTCP_NIO.replaceAll("/LocalAddress/", localAdaress);
+      String props = propsTCP_NIO.replaceAll("/LocalAddress/", bindIPAdaress);
+
       channel = new JChannel(props);
+
       disp = new MessageDispatcher(channel, null, this, this);
       channel.connect(channelName);
 
     } catch (ChannelException e) {
       e.printStackTrace();
-    } catch (SocketException e) {
-      e.printStackTrace();
     }
 
     mapPendingChangesLog = new HashMap<String, PendingChangesLog>();
-    log.info("Replicator initialized JGroup Channel name: '" + channelName
-        + "'");
+    log.info("Replicator initialized JGroup Channel name: '" + channelName + "'");
 
   }
 
   public void onSaveItems(ItemStateChangesLog changesLog_) {
-    TransactionChangesLog changesLog = (TransactionChangesLog)changesLog_;
+    TransactionChangesLog changesLog = (TransactionChangesLog) changesLog_;
     if (changesLog.getSystemId() == null && !isSessionNull(changesLog)) {
       changesLog.setSystemId(systemId);
       // broadcast messages
       try {
         this.send(changesLog);
-        if(log.isDebugEnabled()) 
+        if (log.isDebugEnabled())
           log.debug("After save message -->" + systemId);
       } catch (Exception e) {
         e.printStackTrace();
@@ -148,34 +158,30 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
   }
 
   public void receive(ItemStateChangesLog changesLog_) throws Exception {
-    TransactionChangesLog changesLog = (TransactionChangesLog)changesLog_;
-    if (changesLog.getSystemId() == null
-        || changesLog.getSystemId().equals(this.systemId)) {
-      throw new Exception("Invalid or same systemId "
-          + changesLog.getSystemId());
+    TransactionChangesLog changesLog = (TransactionChangesLog) changesLog_;
+    if (changesLog.getSystemId() == null || changesLog.getSystemId().equals(this.systemId)) {
+      throw new Exception("Invalid or same systemId " + changesLog.getSystemId());
     }
-    
+
     dataKeeper.save(changesLog);
   }
 
   private void send(ItemStateChangesLog itemDataChangesLog_) throws Exception {
-    TransactionChangesLog itemDataChangesLog = (TransactionChangesLog)itemDataChangesLog_;
-    PendingChangesLog container = new PendingChangesLog(itemDataChangesLog,
-        fileCleaner);
+    TransactionChangesLog itemDataChangesLog = (TransactionChangesLog) itemDataChangesLog_;
+    PendingChangesLog container = new PendingChangesLog(itemDataChangesLog, fileCleaner);
 
     switch (container.getConteinerType()) {
     case PendingChangesLog.Type.ItemDataChangesLog_without_Streams: {
-      byte[] buf = PendingChangesLog.getAsByteArray(container
-          .getItemDataChangesLog());
-      
-      if (buf.length > Packet.MAX_PACKET_SIZE){
+      byte[] buf = PendingChangesLog.getAsByteArray(container.getItemDataChangesLog());
+
+      if (buf.length > Packet.MAX_PACKET_SIZE) {
         sendBigItemDataChangesLog(buf, container.getIdentifier());
       } else {
-        Packet firstPacket = new Packet(Packet.PacketType.ItemDataChangesLog,
-            buf.length, buf, container.getIdentifier());
+        Packet firstPacket = new Packet(Packet.PacketType.ItemDataChangesLog, buf.length, buf,
+            container.getIdentifier());
         sendPacket(firstPacket);
-  
-        if(log.isDebugEnabled()) {
+
+        if (log.isDebugEnabled()) {
           log.debug("Send-->ItemDataChangesLog_without_Streams-->");
           log.debug("---------------------");
           log.debug("Size of buffer --> " + buf.length);
@@ -186,23 +192,20 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
       break;
     }
     case PendingChangesLog.Type.ItemDataChangesLog_with_Streams: {
-      byte[] buf = PendingChangesLog.getAsByteArray(container
-          .getItemDataChangesLog());
+      byte[] buf = PendingChangesLog.getAsByteArray(container.getItemDataChangesLog());
 
-      Packet packet = new Packet(
-          Packet.PacketType.First_ItemDataChangesLog_with_Streams, buf.length,
-          buf, container.getIdentifier());
+      Packet packet = new Packet(Packet.PacketType.First_ItemDataChangesLog_with_Streams,
+          buf.length, buf, container.getIdentifier());
       sendPacket(packet);
 
       for (int i = 0; i < container.getInputStreams().size(); i++)
-        sendStream(container.getInputStreams().get(i), container
-            .getFixupStreams().get(i), container.getIdentifier());
+        sendStream(container.getInputStreams().get(i), container.getFixupStreams().get(i),
+            container.getIdentifier());
 
-      Packet lastPacket = new Packet(
-          Packet.PacketType.Last_ItemDataChangesLog_with_Streams, container
-              .getIdentifier());
+      Packet lastPacket = new Packet(Packet.PacketType.Last_ItemDataChangesLog_with_Streams,
+          container.getIdentifier());
       sendPacket(lastPacket);
-      if(log.isDebugEnabled()) {
+      if (log.isDebugEnabled()) {
         log.debug("Send-->ItemDataChangesLog_with_Streams-->");
         log.debug("---------------------");
         log.debug("Size of damp --> " + buf.length);
@@ -221,9 +224,9 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
 
       switch (packet.getPacketType()) {
       case Packet.PacketType.ItemDataChangesLog:
-        TransactionChangesLog changesLog = PendingChangesLog
-            .getAsItemDataChangesLog(packet.getByteArray());
-        if(log.isDebugEnabled()) {
+        TransactionChangesLog changesLog = PendingChangesLog.getAsItemDataChangesLog(packet
+            .getByteArray());
+        if (log.isDebugEnabled()) {
           log.debug("Received-->ItemDataChangesLog_without_Streams-->");
           log.debug("---------------------");
           log.debug("Size of received packet --> " + packet.getByteArray().length);
@@ -234,15 +237,13 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
         break;
 
       case Packet.PacketType.First_ItemDataChangesLog_with_Streams:
-        changesLog = PendingChangesLog.getAsItemDataChangesLog(packet
-            .getByteArray());
+        changesLog = PendingChangesLog.getAsItemDataChangesLog(packet.getByteArray());
 
-        PendingChangesLog container = new PendingChangesLog(changesLog, packet
-            .getIdentifier(), PendingChangesLog.Type.ItemDataChangesLog_with_Streams,
-            fileCleaner);
+        PendingChangesLog container = new PendingChangesLog(changesLog, packet.getIdentifier(),
+            PendingChangesLog.Type.ItemDataChangesLog_with_Streams, fileCleaner);
 
         mapPendingChangesLog.put(packet.getIdentifier(), container);
-        if(log.isDebugEnabled()) 
+        if (log.isDebugEnabled())
           log.debug("Item DataChangesLog of type 'ItemDataChangesLog first whith stream'");
         break;
 
@@ -252,13 +253,12 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
 
           container.getFixupStreams().add(packet.getFixupStream());
 
-          File f = File.createTempFile("tempFile" + packet.getIdentifier()
-              + IdGenerator.generate(), ".tmp");
+          File f = File.createTempFile(
+              "tempFile" + packet.getIdentifier() + IdGenerator.generate(), ".tmp");
 
           container.getListFile().add(f);
-          container.getListRandomAccessFiles().add(
-              new RandomAccessFile(f, "rw"));
-          if(log.isDebugEnabled()) 
+          container.getListRandomAccessFiles().add(new RandomAccessFile(f, "rw"));
+          if (log.isDebugEnabled())
             log.debug("First pocket of stream'");
         }
         break;
@@ -289,7 +289,7 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
             randomAccessFile.write(packet.getByteArray());
             randomAccessFile.close();
           }
-          if(log.isDebugEnabled()) 
+          if (log.isDebugEnabled())
             log.debug("Last pocket of stream'");
         }
         break;
@@ -298,16 +298,15 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
         if (mapPendingChangesLog.get(packet.getIdentifier()) != null)
           mapPendingChangesLog.get(packet.getIdentifier()).restore();
 
-        ItemStateChangesLog dataChangesLog = (mapPendingChangesLog.get(packet
-            .getIdentifier())).getItemDataChangesLog();
+        ItemStateChangesLog dataChangesLog = (mapPendingChangesLog.get(packet.getIdentifier()))
+            .getItemDataChangesLog();
         if (dataChangesLog != null) {
-          if(log.isDebugEnabled()) {
+          if (log.isDebugEnabled()) {
             log.debug("Send-->ItemDataChangesLog_with_Streams-->");
             log.debug("---------------------");
             log.debug("ItemStates   --> " + dataChangesLog.getAllStates().size());
             log.debug("Streams      --> "
-              + (mapPendingChangesLog.get(packet.getIdentifier()).getInputStreams()
-                  .size()));
+                + (mapPendingChangesLog.get(packet.getIdentifier()).getInputStreams().size()));
             log.debug("---------------------");
           }
 
@@ -315,41 +314,43 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
           mapPendingChangesLog.remove(packet.getIdentifier());
         }
         break;
-        
-      case Packet.PacketType.ItemDataChangesLog_First_Packet:
-        PendingChangesLog bigChangesLog = new PendingChangesLog(packet.getIdentifier(), (int)packet.getSize());
-        bigChangesLog.putData((int)packet.getOffset(), packet.getByteArray());
-      
-        mapPendingChangesLog.put(packet.getIdentifier(), bigChangesLog);
-      break;
 
-    case Packet.PacketType.ItemDataChangesLog_Middle_Packet:
-      if (mapPendingChangesLog.get(packet.getIdentifier()) != null){
-        container = mapPendingChangesLog.get(packet.getIdentifier());
-        container.putData((int)packet.getOffset(), packet.getByteArray());
-      }
-      break;
-      
-    case Packet.PacketType.ItemDataChangesLog_Last_Packet:
-      if (mapPendingChangesLog.get(packet.getIdentifier()) != null){
-        container = mapPendingChangesLog.get(packet.getIdentifier());
-        container.putData((int)packet.getOffset(), packet.getByteArray());
-        
-        ItemStateChangesLog tempChangesLog = PendingChangesLog.getAsItemDataChangesLog(container.getData());
-        if(log.isDebugEnabled()) {
-          log.debug("Recive-->Big ItemDataChangesLog_without_Streams-->");
-          log.debug("---------------------");
-          log.debug("Size of recive damp --> " + container.getData().length);
-          log.debug("ItemStates          --> " + tempChangesLog.getAllStates().size());
-          log.debug("---------------------");
-          log.debug("Item big DataChangesLog of type 'ItemDataChangesLog only'");
+      case Packet.PacketType.ItemDataChangesLog_First_Packet:
+        PendingChangesLog bigChangesLog = new PendingChangesLog(packet.getIdentifier(),
+            (int) packet.getSize());
+        bigChangesLog.putData((int) packet.getOffset(), packet.getByteArray());
+
+        mapPendingChangesLog.put(packet.getIdentifier(), bigChangesLog);
+        break;
+
+      case Packet.PacketType.ItemDataChangesLog_Middle_Packet:
+        if (mapPendingChangesLog.get(packet.getIdentifier()) != null) {
+          container = mapPendingChangesLog.get(packet.getIdentifier());
+          container.putData((int) packet.getOffset(), packet.getByteArray());
+        }
+        break;
+
+      case Packet.PacketType.ItemDataChangesLog_Last_Packet:
+        if (mapPendingChangesLog.get(packet.getIdentifier()) != null) {
+          container = mapPendingChangesLog.get(packet.getIdentifier());
+          container.putData((int) packet.getOffset(), packet.getByteArray());
+
+          ItemStateChangesLog tempChangesLog = PendingChangesLog.getAsItemDataChangesLog(container
+              .getData());
+          if (log.isDebugEnabled()) {
+            log.debug("Recive-->Big ItemDataChangesLog_without_Streams-->");
+            log.debug("---------------------");
+            log.debug("Size of recive damp --> " + container.getData().length);
+            log.debug("ItemStates          --> " + tempChangesLog.getAllStates().size());
+            log.debug("---------------------");
+            log.debug("Item big DataChangesLog of type 'ItemDataChangesLog only'");
+          }
+
+          this.receive(tempChangesLog);
+          mapPendingChangesLog.remove(packet.getIdentifier());
         }
 
-        this.receive(tempChangesLog);
-        mapPendingChangesLog.remove(packet.getIdentifier());
-      }
-      
-      break;  
+        break;
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -361,13 +362,12 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
     byte[] buffer = Packet.getAsByteArray(packet);
 
     Message msg = new Message(null, null, buffer);
-    disp.castMessage(members, msg, GroupRequest.GET_NONE/*GET_ALL*/ , 0);
+    disp.castMessage(members, msg, GroupRequest.GET_NONE/* GET_ALL */, 0);
   }
 
   private void sendStream(InputStream in, FixupStream fixupStream, String identifier)
       throws Exception {
-    Packet packet = new Packet(Packet.PacketType.First_Packet_of_Stream,
-        fixupStream, identifier);
+    Packet packet = new Packet(Packet.PacketType.First_Packet_of_Stream, fixupStream, identifier);
     sendPacket(packet);
 
     byte[] buf = new byte[Packet.MAX_PACKET_SIZE];
@@ -377,8 +377,7 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
     try {
       while ((len = in.read(buf)) > 0) {
         if (len == buf.length) {
-          packet = new Packet(Packet.PacketType.Packet_of_Stream, fixupStream,
-              identifier, buf);
+          packet = new Packet(Packet.PacketType.Packet_of_Stream, fixupStream, identifier, buf);
           packet.setOffset(offset);
           sendPacket(packet);
         } else {
@@ -386,13 +385,13 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
           for (int i = 0; i < len; i++)
             buffer[i] = buf[i];
 
-          packet = new Packet(Packet.PacketType.Last_Packet_of_Stream,
-              fixupStream, identifier, buffer);
+          packet = new Packet(Packet.PacketType.Last_Packet_of_Stream, fixupStream, identifier,
+              buffer);
           packet.setOffset(offset);
           sendPacket(packet);
         }
         offset += len;
-        if(log.isDebugEnabled()) 
+        if (log.isDebugEnabled())
           log.debug("Send  --> " + offset);
 
         Thread.sleep(1);
@@ -402,61 +401,63 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
     }
 
   }
-  
-  private void sendBigItemDataChangesLog(byte[] data, String identifier) throws Exception{
+
+  private void sendBigItemDataChangesLog(byte[] data, String identifier) throws Exception {
     long offset = 0;
     byte[] tempBuffer = new byte[Packet.MAX_PACKET_SIZE];
-    
-    cutData(data, offset,  tempBuffer);
-    
-    Packet firsPacket = new Packet(Packet.PacketType.ItemDataChangesLog_First_Packet, data.length, tempBuffer, identifier);
+
+    cutData(data, offset, tempBuffer);
+
+    Packet firsPacket = new Packet(Packet.PacketType.ItemDataChangesLog_First_Packet, data.length,
+        tempBuffer, identifier);
     firsPacket.setOffset(offset);
     sendPacket(firsPacket);
-    
-    if(log.isDebugEnabled())
+
+    if (log.isDebugEnabled())
       log.info("Send of damp --> " + firsPacket.getByteArray().length);
-    
-    
-    offset+=tempBuffer.length;
-    
-    while ((data.length - offset) > Packet.MAX_PACKET_SIZE){
-      cutData(data, offset,  tempBuffer);
-      
-      Packet middlePacket = new Packet(Packet.PacketType.ItemDataChangesLog_Middle_Packet, data.length, tempBuffer, identifier);
+
+    offset += tempBuffer.length;
+
+    while ((data.length - offset) > Packet.MAX_PACKET_SIZE) {
+      cutData(data, offset, tempBuffer);
+
+      Packet middlePacket = new Packet(Packet.PacketType.ItemDataChangesLog_Middle_Packet,
+          data.length, tempBuffer, identifier);
       middlePacket.setOffset(offset);
       sendPacket(middlePacket);
-      if(log.isDebugEnabled())
+      if (log.isDebugEnabled())
         log.info("Send of damp --> " + middlePacket.getByteArray().length);
-      
-      offset+=tempBuffer.length;
+
+      offset += tempBuffer.length;
     }
-    
-    byte[] lastBuffer = new byte[data.length - (int)offset];
-    cutData(data, offset,  lastBuffer);
-    
-    Packet lastPacket = new Packet(Packet.PacketType.ItemDataChangesLog_Last_Packet, data.length, lastBuffer, identifier);
+
+    byte[] lastBuffer = new byte[data.length - (int) offset];
+    cutData(data, offset, lastBuffer);
+
+    Packet lastPacket = new Packet(Packet.PacketType.ItemDataChangesLog_Last_Packet, data.length,
+        lastBuffer, identifier);
     lastPacket.setOffset(offset);
-    sendPacket(lastPacket);   
-    
-    if(log.isDebugEnabled())
+    sendPacket(lastPacket);
+
+    if (log.isDebugEnabled())
       log.info("Send of damp --> " + lastPacket.getByteArray().length);
   }
-  
-  private void cutData(byte[] sourceData, long startPos, byte[] destination){
-    for (int i = 0; i < destination.length ; i++) 
-      destination[i] = sourceData[i+(int)startPos]; 
+
+  private void cutData(byte[] sourceData, long startPos, byte[] destination) {
+    for (int i = 0; i < destination.length; i++)
+      destination[i] = sourceData[i + (int) startPos];
   }
 
   public void viewAccepted(View new_view) {
-    
+
     members = new Vector();
     for (int i = 0; i < new_view.getMembers().size(); i++) {
-      Address address = (Address)(new_view.getMembers().get(i));
-      if(address.compareTo(channel.getLocalAddress()) != 0) 
+      Address address = (Address) (new_view.getMembers().get(i));
+      if (address.compareTo(channel.getLocalAddress()) != 0)
         members.add(address);
     }
-    
-    if(log.isDebugEnabled()) 
+
+    if (log.isDebugEnabled())
       log.debug(members.size());
   }
 
@@ -480,17 +481,17 @@ public class WorkspaceDataReplicator implements ItemsPersistenceListener,
     String str = adr.toString();
     return str.replaceAll("/", "");
   }
-  
-  private boolean isSessionNull(TransactionChangesLog changesLog){
-    boolean isSessionNull = false; 
-    
+
+  private boolean isSessionNull(TransactionChangesLog changesLog) {
+    boolean isSessionNull = false;
+
     ChangesLogIterator logIterator = changesLog.getLogIterator();
     while (logIterator.hasNextLog())
-      if( logIterator.nextLog().getSessionId() == null){
+      if (logIterator.nextLog().getSessionId() == null) {
         isSessionNull = true;
         break;
       }
-    
+
     return isSessionNull;
   }
 }
