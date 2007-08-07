@@ -79,17 +79,16 @@ class QueryResultImpl implements QueryResult {
      * @param docOrder    if <code>true</code> the result is returned in document
      *  order.
      */
-    public QueryResultImpl(
-        SessionImpl session,
+    public QueryResultImpl(SessionImpl session,
         String[] identifiers,
         Float[] scores,
         InternalQName[] selectProps,
         boolean docOrder) {
-        this.identifiers = identifiers;
-        this.scores = scores;
-        this.selectProps = selectProps;
-        this.docOrder = docOrder;
-        this.session = session;
+      this.identifiers = identifiers;
+      this.scores = scores;
+      this.selectProps = selectProps;
+      this.docOrder = docOrder;
+      this.session = session;
     }
 
     /**
@@ -107,14 +106,14 @@ class QueryResultImpl implements QueryResult {
      * {@inheritDoc}
      */
     public NodeIterator getNodes() throws RepositoryException {
-        return getNodeIterator();
+      return getNodeIterator();
     }
 
     /**
      * {@inheritDoc}
      */
     public RowIterator getRows() throws RepositoryException {
-        return new RowIteratorImpl(getNodeIterator(), selectProps, session);
+      return new RowIteratorImpl(getNodeIterator(), selectProps, session);
     }
 
     /**
@@ -123,10 +122,10 @@ class QueryResultImpl implements QueryResult {
      */
     private ScoreNodeIterator getNodeIterator() {
       log.debug("getNodeIterator() "+docOrder+" "+identifiers.length+" "+scores.length);
-        if (docOrder) {
-            return new DocOrderNodeIteratorImpl(session.getTransientNodesManager(), identifiers, scores);
-        } else {
-            return new NodeIteratorImpl(session.getTransientNodesManager(), identifiers, scores);
-        }
+      if (docOrder) {
+          return new DocOrderNodeDataIteratorImpl(session.getTransientNodesManager(), identifiers, scores);
+      } else {
+          return new NodeIteratorImpl(session.getTransientNodesManager(), identifiers, scores);
+      }
     }
 }

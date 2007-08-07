@@ -76,8 +76,10 @@ public class QPath implements Comparable {
 
     int entryCount = getLength() - relativeDegree;
     QPathEntry[] ancestorEntries = new QPathEntry[entryCount];
-    for (int i = 0; i < entryCount; i++)
-      ancestorEntries[i] = new QPathEntry(names[i].getNamespace(), names[i].getName(), names[i].getIndex());
+    for (int i = 0; i < entryCount; i++) {
+      QPathEntry entry = names[i];
+      ancestorEntries[i] = new QPathEntry(entry.getNamespace(), entry.getName(), entry.getIndex());
+    }
 
     return new QPath(ancestorEntries);
   }

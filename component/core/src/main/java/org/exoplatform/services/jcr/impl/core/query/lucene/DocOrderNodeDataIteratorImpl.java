@@ -19,13 +19,16 @@ package org.exoplatform.services.jcr.impl.core.query.lucene;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
@@ -34,7 +37,7 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Implements a NodeIterator that returns the nodes in document order.
  */
-class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
+class DocOrderNodeDataIteratorImpl implements ScoreNodeIterator {
 
     /** Logger instance for this class */
     private static Log log = ExoLogger.getLogger("jcr.DocOrderNodeIteratorImpl");
@@ -51,7 +54,7 @@ class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
     /** ItemManager to turn Identifiers into Node instances */
 //    protected final ItemManager itemMgr;
     protected final SessionDataManager itemMgr;
-
+    
     /**
      * Creates a <code>DocOrderNodeIteratorImpl</code> that orders the nodes
      * with <code>identifiers</code> in document order.
@@ -59,7 +62,7 @@ class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
      * @param identifiers the identifiers of the nodes.
      * @param scores the score values of the nodes.
      */
-    DocOrderNodeIteratorImpl(final SessionDataManager itemMgr, String[] identifiers, Float[] scores) {
+    DocOrderNodeDataIteratorImpl(final SessionDataManager itemMgr, String[] identifiers, Float[] scores) {
         this.itemMgr = itemMgr;
         this.identifiers = identifiers;
         this.scores = scores;
@@ -147,7 +150,7 @@ class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
     }
 
     //------------------------< internal >--------------------------------------
-
+    
     /**
      * Initializes the NodeIterator in document order
      */
@@ -163,8 +166,11 @@ class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
             nodes[i] = new ScoreNode(identifiers[i], scores[i]);
         }
 
-        final List invalidIdentifiers = new ArrayList(2);
-
+        final List<String> invalidIdentifiers = new ArrayList<String>(2);
+        
+        /** Cache for Nodes obtainer during the order (comparator work) */
+        final Map<String, NodeData> lcache = new HashMap<String, NodeData>();
+        
         do {
             if (invalidIdentifiers.size() > 0) {
                 // previous sort run was not successful -> remove failed uuids
@@ -172,7 +178,7 @@ class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
                 int newIdx = 0;
                 for (int i = 0; i < nodes.length; i++) {
                     if (!invalidIdentifiers.contains(nodes[i].identifier)) {
-                        tmp[newIdx++] = nodes[i];
+                      tmp[newIdx++] = nodes[i];
                     }
                 }
                 nodes = tmp;
@@ -181,14 +187,24 @@ class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
 
             try {
                 // sort the identifiers
-                Arrays.sort(nodes, new Comparator() {
-                    public int compare(Object o1, Object o2) {
-                        ScoreNode n1 = (ScoreNode) o1;
-                        ScoreNode n2 = (ScoreNode) o2;
+                Arrays.sort(nodes, new Comparator<ScoreNode>() {
+
+                    private NodeData getNodeData(String id) throws RepositoryException {
+                      NodeData node = lcache.get(id);
+                      if (node == null) {
+                        node = (NodeData) itemMgr.getItemData(id);
+                        if (node != null)
+                          lcache.put(id, node);
+                        return node;
+                      } else
+                        return node;
+                    }
+                    
+                    public int compare(ScoreNode n1, ScoreNode n2) {
                         try {
-                            NodeImpl node1;
+                            NodeData node1;
                             try {
-                              node1 = (NodeImpl) itemMgr.getItemByIdentifier(n1.identifier, true);
+                              node1 = getNodeData(n1.identifier);
                               if(node1 == null)
                                 throw new RepositoryException("Node not found for "+n1.identifier);
                             } catch (RepositoryException e) {
@@ -197,9 +213,9 @@ class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
                                 invalidIdentifiers.add(n1.identifier);
                                 throw new SortFailedException();
                             }
-                            NodeImpl node2;
+                            NodeData node2;
                             try {
-                              node2 = (NodeImpl) itemMgr.getItemByIdentifier(n2.identifier, true);
+                              node2 = getNodeData(n2.identifier);
                               if(node2 == null)
                                 throw new RepositoryException("Node not found for "+n2.identifier);
                             } catch (RepositoryException e) {
@@ -208,51 +224,78 @@ class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
                                 invalidIdentifiers.add(n2.identifier);
                                 throw new SortFailedException();
                             }
-                            QPathEntry[] path1 = node1.getLocation().getInternalPath().getEntries();
-                            QPathEntry[] path2 = node2.getLocation().getInternalPath().getEntries();
+                            
+                            QPath path1 = node1.getQPath();
+                            QPath path2 = node2.getQPath();
+                            
+                            QPathEntry[] pentries1 = path1.getEntries();
+                            QPathEntry[] pentries2 = path2.getEntries();
 
                             // find nearest common ancestor
                             int commonDepth = 0; // root
-                            while (path1.length > commonDepth && path2.length > commonDepth) {
-                                if (path1[commonDepth].equals(path2[commonDepth])) {
+                            while (pentries1.length > commonDepth && pentries2.length > commonDepth) {
+                                if (pentries1[commonDepth].equals(pentries2[commonDepth])) {
                                     commonDepth++;
                                 } else {
                                     break;
                                 }
                             }
+                            
                             // path elements at last depth were equal
                             commonDepth--;
 
                             // check if either path is an ancestor of the other
-                            if (path1.length - 1 == commonDepth) {
+                            if (pentries1.length - 1 == commonDepth) {
                                 // path1 itself is ancestor of path2
                                 return -1;
                             }
-                            if (path2.length - 1 == commonDepth) {
+                            if (pentries2.length - 1 == commonDepth) {
                                 // path2 itself is ancestor of path1
                                 return 1;
-                            }
+                            }                         
+
                             // get common ancestor node
-                            NodeImpl commonNode = (NodeImpl) node1.getAncestor(commonDepth);
+//                            QPath ancestorPath = path1.makeAncestorPath(path1.getDepth() - commonDepth);
+//                            NodeData commonNode = (NodeData) itemMgr.getItemData(ancestorPath);
+//                            if (commonNode == null)
+//                              throw new ItemNotFoundException("Ancestor not found " + ancestorPath.getAsString());
+                            
+                            //NodeImpl commonNode = (NodeImpl) node1.getAncestor(commonDepth);
 
                             // move node1/node2 to the commonDepth + 1
                             // node1 and node2 then will be child nodes of commonNode
-                            node1 = (NodeImpl) node1.getAncestor(commonDepth + 1);
-                            node2 = (NodeImpl) node2.getAncestor(commonDepth + 1);
+//                            QPath ancestor1Path = path1.makeAncestorPath(path1.getDepth() - commonDepth - 1);
+//                            node1 = (NodeData) itemMgr.getItemData(ancestor1Path);
+//                            if (node1 == null)
+//                              throw new ItemNotFoundException("Node not found " + ancestor1Path.getAsString());
+//                            
+//                            QPath ancestor2Path = path2.makeAncestorPath(path2.getDepth() - commonDepth - 1);
+//                            node2 = (NodeData) itemMgr.getItemData(ancestor2Path);
+//                            if (node2 == null)
+//                              throw new ItemNotFoundException("Node not found " + ancestor2Path.getAsString());
+                            
+                            //node1 = (NodeImpl) node1.getAncestor(commonDepth + 1);
+                            //node2 = (NodeImpl) node2.getAncestor(commonDepth + 1);
 
-                            for (NodeIterator it = commonNode.getNodes(); it.hasNext();) {
-                                Node child = it.nextNode();
-                                if (child.isSame(node1)) {
-                                    return -1;
-                                } else if (child.isSame(node2)) {
-                                    return 1;
-                                }
-                            }
-                            log.error("Internal error: unable to determine document order of nodes:");
-                            log.error("\tNode1: " + node1.getPath());
-                            log.error("\tNode2: " + node2.getPath());
-                        } catch (RepositoryException e) {
-                            log.error("Exception while sorting nodes in document order: " + e.toString(), e);
+                            // the nodes being compared is siblings of same parent
+                            return node1.getOrderNumber() - node2.getOrderNumber(); 
+                            
+                            //for (NodeIterator it = commonNode.getNodes(); it.hasNext();) {
+                            //    Node child = it.nextNode();
+                            //    if (child.isSame(node1)) {
+                            //        return -1;
+                            //    } else if (child.isSame(node2)) {
+                            //        return 1;
+                            //    }
+                            //}
+                            
+                            //log.error("Internal error: unable to determine document order of nodes:");
+                            //log.error("\tNode1: " + node1.getQPath().getAsString());
+                            //log.error("\tNode2: " + node2.getQPath().getAsString());
+                        } catch (SortFailedException e) {
+                          throw e;
+                        } catch (Exception e) {
+                          log.error("Exception while sorting nodes in document order: " + e.toString(), e);
                         }
                         // if we get here something went wrong
                         // remove both identifiers from array
@@ -265,7 +308,6 @@ class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
             } catch (SortFailedException e) {
                 // retry
             }
-
         } while (invalidIdentifiers.size() > 0);
 
         // resize identifiers and scores array if we had to remove some identifiers

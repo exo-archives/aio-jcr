@@ -148,6 +148,7 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
 
     /**
      * Flag indicating whether document order is enable as the default ordering.
+     * was true, [PN] 07.08.07
      */
     private boolean documentOrder = true;
 
