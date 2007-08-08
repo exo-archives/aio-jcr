@@ -36,11 +36,12 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Implements a NodeIterator that returns the nodes in document order.
+ * Nodes will ordered using NodeData location depth.
  */
 class DocOrderNodeDataIteratorImpl implements ScoreNodeIterator {
 
     /** Logger instance for this class */
-    private static Log log = ExoLogger.getLogger("jcr.DocOrderNodeIteratorImpl");
+    private static Log log = ExoLogger.getLogger("jcr.DocOrderNodeDataIteratorImpl");
 
     /** A node iterator with ordered nodes */
     private NodeIteratorImpl orderedNodes;
@@ -213,6 +214,7 @@ class DocOrderNodeDataIteratorImpl implements ScoreNodeIterator {
                                 invalidIdentifiers.add(n1.identifier);
                                 throw new SortFailedException();
                             }
+                            
                             NodeData node2;
                             try {
                               node2 = getNodeData(n2.identifier);
@@ -249,49 +251,13 @@ class DocOrderNodeDataIteratorImpl implements ScoreNodeIterator {
                                 // path1 itself is ancestor of path2
                                 return -1;
                             }
+                            
                             if (pentries2.length - 1 == commonDepth) {
                                 // path2 itself is ancestor of path1
                                 return 1;
-                            }                         
-
-                            // get common ancestor node
-//                            QPath ancestorPath = path1.makeAncestorPath(path1.getDepth() - commonDepth);
-//                            NodeData commonNode = (NodeData) itemMgr.getItemData(ancestorPath);
-//                            if (commonNode == null)
-//                              throw new ItemNotFoundException("Ancestor not found " + ancestorPath.getAsString());
+                            }
                             
-                            //NodeImpl commonNode = (NodeImpl) node1.getAncestor(commonDepth);
-
-                            // move node1/node2 to the commonDepth + 1
-                            // node1 and node2 then will be child nodes of commonNode
-//                            QPath ancestor1Path = path1.makeAncestorPath(path1.getDepth() - commonDepth - 1);
-//                            node1 = (NodeData) itemMgr.getItemData(ancestor1Path);
-//                            if (node1 == null)
-//                              throw new ItemNotFoundException("Node not found " + ancestor1Path.getAsString());
-//                            
-//                            QPath ancestor2Path = path2.makeAncestorPath(path2.getDepth() - commonDepth - 1);
-//                            node2 = (NodeData) itemMgr.getItemData(ancestor2Path);
-//                            if (node2 == null)
-//                              throw new ItemNotFoundException("Node not found " + ancestor2Path.getAsString());
-                            
-                            //node1 = (NodeImpl) node1.getAncestor(commonDepth + 1);
-                            //node2 = (NodeImpl) node2.getAncestor(commonDepth + 1);
-
-                            // the nodes being compared is siblings of same parent
-                            return node1.getOrderNumber() - node2.getOrderNumber(); 
-                            
-                            //for (NodeIterator it = commonNode.getNodes(); it.hasNext();) {
-                            //    Node child = it.nextNode();
-                            //    if (child.isSame(node1)) {
-                            //        return -1;
-                            //    } else if (child.isSame(node2)) {
-                            //        return 1;
-                            //    }
-                            //}
-                            
-                            //log.error("Internal error: unable to determine document order of nodes:");
-                            //log.error("\tNode1: " + node1.getQPath().getAsString());
-                            //log.error("\tNode2: " + node2.getQPath().getAsString());
+                            return node1.getOrderNumber() - node2.getOrderNumber();
                         } catch (SortFailedException e) {
                           throw e;
                         } catch (Exception e) {
