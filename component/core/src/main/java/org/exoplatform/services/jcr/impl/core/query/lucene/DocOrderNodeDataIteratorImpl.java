@@ -1,19 +1,7 @@
-/*
- * Copyright 2004-2005 The Apache Software Foundation or its licensors,
- *                     as applicable.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/***************************************************************************
+ * Copyright 2001-2007 The eXo Platform SAS          All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ **************************************************************************/
 package org.exoplatform.services.jcr.impl.core.query.lucene;
 
 import java.util.ArrayList;
@@ -35,8 +23,13 @@ import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
+ * Created by The eXo Platform SAS
+ *
  * Implements a NodeIterator that returns the nodes in document order.
  * Nodes will ordered using NodeData location depth.
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id$
  */
 class DocOrderNodeDataIteratorImpl implements ScoreNodeIterator {
 
@@ -54,7 +47,7 @@ class DocOrderNodeDataIteratorImpl implements ScoreNodeIterator {
 
     /** ItemManager to turn Identifiers into Node instances */
 //    protected final ItemManager itemMgr;
-    protected final SessionDataManager itemMgr;
+    protected final SessionDataManager dataManager;
     
     /**
      * Creates a <code>DocOrderNodeIteratorImpl</code> that orders the nodes
@@ -63,8 +56,8 @@ class DocOrderNodeDataIteratorImpl implements ScoreNodeIterator {
      * @param identifiers the identifiers of the nodes.
      * @param scores the score values of the nodes.
      */
-    DocOrderNodeDataIteratorImpl(final SessionDataManager itemMgr, String[] identifiers, Float[] scores) {
-        this.itemMgr = itemMgr;
+    DocOrderNodeDataIteratorImpl(final SessionDataManager dataManager, String[] identifiers, Float[] scores) {
+        this.dataManager = dataManager;
         this.identifiers = identifiers;
         this.scores = scores;
     }
@@ -193,7 +186,7 @@ class DocOrderNodeDataIteratorImpl implements ScoreNodeIterator {
                     private NodeData getNodeData(String id) throws RepositoryException {
                       NodeData node = lcache.get(id);
                       if (node == null) {
-                        node = (NodeData) itemMgr.getItemData(id);
+                        node = (NodeData) dataManager.getItemData(id);
                         if (node != null)
                           lcache.put(id, node);
                         return node;
@@ -289,7 +282,7 @@ class DocOrderNodeDataIteratorImpl implements ScoreNodeIterator {
         if (log.isDebugEnabled()) {
             log.debug("" + identifiers.length + " node(s) ordered in " + (System.currentTimeMillis() - time) + " ms");
         }
-        orderedNodes = new NodeIteratorImpl(itemMgr, identifiers, scores);
+        orderedNodes = new NodeIteratorImpl(dataManager, identifiers, scores);
     }
 
     /**
