@@ -15,7 +15,7 @@ import java.io.IOException;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public class SerializableOutputTransformer extends OutputEntityTransformer {
+public class SerializableTransformer extends OutputEntityTransformer {
 
   /*
    * (non-Javadoc)
