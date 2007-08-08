@@ -52,6 +52,7 @@ public class RestServlet extends HttpServlet implements Connector {
         ResourceBinder.class);
     resDispatcher = (ResourceDispatcher) container.getComponentInstanceOfType(
         ResourceDispatcher.class);
+
     if (resBinder == null) {
       logger.error("RESOURCE_BINDER is null");
     }

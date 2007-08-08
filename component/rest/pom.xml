@@ -84,7 +84,7 @@
       <artifactId>maven-jaxb2-plugin</artifactId>
       <version>0.1</version>
     </dependency>
-    
+
     <!-- ================== EMMA ===================== -->
     <!-- dependency>
     	<groupId>emma</groupId>

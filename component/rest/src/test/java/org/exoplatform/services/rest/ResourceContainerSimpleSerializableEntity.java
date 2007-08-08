@@ -18,9 +18,11 @@ public class ResourceContainerSimpleSerializableEntity implements ResourceContai
   @URITemplate("/test/serializable/")
   @InputTransformer(SerializableInputTransformer.class)
   @OutputTransformer(SerializableOutputTransformer.class)
-	public Response method1(SimpleSerializableEntity t) {
-  	System.out.println("\n>>> serializable entity: " + t.data);
-  	t.data = ">>> this is response data";
-		return Response.Builder.ok(t).build();
+	public Response method1(SimpleDeserializableEntity de) {
+  	System.out.println("\n>>> serializable entity: " + de.data);
+  	de.data = ">>> this is response data";
+  	SimpleSerializableEntity se = new SimpleSerializableEntity();
+  	se.data = "<<< this request data\n";
+		return Response.Builder.ok(se).build();
 	}
 }
