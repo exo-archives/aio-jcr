@@ -860,17 +860,15 @@ public class SessionImpl implements Session, NamespaceAccessor {
       }
       attrs.setProperty(prop.getName(), strValues);
     }
+    
     writer.startElement(node.getLocation().getName(), attrs);
 
-    NodeIterator nodes = node.getNodes();
-    while (nodes.hasNext()) {
-      NodeImpl child = (NodeImpl) nodes.nextNode();
+    for (NodeImpl child : node.childNodes()) {
       if (!noRecurse) {
         if (child.getLocation().getName().getInternalName().equals(Constants.JCR_XMLTEXT)) {
           try {
             // jcr:xmlcharacters
-            String val = StringConverter.normalizeString(child.getProperty("jcr:xmlcharacters")
-                .getString(), false);
+            String val = StringConverter.normalizeString(child.getProperty("jcr:xmlcharacters").getString(), false);
             writer.writeText(val);
             continue;
           } catch (ValueFormatException e) {
@@ -881,7 +879,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
         }
         initNodeAsDocView(child, writer, skipBinary, noRecurse);
       }
-
     }
 
     writer.endElement();
