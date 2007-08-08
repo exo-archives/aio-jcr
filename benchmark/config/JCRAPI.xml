@@ -42,7 +42,7 @@
 <!--
 	<testCase name="ReadRandomNodeTest">
 		<param name="exo.testClass"
-			value="org.exoplatform.jcr.benchmark.jcrapi.ReadRandomNodeTest" />
+			value="org.exoplatform.jcr.benchmark.usecases.ReadRandomNodeTest" />
 		<param name="japex.runTime" value="20" />
 		<param name="japex.warmupIterations" value="0" />
 		<param name="jcr.nodes" value="300" />
@@ -51,7 +51,7 @@
 
 	<testCase name="ReadFileWithMetadataTest">
 		<param name="exo.testClass"
-			value="org.exoplatform.jcr.benchmark.jcrapi.ReadFileWithMetadataTest" />
+			value="org.exoplatform.jcr.benchmark.usecases.ReadFileWithMetadataTest" />
 		<param name="japex.runTime" value="50" />
 		<param name="japex.warmupIterations" value="0" />
 		<param name="jcr.nodes" value="300" />

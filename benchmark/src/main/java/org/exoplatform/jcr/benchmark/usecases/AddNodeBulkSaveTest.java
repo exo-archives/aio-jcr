@@ -3,7 +3,7 @@
  * Please look at license.txt in info directory for more license detail.   *
  */
 
-package org.exoplatform.jcr.benchmark.jcrapi;
+package org.exoplatform.jcr.benchmark.usecases;
 
 import javax.jcr.Node;
 import javax.jcr.Session;

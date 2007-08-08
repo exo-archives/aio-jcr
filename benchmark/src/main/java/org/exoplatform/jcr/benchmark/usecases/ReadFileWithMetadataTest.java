@@ -3,7 +3,7 @@
  * Please look at license.txt in info directory for more license detail.   *
  */
 
-package org.exoplatform.jcr.benchmark.jcrapi;
+package org.exoplatform.jcr.benchmark.usecases;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -24,15 +24,15 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SARL .
- * 
+ *
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 public class ReadFileWithMetadataTest extends JCRTestBase {
 
   private static boolean initialized = false;
-  private static List <String> names = new ArrayList<String>(); 
-  
+  private static List <String> names = new ArrayList<String>();
+
   private Random rand = new Random();
   private int nodesNum = 100;
   private Node root;
@@ -40,33 +40,33 @@ public class ReadFileWithMetadataTest extends JCRTestBase {
 
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    
+
     root = context.getSession().getRootNode();
     valueFactory = context.getSession().getValueFactory();
     int fileLength = 4096;
-    
+
     if(initialized)
       return;
     initialized = true;
-    
+
     if(tc.hasParam("jcr.nodes"))
       nodesNum = tc.getIntParam("jcr.nodes");
     // TODO
     //int levelsNum = tc.getIntParam("jcr.levels");
-    
+
     if(tc.hasParam("jcr.fileLength"))
       fileLength = tc.getIntParam("jcr.fileLength");
-    
+
     byte[] content = new byte[fileLength];
     Arrays.fill(content, (byte)0);
-    
+
     for(int i=0; i<nodesNum; i++) {
       Node newNode = root.addNode(context.generateUniqueName("node"), "nt:file");
-      
+
       Node contentNode = newNode.addNode("jcr:content", "nt:resource");
-      
+
       contentNode.setProperty("jcr:data", new ByteArrayInputStream(content));
-      
+
       contentNode.setProperty("jcr:mimeType", "application/octet-stream");
       contentNode.setProperty("jcr:lastModified", Calendar.getInstance());
 
@@ -102,7 +102,7 @@ public class ReadFileWithMetadataTest extends JCRTestBase {
       contentNode.getProperty("dc:publisher").getValues()[0].getString();
       contentNode.getProperty("dc:date").getValues()[0].getString();
       contentNode.getProperty("dc:resourceType").getValues()[0].getString();
-      
+
       InputStream stream = contentNode.getProperty("jcr:data").getStream();
       int length = 0;
       int len;
@@ -110,25 +110,25 @@ public class ReadFileWithMetadataTest extends JCRTestBase {
       while ((len = stream.read(buf)) > 0)
         length += len;
 
-      
+
     } catch (Exception exception) {
       exception.printStackTrace();
     }
   }
-  
-  
-  
+
+
+
   private Value[] createMultiValue(String sValue) {
     Value[] values = new Value[1];
     values[0] = valueFactory.createValue(sValue);
-    
+
     return values;
-  } 
-  
+  }
+
   private Value[] createMultiValue(Calendar date) {
     Value[] values = new Value[1];
     values[0] = valueFactory.createValue(date);
-    
+
     return values;
   }
 
