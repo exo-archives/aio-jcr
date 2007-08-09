@@ -242,7 +242,7 @@
         <version>1.0.1</version>
         <scope>compile</scope>
     </dependency>
-    
+
     <!-- Code coverage report -->
     <dependency>
     	<groupId>emma</groupId>
@@ -250,13 +250,13 @@
     	<version>2.0.5312</version>
     	<scope>test</scope>
     </dependency>
-    
+
     <!-- S3Plugin dependency -->
     <dependency>
-    	<groupId>amazon</groupId>
-    	<artifactId>s3</artifactId>
-    	<version>0.1</version>
-    	<scope>compile</scope>
+        <groupId>amazon</groupId>
+        <artifactId>s3</artifactId>
+        <version>0.1</version>
+        <scope>compile</scope>
     </dependency>
 
     <!-- ===== Databases JDBC support ===== -->
@@ -265,7 +265,7 @@
     <!-- dependency>
     <groupId>mysql</groupId>
     <artifactId>mysql-connector-java</artifactId>
-    <version>3.1.11</version>
+    <version>5.0.5</version>
     <scope>compile</scope>
     </dependency -->
 
@@ -273,7 +273,7 @@
     <!-- dependency>
     <groupId>postgresql</groupId>
     <artifactId>postgresql</artifactId>
-    <version>8.1-407.jdbc3</version>
+    <version>8.2-504.jdbc3</version>
     <scope>compile</scope>
     </dependency -->
 
@@ -415,50 +415,53 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <version>2.0</version>
             <configuration>
-            <childDelegation>true</childDelegation>            
+            <childDelegation>true</childDelegation>
               <!-- TCK tests, uncomment <execution id #1> in maven-antrun-plugin -->
-              <!-- includes>
-                <include>**/init/TestAll.java</include>
+              <includes>
+                <!-- include>**/init/TestAll.java</include>
+
+                <include>**/api/*Test.java</include>
+                <include>**/api/observation/*Test.java</include>
+                <include>**/api/lock/*Test.java</include>
+                <include>**/api/nodetype/*Test.java</include>
+                <include>**/api/query/*Test.java</include>
+                <include>**/api/version/*Test.java</include -->
                 
-              	<include>**/api/*Test.java</include>
-              	<include>**/api/observation/*Test.java</include>
-              	<include>**/api/lock/*Test.java</include>
-              	<include>**/api/nodetype/*Test.java</include>
-              	<include>**/api/query/*Test.java</include>
-              	<include>**/api/version/*Test.java</include>
-              </includes -->
-              <!-- eXo tests, usecases -->
-              <includes>        
-              	<include>**/api/**/Test*.java</include>
-              	<include>**/usecases/**/Test*.java</include>
-              	<include>**/usecases/**/*Test.java</include>
-              	<include>**/impl/access/Test*.java</include>
+                <!-- include>**/api/query/QueryResultNodeIteratorTest.java</include -->
+                
               </includes>
-              <excludes>
+              <!-- eXo tests, usecases -->
+              <!-- includes>
+                <include>**/api/**/Test*.java</include>
+                <include>**/usecases/**/Test*.java</include>
+                <include>**/usecases/**/*Test.java</include>
+                <include>**/impl/access/Test*.java</include>
+              </includes -->
+              <!-- excludes>
                 <exclude>**/*$*</exclude>nested classes prb, http://jira.codehaus.org/browse/SUREFIRE-288
-              	<include>**/Base*Test.java</include>
-              	<include>**/api/export**/*.java</include>
-              	<include>**/api/import**/*.java</include>
-              	<include>**/api/TestAll.java</include>
-              </excludes>
+                <include>**/Base*Test.java</include>
+                <include>**/api/export**/*.java</include>
+                <include>**/api/import**/*.java</include>
+                <include>**/api/TestAll.java</include>
+              </excludes -->
 
               <!-- systemProperties>
-                	<property>
-                		<name>test.repository</name>
-                		<value>db1</value>
-                	</property>
-                	<property>
-                		<name>jaxp.debug</name>
-                		<value>false</value>
-                	</property>
-                	<property>
-                		<name>jcr.test.configuration.file</name>
-                		<value>src/test/java/conf/standalone/test-configuration.xml</value>
-                	</property>
-                	<property>
-                		<name>emma.coverage.out.file</name>
-                		<value>target/emma/coverage.ec</value>
-                	</property>
+                    <property>
+                        <name>test.repository</name>
+                        <value>db1</value>
+                    </property>
+                    <property>
+                        <name>jaxp.debug</name>
+                        <value>false</value>
+                    </property>
+                    <property>
+                        <name>jcr.test.configuration.file</name>
+                        <value>src/test/java/conf/standalone/test-configuration.xml</value>
+                    </property>
+                    <property>
+                        <name>emma.coverage.out.file</name>
+                        <value>target/emma/coverage.ec</value>
+                    </property>
                 </systemProperties -->
             </configuration>
         </plugin>
@@ -513,73 +516,73 @@
       <!-- This is plugin for generating code coverage reports.   -->
       <!-- Comment it if you do not like to produce such reports and use emma. -->
       <plugin>
-      	<artifactId>maven-antrun-plugin</artifactId>
-      	<executions>
-      		<!-- execution>
-      			<id>0</id>
-      			<phase>test-compile</phase>
-      			<configuration>
-      				<tasks>
-      					<echo
-      						message="[EMMA] Start instrumenting classes..." />
-      					<taskdef resource="emma_ant.properties"
-      						classpathref="maven.dependency.classpath" />
-      					<emma enabled="true">
-      						<instr mode="overwrite"
-      							metadatafile="target/emma/metadata.em">
-      							<filter excludes="*JiBX*" />
-      							<filter excludes="*Entry*" />
-      							<filter excludes="*Value*" />
-      							<filter	excludes="*RepositoryServiceConfiguration*" />
-      							<instrpath>
-      								<dirset dir="${basedir}/target">
-      									<include name="test-classes" />
-      									<include name="classes" />
-      								</dirset>
-      							</instrpath>
-      						</instr>
-      					</emma>
-      				</tasks>
-      			</configuration>
-      			<goals>
-      				<goal>run</goal>
-      			</goals>
-      		</execution-->
-      		<!-- This section is for TCK tests only. -->
-      		<!--execution>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+            <!-- execution>
+                <id>0</id>
+                <phase>test-compile</phase>
+                <configuration>
+                    <tasks>
+                        <echo
+                            message="[EMMA] Start instrumenting classes..." />
+                        <taskdef resource="emma_ant.properties"
+                            classpathref="maven.dependency.classpath" />
+                        <emma enabled="true">
+                            <instr mode="overwrite"
+                                metadatafile="target/emma/metadata.em">
+                                <filter excludes="*JiBX*" />
+                                <filter excludes="*Entry*" />
+                                <filter excludes="*Value*" />
+                                <filter excludes="*RepositoryServiceConfiguration*" />
+                                <instrpath>
+                                    <dirset dir="${basedir}/target">
+                                        <include name="test-classes" />
+                                        <include name="classes" />
+                                    </dirset>
+                                </instrpath>
+                            </instr>
+                        </emma>
+                    </tasks>
+                </configuration>
+                <goals>
+                    <goal>run</goal>
+                </goals>
+            </execution-->
+            <!-- This section is for TCK tests only. -->
+            <!--execution>
             <id>1</id>
-      			<phase>test-compile</phase>            
+                <phase>test-compile</phase>
             <configuration>
             <tasks>
-            <echo	 message="[JUNIT] Setup test data..." />
+            <echo    message="[JUNIT] Setup test data..." />
             <mkdir dir="target/junit-reports" />
             <junit printsummary="yes" fork="yes"
-    							haltonfailure="no" showoutput="yes">
-    							<sysproperty key="test.repository"
-    								value="db1" />
-    							<sysproperty key="jaxp.debug"
-    								value="false" />
-    							<sysproperty
-    								key="emma.coverage.out.file"
-    								value="target/emma/coverage.ec" />
-    							<sysproperty
-    								key="jcr.test.configuration.file"
-    								value="src/test/java/conf/standalone/test-configuration.xml" />    								
+                                haltonfailure="no" showoutput="yes">
+                                <sysproperty key="test.repository"
+                                    value="db1" />
+                                <sysproperty key="jaxp.debug"
+                                    value="false" />
+                                <sysproperty
+                                    key="emma.coverage.out.file"
+                                    value="target/emma/coverage.ec" />
+                                <sysproperty
+                                    key="jcr.test.configuration.file"
+                                    value="src/test/java/conf/standalone/test-configuration.xml" />
 
-    							<classpath>
-      							<path refid="maven.test.classpath" />
-    							</classpath>
+                                <classpath>
+                                <path refid="maven.test.classpath" />
+                                </classpath>
 
-    							<formatter type="plain" />
-    							<batchtest todir="target/junit-reports">
-    								<fileset dir="target/test-classes">
-    									<include name="**/init/TestAll*" />
-  									</fileset>
-    							</batchtest>
-    		    </junit>  
-    		    <echo	 message="[JUNIT] Slipping 10 secs (before starting TCK tests, to avoid problems with java processes)..." />  		
-    		    <sleep seconds="10"/>	
-    		    </tasks>			
+                                <formatter type="plain" />
+                                <batchtest todir="target/junit-reports">
+                                    <fileset dir="target/test-classes">
+                                        <include name="**/init/TestAll*" />
+                                    </fileset>
+                                </batchtest>
+                </junit>
+                <echo    message="[JUNIT] Slipping 10 secs (before starting TCK tests, to avoid problems with java processes)..." />
+                <sleep seconds="10"/>
+                </tasks>
             </configuration>
             <goals>
               <goal>run</goal>
