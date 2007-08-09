@@ -45,6 +45,16 @@ public class TestOrderBefore extends JcrAPIBaseTest {
     root.save();
   }
   
+  private void initSimpleCase5() throws Exception {
+    testBase.addNode("n2");
+    testBase.addNode("n3");
+    testBase.addNode("n1");
+    testBase.addNode("n4");
+    testBase.addNode("n5");
+    
+    root.save();
+  }
+  
   private void initSNSCase1() throws Exception {
     testBase.addNode("n1");
     testBase.addNode("n2");
@@ -175,6 +185,21 @@ public class TestOrderBefore extends JcrAPIBaseTest {
     testBase.orderBefore("n4", "n3");
     
     String[] order = new String[] {"n1", "n2", "n4", "n3"};
+    
+    checkOrder(order);
+    
+    testBase.save();
+    
+    checkOrderAnotherSession(order);
+  }
+  
+  public void testOrderUpStepOver() throws Exception {
+    initSimpleCase5();
+    
+    // was n2,n3,n1,n4,n5 
+    testBase.orderBefore("n4", "n3");
+    
+    String[] order = new String[] {"n2", "n4", "n3", "n1", "n5"};
     
     checkOrder(order);
     
