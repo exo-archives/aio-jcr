@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Formatter;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -46,10 +47,9 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
   protected static final String CONFIGNAME = "REPOSITORY-SERVICE-WORKING-CONFIG"; 
   protected static final String C_DATA = "CONFIGDATA";
   
-  protected static final String CONFIG_TABLENAME = "JCR_CONFIG";
-  
+  protected String configTableName = "JCR_CONFIG";
   protected String sourceName;
-  protected String dialect;
+  protected String initSQL;
   
   public class ConfigurationNotFoundException extends RepositoryConfigurationException {
     ConfigurationNotFoundException(String m) {
@@ -93,7 +93,24 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
       throw new RepositoryConfigurationException("Repository service configuration. Source name (sourceName) is expected");
     
     this.sourceName = sourceNameParam;
-    this.dialect = dialectParam;
+    
+    String binType = "BLOB";
+    if (dialectParam != null)
+      if (dialectParam.equalsIgnoreCase(DB_DIALECT_GENERIC) || dialectParam.equalsIgnoreCase(DB_DIALECT_HSQLDB)) {
+        binType = "VARBINARY(102400)"; // 100Kb
+      } else if (dialectParam.equalsIgnoreCase(DB_DIALECT_PGSQL)) {
+        configTableName = configTableName.toUpperCase().toLowerCase(); // postgres needs it
+        binType = "BYTEA";
+      } else if (dialectParam.equalsIgnoreCase(DB_DIALECT_MSSQL)) {
+        binType = "VARBINARY(max)";
+      } else if (dialectParam.equalsIgnoreCase(DB_DIALECT_SYBASE)) {
+        binType = "VARBINARY(255)";
+      }
+    
+    this.initSQL = "CREATE TABLE " + configTableName + " (" +
+      "NAME VARCHAR(64) NOT NULL, " +
+      "CONFIG " + binType + " NOT NULL, " +
+      "CONSTRAINT JCR_CONFIG_PK PRIMARY KEY(NAME))";
   }
   
   protected void checkInitialized() throws RepositoryConfigurationException {
@@ -112,7 +129,7 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
    */
   protected boolean isDbInitialized(Connection con) {
     try {
-      ResultSet trs = con.getMetaData().getTables(null, null, CONFIG_TABLENAME, null);
+      ResultSet trs = con.getMetaData().getTables(null, null, configTableName, null);
       return trs.next();
     } catch(SQLException e) {
       return false;
@@ -127,7 +144,7 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
       Connection con = openConnection();
       if (isDbInitialized(con)) {
         // check that data exists
-        PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) FROM " + CONFIG_TABLENAME + " WHERE NAME=?");
+        PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) FROM " + configTableName + " WHERE NAME=?");
         try {
           ps.setString(1, CONFIGNAME);
           ResultSet res = ps.executeQuery();
@@ -157,7 +174,7 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
       try {
         if (isDbInitialized(con)) {
           
-          PreparedStatement ps = con.prepareStatement("SELECT * FROM " + CONFIG_TABLENAME + " WHERE name=?");
+          PreparedStatement ps = con.prepareStatement("SELECT * FROM " + configTableName + " WHERE name=?");
           ps.setString(1, CONFIGNAME);
           ResultSet res = ps.executeQuery();
           
@@ -195,23 +212,7 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
         
         if (!isDbInitialized(con)) {
           // init db
-          String binType = "BLOB";
-          if (dialect != null)
-            if (dialect.equalsIgnoreCase(DB_DIALECT_GENERIC) || dialect.equalsIgnoreCase(DB_DIALECT_HSQLDB)) {
-              binType = "VARBINARY(102400)"; // 100Kb
-            } else if (dialect.equalsIgnoreCase(DB_DIALECT_PGSQL)) {
-              binType = "BYTEA";
-            } else if (dialect.equalsIgnoreCase(DB_DIALECT_MSSQL)) {
-              binType = "VARBINARY(max)";
-            } else if (dialect.equalsIgnoreCase(DB_DIALECT_SYBASE)) {
-              binType = "VARBINARY(255)";
-            }
-          
-          sql = "CREATE TABLE " + CONFIG_TABLENAME + " (" +
-              "NAME VARCHAR(64) NOT NULL, " +
-              "CONFIG " + binType + " NOT NULL, " +
-              "CONSTRAINT JCR_CONFIG_PK PRIMARY KEY(NAME))";
-          con.createStatement().executeUpdate(sql);
+          con.createStatement().executeUpdate(initSQL);
           
           con.commit();
           con.close();
@@ -228,12 +229,12 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
           ConfigDataHolder config = new ConfigDataHolder(confData);
           
           if (hasConfig()) {
-            sql = "UPDATE " + CONFIG_TABLENAME + " SET CONFIG=? WHERE NAME=?";
+            sql = "UPDATE " + configTableName + " SET CONFIG=? WHERE NAME=?";
             ps = con.prepareStatement(sql);
             ps.setBinaryStream(1, config.getStream(), config.getLength()); 
             ps.setString(2, CONFIGNAME);
           } else {
-            sql = "INSERT INTO " + CONFIG_TABLENAME + "(NAME, CONFIG) VALUES (?,?)";
+            sql = "INSERT INTO " + configTableName + "(NAME, CONFIG) VALUES (?,?)";
             ps = con.prepareStatement(sql);
             ps.setString(1, CONFIGNAME);
             ps.setBinaryStream(2, config.getStream(), config.getLength());
