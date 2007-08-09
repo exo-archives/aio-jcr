@@ -168,7 +168,7 @@ public class RepositoryImpl implements ManageableRepository {
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.core.ManageableRepository#getSystemSession(java.lang.String)
    */
-  public Session getSystemSession(String workspaceName) throws RepositoryException {
+  public SessionImpl getSystemSession(String workspaceName) throws RepositoryException {
     WorkspaceContainer workspaceContainer = repositoryContainer
         .getWorkspaceContainer(workspaceName);
     if (workspaceContainer == null

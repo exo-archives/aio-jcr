@@ -123,7 +123,8 @@ class QueryResultImpl implements QueryResult {
     private ScoreNodeIterator getNodeIterator() {
       log.debug("getNodeIterator() "+docOrder+" "+identifiers.length+" "+scores.length);
       if (docOrder) {
-          return new DocOrderNodeDataIteratorImpl(session.getTransientNodesManager(), identifiers, scores);
+          //return new DocOrderNodeDataIteratorImpl(session.getTransientNodesManager(), identifiers, scores);
+          return new DocOrderNodeDataIteratorImpl(session, identifiers, scores);
       } else {
           return new NodeIteratorImpl(session.getTransientNodesManager(), identifiers, scores);
       }
