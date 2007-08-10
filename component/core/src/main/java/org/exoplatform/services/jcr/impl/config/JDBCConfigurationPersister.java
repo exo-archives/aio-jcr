@@ -212,7 +212,7 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
         
         if (!isDbInitialized(con)) {
           // init db
-          con.createStatement().executeUpdate(initSQL);
+          con.createStatement().executeUpdate(sql = initSQL);
           
           con.commit();
           con.close();
@@ -234,7 +234,7 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
             ps.setBinaryStream(1, config.getStream(), config.getLength()); 
             ps.setString(2, CONFIGNAME);
           } else {
-            sql = "INSERT INTO " + configTableName + "(NAME, CONFIG) VALUES (?,?)";
+            sql = "INSERT INTO " + configTableName + " (NAME, CONFIG) VALUES (?,?)";
             ps = con.prepareStatement(sql);
             ps.setString(1, CONFIGNAME);
             ps.setBinaryStream(2, config.getStream(), config.getLength());
