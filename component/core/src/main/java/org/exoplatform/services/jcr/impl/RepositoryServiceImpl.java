@@ -91,7 +91,6 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
       throw new RepositoryException("Repository '" + name + "' not found.");
 
     return (ManageableRepository) repositoryContainer.getComponentInstanceOfType(Repository.class);
-
   }
 
   public RepositoryServiceConfiguration getConfig() {

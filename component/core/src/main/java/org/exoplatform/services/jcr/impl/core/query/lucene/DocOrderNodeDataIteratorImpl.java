@@ -236,15 +236,10 @@ class DocOrderNodeDataIteratorImpl implements ScoreNodeIterator {
         /** Cache for Nodes obtainer during the order (comparator work) */
         final Map<String, NodeData> lcache = new HashMap<String, NodeData>();
 
-        // we need session with access to container (e.g. __anonim hasn't permissions to getContainer())
-        SessionImpl sysSession = null;
-
         try {
 
-          sysSession = session.getRepository().getSystemSession(session.getWorkspace().getName());
-
           final DataManager pmanager = session != null ?
-              (DataManager) sysSession.getContainer().getComponentInstanceOfType(CacheableWorkspaceDataManager.class) :
+              (DataManager) session.getContainer().getComponentInstanceOfType(CacheableWorkspaceDataManager.class) :
               dataManager.getTransactManager().getStorageDataManager();
 
           do {
@@ -369,11 +364,7 @@ class DocOrderNodeDataIteratorImpl implements ScoreNodeIterator {
         } catch(RepositoryException e) {
           log.error("Can't init query result order. The natural one will be used. " + e, e);
         } finally {
-          if (sysSession != null)
-            sysSession.logout();
-
           session = null;
-          
           lcache.clear();
         }
 

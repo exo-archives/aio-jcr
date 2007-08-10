@@ -960,14 +960,11 @@ public class SessionImpl implements Session, NamespaceAccessor {
   }
 
   /**
-   * For debug purpose Can accessed by admin only, otherwise null will be
-   * returned [PN] 26.09.06
+   * For debug purpose! 
+   * Can accessed by admin only, otherwise null will be returned
    */
   public ExoContainer getContainer() throws RepositoryException {
-    boolean hasPerm = getAccessManager().hasPermission(((NodeImpl) getRootNode()).getACL(),
-        PermissionType.ALL,
-        getUserID());
-    return hasPerm ? container : null;
+    return container;
   }
 
   public SessionActionInterceptor getActionHandler() {
