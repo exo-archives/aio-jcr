@@ -1048,6 +1048,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     String newNamePath = newName.substring(0, newName.lastIndexOf("/") + 1);
 
     Session sess = conn.getSession();
+
     Node n_oldFile;
     Node n_newFile;
 
@@ -1076,7 +1077,8 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     try {
       n_oldFile = (Node) sess.getItem(oldName);
     } catch (PathNotFoundException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.DOSDirectoryInvalid, SMBStatus.ErrDos);
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSDirectoryInvalid,
+          SMBStatus.ErrDos);
       return;
     } catch (RepositoryException e) {
       m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
@@ -1866,7 +1868,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     try {
       // Write to the file
 
-      wrtlen = (int)JCRDriver.writeFile(m_sess, conn, netFile, buf, dataPos,
+      wrtlen = (int) JCRDriver.writeFile(m_sess, conn, netFile, buf, dataPos,
           dataLen, offset);
     } catch (java.io.IOException ex) {
 

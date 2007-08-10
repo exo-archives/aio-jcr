@@ -4,8 +4,11 @@
  **************************************************************************/
 package org.exoplatform.services.cifs;
 
+import javax.jcr.Credentials;
+import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
@@ -18,7 +21,9 @@ import org.exoplatform.services.cifs.smb.server.SMBServer;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.picocontainer.Startable;
 
 /**
@@ -47,10 +52,17 @@ public class CIFSServiceImpl implements CIFSService, Startable {
     config = new ServerConfiguration(params);
   }
 
+  public boolean isServerActive(){
+    if(server== null) return false;
+    
+    if(!server.isActive()) return false;
+    
+    return true;
+  }
+  
   public void start() {
 
       try {
-
         if (config.isSMBServerEnabled()) {
           log.info("Starting CIFS service");
           server = new SMBServer(config, repositoryService);

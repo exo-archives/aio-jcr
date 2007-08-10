@@ -24,6 +24,7 @@
  */
 package org.exoplatform.services.cifs.server.filesys;
 
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.exoplatform.services.cifs.server.SrvSession;
@@ -48,8 +49,8 @@ public class TreeConnection {
   // Shared device that the connection is associated with
 
   private SharedDevice m_shareDev;
-  
-  //session to jcr repository workspace, may be null for not disk shares
+
+  // session to jcr repository workspace, may be null for not disk shares
   private Session m_jcr_sess;
 
   // List of open files on this connection. Count of open file slots used.
@@ -70,7 +71,7 @@ public class TreeConnection {
    */
   public TreeConnection(SharedDevice shrDev) {
     m_shareDev = shrDev;
-    //m_shareDev.incrementConnectionCount();
+    // m_shareDev.incrementConnectionCount();
   }
 
   /**
@@ -83,7 +84,7 @@ public class TreeConnection {
   public void setSession(Session sess) {
     m_jcr_sess = sess;
   }
-  
+
   /**
    * Return jcr-session opened for shared device disk type (which represent
    * workspace).
@@ -93,7 +94,7 @@ public class TreeConnection {
   public Session getSession() {
     return m_jcr_sess;
   }
-  
+
   /**
    * Check if shared device has jcr-session assotiated with him
    * 
@@ -102,7 +103,7 @@ public class TreeConnection {
   public boolean hasSession() {
     return false;
   }
-  
+
   /**
    * Add a network file to the list of open files for this connection.
    * 

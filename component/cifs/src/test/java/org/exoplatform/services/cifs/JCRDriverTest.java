@@ -39,76 +39,19 @@ import org.exoplatform.services.security.impl.CredentialsImpl;
  * Created by The eXo Platform SARL Karpenko Sergey
  */
 
-public class JCRDriverTest extends TestCase {
+public class JCRDriverTest extends BaseStandaloneTest {
 
-  private RepositoryService repositoryService = null;
+  //private RepositoryService repositoryService = null;
 
-//  public JCRDriverTest() {
-//    super();
-//    InitializeRepositoryService();
-//  }
-//
-//  public JCRDriverTest(String str) {
-//    super(str);
-//    InitializeRepositoryService();
-//  }
-
-  protected void InitializeRepositoryService() {
-//    try {
-//      StandaloneContainer
-//          .addConfigurationPath("src/main/java/conf/standalone/cifs-configuration.xml");
-//
-//      // obtain standalone container
-//      StandaloneContainer container = StandaloneContainer.getInstance();
-//
-//      // set JAAS auth config
-//      if (System.getProperty("java.security.auth.login.config") == null)
-//        System.setProperty("java.security.auth.login.config",
-//            "src/main/resources/login.conf");
-//
-//      // obtain default repository
-//      repositoryService = (RepositoryService) container
-//          .getComponentInstanceOfType(RepositoryService.class);
-//
-//      System.out.println("REPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP "
-//          + repositoryService);
-//    } catch (Exception e) {
-//    }
-//
-  }
-
-  public void setUp() throws Exception {
-    if (repositoryService == null) {
-      
-      StandaloneContainer
-          .addConfigurationPath("src/main/java/conf/standalone/cifs-configuration.xml");
-
-      // obtain standalone container
-      StandaloneContainer container = StandaloneContainer.getInstance();
-
-      // set JAAS auth config
-      if (System.getProperty("java.security.auth.login.config") == null)
-        System.setProperty("java.security.auth.login.config",
-            "src/main/resources/login.conf");
-
-      // obtain default repository
-      repositoryService = (RepositoryService) container
-          .getComponentInstanceOfType(RepositoryService.class);
-
-
-    }
-
-  }
 
   public void testCreateNode_File() throws Exception {
-    
+
     InitialContext ctx = new InitialContext();
-    
-    System.out.println(">>>>>>>>>>>>>>>"+ctx.lookup("repo-db1"));
-    
+
+    System.out.println(">>>>>>>>>>>>>>>" + ctx.lookup("repo-db1"));
+
     Session s = null;
 
-    // try {
     Credentials credentials = new CredentialsImpl("admin", "admin"
         .toCharArray());
 
@@ -117,22 +60,9 @@ public class JCRDriverTest extends TestCase {
 
     s = (SessionImpl) (repositoryService.getRepository("db1").login(
         credentials, "ws"));
-    // } catch (Exception e) {
-    // fail();
-    // return;
-    // }
 
-    // try {
     JCRDriver.createNode(s, "/subfolder/exp_test1.txt", true);
-    // } catch (PathNotFoundException e) {
-    // fail();
-    // } catch (RepositoryException e) {
-    // fail();
-    // } catch (Exception e) {
-    // fail();
-    // }
 
-    // try {
     Node n = (Node) s.getItem("/subfolder/exp_test1.txt");
 
     assertTrue(n.isNodeType("nt:file"));
@@ -142,10 +72,6 @@ public class JCRDriverTest extends TestCase {
 
     cont = null;
     n.remove();
-    // } catch (Exception e) {
-    // fail();
-    //
-    // }
     s.logout();
 
   }
@@ -525,7 +451,7 @@ public class JCRDriverTest extends TestCase {
       fail();
 
     assertEquals("getnode.dat", inf.getFileName());
-    assertEquals(FileAttribute.NTNormal, inf.getFileAttributes());
+    assertTrue((FileAttribute.NTNormal & inf.getFileAttributes())>0);
 
     // TODO date time check
   }

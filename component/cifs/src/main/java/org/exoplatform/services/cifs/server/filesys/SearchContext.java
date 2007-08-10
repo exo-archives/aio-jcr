@@ -36,7 +36,7 @@ import org.exoplatform.services.cifs.server.filesys.JCRDriver;
  * <p>
  * The search context represents the state of an active search by a disk
  * interface based class. The context is used to continue a search across
- * multiple requests.
+ * multiple requests. Context contains list of founded nodes.
  */
 public class SearchContext {
 
@@ -53,13 +53,20 @@ public class SearchContext {
   private String m_searchStr;
 
   // Flags
-
+  // Bit 0 - close search after this request
+  // Bit 1 - close search if end of search reached
+  // Bit 2 - return resume keys for each entry found
+  // Bit 3 - continue search from previous ending place
+  // Bit 4 - find with backup intent
+ 
   private int m_flags;
 
-//requesteed nodes
+  // requesteed nodes
   private List<Node> m_nodes;
+
+  //work as resume Id, and indexes used node if -1 no nodes read.
   private int index = -1;
-  
+
   /**
    * Default constructor.
    */
@@ -189,8 +196,10 @@ public class SearchContext {
     // Indicate that the file information is valid
 
     return true;
+  }
 
-    // File information is not valid
+  public int getResumeId() {
+    return index;
   }
 
   /**
@@ -212,5 +221,13 @@ public class SearchContext {
     return str.toString();
   }
 
-}
+  /**
+   * Rollback index in node list at one position.<p>
+   * Its used whan file info cant fit into packet size, and will be send in next packet. 
+   * 
+   */ 
+  public void rollbackAtOnePosition() {
+    index--;
+  }
 
+}

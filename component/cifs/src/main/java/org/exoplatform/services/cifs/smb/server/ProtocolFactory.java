@@ -76,7 +76,7 @@ class ProtocolFactory {
     // NT dialect
 
     case Dialect.NT:
-      //handler = new NTProtocolHandler();
+      handler = new NTProtocolHandler();
       break;
     }
 

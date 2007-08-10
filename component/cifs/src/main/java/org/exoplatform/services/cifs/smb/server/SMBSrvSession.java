@@ -1003,7 +1003,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
       m_smbPkt.setFlags(SMBSrvPacket.FLG_CASELESS);
       m_smbPkt.setFlags2(SMBSrvPacket.FLG2_LONGFILENAMES);
-
+      
       // LanMan dialect negotiate response
 
       m_smbPkt.setParameterCount(13);
@@ -1121,7 +1121,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
       setDefaultFlags(SMBSrvPacket.FLG_CASELESS);
       setDefaultFlags2(SMBSrvPacket.FLG2_LONGFILENAMES
-          + SMBSrvPacket.FLG2_UNICODE);
+          + SMBSrvPacket.FLG2_UNICODE+SMBSrvPacket.FLG2_EXTENDEDATTRIB);
 
       // Access the authenticator for this server and determine if the server is
       // in share or
@@ -1153,10 +1153,10 @@ public class SMBSrvSession extends SrvSession implements Runnable {
       // Set server capabilities, switch off extended security if the client
       // does not support it
 
-      int srvCapabs = Capability.Unicode + Capability.RemoteAPIs
-          + Capability.NTSMBs + Capability.NTFind + Capability.NTStatus
+      int srvCapabs = Capability.Unicode// + Capability.RemoteAPIs
+          + Capability.NTSMBs + /*Capability.NTFind + */Capability.NTStatus
           + Capability.LargeFiles + Capability.LargeRead
-          + Capability.LargeWrite;
+          + Capability.LargeWrite ;
 
       if (extendedSecurity == false)
         srvCapabs &= ~Capability.ExtendedSecurity;

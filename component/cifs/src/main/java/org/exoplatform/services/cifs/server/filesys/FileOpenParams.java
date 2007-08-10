@@ -34,7 +34,8 @@ import org.exoplatform.services.cifs.smb.WinNT;
  */
 public class FileOpenParams {
   // Constants
-
+ //TODO stream field has no sense
+  
   public final static String StreamSeparator = ":";
 
   // Conversion array for Core/LanMan open actions to NT open action codes

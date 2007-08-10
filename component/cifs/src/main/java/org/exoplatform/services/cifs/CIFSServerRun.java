@@ -10,9 +10,11 @@ import java.net.URL;
 import org.exoplatform.container.StandaloneContainer;
 
 /**
- * Created by The eXo Platform SARL Author : Karpenko Sergey
+ * Created by The eXo Platform SAS Author : Karpenko Sergey
  * <p>
- * Its standalone server run implementation
+ * Its standalone server run implementation. Server run as a part of complete
+ * standalone container, so other component runs too.
+ * 
  */
 
 public class CIFSServerRun {
@@ -40,7 +42,6 @@ public class CIFSServerRun {
 
       // set JAAS auth config
 
-      // Thread.currentThread().getContextClassLoader().getResource();
       URL loginURL = Thread.currentThread().getContextClassLoader()
           .getResource("login.conf");
 

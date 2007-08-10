@@ -58,10 +58,12 @@ class CoreProtocolHandler extends ProtocolHandler {
   
   // Invalid file name characters
 
-  private static final String InvalidFileNameChars = "\"/[]:+|<>=;,*?";
+ // private static final String InvalidFileNameChars = "[]:+|<>=;,*?"; //\"/
 
-  private static final String InvalidFileNameCharsSearch = "\"/[]:+|<>=;,";
-
+  //private static final String InvalidFileNameCharsSearch = "[]:+|<>=;,"; //\"/
+  private static final String InvalidFileNameChars    = ":|<>*?";//\"/
+  private static final String InvalidFileNameCharsSearch  = ":|<>";//\"/
+  
   // SMB packet class
 
   protected SMBSrvPacket m_smbPkt;
@@ -2372,6 +2374,27 @@ class CoreProtocolHandler extends ProtocolHandler {
     // Return the handled status
 
     return handledOK;
+  }
+  
+  /**
+   * Check if a path contains any illegal characters, for file/create open/create/rename/get info
+   * 
+   * @param path String
+   * @return boolean
+   */
+  protected boolean isValidPath(String path)
+  {
+    // Scan the path for invalid path characters
+    
+    for ( int i = 0; i < InvalidFileNameChars.length(); i++)
+    {
+      if ( path.indexOf( InvalidFileNameChars.charAt( i)) != -1)
+        return false;
+    }
+    
+    // Path looks valid
+    
+    return true;
   }
 
 }

@@ -221,7 +221,7 @@ public final class SMBStatus
     // NT 32-bit status code
 
     public static final int NTSuccess = 0;
-
+    
     public static final int NTNotImplemented 			= 0xC0000002;
     public static final int NTInvalidInfoClass 			= 0xC0000003;
     public static final int NTInvalidParameter 			= 0xC000000D;

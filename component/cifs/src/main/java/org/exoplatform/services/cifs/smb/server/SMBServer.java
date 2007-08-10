@@ -31,8 +31,11 @@ import java.util.Enumeration;
 import java.util.UUID;
 import java.util.Vector;
 
+import javax.jcr.Credentials;
+import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
@@ -51,7 +54,9 @@ import org.exoplatform.services.cifs.smb.server.win32.Win32NetBIOSSessionSocketH
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * SMB Server Class

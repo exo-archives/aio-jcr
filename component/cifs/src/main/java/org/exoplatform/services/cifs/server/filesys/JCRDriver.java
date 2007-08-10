@@ -70,7 +70,6 @@ public class JCRDriver {
   public static NetworkFile createFile(TreeConnection conn,
       FileOpenParams params) throws FileExistsException, LockException,
       RepositoryException {
-    // logger.debug(" createFile params ["+params+"] TEMPLATE");
 
     String path = params.getPath();
 
@@ -87,6 +86,7 @@ public class JCRDriver {
     // create the network file
     NetworkFile netFile = new JCRNetworkFile();
     ((JCRNetworkFile) netFile).setNodeRef(nodeRef);
+
     // Add a file state for the new file/folder
 
     // done
@@ -97,7 +97,6 @@ public class JCRDriver {
     }
 
     return netFile;
-
   }
 
   public static NetworkFile openFile(TreeConnection conn, FileOpenParams params)
@@ -191,12 +190,6 @@ public class JCRDriver {
       if (netFile.isReadOnly())
         netFile.setGrantedAccess(NetworkFile.READONLY);
 
-      // done
-      if (logger.isDebugEnabled()) {
-        logger.debug("Created network file: \n" + "   node: " + nodeRef + "\n"
-            + "   param: " + params + "\n" + "   netfile: " + netFile);
-      }
-
       // If the file has been opened for overwrite then truncate the file
       // to zero length, this will
       // also prevent the existing content data from being copied to the
@@ -204,9 +197,9 @@ public class JCRDriver {
 
       if (params.isOverwrite() && netFile != null) {
         // Truncate the file to zero length
-        
+
         ((JCRNetworkFile) netFile).truncateFile(params.getAllocationSize());
-        
+
       }
 
       // Debug
@@ -255,12 +248,13 @@ public class JCRDriver {
         // add directory attribute
         fileAttributes |= FileAttribute.Directory;
         fileInfo.setFileAttributes(fileAttributes);
+        fileInfo.setSize(0L);
       } else {
         // Get the file size from the content
 
         Node contentNode = nodeRef.getNode("jcr:content");
         Property dataProp = contentNode.getProperty("jcr:data");
-        
+
         long size = 0L;
         if (dataProp != null) {
           size = dataProp.getLength();
@@ -293,19 +287,21 @@ public class JCRDriver {
         }
       }
 
-      // TODO: make the correct date setup
-      fileInfo.setCreationDateTime(0);
-      fileInfo.setModifyDateTime(0);
-      fileInfo.setAccessDateTime(0);
+      try {
+        Calendar date = nodeRef.getProperty("jcr:created").getDate();
+        fileInfo.setCreationDateTime(date.getTimeInMillis());
+      } catch (PathNotFoundException ex) {
+        // there is no property "jcr:created" so used 0 value;
+        fileInfo.setCreationDateTime(0);
+      }
 
       // name setup
       String name = nodeRef.getName();
 
       // TODO here is a sense to transfer name encoding directly to
-      // responsemaker
-      // (like Trans2FindFirst2, Trans2FindNext2) and encode name at last
-      // possible
-      // momment befor send response paket;
+      // responsemaker //NO
+      // (like Trans2FindFirst2, Trans2FindNext2, QueryInfoPacker) and encode
+      // name at last possible momment befor send response paket;
 
       if (name != null) {
         // check is file is single
@@ -344,7 +340,8 @@ public class JCRDriver {
       // Set the normal file attribute if no other attributes are set
 
       if (fileInfo.getFileAttributes() == 0)
-        fileInfo.setFileAttributes(FileAttribute.NTNormal);
+        fileInfo.setFileAttributes(FileAttribute.NTSequentialScan
+            + FileAttribute.NTNormal);
 
       // Debug
 
@@ -360,6 +357,17 @@ public class JCRDriver {
       throw new RepositoryException(e.getMessage());
     }
   }
+
+  /**
+   * Start search fill the search context by founded an valid nodes
+   * 
+   * @param conn
+   * @param srchPath
+   * @param srchAttr
+   * @return
+   * @throws FileNotFoundException
+   * @throws RepositoryException
+   */
 
   public static SearchContext startSearch(TreeConnection conn, String srchPath,
       int srchAttr) throws FileNotFoundException, RepositoryException {
@@ -383,7 +391,7 @@ public class JCRDriver {
 
         int i = srchPath.lastIndexOf("/");
         String path = srchPath.substring(0, i);
-        // String wildcard =srchPath.substring(i, srchPath.length());
+
         if (path.equals(""))
           path = "/";
 
@@ -391,10 +399,6 @@ public class JCRDriver {
         NodeIterator ni;
         // if(wildcard.equalsIgnoreCase("*.*")){
         ni = rootNode.getNodes("*");
-        // }
-        // else{
-        // ni = rootNode.getNodes(wildcard);
-        // }
 
         results = new ArrayList<Node>((int) ni.getSize());
         int count = 0;
@@ -417,7 +421,6 @@ public class JCRDriver {
       // Convert to a file not found status
 
       throw new FileNotFoundException("Start search " + srchPath);
-
     }
 
   }
@@ -501,7 +504,7 @@ public class JCRDriver {
   }
 
   public static long writeFile(SMBSrvSession m_sess, TreeConnection conn,
-      NetworkFile netFile, byte[] buf, int dataPos, int dataLen, int offset)
+      NetworkFile netFile, byte[] buf, int dataPos, int dataLen, long offset)
       throws Exception {
     return netFile.writeFile(buf, dataPos, dataLen, offset);
 
@@ -531,7 +534,7 @@ public class JCRDriver {
    * 
    */
   public static int readFile(SMBSrvSession m_sess, TreeConnection conn,
-      NetworkFile netFile, byte[] buf, int dataPos, int maxCount, int offset)
+      NetworkFile netFile, byte[] buf, int dataPos, int maxCount, long offset)
       throws AccessDeniedException, RepositoryException, IOException {
     // Check if the file is a directory
 
@@ -543,7 +546,7 @@ public class JCRDriver {
     Node n = ((JCRNetworkFile) netFile).getNodeRef();
     InputStream is = n.getNode("jcr:content").getProperty("jcr:data")
         .getStream();
-   
+
     int count;
     long skip_count = is.skip(offset);
     if ((skip_count < offset) || (skip_count == -1)) {
@@ -572,13 +575,17 @@ public class JCRDriver {
   }
 
   public static void truncateFile(SMBSrvSession m_sess, TreeConnection conn,
-      NetworkFile netFile, long wrtoff) throws Exception {
+      NetworkFile netFile, long wrtoff) throws RepositoryException {
     // Check if the file is a directory
 
     if (netFile.isDirectory())
       throw new AccessDeniedException();
 
-    ((JCRNetworkFile) netFile).truncateFile(wrtoff);
+    try {
+      ((JCRNetworkFile) netFile).truncateFile(wrtoff);
+    } catch (Exception e) {
+      throw new RepositoryException(e.getMessage());
+    }
 
   }
 
