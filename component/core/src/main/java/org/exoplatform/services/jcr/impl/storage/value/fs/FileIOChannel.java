@@ -6,12 +6,18 @@
 package org.exoplatform.services.jcr.impl.storage.value.fs;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
+import org.exoplatform.services.jcr.impl.dataflow.persistent.FileStreamPersistedValueData;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
-import org.exoplatform.services.jcr.impl.util.io.FileValueIOUtil;
 import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -24,7 +30,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 public abstract class FileIOChannel implements ValueIOChannel {
   
-  protected static Log log = ExoLogger.getLogger("jcr.FileIOChannel");
+  private static Log log = ExoLogger.getLogger("jcr.FileIOChannel");
   
   public static final int IOBUFFER_SIZE = 32 * 1024; // 32 K
   
@@ -64,7 +70,7 @@ public abstract class FileIOChannel implements ValueIOChannel {
    */
   public ValueData read(String propertyId, int orderNumber, int maxBufferSize) throws IOException {
     File valueFile = getFile(propertyId, orderNumber);
-    return FileValueIOUtil.readValue(valueFile, orderNumber, maxBufferSize, false);
+    return readValue(valueFile, orderNumber, maxBufferSize, false);
   }
 
   /**
@@ -72,7 +78,7 @@ public abstract class FileIOChannel implements ValueIOChannel {
    */
   public String write(String propertyId, ValueData value) throws IOException {
     File file = getFile(propertyId, value.getOrderNumber());
-    FileValueIOUtil.writeValue(file, value);
+    writeValue(file, value);
     return file.getAbsolutePath();
   }
   
@@ -90,4 +96,44 @@ public abstract class FileIOChannel implements ValueIOChannel {
    * @return
    */
   protected abstract File[] getFiles(String propertyId);
+  
+  // ------ file IO helpers ------
+  
+  protected ValueData readValue(File file, int orderNum, int maxBufferSize, boolean temp) throws IOException {
+    FileInputStream is = new FileInputStream(file);
+    FileChannel channel = is.getChannel();
+    try {
+      int size = (int) channel.size();
+      
+      if (size > maxBufferSize) {
+        return new FileStreamPersistedValueData(file, orderNum, temp);
+      } else {
+        ByteBuffer buf = ByteBuffer.allocate(size);
+        int numRead = channel.read(buf);
+        byte[] arr = new byte[numRead]; 
+        buf.rewind();
+        buf.get(arr);
+        return new ByteArrayPersistedValueData(arr, orderNum);
+      }
+    } finally {
+      channel.close();
+      is.close();
+    }
+  }
+
+  protected void writeValue(File file, ValueData value)  throws IOException {
+    FileOutputStream out = new FileOutputStream(file);
+    if (value.isByteArray()) {
+      byte[] buff = value.getAsByteArray();
+      out.write(buff);
+    } else {
+      byte[] buffer = new byte[FileIOChannel.IOBUFFER_SIZE]; //was 0x2000 = 8K
+      int len;
+      InputStream in = value.getAsStream();
+      while ((len = in.read(buffer)) > 0) {
+        out.write(buffer, 0, len);
+      }
+    }
+    out.close();
+  }
 }

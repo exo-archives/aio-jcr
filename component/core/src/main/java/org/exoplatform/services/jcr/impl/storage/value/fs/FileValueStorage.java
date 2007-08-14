@@ -25,7 +25,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 public abstract class FileValueStorage extends ValueStoragePlugin {
 
-  protected static Log log = ExoLogger.getLogger("jcr.FileValueStorage");
+  private Log log = ExoLogger.getLogger("jcr.FileValueStorage");
 
   public final static String PATH = "path";
 

@@ -8,8 +8,10 @@ package org.exoplatform.services.jcr.impl.storage.value.fs;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS
@@ -18,6 +20,12 @@ import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
  * @version $Id$
  */
 public class TreeFileValueStorage extends FileValueStorage {
+  
+  /** Channels log */
+  private static Log chLog = ExoLogger.getLogger("jcr.TreeFileIOChannel");
+  
+  /** Files log */
+  private static Log fLog = ExoLogger.getLogger("jcr.TreeFile");
   
   protected class TreeFile extends File {
     
@@ -47,12 +55,12 @@ public class TreeFileValueStorage extends FileValueStorage {
             if (res = fp.delete()) {
               res = deleteParent(new File(fp.getParent()));
             } else {
-              log.warn("Parent directory can not be deleted now. " + fp.getAbsolutePath());
+              fLog.warn("Parent directory can not be deleted now. " + fp.getAbsolutePath());
               cleaner.addFile(new TreeFile(fp.getAbsolutePath()));
             }
           }
         } else
-          log.warn("Parent can not be a file but found " + fp.getAbsolutePath());
+          fLog.warn("Parent can not be a file but found " + fp.getAbsolutePath());
       return res;
     }
   }
@@ -73,7 +81,25 @@ public class TreeFileValueStorage extends FileValueStorage {
     @Override
     protected File getFile(String propertyId, int orderNumber) {
       File dir = new File(rootDir.getAbsolutePath() + buildPath(propertyId));
-      dir.mkdirs();
+      
+      if (!dir.exists()) {
+        // [PN] 14.08.07 magic for concurrent dirs creation, 
+        // will try create the dir no more 20 times.
+        int i=1;
+        boolean mkdir = false;
+        while (!(mkdir = dir.mkdirs()) && i++ <19) {
+          Thread.yield(); // let to work other ones 
+        }
+        
+        if (i > 2) {
+          if (!mkdir && !dir.mkdirs()) // last chance to create
+            throw new RuntimeException("Can't create storage path " + dir.getAbsolutePath() + ". Tried " + i + " times.");
+          
+          if (chLog.isDebugEnabled())
+            chLog.debug("Storage path " + dir.getAbsolutePath() + " was created on " + (mkdir ? i - 1 : i) + " cycle.");
+        }
+      }
+      
       return new TreeFile(dir.getAbsolutePath() + File.separator + propertyId + orderNumber);
     }
 
@@ -81,8 +107,6 @@ public class TreeFileValueStorage extends FileValueStorage {
     protected File[] getFiles(String propertyId) {
       File dir = new File(rootDir.getAbsolutePath() + buildPath(propertyId));
       String[] fileNames = dir.list();
-      if (fileNames == null)
-        log.warn("no files found");
       File[] files = new File[fileNames.length];
       for (int i=0; i<fileNames.length; i++) {
         files[i] = new TreeFile(dir.getAbsolutePath() + File.separator + fileNames[i]);
