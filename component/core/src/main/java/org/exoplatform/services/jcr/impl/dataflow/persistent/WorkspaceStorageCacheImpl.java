@@ -7,11 +7,17 @@ package org.exoplatform.services.jcr.impl.dataflow.persistent;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.WeakHashMap;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.cache.CacheListener;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.CachedObjectSelector;
 import org.exoplatform.services.cache.ExoCache;
@@ -46,6 +52,8 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   static public long MAX_CACHE_LIVETIME = 600; // in sec
   
   protected static Log log = ExoLogger.getLogger("jcr.WorkspaceStorageCacheImpl");
+  
+  protected Log info = ExoLogger.getLogger("jcr.WorkspaceStorageCacheImplINFO");
 
   private final ExoCache cache; 
   
@@ -55,6 +63,8 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   private final String   name;
 
   private boolean  enabled;
+  
+  private Timer debugInformer;
     
   public WorkspaceStorageCacheImpl(CacheService cacheService, WorkspaceEntry wsConfig)
       throws Exception {
@@ -77,6 +87,43 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       nodesCache = new WeakHashMap<String, List<NodeData>>();
       propertiesCache = new WeakHashMap<String, List<PropertyData>>();
       enabled = true;
+    }
+    
+    cache.addCacheListener(new ExpiredListener());
+    
+    if (info.isDebugEnabled()) {
+      debugInformer = new Timer(this.name); 
+      TimerTask informerTask = new TimerTask() {
+        public void run() {
+          try {
+            int childNodes = 0;
+            try {
+              for (Map.Entry<String, List<NodeData>> ne: nodesCache.entrySet()) {
+                childNodes += ne.getValue().size();
+              }
+            } catch(ConcurrentModificationException e) {
+              childNodes = -1;
+            }
+            int childProperties = 0;
+            try {
+              for (Map.Entry<String, List<PropertyData>> pe: propertiesCache.entrySet()) {
+                childProperties += pe.getValue().size();
+              }
+            } catch(ConcurrentModificationException e) {
+              childProperties = -1;
+            }
+            info.info("C " + cache.getCacheSize() 
+                + ", CN " + nodesCache.size() + "/" + (childNodes < 0 ? "?" : childNodes) 
+                + ", CP " + propertiesCache.size() + "/" + (childProperties < 0 ? "?" : childProperties));
+          } catch(Throwable e) {
+            info.error("Debug informer task error " + e);
+          }
+        }
+      };
+      
+      Calendar firstTime = Calendar.getInstance();
+      firstTime.add(Calendar.SECOND, 30); // begin task after 30 second
+      debugInformer.schedule(informerTask, firstTime.getTime(), 60 * 1000); // report each minute
     }
   }
 
@@ -579,7 +626,8 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
   
   /**
-   * Remove item relations in the cache(C,CN,CP) by Identifier.
+   * Remove item relations in the cache(C,CN,CP) by Identifier 
+   * in case of item remove from persisten storage.
    * Relations for a node it's a child nodes, properties and item in node's parent childs list.
    * Relations for a property it's a item in node's parent childs list. 
    * */
@@ -795,6 +843,51 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
     public boolean select(Serializable key, ObjectCacheInfo value) {
       return ((String) key).equals(itemPath);
+    }
+  }
+  
+  /**
+   * Remove relations in CN and CP for item expired in C 
+   * */
+  protected class ExpiredListener implements CacheListener {
+
+    public void onExpire(ExoCache cache, Serializable key, Object obj) throws Exception {
+      if (obj == null)
+        return;
+      
+      ItemData item = (ItemData) obj;
+      
+      //log.info("expired " + item.getQPath().getAsString());
+      
+      if (item.isNode()) {
+        // removing childs of the node
+        if (removeChildNodes(item.getIdentifier(), false) != null) {
+          if (log.isDebugEnabled())
+            log.debug(name + ", onExpire() removeChildNodes() " + item.getIdentifier());
+        }
+        if (removeChildProperties(item.getIdentifier()) != null) {
+          if (log.isDebugEnabled())
+            log.debug(name + ", onExpire() removeChildProperties() " + item.getIdentifier());
+        }
+      } else {
+        // removing child properties of the item parent 
+        if (removeChildProperties(item.getParentIdentifier()) != null) {
+          if (log.isDebugEnabled())
+            log.debug(name + ", onExpire() parent.removeChildProperties() " + item.getParentIdentifier());
+        }
+      }
+    }
+
+    public void onClearCache(ExoCache cache) throws Exception {
+    }
+
+    public void onGet(ExoCache cache, Serializable key, Object obj) throws Exception {
+    }
+
+    public void onPut(ExoCache cache, Serializable key, Object obj) throws Exception {
+    }
+
+    public void onRemove(ExoCache cache, Serializable key, Object obj) throws Exception {
     }
   }
 }

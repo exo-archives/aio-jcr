@@ -81,25 +81,7 @@ public class TreeFileValueStorage extends FileValueStorage {
     @Override
     protected File getFile(String propertyId, int orderNumber) {
       File dir = new File(rootDir.getAbsolutePath() + buildPath(propertyId));
-      
-      if (!dir.exists()) {
-        // [PN] 14.08.07 magic for concurrent dirs creation, 
-        // will try create the dir no more 20 times.
-        int i=1;
-        boolean mkdir = false;
-        while (!(mkdir = dir.mkdirs()) && !(mkdir = dir.exists()) && i++ <19) {
-          Thread.yield(); // let to work other ones 
-        }
-        
-        if (i > 2) {
-          if (!mkdir && !dir.mkdirs()) // last chance to create
-            throw new RuntimeException("Can't create storage path " + dir.getAbsolutePath() + ". Tried " + i + " times.");
-          
-          if (chLog.isDebugEnabled())
-            chLog.debug("Storage path " + dir.getAbsolutePath() + " was created (found as existing) on " + (mkdir ? i - 1 : i) + " cycle.");
-        }
-      }
-      
+      mkdirs(dir); // synchronized
       return new TreeFile(dir.getAbsolutePath() + File.separator + propertyId + orderNumber);
     }
 
@@ -191,5 +173,9 @@ public class TreeFileValueStorage extends FileValueStorage {
   @Override
   public ValueIOChannel openIOChannel() throws IOException {
     return new TreeFileIOChannel(rootDir, cleaner);
+  }
+  
+  static private synchronized boolean mkdirs(final File dir) {
+    return dir.mkdirs();
   }
 }
