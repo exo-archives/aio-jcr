@@ -80,7 +80,7 @@
 		
 		<!--jcifs used just for test-->
 		<dependency>
-			<groupId>jcifs </groupId>
+			<groupId>org.samba</groupId>
 			<artifactId>jcifs</artifactId>
 			<version>1.1.11</version>
 			<scope>test</scope>

@@ -116,7 +116,19 @@ public class testReadFile extends BaseStandaloneTest {
 
   }
 
-  public void testReadLargeFile() throws Exception {
+  
+  
+  /**
+   * Reads large file
+   * <p>
+   * I have a problems with commiting files over 100 Mb? so this test is optional.
+   * <p>
+   * You can put any large file in /test/resources and rename it to largefile.mp3.
+   * after that - uncomment this test.
+   * 
+   * @throws Exception
+   */
+  /*public void testReadLargeFile() throws Exception {
 
     File tf = new File("src/test/resources/largefile.mp3");
 
@@ -190,6 +202,6 @@ public class testReadFile extends BaseStandaloneTest {
 
     assertFalse(s.itemExists("/" + filename));
 
-  }
+  }*/
 
 }
