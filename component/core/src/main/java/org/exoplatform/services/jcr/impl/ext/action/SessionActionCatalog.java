@@ -20,88 +20,86 @@ import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 import org.exoplatform.services.log.ExoLogger;
 
-
 /**
- * Created by The eXo Platform SARL        .
+ * Created by The eXo Platform SARL .
+ * 
  * @author Gennady Azarenkov
  * @version $Id: SessionActionCatalog.java 13003 2007-02-27 14:16:39Z ksm $
  */
 
 public class SessionActionCatalog extends ActionCatalog {
-  
-  private static Log log = ExoLogger.getLogger("jcr.SessionActionCatalog");
-  
+
+  private static Log      log = ExoLogger.getLogger("jcr.SessionActionCatalog");
+
   private LocationFactory locFactory;
 
-  public SessionActionCatalog(RepositoryService repService) throws 
-  RepositoryException, RepositoryConfigurationException {
-    
-    RepositoryImpl rep = (RepositoryImpl)repService.getCurrentRepository();
+  public SessionActionCatalog(RepositoryService repService) throws RepositoryException {
+
+    RepositoryImpl rep = (RepositoryImpl) repService.getCurrentRepository();
     locFactory = rep.getLocationFactory();
-    
+
   }
-  
+
   public void addPlugin(ComponentPlugin plugin) {
     if (plugin instanceof AddActionsPlugin) {
       AddActionsPlugin cplugin = (AddActionsPlugin) plugin;
-      for(ActionConfiguration ac:cplugin.getActions()) {
+      for (ActionConfiguration ac : cplugin.getActions()) {
         try {
-          
-          SessionEventMatcher matcher = new SessionEventMatcher(
-            getEventTypes(ac.getEventTypes()), 
-            getPaths(ac.getPath()),
-            ac.isDeep(),
-            getNames(ac.getNodeType()),
-            getNames(ac.getParentNodeType()),
-            getWorkspaces(ac.getWorkspace()));
 
-          Action action = (Action)Class.forName(ac.getActionClassName()).newInstance();
+          SessionEventMatcher matcher = new SessionEventMatcher(getEventTypes(ac.getEventTypes()),
+              getPaths(ac.getPath()),
+              ac.isDeep(),
+              getNames(ac.getNodeType()),
+              getNames(ac.getParentNodeType()),
+              getWorkspaces(ac.getWorkspace()),
+              getNames(ac.getNodeTypes()));
+
+          Action action = (Action) Class.forName(ac.getActionClassName()).newInstance();
           addAction(matcher, action);
         } catch (Exception e) {
           e.printStackTrace();
-        } 
+        }
       }
     }
   }
-  
 
   private String[] getWorkspaces(String workspaces) throws RepositoryException {
-    if(workspaces == null)
+    if (workspaces == null)
       return null;
     return workspaces.split(",");
   }
-  
+
   private QPath[] getPaths(String paths) throws RepositoryException {
-    if(paths == null)
+    if (paths == null)
       return null;
 
     String[] pathList = paths.split(",");
     QPath[] qpaths = new QPath[pathList.length];
-    for(int i=0; i<pathList.length; i++) {
+    for (int i = 0; i < pathList.length; i++) {
       qpaths[i] = locFactory.parseAbsPath(pathList[i]).getInternalPath();
     }
     return qpaths;
   }
 
   private InternalQName[] getNames(String names) throws RepositoryException {
-    if(names == null)
+    if (names == null)
       return null;
-    
+
     String[] nameList = names.split(",");
     InternalQName[] qnames = new InternalQName[nameList.length];
-    for(int i=0; i<nameList.length; i++) {
+    for (int i = 0; i < nameList.length; i++) {
       qnames[i] = locFactory.parseJCRName(nameList[i]).getInternalName();
     }
     return qnames;
   }
 
   private static int getEventTypes(String names) {
-    if(names == null)
+    if (names == null)
       return -1;
-    
+
     String[] nameList = names.split(",");
     int res = 0;
-    
+
     for (String name : nameList) {
       if (name.equalsIgnoreCase("addNode")) {
         res |= ExtendedEvent.NODE_ADDED;
@@ -127,9 +125,8 @@ public class SessionActionCatalog extends ActionCatalog {
         res |= ExtendedEvent.CHECKOUT;
       } else if (name.equalsIgnoreCase("read")) {
         res |= ExtendedEvent.READ;
-      }
-      else {
-        log.error("Unknown event type '"+name+"' ignored");
+      } else {
+        log.error("Unknown event type '" + name + "' ignored");
       }
     }
     return res;

@@ -18,14 +18,17 @@ public class ActionConfiguration {
   private String eventTypes;
   private String path;
   private boolean isDeep;
-  private String parentNodeType; 
+  private String nodeTypes;
+  @Deprecated
+  private String parentNodeType;
+  @Deprecated
   private String nodeType;
   private String workspace;
 
   public ActionConfiguration(String actionClassName, 
       String eventTypes, String path, boolean isDeep, 
       String parentNodeType, String nodeType,
-      String workspace) {
+      String workspace,String nodeTypes) {
     this.actionClassName = actionClassName;
     this.eventTypes = eventTypes;
     this.path = path;
@@ -33,6 +36,7 @@ public class ActionConfiguration {
     this.parentNodeType = parentNodeType;
     this.nodeType = nodeType;
     this.workspace = workspace;
+    this.nodeTypes = nodeTypes;
   }
 
   public ActionConfiguration() {
@@ -43,6 +47,7 @@ public class ActionConfiguration {
     this.parentNodeType = null;
     this.nodeType = null;
     this.workspace = null;
+    this.nodeTypes =  null;
   }
   
   public String getActionClassName() {
@@ -63,15 +68,19 @@ public class ActionConfiguration {
   public void setDeep(boolean isDeep) {
     this.isDeep = isDeep;
   }
+  @Deprecated
   public String getNodeType() {
     return nodeType;
   }
+  @Deprecated
   public void setNodeType(String nodeType) {
     this.nodeType = nodeType;
   }
+  @Deprecated
   public String getParentNodeType() {
     return parentNodeType;
   }
+  @Deprecated
   public void setParentNodeType(String parentNodeType) {
     this.parentNodeType = parentNodeType;
   }
@@ -88,5 +97,13 @@ public class ActionConfiguration {
 
   public void setWorkspace(String workspace) {
     this.workspace = workspace;
+  }
+
+  public String getNodeTypes() {
+    return nodeTypes;
+  }
+
+  public void setNodeTypes(String nodeTypes) {
+    this.nodeTypes = nodeTypes;
   }
 }

@@ -57,7 +57,7 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
         true,
         "nt:base,",
         "nt:base",
-        null);
+        null,null);
     List actionsList = new ArrayList();
     ActionsConfig actions = new ActionsConfig();
     actions.setActions(actionsList);
@@ -111,7 +111,7 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
         true,
         null,
         null,
-        null);
+        null,null);
     catalog.addAction(matcher, new DummyAction());
     Condition cond = new Condition();
     cond.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.NODE_ADDED);
@@ -133,7 +133,7 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
         true,
         null,
         null,
-        null);
+        null,null);
     catalog.addAction(matcher, new DummyAction());
     Condition cond = new Condition();
 
@@ -171,7 +171,7 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
         false,
         null,
         null,
-        null);
+        null,null);
     catalog.addAction(matcher, new DummyAction());
     Condition cond = new Condition();
 
@@ -204,7 +204,7 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
         true,
         new InternalQName[] { Constants.NT_UNSTRUCTURED },
         null,
-        null);
+        null,null);
     catalog.addAction(matcher, new DummyAction());
     Condition cond = new Condition();
     cond.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.NODE_ADDED);
@@ -216,7 +216,30 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
     cond.put(SessionEventMatcher.NODETYPE_KEY, Constants.NT_NODETYPE);
     assertEquals(0, catalog.getActions(cond).size());
   }
+  
+  public void testMatchNodeTypes() throws Exception {
+    SessionActionCatalog catalog = (SessionActionCatalog) container
+        .getComponentInstanceOfType(SessionActionCatalog.class);
+    catalog.clear();
 
+    // test by path
+    SessionEventMatcher matcher = new SessionEventMatcher(ExtendedEvent.ADD_MIXIN,
+        null,
+        true,
+        null,
+        null,
+        null,new InternalQName[] { Constants.MIX_LOCKABLE});
+    catalog.addAction(matcher, new DummyAction());
+    Condition cond = new Condition();
+    cond.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.ADD_MIXIN);
+
+    // test for this nodetype
+    cond.put(SessionEventMatcher.NODETYPES_KEY, new InternalQName[]{Constants.NT_UNSTRUCTURED});
+    assertEquals(0, catalog.getActions(cond).size());
+
+    cond.put(SessionEventMatcher.NODETYPES_KEY, new InternalQName[]{Constants.MIX_LOCKABLE});
+    assertEquals(1, catalog.getActions(cond).size());
+  }
   public void testMatchParentNodeType() throws Exception {
     SessionActionCatalog catalog = (SessionActionCatalog) container
         .getComponentInstanceOfType(SessionActionCatalog.class);
@@ -228,7 +251,7 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
         true,
         null,
         new InternalQName[] { Constants.NT_UNSTRUCTURED },
-        null);
+        null,null);
     catalog.addAction(matcher, new DummyAction());
     Condition cond = new Condition();
     cond.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.NODE_ADDED);
@@ -255,7 +278,7 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
         true,
         null,
         null,
-        new String[] { "production" });
+        new String[] { "production" },null);
     catalog.addAction(matcher, new DummyAction());
     Condition cond = new Condition();
     cond.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.NODE_ADDED);
@@ -279,7 +302,7 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
         true,
         new InternalQName[] { Constants.NT_BASE, Constants.NT_QUERY },
         new InternalQName[] { Constants.NT_UNSTRUCTURED, Constants.NT_QUERY },
-        null);
+        null,null);
     System.out.println(matcher.dump());
   }
 
@@ -294,7 +317,7 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
         true,
         null,
         new InternalQName[] { Constants.NT_UNSTRUCTURED },
-        null);
+        null,null);
     DummyAction dAction = new DummyAction();
     catalog.addAction(matcher, dAction);
 
@@ -317,7 +340,7 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
         true,
         null,
         new InternalQName[] { Constants.NT_UNSTRUCTURED },
-        null);
+        null,null);
     DummyAction dAction = new DummyAction();
     catalog.addAction(matcher, dAction);
 
@@ -354,7 +377,7 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
         true,
         null,
         new InternalQName[] { Constants.NT_UNSTRUCTURED },
-        null);
+        null,null);
     DummyAction dAction = new DummyAction();
     
     catalog.addAction(matcher, dAction);
