@@ -9,13 +9,14 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 import junit.framework.TestCase;
 
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.FileStreamPersistedValueData;
-import org.exoplatform.services.jcr.impl.util.io.FileValueIOUtil;
+import org.exoplatform.services.jcr.impl.storage.value.fs.FileIOChannel;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -24,7 +25,33 @@ import org.exoplatform.services.jcr.impl.util.io.FileValueIOUtil;
  */
 
 public class TestFileValueIO extends TestCase {
-  
+
+  static class FileValueIOUtil extends FileIOChannel {
+    
+    FileValueIOUtil() {
+      super(null, null);
+    }
+
+    @Override
+    protected File getFile(String propertyId, int orderNumber) {
+      return null;
+    }
+
+    @Override
+    protected File[] getFiles(String propertyId) {
+      return null;
+    }
+
+    static public ValueData testReadValue(File file, int orderNum, int maxBufferSize, boolean temp)
+        throws IOException {
+      
+      return new FileValueIOUtil().readValue(file, orderNum, maxBufferSize, temp);
+    }
+
+    static public void testWriteValue(File file, ValueData value) throws IOException {
+      new FileValueIOUtil().writeValue(file, value);
+    }
+  }
 
   public void testReadByteArrayValueData() throws Exception {
     
@@ -37,7 +64,7 @@ public class TestFileValueIO extends TestCase {
     out.close();
     
     // max buffer size = 50 - so ByteArray will be created
-    ValueData vd = FileValueIOUtil.readValue(file, 0, 50, false);
+    ValueData vd = FileValueIOUtil.testReadValue(file, 0, 50, false);
     
     assertTrue(vd instanceof ByteArrayPersistedValueData);
     assertTrue(vd.isByteArray());
@@ -58,7 +85,7 @@ public class TestFileValueIO extends TestCase {
     out.close();
     
     // max buffer size = 5 - so File will be created
-    ValueData vd = FileValueIOUtil.readValue(file, 0, 5, false);
+    ValueData vd = FileValueIOUtil.testReadValue(file, 0, 5, false);
     
     assertTrue(vd instanceof FileStreamPersistedValueData);
     assertFalse(vd.isByteArray());
@@ -81,10 +108,10 @@ public class TestFileValueIO extends TestCase {
 
     ByteArrayPersistedValueData vd = new  ByteArrayPersistedValueData(buf, 0);
   
-    FileValueIOUtil.writeValue(file, vd);
+    FileValueIOUtil.testWriteValue(file, vd);
     
     // max buffer size = 5 - so File will be created
-    ValueData vd1 = FileValueIOUtil.readValue(file, 0, 5, false);
+    ValueData vd1 = FileValueIOUtil.testReadValue(file, 0, 5, false);
     
     assertFalse(vd1.isByteArray());
     assertEquals(10, vd1.getLength());
