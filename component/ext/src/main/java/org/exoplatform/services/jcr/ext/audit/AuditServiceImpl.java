@@ -400,8 +400,8 @@ public class AuditServiceImpl implements AuditService {
     private NodeData getAuditHistoryNodeData() throws RepositoryException{
       QPath path = null;
       //make path to the audithistory property 
-      path = QPath.makeChildPath(((NodeImpl)node).getData().getQPath(),AuditService.EXO_AUDITHISTORY);
       //searching uuid of corresponding EXO_AUDITHISTORY node
+      path = QPath.makeChildPath(((NodeImpl)node).getData().getQPath(),AuditService.EXO_AUDITHISTORY);
       PropertyData pData = (PropertyData) dm.getItemData(path);
       String ahUuid;
       try {

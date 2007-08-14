@@ -49,7 +49,7 @@ public class TestAccessContext extends BaseStandaloneTest {
         .getComponentInstanceOfType(SessionActionCatalog.class);
     ActionConfiguration ac = new ActionConfiguration(
         "org.exoplatform.services.jcr.ext.access.SetAccessControlContextAction",
-        "addProperty,changeProperty,removeProperty,read", null, true, null, null, null);
+        "addProperty,changeProperty,removeProperty,read", null, true, null, null, null,null);
     List actionsList = new ArrayList();
     ActionsConfig actions = new ActionsConfig();
     actions.setActions(actionsList);

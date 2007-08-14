@@ -41,7 +41,7 @@ public class TestActions extends BaseStandaloneTest {
 
     SessionEventMatcher matcher = new SessionEventMatcher(ExtendedEvent.READ,
         new QPath[] { prop.getData().getQPath() }, true, null,
-        new InternalQName[] { Constants.NT_UNSTRUCTURED }, null);
+        new InternalQName[] { Constants.NT_UNSTRUCTURED }, null,null);
     DummyAction dAction = new DummyAction();
 
     catalog.addAction(matcher, dAction);

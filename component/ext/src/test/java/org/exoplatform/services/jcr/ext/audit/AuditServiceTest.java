@@ -5,10 +5,12 @@
 
 package org.exoplatform.services.jcr.ext.audit;
 
+import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
@@ -252,7 +254,22 @@ public class AuditServiceTest extends BaseStandaloneTest {
   }
   
   
-  
+  public void testRemoveAuditable() throws Exception {
+    ExtendedNode node = (ExtendedNode)rootNode.addNode(AUTO_ROOT_NAME, "nt:unstructured");
+    //node.addMixin("exo:auditable");
+    session.save();
+    assertTrue(node.isNodeType("exo:auditable"));
+    String history = node.getProperty("exo:auditHistory").getString();
+    assertNotNull(session.getNodeByUUID(history));
+    node.remove();
+    session.save();
+    try {
+      session.getNodeByUUID(history);
+      fail("History doesnt removed");
+    } catch (ItemNotFoundException e) {
+      //ok
+    }
+  }
   
   
   
