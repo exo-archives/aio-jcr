@@ -87,7 +87,7 @@ public class TreeFileValueStorage extends FileValueStorage {
         // will try create the dir no more 20 times.
         int i=1;
         boolean mkdir = false;
-        while (!(mkdir = dir.mkdirs()) && i++ <19) {
+        while (!(mkdir = dir.mkdirs()) && !(mkdir = dir.exists()) && i++ <19) {
           Thread.yield(); // let to work other ones 
         }
         
@@ -96,7 +96,7 @@ public class TreeFileValueStorage extends FileValueStorage {
             throw new RuntimeException("Can't create storage path " + dir.getAbsolutePath() + ". Tried " + i + " times.");
           
           if (chLog.isDebugEnabled())
-            chLog.debug("Storage path " + dir.getAbsolutePath() + " was created on " + (mkdir ? i - 1 : i) + " cycle.");
+            chLog.debug("Storage path " + dir.getAbsolutePath() + " was created (found as existing) on " + (mkdir ? i - 1 : i) + " cycle.");
         }
       }
       
