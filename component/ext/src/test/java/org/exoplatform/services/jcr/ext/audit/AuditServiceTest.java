@@ -253,6 +253,20 @@ public class AuditServiceTest extends BaseStandaloneTest {
     assertTrue(node.isNodeType("exo:auditable"));
   }
   
+  /**
+   * @throws RepositoryException
+   * Prerequisites:
+                    <value>
+                      <object type="org.exoplatform.services.jcr.impl.ext.action.ActionConfiguration">
+                        <field  name="eventTypes"><string>removeNode</string></field>
+                        <field  name="nodeTypes"><string>exo:auditable</string></field>
+                        <field  name="isDeep"><boolean>false</boolean></field>
+                        <field  name="actionClassName"><string>org.exoplatform.services.jcr.ext.audit.RemoveAuditableAction</string></field>
+                      </object>
+                    </value>
+
+   * 
+   */
   
   public void testRemoveAuditable() throws Exception {
     ExtendedNode node = (ExtendedNode)rootNode.addNode(AUTO_ROOT_NAME, "nt:unstructured");
