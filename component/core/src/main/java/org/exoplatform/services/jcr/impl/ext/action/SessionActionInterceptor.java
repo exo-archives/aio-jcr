@@ -297,21 +297,6 @@ public class SessionActionInterceptor {
     return names;
   }
 
-//  private NodeType[] getAllNodeTypes(SessionImpl session, NodeData data) throws RepositoryException {
-//
-//    ExtendedNodeType primaryType = session.getWorkspace().getNodeTypeManager().getNodeType(data
-//        .getPrimaryTypeName());
-//
-//    InternalQName[] mixinNames = data.getMixinTypeNames();
-//    NodeType[] nodeTypes = new NodeType[mixinNames.length + 1];
-//    nodeTypes[0] = primaryType;
-//    for (int i = 1; i <= mixinNames.length; i++) {
-//      nodeTypes[i] = session.getWorkspace().getNodeTypeManager().getNodeType(mixinNames[i - 1]);
-//    }
-//
-//    return nodeTypes;
-//  }
-
   protected final void launch(Condition conditions, InvocationContext context) {
     if (conditions != null && catalog != null) {
       Set<Action> cond = catalog.getActions(conditions);
