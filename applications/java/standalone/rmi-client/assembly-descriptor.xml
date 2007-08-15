@@ -7,8 +7,8 @@
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <fileSet>
-      <directory>/</directory>
-      <outputDirectory>/</outputDirectory>
+      <directory>.</directory>
+      <outputDirectory>.</outputDirectory>
       <includes>
         <include>bin/*</include>
       </includes>
@@ -17,7 +17,7 @@
 
   <dependencySets>
     <dependencySet>
-      <outputDirectory>/lib</outputDirectory>
+      <outputDirectory>lib</outputDirectory>
       <unpack>false</unpack>
       <scope>runtime</scope>
       <includes>
