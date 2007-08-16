@@ -16,21 +16,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Calendar;
 
 import org.exoplatform.services.jcr.access.AccessControlEntry;
+import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
-import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
- * Created by The eXo Platform SARL .<br/> 
- * 
+ * Created by The eXo Platform SARL .<br/>
  * 
  * @author Gennady Azarenkov
  * @version $Id$
@@ -41,7 +41,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   protected byte[]      data;
 
   protected InputStream tmpStream;
-  
+
   protected InputStream lockStream;
 
   protected File        spoolFile;
@@ -51,10 +51,11 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   protected int         maxBufferSize;
 
   protected File        tempDirectory;
-  
-  protected boolean spooled = false;
+
+  protected boolean     spooled = false;
+
   private final boolean deleteSpoolFile;
-  
+
   static protected byte[] stringToBytes(final String value) {
     try {
       return value.getBytes(Constants.DEFAULT_ENCODING);
@@ -88,11 +89,15 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     this.tmpStream = stream;
     this.deleteSpoolFile = true;
   }
-  
-  
-  public TransientValueData(int orderNumber, byte[] bytes, InputStream stream, 
-      File spoolFile, FileCleaner fileCleaner, int maxBufferSize,
-      File tempDirectory,boolean deleteSpoolFile ) {
+
+  public TransientValueData(int orderNumber,
+      byte[] bytes,
+      InputStream stream,
+      File spoolFile,
+      FileCleaner fileCleaner,
+      int maxBufferSize,
+      File tempDirectory,
+      boolean deleteSpoolFile) {
     super(orderNumber);
     this.data = bytes;
     this.tmpStream = stream;
@@ -101,12 +106,11 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     this.maxBufferSize = maxBufferSize;
     this.tempDirectory = tempDirectory;
     this.deleteSpoolFile = deleteSpoolFile;
-    if (spoolFile != null){
+    if (spoolFile != null) {
       this.spooled = true;
     }
   }
 
-  
   public TransientValueData(InputStream stream) {
     this(stream, 0);
   }
@@ -258,22 +262,21 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     }
     return data != null;
   }
-  
+
   @Override
   public TransientValueData createTransientCopy() {
-    
+
     // do we need that?
-    //byte[] newBytes = null;
+    // byte[] newBytes = null;
     if (isByteArray()) {
       // make a copy of real data
-      byte[] newBytes = new byte[data.length];  
+      byte[] newBytes = new byte[data.length];
       System.arraycopy(data, 0, newBytes, 0, newBytes.length);
       return new TransientValueData(newBytes, orderNumber);
     } else {
       return this;
     }
   }
-
 
   /**
    * @return spool file if any
@@ -373,7 +376,6 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     return fileCleaner == null;
   }
 
-
   // ///////////////////////////////////
 
   private void spoolInputStream() throws IOException {
@@ -410,20 +412,22 @@ public class TransientValueData extends AbstractValueData implements Externaliza
       }
       this.tmpStream = null;
       spooled = true;
-      
-      //------------------------
+
+      // ------------------------
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
   }
-  public void lock(){
-     if(lockStream == null && spoolFile !=null){
-       try {
+
+  public void lock() {
+    if (lockStream == null && spoolFile != null) {
+      try {
         lockStream = new FileInputStream(spoolFile);
       } catch (FileNotFoundException e) {
       }
-     }
+    }
   }
+
   /**
    * try to convert stream to byte array WARNING: Potential lack of memory due
    * to call getAsByteArray() on stream data
@@ -432,7 +436,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    */
   private byte[] fileToByteArray() throws IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    
+
     byte[] buffer = new byte[0x2000];
     int len;
     int total = 0;
@@ -448,18 +452,17 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     return out.toByteArray();
   }
 
-  
   // ------------- Serializable
 
   public TransientValueData() {
     super(0);
     this.deleteSpoolFile = true;
   }
-  
+
   public void writeExternal(ObjectOutput out) throws IOException {
     if (this.isByteArray()) {
       out.writeInt(1);
-      int f = data.length; 
+      int f = data.length;
       out.writeInt(f);
       out.write(data);
     } else {
@@ -471,18 +474,31 @@ public class TransientValueData extends AbstractValueData implements Externaliza
 
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     int type = in.readInt();
-    
+
     if (type == 1) {
       data = new byte[in.readInt()];
-      for (int i = 0; i < data.length; i++) 
+      for (int i = 0; i < data.length; i++)
         data[i] = in.readByte();
     }
     orderNumber = in.readInt();
     maxBufferSize = in.readInt();
   }
-  
-  public void setStream(InputStream in ){
+
+  public void setStream(InputStream in) {
     this.tmpStream = in;
   }
   
+  /**
+   * Writes <code>len</code> bytes from the specified byte array 
+   * starting at offset <code>off</code> to this binary value.
+   *
+   * @param   buff  the data.
+   * @param   off   the start offset in the data.
+   * @param   len   the number of bytes to write.  
+   * */
+  public void writeBytes(byte[] buff, int off, int len) throws IOException {
+    // TODO replace with real code
+    OutputStream s = new ByteArrayOutputStream(); 
+    s.write(buff, off, len);
+  }
 }
