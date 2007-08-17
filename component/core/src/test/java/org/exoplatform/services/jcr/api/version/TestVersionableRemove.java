@@ -13,12 +13,12 @@ import javax.jcr.Session;
 import javax.jcr.version.Version;
 
 /**
- * Tests the version remove, remove of version history in case of remove of the last versionable node.
+ * Tests the mix:versionable remove, remove of version history in case of remove of the last versionable node.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class TestVersionRemove extends BaseVersionTest {
+public class TestVersionableRemove extends BaseVersionTest {
 
   Session ws1Session = null;
   Session ws2Session = null;
