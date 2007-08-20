@@ -18,6 +18,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import java.util.Calendar;
 
@@ -36,32 +38,36 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
  * @version $Id$
  */
 
-public class TransientValueData extends AbstractValueData implements Externalizable {
+public class TransientValueData extends AbstractValueData implements
+    Externalizable {
 
-  protected byte[]      data;
+  protected byte[] data;
 
   protected InputStream tmpStream;
 
   protected InputStream lockStream;
 
-  protected File        spoolFile;
+  protected File spoolFile;
 
   protected FileCleaner fileCleaner;
 
-  protected int         maxBufferSize;
+  protected int maxBufferSize;
 
-  protected File        tempDirectory;
+  protected File tempDirectory;
 
-  protected boolean     spooled = false;
+  protected boolean spooled = false;
 
   private final boolean deleteSpoolFile;
+
+  // file used for random writing
+  protected File randFile;
 
   static protected byte[] stringToBytes(final String value) {
     try {
       return value.getBytes(Constants.DEFAULT_ENCODING);
     } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException("FATAL ERROR Charset " + Constants.DEFAULT_ENCODING
-          + " is not supported!");
+      throw new RuntimeException("FATAL ERROR Charset "
+          + Constants.DEFAULT_ENCODING + " is not supported!");
     }
   }
 
@@ -90,14 +96,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     this.deleteSpoolFile = true;
   }
 
-  public TransientValueData(int orderNumber,
-      byte[] bytes,
-      InputStream stream,
-      File spoolFile,
-      FileCleaner fileCleaner,
-      int maxBufferSize,
-      File tempDirectory,
-      boolean deleteSpoolFile) {
+  public TransientValueData(int orderNumber, byte[] bytes, InputStream stream,
+      File spoolFile, FileCleaner fileCleaner, int maxBufferSize,
+      File tempDirectory, boolean deleteSpoolFile) {
     super(orderNumber);
     this.data = bytes;
     this.tmpStream = stream;
@@ -106,6 +107,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     this.maxBufferSize = maxBufferSize;
     this.tempDirectory = tempDirectory;
     this.deleteSpoolFile = deleteSpoolFile;
+
     if (spoolFile != null) {
       this.spooled = true;
     }
@@ -202,6 +204,11 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getAsByteArray()
    */
   public byte[] getAsByteArray() throws IOException {
+
+    if (randFile != null) {
+      return randFileToByteArray();
+    }
+
     spoolInputStream();
     if (data != null) {
       byte[] bytes = new byte[data.length];
@@ -210,6 +217,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     } else {
       return fileToByteArray();
     }
+
   }
 
   /*
@@ -218,11 +226,16 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getAsStream()
    */
   public InputStream getAsStream() throws IOException {
+    if (randFile != null) {
+      return new FileInputStream(randFile);
+    }
+
     spoolInputStream();
     if (data != null) {
       return new ByteArrayInputStream(data); // from bytes
     } else if (spoolFile != null) {
-      return new FileInputStream(spoolFile); // from spool file if initialized
+      return new FileInputStream(spoolFile); // from spool file if
+      // initialized
     } else
       throw new NullPointerException("Null Stream data ");
 
@@ -234,6 +247,10 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getLength()
    */
   public long getLength() {
+    if (randFile != null) {
+      return randFile.length();
+    }
+
     try {
       spoolInputStream();
     } catch (IOException e) {
@@ -337,10 +354,25 @@ public class TransientValueData extends AbstractValueData implements Externaliza
             log.info("Could not remove file. Add to fileCleaner " + spoolFile);
             fileCleaner.addFile(spoolFile);
           } else {
-            log.warn("Could not remove temporary file on finalize " + spoolFile.getAbsolutePath());
+            log.warn("Could not remove temporary file on finalize "
+                + spoolFile.getAbsolutePath());
           }
       }
     }
+
+    // here is destroying randFile
+    if (randFile != null) {
+      if (!randFile.delete()) {
+        if (fileCleaner != null) {
+          log.info("Could not remove file. Add to fileCleaner " + randFile);
+          fileCleaner.addFile(randFile);
+        } else {
+          log.warn("Could not remove temporary file on finalize "
+              + randFile.getAbsolutePath());
+        }
+      }
+    }
+
   }
 
   /*
@@ -445,8 +477,9 @@ public class TransientValueData extends AbstractValueData implements Externaliza
       out.write(buffer, 0, len);
       total += len;
       if (log.isDebugEnabled() && total > maxBufferSize)
-        log.warn("Potential lack of memory due to call getAsByteArray() on stream data exceeded "
-            + total + " bytes");
+        log
+            .warn("Potential lack of memory due to call getAsByteArray() on stream data exceeded "
+                + total + " bytes");
     }
     out.close();
     return out.toByteArray();
@@ -472,7 +505,8 @@ public class TransientValueData extends AbstractValueData implements Externaliza
     out.writeInt(maxBufferSize);
   }
 
-  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+  public void readExternal(ObjectInput in) throws IOException,
+      ClassNotFoundException {
     int type = in.readInt();
 
     if (type == 1) {
@@ -487,18 +521,113 @@ public class TransientValueData extends AbstractValueData implements Externaliza
   public void setStream(InputStream in) {
     this.tmpStream = in;
   }
-  
+
   /**
-   * Writes <code>len</code> bytes from the specified byte array 
-   * starting at offset <code>off</code> to this binary value.
-   *
-   * @param   buff  the data.
-   * @param   off   the start offset in the data.
-   * @param   len   the number of bytes to write.  
-   * */
-  public void writeBytes(byte[] buff, int off, int len) throws IOException {
-    // TODO replace with real code
-    OutputStream s = new ByteArrayOutputStream(); 
-    s.write(buff, off, len);
+   * Writes <code>length</code> bytes from the specified byte
+   * <code>buff</code> starting at <code>offset</code> to TransientValueData
+   * at <code>position</code>
+   * 
+   * @author Karpenko
+   * 
+   * @param buff
+   *          the data.
+   * @param offset
+   *          the start offset in the data.
+   * @param length
+   *          the number of bytes from buffer to write.
+   * @param position
+   *          position in file to write data
+   * 
+   * @throws IOException
+   */
+  public void writeBytes(byte[] buff, int offset, int length, long position)
+      throws IOException {
+
+    createRandFile();
+
+    // wrap the data from buff , which will write to file
+    ByteBuffer byteBuffer = ByteBuffer.wrap(buff, offset, length);
+
+    FileChannel fc = new FileOutputStream(randFile, true).getChannel();
+
+    fc.write(byteBuffer, position);
+
+    fc.close();
+
   }
+
+  /**
+   * Truncates binary value to <code> size </code>
+   * 
+   * @author Karpenko
+   * @param size
+   * @throws IOException
+   */
+  public void truncate(long size) throws IOException {
+
+    createRandFile();
+
+    FileChannel fc = new FileOutputStream(randFile, true).getChannel();
+
+    fc.truncate(size);
+
+    fc.close();
+  }
+
+  private void createRandFile() throws IOException {
+    if (randFile == null) {
+      randFile = File.createTempFile("jcrvdtemp", null, tempDirectory);
+
+      if (isByteArray()) {
+        FileChannel fc = new FileOutputStream(randFile, true).getChannel();
+
+        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        fc.write(byteBuffer);
+        fc.close();
+
+      } else {
+
+        // copy content from spool to rand file
+        FileOutputStream fos = new FileOutputStream(randFile, true);
+        FileInputStream fis = new FileInputStream(spoolFile);
+
+        byte[] buffer = new byte[0x2000];
+        int len = 0;
+
+        while ((len = fis.read(buffer)) > 0) {
+          fos.write(buffer, 0, len);
+        }
+
+        fos.close();
+        fis.close();
+
+      }
+    }
+  }
+
+  /**
+   * try to convert stream to byte array WARNING: Potential lack of memory due
+   * to call getAsByteArray() on stream data
+   * 
+   * @return byte array
+   */
+  private byte[] randFileToByteArray() throws IOException {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    byte[] buffer = new byte[0x2000];
+    int len;
+    int total = 0;
+    FileInputStream stream = new FileInputStream(randFile);
+    while ((len = stream.read(buffer)) > 0) {
+      out.write(buffer, 0, len);
+      total += len;
+      if (log.isDebugEnabled() && total > maxBufferSize)
+        log
+            .warn("Potential lack of memory due to call getAsByteArray() on stream data exceeded "
+                + total + " bytes");
+    }
+    out.close();
+    return out.toByteArray();
+  }
+
 }

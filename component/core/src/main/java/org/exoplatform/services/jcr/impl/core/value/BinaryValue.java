@@ -6,9 +6,12 @@ package org.exoplatform.services.jcr.impl.core.value;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
@@ -65,17 +68,27 @@ public class BinaryValue extends BaseValue implements ExtendedBinaryValue {
   }
 
   /**
-   * Writes <code>len</code> bytes from the specified byte array 
-   * starting at offset <code>off</code> to this binary value.
+   * Writes <code>len</code> bytes from the <code>offset</code> in byte array 
+   * starting at <code>position</code> in this binary value.
    *
-   * @param   buff  the data.
-   * @param   off   the start offset in the data.
-   * @param   len   the number of bytes to write.  
+   * @param   buff     the data.
+   * @param   offset   the start offset in the data.
+   * @param   length   the number of bytes from buffer to write.
+   * @param   position position in file to write data  
    * */
-  public void writeBytes(byte[] buff, int off, int len) throws IOException {
-    // TODO replace with real code
-    OutputStream s = new ByteArrayOutputStream(); 
-    s.write(buff, off, len);
+  public void writeBytes(byte[] buff, int offset, int length, long position) throws IOException {
+    this.getInternalData().writeBytes(buff, offset, length, position);
+  }
+  
+  
+  /**
+   * Truncates binary value to <code> size </code>
+   * 
+   * @param size
+   * @throws IOException
+   */
+  public void truncate(long size) throws IOException{
+    this.getInternalData().truncate(size);
   }
   
   
