@@ -50,7 +50,7 @@
               <property name="indexDir" value="target/temp/index"/>
             </properties>
           </query-handler>
-          <lock-time-out>900000</lock-time-out><!-- 15min -->
+          <!--lock-time-out>900000</lock-time-out--><!-- 15min -->
         </workspace>
         <workspace name="ws1" auto-init-root-nodetype="nt:unstructured">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">

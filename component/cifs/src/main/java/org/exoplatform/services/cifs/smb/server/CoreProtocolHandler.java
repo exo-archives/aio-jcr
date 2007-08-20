@@ -32,9 +32,10 @@ import org.exoplatform.services.cifs.smb.PacketType;
 import org.exoplatform.services.cifs.smb.SMBDate;
 import org.exoplatform.services.cifs.smb.SMBStatus;
 import org.exoplatform.services.cifs.util.DataPacker;
+import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 import org.exoplatform.services.log.ExoLogger;
 
-/** 
+/**
  * Core SMB protocol handler class.
  */
 class CoreProtocolHandler extends ProtocolHandler {
@@ -55,15 +56,17 @@ class CoreProtocolHandler extends ProtocolHandler {
   // Maximum value that can be stored in a parameter word
 
   private static final int MaxWordValue = 0x0000FFFF;
-  
+
   // Invalid file name characters
 
- // private static final String InvalidFileNameChars = "[]:+|<>=;,*?"; //\"/
+  // private static final String InvalidFileNameChars = "[]:+|<>=;,*?"; //\"/
 
-  //private static final String InvalidFileNameCharsSearch = "[]:+|<>=;,"; //\"/
-  private static final String InvalidFileNameChars    = ":|<>*?";//\"/
-  private static final String InvalidFileNameCharsSearch  = ":|<>";//\"/
-  
+  // private static final String InvalidFileNameCharsSearch = "[]:+|<>=;,";
+  // //\"/
+  private static final String InvalidFileNameChars = ":|<>*?";// \"/
+
+  private static final String InvalidFileNameCharsSearch = ":|<>";// \"/
+
   // SMB packet class
 
   protected SMBSrvPacket m_smbPkt;
@@ -274,8 +277,15 @@ class CoreProtocolHandler extends ProtocolHandler {
 
     NetworkFile netFile = conn.findFile(fid);
 
-    // ((JCRNetworkFile)netFile).flush();
-
+    try{
+    ((JCRNetworkFile)netFile).getNodeRef().save();
+    }
+    catch(Exception e){
+      e.printStackTrace();
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
+      return;
+      
+    }
     if (netFile == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidHandle, SMBStatus.ErrDos);
       return;
@@ -415,18 +425,16 @@ class CoreProtocolHandler extends ProtocolHandler {
 
     }
     /*
-     * catch (InvalidDeviceInterfaceException ex) {
-     *  // Failed to get/initialize the disk interface
+     * catch (InvalidDeviceInterfaceException ex) { // Failed to get/initialize
+     * the disk interface
      * 
      * m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
-     * return;
-     *  } catch (AccessDeniedException ex) {
-     *  // Not allowed to create directory
+     * return; } catch (AccessDeniedException ex) { // Not allowed to create
+     * directory
      * 
      * m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied,
      * SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos); return; } catch
-     * (java.io.IOException ex) {
-     *  // Failed to create the directory
+     * (java.io.IOException ex) { // Failed to create the directory
      * 
      * m_sess.sendErrorResponseSMB(SMBStatus.DOSDirectoryInvalid,
      * SMBStatus.ErrDos); return; }
@@ -2121,10 +2129,20 @@ class CoreProtocolHandler extends ProtocolHandler {
       // the write
       // offset position
       if (wrtcnt == 0) {
-        JCRDriver.truncateFile(m_sess, conn, netFile, wrtoff);
+
+        BinaryValue val = (BinaryValue) ((JCRNetworkFile) netFile).getNodeRef()
+            .getNode("jcr:content").getProperty("jcr:data").getValue();
+        val.truncate(wrtoff);
+        // JCRDriver.truncateFile(m_sess, conn, netFile, wrtoff);
       } else {
-        wrtlen = (int)JCRDriver.writeFile(m_sess, conn, netFile, buf, pos, wrtcnt,
-            (int) wrtoff);
+
+        BinaryValue val = (BinaryValue) ((JCRNetworkFile) netFile).getNodeRef()
+            .getNode("jcr:content").getProperty("jcr:data").getValue();
+        val.writeBytes(buf, pos, wrtcnt, wrtoff);
+        wrtlen = wrtcnt;
+        // wrtlen = (int)JCRDriver.writeFile(m_sess, conn, netFile, buf, pos,
+        // wrtcnt,
+        // (int) wrtoff);
       }
     } catch (java.io.IOException ex) {
 
@@ -2375,25 +2393,25 @@ class CoreProtocolHandler extends ProtocolHandler {
 
     return handledOK;
   }
-  
+
   /**
-   * Check if a path contains any illegal characters, for file/create open/create/rename/get info
+   * Check if a path contains any illegal characters, for file/create
+   * open/create/rename/get info
    * 
-   * @param path String
+   * @param path
+   *          String
    * @return boolean
    */
-  protected boolean isValidPath(String path)
-  {
+  protected boolean isValidPath(String path) {
     // Scan the path for invalid path characters
-    
-    for ( int i = 0; i < InvalidFileNameChars.length(); i++)
-    {
-      if ( path.indexOf( InvalidFileNameChars.charAt( i)) != -1)
+
+    for (int i = 0; i < InvalidFileNameChars.length(); i++) {
+      if (path.indexOf(InvalidFileNameChars.charAt(i)) != -1)
         return false;
     }
-    
+
     // Path looks valid
-    
+
     return true;
   }
 

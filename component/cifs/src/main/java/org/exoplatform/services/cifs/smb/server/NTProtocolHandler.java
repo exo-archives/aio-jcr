@@ -76,6 +76,7 @@ import org.exoplatform.services.cifs.util.DataPacker;
 import org.exoplatform.services.cifs.util.HexDump;
 import org.exoplatform.services.cifs.util.WildCard;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.impl.CredentialsImpl;
 
@@ -1324,6 +1325,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       return;
     }
 
+    
+   
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
@@ -1339,6 +1342,12 @@ public class NTProtocolHandler extends CoreProtocolHandler {
         jcr_sess.save();
         logger.debug("file [" + netFile.getName() + "] deleted");
 
+      }
+      
+      if(netFile instanceof JCRNetworkFile){
+      ((JCRNetworkFile)netFile).getNodeRef().save();
+        logger.debug("file [" + netFile.getName() + "] save changes");
+      
       }
     } catch (LockException e) {
       // Return an access denied error
@@ -4302,8 +4311,9 @@ public class NTProtocolHandler extends CoreProtocolHandler {
         long eofPos = dataBuf.getLong();
 
         // Set the new end of file position
-
-        JCRDriver.truncateFile(m_sess, conn, netFile, eofPos);
+        BinaryValue val = (BinaryValue)((JCRNetworkFile)netFile).getNodeRef().getNode("jcr:content").getProperty("jcr:data").getValue();
+        val.truncate(eofPos);
+        //JCRDriver.truncateFile(m_sess, conn, netFile, eofPos);
 
         // Debug
 
@@ -4749,16 +4759,19 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Write data to the file
 
     byte[] buf = m_smbPkt.getBuffer();
-    int wrtlen = 0;
+    int wrtlen = dataLen;
 
     // Access the disk interface and write to the file
 
     try {
 
       // Write to the file
-
-      wrtlen = (int) JCRDriver.writeFile(m_sess, conn, netFile, buf, dataPos,
-          dataLen, offset);
+      
+      BinaryValue val = (BinaryValue)((JCRNetworkFile)netFile).getNodeRef().getNode("jcr:content").getProperty("jcr:data").getValue();
+      val.writeBytes(buf, dataPos, dataLen, offset);
+      
+      //wrtlen = (int) JCRDriver.writeFile(m_sess, conn, netFile, buf, dataPos,
+      //    dataLen, offset);
 
     } catch (AccessDeniedException ex) {
 
