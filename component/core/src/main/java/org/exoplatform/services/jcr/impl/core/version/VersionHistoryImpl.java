@@ -270,8 +270,10 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
         String pidentifier = new String(pvalue.getAsByteArray());
         VersionImpl predecessor = (VersionImpl) dataManager.getItemByIdentifier(pidentifier, false);
         if (predecessor != null) {
-          for (ValueData svalue: successorsData.getValues()) {
-            predecessor.removeAddSuccessor(version.getInternalIdentifier(), new String(svalue.getAsByteArray()), changes);
+          if (successorsData != null) {
+            for (ValueData svalue : successorsData.getValues()) {
+              predecessor.removeAddSuccessor(version.getInternalIdentifier(), new String(svalue.getAsByteArray()), changes);
+            }
           }
         } else {
           throw new RepositoryException("A predecessor (" + pidentifier + ") of the version " + version.getPath() + " is not found.");
@@ -282,15 +284,18 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     }
     
     try {
-      for (ValueData svalue: successorsData.getValues()) {
-        String sidentifier = new String(svalue.getAsByteArray());
-        VersionImpl successor = (VersionImpl) dataManager.getItemByIdentifier(sidentifier, false);
-        if (successor != null) {
-          for (ValueData pvalue: predecessorsData.getValues()) {
-            successor.removeAddPredecessor(version.getInternalIdentifier(), new String(pvalue.getAsByteArray()), changes);
+      if (successorsData != null) {
+        for (ValueData svalue : successorsData.getValues()) {
+          String sidentifier = new String(svalue.getAsByteArray());
+          VersionImpl successor = (VersionImpl) dataManager.getItemByIdentifier(sidentifier, false);
+          if (successor != null) {
+            for (ValueData pvalue : predecessorsData.getValues()) {
+              successor.removeAddPredecessor(version.getInternalIdentifier(), new String(pvalue.getAsByteArray()), changes);
+            }
+          } else {
+            throw new RepositoryException("A successor (" + sidentifier + ") of the version "
+                + version.getPath() + " is not found.");
           }
-        } else {
-          throw new RepositoryException("A successor (" + sidentifier + ") of the version " + version.getPath() + " is not found.");
         }
       }
     } catch(IOException e) {

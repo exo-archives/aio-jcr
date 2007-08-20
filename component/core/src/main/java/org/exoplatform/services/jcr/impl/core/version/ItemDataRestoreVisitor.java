@@ -492,12 +492,23 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
       if (action == OnParentVersionAction.COPY || action == OnParentVersionAction.VERSION ||
           action == OnParentVersionAction.INITIALIZE || action == OnParentVersionAction.COMPUTE) {
         // In case of COPY, VERSION - copy property
-        PropertyData tagetProperty = TransientPropertyData.createPropertyData(
+        
+        PropertyData tagetProperty = null;
+        if (qname.equals(Constants.JCR_PREDECESSORS)){
+          tagetProperty = TransientPropertyData.createPropertyData(
+            currentNode(),
+            qname,
+            property.getType(),
+            property.isMultiValued(),
+            new ArrayList<ValueData>());
+        }else{
+          tagetProperty = TransientPropertyData.createPropertyData(
             currentNode(),
             qname,
             property.getType(),
             property.isMultiValued(),
             property.getValues());
+        }
 
         changes.add(ItemState.createAddedState(tagetProperty));
 
