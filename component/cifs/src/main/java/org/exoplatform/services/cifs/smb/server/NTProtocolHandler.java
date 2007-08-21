@@ -24,8 +24,10 @@
  */
 package org.exoplatform.services.cifs.smb.server;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Credentials;
@@ -75,6 +77,7 @@ import org.exoplatform.services.cifs.util.DataBuffer;
 import org.exoplatform.services.cifs.util.DataPacker;
 import org.exoplatform.services.cifs.util.HexDump;
 import org.exoplatform.services.cifs.util.WildCard;
+import org.exoplatform.services.jcr.core.ExtendedProperty;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 import org.exoplatform.services.log.ExoLogger;
@@ -1325,8 +1328,6 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       return;
     }
 
-    
-   
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
@@ -1343,11 +1344,11 @@ public class NTProtocolHandler extends CoreProtocolHandler {
         logger.debug("file [" + netFile.getName() + "] deleted");
 
       }
-      
-      if(netFile instanceof JCRNetworkFile){
-      ((JCRNetworkFile)netFile).getNodeRef().save();
+
+      if (netFile instanceof JCRNetworkFile) {
+        ((JCRNetworkFile) netFile).getNodeRef().save();
         logger.debug("file [" + netFile.getName() + "] save changes");
-      
+
       }
     } catch (LockException e) {
       // Return an access denied error
@@ -4311,9 +4312,10 @@ public class NTProtocolHandler extends CoreProtocolHandler {
         long eofPos = dataBuf.getLong();
 
         // Set the new end of file position
-        BinaryValue val = (BinaryValue)((JCRNetworkFile)netFile).getNodeRef().getNode("jcr:content").getProperty("jcr:data").getValue();
+        BinaryValue val = (BinaryValue) ((JCRNetworkFile) netFile).getNodeRef()
+            .getNode("jcr:content").getProperty("jcr:data").getValue();
         val.truncate(eofPos);
-        //JCRDriver.truncateFile(m_sess, conn, netFile, eofPos);
+        // JCRDriver.truncateFile(m_sess, conn, netFile, eofPos);
 
         // Debug
 
@@ -4766,12 +4768,15 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     try {
 
       // Write to the file
+
+      ((ExtendedProperty) ((JCRNetworkFile) netFile).getNodeRef().getNode(
+          "jcr:content").getProperty("jcr:data")).updateValue(0,
+          new ByteArrayInputStream(buf, dataPos, dataLen), dataLen, offset);
       
-      BinaryValue val = (BinaryValue)((JCRNetworkFile)netFile).getNodeRef().getNode("jcr:content").getProperty("jcr:data").getValue();
-      val.writeBytes(buf, dataPos, dataLen, offset);
-      
-      //wrtlen = (int) JCRDriver.writeFile(m_sess, conn, netFile, buf, dataPos,
-      //    dataLen, offset);
+      logger.debug(dataLen + " writed to binvalue");
+
+      // wrtlen = (int) JCRDriver.writeFile(m_sess, conn, netFile, buf, dataPos,
+      // dataLen, offset);
 
     } catch (AccessDeniedException ex) {
 
@@ -4786,19 +4791,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied,
           SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
       return;
-    } catch (java.io.IOException ex) {
 
-      // Debug
-
-      if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILEIO))
-        logger.debug("File Write Error [" + netFile.getFileId() + "] : "
-            + ex.toString());
-
-      // Failed to write the file
-
-      m_sess.sendErrorResponseSMB(SMBStatus.NTDiskFull,
-          SMBStatus.HRDWriteFault, SMBStatus.ErrHrd);
-      return;
     } catch (RepositoryException ex) {
 
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
@@ -5117,14 +5110,14 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied,
           SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
       return;
-    }catch(javax.jcr.nodetype.ConstraintViolationException e){
-      //can't create file or othe nod as child for parent node so return access denied
-      
+    } catch (javax.jcr.nodetype.ConstraintViolationException e) {
+      // can't create file or othe nod as child for parent node so return access
+      // denied
+
       m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied,
           SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
       return;
-    }
-    catch (RepositoryException e) {
+    } catch (RepositoryException e) {
 
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
@@ -5184,17 +5177,17 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Pack the file/directory dates
 
     if (netFile.hasCreationDate())
-      prms.packLong(netFile.getCreationDate());//NTTime.toNTTime(netFile.getCreationDate()));
+      prms.packLong(netFile.getCreationDate());// NTTime.toNTTime(netFile.getCreationDate()));
     else
       prms.packLong(0);
 
     if (netFile.hasAccessDate())
-      prms.packLong(netFile.getAccessDate());//NTTime.toNTTime(netFile.getAccessDate()));
+      prms.packLong(netFile.getAccessDate());// NTTime.toNTTime(netFile.getAccessDate()));
     else
       prms.packLong(0);
 
     if (netFile.hasModifyDate()) {
-      long modDate = netFile.getModifyDate(); //NTTime.toNTTime(netFile.getModifyDate());
+      long modDate = netFile.getModifyDate(); // NTTime.toNTTime(netFile.getModifyDate());
       prms.packLong(modDate);
       prms.packLong(modDate);
     } else {
