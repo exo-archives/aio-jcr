@@ -57,6 +57,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 import org.xml.sax.Attributes;
@@ -394,9 +395,15 @@ class SysNodeImporter extends ImporterBase {
             try {
               InputStream vStream = valueList.get(k).getInputStream();
 
-              TransientValueData binaryValue = new TransientValueData(vStream);
-              binaryValue.setMaxBufferSize(session.getValueFactory().getMaxBufferSize());
-              binaryValue.setFileCleaner(session.getValueFactory().getFileCleaner());
+              TransientValueData binaryValue = new TransientValueData(0,
+                  null, // bytes
+                  vStream,
+                  null, // spoolFile
+                  session.getValueFactory().getFileCleaner(),
+                  session.getValueFactory().getMaxBufferSize(),
+                  session.getValueFactory().getTempDirectory(),
+                  true);
+              
               // Call to spool file into tmp
               binaryValue.getAsStream();
               vStream.close();

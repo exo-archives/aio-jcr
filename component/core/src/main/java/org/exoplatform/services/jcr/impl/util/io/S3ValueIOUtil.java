@@ -33,7 +33,7 @@ public class S3ValueIOUtil {
 
   private static final Log logger = ExoLogger.getLogger("S3Plugin");
 
-  private static final boolean debug = false;
+  private static final boolean debug = logger.isDebugEnabled();
 
   
   public static ValueData readValue(String bucket, String awsAccessKey,

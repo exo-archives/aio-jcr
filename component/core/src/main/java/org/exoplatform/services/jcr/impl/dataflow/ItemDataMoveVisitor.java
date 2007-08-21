@@ -26,6 +26,8 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
  * <code>List&lt;ItemState&gt;</code> for copying new nodes and their
  * properties and <b>itemDeletedStates</b> for deleting existing nodes and
  * properties.
+ * 
+ * @version $Id$
  */
 public class ItemDataMoveVisitor extends DefaultItemDataCopyVisitor {
   /**

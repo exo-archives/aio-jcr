@@ -5,16 +5,21 @@
 
 package org.exoplatform.services.jcr.core;
 
+import java.io.InputStream;
 import java.security.AccessControlException;
 import java.util.Map;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.Node;
+import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.UnsupportedRepositoryOperationException;
+import javax.jcr.ValueFormatException;
 import javax.jcr.lock.Lock;
 import javax.jcr.lock.LockException;
+import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.version.VersionException;
 
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -101,4 +106,14 @@ public interface ExtendedNode extends Node {
       InvalidItemStateException,
       RepositoryException;
 
+  /**
+   * Write binary data portion to the property value data.
+   * 
+   * @param name - property name
+   * @param value - stream with the data portion
+   * @param length - value bytes count will be written
+   * @param position - position in the property value data from which the value will be written  
+   */
+  Property setProperty(String name, InputStream value, long length, long position) throws ValueFormatException, 
+      VersionException, LockException, ConstraintViolationException, RepositoryException;
 }

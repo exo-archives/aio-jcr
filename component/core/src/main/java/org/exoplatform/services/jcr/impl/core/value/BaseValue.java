@@ -225,10 +225,6 @@ public abstract class BaseValue implements ExtendedValue {
     data.setOrderNumber(order);
   }
 
-  /**
-   *
-   *
-   */
   protected class LocalTransientValueData extends AbstractValueData {
 
     protected InputStream stream;

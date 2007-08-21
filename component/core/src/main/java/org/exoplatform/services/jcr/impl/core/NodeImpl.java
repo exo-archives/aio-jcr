@@ -2303,7 +2303,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     }
   }
 
-  // ExtendedNode -----------------------------
+  // ----------------------------- ExtendedNode -----------------------------
 
   /*
    * (non-Javadoc)
@@ -2481,6 +2481,20 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       throw new AccessControlException("Permission denied " + getPath() + " : " + actions);
   }
 
+  public Property setProperty(String name, InputStream value, long length, long position) throws ValueFormatException, 
+  VersionException, LockException, ConstraintViolationException, RepositoryException {
+    
+    checkValid();
+
+    return doUpdateProperty(this,
+        locationFactory.parseJCRName(name).getInternalName(),
+        valueFactory.createValue(value),
+        false,
+        PropertyType.UNDEFINED);
+  }
+  
+  // ----------------------------- Object -----------------------------
+  
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof NodeImpl) {

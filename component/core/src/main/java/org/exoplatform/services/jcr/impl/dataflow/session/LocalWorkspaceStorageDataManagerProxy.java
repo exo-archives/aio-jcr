@@ -154,7 +154,7 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
     if(prop.getValues() != null) {
       values = new ArrayList<ValueData>();
       for (ValueData val : prop.getValues()) {
-        values.add(((AbstractValueData)val).createTransientCopy());
+        values.add(((AbstractValueData) val).createTransientCopy());
       }    
     }
     newData.setValues(values);

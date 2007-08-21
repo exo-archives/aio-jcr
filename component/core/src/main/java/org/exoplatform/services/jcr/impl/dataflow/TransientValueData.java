@@ -1,5 +1,5 @@
 /***************************************************************************
- * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SAS          All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 
@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -24,6 +23,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 
 import org.exoplatform.services.jcr.access.AccessControlEntry;
+import org.exoplatform.services.jcr.datamodel.BinaryValueData;
 import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -37,9 +37,8 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
  * @author Gennady Azarenkov
  * @version $Id$
  */
-
 public class TransientValueData extends AbstractValueData implements
-    Externalizable {
+    Externalizable, BinaryValueData {
 
   protected byte[] data;
 
@@ -99,6 +98,7 @@ public class TransientValueData extends AbstractValueData implements
   public TransientValueData(int orderNumber, byte[] bytes, InputStream stream,
       File spoolFile, FileCleaner fileCleaner, int maxBufferSize,
       File tempDirectory, boolean deleteSpoolFile) {
+    
     super(orderNumber);
     this.data = bytes;
     this.tmpStream = stream;

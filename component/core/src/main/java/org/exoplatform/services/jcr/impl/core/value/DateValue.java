@@ -108,13 +108,14 @@ public class DateValue extends BaseValue {
 
     try {
       if(data == null ){
-      String inernalString = getInternalString();
-      //force replace of data
-      data = new LocalTransientValueData(true);
-      
-      //Replace internall stram
-      data.stream = new ByteArrayInputStream(inernalString.getBytes(
-          Constants.DEFAULT_ENCODING));
+        String inernalString = getInternalString();
+        
+        //force replace of data
+        data = new LocalTransientValueData(true);
+        
+        //Replace internall stram
+        data.stream = new ByteArrayInputStream(inernalString.getBytes(
+            Constants.DEFAULT_ENCODING));
       }
       return data.getAsStream();
     } catch (UnsupportedEncodingException e) {

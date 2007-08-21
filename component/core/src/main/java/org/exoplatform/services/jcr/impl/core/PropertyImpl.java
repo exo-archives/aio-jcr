@@ -6,13 +6,10 @@
 package org.exoplatform.services.jcr.impl.core;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 import javax.jcr.ItemVisitor;
 import javax.jcr.Node;
-import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
@@ -23,9 +20,9 @@ import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.VersionException;
 
+import org.exoplatform.services.jcr.core.ExtendedProperty;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
-import org.exoplatform.services.jcr.dataflow.persistent.PersistedPropertyData;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.impl.core.nodetype.PropertyDefinitionImpl;
@@ -40,7 +37,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
  * @version $Id: PropertyImpl.java 12841 2007-02-16 08:58:38Z peterit $
  */
 
-public class PropertyImpl extends ItemImpl implements Property {
+public class PropertyImpl extends ItemImpl implements ExtendedProperty {
 
   protected int type;
   
@@ -387,7 +384,17 @@ public class PropertyImpl extends ItemImpl implements Property {
     return false;
   }
 
-  // ////////////////////////////////
+  // ----------------------- ExtendedProperty -----------------------
+  
+  public void setValue(InputStream value, long length, long position) 
+      throws ValueFormatException, VersionException, LockException, 
+      ConstraintViolationException, RepositoryException {
+    
+    // TODO
+    //setValue(valueFactory.createValue(value));
+  }   
+  
+  //////////////////////////////////
 
   /**
    * @return
@@ -414,7 +421,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     return vals;
   }
 
-  //----------------------- Object.equals() ----------------------
+  // ----------------------- Object -----------------------
 
   /**
    * @author [PN] 18.04.06
@@ -443,6 +450,5 @@ public class PropertyImpl extends ItemImpl implements Property {
     } catch(Exception e) {
       return super.hashCode();
     }
-  }   
-  
+  }
 }
