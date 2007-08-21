@@ -105,15 +105,4 @@ public interface ExtendedNode extends Node {
       AccessDeniedException,
       InvalidItemStateException,
       RepositoryException;
-
-  /**
-   * Write binary data portion to the property value data.
-   * 
-   * @param name - property name
-   * @param value - stream with the data portion
-   * @param length - value bytes count will be written
-   * @param position - position in the property value data from which the value will be written  
-   */
-  Property setProperty(String name, InputStream value, long length, long position) throws ValueFormatException, 
-      VersionException, LockException, ConstraintViolationException, RepositoryException;
 }

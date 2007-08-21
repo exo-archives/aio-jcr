@@ -24,12 +24,13 @@ public interface ExtendedProperty extends Property {
   /**
    * Write binary data portion to the property value data.
    * 
+   * @param index - value index, 0 for first-in-multivalue/single-value, 1 - second etc.
    * @param value - stream with the data portion
    * @param length - value bytes count will be written
    * @param position - position in the property value data from which the value
    *          will be written
    */
-  void setValue(InputStream value, long length, long position) 
+  void updateValue(InputStream value, int index, long length, long position) 
       throws ValueFormatException, VersionException, LockException, 
       ConstraintViolationException, RepositoryException;
 

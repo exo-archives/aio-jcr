@@ -270,7 +270,6 @@ public class PropertyImpl extends ItemImpl implements ExtendedProperty {
     
     doUpdateProperty(parent(), getInternalName(),
         value, false, PropertyType.UNDEFINED);
-
   }
 
   /**
@@ -386,12 +385,17 @@ public class PropertyImpl extends ItemImpl implements ExtendedProperty {
 
   // ----------------------- ExtendedProperty -----------------------
   
-  public void setValue(InputStream value, long length, long position) 
+  public void updateValue(InputStream value, int index, long length, long position) 
       throws ValueFormatException, VersionException, LockException, 
       ConstraintViolationException, RepositoryException {
     
+    PropertyData pdata = (PropertyData) getData();
+    TransientValueData vdata = (TransientValueData) pdata.getValues().get(index);
+    
     // TODO
-    //setValue(valueFactory.createValue(value));
+    //vdata.update(value, length, position)
+    
+    setValue(valueFactory.loadValue(vdata, PropertyType.BINARY));
   }   
   
   //////////////////////////////////

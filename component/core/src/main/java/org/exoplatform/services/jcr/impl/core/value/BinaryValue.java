@@ -68,16 +68,15 @@ public class BinaryValue extends BaseValue implements ExtendedBinaryValue {
   }
 
   /**
-   * Writes <code>len</code> bytes from the <code>offset</code> in byte array 
-   * starting at <code>position</code> in this binary value.
-   *
-   * @param   buff     the data.
-   * @param   offset   the start offset in the data.
+   * Update with <code>length</code> bytes from the specified InputStream
+   * <code>stream</code> to this binary value at <code>position</code>
+   * 
+   * @param   stream     the data.
    * @param   length   the number of bytes from buffer to write.
    * @param   position position in file to write data  
    * */
-  public void writeBytes(byte[] buff, int offset, int length, long position) throws IOException {
-    this.getInternalData().writeBytes(buff, offset, length, position);
+  public void update(InputStream stream, int length, long position) throws IOException {
+    this.getInternalData().update(stream, length, position);
   }
   
   

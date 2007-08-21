@@ -5,6 +5,7 @@
 package org.exoplatform.services.jcr.core.value;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Created by The eXo Platform SAS
@@ -15,15 +16,14 @@ import java.io.IOException;
 public interface ExtendedBinaryValue extends ExtendedValue{
 
   /**
-   * Writes <code>len</code> bytes from the <code>offset</code> in byte array 
-   * starting at <code>position</code> in this binary value.
-   *
-   * @param   buff     the data.
-   * @param   offset   the start offset in the data.
+   * Update with <code>length</code> bytes from the specified InputStream
+   * <code>stream</code> to this binary value at <code>position</code>
+   * 
+   * @param   stream     the data.
    * @param   length   the number of bytes from buffer to write.
    * @param   position position in file to write data  
    * */
-  void writeBytes(byte[] buff, int offset, int length, long position) throws IOException ;
+  void update(InputStream stream, int length, long position) throws IOException ;
  
   /**
    * Truncates binary value to <code> size </code>

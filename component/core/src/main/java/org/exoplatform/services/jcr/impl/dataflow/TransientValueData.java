@@ -523,16 +523,13 @@ public class TransientValueData extends AbstractValueData implements
   }
 
   /**
-   * Writes <code>length</code> bytes from the specified byte
-   * <code>buff</code> starting at <code>offset</code> to TransientValueData
-   * at <code>position</code>
+   * Update with <code>length</code> bytes from the specified InputStream
+   * <code>stream</code> to this value data at <code>position</code>
    * 
    * @author Karpenko
    * 
-   * @param buff
+   * @param stream
    *          the data.
-   * @param offset
-   *          the start offset in the data.
    * @param length
    *          the number of bytes from buffer to write.
    * @param position
@@ -540,20 +537,21 @@ public class TransientValueData extends AbstractValueData implements
    * 
    * @throws IOException
    */
-  public void writeBytes(byte[] buff, int offset, int length, long position)
+  public void update(InputStream stream, int length, long position)
       throws IOException {
 
+    // TODO reimpl
+    
     createRandFile();
 
     // wrap the data from buff , which will write to file
-    ByteBuffer byteBuffer = ByteBuffer.wrap(buff, offset, length);
+    //ByteBuffer byteBuffer = ByteBuffer.wrap(buff, offset, length);
 
     FileChannel fc = new FileOutputStream(randFile, true).getChannel();
 
-    fc.write(byteBuffer, position);
+    //fc.write(byteBuffer, position);
 
     fc.close();
-
   }
 
   /**
@@ -587,6 +585,7 @@ public class TransientValueData extends AbstractValueData implements
 
       } else {
 
+        // TODO use NIO FileChannel.transferFrom(...)
         // copy content from spool to rand file
         FileOutputStream fos = new FileOutputStream(randFile, true);
         FileInputStream fis = new FileInputStream(spoolFile);

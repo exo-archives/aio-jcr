@@ -5,6 +5,7 @@
 package org.exoplatform.services.jcr.datamodel;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Created by The eXo Platform SAS
@@ -16,6 +17,20 @@ public interface BinaryValueData extends ValueData {
 
   void truncate(long size) throws IOException;
   
-  void writeBytes(byte[] buff, int offset, int length, long position)
-    throws IOException;
+  /**
+   * Update with <code>length</code> bytes from the specified InputStream
+   * <code>stream</code> to this value data at <code>position</code>
+   * 
+   * @author Karpenko
+   * 
+   * @param stream
+   *          the data.
+   * @param length
+   *          the number of bytes from buffer to write.
+   * @param position
+   *          position in file to write data
+   * 
+   * @throws IOException
+   */
+  void update(InputStream stream, int length, long position) throws IOException;
 }

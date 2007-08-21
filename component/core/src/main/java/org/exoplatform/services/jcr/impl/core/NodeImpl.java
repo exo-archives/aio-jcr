@@ -2480,18 +2480,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     if (!session.getAccessManager().hasPermission(getACL(), actions, session.getUserID()))
       throw new AccessControlException("Permission denied " + getPath() + " : " + actions);
   }
-
-  public Property setProperty(String name, InputStream value, long length, long position) throws ValueFormatException, 
-  VersionException, LockException, ConstraintViolationException, RepositoryException {
-    
-    checkValid();
-
-    return doUpdateProperty(this,
-        locationFactory.parseJCRName(name).getInternalName(),
-        valueFactory.createValue(value),
-        false,
-        PropertyType.UNDEFINED);
-  }
   
   // ----------------------------- Object -----------------------------
   
