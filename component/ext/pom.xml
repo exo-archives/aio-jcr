@@ -29,9 +29,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.exoplatform.jcr</groupId>
-			<artifactId>exo.jcr.component.rest</artifactId>
-			<version>${org.exoplatform.jcr.version}</version>
+			<groupId>org.exoplatform.ws.rest</groupId>
+			<artifactId>exo_rest_core</artifactId>
+			<version>0.1</version>
 			<scope>compile</scope>
 		</dependency>
 
