@@ -294,6 +294,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
           String sidentifier = new String(svalue.getAsByteArray());
           VersionImpl successor = (VersionImpl) dataManager.getItemByIdentifier(sidentifier, false);
           if (successor != null) {
+            // case of VH graph merge
             for (ValueData pvalue : predecessorsData.getValues()) {
               successor.removeAddPredecessor(version.getInternalIdentifier(), new String(pvalue.getAsByteArray()), changes);
             }
