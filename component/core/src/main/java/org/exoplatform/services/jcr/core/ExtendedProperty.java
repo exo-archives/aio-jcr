@@ -30,7 +30,7 @@ public interface ExtendedProperty extends Property {
    * @param position - position in the property value data from which the value
    *          will be written
    */
-  void updateValue(InputStream value, int index, long length, long position) 
+  void updateValue(int index, InputStream value, long length, long position) 
       throws ValueFormatException, VersionException, LockException, 
       ConstraintViolationException, RepositoryException;
 

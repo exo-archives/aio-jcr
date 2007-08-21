@@ -32,5 +32,5 @@ public interface BinaryValueData extends ValueData {
    * 
    * @throws IOException
    */
-  void update(InputStream stream, int length, long position) throws IOException;
+  void update(InputStream stream, long length, long position) throws IOException;
 }

@@ -5,6 +5,7 @@
 
 package org.exoplatform.services.jcr.impl.core;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 
@@ -40,39 +41,43 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 public class PropertyImpl extends ItemImpl implements ExtendedProperty {
 
   protected int type;
-  
-  //private PropertyDefinitions definitions;
-  private PropertyDefinition propertyDef ;
-  
+
+  // private PropertyDefinitions definitions;
+  private PropertyDefinition propertyDef;
+
   /**
    * just to simplify operations
    */
   private TransientPropertyData propertyData;
 
-  PropertyImpl(ItemData data, SessionImpl session) throws RepositoryException, ConstraintViolationException {
+  PropertyImpl(ItemData data, SessionImpl session) throws RepositoryException,
+      ConstraintViolationException {
     super(data, session);
     loadData(data);
   }
 
-
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.impl.core.ItemImpl#loadData(org.exoplatform.services.jcr.datamodel.ItemData)
    */
-  void loadData(ItemData data) throws RepositoryException, ConstraintViolationException {
+  void loadData(ItemData data) throws RepositoryException,
+      ConstraintViolationException {
 
     if (!(data instanceof TransientPropertyData))
-      throw new RepositoryException("Load data: TransientPropertyData is expected, but have "+data);
+      throw new RepositoryException(
+          "Load data: TransientPropertyData is expected, but have " + data);
 
     this.data = data;
-    this.propertyData = (TransientPropertyData)data;
+    this.propertyData = (TransientPropertyData) data;
     this.type = propertyData.getType();
-    
-    // [PN] 03.01.07 
-    this.location = session.getLocationFactory().createJCRPath(getData().getQPath());
+
+    // [PN] 03.01.07
+    this.location = session.getLocationFactory().createJCRPath(
+        getData().getQPath());
     this.propertyDef = null;
     initDefinitions(this.propertyData.isMultiValued());
   }
-
 
   /**
    * @see javax.jcr.Property#getValue
@@ -80,16 +85,18 @@ public class PropertyImpl extends ItemImpl implements ExtendedProperty {
   public Value getValue() throws ValueFormatException, RepositoryException {
 
     checkValid();
-    
+
     if (isMultiValued())
-      throw new ValueFormatException("The property " + getPath() + " is multi-valued (6.2.4)");
+      throw new ValueFormatException("The property " + getPath()
+          + " is multi-valued (6.2.4)");
 
-    
-    if (propertyData.getValues() != null && propertyData.getValues().size() == 0)
-      throw new ValueFormatException("The single valued property " + getPath() + " is empty");
-    
-    return valueFactory.loadValue((TransientValueData)propertyData.getValues().get(0), propertyData.getType());
+    if (propertyData.getValues() != null
+        && propertyData.getValues().size() == 0)
+      throw new ValueFormatException("The single valued property " + getPath()
+          + " is empty");
 
+    return valueFactory.loadValue((TransientValueData) propertyData.getValues()
+        .get(0), propertyData.getType());
 
   }
 
@@ -97,12 +104,13 @@ public class PropertyImpl extends ItemImpl implements ExtendedProperty {
    * @see javax.jcr.Property#getValues
    */
   public Value[] getValues() throws ValueFormatException, RepositoryException {
-    
+
     checkValid();
-    
+
     // Check property definition and life-state flag both
     if (!isMultiValued()) {
-      throw new ValueFormatException("The property " + getPath() + " is single-valued (6.2.4)");
+      throw new ValueFormatException("The property " + getPath()
+          + " is single-valued (6.2.4)");
     }
 
     // The array returned is a copy of the stored values
@@ -116,9 +124,11 @@ public class PropertyImpl extends ItemImpl implements ExtendedProperty {
     try {
       return getValue().getString();
     } catch (ValueFormatException e) {
-      throw new ValueFormatException("PropertyImpl.getString() for " + getPath() + " failed: " + e);
+      throw new ValueFormatException("PropertyImpl.getString() for "
+          + getPath() + " failed: " + e);
     } catch (IllegalStateException e) {
-      throw new ValueFormatException("PropertyImpl.getString() for " + getPath() + " failed: " + e);
+      throw new ValueFormatException("PropertyImpl.getString() for "
+          + getPath() + " failed: " + e);
     }
   }
 
@@ -147,7 +157,8 @@ public class PropertyImpl extends ItemImpl implements ExtendedProperty {
   /**
    * @see javax.jcr.Property#getStream
    */
-  public InputStream getStream() throws ValueFormatException, RepositoryException {
+  public InputStream getStream() throws ValueFormatException,
+      RepositoryException {
     try {
       return getValue().getStream();
     } catch (IllegalStateException e) {
@@ -203,10 +214,10 @@ public class PropertyImpl extends ItemImpl implements ExtendedProperty {
   public long[] getLengths() throws ValueFormatException, RepositoryException {
 
     Value[] thisValues = getValues();
-    
+
     long[] lengths = new long[thisValues.length];
     for (int i = 0; i < lengths.length; i++) {
-      lengths[i] =  ((BaseValue) thisValues[i]).getLength();
+      lengths[i] = ((BaseValue) thisValues[i]).getLength();
     }
     return lengths;
   }
@@ -215,29 +226,31 @@ public class PropertyImpl extends ItemImpl implements ExtendedProperty {
    * @see javax.jcr.Property#getDefinition
    */
   public PropertyDefinition getDefinition() throws RepositoryException {
-    
+
     checkValid();
-    
+
     if (propertyDef == null) {
-      throw new RepositoryException("FATAL: property definition is NULL " + getPath() + " "
-          + propertyData.getValues());
+      throw new RepositoryException("FATAL: property definition is NULL "
+          + getPath() + " " + propertyData.getValues());
     }
-    
+
     return propertyDef;
-    
+
   }
-  
+
   /**
    * @throws RepositoryException
    * @throws ConstraintViolationException
    */
-  private void initDefinitions(boolean multiple) throws RepositoryException, ConstraintViolationException {
+  private void initDefinitions(boolean multiple) throws RepositoryException,
+      ConstraintViolationException {
 
     NodeType[] nodeTypes = parent().getAllNodeTypes();
     PropertyDefinitions defs = null;
     PropertyDefinitions definitions = null;
     for (int i = 0; i < nodeTypes.length; i++) {
-      defs = ((ExtendedNodeType) nodeTypes[i]).getPropertyDefinitions(getInternalName());
+      defs = ((ExtendedNodeType) nodeTypes[i])
+          .getPropertyDefinitions(getInternalName());
       if (defs.getAnyDefinition() != null) { // includes residual set
         definitions = defs;
         if (!((PropertyDefinitionImpl) defs.getAnyDefinition()).isResidualSet())
@@ -246,44 +259,44 @@ public class PropertyImpl extends ItemImpl implements ExtendedProperty {
     }
 
     if (definitions == null)
-      throw new ConstraintViolationException("Definition for property " + getPath() + " not found.");
+      throw new ConstraintViolationException("Definition for property "
+          + getPath() + " not found.");
     propertyDef = definitions.getDefinition(multiple);
   }
-
-
 
   /**
    * @see javax.jcr.Property#getType
    */
-  public int getType() {    
+  public int getType() {
     return type;
   }
 
-
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(Value value) throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
+  public void setValue(Value value) throws ValueFormatException,
+      VersionException, LockException, ConstraintViolationException,
+      RepositoryException {
 
     checkValid();
-    
-    doUpdateProperty(parent(), getInternalName(),
-        value, false, PropertyType.UNDEFINED);
+
+    doUpdateProperty(parent(), getInternalName(), value, false,
+        PropertyType.UNDEFINED);
   }
 
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(Value[] values) throws ValueFormatException, VersionException,
-      LockException, ConstraintViolationException, RepositoryException {
-    
+  public void setValue(Value[] values) throws ValueFormatException,
+      VersionException, LockException, ConstraintViolationException,
+      RepositoryException {
+
     checkValid();
 
-    doUpdateProperty(parent(), getInternalName(),
-        values, true, PropertyType.UNDEFINED);
+    doUpdateProperty(parent(), getInternalName(), values, true,
+        PropertyType.UNDEFINED);
   }
-  
+
   /**
    * @return multiValued property of data field (PropertyData) it's a life-state
    *         property field which contains multiple-valued flag for value(s)
@@ -297,64 +310,72 @@ public class PropertyImpl extends ItemImpl implements ExtendedProperty {
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(String value) throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
+  public void setValue(String value) throws ValueFormatException,
+      VersionException, LockException, ConstraintViolationException,
+      RepositoryException {
     setValue(valueFactory.createValue(value));
   }
 
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(InputStream stream) throws ValueFormatException, VersionException,
-      LockException, ConstraintViolationException, RepositoryException {
+  public void setValue(InputStream stream) throws ValueFormatException,
+      VersionException, LockException, ConstraintViolationException,
+      RepositoryException {
     setValue(valueFactory.createValue(stream));
   }
 
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(double number) throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
+  public void setValue(double number) throws ValueFormatException,
+      VersionException, LockException, ConstraintViolationException,
+      RepositoryException {
     setValue(valueFactory.createValue(number));
   }
 
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(long number) throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
+  public void setValue(long number) throws ValueFormatException,
+      VersionException, LockException, ConstraintViolationException,
+      RepositoryException {
     setValue(valueFactory.createValue(number));
   }
 
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(Calendar date) throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
+  public void setValue(Calendar date) throws ValueFormatException,
+      VersionException, LockException, ConstraintViolationException,
+      RepositoryException {
     setValue(valueFactory.createValue(date));
   }
 
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(boolean b) throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
+  public void setValue(boolean b) throws ValueFormatException,
+      VersionException, LockException, ConstraintViolationException,
+      RepositoryException {
     setValue(valueFactory.createValue(b));
   }
 
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(Node value) throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
+  public void setValue(Node value) throws ValueFormatException,
+      VersionException, LockException, ConstraintViolationException,
+      RepositoryException {
     setValue(valueFactory.createValue(value));
   }
 
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(String[] values) throws ValueFormatException, VersionException,
-      LockException, ConstraintViolationException, RepositoryException {
+  public void setValue(String[] values) throws ValueFormatException,
+      VersionException, LockException, ConstraintViolationException,
+      RepositoryException {
 
     Value[] strValues = null;
     if (values != null) {
@@ -372,7 +393,7 @@ public class PropertyImpl extends ItemImpl implements ExtendedProperty {
    */
   public void accept(ItemVisitor visitor) throws RepositoryException {
     checkValid();
-    
+
     visitor.visit(this);
   }
 
@@ -384,42 +405,49 @@ public class PropertyImpl extends ItemImpl implements ExtendedProperty {
   }
 
   // ----------------------- ExtendedProperty -----------------------
-  
-  public void updateValue(InputStream value, int index, long length, long position) 
-      throws ValueFormatException, VersionException, LockException, 
-      ConstraintViolationException, RepositoryException {
-    
+
+  public void updateValue(int index, InputStream value, long length,
+      long position) throws ValueFormatException, VersionException,
+      LockException, ConstraintViolationException, RepositoryException {
+
     PropertyData pdata = (PropertyData) getData();
-    TransientValueData vdata = (TransientValueData) pdata.getValues().get(index);
-    
-    // TODO
-    //vdata.update(value, length, position)
+    TransientValueData vdata = (TransientValueData) pdata.getValues()
+        .get(index);
+
+    try {
+      vdata.update(value, length, position);
+    } catch (IOException e) {
+      throw new RepositoryException(e);
+    }
     
     setValue(valueFactory.loadValue(vdata, PropertyType.BINARY));
-  }   
-  
-  //////////////////////////////////
+  }
+
+  // ////////////////////////////////
 
   /**
    * @return
    * @throws RepositoryException
    */
   public Value[] getValueArray() throws RepositoryException {
-    
+
     Value[] values = new Value[propertyData.getValues().size()];
-    for(int i=0; i<values.length; i++) {
-      values[i] = valueFactory.loadValue((TransientValueData)propertyData.getValues().get(i), propertyData.getType());
+    for (int i = 0; i < values.length; i++) {
+      values[i] = valueFactory.loadValue((TransientValueData) propertyData
+          .getValues().get(i), propertyData.getType());
     }
-    return values; 
+    return values;
   }
 
   public String dump() {
     String vals = "Property " + getPath() + " values: ";
-    try {  
+    try {
       for (int i = 0; i < getValueArray().length; i++) {
-        vals += new String(((BaseValue) getValueArray()[i]).getInternalData().getAsByteArray()) + ";";
+        vals += new String(((BaseValue) getValueArray()[i]).getInternalData()
+            .getAsByteArray())
+            + ";";
       }
-    } catch(Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
     return vals;
@@ -437,13 +465,13 @@ public class PropertyImpl extends ItemImpl implements ExtendedProperty {
       try {
         // by path
         return getLocation().equals(((PropertyImpl) obj).getLocation());
-      } catch(Exception e) {
+      } catch (Exception e) {
         return false;
       }
     }
     return false;
-  }  
-  
+  }
+
   /**
    * @see java.lang.Object#hashCode()
    */
@@ -451,7 +479,7 @@ public class PropertyImpl extends ItemImpl implements ExtendedProperty {
   public int hashCode() {
     try {
       return getLocation().getAsString(false).hashCode();
-    } catch(Exception e) {
+    } catch (Exception e) {
       return super.hashCode();
     }
   }

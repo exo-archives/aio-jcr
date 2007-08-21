@@ -18,7 +18,10 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channel;
+import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.util.Arrays;
 import java.util.Calendar;
 
@@ -98,7 +101,7 @@ public class TransientValueData extends AbstractValueData implements
   public TransientValueData(int orderNumber, byte[] bytes, InputStream stream,
       File spoolFile, FileCleaner fileCleaner, int maxBufferSize,
       File tempDirectory, boolean deleteSpoolFile) {
-    
+
     super(orderNumber);
     this.data = bytes;
     this.tmpStream = stream;
@@ -204,7 +207,7 @@ public class TransientValueData extends AbstractValueData implements
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getAsByteArray()
    */
   public byte[] getAsByteArray() throws IOException {
-
+    log.debug("getAsByteArray");
     if (randFile != null) {
       return randFileToByteArray();
     }
@@ -226,6 +229,8 @@ public class TransientValueData extends AbstractValueData implements
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getAsStream()
    */
   public InputStream getAsStream() throws IOException {
+    log.debug("getAsStream");
+
     if (randFile != null) {
       return new FileInputStream(randFile);
     }
@@ -247,6 +252,7 @@ public class TransientValueData extends AbstractValueData implements
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getLength()
    */
   public long getLength() {
+    log.debug("getLength");
     if (randFile != null) {
       return randFile.length();
     }
@@ -282,7 +288,7 @@ public class TransientValueData extends AbstractValueData implements
 
   @Override
   public TransientValueData createTransientCopy() {
-
+    // TODO potantial lost of randFile data
     // do we need that?
     // byte[] newBytes = null;
     if (isByteArray()) {
@@ -315,6 +321,7 @@ public class TransientValueData extends AbstractValueData implements
    * @throws IOException
    */
   public String getString() throws IOException {
+    log.debug("getString");
     return new String(getAsByteArray(), Constants.DEFAULT_ENCODING);
   }
 
@@ -523,35 +530,38 @@ public class TransientValueData extends AbstractValueData implements
   }
 
   /**
-   * Update with <code>length</code> bytes from the specified InputStream
-   * <code>stream</code> to this value data at <code>position</code>
+   * <<<<<<< .mine Writes <code>length</code> bytes from the InputStream
+   * <code>data</code> at <code>position</code> in this binary value. Data
+   * in InputString will be writed from 0 to length position. ======= Update
+   * with <code>length</code> bytes from the specified InputStream
+   * <code>stream</code> to this value data at <code>position</code> >>>>>>>
+   * .r19182
    * 
    * @author Karpenko
    * 
    * @param stream
    *          the data.
    * @param length
-   *          the number of bytes from buffer to write.
+   *          the number of bytes from stream to write.
    * @param position
    *          position in file to write data
    * 
    * @throws IOException
    */
-  public void update(InputStream stream, int length, long position)
-      throws IOException {
+
+  public void update(InputStream stream, long length, long position) throws IOException {
 
     // TODO reimpl
     
     createRandFile();
 
-    // wrap the data from buff , which will write to file
-    //ByteBuffer byteBuffer = ByteBuffer.wrap(buff, offset, length);
-
+    ReadableByteChannel ch = Channels.newChannel(stream);
+    
     FileChannel fc = new FileOutputStream(randFile, true).getChannel();
 
-    //fc.write(byteBuffer, position);
-
+    fc.transferFrom(ch, position, length);       
     fc.close();
+    log.debug(" writed bytes : " + length + " at position " + position);
   }
 
   /**
@@ -588,6 +598,7 @@ public class TransientValueData extends AbstractValueData implements
         // TODO use NIO FileChannel.transferFrom(...)
         // copy content from spool to rand file
         FileOutputStream fos = new FileOutputStream(randFile, true);
+
         FileInputStream fis = new FileInputStream(spoolFile);
 
         byte[] buffer = new byte[0x2000];
