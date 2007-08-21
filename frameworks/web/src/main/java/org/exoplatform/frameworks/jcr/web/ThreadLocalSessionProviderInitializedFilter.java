@@ -75,9 +75,9 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
         }
       }
     }
-    
-    if (provider == null)
+    if (provider == null) {
       provider = SessionProvider.createAnonimProvider();
+    }
 
     providerService.setSessionProvider(null, provider);
 

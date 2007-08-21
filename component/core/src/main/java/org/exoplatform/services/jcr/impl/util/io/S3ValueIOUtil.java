@@ -15,7 +15,6 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.InputStreamPersistedValueData;
-
 import org.apache.commons.logging.Log;
 
 import com.amazon.s3.AWSAuthConnection;

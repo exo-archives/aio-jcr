@@ -63,8 +63,8 @@ public class RESTRegistryService implements ResourceContainer {
 	@HTTPMethod(HTTPMethods.GET)
 	@InputTransformer(XMLInputTransformer.class)
 	@OutputTransformer(XMLOutputTransformer.class)
-	public Response getRegistry(@URIParam("repository")
-	String repository) throws RepositoryException,
+	public Response getRegistry(@URIParam("repository") String repository)
+	    throws RepositoryException,
 			RepositoryConfigurationException, ParserConfigurationException {
 
 		String furi = dispatcher.getRuntimeContext().getAbsLocation();

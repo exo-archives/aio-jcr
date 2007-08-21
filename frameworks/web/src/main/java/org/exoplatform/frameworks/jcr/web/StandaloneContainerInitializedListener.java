@@ -53,7 +53,7 @@ public class StandaloneContainerInitializedListener implements
     try {
       StandaloneContainer.addConfigurationURL(configurationURL);
       //if configurationURL is still == null StandaloneContainer will search
-      //"exo-configuration.xml" in root of AS, then "conf/exo-configuration.xml"
+      // "exo-configuration.xml" in root of AS, then "conf/exo-configuration.xml"
       //in current classpath, then "conf/standalone/configuration.xml" in current classpath 
     } catch (MalformedURLException e1) {
     }

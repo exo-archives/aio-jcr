@@ -12,6 +12,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.util.List;
+import java.util.Iterator;
+
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
@@ -73,7 +76,7 @@ public class ExoJcrRestServlet extends HttpServlet {
 
     long timeStart = System.currentTimeMillis();
     try {
-      
+
       RestCommandContext context = new RestCommandContext(
           getServletContext(), request, response, restService);
       command.execute(context);

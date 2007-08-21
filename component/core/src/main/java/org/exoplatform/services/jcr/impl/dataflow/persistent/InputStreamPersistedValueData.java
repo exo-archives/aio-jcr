@@ -33,11 +33,10 @@ public class InputStreamPersistedValueData extends AbstractValueData {
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getAsByteArray()
    */
   public byte[] getAsByteArray() throws IllegalStateException, IOException {
-    // TODO in.available() - the number of bytes that can be read from this input stream without blocking
-    // so, the stream may contains (may not) some data unreaded after one read.
-    byte[] buff = new byte[in.available()];
-    in.read(buff);
-    return buff;
+//    byte[] buff = new byte[in.available()];
+//    in.read(buff);
+//    return buff;
+    throw new IllegalStateException("This data can't be represetnted as ByteArray");
   }
 
   /* (non-Javadoc)
@@ -51,11 +50,13 @@ public class InputStreamPersistedValueData extends AbstractValueData {
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getLength()
    */
   public long getLength() {
-    try {
-      return in.available();
-    } catch(IOException ioe) {
-      return -1;
-    }
+//    try {
+//      return in.available();
+//    } catch(IOException ioe) {
+//      return -1;
+//    }
+    log.warn("Can't get content length from stream");
+    return 0;
   }
 
   /* (non-Javadoc)
