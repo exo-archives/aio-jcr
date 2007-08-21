@@ -207,8 +207,10 @@ public class TransientValueData extends AbstractValueData implements
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getAsByteArray()
    */
   public byte[] getAsByteArray() throws IOException {
-    log.debug("getAsByteArray");
+    log.debug("getAsByteArray" + this.toString());
+
     if (randFile != null) {
+      log.debug("randfile");
       return randFileToByteArray();
     }
 
@@ -229,10 +231,12 @@ public class TransientValueData extends AbstractValueData implements
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getAsStream()
    */
   public InputStream getAsStream() throws IOException {
-    log.debug("getAsStream");
+    log.debug("getAsStream"+this.toString());
 
     if (randFile != null) {
+      log.debug("randfile");
       return new FileInputStream(randFile);
+
     }
 
     spoolInputStream();
@@ -252,8 +256,10 @@ public class TransientValueData extends AbstractValueData implements
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getLength()
    */
   public long getLength() {
-    log.debug("getLength");
+
+    log.debug("getLength"+this.toString());
     if (randFile != null) {
+      log.debug("getLength randFile : " + randFile.length());
       return randFile.length();
     }
 
@@ -264,8 +270,10 @@ public class TransientValueData extends AbstractValueData implements
       return -1;
     }
     if (data == null) {
+      log.debug("getLength spoolFile : " + spoolFile.length());
       return spoolFile.length();
     } else {
+      log.debug("getLength data : " + data.length);
       return data.length;
     }
   }
@@ -369,6 +377,7 @@ public class TransientValueData extends AbstractValueData implements
 
     // here is destroying randFile
     if (randFile != null) {
+      log.debug("delete randFile");
       if (!randFile.delete()) {
         if (fileCleaner != null) {
           log.info("Could not remove file. Add to fileCleaner " + randFile);
@@ -380,6 +389,7 @@ public class TransientValueData extends AbstractValueData implements
       }
     }
 
+    log.debug(" finalize "+this.toString());
   }
 
   /*
@@ -549,19 +559,22 @@ public class TransientValueData extends AbstractValueData implements
    * @throws IOException
    */
 
-  public void update(InputStream stream, long length, long position) throws IOException {
+  public void update(InputStream stream, long length, long position)
+      throws IOException {
 
     // TODO reimpl
-    
+
     createRandFile();
 
     ReadableByteChannel ch = Channels.newChannel(stream);
-    
+
     FileChannel fc = new FileOutputStream(randFile, true).getChannel();
 
-    fc.transferFrom(ch, position, length);       
+    long size = fc.transferFrom(ch, position, length);
     fc.close();
-    log.debug(" writed bytes : " + length + " at position " + position);
+    ch.close();
+
+    log.debug(" writed bytes " + size + " at position " + position +this.toString());
   }
 
   /**
@@ -584,32 +597,34 @@ public class TransientValueData extends AbstractValueData implements
 
   private void createRandFile() throws IOException {
     if (randFile == null) {
-      randFile = File.createTempFile("jcrvdtemp", null, tempDirectory);
 
+      randFile = File.createTempFile("jcrvdtemp", null, tempDirectory);
+      log.debug("randFile created"+this.toString());
       if (isByteArray()) {
         FileChannel fc = new FileOutputStream(randFile, true).getChannel();
 
-        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
-        fc.write(byteBuffer);
+        ReadableByteChannel ch = Channels.newChannel(new ByteArrayInputStream(
+            data));
+
+        fc.transferFrom(ch, 0, data.length);
+
         fc.close();
+        ch.close();
 
       } else {
 
         // TODO use NIO FileChannel.transferFrom(...)
         // copy content from spool to rand file
-        FileOutputStream fos = new FileOutputStream(randFile, true);
 
-        FileInputStream fis = new FileInputStream(spoolFile);
+        FileChannel fc = new FileOutputStream(randFile, true).getChannel();
 
-        byte[] buffer = new byte[0x2000];
-        int len = 0;
+        ReadableByteChannel ch = Channels.newChannel(new FileInputStream(
+            spoolFile));
 
-        while ((len = fis.read(buffer)) > 0) {
-          fos.write(buffer, 0, len);
-        }
+        fc.transferFrom(ch, 0, data.length);
 
-        fos.close();
-        fis.close();
+        fc.close();
+        ch.close();
 
       }
     }
