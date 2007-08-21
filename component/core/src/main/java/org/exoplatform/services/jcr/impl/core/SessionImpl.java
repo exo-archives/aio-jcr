@@ -5,7 +5,6 @@
 
 package org.exoplatform.services.jcr.impl.core;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,7 +15,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Credentials;
@@ -28,35 +26,20 @@ import javax.jcr.ItemNotFoundException;
 import javax.jcr.LoginException;
 import javax.jcr.NamespaceException;
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
-import javax.jcr.PropertyType;
-import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import javax.jcr.UnsupportedRepositoryOperationException;
-import javax.jcr.Value;
-import javax.jcr.ValueFormatException;
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.observation.ObservationManager;
 import javax.jcr.version.VersionException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.sax.TransformerHandler;
-import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.logging.Log;
-import org.apache.ws.commons.util.Base64;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.AccessManager;
-import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.NamespaceAccessor;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
@@ -64,29 +47,26 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.lock.LockManagerImpl;
 import org.exoplatform.services.jcr.impl.core.observation.ObservationManagerImpl;
 import org.exoplatform.services.jcr.impl.core.observation.ObservationManagerRegistry;
-import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataMoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.LocalWorkspaceDataManagerStub;
 import org.exoplatform.services.jcr.impl.ext.action.SessionActionCatalog;
 import org.exoplatform.services.jcr.impl.ext.action.SessionActionInterceptor;
-import org.exoplatform.services.jcr.impl.util.StringConverter;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
-import org.exoplatform.services.jcr.impl.xml.NodeImporter;
-import org.exoplatform.services.jcr.impl.xml.SysExportXmlVisior;
-import org.exoplatform.services.jcr.impl.xml.XMLWriter;
+import org.exoplatform.services.jcr.impl.xml.ExportImportFactory;
+import org.exoplatform.services.jcr.impl.xml.XmlMapping;
+import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
+import org.exoplatform.services.jcr.impl.xml.exporting.ExportXmlBase;
+import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 
 /**
  * Created by The eXo Platform SARL .
@@ -502,7 +482,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
   public String[] getAllNamespacePrefixes() throws RepositoryException {
     return getNamespacePrefixes();
   }
-
   /*
    * (non-Javadoc)
    * 
@@ -513,9 +492,9 @@ public class SessionImpl implements Session, NamespaceAccessor {
       ContentHandler contentHandler,
       boolean skipBinary,
       boolean noRecurse) throws PathNotFoundException, SAXException, RepositoryException {
-    SysExportXmlVisior exporter = new SysExportXmlVisior(contentHandler,
-        this,
-        getTransientNodesManager(),
+
+    ExportXmlBase exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.SYSVIEW,
+        contentHandler,
         skipBinary,
         noRecurse);
 
@@ -524,7 +503,17 @@ public class SessionImpl implements Session, NamespaceAccessor {
     if (srcItemData == null) {
       throw new PathNotFoundException("No node exists at " + absPath);
     }
-    exporter.export((NodeData) srcItemData);
+
+    try {
+      exporter.export((NodeData) srcItemData);
+    } catch (Exception e) {
+      if (e instanceof RepositoryException)
+        throw (RepositoryException) e;
+      else if (e instanceof SAXException)
+        throw (SAXException) e;
+      else
+        throw new RepositoryException(e);
+    }
   }
 
   /*
@@ -537,21 +526,28 @@ public class SessionImpl implements Session, NamespaceAccessor {
       OutputStream out,
       boolean skipBinary,
       boolean noRecurse) throws IOException, PathNotFoundException, RepositoryException {
-    TransformerHandler handler;
-    try {
-      SAXTransformerFactory saxFact = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
-      handler = saxFact.newTransformerHandler();
-      handler.setResult(new StreamResult(out));
-    } catch (javax.xml.transform.TransformerFactoryConfigurationError ex) {
-      throw new IOException(ex.getMessage());
-    } catch (javax.xml.transform.TransformerConfigurationException ex) {
-      throw new IOException(ex.getMessage());
+
+    ExportXmlBase exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.SYSVIEW,
+        out,
+        skipBinary,
+        noRecurse);
+
+    JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
+    ItemData srcItemData = nodesManager.getItemData(srcNodePath.getInternalPath());
+
+    if (srcItemData == null) {
+      throw new PathNotFoundException("No node exists at " + absPath);
     }
 
     try {
-      exportSystemView(absPath, handler, skipBinary, noRecurse);
-    } catch (SAXException ex) {
-      throw new RepositoryException("Error on export", ex);
+      exporter.export((NodeData) srcItemData);
+    } catch (Exception e) {
+      if (e instanceof RepositoryException)
+        throw (RepositoryException) e;
+      else if (e instanceof IOException)
+        throw (IOException) e;
+      else
+        throw new RepositoryException(e);
     }
   }
 
@@ -569,13 +565,30 @@ public class SessionImpl implements Session, NamespaceAccessor {
       SAXException,
       RepositoryException {
 
+    ExportXmlBase exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.DOCVIEW,
+        contentHandler,
+        skipBinary,
+        noRecurse);
+
     JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
+    ItemData srcItemData = nodesManager.getItemData(srcNodePath.getInternalPath());
 
-    NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcNodePath.getInternalPath(), true);
+    if (srcItemData == null) {
+      throw new PathNotFoundException("No node exists at " + absPath);
+    }
 
-    XMLWriter writer = new XMLWriter(this);
-    initNodeAsDocView(srcNode, writer, skipBinary, noRecurse);
-    invokeHandler(writer.getBytes(), contentHandler);
+    try {
+      exporter.export((NodeData) srcItemData);
+    } catch (Exception e) {
+      e.printStackTrace();
+      if (e instanceof RepositoryException)
+        throw (RepositoryException) e;
+      else if (e instanceof SAXException)
+        throw (SAXException) e;
+      else
+        throw new RepositoryException(e);
+    }
+
   }
 
   /*
@@ -592,22 +605,32 @@ public class SessionImpl implements Session, NamespaceAccessor {
       PathNotFoundException,
       RepositoryException {
 
-    SAXTransformerFactory stf = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+    ExportXmlBase exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.DOCVIEW,
+        out,
+        skipBinary,
+        noRecurse);
 
-    try {
-      TransformerHandler th = stf.newTransformerHandler();
-      th.setResult(new StreamResult(out));
-      th.getTransformer().setParameter(OutputKeys.METHOD, "xml");
-      th.getTransformer().setParameter(OutputKeys.ENCODING, "UTF-8");
-      th.getTransformer().setParameter(OutputKeys.INDENT, "no");
+    JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
+    ItemData srcItemData = nodesManager.getItemData(srcNodePath.getInternalPath());
 
-      exportDocumentView(absPath, th, skipBinary, noRecurse);
-    } catch (TransformerException te) {
-      throw new RepositoryException(te);
-    } catch (SAXException se) {
-      throw new RepositoryException(se);
+    if (srcItemData == null) {
+      throw new PathNotFoundException("No node exists at " + absPath);
     }
 
+    try {
+      exporter.export((NodeData) srcItemData);
+    } catch (Exception e) {
+      if (e instanceof RepositoryException) {
+        e.printStackTrace();
+        throw (RepositoryException) e;
+      } else if (e instanceof IOException) {
+        e.printStackTrace();
+        throw (IOException) e;
+      } else {
+        e.printStackTrace();
+        throw new RepositoryException(e);
+      }
+    }
   }
 
   /*
@@ -623,38 +646,27 @@ public class SessionImpl implements Session, NamespaceAccessor {
       InvalidSerializedDataException,
       RepositoryException {
 
-    try {
-      NodeImporter importer = (NodeImporter) getImportContentHandler(parentAbsPath, uuidBehavior);
-
-      importer.parse(in);
-    } catch (IOException e) {
-      throw new InvalidSerializedDataException("importXML failed", e);
-    } catch (SAXException e) {
-      Throwable rootCause = e.getException();
-      if (rootCause == null) {
-        rootCause = getRootCauseException(e);
-      }
-      if (rootCause == null) {
-        rootCause = e;
-      }
-      if (rootCause instanceof ItemExistsException) {
-        throw new ItemExistsException("importXML failed", rootCause);
-      } else if (rootCause instanceof ConstraintViolationException) {
-        throw new ConstraintViolationException("importXML failed", rootCause);
-      } else {
-        throw new InvalidSerializedDataException("importXML failed", e);
-      }
-    } catch (ParserConfigurationException e) {
-      throw new InvalidSerializedDataException("importXML failed", e);
+    NodeImpl node = (NodeImpl) getItem(parentAbsPath);
+    // TODO it's not a place for this, checked-in check
+    if (!node.isCheckedOut()) {
+      throw new VersionException("Node " + node.getPath()
+          + " or its nearest ancestor is checked-in");
     }
-  }
 
-  public Throwable getRootCauseException(Throwable e) {
-    Throwable ex = e;
-    while (ex.getCause() != null) {
-      ex = ex.getCause();
+    // Check if node is not protected
+    if (node.getDefinition().isProtected()) {
+      throw new ConstraintViolationException("Can't add protected node " + node.getName() + " to "
+          + node.getParent().getPath());
     }
-    return ex;
+
+    // Check locking
+    if (!node.checkLocking()) {
+      throw new LockException("Node " + node.getPath() + " is locked ");
+    }
+    StreamImporter importer = new ExportImportFactory(this).getStreamImporter(XmlSaveType.SESSION,
+        node,
+        uuidBehavior);
+    importer.importStream(in);
   }
 
   /*
@@ -666,20 +678,7 @@ public class SessionImpl implements Session, NamespaceAccessor {
       ConstraintViolationException,
       VersionException,
       RepositoryException {
-
     NodeImpl node = (NodeImpl) getItem(parentAbsPath);
-    checkNodeImport(node);
-
-    NodeImporter handler = new NodeImporter(node);
-    handler.setUuidBehavior(uuidBehavior);
-    handler.setSaveType(NodeImporter.SAVETYPE_UPDATE);
-    return handler;
-  }
-
-  private void checkNodeImport(NodeImpl node) throws VersionException,
-      ConstraintViolationException,
-      LockException,
-      RepositoryException {
     // checked-in check
     if (!node.isCheckedOut()) {
       throw new VersionException("Node " + node.getPath()
@@ -696,8 +695,11 @@ public class SessionImpl implements Session, NamespaceAccessor {
     if (!node.checkLocking()) {
       throw new LockException("Node " + node.getPath() + " is locked ");
     }
+    return new ExportImportFactory(this).getImportHandler(XmlSaveType.SESSION,
+        node,
+        uuidBehavior);
   }
-
+  
   /*
    * (non-Javadoc)
    * 
@@ -832,116 +834,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
 
   public void registerLifecycleListener(SessionLifecycleListener listener) {
     this.lifecycleListeners.add(listener);
-  }
-
-  // Helper for for node export
-  private void initNodeAsDocView(NodeImpl node,
-      XMLWriter writer,
-      boolean skipBinary,
-      boolean noRecurse) throws RepositoryException {
-
-    String name = node.getName();
-    if (name.length() == 0) // root node
-      name = "jcr:root";
-
-    Properties attrs = new Properties();
-
-    for (PropertyImpl prop : node.childProperties()) {
-
-      String[] strPropValues = getStrPropValues(prop, skipBinary);
-      if (strPropValues == null || strPropValues.length == 0) // skip
-        continue;
-      String strValues = "";
-      for (int i = 0; i < strPropValues.length; i++) {
-        strValues += strPropValues[i];
-        if (i < strPropValues.length - 1 && strPropValues[i].length() > 0)
-          // space as delimiter for multi-valued (not applied for skipBinary)
-          strValues += " ";
-      }
-      attrs.setProperty(prop.getName(), strValues);
-    }
-    
-    writer.startElement(node.getLocation().getName(), attrs);
-
-    for (NodeImpl child : node.childNodes()) {
-      if (!noRecurse) {
-        if (child.getLocation().getName().getInternalName().equals(Constants.JCR_XMLTEXT)) {
-          try {
-            // jcr:xmlcharacters
-            String val = StringConverter.normalizeString(child.getProperty("jcr:xmlcharacters").getString(), false);
-            writer.writeText(val);
-            continue;
-          } catch (ValueFormatException e) {
-            // will init as element
-          } catch (PathNotFoundException e) {
-            // will init as element
-          }
-        }
-        initNodeAsDocView(child, writer, skipBinary, noRecurse);
-      }
-    }
-
-    writer.endElement();
-  }
-
-  private void invokeHandler(byte[] input, ContentHandler contentHandler) throws SAXException,
-      RepositoryException {
-    try {
-      SAXParserFactory factory = SAXParserFactory.newInstance();
-      SAXParser parser = factory.newSAXParser();
-
-      XMLReader reader = parser.getXMLReader();
-
-      reader.setContentHandler(contentHandler);
-      reader.setFeature("http://apache.org/xml/features/allow-java-encodings", true);
-
-      reader.parse(new InputSource(new ByteArrayInputStream(input)));
-
-    } catch (SAXException e) {
-      e.printStackTrace();
-      throw e;
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw new RepositoryException("Can not invoke content handler", e);
-    }
-  }
-
-  private String[] getStrPropValues(PropertyImpl prop, boolean skipBinary) throws ValueFormatException,
-      RepositoryException {
-
-    String[] values = new String[prop.getValueArray().length];
-    if (values.length == 0)
-      return null;
-
-    if (prop.getType() == PropertyType.BINARY) {
-      if (skipBinary) {
-        for (int i = 0; i < values.length; i++)
-          values[i] = "";
-      } else {
-        for (int i = 0; i < values.length; i++) {
-          try {
-            ValueData data = ((BinaryValue) prop.getValueArray()[i]).getInternalData();
-            byte[] bdata = data.getAsByteArray();
-            values[i] = Base64.encode(bdata, 0, bdata.length, 0, "");
-          } catch (IOException e) {
-            throw new RepositoryException("Can't export value data to string: " + e.getMessage(), e);
-          }
-        }
-      }
-    } else {
-      for (int i = 0; i < values.length; i++) {
-        Value val = prop.getValueArray()[i];
-        try {
-          if (val != null)
-            values[i] = StringConverter.normalizeString(val.getString(), true);
-        } catch (ValueFormatException e) {
-          if (!e.getMessage().equals("empty value")) {
-            throw e;
-          }
-        }
-      }
-    }
-    return values;
   }
 
   public LocationFactory getLocationFactory() {

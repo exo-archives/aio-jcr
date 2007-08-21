@@ -30,7 +30,6 @@ import javax.jcr.observation.ObservationManager;
 import javax.jcr.query.QueryManager;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
@@ -41,7 +40,6 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.query.QueryManagerFactory;
 import org.exoplatform.services.jcr.impl.core.query.QueryManagerImpl;
@@ -52,10 +50,11 @@ import org.exoplatform.services.jcr.impl.dataflow.ItemDataMoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableDataManager;
 import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
-import org.exoplatform.services.jcr.impl.xml.NodeImporter;
+import org.exoplatform.services.jcr.impl.xml.ExportImportFactory;
+import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
+import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
 import org.exoplatform.services.log.ExoLogger;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
 /**
  * Created by The eXo Platform SARL .
@@ -106,52 +105,68 @@ public class WorkspaceImpl implements Workspace {
   public String getName() {
     return name;
   }
-
   /**
    * @see javax.jcr.Workspace#importXML TODO (the same as Session.importXML - ?)
    */
-  public ContentHandler getImportContentHandler(String parentAbsPath, int uuidBehavior)
-      throws PathNotFoundException, ConstraintViolationException, VersionException,
+  public ContentHandler getImportContentHandler(String parentAbsPath, int uuidBehavior) throws PathNotFoundException,
+      ConstraintViolationException,
+      VersionException,
       RepositoryException {
-    NodeImporter contentHandler = (NodeImporter) session.getImportContentHandler(parentAbsPath,
+    NodeImpl node = (NodeImpl) session.getItem(parentAbsPath);
+    // checked-in check
+    if (!node.isCheckedOut()) {
+      throw new VersionException("Node " + node.getPath()
+          + " or its nearest ancestor is checked-in");
+    }
+
+    // Check if node is not protected
+    if (node.getDefinition().isProtected()) {
+      throw new ConstraintViolationException("Can't add protected node " + node.getName() + " to "
+          + node.getParent().getPath());
+    }
+
+    // Check locking
+    if (!node.checkLocking()) {
+      throw new LockException("Node " + node.getPath() + " is locked ");
+    }
+    return new ExportImportFactory(session).getImportHandler(XmlSaveType.WORKSPACE,
+        node,
         uuidBehavior);
-    contentHandler.setSaveType(NodeImporter.SAVETYPE_SAVE);
-    
-    return contentHandler;
   }
 
   /**
    * @see javax.jcr.Workspace#importXML TODO (the same as Session.importXML - ?)
    */
   public void importXML(String parentAbsPath, InputStream in, int uuidBehavior) throws IOException,
-      PathNotFoundException, ItemExistsException, ConstraintViolationException,
-      InvalidSerializedDataException, RepositoryException {
+      PathNotFoundException,
+      ItemExistsException,
+      ConstraintViolationException,
+      InvalidSerializedDataException,
+      RepositoryException {
+    
 
-    try {
-      NodeImporter importer = (NodeImporter) getImportContentHandler(parentAbsPath, uuidBehavior);
-      importer.parse(in);
-    } catch (IOException e) {
-      throw new InvalidSerializedDataException("importXML failed", e);
-    } catch (SAXException e) {
-      Throwable rootCause = e.getException();
-      if (rootCause == null) {
-        rootCause = session.getRootCauseException(e);
-      }
-      if (rootCause == null) {
-        rootCause = e;
-      }
-      if (rootCause instanceof ItemExistsException) {
-        throw new ItemExistsException("importXML failed", rootCause);
-      } else if (rootCause instanceof ConstraintViolationException) {
-        throw new ConstraintViolationException("importXML failed", rootCause);
-      } else {
-        throw new InvalidSerializedDataException("importXML failed", e);
-      }
-    } catch (ParserConfigurationException e) {
-      throw new InvalidSerializedDataException("importXML failed", e);
+    NodeImpl node = (NodeImpl) session.getItem(parentAbsPath);
+    // TODO it's not a place for this, checked-in check
+    if (!node.isCheckedOut()) {
+      throw new VersionException("Node " + node.getPath()
+          + " or its nearest ancestor is checked-in");
     }
-  }
 
+    // Check if node is not protected
+    if (node.getDefinition().isProtected()) {
+      throw new ConstraintViolationException("Can't add protected node " + node.getName() + " to "
+          + node.getParent().getPath());
+    }
+
+    // Check locking
+    if (!node.checkLocking()) {
+      throw new LockException("Node " + node.getPath() + " is locked ");
+    }
+    StreamImporter importer = new ExportImportFactory(session).getStreamImporter(XmlSaveType.WORKSPACE,
+        node,
+        uuidBehavior);
+    importer.importStream(in);
+   }
   /**
    * @see javax.jcr.Workspace#getSession
    */

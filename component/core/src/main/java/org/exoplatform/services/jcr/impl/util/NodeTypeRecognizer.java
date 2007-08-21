@@ -12,6 +12,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.xml.XmlMapping;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -23,12 +25,8 @@ import org.xml.sax.SAXException;
  */
 
 public class NodeTypeRecognizer {
-
-  public static final int SYS = 1;
-
-  public static final int DOC = 2;
-
-  public static int recognize(InputStream is) throws IOException, SAXException,
+  public static XmlMapping recognize(InputStream is) throws IOException,
+      SAXException,
       ParserConfigurationException {
 
     DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
@@ -41,14 +39,14 @@ public class NodeTypeRecognizer {
     return recognize(namespaceURI, name);
   }
 
-  public static int recognize(String namespaceURI, String qName) {
+  public static XmlMapping recognize(String namespaceURI, String qName) {
 
-    boolean hasSysName = qName != null && qName.toUpperCase().toLowerCase().startsWith("sv:");
-    if ("http://www.jcp.org/jcr/sv/1.0".equals(namespaceURI) && hasSysName) {
-      return SYS;
-    } else {
-      return DOC;
+    boolean hasSysName = qName != null
+        && qName.toUpperCase().toLowerCase().startsWith(Constants.NS_SV_PREFIX + ":");
+    if (Constants.NS_SV_URI.equals(namespaceURI) && hasSysName) {
+      return XmlMapping.SYSVIEW;
     }
+    return XmlMapping.DOCVIEW;
   }
 
 }
