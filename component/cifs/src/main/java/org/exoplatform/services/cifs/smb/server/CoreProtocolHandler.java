@@ -2136,9 +2136,11 @@ class CoreProtocolHandler extends ProtocolHandler {
         // JCRDriver.truncateFile(m_sess, conn, netFile, wrtoff);
       } else {
 
-        BinaryValue val = (BinaryValue) ((JCRNetworkFile) netFile).getNodeRef()
-            .getNode("jcr:content").getProperty("jcr:data").getValue();
-        val.writeBytes(buf, pos, wrtcnt, wrtoff);
+        
+        //TODO do correct writing
+       // BinaryValue val = (BinaryValue) ((JCRNetworkFile) netFile).getNodeRef()
+        //    .getNode("jcr:content").getProperty("jcr:data").getValue();
+       // val.writeBytes(buf, pos, wrtcnt, wrtoff);
         wrtlen = wrtcnt;
         // wrtlen = (int)JCRDriver.writeFile(m_sess, conn, netFile, buf, pos,
         // wrtcnt,
