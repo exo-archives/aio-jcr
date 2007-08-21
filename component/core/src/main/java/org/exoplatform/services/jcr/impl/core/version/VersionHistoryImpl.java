@@ -264,16 +264,21 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     // jcr:predecessors
     PropertyData predecessorsData = (PropertyData) dataManager.getItemData((NodeData) version
         .getData(), new QPathEntry(Constants.JCR_PREDECESSORS, 0));
-    
+
     try {
       for (ValueData pvalue: predecessorsData.getValues()) {
         String pidentifier = new String(pvalue.getAsByteArray());
         VersionImpl predecessor = (VersionImpl) dataManager.getItemByIdentifier(pidentifier, false);
-        if (predecessor != null) {
-          if (successorsData != null) {
+        //actually predecessor is V2's successor
+        if (predecessor != null) {//V2's successor
+          if (successorsData != null) {//to redirect V2's successor
+            // case of VH graph merge
             for (ValueData svalue : successorsData.getValues()) {
               predecessor.removeAddSuccessor(version.getInternalIdentifier(), new String(svalue.getAsByteArray()), changes);
             }
+          } else {
+            // case of VH last version remove 
+            predecessor.removeSuccessor(version.getInternalIdentifier(), changes);
           }
         } else {
           throw new RepositoryException("A predecessor (" + pidentifier + ") of the version " + version.getPath() + " is not found.");
