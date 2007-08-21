@@ -540,12 +540,8 @@ public class TransientValueData extends AbstractValueData implements
   }
 
   /**
-   * <<<<<<< .mine Writes <code>length</code> bytes from the InputStream
-   * <code>data</code> at <code>position</code> in this binary value. Data
-   * in InputString will be writed from 0 to length position. ======= Update
-   * with <code>length</code> bytes from the specified InputStream
-   * <code>stream</code> to this value data at <code>position</code> >>>>>>>
-   * .r19182
+   * Update with <code>length</code> bytes from the specified InputStream
+   * <code>stream</code> to this value data at <code>position</code>
    * 
    * @author Karpenko
    * 
@@ -562,8 +558,6 @@ public class TransientValueData extends AbstractValueData implements
   public void update(InputStream stream, long length, long position)
       throws IOException {
 
-    // TODO reimpl
-
     createRandFile();
 
     ReadableByteChannel ch = Channels.newChannel(stream);
@@ -574,7 +568,8 @@ public class TransientValueData extends AbstractValueData implements
     fc.close();
     ch.close();
 
-    log.debug(" writed bytes " + size + " at position " + position +this.toString());
+    if (log.isDebugEnabled())
+      log.debug(" writed bytes " + size + " at position " + position  + " " + randFile.getAbsolutePath());
   }
 
   /**
@@ -598,24 +593,18 @@ public class TransientValueData extends AbstractValueData implements
   private void createRandFile() throws IOException {
     if (randFile == null) {
 
-      randFile = File.createTempFile("jcrvdtemp", null, tempDirectory);
+      randFile = File.createTempFile("jcrvdrand", null, tempDirectory);
       log.debug("randFile created"+this.toString());
       if (isByteArray()) {
         FileChannel fc = new FileOutputStream(randFile, true).getChannel();
 
-        ReadableByteChannel ch = Channels.newChannel(new ByteArrayInputStream(
-            data));
+        ReadableByteChannel ch = Channels.newChannel(new ByteArrayInputStream(data));
 
         fc.transferFrom(ch, 0, data.length);
 
         fc.close();
         ch.close();
-
       } else {
-
-        // TODO use NIO FileChannel.transferFrom(...)
-        // copy content from spool to rand file
-
         FileChannel fc = new FileOutputStream(randFile, true).getChannel();
 
         ReadableByteChannel ch = Channels.newChannel(new FileInputStream(
@@ -625,7 +614,6 @@ public class TransientValueData extends AbstractValueData implements
 
         fc.close();
         ch.close();
-
       }
     }
   }
