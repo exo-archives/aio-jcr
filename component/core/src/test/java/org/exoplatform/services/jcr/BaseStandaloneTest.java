@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Random;
 
 import javax.jcr.Node;
@@ -19,11 +18,11 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.StandaloneContainer;
-import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SARL .
@@ -58,8 +57,9 @@ public abstract class BaseStandaloneTest extends TestCase {
   public void setUp() throws Exception {
 
     StandaloneContainer
-    .addConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
-    //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-mjdbc.pgsql.xml");
+      .addConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
+      //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.pgsql.xml");
+      //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-mjdbc.mysql.xml");
 
     container = StandaloneContainer.getInstance();
 
@@ -162,35 +162,33 @@ public abstract class BaseStandaloneTest extends TestCase {
       }
     }
   }
-
-  protected void compareStream_Old(InputStream etalon, InputStream data) throws IOException {
-
-    int ebyte = etalon.read();
-    int dbyte = data.read();
-    int bytesCount = 0;
-    while (true) {
-      boolean hasData = ebyte >= 0 && dbyte >= 0;
-      if (hasData && ((byte) (ebyte & 0x0f)) == ((byte) (dbyte & 0x0f))) {
-        ebyte = etalon.read();
-        dbyte = data.read();
-        bytesCount++;
-      } else if (ebyte == -1 && dbyte == -1) {
-        return; // all ok
-      } else if (hasData) {
-        fail("Streams is not equals. Wrong byte stored at position " + bytesCount + " of data stream." );
-      } else {
-        fail("Streams is not equals by length");
-      }
-    }
-  }
-
+  
   protected void compareStream(InputStream etalon, InputStream data) throws IOException  {
+    compareStream(etalon, data, 0, 0, -1);    
+  }
+  
+  /**
+   * Compare etalon stream with data stream begining from the offset in etalon and position in data.
+   * Length bytes will be readed and compared. if length is lower 0 then compare streams till one of them will be read.
+   *  
+   * @param etalon
+   * @param data
+   * @param etalonPos
+   * @param length
+   * @param dataPos
+   * @throws IOException
+   */
+  protected void compareStream(InputStream etalon, InputStream data, long etalonPos, long dataPos, long length) throws IOException  {
 
     int index = 0;
-
+    
     byte[] ebuff = new byte[64 * 1024];
     int eread = 0;
     ByteArrayOutputStream buff = new ByteArrayOutputStream();
+    
+    etalon.skip(etalonPos);
+    data.skip(dataPos);
+    
     while ((eread = etalon.read(ebuff)) > 0) {
 
       byte[] dbuff = new byte[eread];
@@ -209,9 +207,12 @@ public abstract class BaseStandaloneTest extends TestCase {
       for (int i=0; i<eread; i++) {
         byte eb = ebuff[i];
         byte db = dbuff[i];
-        index++;
+        index++; 
         if (eb != db)
-          fail("Streams is not equals. Wrong byte stored at position " + index + " of data stream." );
+          fail("Streams is not equals. Wrong byte stored at position " + index + " of data stream. Expected " 
+              + Integer.toHexString(eb) + " found " + Integer.toHexString(db));
+        if (length > 0 && index >= length)
+          return; // tested length reached
       }
 
       buff = new ByteArrayOutputStream();
@@ -221,8 +222,8 @@ public abstract class BaseStandaloneTest extends TestCase {
     }
 
     if (buff.size() > 0 || data.available() > 0)
-      fail("Streams is not equals by length.");
-  }
+      fail("Streams is not equals by length. Readed " + index);
+  }  
 
   protected File createBLOBTempFile(int sizeInKb) throws IOException {
     return createBLOBTempFile("exo_jcr_test_temp_file_", sizeInKb);

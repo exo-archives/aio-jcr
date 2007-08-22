@@ -285,6 +285,7 @@ public class TransientValueData extends AbstractValueData implements
    * @see org.exoplatform.services.jcr.datamodel.ValueData#isByteArray()
    */
   public boolean isByteArray() {
+    // TODO randFile
     try {
       spoolInputStream();
     } catch (IOException e) {
@@ -605,15 +606,14 @@ public class TransientValueData extends AbstractValueData implements
         fc.close();
         ch.close();
       } else {
-        FileChannel fc = new FileOutputStream(randFile, true).getChannel();
+        FileChannel randCh = new FileOutputStream(randFile, true).getChannel();
 
-        ReadableByteChannel ch = Channels.newChannel(new FileInputStream(
-            spoolFile));
+        FileChannel spoolCh = new FileInputStream(spoolFile).getChannel();
 
-        fc.transferFrom(ch, 0, data.length);
+        randCh.transferFrom(spoolCh, 0, spoolCh.size());
 
-        fc.close();
-        ch.close();
+        randCh.close();
+        spoolCh.close();
       }
     }
   }

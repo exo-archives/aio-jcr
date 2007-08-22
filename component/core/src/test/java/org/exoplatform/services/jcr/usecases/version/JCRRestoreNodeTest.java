@@ -50,7 +50,7 @@ public void testRemoveVersionAfterRestore() throws Exception {
     Version ver2 = node1.checkin();
     node1.checkout();
     Version ver3 = node1.checkin();
-    node1.checkout();    
+    node1.checkout();
     node1.restore(ver2,true) ;
     node1.getVersionHistory().removeVersion(ver1.getName()) ;
     node1.getVersionHistory().removeVersion(ver3.getName()) ;

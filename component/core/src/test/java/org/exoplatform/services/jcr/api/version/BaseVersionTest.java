@@ -155,6 +155,55 @@ public class BaseVersionTest extends JcrAPIBaseTest {
     }
   }
   
+  protected void showVersionable(Node versionable) throws RepositoryException {
+    
+    VersionHistory vHistory = versionable.getVersionHistory();
+    Version baseVersion = versionable.getBaseVersion();
+    
+    BaseVersionFinder baseVersionFinder = new BaseVersionFinder(baseVersion); 
+    
+    String vinfo = "";
+    // show prececessors
+    try {
+      Property predecessors = versionable.getProperty("jcr:predecessors");
+      String pstr = "";
+      for (Value p: predecessors.getValues()) {
+        pstr += "\n    -- ";
+        Version pv = (Version) session.getNodeByUUID(p.getString());
+        if (baseVersionFinder.check(pv))
+          pstr += pv.getPath() + " >>>Base version<<<  ";
+        else
+          pstr += pv.getPath();
+        String[] pvls = vHistory.getVersionLabels(pv);
+        for (String pvl: pvls)
+          pstr += ", " + pvl;
+      }
+      vinfo += "\n  jcr:predecessors " + pstr;
+    } catch(PathNotFoundException e) {
+    }
+    
+    // show successors
+    try {
+      Property sucessors = versionable.getProperty("jcr:successors");
+      String pstr = "";
+      for (Value s: sucessors.getValues()) {
+        pstr += "\n    -- ";
+        Version sv = (Version) session.getNodeByUUID(s.getString());
+        if (baseVersionFinder.check(sv))
+          pstr += sv.getPath() + " >>>Base version<<<  ";
+        else
+          pstr += sv.getPath();
+        String[] svls = vHistory.getVersionLabels(sv);
+        for (String svl: svls)
+          pstr += ", " + svl;
+      }
+      vinfo += "\n  jcr:successors " + pstr;
+    } catch(PathNotFoundException e) {
+    }
+    
+    log.info("versionable " + versionable.getPath() + "\n  jcr:baseVersion " + baseVersion.getPath() + vinfo);
+  }
+  
   protected List<Value> traverseVersionSubTree(Version ver, BaseVersionFinder baseVersionFinder, VersionHistory vHistory, String outPrefix) throws RepositoryException {
     
     List<Value> successorsRefs = new ArrayList<Value>();
