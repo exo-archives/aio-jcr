@@ -48,7 +48,7 @@
     
     <dependency>
       <groupId>org.exoplatform.ws.rest</groupId>
-      <artifactId>exo_rest_core</artifactId>
+      <artifactId>exo.rest.core</artifactId>
       <version>0.1</version>
       <scope>runtime</scope>
     </dependency>
