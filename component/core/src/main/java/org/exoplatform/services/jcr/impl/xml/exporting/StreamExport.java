@@ -28,9 +28,8 @@ public abstract class StreamExport extends ExportXmlBase {
       boolean skipBinary,
       boolean noRecurse) throws NamespaceException, RepositoryException {
 
-    super(session, dataManager, noRecurse ? 1 : -1);
+    super(session, dataManager,skipBinary, noRecurse ? 1 : -1);
     this.writer = writer;
-    setBinaryConduct(skipBinary ? BINARY_SKIP : BINARY_PROCESS);
     setNoRecurse(noRecurse);
   }
 
@@ -38,9 +37,7 @@ public abstract class StreamExport extends ExportXmlBase {
   public void export(NodeData node) throws RepositoryException, XMLStreamException {
     if (writer != null) {
       writer.writeStartDocument(Constants.DEFAULT_ENCODING, "1.0");
-      // startPrefixMapping();
       node.accept(this);
-      // ();
       writer.writeEndDocument();
       writer.close();
     }

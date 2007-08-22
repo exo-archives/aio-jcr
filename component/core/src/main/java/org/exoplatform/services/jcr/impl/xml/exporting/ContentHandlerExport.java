@@ -28,9 +28,8 @@ public abstract class ContentHandlerExport extends ExportXmlBase {
       boolean skipBinary,
       boolean noRecurse) throws NamespaceException, RepositoryException {
 
-    super(session, dataManager, noRecurse ? 1 : -1);
+    super(session, dataManager,skipBinary, noRecurse ? 1 : -1);
     this.contentHandler = handler;
-    setBinaryConduct(skipBinary ? BINARY_SKIP : BINARY_PROCESS);
     setNoRecurse(noRecurse);
   }
 

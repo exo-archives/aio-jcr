@@ -140,7 +140,7 @@ public class StreamSysExport extends StreamExport {
       IOException {
 
     if (PropertyType.BINARY == type) {
-      if (getBinaryConduct() != BINARY_SKIP) {
+      if (!isSkipBinary()) {
         if (data.getLength() < 3 * 1024 * 3) {
           String charValue = getValueAsStringForExport(data, type);
           writer.writeCharacters(charValue.toCharArray(), 0, charValue.length());

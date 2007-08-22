@@ -145,7 +145,7 @@ public class ContentHandlerSysExport extends ContentHandlerExport {
       IOException,
       SAXException {
     if (PropertyType.BINARY == type) {
-      if (getBinaryConduct() != BINARY_SKIP) {
+      if (!isSkipBinary()) {
         if (data.getLength() < 3 * 1024 * 3) {
           String charValue = getValueAsStringForExport(data, type);
           contentHandler.characters(charValue.toCharArray(), 0, charValue.length());

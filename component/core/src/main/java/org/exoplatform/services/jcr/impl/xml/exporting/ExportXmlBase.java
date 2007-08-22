@@ -34,27 +34,11 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 
 public abstract class ExportXmlBase extends ItemDataTraversingVisitor {
 
-  /**
-   * Serialized only definition of of each <code>PropertyType.BINARY</code>
-   * property without values
-   */
-  public static final int     BINARY_EMPTY          = 2;
 
-  /**
-   * Actual value of each <code>PropertyType.BINARY</code> property is
-   * recorded using Base64 encoding
-   */
-  public static final int     BINARY_PROCESS        = 0;
-
-  /**
-   * Any properties of <code>PropertyType.BINARY</code> will be ignored and
-   * will not appear in the serialized output
-   */
-  public static final int     BINARY_SKIP           = 1;
 
   public static final String  MULTI_VALUE_DELIMITER = " ";
 
-  private int                 binaryConduct         = BINARY_PROCESS;
+ // private int                 binaryConduct         = BINARY_PROCESS;
 
   protected LocationFactory   locationFactory;
 
@@ -64,38 +48,41 @@ public abstract class ExportXmlBase extends ItemDataTraversingVisitor {
 
   protected final String      SV_NAMESPACE_URI;
 
-  public ExportXmlBase(SessionImpl session, ItemDataConsumer dataManager, int maxLevel) throws NamespaceException,
+  private final boolean skipBinary;
+
+  public ExportXmlBase(SessionImpl session, ItemDataConsumer dataManager,boolean skipBinary, int maxLevel) throws NamespaceException,
       RepositoryException {
     super(dataManager, maxLevel);
     this.session = session;
+    this.skipBinary = skipBinary;
     this.locationFactory = session.getLocationFactory();
     SV_NAMESPACE_URI = session.getNamespaceURI("sv");
   }
 
   public abstract void export(NodeData node) throws Exception;
 
-  /**
-   * Specify how properties of <code>PropertyType.BINARY</code> serialized
-   * 
-   * @see <code>BINARY_PROCESS</code>, <code>BINARY_SKIP</code>,
-   *      <code>BINARY_EMPTY</code>
-   */
-  public int getBinaryConduct() {
-    return binaryConduct;
-  }
+//  /**
+//   * Specify how properties of <code>PropertyType.BINARY</code> serialized
+//   * 
+//   * @see <code>BINARY_PROCESS</code>, <code>BINARY_SKIP</code>,
+//   *      <code>BINARY_EMPTY</code>
+//   */
+//  public int getBinaryConduct() {
+//    return binaryConduct;
+//  }
 
   public boolean isNoRecurse() {
     return noRecurse;
   }
 
-  public void setBinaryConduct(int binaryConduct) {
-    if ((binaryConduct != BINARY_PROCESS) && (binaryConduct != BINARY_SKIP)
-        && (binaryConduct != BINARY_EMPTY)) {
-      throw new java.lang.IllegalArgumentException("binaryConduct must be one of "
-          + "BINARY_PROCESS,BINARY_SKIP, BINARY_EMPTY");
-    }
-    this.binaryConduct = binaryConduct;
-  }
+//  public void setBinaryConduct(int binaryConduct) {
+//    if ((binaryConduct != BINARY_PROCESS) && (binaryConduct != BINARY_SKIP)
+//        && (binaryConduct != BINARY_EMPTY)) {
+//      throw new java.lang.IllegalArgumentException("binaryConduct must be one of "
+//          + "BINARY_PROCESS,BINARY_SKIP, BINARY_EMPTY");
+//    }
+//    this.binaryConduct = binaryConduct;
+//  }
 
   public void setNoRecurse(boolean noRecurse) {
     this.noRecurse = noRecurse;
@@ -159,7 +146,7 @@ public abstract class ExportXmlBase extends ItemDataTraversingVisitor {
 
     switch (type) {
     case PropertyType.BINARY:
-      if ((getBinaryConduct() == BINARY_SKIP) || (getBinaryConduct() == BINARY_EMPTY)) {
+      if (skipBinary) {
         charValue = "";
       } else {
         charValue = Base64.encode(data.getAsByteArray(), 0, (int) data.getLength(), 0, "");
@@ -183,5 +170,9 @@ public abstract class ExportXmlBase extends ItemDataTraversingVisitor {
       break;
     }
     return charValue;
+  }
+
+  public boolean isSkipBinary() {
+    return skipBinary;
   }
 }
