@@ -37,13 +37,11 @@
                   <filter property-type="Binary"/>
                 </filters>
               </value-storage>
-<!--14C2QKW74YST25Q33082-->
-<!--oUeSTl+b/l5ARhrpTD7xp86XH+lg0T1ienRibDl7-->
               <!--value-storage class="org.exoplatform.services.jcr.impl.storage.value.s3.SimpleS3ValueStorage">
                 <properties>
                   <property name="bucket" value="jcr"/>
-                  <property name="aws_access_key" value="14C2QKW74YST25Q33082"/>
-                  <property name="aws_secret_access_key" value="oUeSTl+b/l5ARhrpTD7xp86XH+lg0T1ienRibDl7"/>
+                  <property name="aws_access_key" value="INSERT YOUR AWS ACCESS KEY ID HERE"/>
+                  <property name="aws_secret_access_key" value="INSERT YOUR AWS SECRET ACCESS KEY HERE"/>
                 </properties>
                 <filters>
                   <filter property-type="Binary"/>
