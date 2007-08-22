@@ -409,7 +409,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
             <childDelegation>false</childDelegation>            
-			<!--forkMode>never</forkMode-->        
+			<forkMode>never</forkMode>      
               <!-- TCK tests, uncomment <execution id #1> in maven-antrun-plugin -->
               <includes>
                 <!-- include>**/init/TestAll.java</include>
