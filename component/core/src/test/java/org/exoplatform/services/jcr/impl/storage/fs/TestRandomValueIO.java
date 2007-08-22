@@ -48,7 +48,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     super.tearDown();
   }
 
-  public void testRandomValueWrite_NewProperty() throws Exception {
+  public void testNewProperty() throws Exception {
    
     // create property
     String pname = "file@" + testFile.getName();
@@ -77,7 +77,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
         testRoot.getProperty(pname).getStream(), 0, pos, update1String.length());
   }
   
-  public void testRandomValueWrite_UpdateProperty() throws Exception {
+  public void testUpdateProperty() throws Exception {
     
     // create property
     String pname = "file@" + testFile.getName();
@@ -118,5 +118,49 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     compareStream(
         new ByteArrayInputStream(updateString.getBytes()), 
         testRoot.getProperty(pname).getStream(), 0, pos1, updateString.length());    
+  }
+  
+  public void testRollbackProperty() throws Exception {
+    
+    // create property
+    String pname = "file@" + testFile.getName();
+    Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
+    
+    ExtendedProperty exp = (ExtendedProperty) p;
+    
+    String update1String = "update#1";
+    
+    long pos = 1024 * 1024;
+    
+    // update
+    exp.updateValue(0, new ByteArrayInputStream(update1String.getBytes()), 
+        update1String.length(), pos);
+    
+    testRoot.save();
+    
+    // test if the rollbacked value isn't saved
+    
+    String update2String = "UPDATE#2";
+    
+    long pos2 = (1024 * 1024) + 5;
+    
+    // update 2
+    exp.updateValue(0, new ByteArrayInputStream(update2String.getBytes()), 
+        update2String.length(), pos2);
+    
+    testRoot.refresh(false); // rollback
+    
+    // check the content
+    // transient, before the save
+    compareStream(
+        new ByteArrayInputStream(update1String.getBytes()), 
+        testRoot.getProperty(pname).getStream(), 0, pos, update1String.length());
+    
+    testRoot.save();
+    
+    // persisted, after the save
+    compareStream(
+        new ByteArrayInputStream(update1String.getBytes()), 
+        testRoot.getProperty(pname).getStream(), 0, pos, update1String.length());
   }
 }

@@ -209,8 +209,9 @@ public abstract class BaseStandaloneTest extends TestCase {
         byte db = dbuff[i];
         index++; 
         if (eb != db)
-          fail("Streams is not equals. Wrong byte stored at position " + index + " of data stream. Expected " 
-              + Integer.toHexString(eb) + " found " + Integer.toHexString(db));
+          fail("Streams is not equals. Wrong byte stored at position " + index + " of data stream. Expected 0x" + 
+              Integer.toHexString(eb) + " '" + new String(new byte[] {eb}) + 
+              "' found 0x" + Integer.toHexString(db) + " '" + new String(new byte[] {db}) + "'");
         if (length > 0 && index >= length)
           return; // tested length reached
       }
