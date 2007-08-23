@@ -42,6 +42,7 @@
                   <property name="bucket" value="jcr"/>
                   <property name="aws_access_key" value="INSERT YOUR AWS ACCESS KEY ID HERE"/>
                   <property name="aws_secret_access_key" value="INSERT YOUR AWS SECRET ACCESS KEY HERE"/>
+                  <property name="s3-swap-directory" value="target/temp/s3swap/ws"/>
                 </properties>
                 <filters>
                   <filter property-type="Binary"/>
@@ -94,6 +95,7 @@
                   <property name="bucket" value="jcr2"/>
                   <property name="aws_access_key" value="INSERT YOUR AWS ACCESS KEY ID HERE"/>
                   <property name="aws_secret_access_key" value="INSERT YOUR AWS SECRET ACCESS KEY HERE"/>
+                  <property name="s3-swap-directory" value="target/temp/s3swap/ws1"/>
                 </properties>
                 <filters>
                   <filter property-type="Binary"/>
@@ -138,6 +140,7 @@
                   <property name="bucket" value="jcr3"/>
                   <property name="aws_access_key" value="INSERT YOUR AWS ACCESS KEY ID HERE"/>
                   <property name="aws_secret_access_key" value="INSERT YOUR AWS SECRET ACCESS KEY HERE"/>
+                  <property name="s3-swap-directory" value="target/temp/s3swap/ws2"/>
                 </properties>
                 <filters>
                   <filter property-type="Binary"/>
