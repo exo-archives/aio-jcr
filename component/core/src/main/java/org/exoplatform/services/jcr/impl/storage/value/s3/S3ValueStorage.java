@@ -61,7 +61,7 @@ public abstract class S3ValueStorage extends ValueStoragePlugin {
     s3SwapDirectory = new File(props.getProperty(S3_SWAP_DIRECTORY));
     
     if (!s3SwapDirectory.exists()) {
-      if (s3SwapDirectory.mkdir()) {
+      if (s3SwapDirectory.mkdirs()) {
         logger.info("Created S3 swap directory " + s3SwapDirectory.getAbsolutePath());
       } else {
         logger.warn("Can't created S3 swap directory " + s3SwapDirectory.getAbsolutePath());
