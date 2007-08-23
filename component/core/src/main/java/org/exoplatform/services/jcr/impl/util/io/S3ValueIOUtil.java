@@ -4,6 +4,8 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.impl.util.io;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,7 +16,7 @@ import java.net.HttpURLConnection;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
-import org.exoplatform.services.jcr.impl.dataflow.persistent.InputStreamPersistedValueData;
+import org.exoplatform.services.jcr.impl.dataflow.persistent.CleanableFileStreamValueData;
 import org.apache.commons.logging.Log;
 
 import com.amazon.s3.AWSAuthConnection;
@@ -34,38 +36,46 @@ public class S3ValueIOUtil {
 
   private static final boolean debug = logger.isDebugEnabled();
 
-  
   public static ValueData readValue(String bucket, String awsAccessKey,
       String awsSecretAccessKey, String s3fielName, int orderNum,
-      int maxBufferSize) throws IOException {
+      int maxBufferSize, File swapDir, FileCleaner cleaner) throws IOException {
 
     AWSAuthConnection conn =
       new AWSAuthConnection(awsAccessKey, awsSecretAccessKey);
 
     GetResponse resp = conn.get(bucket, s3fielName, null);
     int responseCode = resp.connection.getResponseCode();
-    if (responseCode != HttpURLConnection.HTTP_OK)
+    if (responseCode != HttpURLConnection.HTTP_OK) {
       throw new IOException("Filed read data from S3 storage. HTTP status "
           + responseCode);
-
-    if (debug)
-      logger.info("==>Read from S3: STATUS = " + responseCode);
-    
+    }
+    if (debug) {
+      logger.info("Read from S3: STATUS = " + responseCode);
+    }
+    int size = resp.connection.getContentLength();
     InputStream in = resp.connection.getInputStream();
 
-    int size = in.available();
     if (size > maxBufferSize) {
-      if (debug)
-        logger.info("==>Value created as InputStreamPersistedValueData");
-      return new InputStreamPersistedValueData(in, orderNum);
+      File f = new File(swapDir, s3fielName + orderNum);
+      FileOutputStream fout = new FileOutputStream(f);
+      int rd = -1;
+      byte[] buff = new byte[4096];
+      while ((rd = in.read(buff)) != -1) {
+        fout.write(buff, 0, rd);
+      }
+      fout.flush();
+      fout.close();
+      return new CleanableFileStreamValueData(f, orderNum, false, cleaner);
     }
     int rd = -1;
     byte[] buff = new byte[4096];
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    while ((rd = in.read(buff)) != -1)
+    while ((rd = in.read(buff)) != -1) {
       out.write(buff, 0, rd);
-    if (debug)
-      logger.info("==>Value created as ByteArrayPersistedValueData");
+    }
+    if (debug) {
+      logger.info("Value created as ByteArrayPersistedValueData");
+    }
     return new ByteArrayPersistedValueData(out.toByteArray(), orderNum);
   }
 
@@ -78,10 +88,12 @@ public class S3ValueIOUtil {
 
     GetResponse resp = conn.get(bucket, s3fielName, null);
     int responseCode = resp.connection.getResponseCode();
-    if (debug)
-      logger.info("==>Read from S3: STATUS = " + responseCode);
-    if (responseCode != HttpURLConnection.HTTP_OK)
+    if (debug) {
+      logger.info("Read from S3: STATUS = " + responseCode);
+    }
+    if (responseCode != HttpURLConnection.HTTP_OK) {
       return false;
+    }
     return true;
   }
 
@@ -93,12 +105,13 @@ public class S3ValueIOUtil {
        new AWSAuthConnection(awsAccessKey, awsSecretAccessKey);
      Response resp = conn.createBucket(bucket, null);
      int responseCode = resp.connection.getResponseCode();
-     if (responseCode != HttpURLConnection.HTTP_OK)
+     if (responseCode != HttpURLConnection.HTTP_OK) {
        throw new IOException("Can't create BUCKET on S3 storage. HTTP status "
            + responseCode);
-
-     if (debug)
-       logger.info("==>Create bucket on S3: STATUS = " + responseCode);
+     }
+     if (debug) {
+       logger.info("Create bucket on S3: STATUS = " + responseCode);
+     }
    }
 
 
@@ -111,12 +124,14 @@ public class S3ValueIOUtil {
         ? new ByteArrayInputStream(value.getAsByteArray()) : value.getAsStream();
     Response resp = conn.put(bucket, key, new S3Object(valueStream, null), null);
     int responseCode = resp.connection.getResponseCode();
-    if (responseCode != HttpURLConnection.HTTP_OK)
+    if (responseCode != HttpURLConnection.HTTP_OK) {
       throw new IOException("Filed PUT data to S3 storage. HTTP status "
           + responseCode);
+    }
 
-    if (debug)
-      logger.info("==>Write to S3: STATUS = " + responseCode);
+    if (debug) {
+      logger.info("Write to S3: STATUS = " + responseCode);
+    }
   }
   
   
@@ -127,13 +142,14 @@ public class S3ValueIOUtil {
       new AWSAuthConnection(awsAccessKey, awsSecretAccessKey);
     Response resp = conn.delete(bucket, key, null);
     int responseCode = resp.connection.getResponseCode();
-    if (responseCode != HttpURLConnection.HTTP_NO_CONTENT)
+    if (responseCode != HttpURLConnection.HTTP_NO_CONTENT) {
       return false;
 //      throw new IOException("Filed DELETE data from S3 storage. HTTP status "
 //          + responseCode);
-
-    if (debug)
-      logger.info("==>Delete from S3: STATUS = " + responseCode);
+    }
+    if (debug) {
+      logger.info("Delete from S3: STATUS = " + responseCode);
+    }
     return true;
   }
   
@@ -146,10 +162,10 @@ public class S3ValueIOUtil {
     ListBucketResponse resp = conn.listBucket(bucket, prefix, null, null, null);
     int responseCode = resp.connection.getResponseCode();
 
-    if (debug)
-      logger.info("==>Get list of bucket from S3: STATUS = " + responseCode);
-    
-    List<ListEntry> entries = resp.entries;
+    if (debug) {
+      logger.info("Get list of bucket from S3: STATUS = " + responseCode);
+    }
+    List < ListEntry > entries = resp.entries;
     String[] keys = new String[entries.size()];
     int i = 0;
     for(ListEntry l : entries) {
