@@ -1,5 +1,6 @@
 package org.exoplatform.services.jcr.impl.storage.value.s3;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.logging.Log;
@@ -29,6 +30,8 @@ public abstract class S3IOChannel implements ValueIOChannel {
    */
   protected final String awsSecretAccessKey;
 
+  protected final File s3SwapDirectory;
+
   protected final FileCleaner cleaner;
   
   
@@ -39,12 +42,13 @@ public abstract class S3IOChannel implements ValueIOChannel {
    * @param aws_secret_access_key the S3 access secretkey
    * @param cleaner file cleanre
    */
-  public S3IOChannel(String bucket, String aws_access_key,
-      String aws_secret_access_key, FileCleaner cleaner) {
+  public S3IOChannel(String bucket, String awsAccessKey,
+      String awsSecretAccessKey, File s3SwapDirectory, FileCleaner cleaner) {
     
     this.bucket = bucket;
-    this.awsAccessKey = aws_access_key;
-    this.awsSecretAccessKey = aws_secret_access_key;
+    this.awsAccessKey = awsAccessKey;
+    this.awsSecretAccessKey = awsSecretAccessKey;
+    this.s3SwapDirectory = s3SwapDirectory;
     this.cleaner = cleaner;
   }
    
@@ -78,8 +82,8 @@ public abstract class S3IOChannel implements ValueIOChannel {
   public ValueData read(String propertyId, int orderNumber,
       int maxBufferSize) throws IOException {
     String s3fileName = getFile(propertyId, orderNumber);
-    return S3ValueIOUtil.readValue(bucket, awsAccessKey,
-        awsSecretAccessKey, s3fileName, orderNumber, maxBufferSize);
+    return S3ValueIOUtil.readValue(bucket, awsAccessKey, awsSecretAccessKey,
+        s3fileName, orderNumber, maxBufferSize, s3SwapDirectory, cleaner);
   }
 
   

@@ -4,6 +4,7 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.impl.storage.value.s3;
 
+import java.io.File;
 import java.io.IOException;
 import org.exoplatform.services.jcr.impl.util.io.S3ValueIOUtil;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
@@ -14,9 +15,9 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 */
 public class SimpleS3IOChannel extends S3IOChannel {
 
-  public SimpleS3IOChannel(String bucket, String aws_access_key,
-      String aws_secret_access_key, FileCleaner cleaner) {
-    super(bucket, aws_access_key, aws_secret_access_key, cleaner);
+  public SimpleS3IOChannel(String bucket, String awsAccessKey,
+      String awsSecretAccessKey, File s3SwapDirectory, FileCleaner cleaner) {
+    super(bucket, awsAccessKey, awsSecretAccessKey, s3SwapDirectory, cleaner);
   }
   
   /* (non-Javadoc)

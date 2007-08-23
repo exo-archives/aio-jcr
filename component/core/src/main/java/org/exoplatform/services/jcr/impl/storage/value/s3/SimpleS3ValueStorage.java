@@ -21,7 +21,7 @@ public class SimpleS3ValueStorage extends S3ValueStorage {
    */
   public ValueIOChannel openIOChannel() throws IOException {
     return new SimpleS3IOChannel(bucket, awsAccessKey,
-        this.awsSecretAccessKey, cleaner);
+        awsSecretAccessKey, s3SwapDirectory, cleaner);
   }
 
 }

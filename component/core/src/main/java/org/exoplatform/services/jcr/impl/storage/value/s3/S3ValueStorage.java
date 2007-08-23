@@ -4,6 +4,7 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.impl.storage.value.s3;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -22,19 +23,23 @@ import org.exoplatform.services.jcr.impl.util.io.S3ValueIOUtil;
  */
 public abstract class S3ValueStorage extends ValueStoragePlugin {
 
-  protected static Log log = ExoLogger.getLogger("SimpleS3ValueStorage");
+  protected static Log logger = ExoLogger.getLogger("SimpleS3ValueStorage");
 
   public final static String BUCKET = "bucket";
 
-  public final static String AWS_ACCESS_KEY = "aws_access_key";
+  public final static String AWS_ACCESS_KEY = "aws-access-key";
 
-  public final static String AWS_SECRET_ACCESS_KEY = "aws_secret_access_key";
+  public final static String AWS_SECRET_ACCESS_KEY = "aws-secret-access-key";
+  
+  public final static String S3_SWAP_DIRECTORY = "s3-swap-directory";
 
   protected String bucket;
 
   protected String awsAccessKey;
   
   protected String awsSecretAccessKey;
+
+  protected File s3SwapDirectory;
 
   protected final FileCleaner cleaner;
   
@@ -53,6 +58,15 @@ public abstract class S3ValueStorage extends ValueStoragePlugin {
     bucket = props.getProperty(BUCKET);
     awsAccessKey = props.getProperty(AWS_ACCESS_KEY);
     awsSecretAccessKey = props.getProperty(AWS_SECRET_ACCESS_KEY);
+    s3SwapDirectory = new File(props.getProperty(S3_SWAP_DIRECTORY));
+    
+    if (!s3SwapDirectory.exists()) {
+      if (s3SwapDirectory.mkdir()) {
+        logger.info("Created S3 swap directory " + s3SwapDirectory.getAbsolutePath());
+      } else {
+        logger.warn("Can't created S3 swap directory " + s3SwapDirectory.getAbsolutePath());
+      }
+    }
     S3ValueIOUtil.createBucket(bucket, awsAccessKey, awsSecretAccessKey);
   }
 
