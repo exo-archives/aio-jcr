@@ -48,9 +48,9 @@ public class RandomReadNtFileWithMetadataTest extends JCRTestBase {
     // required params: jcr.lengthOfFile, jcr.lengthOfDcElementSetProperty,
     // jcr:countOfDcElementSetProperties
     contentOfFile = new byte[tc.getIntParam("jcr.lengthOfFile")];
-    Arrays.fill(contentOfFile, (byte) 0);
+    Arrays.fill(contentOfFile, (byte) 'F');
     contentOfDcElementSetProperty = new byte[tc.getIntParam("jcr.lengthOfDcElementSetProperty")];
-    Arrays.fill(contentOfDcElementSetProperty, (byte) 1);
+    Arrays.fill(contentOfDcElementSetProperty, (byte) 'D');
     for (int i = 0; i < tc.getIntParam("japex.runIterations"); i++) {
       String nodeName = context.generateUniqueName("node");
       Node nodeToAdd = context.getSession().getRootNode().addNode(nodeName, "nt:file");

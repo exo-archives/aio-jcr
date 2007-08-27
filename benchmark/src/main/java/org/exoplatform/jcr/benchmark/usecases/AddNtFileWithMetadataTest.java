@@ -39,9 +39,9 @@ public class AddNtFileWithMetadataTest extends JCRTestBase {
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     // required params: jcr.lengthOfFile, jcr.lengthOfDcElementSetProperty
     contentOfFile = new byte[tc.getIntParam("jcr.lengthOfFile")];
-    Arrays.fill(contentOfFile, (byte) 0);
+    Arrays.fill(contentOfFile, (byte) 'F');
     contentOfDcElementSetProperty = new byte[tc.getIntParam("jcr.lengthOfDcElementSetProperty")];
-    Arrays.fill(contentOfDcElementSetProperty, (byte) 1);
+    Arrays.fill(contentOfDcElementSetProperty, (byte) 'D');
   }
 
   @Override

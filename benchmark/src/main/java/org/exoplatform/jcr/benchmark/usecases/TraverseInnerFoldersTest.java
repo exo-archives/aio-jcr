@@ -48,13 +48,13 @@ public class TraverseInnerFoldersTest extends JCRTestBase {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    int index = rand.nextInt(tc.getIntParam("japex.runIterations"));
+    int index = rand.nextInt((int)Math.pow(amountOfInnerFolders, depthOfStructure));
     Item item = context.getSession().getItem(names.get(index));
   }
 
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
-    // delete all the created nodes
+    // delete all the created nodes 
     Node rootNode = context.getSession().getRootNode();
     if (rootNode.hasNodes()) {
       // clean test root

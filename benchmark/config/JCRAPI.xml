@@ -55,7 +55,7 @@
 		<param name="jcr.amountOfInnerFolders" value="5" />
 		<param name="jcr.depthOfStructure" value="2" />
 		
-		<param name="japex.runIterations" value="25" /><!--must be less or equals 5^2-->
+		<param name="japex.runIterations" value="10" />
 		<param name="japex.warmupIterations" value="0" />
 
 	</testCase>
