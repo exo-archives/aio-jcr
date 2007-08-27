@@ -65,7 +65,7 @@ public class S3ValueIOUtil {
       }
       fout.flush();
       fout.close();
-      return new CleanableFileStreamValueData(f, orderNum, false, cleaner);
+      return new CleanableFileStreamValueData(f, orderNum, cleaner);
     }
     int rd = -1;
     byte[] buff = new byte[4096];

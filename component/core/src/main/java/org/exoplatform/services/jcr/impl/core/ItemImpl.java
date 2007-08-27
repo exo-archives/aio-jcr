@@ -699,11 +699,14 @@ public abstract class ItemImpl implements Item {
     case PropertyType.BINARY:
       TransientValueData vd = null ;
       if (value instanceof BaseValue) {
-        vd  = ((BaseValue)value).getInternalData().createTransientCopy() ;
-      }else if (value instanceof ExtendedValue){
-        vd  = ((BaseValue)getSession().getValueFactory().createValue(value.getStream())).getInternalData();
+        // if the value is normaly created in JCR API 
+        vd  = ((BaseValue) value).getInternalData().createTransientCopy() ;
+      } else if (value instanceof ExtendedValue) {
+        // if te value comes from outside the JCR API scope, e.g. RMI invocation 
+        vd  = ((BaseValue) getSession().getValueFactory().createValue(value.getStream())).getInternalData();
       } else {
-        vd  = ((BaseValue)getSession().getValueFactory().createValue(value.getString(),PropertyType.BINARY)).getInternalData();
+        // third part value impl, convert via String
+        vd  = ((BaseValue) getSession().getValueFactory().createValue(value.getString(),PropertyType.BINARY)).getInternalData();
       }
       return vd;
     case PropertyType.BOOLEAN:

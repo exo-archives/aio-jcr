@@ -691,7 +691,7 @@ public class SessionDataManager implements ItemDataConsumer {
                                                                                               // up
       changes.add(ItemState.createUpdatedState(reindexed));
 
-      // reload pooled implies... is actual for session and workspace scope
+      // reload pooled implies... it's actual for session and workspace scope
       // operations
       itemsPool.reload(reindexed);
 

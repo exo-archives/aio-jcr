@@ -49,7 +49,13 @@ public abstract class BaseValue implements ExtendedValue {
     this.internalData = data;
   }
 
-
+  protected LocalTransientValueData getLocalData(boolean asStream) throws IOException {
+    if(data == null)
+      data = new LocalTransientValueData(asStream);
+    
+    return data;
+  }
+  
   /**
    * Returns the internal string representation of this value without modifying
    * the value state.
@@ -61,9 +67,8 @@ public abstract class BaseValue implements ExtendedValue {
   protected String getInternalString() throws ValueFormatException, RepositoryException {
 
     try {
-      if(data == null)
-        data = new LocalTransientValueData(false);
-      return new String(data.getAsByteArray(), Constants.DEFAULT_ENCODING);
+      
+      return new String(getLocalData(false).getAsByteArray(), Constants.DEFAULT_ENCODING);
     } catch (UnsupportedEncodingException e) {
       throw new RepositoryException(Constants.DEFAULT_ENCODING + " not supported on this platform", e);
     } catch (IOException e) {
@@ -79,13 +84,10 @@ public abstract class BaseValue implements ExtendedValue {
   protected Calendar getInternalCalendar()
     throws ValueFormatException, RepositoryException {
     try {
-      if(data == null)
-        data = new LocalTransientValueData(false);
-
       if (type == PropertyType.DATE)
-        return new JCRDateFormat().deserialize(new String(data.getAsByteArray(), Constants.DEFAULT_ENCODING));
+        return new JCRDateFormat().deserialize(new String(getLocalData(false).getAsByteArray(), Constants.DEFAULT_ENCODING));
 
-      return JCRDateFormat.parse(new String(data.getAsByteArray(), Constants.DEFAULT_ENCODING));
+      return JCRDateFormat.parse(new String(getLocalData(false).getAsByteArray(), Constants.DEFAULT_ENCODING));
     } catch(UnsupportedEncodingException e) {
       throw new RepositoryException(Constants.DEFAULT_ENCODING + " not supported on this platform", e);
     } catch (IOException e) {
@@ -152,9 +154,7 @@ public abstract class BaseValue implements ExtendedValue {
   public InputStream getStream() throws ValueFormatException,
       RepositoryException {
     try {
-      if(data == null)
-        data = new LocalTransientValueData(true);
-      return data.getAsStream();
+      return getLocalData(true).getAsStream();
     } catch (IOException e) {
       throw new RepositoryException(e);
     }
@@ -217,10 +217,10 @@ public abstract class BaseValue implements ExtendedValue {
     return false;
   }
 
-
   public int getOrderNumber(){
     return data.getOrderNumber();
   }
+  
   public void setOrderNumber(int order){
     data.setOrderNumber(order);
   }
@@ -239,15 +239,15 @@ public abstract class BaseValue implements ExtendedValue {
      * @throws IOException
      */
     public LocalTransientValueData(boolean asStream) throws IOException {
-      super(internalData.getOrderNumber());
+      super(getInternalData().getOrderNumber());
       if (!asStream) {
-        bytes = internalData.getAsByteArray();
+        bytes = getInternalData().getAsByteArray();
         stream = null;
       } else {
-        stream = internalData.getAsStream();
+        stream = getInternalData().getAsStream();
         bytes = null;
       }
-      length = internalData.getLength();
+      length = getInternalData().getLength();
     }
 
     public byte[] getAsByteArray() throws IllegalStateException, IOException {

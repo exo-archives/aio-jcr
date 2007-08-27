@@ -168,7 +168,7 @@ public class PropertyDataReader extends ItemDataReader {
 
   private Value makeValue(ValueData valueData, int type) throws RepositoryException {
     if (valueFactory != null) {
-        TransientValueData tvd = ((AbstractValueData)valueData).createTransientCopy(); 
+        TransientValueData tvd = ((AbstractValueData) valueData).createTransientCopy(); 
         return valueFactory.loadValue(tvd, type);
     }
     try {

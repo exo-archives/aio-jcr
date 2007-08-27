@@ -17,16 +17,12 @@ import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channel;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
 import java.util.Arrays;
 import java.util.Calendar;
 
+import javax.jcr.RepositoryException;
+
 import org.exoplatform.services.jcr.access.AccessControlEntry;
-import org.exoplatform.services.jcr.datamodel.BinaryValueData;
 import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -41,7 +37,7 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
  * @version $Id$
  */
 public class TransientValueData extends AbstractValueData implements
-    Externalizable, BinaryValueData {
+    Externalizable {
 
   protected byte[] data;
 
@@ -60,9 +56,6 @@ public class TransientValueData extends AbstractValueData implements
   protected boolean spooled = false;
 
   private final boolean deleteSpoolFile;
-
-  // file used for random writing
-  protected File randFile;
 
   static protected byte[] stringToBytes(final String value) {
     try {
@@ -207,13 +200,6 @@ public class TransientValueData extends AbstractValueData implements
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getAsByteArray()
    */
   public byte[] getAsByteArray() throws IOException {
-    log.debug("getAsByteArray" + this.toString());
-
-    if (randFile != null) {
-      log.debug("randfile");
-      return randFileToByteArray();
-    }
-
     spoolInputStream();
     if (data != null) {
       byte[] bytes = new byte[data.length];
@@ -231,14 +217,6 @@ public class TransientValueData extends AbstractValueData implements
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getAsStream()
    */
   public InputStream getAsStream() throws IOException {
-    log.debug("getAsStream"+this.toString());
-
-    if (randFile != null) {
-      log.debug("randfile");
-      return new FileInputStream(randFile);
-
-    }
-
     spoolInputStream();
     if (data != null) {
       return new ByteArrayInputStream(data); // from bytes
@@ -247,7 +225,6 @@ public class TransientValueData extends AbstractValueData implements
       // initialized
     } else
       throw new NullPointerException("Null Stream data ");
-
   }
 
   /*
@@ -256,13 +233,6 @@ public class TransientValueData extends AbstractValueData implements
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getLength()
    */
   public long getLength() {
-
-    log.debug("getLength"+this.toString());
-    if (randFile != null) {
-      log.debug("getLength randFile : " + randFile.length());
-      return randFile.length();
-    }
-
     try {
       spoolInputStream();
     } catch (IOException e) {
@@ -285,7 +255,6 @@ public class TransientValueData extends AbstractValueData implements
    * @see org.exoplatform.services.jcr.datamodel.ValueData#isByteArray()
    */
   public boolean isByteArray() {
-    // TODO randFile
     try {
       spoolInputStream();
     } catch (IOException e) {
@@ -296,19 +265,37 @@ public class TransientValueData extends AbstractValueData implements
   }
 
   @Override
-  public TransientValueData createTransientCopy() {
-    // TODO potantial lost of randFile data
-    // do we need that?
-    // byte[] newBytes = null;
+  public TransientValueData createTransientCopy() throws RepositoryException {
     if (isByteArray()) {
-      // make a copy of real data
+      // bytes, make a copy of real data
       byte[] newBytes = new byte[data.length];
       System.arraycopy(data, 0, newBytes, 0, newBytes.length);
       return new TransientValueData(newBytes, orderNumber);
     } else {
+      // spool file, i.e. shared across sessions
       return this;
     }
   }
+  
+  public EditableValueData createEditableCopy() throws RepositoryException {
+    if (isByteArray()) {
+      // bytes, make a copy of real data
+      byte[] newBytes = new byte[data.length];
+      System.arraycopy(data, 0, newBytes, 0, newBytes.length);
+      return new EditableValueData(newBytes, orderNumber);
+    } else {
+      // edited BLOB file, make a copy
+      try {
+        EditableValueData copy = new EditableValueData(
+            spoolFile, orderNumber, fileCleaner, maxBufferSize, tempDirectory);
+        return copy;
+      } catch (FileNotFoundException e) {
+        throw new RepositoryException("Create transient copy error. " + e, e);
+      } catch (IOException e) {
+        throw new RepositoryException("Create transient copy error. " + e, e);
+      }
+    }
+  }  
 
   /**
    * @return spool file if any
@@ -375,22 +362,6 @@ public class TransientValueData extends AbstractValueData implements
           }
       }
     }
-
-    // here is destroying randFile
-    if (randFile != null) {
-      log.debug("delete randFile");
-      if (!randFile.delete()) {
-        if (fileCleaner != null) {
-          log.info("Could not remove file. Add to fileCleaner " + randFile);
-          fileCleaner.addFile(randFile);
-        } else {
-          log.warn("Could not remove temporary file on finalize "
-              + randFile.getAbsolutePath());
-        }
-      }
-    }
-
-    log.debug(" finalize "+this.toString());
   }
 
   /*
@@ -422,10 +393,6 @@ public class TransientValueData extends AbstractValueData implements
     return false;
   }
 
-  private boolean toBufferOnly() {
-    return fileCleaner == null;
-  }
-
   // ///////////////////////////////////
 
   private void spoolInputStream() throws IOException {
@@ -442,10 +409,10 @@ public class TransientValueData extends AbstractValueData implements
     long total = 0;
     try {
       while ((len = tmpStream.read(buffer)) > 0) {
-        if (!toBufferOnly())
+        if (fileCleaner != null)
           fos.write(buffer, 0, len);
         total += len;
-        if (total < maxBufferSize || toBufferOnly()) {
+        if (total < maxBufferSize || fileCleaner == null) {
           baos.write(buffer, 0, len);
         } else {
           baos = null;
@@ -540,107 +507,5 @@ public class TransientValueData extends AbstractValueData implements
     this.tmpStream = in;
   }
 
-  /**
-   * Update with <code>length</code> bytes from the specified InputStream
-   * <code>stream</code> to this value data at <code>position</code>
-   * 
-   * @author Karpenko
-   * 
-   * @param stream
-   *          the data.
-   * @param length
-   *          the number of bytes from stream to write.
-   * @param position
-   *          position in file to write data
-   * 
-   * @throws IOException
-   */
-
-  public void update(InputStream stream, long length, long position)
-      throws IOException {
-
-    createRandFile();
-
-    ReadableByteChannel ch = Channels.newChannel(stream);
-
-    FileChannel fc = new FileOutputStream(randFile, true).getChannel();
-
-    long size = fc.transferFrom(ch, position, length);
-    fc.close();
-    ch.close();
-
-    if (log.isDebugEnabled())
-      log.debug(" writed bytes " + size + " at position " + position  + " " + randFile.getAbsolutePath());
-  }
-
-  /**
-   * Truncates binary value to <code> size </code>
-   * 
-   * @author Karpenko
-   * @param size
-   * @throws IOException
-   */
-  public void truncate(long size) throws IOException {
-
-    createRandFile();
-
-    FileChannel fc = new FileOutputStream(randFile, true).getChannel();
-
-    fc.truncate(size);
-
-    fc.close();
-  }
-
-  private void createRandFile() throws IOException {
-    if (randFile == null) {
-
-      randFile = File.createTempFile("jcrvdrand", null, tempDirectory);
-      log.debug("randFile created"+this.toString());
-      if (isByteArray()) {
-        FileChannel fc = new FileOutputStream(randFile, true).getChannel();
-
-        ReadableByteChannel ch = Channels.newChannel(new ByteArrayInputStream(data));
-
-        fc.transferFrom(ch, 0, data.length);
-
-        fc.close();
-        ch.close();
-      } else {
-        FileChannel randCh = new FileOutputStream(randFile, true).getChannel();
-
-        FileChannel spoolCh = new FileInputStream(spoolFile).getChannel();
-
-        randCh.transferFrom(spoolCh, 0, spoolCh.size());
-
-        randCh.close();
-        spoolCh.close();
-      }
-    }
-  }
-
-  /**
-   * try to convert stream to byte array WARNING: Potential lack of memory due
-   * to call getAsByteArray() on stream data
-   * 
-   * @return byte array
-   */
-  private byte[] randFileToByteArray() throws IOException {
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-    byte[] buffer = new byte[0x2000];
-    int len;
-    int total = 0;
-    FileInputStream stream = new FileInputStream(randFile);
-    while ((len = stream.read(buffer)) > 0) {
-      out.write(buffer, 0, len);
-      total += len;
-      if (log.isDebugEnabled() && total > maxBufferSize)
-        log
-            .warn("Potential lack of memory due to call getAsByteArray() on stream data exceeded "
-                + total + " bytes");
-    }
-    out.close();
-    return out.toByteArray();
-  }
 
 }

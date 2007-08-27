@@ -4,14 +4,10 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.impl.core.value;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
+import java.io.UnsupportedEncodingException;
 
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
@@ -19,6 +15,9 @@ import javax.jcr.ValueFormatException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.core.value.ExtendedBinaryValue;
+import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.core.value.BaseValue.LocalTransientValueData;
+import org.exoplatform.services.jcr.impl.dataflow.EditableValueData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
@@ -32,6 +31,10 @@ public class BinaryValue extends BaseValue implements ExtendedBinaryValue {
 
   public static final int TYPE = PropertyType.BINARY;
 
+  protected EditableValueData changedData = null;
+  
+  protected boolean changed = false;
+  
   protected static Log log = ExoLogger.getLogger("jcr.BinaryValue");
   
   /**
@@ -62,6 +65,53 @@ public class BinaryValue extends BaseValue implements ExtendedBinaryValue {
     super(TYPE, data);
   }
 
+  @Override
+  public TransientValueData getInternalData() {
+    if (changedData != null)
+      return changedData;
+    
+    return super.getInternalData();
+  }
+
+  @Override
+  protected LocalTransientValueData getLocalData(boolean asStream) throws IOException {
+    
+    if (this.changed) {
+      // reset to be recreated with new stream/bytes
+      this.data = null;
+      this.changed = false;
+    }
+    
+    return super.getLocalData(asStream);
+  }
+  
+//  @Override
+//  public InputStream getStream() throws ValueFormatException, RepositoryException {
+//    try {
+//      return getInternalData().getAsStream();
+//    } catch (IOException e) {
+//      throw new RepositoryException(e);
+//    }
+//  }
+
+//  /**
+//   * Returns the internal string representation of this value.
+//   * @return the internal string representation
+//   * @throws ValueFormatException if the value can not be represented as a
+//   * <code>String</code> or if the value is <code>null</code>.
+//   * @throws RepositoryException if another error occurs.
+//   */
+//  protected String getInternalString() throws ValueFormatException, RepositoryException {
+//
+//    try {
+//      return new String(getInternalData().getAsByteArray(), Constants.DEFAULT_ENCODING);
+//    } catch (UnsupportedEncodingException e) {
+//      throw new RepositoryException(Constants.DEFAULT_ENCODING + " not supported on this platform", e);
+//    } catch (IOException e) {
+//      throw new ValueFormatException("conversion to string failed: " + e.getMessage(), e);
+//    }
+//  }
+
   public String getReference() throws ValueFormatException,
       IllegalStateException, RepositoryException {
     return getInternalString();
@@ -75,8 +125,14 @@ public class BinaryValue extends BaseValue implements ExtendedBinaryValue {
    * @param   length   the number of bytes from buffer to write.
    * @param   position position in file to write data  
    * */
-  public void update(InputStream stream, int length, long position) throws IOException {
-    this.getInternalData().update(stream, length, position);
+  public void update(InputStream stream, int length, long position) throws IOException, RepositoryException {
+    if (changedData == null) {
+      changedData = this.getInternalData().createEditableCopy();
+    }
+    
+    this.changedData.update(stream, length, position);
+    
+    this.changed = true;
   }
   
   
@@ -86,8 +142,14 @@ public class BinaryValue extends BaseValue implements ExtendedBinaryValue {
    * @param size
    * @throws IOException
    */
-  public void truncate(long size) throws IOException{
-    this.getInternalData().truncate(size);
+  public void truncate(long size) throws IOException, RepositoryException {
+    if (changedData == null) {
+      changedData = this.getInternalData().createEditableCopy();
+    }
+    
+    this.changedData.truncate(size);
+    
+    this.changed = true;
   }
   
   

@@ -790,7 +790,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     }
 
     if(buffer == null)
-      return new CleanableFileStreamValueData(spoolFile, orderNumber, false, swapCleaner);
+      return new CleanableFileStreamValueData(spoolFile, orderNumber, swapCleaner);
 
     return new ByteArrayPersistedValueData(buffer, orderNumber);
   }

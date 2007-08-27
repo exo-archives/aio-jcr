@@ -11,6 +11,7 @@ import java.util.Calendar;
 
 import javax.jcr.ItemVisitor;
 import javax.jcr.Node;
+import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
@@ -21,7 +22,6 @@ import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.VersionException;
 
-import org.exoplatform.services.jcr.core.ExtendedProperty;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.datamodel.ItemData;
@@ -38,7 +38,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
  * @version $Id: PropertyImpl.java 12841 2007-02-16 08:58:38Z peterit $
  */
 
-public class PropertyImpl extends ItemImpl implements ExtendedProperty {
+public class PropertyImpl extends ItemImpl implements Property {
 
   protected int type;
 
@@ -404,26 +404,33 @@ public class PropertyImpl extends ItemImpl implements ExtendedProperty {
     return false;
   }
 
-  // ----------------------- ExtendedProperty -----------------------
+//  // ----------------------- ExtendedProperty -----------------------
+//
+//  public void updateValue(int index, InputStream value, long length,
+//      long position) throws ValueFormatException, VersionException,
+//      LockException, ConstraintViolationException, RepositoryException {
+//
+//    checkValid();
+//    
+//    PropertyData pdata = (PropertyData) getData();
+//    TransientValueData vdata = (TransientValueData) pdata.getValues().get(index);
+//
+//    doUpdateProperty(parent(), getInternalName(), 
+//        valueFactory.loadValue(vdata, PropertyType.BINARY), false, PropertyType.BINARY);
+//    
+//    // get new data
+//    vdata = (TransientValueData) ((PropertyData) getData()).getValues().get(index);
+//    
+//    try {
+//      vdata.update(value, length, position);
+//    } catch (IOException e) {
+//      throw new RepositoryException(e);
+//    }
+//    
+//    //setValue(valueFactory.loadValue(vdata, PropertyType.BINARY));
+//  }
 
-  public void updateValue(int index, InputStream value, long length,
-      long position) throws ValueFormatException, VersionException,
-      LockException, ConstraintViolationException, RepositoryException {
-
-    PropertyData pdata = (PropertyData) getData();
-    TransientValueData vdata = (TransientValueData) pdata.getValues()
-        .get(index);
-
-    try {
-      vdata.update(value, length, position);
-    } catch (IOException e) {
-      throw new RepositoryException(e);
-    }
-    
-    setValue(valueFactory.loadValue(vdata, PropertyType.BINARY));
-  }
-
-  // ////////////////////////////////
+  //////////////////////////////////
 
   /**
    * @return

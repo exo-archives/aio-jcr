@@ -161,8 +161,12 @@ public class TransientPropertyData extends TransientItemData implements MutableP
         isMultiValued());
     
     List<ValueData> copyValues = new ArrayList<ValueData>(); 
-    for (ValueData vdata: getValues()) {
-      copyValues.add(((TransientValueData) vdata).createTransientCopy());
+    try {
+      for (ValueData vdata: getValues()) {
+        copyValues.add(((TransientValueData) vdata).createTransientCopy());
+      }
+    } catch (RepositoryException e) {
+      throw new RuntimeException(e);
     }
     dataCopy.setValues(copyValues);
     

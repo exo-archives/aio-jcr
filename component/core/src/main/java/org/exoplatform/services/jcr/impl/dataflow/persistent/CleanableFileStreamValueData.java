@@ -21,8 +21,8 @@ public class CleanableFileStreamValueData extends FileStreamPersistedValueData {
 
   protected final FileCleaner cleaner;
   
-  public CleanableFileStreamValueData(File file, int orderNumber, boolean temp, FileCleaner cleaner) {
-    super(file, orderNumber, temp);
+  public CleanableFileStreamValueData(File file, int orderNumber, FileCleaner cleaner) {
+    super(file, orderNumber, false);
     this.cleaner = cleaner;
   }
 

@@ -7,13 +7,15 @@ package org.exoplatform.services.jcr.core.value;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.jcr.RepositoryException;
+
 /**
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public interface ExtendedBinaryValue extends ExtendedValue{
+public interface ExtendedBinaryValue extends ExtendedValue {
 
   /**
    * Update with <code>length</code> bytes from the specified InputStream
@@ -23,7 +25,7 @@ public interface ExtendedBinaryValue extends ExtendedValue{
    * @param   length   the number of bytes from buffer to write.
    * @param   position position in file to write data  
    * */
-  void update(InputStream stream, int length, long position) throws IOException ;
+  void update(InputStream stream, int length, long position) throws IOException, RepositoryException ;
  
   /**
    * Truncates binary value to <code> size </code>
@@ -31,6 +33,6 @@ public interface ExtendedBinaryValue extends ExtendedValue{
    * @param size
    * @throws IOException
    */
-  void truncate(long size) throws IOException;
+  void truncate(long size) throws IOException, RepositoryException;
   
 }

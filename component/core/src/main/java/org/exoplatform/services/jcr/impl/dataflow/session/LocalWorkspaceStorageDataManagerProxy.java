@@ -70,8 +70,11 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
       PlainChangesLog changes = logIterator.nextLog();
       for(ItemState change: changes.getAllStates()) {
         states.add(new ItemState(
-            copyItemData(change.getData()), change.getState(),
-            change.isEventFire(), change.getAncestorToSave(),change.isInternallyCreated()));
+            copyItemData(change.getData()), 
+            change.getState(),
+            change.isEventFire(), 
+            change.getAncestorToSave(),
+            change.isInternallyCreated()));
       }
       
       newLog.addLog(new PlainChangesLogImpl(states, changes.getSessionId(),changes.getEventType()));

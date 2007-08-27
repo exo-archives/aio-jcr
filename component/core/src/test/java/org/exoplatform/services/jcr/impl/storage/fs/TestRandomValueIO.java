@@ -13,6 +13,8 @@ import javax.jcr.Property;
 
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 import org.exoplatform.services.jcr.core.ExtendedProperty;
+import org.exoplatform.services.jcr.core.value.ExtendedBinaryValue;
+import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 
 /**
  * Created by The eXo Platform SAS
@@ -54,45 +56,104 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     String pname = "file@" + testFile.getName();
     Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
     
-    ExtendedProperty exp = (ExtendedProperty) p;
+    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
     
     String update1String = "update#1";
     
     long pos = 1024 * 1024;
     
     // update
-    exp.updateValue(0, new ByteArrayInputStream(update1String.getBytes()), 
+    exv.update(new ByteArrayInputStream(update1String.getBytes()), 
         update1String.length(), pos);
     
     // transient, before the save
-    compareStream(
-        new ByteArrayInputStream(update1String.getBytes()), 
-        testRoot.getProperty(pname).getStream(), 0, pos, update1String.length());
-    
-    testRoot.save();
-    
-    // persisted, after the save
-    compareStream(
-        new ByteArrayInputStream(update1String.getBytes()), 
-        testRoot.getProperty(pname).getStream(), 0, pos, update1String.length());
+    try {
+      
+      // the value obtained by getXXX must be same as on setProperty()
+      compareStream(new FileInputStream(testFile), testRoot.getProperty(pname).getStream()); 
+      
+      // apply edited ExtendetValue to the Property
+      p.setValue(exv);
+      
+      compareStream(
+          new ByteArrayInputStream(update1String.getBytes()), 
+          testRoot.getProperty(pname).getStream(), 0, pos, update1String.length());
+      
+      testRoot.save();
+      
+      // persisted, after the save
+      compareStream(
+          new ByteArrayInputStream(update1String.getBytes()), 
+          testRoot.getProperty(pname).getStream(), 0, pos, update1String.length());
+      
+    } catch(CompareStreamException e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
   }
   
-  public void testUpdateProperty() throws Exception {
+  public void testExistedProperty() throws Exception {
     
     // create property
     String pname = "file@" + testFile.getName();
     Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
     
-    ExtendedProperty exp = (ExtendedProperty) p;
+    testRoot.save();
+    
+    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    
+    String update1String = "update#1";
+    
+    long pos = 1024 * 1024;
+    
+    // update
+    exv.update(new ByteArrayInputStream(update1String.getBytes()), 
+        update1String.length(), pos);
+    
+    // transient, before the save
+    try {
+      
+      // the value obtained by getXXX must be same as on setProperty()
+      compareStream(new FileInputStream(testFile), testRoot.getProperty(pname).getStream()); 
+      
+      // apply edited ExtendetValue to the Property
+      p.setValue(exv);
+      
+      compareStream(
+          new ByteArrayInputStream(update1String.getBytes()), 
+          testRoot.getProperty(pname).getStream(), 0, pos, update1String.length());
+      
+      testRoot.save();
+      
+      // persisted, after the save
+      compareStream(
+          new ByteArrayInputStream(update1String.getBytes()), 
+          testRoot.getProperty(pname).getStream(), 0, pos, update1String.length());
+      
+    } catch(CompareStreamException e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+  }  
+  
+  public void testUpdateProperty_SameValueObject() throws Exception {
+    
+    // create property
+    String pname = "file@" + testFile.getName();
+    Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
+    
+    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
     
     String update1String = "update#1";
     
     long pos1 = 1024 * 1024;
     
     // update 1
-    exp.updateValue(0, new ByteArrayInputStream(update1String.getBytes()), 
+    exv.update(new ByteArrayInputStream(update1String.getBytes()), 
         update1String.length(), pos1);
     
+    // apply to the Property and save
+    p.setValue(exv);
     testRoot.save();
     
     String update2String = "UPDATE#2";
@@ -100,24 +161,31 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     long pos2 = (1024 * 1024) + 5;
     
     // update 2
-    exp.updateValue(0, new ByteArrayInputStream(update2String.getBytes()), 
+    exv.update(new ByteArrayInputStream(update2String.getBytes()), 
         update2String.length(), pos2);
+    // apply to the Property
+    p.setValue(exv);
     
     // check the content from the first updated char to the last char of second update 
     
     String updateString = update1String.substring(0, 5) + update2String;
     
     // transient, before the save
-    compareStream(
-        new ByteArrayInputStream(updateString.getBytes()), 
-        testRoot.getProperty(pname).getStream(), 0, pos1, updateString.length());
+    try {
+      compareStream(
+          new ByteArrayInputStream(updateString.getBytes()), 
+          testRoot.getProperty(pname).getStream(), 0, pos1, updateString.length());
+      
+      testRoot.save();
+      
+      // persisted, after the save
+      compareStream(
+          new ByteArrayInputStream(updateString.getBytes()), 
+          testRoot.getProperty(pname).getStream(), 0, pos1, updateString.length());
     
-    testRoot.save();
-    
-    // persisted, after the save
-    compareStream(
-        new ByteArrayInputStream(updateString.getBytes()), 
-        testRoot.getProperty(pname).getStream(), 0, pos1, updateString.length());    
+    } catch(CompareStreamException e) {
+      fail(e.getMessage());
+    } 
   }
   
   public void testRollbackProperty() throws Exception {
@@ -126,16 +194,17 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     String pname = "file@" + testFile.getName();
     Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
     
-    ExtendedProperty exp = (ExtendedProperty) p;
+    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
     
     String update1String = "update#1";
     
     long pos = 1024 * 1024;
     
     // update
-    exp.updateValue(0, new ByteArrayInputStream(update1String.getBytes()), 
+    exv.update(new ByteArrayInputStream(update1String.getBytes()), 
         update1String.length(), pos);
-    
+    // apply to the Property and save
+    p.setValue(exv);
     testRoot.save();
     
     // test if the rollbacked value isn't saved
@@ -145,22 +214,30 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     long pos2 = (1024 * 1024) + 5;
     
     // update 2
-    exp.updateValue(0, new ByteArrayInputStream(update2String.getBytes()), 
+    exv.update(new ByteArrayInputStream(update2String.getBytes()), 
         update2String.length(), pos2);
+    // apply to the Property
+    p.setValue(exv);
     
     testRoot.refresh(false); // rollback
     
     // check the content
     // transient, before the save
-    compareStream(
-        new ByteArrayInputStream(update1String.getBytes()), 
-        testRoot.getProperty(pname).getStream(), 0, pos, update1String.length());
     
-    testRoot.save();
-    
-    // persisted, after the save
-    compareStream(
-        new ByteArrayInputStream(update1String.getBytes()), 
-        testRoot.getProperty(pname).getStream(), 0, pos, update1String.length());
+    try {
+      compareStream(
+          new ByteArrayInputStream(update1String.getBytes()), 
+          testRoot.getProperty(pname).getStream(), 0, pos, update1String.length());
+      
+      testRoot.save();
+      
+      // persisted, after the save
+      compareStream(
+          new ByteArrayInputStream(update1String.getBytes()), 
+          testRoot.getProperty(pname).getStream(), 0, pos, update1String.length());
+      
+    } catch(CompareStreamException e) {
+      fail(e.getMessage());
+    }
   }
 }
