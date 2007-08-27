@@ -53,6 +53,17 @@ public abstract class BaseStandaloneTest extends TestCase {
   protected ValueFactory valueFactory;
 
   protected StandaloneContainer container;
+  
+  protected class CompareStreamException extends Exception {
+    
+    CompareStreamException(String message) {
+      super(message);
+    }
+    
+    CompareStreamException(String message, Throwable e) {
+      super(message, e);
+    }
+  }
 
   public void setUp() throws Exception {
 
@@ -164,7 +175,11 @@ public abstract class BaseStandaloneTest extends TestCase {
   }
   
   protected void compareStream(InputStream etalon, InputStream data) throws IOException  {
-    compareStream(etalon, data, 0, 0, -1);    
+    try {
+      compareStream(etalon, data, 0, 0, -1);
+    } catch(CompareStreamException e) {
+      fail(e.getMessage());
+    }
   }
   
   /**
@@ -178,7 +193,7 @@ public abstract class BaseStandaloneTest extends TestCase {
    * @param dataPos
    * @throws IOException
    */
-  protected void compareStream(InputStream etalon, InputStream data, long etalonPos, long dataPos, long length) throws IOException  {
+  protected void compareStream(InputStream etalon, InputStream data, long etalonPos, long dataPos, long length) throws IOException, CompareStreamException {
 
     int index = 0;
     
@@ -186,8 +201,23 @@ public abstract class BaseStandaloneTest extends TestCase {
     int eread = 0;
     ByteArrayOutputStream buff = new ByteArrayOutputStream();
     
-    etalon.skip(etalonPos);
-    data.skip(dataPos);
+    long sk = 0;
+    long sks = 0;
+    while (sks < etalonPos && (sk = etalon.skip(etalonPos)) >= 0) {
+      sks += sk;
+    };
+    if (sk <0)
+      fail("Can not read the etalon (skip bytes)");
+    
+    sk = 0;
+    sks = 0;
+    while (sks < dataPos && (sk = data.skip(dataPos)) >= 0) {
+      sks += sk;
+    };
+    if (sk <0)
+      fail("Can not read the data (skip bytes)");
+    
+    
     
     while ((eread = etalon.read(ebuff)) > 0) {
 
@@ -197,7 +227,7 @@ public abstract class BaseStandaloneTest extends TestCase {
         try {
           dread = data.read(dbuff);
         } catch(IOException e) {
-          fail("Streams is not equals by length or data stream is unreadable. Cause: " + e.getMessage());
+          throw new CompareStreamException("Streams is not equals by length or data stream is unreadable. Cause: " + e.getMessage());
         }
         buff.write(dbuff, 0, dread);
       }
@@ -207,11 +237,13 @@ public abstract class BaseStandaloneTest extends TestCase {
       for (int i=0; i<eread; i++) {
         byte eb = ebuff[i];
         byte db = dbuff[i];
-        index++; 
         if (eb != db)
-          fail("Streams is not equals. Wrong byte stored at position " + index + " of data stream. Expected 0x" + 
+          throw new CompareStreamException(
+              "Streams is not equals. Wrong byte stored at position " + index + " of data stream. Expected 0x" + 
               Integer.toHexString(eb) + " '" + new String(new byte[] {eb}) + 
-              "' found 0x" + Integer.toHexString(db) + " '" + new String(new byte[] {db}) + "'");
+              "' but found 0x" + Integer.toHexString(db) + " '" + new String(new byte[] {db}) + "'");
+        
+        index++;
         if (length > 0 && index >= length)
           return; // tested length reached
       }
@@ -223,7 +255,7 @@ public abstract class BaseStandaloneTest extends TestCase {
     }
 
     if (buff.size() > 0 || data.available() > 0)
-      fail("Streams is not equals by length. Readed " + index);
+      throw new CompareStreamException("Streams is not equals by length. Readed " + index);
   }  
 
   protected File createBLOBTempFile(int sizeInKb) throws IOException {
@@ -269,5 +301,19 @@ public abstract class BaseStandaloneTest extends TestCase {
       fail("Mixin '" + mixin + "' isn't accessible");
     }
   }
-
+  
+  protected String memoryInfo() {
+    String info = "";
+    info = "free: " + mb(Runtime.getRuntime().freeMemory()) + "M of " + mb(Runtime.getRuntime().totalMemory()) + "M (max: " + mb(Runtime.getRuntime().maxMemory()) + "M)";
+    return info;
+  }
+  
+  // bytes to Mbytes
+  protected String mb(long mem) {
+    return String.valueOf(Math.round(mem * 100d/ (1024d * 1024d)) / 100d);
+  }
+  
+  protected String execTime(long from) {
+    return Math.round(((System.currentTimeMillis() - from) * 100.00d / 60000.00d)) / 100.00d + "min";
+  }
 }
