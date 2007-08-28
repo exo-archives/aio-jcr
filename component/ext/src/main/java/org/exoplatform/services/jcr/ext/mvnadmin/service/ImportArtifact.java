@@ -1,16 +1,17 @@
 package org.exoplatform.services.jcr.ext.mvnadmin.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
-
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
@@ -56,9 +57,8 @@ public class ImportArtifact {
 		rootNode.setProperty("exo:pathType", ImportArtifact.ROOT_ID_TYPE);
 
 		Node groupIdTailNode = createGroupIdLayout(rootNode, groupId);
-		Node artifactIdNode = createArtifactIdLayout(groupIdTailNode,
-				artifactId);
-		Node versionNode = createVersionLayout(artifactIdNode, version);
+		Node artifactIdNode = createArtifactIdLayout(groupIdTailNode, artifactId);
+		Node versionNode = createVersionLayout(artifactIdNode);
 
 		importArtifactToRepository(versionNode);
 
@@ -113,9 +113,11 @@ public class ImportArtifact {
 		return groupIdTail;
 	}
 
-	private void updateVersionList(Node artifactId, String version)
+	private void updateVersionList(Node artifactId)
 			throws RepositoryException {
+		
 		//Update version list
+		String version = artifactBean.getVersion();
 		Property property = artifactId.getProperty("exo:versionList");
 		Value[] values = property.getValues();
 		Vector<String> versions = new Vector<String>();
@@ -137,16 +139,15 @@ public class ImportArtifact {
 		//
 	}
 
-	private Node createVersionLayout(Node artifactId, String version)
+	private Node createVersionLayout(Node artifactId)
 			throws RepositoryException {
-
+		String version = artifactBean.getVersion();
 		Node currentVersion = artifactId.addNode(version, "nt:folder");
 		currentVersion.addMixin("exo:artifact");
-		currentVersion.setProperty("exo:pathType",
-				ImportArtifact.VERSION_ID_TYPE);
+		currentVersion.setProperty("exo:pathType", ImportArtifact.VERSION_ID_TYPE);
 		currentVersion.setProperty("exo:version", version);
 
-		updateVersionList(artifactId, version); //Add current version to version list
+		updateVersionList(artifactId); //Add current version to version list
 
 		return currentVersion;
 	}
@@ -161,13 +162,14 @@ public class ImportArtifact {
 		mimeType = "application/zip";
 		jarFile.setProperty("jcr:mimeType", mimeType);
 		jarFile.setProperty("jcr:lastModified", Calendar.getInstance());
-		//jarFile.setProperty("jcr:filename", "PUT_HERE_FILENAME");
-
+		
+		String filename = getFileName(artifactBean.getJar().getName());
+		
+		jarNode.setProperty("jcr:filename",  filename);
 		try {
 			FileInputStream ios = null;
 			try {
-				ios = new FileInputStream(new File(artifactBean.getJar()
-						.getPath()));
+				ios = new FileInputStream(new File(artifactBean.getJar().getPath()));
 				jarFile.setProperty("jcr:data", ios);
 			} finally {
 				ios.close();
@@ -177,15 +179,22 @@ public class ImportArtifact {
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		}
+		
+		jarFile.addMixin("exo:artifact");	//adds ability to use md5 and sha1 properties;
+		jarFile.setProperty("exo:md5", getChecksum( artifactBean.getJar(), "md5" ));
+		jarFile.setProperty("exo:sha1", getChecksum( artifactBean.getJar(), "sha1" ));
 
+	}
+	private void createPom(Node versionNode) throws RepositoryException{
 		Node pomNode = versionNode.addNode("pom", "nt:file");
 		Node pomFile = pomNode.addNode("jcr:content", "nt:resource");
-		mimeType = "plain/text";
+		String mimeType = "plain/text";
 		pomFile.setProperty("jcr:mimeType", mimeType);
 		pomFile.setProperty("jcr:lastModified", Calendar.getInstance());
-		//file.setProperty("jcr:filename", "PUT_HERE_FILENAME");
-		pomFile.setProperty("jcr:data", "");
-
+		
+		String filename = getFileName(artifactBean.getPom().getName());
+		
+		pomNode.setProperty("jcr:filename", filename + ".pom");
 		try {
 			FileInputStream ios = null;
 			try {
@@ -199,7 +208,129 @@ public class ImportArtifact {
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		}
-
+		
+		pomFile.addMixin("exo:artifact");
+		pomFile.setProperty("exo:md5", getChecksum(artifactBean.getPom(), "md5" ));
+		pomFile.setProperty("exo:sha1", getChecksum(artifactBean.getPom(), "sha1" ));
 	}
+	
+	//this function is used to add a metadata to artifact;
+	//metadata can be placed in artifactId Node and contains a list of available artifacts
+	// also metadata is placed in each version forder with a jar and pom files. In this case it contains only version of current artifact  
+	private void updateMetadata(Node parentNode) throws RepositoryException{
+		
+		String groupId = artifactBean.getGroupId();
+		String artifactId = artifactBean.getArtifactId();
+		String version = artifactBean.getVersion();
+		
+		Node metadata = parentNode.addNode("maven-metadata.xml", "nt:file");
+		Node xmlfile = metadata.addNode("jcr:content","nt:resource");
+		String mimeType="plain/text";
+		xmlfile.setProperty("jcr:mimeType", mimeType);
+		xmlfile.setProperty("jcr:lastModified", Calendar.getInstance());
+		
+		Property pathType = parentNode.getProperty("exo:pathType");
+		//checks if we deal with multi version list or not - multi contains a list of strings.
+		try {
+			if (pathType.getString().equals(ImportArtifact.ARTIFACT_ID_TYPE)) {
+
+				Property list = parentNode.getProperty("exo:versionList");
+				Value[] values = list.getValues();
+				ArrayList<String> versions = new ArrayList<String>();
+				for (Value ver : values) {
+					String str = ver.getString();
+					versions.add(str);
+				}
+				ByteArrayInputStream ios = new ByteArrayInputStream(
+						getXMLdescription(groupId, artifactId, versions)	//use List
+								.getBytes());
+				xmlfile.setProperty("jcr:data", ios);
+				ios.close();
+
+			} else {
+				ByteArrayInputStream ios = new ByteArrayInputStream(
+						getXMLdescription(groupId, artifactId, version)		//use simple String
+								.getBytes());
+				xmlfile.setProperty("jcr:data", ios);
+				ios.close();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	//** Helper functions - must be refactored soon; 
+	private String getFileName( String path ){
+		int pos = path.lastIndexOf(File.pathSeparator);
+		return path.substring(pos+1);
+	}
+	
+	private String getChecksum(File file, String algorithm){
+		StringBuffer hexString = new StringBuffer();
+		try{
+			MessageDigest md = MessageDigest.getInstance(algorithm);	//use md5 or sha1
+			byte[] binfile = null;
+			try {
+				FileInputStream ios = new FileInputStream(file);
+				int size = ios.available();
+				binfile = new byte[size];
+				ios.read(binfile);
+				ios.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			md.update( binfile );
+            byte[] hash = md.digest();
+                        
+            for (int i = 0; i < hash.length; i++) {
+                if ((0xff & hash[i]) < 0x10) {
+                    hexString.append("0" + Integer.toHexString((0xFF & hash[i])));
+                } else {
+                    hexString.append(Integer.toHexString(0xFF & hash[i]));
+                }
+            }
+		}
+		catch(NoSuchAlgorithmException e){
+			e.printStackTrace();
+		}
+		return hexString.toString();
+	}
+
+	private String getXMLdescription(String groupId, String artifactId,
+			String version) {
+		String template = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+				+ "<metadata>\n<groupId>\n%s\n</groupId>\n"
+				+ "<artifactId>\n%s\n</artifactId>"
+				+ "<version\n%s\n></version>" + "</metadata>";
+		String result = String.format(template, groupId, artifactId, version);
+		return result;
+	}
+
+	private String getXMLdescription(String groupId, String artifactId,
+			List<String> versions) {
+		String header_template = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+				+ "<metadata>\n<groupId>\n%s\n</groupId>\n"
+				+ "<artifactId>\n%s\n</artifactId>";
+		String footer = "</metadata>";
+
+		Collections.sort(versions); //sort list
+		String elderVersion = versions.get(0); //get first element
+
+		String content = "<version>" + elderVersion + "</version>\n"
+				+ "<versioning>\n<versions>\n";
+		for (Iterator<String> iterator = versions.iterator(); iterator
+				.hasNext();) {
+			content += String.format("<version>%s</version>", iterator.next());
+		}
+		content += "</versions>\n</versioning>";
+
+		String header = String.format(header_template, groupId, artifactId);
+		String result = header + content + footer;
+
+		return result;
+	}
+		
+	
 
 }

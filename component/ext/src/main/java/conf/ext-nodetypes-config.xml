@@ -239,11 +239,19 @@
 				mandatory="false" protected="false">
 				<valueConstraints/>
 			</propertyDefinition>
-			<propertyDefinition name="exo:filename" onParentVersion="COPY"
+			
+			<propertyDefinition name="exo:md5" onParentVersion="COPY"
 				requiredType="String" multiple="false" autoCreated="false"
 				mandatory="false" protected="false">
 				<valueConstraints/>
 			</propertyDefinition>
+			
+			<propertyDefinition name="exo:sha1" onParentVersion="COPY"
+				requiredType="String" multiple="false" autoCreated="false"
+				mandatory="false" protected="false">
+				<valueConstraints/>
+			</propertyDefinition>
+			
 		</propertyDefinitions>
 	</nodeType>
 	
