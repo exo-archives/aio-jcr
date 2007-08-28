@@ -5,6 +5,8 @@
 
 package org.exoplatform.applications.ooplugin;
 
+import org.exoplatform.frameworks.webdavclient.Log;
+
 import com.sun.star.awt.Rectangle;
 import com.sun.star.awt.WindowAttribute;
 import com.sun.star.awt.WindowClass;

@@ -8,6 +8,7 @@ package org.exoplatform.applications.ooplugin;
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.frameworks.webdavclient.Const;
+import org.exoplatform.frameworks.webdavclient.Log;
 import org.exoplatform.frameworks.webdavclient.WebDavContext;
 import org.exoplatform.frameworks.webdavclient.commands.DavHead;
 
@@ -156,7 +157,10 @@ public class SettingsDialog extends PlugInDialog {
         DavHead davHead = new DavHead(testContext);
         davHead.setResourcePath("/");
         
+        Log.info("Testing connection....");
+        
         int status = davHead.execute();
+
         if (status == Const.HttpStatus.OK) {
           showMessageBox("Connection successful!");
           return;

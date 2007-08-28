@@ -7,7 +7,7 @@ package org.exoplatform.applications.ooplugin.config;
 
 import java.util.ArrayList;
 
-import org.exoplatform.applications.ooplugin.Log;
+import org.exoplatform.frameworks.webdavclient.Log;
 import org.exoplatform.frameworks.webdavclient.XmlUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

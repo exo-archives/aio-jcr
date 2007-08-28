@@ -16,6 +16,7 @@ import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.dialog.DialogException;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.frameworks.webdavclient.Const;
+import org.exoplatform.frameworks.webdavclient.Log;
 import org.exoplatform.frameworks.webdavclient.commands.DavPut;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
 import org.exoplatform.frameworks.webdavclient.properties.DisplayNameProp;
@@ -217,8 +218,7 @@ public class SaveDialog extends BrowseDialog {
     }    
   }
   
-  protected void setSessionPath(String path) throws IndexOutOfBoundsException {
-    
+  protected void setSessionPath(String path) throws IndexOutOfBoundsException {    
     showMessageBox("Set session path: " + path);
     
     xDocumentInfo.setUserFieldName((short) 0, "eXoRemoteFileName");
@@ -316,9 +316,11 @@ public class SaveDialog extends BrowseDialog {
       String onlyName = localFilePath.substring(localFilePath.lastIndexOf("/") + 1);
       setEditFileName(onlyName);
       
-      String repositoryFolderName = LocalFileSystem.getDocumentsPath() + File.separatorChar + "repository/" + config.getWorkSpace();
+      String repositoryFolderName = LocalFileSystem.getDocumentsPath() + File.separatorChar + 
+        LocalFileSystem.DOCUMENDIR + File.separatorChar + LocalFileSystem.STORAGEDIR + 
+        File.separatorChar + config.getWorkSpace();
       repositoryFolderName = repositoryFolderName.replace("\\", "/");
-
+      
       if (getSessionPath() != null) {
         String remotePath = getSessionPath();
         xStorable.store();
@@ -353,14 +355,10 @@ public class SaveDialog extends BrowseDialog {
     try {
       Object moduleManager = xMultiComponentFactory.createInstanceWithContext("com.sun.star.frame.ModuleManager", xComponentContext); 
       XModuleManager xMM = (XModuleManager)UnoRuntime.queryInterface(XModuleManager.class, moduleManager);
-      currentModelName = xMM.identify(xComponent);       
-      Log.info("CURRENT MODEL NAME: " + currentModelName);
-      
+      currentModelName = xMM.identify(xComponent);             
     } catch (com.sun.star.uno.Exception exc) {
-      Log.info("NULLLLLLLLLL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
       Log.info("UNHANDLED EXCEPTION >> ", exc);
-    }
-    
+    }    
     
     xStorable = (XStorable)UnoRuntime.queryInterface(XStorable.class, xComponent);
     
@@ -418,10 +416,6 @@ public class SaveDialog extends BrowseDialog {
   }
   
   protected boolean doSave(String localPath, String remotePath) {
-    
-    //showMessageBox("DOSAVE: localpath: " + localPath);
-    //showMessageBox("DOSAVE: remotepath: " + remotePath);
-    
     try {      
       File inFile = new File(localPath);
       FileInputStream inStream = new FileInputStream(inFile);
@@ -439,6 +433,7 @@ public class SaveDialog extends BrowseDialog {
       showMessageBox("Can't store file. Error code: " + status);
     } catch (Exception exc) {
       Log.info("Unhandled exception. " + exc.getMessage(), exc);
+      showMessageBox("Can't store file. Error: " + exc.getMessage());
     }
     return false;
   }  

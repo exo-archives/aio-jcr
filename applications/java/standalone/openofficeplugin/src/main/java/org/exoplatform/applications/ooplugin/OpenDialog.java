@@ -10,6 +10,7 @@ import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.applications.ooplugin.events.ItemListener;
 import org.exoplatform.frameworks.httpclient.TextUtils;
 import org.exoplatform.frameworks.webdavclient.Const;
+import org.exoplatform.frameworks.webdavclient.Log;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
 import org.exoplatform.frameworks.webdavclient.properties.VersionNameProp;
 
@@ -66,13 +67,17 @@ public class OpenDialog extends BrowseDialog {
         doPropFind();
       } catch (Exception exc) {
         Log.info("Unhandled exception. " + exc.getMessage());
+        exc.printStackTrace(System.out);
       }
     }
   }
 
   protected void enableVersionView(boolean isEnabled) {
-    ((XWindow)UnoRuntime.queryInterface(
-        XWindow.class, xControlContainer.getControl(BTN_VERSIONS))).setEnable(isEnabled);    
+    try {
+      ((XWindow)UnoRuntime.queryInterface(
+          XWindow.class, xControlContainer.getControl(BTN_VERSIONS))).setEnable(isEnabled);          
+    } catch (NullPointerException nullExc) {
+    }
   }
   
   private class ViewVersionsButtonEnableThread extends Thread {
@@ -119,8 +124,6 @@ public class OpenDialog extends BrowseDialog {
   
   protected void enableAll() {
     super.enableAll();
-//    ((XWindow)UnoRuntime.queryInterface(
-//        XWindow.class, xControlContainer.getControl(BTN_OPEN))).setEnable(true);    
   }  
   
   private class PathChanged extends ItemListener {

@@ -42,8 +42,8 @@ public class OOUtils {
           com.sun.star.frame.XComponentLoader.class,
           oDesktop);
     
-    String path = com.sun.star.uri.ExternalUriReferenceTranslator.
-                create(xComponentContext).translateToInternal("file:///" + url.replace("\\", "/"));
+    String path = com.sun.star.uri.ExternalUriReferenceTranslator.create(xComponentContext).translateToInternal("file:///" + url.replace("\\", "/"));
+    
     if (path.length() == 0 && url.length() != 0) {
       throw new RuntimeException();
     }

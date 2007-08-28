@@ -13,6 +13,7 @@ import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.frameworks.httpclient.TextUtils;
 import org.exoplatform.frameworks.webdavclient.Const;
+import org.exoplatform.frameworks.webdavclient.Log;
 import org.exoplatform.frameworks.webdavclient.commands.DavPropFind;
 import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
@@ -349,19 +350,21 @@ public abstract class BrowseDialog extends PlugInDialog {
     
     ResponseDoc response = responses.get(selectedPos);
     
-    if (!isCollection(response)) {
-      try {
-        doOpenRemoteFile(TextUtils.UnEscape(response.getHref(), '%'));
-        Thread.sleep(100);
-        xDialog.endExecute();
-      } catch (Exception exc) {
-        Log.info("Can't open remote file... " + exc.getMessage(), exc);
-      }
-      
+    if (isCollection(response)) {
+      doPropFindResponse(response);
       return;
     }
-
-    doPropFindResponse(response);
+    
+    try {
+      doOpenRemoteFile(TextUtils.UnEscape(response.getHref(), '%'));
+      Thread.sleep(100);
+      xDialog.endExecute();
+    } catch (Exception exc) {
+      showMessageBox("Can't open remote file!");
+      
+      Log.info("Can't open remote file... " + exc.getMessage(), exc);
+    }
+    
   }
   
   protected void doPropFindResponse(ResponseDoc response) {

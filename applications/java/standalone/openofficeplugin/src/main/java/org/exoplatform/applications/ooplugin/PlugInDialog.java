@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import org.exoplatform.applications.ooplugin.dialog.DialogBuilder;
 import org.exoplatform.applications.ooplugin.dialog.EventHandler;
 import org.exoplatform.frameworks.webdavclient.Const;
+import org.exoplatform.frameworks.webdavclient.Log;
 import org.exoplatform.frameworks.webdavclient.commands.DavGet;
 
 import com.sun.star.awt.Rectangle;
@@ -116,9 +117,17 @@ public class PlugInDialog {
     
   }
   
-  protected void prepareTmpPath(String tempPath) {    
-    String documentPath = LocalFileSystem.getDocumentsPath() + File.separatorChar + "repository" + tempPath;
+  protected void prepareTmpPath(String tempPath) {
+    if (tempPath.lastIndexOf("/") != 0) {
+      tempPath = tempPath.substring(0, tempPath.lastIndexOf("/"));
+    } else {
+      tempPath = "/";
+    }
+    
+    String documentPath = LocalFileSystem.getDocumentsPath() + File.separatorChar + 
+      LocalFileSystem.STORAGEDIR + File.separatorChar + config.getWorkSpace() + tempPath;
     documentPath = documentPath.replace("\\", "/");
+    
     File outDirectory = new File(documentPath);
     if (!outDirectory.exists()) {
       outDirectory.mkdirs(); 
@@ -128,6 +137,7 @@ public class PlugInDialog {
   
   protected void doOpenRemoteFile(String href) throws Exception {
     String serverPrefix = config.getContext().getServerPrefix();
+    
     if (!href.startsWith(serverPrefix)) {
       return;
     }
@@ -148,7 +158,8 @@ public class PlugInDialog {
     
     prepareTmpPath(resourcePath);
 
-    String filePath = LocalFileSystem.getDocumentsPath() + File.separatorChar + "repository" + resourcePath;
+    String filePath = LocalFileSystem.getDocumentsPath() + File.separatorChar +
+      LocalFileSystem.STORAGEDIR + File.separatorChar + config.getWorkSpace() + resourcePath;
     filePath = filePath.replace("\\", "/");
     
     filePath = filePath.replace("?", ".");
@@ -165,8 +176,11 @@ public class PlugInDialog {
     fileOutStream.write(fileContent);
     fileOutStream.close();
     
-    //XComponent component = OOUtils.loadFromFile(xComponentContext, filePath, resourcePath);
-    OOUtils.loadFromFile(xComponentContext, filePath, resourcePath);    
+    Log.info("Downloaded file: " + filePath);
+    
+    OOUtils.loadFromFile(xComponentContext, filePath, resourcePath);
+    
+    Log.info("It must be opens here...");
   }  
   
   public void showMessageBox(String sMessage) {
@@ -197,7 +211,6 @@ public class PlugInDialog {
         }
     } catch (com.sun.star.uno.Exception e) {
     	Log.info("Unhandled exception", e);
-      // do your error handling 
     }
   }  
   

@@ -11,6 +11,7 @@ import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.frameworks.httpclient.TextUtils;
 import org.exoplatform.frameworks.webdavclient.Const;
+import org.exoplatform.frameworks.webdavclient.Log;
 import org.exoplatform.frameworks.webdavclient.commands.DavReport;
 import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
