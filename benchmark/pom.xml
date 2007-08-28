@@ -19,6 +19,12 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+	      <groupId>org.exoplatform.jcr</groupId>
+	      <artifactId>exo.jcr.component.ext</artifactId>
+	      <version>${org.exoplatform.jcr.version}</version>
+	      <scope>compile</scope>
+    	</dependency>
+        <dependency>
             <groupId>com.sun.japex</groupId>
             <artifactId>japex</artifactId>
             <version>1.0.25</version>
@@ -49,20 +55,35 @@
             </exclusions>
         </dependency>
 
-        <!-- For Oracle 10g support (local-jcr repository) -->
+    	<!-- For MySQL support -->
+        <dependency>
+		    <groupId>mysql</groupId>
+		    <artifactId>mysql-connector-java</artifactId>
+		    <version>3.1.11</version>
+		    <scope>compile</scope>
+		</dependency>
 
+	    <!-- For PostgresSQL support -->
+		<dependency>
+		    <groupId>postgresql</groupId>
+		    <artifactId>postgresql</artifactId>
+		    <version>8.1-407.jdbc3</version>
+		    <scope>compile</scope>
+        </dependency>
+
+        <!-- For Oracle 10g support (local-jcr repository) -->
         <dependency>
             <groupId>ojdbc</groupId>
             <artifactId>ojdbc</artifactId>
             <version>14</version>
-            <scope>runtime</scope>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>ojdbc</groupId>
             <artifactId>orai18n</artifactId>
             <version>14</version>
-            <scope>runtime</scope>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

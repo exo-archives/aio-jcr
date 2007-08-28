@@ -11,7 +11,6 @@ import java.util.Random;
 
 import javax.jcr.Item;
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 
 import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
@@ -25,7 +24,14 @@ import com.sun.japex.TestCase;
  * @version $Id: $
  */
 public class TraverseInnerFoldersTest extends JCRTestBase {
-
+  /*
+   * This test calculates the time (ms or tps) of random reading of node of type nt:folder 
+   * (using getItem() method), the nodes have structure like tree.
+   * Required parameters:
+   * jcr.amountOfInnerFolders - the count of folders to create (for further getting it)
+   * jcr.depthOfStructure - the count of levels of tree structure 
+   *     
+  */
   private int          amountOfInnerFolders = 0;
 
   private int          depthOfStructure     = 0;
@@ -34,6 +40,8 @@ public class TraverseInnerFoldersTest extends JCRTestBase {
 
   private Random       rand                 = new Random();
 
+  private Node         rootNode             = null;
+
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     // required params: jcr.amountOfInnerFolders, jcr.depthOfStructure
@@ -41,33 +49,21 @@ public class TraverseInnerFoldersTest extends JCRTestBase {
     depthOfStructure = tc.getIntParam("jcr.depthOfStructure");
     int depth = depthOfStructure;
     int count = amountOfInnerFolders;
-    Node rootNode = context.getSession().getRootNode();
+    rootNode = context.getSession().getRootNode().addNode(
+        context.generateUniqueName("rootNode"), "nt:unstructured");
     createFoldersRecursively(context, rootNode, depth, count);
     context.getSession().save();
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    int index = rand.nextInt((int)Math.pow(amountOfInnerFolders, depthOfStructure));
-    Item item = context.getSession().getItem(names.get(index));
+    int index = rand.nextInt((int) Math.pow(amountOfInnerFolders, depthOfStructure));
+    Item item = rootNode.getSession().getItem(names.get(index));
   }
 
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
-    // delete all the created nodes 
-    Node rootNode = context.getSession().getRootNode();
-    if (rootNode.hasNodes()) {
-      // clean test root
-      for (NodeIterator children = rootNode.getNodes(); children.hasNext();) {
-        Node node = children.nextNode();
-        if (!node.getPath().startsWith("/jcr:system")) {
-          for (NodeIterator children1 = node.getNodes(); children1.hasNext();) {
-            Node node1 = children1.nextNode();
-          }
-          node.remove();
-        }
-      }
-    }
+    rootNode.remove();
     context.getSession().save();
   }
 

@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.Value;
 
 import org.exoplatform.jcr.benchmark.JCRTestBase;
@@ -25,7 +24,15 @@ import com.sun.japex.TestCase;
  * @version $Id: $
  */
 public class AddNtFileWithMetadataTest extends JCRTestBase {
-
+  /*
+   * This test calculates the time (ms or tps) of adding of one node of type nt:file 
+   * (including addNode(), setProperty(), addMixin(), save() methods).
+   * Required parameters:
+   * jcr.lengthOfFile - file length in bytes, need to fill the content of jcr:data property;
+   * jcr.lengthOfDcElementSetProperty - e.g 10 means that dc:title will be like "1234567890"; 
+   * jcr.countOfDcElementSetProperties - must be less or equals 5, e.g 1 means "dc:title" property will be present only;
+   *     
+  */
   private byte[]   contentOfFile                 = null;
 
   private byte[]   contentOfDcElementSetProperty = null;
@@ -35,45 +42,39 @@ public class AddNtFileWithMetadataTest extends JCRTestBase {
   private String[] dcElementSetProperties        = { "dc:title", "dc:subject", "dc:description",
       "dc:publisher", "dc:resourceType"         };
 
+  private Node     rootNode                      = null;
+
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    // required params: jcr.lengthOfFile, jcr.lengthOfDcElementSetProperty
     contentOfFile = new byte[tc.getIntParam("jcr.lengthOfFile")];
     Arrays.fill(contentOfFile, (byte) 'F');
     contentOfDcElementSetProperty = new byte[tc.getIntParam("jcr.lengthOfDcElementSetProperty")];
     Arrays.fill(contentOfDcElementSetProperty, (byte) 'D');
+    rootNode = context.getSession().getRootNode().addNode(context.generateUniqueName("rootNode"),
+        "nt:unstructured");
+    context.getSession().save();
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    // required params: jcr.countOfDcElementSetProperties
-    Node nodeToAdd = context.getSession().getRootNode().addNode(context.generateUniqueName("node"), "nt:file");
+    Node nodeToAdd = rootNode.addNode(context.generateUniqueName("node"), "nt:file");
     Node contentNodeOfNodeToAdd = nodeToAdd.addNode("jcr:content", "nt:resource");
     contentNodeOfNodeToAdd.setProperty("jcr:data", new ByteArrayInputStream(contentOfFile));
     contentNodeOfNodeToAdd.setProperty("jcr:mimeType", "application/octet-stream");
     contentNodeOfNodeToAdd.setProperty("jcr:lastModified", Calendar.getInstance());
     contentNodeOfNodeToAdd.addMixin("dc:elementSet");
-    contentNodeOfNodeToAdd.setProperty("dc:date", createMultiValue(context, Calendar.getInstance()));
+    contentNodeOfNodeToAdd.setProperty("dc:date", 
+        createMultiValue(context, Calendar.getInstance()));
     for (int j = 0; j < countOfDcElementSetProperties; j++) {
-      contentNodeOfNodeToAdd.setProperty(dcElementSetProperties[j], createMultiValue(context,
-          new String(contentOfDcElementSetProperty)));
+      contentNodeOfNodeToAdd.setProperty(dcElementSetProperties[j], 
+          createMultiValue(context, new String(contentOfDcElementSetProperty)));
     }
     context.getSession().save();
   }
 
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
-    // delete all the created nodes
-    Node rootNode = context.getSession().getRootNode();
-    if (rootNode.hasNodes()) {
-      // clean test root
-      for (NodeIterator children = rootNode.getNodes(); children.hasNext();) {
-        Node node = children.nextNode();
-        if (!node.getPath().startsWith("/jcr:system")) {
-          node.remove();
-        }
-      }
-    }
+    rootNode.remove();
     context.getSession().save();
   }
 

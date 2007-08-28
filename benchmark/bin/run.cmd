@@ -1,1 +1,0 @@
-java -jar ../lib/exo.jcr.benchmark-1.6.jar ../config/JCRAPI.xml
