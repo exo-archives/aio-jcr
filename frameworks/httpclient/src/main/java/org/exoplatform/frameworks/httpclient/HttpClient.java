@@ -1,7 +1,7 @@
 /**
- * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
- * Please look at license.txt in info directory for more license detail.   *
- */
+* Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
+* Please look at license.txt in info directory for more license detail.   *
+*/
 
 package org.exoplatform.frameworks.httpclient;
 
@@ -11,223 +11,207 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 
 /**
- * Created by The eXo Platform SARL Author : Vitaly Guly
- * <gavrik-vetal@ukr.net/mail.ru>
- * 
+ * Created by The eXo Platform SARL
+ * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
  * @version $Id: $
  */
 
 public class HttpClient {
-
+  
   public static final String CLIENT_DESCRIPTION = "Exo-Http Client v.1.0.beta";
-
-  public static final String HEADER_SPLITTER    = ": ";
-
-  public static final String CLIENT_VERSION     = "HTTP/1.1";
-
-  private boolean            enableTrace        = false;
-
-  public void EnableTrace() {
-    enableTrace = true;
-  }
-
-  private String server       = "";
-
-  private int    port         = 0;
-
+  
+  public static final String HEADER_SPLITTER = ": ";
+  
+  public static final String CLIENT_VERSION = "HTTP/1.1";
+  
+  private String server = "";
+  private int port = 0;
+  
   private Socket clientSocket = null;
-
-  public void a() {
-
-  }
-
-  private PrintStream       outPrintStream  = null;
-
-  private OutputStream      outStream       = null;
-
-  private InputStream       inputStream     = null;
+  
+  private PrintStream outPrintStream = null;
+  private OutputStream outStream = null;
+  private InputStream inputStream = null;
 
   // Request
-  private String            httpCommand     = "GET";
-
-  private String            httpRequestStr  = "";
-
-  private ArrayList<String> requestHeaders  = new ArrayList<String>();
-
-  private String            httpRequestBodyStr;
-
-  private byte[]            httpRequestBodyBytes;
-
-  private InputStream       httpRequestBodyStream;
-
+  private String httpCommand = "GET";
+  private String httpRequestStr = "";
+  private ArrayList<String> requestHeaders = new ArrayList<String>();
+  
+  private String httpRequestBodyStr;
+  private byte []httpRequestBodyBytes;
+  private InputStream httpRequestBodyStream;
+  
   // Response
-  private String            mainHeader      = "";
-
+  private String mainHeader = "";
   private ArrayList<String> responseHeaders = new ArrayList<String>();
 
-  private byte[]            contentBytes    = null;
-
+  private byte []contentBytes = null;
+  
   public HttpClient(String server, int port) {
-    this.server = server;
-    this.port = port;
+      this.server = server;
+      this.port = port;
   }
-
+  
   public void conect() throws Exception {
-    clientSocket = new Socket(server, port);
-    outStream = clientSocket.getOutputStream();
-    outPrintStream = new PrintStream(clientSocket.getOutputStream());
-    inputStream = clientSocket.getInputStream();
-  }
-
-  public void setHttpCommand(String httpCommand) {
-    this.httpCommand = httpCommand;
-  }
-
-  public void setRequestPath(String httpRequestStr) {
-    this.httpRequestStr = httpRequestStr;
-  }
-
-  public void setRequestHeader(String headerName, String headerValue) throws Exception {
-    int existedIndex = -1;
-    for (int i = 0; i < requestHeaders.size(); i++) {
-      String curHeader = requestHeaders.get(i);
-
-      String[] curHeaderValues = curHeader.split(HEADER_SPLITTER);
-
-      if (curHeaderValues[0].toUpperCase().equals(headerName.toUpperCase())) {
-        existedIndex = i;
-        break;
+    for (int i = 0; i < 10; i++) {
+      try {
+        clientSocket = new Socket(server, port);
+        outStream = clientSocket.getOutputStream();
+        outPrintStream = new PrintStream(clientSocket.getOutputStream());
+        inputStream = clientSocket.getInputStream();     
+        return;        
+      } catch (SocketException exc) {
+        Thread.sleep(500);
       }
     }
-
-    if (existedIndex >= 0) {
-      requestHeaders.remove(existedIndex);
-    }
-
-    String newHeader = headerName + HEADER_SPLITTER + headerValue;
-    requestHeaders.add(newHeader);
   }
-
+  
+  public void setHttpCommand(String httpCommand) {
+      this.httpCommand = httpCommand;
+  }
+  
+  public void setRequestPath(String httpRequestStr) {
+      this.httpRequestStr = httpRequestStr;
+  }
+  
+  public void setRequestHeader(String headerName, String headerValue) throws Exception {    
+      int existedIndex = -1;
+      for (int i = 0; i < requestHeaders.size(); i++) {
+          String curHeader = (String)requestHeaders.get(i);
+          
+          String []curHeaderValues = curHeader.split(HEADER_SPLITTER);
+          
+          if (curHeaderValues[0].toUpperCase().equals(headerName.toUpperCase())) {
+              existedIndex = i;
+              break;
+          }            
+      }
+      
+      if (existedIndex >= 0) {
+        requestHeaders.remove(existedIndex);
+      }        
+      
+      String newHeader = headerName + HEADER_SPLITTER + headerValue;
+      requestHeaders.add(newHeader);
+  }
+  
   public void setRequestBody(String httpRequestBodyStr) {
-    this.httpRequestBodyStr = httpRequestBodyStr;
+      this.httpRequestBodyStr = httpRequestBodyStr;
   }
-
-  public void setRequestBody(byte[] httpRequestBodyBytes) {
+  
+  public void setRequestBody(byte []httpRequestBodyBytes) {
     this.httpRequestBodyBytes = httpRequestBodyBytes;
   }
-
+  
   public void setRequestStream(InputStream httpRequestBodyStream) {
     this.httpRequestBodyStream = httpRequestBodyStream;
   }
-
+  
   public void zeroRequestBody() {
-    this.httpRequestBodyStr = null;
+      this.httpRequestBodyStr = null;
   }
-
+  
   public void sendRequest(String request) {
-    outPrintStream.print(request);
-  }
+      outPrintStream.print(request);
+  }    
 
   public String getMainHeader() {
-    return mainHeader;
+      return mainHeader;
   }
-
+  
   public int getContentLength() throws Exception {
-    for (int i = 0; i < responseHeaders.size(); i++) {
-      String curHeader = responseHeaders.get(i);
-      if (curHeader.startsWith(HttpHeader.CONTENTLENGTH)) {
-        String[] params = curHeader.split(":");
-        String lenValue = params[1];
-        lenValue = lenValue.trim();
-        return new Integer(lenValue);
+      for (int i = 0; i < responseHeaders.size(); i++) {
+          String curHeader = (String)responseHeaders.get(i);
+          if (curHeader.startsWith(HttpHeader.CONTENTLENGTH)) {
+              String []params = curHeader.split(":");
+              String lenValue = params[1];
+              lenValue = lenValue.trim();                    
+              return new Integer(lenValue);
+          }
       }
-    }
 
-    return 0;
+      return 0;
   }
-
+  
   public ArrayList<String> getResponseHeadersNames() {
-    ArrayList<String> result = new ArrayList<String>();
-    for (int i = 0; i < responseHeaders.size(); i++) {
-      String curHeader = responseHeaders.get(i);
-      result.add(curHeader.split(":")[0]);
-    }
-    return result;
-  }
-
-  public String getResponseHeader(String headerName) {
-    for (int i = 0; i < responseHeaders.size(); i++) {
-      String curHeader = responseHeaders.get(i);
-      if (curHeader.startsWith(headerName + ": ")) {
-        return curHeader.substring(curHeader.indexOf(": ") + 2);
+      ArrayList<String> result = new ArrayList<String>();
+      for (int i = 0; i < responseHeaders.size(); i++) {
+          String curHeader = responseHeaders.get(i);
+          result.add(curHeader.split(":")[0]);
       }
-    }
-    return "";
+      return result;
+  }
+  
+  public String getResponseHeader(String headerName) {
+      for (int i = 0; i < responseHeaders.size(); i++) {
+          String curHeader = responseHeaders.get(i);          
+          String []splitted = curHeader.split(": ");
+          if (splitted[0].equalsIgnoreCase(headerName)) {
+            return splitted[1];
+          }          
+      }
+      return null;
   }
 
   public int getReplyCode() throws Exception {
-    int replyCode = 0;
-    String[] mPathes = mainHeader.split(" ");
-    replyCode = new Integer(mPathes[1]);
-    return replyCode;
+      int replyCode = 0;
+      String []mPathes = mainHeader.split(" ");
+      replyCode = new Integer(mPathes[1]);
+      return replyCode;
   }
 
   public String getResponseBody() {
     String contentString = "";
     for (int i = 0; i < contentBytes.length; i++) {
-      contentString += (char) contentBytes[i];
+      contentString += (char)contentBytes[i];
     }
     return contentString;
   }
 
-  public byte[] getResponseBytes() {
+  public byte []getResponseBytes() {
     return contentBytes;
   }
-
+  
   public InputStream getResponseStream() {
-    return new ByteArrayInputStream(contentBytes);
+      return new ByteArrayInputStream(contentBytes);
   }
 
   public int execute() throws Exception {
     String escapedHttpPath = TextUtils.Escape(httpRequestStr, '%', true);
-    String httpLine = httpCommand + " " + escapedHttpPath + " " + CLIENT_VERSION;
-
+    String httpLine = httpCommand + " " + escapedHttpPath + " " + CLIENT_VERSION;    
     outPrintStream.println(httpLine);
-
-    if (enableTrace) {
-      Log.info(httpLine);
-    }
-
+    
+    Log.info("HTTPLINE: " + httpLine);
+    
     long reqContLength = 0;
-
+    
     if (httpRequestBodyStream == null) {
       if (httpRequestBodyStr != null) {
         reqContLength = httpRequestBodyStr.length();
       } else if (httpRequestBodyBytes != null) {
         reqContLength = httpRequestBodyBytes.length;
       }
-
+      
       setRequestHeader(HttpHeader.CONTENTLENGTH, "" + reqContLength);
     }
-
-    setRequestHeader(HttpHeader.HOST, String.format("%s:%s", server, port));
+    
+    setRequestHeader(HttpHeader.HOST, server + ":" + port);
     setRequestHeader(HttpHeader.USERAGENT, CLIENT_DESCRIPTION);
-
+    
     for (int i = 0; i < requestHeaders.size(); i++) {
-      String curHeader = requestHeaders.get(i);
-      outPrintStream.println(curHeader);
-      if (enableTrace) {
-        Log.info(curHeader);
-      }
+        String curHeader = requestHeaders.get(i);
+        outPrintStream.println(curHeader);
     }
-
+    
     outPrintStream.println();
-
+    
     if (httpRequestBodyStream != null) {
-      byte[] buff = new byte[4096];
+      byte []buff = new byte[4096];
       long readData = 0;
       while (true) {
         int readed = httpRequestBodyStream.read(buff);
@@ -244,65 +228,65 @@ public class HttpClient {
         } else {
           outStream.write(httpRequestBodyBytes);
         }
-      }
+      }      
     }
-
+    
     // RESPONSE
-
+    
     mainHeader = readLine();
-    while (true) {
-      String nextHeader = readLine();
-      if (nextHeader.equals("")) {
-        break;
-      } else {
-        responseHeaders.add(nextHeader);
-      }
+    
+    while (true) {        
+        String nextHeader = readLine();
+        if (nextHeader.equals("")) {
+            break;
+        } else {
+            responseHeaders.add(nextHeader);
+        }
     }
 
     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
     try {
       int contentLength = getContentLength();
-
+      
       if (contentLength != 0 && !"HEAD".equals(httpCommand)) {
-        byte[] buffer = new byte[16 * 1024];
+        byte []buffer = new byte[16 * 1024];
         int received = 0;
-
-        while (received < contentLength) {
+        
+        while (received < contentLength) {          
           int needToRead = buffer.length;
           if (needToRead > (contentLength - received)) {
             needToRead = contentLength - received;
           }
-
+          
           int readed = inputStream.read(buffer, 0, needToRead);
-
+          
           if (readed < 0) {
             break;
           }
-
+          
           if (readed == 0) {
             Thread.sleep(100);
           }
-
-          outStream.write(buffer, 0, readed);
-          received += readed;
+          
+          outStream.write(buffer, 0, readed);            
+          received += readed;          
         }
       }
     } catch (Exception exc) {
       Log.info("Unhandled exception. " + exc.getMessage(), exc);
     }
-
+    
     contentBytes = outStream.toByteArray();
-
+    
     try {
-      clientSocket.close();
-    } catch (Exception exc) {
-    }
+        clientSocket.close();
+    } catch (Exception exc) {}        
 
     return getReplyCode();
-  }
-
+  }  
+  
   protected String readLine() throws Exception {
-    byte[] buffer = new byte[4 * 1024];
+    byte []buffer = new byte[4*1024];
     int bufPos = 0;
     byte prevByte = 0;
 
@@ -311,20 +295,20 @@ public class HttpClient {
       if (received < 0) {
         return null;
       }
-
-      buffer[bufPos] = (byte) received;
+      
+      buffer[bufPos] = (byte)received;
       bufPos++;
-
+      
       if (prevByte == '\r' && received == '\n') {
         String resultLine = "";
         for (int i = 0; i < bufPos - 2; i++) {
-          resultLine += (char) buffer[i];
+          resultLine += (char)buffer[i];
         }
         return resultLine;
       }
-
-      prevByte = (byte) received;
+      
+      prevByte = (byte)received;
     }
-  }
-
+  }  
+  
 }
