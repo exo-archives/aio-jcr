@@ -192,7 +192,8 @@ public class SaveDialog extends BrowseDialog {
       return;
     }
     
-    String storeToPath = LocalFileSystem.getDocumentsPath() + File.separatorChar + "repository/" + config.getWorkSpace() + currentPath;
+    String storeToPath = LocalFileSystem.getDocumentsPath() + File.separatorChar +
+      LocalFileSystem.STORAGEDIR + File.separatorChar + config.getWorkSpace() + currentPath;
     storeToPath = storeToPath.replace("\\", "/");
     
     prepareTmpPath(storeToPath);
@@ -317,8 +318,7 @@ public class SaveDialog extends BrowseDialog {
       setEditFileName(onlyName);
       
       String repositoryFolderName = LocalFileSystem.getDocumentsPath() + File.separatorChar + 
-        LocalFileSystem.DOCUMENDIR + File.separatorChar + LocalFileSystem.STORAGEDIR + 
-        File.separatorChar + config.getWorkSpace();
+        LocalFileSystem.STORAGEDIR + File.separatorChar + config.getWorkSpace();
       repositoryFolderName = repositoryFolderName.replace("\\", "/");
       
       if (getSessionPath() != null) {
