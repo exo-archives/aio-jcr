@@ -434,9 +434,9 @@
               <!-- excludes>
                 <exclude>**/*$*</exclude>nested classes prb, http://jira.codehaus.org/browse/SUREFIRE-288
                 <include>**/Base*Test.java</include>
-                <include>**/api/export**/*.java</include>
-                <include>**/api/import**/*.java</include>
                 <include>**/api/TestAll.java</include>
+				<exclude>**/*JcrNamespaceContext*</exclude>
+				<exclude>**/*ExportBase*</exclude>
               </excludes -->
 
               <!-- systemProperties>
