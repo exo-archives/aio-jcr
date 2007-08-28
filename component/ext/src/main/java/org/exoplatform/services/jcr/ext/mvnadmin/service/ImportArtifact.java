@@ -61,6 +61,8 @@ public class ImportArtifact {
 		Node versionNode = createVersionLayout(artifactIdNode);
 
 		importArtifactToRepository(versionNode);
+		createPom(versionNode);
+		updateMetadata(versionNode);
 
 		session.save();
 	}
@@ -118,6 +120,7 @@ public class ImportArtifact {
 		
 		//Update version list
 		String version = artifactBean.getVersion();
+		
 		Property property = artifactId.getProperty("exo:versionList");
 		Value[] values = property.getValues();
 		Vector<String> versions = new Vector<String>();
@@ -146,8 +149,10 @@ public class ImportArtifact {
 		currentVersion.addMixin("exo:artifact");
 		currentVersion.setProperty("exo:pathType", ImportArtifact.VERSION_ID_TYPE);
 		currentVersion.setProperty("exo:version", version);
-
+		
+		//version list property is already added to artifactId Node !!!!
 		updateVersionList(artifactId); //Add current version to version list
+		updateMetadata(artifactId);	//creates all needed data - "maven-metadata.xml & checksums"
 
 		return currentVersion;
 	}
