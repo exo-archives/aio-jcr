@@ -11,14 +11,13 @@ import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.commands.DavCommand;
 import org.exoplatform.frameworks.webdavclient.commands.DavDelete;
 import org.exoplatform.frameworks.webdavclient.commands.DavMkCol;
 import org.exoplatform.frameworks.webdavclient.commands.DavPut;
 import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
-import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SARL
@@ -28,17 +27,30 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class TestUtils extends TestCase {
 
-  private static Log log = ExoLogger.getLogger("jcr.TestUtils");
+  //private static Log log = ExoLogger.getLogger("jcr.TestUtils");
+  
+  public static void logStart() {
+    try {
+      throw new Exception();
+    } catch (Exception exc) {
+      StackTraceElement []elements = exc.getStackTrace();
+      StackTraceElement element = elements[1];      
+      String getMethodName = element.getMethodName();
+      String className = element.getClassName();
+      className = className.substring(className.lastIndexOf(".") + 1);
+      Log.info(className + ":" + getMethodName + " - testing...");
+    }
+  }  
   
   public static void showMultistatus(Multistatus multistatus) {
-    log.info(">>> multistatus ------------------------");
+    Log.info(">>> multistatus ------------------------");
     ArrayList<ResponseDoc> responses = multistatus.getResponses();
     for (int i = 0; i < responses.size(); i++) {
       String href = responses.get(i).getHref();
       href = href.substring("http://localhost:8080/jcr-webdav/repository".length());
-      log.info("HREH: [" + href + "]");
+      Log.info("HREH: [" + href + "]");
     }
-    log.info(">>> ------------------------------------");
+    Log.info(">>> ------------------------------------");
   }
   
   public static void createCollection(String path) throws Exception {

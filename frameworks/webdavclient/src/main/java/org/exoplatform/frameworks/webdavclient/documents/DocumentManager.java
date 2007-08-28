@@ -25,16 +25,16 @@ import org.w3c.dom.NodeList;
 public class DocumentManager {
   
   protected static String [][]availableDocuments = {
-    { Const.StreamDocs.PROPFIND, PropFindDoc.class.getCanonicalName() },
-    { Const.StreamDocs.MULTISTATUS, Multistatus.class.getCanonicalName() },
-    { Const.StreamDocs.PROP, PropDoc.class.getCanonicalName() }
+    { Const.StreamDocs.PROPFIND, "org.exoplatform.frameworks.webdavclient.documents.PropFindDoc" },
+    { Const.StreamDocs.MULTISTATUS, "org.exoplatform.frameworks.webdavclient.documents.Multistatus" },
+    { Const.StreamDocs.PROP, "org.exoplatform.frameworks.webdavclient.documents.PropDoc" }    
   };
 
   public static DocumentApi getResponseDocument(InputStream inStream) {
     if (inStream == null) {
       return null;
     }
-
+    
     Document document = null;
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -53,6 +53,7 @@ public class DocumentManager {
 
           for (int docI = 0; docI < availableDocuments.length; docI++) {
             if (localName.equals(availableDocuments[docI][0])) {
+              Log.info("Try to get class: " + availableDocuments[docI][1]);
               DocumentApi responseDoc = (DocumentApi)Class.forName(availableDocuments[docI][1]).newInstance();
               responseDoc.initFromDocument(document);
               return responseDoc;
@@ -63,7 +64,7 @@ public class DocumentManager {
       }
       
     } catch (Exception exc) {
-      Log.info("Unhandled exception. " + exc.getMessage());
+      Log.info("Unhandled exception. ", exc);
       exc.printStackTrace();
     }
     

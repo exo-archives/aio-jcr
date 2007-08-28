@@ -23,15 +23,19 @@ import org.exoplatform.frameworks.webdavclient.commands.DavPut;
 public class PutTest extends TestCase {
   
   private static final String SRC_WORKSPACE = "/production";
-  private static final String SRC_NAME = "/test file test " + System.currentTimeMillis() + ".txt";
   
   private static final String FILE_CONTENT = "TEST FILE CONTENT...";
+  
+  private static String getSrcName() {
+    return "/test_file_test_" + System.currentTimeMillis() + ".txt";
+    //return "/test file test " + System.currentTimeMillis() + ".txt";
+  }
   
   public void testNotAuthorized() throws Exception {
     Log.info("PutTest:testNotAuthorized...");
     
     DavPut davPut = new DavPut(TestContext.getContext());
-    davPut.setResourcePath(SRC_WORKSPACE + SRC_NAME);
+    davPut.setResourcePath(SRC_WORKSPACE + getSrcName());
     davPut.setRequestDataBuffer(FILE_CONTENT.getBytes());    
     assertEquals(Const.HttpStatus.AUTHNEEDED, davPut.execute());
     
@@ -40,16 +44,18 @@ public class PutTest extends TestCase {
   
   public void testCreated() throws Exception {
     Log.info("PutTest:testCreated...");
+    
+    String sourceName = getSrcName();
 
     DavPut davPut = new DavPut(TestContext.getContextAuthorized());
-    davPut.setResourcePath(SRC_WORKSPACE + SRC_NAME);
+    davPut.setResourcePath(SRC_WORKSPACE + sourceName);
     davPut.setRequestDataBuffer(FILE_CONTENT.getBytes());
     
     assertEquals(Const.HttpStatus.CREATED, davPut.execute());
     
     // verify for content...
     DavGet davGet = new DavGet(TestContext.getContextAuthorized());
-    davGet.setResourcePath(SRC_WORKSPACE + SRC_NAME);
+    davGet.setResourcePath(SRC_WORKSPACE + sourceName);
     assertEquals(Const.HttpStatus.OK, davGet.execute());
     
     byte []dataRemote = davGet.getResponseDataBuffer();
@@ -66,7 +72,7 @@ public class PutTest extends TestCase {
     }
     
     DavDelete davDelete = new DavDelete(TestContext.getContextAuthorized());
-    davDelete.setResourcePath(SRC_WORKSPACE + SRC_NAME);
+    davDelete.setResourcePath(SRC_WORKSPACE + sourceName);
     assertEquals(Const.HttpStatus.NOCONTENT, davDelete.execute());
     
     Log.info("done.");

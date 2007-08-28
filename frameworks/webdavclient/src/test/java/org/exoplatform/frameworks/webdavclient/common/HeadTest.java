@@ -23,20 +23,24 @@ import org.exoplatform.frameworks.webdavclient.commands.DavPut;
  */
 
 public class HeadTest extends TestCase {
-
-  private static final String SRC_WORKSPACE = "/production";
-  private static final String SRC_FOLDER = SRC_WORKSPACE + "/test_head_folder_" + System.currentTimeMillis();
-  private static final String SRC_RES = SRC_FOLDER + "/test_file.txt";
   
+  private static String getSrcWorkspace() {
+    return "/production";
+  }
+  
+  private static String getSourceFolder() {
+    return getSrcWorkspace() + "/test_head_folder_" + System.currentTimeMillis();
+  }
+
   private static final String FILE_CONTENT = "TEST FILE CONTENT...";  
   
   public void testNotAuthorized() throws Exception {
     Log.info("HeadTest:testNotAuthorized...");
     
     DavHead davHead = new DavHead(TestContext.getContext());
-    davHead.setResourcePath(SRC_WORKSPACE);
+    davHead.setResourcePath(getSrcWorkspace());    
     assertEquals(Const.HttpStatus.AUTHNEEDED, davHead.execute());
-    
+
     Log.info("done.");
   }
   
@@ -44,7 +48,7 @@ public class HeadTest extends TestCase {
     Log.info("HeadTest:testNotAuthorizedNext...");
 
     DavHead davHead = new DavHead(TestContext.getInvalidContext());
-    davHead.setResourcePath(SRC_WORKSPACE);
+    davHead.setResourcePath(getSrcWorkspace());
     assertEquals(Const.HttpStatus.AUTHNEEDED, davHead.execute());    
     
     Log.info("done.");    
@@ -53,8 +57,10 @@ public class HeadTest extends TestCase {
   public void testNotFound() throws Exception {
     Log.info("HeadTest:testNotFound...");
     
+    String sourceFolder = getSourceFolder();
+    
     DavHead davHead = new DavHead(TestContext.getContextAuthorized());
-    davHead.setResourcePath(SRC_FOLDER);
+    davHead.setResourcePath(sourceFolder);
     assertEquals(Const.HttpStatus.NOTFOUND, davHead.execute());
     
     Log.info("done.");
@@ -63,11 +69,11 @@ public class HeadTest extends TestCase {
   public void testRootVsWorkspace() throws Exception {
     Log.info("HeadTest:testRootVsWorkspace...");
     
-    {
-      DavHead davHead = new DavHead(TestContext.getContextAuthorized());
-      davHead.setResourcePath("/");
-      assertEquals(Const.HttpStatus.OK, davHead.execute());
-    }
+//    {
+//      DavHead davHead = new DavHead(TestContext.getContextAuthorized());
+//      davHead.setResourcePath("/");
+//      assertEquals(Const.HttpStatus.OK, davHead.execute());
+//    }
     
     {
       DavHead davHead = new DavHead(TestContext.getContextAuthorized());
@@ -81,21 +87,23 @@ public class HeadTest extends TestCase {
   public void testForCollection() throws Exception {
     Log.info("HeadTest:testForCollection...");
     
+    String sourceFolder = getSourceFolder();
+    
     {
       DavMkCol davMkCol = new DavMkCol(TestContext.getContextAuthorized());
-      davMkCol.setResourcePath(SRC_FOLDER);
+      davMkCol.setResourcePath(sourceFolder);
       assertEquals(Const.HttpStatus.CREATED, davMkCol.execute());
     }
     
     {
       DavHead davHead = new DavHead(TestContext.getContextAuthorized());
-      davHead.setResourcePath(SRC_FOLDER);
+      davHead.setResourcePath(sourceFolder);
       assertEquals(Const.HttpStatus.OK, davHead.execute());
     }
 
     {
       DavDelete davDelete = new DavDelete(TestContext.getContextAuthorized());
-      davDelete.setResourcePath(SRC_FOLDER);
+      davDelete.setResourcePath(sourceFolder);
       assertEquals(Const.HttpStatus.NOCONTENT, davDelete.execute());
     }
     
@@ -105,22 +113,25 @@ public class HeadTest extends TestCase {
   public void testForFile() throws Exception {
     Log.info("HeadTest:testForFile...");
     
+    String sourceFolder = getSourceFolder();
+    String sourceFile = sourceFolder + "/test_file.txt";
+    
     {
       DavMkCol davMkCol = new DavMkCol(TestContext.getContextAuthorized());
-      davMkCol.setResourcePath(SRC_FOLDER);
+      davMkCol.setResourcePath(sourceFolder);
       assertEquals(Const.HttpStatus.CREATED, davMkCol.execute());
     }
 
     {
       DavPut davPut = new DavPut(TestContext.getContextAuthorized());
-      davPut.setResourcePath(SRC_RES);
+      davPut.setResourcePath(sourceFile);
       davPut.setRequestDataBuffer(FILE_CONTENT.getBytes());      
       assertEquals(Const.HttpStatus.CREATED, davPut.execute());
     }
     
     {
       DavHead davHead = new DavHead(TestContext.getContextAuthorized());
-      davHead.setResourcePath(SRC_RES);
+      davHead.setResourcePath(sourceFile);
       assertEquals(Const.HttpStatus.OK, davHead.execute());
       
       assertEquals(davHead.getResponseHeader(HttpHeader.CONTENTLENGTH), "" + FILE_CONTENT.length());      
@@ -128,7 +139,7 @@ public class HeadTest extends TestCase {
     
     {
       DavDelete davDelete = new DavDelete(TestContext.getContextAuthorized());
-      davDelete.setResourcePath(SRC_FOLDER);
+      davDelete.setResourcePath(sourceFolder);
       assertEquals(Const.HttpStatus.NOCONTENT, davDelete.execute());
     }    
     

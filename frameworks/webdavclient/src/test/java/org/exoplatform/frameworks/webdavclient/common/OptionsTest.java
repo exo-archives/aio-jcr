@@ -24,21 +24,9 @@ public class OptionsTest extends TestCase {
     Log.info("OptionsTest:testOptions...");
     
     DavOptions davOptions = new DavOptions(TestContext.getContextAuthorized());
-    davOptions.setResourcePath("/");
+    davOptions.setResourcePath("/production");
     
-    assertEquals(Const.HttpStatus.OK, davOptions.execute());
-    
-//    ArrayList<String> headers = davOptions.getResponseHeadersNames();
-//    for (int i = 0; i < headers.size(); i++) {
-//      String curHeaderName = headers.get(i);
-//      String curHeaderValue = davOptions.getResponseHeader(curHeaderName);      
-//      //Log.info("HEADER: [" + curHeaderName + ": " + curHeaderValue + "]");
-//    }
-    
-//    if (davOptions.getResponseDataBuffer() != null) {
-//      String reply = new String(davOptions.getResponseDataBuffer());
-//    }
-    
+    assertEquals(Const.HttpStatus.OK, davOptions.execute());    
     Log.info("Done.");
   }
 

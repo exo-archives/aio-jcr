@@ -10,9 +10,7 @@ import junit.framework.TestCase;
 import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.TestContext;
-import org.exoplatform.frameworks.webdavclient.commands.DavDelete;
-import org.exoplatform.frameworks.webdavclient.commands.DavMkCol;
-import org.exoplatform.frameworks.webdavclient.commands.DavPut;
+import org.exoplatform.frameworks.webdavclient.TestUtils;
 import org.exoplatform.frameworks.webdavclient.commands.DavVersionControl;
 
 /**
@@ -24,30 +22,27 @@ import org.exoplatform.frameworks.webdavclient.commands.DavVersionControl;
 public class VersionControlTest extends TestCase {
   
   public static final String SRC_NOTEXIST = "/production/VersionControlTest not exist folder " + System.currentTimeMillis();
-  public static final String SRC_PATH = "/production/VersionControlTest test folder " + System.currentTimeMillis();
-  public static final String SRC_NAME = SRC_PATH + "/VersionControlTest test version file.txt";
+  
+  private static String sourcePath;
+  
+  private static String sourceName;
   
   public void setUp() throws Exception {
-    DavMkCol davMkCol = new DavMkCol(TestContext.getContextAuthorized());
-    davMkCol.setResourcePath(SRC_PATH);
-    assertEquals(Const.HttpStatus.CREATED, davMkCol.execute());
+    sourcePath = "/production/VersionControlTest test folder " + System.currentTimeMillis();
+    sourceName = sourcePath + "/VersionControlTest test version file.txt";
     
-    DavPut davPut = new DavPut(TestContext.getContextAuthorized());
-    davPut.setResourcePath(SRC_NAME);
-    davPut.setRequestDataBuffer("FILE CONTENT".getBytes());
-    assertEquals(Const.HttpStatus.CREATED, davPut.execute());
+    TestUtils.createCollection(sourcePath);
+    TestUtils.createFile(sourceName, "FILE CONTENT".getBytes());    
   }
   
   protected void tearDown() throws Exception {
-    DavDelete davDelete = new DavDelete(TestContext.getContextAuthorized());
-    davDelete.setResourcePath(SRC_PATH);
-    assertEquals(Const.HttpStatus.NOCONTENT, davDelete.execute());
+    TestUtils.removeResource(sourcePath);
   }
   
   public void testNotAuthorized() throws Exception {
     Log.info("testNotAuthorized...");
     DavVersionControl davVersionControl = new DavVersionControl(TestContext.getContext());
-    davVersionControl.setResourcePath(SRC_NAME);
+    davVersionControl.setResourcePath(sourceName);
     assertEquals(Const.HttpStatus.AUTHNEEDED, davVersionControl.execute());
     Log.info("done.");
   }
@@ -71,22 +66,22 @@ public class VersionControlTest extends TestCase {
   public void testOk() throws Exception {
     Log.info("testOk...");
     DavVersionControl davVersionControl = new DavVersionControl(TestContext.getContextAuthorized());
-    davVersionControl.setResourcePath(SRC_NAME);
+    davVersionControl.setResourcePath(sourceName);
     assertEquals(Const.HttpStatus.OK, davVersionControl.execute());
     Log.info("done.");
   }
-  
+
   public void testTwiceOk() throws Exception {
     Log.info("testTwiceOk...");
     {
       DavVersionControl davVersionControl = new DavVersionControl(TestContext.getContextAuthorized());
-      davVersionControl.setResourcePath(SRC_NAME);
+      davVersionControl.setResourcePath(sourceName);
       assertEquals(Const.HttpStatus.OK, davVersionControl.execute());      
     }
 
     {
       DavVersionControl davVersionControl = new DavVersionControl(TestContext.getContextAuthorized());
-      davVersionControl.setResourcePath(SRC_NAME);
+      davVersionControl.setResourcePath(sourceName);
       assertEquals(Const.HttpStatus.OK, davVersionControl.execute());      
     }
     Log.info("done.");

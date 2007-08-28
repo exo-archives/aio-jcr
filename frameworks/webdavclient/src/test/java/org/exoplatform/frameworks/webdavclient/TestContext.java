@@ -17,7 +17,8 @@ public class TestContext {
   public static final String HOST = "localhost";
   public static final int PORT = 8080;
   
-  public static final String SERVLET_PATH = "/webdav/repository";
+  public static final String SERVLET_PATH = "/rest/jcr/repository";
+  //public static final String SERVLET_PATH = "/webdav/repository";
   
   public static final String USER_ID = "admin";
   public static final String USER_PASS = "admin";

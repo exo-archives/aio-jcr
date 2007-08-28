@@ -18,21 +18,21 @@ import org.w3c.dom.Node;
 public class PropManager {
   
   protected static String [][]availableProperties = {
-    { Const.DavProp.DISPLAYNAME, DisplayNameProp.class.getCanonicalName() },
-    { Const.DavProp.LOCKDISCOVERY, LockDiscoveryProp.class.getCanonicalName() },
-    { Const.DavProp.RESOURCETYPE, ResourceTypeProp.class.getCanonicalName() },
-    { Const.DavProp.GETCONTENTTYPE, ContentTypeProp.class.getCanonicalName() },
-    { Const.DavProp.GETCONTENTLENGTH, ContentLengthProp.class.getCanonicalName() },
-    { Const.DavProp.GETLASTMODIFIED, LastModifiedProp.class.getCanonicalName() },
-    { Const.DavProp.CHECKEDIN, CheckedInProp.class.getCanonicalName() },
-    { Const.DavProp.CHECKEDOUT, CheckedOutProp.class.getCanonicalName() },
-    { Const.DavProp.VERSIONNAME, VersionNameProp.class.getCanonicalName() },
-    { Const.DavProp.CREATORDISPLAYNAME, CreatorDisplayNameProp.class.getCanonicalName() },
-    { Const.DavProp.SUPPORTEDLOCK, SupportedLockProp.class.getCanonicalName() },
-    { Const.DavProp.SUPPORTEDQUERYGRAMMARSET, SupportedQueryGrammarSetProp.class.getCanonicalName() },
-    { Const.DavProp.SUPPORTEDMETHODSET, SupportedMethodSetProp.class.getCanonicalName() },
-    { Const.DavProp.CURRENT_USER_PRIVILEGE_SET, CurrentUserPrivilegeSet.class.getCanonicalName() },
-    { Const.DavProp.CREATIONDATE, CreationDateProp.class.getCanonicalName() }
+    { Const.DavProp.DISPLAYNAME, "org.exoplatform.frameworks.webdavclient.properties.DisplayNameProp" },
+    { Const.DavProp.LOCKDISCOVERY, "org.exoplatform.frameworks.webdavclient.properties.LockDiscoveryProp" },
+    { Const.DavProp.RESOURCETYPE, "org.exoplatform.frameworks.webdavclient.properties.ResourceTypeProp" },
+    { Const.DavProp.GETCONTENTTYPE, "org.exoplatform.frameworks.webdavclient.properties.ContentTypeProp" },
+    { Const.DavProp.GETCONTENTLENGTH, "org.exoplatform.frameworks.webdavclient.properties.ContentLengthProp" },
+    { Const.DavProp.GETLASTMODIFIED, "org.exoplatform.frameworks.webdavclient.properties.LastModifiedProp" },
+    { Const.DavProp.CHECKEDIN, "org.exoplatform.frameworks.webdavclient.properties.CheckedInProp" },
+    { Const.DavProp.CHECKEDOUT, "org.exoplatform.frameworks.webdavclient.properties.CheckedOutProp" },
+    { Const.DavProp.VERSIONNAME, "org.exoplatform.frameworks.webdavclient.properties.VersionNameProp" },
+    { Const.DavProp.CREATORDISPLAYNAME, "org.exoplatform.frameworks.webdavclient.properties.CreatorDisplayNameProp" },
+    { Const.DavProp.SUPPORTEDLOCK, "org.exoplatform.frameworks.webdavclient.properties.SupportedLockProp" },
+    { Const.DavProp.SUPPORTEDQUERYGRAMMARSET, "org.exoplatform.frameworks.webdavclient.properties.SupportedQueryGrammarSetProp" },
+    { Const.DavProp.SUPPORTEDMETHODSET, "org.exoplatform.frameworks.webdavclient.properties.SupportedMethodSetProp" },
+    { Const.DavProp.CURRENT_USER_PRIVILEGE_SET, "org.exoplatform.frameworks.webdavclient.properties.CurrentUserPrivilegeSet" },
+    { Const.DavProp.CREATIONDATE, "org.exoplatform.frameworks.webdavclient.properties.CreationDateProp" }    
   };
   
   
@@ -59,8 +59,7 @@ public class PropManager {
       curProp.init(propertyNode);      
       return curProp;
     } catch (Exception exc) {
-      Log.info("Unhandled exception. " + exc.getMessage());
-      exc.printStackTrace();
+      Log.info("Unhandled exception. ", exc);
     }
     return null;
   }

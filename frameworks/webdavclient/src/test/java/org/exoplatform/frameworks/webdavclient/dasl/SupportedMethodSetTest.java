@@ -9,16 +9,17 @@ import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.TestContext;
+import org.exoplatform.frameworks.webdavclient.TestUtils;
 import org.exoplatform.frameworks.webdavclient.commands.DavDelete;
 import org.exoplatform.frameworks.webdavclient.commands.DavMkCol;
 import org.exoplatform.frameworks.webdavclient.commands.DavPropFind;
 import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
 import org.exoplatform.frameworks.webdavclient.properties.PropApi;
-import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.frameworks.webdavclient.properties.SupportedMethodSetProp;
 
 /**
  * Created by The eXo Platform SARL
@@ -27,11 +28,9 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class SupportedMethodSetTest extends TestCase {
-  
-  private static Log log = ExoLogger.getLogger("jcr.SupportedMethodSetTest");
-  
-  public void testMupportedMethodSet() throws Exception {    
-    log.info("testMupportedMethodSet...");
+    
+  public void testSupportedMethodSet() throws Exception {    
+    TestUtils.logStart();
     
     String srcPath = "/production/test_folder_" + System.currentTimeMillis();
     
@@ -63,10 +62,12 @@ public class SupportedMethodSetTest extends TestCase {
       
       assertEquals(Const.HttpStatus.OK, property.getStatus());
       
-//      ArrayList<String> methods = ((SupportedMethodSetProp)property).getMethods();
-//      for (int i = 0; i < methods.size(); i++) {
-//        log.info(">>> " + methods.get(i));
-//      }
+      org.exoplatform.frameworks.httpclient.Log.info("REPLY:\r\n" + new String(davPropFind.getResponseDataBuffer()));
+      
+      ArrayList<String> methods = ((SupportedMethodSetProp)property).getMethods();
+      for (int i = 0; i < methods.size(); i++) {
+        Log.info(">>> " + methods.get(i));
+      }
     }
     
     {
@@ -77,7 +78,7 @@ public class SupportedMethodSetTest extends TestCase {
     
     Thread.sleep(1000);
     
-    log.info("done.");
+    Log.info("done.");
   }
   
 }

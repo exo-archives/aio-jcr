@@ -7,7 +7,6 @@ package org.exoplatform.frameworks.webdavclient.documents;
 
 import java.util.ArrayList;
 
-import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.XmlUtil;
 import org.exoplatform.frameworks.webdavclient.properties.PropApi;
@@ -26,9 +25,29 @@ public class ResponseDoc {
   protected String href;
   protected ArrayList<PropApi> properties = new ArrayList<PropApi>();
   
+  protected int status = 0;
+  protected String responseDescription;
+  
   public ResponseDoc(Node node) {
     Node hrefNode = XmlUtil.getChildNode(node, Const.DavProp.HREF);
     href = hrefNode.getTextContent();
+
+    Node statusNode = XmlUtil.getChildNode(node, Const.DavProp.STATUS);
+    
+    if (statusNode != null) {    
+      String statusLine = statusNode.getTextContent();
+      
+      if (!"".equals(statusLine)) {
+        String []statusPart = statusLine.split(" ");
+        status = new Integer(statusPart[1]);
+      }
+      
+    }
+
+    Node responseDescriptionNode = XmlUtil.getChildNode(node, Const.DavProp.RESPONSEDESCRIPTION);    
+    if (responseDescriptionNode != null) {
+      responseDescription = responseDescriptionNode.getTextContent();
+    }
     
     NodeList nodes = node.getChildNodes();
     for (int i = 0; i < nodes.getLength(); i++) {
@@ -58,13 +77,10 @@ public class ResponseDoc {
     String status = statusNode.getTextContent();
     
     for (int i = 0; i < propsNodes.getLength(); i++) {
-      Node propertyNode = propsNodes.item(i);
-      
+      Node propertyNode = propsNodes.item(i);      
       String localName = propertyNode.getLocalName();
-      //String nameSpace = propertyNode.getNamespaceURI();
       
       if (localName != null) {      
-      //if (localName != null && Const.Dav.NAMESPACE.equals(nameSpace)) {      
         PropApi curProp = PropManager.getPropertyByNode(propertyNode, status);
         properties.add(curProp);
       }
@@ -81,9 +97,7 @@ public class ResponseDoc {
   public PropApi getProperty(String propertyName) {
     for (int i = 0; i < properties.size(); i++) {
       PropApi curProperty = properties.get(i);
-      Log.info(">> CUR PROPERTY: " + curProperty.getName());
       if (propertyName.equals(curProperty.getName())) {
-        Log.info("FINDED!!!!!!!!!!!!!!!!!!!!!!!!!!");
         return curProperty;
       }
     }
@@ -92,6 +106,14 @@ public class ResponseDoc {
   
   public ArrayList<PropApi> getProperties() {
     return properties;
+  }
+  
+  public int getStatus() {
+    return status;
+  }
+  
+  public String getResponseDescription() {
+    return responseDescription;
   }
   
 }

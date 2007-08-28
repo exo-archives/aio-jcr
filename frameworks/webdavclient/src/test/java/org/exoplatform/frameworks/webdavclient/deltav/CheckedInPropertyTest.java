@@ -13,10 +13,10 @@ import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.httpclient.TextUtils;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.TestContext;
+import org.exoplatform.frameworks.webdavclient.TestUtils;
 import org.exoplatform.frameworks.webdavclient.WebDavContext;
 import org.exoplatform.frameworks.webdavclient.commands.DavDelete;
 import org.exoplatform.frameworks.webdavclient.commands.DavPropFind;
-import org.exoplatform.frameworks.webdavclient.commands.DavPut;
 import org.exoplatform.frameworks.webdavclient.commands.DavReport;
 import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
@@ -38,11 +38,7 @@ public class CheckedInPropertyTest extends TestCase {
 
     {
       for (int i = 0; i < versionCount; i++) {
-        DavPut davPut = new DavPut(TestContext.getContextAuthorized());
-        davPut.setResourcePath(srcPath);
-        davPut.setRequestDataBuffer("TEST FILE CONTENT".getBytes());
-        
-        assertEquals(Const.HttpStatus.CREATED, davPut.execute());
+        TestUtils.createFile(srcPath, "TEST FILE CONTENT".getBytes());        
       }
     }          
 
@@ -56,6 +52,8 @@ public class CheckedInPropertyTest extends TestCase {
       
       Multistatus multistatus = davReport.getMultistatus();      
       ArrayList<ResponseDoc> responses = multistatus.getResponses();
+      
+      assertEquals(versionCount, responses.size());
 
       for (int i = 0; i < responses.size(); i++) {
         ResponseDoc response = responses.get(i);

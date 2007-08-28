@@ -8,6 +8,7 @@ package org.exoplatform.frameworks.webdavclient.deltav;
 import junit.framework.TestSuite;
 
 import org.exoplatform.frameworks.httpclient.Log;
+import org.exoplatform.frameworks.webdavclient.deltav.report.VersionTreeReportTest;
 
 /**
  * Created by The eXo Platform SARL
@@ -19,13 +20,14 @@ public class DeltaVTestSuite extends TestSuite {
   
   public DeltaVTestSuite() {
     Log.info("Preparing DELTA V tests....");
-    
-    addTestSuite(CheckedInPropertyTest.class);
+
+    addTestSuite(VersionControlTest.class);    
     addTestSuite(CheckInTest.class);
     addTestSuite(CheckOutTest.class);
+    addTestSuite(UnCheckOutTest.class);        
     addTestSuite(ReportTest.class);
-    addTestSuite(UnCheckOutTest.class);
-    addTestSuite(VersionControlTest.class);
+    addTestSuite(VersionTreeReportTest.class);    
+    addTestSuite(CheckedInPropertyTest.class);    
     addTestSuite(ExtendedGetTest.class);
     
     Log.info("Run tests...");

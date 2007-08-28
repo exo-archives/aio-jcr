@@ -23,14 +23,15 @@ import org.exoplatform.frameworks.webdavclient.commands.DavPropFind;
 public class MkColTest extends TestCase {
 
   private static final String RES_WORKSPACE = "/production";
-  private static final String RES_PATH = RES_WORKSPACE + "/test_folder_MKCOL_" + System.currentTimeMillis();
   private static final String INVALID_WORSPACE = "/invalidname"; 
   
   public void testNotAuthorized() throws Exception {
     Log.info("MkColTest:testNotAuthorized...");
     
+    String resourcePath = RES_WORKSPACE + "/test_folder_MKCOL_" + System.currentTimeMillis();
+    
     DavMkCol davMkCol = new DavMkCol(TestContext.getContext());
-    davMkCol.setResourcePath(RES_PATH);   
+    davMkCol.setResourcePath(resourcePath);   
     assertEquals(Const.HttpStatus.AUTHNEEDED, davMkCol.execute());
     
     Log.info("done.");
@@ -49,16 +50,18 @@ public class MkColTest extends TestCase {
   public void testSingleCreation() throws Exception {
     Log.info("MkColTest:testSingleCreation...");
     
+    String resourcePath = RES_WORKSPACE + "/test_folder_MKCOL_" + System.currentTimeMillis();
+    
     DavMkCol davMkCol = new DavMkCol(TestContext.getContextAuthorized());
-    davMkCol.setResourcePath(RES_PATH);    
+    davMkCol.setResourcePath(resourcePath);    
     assertEquals(Const.HttpStatus.CREATED, davMkCol.execute());
     
     DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
-    davPropFind.setResourcePath(RES_PATH);
+    davPropFind.setResourcePath(resourcePath);
     assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
     
     DavDelete davDelete = new DavDelete(TestContext.getContextAuthorized());
-    davDelete.setResourcePath(RES_PATH);
+    davDelete.setResourcePath(resourcePath);
     assertEquals(Const.HttpStatus.NOCONTENT, davDelete.execute());
     
     Log.info("done.");
@@ -67,8 +70,11 @@ public class MkColTest extends TestCase {
   public void testMultipleCreation() throws Exception {
     Log.info("MkColTest:testMultipleCreation...");
     
-    String folderPath = RES_PATH + "__2";    
-    String folderName = folderPath + "/sub Folder 1/sub Folder 2/sub Folder 3";
+    String resourcePath = RES_WORKSPACE + "/test_folder_MKCOL_" + System.currentTimeMillis();
+    
+    String folderName = resourcePath + "/sub Folder 1/sub Folder 2/sub Folder 3";
+    
+    Log.info("FOLDER NAME: " + folderName);
 
     DavMkCol davMkCol = new DavMkCol(TestContext.getContextAuthorized());
     davMkCol.setResourcePath(folderName);    
@@ -79,7 +85,7 @@ public class MkColTest extends TestCase {
     assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
     
     DavDelete davDelete = new DavDelete(TestContext.getContextAuthorized());
-    davDelete.setResourcePath(folderPath);
+    davDelete.setResourcePath(resourcePath);
     assertEquals(Const.HttpStatus.NOCONTENT, davDelete.execute());
     
     Log.info("done.");

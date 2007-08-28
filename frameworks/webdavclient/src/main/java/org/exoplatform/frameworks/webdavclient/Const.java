@@ -46,7 +46,10 @@ public class Const {
     public static final String PROP = "prop";
     public static final String PROPSTAT = "propstat";
     public static final String RESOURCETYPE = "resourcetype";
+    
     public static final String RESPONSE = "response";
+    public static final String RESPONSEDESCRIPTION = "responsedescription";
+    
     public static final String STATUS = "status";
     public static final String TIMEOUT = "timeout";
     public static final String VERSIONNAME = "version-name";

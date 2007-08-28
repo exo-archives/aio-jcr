@@ -12,6 +12,7 @@ import junit.framework.TestCase;
 import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.TestContext;
+import org.exoplatform.frameworks.webdavclient.TestUtils;
 import org.exoplatform.frameworks.webdavclient.commands.DavDelete;
 import org.exoplatform.frameworks.webdavclient.commands.DavLock;
 import org.exoplatform.frameworks.webdavclient.commands.DavMkCol;
@@ -34,25 +35,30 @@ import org.exoplatform.frameworks.webdavclient.properties.LockDiscoveryProp.Acti
 public class LockTests extends TestCase {
   
   public static String SRC_NOTEXIST = "/production/LockUnLockTest not exist folder " + System.currentTimeMillis();
-  public static String SRC_WORKSPACE = "/production";
-  public static String SRC_PATH = SRC_WORKSPACE + "/LockUnLockTest test folder " + System.currentTimeMillis();
-  public static String SRC_NAME = SRC_PATH + "/LockUnLockTest test version file.txt";  
-  public static String SRC_FAKERESOURCE = SRC_WORKSPACE + "/LockUnLockTest fake file.txt"; 
+  public static String SRC_WORKSPACE = "/production";  
+  //public static String SRC_FAKERESOURCE = SRC_WORKSPACE + "/LockUnLockTest fake file.txt";
   
-  public void setUp() throws Exception {
+  protected static String sourcePath;
+  
+  protected static String sourceName; 
+
+  public void setUp() throws Exception {    
+    sourcePath = SRC_WORKSPACE + "/LockUnLockTest test folder " + System.currentTimeMillis();
+    sourceName = sourcePath + "/LockUnLockTest test version file.txt";
+    
     DavMkCol davMkCol = new DavMkCol(TestContext.getContextAuthorized());
-    davMkCol.setResourcePath(SRC_PATH);
+    davMkCol.setResourcePath(sourcePath);
     assertEquals(Const.HttpStatus.CREATED, davMkCol.execute());
     
     DavPut davPut = new DavPut(TestContext.getContextAuthorized());
-    davPut.setResourcePath(SRC_NAME);
+    davPut.setResourcePath(sourceName);
     davPut.setRequestDataBuffer("FILE CONTENT".getBytes());
     assertEquals(Const.HttpStatus.CREATED, davPut.execute());
   }
   
   protected void tearDown() throws Exception {
     DavDelete davDelete = new DavDelete(TestContext.getContextAuthorized());
-    davDelete.setResourcePath(SRC_PATH);
+    davDelete.setResourcePath(sourcePath);
     assertEquals(Const.HttpStatus.NOCONTENT, davDelete.execute());
   }
 
@@ -60,7 +66,7 @@ public class LockTests extends TestCase {
     Log.info("testLockNotAuthorized...");
     
     DavLock davLock = new DavLock(TestContext.getContext());
-    davLock.setResourcePath(SRC_NAME);
+    davLock.setResourcePath(sourceName);
     assertEquals(Const.HttpStatus.AUTHNEEDED, davLock.execute());    
     
     Log.info("done.");
@@ -74,13 +80,25 @@ public class LockTests extends TestCase {
     assertEquals(Const.HttpStatus.FORBIDDEN, davLock.execute());    
     
     Log.info("done.");
+  }  
+  
+  public void testLockSuccess() throws Exception {
+    Log.info("testLockSuccess...");
+    
+    DavLock davLock = new DavLock(TestContext.getContextAuthorized());
+    davLock.setResourcePath(sourceName);
+    assertEquals(Const.HttpStatus.OK, davLock.execute());
+    
+    TestUtils.removeResource(sourceName);
+    
+    Log.info("done.");
   }
   
   public void testUnLockNotAuthorized() throws Exception {
     Log.info("testUnLockNotAuthorized...");
     
     DavUnLock davUnLock = new DavUnLock(TestContext.getContext());
-    davUnLock.setResourcePath(SRC_NAME);    
+    davUnLock.setResourcePath(sourceName);    
     assertEquals(Const.HttpStatus.AUTHNEEDED, davUnLock.execute());
     
     Log.info("done.");
@@ -90,7 +108,7 @@ public class LockTests extends TestCase {
     Log.info("testUnLockForbidden...");
     
     DavUnLock davUnLock = new DavUnLock(TestContext.getContextAuthorized());
-    davUnLock.setResourcePath(SRC_NAME);
+    davUnLock.setResourcePath(sourceName);
     assertEquals(Const.HttpStatus.FORBIDDEN, davUnLock.execute());
     
     Log.info("done.");
@@ -102,13 +120,13 @@ public class LockTests extends TestCase {
     String lockToken = "";
     
     DavLock davLock = new DavLock(TestContext.getContextAuthorized());
-    davLock.setResourcePath(SRC_NAME);
+    davLock.setResourcePath(sourceName);
     assertEquals(Const.HttpStatus.OK, davLock.execute());
     
     lockToken = davLock.getLockToken();
     
     DavUnLock davUnLock = new DavUnLock(TestContext.getContextAuthorized());
-    davUnLock.setResourcePath(SRC_NAME);
+    davUnLock.setResourcePath(sourceName);
     davUnLock.setLockToken(lockToken);
     assertEquals(Const.HttpStatus.NOCONTENT, davUnLock.execute());    
     
@@ -118,14 +136,14 @@ public class LockTests extends TestCase {
   public void testFakeLock() throws Exception {
     Log.info("testFakeLock...");
 
-    String SRC_FAKERESOURCE = SRC_WORKSPACE + "/test file " + System.currentTimeMillis() + ".doc";
+    String fakeSource = SRC_WORKSPACE + "/test file " + System.currentTimeMillis() + ".doc";
     
     String lockToken = "";
 
     // fake locking >>> OK
     {
       DavLock davLock = new DavLock(TestContext.getContextAuthorized());
-      davLock.setResourcePath(SRC_FAKERESOURCE);
+      davLock.setResourcePath(fakeSource);
       assertEquals(Const.HttpStatus.OK, davLock.execute());
 
       lockToken = davLock.getLockToken();
@@ -134,7 +152,7 @@ public class LockTests extends TestCase {
     // test put without locktoken >> FORBIDDEN
     {
       DavPut davPut = new DavPut(TestContext.getContextAuthorized());
-      davPut.setResourcePath(SRC_FAKERESOURCE);
+      davPut.setResourcePath(fakeSource);
       davPut.setRequestDataBuffer("FILE CONTENT".getBytes());      
       assertEquals(Const.HttpStatus.FORBIDDEN, davPut.execute());
     }
@@ -142,7 +160,7 @@ public class LockTests extends TestCase {
     // put with locktoken
     {
       DavPut davPut = new DavPut(TestContext.getContextAuthorized());
-      davPut.setResourcePath(SRC_FAKERESOURCE);
+      davPut.setResourcePath(fakeSource);
       davPut.setRequestDataBuffer("FILE CONTENT".getBytes());
       davPut.setLockToken(lockToken);      
       assertEquals(Const.HttpStatus.CREATED, davPut.execute());
@@ -151,7 +169,7 @@ public class LockTests extends TestCase {
     // unlocking
     {
       DavUnLock davUnLock = new DavUnLock(TestContext.getContextAuthorized());
-      davUnLock.setResourcePath(SRC_FAKERESOURCE);    
+      davUnLock.setResourcePath(fakeSource);    
       davUnLock.setLockToken(lockToken);
       assertEquals(Const.HttpStatus.NOCONTENT, davUnLock.execute());
     }
@@ -159,7 +177,7 @@ public class LockTests extends TestCase {
     // remove
     {
       DavDelete davDelete = new DavDelete(TestContext.getContextAuthorized());
-      davDelete.setResourcePath(SRC_FAKERESOURCE);
+      davDelete.setResourcePath(fakeSource);
       assertEquals(Const.HttpStatus.NOCONTENT, davDelete.execute());      
     }
     
@@ -170,7 +188,7 @@ public class LockTests extends TestCase {
     Log.info("testLockWithBadRequest...");
     
     DavLock davLock = new DavLock(TestContext.getContextAuthorized());
-    davLock.setResourcePath(SRC_NAME);
+    davLock.setResourcePath(sourceName);
     
     davLock.setXmlEnabled(false);
     davLock.setRequestDataBuffer("bad request must fail!".getBytes());
@@ -180,7 +198,7 @@ public class LockTests extends TestCase {
     String lockToken = davLock.getLockToken();
     
     DavUnLock davUnLock = new DavUnLock(TestContext.getContextAuthorized());
-    davUnLock.setResourcePath(SRC_NAME);
+    davUnLock.setResourcePath(sourceName);
     
     davUnLock.setLockToken(lockToken);
     
@@ -193,7 +211,7 @@ public class LockTests extends TestCase {
     Log.info("testLockZeroXml...");
 
     DavLock davLock = new DavLock(TestContext.getContextAuthorized());
-    davLock.setResourcePath(SRC_NAME);
+    davLock.setResourcePath(sourceName);
     
     davLock.setXmlEnabled(false);
     
@@ -202,7 +220,7 @@ public class LockTests extends TestCase {
     String lockToken = davLock.getLockToken();
     
     DavUnLock davUnLock = new DavUnLock(TestContext.getContextAuthorized());
-    davUnLock.setResourcePath(SRC_NAME);
+    davUnLock.setResourcePath(sourceName);
     
     davUnLock.setLockToken(lockToken);
     
@@ -239,7 +257,7 @@ public class LockTests extends TestCase {
     // look for created in setUp()
     {
       DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
-      davPropFind.setResourcePath(SRC_NAME);
+      davPropFind.setResourcePath(sourceName);
       davPropFind.setRequiredProperty(Const.DavProp.SUPPORTEDLOCK);
       assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
       
@@ -260,7 +278,7 @@ public class LockTests extends TestCase {
   
   private void assertIsLocked(boolean needsIsLocked) throws Exception {
     DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
-    davPropFind.setResourcePath(SRC_NAME);
+    davPropFind.setResourcePath(sourceName);
     
     davPropFind.setRequiredProperty(Const.DavProp.LOCKDISCOVERY);
     assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
@@ -294,7 +312,7 @@ public class LockTests extends TestCase {
 
     {
       DavLock davLock = new DavLock(TestContext.getContextAuthorized());
-      davLock.setResourcePath(SRC_NAME);
+      davLock.setResourcePath(sourceName);
       
       assertEquals(Const.HttpStatus.OK, davLock.execute());
       
@@ -305,7 +323,7 @@ public class LockTests extends TestCase {
 
     {
       DavUnLock davUnLock = new DavUnLock(TestContext.getContextAuthorized());
-      davUnLock.setResourcePath(SRC_NAME);
+      davUnLock.setResourcePath(sourceName);
       
       davUnLock.setLockToken(lockToken);
       
@@ -315,99 +333,71 @@ public class LockTests extends TestCase {
     Log.info("done.");
   }
   
-//  public void testPutLockedResource() throws Exception {
-//    Log.info("testPutLockedResource...");
-//    
-//    String folderName = "/production/test_folder_some_" + System.currentTimeMillis();
-//    String fileName = folderName + "/test_somelock_file_" + System.currentTimeMillis();
-//    
-//    {
-//      DavMkCol davMkCol = new DavMkCol(DavLocationConst.getLocationAuthorized());
-//      davMkCol.setResourcePath(folderName);
-//      assertEquals(Const.HttpStatus.CREATED, davMkCol.execute());
-//    }
-//    
-//    {
-//      DavPut davPut = new DavPut(DavLocationConst.getLocationAuthorized());
-//      davPut.setResourcePath(fileName);      
-//      davPut.setRequestDataBuffer("FILE CONTENT".getBytes());      
-//      assertEquals(Const.HttpStatus.CREATED, davPut.execute());
-//    }
-//    
-//    String lockToken = "";
-//    
-//    {
-//      DavLock davLock = new DavLock(DavLocationConst.getLocationAuthorized());
-//      davLock.setResourcePath(fileName);
-//      assertEquals(Const.HttpStatus.OK, davLock.execute());
-//      lockToken = davLock.getLockToken();
-//    }
-//    
-//    {
-//      DavPut davPut = new DavPut(DavLocationConst.getLocationAuthorized());
-//      davPut.setResourcePath(fileName);      
-//      davPut.setRequestDataBuffer("FILE CONTENT 2".getBytes());
-//      davPut.setLockToken(lockToken);
-//      assertEquals(Const.HttpStatus.CREATED, davPut.execute());
-//    }
-//    
-//    {
-//      DavDelete davDelete = new DavDelete(DavLocationConst.getLocationAuthorized());
-//      davDelete.setResourcePath(srcPath);
-//      assertEquals(Const.HttpStatus.NOCONTENT, davDelete.execute());
-//    }
-//    
-//    Log.info("done.");
-//  }
+  public void testPutLockedResource() throws Exception {
+    Log.info("testPutLockedResource...");
+    
+    String folderName = "/production/test_folder_some_" + System.currentTimeMillis();
+    String fileName = folderName + "/test_somelock_file_" + System.currentTimeMillis();
 
-//  public void testDeleteLockedResource() throws Exception {
-//    Log.info("testPutLockedResource...");
-//    
-//    String folderName = "/production/test_folder_some_" + System.currentTimeMillis();
-//    String fileName = folderName + "/test_somelock_file_" + System.currentTimeMillis();
-//    
-//    {
-//      DavMkCol davMkCol = new DavMkCol(DavLocationConst.getLocationAuthorized());
-//      davMkCol.setResourcePath(folderName);
-//      assertEquals(Const.HttpStatus.CREATED, davMkCol.execute());
-//    }
-//    
-//    {
-//      DavPut davPut = new DavPut(DavLocationConst.getLocationAuthorized());
-//      davPut.setResourcePath(fileName);      
-//      davPut.setRequestDataBuffer("FILE CONTENT".getBytes());      
-//      assertEquals(Const.HttpStatus.CREATED, davPut.execute());
-//    }
-//    
-//    String lockToken = "";
-//    
-//    {
-//      DavLock davLock = new DavLock(DavLocationConst.getLocationAuthorized());
-//      davLock.setResourcePath(fileName);
-//      assertEquals(Const.HttpStatus.OK, davLock.execute());
-//      lockToken = davLock.getLockToken();
-//    }
-//    
-//    {
-//      DavDelete davDelete = new DavDelete(DavLocationConst.getLocationAuthorized());
-//      davDelete.setResourcePath(fileName);
-//      assertEquals(Const.HttpStatus.NOCONTENT, davDelete.execute());
-//    }
-//
-//    {
-//      DavPropFind davPropFind = new DavPropFind(DavLocationConst.getLocationAuthorized());
-//      davPropFind.setResourcePath(fileName);
-//      assertEquals(Const.HttpStatus.NOTFOUND, davPropFind.execute());
-//    }
-//    
-//    {
-//      DavPut davPut = new DavPut(DavLocationConst.getLocationAuthorized());
-//      davPut.setResourcePath(fileName);      
-//      davPut.setRequestDataBuffer("FILE CONTENT".getBytes());      
-//      assertEquals(Const.HttpStatus.CREATED, davPut.execute());
-//    }    
-//    
-//    Log.info("done.");
-//  }  
+    TestUtils.createCollection(folderName);
+
+    TestUtils.createFile(fileName, "FILE CONTENT".getBytes());
+    
+    String lockToken = "";
+    
+    {
+      DavLock davLock = new DavLock(TestContext.getContextAuthorized());
+      davLock.setResourcePath(fileName);
+      assertEquals(Const.HttpStatus.OK, davLock.execute());
+      lockToken = davLock.getLockToken();
+    }
+    
+    {
+      DavPut davPut = new DavPut(TestContext.getContextAuthorized());
+      davPut.setResourcePath(fileName);      
+      davPut.setRequestDataBuffer("FILE CONTENT 2".getBytes());
+      davPut.setLockToken(lockToken);
+      assertEquals(Const.HttpStatus.CREATED, davPut.execute());
+    }
+    
+    TestUtils.removeResource(folderName);
+    
+    Log.info("done.");
+  }
+
+  public void testDeleteLockedResource() throws Exception {
+    Log.info("testPutLockedResource...");
+    
+    String folderName = "/production/test_folder_some_" + System.currentTimeMillis();
+    String fileName = folderName + "/test_somelock_file_" + System.currentTimeMillis();
+    
+    TestUtils.createCollection(folderName);
+    
+    TestUtils.createFile(fileName, "FILE CONTENT".getBytes());
+    
+    String lockToken = "";
+    
+    {
+      DavLock davLock = new DavLock(TestContext.getContextAuthorized());
+      davLock.setResourcePath(fileName);
+      assertEquals(Const.HttpStatus.OK, davLock.execute());
+      lockToken = davLock.getLockToken();      
+      assertNotNull(lockToken);
+    }
+    
+    TestUtils.removeResource(fileName);    
+
+    {
+      DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
+      davPropFind.setResourcePath(fileName);
+      assertEquals(Const.HttpStatus.NOTFOUND, davPropFind.execute());
+    }
+    
+    TestUtils.createFile(fileName, "FILE CONTENT 123".getBytes());
+    
+    TestUtils.removeResource(folderName);
+    
+    Log.info("done.");
+  }  
   
 }

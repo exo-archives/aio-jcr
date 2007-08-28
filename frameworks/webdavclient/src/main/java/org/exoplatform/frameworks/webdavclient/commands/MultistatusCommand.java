@@ -58,7 +58,7 @@ public abstract class MultistatusCommand extends DavCommand {
       }
     } catch (Exception exc) {
       Log.info("Unhandled exception. " + exc.getMessage(), exc);
-    }
+    }    
     
     multistatusDocument = DocumentManager.getResponseDocument(client.getResponseStream());
   }

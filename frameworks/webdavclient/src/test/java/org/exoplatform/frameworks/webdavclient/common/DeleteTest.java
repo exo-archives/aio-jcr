@@ -22,12 +22,15 @@ import org.exoplatform.frameworks.webdavclient.commands.DavMkCol;
 public class DeleteTest extends TestCase {
 
   private static final String RES_WORKSPACE = "/production";
-  private static final String RES_PATH = RES_WORKSPACE + "/test_folder_DELETE_" + System.currentTimeMillis();
+  
+  private static String getSourceName() {
+    return RES_WORKSPACE + "/test_folder_DELETE_" + System.currentTimeMillis();
+  }
 
   public void testNotAuthorized() throws Exception {
     Log.info("DeleteTest:testNotAuthorized...");
     DavDelete davDelete = new DavDelete(TestContext.getContext());
-    davDelete.setResourcePath(RES_PATH);
+    davDelete.setResourcePath(getSourceName());
     assertEquals(Const.HttpStatus.AUTHNEEDED, davDelete.execute());
     Log.info("done.");
   }
@@ -35,7 +38,7 @@ public class DeleteTest extends TestCase {
   public void testNotFound() throws Exception {
     Log.info("DeleteTest:testNotFound...");
     DavDelete davDelete = new DavDelete(TestContext.getContextAuthorized());
-    davDelete.setResourcePath(RES_PATH);    
+    davDelete.setResourcePath(getSourceName());    
     assertEquals(Const.HttpStatus.NOTFOUND, davDelete.execute());
     Log.info("done.");
   }
@@ -51,12 +54,14 @@ public class DeleteTest extends TestCase {
   public void testSuccess() throws Exception {
     Log.info("DeleteTest:testSuccess...");
     
+    String sourceName = getSourceName();
+    
     DavMkCol davMkCol = new DavMkCol(TestContext.getContextAuthorized());
-    davMkCol.setResourcePath(RES_PATH);
+    davMkCol.setResourcePath(sourceName);
     assertEquals(Const.HttpStatus.CREATED, davMkCol.execute());
     
     DavDelete davDelete = new DavDelete(TestContext.getContextAuthorized());
-    davDelete.setResourcePath(RES_PATH);
+    davDelete.setResourcePath(sourceName);
     assertEquals(Const.HttpStatus.NOCONTENT, davDelete.execute());
     
     Log.info("done.");

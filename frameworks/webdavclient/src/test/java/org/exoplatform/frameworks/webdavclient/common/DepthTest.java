@@ -5,14 +5,18 @@
 
 package org.exoplatform.frameworks.webdavclient.common;
 
+import java.util.ArrayList;
+
 import junit.framework.TestCase;
 
 import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.TestContext;
-import org.exoplatform.frameworks.webdavclient.commands.DavDelete;
+import org.exoplatform.frameworks.webdavclient.TestUtils;
 import org.exoplatform.frameworks.webdavclient.commands.DavMkCol;
 import org.exoplatform.frameworks.webdavclient.commands.DavPropFind;
+import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
+import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
 
 /**
  * Created by The eXo Platform SARL
@@ -27,8 +31,7 @@ public class DepthTest extends TestCase {
     
     DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
     davPropFind.setResourcePath("/");
-    davPropFind.setDepth(3);
-    //davPropFind.setDepth(Const.DavDepth.INFINITY);
+    davPropFind.setDepth(2);
 
     assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
     
@@ -41,7 +44,6 @@ public class DepthTest extends TestCase {
     DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
     davPropFind.setResourcePath("/production");
     davPropFind.setDepth(3);
-    //davPropFind.setDepth(Const.DavDepth.INFINITY);
     
     assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
     
@@ -64,227 +66,115 @@ public class DepthTest extends TestCase {
     
     assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
     
-    DavDelete davDelete = new DavDelete(TestContext.getContextAuthorized());
-    davDelete.setResourcePath(RES);
-    
-    assertEquals(Const.HttpStatus.NOCONTENT, davDelete.execute());
+    TestUtils.removeResource(RES);    
     
     Log.info("Success.");
 
   }
+  
+  private void createFoldersRecursive(String rootFolderName, int depth, int childs) throws Exception {
+    
+    Log.info("RootFolderName: " + rootFolderName);
 
-//  public void testDavDepth_JEREMITEST_SUCCESS() throws Exception {
-//    Log.info("Test JEREMI REPOSITORY :) ...");
-//    
-//    ServerLocation location = new ServerLocation();
-//    location.setHost("jeremi.info");
-//    location.setPort(8080);
-//    location.setServletPath("/pengyou/repository/default");
-//    
-//    location.setUserId("test");
-//    location.setUserPass("test");
-//    
-//    DavPropFind davPropFind = new DavPropFind(location);
-//    davPropFind.setResourcePath("/");
-//    davPropFind.setDepth(1);
-//
-//    int status = davPropFind.execute();
-//    Log.info("STATUS - " + status);
-//
-//    Log.info("---------------------------------------------");
-//    
-//    Thread.sleep(1000);
-//    System.out.println();
-//    
-//    // formatter out
-//    
-//    byte []response = davPropFind.getResponseDataBuffer();
-//    
-//    String ss = new String(response);
-//    System.out.println(ss);
-//    
-////    File f = new File("/jeremi.xml");    
-////    Log.info("CREATED: " + f.createNewFile());
-////    FileOutputStream fous = new FileOutputStream(f);
-////    fous.write(response);
-////    fous.close();
-//    
-//    Thread.sleep(1000);
-//    
-//    Log.info("---------------------------------------------");    
-//    
-//    Log.info("Test REPOSITORY complete.");
-//  }
+    // create root
+    TestUtils.createCollection(rootFolderName);
+    Log.info("DEPTH: " + depth);
+    
+    depth--;
+    
+    if (depth < 0) {
+      return;
+    }
+    
+    for (int i = 0; i < childs; i++) {
+      String curName = rootFolderName + "/" + (i + 1);
+      createFoldersRecursive(curName, depth, childs);
+    }
+    
+  }
+  
+  private int getItemsCount(int depth, int childs) {
+    int summ = 0;
+    
+    int cur = 1;
+    
+    for (int i = 0; i <= depth; i++) {
+      summ += cur;
+      cur = cur * childs;
+    }
+    
+    return summ;
+  }
+  
+  public void testDepthWithCounting() throws Exception {    
+    Log.info("DepthTest:testDepthWithCounting");
+    
+    String folderName = "/production/test_folder_depth_" + System.currentTimeMillis();
+    
+    int depth = 3;
+    int childs = 2;
+    
+    createFoldersRecursive(folderName, depth, childs);
+    
+    // propfind depth, childs    
+    {
+      int itemsCount = getItemsCount(depth, childs);    
+      Log.info("ITEMS: " + itemsCount);
+      
+      DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
+      davPropFind.setResourcePath(folderName);
+      davPropFind.setDepth(depth);
+      //davPropFind.setDepth(Integer.MAX_VALUE);
+      assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
+      
+      Multistatus multistatus = davPropFind.getMultistatus();
+      ArrayList<ResponseDoc> responses = multistatus.getResponses();
+      
+      for (int i = 0; i < responses.size(); i++) {
+        ResponseDoc curResponse = responses.get(i);
+        
+        Log.info("HREF: " + curResponse.getHref());
+      }
+      
+      int responsesCount = davPropFind.getMultistatus().getResponses().size();
+      assertEquals(itemsCount, responsesCount);
+    }
+    
+    // propfind depth - 1, childs
+    {
+      int itemsCount = getItemsCount(depth - 1, childs);    
+      Log.info("ITEMS: " + itemsCount);
 
-//  public void testDavDepth_JEREMITEST_FAULIRE() throws Exception {
-//    Log.info("Test JEREMI REPOSITORY :) ...");
-//    
-//    ServerLocation location = new ServerLocation();
-//    location.setHost("jeremi.info");
-//    location.setPort(8080);
-//    location.setServletPath("/pengyou/repository/default");
-//    
-//    location.setUserId("test");
-//    location.setUserPass("test");
-//    
-//    DavPropFind davPropFind = new DavPropFind(location);
-//    davPropFind.setResourcePath("/");
-//    davPropFind.setDepth(2);        // <<<<<<<<<<<<<<<<<<<<<<<<
-//
-//    int status = davPropFind.execute();
-//    Log.info("STATUS - " + status);
-//
-//    Log.info("---------------------------------------------");
-//    
-//    Thread.sleep(1000);
-//    System.out.println();
-//    
-//    byte []response = davPropFind.getResponseDataBuffer();    
-//    String ss = new String(response);
-//    System.out.println(ss);
-//    
-//    Thread.sleep(1000);
-//    
-//    Log.info("---------------------------------------------");    
-//    
-//    Log.info("Test REPOSITORY complete.");
-//  }
-  
-  
-//  public void testDavDepth_REPOSITORY_1() throws Exception {
-//    Log.info("Test REPOSITORY...");
-//    
-//    DavPropFind davPropFind = new DavPropFind(TestConst.getTestServerLocationAuthorized());
-//    davPropFind.setResourcePath("/");
-//    davPropFind.setDepth(Const.DavDepth.INFINITY);
-//
-//    int status = davPropFind.execute();
-//    Log.info("STATUS - " + status);
-//
-//    byte []resp = davPropFind.getResponseDataBuffer();
-//
-//    File f = new File("/eXo-response.xml");    
-//    Log.info("CREATED: " + f.createNewFile());
-//    FileOutputStream fous = new FileOutputStream(f);
-//    fous.write(resp);
-//    fous.close();
-//    
-//    String ss = new String(resp);
-//    
-//    Log.info("---------------------------------------------");
-//    
-//    Thread.sleep(1000);
-//    System.out.println();
-//    System.out.println(ss);
-//    Thread.sleep(1000);
-//    
-//    Log.info("---------------------------------------------");
-//    
-//    Multistatus multistatus = (Multistatus)davPropFind.getMultistatus();
-//    ArrayList<ResponseDoc> responses = multistatus.getResponses();
-//    
-//    for (int i = 0; i < responses.size(); i++) {
-//      ResponseDoc response = responses.get(i);
-//      Log.info("HREF: [" + response.getHref() + "]");
-//    }
-//    
-//    Log.info("---------------------------------------------");
-//    Log.info("RESPONSES: " + responses.size());
-//    
-//    Log.info("Test REPOSITORY complete.");
-//  }
-
-//  public void testDavDepth_REPOSITORY_2() throws Exception {
-//    Log.info("Test REPOSITORY...");
-//    
-//    DavPropFind davPropFind = new DavPropFind(TestConst.getTestServerLocationAuthorized());
-//    davPropFind.setResourcePath("/");
-//    davPropFind.setDepth(2);
-//
-//    int status = davPropFind.execute();
-//    Log.info("STATUS - " + status);
-//
-//    String ss = new String(davPropFind.getResponseDataBuffer());
-//    Log.info("---------------------------------------------");
-//    
-//    Thread.sleep(1000);
-//    System.out.println();
-//    System.out.println(ss);
-//    Thread.sleep(1000);
-//    
-//    Log.info("---------------------------------------------");    
-//    
-//    Log.info("Test REPOSITORY complete.");
-//  }
-
-//  public void testDavDepth_REPOSITORY_3() throws Exception {
-//    Log.info("Test REPOSITORY...");
-//    
-//    DavPropFind davPropFind = new DavPropFind(TestConst.getTestServerLocationAuthorized());
-//    davPropFind.setResourcePath("/");
-//    davPropFind.setDepth(3);
-//
-//    int status = davPropFind.execute();
-//    Log.info("STATUS - " + status);
-//
-//    String ss = new String(davPropFind.getResponseDataBuffer());
-//    Log.info("---------------------------------------------");
-//    
-//    Thread.sleep(1000);
-//    System.out.println();
-//    System.out.println(ss);
-//    Thread.sleep(1000);
-//    
-//    Log.info("---------------------------------------------");    
-//    
-//    Log.info("Test REPOSITORY complete.");
-//  }
-  
-  
-//  public void testDavDepth_WORKSPACE() throws Exception {
-//    Log.info("Test WORKSPACE...");
-//    
-//    DavPropFind davPropFind = new DavPropFind(TestConst.getTestServerLocationAuthorized());
-//    davPropFind.setResourcePath("/production");
-//    davPropFind.setDepth(2);
-//
-//    int status = davPropFind.execute();
-//    Log.info("STATUS - " + status);
-//
-//    String ss = new String(davPropFind.getResponseDataBuffer());
-//    Log.info("---------------------------------------------");
-//    
-//    Thread.sleep(1000);
-//    System.out.println();
-//    System.out.println(ss);
-//    Thread.sleep(1000);
-//    
-//    Log.info("---------------------------------------------");    
-//    
-//    Log.info("Test WORKSPACE complete.");
-//  }
-  
-//  public void testDavDepth_JCR() throws Exception {
-//    Log.info("Test WORKSPACE...");
-//    
-//    DavPropFind davPropFind = new DavPropFind(TestConst.getTestServerLocationAuthorized());
-//    davPropFind.setResourcePath("/production/myfolder");
-//    davPropFind.setDepth(2);
-//
-//    int status = davPropFind.execute();
-//    Log.info("STATUS - " + status);
-//
-//    String ss = new String(davPropFind.getResponseDataBuffer());
-//    Log.info("---------------------------------------------");
-//    
-//    Thread.sleep(1000);
-//    System.out.println();
-//    System.out.println(ss);
-//    Thread.sleep(1000);
-//    
-//    Log.info("---------------------------------------------");    
-//    
-//    Log.info("Test WORKSPACE complete.");    
-//  }
+      DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
+      davPropFind.setResourcePath(folderName);
+      
+      davPropFind.setDepth(depth - 1);
+      
+      assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
+      
+      Multistatus multistatus = davPropFind.getMultistatus();
+      int responsesCount = multistatus.getResponses().size();
+      assertEquals(itemsCount, responsesCount);
+    }
+    
+    // propfind 0
+    {
+      DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
+      davPropFind.setResourcePath(folderName);
+      
+      davPropFind.setDepth(0);
+      
+      assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
+      int responsesCount = davPropFind.getMultistatus().getResponses().size();
+      assertEquals(1, responsesCount);
+      
+    }
+    
+    TestUtils.removeResource(folderName);
+    
+    // create 
+    
+    Log.info("Success.");
+  }
   
 }

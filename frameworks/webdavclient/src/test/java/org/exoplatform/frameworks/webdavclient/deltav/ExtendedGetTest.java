@@ -32,7 +32,7 @@ public class ExtendedGetTest extends TestCase {
   public static final String SRC_PATH = SRC_WORKSPACE + "/test folder " + System.currentTimeMillis();
   public static final String SRC_NAME = SRC_PATH + "/test file.txt";  
   
-  private static final String FILE_CONTENT = "TEST FILE CONTENT...";
+  private static final String FILE_CONTENT = "TEST FILE CONTENT... 111";
   private static final String FILE_CONTENT_2 = "TEST FILE CONTENT... 222";
   private static final String FILE_CONTENT_3 = "TEST FILE CONTENT... 333";  
   
@@ -101,7 +101,7 @@ public class ExtendedGetTest extends TestCase {
       
       assertEquals(Const.HttpStatus.MULTISTATUS, davReport.execute());
       
-      Multistatus multistatus = (Multistatus)davReport.getMultistatus();
+      Multistatus multistatus = davReport.getMultistatus();
       ArrayList<ResponseDoc> responses = multistatus.getResponses();
       assertEquals(3, responses.size());
     }
@@ -113,8 +113,13 @@ public class ExtendedGetTest extends TestCase {
       DavGet davGet = new DavGet(TestContext.getContextAuthorized());
       davGet.setResourcePath(SRC_NAME + VERSION_SUFFIX + "1");
     
-      assertEquals(Const.HttpStatus.OK, davGet.execute());     
+      int status = davGet.execute();
+      
+      Log.info("GET STATUS: " + status);
+      
+      assertEquals(Const.HttpStatus.OK, status);     
       String reply = new String(davGet.getResponseDataBuffer());
+      Log.info("REPLY1: " + reply);
       assertEquals(reply, FILE_CONTENT);      
     }
     
@@ -124,6 +129,7 @@ public class ExtendedGetTest extends TestCase {
       
       assertEquals(Const.HttpStatus.OK, davGet.execute());
       String reply = new String(davGet.getResponseDataBuffer());
+      Log.info("REPLY2: " + reply);
       assertEquals(reply, FILE_CONTENT_2);      
     }
     
@@ -133,6 +139,7 @@ public class ExtendedGetTest extends TestCase {
 
       assertEquals(Const.HttpStatus.OK, davGet.execute());
       String reply = new String(davGet.getResponseDataBuffer());
+      Log.info("REPLY3: " + reply);
       assertEquals(reply, FILE_CONTENT_3);      
     }
     

@@ -21,6 +21,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.codec.binary.Base64;
 import org.exoplatform.frameworks.httpclient.HttpClient;
 import org.exoplatform.frameworks.httpclient.HttpHeader;
+import org.exoplatform.frameworks.webdavclient.Log;
 import org.exoplatform.frameworks.webdavclient.WebDavContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -120,14 +121,22 @@ public abstract class DavCommand {
   }  
   
   public int execute() throws Exception {
+    
+    Log.info("Executing...");
+    
     if (enableXml) {
+      Log.info("try to serialize.......");
       Document xmlDocument = getDomDocument();
-      Element rootElement = toXml(xmlDocument);      
+      Log.info("XmlDocument: " + xmlDocument);
+      Element rootElement = toXml(xmlDocument);
+      Log.info("RootElement: " + rootElement);
       if (rootElement != null) {
         serializeElement(rootElement);
       }
     }
 
+    Log.info("inStream: " + inStream);
+    
     if (inStream != null) {
       client.setRequestStream(inStream);
     } else {
@@ -135,6 +144,8 @@ public abstract class DavCommand {
         client.setRequestBody(requestDataBytes);
       }      
     }
+    
+    Log.info("Set command: " + commandName);
 
     client.setHttpCommand(commandName);
 
@@ -142,20 +153,30 @@ public abstract class DavCommand {
     if (resourcePath != null) {
       path += resourcePath;
     }
-
+    
     client.setRequestPath(path);
+    
+    Log.info("Set path: " + path);
 
     if (context.getUserId() != null) {
       String userId = context.getUserId();
       String userPass = context.getUserPass();
+      
+      Log.info("UserId: " + userId);
+      Log.info("UserPass: " + userPass);
 
       byte []encoded = Base64.encodeBase64(new String(userId + ":" + userPass).getBytes());
       String encodedAuth = new String(encoded);
+      
+      Log.info("EncodedAuth: " + encodedAuth);
 
       client.setRequestHeader(HttpHeader.AUTHORIZATION, AUTH_BASIC + " " + encodedAuth);
+      
+      Log.info("Header setted.......");
     }
 
-    client.setRequestHeader(HttpHeader.DEPTH, String.format("%d", depth));
+    client.setRequestHeader(HttpHeader.DEPTH, "" + depth);
+    Log.info("Depth: " + depth);
 
     if (rangeStart >= 0) {
       String rangeHeader = "bytes=" + rangeStart + "-";
@@ -165,10 +186,16 @@ public abstract class DavCommand {
       client.setRequestHeader(HttpHeader.RANGE, rangeHeader);
     }
 
+    Log.info("To connect...");
+    
     client.conect();
+    
+    Log.info("After connect...");
 
     int status = client.execute();
-
+    
+    Log.info("STATUS: " + status);
+    
     finalExecute();
     return status;
   }
@@ -192,6 +219,8 @@ public abstract class DavCommand {
     transformer.transform(source, resultStream);
     
     requestDataBytes = outStream.toByteArray();
+    
+    String request = new String(requestDataBytes);
   }  
   
   static class Output implements LSOutput {

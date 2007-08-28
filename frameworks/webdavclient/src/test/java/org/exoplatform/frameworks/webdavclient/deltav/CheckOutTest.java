@@ -10,10 +10,8 @@ import junit.framework.TestCase;
 import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.TestContext;
+import org.exoplatform.frameworks.webdavclient.TestUtils;
 import org.exoplatform.frameworks.webdavclient.commands.DavCheckOut;
-import org.exoplatform.frameworks.webdavclient.commands.DavDelete;
-import org.exoplatform.frameworks.webdavclient.commands.DavMkCol;
-import org.exoplatform.frameworks.webdavclient.commands.DavPut;
 import org.exoplatform.frameworks.webdavclient.commands.DavVersionControl;
 
 /**
@@ -25,31 +23,28 @@ import org.exoplatform.frameworks.webdavclient.commands.DavVersionControl;
 public class CheckOutTest extends TestCase {
   
   public static final String SRC_NOTEXIST = "/production/not exist folder " + System.currentTimeMillis();
-  public static final String SRC_PATH = "/production/test folder " + System.currentTimeMillis();
-  public static final String SRC_NAME = SRC_PATH + "/test version file.txt";
   
-  public void setUp() throws Exception {
-    DavMkCol davMkCol = new DavMkCol(TestContext.getContextAuthorized());
-    davMkCol.setResourcePath(SRC_PATH);
-    assertEquals(Const.HttpStatus.CREATED, davMkCol.execute());
-    
-    DavPut davPut = new DavPut(TestContext.getContextAuthorized());
-    davPut.setResourcePath(SRC_NAME);
-    davPut.setRequestDataBuffer("FILE CONTENT".getBytes());
-    assertEquals(Const.HttpStatus.CREATED, davPut.execute());
+  private static String sourcePath;
+  
+  private static String sourceName;
+  
+  public void setUp() throws Exception {    
+    sourcePath = "/production/test folder " + System.currentTimeMillis();    
+    sourceName = sourcePath + "/test version file.txt";
+
+    TestUtils.createCollection(sourcePath);
+    TestUtils.createFile(sourceName, "FILE CONTENT".getBytes());
   }
   
   protected void tearDown() throws Exception {
-    DavDelete davDelete = new DavDelete(TestContext.getContextAuthorized());
-    davDelete.setResourcePath(SRC_PATH);
-    assertEquals(Const.HttpStatus.NOCONTENT, davDelete.execute());
+    TestUtils.removeResource(sourcePath);
   }
 
   public void testNotAuthorized() throws Exception {
     Log.info("testNotAuthorized...");
 
     DavCheckOut davCheckOut = new DavCheckOut(TestContext.getContext());
-    davCheckOut.setResourcePath(SRC_PATH);    
+    davCheckOut.setResourcePath(sourcePath);    
     assertEquals(Const.HttpStatus.AUTHNEEDED, davCheckOut.execute());    
     
     Log.info("done.");
@@ -69,7 +64,7 @@ public class CheckOutTest extends TestCase {
     Log.info("testForbidden...");
 
     DavCheckOut davCheckOut = new DavCheckOut(TestContext.getContextAuthorized());
-    davCheckOut.setResourcePath(SRC_PATH);
+    davCheckOut.setResourcePath(sourceName);
     assertEquals(Const.HttpStatus.FORBIDDEN, davCheckOut.execute());
     
     Log.info("done.");
@@ -79,11 +74,11 @@ public class CheckOutTest extends TestCase {
     Log.info("testOk...");
     
     DavVersionControl davVersionControl = new DavVersionControl(TestContext.getContextAuthorized());
-    davVersionControl.setResourcePath(SRC_PATH);
+    davVersionControl.setResourcePath(sourceName);
     assertEquals(Const.HttpStatus.OK, davVersionControl.execute());
 
     DavCheckOut davCheckOut = new DavCheckOut(TestContext.getContextAuthorized());
-    davCheckOut.setResourcePath(SRC_PATH);
+    davCheckOut.setResourcePath(sourceName);
     assertEquals(Const.HttpStatus.OK, davCheckOut.execute());
     
     Log.info("done.");    

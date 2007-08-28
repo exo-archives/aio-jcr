@@ -5,22 +5,13 @@
 
 package org.exoplatform.frameworks.webdavclient.deltav;
 
-import java.util.ArrayList;
-
 import junit.framework.TestCase;
 
 import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.TestContext;
-import org.exoplatform.frameworks.webdavclient.commands.DavCheckIn;
-import org.exoplatform.frameworks.webdavclient.commands.DavCheckOut;
-import org.exoplatform.frameworks.webdavclient.commands.DavDelete;
-import org.exoplatform.frameworks.webdavclient.commands.DavMkCol;
-import org.exoplatform.frameworks.webdavclient.commands.DavPut;
+import org.exoplatform.frameworks.webdavclient.TestUtils;
 import org.exoplatform.frameworks.webdavclient.commands.DavReport;
-import org.exoplatform.frameworks.webdavclient.commands.DavVersionControl;
-import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
-import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
 
 /**
  * Created by The eXo Platform SARL
@@ -31,31 +22,28 @@ import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
 public class ReportTest extends TestCase {
 
   public static final String SRC_NOTEXIST = "/production/not exist folder " + System.currentTimeMillis();
-  public static final String SRC_PATH = "/production/test folder " + System.currentTimeMillis();
-  public static final String SRC_NAME = SRC_PATH + "/test version file.txt";
+  
+  private static String sourcePath;
+  
+  private static String sourceName;
   
   public void setUp() throws Exception {
-    DavMkCol davMkCol = new DavMkCol(TestContext.getContextAuthorized());
-    davMkCol.setResourcePath(SRC_PATH);
-    assertEquals(Const.HttpStatus.CREATED, davMkCol.execute());
+    sourcePath = "/production/test folder " + System.currentTimeMillis();
+    sourceName = sourcePath + "/test version file.txt";
     
-    DavPut davPut = new DavPut(TestContext.getContextAuthorized());
-    davPut.setResourcePath(SRC_NAME);
-    davPut.setRequestDataBuffer("FILE CONTENT".getBytes());
-    assertEquals(Const.HttpStatus.CREATED, davPut.execute());
+    TestUtils.createCollection(sourcePath);
+    TestUtils.createFile(sourceName, "FILE CONTENT".getBytes());
   }
   
   protected void tearDown() throws Exception {
-    DavDelete davDelete = new DavDelete(TestContext.getContextAuthorized());
-    davDelete.setResourcePath(SRC_PATH);
-    assertEquals(Const.HttpStatus.NOCONTENT, davDelete.execute());
+    TestUtils.removeResource(sourcePath);
   }
 
   public void testNotAuthorized() throws Exception {
     Log.info("testNotAuthorized...");
     
     DavReport davReport = new DavReport(TestContext.getContext());
-    davReport.setResourcePath(SRC_NAME);
+    davReport.setResourcePath(sourceName);
     assertEquals(Const.HttpStatus.AUTHNEEDED, davReport.execute());
     
     Log.info("done.");
@@ -75,57 +63,10 @@ public class ReportTest extends TestCase {
     Log.info("testForbidden...");
 
     DavReport davReport = new DavReport(TestContext.getContextAuthorized());
-    davReport.setResourcePath(SRC_NAME);
+    davReport.setResourcePath(sourceName);
     assertEquals(Const.HttpStatus.FORBIDDEN, davReport.execute());        
     
     Log.info("done.");
-  }
-  
-  public void testOk() throws Exception {
-    Log.info("testOk...");
-    
-    {
-      DavVersionControl davVersionControl = new DavVersionControl(TestContext.getContextAuthorized());
-      davVersionControl.setResourcePath(SRC_NAME);
-      assertEquals(Const.HttpStatus.OK, davVersionControl.execute());      
-    }
-
-    {
-      DavReport davReport = new DavReport(TestContext.getContextAuthorized());
-      davReport.setResourcePath(SRC_NAME);
-      assertEquals(Const.HttpStatus.MULTISTATUS, davReport.execute());
-      
-      Multistatus multistatus = (Multistatus)davReport.getMultistatus();
-      ArrayList<ResponseDoc> responses = multistatus.getResponses();
-      
-      assertEquals(0, responses.size());      
-    }
-
-    for (int i = 0; i < 3; i++) {
-      {      
-        DavCheckOut davCheckOut = new DavCheckOut(TestContext.getContextAuthorized());
-        davCheckOut.setResourcePath(SRC_NAME);
-        assertEquals(Const.HttpStatus.OK, davCheckOut.execute());
-      }
-      
-      {      
-        DavCheckIn davCheckIn = new DavCheckIn(TestContext.getContextAuthorized());
-        davCheckIn.setResourcePath(SRC_NAME);
-        assertEquals(Const.HttpStatus.OK, davCheckIn.execute());
-      }      
-    }    
-    
-    {
-      DavReport davReport = new DavReport(TestContext.getContextAuthorized());
-      davReport.setResourcePath(SRC_NAME);      
-      assertEquals(Const.HttpStatus.MULTISTATUS, davReport.execute());
-      
-      Multistatus multistatus = (Multistatus)davReport.getMultistatus();
-      ArrayList<ResponseDoc> responses = multistatus.getResponses();      
-      assertEquals(3, responses.size());      
-    }
-    
-    Log.info("done.");
-  }
+  }  
   
 }

@@ -19,18 +19,18 @@ public class CommonTestSuite extends TestSuite {
   
   public CommonTestSuite() {
     Log.info("CommonTestSuite:Preparing....");    
-    
-    addTestSuite(CopyTest.class);
+
     addTestSuite(DeleteTest.class);
-    addTestSuite(DepthTest.class);
-    addTestSuite(GetTest.class);
-    addTestSuite(HeadTest.class);
+    addTestSuite(GetTest.class);    
     addTestSuite(MkColTest.class);
-    addTestSuite(MoveTest.class);
-    addTestSuite(OptionsTest.class);
     addTestSuite(PropFindTest.class);
+    addTestSuite(DepthTest.class);     
+    addTestSuite(PutTest.class);    
+    addTestSuite(OptionsTest.class);
+    addTestSuite(HeadTest.class);    
+    addTestSuite(CopyTest.class);
+    addTestSuite(MoveTest.class);    
     addTestSuite(PropPatchTest.class);
-    addTestSuite(PutTest.class);
     
     Log.info("CommonTestSuite:Run tests...");
   }

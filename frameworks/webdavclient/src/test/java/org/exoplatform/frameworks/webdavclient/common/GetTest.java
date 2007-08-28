@@ -11,10 +11,8 @@ import org.exoplatform.frameworks.httpclient.HttpHeader;
 import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.TestContext;
-import org.exoplatform.frameworks.webdavclient.commands.DavDelete;
+import org.exoplatform.frameworks.webdavclient.TestUtils;
 import org.exoplatform.frameworks.webdavclient.commands.DavGet;
-import org.exoplatform.frameworks.webdavclient.commands.DavMkCol;
-import org.exoplatform.frameworks.webdavclient.commands.DavPut;
 
 /**
  * Created by The eXo Platform SARL
@@ -25,34 +23,36 @@ import org.exoplatform.frameworks.webdavclient.commands.DavPut;
 public class GetTest extends TestCase {
   
   public static final String SRC_WORKSPACE = "/production";
-  public static final String SRC_PATH = SRC_WORKSPACE + "/test folder " + System.currentTimeMillis();
-  public static final String SRC_NAME = SRC_PATH + "/test file.txt";
   public static final String NOT_EXIST_PATH = SRC_WORKSPACE + "/not exist path.txt";
   
   private static final String FILE_CONTENT = "TEST FILE CONTENT...";
   
-  public void setUp() throws Exception {
-    DavMkCol davMkCol = new DavMkCol(TestContext.getContextAuthorized());
-    davMkCol.setResourcePath(SRC_PATH);
-    assertEquals(Const.HttpStatus.CREATED, davMkCol.execute());
+  private static String folderName = "/";
+  private static String fileName = "/";
+
+  public void setUp() throws Exception {    
+    folderName = SRC_WORKSPACE + "/test dir " + System.currentTimeMillis();
+    fileName = folderName + "/test file " + System.currentTimeMillis() + ".txt";
+
+    // create some folder
+    TestUtils.createCollection(folderName);
     
-    DavPut davPut = new DavPut(TestContext.getContextAuthorized());
-    davPut.setResourcePath(SRC_NAME);    
-    davPut.setRequestDataBuffer(FILE_CONTENT.getBytes());    
-    assertEquals(Const.HttpStatus.CREATED, davPut.execute());
+    // create some file
+    TestUtils.createFile(fileName, FILE_CONTENT.getBytes());
   }
   
   protected void tearDown() throws Exception {
-    DavDelete davDelete = new DavDelete(TestContext.getContextAuthorized());
-    davDelete.setResourcePath(SRC_PATH);
-    assertEquals(Const.HttpStatus.NOCONTENT, davDelete.execute());
+    // remove
+    TestUtils.removeResource(folderName);
   }
 
   public void testNotAuthorized() throws Exception {
     Log.info("GetTest:testNotAuthorized...");
     
+    String sourcePath = "/production/SomeFile.txt";
+    
     DavGet davGet = new DavGet(TestContext.getContext());
-    davGet.setResourcePath(SRC_PATH);    
+    davGet.setResourcePath(sourcePath);    
     assertEquals(Const.HttpStatus.AUTHNEEDED, davGet.execute());
     
     Log.info("done.");
@@ -61,21 +61,23 @@ public class GetTest extends TestCase {
   public void testNotFound() throws Exception {
     Log.info("GetTest:testNotFound...");
     
+    String resourcePath = "/production/somefolder/somefile" + System.currentTimeMillis() + ".txt";
+    
     DavGet davGet = new DavGet(TestContext.getContextAuthorized());
-    davGet.setResourcePath(NOT_EXIST_PATH);    
-    assertEquals(Const.HttpStatus.NOTFOUND, davGet.execute());
+    davGet.setResourcePath(resourcePath);
+    assertEquals(Const.HttpStatus.NOTFOUND, davGet.execute());    
     
     Log.info("done.");
   }
 
   public void testSimpleGet() throws Exception {
     Log.info("GetTest:testSimpleGet...");
-
+    
     {
       DavGet davGet = new DavGet(TestContext.getContextAuthorized());
-      davGet.setResourcePath(SRC_NAME);
+      davGet.setResourcePath(fileName);
       assertEquals(Const.HttpStatus.OK, davGet.execute());
-    }
+    }    
 
     Log.info("done.");
   }
@@ -84,7 +86,7 @@ public class GetTest extends TestCase {
     Log.info("GetTest:testAcceptRanges...");
     
     DavGet davGet = new DavGet(TestContext.getContextAuthorized());
-    davGet.setResourcePath(SRC_NAME);
+    davGet.setResourcePath(fileName);
     assertEquals(Const.HttpStatus.OK, davGet.execute());
     
     String acceptRangesHeader = davGet.getResponseHeader(HttpHeader.ACCEPT_RANGES);
@@ -97,14 +99,16 @@ public class GetTest extends TestCase {
     Log.info("GetTest:testGetRangeStart...");
     
     DavGet davGet = new DavGet(TestContext.getContextAuthorized());
-    davGet.setResourcePath(SRC_NAME);
+    davGet.setResourcePath(fileName);
     
     davGet.setRange(5);
     
     assertEquals(Const.HttpStatus.PARTIAL_CONTENT, davGet.execute());
-    
+        
+    String source = FILE_CONTENT.substring(5);
     String reply = new String(davGet.getResponseDataBuffer());
-    assertEquals(reply, FILE_CONTENT.substring(5));
+    
+    assertEquals(source, reply);
 
     Log.info("done.");
   }
@@ -113,14 +117,16 @@ public class GetTest extends TestCase {
     Log.info("GetTest:testGetRangeStartEnd...");
     
     DavGet davGet = new DavGet(TestContext.getContextAuthorized());
-    davGet.setResourcePath(SRC_NAME);
+    davGet.setResourcePath(fileName);
     
     davGet.setRange(5, 10);
     
     assertEquals(Const.HttpStatus.PARTIAL_CONTENT, davGet.execute());
     
+    String source = FILE_CONTENT.substring(5, 11);
     String reply = new String(davGet.getResponseDataBuffer());
-    assertEquals(reply, FILE_CONTENT.substring(5, 11));
+    
+    assertEquals(source, reply);
     
     Log.info("done.");
   }
@@ -129,7 +135,7 @@ public class GetTest extends TestCase {
     Log.info("GetTest:testGetBigStartRange...");
     
     DavGet davGet = new DavGet(TestContext.getContextAuthorized());
-    davGet.setResourcePath(SRC_NAME);    
+    davGet.setResourcePath(fileName);    
     davGet.setRange(100000);    
     assertEquals(Const.HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE, davGet.execute());
     
@@ -140,7 +146,7 @@ public class GetTest extends TestCase {
     Log.info("GetTest:testGetBigEndRange...");
     
     DavGet davGet = new DavGet(TestContext.getContextAuthorized());
-    davGet.setResourcePath(SRC_NAME);    
+    davGet.setResourcePath(fileName);    
     davGet.setRange(0, 100000);    
     assertEquals(Const.HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE, davGet.execute());
     
@@ -151,7 +157,7 @@ public class GetTest extends TestCase {
     Log.info("GetTest:testGetLastByte...");
     
     DavGet davGet = new DavGet(TestContext.getContextAuthorized());
-    davGet.setResourcePath(SRC_NAME);
+    davGet.setResourcePath(fileName);
     
     davGet.setRange(FILE_CONTENT.length() - 1, FILE_CONTENT.length() - 1);
 
@@ -162,26 +168,5 @@ public class GetTest extends TestCase {
     
     Log.info("done.");
   }
-
-  
-  /*
-  // allow without authentication
-  public void testForRoot() throws Exception {    
-    Log.info("testForRoot...");
-  
-    DavGet davGet = new DavGet(DavLocationConst.getLocation());
-    davGet.setResourcePath("/");
-    
-    int status = davGet.execute();
-    Log.info("STATUS: " + status);
-    
-    String reply = new String(davGet.getResponseDataBuffer());
-    
-    Log.info("REPLY LENGTH: " + reply.length());    
-    Log.info("\r\n" + reply + "\r\n");    
-    
-    Log.info("done.");    
-  }
-  */
   
 }

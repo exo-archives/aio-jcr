@@ -16,9 +16,13 @@ import org.w3c.dom.Element;
 
 public class SQLQuery implements DavQuery {
   
-  private String query;
+  private String query = "";
   
   public SQLQuery() {
+  }
+  
+  public SQLQuery(String query) {
+    this.query = query;   
   }
   
   public void setQuery(String query) {

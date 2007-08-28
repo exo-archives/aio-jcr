@@ -64,15 +64,6 @@
         <configuration>
           <includes>
               <include>**/WebDavTests.java</include>
-
-              <!--
-                  <include>**/DavTest.java</include>
-                  <include>**/LockUnLockTest.java</include>
-                  <include>**/LargePutGetTest.java</include>
-                  <include>**/NotImplementedTest.java</include>
-                  <include>**/DavMultiThreadTest.java</include>
-              -->
-
           </includes>
         </configuration>
       </plugin>

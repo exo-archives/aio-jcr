@@ -18,29 +18,32 @@ import org.exoplatform.frameworks.webdavclient.dasl.DASLTestSuite;
  */
 
 public class WebDavTests extends TestCase {
-
+  
   public static TestSuite suite() {
     Log.info("Preparing WebDav tests...");
     
     TestSuite suite = new TestSuite("jcr.webdav tests");
 
-//    suite.addTestSuite(TestTest.class);
-
-    
-//    suite.addTestSuite(MimeTypesTest.class);
 //    suite.addTestSuite(CommonTestSuite.class);
-//    suite.addTestSuite(DeltaVTestSuite.class);
 //    suite.addTestSuite(LockTestSuite.class);
-//    suite.addTestSuite(SimpleExportTest.class);
+//    suite.addTestSuite(DeltaVTestSuite.class);
+   
+//    suite.addTestSuite(OrderTestSuite.class);
     
     suite.addTestSuite(DASLTestSuite.class);
-
-    //suite.addTestSuite(OrderTestSuite.class);
     
+//    suite.addTestSuite(MultiThreadTest.class);
+    
+    
+//    suite.addTestSuite(MimeTypesTest.class);
+//    suite.addTestSuite(SimpleExportTest.class);
     //suite.addTestSuite(AdditionalPropertiesTest.class);    
+
     //suite.addTestSuite(LargeFileTest.class);
 
+    //suite.addTestSuite(TestTest.class);
+    
     return suite;
   }
-
+  
 }

@@ -9,16 +9,16 @@ import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.TestContext;
+import org.exoplatform.frameworks.webdavclient.TestUtils;
 import org.exoplatform.frameworks.webdavclient.commands.DavPropFind;
 import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
 import org.exoplatform.frameworks.webdavclient.properties.DisplayNameProp;
 import org.exoplatform.frameworks.webdavclient.properties.SupportedQueryGrammarSetProp;
 import org.exoplatform.frameworks.webdavclient.search.SearchConst;
-import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SARL
@@ -28,7 +28,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class SupportedQueryGramarSetTest extends TestCase {
 
-  private static Log log = ExoLogger.getLogger("jcr.SupportedQueryGramarSetTest");
+  //private static Log log = ExoLogger.getLogger("jcr.SupportedQueryGramarSetTest");
   
   public static final String SRC_NAME = "/";
   public static final String ENABLEFOR = "production";
@@ -41,7 +41,7 @@ public class SupportedQueryGramarSetTest extends TestCase {
    */
   
   public void testSupportedQueryGrammarSetProperty() throws Exception {
-    log.info("testSupportedQueryGrammarSetProperty...");
+    TestUtils.logStart();
     
     DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
     davPropFind.setResourcePath(SRC_NAME);
@@ -49,9 +49,14 @@ public class SupportedQueryGramarSetTest extends TestCase {
     davPropFind.setRequiredProperty(Const.DavProp.DISPLAYNAME);
     davPropFind.setRequiredProperty(Const.DavProp.SUPPORTEDQUERYGRAMMARSET);
     
+    davPropFind.setDepth(2);
+    
     assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
     
-    Multistatus multistatus = (Multistatus)davPropFind.getMultistatus();
+    Log.info("REPLY:\r\n" + new String(davPropFind.getResponseDataBuffer()));
+    TestUtils.logXML(davPropFind);
+    
+    Multistatus multistatus = davPropFind.getMultistatus();
     ArrayList<ResponseDoc> responses = multistatus.getResponses();
     for (int i = 0; i < responses.size(); i++) {
       ResponseDoc response = responses.get(i);
@@ -77,7 +82,7 @@ public class SupportedQueryGramarSetTest extends TestCase {
     
     Thread.sleep(1000);
     
-    log.info("done.");
+    Log.info("done.");
   }
   
 }

@@ -1,13 +1,11 @@
 /***************************************************************************
- * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 
-package org.exoplatform.frameworks.webdavclient.lock;
+package org.exoplatform.frameworks.webdavclient.dasl.sql;
 
 import junit.framework.TestSuite;
-
-import org.exoplatform.frameworks.httpclient.Log;
 
 /**
  * Created by The eXo Platform SARL
@@ -15,19 +13,17 @@ import org.exoplatform.frameworks.httpclient.Log;
  * @version $Id: $
  */
 
-public class LockTestSuite extends TestSuite {
+public class SQLSearchTestSuite extends  TestSuite {
   
-  public LockTestSuite() {
-    Log.info("Preparing LOCK tests....");
+  public SQLSearchTestSuite() {
+    //addTestSuite(SQLSearchTest.class);
     
-    addTestSuite(SupportedLockTest.class);
+    addTestSuite(SQLFullTextSearchTest.class);
     
-    addTestSuite(LockTests.class);
-    
-    Log.info("Run tests...");
   }
-
+  
   public void testVoid() throws Exception {
   }  
-  
+
 }
+

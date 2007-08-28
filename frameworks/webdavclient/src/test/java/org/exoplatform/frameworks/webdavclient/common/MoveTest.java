@@ -24,15 +24,24 @@ public class MoveTest extends TestCase {
   
   private static final String SRC_WORKSPACE = "/production";
   private static final String DEST_WORKSPACE = "/backup";
-  private static final String SRC_NAME = "/test folder source " + System.currentTimeMillis();    
-  private static final String DEST_NAME = "/test folder destination " + System.currentTimeMillis();  
+  
+  private static String getSrcName() {
+    return "/test folder source " + System.currentTimeMillis();
+  }
+  
+  private static String getDestinationName() {
+    return "/test folder destination " + System.currentTimeMillis(); 
+  }
   
   public void testNotAuthorized() throws Exception {
     Log.info("MoveTest:testNotAuthorized...");
     
+    String sourceName = getSrcName();
+    String destinationName = getDestinationName();
+    
     DavMove davMove = new DavMove(TestContext.getContext());
-    davMove.setResourcePath(SRC_WORKSPACE + SRC_NAME);
-    davMove.setDestinationPath(DEST_WORKSPACE + DEST_NAME);    
+    davMove.setResourcePath(SRC_WORKSPACE + sourceName);
+    davMove.setDestinationPath(DEST_WORKSPACE + destinationName);    
     assertEquals(Const.HttpStatus.AUTHNEEDED, davMove.execute());    
     
     Log.info("done.");
@@ -41,22 +50,25 @@ public class MoveTest extends TestCase {
   public void testMoveToSameWorkspace() throws Exception {
     Log.info("MoveTest:testMoveToSameWorkspace...");
     
+    String sourceName = getSrcName();
+    String destinationName = getDestinationName();
+    
     {
       DavMkCol davMkCol = new DavMkCol(TestContext.getContextAuthorized());
-      davMkCol.setResourcePath(SRC_WORKSPACE + SRC_NAME);
+      davMkCol.setResourcePath(SRC_WORKSPACE + sourceName);
       assertEquals(Const.HttpStatus.CREATED, davMkCol.execute());
     }
     
     {
       DavMove davMove = new DavMove(TestContext.getContextAuthorized());
-      davMove.setResourcePath(SRC_WORKSPACE + SRC_NAME);
-      davMove.setDestinationPath(SRC_WORKSPACE + DEST_NAME);
+      davMove.setResourcePath(SRC_WORKSPACE + sourceName);
+      davMove.setDestinationPath(SRC_WORKSPACE + destinationName);
       assertEquals(Const.HttpStatus.CREATED, davMove.execute());
     }
     
     {
       DavDelete davDelete = new DavDelete(TestContext.getContextAuthorized());
-      davDelete.setResourcePath(SRC_WORKSPACE + DEST_NAME);
+      davDelete.setResourcePath(SRC_WORKSPACE + destinationName);
       assertEquals(Const.HttpStatus.NOCONTENT, davDelete.execute());
     }    
     
@@ -66,22 +78,25 @@ public class MoveTest extends TestCase {
   public void testMoveToAnotherWorkspace() throws Exception {
     Log.info("MoveTest:testMoveToAnotherWorkspace...");
     
+    String sourceName = getSrcName();
+    String destinationName = getDestinationName();
+    
     {
       DavMkCol davMkCol = new DavMkCol(TestContext.getContextAuthorized());
-      davMkCol.setResourcePath(SRC_WORKSPACE + SRC_NAME);
+      davMkCol.setResourcePath(SRC_WORKSPACE + sourceName);
       assertEquals(Const.HttpStatus.CREATED, davMkCol.execute());
     }
 
     {
       DavMove davMove = new DavMove(TestContext.getContextAuthorized());
-      davMove.setResourcePath(SRC_WORKSPACE + SRC_NAME);
-      davMove.setDestinationPath(DEST_WORKSPACE + DEST_NAME);
+      davMove.setResourcePath(SRC_WORKSPACE + sourceName);
+      davMove.setDestinationPath(DEST_WORKSPACE + destinationName);
       assertEquals(Const.HttpStatus.CREATED, davMove.execute());
     }
     
     {
       DavDelete davDelete = new DavDelete(TestContext.getContextAuthorized());
-      davDelete.setResourcePath(DEST_WORKSPACE + DEST_NAME);
+      davDelete.setResourcePath(DEST_WORKSPACE + destinationName);
       assertEquals(Const.HttpStatus.NOCONTENT, davDelete.execute());
     }
     

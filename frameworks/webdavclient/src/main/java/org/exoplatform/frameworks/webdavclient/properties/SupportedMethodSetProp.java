@@ -7,6 +7,7 @@ package org.exoplatform.frameworks.webdavclient.properties;
 
 import java.util.ArrayList;
 
+import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -27,6 +28,9 @@ public class SupportedMethodSetProp extends CommonProp {
   
   @Override
   public boolean init(Node node) {
+    
+    Log.info("Init....");
+    
     if (status != Const.HttpStatus.OK) {
       return false;
     }

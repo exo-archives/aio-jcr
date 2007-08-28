@@ -7,6 +7,8 @@ package org.exoplatform.frameworks.webdavclient.dasl;
 
 import junit.framework.TestSuite;
 
+import org.exoplatform.frameworks.webdavclient.dasl.sql.SQLSearchTestSuite;
+
 /**
  * Created by The eXo Platform SARL
  * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
@@ -16,7 +18,14 @@ import junit.framework.TestSuite;
 public class DASLTestSuite extends TestSuite {
   
   public DASLTestSuite() {
-    addTestSuite(SQLSearchTest.class);
+    
+//    addTestSuite(SupportedMethodSetTest.class);
+//    addTestSuite(SupportedQueryGramarSetTest.class);
+
+    addTestSuite(SQLSearchTestSuite.class);
+    
+    //addTestSuite(SQLSearchTest.class);
+    //addTestSuite(BasicSearctTest.class);
   }
   
   public void testVoid() throws Exception {
