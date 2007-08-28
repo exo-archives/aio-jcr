@@ -339,6 +339,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     }
     
     nodeTypes.add(nodeType);
+    // TODO itemDefintionsHolder
+    // itemDefintionsHolder.putDefinitions(nodeType);
     
     if (persister.isPersisted()) {
       try {
