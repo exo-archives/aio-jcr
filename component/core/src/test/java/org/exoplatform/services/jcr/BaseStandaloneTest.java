@@ -201,23 +201,32 @@ public abstract class BaseStandaloneTest extends TestCase {
     int eread = 0;
     ByteArrayOutputStream buff = new ByteArrayOutputStream();
     
-    long sk = 0;
-    long sks = 0;
-    while (sks < etalonPos && (sk = etalon.skip(etalonPos)) >= 0) {
-      sks += sk;
-    };
-    if (sk <0)
-      fail("Can not read the etalon (skip bytes)");
+    skipStream(etalon, etalonPos);
+//    if (etalonPos > 0) {
+//      long pos = etalonPos; 
+//      long sk = 0;
+//      long sks = 0;
+//      while (sks < etalonPos && (sk = etalon.skip(etalonPos)) > 0) {
+//        sks += sk;
+//      };
+//      if (sk <0)
+//        fail("Can not read the etalon (skip bytes)");
+//      if (sks < dataPos)
+//        fail("Can not skip bytes from the etalon (" + etalonPos + " bytes)");
+//    }
     
-    sk = 0;
-    sks = 0;
-    while (sks < dataPos && (sk = data.skip(dataPos)) >= 0) {
-      sks += sk;
-    };
-    if (sk <0)
-      fail("Can not read the data (skip bytes)");
-    
-    
+    skipStream(data, dataPos);
+//    if (dataPos > 0) {
+//      long sk = 0;
+//      long sks = 0;
+//      while (sks < dataPos && (sk = data.skip(dataPos)) > 0) {
+//        sks += sk;
+//      };
+//      if (sk <0)
+//        fail("Can not read the data (skip bytes)");
+//      if (sks < dataPos)
+//        fail("Can not skip bytes from the data (" + dataPos + " bytes)");
+//    }
     
     while ((eread = etalon.read(ebuff)) > 0) {
 
@@ -257,6 +266,18 @@ public abstract class BaseStandaloneTest extends TestCase {
     if (buff.size() > 0 || data.available() > 0)
       throw new CompareStreamException("Streams is not equals by length. Readed " + index);
   }  
+  
+  protected void skipStream(InputStream stream, long pos) throws IOException {
+    long curPos = pos; 
+    long sk = 0;
+    while ((sk = stream.skip(curPos)) > 0) {
+      curPos -= sk; 
+    };
+    if (sk <0)
+      fail("Can not read the stream (skip bytes)");
+    if (curPos != 0)
+      fail("Can not skip bytes from the stream (" + pos + " bytes)");
+  }
 
   protected File createBLOBTempFile(int sizeInKb) throws IOException {
     return createBLOBTempFile("exo_jcr_test_temp_file_", sizeInKb);

@@ -65,9 +65,7 @@ public abstract class BaseValue implements ExtendedValue {
    * @throws RepositoryException if another error occurs.
    */
   protected String getInternalString() throws ValueFormatException, RepositoryException {
-
     try {
-      
       return new String(getLocalData(false).getAsByteArray(), Constants.DEFAULT_ENCODING);
     } catch (UnsupportedEncodingException e) {
       throw new RepositoryException(Constants.DEFAULT_ENCODING + " not supported on this platform", e);
@@ -194,10 +192,15 @@ public abstract class BaseValue implements ExtendedValue {
    * Returns if the implementation cannot determine the length of the value..
    */
   public long getLength() {
-    if(data == null)
-      return internalData.getLength();
-    else
-      return data.getLength();
+    try {
+      return getLocalData(type == PropertyType.BINARY).getLength();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+//    if(data == null)
+//      return internalData.getLength();
+//    else
+//      return data.getLength();
   }
 
 
@@ -217,12 +220,20 @@ public abstract class BaseValue implements ExtendedValue {
     return false;
   }
 
-  public int getOrderNumber(){
-    return data.getOrderNumber();
+  public int getOrderNumber() {
+    try {
+      return getLocalData(type == PropertyType.BINARY).getOrderNumber();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
   
   public void setOrderNumber(int order){
-    data.setOrderNumber(order);
+    try {
+      getLocalData(type == PropertyType.BINARY).setOrderNumber(order);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   protected class LocalTransientValueData extends AbstractValueData {
@@ -240,14 +251,15 @@ public abstract class BaseValue implements ExtendedValue {
      */
     public LocalTransientValueData(boolean asStream) throws IOException {
       super(getInternalData().getOrderNumber());
+      TransientValueData idata = getInternalData();
       if (!asStream) {
-        bytes = getInternalData().getAsByteArray();
+        bytes = idata.getAsByteArray();
         stream = null;
       } else {
-        stream = getInternalData().getAsStream();
+        stream = idata.getAsStream();
         bytes = null;
       }
-      length = getInternalData().getLength();
+      length = idata.getLength();
     }
 
     public byte[] getAsByteArray() throws IllegalStateException, IOException {

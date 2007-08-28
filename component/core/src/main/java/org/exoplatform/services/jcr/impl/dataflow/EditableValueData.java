@@ -7,7 +7,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -69,14 +71,17 @@ public class EditableValueData extends TransientValueData implements BinaryValue
     
     log.debug("changeFile created"+this.toString());
     
-    this.changeChannel = new FileOutputStream(changeFile, false).getChannel();
+    //this.changeChannel = new FileOutputStream(changeFile, false).getChannel();
+    this.changeChannel = new RandomAccessFile(changeFile, "rw").getChannel();
 
     FileChannel spoolCh = new FileInputStream(spoolFile).getChannel();
 
-    this.changeChannel.transferFrom(spoolCh, 0, spoolCh.size());
-
-    //changeCh.close();
-    spoolCh.close(); 
+    try {
+      this.changeChannel.transferFrom(spoolCh, 0, spoolCh.size());
+    } finally {
+      //changeCh.close();
+      spoolCh.close();
+    }
   }
   
   protected int calcMaxIOSize() {
@@ -117,18 +122,8 @@ public class EditableValueData extends TransientValueData implements BinaryValue
   public byte[] getAsByteArray() throws IOException {
     log.debug("getAsByteArray" + this.toString());
 
-    if (changeFile != null) {
-      FileInputStream fs = new FileInputStream(changeFile);
-      
-      SharedByteArrayOutputStream bout = new SharedByteArrayOutputStream(); 
-      int i= -1;
-      byte[] buff = new byte[maxBufferSize];
-      while ((i = fs.read(buff))>=0) {
-        bout.write(buff, 0, i);
-      }
-      
-      return bout.buf();
-    }
+    if (changeFile != null)
+      return fileToBytes(changeFile);
     
     byte[] copyBytes = new byte[changeBytes.length];
     System.arraycopy(changeBytes, 0, copyBytes, 0, copyBytes.length);
@@ -146,9 +141,7 @@ public class EditableValueData extends TransientValueData implements BinaryValue
   }
 
   public long getLength() {
-    log.debug("getLength"+this.toString());
     if (changeFile != null) {
-      log.debug("getLength randFile : " + changeFile.length());
       return changeFile.length();
     }
     
@@ -201,11 +194,15 @@ public class EditableValueData extends TransientValueData implements BinaryValue
       if (changeBytes.length + length <= maxBufferSize) {
         // edit bytes
         this.changeBytes = bout.buf();
+        
+        this.changeFile = null;
+        this.changeChannel = null; 
       } else {
         // switch from bytes to file/channel
         this.changeFile = File.createTempFile("jcrvdedit", null, tempDirectory);
-        this.changeChannel = new FileOutputStream(changeFile, false).getChannel();
-        //this.changeChannel.position(bout.size()); TODO
+        
+        //this.changeChannel = new FileOutputStream(changeFile, false).getChannel();
+        this.changeChannel = new RandomAccessFile(changeFile, "rw").getChannel();
 
         ReadableByteChannel bch = Channels.newChannel(new ByteArrayInputStream(bout.buf()));
         this.changeChannel.transferFrom(bch, 0, bout.size());
@@ -216,16 +213,13 @@ public class EditableValueData extends TransientValueData implements BinaryValue
     } else {
       ReadableByteChannel ch = Channels.newChannel(stream);
       
-      //FileChannel fc = new FileOutputStream(changeFile, true).getChannel();
-      long size = changeChannel.transferFrom(ch, position, length);
+      MappedByteBuffer bb = changeChannel.map(FileChannel.MapMode.READ_WRITE, position, length);
+      ch.read(bb);
+      bb.force();      
       
-      // TODO
-      // Forces any updates to this channel's file to be written to the storage
-      // device that contains it.
-      // changeChannel.force(false);
-      
-      //fc.close();
       ch.close();
+      
+      //long size = changeChannel.position(position + length).transferFrom(ch, position, length);
     }
   }
 
@@ -259,29 +253,17 @@ public class EditableValueData extends TransientValueData implements BinaryValue
       changeChannel.truncate(size);
   }
 
-  /**
-   * try to convert stream to byte array WARNING: Potential lack of memory due
-   * to call getAsByteArray() on stream data
-   * 
-   * @return byte array
-   */
-  private byte[] randFileToByteArray() throws IOException {
-    // TODO use NIO, ByteBuffer from FileChannel. 
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-    byte[] buffer = new byte[0x2000];
-    int len;
-    int total = 0;
-    FileInputStream stream = new FileInputStream(changeFile);
-    while ((len = stream.read(buffer)) > 0) {
-      out.write(buffer, 0, len);
-      total += len;
-      if (log.isDebugEnabled() && total > maxBufferSize)
-        log.warn("Potential lack of memory due to call getAsByteArray() on stream data exceeded "
-                + total + " bytes");
+  private byte[] fileToBytes(File file) throws IOException {
+    FileInputStream fs = new FileInputStream(file);
+    
+    SharedByteArrayOutputStream bout = new SharedByteArrayOutputStream(); 
+    int i= -1;
+    byte[] buff = new byte[maxBufferSize];
+    while ((i = fs.read(buff))>=0) {
+      bout.write(buff, 0, i);
     }
-    out.close();
-    return out.toByteArray();
+    
+    return bout.buf();
   }
 
   @Override
