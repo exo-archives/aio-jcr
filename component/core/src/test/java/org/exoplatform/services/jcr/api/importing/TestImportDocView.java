@@ -7,6 +7,7 @@ package org.exoplatform.services.jcr.api.importing;
 import java.io.ByteArrayInputStream;
 import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.impl.util.StringConverter;
@@ -18,20 +19,21 @@ import org.xml.sax.helpers.XMLReaderFactory;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class TestDocView extends JcrAPIBaseTest {
-  String simpleXml = "<html><body>a&lt;b>b&lt;/b>c</body></html>";
+public class TestImportDocView extends JcrAPIBaseTest {
+  private final String xmlSpeacialChars = "<html><body>a&lt;b>b&lt;/b>c</body></html>";
+  private final  String xmlSameNameSablings4Xmltext = "<html><body>a<b>b</b>c</body></html>";
 
   public void testImportXmlStream() throws Exception {
     
     session.importXML(root.getPath(),
-        new ByteArrayInputStream(simpleXml.getBytes()),
+        new ByteArrayInputStream(xmlSpeacialChars.getBytes()),
         ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
     session.save();
     Node htmlNode = root.getNode("html");
     Node bodyNode = htmlNode.getNode("body");
     Node xmlTextNode = bodyNode.getNode("jcr:xmltext");
     String xmlChars = xmlTextNode.getProperty("jcr:xmlcharacters").getString();
-    assertTrue(StringConverter.denormalizeString(simpleXml).contains(xmlChars));
+    assertTrue(StringConverter.denormalizeString(xmlSpeacialChars).contains(xmlChars));
   }
   public void testImportXmlCh() throws Exception {
     
@@ -39,7 +41,7 @@ public class TestDocView extends JcrAPIBaseTest {
     XMLReader reader = XMLReaderFactory.createXMLReader();
 
     reader.setContentHandler(session.getImportContentHandler(root.getPath(), 0));
-    InputSource inputSource = new InputSource(new ByteArrayInputStream(simpleXml.getBytes()));
+    InputSource inputSource = new InputSource(new ByteArrayInputStream(xmlSpeacialChars.getBytes()));
 
     reader.parse(inputSource);
     
@@ -48,7 +50,41 @@ public class TestDocView extends JcrAPIBaseTest {
     Node bodyNode = htmlNode.getNode("body");
     Node xmlTextNode = bodyNode.getNode("jcr:xmltext");
     String xmlChars = xmlTextNode.getProperty("jcr:xmlcharacters").getString();
-    assertTrue(StringConverter.denormalizeString(simpleXml).contains(xmlChars));
+    assertTrue(StringConverter.denormalizeString(xmlSpeacialChars).contains(xmlChars));
   }  
-  
+ public void testImportXmlStream2() throws Exception {
+    
+    session.importXML(root.getPath(),
+        new ByteArrayInputStream(xmlSameNameSablings4Xmltext.getBytes()),
+        ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
+    session.save();
+    Node htmlNode = root.getNode("html");
+    Node bodyNode = htmlNode.getNode("body");
+    NodeIterator xmlTextNodes = bodyNode.getNodes("jcr:xmltext");
+    assertEquals(2,xmlTextNodes.getSize());
+    Node nodeA = xmlTextNodes.nextNode();
+    Node nodeC = xmlTextNodes.nextNode();
+    assertEquals("a",nodeA.getProperty("jcr:xmlcharacters").getString());
+    assertEquals("c",nodeC.getProperty("jcr:xmlcharacters").getString());
+  }
+  public void testImportXmlCh2() throws Exception {
+    
+
+    XMLReader reader = XMLReaderFactory.createXMLReader();
+
+    reader.setContentHandler(session.getImportContentHandler(root.getPath(), 0));
+    InputSource inputSource = new InputSource(new ByteArrayInputStream(xmlSameNameSablings4Xmltext.getBytes()));
+
+    reader.parse(inputSource);
+    
+    session.save();
+    Node htmlNode = root.getNode("html");
+    Node bodyNode = htmlNode.getNode("body");
+    NodeIterator xmlTextNodes = bodyNode.getNodes("jcr:xmltext");
+    assertEquals(2,xmlTextNodes.getSize());
+    Node nodeA = xmlTextNodes.nextNode();
+    Node nodeC = xmlTextNodes.nextNode();
+    assertEquals("a",nodeA.getProperty("jcr:xmlcharacters").getString());
+    assertEquals("c",nodeC.getProperty("jcr:xmlcharacters").getString());
+  }  
 }
