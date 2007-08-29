@@ -19,7 +19,7 @@ public class NodeDefinitionValue extends ItemDefinitionValue {
 
   private String defaultNodeTypeName;
 
-	private List requiredNodeTypeNames;
+	private List<String> requiredNodeTypeNames;
 
 	private boolean sameNameSiblings;
 
@@ -54,13 +54,13 @@ public class NodeDefinitionValue extends ItemDefinitionValue {
 	/**
 	 * @return Returns the requiredNodeTypeNames.
 	 */
-	public List getRequiredNodeTypeNames() {
+	public List<String> getRequiredNodeTypeNames() {
 		return requiredNodeTypeNames;
 	}
 	/**
 	 * @param requiredNodeTypeNames The requiredNodeTypeNames to set.
 	 */
-	public void setRequiredNodeTypeNames(List requiredNodeTypeNames) {
+	public void setRequiredNodeTypeNames(List<String> requiredNodeTypeNames) {
 		this.requiredNodeTypeNames = requiredNodeTypeNames;
 	}
 }

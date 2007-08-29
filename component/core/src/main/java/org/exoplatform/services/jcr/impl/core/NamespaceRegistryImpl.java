@@ -5,19 +5,17 @@
 
 package org.exoplatform.services.jcr.impl.core;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.jcr.NamespaceException;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.core.NamespaceAccessor;
-import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -29,11 +27,17 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccessor {
 
-  public static HashMap <String, String> DEF_NAMESPACES = new HashMap<String, String>();
+  public static final ConcurrentHashMap<String, String> DEF_NAMESPACES       = new ConcurrentHashMap<String, String>();
 
-  protected static Log log = ExoLogger.getLogger("jcr.NamespaceRegistryImpl");
+  public static final ConcurrentHashMap<String, String> DEF_PREFIXES         = new ConcurrentHashMap<String, String>();
+
+  private final static Set<String>                      PROTECTED_NAMESPACES = new HashSet<String>();
+
+  protected final static Log                            log                  = ExoLogger
+                                                                                 .getLogger("jcr.NamespaceRegistryImpl");
 
   static {
+
     DEF_NAMESPACES.put("", "");
     DEF_NAMESPACES.put("jcr", "http://www.jcp.org/jcr/1.0");
     DEF_NAMESPACES.put("nt", "http://www.jcp.org/jcr/nt/1.0");
@@ -43,165 +47,205 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
     DEF_NAMESPACES.put("exo", "http://www.exoplatform.com/jcr/exo/1.0");
     DEF_NAMESPACES.put("xs", "http://www.w3.org/2001/XMLSchema");
     DEF_NAMESPACES.put("fn", "http://www.w3.org/2004/10/xpath-functions");
+
+    DEF_PREFIXES.put("", "");
+    DEF_PREFIXES.put("http://www.jcp.org/jcr/1.0", "jcr");
+    DEF_PREFIXES.put("http://www.jcp.org/jcr/nt/1.0", "nt");
+    DEF_PREFIXES.put("http://www.jcp.org/jcr/mix/1.0", "mix");
+    DEF_PREFIXES.put("http://www.w3.org/XML/1998/namespace", "mix");
+    DEF_PREFIXES.put("http://www.jcp.org/jcr/sv/1.0", "sv");
+    DEF_PREFIXES.put("http://www.exoplatform.com/jcr/exo/1.0", "exo");
+    DEF_PREFIXES.put("http://www.w3.org/2001/XMLSchema", "xs");
+    DEF_PREFIXES.put("http://www.w3.org/2001/XMLSchema", "fn");
+
+    PROTECTED_NAMESPACES.add("jcr");
+    PROTECTED_NAMESPACES.add("nt");
+    PROTECTED_NAMESPACES.add("mix");
+    PROTECTED_NAMESPACES.add("xml");
+    PROTECTED_NAMESPACES.add("sv");
+    PROTECTED_NAMESPACES.add("exo");
+
   }
 
-  private HashMap <String, String> namespaces;
-    
-  private NamespaceDataPersister persister = null;
+  private ConcurrentHashMap<String, String>             namespaces;
 
-  private static final String[] protectedNamespaces = { "jcr", "nt", "mix", "xml",
-      "sv", "exo" };
+  private NamespaceDataPersister                        persister;
 
-  public NamespaceRegistryImpl(DataManager dataManager, NamespaceDataPersister persister) throws RepositoryException {
-    this.namespaces = DEF_NAMESPACES;
-    this.persister = persister;
-  }
-   
+  private ConcurrentHashMap<String, String>             prefixes;
+
   /**
    * for tests
-   * @throws RepositoryException
    */
-  public NamespaceRegistryImpl() throws RepositoryException {
-    namespaces = DEF_NAMESPACES;
+  public NamespaceRegistryImpl() {
+    this.namespaces = DEF_NAMESPACES;
+    this.prefixes = DEF_PREFIXES;
   }
 
-  
+  public NamespaceRegistryImpl(NamespaceDataPersister persister) {
 
-  /* (non-Javadoc)
-   * @see javax.jcr.NamespaceRegistry#getURI(java.lang.String)
-   */
-  public String getURI(String prefix) throws NamespaceException {
-    String uri = namespaces.get(prefix);
-    if (uri == null)
-      throw new NamespaceException("Unknown Prefix " + prefix);
-    return uri;
+    this.namespaces = new ConcurrentHashMap<String, String>(DEF_NAMESPACES);
+    this.prefixes = new ConcurrentHashMap<String, String>(DEF_PREFIXES);
+    this.persister = persister;
   }
 
-  /* (non-Javadoc)
-   * @see javax.jcr.NamespaceRegistry#registerNamespace(java.lang.String, java.lang.String)
-   */
-  public synchronized void registerNamespace(String prefix, String uri)
-      throws NamespaceException, RepositoryException {
-    
-
-    validateNamespace(prefix, uri);
- 
-    Collection values = namespaces.values();
-    if (values.contains(uri)) {
- 
-      throw new NamespaceException(
-        "Re-registration is not supported as may cause integrity problems. (todo issue #46)");
-    }
-    
-    persister.addNamespace(prefix, uri);
-    persister.saveChanges();
-    
-    namespaces.put(new String(prefix), new String(uri));
-  }
-  
-  public synchronized void validateNamespace(String prefix, String uri)
-      throws NamespaceException, RepositoryException {
-    
-    if(prefix.indexOf(":") > 0)
-      throw new RepositoryException(
-      "Namespace prefix should not contain ':' " + prefix);
-
-    if (ArrayUtils.contains(protectedNamespaces, prefix)) {
-      if (uri == null)
-        throw new NamespaceException("Can not remove built-in namespace");
-      throw new NamespaceException("Can not change built-in namespace");
-    }
-    if (prefix.toLowerCase().startsWith("xml"))
-      throw new NamespaceException(
-          "Can not re-assign prefix that start with 'xml'");
-    if (uri == null)
-      throw new NamespaceException("Can not register NULL URI!");
-  }  
-
-  /* (non-Javadoc)
-   * @see javax.jcr.NamespaceRegistry#unregisterNamespace(java.lang.String)
-   */
-  public synchronized void unregisterNamespace(String prefix) throws NamespaceException,
-      RepositoryException {
-
-    if (namespaces.get(prefix) == null)
-      throw new NamespaceException("Prefix " + prefix + " is not registered");
-
-    for (int i = 0; i < protectedNamespaces.length; i++)
-      if (prefix.equals(protectedNamespaces[i]))
-        throw new NamespaceException("Prefix " + prefix + " is not protected");
-  
-    throw new NamespaceException(
-      "Unregistration is not supported as may cause integrity problems. (todo issue #46)");
-  }
-
-  /* (non-Javadoc)
-   * @see javax.jcr.NamespaceRegistry#getPrefixes()
-   */
-  public String[] getPrefixes() {
-    return (String[]) namespaces.keySet().toArray(
-        new String[namespaces.keySet().size()]);
-  }
-
-  /* (non-Javadoc)
-   * @see javax.jcr.NamespaceRegistry#getURIs()
-   */
-  public String[] getURIs() {
-    return (String[]) namespaces.values()
-        .toArray(new String[namespaces.size()]);
-  }
-
-  /* (non-Javadoc)
-   * @see javax.jcr.NamespaceRegistry#getPrefix(java.lang.String)
-   */
-  public String getPrefix(String uri) throws NamespaceException,
-      RepositoryException {
-    String[] prefixes = getPrefixes();
-    for (int i = 0; i < prefixes.length; i++) {
-      if (getURI(prefixes[i]).equals(uri))
-        return prefixes[i];
-    }
-    throw new NamespaceException("Prefix for " + uri + " not found");
-  }
-
-
-  public Map getURIMap() {
-    return namespaces;
-  }
-  
-  public void loadFromStorage() throws RepositoryException {
-
-    try {
-      namespaces.putAll(persister.loadNamespaces());
-    } catch (PathNotFoundException e) {
-      log.info("Namespaces storage (/jcr:system/exo:namespaces) is not accessible. Default namespaces only will be used. " + e);
-      return;
-    }
-  }  
-
-  ////////////////////// NamespaceAccessor
-  
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.NamespaceAccessor#getNamespaceURIByPrefix(java.lang.String)
-   */
-  public String getNamespaceURIByPrefix(String prefix)
-      throws NamespaceException {
-    return getURI(prefix);
-  }
-
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.NamespaceAccessor#getNamespacePrefixByURI(java.lang.String)
-   */
-  public String getNamespacePrefixByURI(String uri) throws NamespaceException,
-      RepositoryException {
-    return getPrefix(uri);
-  }
-
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.core.NamespaceAccessor#getAllNamespacePrefixes()
    */
   public String[] getAllNamespacePrefixes() {
     return getPrefixes();
   }
-  
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.core.NamespaceAccessor#getNamespacePrefixByURI(java.lang.String)
+   */
+  public String getNamespacePrefixByURI(String uri) throws NamespaceException, RepositoryException {
+    return getPrefix(uri);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.core.NamespaceAccessor#getNamespaceURIByPrefix(java.lang.String)
+   */
+  public String getNamespaceURIByPrefix(String prefix) throws NamespaceException {
+    return getURI(prefix);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see javax.jcr.NamespaceRegistry#getPrefix(java.lang.String)
+   */
+  public String getPrefix(String uri) throws NamespaceException {
+    String prefix = prefixes.get(uri);
+    if (prefix != null) {
+      return prefix;
+    }
+    throw new NamespaceException("Prefix for " + uri + " not found");
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see javax.jcr.NamespaceRegistry#getPrefixes()
+   */
+  public String[] getPrefixes() {
+    return namespaces.keySet().toArray(new String[namespaces.keySet().size()]);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see javax.jcr.NamespaceRegistry#getURI(java.lang.String)
+   */
+  public String getURI(String prefix) throws NamespaceException {
+    String uri = namespaces.get(prefix);
+    if (uri == null) {
+      throw new NamespaceException("Unknown Prefix " + prefix);
+    }
+    return uri;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see javax.jcr.NamespaceRegistry#getURIs()
+   */
+  public String[] getURIs() {
+    return namespaces.values().toArray(new String[namespaces.size()]);
+  }
+
+
+  public boolean isPrefixMaped(String prefix) {
+    return namespaces.containsKey(prefix);
+  }
+
+  public boolean isUriRegistered(String uri) {
+    return prefixes.containsKey(uri);
+  }
+
+  public void loadFromStorage() throws RepositoryException {
+
+    try {
+      // namespaces.putAll(persister.loadNamespaces());
+      persister.loadNamespaces(namespaces, prefixes);
+    } catch (PathNotFoundException e) {
+      log.info("Namespaces storage (/jcr:system/exo:namespaces) is not accessible."
+          + " Default namespaces only will be used. " + e);
+      return;
+    }
+  }
+
+  // //////////////////// NamespaceAccessor
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see javax.jcr.NamespaceRegistry#registerNamespace(java.lang.String,
+   *      java.lang.String)
+   */
+  public void registerNamespace(String prefix, String uri) throws NamespaceException,
+      RepositoryException {
+
+    validateNamespace(prefix, uri);
+
+    if (namespaces.contains(prefix) || prefixes.contains(uri)) {
+      throw new NamespaceException("Re-registration is not supported as may cause"
+          + " integrity problems. (todo issue #46)");
+    }
+
+    persister.addNamespace(prefix, uri);
+    persister.saveChanges();
+
+    String newPrefix = new String(prefix);
+    String newUri = new String(uri);
+
+    namespaces.put(newPrefix, newUri);
+    prefixes.put(newUri, newPrefix);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see javax.jcr.NamespaceRegistry#unregisterNamespace(java.lang.String)
+   */
+  public void unregisterNamespace(String prefix) throws NamespaceException, RepositoryException {
+
+    if (namespaces.get(prefix) == null) {
+      throw new NamespaceException("Prefix " + prefix + " is not registered");
+    }
+
+    if (PROTECTED_NAMESPACES.contains(prefix)) {
+      throw new NamespaceException("Prefix " + prefix + " is protected");
+    }
+
+    throw new NamespaceException("Unregistration is not supported as"
+        + " may cause integrity problems. (todo issue #46)");
+  }
+
+  public void validateNamespace(String prefix, String uri) throws NamespaceException,
+      RepositoryException {
+
+    if (prefix.indexOf(":") > 0) {
+      throw new RepositoryException("Namespace prefix should not contain ':' " + prefix);
+    }
+
+    if (PROTECTED_NAMESPACES.contains(prefix)) {
+      if (uri == null) {
+        throw new NamespaceException("Can not remove built-in namespace");
+      }
+      throw new NamespaceException("Can not change built-in namespace");
+    }
+    if (prefix.toLowerCase().startsWith("xml")) {
+      throw new NamespaceException("Can not re-assign prefix that start with 'xml'");
+    }
+    if (uri == null) {
+      throw new NamespaceException("Can not register NULL URI!");
+    }
+  }
+
 }

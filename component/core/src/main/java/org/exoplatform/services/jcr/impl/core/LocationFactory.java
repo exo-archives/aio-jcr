@@ -131,7 +131,7 @@ public class LocationFactory {
   public JCRPath.PathElement[] createRelPath(QPathEntry[] relPath)
       throws RepositoryException {
     JCRPath path = new JCRPath();
-    JCRPath.PathElement[] entries = new JCRPath.PathElement[relPath.length];
+    //JCRPath.PathElement[] entries = new JCRPath.PathElement[relPath.length];
     for (int i = 0; i < relPath.length; i++) {
       String uri = namespaces
           .getNamespaceURIByPrefix(relPath[i].getNamespace());

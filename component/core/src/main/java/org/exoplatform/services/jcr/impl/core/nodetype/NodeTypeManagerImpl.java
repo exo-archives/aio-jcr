@@ -8,7 +8,9 @@ package org.exoplatform.services.jcr.impl.core.nodetype;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.NamespaceRegistry;
@@ -58,7 +60,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
   private LocationFactory locationFactory;
 
-  private List<NodeType> nodeTypes;
+  //private List<NodeType> nodeTypes;
+  private Map<InternalQName,ExtendedNodeType> nodeTypes;
 
   private String accessControlPolicy;
   
@@ -74,7 +77,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       ValueFactoryImpl valueFactory, 
       NamespaceRegistry namespaceRegistry, 
       NodeTypeDataPersister persister) 
-      throws RepositoryException, InstantiationException {
+      throws RepositoryException {
     this(
         //dataManager, 
         locationFactory, 
@@ -82,7 +85,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
         namespaceRegistry, 
         config.getAccessControl(), 
         persister, 
-        new ArrayList <NodeType>());
+        null);
     initDefault();
   }
   
@@ -92,8 +95,9 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       NamespaceRegistry namespaceRegistry,
       String accessControlPolicy,
       NodeTypeDataPersister persister,
-      List <NodeType>  nodeTypes) {
-    this.nodeTypes = nodeTypes; 
+      Map<InternalQName,ExtendedNodeType> nodeTypes) {
+    this.nodeTypes = nodeTypes != null ? nodeTypes
+        : new LinkedHashMap<InternalQName, ExtendedNodeType>(); 
     this.valueFactory = valueFactory;
     this.locationFactory = locationFactory;
     this.namespaceRegistry = namespaceRegistry;
@@ -122,23 +126,20 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     return getNodeType(locationFactory.parseJCRName(nodeTypeName).getInternalName());
   }
   
-  public ExtendedNodeType getNodeType(InternalQName qName) throws NoSuchNodeTypeException, RepositoryException {
+  public ExtendedNodeType getNodeType(InternalQName qName) throws NoSuchNodeTypeException,
+      RepositoryException {
+    
     ExtendedNodeType nt = findNodeType(qName);
-    if (nt == null)
-      throw new NoSuchNodeTypeException("NodeTypeManager.getNodeType(): NodeType '" 
-          + qName.getAsString() + "' not found.");
-    else
+    
+    if (nt != null)
       return nt;
+
+    throw new NoSuchNodeTypeException("NodeTypeManager.getNodeType(): NodeType '"
+        + qName.getAsString() + "' not found.");
   }
   
   public ExtendedNodeType findNodeType(InternalQName qName) {
-    for(int i=0; i<nodeTypes.size(); i++) {
-      ExtendedNodeType nt = (ExtendedNodeType)nodeTypes.get(i);
-      if(nt.getQName().equals(qName)) {
-        return nt;
-      }
-    }
-    return null;
+    return nodeTypes.get(qName);
   }
   
   public List<ExtendedNodeType> getNodeTypes(InternalQName primaryType, InternalQName[] mixinTypes) throws NoSuchNodeTypeException, RepositoryException {
@@ -262,7 +263,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   public NodeTypeIterator getAllNodeTypes() {
 
     EntityCollection ec = new EntityCollection();
-    ec.addAll(nodeTypes);
+    ec.addAll(nodeTypes.values());
     return ec;
   }
 
@@ -338,7 +339,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       return;
     }
     
-    nodeTypes.add(nodeType);
+    nodeTypes.put(nodeType.getQName(),nodeType);
     // TODO itemDefintionsHolder
     // itemDefintionsHolder.putDefinitions(nodeType);
     
@@ -442,7 +443,6 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       Constructor<ExtendedNodeType> c = nodeTypeType.getConstructor(new Class[] { NodeTypeManager.class });
       return c.newInstance(new Object[] { this });
     } catch (Exception e1) {
-      e1.printStackTrace();
       throw new InstantiationException(
           "Error in making istance of "
               + nodeTypeType.getName()
@@ -479,8 +479,13 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     long start = System.currentTimeMillis();
     
     try {
-      List<NodeType> loadedNt = persister.loadNodetypes(nodeTypes, this);
-      nodeTypes.addAll(loadedNt);
+      List<NodeType> rNodeTypes = new ArrayList<NodeType>(); 
+      rNodeTypes.addAll(nodeTypes.values());
+      List<NodeType> loadedNt = persister.loadNodetypes(rNodeTypes, this);
+      for (NodeType nodeType : loadedNt) {
+        nodeTypes.put(((ExtendedNodeType)nodeType).getQName(),(ExtendedNodeType) nodeType);
+      }
+      //nodeTypes.addAll(loadedNt);
       if (loadedNt.size()>0)
         log.info("NodeTypes (count: " + loadedNt.size() + ") loaded. " + (System.currentTimeMillis() - start) + " ms");
     } catch (PathNotFoundException e) { 

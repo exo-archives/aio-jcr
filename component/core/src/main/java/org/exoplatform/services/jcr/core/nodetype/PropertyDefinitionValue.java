@@ -18,9 +18,9 @@ public class PropertyDefinitionValue extends ItemDefinitionValue {
 	
 	private int requiredType;
 
-	private List valueConstraints;
+	private List<String> valueConstraints;
 
-	private List defaultValueStrings;
+	private List<String> defaultValueStrings;
 
 	private boolean multiple;
 
@@ -30,13 +30,13 @@ public class PropertyDefinitionValue extends ItemDefinitionValue {
 	/**
 	 * @return Returns the defaultValues.
 	 */
-	public List getDefaultValueStrings() {
+	public List<String> getDefaultValueStrings() {
 		return defaultValueStrings;
 	}
 	/**
 	 * @param defaultValues The defaultValues to set.
 	 */
-	public void setDefaultValueStrings(List defaultValues) {
+	public void setDefaultValueStrings(List<String> defaultValues) {
 		this.defaultValueStrings = defaultValues;
 	}
 	/**
@@ -66,13 +66,13 @@ public class PropertyDefinitionValue extends ItemDefinitionValue {
 	/**
 	 * @return Returns the valueConstraints.
 	 */
-	public List getValueConstraints() {
+	public List<String> getValueConstraints() {
 		return valueConstraints;
 	}
 	/**
 	 * @param valueConstraints The valueConstraints to set.
 	 */
-	public void setValueConstraints(List valueConstraints) {
+	public void setValueConstraints(List<String> valueConstraints) {
 		this.valueConstraints = valueConstraints;
 	}
 }

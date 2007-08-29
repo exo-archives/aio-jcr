@@ -25,11 +25,11 @@ public class NodeTypeValue {
 
   protected String primaryItemName;
 
-  protected List declaredSupertypeNames;
+  protected List<String> declaredSupertypeNames;
 
-  protected List declaredPropertyDefinitionValues;
+  protected List<PropertyDefinitionValue> declaredPropertyDefinitionValues;
 
-  protected List declaredChildNodeDefinitionValues;
+  protected List<NodeDefinitionValue> declaredChildNodeDefinitionValues;
 
   public NodeTypeValue() {
   }
@@ -37,7 +37,7 @@ public class NodeTypeValue {
   /**
    * @return Returns the declaredSupertypeNames.
    */
-  public List getDeclaredSupertypeNames() {
+  public List<String> getDeclaredSupertypeNames() {
     return declaredSupertypeNames;
   }
 
@@ -45,7 +45,7 @@ public class NodeTypeValue {
    * @param declaredSupertypeNames
    *          The declaredSupertypeNames to set.
    */
-  public void setDeclaredSupertypeNames(List declaredSupertypeNames) {
+  public void setDeclaredSupertypeNames(List<String> declaredSupertypeNames) {
     this.declaredSupertypeNames = declaredSupertypeNames;
   }
 
@@ -112,7 +112,7 @@ public class NodeTypeValue {
   /**
    * @return Returns the declaredChildNodeDefinitionNames.
    */
-  public List getDeclaredChildNodeDefinitionValues() {
+  public List<NodeDefinitionValue> getDeclaredChildNodeDefinitionValues() {
     return declaredChildNodeDefinitionValues;
   }
 
@@ -121,14 +121,14 @@ public class NodeTypeValue {
    *          The declaredChildNodeDefinitionNames to set.
    */
   public void setDeclaredChildNodeDefinitionValues(
-      List declaredChildNodeDefinitionValues) {
+      List<NodeDefinitionValue> declaredChildNodeDefinitionValues) {
     this.declaredChildNodeDefinitionValues = declaredChildNodeDefinitionValues;
   }
 
   /**
    * @return Returns the declaredPropertyDefinitionNames.
    */
-  public List getDeclaredPropertyDefinitionValues() {
+  public List<PropertyDefinitionValue> getDeclaredPropertyDefinitionValues() {
     return declaredPropertyDefinitionValues;
   }
 
@@ -137,7 +137,7 @@ public class NodeTypeValue {
    *          The declaredPropertyDefinitionNames to set.
    */
   public void setDeclaredPropertyDefinitionValues(
-      List declaredPropertyDefinitionValues) {
+      List<PropertyDefinitionValue> declaredPropertyDefinitionValues) {
     this.declaredPropertyDefinitionValues = declaredPropertyDefinitionValues;
   }
 
@@ -156,7 +156,7 @@ public class NodeTypeValue {
     }
 
     if (declaredSupertypeNames == null) {
-      declaredSupertypeNames = new ArrayList();
+      declaredSupertypeNames = new ArrayList<String>();
       hasValidated = true;
     } else {
       int prevSize = declaredSupertypeNames.size();
@@ -165,7 +165,7 @@ public class NodeTypeValue {
     }
 
     if (declaredPropertyDefinitionValues == null) {
-      declaredPropertyDefinitionValues = new ArrayList();
+      declaredPropertyDefinitionValues = new ArrayList<PropertyDefinitionValue>();
       hasValidated = true;
     } else {
       int prevSize = declaredPropertyDefinitionValues.size();
@@ -174,7 +174,7 @@ public class NodeTypeValue {
     }
 
     if (declaredChildNodeDefinitionValues == null) {
-      declaredChildNodeDefinitionValues = new ArrayList();
+      declaredChildNodeDefinitionValues = new ArrayList<NodeDefinitionValue>();
       hasValidated = true;
     } else {
       int prevSize = declaredChildNodeDefinitionValues.size();
@@ -185,13 +185,13 @@ public class NodeTypeValue {
     return hasValidated;
   }
 
-  private void fixStringsList(List strList) {
+  private void fixStringsList(List<String> strList) {
     int i = 0;
     while (i < strList.size()) {
       if (strList.get(i) == null) {
         strList.remove(i);
-      } else if (strList.get(i) instanceof String) {
-        String s = (String) strList.get(i);
+      } else if (strList.get(i) != null) {
+        String s = strList.get(i);
         s.trim();
         if (s.length() <= 0) {
           strList.remove(i);
@@ -202,13 +202,13 @@ public class NodeTypeValue {
     }
   }
 
-  private void fixPropertyDefinitionValuesList(List pdvList) {
+  private void fixPropertyDefinitionValuesList(List<PropertyDefinitionValue> pdvList) {
     int i = 0;
     while (i < pdvList.size()) {
       if (pdvList.get(i) == null) {
         pdvList.remove(i);
       } else {
-        PropertyDefinitionValue p = (PropertyDefinitionValue) pdvList.get(i++);
+        PropertyDefinitionValue p = pdvList.get(i++);
         if (p.getValueConstraints() != null) {
           fixStringsList(p.getValueConstraints());
         }
@@ -219,7 +219,7 @@ public class NodeTypeValue {
     }
   }
 
-  private void fixNodeDefinitionValuesList(List ndvList) {
+  private void fixNodeDefinitionValuesList(List<NodeDefinitionValue> ndvList) {
     int i = 0;
     while (i < ndvList.size()) {
       if (ndvList.get(i) == null) {
@@ -230,7 +230,7 @@ public class NodeTypeValue {
           fixStringsList(p.getRequiredNodeTypeNames());
           if (p.getRequiredNodeTypeNames().size() == 0) {
             // Fixing field requiredNodeTypeNames according the specefication (6.7.14) for NodeDefinition
-            List<String> defNotEmptyArray = new ArrayList<String>(); 
+            List<String> defNotEmptyArray = new ArrayList<String>();
             defNotEmptyArray.add("nt:base");
             p.setRequiredNodeTypeNames(defNotEmptyArray);
           }

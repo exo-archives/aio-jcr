@@ -6,6 +6,7 @@
 package org.exoplatform.services.jcr.impl.core.nodetype;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.Node;
@@ -39,9 +40,9 @@ class WorkspaceNTManagerImpl extends NodeTypeManagerImpl {
       String accessControlPolicy, 
       SessionImpl session,
       NodeTypeDataPersister persister,
-      List <NodeType>  nodeTypes) throws RepositoryException {
+      Map<InternalQName,ExtendedNodeType> nodeTypes) throws RepositoryException {
     super(
-        session.getLocationFactory(), (ValueFactoryImpl) session.getValueFactory(), 
+        session.getLocationFactory(), session.getValueFactory(), 
         namespaceRegistry, 
         accessControlPolicy,
         persister,

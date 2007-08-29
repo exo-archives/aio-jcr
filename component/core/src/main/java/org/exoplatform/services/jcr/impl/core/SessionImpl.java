@@ -88,6 +88,7 @@ public class SessionImpl implements Session, NamespaceAccessor {
   protected final SessionDataManager nodesManager;
 
   private final Map<String, String> namespaces;
+  private final Map<String, String> prefixes;
 
   private final AccessManager accessManager;
 
@@ -117,7 +118,7 @@ public class SessionImpl implements Session, NamespaceAccessor {
 
   private final SessionRegistry sessionRegistry;
 
-  SessionImpl(String workspaceName, Credentials credentials, ExoContainer container) throws RepositoryException {
+  public SessionImpl(String workspaceName, Credentials credentials, ExoContainer container) throws RepositoryException {
 
     this.workspaceName = workspaceName;
     this.container = container;
@@ -140,7 +141,9 @@ public class SessionImpl implements Session, NamespaceAccessor {
     this.credentials = (CredentialsImpl) credentials;
     this.locationFactory = new LocationFactory(this);
     this.valueFactory = new ValueFactoryImpl(locationFactory, repositoryConfig, cleanerHolder);
+    
     this.namespaces = new LinkedHashMap<String, String>();
+    this.prefixes =  new LinkedHashMap<String, String>();
 
     // Observation manager per session
     ObservationManagerRegistry observationManagerRegistry = (ObservationManagerRegistry) container
@@ -166,7 +169,6 @@ public class SessionImpl implements Session, NamespaceAccessor {
     sessionRegistry = (SessionRegistry) container.getComponentInstanceOfType(SessionRegistry.class);
 
     sessionRegistry.registerSession(this);
-
     this.lastAccessTime = System.currentTimeMillis();
   }
 
@@ -365,30 +367,10 @@ public class SessionImpl implements Session, NamespaceAccessor {
    * @see javax.jcr.Session#getNamespacePrefix(java.lang.String)
    */
   public String getNamespacePrefix(String uri) throws NamespaceException, RepositoryException {
-
-    if (namespaces.values().contains(uri)) {
-      // if so, then we return last setted prefix for this uri
-      String[] keys = namespaces.keySet().toArray(new String[namespaces.size()]);
-      for (int i = keys.length - 1; i >= 0; i--) {
-        String key = keys[i];
-        String value = namespaces.get(key);
-        if (value.equals(uri)) {
-          return key;
-        }
-      }
+    if (prefixes.containsKey(uri)) {
+      return prefixes.get(uri);
     }
-    String[] prefixes = workspace.getNamespaceRegistry().getPrefixes();
-    for (int i = 0; i < prefixes.length; i++) {
-      try {
-        String prefixUri = workspace.getNamespaceRegistry().getURI(prefixes[i]);
-        if (prefixUri != null && prefixUri.equals(uri)) {
-          return prefixes[i];
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    }
-    throw new NamespaceException("Prefix for " + uri + " not found");
+    return workspace.getNamespaceRegistry().getPrefix(uri);
   }
 
   /*
@@ -399,17 +381,23 @@ public class SessionImpl implements Session, NamespaceAccessor {
    */
   public void setNamespacePrefix(String prefix, String uri) throws NamespaceException,
       RepositoryException {
-    ((NamespaceRegistryImpl) workspace.getNamespaceRegistry()).validateNamespace(prefix, uri);
-    String testPrefix = workspace.getNamespaceRegistry().getPrefix(uri);
-    if (testPrefix.equals(prefix)) // no needs to remap
-      return;
-    try {
-      workspace.getNamespaceRegistry().getURI(prefix);
-    } catch (NamespaceException e) {
-      namespaces.put(prefix, uri);
-      return;
-    }
-    throw new NamespaceException("Prefix " + prefix + " is already mapped to other uri");
+    NamespaceRegistryImpl nrg = (NamespaceRegistryImpl) workspace.getNamespaceRegistry();
+    if (!nrg.isUriRegistered(uri))
+      throw new NamespaceException("The specified uri:" + uri + " is not among "
+          + "those registered in the NamespaceRegistry");
+    if (nrg.isPrefixMaped(prefix))
+      throw new NamespaceException("A prefix '" + prefix + "' is currently already mapped to "
+          + nrg.getURI(prefix) + " URI persistently in the repository NamespaceRegistry "
+          + "and cannot be remapped to a new URI using this method, since this would make any "
+          + "content stored using the old URI unreadable.");
+    if (namespaces.containsKey(prefix))
+      throw new NamespaceException("A prefix '" + prefix + "' is currently already mapped to "
+          + namespaces.get(prefix) + " URI transiently within this Session and cannot be "
+          + "remapped to a new URI using this method, since this would make any "
+          + "content stored using the old URI unreadable.");
+    nrg.validateNamespace(prefix, uri);
+    namespaces.put(prefix, uri);
+    prefixes.put(uri, prefix);
   }
 
   /*
@@ -420,18 +408,13 @@ public class SessionImpl implements Session, NamespaceAccessor {
   public String[] getNamespacePrefixes() throws RepositoryException {
     Collection<String> allPrefixes = new LinkedList<String>();
     allPrefixes.addAll(namespaces.keySet());
+    
     String[] permanentPrefixes = workspace.getNamespaceRegistry().getPrefixes();
+ 
     for (int i = 0; i < permanentPrefixes.length; i++) {
-      String permanentPrefix = permanentPrefixes[i];
-      String uri = null;
-      try {
-        uri = workspace.getNamespaceRegistry().getURI(permanentPrefix);
-        if (!allPrefixes.contains(permanentPrefix) && !(namespaces.values().contains(uri))) {
-          allPrefixes.add(permanentPrefix);
+        if (!prefixes.containsKey(workspace.getNamespaceRegistry().getURI(permanentPrefixes[i]))) {
+          allPrefixes.add(permanentPrefixes[i]);
         }
-      } catch (RepositoryException e) {
-        e.printStackTrace();
-      }
     }
     return allPrefixes.toArray(new String[allPrefixes.size()]);
   }
@@ -444,15 +427,15 @@ public class SessionImpl implements Session, NamespaceAccessor {
   public String getNamespaceURI(String prefix) throws NamespaceException, RepositoryException {
     String uri = null;
     // look in session first
-    uri = namespaces.get(prefix);
-    if (uri != null)
-      return uri;
-    uri = workspace.getNamespaceRegistry().getURI(prefix);
-    if (namespaces.values().contains(uri))
-      return null;
-    if (uri == null)
-      throw new NamespaceException("No namespace '" + uri + "' found");
-    return uri;
+    if (namespaces.size() > 0) {
+      uri = namespaces.get(prefix);
+      if (uri != null)
+        return uri;
+    }
+//    uri = ;
+//    if (namespaces.values().contains(uri))
+//      return null;
+    return workspace.getNamespaceRegistry().getURI(prefix);
   }
 
   /*
@@ -855,7 +838,7 @@ public class SessionImpl implements Session, NamespaceAccessor {
    * For debug purpose! 
    * Can accessed by admin only, otherwise null will be returned
    */
-  public ExoContainer getContainer() throws RepositoryException {
+  public ExoContainer getContainer() {
     return container;
   }
 
