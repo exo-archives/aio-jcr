@@ -881,12 +881,20 @@ public class SessionDataManager implements ItemDataConsumer {
     PlainChangesLog slog = changesLog.pushLog(item.getQPath());
     SessionChangesLog changes = new SessionChangesLog(slog.getAllStates(), session.getId()); 
     
+    String exceptions = "";
+    
     for (Iterator<ItemImpl> removedIter = invalidated.iterator(); removedIter.hasNext();) {
       ItemImpl removed = removedIter.next();
       
       // reload item data
       QPath removedPath = removed.getLocation().getInternalPath();
       ItemState rstate = changes.getItemState(removedPath);
+      
+      if (rstate == null) {
+        exceptions += "Can't find removed item " + removed.getLocation().getAsString(false) + " in changes for rollback.\n";
+        continue;
+      }
+      
       NodeData parent = (NodeData) transactionableManager.getItemData(rstate.getData().getParentIdentifier());
       if (parent != null) {
         ItemData persisted = transactionableManager.getItemData(parent, removedPath.getEntries()[removedPath.getDepth()]);
@@ -896,6 +904,11 @@ public class SessionDataManager implements ItemDataConsumer {
       
       removedIter.remove();
     }
+
+    if (exceptions.length()>0)
+      // throw the error if got some exceptions
+      log.warn(exceptions);
+      new RepositoryException(exceptions);
   }
 
   /*
