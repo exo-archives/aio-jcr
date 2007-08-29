@@ -59,14 +59,14 @@ public class DocumentViewImporter extends ImporterBase {
 
   private Stack<NodeData>       tree;
 
-  private TransientPropertyData XmlCharactersProperty;
+  private TransientPropertyData xmlCharactersProperty;
 
   private String                XmlCharactersPropertyValue;
 
   public DocumentViewImporter(NodeImpl parent, int uuidBehavior, XmlSaveType saveType) {
     super(parent, uuidBehavior, saveType);
     this.tree = new Stack<NodeData>();
-    this.XmlCharactersProperty = null;
+    this.xmlCharactersProperty = null;
     this.XmlCharactersPropertyValue = null;
     tree.push((NodeData) parent.getData());
   }
@@ -74,17 +74,22 @@ public class DocumentViewImporter extends ImporterBase {
   public void characters(char[] ch, int start, int length) throws RepositoryException {
     StringBuilder text = new StringBuilder();
     text.append(ch, start, length);
-    if (log.isDebugEnabled()) {
+    if (log.isDebugEnabled())
       log.debug("Property:xmltext=" + text + " Parent=" + parent().getQPath().getAsString());
-    }
-    if (XmlCharactersProperty != null) {
+    
+    if (xmlCharactersProperty != null) {
       XmlCharactersPropertyValue += text.toString();
-      XmlCharactersProperty.setValue(new TransientValueData(XmlCharactersPropertyValue));
+      xmlCharactersProperty.setValue(new TransientValueData(XmlCharactersPropertyValue));
     } else {
-      NodeData nodeData = TransientNodeData.createNodeData(parent(),
+      TransientNodeData nodeData = TransientNodeData.createNodeData(parent(),
           Constants.JCR_XMLTEXT,
-          Constants.NT_UNSTRUCTURED);
+          Constants.NT_UNSTRUCTURED,
+          getNodeIndex(parent(), Constants.JCR_XMLTEXT));
+      nodeData.setOrderNumber(getNextChildOrderNum(parent()));
+
       itemStatesList.add(new ItemState(nodeData, ItemState.ADDED, true, parent().getQPath()));
+      if (log.isDebugEnabled())
+        log.debug("New node " + nodeData.getQPath().getAsString());
 
       TransientPropertyData newProperty = TransientPropertyData.createPropertyData(nodeData,
           Constants.JCR_PRIMARYTYPE,
@@ -99,7 +104,7 @@ public class DocumentViewImporter extends ImporterBase {
           false,
           new TransientValueData(text.toString()));
       itemStatesList.add(new ItemState(newProperty, ItemState.ADDED, true, nodeData.getQPath()));
-      XmlCharactersProperty = newProperty;
+      xmlCharactersProperty = newProperty;
       XmlCharactersPropertyValue = text.toString();
     }
 
@@ -107,7 +112,7 @@ public class DocumentViewImporter extends ImporterBase {
 
   public void endElement(String uri, String localName, String qName) throws RepositoryException {
     tree.pop();
-    XmlCharactersProperty = null;
+    xmlCharactersProperty = null;
   }
 
   public void startElement(String namespaceURI,
@@ -120,7 +125,7 @@ public class DocumentViewImporter extends ImporterBase {
     if ("jcr:root".equals(nodeName)) {
       nodeName = "";
     }
-
+    xmlCharactersProperty = null;
     List<ExtendedNodeType> nodeTypes = new ArrayList<ExtendedNodeType>();
 
     HashMap<InternalQName, String> props = new HashMap<InternalQName, String>();
@@ -132,7 +137,7 @@ public class DocumentViewImporter extends ImporterBase {
 
     parseAttr(nodeName, atts, nodeTypes, mixinNodeTypes, props);
 
-    NodeData nodeData = null;
+    // NodeData nodeData = null;
 
     // try {
     boolean isMixReferenceable = isReferenceable(nodeTypes);
@@ -146,14 +151,14 @@ public class DocumentViewImporter extends ImporterBase {
 
     InternalQName jcrName = locationFactory.parseJCRName(nodeName).getInternalName();
 
-    int nodeIndex = getNodeIndex(parent(), jcrName);
     InternalQName primaryTypeName = locationFactory.parseJCRName(primaryNodeType).getInternalName();
-    // InternalQName primaryTypeName = InternalQName.parse(primaryNodeType);
-    nodeData = TransientNodeData.createNodeData(parent(), jcrName, primaryTypeName, nodeIndex);
-
-    ((TransientNodeData) nodeData).setMixinTypeNames(mixinNodeTypes
-        .toArray(new InternalQName[mixinNodeTypes.size()]));
-    ((TransientNodeData) nodeData).setIdentifier(identifier);
+    TransientNodeData nodeData = TransientNodeData.createNodeData(parent(),
+        jcrName,
+        primaryTypeName,
+        getNodeIndex(parent(), jcrName));
+    nodeData.setOrderNumber(getNextChildOrderNum(parent()));
+    nodeData.setMixinTypeNames(mixinNodeTypes.toArray(new InternalQName[mixinNodeTypes.size()]));
+    nodeData.setIdentifier(identifier);
 
     itemStatesList.add(new ItemState(nodeData, ItemState.ADDED, true, parent().getQPath()));
     tree.push(nodeData);

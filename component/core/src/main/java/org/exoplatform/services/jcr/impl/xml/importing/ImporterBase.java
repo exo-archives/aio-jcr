@@ -13,6 +13,7 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.PropertyDefinition;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -30,6 +31,7 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeDefinitionImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.PropertyDefinitionImpl;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SARL Author : Peter Nedonosko
@@ -39,6 +41,8 @@ import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
  * @version $Id: ImporterBase.java 13421 2007-03-15 10:46:47Z geaz $
  */
 abstract public class ImporterBase implements Importer {
+
+  private static final Log            log = ExoLogger.getLogger("jcr.ImporterBase");
 
   private final XmlSaveType           saveType;
 
@@ -76,22 +80,37 @@ abstract public class ImporterBase implements Importer {
     return itemStatesList;
   }
 
-  public int getNodeIndex(NodeData parent, InternalQName name) throws PathNotFoundException,
+  public int getNextChildOrderNum(NodeData parentData) {
+    int max = -1;
+
+    for (ItemState itemState : itemStatesList) {
+      if (itemState.getData().getParentIdentifier().equals(parentData.getIdentifier())
+          && itemState.getData().isNode()) {
+        int cur = ((NodeData) itemState.getData()).getOrderNumber();
+        if (cur > max)
+          max = cur;
+      }
+    }
+    return ++max;
+  }
+
+  public int getNodeIndex(NodeData parentData, InternalQName name) throws PathNotFoundException,
       IllegalPathException,
       RepositoryException {
 
     int newIndex = 1;
 
-    NodeImpl parentNode = ((NodeImpl) session.getTransientNodesManager().getItemByIdentifier(parent
-        .getIdentifier(),
-        true));
+    // NodeImpl parentNode = ((NodeImpl)
+    // session.getTransientNodesManager().getItemByIdentifier(parentData
+    // .getIdentifier(),
+    // true));
 
     NodeDefinitionImpl nodedef = session.getWorkspace().getNodeTypeManager()
-        .findNodeDefinition(name, parent.getPrimaryTypeName(), parent.getMixinTypeNames());
+        .findNodeDefinition(name, parentData.getPrimaryTypeName(), parentData.getMixinTypeNames());
 
     NodeImpl sameNameNode = null;
     try {
-      sameNameNode = (NodeImpl) session.getTransientNodesManager().getItem(parent,
+      sameNameNode = (NodeImpl) session.getTransientNodesManager().getItem(parentData,
           new QPathEntry(name, 0),
           true);
     } catch (PathNotFoundException e) {
@@ -99,10 +118,10 @@ abstract public class ImporterBase implements Importer {
       return newIndex;
     }
 
-    List<ItemState> transientAddChilds = getItemStatesList(parent,
+    List<ItemState> transientAddChilds = getItemStatesList(parentData,
         new QPathEntry(name, 0),
         ItemState.ADDED);
-    List<ItemState> transientDeletedChilds = getItemStatesList(parent,
+    List<ItemState> transientDeletedChilds = getItemStatesList(parentData,
         new QPathEntry(name, 0),
         ItemState.DELETED);
 
@@ -121,7 +140,7 @@ abstract public class ImporterBase implements Importer {
 
     newIndex += transientAddChilds.size();
 
-    List<NodeData> existedChilds = session.getTransientNodesManager().getChildNodesData(parent);
+    List<NodeData> existedChilds = session.getTransientNodesManager().getChildNodesData(parentData);
 
     // Calculate SNS index for dest root
     for (NodeData child : existedChilds) {
@@ -201,7 +220,8 @@ abstract public class ImporterBase implements Importer {
         if ((state != 0) && (state != itemState.getState())) {
           continue;
         }
-        states.add(itemState);
+        log.info(states.add(itemState));
+
       }
     }
     return states;

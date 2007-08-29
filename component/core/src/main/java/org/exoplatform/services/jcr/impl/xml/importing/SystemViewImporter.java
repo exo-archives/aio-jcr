@@ -234,15 +234,15 @@ public class SystemViewImporter extends ImporterBase {
       InternalQName jcrName = path.getInternalPath().getName();
       int nodeIndex = getNodeIndex(parentNode, jcrName);
 
-      NodeData newNodeData = TransientNodeData.createNodeData(parentNode,
+      TransientNodeData newNodeData = TransientNodeData.createNodeData(parentNode,
           jcrName,
           primaryTypeName,
           nodeIndex);
-
-      ((TransientNodeData) newNodeData).setMixinTypeNames(mixinTypeNames);
+      newNodeData.setOrderNumber(getNextChildOrderNum(parentNode));
+      newNodeData.setMixinTypeNames(mixinTypeNames);
 
       if (isMixReferenceable) {
-        ((TransientNodeData) newNodeData).setIdentifier(uuid);
+        newNodeData.setIdentifier(uuid);
       }
 
       itemStatesList.add(new ItemState(newNodeData, ItemState.ADDED, true, parentNode.getQPath()));

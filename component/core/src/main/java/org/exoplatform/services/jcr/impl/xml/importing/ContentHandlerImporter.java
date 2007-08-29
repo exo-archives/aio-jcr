@@ -7,7 +7,6 @@ package org.exoplatform.services.jcr.impl.xml.importing;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.impl.core.NodeImpl;

@@ -69,7 +69,7 @@ public class StreamImporter {
         log.debug("Start event handling");
       while (reader.hasNext()) {
         XMLEvent event = reader.nextEvent();
-        // log.info(event.toString());
+         //log.info(event.toString());
         switch (event.getEventType()) {
         case XMLEvent.START_ELEMENT:
           StartElement element = event.asStartElement();
