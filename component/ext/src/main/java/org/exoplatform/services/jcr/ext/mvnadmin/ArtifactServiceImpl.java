@@ -19,50 +19,54 @@ import javax.jcr.Value;
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
-import org.exoplatform.services.jcr.ext.mvnadmin.service.ImportArtifact;
+import org.exoplatform.services.jcr.ext.mvnadmin.service.ArtifactBrowser;
+import org.exoplatform.services.jcr.ext.mvnadmin.service.ArtifactImporter;
 
 import com.sun.org.apache.xalan.internal.xsltc.NodeIterator;
-
-
 
 /*13.08.2007-15:10:05 Volodymyr*/
 public class ArtifactServiceImpl implements ArtifactService {
 
-  private final RepositoryService repositoryService;
-  private Session   session;
-    
-  public ArtifactServiceImpl(RepositoryService repositoryService) throws RepositoryException, RepositoryConfigurationException{
-    this.repositoryService = repositoryService;
-    Credentials credentials = new SimpleCredentials("admin", "admin".toCharArray());
-    session = repositoryService.getDefaultRepository().login(credentials,"ws");
-  }
+	private final RepositoryService repositoryService;
+	private Session session;
 
-  public void importArtifact(ArtifactBean artifact) throws RepositoryException {
-    new ImportArtifact(session).addToRepository(artifact);
-  }
+	public ArtifactServiceImpl(RepositoryService repositoryService)
+			throws RepositoryException, RepositoryConfigurationException {
+		this.repositoryService = repositoryService;
+		Credentials credentials = new SimpleCredentials("admin", "admin"
+				.toCharArray());
+		session = repositoryService.getDefaultRepository().login(credentials,
+				"ws");
+	}
 
-  public List<Node> broseRepositories(Node parentNode) {
-    return null;
-  }
+	public void importArtifact(ArtifactBean artifact) throws RepositoryException {
+		new ArtifactImporter(session).addToRepository(artifact);
+	}
 
-  public void exportRepository(File exportPath) {
-  }
+	public List<Node> broseRepositories(Node parentNode) throws RepositoryException {
+		return new ArtifactBrowser(session).getChildLevel(parentNode);
+	}
 
-  public void importRepository(URL externalRepository) {
+	public void exportRepository(File exportPath) {
+	}
 
-  }
-  public void removeArtifact(ArtifactBean artifactBean) {
+	public void importRepository(URL externalRepository) {
 
-  }
+	}
 
-  public void searchArtifact(String query) {
-    
-  }
-  
-  public Session getSession() {
-    return session;
-  }
-  public void setSession(Session session) {
-    this.session = session;
-  }
+	public void removeArtifact(ArtifactBean artifactBean) {
+
+	}
+
+	public void searchArtifact(String query) {
+
+	}
+
+	public Session getSession() {
+		return session;
+	}
+
+	public void setSession(Session session) {
+		this.session = session;
+	}
 }

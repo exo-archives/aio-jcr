@@ -2,8 +2,7 @@ package org.exoplatform.services.jcr.ext.mvnadmin;
 
 import java.io.File;
 import java.net.URL;
-import java.util.List;
-/*10.08.2007-16:22:52 Volodymyr*/
+import java.util.List; /*10.08.2007-16:22:52 Volodymyr*/
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -34,14 +33,18 @@ import javax.jcr.RepositoryException;
  * There is very raw api spec for user's functionality 
  * */
 public interface ArtifactService {
-  
-  public List<Node> broseRepositories(Node parentNode);
-  public void importArtifact(ArtifactBean artifactBean) throws RepositoryException ;
-  public void removeArtifact(ArtifactBean artifactBean);
-  public void searchArtifact(String query);
-  
-  public void importRepository(URL externalRepository);
-  public void exportRepository(File exportPath);
+
+	public List<Node> broseRepositories(Node parentNode) throws RepositoryException;
+
+	public void importArtifact(ArtifactBean artifactBean)
+			throws RepositoryException;
+
+	public void removeArtifact(ArtifactBean artifactBean);
+
+	public void searchArtifact(String query);
+
+	public void importRepository(URL externalRepository);
+
+	public void exportRepository(File exportPath);
 
 }
- 

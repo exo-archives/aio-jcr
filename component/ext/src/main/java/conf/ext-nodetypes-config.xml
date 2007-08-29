@@ -217,9 +217,11 @@
 	
 	<nodeType name="exo:artifact" isMixin="true" hasOrderableChildNodes="false"
 		primaryItemName="">
-		<supertypes>
+		
+		<!-- supertypes>
 			<supertype>nt:folder</supertype>
-		</supertypes>
+		</supertypes-->
+		
 		<!--
 		Child nodes can be define here
 		-->

@@ -48,6 +48,18 @@
 			<version>1.0</version>
 			<scope>compile</scope>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-digest</artifactId>
+			<version>1.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-utils</artifactId>
+			<version>1.4.1</version>
+		</dependency>
 
 		<!--dependency>
 		    <groupId>javax.xml.parsers</groupId>
@@ -123,12 +135,15 @@
 				<configuration>
 					<childDelegation>true</childDelegation>
 					<includes>
-                        <include>**/access/*Test.java</include>
-                        <include>**/actions/*Test.java</include>
-                        <include>**/audit/*Test.java</include>
+					<!--
+                        			<include>**/access/*Test.java</include>
+			                        <include>**/actions/*Test.java</include>
+			                        <include>**/audit/*Test.java</include>
 						<include>**/metadata/*Test.java</include>
 						<include>**/owner/*Test.java</include>
 						<include>**/registry/*Test.java</include>
+					-->
+						<include>**/mvnadmin/*Test.java</include>
 					</includes>
 				</configuration>
 			</plugin>
