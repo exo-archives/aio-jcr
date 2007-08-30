@@ -81,7 +81,7 @@ public class JCRDriver {
     Session session = conn.getSession();
     Node nodeRef = createNode(session, path, !params.isDirectory());
 
-    // TODO here must be setting file priperties like creatin date and other
+    // TODO here must be setting file properties like creation date and other
 
     // create the network file
     NetworkFile netFile = new JCRNetworkFile();
@@ -251,7 +251,7 @@ public class JCRDriver {
         fileInfo.setSize(0L);
       } else {
         // Get the file size from the content
-
+         
         Node contentNode = nodeRef.getNode("jcr:content");
         Property dataProp = contentNode.getProperty("jcr:data");
 
@@ -503,12 +503,7 @@ public class JCRDriver {
     }
   }
 
-  public static long writeFile(SMBSrvSession m_sess, TreeConnection conn,
-      NetworkFile netFile, byte[] buf, int dataPos, int dataLen, long offset)
-      throws Exception {
-    return netFile.writeFile(buf, dataPos, dataLen, offset);
-
-  }
+ 
 
   /**
    * Read a block of data from the specified file.
@@ -574,20 +569,7 @@ public class JCRDriver {
     return count;
   }
 
-  public static void truncateFile(SMBSrvSession m_sess, TreeConnection conn,
-      NetworkFile netFile, long wrtoff) throws RepositoryException {
-    // Check if the file is a directory
-
-    if (netFile.isDirectory())
-      throw new AccessDeniedException();
-
-    try {
-      ((JCRNetworkFile) netFile).truncateFile(wrtoff);
-    } catch (Exception e) {
-      throw new RepositoryException(e.getMessage());
-    }
-
-  }
+  
 
   /**
    * This method is called by setFileAttributes command

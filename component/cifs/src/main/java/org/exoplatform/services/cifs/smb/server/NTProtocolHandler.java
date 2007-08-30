@@ -177,8 +177,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // Debug
 
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_STATE))
-        logger.debug("AndX Command = 0x"
-            + Integer.toHexString(m_smbPkt.getAndXCommand()));
+        logger.debug("AndX Command = 0x" +
+            Integer.toHexString(m_smbPkt.getAndXCommand()));
 
       // Copy the request packet into a new packet for the reply
 
@@ -350,8 +350,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
         // request to the
         // core protocol handler
 
-        if (conn.getSharedDevice().getType() == ShareType.DISK
-            || conn.getSharedDevice().getType() == ShareType.PRINTER) {
+        if (conn.getSharedDevice().getType() == ShareType.DISK ||
+            conn.getSharedDevice().getType() == ShareType.PRINTER) {
 
           // Chain to the core protocol handler
 
@@ -455,15 +455,14 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // DEBUG
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_NEGOTIATE)) {
-      logger.debug("NT Session setup from user=" + user + ", password="
-          + (uniPwd != null ? HexDump.hexString(uniPwd) : "none")
-          + ", ANSIpwd="
-          + (ascPwd != null ? HexDump.hexString(ascPwd) : "none") + ", domain="
-          + domain + ", os=" + clientOS + ", VC=" + vcNum + ", maxBuf="
-          + maxBufSize + ", maxMpx=" + maxMpx + ", authCtx="
-          + m_sess.getAuthenticationContext());
-      logger.debug("  MID=" + m_smbPkt.getMultiplexId() + ", UID="
-          + m_smbPkt.getUserId() + ", PID=" + m_smbPkt.getProcessId());
+      logger.debug("NT Session setup from user=" + user + ", password=" +
+          (uniPwd != null ? HexDump.hexString(uniPwd) : "none") + ", ANSIpwd=" +
+          (ascPwd != null ? HexDump.hexString(ascPwd) : "none") + ", domain=" +
+          domain + ", os=" + clientOS + ", VC=" + vcNum + ", maxBuf=" +
+          maxBufSize + ", maxMpx=" + maxMpx + ", authCtx=" +
+          m_sess.getAuthenticationContext());
+      logger.debug("  MID=" + m_smbPkt.getMultiplexId() + ", UID=" +
+          m_smbPkt.getUserId() + ", PID=" + m_smbPkt.getProcessId());
     }
 
     // Store the client maximum buffer size, maximum multiplexed requests count
@@ -517,8 +516,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       pos = DataPacker.wordAlign(pos);
 
     pos = DataPacker.putString("Java", buf, pos, true, isUni);
-    pos = DataPacker.putString("Alfresco CIFS Server "
-        + m_sess.getServer().isVersion(), buf, pos, true, isUni);
+    pos = DataPacker.putString("Alfresco CIFS Server " +
+        m_sess.getServer().isVersion(), buf, pos, true, isUni);
     pos = DataPacker.putString(m_sess.getServer().getConfiguration()
         .getDomainName(), buf, pos, true, isUni);
 
@@ -528,8 +527,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     pos = outPkt.getLength();
 
-    if (m_smbPkt.hasAndXCommand()
-        && m_smbPkt.getPosition() < m_smbPkt.getReceivedLength()) {
+    if (m_smbPkt.hasAndXCommand() &&
+        m_smbPkt.getPosition() < m_smbPkt.getReceivedLength()) {
 
       // Process any chained commands, AndX
 
@@ -572,8 +571,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Use the byte offset plus length to calculate the current output packet
     // end position
 
-    return procAndXCommands(outPkt, outPkt.getByteOffset()
-        + outPkt.getByteCount(), null);
+    return procAndXCommands(outPkt, outPkt.getByteOffset() +
+        outPkt.getByteCount(), null);
   }
 
   /**
@@ -647,8 +646,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // Set the next chained command details in the current parameter block
 
       outPkt.setAndXCommand(paramBlk, andxCmd);
-      outPkt.setAndXParameter(paramBlk, 1, prevEndOfPkt
-          - RFCNetBIOSProtocol.HEADER_LEN);
+      outPkt.setAndXParameter(paramBlk, 1, prevEndOfPkt -
+          RFCNetBIOSProtocol.HEADER_LEN);
 
       // Check if the end of chain has been reached, if not then look for the
       // next
@@ -766,8 +765,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Map the IPC$ share to the admin pipe type
 
-    if ((servType == ShareType.NAMEDPIPE)
-        && (share.getShareName().compareTo("IPC$") == 0))
+    if ((servType == ShareType.NAMEDPIPE) &&
+        (share.getShareName().compareTo("IPC$") == 0))
       servType = ShareType.ADMINPIPE;
 
     // Find the requested shared device
@@ -801,8 +800,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Check if the share is valid
 
-    if (shareDev == null
-        || (servType != ShareType.UNKNOWN && shareDev.getType() != servType)) {
+    if (shareDev == null ||
+        (servType != ShareType.UNKNOWN && shareDev.getType() != servType)) {
 
       // Set the error status
 
@@ -936,8 +935,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
-      logger.debug("Chained File Read AndX : Size=" + maxCount + " ,Pos="
-          + offset);
+      logger.debug("Chained File Read AndX : Size=" + maxCount + " ,Pos=" +
+          offset);
 
     // Read data from the file
 
@@ -974,8 +973,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       outPkt.setAndXParameter(endOff, 3, 0); // data compaction mode
       outPkt.setAndXParameter(endOff, 4, 0); // reserved
       outPkt.setAndXParameter(endOff, 5, rdlen); // data length
-      outPkt.setAndXParameter(endOff, 6, dataPos
-          - RFCNetBIOSProtocol.HEADER_LEN); // offset
+      outPkt.setAndXParameter(endOff, 6, dataPos -
+          RFCNetBIOSProtocol.HEADER_LEN); // offset
       // to
       // data
 
@@ -986,8 +985,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
       // Set the byte count
 
-      outPkt.setAndXByteCount(endOff, (dataPos + rdlen)
-          - outPkt.getAndXByteOffset(endOff));
+      outPkt.setAndXByteCount(endOff, (dataPos + rdlen) -
+          outPkt.getAndXByteOffset(endOff));
 
       // Update the end offset for the new end of packet
 
@@ -1044,8 +1043,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
-      logger.debug("Chained File Close [" + m_smbPkt.getTreeId() + "] fid="
-          + fid);
+      logger.debug("Chained File Close [" + m_smbPkt.getTreeId() + "] fid=" +
+          fid);
 
     // Close the file
 
@@ -1201,8 +1200,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Check if the share is valid
 
-    if (shareDev == null
-        || (servType != ShareType.UNKNOWN && shareDev.getType() != servType)) {
+    if (shareDev == null ||
+        (servType != ShareType.UNKNOWN && shareDev.getType() != servType)) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTBadNetName,
           SMBStatus.SRVInvalidNetworkName, SMBStatus.ErrSrv);
       return;
@@ -1241,8 +1240,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_TREE))
-      logger.debug("Tree Connect AndX - Allocated Tree Id = " + treeId
-          + ", Permission = " + FileAccess.asString(sharePerm));
+      logger.debug("Tree Connect AndX - Allocated Tree Id = " + treeId +
+          ", Permission = " + FileAccess.asString(sharePerm));
 
     // Build the tree connect response
 
@@ -1337,18 +1336,21 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     try {
 
       // delete file if it market as delete on close file
-      if (netFile.hasDeleteOnClose() && (netFile instanceof JCRNetworkFile)) {
-        Session jcr_sess = ((JCRNetworkFile) netFile).getNodeRef().getSession();
-        ((JCRNetworkFile) netFile).getNodeRef().remove();
-        jcr_sess.save();
-        logger.debug("file [" + netFile.getName() + "] deleted");
+      if (netFile.hasDeleteOnClose()) {
+        if (netFile instanceof JCRNetworkFile) {
 
-      }
+          Node parent = ((JCRNetworkFile) netFile).getNodeRef().getParent();
+          ((JCRNetworkFile) netFile).getNodeRef().remove();
+          parent.save();
 
-      if (netFile instanceof JCRNetworkFile) {
-        ((JCRNetworkFile) netFile).getNodeRef().save();
+          logger.debug("file [" + netFile.getName() + "] deleted");
+
+        }
+      } else if (netFile instanceof JCRNetworkFile) {
+        ((JCRNetworkFile) netFile).flush();
+        ((JCRNetworkFile) netFile).saveChanges();
+
         logger.debug("file [" + netFile.getName() + "] save changes");
-
       }
     } catch (LockException e) {
       // Return an access denied error
@@ -1357,7 +1359,9 @@ public class NTProtocolHandler extends CoreProtocolHandler {
           SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
       return;
     } catch (RepositoryException e) {
+
       e.printStackTrace();
+
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
     }
@@ -1435,8 +1439,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     SrvTransactBuffer transBuf = null;
     int subCmd = tranPkt.getSubFunction();
 
-    if (tranPkt.getTotalParameterCount() == tranPkt.getRxParameterBlockLength()
-        && tranPkt.getTotalDataCount() == tranPkt.getRxDataBlockLength()) {
+    if (tranPkt.getTotalParameterCount() == tranPkt.getRxParameterBlockLength() &&
+        tranPkt.getTotalDataCount() == tranPkt.getRxDataBlockLength()) {
 
       // Create a transact buffer using the packet buffer, the entire request is
       // contained in
@@ -1496,8 +1500,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // DEBUG
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_TRAN))
-      logger.debug("Transaction [" + m_smbPkt.getTreeId() + "] tbuf="
-          + transBuf);
+      logger.debug("Transaction [" + m_smbPkt.getTreeId() + "] tbuf=" +
+          transBuf);
 
     // Process the transaction buffer
 
@@ -1551,10 +1555,10 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Check if there is an active transaction, and it is an NT transaction
 
-    if (m_sess.hasTransaction() == false
-        || (m_sess.getTransaction().isType() == PacketType.Transaction && m_smbPkt
-            .getCommand() != PacketType.TransactionSecond)
-        || (m_sess.getTransaction().isType() == PacketType.Transaction2 && m_smbPkt
+    if (m_sess.hasTransaction() == false ||
+        (m_sess.getTransaction().isType() == PacketType.Transaction && m_smbPkt
+            .getCommand() != PacketType.TransactionSecond) ||
+        (m_sess.getTransaction().isType() == PacketType.Transaction2 && m_smbPkt
             .getCommand() != PacketType.Transaction2Second)) {
 
       // No transaction to continue, or packet does not match the existing
@@ -1597,8 +1601,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_TRAN))
-      logger.debug("Transaction Secondary [" + m_smbPkt.getTreeId()
-          + "] paramLen=" + plen + ", dataLen=" + dlen);
+      logger.debug("Transaction Secondary [" + m_smbPkt.getTreeId() +
+          "] paramLen=" + plen + ", dataLen=" + dlen);
 
     // Check if the transaction has been received or there are more sections to
     // be received
@@ -1632,8 +1636,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // DEBUG
 
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_TRAN))
-        logger.debug("Transaction second [" + m_smbPkt.getTreeId() + "] tbuf="
-            + transBuf);
+        logger.debug("Transaction second [" + m_smbPkt.getTreeId() + "] tbuf=" +
+            transBuf);
 
       // Process the transaction
 
@@ -1948,8 +1952,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
-      logger.debug("File Open AndX [" + m_smbPkt.getTreeId() + "] params="
-          + params);
+      logger.debug("File Open AndX [" + m_smbPkt.getTreeId() + "] params=" +
+          params);
     logger.debug("is directory " + params.isDirectory() + " TEMPORARY");
 
     int responseAction = 0x0;
@@ -1991,8 +1995,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
         // if else response action still zero
       } else {
         // file/dir exist
-        if ((FileAction.openIfExists(openFunc))
-            || (FileAction.truncateExistingFile(openFunc))) {
+        if ((FileAction.openIfExists(openFunc)) ||
+            (FileAction.truncateExistingFile(openFunc))) {
           // Open the requested file
           file = JCRDriver.openFile(conn, params);
 
@@ -2036,8 +2040,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       return;
     }
 
-    logger.debug("resp Action " + FileAction.asString(responseAction)
-        + ", fid = " + fid + " TEMPORARY");
+    logger.debug("resp Action " + FileAction.asString(responseAction) +
+        ", fid = " + fid + " TEMPORARY");
 
     // Build the open file response
 
@@ -2157,8 +2161,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILEIO))
-      logger.debug("File Read AndX [" + netFile.getFileId() + "] : Size="
-          + maxCount + " ,Pos=" + offset);
+      logger.debug("File Read AndX [" + netFile.getFileId() + "] : Size=" +
+          maxCount + " ,Pos=" + offset);
 
     // Read data from the file
 
@@ -2325,8 +2329,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
-      logger.debug("File Rename [" + m_smbPkt.getTreeId() + "] old name="
-          + oldName + ", new name=" + newName);
+      logger.debug("File Rename [" + m_smbPkt.getTreeId() + "] old name=" +
+          oldName + ", new name=" + newName);
 
     // Check if the from/to paths are
 
@@ -2561,8 +2565,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
-      logger.debug("File Delete [" + m_smbPkt.getTreeId() + "] name="
-          + fileName);
+      logger.debug("File Delete [" + m_smbPkt.getTreeId() + "] name=" +
+          fileName);
 
     // Access the disk interface and delete the file(s)
 
@@ -2729,8 +2733,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
-      logger.debug("Directory Delete [" + m_smbPkt.getTreeId() + "] name="
-          + dirName);
+      logger.debug("Directory Delete [" + m_smbPkt.getTreeId() + "] name=" +
+          dirName);
 
     try {
 
@@ -2874,8 +2878,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Check for the Macintosh information level, if the Macintosh extensions
     // are not enabled return an error
 
-    if (infoLevl == FindInfoPacker.InfoMacHfsInfo
-        && getSession().hasMacintoshExtensions() == false) {
+    if (infoLevl == FindInfoPacker.InfoMacHfsInfo &&
+        getSession().hasMacintoshExtensions() == false) {
 
       // Return an error status, Macintosh extensions are not enabled
 
@@ -2916,8 +2920,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
       // Check if this is a wildcard search or single file search
 
-      if (WildCard.containsWildcards(srchPath)
-          || WildCard.containsUnicodeWildcard(srchPath))
+      if (WildCard.containsWildcards(srchPath) ||
+          WildCard.containsUnicodeWildcard(srchPath))
         wildcardSearch = true;
 
       // Check if the search contains Unicode wildcards
@@ -2930,8 +2934,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
         // Debug
 
-        if (logger.isDebugEnabled()
-            && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
+        if (logger.isDebugEnabled() &&
+            m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
           logger.debug("Converted Unicode wildcards to:" + srchPath);
       }
 
@@ -2969,10 +2973,10 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // Debug
 
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
-        logger.debug("Start trans search [" + searchId + "] - " + srchPath
-            + ", attr=0x" + Integer.toHexString(srchAttr) + ", maxFiles="
-            + maxFiles + ", maxLen=" + maxLen + ", infoLevel=" + infoLevl
-            + ", flags=0x" + Integer.toHexString(srchFlag));
+        logger.debug("Start trans search [" + searchId + "] - " + srchPath +
+            ", attr=0x" + Integer.toHexString(srchAttr) + ", maxFiles=" +
+            maxFiles + ", maxLen=" + maxLen + ", infoLevel=" + infoLevl +
+            ", flags=0x" + Integer.toHexString(srchFlag));
 
       // Loop until we have filled the return buffer or there are no more files
       // to return
@@ -2984,8 +2988,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // Flag to indicate if resume ids should be returned
 
       boolean resumeIds = false;
-      if (infoLevl == FindInfoPacker.InfoStandard
-          && (srchFlag & FindFirstNext.ReturnResumeKey) != 0) {
+      if (infoLevl == FindInfoPacker.InfoStandard &&
+          (srchFlag & FindFirstNext.ReturnResumeKey) != 0) {
 
         // Windows servers only seem to return resume keys for the standard
         // information level
@@ -3128,17 +3132,17 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // Debug
 
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
-        logger.debug("Search [" + searchId + "] Returned " + fileCnt
-            + " files, dataLen=" + dataBuf.getLength() + ", moreFiles="
-            + ctx.hasMoreFiles());
+        logger.debug("Search [" + searchId + "] Returned " + fileCnt +
+            " files, dataLen=" + dataBuf.getLength() + ", moreFiles=" +
+            ctx.hasMoreFiles());
 
       // Check if the search is complete
 
       if (searchDone == true || ctx.hasMoreFiles() == false) {
         // Debug
 
-        if (logger.isDebugEnabled()
-            && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
+        if (logger.isDebugEnabled() &&
+            m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
           logger.debug("End start search [" + searchId + "] (Search complete)");
 
         // Release the search context
@@ -3147,8 +3151,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       } else if ((srchFlag & FindFirstNext.CloseSearch) != 0) {
         // Debug
 
-        if (logger.isDebugEnabled()
-            && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
+        if (logger.isDebugEnabled() &&
+            m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
           logger.debug("End start search [" + searchId + "] (Close)");
 
         // Release the search context
@@ -3259,8 +3263,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
         // DEBUG
 
-        if (logger.isDebugEnabled()
-            && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
+        if (logger.isDebugEnabled() &&
+            m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
           logger.debug("Search context null - [" + searchId + "]");
 
         // Invalid search handle
@@ -3281,9 +3285,9 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // Debug
 
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
-        logger.debug("Continue search [" + searchId + "] - " + resumeName
-            + ", maxFiles=" + maxFiles + ", maxLen=" + maxLen + ", infoLevel="
-            + infoLevl + ", flags=0x" + Integer.toHexString(srchFlag));
+        logger.debug("Continue search [" + searchId + "] - " + resumeName +
+            ", maxFiles=" + maxFiles + ", maxLen=" + maxLen + ", infoLevel=" +
+            infoLevl + ", flags=0x" + Integer.toHexString(srchFlag));
 
       // Loop until we have filled the return buffer or there are no more files
       // to return
@@ -3295,8 +3299,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // Flag to indicate if resume ids should be returned
 
       boolean resumeIds = false;
-      if (infoLevl == FindInfoPacker.InfoStandard
-          && (srchFlag & FindFirstNext.ReturnResumeKey) != 0) {
+      if (infoLevl == FindInfoPacker.InfoStandard &&
+          (srchFlag & FindFirstNext.ReturnResumeKey) != 0) {
 
         // Windows servers only seem to return resume keys for the standard
         // information level
@@ -3379,9 +3383,9 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // Debug
 
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
-        logger.debug("Search [" + searchId + "] Returned " + fileCnt
-            + " files, dataLen=" + dataBuf.getLength() + ", moreFiles="
-            + ctx.hasMoreFiles());
+        logger.debug("Search [" + searchId + "] Returned " + fileCnt +
+            " files, dataLen=" + dataBuf.getLength() + ", moreFiles=" +
+            ctx.hasMoreFiles());
 
       // Check if the search is complete
 
@@ -3389,8 +3393,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
         // Debug
 
-        if (logger.isDebugEnabled()
-            && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
+        if (logger.isDebugEnabled() &&
+            m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
           logger.debug("End start search [" + searchId + "] (Search complete)");
 
         // Release the search context
@@ -3399,8 +3403,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       } else if ((srchFlag & FindFirstNext.CloseSearch) != 0) {
         // Debug
 
-        if (logger.isDebugEnabled()
-            && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
+        if (logger.isDebugEnabled() &&
+            m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
           logger.debug("End start search [" + searchId + "] (Close)");
 
         // Release the search context
@@ -3500,8 +3504,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_INFO))
-      logger.debug("Query File System Info - level = 0x"
-          + Integer.toHexString(infoLevl));
+      logger.debug("Query File System Info - level = 0x" +
+          Integer.toHexString(infoLevl));
 
     // Access the shared device disk interface
 
@@ -3832,8 +3836,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_INFO))
-      logger.debug("Query Path - level = 0x" + Integer.toHexString(infoLevl)
-          + ", path = " + path);
+      logger.debug("Query Path - level = 0x" + Integer.toHexString(infoLevl) +
+          ", path = " + path);
 
     // Check if the smb file name is valid
 
@@ -4032,9 +4036,9 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_INFO))
-      logger.debug("Query File - level=0x" + Integer.toHexString(infoLevl)
-          + ", fid=" + fid + ", stream=" + netFile.getStreamId() + ", name="
-          + netFile.getFullName());
+      logger.debug("Query File - level=0x" + Integer.toHexString(infoLevl) +
+          ", fid=" + fid + ", stream=" + netFile.getStreamId() + ", name=" +
+          netFile.getFullName());
 
     // Access the shared device disk interface
 
@@ -4198,8 +4202,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_INFO))
-      logger.debug("Set File - level=0x" + Integer.toHexString(infoLevl)
-          + ", fid=" + fid + ", name=" + netFile.getFullName());
+      logger.debug("Set File - level=0x" + Integer.toHexString(infoLevl) +
+          ", fid=" + fid + ", name=" + netFile.getFullName());
 
     // Access the shared device disk interface
 
@@ -4297,10 +4301,10 @@ public class NTProtocolHandler extends CoreProtocolHandler {
         // Debug
 
         if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_INFO))
-          logger.debug("  Set Basic Info [" + treeId + "] name="
-              + netFile.getFullName() + ", attr=0x" + Integer.toHexString(attr)
-              + ", setTime=" + hasSetTime + ", setFlags=0x"
-              + Integer.toHexString(setFlags) + ", unknown=" + unknown);
+          logger.debug("  Set Basic Info [" + treeId + "] name=" +
+              netFile.getFullName() + ", attr=0x" + Integer.toHexString(attr) +
+              ", setTime=" + hasSetTime + ", setFlags=0x" +
+              Integer.toHexString(setFlags) + ", unknown=" + unknown);
         break;
 
       // Set end of file position for a file
@@ -4312,16 +4316,18 @@ public class NTProtocolHandler extends CoreProtocolHandler {
         long eofPos = dataBuf.getLong();
 
         // Set the new end of file position
-        BinaryValue val = (BinaryValue) ((JCRNetworkFile) netFile).getNodeRef()
-            .getNode("jcr:content").getProperty("jcr:data").getValue();
-        val.truncate(eofPos);
+
+        if (netFile.isDirectory())
+          throw new AccessDeniedException();
+
+        ((JCRNetworkFile) netFile).truncateFile(eofPos);
         // JCRDriver.truncateFile(m_sess, conn, netFile, eofPos);
 
         // Debug
 
         if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_INFO))
-          logger.debug("  Set end of file position fid=" + fid + ", eof="
-              + eofPos);
+          logger.debug("  Set end of file position fid=" + fid + ", eof=" +
+              eofPos);
         break;
 
       // Set the allocation size for a file
@@ -4334,13 +4340,16 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
         // Set the new end of file position
 
-        JCRDriver.truncateFile(m_sess, conn, netFile, allocSize);
+        if (netFile.isDirectory())
+          throw new AccessDeniedException();
+
+        ((JCRNetworkFile) netFile).truncateFile(allocSize);
 
         // Debug
 
         if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_INFO))
-          logger.debug("  Set allocation size fid=" + fid + ", allocSize="
-              + allocSize);
+          logger.debug("  Set allocation size fid=" + fid + ", allocSize=" +
+              allocSize);
         break;
 
       // Rename a stream
@@ -4395,8 +4404,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
         // Debug
 
         if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_INFO))
-          logger.debug("  Set file disposition fid=" + fid + ", name="
-              + netFile.getName() + ", delete=" + delFlag);
+          logger.debug("  Set file disposition fid=" + fid + ", name=" +
+              netFile.getName() + ", delete=" + delFlag);
         break;
       }
 
@@ -4444,7 +4453,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     } catch (RepositoryException ex) {
 
       // Failed to get/initialize the disk interface
-
+      ex.printStackTrace();
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
           SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
       return;
@@ -4508,8 +4517,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_INFO))
-      logger.debug("Set Path - path=" + path + ", level=0x"
-          + Integer.toHexString(infoLevl));
+      logger.debug("Set Path - path=" + path + ", level=0x" +
+          Integer.toHexString(infoLevl));
 
     // Check if the file name is valid
 
@@ -4606,10 +4615,10 @@ public class NTProtocolHandler extends CoreProtocolHandler {
         // Debug
 
         if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_INFO))
-          logger.debug("  Set Standard Info [" + treeId + "] name=" + path
-              + ", attr=0x" + Integer.toHexString(attr) + ", setTime="
-              + hasSetTime + ", setFlags=0x" + Integer.toHexString(setFlags)
-              + ", eaListLen=" + eaListLen);
+          logger.debug("  Set Standard Info [" + treeId + "] name=" + path +
+              ", attr=0x" + Integer.toHexString(attr) + ", setTime=" +
+              hasSetTime + ", setFlags=0x" + Integer.toHexString(setFlags) +
+              ", eaListLen=" + eaListLen);
         break;
       }
 
@@ -4755,8 +4764,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILEIO))
-      logger.debug("File Write AndX [" + netFile.getFileId() + "] : Size="
-          + dataLen + " ,Pos=" + offset);
+      logger.debug("File Write AndX [" + netFile.getFileId() + "] : Size=" +
+          dataLen + " ,Pos=" + offset);
 
     // Write data to the file
 
@@ -4769,22 +4778,18 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
       // Write to the file
 
-      ((ExtendedProperty) ((JCRNetworkFile) netFile).getNodeRef().getNode(
-          "jcr:content").getProperty("jcr:data")).updateValue(0,
-          new ByteArrayInputStream(buf, dataPos, dataLen), dataLen, offset);
-      
-      logger.debug(dataLen + " writed to binvalue");
+      ((JCRNetworkFile) netFile).updateFile(new ByteArrayInputStream(buf,
+          dataPos, dataLen), dataLen, offset);
 
-      // wrtlen = (int) JCRDriver.writeFile(m_sess, conn, netFile, buf, dataPos,
-      // dataLen, offset);
+      logger.debug(dataLen + " writed to binvalue");
 
     } catch (AccessDeniedException ex) {
 
       // Debug
 
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILEIO))
-        logger.debug("File Write Error [" + netFile.getFileId() + "] : "
-            + ex.toString());
+        logger.debug("File Write Error [" + netFile.getFileId() + "] : " +
+            ex.toString());
 
       // Not allowed to write to the file
 
@@ -4793,10 +4798,12 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       return;
 
     } catch (RepositoryException ex) {
-
+      ex.printStackTrace();
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
-    } catch (Exception e) {
+
+    }catch (Exception e) {
+      e.printStackTrace();
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
 
@@ -4984,8 +4991,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
-      logger.debug("NT Create AndX [" + m_smbPkt.getTreeId() + "] params="
-          + params);
+      logger.debug("NT Create AndX [" + m_smbPkt.getTreeId() + "] params=" +
+          params);
 
     // TODO Check if the file name is valid
 
@@ -5001,10 +5008,10 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
         // Check if the file should be created if it does not exist
 
-        if (createDisp == FileAction.NTCreate
-            || createDisp == FileAction.NTOpenIf
-            || createDisp == FileAction.NTOverwriteIf
-            || createDisp == FileAction.NTSupersede) {
+        if (createDisp == FileAction.NTCreate ||
+            createDisp == FileAction.NTOpenIf ||
+            createDisp == FileAction.NTOverwriteIf ||
+            createDisp == FileAction.NTSupersede) {
 
           // Check if the user has the required access permission
 
@@ -5052,19 +5059,21 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
         // Check if the file should be truncated
 
-        if (createDisp == FileAction.NTSupersede
-            || createDisp == FileAction.NTOverwriteIf) {
+        if (createDisp == FileAction.NTSupersede ||
+            createDisp == FileAction.NTOverwriteIf) {
 
           // Truncate the file
+          if (netFile.isDirectory())
+            throw new AccessDeniedException();
 
-          JCRDriver.truncateFile(m_sess, conn, netFile, 0L);
+          ((JCRNetworkFile) netFile).truncateFile(0L);
 
           // Debug
 
-          if (logger.isDebugEnabled()
-              && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
-            logger.debug("  [" + m_smbPkt.getTreeId() + "] name=" + fileName
-                + " truncated");
+          if (logger.isDebugEnabled() &&
+              m_sess.hasDebug(SMBSrvSession.DBG_FILE))
+            logger.debug("  [" + m_smbPkt.getTreeId() + "] name=" + fileName +
+                " truncated");
         }
 
         // Set the file action response
@@ -5362,8 +5371,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     SrvTransactBuffer transBuf = null;
 
-    if (ntTrans.getTotalParameterCount() == ntTrans.getParameterBlockCount()
-        && ntTrans.getTotalDataCount() == ntTrans.getDataBlockCount()) {
+    if (ntTrans.getTotalParameterCount() == ntTrans.getParameterBlockCount() &&
+        ntTrans.getTotalDataCount() == ntTrans.getDataBlockCount()) {
 
       // Create a transact buffer using the packet buffer, the entire request is
       // contained in
@@ -5384,8 +5393,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // Debug
 
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_TRAN))
-        logger.debug("NT Transaction [" + m_smbPkt.getTreeId() + "] transbuf="
-            + transBuf);
+        logger.debug("NT Transaction [" + m_smbPkt.getTreeId() + "] transbuf=" +
+            transBuf);
 
       // Append the setup, parameter and data blocks to the transaction data
 
@@ -5398,9 +5407,10 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // Debug
 
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_TRAN))
-        logger.debug("NT Transaction [" + m_smbPkt.getTreeId() + "] pcnt="
-            + ntTrans.getNTParameter(4) + ", offset="
-            + ntTrans.getNTParameter(5));
+        logger
+            .debug("NT Transaction [" + m_smbPkt.getTreeId() + "] pcnt=" +
+                ntTrans.getNTParameter(4) + ", offset=" +
+                ntTrans.getNTParameter(5));
 
       cnt = ntTrans.getParameterBlockCount();
 
@@ -5415,9 +5425,9 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_TRAN))
-      logger.debug("NT Transaction [" + m_smbPkt.getTreeId() + "] cmd=0x"
-          + Integer.toHexString(subCmd) + ", multiPkt="
-          + transBuf.isMultiPacket());
+      logger.debug("NT Transaction [" + m_smbPkt.getTreeId() + "] cmd=0x" +
+          Integer.toHexString(subCmd) + ", multiPkt=" +
+          transBuf.isMultiPacket());
 
     // Check for a multi-packet transaction, for a multi-packet transaction we
     // just acknowledge
@@ -5493,8 +5503,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Check if there is an active transaction, and it is an NT transaction
 
-    if (m_sess.hasTransaction() == false
-        || m_sess.getTransaction().isType() != PacketType.NTTransact) {
+    if (m_sess.hasTransaction() == false ||
+        m_sess.getTransaction().isType() != PacketType.NTTransact) {
 
       // No NT transaction to continue, return an error
 
@@ -5534,8 +5544,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_TRAN))
-      logger.debug("NT Transaction Secondary [" + m_smbPkt.getTreeId()
-          + "] paramLen=" + plen + ", dataLen=" + dlen);
+      logger.debug("NT Transaction Secondary [" + m_smbPkt.getTreeId() +
+          "] paramLen=" + plen + ", dataLen=" + dlen);
 
     // Check if the transaction has been received or there are more sections to
     // be received
@@ -5784,8 +5794,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
-      logger.debug("NT TransactCreate [" + m_smbPkt.getTreeId() + "] params="
-          + params + "  secDescLen=" + sdLen + ", extAttribLen=" + eaLen);
+      logger.debug("NT TransactCreate [" + m_smbPkt.getTreeId() + "] params=" +
+          params + "  secDescLen=" + sdLen + ", extAttribLen=" + eaLen);
 
     // Access the disk interface and open/create the requested file
 
@@ -5800,10 +5810,10 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
         // Check if the file should be created if it does not exist
 
-        if (createDisp == FileAction.NTCreate
-            || createDisp == FileAction.NTOpenIf
-            || createDisp == FileAction.NTOverwriteIf
-            || createDisp == FileAction.NTSupersede) {
+        if (createDisp == FileAction.NTCreate ||
+            createDisp == FileAction.NTOpenIf ||
+            createDisp == FileAction.NTOverwriteIf ||
+            createDisp == FileAction.NTSupersede) {
 
           // Create a new file /directory
 
@@ -5848,19 +5858,21 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
         // Check if the file should be truncated
 
-        if (createDisp == FileAction.NTSupersede
-            || createDisp == FileAction.NTOverwriteIf) {
+        if (createDisp == FileAction.NTSupersede ||
+            createDisp == FileAction.NTOverwriteIf) {
 
           // Truncate the file
+          if (netFile.isDirectory())
+            throw new AccessDeniedException();
 
-          JCRDriver.truncateFile(m_sess, conn, netFile, 0L);
+          ((JCRNetworkFile) netFile).truncateFile(0L);
 
           // Debug
 
-          if (logger.isDebugEnabled()
-              && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
-            logger.debug("  [" + m_smbPkt.getTreeId() + "] name=" + fileName
-                + " truncated");
+          if (logger.isDebugEnabled() &&
+              m_sess.hasDebug(SMBSrvSession.DBG_FILE))
+            logger.debug("  [" + m_smbPkt.getTreeId() + "] name=" + fileName +
+                " truncated");
         }
 
         // Set the file action response
@@ -6013,8 +6025,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // TODO && m_sess.hasDebug(SMBSrvSession.DBG_TRAN)
     if (logger.isDebugEnabled())
-      logger.debug("NT IOCtl code=" + NTIOCtl.asString(ctrlCode) + ", fid="
-          + fid + ", fsctrl=" + fsctrl + ", filter=" + filter);
+      logger.debug("NT IOCtl code=" + NTIOCtl.asString(ctrlCode) + ", fid=" +
+          fid + ", fsctrl=" + fsctrl + ", filter=" + filter);
 
     try {
 

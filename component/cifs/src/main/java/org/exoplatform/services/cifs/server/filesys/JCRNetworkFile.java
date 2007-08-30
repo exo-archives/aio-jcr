@@ -8,15 +8,19 @@ package org.exoplatform.services.cifs.server.filesys;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 import javax.jcr.Node;
+import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.cifs.server.filesys.NetworkFile;
+import org.exoplatform.services.jcr.core.ExtendedProperty;
+import org.exoplatform.services.jcr.core.value.ExtendedBinaryValue;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -31,13 +35,11 @@ public class JCRNetworkFile extends NetworkFile {
 
   private static int id = 0;
 
+  // Reference to node represents the file
   private Node node;
 
-  private FileChannel wrchannel;
-
-  private boolean truncfirst = false;
-
-  private File tmpfile;
+  // BinareValue that used for random write in file;
+  private ExtendedBinaryValue exv;
 
   public JCRNetworkFile(Node n) {
     super();
@@ -56,116 +58,59 @@ public class JCRNetworkFile extends NetworkFile {
     return node;
   }
 
-  private void createTemporaryFileChannel() throws Exception {
-    id++;
-    String suf = String.valueOf(getFileId());
-    tmpfile = File.createTempFile("tf_" + suf + id, ".tmp");
-    tmpfile.deleteOnExit();
-
-    wrchannel = new FileOutputStream(tmpfile, true).getChannel();
+  public ExtendedBinaryValue getExtendedBinaryValue() {
+    return exv;
   }
 
-  public long writeFile(byte[] buf, int dataPos, int dataLen, long offset)
-      throws Exception {
-    if (wrchannel == null)
-      createTemporaryFileChannel();
-    ByteBuffer byteBuffer = ByteBuffer.wrap(buf, dataPos, dataLen);
-    int i = wrchannel.write(byteBuffer, offset);
+  protected void assignExtendedBinaryValue() throws RepositoryException {
+    exv = (ExtendedBinaryValue) getNodeRef().getNode("jcr:content")
+        .getProperty("jcr:data").getValue();
 
-    if (((long) (dataLen + offset) >= m_fileSize) && (m_fileSize != 0)) {
-      FileInputStream fis = new FileInputStream(tmpfile);
-      node.getNode("jcr:content").getProperty("jcr:data").setValue(fis);
-      fis.close();
-      wrchannel.close();
-      tmpfile.delete();
-      node.save();
+  }
 
-      logger.debug("file data cmpletly writed into jcr node TEMPORARY");
+  public boolean isExtendedBinaryValueAssigned() {
+    return (exv != null) ? true : false;
+  }
+
+  public void updateFile(InputStream is, int datalength, long position)
+      throws IOException, RepositoryException {
+
+    if (!isExtendedBinaryValueAssigned())
+      assignExtendedBinaryValue();
+
+    exv.update(is, datalength, position);
+
+  }
+
+  public void truncateFile(long size) throws IOException, RepositoryException {
+    if (!isExtendedBinaryValueAssigned())
+      assignExtendedBinaryValue();
+
+    exv.setLength(size);
+  }
+
+  public void flush() throws RepositoryException, IOException {
+    if (isExtendedBinaryValueAssigned()) {
+      getNodeRef().getNode("jcr:content").getProperty("jcr:data").setValue(exv);
+
+      exv = null; // free the reference to property value
+    }
+    // else: do nothing
+  }
+
+  public void saveChanges() throws RepositoryException {
+    getNodeRef().save();
+  }
+
+  public long getLength() throws RepositoryException {
+    if (isExtendedBinaryValueAssigned()) {
+      // flush changes to property
+      getNodeRef().getNode("jcr:content").getProperty("jcr:data").setValue(exv);
+      exv = null; // free the reference to property value
     }
 
-    return i;
+    return getNodeRef().getNode("jcr:content").getProperty("jcr:data")
+        .getLength();
   }
 
-  public void truncateFile(long siz) throws IOException {
-    try {
-      if (wrchannel == null) {
-        createTemporaryFileChannel();
-        truncfirst = true;
-      }
-
-      wrchannel.truncate(siz);
-      m_fileSize = siz;
-
-      if (truncfirst == false) {
-        FileInputStream fis = new FileInputStream(tmpfile);
-        node.getNode("jcr:content").getProperty("jcr:data").setValue(fis);
-        fis.close();
-        wrchannel.close();
-        tmpfile.delete();
-        node.save();
-        logger.debug("file data cmpletly writed into jcr node TEMPORARY");
-        return;
-      }
-      logger.debug("file truncated for " + siz + " bytes TEMPORARY");
-    } catch (Exception e) {
-      throw new IOException(e.getMessage());
-    }
-    
-  }
-  public void flushFile() throws Exception {
-    try {
-      if (tmpfile != null) {
-        FileInputStream st = new FileInputStream(tmpfile);
-
-        if (node != null) {
-          node.getNode("jcr:content").getProperty("jcr:data").setValue(st);
-          node.save();
-        }
-        st.close();
-
-        tmpfile.delete();
-        tmpfile = null;
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    
-  }
-  /**
-   * This metod is called whan NetworkFile is destroys
-   */
-  public void remove() {
-    try {
-      if (wrchannel != null)
-        wrchannel.close();
-      if (tmpfile != null)
-        tmpfile.delete();
-
-      // here is the reason save changes in node
-      // node.save();
-    } catch (IOException e) {
-      // for debug purposes TEMPORARY
-      e.printStackTrace();
-    }
-  }
-
-  
-  public void closeFile() throws Exception{
-    remove();
-  }
-
-  public long seekFile(long pos, int typ) throws Exception{
-    return 0;
-  }
-  
-  public int readFile(byte[] buf, int len, int pos, long fileOff)
-  throws Exception{
-    return 0;
-  }
-
-  public void openFile(boolean createFlag) throws IOException {
-    // TODO Auto-generated method stub
-    
-  }
-  
 }

@@ -204,52 +204,5 @@ public class DCEPipeFile extends NetworkFile {
     System.out.println("  Handler : " + getRequestHandler());
   }
 
-  /**
-   * @see NetworkFile#closeFile()
-   */
-  public void closeFile() throws IOException {
-  }
 
-  /**
-   * @see NetworkFile#openFile(boolean)
-   */
-  public void openFile(boolean createFlag) throws IOException {
-  }
-
-  /**
-   * @see NetworkFile#readFile(byte[], int, int, long)
-   */
-  public int readFile(byte[] buf, int len, int pos, long fileOff)
-      throws Exception {
-    return 0;
-  }
-
-  /**
-   * Flush any buffered output to the file
-   * 
-   * @throws IOException
-   */
-  public void flushFile() throws IOException {
-  }
-
-  /**
-   * @see NetworkFile#seekFile(long, int)
-   */
-  public long seekFile(long pos, int typ) throws IOException {
-    return 0;
-  }
-
-  /**
-   * @see NetworkFile#truncateFile(long)
-   */
-  public void truncateFile(long siz) throws IOException {
-  }
-
-  /**
-   * @see NetworkFile#writeFile(byte[], int, int, long)
-   */
-  public long writeFile(byte[] buf, int len, int pos, long fileOff)
-      throws Exception {
-    return 0;
-  }
 }

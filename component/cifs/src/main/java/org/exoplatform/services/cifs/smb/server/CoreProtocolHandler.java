@@ -4,6 +4,7 @@
  **************************************************************************/
 package org.exoplatform.services.cifs.smb.server;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import javax.jcr.Node;
@@ -32,6 +33,7 @@ import org.exoplatform.services.cifs.smb.PacketType;
 import org.exoplatform.services.cifs.smb.SMBDate;
 import org.exoplatform.services.cifs.smb.SMBStatus;
 import org.exoplatform.services.cifs.util.DataPacker;
+import org.exoplatform.services.jcr.core.ExtendedProperty;
 import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -277,14 +279,17 @@ class CoreProtocolHandler extends ProtocolHandler {
 
     NetworkFile netFile = conn.findFile(fid);
 
-    try{
-    ((JCRNetworkFile)netFile).getNodeRef().save();
-    }
-    catch(Exception e){
-      e.printStackTrace();
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
-      return;
+    try {
       
+      ((JCRNetworkFile) netFile).flush();
+      ((JCRNetworkFile) netFile).saveChanges();
+      
+    } catch (Exception e) {
+      e.printStackTrace();
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
+          SMBStatus.ErrSrv);
+      return;
+
     }
     if (netFile == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidHandle, SMBStatus.ErrDos);
@@ -1000,8 +1005,8 @@ class CoreProtocolHandler extends ProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
-      logger.debug("Get File Information [" + treeId + "] name= [" + fileName
-          + "]");
+      logger.debug("Get File Information [" + treeId + "] name= [" + fileName +
+          "]");
 
     // Access the disk interface and get the file information
 
@@ -1038,8 +1043,8 @@ class CoreProtocolHandler extends ProtocolHandler {
 
           // Make sure the read-only attribute is set
 
-          finfo.setFileAttributes(finfo.getFileAttributes()
-              + FileAttribute.ReadOnly);
+          finfo.setFileAttributes(finfo.getFileAttributes() +
+              FileAttribute.ReadOnly);
         }
 
         // Return the file information
@@ -1162,8 +1167,8 @@ class CoreProtocolHandler extends ProtocolHandler {
 
           // Make sure the read-only attribute is set
 
-          finfo.setFileAttributes(finfo.getFileAttributes()
-              + FileAttribute.ReadOnly);
+          finfo.setFileAttributes(finfo.getFileAttributes() +
+              FileAttribute.ReadOnly);
         }
 
         // Initialize the return packet, no data bytes
@@ -1522,8 +1527,8 @@ class CoreProtocolHandler extends ProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILEIO))
-      logger.debug("File Read [" + netFile.getFileId() + "] : Size=" + reqcnt
-          + " ,Pos=" + reqoff);
+      logger.debug("File Read [" + netFile.getFileId() + "] : Size=" + reqcnt +
+          " ,Pos=" + reqoff);
 
     // Read data from the file
 
@@ -1546,10 +1551,10 @@ class CoreProtocolHandler extends ProtocolHandler {
 
         // Debug
 
-        if (logger.isDebugEnabled()
-            && m_sess.hasDebug(SMBSrvSession.DBG_FILEIO))
-          logger.debug("File Read [" + netFile.getFileId() + "] Limited to "
-              + availCnt);
+        if (logger.isDebugEnabled() &&
+            m_sess.hasDebug(SMBSrvSession.DBG_FILEIO))
+          logger.debug("File Read [" + netFile.getFileId() + "] Limited to " +
+              availCnt);
       }
 
       // Read from the file
@@ -1567,8 +1572,8 @@ class CoreProtocolHandler extends ProtocolHandler {
       // Debug
 
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILEIO))
-        logger.debug("File Read Error [" + netFile.getFileId() + "] : "
-            + ex.toString());
+        logger.debug("File Read Error [" + netFile.getFileId() + "] : " +
+            ex.toString());
 
       // Failed to read the file
 
@@ -1793,9 +1798,9 @@ class CoreProtocolHandler extends ProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
-      logger.debug("Set File Attributes [" + treeId + "] name=" + fileName
-          + ", attr=0x" + Integer.toHexString(fattr) + ", fdate=" + fdate
-          + ", ftime=" + ftime);
+      logger.debug("Set File Attributes [" + treeId + "] name=" + fileName +
+          ", attr=0x" + Integer.toHexString(fattr) + ", fdate=" + fdate +
+          ", ftime=" + ftime);
 
     // Access the disk interface and set the file attributes
 
@@ -1912,8 +1917,8 @@ class CoreProtocolHandler extends ProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
-      logger.debug("Set File Information 2 [" + netFile.getFileId() + "] "
-          + finfo.toString());
+      logger.debug("Set File Information 2 [" + netFile.getFileId() + "] " +
+          finfo.toString());
 
     // Access the disk interface and set the file information
 
@@ -1927,8 +1932,8 @@ class CoreProtocolHandler extends ProtocolHandler {
       // Check if the file is being marked for deletion, if so then check if the
       // file is locked
 
-      if (finfo.hasSetFlag(FileInfo.SetDeleteOnClose)
-          && finfo.hasDeleteOnClose()) {
+      if (finfo.hasSetFlag(FileInfo.SetDeleteOnClose) &&
+          finfo.hasDeleteOnClose()) {
         // Check if the node is locked
       }
 
@@ -2103,8 +2108,8 @@ class CoreProtocolHandler extends ProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILEIO))
-      logger.debug("File Write [" + netFile.getFileId() + "] : Size=" + wrtcnt
-          + " ,Pos=" + wrtoff + " , CountLeft=" + cleft);
+      logger.debug("File Write [" + netFile.getFileId() + "] : Size=" + wrtcnt +
+          " ,Pos=" + wrtoff + " , CountLeft=" + cleft);
 
     // Write data to the file
 
@@ -2130,18 +2135,20 @@ class CoreProtocolHandler extends ProtocolHandler {
       // offset position
       if (wrtcnt == 0) {
 
-        BinaryValue val = (BinaryValue) ((JCRNetworkFile) netFile).getNodeRef()
-            .getNode("jcr:content").getProperty("jcr:data").getValue();
-        val.truncate(wrtoff);
-        // JCRDriver.truncateFile(m_sess, conn, netFile, wrtoff);
+        ((JCRNetworkFile) netFile).truncateFile(wrtoff);
+
       } else {
 
-        
-        //TODO do correct writing
-       // BinaryValue val = (BinaryValue) ((JCRNetworkFile) netFile).getNodeRef()
-        //    .getNode("jcr:content").getProperty("jcr:data").getValue();
-       // val.writeBytes(buf, pos, wrtcnt, wrtoff);
-        wrtlen = wrtcnt;
+        // Write to the file
+        ((JCRNetworkFile) netFile).updateFile(new ByteArrayInputStream(buf,
+            pos, wrtcnt), wrtcnt, wrtoff);
+
+        // TODO do correct writing
+        // BinaryValue val = (BinaryValue) ((JCRNetworkFile)
+        // netFile).getNodeRef()
+        // .getNode("jcr:content").getProperty("jcr:data").getValue();
+        // val.writeBytes(buf, pos, wrtcnt, wrtoff);
+        // wrtlen = wrtcnt;
         // wrtlen = (int)JCRDriver.writeFile(m_sess, conn, netFile, buf, pos,
         // wrtcnt,
         // (int) wrtoff);
@@ -2150,8 +2157,8 @@ class CoreProtocolHandler extends ProtocolHandler {
 
       // Debug
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILEIO))
-        logger.debug("File Write Error [" + netFile.getFileId() + "] : "
-            + ex.toString());
+        logger.debug("File Write Error [" + netFile.getFileId() + "] : " +
+            ex.toString());
       // Failed to read the file
       m_sess.sendErrorResponseSMB(SMBStatus.HRDWriteFault, SMBStatus.ErrHrd);
       return;

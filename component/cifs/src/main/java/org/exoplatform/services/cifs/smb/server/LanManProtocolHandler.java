@@ -1865,11 +1865,11 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
     // Access the disk interface and write to the file
 
-    try {
+    /*try {
       // Write to the file
-
-      wrtlen = (int) JCRDriver.writeFile(m_sess, conn, netFile, buf, dataPos,
-          dataLen, offset);
+      //TODO make correct writing
+     // wrtlen = (int) JCRDriver.writeFile(m_sess, conn, netFile, buf, dataPos,
+     //     dataLen, offset);
     } catch (java.io.IOException ex) {
 
       // Debug
@@ -1884,7 +1884,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       e.printStackTrace();
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
-    }
+    }*/
 
     // Return the count of bytes actually written
 
