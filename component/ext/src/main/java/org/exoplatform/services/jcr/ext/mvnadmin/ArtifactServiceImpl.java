@@ -22,8 +22,6 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.ext.mvnadmin.service.ArtifactBrowser;
 import org.exoplatform.services.jcr.ext.mvnadmin.service.ArtifactImporter;
 
-import com.sun.org.apache.xalan.internal.xsltc.NodeIterator;
-
 /*13.08.2007-15:10:05 Volodymyr*/
 public class ArtifactServiceImpl implements ArtifactService {
 

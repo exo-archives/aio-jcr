@@ -135,15 +135,15 @@
 				<configuration>
 					<childDelegation>true</childDelegation>
 					<includes>
-					<!--
-                        			<include>**/access/*Test.java</include>
-			                        <include>**/actions/*Test.java</include>
-			                        <include>**/audit/*Test.java</include>
+					
+                        <include>**/access/*Test.java</include>
+			            <include>**/actions/*Test.java</include>
+			            <include>**/audit/*Test.java</include>
 						<include>**/metadata/*Test.java</include>
 						<include>**/owner/*Test.java</include>
 						<include>**/registry/*Test.java</include>
-					-->
-						<include>**/mvnadmin/*Test.java</include>
+					
+						<!-- include>**/mvnadmin/*Test.java</include-->
 					</includes>
 				</configuration>
 			</plugin>
