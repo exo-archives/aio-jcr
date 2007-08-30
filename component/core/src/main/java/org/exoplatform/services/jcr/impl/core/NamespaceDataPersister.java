@@ -213,8 +213,8 @@ public class NamespaceDataPersister {
     return nsMap;
   }
 
-  void loadNamespaces(ConcurrentHashMap<String, String> namespacesMap,
-      ConcurrentHashMap<String, String> urisMap) throws RepositoryException {
+  void loadNamespaces(Map<String, String> namespacesMap,
+      Map<String, String> urisMap) throws RepositoryException {
     if (isInialized()) {
       NodeDataReader nsReader = new NodeDataReader(nsRoot, dataManager, null);
       nsReader.setRememberSkiped(true);

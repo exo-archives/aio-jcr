@@ -5,7 +5,10 @@
 
 package org.exoplatform.services.jcr.impl.core;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,9 +30,9 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccessor {
 
-  public static final ConcurrentHashMap<String, String> DEF_NAMESPACES       = new ConcurrentHashMap<String, String>();
+  public static final Map<String, String> DEF_NAMESPACES       = new HashMap<String, String>();
 
-  public static final ConcurrentHashMap<String, String> DEF_PREFIXES         = new ConcurrentHashMap<String, String>();
+  public static final Map<String, String> DEF_PREFIXES         = new HashMap<String, String>();
 
   private final static Set<String>                      PROTECTED_NAMESPACES = new HashSet<String>();
 
@@ -67,11 +70,11 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
 
   }
 
-  private ConcurrentHashMap<String, String>             namespaces;
+  private Map<String, String>             namespaces;
 
   private NamespaceDataPersister                        persister;
 
-  private ConcurrentHashMap<String, String>             prefixes;
+  private Map<String, String>             prefixes;
 
   /**
    * for tests
@@ -83,8 +86,8 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
 
   public NamespaceRegistryImpl(NamespaceDataPersister persister) {
 
-    this.namespaces = new ConcurrentHashMap<String, String>(DEF_NAMESPACES);
-    this.prefixes = new ConcurrentHashMap<String, String>(DEF_PREFIXES);
+    this.namespaces = Collections.synchronizedMap(new HashMap<String, String>(DEF_NAMESPACES));
+    this.prefixes = Collections.synchronizedMap(new HashMap<String, String>(DEF_PREFIXES));
     this.persister = persister;
   }
 
@@ -193,7 +196,7 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
 
     validateNamespace(prefix, uri);
 
-    if (namespaces.contains(prefix) || prefixes.contains(uri)) {
+    if (namespaces.containsKey(prefix) || prefixes.containsKey(uri)) {
       throw new NamespaceException("Re-registration is not supported as may cause"
           + " integrity problems. (todo issue #46)");
     }
