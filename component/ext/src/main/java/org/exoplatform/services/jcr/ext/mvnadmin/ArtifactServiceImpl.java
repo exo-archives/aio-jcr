@@ -1,22 +1,13 @@
 package org.exoplatform.services.jcr.ext.mvnadmin;
 
 import java.io.File;
-import java.io.InputStream;
 import java.net.URL;
-import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
-
 import javax.jcr.Credentials;
 import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
-import javax.jcr.Value;
-import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.ext.mvnadmin.service.ArtifactBrowser;
