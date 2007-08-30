@@ -289,6 +289,17 @@ public class EditableValueData extends TransientValueData implements BinaryValue
       
       changeChannel.close();
       changeChannel = null;
+      
+      // delete file
+      if (!changeFile.delete()) {
+        if (fileCleaner != null) {
+          log.info("Could not remove file. Add to fileCleaner " + changeFile);
+          fileCleaner.addFile(changeFile);
+        } else {
+          log.warn("Could not remove temporary file on switch to bytes, fileCleaner not found. "
+              + changeFile.getAbsolutePath());
+        }
+      }
       changeFile = null;
     } else {
       if (changeChannel.size() < size) {
