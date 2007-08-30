@@ -1,3 +1,5 @@
 1. Run "mvn clean install" command.
 2. Go to target\exo.jcr.benchmark-1.6.dir\bin and run start-benchmark.cmd.
+By default this benchmark is configured for mysql DB.
+Make sure you have configured mysql DB as in config\test-configuration-benchmark.xml.
 
