@@ -226,9 +226,14 @@
 		Child nodes can be define here
 		-->
 		<propertyDefinitions>
+			<propertyDefinition name="exo:filename" onParentVersion="COPY"
+				requiredType="String" multiple="false" autoCreated="true"
+				mandatory="false" protected="false">
+				<valueConstraints/>
+			</propertyDefinition>
 			<propertyDefinition name="exo:pathType" onParentVersion="COPY"
 				requiredType="Integer" multiple="false" autoCreated="true"
-				mandatory="true" protected="false">
+				mandatory="false" protected="false">
 				<valueConstraints/>
 			</propertyDefinition>
 			<propertyDefinition name="exo:versionList" onParentVersion="COPY"
