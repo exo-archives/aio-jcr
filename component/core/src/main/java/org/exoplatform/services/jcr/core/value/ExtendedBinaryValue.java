@@ -33,6 +33,6 @@ public interface ExtendedBinaryValue extends ExtendedValue {
    * @param size
    * @throws IOException
    */
-  void truncate(long size) throws IOException, RepositoryException;
+  void setLength(long size) throws IOException, RepositoryException;
   
 }

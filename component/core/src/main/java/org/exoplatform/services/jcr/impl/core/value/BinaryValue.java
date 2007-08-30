@@ -142,12 +142,12 @@ public class BinaryValue extends BaseValue implements ExtendedBinaryValue {
    * @param size
    * @throws IOException
    */
-  public void truncate(long size) throws IOException, RepositoryException {
+  public void setLength(long size) throws IOException, RepositoryException {
     if (changedData == null) {
       changedData = this.getInternalData().createEditableCopy();
     }
     
-    this.changedData.truncate(size);
+    this.changedData.setLength(size);
     
     this.changed = true;
   }

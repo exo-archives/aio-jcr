@@ -13,6 +13,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Arrays;
 
 import javax.jcr.RepositoryException;
 
@@ -35,20 +36,14 @@ public class EditableValueData extends TransientValueData implements BinaryValue
   protected File changeFile = null;
   protected FileChannel changeChannel = null; 
 
-  protected class SharedByteArrayOutputStream extends ByteArrayOutputStream {
-    /** Return backed array object */
-    byte[] buf() {
-      return buf;
-    }
-  }
-  
-  public EditableValueData(byte[] bytes, int orderNumber) {
+  public EditableValueData(byte[] bytes, int orderNumber, 
+      FileCleaner fileCleaner, int maxBufferSize, File tempDirectory) {
     
     super(orderNumber);
     
-    this.fileCleaner = null;
-    this.maxBufferSize = -1;
-    this.tempDirectory = null;
+    this.fileCleaner = fileCleaner;
+    this.maxBufferSize = maxBufferSize;
+    this.tempDirectory = tempDirectory;
     
     this.maxIOBuffSize = calcMaxIOSize();
     
@@ -90,7 +85,7 @@ public class EditableValueData extends TransientValueData implements BinaryValue
   
   protected int calcBuffSize(long length) {
     int buffSize = (int) (length > maxIOBuffSize ? maxIOBuffSize : length / 4);
-    buffSize = buffSize < 1024 ? 1024 : buffSize;  
+    buffSize = buffSize < 1024 ? 256 : buffSize;  
     return buffSize; 
   }
   
@@ -156,8 +151,6 @@ public class EditableValueData extends TransientValueData implements BinaryValue
    * Update with <code>length</code> bytes from the specified InputStream
    * <code>stream</code> to this value data at <code>position</code>
    * 
-   * @author Karpenko
-   * 
    * @param stream
    *          the data.
    * @param length
@@ -171,13 +164,18 @@ public class EditableValueData extends TransientValueData implements BinaryValue
   public void update(InputStream stream, long length, long position) throws IOException {
 
     if (isByteArray()) {
+      // validation
+      if (position >= changeBytes.length)
+        throw new IOException("Position out of range " + position + ". Current length " + changeBytes.length + " bytes. Use setLength() to extend value size.");  
+        
       // merge stream content with existed bytes 
-      SharedByteArrayOutputStream bout = new SharedByteArrayOutputStream();
+      ByteArrayOutputStream bout = new ByteArrayOutputStream();
       
       if (position > 0)
         // begin from the existed bytes
         bout.write(changeBytes, 0, (int) position);
       
+      // TODO check the new size before and use file if the size will be greater the maxBufferSize
       int writen = 0;
       int i= -1;
       byte[] buff = new byte[calcBuffSize(length)];
@@ -188,15 +186,18 @@ public class EditableValueData extends TransientValueData implements BinaryValue
       
       int lastWriten = (int) position + writen;
       if (lastWriten < changeBytes.length)
-        // continue write content from the existed bytes
-        bout.write(changeBytes, lastWriten - 1, changeBytes.length);
+        // TODO continue write content from the existed bytes 
+        bout.write(changeBytes, lastWriten, changeBytes.length - lastWriten);
       
-      if (changeBytes.length + length <= maxBufferSize) {
+      buff = bout.toByteArray();
+      //long newLength = changeBytes.length - position + length;
+      
+      if (buff.length <= maxBufferSize || maxBufferSize <= 0 || tempDirectory == null) {
         // edit bytes
-        this.changeBytes = bout.buf();
+        this.changeBytes = buff;
         
         this.changeFile = null;
-        this.changeChannel = null; 
+        this.changeChannel = null;
       } else {
         // switch from bytes to file/channel
         this.changeFile = File.createTempFile("jcrvdedit", null, tempDirectory);
@@ -204,41 +205,82 @@ public class EditableValueData extends TransientValueData implements BinaryValue
         //this.changeChannel = new FileOutputStream(changeFile, false).getChannel();
         this.changeChannel = new RandomAccessFile(changeFile, "rw").getChannel();
 
-        ReadableByteChannel bch = Channels.newChannel(new ByteArrayInputStream(bout.buf()));
-        this.changeChannel.transferFrom(bch, 0, bout.size());
+        ReadableByteChannel bch = Channels.newChannel(new ByteArrayInputStream(buff));
+        this.changeChannel.transferFrom(bch, 0, buff.length);
+        
         bch.close();
         
         this.changeBytes = null;
       }
     } else {
-      ReadableByteChannel ch = Channels.newChannel(stream);
+      // validation
+      if (position >= changeChannel.size())
+        // The exception for the contract only. Actualy we can do that with changeChannel.map()  
+        throw new IOException("Position out of range " + position + ". Current length " + changeChannel.size() + " bytes. Use setLength() to extend value size.");  
       
+      // TODO test position + lebgth > current file size, i.e. extend size case
       MappedByteBuffer bb = changeChannel.map(FileChannel.MapMode.READ_WRITE, position, length);
+        
+      ReadableByteChannel ch = Channels.newChannel(stream);
       ch.read(bb);
-      bb.force();      
-      
       ch.close();
       
+      bb.force();
       //long size = changeChannel.position(position + length).transferFrom(ch, position, length);
     }
   }
-
+  
   /**
-   * Truncates binary value to <code> size </code>
+   * Set length to the binary value to <code> size </code>
    * 
-   * @author Karpenko
    * @param size
    * @throws IOException
    */
-  public void truncate(long size) throws IOException {
-
-    if (isByteArray()) {
-      // truncate bytes
-      byte[] newBytes = new byte[(int) size];
-      System.arraycopy(changeBytes, 0, newBytes, 0, newBytes.length);
-      changeBytes = newBytes;
-    } else if (size <= maxBufferSize) {
-      // switch to a bytes
+  public void setLength(long size) throws IOException {
+   
+    if (isByteArray()) {    
+      if (size < maxBufferSize || maxBufferSize <= 0 || tempDirectory == null) {
+        // use bytes
+        byte[] newBytes = new byte[(int) size];
+        System.arraycopy(changeBytes, 0, newBytes, 0,
+            (changeBytes.length < newBytes.length) ? changeBytes.length
+                : newBytes.length);
+        this.changeBytes = newBytes;
+      } else {
+        // switch from bytes to file/channel
+        File chf = null;
+        FileChannel cch = null;
+        try {
+          chf = File.createTempFile("jcrvdedit", null, tempDirectory);
+          cch = new RandomAccessFile(chf, "rw").getChannel();
+  
+          ReadableByteChannel bch = Channels.newChannel(new ByteArrayInputStream(this.changeBytes));
+          cch.transferFrom(bch, 0, this.changeBytes.length); // get all
+          bch.close();
+          
+          if (cch.size() < size) {
+            // extend length
+            MappedByteBuffer bb = cch.map(FileChannel.MapMode.READ_WRITE, size, 0);
+            bb.force();
+          }
+        } catch(final IOException e) {
+          try {
+            cch.close();
+            chf.delete();
+          } catch (Exception e1) {}
+          throw new IOException("setLength(" + size + ") error. " + e.getMessage()) {
+            @Override
+            public Throwable getCause() {
+              return e;
+            }
+          };
+        }
+        this.changeFile = chf; 
+        this.changeChannel = cch; 
+        this.changeBytes = null;
+      } 
+    } else if (size < maxBufferSize) {
+      // truncate file, switch to a bytes
       ByteBuffer bb = ByteBuffer.allocate((int) size);
       changeChannel.force(false);
       changeChannel.position(0);
@@ -248,22 +290,33 @@ public class EditableValueData extends TransientValueData implements BinaryValue
       changeChannel.close();
       changeChannel = null;
       changeFile = null;
-    } else
-      // truncate file
-      changeChannel.truncate(size);
+    } else {
+      if (changeChannel.size() < size) {
+        // extend file
+        MappedByteBuffer bb = changeChannel.map(FileChannel.MapMode.READ_WRITE, size, 0);
+        bb.force();        
+      } else {
+        // truncate file
+        changeChannel.truncate(size);
+      }
+    }
   }
 
   private byte[] fileToBytes(File file) throws IOException {
     FileInputStream fs = new FileInputStream(file);
     
-    SharedByteArrayOutputStream bout = new SharedByteArrayOutputStream(); 
+    //ByteArrayOutputStream bout = new ByteArrayOutputStream(); 
     int i= -1;
+    byte[] bytes = new byte[(int) file.length()];
+    int bi = 0;
     byte[] buff = new byte[maxBufferSize];
     while ((i = fs.read(buff))>=0) {
-      bout.write(buff, 0, i);
+      for (int bbi = 0; bbi < i; bbi++)
+        bytes[bi++] = buff[bbi];
+      //bout.write(buff, 0, i);
     }
     
-    return bout.buf();
+    return bytes;
   }
 
   @Override

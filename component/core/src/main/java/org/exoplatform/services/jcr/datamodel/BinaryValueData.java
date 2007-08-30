@@ -15,7 +15,7 @@ import java.io.InputStream;
  */
 public interface BinaryValueData extends ValueData {
 
-  void truncate(long size) throws IOException;
+  void setLength(long size) throws IOException;
   
   /**
    * Update with <code>length</code> bytes from the specified InputStream

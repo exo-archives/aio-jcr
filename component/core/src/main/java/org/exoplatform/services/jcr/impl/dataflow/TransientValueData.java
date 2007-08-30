@@ -270,7 +270,10 @@ public class TransientValueData extends AbstractValueData implements
       // bytes, make a copy of real data
       byte[] newBytes = new byte[data.length];
       System.arraycopy(data, 0, newBytes, 0, newBytes.length);
-      return new TransientValueData(newBytes, orderNumber);
+      
+      // be more precise if this is a binary but so small, but can be increased in EditableValueData
+      return new TransientValueData(orderNumber, newBytes, null, 
+          spoolFile, fileCleaner, maxBufferSize, tempDirectory, deleteSpoolFile);
     } else {
       // spool file, i.e. shared across sessions
       return this;
@@ -282,7 +285,8 @@ public class TransientValueData extends AbstractValueData implements
       // bytes, make a copy of real data
       byte[] newBytes = new byte[data.length];
       System.arraycopy(data, 0, newBytes, 0, newBytes.length);
-      return new EditableValueData(newBytes, orderNumber);
+      return new EditableValueData(newBytes, orderNumber,
+          fileCleaner, maxBufferSize, tempDirectory);
     } else {
       // edited BLOB file, make a copy
       try {
