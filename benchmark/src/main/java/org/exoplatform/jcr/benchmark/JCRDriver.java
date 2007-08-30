@@ -42,7 +42,6 @@ public class JCRDriver extends JapexDriverBase {
   
   @Override
   public void initializeDriver() {
-    super.initializeDriver();
     if (!hasParam("jcr.initializer"))
       throw new RuntimeException("<jcr.initializer> parameter required");
     if (!hasParam("jcr.user"))
@@ -74,7 +73,6 @@ public class JCRDriver extends JapexDriverBase {
 
   @Override
   public void prepare(final TestCase tc) {
-    super.prepare(tc);
     try {
       initContext(tc, context);
       test = testInstance(tc);
@@ -87,7 +85,6 @@ public class JCRDriver extends JapexDriverBase {
 
   @Override
   public void run(final TestCase tc) {
-
     try {
       test.doRun(tc, context);
     } catch (Exception e) {
@@ -111,7 +108,7 @@ public class JCRDriver extends JapexDriverBase {
       throw new RuntimeException(e);
     }
   }
-
+  
   private synchronized JCRTestBase testInstance(TestCase tc) {
 
     if (!tc.hasParam("exo.testClass"))

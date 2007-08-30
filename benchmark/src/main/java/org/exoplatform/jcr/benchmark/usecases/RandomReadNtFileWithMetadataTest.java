@@ -35,6 +35,7 @@ public class RandomReadNtFileWithMetadataTest extends JCRTestBase {
    * jcr.lengthOfFile - file length in bytes, need to fill the content of jcr:data property;
    * jcr.lengthOfDcElementSetProperty - e.g 10 means that dc:title will be like "1234567890"; 
    * jcr.countOfDcElementSetProperties - must be less or equals 5, e.g 1 means "dc:title" property will be present only;
+   * jcr.countOfNodes - count of nodes to create during prepare phase;
    *     
   */
   private Random       rand                          = new Random();
@@ -60,7 +61,7 @@ public class RandomReadNtFileWithMetadataTest extends JCRTestBase {
     Arrays.fill(contentOfDcElementSetProperty, (byte) 'D');
     rootNode = context.getSession().getRootNode().addNode(context.generateUniqueName("rootNode"),
         "nt:unstructured");
-    for (int i = 0; i < tc.getIntParam("japex.runIterations"); i++) {
+    for (int i = 0; i < tc.getIntParam("jcr.countOfNodes"); i++) {
       String nodeName = context.generateUniqueName("node");
       Node nodeToAdd = rootNode.addNode(nodeName, "nt:file");
       Node contentNodeOfNodeToAdd = nodeToAdd.addNode("jcr:content", "nt:resource");
@@ -81,7 +82,7 @@ public class RandomReadNtFileWithMetadataTest extends JCRTestBase {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    int index = rand.nextInt(tc.getIntParam("japex.runIterations"));
+    int index = rand.nextInt(tc.getIntParam("jcr.countOfNodes"));
     Node node = rootNode.getNode(names.get(index));
     Node contentNode = node.getNode("jcr:content");
     contentNode.getProperty("jcr:mimeType").getString();
