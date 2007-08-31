@@ -27,7 +27,7 @@ import org.picocontainer.Startable;
  *       artifact-root-folder/      (nt:folder)   
  *         artifact-version-folder/ (nt:folder)
  *           artifact-jar-file      (nt:file/(nt:resource+exo:mvnpom)) 
- *           artifact-pom-file      (nt:file/nt:resource)
+ *           artifact-pom-file      (nt:file/(nt:resource+exo:mvnjar))
  *           artifact-md5(sha)-file
  *   
  * @author Gennady Azarenkov
