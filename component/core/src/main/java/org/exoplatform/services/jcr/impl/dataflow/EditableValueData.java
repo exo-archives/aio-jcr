@@ -166,7 +166,8 @@ public class EditableValueData extends TransientValueData implements BinaryValue
     if (isByteArray()) {
       // validation
       if (position >= changeBytes.length)
-        throw new IOException("Position out of range " + position + ". Current length " + changeBytes.length + " bytes. Use setLength() to extend value size.");  
+        this.setLength(position);
+        //throw new IOException("Position out of range " + position + ". Current length " + changeBytes.length + " bytes. Use setLength() to extend value size.");  
         
       // merge stream content with existed bytes 
       ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -216,8 +217,10 @@ public class EditableValueData extends TransientValueData implements BinaryValue
       // validation
       if (position >= changeChannel.size())
         // The exception for the contract only. Actualy we can do that with changeChannel.map()  
-        throw new IOException("Position out of range " + position + ". Current length " + changeChannel.size() + " bytes. Use setLength() to extend value size.");  
-      
+        //throw new IOException("Position out of range " + position + ". Current length " + changeChannel.size() + " bytes. Use setLength() to extend value size.");  
+        this.setLength(position);
+        
+        
       // TODO test position + lebgth > current file size, i.e. extend size case
       MappedByteBuffer bb = changeChannel.map(FileChannel.MapMode.READ_WRITE, position, length);
         
