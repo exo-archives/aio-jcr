@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -18,6 +19,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
@@ -33,6 +35,14 @@ public final class RegistryEntry {
   
   public RegistryEntry(Document dom) {
     this.document = dom;
+  }
+  
+  public RegistryEntry(String rootName) throws IOException,
+  SAXException, ParserConfigurationException {
+  	DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+  	this.document = db.newDocument();
+  	Element nodeElement = document.createElement(rootName);
+  	document.appendChild(nodeElement);
   }
   
   /**
