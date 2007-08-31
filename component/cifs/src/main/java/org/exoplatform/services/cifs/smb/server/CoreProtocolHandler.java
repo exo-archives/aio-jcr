@@ -280,10 +280,9 @@ class CoreProtocolHandler extends ProtocolHandler {
     NetworkFile netFile = conn.findFile(fid);
 
     try {
-      
-      ((JCRNetworkFile) netFile).flush();
+
       ((JCRNetworkFile) netFile).saveChanges();
-      
+
     } catch (Exception e) {
       e.printStackTrace();
       m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
@@ -939,8 +938,91 @@ class CoreProtocolHandler extends ProtocolHandler {
    */
   protected void procFlushFile(SMBSrvPacket outPkt) throws java.io.IOException,
       SMBSrvException {
-    logger.debug("\nCoreProtocolHandler::procFlushFile");
-    m_sess.sendErrorResponseSMB(SMBStatus.SRVNotSupported, SMBStatus.ErrSrv);
+    logger.debug(":procFlushFile");
+    // Check that the received packet looks like a valid file flush request
+
+    if (m_smbPkt.checkPacketIsValid(1, 0) == false) {
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
+          SMBStatus.ErrSrv);
+      return;
+    }
+
+    // Get the tree id from the received packet and validate that it is a valid
+    // connection id.
+
+    int treeId = m_smbPkt.getTreeId();
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+
+    if (conn == null) {
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
+      return;
+    }
+
+    // Check if the user has the required access permission
+
+    if (conn.hasWriteAccess() == false) {
+
+      // User does not have the required access rights
+
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+      return;
+    }
+
+    // Get the file id from the request
+
+    int fid = m_smbPkt.getParameter(0);
+
+    NetworkFile netFile = conn.findFile(fid);
+
+    if (netFile == null) {
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidHandle, SMBStatus.ErrDos);
+      return;
+    }
+
+    // Debug
+
+    if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
+      logger.debug("File Flush [" + netFile.getFileId() + "]");
+
+    // Flush the file
+
+    try {
+      if (netFile instanceof JCRNetworkFile) {
+        ((JCRNetworkFile) netFile).flush();
+      } else {
+        // we don't support non-jcr file flush
+        // TODO choice correct status
+
+        m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
+        return;
+      }
+    } catch (java.io.IOException ex) {
+      // Debug
+      if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
+        logger.debug("File Flush Error [" + netFile.getFileId() + "] : " +
+            ex.toString());
+
+      // Failed to read the file
+
+      m_sess.sendErrorResponseSMB(SMBStatus.HRDWriteFault, SMBStatus.ErrHrd);
+      return;
+    } catch (RepositoryException e) {
+
+      e.printStackTrace();
+
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
+          SMBStatus.ErrSrv);
+      return;
+
+    }
+
+    // Send the flush response
+
+    outPkt.setParameterCount(0);
+    outPkt.setByteCount(0);
+
+    m_sess.sendResponseSMB(outPkt);
+
   }
 
   /**
@@ -2143,15 +2225,6 @@ class CoreProtocolHandler extends ProtocolHandler {
         ((JCRNetworkFile) netFile).updateFile(new ByteArrayInputStream(buf,
             pos, wrtcnt), wrtcnt, wrtoff);
 
-        // TODO do correct writing
-        // BinaryValue val = (BinaryValue) ((JCRNetworkFile)
-        // netFile).getNodeRef()
-        // .getNode("jcr:content").getProperty("jcr:data").getValue();
-        // val.writeBytes(buf, pos, wrtcnt, wrtoff);
-        // wrtlen = wrtcnt;
-        // wrtlen = (int)JCRDriver.writeFile(m_sess, conn, netFile, buf, pos,
-        // wrtcnt,
-        // (int) wrtoff);
       }
     } catch (java.io.IOException ex) {
 

@@ -68,7 +68,7 @@
 			<!--Set NetBIOS name - if param not determined used server_name-->
 			<value-param>
 				<name>netbiosname</name>
-				<value>KarpCIFSServer</value>
+				<value>KCIFS</value>
 			</value-param>
 
 			<!--LANA - if not determined or equal -1 used all available -->

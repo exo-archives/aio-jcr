@@ -41,6 +41,8 @@ public class JCRNetworkFile extends NetworkFile {
   // BinareValue that used for random write in file;
   private ExtendedBinaryValue exv;
 
+  private boolean isAnyChanges = false;
+
   public JCRNetworkFile(Node n) {
     super();
     node = n;
@@ -80,6 +82,7 @@ public class JCRNetworkFile extends NetworkFile {
 
     exv.update(is, datalength, position);
 
+    isAnyChanges = true;
   }
 
   public void truncateFile(long size) throws IOException, RepositoryException {
@@ -87,8 +90,14 @@ public class JCRNetworkFile extends NetworkFile {
       assignExtendedBinaryValue();
 
     exv.setLength(size);
+    
+    isAnyChanges = true;
   }
 
+  /*
+   * Put changes to property, but not save to persistent area.
+   * 
+   */
   public void flush() throws RepositoryException, IOException {
     if (isExtendedBinaryValueAssigned()) {
       getNodeRef().getNode("jcr:content").getProperty("jcr:data").setValue(exv);
@@ -98,13 +107,23 @@ public class JCRNetworkFile extends NetworkFile {
     // else: do nothing
   }
 
-  public void saveChanges() throws RepositoryException {
-    getNodeRef().save();
+  /*
+   * save any changes to persistant area
+   * 
+   */
+  public void saveChanges() throws IOException, RepositoryException {
+    if(isAnyChanges){
+      flush();
+      getNodeRef().save();  
+    }
+    
   }
 
   public long getLength() throws RepositoryException {
     if (isExtendedBinaryValueAssigned()) {
       // flush changes to property
+      //TODO check is it possible to get length without setting the value
+      
       getNodeRef().getNode("jcr:content").getProperty("jcr:data").setValue(exv);
       exv = null; // free the reference to property value
     }

@@ -1347,7 +1347,6 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
         }
       } else if (netFile instanceof JCRNetworkFile) {
-        ((JCRNetworkFile) netFile).flush();
         ((JCRNetworkFile) netFile).saveChanges();
 
         logger.debug("file [" + netFile.getName() + "] save changes");
@@ -4319,10 +4318,12 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
         if (netFile.isDirectory())
           throw new AccessDeniedException();
-
+        try{ 
         ((JCRNetworkFile) netFile).truncateFile(eofPos);
-        // JCRDriver.truncateFile(m_sess, conn, netFile, eofPos);
-
+        
+        }catch(Throwable e){
+          e.printStackTrace();
+        }
         // Debug
 
         if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_INFO))
@@ -4802,7 +4803,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
 
-    }catch (Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
