@@ -1,3 +1,7 @@
+/**
+ * Copyright 2001-2007 The eXo Platform SASL   All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ */
 package org.exoplatform.services.jcr.ext.mvnadmin;
 
 import java.io.BufferedReader;
@@ -17,7 +21,12 @@ import javax.jcr.nodetype.NodeType;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.mvnadmin.service.ArtifactImporter;
 
-/*20.08.2007-15:23:16 Volodymyr*/
+/**
+ * Created by The eXo Platform SARL        .
+ * @author Volodymyr Krasnikov
+ * @version $Id: ArtifactServiceTest.java 11:16:02
+ */
+
 public class ArtifactServiceTest extends BaseStandaloneTest {
 
 	private ArtifactServiceImpl asImpl;

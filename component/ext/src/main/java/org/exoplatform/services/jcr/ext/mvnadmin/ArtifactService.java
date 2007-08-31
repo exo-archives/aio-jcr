@@ -1,11 +1,21 @@
+/**
+ * Copyright 2001-2007 The eXo Platform SASL   All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ */
+
 package org.exoplatform.services.jcr.ext.mvnadmin;
 
 import java.io.File;
 import java.net.URL;
-import java.util.List; /*10.08.2007-16:22:52 Volodymyr*/
-
+import java.util.List; 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+
+/**
+ * Created by The eXo Platform SARL        .
+ * @author Volodymyr Krasnikov
+ * @version $Id: ArtifactService.java 11:16:02
+ */
 
 /*
  * Shows main functionality of Exo Artifact Managment Tool.

@@ -1,3 +1,8 @@
+/**
+ * Copyright 2001-2007 The eXo Platform SASL   All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ */
+
 package org.exoplatform.services.jcr.ext.mvnadmin;
 
 import java.io.File;
@@ -13,7 +18,12 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.ext.mvnadmin.service.ArtifactBrowser;
 import org.exoplatform.services.jcr.ext.mvnadmin.service.ArtifactImporter;
 
-/*13.08.2007-15:10:05 Volodymyr*/
+/**
+ * Created by The eXo Platform SARL        .
+ * @author Volodymyr Krasnikov
+ * @version $Id: ArtifactServiceImpl.java 11:16:02
+ */
+
 public class ArtifactServiceImpl implements ArtifactService {
 
 	private final RepositoryService repositoryService;

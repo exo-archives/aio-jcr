@@ -1,8 +1,18 @@
+/**
+ * Copyright 2001-2007 The eXo Platform SASL   All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ */
+
 package org.exoplatform.services.jcr.ext.mvnadmin;
 
 import java.io.File;
 
-/*15.08.2007-9:43:09 Volodymyr*/
+/**
+ * Created by The eXo Platform SARL        .
+ * @author Volodymyr Krasnikov
+ * @version $Id: ArtifactBean.java 11:16:02
+ */
+
 //this bean is used for holding info about artifact
 public class ArtifactBean {
 	private String groupId, artifactId, version;

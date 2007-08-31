@@ -1,3 +1,8 @@
+/**
+ * Copyright 2001-2007 The eXo Platform SASL   All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ */
+
 package org.exoplatform.services.jcr.ext.mvnadmin.service;
 
 import java.io.ByteArrayInputStream;
@@ -16,19 +21,21 @@ import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
-
 import org.apache.commons.logging.Log;
 import org.codehaus.plexus.digest.Digester;
 import org.codehaus.plexus.digest.DigesterException;
 import org.codehaus.plexus.digest.Md5Digester;
 import org.codehaus.plexus.digest.Sha1Digester;
 import org.codehaus.plexus.util.FileUtils;
-
-
 import org.exoplatform.services.jcr.ext.mvnadmin.ArtifactBean;
 import org.exoplatform.services.log.ExoLogger;
 
-/*27.08.2007-11:55:09 Volodymyr*/
+/**
+ * Created by The eXo Platform SARL        .
+ * @author Volodymyr Krasnikov
+ * @version $Id: ArtifactImporter.java 11:16:02
+ */
+
 public class ArtifactImporter {
 
 	public static int ROOT_ID_TYPE = -1;

@@ -1,6 +1,15 @@
+/**
+ * Copyright 2001-2007 The eXo Platform SASL   All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ */
+
 package org.exoplatform.services.jcr.ext.mvnadmin.service;
 
-/*23.08.2007-12:30:49 Volodymyr*/
+/**
+ * Created by The eXo Platform SARL        .
+ * @author Volodymyr Krasnikov
+ * @version $Id: ArtifactBrowser.java 11:16:02
+ */
 
 import java.util.ArrayList;
 import java.util.List;
