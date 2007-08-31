@@ -550,7 +550,33 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     assertEquals("Value data length must be decreased ", pos, exv.getLength());
   }
 
-  public void testSetLargeLength() throws Exception {
+  public void testSetLengthLargeProp() throws Exception {
+    // create property
+    String pname = "file@" + testFile.getName();
+    Property p = testRoot.setProperty(pname, new ByteArrayInputStream(
+        new byte[] {}));
+
+    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    long pos = 1024 * 1024 * 1000;
+
+    exv.setLength(pos);
+
+    assertEquals("Value data length must be increased ", pos, exv.getLength());
+
+    // apply to the Property and save
+    p.setValue(exv);
+    testRoot.save();
+
+    ExtendedBinaryValue newexv = (ExtendedBinaryValue) testRoot.getProperty(
+        pname).getValue();
+    assertEquals("Value data length must be increased ", pos, exv.getLength());
+
+  }
+
+  
+  
+  
+  public void testSetLengthLargeFile() throws Exception {
     // create property
 
     String type = "nt:file";
@@ -565,7 +591,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
 
     dataNode.setProperty("jcr:mimeType", mimeType);
     dataNode.setProperty("jcr:lastModified", Calendar.getInstance());
-    dataNode.setProperty("jcr:data", "");
+    dataNode.setProperty("jcr:data", new ByteArrayInputStream(new byte[] {}));
 
     testRoot.save();
 
@@ -584,4 +610,5 @@ public class TestRandomValueIO extends JcrImplBaseTest {
 
   }
 
+ 
 }
