@@ -197,6 +197,9 @@ namespace exo_jcr.msofficeplugin
             String serverPrefix = connect.getContext().getContextHref();
 
             String path = e.Node.FullPath;
+
+            path = path.Replace("\\", "/");
+
             if (path.StartsWith(serverPrefix))
             {
                 path = path.Substring(serverPrefix.Length);
@@ -219,9 +222,11 @@ namespace exo_jcr.msofficeplugin
                 }
 
                 int status = getFileList(path);
+
                 if (status == DavStatus.MULTISTATUS)
                 {
                     fillTreeList(e.Node);
+                    e.Node.Expand();
                     fillFileList(path, (Multistatus)multistatusCache[path]);
                 }
 
@@ -274,7 +279,7 @@ namespace exo_jcr.msofficeplugin
                 }
                 catch (Exception ee)
                 {
-                    MessageBox.Show("At doGetFile():" + ee.Message + ee.StackTrace);
+                    MessageBox.Show("Can't create temp directory!");
                 }
             }
 
@@ -308,7 +313,7 @@ namespace exo_jcr.msofficeplugin
                 }
                 else
                 {
-                    MessageBox.Show("COULD NOT GET FILE WITH A STATUS: " + status.ToString());
+                    MessageBox.Show("Could not open file! Status: " + status.ToString());
                 }
                 //MessageBox.Show("SAVED AS:"+FILE_NAME);
                 connect.Filename = FILE_NAME;
@@ -333,6 +338,8 @@ namespace exo_jcr.msofficeplugin
         {
             try
             {
+                //MessageBox.Show("TRY TO TERTIEVE FILELIST FOR: " + path);
+
                 PropFindCommand propFind = new PropFindCommand(connect.getContext());
                 propFind.setResourcePath(path);
 
@@ -350,13 +357,17 @@ namespace exo_jcr.msofficeplugin
 
                 propFind.addRequiredProperty("jcr:mimeType");
 
+                propFind.setDepth(1);
+
                 status = propFind.execute();
+
                 if (status == DavStatus.MULTISTATUS)
                 {
                     if (multistatusCache[path] != null)
                     {
                         multistatusCache.Remove(path);
                     }
+
                     multistatusCache.Add(path, propFind.getMultistatus());
                 }
               
@@ -364,9 +375,7 @@ namespace exo_jcr.msofficeplugin
             }
             catch (Exception exc)
             {
-                MessageBox.Show("Cannot receive multistatus,\n please check Settings.", "Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
-                //this.Close();
+                MessageBox.Show("Cannot receive multistatus,\n please check Settings.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             return -1;
         }
@@ -375,20 +384,24 @@ namespace exo_jcr.msofficeplugin
         {
             try
             {
+                String nodePath = getFullPath(node);
                 
-                Multistatus multistatus = (Multistatus)multistatusCache[getFullPath(node)];
+                Multistatus multistatus = (Multistatus)multistatusCache[nodePath];
                 ArrayList responses = multistatus.getResponses();
                 
                 for (int i = 0; i < responses.Count; i++)
                 {
                     DavResponse response = (DavResponse)responses[i];
 
-                    //MessageBox.Show("H1: [" + response.getHref().getHref() + "]\r\n" + 
-                    //    "H2: [" + node.FullPath + "]");
-                    //MessageBox.Show("HREF:" + response.getHref().getHref() + "\n" + node.FullPath);
-                    if (response.getHref().getHref().Equals(node.FullPath.Replace("\\", "/")))
+                    String responseHref = response.getHref().getHref();
+
+                    String nodeFullPath = node.FullPath.Replace("\\", "/");
+
+                    //MessageBox.Show("H1: [" + responseHref + "]\r\n" + 
+                    //    "H2: [" + nodeFullPath + "]");
+
+                    if (responseHref.Equals(nodeFullPath))
                     {
-                        
                         continue;
                     }
 
@@ -407,9 +420,6 @@ namespace exo_jcr.msofficeplugin
                             TreeNode addedNode = node.Nodes.Add(displayName.getDisplayName());
                             addedNode.ImageIndex = 1;
                             addedNode.SelectedImageIndex = 1;
-                            
-                            
-                            
                         }
                     }
                 }
@@ -417,7 +427,7 @@ namespace exo_jcr.msofficeplugin
             }
             catch (Exception exc)
             {
-                MessageBox.Show("EXCEPTION " + exc.Message + " : " + exc.StackTrace);
+                MessageBox.Show("Can't fill tree list! Error at " + exc.StackTrace);
             }
 
         }
@@ -430,6 +440,8 @@ namespace exo_jcr.msofficeplugin
             {
                 fullPath = "/";
             }
+
+            fullPath = fullPath.Replace("\\", "/");
             return fullPath;
         }
 
@@ -478,6 +490,8 @@ namespace exo_jcr.msofficeplugin
 
         public void fillFileList(String remotePath, Multistatus multistatus)
         {
+            ArrayList responses = multistatus.getResponses();
+
             fillFilteredResponses(multistatus);
 
             listFiles.Items.Clear();
@@ -549,23 +563,24 @@ namespace exo_jcr.msofficeplugin
 
         private void listFiles_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (ParentForm.Name.Equals("NOpen"))
-            {
-                int item_index = ((ListView)sender).FocusedItem.Index;
+            if (!(ParentForm.Name.Equals("NOpen"))) {
+                return;
+            }
 
-                DavResponse response = (DavResponse)filteredResponses[item_index];
-                selectedHref = response.getHref().getHref();
-                WebDavProperty versionNameProp = response.getProperty("D:" + DavProperty.VERSIONNAME);
-                if (versionNameProp != null && versionNameProp.getStatus() == DavStatus.OK)
-                {
-                    ((NOpen)ParentForm).activateVersionButton(true);
-                }
-                else { 
-                    ((NOpen)ParentForm).activateVersionButton(false);
-                } 
+            int item_index = ((ListView)sender).FocusedItem.Index;
+
+            DavResponse response = (DavResponse)filteredResponses[item_index];
+            selectedHref = response.getHref().getHref();
+
+            WebDavProperty versionNameProp = response.getProperty("D:" + DavProperty.VERSIONNAME);
+            if (versionNameProp != null && versionNameProp.getStatus() == DavStatus.OK)
+            {
+                ((NOpen)ParentForm).activateVersionButton(true);
             }
             else
-                return;
+            {
+                ((NOpen)ParentForm).activateVersionButton(false);
+            }
         }
 
 

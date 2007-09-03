@@ -23,7 +23,6 @@ namespace exo_jcr.msofficeplugin
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             System.Diagnostics.Process.Start("iexplore.exe", "http://www.exoplatform.com");
-            
         }
 
         private void label1_Click(object sender, EventArgs e)
