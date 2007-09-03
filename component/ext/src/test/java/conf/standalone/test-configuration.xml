@@ -173,8 +173,8 @@
     </component>
     
     <component>
-    	<key>org.exoplatform.services.jcr.ext.mvnadmin.ArtifactService</key>
-    	<type>org.exoplatform.services.jcr.ext.mvnadmin.ArtifactServiceImpl</type>
+    	<key>org.exoplatform.services.jcr.ext.maven.ArtifactManagingService</key>
+    	<type>org.exoplatform.services.jcr.ext.maven.ArtifactManagingServiceImpl</type>
     </component>
 
     <component>

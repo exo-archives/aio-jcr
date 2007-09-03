@@ -4,6 +4,7 @@
  */
 package org.exoplatform.services.jcr.ext.maven;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -36,7 +37,7 @@ public interface ArtifactManagingService {
 	 * @param jarFile
 	 * @throws RepositoryException
 	 */
-	void addArtifact(SessionProvider sp, ArtifactDescriptor artifact, InputStream jarFile)
+	void addArtifact(SessionProvider sp, ArtifactDescriptor artifact, File jarFile, File pomFile)
 			throws RepositoryException;
 
 	/**
