@@ -1,0 +1,210 @@
+/**
+ * Created by The eXo Platform SARL
+ * Author : Zagrebin Victor <zagrebin_v@mail.ru>
+ * @version $Id: DASLTag.jj 12004 2007-01-17 12:03:57Z geaz $
+ */
+
+ options
+ {
+     LOOKAHEAD = 1;                  // (default 1)
+     IGNORE_CASE = true;             // (default false)
+     //for generation non-static java files
+     STATIC= false;                  // (default true)
+     CACHE_TOKENS = true;            // (default false)
+     FORCE_LA_CHECK = false;         // (default false)
+ }
+
+ PARSER_BEGIN(DASLTag)
+
+ package org.exoplatform.services.webdav.search.basicsearch.convertor;
+
+ import java.util.Enumeration;
+ import org.exoplatform.services.webdav.search.basicsearch.convertor.dasl.DASLDocument;
+
+ public class DASLTag
+ {
+  public static void main(String args[]) throws ParseException
+  {
+    DASLTag parser = new DASLTag(System.in);
+    DASLDocument doc = parser.DASLDocument();
+    System.out.println("--------- Item names: ------------------");
+    String node_name;
+    for (Enumeration e = doc.getElements().elements(); e.hasMoreElements(); )
+    {
+     Object o = e.nextElement();
+     System.out.print("Type: "+((DASLDocument.DASLElement)o).getType()+"\t");
+     if(o instanceof DASLDocument.Text)
+      System.out.print("Content: "+((DASLDocument.Text)o).getContent() );
+     else if (!(o instanceof DASLDocument.NewLine))
+      System.out.print("Name: "+((DASLDocument.DASLElement)o).getName() );
+     System.out.println();
+    }
+    System.out.println("------------------------------------------");
+  }
+ }
+
+ PARSER_END(DASLTag)
+
+
+
+ <*> TOKEN :
+ {
+
+      <#ALPHA_CHAR: ["a"-"z", "A"-"Z"] >
+    | <#IDENTIFIER_CHAR: [ "a"-"z", "A"-"Z", "0"-"9", "_", "-", "." ] >
+    | <#QUOTED_STRING: ( "'" ( ~["'"] )* "'" ) | ( "\"" ( ~["\""] )* "\"" ) >
+    | <#WHITESPACE: ( " " | "\t" | "\n" | "\r" ) >
+    | <#NEWLINE:    ( "\r\n" | "\r" | "\n" ) >
+    | <#IDENTIFIER_PREFIX:  (<IDENTIFIER> ":")? >
+    | <#IDENTIFIER: <ALPHA_CHAR> (<IDENTIFIER_CHAR>)* >
+    | < #PCData:            ( ~["'", "\"", "<", "\r", "\n"] )+ >
+ }
+
+ <DEFAULT> SKIP:
+ {
+  < <WHITESPACE> >
+ }
+ <DEFAULT> TOKEN:
+ {
+     <EOL:      ( " " | "\t" )* <NEWLINE> >
+   | <OPEN_TAG_BRACKET:         "<"       > : LexStartTag
+   | <OPEN_XML_BRACKET:         "<?"      > : LexStartTag
+   | <OPEN_CLOSE_TAG_BRACKET:   "</"      > : LexStartTag
+   | < PCDATA: <PCData> >
+ }
+
+ <LexStartTag> SKIP :
+ {
+  < <WHITESPACE> >
+ }
+ <LexStartTag> TOKEN :
+ {
+    <TAG_NAME: <IDENTIFIER_PREFIX> <IDENTIFIER> > : LexInTag
+ }
+
+ <LexInTag> SKIP :
+ {
+  < <WHITESPACE> >
+ }
+ <LexInTag> TOKEN :
+ {
+    <ATTR_NAME: <IDENTIFIER_PREFIX> <IDENTIFIER> >
+  | <CLOSE_TAG_BRACKET:       ">"  >      : DEFAULT
+  | <CLOSE_XML_BRACKET:       "?>" >      : DEFAULT
+  | <CLOSE_EMPTY_TAG_BRACKET: "/>" >      : DEFAULT
+  | <ATTR_EQ: "=" >                       : LexAttrVal
+ }
+
+ <LexAttrVal> SKIP :
+ {
+  < <WHITESPACE> >
+ }
+ <LexAttrVal> TOKEN :
+ {
+    <ATTR_VAL: <QUOTED_STRING> > : LexInTag
+  //| ( ~["/",">", "\"", "'", " ", "\t", "\n", "\r"] )* > : LexInTag
+ }
+
+
+/**
+ * -------------------- DASL GRAMMAR STARTS HERE -----------------------------
+ */
+
+ DASLDocument DASLDocument() :
+ {
+  DASLDocument.ElementSequence s;
+ }
+ {
+   s = ElementSequence() <EOF>
+   { return new DASLDocument(s); }
+ }
+
+ DASLDocument.ElementSequence ElementSequence() :
+ {
+  DASLDocument.ElementSequence s = new DASLDocument.ElementSequence();
+  DASLDocument.DASLElement e;
+ }
+ {
+  ( e=Element()
+   { if (e != null) s.addElement(e);
+   } ) *
+  { return s; }
+ }
+
+
+ DASLDocument.DASLElement Element() :
+ {
+   DASLDocument.StartTag start_tag = null;
+   DASLDocument.EndTag   end_tag   = null;
+   DASLDocument.EmptyTag empty_tag = null;
+   String start_xml_tag = null;
+   Token t=null;
+ }
+ {
+          LOOKAHEAD(6)
+            empty_tag = EmptyTag()  { return empty_tag; }
+          | start_xml_tag = TitleTag()  { return null; }
+          | start_tag = StartTag()  { return start_tag; }
+          | end_tag = EndTag()      { return end_tag; }
+          | t = <PCDATA>    { return new DASLDocument.Text(t.toString()); }
+          |     <EOL>       { return new DASLDocument.NewLine(); }
+
+ }
+
+ DASLDocument.Attribute Attribute() :
+ {
+  DASLDocument.Attribute a;
+  Token t1, t2=null;
+ }
+ {
+  t1=<ATTR_NAME> <ATTR_EQ> t2=<ATTR_VAL>
+  {return new DASLDocument.Attribute(t1.toString(), t2.toString());
+  }
+ }
+
+ DASLDocument.AttributeList AttributeList() :
+ {
+  DASLDocument.AttributeList alist = new DASLDocument.AttributeList();
+  DASLDocument.Attribute a;
+ }
+ {
+  (a=Attribute() { alist.addAttribute(a); } )*
+  { return alist; }
+ }
+
+
+ DASLDocument.StartTag StartTag() :
+ {
+  Token t;
+  DASLDocument.AttributeList alist;
+ }
+ {
+   <OPEN_TAG_BRACKET> t=<TAG_NAME> alist=AttributeList() <CLOSE_TAG_BRACKET>
+   { return new DASLDocument.StartTag(t.image, alist); }
+ }
+
+ String TitleTag() :
+ {
+ }
+ {
+   <OPEN_XML_BRACKET> <TAG_NAME> AttributeList() <CLOSE_XML_BRACKET>
+   { return new String(); }
+ }
+
+ DASLDocument.EndTag EndTag() :
+ {
+  Token t;
+ }
+ {
+  <OPEN_CLOSE_TAG_BRACKET> t=<TAG_NAME> <CLOSE_TAG_BRACKET>
+  { return new DASLDocument.EndTag(t.image); }
+ }
+
+ DASLDocument.EmptyTag EmptyTag():
+ {
+  Token t;
+ }
+ {
+    <OPEN_TAG_BRACKET> t=<TAG_NAME> <CLOSE_EMPTY_TAG_BRACKET>
+    { return new DASLDocument.EmptyTag(t.image); }
+ }
