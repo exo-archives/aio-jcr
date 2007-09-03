@@ -55,14 +55,20 @@ public class BinaryValue extends BaseValue implements ExtendedBinaryValue {
    */
   public BinaryValue(InputStream stream, FileCleaner fileCleaner,
       File tempDirectory, int maxFufferSize) throws IOException {
-    super(TYPE, new TransientValueData(stream));
-    internalData.setFileCleaner(fileCleaner);
-    internalData.setTempDirectory(tempDirectory);
-    internalData.setMaxBufferSize(maxFufferSize);
+    this(new TransientValueData(stream), fileCleaner, tempDirectory, maxFufferSize);
   }
   
   BinaryValue(TransientValueData data) throws IOException {
     super(TYPE, data);
+  }
+  
+  /** used in ValueFactory.loadValue */
+  BinaryValue(TransientValueData data, FileCleaner fileCleaner,
+      File tempDirectory, int maxFufferSize) throws IOException {
+    super(TYPE, data);
+    internalData.setFileCleaner(fileCleaner);
+    internalData.setTempDirectory(tempDirectory);
+    internalData.setMaxBufferSize(maxFufferSize);
   }
 
   @Override

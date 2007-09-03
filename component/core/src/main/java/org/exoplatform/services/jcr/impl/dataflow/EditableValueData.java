@@ -252,23 +252,23 @@ public class EditableValueData extends TransientValueData implements BinaryValue
       } else {
         // switch from bytes to file/channel
         File chf = null;
-        FileChannel cch = null;
+        FileChannel chch = null;
         try {
           chf = File.createTempFile("jcrvdedit", null, tempDirectory);
-          cch = new RandomAccessFile(chf, "rw").getChannel();
+          chch = new RandomAccessFile(chf, "rw").getChannel();
   
           ReadableByteChannel bch = Channels.newChannel(new ByteArrayInputStream(this.changeBytes));
-          cch.transferFrom(bch, 0, this.changeBytes.length); // get all
+          chch.transferFrom(bch, 0, this.changeBytes.length); // get all
           bch.close();
           
-          if (cch.size() < size) {
+          if (chch.size() < size) {
             // extend length
-            MappedByteBuffer bb = cch.map(FileChannel.MapMode.READ_WRITE, size, 0);
+            MappedByteBuffer bb = chch.map(FileChannel.MapMode.READ_WRITE, size, 0);
             bb.force();
           }
         } catch(final IOException e) {
           try {
-            cch.close();
+            chch.close();
             chf.delete();
           } catch (Exception e1) {}
           throw new IOException("setLength(" + size + ") error. " + e.getMessage()) {
@@ -279,7 +279,7 @@ public class EditableValueData extends TransientValueData implements BinaryValue
           };
         }
         this.changeFile = chf; 
-        this.changeChannel = cch; 
+        this.changeChannel = chch; 
         this.changeBytes = null;
       } 
     } else if (size < maxBufferSize) {

@@ -375,7 +375,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
    * 
    * @throws Exception
    */
-  public void testTruncateIncreaseSmall() throws Exception {
+  public void _testTruncateIncreaseSmall() throws Exception {
     // create property
     String pname = "file@" + testFile.getName();
     Property p = testRoot.setProperty(pname, new ByteArrayInputStream(
@@ -395,7 +395,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
 
   }
 
-  public void testTruncateIncreaseBig() throws Exception {
+  public void _testTruncateIncreaseBig() throws Exception {
     // create property
     String pname = "file@" + testFile.getName();
     Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
@@ -456,10 +456,10 @@ public class TestRandomValueIO extends JcrImplBaseTest {
 
     ExtendedBinaryValue newexv = (ExtendedBinaryValue) testRoot.getProperty(
         pname).getValue();
-    assertEquals("Value data length must be decreased ", pos, exv.getLength());
+    assertEquals("Value data length must be decreased ", pos, newexv.getLength());
   }
 
-  public void testAddLength_ShortValue() throws Exception {
+  public void testAddLength_SmallValue() throws Exception {
 
     // create property
     String pname = "file@" + testFile.getName();
@@ -479,10 +479,10 @@ public class TestRandomValueIO extends JcrImplBaseTest {
 
     ExtendedBinaryValue newexv = (ExtendedBinaryValue) testRoot.getProperty(
         pname).getValue();
-    assertEquals("Value data length must be increased ", pos, exv.getLength());
+    assertEquals("Value data length must be increased ", pos, newexv.getLength());
   }
 
-  public void testAddLength_ShortToBigValue() throws Exception {
+  public void testAddLength_SmallToBigValue() throws Exception {
 
     // create property
     String pname = "file@" + testFile.getName();
@@ -490,10 +490,17 @@ public class TestRandomValueIO extends JcrImplBaseTest {
         "short message".getBytes()));
 
     ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
-    long pos = exv.getLength() + testFile.length();
+    long pos = exv.getLength() + 1024 * 1024 * 25;
+    
+    long fmem = Runtime.getRuntime().freeMemory();
 
     exv.setLength(pos);
 
+    long fmemAfter = Runtime.getRuntime().freeMemory();
+
+    if ((fmemAfter - fmem) >= pos)
+      log.warn("Free memory must not be increased on value of the new Value size but does. Was " + fmem + " current " + fmemAfter);
+    
     assertEquals("Value data length must be increased ", pos, exv.getLength());
 
     // apply to the Property and save
@@ -502,10 +509,45 @@ public class TestRandomValueIO extends JcrImplBaseTest {
 
     ExtendedBinaryValue newexv = (ExtendedBinaryValue) testRoot.getProperty(
         pname).getValue();
-    assertEquals("Value data length must be increased ", pos, exv.getLength());
+    assertEquals("Value data length must be increased ", pos, newexv.getLength());
+  }
+  
+  public void testAddLength_SmallToBigValue_Persistent() throws Exception {
+
+    // create property
+    String pname = "file@" + testFile.getName();
+    testRoot.setProperty(pname, new ByteArrayInputStream(new byte[] {}));
+
+    testRoot.save();
+    
+    // change after save
+    ExtendedBinaryValue newexv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+    long pos = newexv.getLength() + 1024 * 1024 * 25;
+    
+    long tmem = Runtime.getRuntime().totalMemory();
+    
+    newexv.setLength(pos);
+    
+    // apply to the Property and save
+    testRoot.getProperty(pname).setValue(newexv);
+    
+    long tmemAfter = Runtime.getRuntime().totalMemory();
+
+    if ((tmemAfter - tmem) >= pos)
+      log.warn("JVM total memory should not be increased on size of the new Value but does. Was " + tmem + " current " + tmemAfter);
+    
+    assertEquals("Value data length must be increased ", pos, newexv.getLength());
+
+    newexv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+    assertEquals("Value data length must be increased ", pos, newexv.getLength());
+    
+    // save new size
+    testRoot.save();
+    newexv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+    assertEquals("Value data length must be increased ", pos, newexv.getLength());
   }
 
-  public void testTruncateLength_BigToShortValue() throws Exception {
+  public void testTruncateLength_BigToSmallValue() throws Exception {
 
     // create property
     String pname = "file@" + testFile.getName();
@@ -524,10 +566,10 @@ public class TestRandomValueIO extends JcrImplBaseTest {
 
     ExtendedBinaryValue newexv = (ExtendedBinaryValue) testRoot.getProperty(
         pname).getValue();
-    assertEquals("Value data length must be decreased ", pos, exv.getLength());
+    assertEquals("Value data length must be decreased ", pos, newexv.getLength());
   }
 
-  public void testTruncateLength_ShortValue() throws Exception {
+  public void testTruncateLength_SmallValue() throws Exception {
 
     // create property
     String pname = "file@" + testFile.getName();
@@ -547,17 +589,17 @@ public class TestRandomValueIO extends JcrImplBaseTest {
 
     ExtendedBinaryValue newexv = (ExtendedBinaryValue) testRoot.getProperty(
         pname).getValue();
-    assertEquals("Value data length must be decreased ", pos, exv.getLength());
+    assertEquals("Value data length must be decreased ", pos, newexv.getLength());
   }
 
-  public void testSetLengthLargeProp() throws Exception {
+  public void _testSetLengthLargeProp() throws Exception {
     // create property
     String pname = "file@" + testFile.getName();
     Property p = testRoot.setProperty(pname, new ByteArrayInputStream(
         new byte[] {}));
 
     ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
-    long pos = 1024 * 1024 * 1000;
+    long pos = 1024 * 1024 * 100;
 
     exv.setLength(pos);
 
@@ -569,14 +611,11 @@ public class TestRandomValueIO extends JcrImplBaseTest {
 
     ExtendedBinaryValue newexv = (ExtendedBinaryValue) testRoot.getProperty(
         pname).getValue();
-    assertEquals("Value data length must be increased ", pos, exv.getLength());
+    assertEquals("Value data length must be increased ", pos, newexv.getLength());
 
   }
-
   
-  
-  
-  public void testSetLengthLargeFile() throws Exception {
+  public void testAddLength_SmallToBigValue_NTFile() throws Exception {
     // create property
 
     String type = "nt:file";
@@ -597,17 +636,15 @@ public class TestRandomValueIO extends JcrImplBaseTest {
 
     ExtendedBinaryValue exv = (ExtendedBinaryValue) testRoot.getNode(name)
         .getNode("jcr:content").getProperty("jcr:data").getValue();
-    long pos = 1000000000;
+    long pos = 1024 * 1024 * 25;
 
     exv.setLength(pos);
 
-    assertEquals("Value data length must be decreased ", pos, exv.getLength());
+    assertEquals("Value data length must be increased ", pos, exv.getLength());
 
     // apply to the Property and save
-    testRoot.getNode(name).getNode("jcr:content").getProperty("jcr:data")
-        .setValue(exv);
+    testRoot.getNode(name).getNode("jcr:content").getProperty("jcr:data").setValue(exv);
     testRoot.save();
-
   }
 
  

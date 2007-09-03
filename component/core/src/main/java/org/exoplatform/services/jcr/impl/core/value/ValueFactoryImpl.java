@@ -294,7 +294,7 @@ public class ValueFactoryImpl implements ValueFactory {
       case PropertyType.STRING:
         return new StringValue(data);
       case PropertyType.BINARY:
-        return new BinaryValue(data); //, fileCleaner, tempDirectory, maxBufferSize);
+        return new BinaryValue(data, fileCleaner, tempDirectory, maxBufferSize);
       case PropertyType.BOOLEAN:
         return new BooleanValue(data);
       case PropertyType.LONG:
