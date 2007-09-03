@@ -143,7 +143,7 @@
 						<include>**/owner/*Test.java</include>
 						<include>**/registry/*Test.java</include>
 					
-						<!-- include>**/mvnadmin/*Test.java</include-->
+						<!-- include>**/maven/*Test.java</include-->
 					</includes>
 				</configuration>
 			</plugin>
