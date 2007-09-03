@@ -62,7 +62,7 @@
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.component.webdav</artifactId>
+      <artifactId>exo.jcr.component.rest</artifactId>
       <version>${org.exoplatform.jcr.version}</version>
       <scope>runtime</scope>
     </dependency>

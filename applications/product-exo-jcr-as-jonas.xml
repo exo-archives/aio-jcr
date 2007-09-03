@@ -33,7 +33,7 @@
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.applications.webdav</artifactId>
+      <artifactId>exo.jcr.applications.rest</artifactId>
       <version>${org.exoplatform.jcr.version}</version>
       <type>war</type>
       <scope>runtime</scope>
