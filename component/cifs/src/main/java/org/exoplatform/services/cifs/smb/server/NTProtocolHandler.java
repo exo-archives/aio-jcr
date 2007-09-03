@@ -1805,8 +1805,106 @@ public class NTProtocolHandler extends CoreProtocolHandler {
   protected final void procLockingAndX(SMBSrvPacket outPkt)
       throws java.io.IOException, SMBSrvException {
     logger.debug("procLockingAndX");
-    // TODO not implemented yet
-    m_sess.sendSuccessResponseSMB();
+    // Check that the received packet looks like a valid locking andX request
+
+    if (m_smbPkt.checkPacketIsValid(8, 0) == false) {
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
+          SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
+      return;
+    }
+
+    // Get the tree connection details
+
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+
+    if (conn == null) {
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
+          SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
+      return;
+    }
+
+    // Check if the user has the required access permission
+
+    if (conn.hasReadAccess() == false) {
+
+      // User does not have the required access rights
+
+      m_sess
+          .sendErrorResponseSMB(SMBStatus.SRVNoAccessRights, SMBStatus.ErrSrv);
+      return;
+    }
+
+    // Extract the file lock/unlock parameters
+
+    int fid = m_smbPkt.getParameter(2);
+    int lockType = m_smbPkt.getParameter(3);
+    long lockTmo = m_smbPkt.getParameterLong(4);
+    int unlockCnt = m_smbPkt.getParameter(6);
+    int lockCnt = m_smbPkt.getParameter(7);
+
+    NetworkFile netFile = conn.findFile(fid);
+
+    if (netFile == null) {
+      m_sess.sendErrorResponseSMB(SMBStatus.Win32InvalidHandle,
+          SMBStatus.DOSInvalidHandle, SMBStatus.ErrDos);
+      return;
+    }
+
+    // Debug
+
+    if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_LOCK))
+      logger.debug("File Lock [" + netFile.getFileId() + "] : type=0x" +
+          Integer.toHexString(lockType) + ", tmo=" + lockTmo + ", locks=" +
+          lockCnt + ", unlocks=" + unlockCnt);
+
+    // Check if the virtual filesystem supports file locking
+
+    // Unpack the lock/unlock structures
+
+    m_smbPkt.resetBytePointer();
+
+    // Perform the lock/unlock request
+
+    // Check if the request is an unlock
+
+    if (unlockCnt > 0) {
+
+      // Unlock the file
+      logger.debug(" HERE MUST BE UNLOCK "); // TEMPORARY
+
+    } else {
+
+      // Lock the file
+
+      logger.debug(" HERE MUST BE LOCK "); // TEMPORARY
+    }
+
+    // Return an error status
+
+    // m_sess.sendErrorResponseSMB(SMBStatus.NTRangeNotLocked,
+    // SMBStatus.DOSNotLocked, SMBStatus.ErrDos);
+
+    // Return an error status
+
+    // m_sess.sendErrorResponseSMB(SMBStatus.NTLockNotGranted,
+    // SMBStatus.DOSLockConflict, SMBStatus.ErrDos);
+
+    // Return an error status
+
+    // m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
+    // SMBStatus.ErrSrv);
+
+    // Return a success response
+
+    outPkt.setParameterCount(2);
+    outPkt.setAndXCommand(0xFF);
+    outPkt.setParameter(1, 0);
+    outPkt.setByteCount(0);
+
+    // Send the lock request response
+
+    m_sess.sendResponseSMB(outPkt);
+
   }
 
   /**
@@ -4076,12 +4174,16 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // Get the file information
       FileInfo fileInfo = null;
 
-      fileInfo = JCRDriver.getFileInformation(((JCRNetworkFile) netFile)
-          .getNodeRef());
+      if (netFile instanceof JCRNetworkFile) {
+        fileInfo = JCRDriver.getFileInformation(((JCRNetworkFile) netFile)
+            .getNodeRef());
+      } else {
+        m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
+            SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
+        return;
+      }
 
       if (fileInfo == null) {
-
-        logger.debug(" file info null");
         m_sess.sendErrorResponseSMB(SMBStatus.NTObjectNotFound,
             SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
         return;
@@ -4318,10 +4420,10 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
         if (netFile.isDirectory())
           throw new AccessDeniedException();
-        try{ 
-        ((JCRNetworkFile) netFile).truncateFile(eofPos);
-        
-        }catch(Throwable e){
+        try {
+          ((JCRNetworkFile) netFile).truncateFile(eofPos);
+
+        } catch (Throwable e) {
           e.printStackTrace();
         }
         // Debug
@@ -6091,52 +6193,59 @@ public class NTProtocolHandler extends CoreProtocolHandler {
   protected final void procNTTransactQuerySecurityDesc(SrvTransactBuffer tbuf,
       NTTransPacket outPkt) throws IOException, SMBSrvException {
     logger.debug(":procNTTransactQuerySecurityDesc");
-    /*
-     * // Get the virtual circuit for the request
-     * 
-     * VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
-     * 
-     * if (vc == null) {
-     * m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
-     * SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos); return; } // Get the tree
-     * connection details
-     * 
-     * TreeConnection conn = vc.findConnection(tbuf.getTreeId());
-     * 
-     * if (conn == null) {
-     * m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
-     * SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos); return; } // Check if the
-     * user has the required access permission
-     * 
-     * if (conn.hasReadAccess() == false) { // User does not have the required
-     * access rights
-     * 
-     * m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied,
-     * SMBStatus.DOSAccessDenied, SMBStatus.ErrDos); return; } // Unpack the
-     * request details
-     * 
-     * DataBuffer paramBuf = tbuf.getParameterBuffer();
-     * 
-     * int fid = paramBuf.getShort(); int flags = paramBuf.getShort(); // Debug
-     * 
-     * if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_TRAN))
-     * logger.debug("NT QuerySecurityDesc fid=" + fid + ", flags=" + flags); //
-     * Get the file details
-     * 
-     * NetworkFile netFile = conn.findFile(fid);
-     * 
-     * if (netFile == null) {
-     * m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
-     * SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos); return; } // Return an
-     * empty security descriptor
-     * 
-     * byte[] paramblk = new byte[4]; DataPacker.putIntelInt(0, paramblk, 0);
-     * 
-     * outPkt.initTransactReply(paramblk, paramblk.length, null, 0); // Send
-     * back the response
-     * 
-     * m_sess.sendResponseSMB(outPkt);
-     */
+
+    // Get the tree connection details
+
+    TreeConnection conn = m_sess.findTreeConnection(tbuf.getTreeId());
+
+    if (conn == null) {
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
+          SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
+      return;
+    }
+
+    // Check if the user has the required access permission
+
+    if (conn.hasReadAccess() == false) {
+      // User does not have the required access rights
+
+      m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied,
+          SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+      return;
+    }
+
+    // Unpack the request details
+
+    DataBuffer paramBuf = tbuf.getParameterBuffer();
+
+    int fid = paramBuf.getShort();
+    int flags = paramBuf.getShort();
+
+    // Debug
+    if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_TRAN))
+      logger.debug("NT QuerySecurityDesc fid=" + fid + ", flags=" + flags);
+
+    // Get the file details
+
+    NetworkFile netFile = conn.findFile(fid);
+
+    if (netFile == null) {
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
+          SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
+      return;
+    }
+
+    // Return an empty security descriptor
+
+    byte[] paramblk = new byte[4];
+    DataPacker.putIntelInt(0, paramblk, 0);
+
+    outPkt.initTransactReply(paramblk, paramblk.length, null, 0);
+
+    // Send back the response
+
+    m_sess.sendResponseSMB(outPkt);
+
   }
 
   /**

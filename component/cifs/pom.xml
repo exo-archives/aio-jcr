@@ -117,7 +117,7 @@
 				<version>2.0</version>
 				<configuration>
 					<includes>
-						<include>**/testWriteFile.java </include>
+						<include>**/*.java </include>
 						
 					</includes>
 					<excludes>

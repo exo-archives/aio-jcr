@@ -90,7 +90,7 @@ public class JCRNetworkFile extends NetworkFile {
       assignExtendedBinaryValue();
 
     exv.setLength(size);
-    
+
     isAnyChanges = true;
   }
 
@@ -112,24 +112,24 @@ public class JCRNetworkFile extends NetworkFile {
    * 
    */
   public void saveChanges() throws IOException, RepositoryException {
-    if(isAnyChanges){
+    if (isChanged()) {
       flush();
-      getNodeRef().save();  
+      getNodeRef().save();
     }
-    
+
   }
 
   public long getLength() throws RepositoryException {
-    if (isExtendedBinaryValueAssigned()) {
-      // flush changes to property
-      //TODO check is it possible to get length without setting the value
-      
-      getNodeRef().getNode("jcr:content").getProperty("jcr:data").setValue(exv);
-      exv = null; // free the reference to property value
+    if (isExtendedBinaryValueAssigned() && isChanged()) {
+      return exv.getLength();
     }
 
     return getNodeRef().getNode("jcr:content").getProperty("jcr:data")
         .getLength();
+  }
+
+  public boolean isChanged() {
+    return isAnyChanges;
   }
 
 }

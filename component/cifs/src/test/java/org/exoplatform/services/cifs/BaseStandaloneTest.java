@@ -6,9 +6,12 @@
 package org.exoplatform.services.cifs;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Random;
 
 import junit.framework.TestCase;
 
@@ -160,6 +163,24 @@ public abstract class BaseStandaloneTest extends TestCase {
       fail("Can not read the stream (skip bytes)");
     if (curPos != 0)
       fail("Can not skip bytes from the stream (" + pos + " bytes)");
+  }
+  
+  protected File createBLOBTempFile(String prefix, int sizeInKb) throws IOException {
+    // create test file
+    byte[] data = new byte[1024]; // 1Kb
+
+    File testFile = File.createTempFile(prefix, ".tmp");
+    FileOutputStream tempOut = new FileOutputStream(testFile);
+    Random random = new Random();
+
+    for (int i=0; i<sizeInKb; i++) {
+      random.nextBytes(data);
+      tempOut.write(data);
+    }
+    tempOut.close();
+    testFile.deleteOnExit(); // delete on test exit
+    logger.info("Temp file created: " + testFile.getAbsolutePath()+" size: "+testFile.length());
+    return testFile;
   }
 
   

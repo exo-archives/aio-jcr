@@ -4,6 +4,7 @@
  **************************************************************************/
 package org.exoplatform.services.cifs.server.filesys;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -91,9 +92,9 @@ public class JCRDriver {
 
     // done
     if (logger.isDebugEnabled()) {
-      logger.debug("Created file: \n" + "   path: " + path + "\n"
-          + "   file open parameters: " + params + "\n" + "   node: " + nodeRef
-          + "\n" + "   network file: " + netFile);
+      logger.debug("Created file: \n" + "   path: " + path + "\n" +
+          "   file open parameters: " + params + "\n" + "   node: " + nodeRef +
+          "\n" + "   network file: " + netFile);
     }
 
     return netFile;
@@ -115,8 +116,8 @@ public class JCRDriver {
         try {
           session.checkPermission(path, "read");
         } catch (java.security.AccessControlException e) {
-          throw new AccessDeniedException("No read access to "
-              + params.getFullPath());
+          throw new AccessDeniedException("No read access to " +
+              params.getFullPath());
         }
 
       // Check for write access
@@ -126,8 +127,8 @@ public class JCRDriver {
           session.checkPermission(path, "add_node");
           session.checkPermission(path, "set_property");
         } catch (java.security.AccessControlException e) {
-          throw new AccessDeniedException("No write access to "
-              + params.getFullPath());
+          throw new AccessDeniedException("No write access to " +
+              params.getFullPath());
         }
 
       // Check for delete access
@@ -136,14 +137,14 @@ public class JCRDriver {
         try {
           session.checkPermission(path, "remove");
         } catch (java.security.AccessControlException e) {
-          throw new AccessDeniedException("No delete access to "
-              + params.getFullPath());
+          throw new AccessDeniedException("No delete access to " +
+              params.getFullPath());
         }
 
       // Check if the file has a lock
       if ((params.hasAccessMode(AccessMode.NTWrite)) && (nodeRef.isLocked()))
-        throw new AccessDeniedException("File is locked, no write access to "
-            + params.getFullPath());
+        throw new AccessDeniedException("File is locked, no write access to " +
+            params.getFullPath());
 
       // TODO: Check access writes and compare to write requirements
 
@@ -205,9 +206,9 @@ public class JCRDriver {
       // Debug
 
       if (logger.isDebugEnabled()) {
-        logger.debug("Opened network file: \n" + "   path: " + params.getPath()
-            + "\n" + "   file open parameters: " + params + "\n"
-            + "   network file: " + netFile);
+        logger.debug("Opened network file: \n" + "   path: " +
+            params.getPath() + "\n" + "   file open parameters: " + params +
+            "\n" + "   network file: " + netFile);
       }
 
       // Return the network file
@@ -251,7 +252,7 @@ public class JCRDriver {
         fileInfo.setSize(0L);
       } else {
         // Get the file size from the content
-         
+
         Node contentNode = nodeRef.getNode("jcr:content");
         Property dataProp = contentNode.getProperty("jcr:data");
 
@@ -340,8 +341,142 @@ public class JCRDriver {
       // Set the normal file attribute if no other attributes are set
 
       if (fileInfo.getFileAttributes() == 0)
-        fileInfo.setFileAttributes(FileAttribute.NTSequentialScan
-            + FileAttribute.NTNormal);
+        fileInfo.setFileAttributes(FileAttribute.NTSequentialScan +
+            FileAttribute.NTNormal);
+
+      // Debug
+
+      if (logger.isDebugEnabled()) {
+        logger.debug("\n Fetched file info: \n" + "   info: " + fileInfo);
+      }
+
+      // Return the file information
+
+      return fileInfo;
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new RepositoryException(e);
+    }
+  }
+
+  /**
+   * Helper method to extract file info from a JCRNetworkFile.
+   * <p>
+   * Method used for getting info about non saved to persistent area file.
+   * 
+   * @param JCRNetworkFile
+   *          file file's info we looking for
+   * 
+   * @return Returns the file information pertinent to the node
+   * @throws RepositoryException
+   * 
+   */
+
+  public static FileInfo getFileInformation(JCRNetworkFile file)
+      throws RepositoryException {
+    try {
+
+      // retrieve required properties and create file info
+      FileInfo fileInfo = new FileInfo();
+
+      // unset all attribute flags
+      int fileAttributes = 0;
+
+      fileInfo.setFileAttributes(fileAttributes);
+
+      // if node is directory (all nodes that is'nt file type)
+      if (!(file.getNodeRef().isNodeType("nt:file"))) {
+        // add directory attribute
+        fileAttributes |= FileAttribute.Directory;
+        fileInfo.setFileAttributes(fileAttributes);
+        fileInfo.setSize(0L);
+      } else {
+        // Get the file size from the content
+        long size = 0L;
+        size = file.getLength();
+
+        fileInfo.setSize(size);
+
+        // Set the allocation size by rounding up the size to a 512 byte
+        // block boundary
+
+        if (size > 0)
+          fileInfo.setAllocationSize((size + 512L) & 0xFFFFFFFFFFFFFE00L);
+
+        // Check the lock status of the file
+
+        boolean lock = file.getNodeRef().isLocked();
+
+        if (lock == true) {
+          // File is locked so mark it as read-only
+
+          int attr = fileInfo.getFileAttributes();
+
+          if ((attr & FileAttribute.ReadOnly) == 0)
+            attr += FileAttribute.ReadOnly;
+
+          // if (true)//setLocketFilesAsOffline
+          // attr += FileAttribute.NTOffline;
+
+          fileInfo.setFileAttributes(attr);
+        }
+      }
+
+      try {
+        Calendar date = file.getNodeRef().getProperty("jcr:created").getDate();
+        fileInfo.setCreationDateTime(date.getTimeInMillis());
+      } catch (PathNotFoundException ex) {
+        // there is no property "jcr:created" so used 0 value;
+        fileInfo.setCreationDateTime(0);
+      }
+
+      // name setup
+      String name = file.getNodeRef().getName();
+
+      // TODO here is a sense to transfer name encoding directly to
+      // responsemaker //NO
+      // (like Trans2FindFirst2, Trans2FindNext2, QueryInfoPacker) and encode
+      // name at last possible momment befor send response paket;
+
+      if (name != null) {
+        // check is file is single
+        String nname = name;
+        if (file.getNodeRef().getSession().getRootNode() != file.getNodeRef()) {
+          Node parent = file.getNodeRef().getParent();
+          NodeIterator ni = parent.getNodes(name);
+          int i = 0;
+          int el = 0;
+
+          while (ni.hasNext()) {
+            if (file.getNodeRef() == ni.nextNode())
+              el = i + 1;
+
+            i++;
+          }
+          if (i > 1)
+            nname = name + "[" + el + "]";
+        }
+        fileInfo.setFileName(NameCoder.EncodeName(nname));
+      }
+
+      // Read/write access TODO bind this shit with JCR permissions, lock or
+      // something else
+
+      boolean deniedPermission = false;
+      boolean isReadOnly = false;
+      if (isReadOnly || deniedPermission) {
+        int attr = fileInfo.getFileAttributes();
+        if ((attr & FileAttribute.ReadOnly) == 0) {
+          attr += FileAttribute.ReadOnly;
+          fileInfo.setFileAttributes(attr);
+        }
+      }
+
+      // Set the normal file attribute if no other attributes are set
+
+      if (fileInfo.getFileAttributes() == 0)
+        fileInfo.setFileAttributes(FileAttribute.NTSequentialScan +
+            FileAttribute.NTNormal);
 
       // Debug
 
@@ -416,7 +551,7 @@ public class JCRDriver {
       // Debug
 
       if (logger.isDebugEnabled())
-        logger.debug("Start search - access denied, " + srchPath);
+        logger.debug("Start search - no such path, " + srchPath);
 
       // Convert to a file not found status
 
@@ -476,14 +611,14 @@ public class JCRDriver {
 
         dataNode.setProperty("jcr:mimeType", mimeType);
         dataNode.setProperty("jcr:lastModified", Calendar.getInstance());
-        dataNode.setProperty("jcr:data", "");
+        dataNode.setProperty("jcr:data", new ByteArrayInputStream(new byte[] {}));
       }
       // done
       sess.save();
       if (logger.isDebugEnabled()) {
-        logger.debug("Created node: \n" + "   path: " + path + "\n"
-            + "   is file: " + isFile + "\n" + "   new node: "
-            + createdNodeRef.getPath());
+        logger.debug("Created node: \n" + "   path: " + path + "\n" +
+            "   is file: " + isFile + "\n" + "   new node: " +
+            createdNodeRef.getPath());
       }
       return createdNodeRef;
 
@@ -502,8 +637,6 @@ public class JCRDriver {
       throw new RepositoryException(e.getMessage());
     }
   }
-
- 
 
   /**
    * Read a block of data from the specified file.
@@ -561,15 +694,13 @@ public class JCRDriver {
 
     // done
     if (logger.isDebugEnabled()) {
-      logger.debug("Read bytes from file: \n" + "   network file: " + netFile
-          + "\n" + "   buffer size: " + buf.length + "\n" + "   buffer pos: "
-          + dataPos + "\n" + "   size: " + maxCount + "\n" + "   file offset: "
-          + offset + "\n" + "   bytes read: " + count);
+      logger.debug("Read bytes from file: \n" + "   network file: " + netFile +
+          "\n" + "   buffer size: " + buf.length + "\n" + "   buffer pos: " +
+          dataPos + "\n" + "   size: " + maxCount + "\n" + "   file offset: " +
+          offset + "\n" + "   bytes read: " + count);
     }
     return count;
   }
-
-  
 
   /**
    * This method is called by setFileAttributes command
