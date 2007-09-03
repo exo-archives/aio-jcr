@@ -39,6 +39,19 @@ public class WebDavResourceLocatorImpl implements WebDavResourceLocator {
   
   protected String versionName;
   
+  public WebDavResourceLocatorImpl(WebDavService webDavService, SessionProvider sessionProvider, String serverPrefix, String resPath, String versionName) {
+    this.webDavService = webDavService;
+    this.sessionProvider = sessionProvider;
+    this.serverPrefix = serverPrefix;
+    
+    if (resPath == null) {
+      resPath = "";
+    }
+
+    resourcePath = DavTextUtil.UnEscape(resPath, '%');
+    this.versionName = versionName;    
+  }
+  
   public WebDavResourceLocatorImpl(WebDavService webDavService, SessionProvider sessionProvider, String serverPrefix, String resPath) {
     this.webDavService = webDavService;
     this.sessionProvider = sessionProvider;
@@ -47,10 +60,10 @@ public class WebDavResourceLocatorImpl implements WebDavResourceLocator {
     if (resPath == null) {
       resPath = "";
     }
-    
+  
     resourcePath = DavTextUtil.UnEscape(resPath, '%');
     
-    int versionPrefixPos = resourcePath.indexOf(DavConst.DAV_VERSIONPREFIX); 
+    int versionPrefixPos = resourcePath.indexOf(DavConst.DAV_VERSIONPREFIX);
     
     if (versionPrefixPos < 0) {
       return;
@@ -59,7 +72,7 @@ public class WebDavResourceLocatorImpl implements WebDavResourceLocator {
     String tmpResourcePath = resourcePath.substring(0, versionPrefixPos);
     
     String verName = resourcePath.substring(versionPrefixPos);
-
+    
     resourcePath = tmpResourcePath;
 
     verName = verName.substring(DavConst.DAV_VERSIONPREFIX.length());    

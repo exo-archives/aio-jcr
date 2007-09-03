@@ -45,6 +45,12 @@ public class SearchableWorkspace extends WorkspaceResource implements Searchable
 //    SearchableResource searchableResource = new SearchableNode(context, session.getRootNode());
 //    return searchableResource.doSearch(search);
     
+    Session session = getSession();
+    
+    log.info("Using session: " + session);
+    
+    
+    
     return new ArrayList<MultiStatusResponse>();
   }
   

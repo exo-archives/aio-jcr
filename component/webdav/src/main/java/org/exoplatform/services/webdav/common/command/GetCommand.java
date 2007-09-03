@@ -13,6 +13,7 @@ import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.HeaderParam;
 import org.exoplatform.services.rest.InputTransformer;
 import org.exoplatform.services.rest.OutputTransformer;
+import org.exoplatform.services.rest.QueryParam;
 import org.exoplatform.services.rest.ResourceDispatcher;
 import org.exoplatform.services.rest.Response;
 import org.exoplatform.services.rest.URIParam;
@@ -53,7 +54,8 @@ public class GetCommand extends WebDavCommand {
   public Response get(
       @URIParam("repoName") String repoName,
       @URIParam("repoPath") String repoPath,
-      @HeaderParam(WebDavHeaders.RANGE) String rangeHeader      
+      @HeaderParam(WebDavHeaders.RANGE) String rangeHeader,
+      @QueryParam("VERSIONID") String versionId
       ) {
     
     try {
@@ -61,7 +63,13 @@ public class GetCommand extends WebDavCommand {
       
       SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null);
       
-      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, serverPrefix, repoPath);
+      WebDavResourceLocator resourceLocator = null;
+
+      if (versionId != null) {
+        resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, serverPrefix, repoPath, versionId);        
+      } else {
+        resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, serverPrefix, repoPath);
+      }
       
       long rangeStart = -1;
       
