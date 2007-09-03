@@ -45,20 +45,12 @@
                     </xsl:for-each>
                 </ul>
 
-                <!-- Generate result summary section -->
-                <!-- <xsl:call-template name="resultsSummary"/>
-      
-                <br/><br/>
-                <center><img src="{/*/extrep:resultChart}"/></center>
-                <br/><br/>-->
+								<h2>Results</h2>
 
-		<h2>Results</h2>
-
-      
                 <!-- Generate detailed result per driver -->
-                <xsl:for-each select="rep:driver">
+                <!--<xsl:for-each select="rep:driver">-->
                     <xsl:call-template name="resultsPerDriver"/>
-                </xsl:for-each>
+                <!--</xsl:for-each>-->
 
                 <xsl:choose>
                     <xsl:when test="rep:plotDrivers = 'true'">
@@ -86,55 +78,10 @@
         </html>
     </xsl:template>
 
-    <xsl:template name="resultsSummary">
-        <h2>Result Summary 
-        (<xsl:value-of select="/*/rep:testSuiteReport/rep:resultUnit"/>)</h2>
-    
-        <!-- 
-        - Use an HTML table to list all the Japex driver params except
-        - classPath and driverClass. User-defined params are also ignored here.
-        -->    
-        <table width="80%" border="1">
-            <thead>
-                <tr><th width="15%"><b>driver</b></th>
-                    <xsl:for-each select="rep:driver[1]/*[not(@name) and namespace-uri() = 'http://www.sun.com/japex/testSuiteReport']">
-                        <!-- Ignore classPath and driverClass here to keep the table narrow -->
-                        <xsl:if test="name() != 'classPath' and name() != 'driverClass'">
-                            <th><b><xsl:value-of select="name()"/></b></th>
-                        </xsl:if>
-                    </xsl:for-each>
-                </tr>
-            </thead>
-            <tbody>
-                <xsl:for-each select="rep:driver">
-                    <tr><td align="right"><xsl:value-of select="@name"/></td>
-                        <xsl:for-each select="*[not(@name) and namespace-uri() = 'http://www.sun.com/japex/testSuiteReport']">
-                            <!-- Ignore classPath and driverClass here to keep the table narrow -->
-                            <xsl:if test="name() != 'classPath' and name() != 'driverClass'">
-                                <td align="right">
-                                    <nobr>
-                                        <xsl:variable name="value" select="."/>
-                                        <xsl:choose>
-                                            <xsl:when test="$value = 'NaN'">
-                                                <font color="red"><xsl:value-of select="$value"/></font>
-                                            </xsl:when>
-                                            <xsl:otherwise>
-                                                <xsl:value-of select="$value"/>
-                                            </xsl:otherwise>
-                                        </xsl:choose>
-                                    </nobr>
-                                </td>
-                            </xsl:if>
-                        </xsl:for-each>
-                    </tr>
-                </xsl:for-each>
-            </tbody>
-        </table>
-    </xsl:template>
-
     <xsl:template name="resultsPerDriver">
+    <xsl:for-each select="rep:driver[1]">
         <h2>Driver: <xsl:value-of select="@name"/></h2>
-        
+        <h3>(the difference between drivers is number of threads only)</h3>
         <!-- Generate description before list of params -->
         <xsl:if test="suite:description">
             <div class="description">
@@ -152,26 +99,42 @@
                 </xsl:for-each>
             </ul>
         </p>
-      
-        <!--
-        - Use an HTML table to list all test case params, regardless of whether they
-        - are user-defined or not. List all Japex params first, though.
-        -->
-        <table width="80%" border="1">
+     </xsl:for-each> 
+     <table width="80%" border="1">
+     <xsl:for-each select="rep:driver[1]">
             <thead>
-                <tr><th><b>testCase</b></th>
+                <tr><th><b>driver</b></th>
+                    <th><b>nOfThreads</b></th>
+                    <th><b>testCase</b></th>
+                    
                     <xsl:for-each select="rep:testCase[1]/*[namespace-uri(.)!='']">
                         <th><b><xsl:value-of select="name()"/></b></th>
                     </xsl:for-each>
                     <xsl:for-each select="rep:testCase[1]/*[namespace-uri(.)='']">
                         <th><b><xsl:value-of select="name()"/></b></th>
                     </xsl:for-each>
+                    
                 </tr>
-            </thead>
+            </thead>     
+     </xsl:for-each>
+     <xsl:for-each select="rep:driver">
+        <!--
+        - Use an HTML table to list all test case params, regardless of whether they
+        - are user-defined or not. List all Japex params first, though.
+        -->
+        
+		   <xsl:variable name="outerCurrent" select="current()" />
             <tbody>
                 <xsl:for-each select="rep:testCase">
-                    <tr><td align="right">
-                        <xsl:value-of select="@name"/></td>
+                <tr>
+                  <td><b><xsl:value-of select="$outerCurrent/@name"/></b></td>                        
+                  <td>
+                    <xsl:for-each select="$outerCurrent/rep:numberOfThreads">
+                      <xsl:value-of select="."/>
+                    </xsl:for-each>
+                  </td>          
+                   <td align="right">
+                        <xsl:value-of select="@name"/></td>     
                         <xsl:for-each select="*[namespace-uri(.)!='']">
                             <td align="right"><nobr>                          
                                 <xsl:variable name="value" select="."/>
@@ -187,12 +150,13 @@
                         </xsl:for-each>
                         <xsl:for-each select="*[namespace-uri(.)='']">
                             <td align="left"><nobr><xsl:value-of select="."/></nobr></td>
-                        </xsl:for-each>
-                    </tr>
+                        </xsl:for-each>                    
+                </tr>
                 </xsl:for-each>
             </tbody>
-        </table>
-        <br/>
+    </xsl:for-each>    
+    </table>    
+    <br/>
     </xsl:template>
 
     <xsl:template match="text()"/>
