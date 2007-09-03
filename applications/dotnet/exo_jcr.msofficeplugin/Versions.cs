@@ -101,10 +101,6 @@ namespace exo_jcr.msofficeplugin
                             contentLength = contentLengthProp.getContentLenght();
                         }
 
-                        //if (creatorDisplayNameProp != null) {
-                        //    creator = creatorDisplayNameProp.getTextContent();
-                        //}
-
                         ListViewItem viewItem = new ListViewItem(new string[] {
                             displayName,
                             created,

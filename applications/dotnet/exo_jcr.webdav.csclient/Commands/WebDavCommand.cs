@@ -21,7 +21,6 @@ using exo_jcr.webdav.csclient.Request;
  * @version $Id:
  */
 
-
 namespace exo_jcr.webdav.csclient.Commands
 {
     
@@ -51,7 +50,6 @@ namespace exo_jcr.webdav.csclient.Commands
             
             addRequestHeader(HttpHeaders.TRANSLATE, "f");
             addRequestHeader(HttpHeaders.ACCEPTENCODING, "deflate, gzip, x-gzip, compress, x-compress");
-            //addRequestHeader(HttpHeaders.CONTENTTYPE, "text/xml");
         }
 
         public string CommandName {
@@ -178,9 +176,11 @@ namespace exo_jcr.webdav.csclient.Commands
 
             String main = "";
 
-            resourcePath = resourcePath.Replace(" ", "%20");
+            String convertedPath = TextUtils.convert(resourcePath, Encoding.Default, Encoding.UTF8);
 
-            main += commandName + " " +context.ServletPath+resourcePath+" HTTP/1.1\r\n";
+            resourcePath = TextUtils.escape(convertedPath);
+
+            main += commandName + " " + context.ServletPath + resourcePath + " HTTP/1.1\r\n";
 
             addRequestHeader(HttpHeaders.CONTENTLENGTH, request.Length.ToString());
 
@@ -190,6 +190,7 @@ namespace exo_jcr.webdav.csclient.Commands
             }
 
             main += "\r\n";
+
             byte[] mainBytes = getBytes(main);
             
             stream.Write(mainBytes, 0, mainBytes.Length);
@@ -211,14 +212,10 @@ namespace exo_jcr.webdav.csclient.Commands
                 {
                     int contentLenght = Convert.ToInt32(getResponseHeader(HttpHeaders.CONTENTLENGTH));
 
-                    //MessageBox.Show("LEN: [" + contentLenght.ToString() + "]");
-
                     responseBytes = new byte[contentLenght];
                     int readed = 0;
                     while (readed < contentLenght)
                     {
-                        //readed = readed + stream.Read(responseBytes, 0, responseBytes.Length);
-                        //MessageBox.Show("CL: "+contentLenght + "  readed :"+readed);
                         int curreaded = stream.Read(responseBytes, readed, contentLenght - readed);
                         if (curreaded <= 0) break;
                         readed = readed + curreaded;
@@ -229,15 +226,6 @@ namespace exo_jcr.webdav.csclient.Commands
                         Thread.Sleep(100);
 
                     }
-
-                    //String replys = "";
-                    //for (int bi = 0; bi < responseBytes.Length; bi++ )
-                    //{
-                    //    replys += (char)responseBytes[bi];
-                    //}
-
-                    //MessageBox.Show("REPLY: " + replys);
-                    //Console.WriteLine("REPLY: " + replys);
 
                 }
                 catch (Exception exc)

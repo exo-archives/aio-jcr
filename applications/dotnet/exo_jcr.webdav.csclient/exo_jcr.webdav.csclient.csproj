@@ -86,6 +86,7 @@
     <Compile Include="Search\DavQuery.cs" />
     <Compile Include="Search\SQLQuery.cs" />
     <Compile Include="Search\XPathQuery.cs" />
+    <Compile Include="TextUtils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -96,7 +97,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>copy /y "$(TargetPath)" "C:\Program Files\Exo Platform\eXo WebDav MSOffice Plugin\"
+</PostBuildEvent>
   </PropertyGroup>
 </Project>

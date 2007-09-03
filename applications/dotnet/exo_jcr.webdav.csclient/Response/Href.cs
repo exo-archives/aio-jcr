@@ -30,8 +30,8 @@ namespace exo_jcr.webdav.csclient.Response
                     case XmlNodeType.CDATA:
                         {
                             href = reader.Value;
-                            
-                            href = href.Replace("%3a", ":");
+
+                            href = TextUtils.unEscape(href);// href.Replace("%3a", ":");
 
                             break;
                         }

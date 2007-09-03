@@ -59,7 +59,6 @@ namespace exo_jcr.msofficeplugin
 
         private void btn_search_Click(object sender, EventArgs e)
         {
-
             this.context = connect.getContext("");
 
             if (context == null) {
@@ -67,8 +66,6 @@ namespace exo_jcr.msofficeplugin
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
             }
-
-
 
             SearchCommand searchcomm = new SearchCommand(context);
             SQLQuery query = new SQLQuery();

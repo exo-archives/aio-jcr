@@ -55,10 +55,13 @@ namespace exo_jcr.msofficeplugin
             String f_name = href.Substring(href.LastIndexOf("/") + 1);
             String FILE_NAME = folder + "\\" + f_name;
 
+            FILE_NAME = FILE_NAME.Replace("?", "%3F");
+
             DavContext context = connect.getContext();
             try
             {
                 GetCommand get = new GetCommand(context);
+
                 get.setResourcePath(href);
 
                 int status = get.execute();
@@ -81,7 +84,6 @@ namespace exo_jcr.msofficeplugin
                     w.Close();
                     fs.Close();
                 }
-                //MessageBox.Show("SAVED AS:"+FILE_NAME);
                 connect.Filename = FILE_NAME;
             }
             catch (IOException rr)
