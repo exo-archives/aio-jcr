@@ -8,6 +8,7 @@ package org.exoplatform.frameworks.ftpclient;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.exoplatform.frameworks.ftpclient.client.FtpClientSession;
 import org.exoplatform.frameworks.ftpclient.cmdtests.CDUPTest;
 import org.exoplatform.frameworks.ftpclient.cmdtests.CWDTest;
 import org.exoplatform.frameworks.ftpclient.cmdtests.DELETest;
@@ -44,9 +45,18 @@ public class FtpTests extends TestCase {
 
   public static TestSuite suite() {
     Log log = new Log("FtpTests");
-    log.info("Preparing FTP tests...");
     
-    TestSuite suite = new TestSuite("jcr.ftp tests");
+    log.info("Checking server...");
+
+    TestSuite suite = new TestSuite("jcr.ftp tests");    
+    
+    log.info("checking...");
+    if (!isServerPresent()) {
+      log.info("Server not found! Tests are skipping...");
+      return suite;
+    }
+    
+    log.info("Preparing FTP tests...");
     
     suite.addTestSuite(NOOPTest.class);
     suite.addTestSuite(HELPTest.class);
@@ -75,6 +85,22 @@ public class FtpTests extends TestCase {
     suite.addTestSuite(RETRTest.class);
 
     return suite;    
+  }
+  
+  private static boolean isServerPresent() {    
+    try {
+      FtpClientSession client = FtpTestConfig.getTestFtpClient();
+      boolean connected = client.connect();
+      
+      if (connected) {
+        client.close();
+        return true;
+      }      
+      
+    } catch (Exception exc) {
+    }
+    
+    return false;
   }
   
 }
