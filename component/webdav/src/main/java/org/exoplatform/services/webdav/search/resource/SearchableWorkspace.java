@@ -40,18 +40,13 @@ public class SearchableWorkspace extends WorkspaceResource implements Searchable
   }
   
   public ArrayList<MultiStatusResponse> doSearch(Search search) throws RepositoryException {
-//    WebDavRequest request = context.getWebDavRequest();
-//    Session session = request.getSession(context.getSessionProvider(), getWorkspaceName());
-//    SearchableResource searchableResource = new SearchableNode(context, session.getRootNode());
-//    return searchableResource.doSearch(search);
-    
-    Session session = getSession();
+    Session session = getSession();    
     
     log.info("Using session: " + session);
+
+    SearchableResource searchableResource = new SearchableNode(webDavService, getHref(), session.getRootNode());
     
-    
-    
-    return new ArrayList<MultiStatusResponse>();
+    return searchableResource.doSearch(search);    
   }
   
 }

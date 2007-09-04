@@ -57,10 +57,6 @@ public class WebDavResourceLocatorImpl implements WebDavResourceLocator {
     this.sessionProvider = sessionProvider;
     this.serverPrefix = serverPrefix;
     
-    if (resPath == null) {
-      resPath = "";
-    }
-  
     resourcePath = DavTextUtil.UnEscape(resPath, '%');
     
     int versionPrefixPos = resourcePath.indexOf(DavConst.DAV_VERSIONPREFIX);

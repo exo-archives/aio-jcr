@@ -38,6 +38,17 @@ public class HeadCommand extends WebDavCommand {
   }
   
   @HTTPMethod(WebDavMethod.HEAD)
+  @URITemplate("/{repoName}/")
+  @InputTransformer(PassthroughInputTransformer.class)
+  public Response head(
+      @URIParam("repoName") String repoName
+      ) {
+    
+    return doHead(repoName, "");
+  }
+
+    
+  @HTTPMethod(WebDavMethod.HEAD)
   @URITemplate("/{repoName}/{repoPath}/")
   @InputTransformer(PassthroughInputTransformer.class)
   public Response head(
@@ -45,6 +56,10 @@ public class HeadCommand extends WebDavCommand {
       @URIParam("repoPath") String repoPath      
       ) {
     
+    return doHead(repoName, repoPath);
+  }
+  
+  private Response doHead(String repoName, String repoPath) {
     try {
       String serverPrefix = getServerPrefix(repoName);
       
@@ -72,6 +87,7 @@ public class HeadCommand extends WebDavCommand {
     } catch (Exception exc) {
       return responseByException(exc);
     }    
+    
   }
   
 }

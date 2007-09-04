@@ -57,6 +57,8 @@ public class SearchableNode extends AbstractNodeResource implements SearchableRe
       return new ArrayList<MultiStatusResponse>();
     }
         
+    log.info("SQL query: " + search.getQuery());
+    
     Query query = queryManager.createQuery(search.getQuery(), search.getQueryLanguage());        
     QueryResult result = query.execute();
     
@@ -100,7 +102,14 @@ public class SearchableNode extends AbstractNodeResource implements SearchableRe
    * removing jcr:content nodes
    */
   
-  private boolean isSameNode(Node node) throws RepositoryException {    
+  private boolean isSameNode(Node node) throws RepositoryException {
+    
+    log.info(">> " + node.getPath());
+    
+    if ("/".equals(searchablePath)) {
+      return true;
+    }
+    
     if (node.getPath().equals(searchablePath) ||
         node.getPath().startsWith(searchablePath + "/")) {
       return true; 

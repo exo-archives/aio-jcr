@@ -60,7 +60,7 @@ public class PropFindCommand extends WebDavCommand {
       Document requestDocument,
       @HeaderParam(WebDavHeaders.DEPTH) String depthHeader
       ) {    
-    return doPropFind(repoName, null, requestDocument, new Integer(depthHeader));
+    return doPropFind(repoName, "", requestDocument, new Integer(depthHeader));
   }  
   
   @HTTPMethod(WebDavMethod.PROPFIND)
