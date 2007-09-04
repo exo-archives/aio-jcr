@@ -7,7 +7,7 @@
 	<param name="japex.plotGroupSize" value="5" />
 	<param name="japex.resultUnit" value="tps" />
 	<param name="japex.warmupIterations" value="0" />
-  <param name="japex.runIterations" value="10" />
+  <param name="japex.runTime" value="60" /> <!-- 60sec -->
 
 	<driverGroup name="ThreadDriverGroup" xmlns="http://www.sun.com/japex/testSuite">
 		<param name="japex.classPath" value="../lib/*.jar" />
@@ -22,11 +22,17 @@
 		<driver name="JCRdriver10T">
 			<param name="japex.numberOfThreads" value="10" />
 		</driver>
-		<driver name="JCRdriver30T">
-			<param name="japex.numberOfThreads" value="30" />
-		</driver>
 		<driver name="JCRdriver50T">
 			<param name="japex.numberOfThreads" value="50" />
+		</driver>
+		<driver name="JCRdriver100T">
+			<param name="japex.numberOfThreads" value="100" />
+		</driver>
+		<driver name="JCRdriver150T">
+			<param name="japex.numberOfThreads" value="150" />
+		</driver>
+		<driver name="JCRdriver200T">
+			<param name="japex.numberOfThreads" value="200" />
 		</driver>
 	</driverGroup>
 
