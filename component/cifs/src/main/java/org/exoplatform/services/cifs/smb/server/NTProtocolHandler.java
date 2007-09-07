@@ -39,6 +39,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
 
+import org.exoplatform.services.cifs.smb.server.VirtualCircuit;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.cifs.netbios.RFCNetBIOSProtocol;
 import org.exoplatform.services.cifs.server.core.ShareType;
@@ -339,10 +340,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // the request to the
       // core protocol handler
 
-      int treeId = m_smbPkt.getTreeId();
-      TreeConnection conn = null;
-      if (treeId != -1)
-        conn = m_sess.findTreeConnection(treeId);
+      TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
       if (conn != null) {
 
@@ -481,6 +479,30 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_NEGOTIATE))
       logger.debug("User " + user + ", logged on as guest");
 
+    // Create a virtual circuit and allocate a UID to the new circuit
+
+    VirtualCircuit vc = new VirtualCircuit(vcNum);
+    int uid = m_sess.addVirtualCircuit(vc);
+
+    if (uid == VirtualCircuit.InvalidUID) {
+      // DEBUG
+
+      if (logger.isDebugEnabled() &&
+          m_sess.hasDebug(SMBSrvSession.DBG_NEGOTIATE))
+        logger.debug("Failed to allocate UID for virtual circuit, " + vc);
+
+      // Failed to allocate a UID
+
+      throw new SMBSrvException(SMBStatus.NTLogonFailure,
+          SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+    } else if (logger.isDebugEnabled() &&
+        m_sess.hasDebug(SMBSrvSession.DBG_NEGOTIATE)) {
+
+      // DEBUG
+
+      logger.debug("Allocated UID=" + uid + " for VC=" + vc);
+    }
+
     // Indicate that the session is logged on
 
     m_sess.setLoggedOn(true);
@@ -494,7 +516,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     outPkt.setByteCount(0);
 
     outPkt.setTreeId(0);
-    outPkt.setUserId(0);
+    outPkt.setUserId(uid);
 
     // Set the various flags
 
@@ -701,6 +723,14 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     int pwdLen = m_smbPkt.getAndXParameter(cmdOff, 3);
 
+    VirtualCircuit vc = m_sess.findVirtualCircuit(outPkt.getUserId());
+
+    if (vc == null) {
+      outPkt.setError(m_smbPkt.isLongErrorCode(), SMBStatus.NTInvalidParameter,
+          SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
+      return endOff;
+    }
+
     // Reset the byte pointer for data unpacking
 
     m_smbPkt.setBytePointer(m_smbPkt.getAndXByteOffset(cmdOff), m_smbPkt
@@ -778,7 +808,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // Get/create the shared device
 
       shareDev = m_sess.getSMBServer().findShare(share.getShareName(),
-          servType, m_sess, true);
+          servType, m_sess);
 
       // Return a logon failure status
 
@@ -822,12 +852,12 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
       // Allocate the tree id for this connection
 
-      int treeId = m_sess.addConnection(shareDev);
+      int treeId = vc.addTreeConnection(shareDev);
       outPkt.setTreeId(treeId);
 
       // Set the file permission that this user has been granted for this share
 
-      tree = m_sess.findTreeConnection(treeId);
+      tree = vc.findTreeConnection(treeId);
       tree.setPermission(sharePerm);
 
       // create jcr-session for user
@@ -908,7 +938,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       outPkt.setError(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -1023,7 +1053,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       outPkt.setError(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -1096,6 +1126,13 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     int pwdLen = m_smbPkt.getParameter(3);
 
+    VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
+
+    if (vc == null) {
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
+      return;
+    }
+    
     // Initialize the byte area pointer
 
     m_smbPkt.resetBytePointer();
@@ -1182,8 +1219,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
       // Get/create the shared device
 
-      shareDev = m_sess.getSMBServer().findShare(shareName, servType, m_sess,
-          true);
+      shareDev = m_sess.getSMBServer().findShare(shareName, servType, m_sess
+          );//true
 
     } catch (Exception ex) {
 
@@ -1211,12 +1248,12 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Allocate a tree id for the new connection
 
-    int treeId = m_sess.addConnection(shareDev);
+    int treeId = vc.addTreeConnection(shareDev);
     outPkt.setTreeId(treeId);
 
     // Set the file permission that this user has been granted for this share
 
-    TreeConnection tree = m_sess.findTreeConnection(treeId);
+    TreeConnection tree = vc.findTreeConnection(treeId);
     tree.setPermission(sharePerm);
 
     // TODO security, errors
@@ -1297,7 +1334,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -1408,8 +1445,9 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
+    VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
 
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = vc.findTreeConnection(m_smbPkt.getTreeId());
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -1492,7 +1530,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Check if the transaction is on the IPC$ named pipe, the request requires
     // special processing
     if (conn.getSharedDevice().getType() == ShareType.ADMINPIPE) {
-      IPCHandler.procTransaction(transBuf, m_sess, outPkt);
+      IPCHandler.procTransaction(vc, transBuf, m_sess, outPkt);
       return;
     }
 
@@ -1533,7 +1571,9 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
+
+    TreeConnection conn = vc.findTreeConnection(m_smbPkt.getTreeId());
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -1628,7 +1668,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // processing
 
       if (conn.getSharedDevice().getType() == ShareType.ADMINPIPE) {
-        IPCHandler.procTransaction(transBuf, m_sess, outPkt);
+        IPCHandler.procTransaction(vc, transBuf, m_sess, outPkt);
         return;
       }
 
@@ -1747,9 +1787,11 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       return;
     }
 
+    VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
+
     // Get the tree connection details
 
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = vc.findTreeConnection(m_smbPkt.getTreeId());
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -1772,7 +1814,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     int searchId = m_smbPkt.getParameter(0);
 
-    SearchContext ctx = m_sess.getSearchContext(searchId);
+    SearchContext ctx = vc.getSearchContext(searchId);
 
     if (ctx == null) {
 
@@ -1789,7 +1831,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Deallocate the search slot, close the search.
 
-    m_sess.deallocateSearchSlot(searchId);
+    vc.deallocateSearchSlot(searchId);
 
     // Return a success status SMB
 
@@ -1815,7 +1857,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Get the tree connection details
 
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -1916,16 +1958,38 @@ public class NTProtocolHandler extends CoreProtocolHandler {
   protected final void procLogoffAndX(SMBSrvPacket outPkt)
       throws java.io.IOException, SMBSrvException {
     logger.debug(":procLogoffAndX");
-    // Check that the received packet looks like a valid logoff andX request
+    //  Check that the received packet looks like a valid logoff andX request
 
-    if (m_smbPkt.checkPacketIsValid(2, 0) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
-          SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
+    if (m_smbPkt.checkPacketIsValid(2, 0) == false)
+    {
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
       return;
     }
-    // Return a success status SMB
 
-    m_sess.sendSuccessResponseSMB();
+    //  Get the virtual circuit for the request
+    
+    int uid = m_smbPkt.getUserId();
+    VirtualCircuit vc = m_sess.findVirtualCircuit( uid);
+    
+    if (vc == null)
+    {
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
+      return;
+    }
+
+    //  DEBUG
+    
+    if ( logger.isDebugEnabled() && m_sess.hasDebug( SMBSrvSession.DBG_NEGOTIATE))
+      logger.debug("Logoff vc=" + vc);
+
+    //  Close the virtual circuit
+    
+    m_sess.removeVirtualCircuit( uid);
+    
+    //  Return a success status SMB
+
+  m_sess.sendSuccessResponseSMB();
+
   }
 
   /**
@@ -1948,7 +2012,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Get the tree connection details
 
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -2201,7 +2265,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Get the tree connection details
 
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -2370,7 +2434,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -2587,7 +2651,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -2758,7 +2822,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -2914,8 +2978,15 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     logger.debug(":procTrans2FindFirst");
 
     // Get the tree connection details
+    VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
+    
+    if (vc == null)
+    {
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
+      return;
+    }
 
-    TreeConnection conn = m_sess.findTreeConnection(tbuf.getTreeId());
+    TreeConnection conn = vc.findTreeConnection(tbuf.getTreeId());
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -3005,7 +3076,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
       // Allocate a search slot for the new search
 
-      searchId = m_sess.allocateSearchSlot();
+      searchId = vc.allocateSearchSlot();
       if (searchId == -1) {
 
         // Failed to allocate a slot for the new search
@@ -3056,7 +3127,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
       // Save the search context
 
-      m_sess.setSearchContext(searchId, ctx);
+      vc.setSearchContext(searchId, ctx);
 
       // Create the reply transact buffer
 
@@ -3244,7 +3315,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
         // Release the search context
 
-        m_sess.deallocateSearchSlot(searchId);
+        vc.deallocateSearchSlot(searchId);
       } else if ((srchFlag & FindFirstNext.CloseSearch) != 0) {
         // Debug
 
@@ -3254,7 +3325,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
         // Release the search context
 
-        m_sess.deallocateSearchSlot(searchId);
+        vc.deallocateSearchSlot(searchId);
       }
     } catch (FileNotFoundException ex) {
 
@@ -3267,7 +3338,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // Deallocate the search
 
       if (searchId != -1)
-        m_sess.deallocateSearchSlot(searchId);
+        vc.deallocateSearchSlot(searchId);
 
       // Requested path does not exist
 
@@ -3279,7 +3350,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // Deallocate the search
 
       if (searchId != -1)
-        m_sess.deallocateSearchSlot(searchId);
+        vc.deallocateSearchSlot(searchId);
 
       // Failed to get/initialize the disk interface
 
@@ -3290,7 +3361,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // Deallocate the search
 
       if (searchId != -1)
-        m_sess.deallocateSearchSlot(searchId);
+        vc.deallocateSearchSlot(searchId);
 
       // Requested information level is not supported
 
@@ -3316,8 +3387,15 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     logger.debug(":procTrans2FindNext");
 
     // Get the tree connection details
-
-    TreeConnection conn = m_sess.findTreeConnection(tbuf.getTreeId());
+    VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
+    
+    if (vc == null)
+    {
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
+      return;
+    }
+    
+    TreeConnection conn = vc.findTreeConnection(tbuf.getTreeId());
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -3355,7 +3433,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     try {
       // Retrieve the search context
 
-      ctx = m_sess.getSearchContext(searchId);
+      ctx = vc.getSearchContext(searchId);
       if (ctx == null) {
 
         // DEBUG
@@ -3496,7 +3574,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
         // Release the search context
 
-        m_sess.deallocateSearchSlot(searchId);
+        vc.deallocateSearchSlot(searchId);
       } else if ((srchFlag & FindFirstNext.CloseSearch) != 0) {
         // Debug
 
@@ -3506,14 +3584,14 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
         // Release the search context
 
-        m_sess.deallocateSearchSlot(searchId);
+        vc.deallocateSearchSlot(searchId);
       }
     } catch (FileNotFoundException ex) {
 
       // Deallocate the search
 
       if (searchId != -1)
-        m_sess.deallocateSearchSlot(searchId);
+        vc.deallocateSearchSlot(searchId);
 
       // Search path does not exist
 
@@ -3523,7 +3601,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // Deallocate the search
 
       if (searchId != -1)
-        m_sess.deallocateSearchSlot(searchId);
+        vc.deallocateSearchSlot(searchId);
 
       // Requested path does not exist
 
@@ -3535,7 +3613,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // Deallocate the search
 
       if (searchId != -1)
-        m_sess.deallocateSearchSlot(searchId);
+        vc.deallocateSearchSlot(searchId);
 
       // Failed to get/initialize the disk interface
 
@@ -3545,7 +3623,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       // Deallocate the search
 
       if (searchId != -1)
-        m_sess.deallocateSearchSlot(searchId);
+        vc.deallocateSearchSlot(searchId);
 
       // Requested information level is not supported
 
@@ -3572,8 +3650,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Get the tree connection details
 
-    int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -3901,8 +3978,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Get the tree connection details
 
-    int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -4094,8 +4170,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Get the tree connection details
 
-    int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -4264,8 +4339,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Get the tree connection details
 
-    int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -4402,7 +4476,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
         // Debug
 
         if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_INFO))
-          logger.debug("  Set Basic Info [" + treeId + "] name=" +
+          logger.debug("  Set Basic Info [" + m_smbPkt.getTreeId() + "] name=" +
               netFile.getFullName() + ", attr=0x" + Integer.toHexString(attr) +
               ", setTime=" + hasSetTime + ", setFlags=0x" +
               Integer.toHexString(setFlags) + ", unknown=" + unknown);
@@ -4588,8 +4662,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Get the tree connection details
 
-    int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -4718,10 +4791,10 @@ public class NTProtocolHandler extends CoreProtocolHandler {
         // Debug
 
         if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_INFO))
-          logger.debug("  Set Standard Info [" + treeId + "] name=" + path +
-              ", attr=0x" + Integer.toHexString(attr) + ", setTime=" +
-              hasSetTime + ", setFlags=0x" + Integer.toHexString(setFlags) +
-              ", eaListLen=" + eaListLen);
+          logger.debug("  Set Standard Info [" + m_smbPkt.getTreeId() +
+              "] name=" + path + ", attr=0x" + Integer.toHexString(attr) +
+              ", setTime=" + hasSetTime + ", setFlags=0x" +
+              Integer.toHexString(setFlags) + ", eaListLen=" + eaListLen);
         break;
       }
 
@@ -4800,7 +4873,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Get the tree connection details
 
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -4955,7 +5028,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Get the tree connection details
 
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -5363,7 +5436,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Get the tree connection details
 
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -5428,7 +5501,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -5578,7 +5651,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -5786,7 +5859,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Get the tree connection details
 
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -6107,7 +6180,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Get the tree connection details
 
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -6196,7 +6269,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Get the tree connection details
 
-    TreeConnection conn = m_sess.findTreeConnection(tbuf.getTreeId());
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
@@ -6261,43 +6334,52 @@ public class NTProtocolHandler extends CoreProtocolHandler {
   protected final void procNTTransactSetSecurityDesc(SrvTransactBuffer tbuf,
       NTTransPacket outPkt) throws IOException, SMBSrvException {
     logger.debug(":procNTTransactSetSecurityDesc");
-    /*
-     * // Unpack the request details
-     * 
-     * DataBuffer paramBuf = tbuf.getParameterBuffer(); // Get the virtual
-     * circuit for the request
-     * 
-     * VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
-     * 
-     * if (vc == null) {
-     * m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
-     * SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos); return; } // Get the tree
-     * connection details
-     * 
-     * TreeConnection conn = vc.findConnection(tbuf.getTreeId());
-     * 
-     * if (conn == null) {
-     * m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
-     * SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos); return; } // Check if the
-     * user has the required access permission
-     * 
-     * if (conn.hasWriteAccess() == false) { // User does not have the required
-     * access rights
-     * 
-     * m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied,
-     * SMBStatus.DOSAccessDenied, SMBStatus.ErrDos); return; } // Get the file
-     * details
-     * 
-     * int fid = paramBuf.getShort(); paramBuf.skipBytes(2); int flags =
-     * paramBuf.getInt(); // Debug
-     * 
-     * if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_TRAN))
-     * logger.debug("NT SetSecurityDesc fid=" + fid + ", flags=" + flags); //
-     * Send back an error, security descriptors not supported
-     * 
-     * m_sess .sendErrorResponseSMB(SMBStatus.SRVNonSpecificError,
-     * SMBStatus.ErrSrv);
-     */
+
+    // Unpack the request details
+
+    DataBuffer paramBuf = tbuf.getParameterBuffer();
+
+    // Get the virtual circuit for the request
+
+    VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
+
+    if (vc == null) {
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
+          SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
+      return;
+    }
+    // Get the tree connection details
+
+    TreeConnection conn = vc.findTreeConnection(tbuf.getTreeId());
+
+    if (conn == null) {
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
+          SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
+      return;
+    }
+    // Check if the user has the required access permission
+
+    if (conn.hasWriteAccess() == false) {
+      // User does not have the required access rights
+
+      m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied,
+          SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+      return;
+    } // Get the file details
+
+    int fid = paramBuf.getShort();
+    paramBuf.skipBytes(2);
+    int flags = paramBuf.getInt();
+
+    // Debug
+    if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_TRAN))
+      logger.debug("NT SetSecurityDesc fid=" + fid + ", flags=" + flags);
+
+    // Send back an error, security descriptors not supported
+
+    m_sess
+        .sendErrorResponseSMB(SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
+
   }
 
   /**
@@ -6436,8 +6518,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Get the tree connection details
 
-    int treeId = tbuf.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,

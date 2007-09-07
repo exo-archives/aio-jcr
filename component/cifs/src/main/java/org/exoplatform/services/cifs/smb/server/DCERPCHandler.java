@@ -26,6 +26,7 @@ package org.exoplatform.services.cifs.smb.server;
 
 import java.io.IOException;
 
+import org.exoplatform.services.cifs.smb.server.VirtualCircuit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.exoplatform.services.cifs.netbios.RFCNetBIOSProtocol;
@@ -71,7 +72,7 @@ public class DCERPCHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    TreeConnection conn = sess.findTreeConnection(srvTrans.getTreeId());
+    TreeConnection conn = sess.findTreeConnection(srvTrans);
 
     if (conn == null) {
       sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -203,7 +204,7 @@ public class DCERPCHandler {
    * @exception IOException
    * @exception SMBSrvException
    */
-  public static final void processDCERPCRequest(SMBSrvSession sess,
+  public static final void processDCERPCRequest(SMBSrvSession sess,VirtualCircuit vc, 
       TransactBuffer tbuf, SMBSrvPacket outPkt)
       throws IOException, SMBSrvException {
 
@@ -218,7 +219,7 @@ public class DCERPCHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    TreeConnection conn = sess.findTreeConnection(tbuf.getTreeId());
+    TreeConnection conn = vc.findTreeConnection(tbuf.getTreeId());
 
     if (conn == null) {
       sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -356,7 +357,7 @@ public class DCERPCHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    TreeConnection conn = sess.findTreeConnection(inPkt.getTreeId());
+    TreeConnection conn = sess.findTreeConnection(inPkt);
 
     if (conn == null) {
       sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -484,7 +485,7 @@ public class DCERPCHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    TreeConnection conn = sess.findTreeConnection(inPkt.getTreeId());
+    TreeConnection conn = sess.findTreeConnection(inPkt);
 
     if (conn == null) {
       sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);

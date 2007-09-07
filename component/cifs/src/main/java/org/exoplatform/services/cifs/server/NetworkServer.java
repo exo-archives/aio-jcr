@@ -160,8 +160,7 @@ public abstract class NetworkServer {
    * @return SharedDevice with the specified name and type, else null.
    * @exception Exception
    */
-  public final SharedDevice findShare(String name, int typ, SrvSession sess,
-      boolean create) throws Exception {
+  public final SharedDevice findShare(String name, int typ, SrvSession sess) throws Exception {
 
     SharedDevice share = null;
 

@@ -13,6 +13,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
 
+import org.exoplatform.services.cifs.smb.server.VirtualCircuit;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.cifs.server.filesys.AccessMode;
 import org.exoplatform.services.cifs.server.filesys.FileAction;
@@ -145,7 +146,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -254,7 +255,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -347,7 +348,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -479,7 +480,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -646,7 +647,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -766,7 +767,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -951,7 +952,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt.getTreeId());
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -1052,7 +1053,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -1199,8 +1200,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -1367,7 +1367,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -1517,8 +1517,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -1575,8 +1574,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -1811,7 +1809,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -1935,8 +1933,8 @@ class CoreProtocolHandler extends ProtocolHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -2068,12 +2066,29 @@ class CoreProtocolHandler extends ProtocolHandler {
   protected void procTreeDisconnect(SMBSrvPacket outPkt)
       throws java.io.IOException, SMBSrvException {
     logger.debug("procTreeDisconnect");
+    // Check that the received packet looks like a valid tree disconnect request
+
+    if (m_smbPkt.checkPacketIsValid(0, 0) == false)
+    {
+        m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
+        return;
+    }
+
+    //  Get the virtual circuit for the request
+    
+    VirtualCircuit vc = m_sess.findVirtualCircuit( m_smbPkt.getUserId());
+    if ( vc == null)
+    {
+        m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
+        return;
+    }
+    
     // Get the tree id from the received packet and validate that it is a
     // valid
     // connection id.
 
     int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    TreeConnection conn = vc.findTreeConnection(treeId);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -2087,7 +2102,7 @@ class CoreProtocolHandler extends ProtocolHandler {
 
     // Remove the specified connection from the session
 
-    m_sess.removeConnection(treeId);
+    vc.removeConnection(treeId, m_sess);
 
     // Build the tree disconnect response
 
@@ -2155,8 +2170,8 @@ class CoreProtocolHandler extends ProtocolHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    int treeId = m_smbPkt.getTreeId();
-    TreeConnection conn = m_sess.findTreeConnection(treeId);
+    
+    TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);

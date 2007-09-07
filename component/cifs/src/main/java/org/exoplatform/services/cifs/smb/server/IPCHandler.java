@@ -26,6 +26,7 @@ package org.exoplatform.services.cifs.smb.server;
 
 import java.io.IOException;
 
+import org.exoplatform.services.cifs.smb.server.VirtualCircuit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.exoplatform.services.cifs.server.filesys.NetworkFile;
@@ -75,8 +76,7 @@ class IPCHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    int treeId = smbPkt.getTreeId();
-    TreeConnection conn = sess.findTreeConnection(treeId);
+    TreeConnection conn = sess.findTreeConnection(smbPkt);
 
     if (conn == null) {
       sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -155,7 +155,7 @@ class IPCHandler {
    * @param outPkt
    *          SMBSrvPacket
    */
-  protected static void procTransaction(
+  protected static void procTransaction(VirtualCircuit vc,
       SrvTransactBuffer tbuf, SMBSrvSession sess, SMBSrvPacket outPkt)
       throws IOException, SMBSrvException {
 
@@ -182,13 +182,13 @@ class IPCHandler {
     // Set named pipe handle state
 
     case NamedPipeTransaction.SetNmPHandState:
-      procSetNamedPipeHandleState(sess, tbuf, outPkt);
+      procSetNamedPipeHandleState(sess,vc, tbuf, outPkt);
       break;
 
     // Named pipe transation request, pass the request to the DCE/RPC handler
 
     case NamedPipeTransaction.TransactNmPipe:
-      DCERPCHandler.processDCERPCRequest(sess, tbuf, outPkt);
+      DCERPCHandler.processDCERPCRequest(sess,vc, tbuf, outPkt);
       break;
 
     // Unknown command
@@ -237,8 +237,7 @@ class IPCHandler {
     }
 
     // Get the tree connection details
-    int treeId = rxPkt.getTreeId();
-    TreeConnection conn = sess.findTreeConnection(treeId);
+    TreeConnection conn = sess.findTreeConnection(rxPkt);
 
     if (conn == null) {
       sess.sendErrorResponseSMB(SMBStatus.SRVInvalidTID, SMBStatus.ErrSrv);
@@ -455,8 +454,8 @@ class IPCHandler {
 
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
-    int treeId = rxPkt.getTreeId();
-    TreeConnection conn = sess.findTreeConnection(treeId);
+    
+    TreeConnection conn = sess.findTreeConnection(rxPkt);
 
     if (conn == null) {
       sess.sendErrorResponseSMB(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
@@ -504,7 +503,7 @@ class IPCHandler {
    * @param outPkt
    *          SMBSrvPacket
    */
-  protected static void procSetNamedPipeHandleState(SMBSrvSession sess,
+  protected static void procSetNamedPipeHandleState(SMBSrvSession sess,VirtualCircuit vc, 
       SrvTransactBuffer tbuf, SMBSrvPacket outPkt)
       throws IOException, SMBSrvException {
 
@@ -519,7 +518,8 @@ class IPCHandler {
 
     // Get the connection for the request
 
-    TreeConnection conn = sess.findTreeConnection(tbuf.getTreeId());
+    TreeConnection conn = vc.findTreeConnection(tbuf.getTreeId());
+    
 
     // Get the IPC pipe file for the specified file id
 
@@ -565,7 +565,7 @@ class IPCHandler {
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
 
-    TreeConnection conn = sess.findTreeConnection(rxPkt.getTreeId());
+    TreeConnection conn = sess.findTreeConnection(rxPkt);
 
     if (conn == null) {
       sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.NTErr);

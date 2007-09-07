@@ -32,6 +32,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.exoplatform.services.cifs.smb.server.VirtualCircuit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.exoplatform.services.cifs.netbios.NetBIOSException;
@@ -84,21 +85,15 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
   public static final int LanManBufferSize = 8192;
 
-  // Default and maximum number of connection slots
+  // Default and maximum number of circuits
 
-  public static final int DefaultConnections = 4;
+  public static final int DefaultCircuits = 4;
 
-  public static final int MaxConnections = 16;
+  public static final int MaxCircuits = 16;
 
   // Tree ids are 16bit values
 
-  private static final int TreeIdMask = 0x0000FFFF;
-
-  // Default and maximum number of search slots
-
-  private static final int DefaultSearches = 8;
-
-  private static final int MaxSearches = 256;
+  private static final int UIdMask = 0x0000FFFF;
 
   // Maximum multiplexed packets allowed (client can send up to this many SMBs
   // before waiting for a response)
@@ -110,10 +105,11 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
   public static final int NTMaxMultiplexed = 4;
 
-  // Maximum number of virtual circuits
-  // TODO virtual circuit is not implemented, but probably will
+  private Hashtable<Integer, VirtualCircuit> vcircuits;
 
-  public static final int MaxVirtualCircuits = 0;
+  // Next available UID
+
+  private int nextUID;
 
   // Packet handler used to send/receive SMB packets over a particular protocol
 
@@ -149,15 +145,15 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
   // Connected share list and next tree id
 
-  private Hashtable<Integer, TreeConnection> m_connections;
+  // private Hashtable<Integer, TreeConnection> m_connections;
 
-  private int k_treeId;
+// private int k_treeId;
 
   // Active search list for this session
 
-  private SearchContext[] m_search;
+  // private SearchContext[] m_search;
 
-  private int m_searchCount;
+  // private int m_searchCount;
 
   // Active transaction details
 
@@ -269,8 +265,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
     // session setup
     // phase.
 
-    if (isProtocol() == SMBSrvPacket.PROTOCOL_TCPIP
-        || isProtocol() == SMBSrvPacket.PROTOCOL_WIN32NETBIOS) {
+    if (isProtocol() == SMBSrvPacket.PROTOCOL_TCPIP ||
+        isProtocol() == SMBSrvPacket.PROTOCOL_WIN32NETBIOS) {
 
       // Advance to the SMB negotiate dialect phase
 
@@ -299,15 +295,40 @@ public class SMBSrvSession extends SrvSession implements Runnable {
    *          int
    * @return TreeConnection
    */
-  protected final TreeConnection findTreeConnection(int treeId) {
-    // Check if the tree id and connection array are valid
+  /*
+   * protected final TreeConnection findTreeConnection(int treeId) { // Check if
+   * the tree id and connection array are valid
+   * 
+   * if (m_connections == null) return null; // Get the required tree connection
+   * details
+   * 
+   * return (TreeConnection) m_connections.get(new Integer(treeId)); }
+   */
 
-    if (m_connections == null)
-      return null;
+  /**
+   * Find the tree connection for the request
+   * 
+   * @param smbPkt
+   *          SMBSrvPacket
+   * @return TreeConnection
+   */
+  public final TreeConnection findTreeConnection(SMBSrvPacket smbPkt) {
 
-    // Get the required tree connection details
+    // Find the virtual circuit for the request
 
-    return (TreeConnection) m_connections.get(new Integer(treeId));
+    TreeConnection tree = null;
+    VirtualCircuit vc = findVirtualCircuit(smbPkt.getUserId());
+
+    if (vc != null) {
+
+      // Find the tree connection
+
+      tree = vc.findTreeConnection(smbPkt.getTreeId());
+    }
+
+    // Return the tree connection, or null if invalid UID or TID
+
+    return tree;
   }
 
   /**
@@ -318,35 +339,41 @@ public class SMBSrvSession extends SrvSession implements Runnable {
     // Debug
 
     if (logger.isDebugEnabled() && hasDebug(DBG_STATE))
-      logger.debug("Cleanup session, treeConns=" + getConnectionCount());
+      logger.debug("Cleanup session, vcircuits=" + getCircuitCount());// + ",
+    // changeNotify="
+    // +
+    // getNotifyChangeCount());
+    if (vcircuits != null)
+      if (vcircuits.size() > 0) {
 
-    // Check if there are any active searches
-    if (m_search != null) {
+        // Enumerate the virtual circuits and close all circuits
 
-      // Close all active searches
+        Enumeration<Integer> uidEnum = vcircuits.keys();
 
-      for (int idx = 0; idx < m_search.length; idx++) {
+        while (uidEnum.hasMoreElements()) {
 
-        // Check if the current search slot is active
+          // Get the UID for the current circuit
 
-        if (m_search[idx] != null)
-          deallocateSearchSlot(idx);
+          Integer uid = (Integer) uidEnum.nextElement();
+
+          // Close the virtual circuit
+
+          VirtualCircuit vc = vcircuits.get(new Integer(uid));
+          if (vc != null) {
+
+            // DEBUG
+
+            if (logger.isDebugEnabled() && hasDebug(DBG_STATE))
+              logger.debug("  Cleanup vc=" + vc);
+
+            vc.closeCircuit(this);
+          }
+        }
+
+        // Clear the virtual circuit list
+
+        vcircuits.clear();
       }
-    }
-
-    // Check if there are open tree connections
-
-    if (m_connections != null) {
-      synchronized (m_connections) {
-
-        // Close all active tree connections
-
-        //TODO for m_connections.elements() must be checking opened files and correct closing 
-
-        m_connections.clear();
-      }
-    }
-
     // Commit, or rollback, any active user transaction
 
     try {
@@ -721,8 +748,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
     // Debug
 
     if (logger.isDebugEnabled() && hasDebug(DBG_STATE))
-      logger.debug("State changed to "
-          + SMBSrvSessionState.getStateAsString(state));
+      logger.debug("State changed to " +
+          SMBSrvSessionState.getStateAsString(state));
 
     // Change the session state
 
@@ -742,8 +769,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
     NetBIOSPacket nbPkt = new NetBIOSPacket(m_buf);
 
-    if (m_rxlen < RFCNetBIOSProtocol.SESSREQ_LEN
-        || nbPkt.getHeaderType() != RFCNetBIOSProtocol.SESSION_REQUEST)
+    if (m_rxlen < RFCNetBIOSProtocol.SESSREQ_LEN ||
+        nbPkt.getHeaderType() != RFCNetBIOSProtocol.SESSION_REQUEST)
       throw new NetBIOSException("NBREQ Invalid packet");
 
     // Do a few sanity checks on the received packet
@@ -774,10 +801,10 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
     boolean forThisServer = false;
 
-    if (toName.compareTo(getServerName()) == 0
-        || toName.compareTo(NetBIOSName.SMBServer) == 0
-        || toName.compareTo(NetBIOSName.SMBServer2) == 0
-        || toName.compareTo("*") == 0) {
+    if (toName.compareTo(getServerName()) == 0 ||
+        toName.compareTo(NetBIOSName.SMBServer) == 0 ||
+        toName.compareTo(NetBIOSName.SMBServer2) == 0 ||
+        toName.compareTo("*") == 0) {
 
       // Request is for this server
 
@@ -806,8 +833,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
     // If we did not find an address match then reject the session request
 
     if (forThisServer == false)
-      throw new NetBIOSException("NBREQ Called name is not this server ("
-          + toName + ")");
+      throw new NetBIOSException("NBREQ Called name is not this server (" +
+          toName + ")");
 
     // Debug
 
@@ -853,8 +880,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
     // Check if the received packet looks like a valid SMB
 
-    if (m_smbPkt.getCommand() != PacketType.Negotiate
-        || m_smbPkt.checkPacketIsValid(0, 2) == false) {
+    if (m_smbPkt.getCommand() != PacketType.Negotiate ||
+        m_smbPkt.checkPacketIsValid(0, 2) == false) {
       sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
@@ -918,8 +945,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
           // Check if the dialect string maps to the current dialect index
 
-          if (Dialect.DialectType(j) == i
-              && dialects.containsString(Dialect.DialectString(j))) {
+          if (Dialect.DialectType(j) == i &&
+              dialects.containsString(Dialect.DialectString(j))) {
 
             // Update the selected dialect type, if the current dialect is a
             // newer
@@ -938,8 +965,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
       if (diaIdx == -1)
         logger.debug("Failed to negotiate SMB dialect");
       else
-        logger.debug("Negotiated SMB dialect - "
-            + Dialect.DialectTypeString(diaIdx));
+        logger.debug("Negotiated SMB dialect - " +
+            Dialect.DialectTypeString(diaIdx));
     }
 
     // Check if we successfully negotiated an SMB dialect with the client
@@ -965,8 +992,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
         // Debug
 
         if (logger.isDebugEnabled() && hasDebug(DBG_NEGOTIATE))
-          logger.debug("Assigned protocol handler - "
-              + m_handler.getClass().getName());
+          logger.debug("Assigned protocol handler - " +
+              m_handler.getClass().getName());
 
         // Set the protocol handlers associated session
 
@@ -1003,20 +1030,20 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
       m_smbPkt.setFlags(SMBSrvPacket.FLG_CASELESS);
       m_smbPkt.setFlags2(SMBSrvPacket.FLG2_LONGFILENAMES);
-      
+
       // LanMan dialect negotiate response
 
       m_smbPkt.setParameterCount(13);
       m_smbPkt.setParameter(0, diaIdx);
       // TODO security mode must be provided by some security/autentication
       // manager
-      int securityMode = SecurityMode.UserMode
-          + SecurityMode.EncryptedPasswords;
+      int securityMode = SecurityMode.UserMode +
+          SecurityMode.EncryptedPasswords;
       m_smbPkt.setParameter(1, securityMode);
       m_smbPkt.setParameter(2, LanManBufferSize);
       m_smbPkt.setParameter(3, LanManMaxMultiplexed); // maximum multiplexed
       // requests
-      m_smbPkt.setParameter(4, MaxVirtualCircuits); // maximum number of virtual
+      m_smbPkt.setParameter(4, MaxCircuits); // maximum number of virtual
       // circuits
       m_smbPkt.setParameter(5, 0); // read/write raw mode support
 
@@ -1057,8 +1084,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
         // authentication
 
         NTLanManAuthContext authCtx;
-        if (hasAuthenticationContext()
-            && getAuthenticationContext() instanceof NTLanManAuthContext) {
+        if (hasAuthenticationContext() &&
+            getAuthenticationContext() instanceof NTLanManAuthContext) {
           // Use the existing authentication context
 
           authCtx = (NTLanManAuthContext) getAuthenticationContext();
@@ -1120,8 +1147,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
       // We are using case sensitive pathnames and long file names
 
       setDefaultFlags(SMBSrvPacket.FLG_CASELESS);
-      setDefaultFlags2(SMBSrvPacket.FLG2_LONGFILENAMES
-          + SMBSrvPacket.FLG2_UNICODE+SMBSrvPacket.FLG2_EXTENDEDATTRIB);
+      setDefaultFlags2(SMBSrvPacket.FLG2_LONGFILENAMES +
+          SMBSrvPacket.FLG2_UNICODE + SMBSrvPacket.FLG2_EXTENDEDATTRIB);
 
       // Access the authenticator for this server and determine if the server is
       // in share or
@@ -1133,15 +1160,15 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
       m_smbPkt.setParameterCount(17);
       nt.packWord(diaIdx); // selected dialect index
-      int securityMode = SecurityMode.UserMode
-          + SecurityMode.EncryptedPasswords;
+      int securityMode = SecurityMode.UserMode +
+          SecurityMode.EncryptedPasswords;
       nt.packByte(securityMode);
       nt.packWord(NTMaxMultiplexed); // maximum multiplexed requests
       // setting to 1 will disable change notify requests from the client
-      nt.packWord(MaxVirtualCircuits); // maximum number of virtual circuits
+      nt.packWord(MaxCircuits); // maximum number of virtual circuits
 
-      int maxBufSize = m_smbPkt.getBuffer().length
-          - RFCNetBIOSProtocol.HEADER_LEN;
+      int maxBufSize = m_smbPkt.getBuffer().length -
+          RFCNetBIOSProtocol.HEADER_LEN;
       nt.packInt(maxBufSize);
 
       nt.packInt(0); // maximum raw size
@@ -1154,9 +1181,10 @@ public class SMBSrvSession extends SrvSession implements Runnable {
       // does not support it
 
       int srvCapabs = Capability.Unicode// + Capability.RemoteAPIs
-          + Capability.NTSMBs + /*Capability.NTFind + */Capability.NTStatus
-          + Capability.LargeFiles + Capability.LargeRead
-          + Capability.LargeWrite ;
+          +
+          Capability.NTSMBs +
+          /* Capability.NTFind + */Capability.NTStatus +
+          Capability.LargeFiles + Capability.LargeRead + Capability.LargeWrite;
 
       if (extendedSecurity == false)
         srvCapabs &= ~Capability.ExtendedSecurity;
@@ -1191,8 +1219,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
         // authentication
 
         NTLanManAuthContext authCtx;
-        if (hasAuthenticationContext()
-            && getAuthenticationContext() instanceof NTLanManAuthContext) {
+        if (hasAuthenticationContext() &&
+            getAuthenticationContext() instanceof NTLanManAuthContext) {
           // Use the existing authentication context
 
           authCtx = (NTLanManAuthContext) getAuthenticationContext();
@@ -1286,36 +1314,25 @@ public class SMBSrvSession extends SrvSession implements Runnable {
    * @param treeId
    *          int
    */
-  protected void removeConnection(int treeId) {
-
-    // Check if the tree id is valid
-
-    if (m_connections == null)
-      return;
-
-    // Close the connection and remove from the connection list
-
-    synchronized (m_connections) {
-
-      // Get the connection
-
-      Integer key = new Integer(treeId);
-      TreeConnection tree = (TreeConnection) m_connections.get(key);
-
-      // Close the connection, release resources
-
-      if (tree != null) {
-
-        // Close the connection
-
-        tree.closeConnection(this);
-
-        // Remove the connection from the connection list
-
-        m_connections.remove(key);
-      }
-    }
-  }
+  /*
+   * protected void removeConnection(int treeId) { // Check if the tree id is
+   * valid
+   * 
+   * if (m_connections == null) return; // Close the connection and remove from
+   * the connection list
+   * 
+   * synchronized (m_connections) { // Get the connection
+   * 
+   * Integer key = new Integer(treeId); TreeConnection tree = (TreeConnection)
+   * m_connections.get(key); // Close the connection, release resources
+   * 
+   * if (tree != null) { // Close the connection
+   * 
+   * tree.closeConnection(this); // Remove the connection from the connection
+   * list
+   * 
+   * m_connections.remove(key); } } }
+   */
 
   /**
    * Start the SMB server session in a seperate thread.
@@ -1475,8 +1492,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
     // DEBUG
 
     if (logger.isDebugEnabled() && hasDebug(DBG_PKTTYPE))
-      logger.debug("Rx packet type - " + m_smbPkt.getPacketTypeString()
-          + ", SID=" + m_smbPkt.getSID());
+      logger.debug("Rx packet type - " + m_smbPkt.getPacketTypeString() +
+          ", SID=" + m_smbPkt.getSID());
 
     // Call the protocol handler
 
@@ -1502,9 +1519,9 @@ public class SMBSrvSession extends SrvSession implements Runnable {
       // DEBUG
 
       if (logger.isDebugEnabled() && hasDebug(DBG_NOTIFY))
-        logger.debug("Sent queued asynch response type="
-            + asynchPkt.getPacketTypeString() + ", mid="
-            + asynchPkt.getMultiplexId() + ", pid=" + asynchPkt.getProcessId());
+        logger.debug("Sent queued asynch response type=" +
+            asynchPkt.getPacketTypeString() + ", mid=" +
+            asynchPkt.getMultiplexId() + ", pid=" + asynchPkt.getProcessId());
     }
   }
 
@@ -1659,8 +1676,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
       // Enable the long error status flag
 
       if (m_smbPkt.isLongErrorCode() == false)
-        m_smbPkt.setFlags2(m_smbPkt.getFlags2()
-            + SMBSrvPacket.FLG2_LONGERRORCODE);
+        m_smbPkt.setFlags2(m_smbPkt.getFlags2() +
+            SMBSrvPacket.FLG2_LONGERRORCODE);
 
       // Set the NT status code
 
@@ -1670,8 +1687,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
       // Disable the long error status flag
 
       if (m_smbPkt.isLongErrorCode() == true)
-        m_smbPkt.setFlags2(m_smbPkt.getFlags2()
-            - SMBSrvPacket.FLG2_LONGERRORCODE);
+        m_smbPkt.setFlags2(m_smbPkt.getFlags2() -
+            SMBSrvPacket.FLG2_LONGERRORCODE);
 
       // Set the error status/class
 
@@ -1686,8 +1703,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
     // Debug
 
     if (logger.isDebugEnabled() && hasDebug(DBG_ERROR))
-      logger.debug("Error : Cmd = " + m_smbPkt.getPacketTypeString() + " - "
-          + SMBErrorText.ErrorString(errClass, errCode));
+      logger.debug("Error : Cmd = " + m_smbPkt.getPacketTypeString() + " - " +
+          SMBErrorText.ErrorString(errClass, errCode));
   }
 
   /**
@@ -1791,9 +1808,10 @@ public class SMBSrvSession extends SrvSession implements Runnable {
    * 
    * @return int
    */
-  public final int getConnectionCount() {
-    return m_connections != null ? m_connections.size() : 0;
-  }
+  /*
+   * public final int getConnectionCount() { return m_connections != null ?
+   * m_connections.size() : 0; }
+   */
 
   /**
    * Check if there is an active transaction
@@ -1860,17 +1878,15 @@ public class SMBSrvSession extends SrvSession implements Runnable {
    * @param srch
    *          SearchContext
    */
-  protected final void setSearchContext(int slot, SearchContext srch) {
-
-    // Check if the search slot id is valid
-
-    if (m_search == null || slot > m_search.length)
-      return;
-
-    // Store the context
-
-    m_search[slot] = srch;
-  }
+  /*
+   * protected final void setSearchContext(int slot, SearchContext srch) { //
+   * Check if the search slot id is valid
+   * 
+   * if (m_search == null || slot > m_search.length) return; // Store the
+   * context
+   * 
+   * m_search[slot] = srch; }
+   */
 
   /**
    * Deallocate the specified search context/slot.
@@ -1878,20 +1894,15 @@ public class SMBSrvSession extends SrvSession implements Runnable {
    * @param ctxId
    *          int
    */
-  protected final void deallocateSearchSlot(int ctxId) {
-
-    // Check if the search array has been allocated and that the index is
-    // valid
-
-    if (m_search == null || ctxId >= m_search.length)
-      return;
-
-    // Close the search
-    // Free the specified search context slot
-
-    m_searchCount--;
-    m_search[ctxId] = null;
-  }
+  /*
+   * protected final void deallocateSearchSlot(int ctxId) { // Check if the
+   * search array has been allocated and that the index is // valid
+   * 
+   * if (m_search == null || ctxId >= m_search.length) return; // Close the
+   * search // Free the specified search context slot
+   * 
+   * m_searchCount--; m_search[ctxId] = null; }
+   */
 
   /**
    * Return the search context for the specified search id.
@@ -1900,17 +1911,15 @@ public class SMBSrvSession extends SrvSession implements Runnable {
    *          int
    * @return SearchContext
    */
-  protected final SearchContext getSearchContext(int srchId) {
-
-    // Check if the search array is valid and the search index is valid
-
-    if (m_search == null || srchId >= m_search.length)
-      return null;
-
-    // Return the required search context
-
-    return m_search[srchId];
-  }
+  /*
+   * protected final SearchContext getSearchContext(int srchId) { // Check if
+   * the search array is valid and the search index is valid
+   * 
+   * if (m_search == null || srchId >= m_search.length) return null; // Return
+   * the required search context
+   * 
+   * return m_search[srchId]; }
+   */
 
   /**
    * Add a new connection to this session. Return the allocated tree id for the
@@ -1920,47 +1929,36 @@ public class SMBSrvSession extends SrvSession implements Runnable {
    * @param shrDev
    *          SharedDevice
    */
-  protected int addConnection(SharedDevice shrDev)
-      throws TooManyConnectionsException {
-
-    // Check if the connection array has been allocated
-
-    if (m_connections == null)
-      m_connections = new Hashtable<Integer, TreeConnection>(DefaultConnections);
-
-    // Allocate an id for the tree connection
-
-    int treeId = 0;
-
-    synchronized (m_connections) {
-
-      // Check if the tree connection table is full
-
-      if (m_connections.size() == MaxConnections)
-        throw new TooManyConnectionsException();
-
-      // Find a free slot in the connection array
-
-      treeId = (k_treeId++ & TreeIdMask);
-      Integer key = new Integer(treeId);
-
-      while (m_connections.contains(key)) {
-
-        // Try another tree id for the new connection
-
-        treeId = (k_treeId++ & TreeIdMask);
-        key = new Integer(treeId);
-      }
-
-      // Store the new tree connection
-
-      m_connections.put(key, new TreeConnection(shrDev));
-    }
-
-    // Return the allocated tree id
-
-    return treeId;
-  }
+  /*
+   * protected int addConnection(SharedDevice shrDev) throws
+   * TooManyConnectionsException { // Check if the connection array has been
+   * allocated
+   * 
+   * if (m_connections == null) m_connections = new Hashtable<Integer,
+   * TreeConnection>(DefaultConnections); // Allocate an id for the tree
+   * connection
+   * 
+   * int treeId = 0;
+   * 
+   * synchronized (m_connections) { // Check if the tree connection table is
+   * full
+   * 
+   * if (m_connections.size() == this.maMaxConnections) throw new
+   * TooManyConnectionsException(); // Find a free slot in the connection array
+   * 
+   * treeId = (k_treeId++ & TreeIdMask); Integer key = new Integer(treeId);
+   * 
+   * while (m_connections.contains(key)) { // Try another tree id for the new
+   * connection
+   * 
+   * treeId = (k_treeId++ & TreeIdMask); key = new Integer(treeId); } // Store
+   * the new tree connection
+   * 
+   * m_connections.put(key, new TreeConnection(shrDev)); } // Return the
+   * allocated tree id
+   * 
+   * return treeId; }
+   */
 
   /**
    * Allocate a slot in the active searches list for a new search.
@@ -1968,40 +1966,129 @@ public class SMBSrvSession extends SrvSession implements Runnable {
    * @return int Search slot index, or -1 if there are no more search slots
    *         available.
    */
-  protected final int allocateSearchSlot() {
-    // Check if the search array has been allocated
+  /*
+   * protected final int allocateSearchSlot() { // Check if the search array has
+   * been allocated
+   * 
+   * if (m_search == null) m_search = new SearchContext[DefaultSearches]; //
+   * Find a free slot for the new search
+   * 
+   * int idx = 0;
+   * 
+   * while (idx < m_search.length && m_search[idx] != null) idx++; // Check if
+   * we found a free slot
+   * 
+   * if (idx == m_search.length) { // The search array needs to be extended,
+   * check if we reached the // limit.
+   * 
+   * if (m_search.length >= MaxSearches) return -1; // Extend the search array
+   * 
+   * SearchContext[] newSearch = new SearchContext[m_search.length * 2];
+   * System.arraycopy(m_search, 0, newSearch, 0, m_search.length); m_search =
+   * newSearch; } // Return the allocated search slot index
+   * 
+   * m_searchCount++; return idx; }
+   */
 
-    if (m_search == null)
-      m_search = new SearchContext[DefaultSearches];
+  public int addVirtualCircuit(VirtualCircuit vc) {
+    // Check if the circuit table has been allocated
 
-    // Find a free slot for the new search
+    if (vcircuits == null)
+      vcircuits = new Hashtable<Integer, VirtualCircuit>(DefaultCircuits);
 
-    int idx = 0;
+    // Allocate an id for the tree connection
 
-    while (idx < m_search.length && m_search[idx] != null)
-      idx++;
+    int uid = 0;
 
-    // Check if we found a free slot
+    synchronized (vcircuits) {
 
-    if (idx == m_search.length) {
+      // Check if the virtual circuit table is full
 
-      // The search array needs to be extended, check if we reached the
-      // limit.
+      if (vcircuits.size() == MaxCircuits)
+        return VirtualCircuit.InvalidUID;
 
-      if (m_search.length >= MaxSearches)
-        return -1;
+      // Find a free slot in the circuit table
 
-      // Extend the search array
+      uid = (nextUID++ & UIdMask);
+      Integer key = new Integer(uid);
 
-      SearchContext[] newSearch = new SearchContext[m_search.length * 2];
-      System.arraycopy(m_search, 0, newSearch, 0, m_search.length);
-      m_search = newSearch;
+      while (vcircuits.contains(key)) {
+
+        // Try another user id for the new virtual circuit
+
+        uid = (nextUID++ & UIdMask);
+        key = new Integer(uid);
+      }
+
+      // Store the new virtual circuit
+
+      vc.setUID(uid);
+      vcircuits.put(key, vc);
     }
 
-    // Return the allocated search slot index
+    // Return the allocated UID
 
-    m_searchCount++;
-    return idx;
+    return uid;
+  }
+
+  /**
+   * Find a virtual circuit with the allocated UID
+   * 
+   * @param uid
+   *          int
+   * @return VirtualCircuit
+   */
+  public final VirtualCircuit findVirtualCircuit(int uid) {
+
+    // Check if the circuit table is valid
+
+    if (vcircuits == null)
+      return null;
+
+    return vcircuits.get(new Integer(uid));
+  }
+
+  /**
+   * Remove the virtual circuit with the specified UID
+   * 
+   */
+  public final void removeVirtualCircuit(int uid) {
+    // Check if the circuit table is valid
+
+    if (vcircuits == null)
+      return;
+
+    // Close the circuit and remove from the circuit table
+
+    synchronized (vcircuits) {
+
+      // Get the circuit
+
+      Integer key = new Integer(uid);
+      VirtualCircuit vc = (VirtualCircuit) vcircuits.get(key);
+
+      // Close the virtual circuit, release resources
+
+      if (vc != null) {
+
+        // Close the circuit
+
+        vc.closeCircuit(this); //TODO sess isnot used
+
+        // Remove the circuit from the circuit table
+
+        vcircuits.remove(key);
+      }
+    }
+  }
+  
+  /**
+   * Return the active tree connection count
+   * 
+   * @return int
+   */
+  public final int getCircuitCount() {
+    return vcircuits != null ? vcircuits.size() : 0;
   }
 
 }

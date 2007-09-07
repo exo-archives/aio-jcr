@@ -288,7 +288,7 @@ public class SrvsvcDCEHandler implements DCEHandler {
       // Get the shared device details
 
       share = sess.getServer().findShare(shrName, ShareType.UNKNOWN,
-          sess, false);
+          sess);//, false
     } catch (Exception ex) {
     }
 

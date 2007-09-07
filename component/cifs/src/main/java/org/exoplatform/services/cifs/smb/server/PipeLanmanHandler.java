@@ -456,7 +456,7 @@ class PipeLanmanHandler {
         // Get the shared device details
 
         share = sess.getSMBServer().findShare(shareName, ShareType.UNKNOWN,
-            sess, false);
+            sess);//, false
       } catch (Exception ex) {
       }
 

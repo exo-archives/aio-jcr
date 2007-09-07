@@ -28,8 +28,6 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.impl.CredentialsImpl;
 
-
-
 /**
  * Created by The eXo Platform SAS Author : Sergey Karpenko
  * <sergey.karpenko@exoplatform.com.ua>
@@ -45,6 +43,7 @@ public class testWriteFile extends BaseStandaloneTest {
   protected String servername;
 
   private File testFileBig;
+
   private File testFileSmall;
 
   public void setUp() throws Exception {
@@ -60,7 +59,7 @@ public class testWriteFile extends BaseStandaloneTest {
           100 * 1024); // 100 Mb
       testFileBig.deleteOnExit();
     }
-    
+
     if (testFileSmall == null) {
       testFileSmall = createBLOBTempFile(this.getClass().getSimpleName() + "_",
           1); // 1 Kb
@@ -68,14 +67,14 @@ public class testWriteFile extends BaseStandaloneTest {
     }
   }
 
-  
   /**
    * Process sequential write test
+   * 
    * @param file
    * @throws Exception
    */
-  private void processFile(File file)throws Exception{
-    
+  private void processFile(File file) throws Exception {
+
     assertTrue(file.exists());
     FileInputStream fis = new FileInputStream(file);
 
@@ -98,7 +97,7 @@ public class testWriteFile extends BaseStandaloneTest {
     os.close();
 
     fis.close();
-    
+
     // check changes in jcr;
 
     Session s = null;
@@ -126,31 +125,50 @@ public class testWriteFile extends BaseStandaloneTest {
     assertEquals(filesize, jcrpropsize);
 
     compareStream(new FileInputStream(file), jcris, 0, 0, filesize);
-    
+
     // delete test objects
     root.getNode(filename).remove();
     s.save();
 
-    
   }
-  
+
   public void testWriteSmallFile() throws Exception {
-    
+
     processFile(testFileSmall);
-/*
-    File tf = new File("src/test/resources/test.txt");
+  }
 
-    FileInputStream fis = new FileInputStream(tf);
+  /**
+   * Writes large file
+   * <p>
+   * I have a problems with commiting files over 100 Mb? so this test is
+   * optional.
+   * <p>
+   * 
+   * @throws Exception
+   */
+  public void testWriteLargeFile() throws Exception {
+    processFile(testFileBig);
+  }
 
-    assertTrue(tf.exists());
+  /**
+   * Process sequential write test
+   * 
+   * @param file
+   * @throws Exception
+   */
+  public void testHugeFile() throws Exception {
 
-    String filename = "wrnewfile.txt";
+    File file = createBLOBTempFile(this.getClass().getSimpleName() + "_", 1400*1024);
+    file.deleteOnExit();
 
-    SmbFile file = new SmbFile("smb://" + servername + "/ws/" + filename);
+    assertTrue(file.exists());
+    FileInputStream fis = new FileInputStream(file);
 
-    // file.createNewFile();
+    String filename = file.getName();
 
-    OutputStream os = file.getOutputStream();
+    SmbFile smbfile = new SmbFile("smb://" + servername + "/ws/" + filename);
+
+    OutputStream os = smbfile.getOutputStream();
 
     byte[] b = new byte[0x4000];
 
@@ -165,6 +183,7 @@ public class testWriteFile extends BaseStandaloneTest {
     os.close();
 
     fis.close();
+
     // check changes in jcr;
 
     Session s = null;
@@ -181,51 +200,23 @@ public class testWriteFile extends BaseStandaloneTest {
     Property createdNodeProp = root.getNode(filename).getNode("jcr:content")
         .getProperty("jcr:data");
 
-    fis = new FileInputStream(tf);
+    fis = new FileInputStream(file);
 
     InputStream jcris = createdNodeProp.getStream();
 
-    long filesize = tf.length();
+    long filesize = file.length();
 
     long jcrpropsize = createdNodeProp.getLength();
 
     assertEquals(filesize, jcrpropsize);
 
-    byte[] jcrbuf = new byte[(int) jcrpropsize];
-
-    int temp1 = jcris.read(jcrbuf);
-
-    jcris.close();
-
-    byte[] tfbuf = new byte[(int) filesize];
-
-    int temp2 = fis.read(tfbuf);
-    fis.close();
-
-    logger.debug("jcr:data length : " + jcrpropsize);
-
-    // check if received data from node via jcr methods and smb equals
-
-    assertTrue(java.util.Arrays.equals(jcrbuf, tfbuf));
+    compareStream(new FileInputStream(file), jcris, 0, 0, filesize);
 
     // delete test objects
     root.getNode(filename).remove();
     s.save();
-*/
-  }
 
-
-  /**
-   * Writes large file
-   * <p>
-   * I have a problems with commiting files over 100 Mb? so this test is
-   * optional.
-   * <p>
-   * 
-   * @throws Exception
-   */
-  public void testWriteLargeFile() throws Exception {
-    processFile(testFileBig);
+     
   }
 
 }
