@@ -5,6 +5,8 @@
 
 package org.exoplatform.services.jcr.api.exporting;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,6 +21,7 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.version.VersionException;
@@ -159,6 +162,7 @@ public class TestExportDocView extends ExportBase {
     //assertEquals(Constants.DEFAULT_ENCODING, doc.getXmlEncoding());
 
     NodeList list = doc.getElementsByTagName("MultyValueExportStream");
+    
     assertEquals(1, list.getLength());
 
     org.w3c.dom.Node domNode = list.item(0);
@@ -215,8 +219,13 @@ public class TestExportDocView extends ExportBase {
     TransformerHandler handler = saxFact.newTransformerHandler();
     handler.setResult(new StreamResult(outStream));
 
-    session.exportDocumentView(testNode.getPath(), handler, false, false);
-    outStream.close();
+    try {
+      session.exportDocumentView(testNode.getPath(), handler, false, false);
+    } catch (RepositoryException e) {
+    }finally{
+      outStream.close();
+    }
+    
 
     Document doc = builder.parse(new FileInputStream(destFile));
 
@@ -276,5 +285,61 @@ public class TestExportDocView extends ExportBase {
     assertEquals(1, list.getLength());
     // 2 properties primariType and mixinType
     assertEquals(2, list.item(0).getAttributes().getLength());
+  }
+  
+  public void testExportStreamNamespaceRemaping() throws Exception {
+    
+    Session newSession = repository.login(session.getCredentials());
+    
+    
+    newSession.setNamespacePrefix("newjcr","http://www.jcp.org/jcr/1.0");
+    
+    Node testNode = newSession.getRootNode().addNode("jcr:testExportNamespaceRemaping");
+    for (int i = 0; i < valList.size(); i++) {
+      testNode.setProperty("prop" + i + "_string", valList.get(i), PropertyType.STRING);
+      testNode.setProperty("prop" + i + "_binary", valList.get(i), PropertyType.BINARY);
+    }
+   
+    
+    newSession.save();
+
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    
+    newSession.exportDocumentView(testNode.getPath(), bos, false, false);
+    bos.close();
+    String exportContent = bos.toString();
+    assertFalse(exportContent.contains("newjcr"));
+    
+    newSession.logout();
+  }
+  
+  public void testExportCHNamespaceRemaping() throws Exception {
+    
+    Session newSession = repository.login(session.getCredentials());
+    newSession.setNamespacePrefix("newjcr","http://www.jcp.org/jcr/1.0");
+    
+    Node testNode = newSession.getRootNode().addNode("jcr:testExportNamespaceRemaping");
+    for (int i = 0; i < valList.size(); i++) {
+      testNode.setProperty("prop" + i + "_string", valList.get(i), PropertyType.STRING);
+      testNode.setProperty("prop" + i + "_binary", valList.get(i), PropertyType.BINARY);
+    }
+
+    newSession.save();
+
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    
+    //session.exportDocumentView(testNode.getPath(), bos, false, false);
+    
+    SAXTransformerFactory saxFact = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+    TransformerHandler handler = saxFact.newTransformerHandler();
+    handler.setResult(new StreamResult(bos));
+    
+    
+    newSession.exportDocumentView(testNode.getPath(), handler, false, false);
+    
+    bos.close();
+    String exportContent = bos.toString();
+    assertFalse(exportContent.contains("newjcr"));
+    newSession.logout();
   }
 }

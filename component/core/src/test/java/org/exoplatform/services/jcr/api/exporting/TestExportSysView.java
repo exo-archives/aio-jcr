@@ -17,6 +17,7 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.version.VersionException;
@@ -47,12 +48,12 @@ public class TestExportSysView extends ExportBase {
 
   public TestExportSysView() throws ParserConfigurationException {
     super();
-    // TODO Auto-generated constructor stub
+
   }
 
   public void initRepository() throws RepositoryException {
-    Node root = session.getRootNode();
-    Node file = root.addNode("childNode", "nt:folder").addNode("childNode2", "nt:file");
+    Node rootNode = session.getRootNode();
+    Node file = rootNode.addNode("childNode", "nt:folder").addNode("childNode2", "nt:file");
 
     Node contentNode = file.addNode("jcr:content", "nt:resource");
     contentNode.setProperty("jcr:data", session.getValueFactory()
@@ -66,8 +67,8 @@ public class TestExportSysView extends ExportBase {
   }
 
   public void tearDown() throws Exception {
-    Node root = session.getRootNode();
-    root.getNode("childNode").remove();
+    Node rootNode = session.getRootNode();
+    rootNode.getNode("childNode").remove();
     session.save();
 
     super.tearDown();
@@ -238,7 +239,7 @@ public class TestExportSysView extends ExportBase {
     destFile.delete();
   }
 
-  public void testExportPdf() throws RepositoryException, IOException {
+  public void testExportPdf() throws RepositoryException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     Node testPdf = root.addNode("testPdf", "nt:file");
     Node contentTestPdfNode = testPdf.addNode("jcr:content", "nt:resource");
@@ -316,5 +317,59 @@ public class TestExportSysView extends ExportBase {
     session.save();
     assertTrue(destFile.delete());
   }
+ public void testExportStreamNamespaceRemaping() throws Exception {
+    
+    Session newSession = repository.login(session.getCredentials());
+    
+    
+    newSession.setNamespacePrefix("newjcr","http://www.jcp.org/jcr/1.0");
+    
+    Node testNode = newSession.getRootNode().addNode("jcr:testExportNamespaceRemaping");
+    for (int i = 0; i < valList.size(); i++) {
+      testNode.setProperty("prop" + i + "_string", valList.get(i), PropertyType.STRING);
+      testNode.setProperty("prop" + i + "_binary", valList.get(i), PropertyType.BINARY);
+    }
+   
+    
+    newSession.save();
 
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    
+    newSession.exportSystemView(testNode.getPath(), bos, false, false);
+    bos.close();
+    String exportContent = bos.toString();
+    assertFalse(exportContent.contains("newjcr"));
+    
+    newSession.logout();
+  }
+  
+  public void testExportCHNamespaceRemaping() throws Exception {
+    
+    Session newSession = repository.login(session.getCredentials());
+    newSession.setNamespacePrefix("newjcr","http://www.jcp.org/jcr/1.0");
+    
+    Node testNode = newSession.getRootNode().addNode("jcr:testExportNamespaceRemaping");
+    for (int i = 0; i < valList.size(); i++) {
+      testNode.setProperty("prop" + i + "_string", valList.get(i), PropertyType.STRING);
+      testNode.setProperty("prop" + i + "_binary", valList.get(i), PropertyType.BINARY);
+    }
+
+    newSession.save();
+
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    
+    //session.exportDocumentView(testNode.getPath(), bos, false, false);
+    
+    SAXTransformerFactory saxFact = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+    TransformerHandler handler = saxFact.newTransformerHandler();
+    handler.setResult(new StreamResult(bos));
+    
+    
+    newSession.exportSystemView(testNode.getPath(), handler, false, false);
+    
+    bos.close();
+    String exportContent = bos.toString();
+    assertFalse(exportContent.contains("newjcr"));
+    newSession.logout();
+  }
 }
