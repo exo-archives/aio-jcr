@@ -18,6 +18,10 @@ import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.nodetype.NodeType;
 
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.SimpleLayout;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 
 /**
@@ -29,15 +33,23 @@ import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 
 	private ArtifactManagingServiceImpl asImpl;
+	private static Logger logger = Logger.getLogger(ArtifactManagingServiceTest.class);
 
 	public void setUp() throws Exception {
 		super.setUp();
-
-		asImpl = (ArtifactManagingServiceImpl) container
-				.getComponentInstanceOfType(ArtifactManagingServiceImpl.class);
+		
+		SimpleLayout layout = new SimpleLayout();
+		ConsoleAppender appneder = new ConsoleAppender(layout);
+		logger.addAppender(appneder);
+		logger.setLevel(Level.DEBUG);
+			
+		logger.debug("Trying to get ArtifactService  via container!");
+		asImpl = (ArtifactManagingServiceImpl) container.getComponentInstanceOfType(ArtifactManagingServiceImpl.class);
 	}
 
 	public void testImportArtifact() throws Exception {
+		logger.debug("Starting first test!");
+		
 		File jarfile = new File("/home/satay/java/tmp/s3-0.1.jar");
 		File pomfile = new File("/home/satay/java/tmp/s3-0.1.pom");
 
@@ -49,7 +61,7 @@ public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 		for (NodeIterator nt = parentNode.getNodes(); nt.hasNext();) {
 			Node node = nt.nextNode();
 			if (node.isNodeType("exo:artifact")) {
-				if (node.getProperty("exo:pathType").getLong() == ArtifactManagingServiceImpl.ARTIFACT_ID_TYPE) {
+				if (node.isNodeType("exo:artifactId")) {
 					printXML(node);
 				} else
 					printMetadata(node);
@@ -90,9 +102,8 @@ public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 
 				System.out.print(nodeName.concat("/"));
 
-				Property prop = node.getProperty("exo:pathType");
-
-				if (prop.getLong() == ArtifactManagingServiceImpl.ARTIFACT_ID_TYPE) {
+				
+				if ( node.isNodeType("exo:artifactId")) {
 					System.out.print(" : ");
 					Property list = node.getProperty("exo:versionList");
 					Value[] vers = list.getValues();
@@ -103,7 +114,7 @@ public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 
 				}
 
-				if (prop.getLong() == ArtifactManagingServiceImpl.VERSION_ID_TYPE) {
+				if (node.isNodeType("exo:versionId")) {
 
 				}
 

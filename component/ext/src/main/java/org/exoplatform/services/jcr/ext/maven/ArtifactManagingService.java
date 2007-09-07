@@ -21,7 +21,6 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
  */
 
 public interface ArtifactManagingService {
-
 	/**
 	 * @param sp the session provider
 	 * @param parentFolder the folder which children we need to get
@@ -37,6 +36,7 @@ public interface ArtifactManagingService {
 	 * @param jarFile
 	 * @throws RepositoryException
 	 */
+	
 	void addArtifact(SessionProvider sp, ArtifactDescriptor artifact, File jarFile, File pomFile)
 			throws RepositoryException;
 

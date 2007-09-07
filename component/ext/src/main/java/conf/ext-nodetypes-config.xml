@@ -215,51 +215,71 @@
 		</propertyDefinitions>
 	</nodeType>
 	
-	<nodeType name="exo:artifact" isMixin="true" hasOrderableChildNodes="false"
-		primaryItemName="">
-		
-		<!-- supertypes>
-			<supertype>nt:folder</supertype>
-		</supertypes-->
-		
-		<!--
-		Child nodes can be define here
-		-->
+	
+	<nodeType name="exo:artifact" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
 		<propertyDefinitions>
-			<propertyDefinition name="exo:filename" onParentVersion="COPY"
-				requiredType="String" multiple="false" autoCreated="true"
-				mandatory="false" protected="false">
-				<valueConstraints/>
-			</propertyDefinition>
-			<propertyDefinition name="exo:pathType" onParentVersion="COPY"
-				requiredType="Integer" multiple="false" autoCreated="true"
-				mandatory="false" protected="false">
-				<valueConstraints/>
-			</propertyDefinition>
+		</propertyDefinitions>
+	</nodeType>
+	
+	<nodeType name="exo:groupId" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+		<supertypes>
+			<supertype>exo:artifact</supertype>
+		</supertypes>
+		<propertyDefinitions>
+		</propertyDefinitions>
+	</nodeType>
+	
+	<nodeType name="exo:artifactId" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+		<supertypes>
+			<supertype>exo:artifact</supertype>
+		</supertypes>
+		<propertyDefinitions>
 			<propertyDefinition name="exo:versionList" onParentVersion="COPY"
 				requiredType="String" multiple="true" autoCreated="false"
 				mandatory="false" protected="false">
 				<valueConstraints/>
 			</propertyDefinition>
-			<propertyDefinition name="exo:version" onParentVersion="COPY"
-				requiredType="String" multiple="false" autoCreated="false"
-				mandatory="false" protected="false">
-				<valueConstraints/>
-			</propertyDefinition>
-			
+		</propertyDefinitions>
+	</nodeType>
+	
+	<nodeType name="exo:versionId" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+		<supertypes>
+			<supertype>exo:artifact</supertype>
+		</supertypes>
+		<propertyDefinitions>
+		</propertyDefinitions>
+	</nodeType>
+	
+	<nodeType name="exo:file" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+		<propertyDefinitions>
 			<propertyDefinition name="exo:md5" onParentVersion="COPY"
 				requiredType="String" multiple="false" autoCreated="false"
 				mandatory="false" protected="false">
 				<valueConstraints/>
 			</propertyDefinition>
-			
 			<propertyDefinition name="exo:sha1" onParentVersion="COPY"
 				requiredType="String" multiple="false" autoCreated="false"
 				mandatory="false" protected="false">
 				<valueConstraints/>
 			</propertyDefinition>
-			
 		</propertyDefinitions>
 	</nodeType>
+	
+	<nodeType name="exo:mvnjar" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+		<supertypes>
+			<supertype>exo:file</supertype>
+		</supertypes>
+	</nodeType>
+	<nodeType name="exo:mvnpom" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+		<supertypes>
+			<supertype>exo:file</supertype>
+		</supertypes>
+	</nodeType>
+	<nodeType name="exo:metadata" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+		<supertypes>
+			<supertype>exo:file</supertype>
+		</supertypes>
+	</nodeType>
+	
 	
 </nodeTypes>
