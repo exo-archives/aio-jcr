@@ -64,8 +64,7 @@ public class ContentHandlerSysExport extends ContentHandlerExport {
     try {
       // set name of node as sv:name attribute
       AttributesImpl atts = new AttributesImpl();
-      atts.addAttribute(SV_NAMESPACE_URI, "name", "sv:name", "CDATA", locationFactory
-          .createJCRName(node.getQPath().getName()).getAsString());
+      atts.addAttribute(SV_NAMESPACE_URI, "name", "sv:name", "CDATA", getExportName(node, false));
 
       contentHandler.startElement(SV_NAMESPACE_URI, "node", "sv:node", atts);
     } catch (SAXException e) {
@@ -85,18 +84,22 @@ public class ContentHandlerSysExport extends ContentHandlerExport {
     try {
       // set name and type of property
       AttributesImpl atts = new AttributesImpl();
-      atts.addAttribute(SV_NAMESPACE_URI, "name", "sv:name", "CDATA", locationFactory
-          .createJCRName(property.getQPath().getName()).getAsString());
+      atts.addAttribute(SV_NAMESPACE_URI,
+          "name",
+          "sv:name",
+          "CDATA",
+          getExportName(property, false));
       atts.addAttribute(SV_NAMESPACE_URI, "type", "sv:type", "CDATA", ExtendedPropertyType
           .nameFromValue(property.getType()));
 
       contentHandler.startElement(SV_NAMESPACE_URI, "property", "sv:property", atts);
+
       List<ValueData> values = property.getValues();
       for (ValueData valueData : values) {
+
         contentHandler.startElement(SV_NAMESPACE_URI, "value", "sv:value", new AttributesImpl());
 
         writeValueData(valueData, property.getType());
-
         contentHandler.endElement(SV_NAMESPACE_URI, "value", "sv:value");
       }
     } catch (SAXException e) {
@@ -161,6 +164,7 @@ public class ContentHandlerSysExport extends ContentHandlerExport {
       }
     } else {
       String charValue = getValueAsStringForExport(data, type);
+
       // charValue = StringConverter.normalizeString(charValue,false);
       contentHandler.characters(charValue.toCharArray(), 0, charValue.length());
     }

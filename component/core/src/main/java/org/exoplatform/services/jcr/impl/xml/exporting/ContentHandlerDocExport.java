@@ -17,7 +17,6 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.JCRName;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.util.ISO9075;
 import org.exoplatform.services.jcr.impl.util.StringConverter;
@@ -42,15 +41,7 @@ public class ContentHandlerDocExport extends ContentHandlerExport {
     super(handler, session, dataManager, skipBinary, noRecurse);
   }
 
-  private String getNodeName(NodeData data) throws RepositoryException {
-    InternalQName internalNodeName = ISO9075.encode(data.getQPath().getName());
-    String nodeName = session.getLocationFactory().createJCRName(internalNodeName).getAsString();
-    if (nodeName.length() <= 0) {
-      nodeName = "jcr:root";
-    }
 
-    return nodeName;
-  }
 
   @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
@@ -74,10 +65,8 @@ public class ContentHandlerDocExport extends ContentHandlerExport {
         currentAttr = new AttributesImpl();
         for (PropertyData property : nodeData) {
 
-          // encode node name
-          InternalQName internalPropName = ISO9075.encode(property.getQPath().getName());
 
-          JCRName name2 = session.getLocationFactory().createJCRName(internalPropName);
+          //JCRName name2 = session.getLocationFactory().createJCRName(internalPropName);
           String strValue = "";
 
           for (ValueData valueData : property.getValues()) {
@@ -89,19 +78,28 @@ public class ContentHandlerDocExport extends ContentHandlerExport {
             strValue += MULTI_VALUE_DELIMITER
                 + (property.getType() == PropertyType.BINARY ? strVal : StringConverter
                     .normalizeString(strVal, true));
+            
           }
-
-          currentAttr.addAttribute(name2.getNamespace(),
-              name2.getName(),
-              name2.getAsString(),
+          // encode node name
+          InternalQName internalPropName = ISO9075.encode(property.getQPath().getName());
+         
+          currentAttr.addAttribute(internalPropName.getNamespace(),
+              internalPropName.getName(),
+              getExportName(property,true),
               "CDATA",
               strValue != "" ? strValue.substring(1) : strValue);
         }
+        
+        if (Constants.ROOT_PATH.equals(node.getQPath()))
+          contentHandler.startElement(Constants.NS_JCR_URI,
+              Constants.NS_JCR_PREFIX,
+              JCR_ROOT,
+              currentAttr);
 
-        contentHandler.startElement("",
-            getNodeName(node),
-            node.getQPath().getName().getName(),
-            currentAttr);
+        else
+          contentHandler.startElement(node.getQPath().getName().getNamespace(), node.getQPath()
+              .getName().getName(), getExportName(node, true), currentAttr);
+        
       }
     } catch (SAXException e) {
       throw new RepositoryException(e);
@@ -119,11 +117,17 @@ public class ContentHandlerDocExport extends ContentHandlerExport {
 
   @Override
   protected void leaving(NodeData node, int level) throws RepositoryException {
-    String nodeName = getNodeName(node);
 
     try {
       if (!node.getQPath().getName().equals(Constants.JCR_XMLTEXT)) {
-        contentHandler.endElement("", nodeName, node.getQPath().getName().getName());
+       
+        if (Constants.ROOT_PATH.equals(node.getQPath()))
+          contentHandler.endElement(Constants.NS_JCR_URI,
+              Constants.NS_JCR_PREFIX,
+              JCR_ROOT);
+
+        else
+        contentHandler.endElement(node.getQPath().getName().getNamespace(), node.getQPath().getName().getName(), getExportName(node,true));
       }
     } catch (SAXException e) {
       throw new RepositoryException(e);

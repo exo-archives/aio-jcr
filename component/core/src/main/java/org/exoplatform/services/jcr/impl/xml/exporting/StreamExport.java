@@ -28,9 +28,10 @@ public abstract class StreamExport extends ExportXmlBase {
       boolean skipBinary,
       boolean noRecurse) throws NamespaceException, RepositoryException {
 
-    super(session, dataManager,skipBinary, noRecurse ? 1 : -1);
+    super(session, dataManager, skipBinary, noRecurse ? 1 : -1);
     this.writer = writer;
     setNoRecurse(noRecurse);
+
   }
 
   @Override
@@ -42,15 +43,15 @@ public abstract class StreamExport extends ExportXmlBase {
       writer.close();
     }
   }
-
+  
   protected void startPrefixMapping() throws RepositoryException, XMLStreamException {
-    String[] prefixes = session.getNamespacePrefixes();
+    String[] prefixes = namespaceRegistry.getPrefixes();
     for (String prefix : prefixes) {
       // skeep xml prefix
       if ((prefix == null) || (prefix.length() < 1) || prefix.equals(Constants.NS_XML_PREFIX)) {
         continue;
       }
-      writer.writeNamespace(prefix, session.getNamespaceURI(prefix));
+      writer.writeNamespace(prefix, namespaceRegistry.getURI(prefix));
     }
   };
 }

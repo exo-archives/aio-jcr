@@ -58,8 +58,8 @@ public class StreamSysExport extends StreamExport {
         startPrefixMapping();
       }
 
-      writer.writeAttribute("sv", SV_NAMESPACE_URI, "name", locationFactory.createJCRName(node
-          .getQPath().getName()).getAsString());
+
+      writer.writeAttribute("sv", SV_NAMESPACE_URI, "name", getExportName(node, false));
     } catch (XMLStreamException e) {
       throw new RepositoryException(e);
     }
@@ -76,9 +76,8 @@ public class StreamSysExport extends StreamExport {
   protected void entering(PropertyData property, int level) throws RepositoryException {
     try {
       writer.writeStartElement("sv", "property", SV_NAMESPACE_URI);
-
-      writer.writeAttribute("sv", SV_NAMESPACE_URI, "name", locationFactory.createJCRName(property
-          .getQPath().getName()).getAsString());
+      
+      writer.writeAttribute("sv", SV_NAMESPACE_URI, "name", getExportName(property, false));
 
       writer.writeAttribute("sv", SV_NAMESPACE_URI, "type", ExtendedPropertyType
           .nameFromValue(property.getType()));

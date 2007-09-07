@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.jcr.NamespaceException;
 import javax.jcr.NamespaceRegistry;
@@ -162,7 +161,13 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
     return namespaces.values().toArray(new String[namespaces.size()]);
   }
 
-
+  public boolean isDefaultNamespace(String uri){
+    return DEF_PREFIXES.containsKey(uri);
+  }
+  public boolean isDefaultPrefix(String prefix){
+    return DEF_NAMESPACES.containsKey(prefix);
+  }
+  
   public boolean isPrefixMaped(String prefix) {
     return namespaces.containsKey(prefix);
   }

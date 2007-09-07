@@ -5,6 +5,7 @@
 package org.exoplatform.services.jcr.impl.xml.exporting;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.jcr.NamespaceException;
 import javax.jcr.PropertyType;
@@ -19,9 +20,7 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.JCRName;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.util.ISO9075;
 import org.exoplatform.services.jcr.impl.util.StringConverter;
 
 /**
@@ -36,27 +35,22 @@ public class StreamDocExport extends StreamExport {
       boolean skipBinary,
       boolean noRecurse) throws NamespaceException, RepositoryException {
     super(writer, session, dataManager, skipBinary, noRecurse);
-    // TODO Auto-generated constructor stub
-  }
-
-  private String getNodeName(NodeData data) throws RepositoryException {
-    InternalQName internalNodeName = ISO9075.encode(data.getQPath().getName());
-    String nodeName = session.getLocationFactory().createJCRName(internalNodeName).getAsString();
-    if (nodeName.length() <= 0) {
-      nodeName = "jcr:root";
-    }
-
-    return nodeName;
   }
 
   @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
     try {
       if (!node.getQPath().getName().equals(Constants.JCR_XMLTEXT)) {
-        writer.writeStartElement("", getNodeName(node), "");
+        List<NodeData> nodes = dataManager.getChildNodesData(node);
+        if (nodes.size() > 0) {
+          writer.writeStartElement("", getExportName(node, true), "");
+        } else {
+          writer.writeEmptyElement("", getExportName(node, true), "");
+        }
       }
       if (level == 0) {
         startPrefixMapping();
+
       }
 
     } catch (XMLStreamException e) {
@@ -72,16 +66,13 @@ public class StreamDocExport extends StreamExport {
         writer.writeCharacters(new String(property.getValues().get(0).getAsByteArray(),
             Constants.DEFAULT_ENCODING));
       } else {
+
         //
         ItemData parentNodeData = session.getTransientNodesManager().getItemData(property
             .getParentIdentifier());
         if (parentNodeData.getQPath().getName().equals(Constants.JCR_XMLTEXT)) {
           return;
         }
-        // encode node name
-        InternalQName internalPropName = ISO9075.encode(propName);
-
-        JCRName name2 = session.getLocationFactory().createJCRName(internalPropName);
         String strValue = "";
 
         for (ValueData valueData : property.getValues()) {
@@ -89,15 +80,14 @@ public class StreamDocExport extends StreamExport {
           if (strVal == "") {
             continue;
           }
-          strValue += " "
+          strValue += MULTI_VALUE_DELIMITER
               + (property.getType() == PropertyType.BINARY ? strVal : StringConverter
                   .normalizeString(strVal, true));
         }
 
-        writer.writeAttribute(name2.getPrefix(),
-            name2.getNamespace(),
-            name2.getName(),
-            strValue != "" ? strValue.substring(1) : strValue);
+        writer.writeAttribute(getExportName(property, true), strValue.length() > 0 ? strValue
+            .substring(1) : strValue);
+
       }
     } catch (IllegalStateException e) {
       throw new RepositoryException(e);
@@ -114,8 +104,13 @@ public class StreamDocExport extends StreamExport {
 
     try {
       if (!node.getQPath().getName().equals(Constants.JCR_XMLTEXT)) {
-        writer.writeEndElement();// endElement("", nodeName,
-        // node.getQPath().getName().getName());
+        List<NodeData> nodes = dataManager.getChildNodesData(node);
+        if (nodes.size() > 0) {
+          writer.writeEndElement();
+        } 
+
+        
+
       }
     } catch (XMLStreamException e) {
       throw new RepositoryException(e);
@@ -124,7 +119,5 @@ public class StreamDocExport extends StreamExport {
 
   @Override
   protected void leaving(PropertyData property, int level) throws RepositoryException {
-    // TODO Auto-generated method stub
-
   }
 }

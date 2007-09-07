@@ -10,20 +10,28 @@ package org.exoplatform.services.jcr.impl.xml.exporting;
  */
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.jcr.NamespaceException;
+import javax.jcr.NamespaceRegistry;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.ValueFormatException;
 
 import org.apache.ws.commons.util.Base64;
+import org.exoplatform.commons.utils.QName;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
@@ -31,58 +39,50 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.NodeDataOrderComparator;
 import org.exoplatform.services.jcr.impl.dataflow.PropertyDataOrderComparator;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.util.ISO9075;
 
 public abstract class ExportXmlBase extends ItemDataTraversingVisitor {
 
+  public static final String        MULTI_VALUE_DELIMITER          = " ";
 
+  public static final String        DEFAULT_EMPTY_NAMESPACE_PREFIX = "jcr_default_empty"
+                                                                       + "_namespace_prefix";
 
-  public static final String  MULTI_VALUE_DELIMITER = " ";
+  protected static final String     JCR_ROOT                       = "jcr:root";
 
- // private int                 binaryConduct         = BINARY_PROCESS;
+  // private int binaryConduct = BINARY_PROCESS;
 
-  protected LocationFactory   locationFactory;
+  // protected LocationFactory locationFactory;
 
-  protected boolean           noRecurse;
+  protected boolean                 noRecurse;
 
-  protected final SessionImpl session;
+  protected final SessionImpl       session;
 
-  protected final String      SV_NAMESPACE_URI;
+  protected final String            SV_NAMESPACE_URI;
 
-  private final boolean skipBinary;
+  private final boolean             skipBinary;
 
-  public ExportXmlBase(SessionImpl session, ItemDataConsumer dataManager,boolean skipBinary, int maxLevel) throws NamespaceException,
-      RepositoryException {
+  protected final NamespaceRegistry namespaceRegistry;
+
+  protected Map<String, String>     writedNamespaces;
+
+  public ExportXmlBase(SessionImpl session,
+      ItemDataConsumer dataManager,
+      boolean skipBinary,
+      int maxLevel) throws NamespaceException, RepositoryException {
     super(dataManager, maxLevel);
     this.session = session;
     this.skipBinary = skipBinary;
-    this.locationFactory = session.getLocationFactory();
-    SV_NAMESPACE_URI = session.getNamespaceURI("sv");
+    this.namespaceRegistry = session.getWorkspace().getNamespaceRegistry();
+    this.SV_NAMESPACE_URI = session.getNamespaceURI("sv");
+    this.writedNamespaces = new HashMap<String, String>();
   }
 
   public abstract void export(NodeData node) throws Exception;
 
-//  /**
-//   * Specify how properties of <code>PropertyType.BINARY</code> serialized
-//   * 
-//   * @see <code>BINARY_PROCESS</code>, <code>BINARY_SKIP</code>,
-//   *      <code>BINARY_EMPTY</code>
-//   */
-//  public int getBinaryConduct() {
-//    return binaryConduct;
-//  }
-
   public boolean isNoRecurse() {
     return noRecurse;
   }
-
-//  public void setBinaryConduct(int binaryConduct) {
-//    if ((binaryConduct != BINARY_PROCESS) && (binaryConduct != BINARY_SKIP)
-//        && (binaryConduct != BINARY_EMPTY)) {
-//      throw new java.lang.IllegalArgumentException("binaryConduct must be one of "
-//          + "BINARY_PROCESS,BINARY_SKIP, BINARY_EMPTY");
-//    }
-//    this.binaryConduct = binaryConduct;
-//  }
 
   public void setNoRecurse(boolean noRecurse) {
     this.noRecurse = noRecurse;
@@ -155,10 +155,10 @@ public abstract class ExportXmlBase extends ItemDataTraversingVisitor {
     case PropertyType.NAME:
     case PropertyType.DATE:
     case PropertyType.PATH:
-
+      // TODO namespace mapping for values
       try {
-        charValue = session.getValueFactory().loadValue((TransientValueData) data, type)
-            .getString();
+        charValue = session.getRepository().getSystemSession().getValueFactory()
+            .loadValue((TransientValueData) data, type).getString();
       } catch (ValueFormatException e) {
         throw new RepositoryException(e);
       } catch (UnsupportedRepositoryOperationException e) {
@@ -170,6 +170,30 @@ public abstract class ExportXmlBase extends ItemDataTraversingVisitor {
       break;
     }
     return charValue;
+  }
+
+  protected String getExportName(ItemData data, boolean encode) throws RepositoryException {
+    String nodeName;
+    QPath itemPath = data.getQPath();
+    if (Constants.ROOT_PATH.equals(itemPath)) {
+      nodeName = JCR_ROOT;
+    } else {
+
+      InternalQName internalNodeName = itemPath.getName();
+      if (encode) {
+        internalNodeName = ISO9075.encode(itemPath.getName());
+      }
+      String prefix = namespaceRegistry.getPrefix(internalNodeName.getNamespace());
+      nodeName = prefix.length() == 0 ? "" : prefix + ":";
+      if ("".equals(itemPath.getName().getName())
+          && itemPath.isDescendantOf(Constants.EXO_NAMESPACES_PATH, false)) {
+        nodeName += DEFAULT_EMPTY_NAMESPACE_PREFIX;
+      } else {
+        nodeName += internalNodeName.getName();
+      }
+
+    }
+    return nodeName;
   }
 
   public boolean isSkipBinary() {
