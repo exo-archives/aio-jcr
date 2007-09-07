@@ -7,6 +7,7 @@ package org.exoplatform.services.jcr.impl.core.value;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
 import javax.jcr.PropertyType;
@@ -141,6 +142,13 @@ public class BinaryValue extends BaseValue implements ExtendedBinaryValue {
     this.changed = true;
   }
   
+  public long read(OutputStream stream, long length, long position) throws IOException, RepositoryException  {
+    if (changedData == null) {
+      changedData = this.getInternalData().createEditableCopy();
+    }
+    
+    return this.changedData.read(stream, length, position);
+  }
   
   /**
    * Truncates binary value to <code> size </code>

@@ -6,6 +6,7 @@ package org.exoplatform.services.jcr.core.value;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.jcr.RepositoryException;
 
@@ -34,5 +35,7 @@ public interface ExtendedBinaryValue extends ExtendedValue {
    * @throws IOException
    */
   void setLength(long size) throws IOException, RepositoryException;
+ 
+  long read(OutputStream stream, long length, long position) throws IOException, RepositoryException ;
   
 }

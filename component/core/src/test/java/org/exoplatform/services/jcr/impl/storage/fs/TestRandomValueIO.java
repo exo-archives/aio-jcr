@@ -6,12 +6,15 @@ package org.exoplatform.services.jcr.impl.storage.fs;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Calendar;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
+import javax.jcr.PropertyType;
 import javax.jcr.Session;
 
 import org.exoplatform.commons.utils.MimeTypeResolver;
@@ -140,6 +143,50 @@ public class TestRandomValueIO extends JcrImplBaseTest {
       fail(e.getMessage());
     }
   }
+  
+  public void testNodeSetPropertyExisted() throws Exception {
+
+    // create property
+    String pname = "file@" + testFile.getName();
+    testRoot.setProperty(pname, new FileInputStream(testFile));
+
+    testRoot.save();
+
+    // get the property value
+    ExtendedBinaryValue exv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+
+    String update1String = "update#1";
+
+    long pos = 1024 * 1024;
+
+    // update length bytes from the stream stating from the position in existed Value data 
+    exv.update(new ByteArrayInputStream(update1String.getBytes()),
+        update1String.length(), pos);
+
+    // transient, before the save
+    try {
+
+      // the value obtained by getXXX must be same as on setProperty()
+      compareStream(new FileInputStream(testFile), testRoot.getProperty(pname).getStream());
+
+      // apply edited ExtendetValue to the Property
+      testRoot.setProperty(pname, exv);
+
+      compareStream(new ByteArrayInputStream(update1String.getBytes()),
+          testRoot.getProperty(pname).getStream(), 0, pos, update1String.length());
+
+      // save
+      testRoot.save();
+
+      // persisted, after the save
+      compareStream(new ByteArrayInputStream(update1String.getBytes()),
+          testRoot.getProperty(pname).getStream(), 0, pos, update1String.length());
+
+    } catch (CompareStreamException e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+  }
 
   public void testUpdate_SameObject() throws Exception {
 
@@ -178,14 +225,14 @@ public class TestRandomValueIO extends JcrImplBaseTest {
 
     // transient, before the save
     try {
-      compareStream(new ByteArrayInputStream(updateString.getBytes()), testRoot
-          .getProperty(pname).getStream(), 0, pos1, updateString.length());
+      compareStream(new ByteArrayInputStream(updateString.getBytes()), 
+          testRoot.getProperty(pname).getStream(), 0, pos1, updateString.length());
 
       testRoot.save();
 
       // persisted, after the save
-      compareStream(new ByteArrayInputStream(updateString.getBytes()), testRoot
-          .getProperty(pname).getStream(), 0, pos1, updateString.length());
+      compareStream(new ByteArrayInputStream(updateString.getBytes()), 
+          testRoot.getProperty(pname).getStream(), 0, pos1, updateString.length());
 
     } catch (CompareStreamException e) {
       fail(e.getMessage());
@@ -370,50 +417,6 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     }
   }
 
-  /**
-   * Here is test of small value (byte[]) increase truncate case.
-   * 
-   * @throws Exception
-   */
-  public void _testTruncateIncreaseSmall() throws Exception {
-    // create property
-    String pname = "file@" + testFile.getName();
-    Property p = testRoot.setProperty(pname, new ByteArrayInputStream(
-        new byte[] { 0 }));
-
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
-
-    long size = 40;
-
-    exv.setLength(size);
-
-    // apply to the Property and save
-    p.setValue(exv);
-    testRoot.save();
-
-    assertEquals(size, p.getLength());
-
-  }
-
-  public void _testTruncateIncreaseBig() throws Exception {
-    // create property
-    String pname = "file@" + testFile.getName();
-    Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
-
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
-
-    long size = p.getLength() + 200;
-
-    exv.setLength(size);
-
-    // apply to the Property and save
-    p.setValue(exv);
-    testRoot.save();
-
-    assertEquals(size, p.getLength());
-
-  }
-
   public void testAddLength_BigValue() throws Exception {
 
     // create property
@@ -591,30 +594,16 @@ public class TestRandomValueIO extends JcrImplBaseTest {
         pname).getValue();
     assertEquals("Value data length must be decreased ", pos, newexv.getLength());
   }
-
-  public void _testSetLengthLargeProp() throws Exception {
-    // create property
-    String pname = "file@" + testFile.getName();
-    Property p = testRoot.setProperty(pname, new ByteArrayInputStream(
-        new byte[] {}));
-
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
-    long pos = 1024 * 1024 * 100;
-
-    exv.setLength(pos);
-
-    assertEquals("Value data length must be increased ", pos, exv.getLength());
-
-    // apply to the Property and save
-    p.setValue(exv);
-    testRoot.save();
-
-    ExtendedBinaryValue newexv = (ExtendedBinaryValue) testRoot.getProperty(
-        pname).getValue();
-    assertEquals("Value data length must be increased ", pos, newexv.getLength());
-
-  }
-  
+ 
+  /**
+   * Test the case when the property has small (zero) initial length
+   * and it will be updated with large size content, i.e. the property must be spooled.
+   * 
+   * The case differs from testAddLength_SmallToBigValue_Persistent in 
+   * Workspace cache usage, the property will be obtained from persistent storage here. 
+   *  
+   * @throws Exception
+   */
   public void testAddLength_SmallToBigValue_NTFile() throws Exception {
     // create property
 
@@ -648,4 +637,212 @@ public class TestRandomValueIO extends JcrImplBaseTest {
   }
 
  
+  // ----- read operation ------
+  
+  public void testReadBigValue() throws Exception {
+
+    // create property, prepare the data to be readed
+    String pname = "file@" + testFile.getName();
+    Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
+
+    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+
+    String update1String = "update#1";
+
+    long pos = 1024 * 1024;
+
+    exv.update(new ByteArrayInputStream(update1String.getBytes()),
+        update1String.length(), pos);
+
+    p.setValue(exv);
+    testRoot.save();
+    
+    // read partial
+    exv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+    
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    
+    long res = exv.read(baos, 5, pos + 2); // read 'date#' bytes
+    
+    String expected = update1String.substring(2, 7);
+    
+    assertEquals(expected.length() + " bytes must be read", expected.length(), res);
+    
+    assertEquals("Readed content not equals to expected", expected, new String(baos.toByteArray()));
+  }
+  
+  public void testReadBigValueEOF() throws Exception {
+
+    // create property, prepare the data to be readed
+    String pname = "file@" + testFile.getName();
+    Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
+
+    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+
+    String update1String = "update#1";
+
+    long pos = testFile.length();
+
+    exv.update(new ByteArrayInputStream(update1String.getBytes()),
+        update1String.length(), pos);
+
+    p.setValue(exv);
+    testRoot.save();
+    
+    // read partial greater the value size
+    exv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+    
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    
+    long res = exv.read(baos, 1024, pos + 2); // read 'date#1' bytes
+    
+    String expected = update1String.substring(2);
+        
+    assertEquals(expected.length() + " bytes must be read", expected.length(), res);
+    
+    assertEquals("Readed content not equals to expected", expected, new String(baos.toByteArray()));
+  }
+  
+  public void testReadSmallValue() throws Exception {
+
+    // create property, prepare the data to be readed
+    String pname = "file@" + testFile.getName();
+    Property p = testRoot.setProperty(pname, new ByteArrayInputStream(
+        "short message".getBytes()));
+
+    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+
+    String update1String = "update#1";
+
+    long pos = 6;
+
+    exv.update(new ByteArrayInputStream(update1String.getBytes()),
+        update1String.length(), pos);
+
+    p.setValue(exv);
+    testRoot.save();
+    
+    // read partial
+    exv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+    
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    
+    long res = exv.read(baos, 5, pos + 2); // read 'date#' bytes
+    
+    String expected = update1String.substring(2, 7);
+    
+    assertEquals(expected.length() + " bytes must be read", expected.length(), res);
+    
+    assertEquals("Readed content not equals to expected", expected, new String(baos.toByteArray()));
+  }
+  
+  public void testReadSmallValueEOF() throws Exception {
+
+    // create property, prepare the data to be readed
+    String pname = "file@" + testFile.getName();
+    Property p = testRoot.setProperty(pname, new ByteArrayInputStream(
+        "short message".getBytes()));
+
+    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+
+    String update1String = "update#1";
+
+    long pos = exv.getLength() + 1;
+
+    exv.update(new ByteArrayInputStream(update1String.getBytes()),
+        update1String.length(), pos);
+
+    p.setValue(exv);
+    testRoot.save();
+    
+    // read partial greater the value size
+    exv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+    
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    
+    long res = exv.read(baos, 1024, pos + 2); // read 'date#1' bytes
+    
+    String expected = update1String.substring(2);
+        
+    assertEquals(expected.length() + " bytes must be read", expected.length(), res);
+    
+    assertEquals("Readed content not equals to expected", expected, new String(baos.toByteArray()));
+  }
+  
+  public void testReadZeroLengthSmallValue() throws Exception {
+
+    // create property, prepare the data to be readed
+    String pname = "file@" + testFile.getName();
+    Property p = testRoot.setProperty(pname, new ByteArrayInputStream(
+        "short message".getBytes()));
+
+    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+
+    // read zero bytes
+    exv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+    
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    
+    // from begin
+    long res = exv.read(baos, 0, 0);
+    
+    assertEquals("Zero bytes must be read", 0, res);
+    
+    assertEquals("Zero bytes must be read", 0, baos.size());
+    
+    // from middle
+    baos = new ByteArrayOutputStream();
+    
+    res = exv.read(baos, 0, 5);
+    
+    assertEquals("Zero bytes must be read", 0, res);
+    
+    assertEquals("Zero bytes must be read", 0, baos.size());
+    
+    // out of end
+    try {
+      exv.read(baos, 0, exv.getLength() + 10);
+      fail("The out-of-range exception should be thrown");
+    } catch(IOException e) {
+      // ok
+    }
+  }
+  
+  public void testReadZeroLengthBigValue() throws Exception {
+
+    // create property, prepare the data to be readed
+    String pname = "file@" + testFile.getName();
+    Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
+
+    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+
+    // read zero bytes
+    exv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+    
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    
+    // from begin
+    long res = exv.read(baos, 0, 0);
+    
+    assertEquals("Zero bytes must be read", 0, res);
+    
+    assertEquals("Zero bytes must be read", 0, baos.size());
+    
+    // from middle
+    baos = new ByteArrayOutputStream();
+    
+    res = exv.read(baos, 0, 1024 * 1024);
+    
+    assertEquals("Zero bytes must be read", 0, res);
+    
+    assertEquals("Zero bytes must be read", 0, baos.size());
+    
+    // out of end
+    try {
+      exv.read(baos, 0, exv.getLength() + 1024);
+      fail("The out-of-range exception should be thrown");
+    } catch(IOException e) {
+      // ok
+    }
+  }
 }

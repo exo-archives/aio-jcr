@@ -192,7 +192,7 @@ class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
                               if(node1 == null)
                                 throw new RepositoryException("Node not found for "+n1.identifier);
                             } catch (RepositoryException e) {
-                                log.warn("Node " + n1.identifier + " does not exist anymore: " + e);
+                                //log.warn("Node " + n1.identifier + " does not exist anymore: " + e);
                                 // node does not exist anymore
                                 invalidIdentifiers.add(n1.identifier);
                                 throw new SortFailedException();
@@ -203,7 +203,7 @@ class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
                               if(node2 == null)
                                 throw new RepositoryException("Node not found for "+n2.identifier);
                             } catch (RepositoryException e) {
-                                log.warn("Node " + n2.identifier + " does not exist anymore: " + e);
+                                //log.warn("Node " + n2.identifier + " does not exist anymore: " + e);
                                 // node does not exist anymore
                                 invalidIdentifiers.add(n2.identifier);
                                 throw new SortFailedException();
