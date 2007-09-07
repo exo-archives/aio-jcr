@@ -156,7 +156,7 @@ public class testWriteFile extends BaseStandaloneTest {
    * @param file
    * @throws Exception
    */
-  public void testHugeFile() throws Exception {
+ /* public void testHugeFile() throws Exception {
 
     File file = createBLOBTempFile(this.getClass().getSimpleName() + "_", 1400*1024);
     file.deleteOnExit();
@@ -217,6 +217,6 @@ public class testWriteFile extends BaseStandaloneTest {
     s.save();
 
      
-  }
+  }*/
 
 }
