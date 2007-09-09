@@ -7,17 +7,13 @@ package org.exoplatform.services.jcr.impl.core.value;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.core.value.ExtendedBinaryValue;
-import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.value.BaseValue.LocalTransientValueData;
+import org.exoplatform.services.jcr.core.value.EditableBinaryValue;
 import org.exoplatform.services.jcr.impl.dataflow.EditableValueData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
@@ -28,7 +24,7 @@ import org.exoplatform.services.log.ExoLogger;
  * 
  * @author Gennady Azarenkov
  */
-public class BinaryValue extends BaseValue implements ExtendedBinaryValue {
+public class BinaryValue extends BaseValue implements EditableBinaryValue {
 
   public static final int TYPE = PropertyType.BINARY;
 
@@ -91,33 +87,6 @@ public class BinaryValue extends BaseValue implements ExtendedBinaryValue {
     
     return super.getLocalData(asStream);
   }
-  
-//  @Override
-//  public InputStream getStream() throws ValueFormatException, RepositoryException {
-//    try {
-//      return getInternalData().getAsStream();
-//    } catch (IOException e) {
-//      throw new RepositoryException(e);
-//    }
-//  }
-
-//  /**
-//   * Returns the internal string representation of this value.
-//   * @return the internal string representation
-//   * @throws ValueFormatException if the value can not be represented as a
-//   * <code>String</code> or if the value is <code>null</code>.
-//   * @throws RepositoryException if another error occurs.
-//   */
-//  protected String getInternalString() throws ValueFormatException, RepositoryException {
-//
-//    try {
-//      return new String(getInternalData().getAsByteArray(), Constants.DEFAULT_ENCODING);
-//    } catch (UnsupportedEncodingException e) {
-//      throw new RepositoryException(Constants.DEFAULT_ENCODING + " not supported on this platform", e);
-//    } catch (IOException e) {
-//      throw new ValueFormatException("conversion to string failed: " + e.getMessage(), e);
-//    }
-//  }
 
   public String getReference() throws ValueFormatException,
       IllegalStateException, RepositoryException {
@@ -132,7 +101,7 @@ public class BinaryValue extends BaseValue implements ExtendedBinaryValue {
    * @param   length   the number of bytes from buffer to write.
    * @param   position position in file to write data  
    * */
-  public void update(InputStream stream, int length, long position) throws IOException, RepositoryException {
+  public void update(InputStream stream, long length, long position) throws IOException, RepositoryException {
     if (changedData == null) {
       changedData = this.getInternalData().createEditableCopy();
     }
@@ -140,14 +109,6 @@ public class BinaryValue extends BaseValue implements ExtendedBinaryValue {
     this.changedData.update(stream, length, position);
     
     this.changed = true;
-  }
-  
-  public long read(OutputStream stream, long length, long position) throws IOException, RepositoryException  {
-    if (changedData == null) {
-      changedData = this.getInternalData().createEditableCopy();
-    }
-    
-    return this.changedData.read(stream, length, position);
   }
   
   /**

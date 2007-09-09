@@ -7,6 +7,7 @@ package org.exoplatform.services.jcr.impl.core.value;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 
@@ -16,6 +17,7 @@ import javax.jcr.ValueFormatException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.core.value.ExtendedValue;
+import org.exoplatform.services.jcr.core.value.ReadableBinaryValue;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.AbstractValueData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -31,7 +33,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: BaseValue.java 12841 2007-02-16 08:58:38Z peterit $
 
  */
-public abstract class BaseValue implements ExtendedValue {
+public abstract class BaseValue implements ExtendedValue, ReadableBinaryValue {
 
   protected static Log log = ExoLogger.getLogger("jcr.BinaryValue");
 
@@ -197,10 +199,6 @@ public abstract class BaseValue implements ExtendedValue {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-//    if(data == null)
-//      return internalData.getLength();
-//    else
-//      return data.getLength();
   }
 
 
@@ -234,6 +232,10 @@ public abstract class BaseValue implements ExtendedValue {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+  
+  public long read(OutputStream stream, long length, long position) throws IOException, RepositoryException  {
+    return getInternalData().read(stream, length, position);
   }
 
   protected class LocalTransientValueData extends AbstractValueData {

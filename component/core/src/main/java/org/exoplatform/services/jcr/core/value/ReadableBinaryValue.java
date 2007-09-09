@@ -5,7 +5,6 @@
 package org.exoplatform.services.jcr.core.value;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.jcr.RepositoryException;
@@ -16,26 +15,20 @@ import javax.jcr.RepositoryException;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public interface ExtendedBinaryValue extends ExtendedValue {
+public interface ReadableBinaryValue extends ExtendedValue {
 
   /**
-   * Update with <code>length</code> bytes from the specified InputStream
-   * <code>stream</code> to this binary value at <code>position</code>
+   * Read <code>length</code> bytes from the binary value at <code>position</code>
+   * to the <code>stream</code>. 
    * 
-   * @param   stream     the data.
-   * @param   length   the number of bytes from buffer to write.
-   * @param   position position in file to write data  
-   * */
-  void update(InputStream stream, int length, long position) throws IOException, RepositoryException ;
- 
-  /**
-   * Truncates binary value to <code> size </code>
-   * 
-   * @param size
+   * @param stream - destenation OutputStream
+   * @param length - data length to be read
+   * @param position - position in value data from which the read will be performed 
+   * @return - The number of bytes, possibly zero,
+   *          that were actually transferred
    * @throws IOException
+   * @throws RepositoryException
    */
-  void setLength(long size) throws IOException, RepositoryException;
- 
   long read(OutputStream stream, long length, long position) throws IOException, RepositoryException ;
   
 }

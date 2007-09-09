@@ -197,7 +197,7 @@ public abstract class BaseStandaloneTest extends TestCase {
 
     int index = 0;
     
-    byte[] ebuff = new byte[64 * 1024];
+    byte[] ebuff = new byte[1024];
     int eread = 0;
     ByteArrayOutputStream buff = new ByteArrayOutputStream();
     
@@ -239,6 +239,8 @@ public abstract class BaseStandaloneTest extends TestCase {
           throw new CompareStreamException("Streams is not equals by length or data stream is unreadable. Cause: " + e.getMessage());
         }
         buff.write(dbuff, 0, dread);
+        if (dread < eread)
+          dbuff = new byte[eread - dread];
       }
 
       dbuff = buff.toByteArray();

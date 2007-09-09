@@ -14,12 +14,12 @@ import java.util.Calendar;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
-import javax.jcr.PropertyType;
 import javax.jcr.Session;
 
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.services.jcr.JcrImplBaseTest;
-import org.exoplatform.services.jcr.core.value.ExtendedBinaryValue;
+import org.exoplatform.services.jcr.core.value.EditableBinaryValue;
+import org.exoplatform.services.jcr.core.value.ReadableBinaryValue;
 
 /**
  * Created by The eXo Platform SAS
@@ -42,8 +42,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     session.save();
 
     if (testFile == null) {
-      testFile = createBLOBTempFile(this.getClass().getSimpleName() + "_",
-          2 * 1024); // 2M
+      testFile = createBLOBTempFile(this.getClass().getSimpleName() + "_", 2 * 1024); // 2M
       testFile.deleteOnExit();
     }
   }
@@ -56,13 +55,13 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     super.tearDown();
   }
 
-  public void testNew() throws Exception {
+  public void testUpdateNew() throws Exception {
 
     // create property
     String pname = "file@" + testFile.getName();
     Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
 
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
 
     String update1String = "update#1";
 
@@ -76,22 +75,19 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     try {
 
       // the value obtained by getXXX must be same as on setProperty()
-      compareStream(new FileInputStream(testFile), testRoot.getProperty(pname)
-          .getStream());
+      compareStream(new FileInputStream(testFile), testRoot.getProperty(pname).getStream());
 
       // apply edited ExtendetValue to the Property
       p.setValue(exv);
 
       compareStream(new ByteArrayInputStream(update1String.getBytes()),
-          testRoot.getProperty(pname).getStream(), 0, pos, update1String
-              .length());
+          testRoot.getProperty(pname).getStream(), 0, pos, update1String.length());
 
       testRoot.save();
 
       // persisted, after the save
       compareStream(new ByteArrayInputStream(update1String.getBytes()),
-          testRoot.getProperty(pname).getStream(), 0, pos, update1String
-              .length());
+          testRoot.getProperty(pname).getStream(), 0, pos, update1String.length());
 
     } catch (CompareStreamException e) {
       e.printStackTrace();
@@ -99,7 +95,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     }
   }
 
-  public void testExisted() throws Exception {
+  public void testUpdateExisted() throws Exception {
 
     // create property
     String pname = "file@" + testFile.getName();
@@ -107,7 +103,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
 
     testRoot.save();
 
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
 
     String update1String = "update#1";
 
@@ -121,15 +117,13 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     try {
 
       // the value obtained by getXXX must be same as on setProperty()
-      compareStream(new FileInputStream(testFile), testRoot.getProperty(pname)
-          .getStream());
+      compareStream(new FileInputStream(testFile), testRoot.getProperty(pname).getStream());
 
       // apply edited ExtendetValue to the Property
       p.setValue(exv);
 
       compareStream(new ByteArrayInputStream(update1String.getBytes()),
-          testRoot.getProperty(pname).getStream(), 0, pos, update1String
-              .length());
+          testRoot.getProperty(pname).getStream(), 0, pos, update1String.length());
 
       testRoot.save();
 
@@ -153,7 +147,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     testRoot.save();
 
     // get the property value
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+    EditableBinaryValue exv = (EditableBinaryValue) testRoot.getProperty(pname).getValue();
 
     String update1String = "update#1";
 
@@ -194,7 +188,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     String pname = "file@" + testFile.getName();
     Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
 
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
 
     String update1String = "update#1";
 
@@ -245,7 +239,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     String pname = "file@" + testFile.getName();
     Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
 
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
 
     String update1String = "update#1";
 
@@ -321,7 +315,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     String pname = "file@" + testFile.getName();
     Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
 
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
 
     String update1String = "update#1";
 
@@ -368,22 +362,21 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     }
   }
 
-  public void testUpdate_AddLength() throws Exception {
+  public void testUpdate_BigToBigValue() throws Exception {
 
     // create property
     String pname = "file@" + testFile.getName();
     Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
 
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
     String update1String = "update#1";
     long pos = 3 * 1024 * 1024;
 
     // update
     try {
 
-      exv.setLength(pos + 1);
-      assertEquals("Value data length must be increased ", pos + 1, exv
-          .getLength());
+      //exv.setLength(pos + 1);
+      //assertEquals("Value data length must be increased ", pos + 1, exv.getLength());
 
       exv.update(new ByteArrayInputStream(update1String.getBytes()),
           update1String.length(), pos);
@@ -393,8 +386,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
       vstream.mark((int) exv.getLength() + 1);
 
       // first 2M of stream data must be same as on setProperty()
-      compareStream(new FileInputStream(testFile), vstream, 0, 0, testFile
-          .length());
+      compareStream(new FileInputStream(testFile), vstream, 0, 0, testFile.length());
 
       vstream.reset();
       compareStream(new ByteArrayInputStream(update1String.getBytes()),
@@ -406,15 +398,64 @@ public class TestRandomValueIO extends JcrImplBaseTest {
 
       // test after save
       // first 2M of stream data must be same as on setProperty()
-      compareStream(new FileInputStream(testFile), testRoot.getProperty(pname)
-          .getStream(), 0, 0, testFile.length());
+      compareStream(new FileInputStream(testFile), 
+          testRoot.getProperty(pname).getStream(), 0, 0, testFile.length());
 
       compareStream(new ByteArrayInputStream(update1String.getBytes()),
-          testRoot.getProperty(pname).getStream(), 0, pos, update1String
-              .length());
+          testRoot.getProperty(pname).getStream(), 0, pos, update1String.length());
     } catch (CompareStreamException e) {
       fail(e.getMessage());
     }
+  }
+
+  /**
+   *  Case of out=of-memory during port bytes to file 
+   * */
+  public void testUpdate_SmallToBigValue() throws Exception {
+
+    // create property
+    String pname = "file@" + testFile.getName();
+    String content = "short message";
+    Property p = testRoot.setProperty(pname, new ByteArrayInputStream(content.getBytes()));
+
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
+    long pos = exv.getLength() + 1024 * 1024 * 25;
+    
+    long fmem = Runtime.getRuntime().freeMemory();
+
+    exv.update(new FileInputStream(testFile), testFile.length(), pos);
+    
+    long fmemAfter = Runtime.getRuntime().freeMemory();
+
+    if ((fmemAfter - fmem) >= (pos + testFile.length()))
+      log.warn("Free memory must not be increased on value of the new Value size but does. Was " + fmem + " current " + fmemAfter);
+    
+    assertEquals("Value data length must be increased ", pos + testFile.length(), exv.getLength());
+
+    // apply to the Property and save
+    p.setValue(exv);
+    testRoot.save();
+
+    EditableBinaryValue newexv = (EditableBinaryValue) testRoot.getProperty(pname).getValue();
+    
+    assertEquals("Value data length must be increased ", pos + testFile.length(), newexv.getLength());
+    
+    
+    // update inside the big data
+    int npos = 5;
+    newexv.update(new FileInputStream(testFile), testFile.length(), npos);
+    
+    // apply to the Property and save
+    p.setValue(newexv);
+    testRoot.save();
+    
+    byte[] buff = new byte[npos];
+    testRoot.getProperty(pname).getStream().read(buff);
+        
+    assertEquals("Value content is wrong ", content.substring(0, npos), new String(buff));
+    
+    compareStream(new FileInputStream(testFile),
+        testRoot.getProperty(pname).getStream(), 0, npos, testFile.length());
   }
 
   public void testAddLength_BigValue() throws Exception {
@@ -423,7 +464,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     String pname = "file@" + testFile.getName();
     Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
 
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
     long pos = 3 * 1024 * 1024;
 
     exv.setLength(pos);
@@ -434,7 +475,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     p.setValue(exv);
     testRoot.save();
 
-    ExtendedBinaryValue newexv = (ExtendedBinaryValue) testRoot.getProperty(
+    EditableBinaryValue newexv = (EditableBinaryValue) testRoot.getProperty(
         pname).getValue();
     assertEquals("Value data length must be increased ", pos, newexv
         .getLength());
@@ -446,7 +487,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     String pname = "file@" + testFile.getName();
     Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
 
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
     long pos = 1024 * 1024;
 
     exv.setLength(pos);
@@ -457,7 +498,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     p.setValue(exv);
     testRoot.save();
 
-    ExtendedBinaryValue newexv = (ExtendedBinaryValue) testRoot.getProperty(
+    EditableBinaryValue newexv = (EditableBinaryValue) testRoot.getProperty(
         pname).getValue();
     assertEquals("Value data length must be decreased ", pos, newexv.getLength());
   }
@@ -469,7 +510,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     Property p = testRoot.setProperty(pname, new ByteArrayInputStream(
         "short message".getBytes()));
 
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
     long pos = exv.getLength() + 20;
 
     exv.setLength(pos);
@@ -480,7 +521,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     p.setValue(exv);
     testRoot.save();
 
-    ExtendedBinaryValue newexv = (ExtendedBinaryValue) testRoot.getProperty(
+    EditableBinaryValue newexv = (EditableBinaryValue) testRoot.getProperty(
         pname).getValue();
     assertEquals("Value data length must be increased ", pos, newexv.getLength());
   }
@@ -492,7 +533,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     Property p = testRoot.setProperty(pname, new ByteArrayInputStream(
         "short message".getBytes()));
 
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
     long pos = exv.getLength() + 1024 * 1024 * 25;
     
     long fmem = Runtime.getRuntime().freeMemory();
@@ -510,7 +551,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     p.setValue(exv);
     testRoot.save();
 
-    ExtendedBinaryValue newexv = (ExtendedBinaryValue) testRoot.getProperty(
+    EditableBinaryValue newexv = (EditableBinaryValue) testRoot.getProperty(
         pname).getValue();
     assertEquals("Value data length must be increased ", pos, newexv.getLength());
   }
@@ -524,7 +565,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     testRoot.save();
     
     // change after save
-    ExtendedBinaryValue newexv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+    EditableBinaryValue newexv = (EditableBinaryValue) testRoot.getProperty(pname).getValue();
     long pos = newexv.getLength() + 1024 * 1024 * 25;
     
     long tmem = Runtime.getRuntime().totalMemory();
@@ -541,12 +582,12 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     
     assertEquals("Value data length must be increased ", pos, newexv.getLength());
 
-    newexv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+    newexv = (EditableBinaryValue) testRoot.getProperty(pname).getValue();
     assertEquals("Value data length must be increased ", pos, newexv.getLength());
     
     // save new size
     testRoot.save();
-    newexv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+    newexv = (EditableBinaryValue) testRoot.getProperty(pname).getValue();
     assertEquals("Value data length must be increased ", pos, newexv.getLength());
   }
 
@@ -556,7 +597,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     String pname = "file@" + testFile.getName();
     Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
 
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
     long pos = exv.getLength() - (testFile.length() - 20);
 
     exv.setLength(pos);
@@ -567,7 +608,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     p.setValue(exv);
     testRoot.save();
 
-    ExtendedBinaryValue newexv = (ExtendedBinaryValue) testRoot.getProperty(
+    EditableBinaryValue newexv = (EditableBinaryValue) testRoot.getProperty(
         pname).getValue();
     assertEquals("Value data length must be decreased ", pos, newexv.getLength());
   }
@@ -579,7 +620,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     Property p = testRoot.setProperty(pname, new ByteArrayInputStream(
         "short message".getBytes()));
 
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
     long pos = exv.getLength() - 5;
 
     exv.setLength(pos);
@@ -590,7 +631,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     p.setValue(exv);
     testRoot.save();
 
-    ExtendedBinaryValue newexv = (ExtendedBinaryValue) testRoot.getProperty(
+    EditableBinaryValue newexv = (EditableBinaryValue) testRoot.getProperty(
         pname).getValue();
     assertEquals("Value data length must be decreased ", pos, newexv.getLength());
   }
@@ -623,7 +664,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
 
     testRoot.save();
 
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) testRoot.getNode(name)
+    EditableBinaryValue exv = (EditableBinaryValue) testRoot.getNode(name)
         .getNode("jcr:content").getProperty("jcr:data").getValue();
     long pos = 1024 * 1024 * 25;
 
@@ -639,13 +680,34 @@ public class TestRandomValueIO extends JcrImplBaseTest {
  
   // ----- read operation ------
   
+  public void testRead() throws Exception {
+
+    // create property, prepare the data to be readed
+    String pname = "file@" + testFile.getName();
+    Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
+    testRoot.save();
+    
+    // read partial
+    ReadableBinaryValue exv = (ReadableBinaryValue) testRoot.getProperty(pname).getValue();
+    
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    
+    int len = 200 * 1024;
+    int pos = 900 * 1024;
+    long res = exv.read(baos, len, pos);
+    
+    assertEquals("Wrong bytes count have been read", len, res);
+    
+    compareStream(new FileInputStream(testFile), new ByteArrayInputStream(baos.toByteArray()), pos, 0, len);
+  }
+  
   public void testReadBigValue() throws Exception {
 
     // create property, prepare the data to be readed
     String pname = "file@" + testFile.getName();
     Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
 
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
 
     String update1String = "update#1";
 
@@ -658,13 +720,23 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     testRoot.save();
     
     // read partial
-    exv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+    exv = (EditableBinaryValue) testRoot.getProperty(pname).getValue();
     
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     
     long res = exv.read(baos, 5, pos + 2); // read 'date#' bytes
     
     String expected = update1String.substring(2, 7);
+    
+    assertEquals(expected.length() + " bytes must be read", expected.length(), res);
+    
+    assertEquals("Readed content not equals to expected", expected, new String(baos.toByteArray()));
+    
+    // next read
+    baos = new ByteArrayOutputStream();
+    res = exv.read(baos, 3, pos + 1); // read 'pda' bytes
+    
+    expected = update1String.substring(1, 4);
     
     assertEquals(expected.length() + " bytes must be read", expected.length(), res);
     
@@ -677,7 +749,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     String pname = "file@" + testFile.getName();
     Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
 
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
 
     String update1String = "update#1";
 
@@ -690,7 +762,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     testRoot.save();
     
     // read partial greater the value size
-    exv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+    exv = (EditableBinaryValue) testRoot.getProperty(pname).getValue();
     
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     
@@ -710,7 +782,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     Property p = testRoot.setProperty(pname, new ByteArrayInputStream(
         "short message".getBytes()));
 
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
 
     String update1String = "update#1";
 
@@ -723,7 +795,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     testRoot.save();
     
     // read partial
-    exv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+    exv = (EditableBinaryValue) testRoot.getProperty(pname).getValue();
     
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     
@@ -743,7 +815,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     Property p = testRoot.setProperty(pname, new ByteArrayInputStream(
         "short message".getBytes()));
 
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
 
     String update1String = "update#1";
 
@@ -756,7 +828,7 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     testRoot.save();
     
     // read partial greater the value size
-    exv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+    exv = (EditableBinaryValue) testRoot.getProperty(pname).getValue();
     
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     
@@ -776,10 +848,10 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     Property p = testRoot.setProperty(pname, new ByteArrayInputStream(
         "short message".getBytes()));
 
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
 
     // read zero bytes
-    exv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+    exv = (EditableBinaryValue) testRoot.getProperty(pname).getValue();
     
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     
@@ -814,10 +886,10 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     String pname = "file@" + testFile.getName();
     Property p = testRoot.setProperty(pname, new FileInputStream(testFile));
 
-    ExtendedBinaryValue exv = (ExtendedBinaryValue) p.getValue();
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
 
     // read zero bytes
-    exv = (ExtendedBinaryValue) testRoot.getProperty(pname).getValue();
+    exv = (EditableBinaryValue) testRoot.getProperty(pname).getValue();
     
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     

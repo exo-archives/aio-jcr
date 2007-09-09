@@ -50,4 +50,6 @@ public interface ExtendedValue extends Value {
    */
   public String getReference() throws ValueFormatException, IllegalStateException,
       RepositoryException;
+  
+  
 }
