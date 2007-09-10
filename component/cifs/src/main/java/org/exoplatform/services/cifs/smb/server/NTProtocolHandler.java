@@ -1129,10 +1129,11 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
 
     if (vc == null) {
-      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
+          SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
       return;
     }
-    
+
     // Initialize the byte area pointer
 
     m_smbPkt.resetBytePointer();
@@ -1219,8 +1220,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
       // Get/create the shared device
 
-      shareDev = m_sess.getSMBServer().findShare(shareName, servType, m_sess
-          );//true
+      shareDev = m_sess.getSMBServer().findShare(shareName, servType, m_sess);// true
 
     } catch (Exception ex) {
 
@@ -1958,37 +1958,37 @@ public class NTProtocolHandler extends CoreProtocolHandler {
   protected final void procLogoffAndX(SMBSrvPacket outPkt)
       throws java.io.IOException, SMBSrvException {
     logger.debug(":procLogoffAndX");
-    //  Check that the received packet looks like a valid logoff andX request
+    // Check that the received packet looks like a valid logoff andX request
 
-    if (m_smbPkt.checkPacketIsValid(2, 0) == false)
-    {
-      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
+    if (m_smbPkt.checkPacketIsValid(2, 0) == false) {
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
+          SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
       return;
     }
 
-    //  Get the virtual circuit for the request
-    
+    // Get the virtual circuit for the request
+
     int uid = m_smbPkt.getUserId();
-    VirtualCircuit vc = m_sess.findVirtualCircuit( uid);
-    
-    if (vc == null)
-    {
-      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
+    VirtualCircuit vc = m_sess.findVirtualCircuit(uid);
+
+    if (vc == null) {
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
+          SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
       return;
     }
 
-    //  DEBUG
-    
-    if ( logger.isDebugEnabled() && m_sess.hasDebug( SMBSrvSession.DBG_NEGOTIATE))
+    // DEBUG
+
+    if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_NEGOTIATE))
       logger.debug("Logoff vc=" + vc);
 
-    //  Close the virtual circuit
-    
-    m_sess.removeVirtualCircuit( uid);
-    
-    //  Return a success status SMB
+    // Close the virtual circuit
 
-  m_sess.sendSuccessResponseSMB();
+    m_sess.removeVirtualCircuit(uid);
+
+    // Return a success status SMB
+
+    m_sess.sendSuccessResponseSMB();
 
   }
 
@@ -2348,8 +2348,10 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
       // Read from the file
 
-      rdlen = JCRDriver.readFile(m_sess, conn, netFile, buf, dataPos, maxCount,
-          offset);
+      rdlen = ((JCRNetworkFile) netFile).read(buf, dataPos, maxCount, offset);
+
+// rdlen = JCRDriver.readFile(m_sess, conn, netFile, buf, dataPos, maxCount,
+// offset);
     } catch (AccessDeniedException ex) {
 
       // User does not have the required access rights or file is not accessible
@@ -2979,10 +2981,10 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Get the tree connection details
     VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
-    
-    if (vc == null)
-    {
-      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
+
+    if (vc == null) {
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
+          SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
       return;
     }
 
@@ -3388,13 +3390,13 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Get the tree connection details
     VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
-    
-    if (vc == null)
-    {
-      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
+
+    if (vc == null) {
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
+          SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
       return;
     }
-    
+
     TreeConnection conn = vc.findTreeConnection(tbuf.getTreeId());
 
     if (conn == null) {
