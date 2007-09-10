@@ -275,7 +275,7 @@
 			<supertype>exo:file</supertype>
 		</supertypes>
 	</nodeType>
-	<nodeType name="exo:metadata" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+	<nodeType name="exo:mavenmetadata" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
 		<supertypes>
 			<supertype>exo:file</supertype>
 		</supertypes>
