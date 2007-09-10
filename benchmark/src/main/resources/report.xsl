@@ -34,6 +34,8 @@
                 <h2>Global Parameters</h2>
                 <ul>
                     <!-- japex.configFile -->
+                    <li><a href="test-configuration-benchmark.xml">test-configuration-benchmark.xml</a></li>
+                    <li><a href="test-jcr-config-benchmark.xml">test-jcr-config-benchmark.xml</a></li>
                     <li><xsl:text>configFile: </xsl:text>
                     <a href="{rep:configFile}"><xsl:value-of select="rep:configFile"/></a>
                     </li>
