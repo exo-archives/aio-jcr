@@ -24,7 +24,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.cifs.server.filesys.NetworkFile;
 import org.exoplatform.services.jcr.core.ExtendedProperty;
 import org.exoplatform.services.jcr.core.value.EditableBinaryValue;
-//import org.exoplatform.services.jcr.core.value.ExtendedBinaryValue;
+
 import org.exoplatform.services.log.ExoLogger;
 
 /**
