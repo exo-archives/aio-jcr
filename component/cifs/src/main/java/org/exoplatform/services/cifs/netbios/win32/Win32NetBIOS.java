@@ -15,11 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
- * As a special exception to the terms and conditions of version 2.0 of 
- * the GPL, you may redistribute this Program in connection with Free/Libre 
- * and Open Source Software ("FLOSS") applications as described in Alfresco's 
- * FLOSS exception.  You should have recieved a copy of the text describing 
- * the FLOSS exception, and it is also available here: 
+ * As a special exception to the terms and conditions of version 2.0 of
+ * the GPL, you may redistribute this Program in connection with Free/Libre
+ * and Open Source Software ("FLOSS") applications as described in Alfresco's
+ * FLOSS exception.  You should have recieved a copy of the text describing
+ * the FLOSS exception, and it is also available here:
  * http://www.alfresco.com/legal/licensing"
  */
 package org.exoplatform.services.cifs.netbios.win32;
@@ -52,7 +52,7 @@ public class Win32NetBIOS {
 
   /**
    * Check if the native code was loaded successfully
-   * 
+   *
    * @return boolean
    */
   public static final boolean isInitialized() {
@@ -61,7 +61,7 @@ public class Win32NetBIOS {
 
   /**
    * Return the native code load exception
-   * 
+   *
    * @return Throwable
    */
   public static final Throwable getInitializationException() {
@@ -70,7 +70,7 @@ public class Win32NetBIOS {
 
   /**
    * Check if NetBIOS is enabled on any network adapters
-   * 
+   *
    * @return boolean
    */
   public static final boolean isAvailable() {
@@ -92,7 +92,7 @@ public class Win32NetBIOS {
 
   /**
    * Add a NetBIOS name to the local name table
-   * 
+   *
    * @param lana
    *          int
    * @param name
@@ -103,7 +103,7 @@ public class Win32NetBIOS {
 
   /**
    * Add a group NetBIOS name to the local name table
-   * 
+   *
    * @param lana
    *          int
    * @param name
@@ -114,7 +114,7 @@ public class Win32NetBIOS {
 
   /**
    * Find a NetBIOS name, return the name buffer
-   * 
+   *
    * @param lana
    *          int
    * @param name
@@ -130,7 +130,7 @@ public class Win32NetBIOS {
 
   /**
    * Find a NetBIOS name
-   * 
+   *
    * @param lana
    *          int
    * @param name
@@ -208,7 +208,7 @@ public class Win32NetBIOS {
 
   /**
    * Delete a NetBIOS name from the local name table
-   * 
+   *
    * @param lana
    *          int
    * @param name
@@ -219,7 +219,7 @@ public class Win32NetBIOS {
 
   /**
    * Enumerate the available LANAs
-   * 
+   *
    * @return int[]
    */
   public static int[] LanaEnumerate() {
@@ -263,14 +263,14 @@ public class Win32NetBIOS {
 
   /**
    * Enumerate the available LANAs
-   * 
+   *
    * @return int[]
    */
   private static native int[] LanaEnum();
 
   /**
    * Reset the NetBIOS environment
-   * 
+   *
    * @param lana
    *          int
    * @return int
@@ -279,7 +279,7 @@ public class Win32NetBIOS {
 
   /**
    * Listen for an incoming session request
-   * 
+   *
    * @param lana
    *          int
    * @param toName
@@ -295,7 +295,7 @@ public class Win32NetBIOS {
 
   /**
    * Receive a data packet on a session
-   * 
+   *
    * @param lana
    *          int
    * @param lsn
@@ -313,7 +313,7 @@ public class Win32NetBIOS {
 
   /**
    * Send a data packet on a session
-   * 
+   *
    * @param lana
    *          int
    * @param lsn
@@ -330,7 +330,7 @@ public class Win32NetBIOS {
 
   /**
    * Send a datagram to a specified name
-   * 
+   *
    * @param lana
    *          int
    * @param srcNum
@@ -350,7 +350,7 @@ public class Win32NetBIOS {
 
   /**
    * Send a broadcast datagram
-   * 
+   *
    * @param lana
    * @param buf
    *          byte[]
@@ -365,7 +365,7 @@ public class Win32NetBIOS {
 
   /**
    * Receive a datagram on a specified name
-   * 
+   *
    * @param lana
    *          int
    * @param nameNum
@@ -383,7 +383,7 @@ public class Win32NetBIOS {
 
   /**
    * Receive a broadcast datagram
-   * 
+   *
    * @param lana
    *          int
    * @param nameNum
@@ -401,7 +401,7 @@ public class Win32NetBIOS {
 
   /**
    * Hangup a session
-   * 
+   *
    * @param lsn
    *          int
    * @return int
@@ -410,14 +410,14 @@ public class Win32NetBIOS {
 
   /**
    * Return the local computers NetBIOS name
-   * 
+   *
    * @return String
    */
   public static native String GetLocalNetBIOSName();
 
   /**
    * Return the local domain name
-   * 
+   *
    * @return String
    */
   public static native String GetLocalDomainName();
@@ -425,14 +425,14 @@ public class Win32NetBIOS {
   /**
    * Return a comma delimeted list of WINS server TCP/IP addresses, or null if
    * no WINS servers are configured.
-   * 
+   *
    * @return String
    */
   public static native String getWINSServerList();
 
   /**
    * Find the TCP/IP address for a LANA
-   * 
+   *
    * @param lana
    *          int
    * @return String
@@ -480,7 +480,7 @@ public class Win32NetBIOS {
 
   /**
    * Find the adapter name for a LANA
-   * 
+   *
    * @param lana
    *          int
    * @return String
@@ -514,7 +514,7 @@ public class Win32NetBIOS {
 
   /**
    * Find the LANA for a TCP/IP address
-   * 
+   *
    * @param addr
    *          String
    * @return int
@@ -550,7 +550,7 @@ public class Win32NetBIOS {
 
   /**
    * Find the LANA for a network adapter
-   * 
+   *
    * @param name
    *          String
    * @return int
@@ -587,7 +587,7 @@ public class Win32NetBIOS {
 
   /**
    * Return a hashtable of NetworkInterfaces indexed by TCP/IP address
-   * 
+   *
    * @return Hashtable<String,NetworkInterface>
    */
   private static final Hashtable<String, NetworkInterface> getNetworkAdapterList() {
@@ -632,7 +632,7 @@ public class Win32NetBIOS {
 
   /**
    * Initialize the NetBIOS socket interface
-   * 
+   *
    * @exception WinsockNetBIOSException
    *              If a Winsock error occurs
    */
@@ -646,7 +646,7 @@ public class Win32NetBIOS {
 
   /**
    * Create a NetBIOS socket
-   * 
+   *
    * @param lana
    *          int
    * @return int
@@ -658,7 +658,7 @@ public class Win32NetBIOS {
 
   /**
    * Create a NetBIOS datagram socket
-   * 
+   *
    * @param lana
    *          int
    * @return int
@@ -670,7 +670,7 @@ public class Win32NetBIOS {
 
   /**
    * Bind a NetBIOS socket to a name to listen for incoming sessions
-   * 
+   *
    * @param sockPtr
    *          int
    * @param name
@@ -683,7 +683,7 @@ public class Win32NetBIOS {
 
   /**
    * Listen for an incoming connection
-   * 
+   *
    * @param sockPtr
    *          int
    * @param callerName
@@ -697,7 +697,7 @@ public class Win32NetBIOS {
 
   /**
    * Close a NetBIOS socket
-   * 
+   *
    * @param sockPtr
    *          int
    */
@@ -705,7 +705,7 @@ public class Win32NetBIOS {
 
   /**
    * Send data on a session socket
-   * 
+   *
    * @param sockPtr
    *          int
    * @param buf
@@ -723,7 +723,7 @@ public class Win32NetBIOS {
 
   /**
    * Receive data on a session socket
-   * 
+   *
    * @param sockPtr
    *          int
    * @param toName
@@ -743,7 +743,7 @@ public class Win32NetBIOS {
 
   /**
    * Send data on a datagram socket
-   * 
+   *
    * @param sockPtr
    *          int
    * @param toName
@@ -783,7 +783,7 @@ public class Win32NetBIOS {
     try {
       System.loadLibrary(dllName);
     } catch (Throwable ex) {
-      ex.printStackTrace();
+      //ex.printStackTrace();
 
       // Save the native code load exception
 
