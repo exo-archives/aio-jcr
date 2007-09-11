@@ -26,9 +26,22 @@
 			
 			<!-- Server Configuration -->
 			
-			<!--Server name -->
+			<!-- Enable server -->
 			<value-param>
-				<name>server_name</name>
+			       <name>enable_smb</name>
+			       <value>true</value>
+			</value-param>
+			
+			<!-- Broadcast mask, if not specified 255.255.255.0 assign -->
+			<value-param>
+			       <name>broadcast_mask</name>
+			       <value>255.255.255.0</value>
+			</value-param>
+			
+			
+			<!--Host name-->
+			<value-param>
+				<name>host_name</name>
 				<value>SMBServer</value>
 			</value-param>
 
@@ -46,42 +59,32 @@
 					repository.</value>
 			</value-param>
 
-			<!--Tcp/Ip SMB transport layer use -->
-			<value-param>
-				<name>tcpipsmb</name>
-				<value>false</value>
-			</value-param>
+                        <!-- NetBios (Java impl) configuration-->
+                        <properties-param>
+ 		            <name>netbios_java</name>
+ 		            <property name="enabled" value="true"/>
+ 		            <property name="session_port" value="139"/>
+ 		            <property name="datagram_port" value="138"/>
+ 		            <property name="name_port" value="137"/>
+ 		        </properties-param>
 
-
-			<!-- use Java implemented NetBIOS SMB transport layer - valid for nonWindows systems-->
-			<value-param>
-				<name>netbios</name>
-				<value>false</value>
-			</value-param>
+                        <!-- TcpIp transport configuration-->
+                        <properties-param>
+ 		            <name>tcpip</name>
+ 		            <property name="enabled" value="false"/>
+ 		            <property name="port" value="445"/>
+ 		        </properties-param>
 
 			<!--use JNI NetBIOS SMB transport layer - only for Windows-->
-			<value-param>
-				<name>winNetBIOS</name>
-				<value>true</value>
-			</value-param>
-
-			<!--Set NetBIOS name - if param not determined used server_name-->
-			<value-param>
-				<name>netbiosname</name>
-				<value>CruisCIFS</value>
-			</value-param>
-
-			<!--LANA - if not determined or equal -1 used all available -->
-			<value-param>
-				<name>lanas</name>
-				<value>-1</value>
-			</value-param>
-
-			<!-- native API for Win NetBIOS : netbios or winsock -->
-			<value-param>
-				<name>nativeapi</name>
-				<value>netbios</value><!--winsock-->
-			</value-param>
+                        <properties-param>
+ 		            <name>winnetbios</name>
+ 		            <property name="enabled" value="false"/>
+ 		            <property name="netbiosname" value="TestCIFS"/>
+ 		            <!--LANA - if not determined or equal -1 used all available -->
+ 		            <property name="lanas" value="-1"/>
+ 		            <!-- native API for Win NetBIOS : netbios or winsock -->
+ 		            <property name="nativeapi" value="netbios"/>
+ 		        </properties-param>
 
 		</init-params>
 	</component>

@@ -49,7 +49,7 @@ public abstract class SessionSocketHandler implements Runnable {
 
   private SMBServer m_server;
 
-  // Address/post to use
+  // Address/port to use
 
   private int m_port;
 

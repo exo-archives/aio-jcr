@@ -354,7 +354,7 @@ public class SMBServer extends NetworkServer implements Runnable {
         // announcer(s) if
         // enabled
 
-        // NetBIOSSessionSocketHandler.createSessionHandlers(this, sockDbg);
+         NetBIOSSessionSocketHandler.createSessionHandlers(this, sockDbg);
       }
 
       // Create the TCP/IP SMB session socket handler, if enabled
@@ -363,7 +363,7 @@ public class SMBServer extends NetworkServer implements Runnable {
 
         // Create the TCP/IP native SMB session handler(s)
 
-        // TcpipSMBSessionSocketHandler.createSessionHandlers(this, sockDbg);
+         TcpipSMBSessionSocketHandler.createSessionHandlers(this, sockDbg);
       }
 
       // Create the Win32 NetBIOS session handler, if enabled

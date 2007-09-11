@@ -6,27 +6,25 @@ package org.exoplatform.services.cifs;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.StringTokenizer;
 
-import javax.jcr.Repository;
-import javax.naming.InitialContext;
-
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.PropertiesParam;
+import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.cifs.netbios.NetBIOSName;
 import org.exoplatform.services.cifs.netbios.NetBIOSNameList;
 import org.exoplatform.services.cifs.netbios.NetBIOSSession;
+import org.exoplatform.services.cifs.netbios.RFCNetBIOSProtocol;
 import org.exoplatform.services.cifs.netbios.win32.Win32NetBIOS;
 import org.exoplatform.services.cifs.smb.Dialect;
 import org.exoplatform.services.cifs.smb.DialectSelector;
 import org.exoplatform.services.cifs.smb.ServerType;
+import org.exoplatform.services.cifs.smb.TcpipSMB;
+import org.exoplatform.services.cifs.util.IPAddress;
 import org.exoplatform.services.cifs.util.X64;
-import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
-import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.log.ExoLogger;
-
-import org.exoplatform.container.xml.ValueParam;
 
 /**
  * Service (server) configuration class
@@ -46,10 +44,6 @@ public class ServerConfiguration {
     Unknown, WINDOWS, LINUX, SOLARIS, MACOSX
   };
 
-  // Token name to substitute current server name into the CIFS server name
-
-  private static final String TokenLocalName = "${localname}";
-
   // Runtime platform type
 
   private PlatformType m_platform = PlatformType.WINDOWS;
@@ -64,8 +58,8 @@ public class ServerConfiguration {
 
   // Server type, used by the host announcer
 
-  private int m_srvType = ServerType.WorkStation + ServerType.Server
-      + ServerType.NTServer;
+  private int m_srvType = ServerType.WorkStation + ServerType.Server +
+      ServerType.NTServer;
 
   // Server comment
 
@@ -81,15 +75,15 @@ public class ServerConfiguration {
 
   // NetBIOS ports
 
-  private int m_nbNamePort;
+  private int m_nbNamePort = RFCNetBIOSProtocol.NAME_PORT;
 
-  private int m_nbSessPort;
+  private int m_nbSessPort = RFCNetBIOSProtocol.PORT;
 
-  private int m_nbDatagramPort;
+  private int m_nbDatagramPort = RFCNetBIOSProtocol.DATAGRAM;
 
   // Native SMB port
 
-  private int m_tcpSMBPort;
+  private int m_tcpSMBPort = TcpipSMB.PORT;
 
   // Announce the server to network neighborhood, announcement interval in
   // minutes
@@ -181,26 +175,67 @@ public class ServerConfiguration {
    */
   public ServerConfiguration(InitParams params) {
 
-    determinePlatformType();
-    //temporary system check
-    if (getPlatformType() != PlatformType.WINDOWS){
+    // Enable server
+    ValueParam pEnable = params.getValueParam("enable_smb");
+    if (pEnable != null) {
+      if (pEnable.getValue().equalsIgnoreCase("true")) {
+        setSMBServerEnabled(true);
+      } else if (pEnable.getValue().equalsIgnoreCase("false")) {
+        setSMBServerEnabled(false);
+      } else {
+        logger.error("Illegal value of parameter enable_smb");
+        setSMBServerEnabled(false);
+        return;
+      }
+    } else {
+      logger.error("Server is not Enabled!");
       setSMBServerEnabled(false);
-      return;    
+      return;
     }
 
-    // set broadcast mask? before netBIOS is used
-    setBroadcastMask("255.255.255.0");
+    determinePlatformType();
+
+    // set broadcast mask, before transport is specified
+
+    ValueParam pmask = params.getValueParam("broadcast_mask");
+    if (pmask != null) {
+      // check is mask is valid
+      if (IPAddress.isNumericAddress(pmask.getValue()) == false) {
+        logger.error("Invalid broadcast mask, must be n.n.n.n format!");
+        setBroadcastMask("255.255.255.0");
+      } else {
+        setBroadcastMask(pmask.getValue());
+      }
+    } else {
+      setBroadcastMask("255.255.255.0");
+    }
 
     // Set the CIFS server name
-    ValueParam pServerName = params.getValueParam("server_name");
-    if (pServerName != null) {
-      setServerName(pServerName.getValue());
-    } else
-      setServerName("ServerName");
+    String hostName;
+
+    ValueParam pHostName = params.getValueParam("host_name");
+    if (pHostName != null) {
+      hostName = pHostName.getValue();
+    } else {
+      logger.error("Server name is not assigned!!");
+      this.setSMBServerEnabled(false);
+      return;
+    }
+
+    if (hostName.length() > 15) {
+      // Truncate the CIFS server name
+      hostName = hostName.substring(0, 15);
+
+      // Output a warning
+      logger
+          .warn("CIFS server name is longer than 15 characters, truncated to " +
+              hostName);
+    }
+
+    setServerName(hostName);
 
     // Set the domain/workgroup name
     // also Win32netBios.dll availability check
-
     try {
       setDomainName(getLocalDomainName().toUpperCase());
     } catch (UnsatisfiedLinkError e) {
@@ -218,101 +253,195 @@ public class ServerConfiguration {
     } else
       setComment("Comment"); // TODO Check is not null in server setup
 
-    // Check for a bind address
+    // Check the bind address
+
+    ValueParam pBindAddress = params.getValueParam("bind_address");
+
+    if (pBindAddress != null) {
+      try{
+      InetAddress bindAddr = InetAddress.getByName(pBindAddress.getValue());
+
+      // Set the bind address for the server
+      setSMBBindAddress(bindAddr);
+      }catch(UnknownHostException e){
+        
+        setSMBBindAddress(null);  
+      }
+    }
 
     // Check if the host announcer should be enabled
 
-    // Check if NetBIOS SMB is enabled
-    setNetBIOSSMB(false);
+    // Configure NetBIOS SMB (Java Impl)
 
-    // Check if TCP/IP SMB is enabled
-    setTcpipSMB(false);
-
-    // Check if Win32 NetBIOS is enabled
-    ValueParam pWin32NetBIOSName = params.getValueParam("netbiosname");
-    if (pWin32NetBIOSName != null) {
-      setWin32NetBIOSName(pWin32NetBIOSName.getValue());
-    } else
-      setWin32NetBIOSName(pServerName.getValue());
-
-    // Check if all lanas is available
-    ValueParam pLanas = params.getValueParam("lanas");
-    if (pLanas != null) {
-      setWin32LANA(new Integer(pLanas.getValue()));
-    } else
-      setWin32LANA(-1); // all lanas is available;
-
-    // Check if the native NetBIOS interface has been specified, either
-    // 'winsock' or 'netbios'
-    String nativeAPI = "";
-
-    ValueParam pNativeApi = params.getValueParam("nativeapi");
-    if (pNativeApi != null) {
-      nativeAPI = pNativeApi.getValue();
-    }
-
-    if (nativeAPI != null && nativeAPI.length() > 0) {
-      // Validate the API type
-
-      boolean useWinsock = true;
-
-      if (nativeAPI.equalsIgnoreCase("netbios"))
-        useWinsock = false;
-      else if (nativeAPI.equalsIgnoreCase("winsock") == false) {
-        setSMBServerEnabled(false);
+    PropertiesParam netBiosJava = params.getPropertiesParam("netbios_java");
+    if (netBiosJava != null &&
+        netBiosJava.getProperty("enabled").equals("true")) {
+      setNetBIOSSMB(true);
+      if (netBiosJava.getProperty("session_port") != null) {
+        int sessport = Integer
+            .parseInt(netBiosJava.getProperty("session_port"));
+        if (sessport < 0 || sessport > 65535) {
+          logger
+              .error("Illegal value of netbios_java session_port partameter!");
+          setSMBServerEnabled(false);
+          return;
+        } else {
+          m_nbSessPort = sessport;
+        }
       }
 
-      // Set the NetBIOS API to use
+      if (netBiosJava.getProperty("datagram_port") != null) {
+        int dtgport = Integer
+            .parseInt(netBiosJava.getProperty("datagram_port"));
+        if (dtgport < 0 || dtgport > 65535) {
+          logger
+              .error("Illegal value of netbios_java datagram_port partameter!");
+          setSMBServerEnabled(false);
+          return;
+        } else {
+          m_nbDatagramPort = dtgport;
+        }
+      }
 
-      setWin32WinsockNetBIOS(useWinsock);
+      if (netBiosJava.getProperty("name_port") != null) {
+        int nmport = Integer.parseInt(netBiosJava.getProperty("name_port"));
+        if (nmport < 0 || nmport > 65535) {
+          logger
+              .error("Illegal value of netbios_java datagram_port partameter!");
+          setSMBServerEnabled(false);
+          return;
+        } else {
+          m_nbNamePort = nmport;
+        }
+      }
+    } else {
+      setNetBIOSSMB(false);
     }
 
-    // Force the older NetBIOS API code to be used on 64Bit Windows
+    // Configure TCP/IP SMB
 
-    if (useWinsockNetBIOS() == true && X64.isWindows64()) {
-      // Log a warning
-
-      logger.warn("Using older Netbios() API code");
-
-      // Use the older NetBIOS API code
-
-      setWin32WinsockNetBIOS(false);
+    PropertiesParam tcpSmb = params.getPropertiesParam("tcpip");
+    if (tcpSmb != null && tcpSmb.getProperty("enabled").equals("true")) {
+      setTcpipSMB(true);
+      if (tcpSmb.getProperty("port") != null) {
+        int sessport = Integer.parseInt(tcpSmb.getProperty("port"));
+        if (sessport < 0 || sessport > 65535) {
+          logger.error("Illegal value of tcpip port partameter!");
+          setSMBServerEnabled(false);
+          return;
+        } else {
+          m_tcpSMBPort = sessport;
+        }
+      }
+    } else {
+      setTcpipSMB(false);
     }
 
-    // Check if the current operating system is supported by the Win32
-    // NetBIOS handler
+    // Configure win32 NetBIOS (netbios or wins)
 
-    String osName = System.getProperty("os.name");
-    if (osName.startsWith("Windows")
-        && (osName.endsWith("95") == false && osName.endsWith("98") == false && osName
-            .endsWith("ME") == false)) {
+    PropertiesParam winnbt = params.getPropertiesParam("winnetbios");
 
-      // Call the Win32NetBIOS native code to make sure it is
-      // initialized
+    if (winnbt != null && winnbt.getProperty("enabled").equals("true")) {
 
-      if (Win32NetBIOS.LanaEnumerate() != null) {
-        // Enable Win32 NetBIOS
+      // Check if the Win32 NetBIOS server name has been specified
 
-        setWin32NetBIOS(true);
+      String win32Name = winnbt.getProperty("netbiosname");
+      if (win32Name != null && win32Name.length() > 0) {
+
+        // Validate the name
+
+        if (win32Name.length() > 16) {
+          logger.error("Invalid Win32 NetBIOS name, " + win32Name);
+        } else {
+          // Set the Win32 NetBIOS file server name
+
+          setWin32NetBIOSName(win32Name);
+        }
+      }
+
+      // Check if the Win32 NetBIOS LANA has been specified
+
+      String lanaStr = winnbt.getProperty("lanas");
+      if (lanaStr != null && lanaStr.length() > 0) {
+        // Check if the LANA has been specified as an IP address or adapter name
+
+        setWin32LANA(new Integer(lanaStr));
       } else {
-        logger.warn("No NetBIOS LANAs available");
+        setWin32LANA(-1); // all lanas is available;
+      }
+      // Check if the native NetBIOS interface has been specified, either
+      // 'winsock' or 'netbios'
+
+      String nativeAPI = winnbt.getProperty("nativeapi");
+      if (nativeAPI != null && nativeAPI.length() > 0) {
+        // Validate the API type
+
+        boolean useWinsock = true;
+
+        if (nativeAPI.equalsIgnoreCase("netbios"))
+          useWinsock = false;
+        else if (nativeAPI.equalsIgnoreCase("winsock") == false){
+          logger.error("Invalid NetBIOS API type, spefify 'winsock' or 'netbios'");
+          setSMBServerEnabled(false);
+          return;
+        }  
+        // Set the NetBIOS API to use
+
+        setWin32WinsockNetBIOS(useWinsock);
+      }
+
+      // Force the older NetBIOS API code to be used on 64Bit Windows
+
+      if (useWinsockNetBIOS() == true && X64.isWindows64()) {
+        // Log a warning
+
+        logger.warn("Using older Netbios() API code");
+
+        // Use the older NetBIOS API code
+
+        setWin32WinsockNetBIOS(false);
+      }
+
+      // Check if the current operating system is supported by the Win32
+      // NetBIOS handler
+
+      String osName = System.getProperty("os.name");
+      if (osName.startsWith("Windows") &&
+          (osName.endsWith("95") == false && osName.endsWith("98") == false && osName
+              .endsWith("ME") == false)) {
+
+        // Call the Win32NetBIOS native code to make sure it is initialized
+
+        if (Win32NetBIOS.LanaEnumerate() != null) {
+          // Enable Win32 NetBIOS
+
+          setWin32NetBIOS(true);
+        } else {
+          logger.warn("No NetBIOS LANAs available");
+        }
+      } else {
+
+        // Win32 NetBIOS not supported on the current operating system
+
+        setWin32NetBIOS(false);
       }
     } else {
 
-      // Win32 NetBIOS not supported on the current operating system
+      // Disable Win32 NetBIOS
 
       setWin32NetBIOS(false);
     }
 
+
     // Check if the host announcer should be enabled
     // win32 announcer
     setWin32HostAnnounceInterval(5);
-    setWin32HostAnnouncer(true);
+    setWin32HostAnnouncer(false);
 
     // Check if NetBIOS and/or TCP/IP SMB have been enabled
 
-    if (hasNetBIOSSMB() == false && hasTcpipSMB() == false
-        && hasWin32NetBIOS() == false) {
+    if (hasNetBIOSSMB() == false && hasTcpipSMB() == false &&
+        hasWin32NetBIOS() == false) {
       setSMBServerEnabled(false);
     } else {
       setSMBServerEnabled(true);
@@ -338,8 +467,8 @@ public class ServerConfiguration {
 
         int idx = 0;
 
-        while (idx < m_sessDbgStr.length
-            && m_sessDbgStr[idx].equalsIgnoreCase(dbg) == false)
+        while (idx < m_sessDbgStr.length &&
+            m_sessDbgStr[idx].equalsIgnoreCase(dbg) == false)
           idx++;
         // Set the debug flag
 
@@ -406,7 +535,7 @@ public class ServerConfiguration {
     // Check if the host announcer should be enabled
 
     // Check if NetBIOS SMB is enabled
-    setNetBIOSSMB(false);
+    setNetBIOSSMB(true);
 
     // Check if TCP/IP SMB is enabled
     setTcpipSMB(false);
@@ -423,7 +552,7 @@ public class ServerConfiguration {
     if (nativeAPI != null && nativeAPI.length() > 0) {
       // Validate the API type
 
-      boolean useWinsock = true;
+      boolean useWinsock = false;
 
       if (nativeAPI.equalsIgnoreCase("netbios"))
         useWinsock = false;
@@ -452,8 +581,8 @@ public class ServerConfiguration {
     // NetBIOS handler
 
     String osName = System.getProperty("os.name");
-    if (osName.startsWith("Windows")
-        && (osName.endsWith("95") == false && osName.endsWith("98") == false && osName
+    if (osName.startsWith("Windows") &&
+        (osName.endsWith("95") == false && osName.endsWith("98") == false && osName
             .endsWith("ME") == false)) {
 
       // Call the Win32NetBIOS native code to make sure it is
@@ -480,8 +609,8 @@ public class ServerConfiguration {
 
     // Check if NetBIOS and/or TCP/IP SMB have been enabled
 
-    if (hasNetBIOSSMB() == false && hasTcpipSMB() == false
-        && hasWin32NetBIOS() == false) {
+    if (hasNetBIOSSMB() == false && hasTcpipSMB() == false &&
+        hasWin32NetBIOS() == false) {
       setSMBServerEnabled(false);
     } else {
       setSMBServerEnabled(true);
@@ -513,8 +642,8 @@ public class ServerConfiguration {
 
         int idx = 0;
 
-        while (idx < m_sessDbgStr.length
-            && m_sessDbgStr[idx].equalsIgnoreCase(dbg) == false)
+        while (idx < m_sessDbgStr.length &&
+            m_sessDbgStr[idx].equalsIgnoreCase(dbg) == false)
           idx++;
         // Set the debug flag
 
@@ -874,4 +1003,76 @@ public class ServerConfiguration {
     return repoName;
   }
 
+  /**
+   * Return the NetBIOS session port
+   * 
+   * @return int
+   */
+  public final int getNetBIOSSessionPort() {
+    return m_nbSessPort;
+  }
+
+  /**
+   * Return the local address that the SMB server should bind to.
+   * 
+   * @return java.net.InetAddress
+   */
+  public final InetAddress getSMBBindAddress() {
+    return m_smbBindAddress;
+  }
+
+  /**
+   * Determine if the server should be announced so that it appears under
+   * Network Neighborhood.
+   * 
+   * @return boolean
+   */
+  public final boolean hasEnableAnnouncer() {
+    return m_announce;
+  }
+
+  /**
+   * Return the NetBIOS datagram port
+   * 
+   * @return int
+   */
+  public final int getNetBIOSDatagramPort() {
+    return m_nbDatagramPort;
+  }
+
+  /**
+   * Return the host announcement interval, in minutes
+   * 
+   * @return int
+   */
+  public final int getHostAnnounceInterval() {
+    return m_announceInterval;
+  }
+
+  /**
+   * Return the server type flags.
+   * 
+   * @return int
+   */
+  public final int getServerType() {
+    return m_srvType;
+  }
+
+  /**
+   * Return the native SMB port
+   * 
+   * @return int
+   */
+  public final int getTcpipSMBPort() {
+    return m_tcpSMBPort;
+  }
+
+  /**
+   * Determine if the SMB server should bind to a particular local address
+   * 
+   * @return boolean
+   */
+  public final boolean hasSMBBindAddress() {
+    return m_smbBindAddress != null ? true : false;
+  }
 }
