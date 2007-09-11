@@ -63,19 +63,20 @@ import org.apache.maven.wagon.observers.ChecksumObserver;
  * ---------------jcr:content
  * ---------------exo:md5
  * ---------------exo:sha1
- * ------------artifact-metadata-file (nt:file/(nt:resource + exo:metadata))
+ * ------------artifact-metadata-file (nt:file/(nt:resource + exo:mavenmetadata))
  * ---------------jcr:content
  * ---------------exo:md5
  * ---------------exo:sha1
  * 
  * @author Gennady Azarenkov
+ * @author Volodymyr Krasnikov
  * @version $Id: $
  */
 public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		Startable {
 
 	private static final String STRING_TERMINATOR = "*";
-	private static final String NT_FILE = "conf/artifact-nodetypes.xml";
+	private static final String NT_FILE = "artifact-nodetypes.xml";
 	private RepositoryService repositoryService;
 	private RegistryService registryService;
 	private InitParams initParams;
@@ -415,7 +416,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		String mimeType = "text/xml";
 		xmlContent.setProperty("jcr:mimeType", mimeType);
 		xmlContent.setProperty("jcr:lastModified", Calendar.getInstance());
-		xmlContent.addMixin("exo:metadata");
+		xmlContent.addMixin("exo:mavenmetadata");
 		
 		try {
 			File temp = createSingleMetadata(groupId, artifactId, version);
