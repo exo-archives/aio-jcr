@@ -35,7 +35,7 @@
 			<!-- Broadcast mask, if not specified 255.255.255.0 assign -->
 			<value-param>
 			       <name>broadcast_mask</name>
-			       <value>255.255.255.0</value>
+			       <value>255.255.255.255</value>
 			</value-param>
 			
 			
@@ -58,21 +58,27 @@
 				<value>This server is specific SMB server which works with JCR
 					repository.</value>
 			</value-param>
-
+			
+			<!--Bind server to address, if not specified used ALL adresses -->
+			<!--value-param>
+			        <name>bind_address</name>
+			        <value>192.168.0.66</value>
+			</value-param-->
+			
                         <!-- NetBios (Java impl) configuration-->
                         <properties-param>
  		            <name>netbios_java</name>
  		            <property name="enabled" value="true"/>
- 		            <property name="session_port" value="139"/>
- 		            <property name="datagram_port" value="138"/>
- 		            <property name="name_port" value="137"/>
+ 		            <property name="session_port" value="1139"/>
+ 		            <property name="datagram_port" value="1138"/>
+ 		            <property name="name_port" value="1137"/>
  		        </properties-param>
 
                         <!-- TcpIp transport configuration-->
                         <properties-param>
  		            <name>tcpip</name>
  		            <property name="enabled" value="false"/>
- 		            <property name="port" value="445"/>
+ 		            <property name="port" value="1445"/>
  		        </properties-param>
 
 			<!--use JNI NetBIOS SMB transport layer - only for Windows-->
