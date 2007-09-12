@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Node;
+import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
@@ -581,6 +582,62 @@ public class TestAccess extends BaseStandaloneTest {
         SystemIdentity.ANY));
     testRemoveSpecifiedNode.remove();
     session1.save();
+  }
+  public void testOperationsByOwner() throws Exception {
+    
+    Session session1 = repository.login(new CredentialsImpl("exo1", "exo1".toCharArray()));
+    Node accessTestRoot1 = session1.getRootNode().getNode("accessTestRoot");
+    
+    accessTestRoot1.addMixin("exo:privilegeable");
+    
+    Node testByOwnerNode =  accessTestRoot1.addNode("testByOwnerNode");
+    testByOwnerNode.addMixin("exo:owneable");
+    testByOwnerNode.addMixin("exo:privilegeable");
+     
+    session1.save();
+    session1.logout();
+    
+    
+    accessTestRoot = (ExtendedNode) session.getRootNode().getNode("accessTestRoot");
+    
+    accessTestRoot.setPermission(accessTestRoot.getSession().getUserID(),PermissionType.ALL);
+    accessTestRoot.removePermission("exo1");
+    accessTestRoot.removePermission(SystemIdentity.ANY);
+    accessTestRoot.setPermission("exo1",new String[] { PermissionType.READ});
+    
+    ExtendedNode testByOwnerNodeSystem =  (ExtendedNode) accessTestRoot.getNode("testByOwnerNode");
+    testByOwnerNodeSystem.setPermission(accessTestRoot.getSession().getUserID(),PermissionType.ALL);
+    testByOwnerNodeSystem.removePermission("exo1");
+    testByOwnerNodeSystem.removePermission(SystemIdentity.ANY);
+    testByOwnerNodeSystem.setPermission("exo1",new String[] { PermissionType.READ});
+    
+    session.save();
+    
+    
+    
+    session1 = repository.login(new CredentialsImpl("exo1", "exo1".toCharArray()));
+    accessTestRoot1 = session1.getRootNode().getNode("accessTestRoot");
+    testByOwnerNode = accessTestRoot1.getNode("testByOwnerNode");
+    try {
+      Property prop = testByOwnerNode.setProperty("prop1", "val1");
+      session1.save();
+      prop.remove();
+      session1.save();
+      Node test2 = testByOwnerNode.addNode("test2");
+      session1.save();
+      test2.remove();
+      session1.save();
+    } catch (AccessControlException e) {
+      fail("AccessControlException should not have been thrown ");
+    }
+    try {
+      testByOwnerNode.remove();
+      session1.save();
+      fail();
+    } catch (AccessDeniedException e) {
+      //fail("AccessControlException should not have been thrown ");
+    } 
+    
   }
   
   
