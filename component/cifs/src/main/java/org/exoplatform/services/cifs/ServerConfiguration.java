@@ -235,7 +235,10 @@ public class ServerConfiguration {
     setServerName(hostName);
 
     // Set the domain/workgroup name
-    // also Win32netBios.dll availability check
+    
+    m_localDomain = "OFFICE";
+    
+    // also Win32netBios.dll availability check in Windows platform case
     try {
       setDomainName(getLocalDomainName().toUpperCase());
     } catch (UnsatisfiedLinkError e) {
