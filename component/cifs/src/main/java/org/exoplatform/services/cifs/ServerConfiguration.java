@@ -239,9 +239,11 @@ public class ServerConfiguration {
     try {
       setDomainName(getLocalDomainName().toUpperCase());
     } catch (UnsatisfiedLinkError e) {
+      e.printStackTrace();
       setSMBServerEnabled(false);
       return;
     } catch (Exception e) {
+      e.printStackTrace();
       setSMBServerEnabled(false);
       return;
     }
