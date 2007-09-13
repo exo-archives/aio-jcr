@@ -2102,13 +2102,13 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Create the file open parameters
 
-    SMBDate crDateTime = null;
+    long crDateTime = 0L;
     if (crTime > 0 && crDate > 0)
-      crDateTime = new SMBDate(crDate, crTime);
+      crDateTime = new SMBDate(crDate, crTime).getTime();
     logger.debug("openFunction [" + openFunc + "] TEMPORARY");
 
     FileOpenParams params = new FileOpenParams(fileName, stream, openFunc,
-        access, srchAttr, fileAttr, allocSiz, crDateTime.getTime());
+        access, srchAttr, fileAttr, allocSiz, crDateTime);
 
     // Debug
 
