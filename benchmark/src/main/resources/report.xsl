@@ -108,8 +108,10 @@
                 <tr><th><b>driver</b></th>
                     <th><b>nOfThreads</b></th>
                     <th><b>testCase</b></th>
-                    
-                    <xsl:for-each select="rep:testCase[1]/*[namespace-uri(.)!='']">
+                    <xsl:for-each select="rep:testCase[1]/*[namespace-uri(.)!='' and name()='resultValue']">
+                        <th><b><xsl:value-of select="name()"/></b></th>
+                    </xsl:for-each>
+                    <xsl:for-each select="rep:testCase[1]/*[namespace-uri(.)!='' and name()!='resultValue']">
                         <th><b><xsl:value-of select="name()"/></b></th>
                     </xsl:for-each>
                     <xsl:for-each select="rep:testCase[1]/*[namespace-uri(.)='']">
@@ -137,7 +139,20 @@
                   </td>          
                    <td align="right">
                         <xsl:value-of select="@name"/></td>     
-                        <xsl:for-each select="*[namespace-uri(.)!='']">
+                        <xsl:for-each select="*[namespace-uri(.)!='' and name()='resultValue']">
+                            <td align="right"><nobr>                          
+                                <xsl:variable name="value" select="."/>
+                                <xsl:choose>
+                                    <xsl:when test="$value = 'NaN'">
+                                        <font color="red"><xsl:value-of select="$value"/></font>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:value-of select="$value"/>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </nobr></td>
+                        </xsl:for-each>
+                        <xsl:for-each select="*[namespace-uri(.)!='' and name()!='resultValue']">
                             <td align="right"><nobr>                          
                                 <xsl:variable name="value" select="."/>
                                 <xsl:choose>
