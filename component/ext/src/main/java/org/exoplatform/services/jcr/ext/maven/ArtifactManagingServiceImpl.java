@@ -83,7 +83,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 	private String repoWorkspaceName;
 	private String repoPath;
 
-	private static Logger logger = Logger.getLogger(ArtifactManagingServiceImpl.class);
+	private static Logger LOGGER = Logger.getLogger(ArtifactManagingServiceImpl.class);
 
 	/**
 	 * @param params
@@ -100,8 +100,8 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 
 		SimpleLayout layout = new SimpleLayout();
 		ConsoleAppender appender = new ConsoleAppender(layout);
-		logger.addAppender(appender);
-		logger.setLevel(Level.DEBUG);
+		LOGGER.addAppender(appender);
+		LOGGER.setLevel(Level.DEBUG);
 	}
 
 	/**
@@ -134,30 +134,30 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 	public void addArtifact(SessionProvider sp, ArtifactDescriptor artifact,
 			File jarFile, File pomFile) throws RepositoryException {
 		
-		logger.debug("Starting adding artifact to Repository");
-		logger.debug("Get session via SessionProvider");
+		LOGGER.debug("Starting adding artifact to Repository");
+		LOGGER.debug("Get session via SessionProvider");
 		Session session = currentSession(sp);
 		Node rootNode = session.getRootNode();
 		
-		logger.debug("Create groupId path structure");
+		LOGGER.debug("Create groupId path structure");
 		Node groupId_tail = createGroupIdLayout(rootNode, artifact );
 		
-		logger.debug("Create artifactId path structure");
+		LOGGER.debug("Create artifactId path structure");
 		Node artifactId_node = createArtifactIdLayout(groupId_tail, artifact);
 		
-		logger.debug("Create versionId path structure");
+		LOGGER.debug("Create versionId path structure");
 		Node version_node = createVersionLayout(artifactId_node, artifact);
 		
-		logger.debug("Importing JAR");
+		LOGGER.debug("Importing JAR");
 		importJar( version_node, jarFile );
 		
-		logger.debug("Importing POM");
+		LOGGER.debug("Importing POM");
 		importPom( version_node, pomFile );
 		
-		logger.debug("Generating metadata");
+		LOGGER.debug("Generating metadata");
 		importMetadata( version_node, artifact );
 		
-		logger.debug("Finishing with adding artifact to Repository");
+		LOGGER.debug("Finishing with adding artifact to Repository");
 		
 		session.save();
 
@@ -187,9 +187,9 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 	public List<Descriptor> getDescriptors(SessionProvider sp,
 			FolderDescriptor parentFolder) throws RepositoryException {
 		// TODO Auto-generated method stub
-		logger.debug("Starting getDescriptors with parentFolder : "
+		LOGGER.debug("Starting getDescriptors with parentFolder : "
 				+ parentFolder.getAsString());
-		logger.debug("Getting session via SessionProvider");
+		LOGGER.debug("Getting session via SessionProvider");
 		Session session = currentSession(sp);
 		Node rootNode = session.getRootNode();
 		String strPath = parentFolder.getAsPath();
@@ -204,7 +204,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 					.getName());
 			childNodes.add(descriptor);
 		}
-		logger.debug("Finishing with browsing artifacts");
+		LOGGER.debug("Finishing with browsing artifacts");
 		return (childNodes.size() == 0) ? null : childNodes;
 	}
 
@@ -259,31 +259,31 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		// present
 		// if Entry is not initialized yet (first launch)
 		// 3. initializing maven root if not initialized
-		logger.debug("Starting ArtifactManagingService ...");
+		LOGGER.debug("Starting ArtifactManagingService ...");
 		
 		SessionProvider sessionProvider = SessionProvider
 				.createSystemProvider();
 		try {
-			logger.debug("Step 1");
+			LOGGER.debug("Step 1");
 			InputStream xml = getClass().getResourceAsStream(NT_FILE);
 			
-			logger.debug("Step 2");
+			LOGGER.debug("Step 2");
 			ManageableRepository rep = repositoryService.getCurrentRepository();
 			
-			logger.debug("Step 3");
+			LOGGER.debug("Step 3");
 			rep.getNodeTypeManager().registerNodeTypes(xml,
 					ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
 
-			logger.debug("Step 4");
+			LOGGER.debug("Step 4");
 			registryService.getEntry(sessionProvider,
 					RegistryService.EXO_SERVICES, "ArtifactManaging");
 			
-			logger.debug("Started successful");
+			LOGGER.debug("Started successful");
 			// TODO if registryService != null get workspaceName and rootPath
 			// from registryService
 			// else get it from init params
 		} catch (ItemNotFoundException e) {
-			logger.debug("Getting workspaceName and rootPath from initParams");
+			LOGGER.debug("Getting workspaceName and rootPath from initParams");
 			
 			// TODO get workspaceName and rootPath from initParams
 
@@ -427,10 +427,10 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 				xmlContent.setProperty("exo:md5", getChecksum(temp,	"MD5"));
 				xmlContent.setProperty("exo:sha1", getChecksum(temp, "SHA-1"));
 			} catch (NoSuchAlgorithmException e) {
-				logger.error("Wrong algorigthm used", e);
+				LOGGER.error("Wrong algorigthm used", e);
 			}
 		} catch (IOException e) {
-			logger.error("File IO error", e);
+			LOGGER.error("File IO error", e);
 		}
 	}
 
@@ -454,10 +454,10 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 				jarContent.setProperty("exo:md5", getChecksum(jarFile,	"MD5"));
 				jarContent.setProperty("exo:sha1", getChecksum(jarFile, "SHA-1"));
 			} catch (NoSuchAlgorithmException e) {
-				logger.error("Wrong algorigthm used", e);
+				LOGGER.error("Wrong algorigthm used", e);
 			}
 		}catch (IOException e) {
-			logger.error("File IO error", e);
+			LOGGER.error("File IO error", e);
 		}
 
 	}
@@ -478,10 +478,10 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 				pomContent.setProperty("exo:md5", getChecksum(pomFile,	"MD5"));
 				pomContent.setProperty("exo:sha1", getChecksum(pomFile, "SHA-1"));
 			} catch (NoSuchAlgorithmException e) {
-				logger.error("Wrong algorigthm used", e);
+				LOGGER.error("Wrong algorigthm used", e);
 			}
 		}catch (IOException e) {
-			logger.error("File IO error", e);
+			LOGGER.error("File IO error", e);
 		}
 
 	}
@@ -503,7 +503,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 			checksum.transferCompleted(null);
 
 		} catch (IOException e) {
-			logger.error("Error reading from stream", e);
+			LOGGER.error("Error reading from stream", e);
 		}
 		return checksum.getActualChecksum();
 	}
@@ -542,10 +542,10 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 			}
 		}
 		catch(XMLStreamException e){
-			logger.error("Error on creating metadata - XML", e);
+			LOGGER.error("Error on creating metadata - XML", e);
 		}
 		catch(IOException e){
-			logger.error("Error on creating metadata - FILE", e);
+			LOGGER.error("Error on creating metadata - FILE", e);
 		}
 		return (temp.exists())?temp:null;
 	}
@@ -600,10 +600,10 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 			}
 		}
 		catch(XMLStreamException e){
-			logger.error("Error on creating metadata - XML", e);
+			LOGGER.error("Error on creating metadata - XML", e);
 		}
 		catch(IOException e){
-			logger.error("Error on creating metadata - FILE", e);
+			LOGGER.error("Error on creating metadata - FILE", e);
 		}
 		return (temp.exists())?temp:null;
 	}
