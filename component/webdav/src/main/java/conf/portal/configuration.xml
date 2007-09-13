@@ -62,6 +62,18 @@
 		</init-params>
 	</component>
 	
+	<!--
+		FOR LINK GENERATION
+		-->	
+	<component>
+		<key>org.exoplatform.services.webdav.lnkproducer.LnkProducer</key>
+		<type>org.exoplatform.services.webdav.lnkproducer.LnkProducer</type>
+	</component>
+		
+	<!--		
+		WEBDAV COMMANDS
+		-->
+	
 	<component>
 		<key>org.exoplatform.services.webdav.common.command.PropFindCommand</key>
 		<type>org.exoplatform.services.webdav.common.command.PropFindCommand</type>
