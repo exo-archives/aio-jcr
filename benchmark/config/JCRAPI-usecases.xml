@@ -42,7 +42,7 @@
 		<param name="jcr.lengthOfFile" value="10240" /><!-- 10K -->
 		<param name="jcr.lengthOfDcElementSetProperty" value="100" />
 		<param name="jcr.countOfDcElementSetProperties" value="5" /><!-- no more -->
-	  <!--<param name="japex.runIterationDelay"	value="5" />--><!-- ms -->
+	  <param name="japex.runIterationDelay"	value="0" /><!-- ms -->
 	</testCase>
 
 	<!--<testCase name="RandomReadNtFileWithMetadataTest">
