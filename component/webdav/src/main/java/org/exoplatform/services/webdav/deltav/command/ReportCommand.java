@@ -8,7 +8,6 @@ package org.exoplatform.services.webdav.deltav.command;
 import javax.jcr.AccessDeniedException;
 
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
-import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.InputTransformer;
 import org.exoplatform.services.rest.OutputTransformer;
@@ -61,9 +60,7 @@ public class ReportCommand extends WebDavCommand {
     try {
       String serverPrefix = getServerPrefix(repoName);
 
-      SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null);
-      
-      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, serverPrefix, repoPath);      
+      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, repoPath);      
       
       DocumentDispatcher documentDispatcher = new DocumentDispatcher(webDavService.getConfig(), requestDocument);
       

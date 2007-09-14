@@ -21,6 +21,7 @@ import org.exoplatform.services.rest.Response;
 import org.exoplatform.services.rest.container.ResourceContainer;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.WebDavService;
+import org.exoplatform.services.webdav.WebDavSessionProvider;
 import org.exoplatform.services.webdav.WebDavStatus;
 import org.exoplatform.services.webdav.common.BadRequestException;
 import org.exoplatform.services.webdav.common.document.XmlSerializable;
@@ -42,7 +43,7 @@ public abstract class WebDavCommand implements ResourceContainer {
   
   protected ResourceDispatcher resourceDispatcher;
   
-  protected ThreadLocalSessionProviderService sessionProviderService;
+  private ThreadLocalSessionProviderService sessionProviderService;
   
   public WebDavCommand(WebDavService webDavService, 
       ResourceDispatcher resourceDispatcher, 
@@ -50,6 +51,10 @@ public abstract class WebDavCommand implements ResourceContainer {
     this.webDavService = webDavService;
     this.resourceDispatcher = resourceDispatcher;
     this.sessionProviderService = sessionProviderService;
+  }
+  
+  public WebDavSessionProvider getSessionProvider() {
+    return (WebDavSessionProvider)sessionProviderService.getSessionProvider(null);
   }
 
   public String getServerPrefix(String repoName) {

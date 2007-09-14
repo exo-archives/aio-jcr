@@ -21,9 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
-import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
-import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.common.WebDavHeaders;
 
@@ -33,17 +31,13 @@ import org.exoplatform.services.webdav.common.WebDavHeaders;
  * @version $Id: $
  */
 
-public class WebDavSessionProviderFilter implements Filter {
+public abstract class SessionProviderFilter implements Filter {
   
   private static Log log = ExoLogger.getLogger("jcr.WebDavSessionProviderFilter");
   
   private ThreadLocalSessionProviderService providerService;
 
   public void init(FilterConfig config) throws ServletException {
-    ExoContainer container = ExoContainerContext.getCurrentContainer();
-    
-    providerService = (ThreadLocalSessionProviderService) container
-      .getComponentInstanceOfType(ThreadLocalSessionProviderService.class);
   }
   
   public void destroy() {
@@ -64,13 +58,22 @@ public class WebDavSessionProviderFilter implements Filter {
     }    
     
     return lockTokens;
-  }  
+  }
+  
+  protected abstract ExoContainer getContainer();
   
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) 
     throws IOException, ServletException {
+    
+    if (providerService == null) {
+      ExoContainer container = getContainer();
 
+      providerService = (ThreadLocalSessionProviderService) container
+        .getComponentInstanceOfType(ThreadLocalSessionProviderService.class);
+    }
+    
     HttpServletRequest httpRequest = (HttpServletRequest) request;
-
+    
     Credentials credentials = null;    
     
     String authenticateHeader = httpRequest.getHeader(WebDavHeaders.AUTHORIZATION);
@@ -101,11 +104,12 @@ public class WebDavSessionProviderFilter implements Filter {
     
     ArrayList<String> lockTokens = getLockTokens(lockTokenHeader, ifHeader);
     
-    SessionProvider provider = new SessionProvider(credentials, lockTokens); //providerService.getSessionProvider(null);
+    WebDavSessionProvider provider = new WebDavSessionProvider(credentials, lockTokens);
 
     providerService.setSessionProvider(null, provider);
 
-    chain.doFilter(request, response);    
+    chain.doFilter(request, response);
+    
   }  
   
 }

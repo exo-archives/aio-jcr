@@ -11,10 +11,8 @@ import javax.jcr.query.InvalidQueryException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
-import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.HTTPMethod;
-import org.exoplatform.services.rest.HeaderParam;
 import org.exoplatform.services.rest.InputTransformer;
 import org.exoplatform.services.rest.OutputTransformer;
 import org.exoplatform.services.rest.ResourceDispatcher;
@@ -27,7 +25,6 @@ import org.exoplatform.services.webdav.WebDavService;
 import org.exoplatform.services.webdav.WebDavStatus;
 import org.exoplatform.services.webdav.WebDavXmlInputTransformer;
 import org.exoplatform.services.webdav.common.BadRequestException;
-import org.exoplatform.services.webdav.common.WebDavHeaders;
 import org.exoplatform.services.webdav.common.command.WebDavCommand;
 import org.exoplatform.services.webdav.common.request.DocumentDispatcher;
 import org.exoplatform.services.webdav.common.request.documents.RequestDocument;
@@ -71,9 +68,7 @@ public class SearchCommand extends WebDavCommand {
     try {
       String serverPrefix = getServerPrefix(repoName);
       
-      SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null);
-      
-      SearchableResourceLocator resourceLocator = new SearchableResourceLocatorImpl(webDavService, sessionProvider, serverPrefix, repoPath);
+      SearchableResourceLocator resourceLocator = new SearchableResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, repoPath);
       
       DocumentDispatcher documentDispatcher = new DocumentDispatcher(webDavService.getConfig(), requestDocument);
       

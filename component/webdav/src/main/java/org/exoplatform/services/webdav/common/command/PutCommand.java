@@ -30,6 +30,7 @@ import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.WebDavMethod;
 import org.exoplatform.services.webdav.WebDavService;
+import org.exoplatform.services.webdav.WebDavSessionProvider;
 import org.exoplatform.services.webdav.WebDavStatus;
 import org.exoplatform.services.webdav.common.WebDavHeaders;
 import org.exoplatform.services.webdav.common.resource.AbstractNodeResource;
@@ -96,9 +97,7 @@ public class PutCommand extends NodeTypedCommand {
         nodeType = webDavService.getConfig().getDefFileNodeType();
       }      
       
-      SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null);
-      
-      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, serverPrefix, repoPath);      
+      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, repoPath);      
       
       ArrayList<String> mixinTypes = getMixinTypes(mixinTypesHeader);
       
@@ -111,7 +110,7 @@ public class PutCommand extends NodeTypedCommand {
       WebDavResource resource = resourceLocator.getSrcResource(true);
 
       if (resource instanceof FakeResource) {
-        checkLocked(resource.getHref(), sessionProvider);
+        checkLocked(resource.getHref(), getSessionProvider());
         Session session = ((FakeResource)resource).getSession(); 
         createNtFile(session, fileDirectory, fileName, inputStream, mimeType, nodeType);
         return Response.Builder.withStatus(WebDavStatus.CREATED).build();
@@ -139,7 +138,7 @@ public class PutCommand extends NodeTypedCommand {
   }
   
 
-  private void checkLocked(String sourceHref,  SessionProvider sessionProvider) throws LockException {
+  private void checkLocked(String sourceHref, WebDavSessionProvider sessionProvider) throws LockException {
     FakeLockTable lockTable = webDavService.getLockTable();      
     String presentLockToken = lockTable.getLockToken(sourceHref);
     

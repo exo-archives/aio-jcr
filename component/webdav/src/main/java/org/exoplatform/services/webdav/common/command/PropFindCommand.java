@@ -81,9 +81,7 @@ public class PropFindCommand extends WebDavCommand {
     try {
       String serverPrefix = getServerPrefix(repoName);
       
-      SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null);
-      
-      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, serverPrefix, repoPath);      
+      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, repoPath);      
       
       DocumentDispatcher documentDispatcher = new DocumentDispatcher(webDavService.getConfig(), requestDocument);
       

@@ -11,7 +11,6 @@ import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
 
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
-import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.HeaderParam;
 import org.exoplatform.services.rest.InputTransformer;
@@ -62,9 +61,7 @@ public class MkColCommand extends NodeTypedCommand {
     try {
       String serverPrefix = getServerPrefix(repoName);
       
-      SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null);
-      
-      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, serverPrefix, repoPath);
+      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, repoPath);
       
       String nodeType = getNodeType(nodeTypeHeader); 
       

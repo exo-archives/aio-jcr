@@ -61,14 +61,12 @@ public class GetCommand extends WebDavCommand {
     try {
       String serverPrefix = getServerPrefix(repoName);
       
-      SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null);
-      
       WebDavResourceLocator resourceLocator = null;
 
       if (versionId != null) {
-        resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, serverPrefix, repoPath, versionId);        
+        resourceLocator = new WebDavResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, repoPath, versionId);        
       } else {
-        resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, serverPrefix, repoPath);
+        resourceLocator = new WebDavResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, repoPath);
       }
       
       long rangeStart = -1;

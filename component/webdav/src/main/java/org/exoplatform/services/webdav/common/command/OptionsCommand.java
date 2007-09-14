@@ -53,9 +53,7 @@ public class OptionsCommand extends WebDavCommand {
     try {
       String serverPrefix = getServerPrefix(repoName);
       
-      SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null);
-      
-      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, serverPrefix, null);      
+      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, null);      
       
       DocumentDispatcher documentDispatcher = new DocumentDispatcher(webDavService.getConfig(), requestDocument);
       
@@ -79,9 +77,7 @@ public class OptionsCommand extends WebDavCommand {
     try {
       String serverPrefix = getServerPrefix(repoName);
       
-      SessionProvider sessionProvider = sessionProviderService.getSessionProvider(null);
-      
-      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, serverPrefix, repoPath);      
+      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, repoPath);      
       
       DocumentDispatcher documentDispatcher = new DocumentDispatcher(webDavService.getConfig(), requestDocument);
       
