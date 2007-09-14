@@ -13,10 +13,8 @@ import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
-import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SARL
@@ -26,15 +24,11 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class WebDavSessionProvider extends SessionProvider {
   
-  private static Log log = ExoLogger.getLogger("jcr.WebDavSessionProvider");
-  
   private ArrayList<String> lockTokens = new ArrayList<String>();
   
   public WebDavSessionProvider(Credentials cred, ArrayList<String> lockTokens) {
     super(cred);
     this.lockTokens = lockTokens;
-    
-    log.info("construct...");
   }
 
   public ArrayList<String> getLockTokens() {
@@ -57,7 +51,6 @@ public class WebDavSessionProvider extends SessionProvider {
       String token = lockTokens.get(i);
       if (!sessionTokensList.contains(token)) {
         session.addLockToken(token);
-        log.info("added token: " + token);
       }      
     }
 
