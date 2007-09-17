@@ -50,7 +50,14 @@ public class LnkProducer implements ResourceContainer {
       @QueryParam("path") String path
       ) {
     
-    String contextHref = resourceDispatcher.getRuntimeContext().getContextHref() + "/jcr";
+    String contextHref = resourceDispatcher.getRuntimeContext().getContextHref();
+    
+    if (contextHref.endsWith("portal")) {
+      contextHref += "/rest";
+    }
+    
+    contextHref += "/jcr";
+    //log.info("using context href: " + contextHref);
     
     Context context = resourceDispatcher.getRuntimeContext();
     String hostName = context.getServerName();
