@@ -169,9 +169,7 @@ public class TestNode extends JcrAPIBaseTest{
     subRoot.remove();
     root.save();
     //subRoot.save(); ipossible to call save() on removed node
-
   }
-
 
   public void testGetNodes() throws RepositoryException {
     session = (SessionImpl)repository.login(credentials, WORKSPACE);

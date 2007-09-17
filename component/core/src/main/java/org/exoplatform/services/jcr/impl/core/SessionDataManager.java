@@ -61,8 +61,7 @@ public class SessionDataManager implements ItemDataConsumer {
 
   public static final int                    MERGE_ITEMS = 3;
 
-  protected static Log                       log         = ExoLogger
-                                                             .getLogger("jcr.SessionDataManager");
+  protected static Log                       log = ExoLogger.getLogger("jcr.SessionDataManager");
 
   protected final SessionImpl                session;
 
@@ -167,23 +166,31 @@ public class SessionDataManager implements ItemDataConsumer {
    *      org.exoplatform.services.jcr.datamodel.QPathEntry)
    */
   public ItemData getItemData(NodeData parent, QPathEntry name) throws RepositoryException {
-
-    if (name.getName().equals(JCRPath.PARENT_RELPATH)
-        && name.getNamespace().equals(Constants.NS_DEFAULT_URI)) {
-      return getItemData(parent.getParentIdentifier());
-    }
+    //long start = System.currentTimeMillis();
+    //if (log.isDebugEnabled())
+    //  log.debug("getItemData(" + parent.getQPath().getAsString() + " + " + name.getAsString() + " ) >>>>>");
     
-    ItemData data = null;
-
-    // 1. Try in transient changes
-    ItemState state = changesLog.getItemState(parent, name);
-    if (state == null) {
-      // 2. Try from txdatamanager
-      data = transactionableManager.getItemData(parent, name);
-    } else if (!state.isDeleted()) {
-      data = state.getData();
+    try {
+      if (name.getName().equals(JCRPath.PARENT_RELPATH)
+          && name.getNamespace().equals(Constants.NS_DEFAULT_URI)) {
+        return getItemData(parent.getParentIdentifier());
+      }
+      
+      ItemData data = null;
+  
+      // 1. Try in transient changes
+      ItemState state = changesLog.getItemState(parent, name);
+      if (state == null) {
+        // 2. Try from txdatamanager
+        data = transactionableManager.getItemData(parent, name);
+      } else if (!state.isDeleted()) {
+        data = state.getData();
+      }
+      return data;
+    } finally {
+      //if (log.isDebugEnabled())
+      //  log.debug("getItemData(" + parent.getQPath().getAsString() + " + " + name.getAsString() + ") <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
     }
-    return data;
   }
 
   /**
@@ -196,16 +203,25 @@ public class SessionDataManager implements ItemDataConsumer {
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(java.lang.String)
    */
   public ItemData getItemData(String identifier) throws RepositoryException {
-    ItemData data = null;
-    // 1. Try in transient changes
-    ItemState state = changesLog.getItemState(identifier);
-    if (state == null) {
-      // 2. Try from txdatamanager
-      data = transactionableManager.getItemData(identifier);
-    } else if (!state.isDeleted()) {
-      data = state.getData();
+    //long start = System.currentTimeMillis();
+    //if (log.isDebugEnabled())
+    //  log.debug("getItemData(" + identifier + " ) >>>>>");
+        
+    try {
+      ItemData data = null;
+      // 1. Try in transient changes
+      ItemState state = changesLog.getItemState(identifier);
+      if (state == null) {
+        // 2. Try from txdatamanager
+        data = transactionableManager.getItemData(identifier);
+      } else if (!state.isDeleted()) {
+        data = state.getData();
+      }
+      return data;
+    } finally {
+      //if (log.isDebugEnabled())
+      //  log.debug("getItemData(" + identifier + ") <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
     }
-    return data;
   }
 
   /**
@@ -218,22 +234,33 @@ public class SessionDataManager implements ItemDataConsumer {
    * @throws RepositoryException
    */
   public ItemImpl getItem(NodeData parent, QPathEntry name, boolean pool) throws RepositoryException {
-    ItemData itemData = getItemData(parent, name);
-    if (itemData == null)
-      return null;
-
-    ItemImpl item = itemFactory.createItem(itemData);
-    session.getActionHandler().postRead(item);
-    if (!item.hasPermission(PermissionType.READ)) {
-      throw new AccessDeniedException("Access denied "
-          + QPath.makeChildPath(parent.getQPath(), new QPathEntry[] { name }).getAsString()
-          + " for " + session.getUserID() + " (get item by path)");
+    long start = System.currentTimeMillis();
+    if (log.isDebugEnabled())
+      log.debug("getItem(" + parent.getQPath().getAsString() + " + " + name.getAsString() + " ) >>>>>");
+    
+    ItemImpl item = null;
+    try {
+      ItemData itemData = getItemData(parent, name);
+      if (itemData == null)
+        return null;
+  
+      item = itemFactory.createItem(itemData);
+      session.getActionHandler().postRead(item);
+      if (!item.hasPermission(PermissionType.READ)) {
+        throw new AccessDeniedException("Access denied "
+            + QPath.makeChildPath(parent.getQPath(), new QPathEntry[] { name }).getAsString()
+            + " for " + session.getUserID() + " (get item by path)");
+      }
+  
+      if (pool)
+        return itemsPool.get(item);
+  
+      return item;
+    } finally {
+      if (log.isDebugEnabled())
+        log.debug("getItem(" + parent.getQPath().getAsString() + " + " + name.getAsString() + ") --> " + (item != null ? item.getPath() : "null") 
+            + " <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
     }
-
-    if (pool)
-      return itemsPool.get(item);
-
-    return item;
   }
 
   /**
@@ -248,23 +275,43 @@ public class SessionDataManager implements ItemDataConsumer {
    * @throws RepositoryException
    */
   public ItemImpl getItem(NodeData parent, QPathEntry[] relPath, boolean pool) throws RepositoryException {
-    ItemData itemData = getItemData(parent, relPath);
-    if (itemData == null)
-      return null;
-
-    ItemImpl item = itemFactory.createItem(itemData);
-    session.getActionHandler().postRead(item);
-    if (!item.hasPermission(PermissionType.READ)) {
-      throw new AccessDeniedException("Access denied "
-          + QPath.makeChildPath(parent.getQPath(), relPath).getAsString() + " for "
-          + session.getUserID() + " (get item by path)");
+    long start = System.currentTimeMillis();
+    if (log.isDebugEnabled()) {
+      String debugPath = "";
+      for (QPathEntry rp: relPath) {
+        debugPath += rp.getAsString();
+      }
+      log.debug("getItem(" + parent.getQPath().getAsString() + " + " + debugPath + " ) >>>>>");
     }
-
-    if (pool)
-      return itemsPool.get(item);
-
-    return item;
-
+    
+    ItemImpl item = null;
+    try {
+      ItemData itemData = getItemData(parent, relPath);
+      if (itemData == null)
+        return null;
+  
+      item = itemFactory.createItem(itemData);
+      session.getActionHandler().postRead(item);
+      if (!item.hasPermission(PermissionType.READ)) {
+        throw new AccessDeniedException("Access denied "
+            + QPath.makeChildPath(parent.getQPath(), relPath).getAsString() + " for "
+            + session.getUserID() + " (get item by path)");
+      }
+  
+      if (pool)
+        return itemsPool.get(item);
+  
+      return item;
+    } finally {
+      if (log.isDebugEnabled()) {
+        String debugPath = "";
+        for (QPathEntry rp: relPath) {
+          debugPath += rp.getAsString();
+        }
+        log.debug("getItem(" + parent.getQPath().getAsString() + " + " + debugPath + ") --> " + (item != null ? item.getPath() : "null") 
+            + " <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
+      }
+    }
   }
 
   /**
@@ -277,22 +324,32 @@ public class SessionDataManager implements ItemDataConsumer {
    * @throws RepositoryException
    */
   public ItemImpl getItem(QPath path, boolean pool) throws RepositoryException {
-
-    ItemData itemData = getItemData(path);
-    if (itemData == null)
-      return null;
-
-    ItemImpl item = itemFactory.createItem(itemData);
-    session.getActionHandler().postRead(item);
-    if (!item.hasPermission(PermissionType.READ)) {
-      throw new AccessDeniedException("Access denied " + path.getAsString() + " for "
-          + session.getUserID() + " (get item by path)");
+    long start = System.currentTimeMillis();
+    if (log.isDebugEnabled())
+      log.debug("getItem(" + path.getAsString() + " ) >>>>>");
+    
+    ItemImpl item = null;
+    try {
+      ItemData itemData = getItemData(path);
+      if (itemData == null)
+        return null;
+  
+      item = itemFactory.createItem(itemData);
+      session.getActionHandler().postRead(item);
+      if (!item.hasPermission(PermissionType.READ)) {
+        throw new AccessDeniedException("Access denied " + path.getAsString() + " for "
+            + session.getUserID() + " (get item by path)");
+      }
+  
+      if (pool)
+        return itemsPool.get(item);
+  
+      return item;
+    } finally {
+      if (log.isDebugEnabled())
+        log.debug("getItem(" + path.getAsString() + ") --> " + (item != null ? item.getPath() : "null") 
+            + " <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
     }
-
-    if (pool)
-      return itemsPool.get(item);
-
-    return item;
   }
 
   /**
@@ -305,22 +362,31 @@ public class SessionDataManager implements ItemDataConsumer {
    * @throws RepositoryException
    */
   public ItemImpl getItemByIdentifier(String identifier, boolean pool) throws RepositoryException {
-
-    ItemData itemData = getItemData(identifier);
-
-    if (itemData == null)
-      return null;
-
-    ItemImpl item = itemFactory.createItem(itemData);
-    session.getActionHandler().postRead(item);
-    if (!item.hasPermission(PermissionType.READ)) {
-      throw new AccessDeniedException("Access denied, item with id : " + item.getPath()
-          + " (get item by id), user " + session.getUserID() + " has no privileges on reading");
+    long start = System.currentTimeMillis();
+    if (log.isDebugEnabled())
+      log.debug("getItemByIdentifier(" + identifier + " ) >>>>>");
+    
+    ItemImpl item = null;
+    try {
+      ItemData itemData = getItemData(identifier);
+      if (itemData == null)
+        return null;
+  
+      item = itemFactory.createItem(itemData);
+      session.getActionHandler().postRead(item);
+      if (!item.hasPermission(PermissionType.READ)) {
+        throw new AccessDeniedException("Access denied, item with id : " + item.getPath()
+            + " (get item by id), user " + session.getUserID() + " has no privileges on reading");
+      }
+      if (pool)
+        return itemsPool.get(item);
+  
+      return item;
+    } finally {
+      if (log.isDebugEnabled())
+        log.debug("getItemByIdentifier(" + identifier + ") --> " + (item != null ? item.getPath() : "null") 
+            + "  <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
     }
-    if (pool)
-      return itemsPool.get(item);
-
-    return item;
   }
 
   /**
@@ -423,25 +489,42 @@ public class SessionDataManager implements ItemDataConsumer {
    * @throws RepositoryException
    * @throws AccessDeniedException
    */
-
   public List<NodeImpl> getChildNodes(NodeData parent, boolean pool) throws RepositoryException,
       AccessDeniedException {
-    // merge data from changesLog with data from txManager
-    List<NodeImpl> nodes = new ArrayList<NodeImpl>();
-    List<NodeData> nodeDatas = getChildNodesData(parent);
+    
+    long start = System.currentTimeMillis();
+    if (log.isDebugEnabled())
+      log.debug("getChildNodes(" + parent.getQPath().getAsString() + ") >>>>>");
 
-    for (NodeData data : nodeDatas) {
-      NodeImpl item = itemFactory.createNode(data);
-      session.getActionHandler().postRead(item);
-      if (accessManager.hasPermission(data.getACL(), PermissionType.READ, session.getUserID())) {
-        if (pool)
-          item = (NodeImpl) itemsPool.get(item);
-
-        nodes.add(item);
+    try {
+      // merge data from changesLog with data from txManager
+      List<NodeImpl> nodes = new ArrayList<NodeImpl>();
+      List<NodeData> nodeDatas = getChildNodesData(parent);
+  
+      for (NodeData data : nodeDatas) {
+        NodeImpl item = itemFactory.createNode(data);
+        
+        //long astart = System.currentTimeMillis();
+        session.getActionHandler().postRead(item);
+        //if (log.isDebugEnabled())
+        //  log.debug("  postRead(" + item.nodeData().getQPath().getAsString() + ") " + ((System.currentTimeMillis() - astart)/1000d) + "sec");
+        
+        //astart = System.currentTimeMillis();
+        if (accessManager.hasPermission(data.getACL(), PermissionType.READ, session.getUserID())) {
+          if (pool)
+            item = (NodeImpl) itemsPool.get(item);
+  
+          nodes.add(item);
+        }
+        //if (log.isDebugEnabled())
+        //  log.debug("  hasPermission, itemsPool.get(" + item.nodeData().getQPath().getAsString() + ") " + ((System.currentTimeMillis() - astart)/1000d) + "sec");
+        
       }
+      return nodes;
+    } finally {
+      if (log.isDebugEnabled())
+        log.debug("getChildNodes(" + parent.getQPath().getAsString() + ") <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
     }
-    return nodes;
-
   }
 
   /**
@@ -457,17 +540,26 @@ public class SessionDataManager implements ItemDataConsumer {
   public List<PropertyImpl> getChildProperties(NodeData parent, boolean pool) throws RepositoryException,
       AccessDeniedException {
 
-    List<PropertyImpl> props = new ArrayList<PropertyImpl>();
-    for (PropertyData data : getChildPropertiesData(parent)) {
-      ItemImpl item = itemFactory.createItem(data);
-      session.getActionHandler().postRead(item);
-      if (accessManager.hasPermission(parent.getACL(), PermissionType.READ, session.getUserID())) {
-        if (pool)
-          item = itemsPool.get(item);
-        props.add((PropertyImpl) item);
+    long start = System.currentTimeMillis();
+    if (log.isDebugEnabled())
+      log.debug("getChildProperties(" + parent.getQPath().getAsString() + ") >>>>>");
+    
+    try {
+      List<PropertyImpl> props = new ArrayList<PropertyImpl>();
+      for (PropertyData data : getChildPropertiesData(parent)) {
+        ItemImpl item = itemFactory.createItem(data);
+        session.getActionHandler().postRead(item);
+        if (accessManager.hasPermission(parent.getACL(), PermissionType.READ, session.getUserID())) {
+          if (pool)
+            item = itemsPool.get(item);
+          props.add((PropertyImpl) item);
+        }
       }
+      return props;
+    } finally {
+      if (log.isDebugEnabled())
+        log.debug("getChildProperties(" + parent.getQPath().getAsString() + ") <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
     }
-    return props;
   }
 
   /*
@@ -476,8 +568,16 @@ public class SessionDataManager implements ItemDataConsumer {
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getChildNodesData(org.exoplatform.services.jcr.datamodel.NodeData)
    */
   public List<NodeData> getChildNodesData(NodeData parent) throws RepositoryException {
-
-    return (List<NodeData>) merge(parent, transactionableManager, false, MERGE_NODES);
+    long start = System.currentTimeMillis();
+    if (log.isDebugEnabled())
+      log.debug("getChildNodesData(" + parent.getQPath().getAsString() + ") >>>>>");
+    
+    try {
+      return (List<NodeData>) merge(parent, transactionableManager, false, MERGE_NODES);
+    } finally {
+      if (log.isDebugEnabled())
+        log.debug("getChildNodesData(" + parent.getQPath().getAsString() + ") <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
+    }
   }
 
   /*
@@ -486,7 +586,16 @@ public class SessionDataManager implements ItemDataConsumer {
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getChildPropertiesData(org.exoplatform.services.jcr.datamodel.NodeData)
    */
   public List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException {
-    return (List<PropertyData>) merge(parent, transactionableManager, false, MERGE_PROPS);
+    long start = System.currentTimeMillis();
+    if (log.isDebugEnabled())
+      log.debug("getChildPropertiesData(" + parent.getQPath().getAsString() + ") >>>>>");
+
+    try {
+      return (List<PropertyData>) merge(parent, transactionableManager, false, MERGE_PROPS);
+    } finally {
+      if (log.isDebugEnabled())
+        log.debug("getChildPropertiesData(" + parent.getQPath().getAsString() + ") <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
+    }
   }
 
   /**
@@ -499,42 +608,58 @@ public class SessionDataManager implements ItemDataConsumer {
    * @throws RepositoryException
    */
   public AccessControlList getACL(QPath path) throws RepositoryException {
-
-    NodeData parent = (NodeData) getItemData(Constants.ROOT_UUID);
-    if (path.equals(Constants.ROOT_PATH))
-      return parent.getACL();
-
-    ItemData item = null;
-    QPathEntry[] relPathEntries = path.getRelPath(path.getDepth());
-    for (int i = 0; i < relPathEntries.length; i++) {
-      item = getItemData(parent, relPathEntries[i]);
-
-      if (item == null)
-        break;
-
-      if (item.isNode())
-        parent = (NodeData) item;
-      else if (i < relPathEntries.length - 1)
-        throw new IllegalPathException("Get ACL. Path can not contains a property as the intermediate element");
+    long start = System.currentTimeMillis();
+    if (log.isDebugEnabled())
+      log.debug("getACL(" + path.getAsString() + " ) >>>>>");
+    
+    try {
+      NodeData parent = (NodeData) getItemData(Constants.ROOT_UUID);
+      if (path.equals(Constants.ROOT_PATH))
+        return parent.getACL();
+  
+      ItemData item = null;
+      QPathEntry[] relPathEntries = path.getRelPath(path.getDepth());
+      for (int i = 0; i < relPathEntries.length; i++) {
+        item = getItemData(parent, relPathEntries[i]);
+  
+        if (item == null)
+          break;
+  
+        if (item.isNode())
+          parent = (NodeData) item;
+        else if (i < relPathEntries.length - 1)
+          throw new IllegalPathException("Get ACL. Path can not contains a property as the intermediate element");
+      }
+  
+      if (item != null && item.isNode())
+        // node ACL
+        return ((NodeData) item).getACL();
+      else
+        // item not found or it's a property - return parent ACL
+        return parent.getACL();
+    } finally {
+      if (log.isDebugEnabled())
+        log.debug("getACL(" + path.getAsString() + ") <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
     }
-
-    if (item != null && item.isNode())
-      // node ACL
-      return ((NodeData) item).getACL();
-    else
-      // item not found or it's a property - return parent ACL
-      return parent.getACL();
   }
 
   public AccessControlList getACL(NodeData parent, QPathEntry name) throws RepositoryException {
-
-    ItemData item = getItemData(parent, name);
-    if (item != null && item.isNode())
-      // node ACL
-      return ((NodeData) item).getACL();
-    else
-      // item not found or it's a property - return parent ACL
-      return parent.getACL();
+    long start = System.currentTimeMillis();
+    if (log.isDebugEnabled())
+      log.debug("getACL(" + parent.getQPath().getAsString() + " + " + name.getAsString() + " ) >>>>>");
+    
+    try {
+      ItemData item = getItemData(parent, name);
+      if (item != null && item.isNode())
+        // node ACL
+        return ((NodeData) item).getACL();
+      else
+        // item not found or it's a property - return parent ACL
+        return parent.getACL();
+    } finally {
+      if (log.isDebugEnabled())
+        log.debug("getACL(" + parent.getQPath().getAsString() + " + " + name.getAsString() + ") <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
+    }
   }
 
   /**

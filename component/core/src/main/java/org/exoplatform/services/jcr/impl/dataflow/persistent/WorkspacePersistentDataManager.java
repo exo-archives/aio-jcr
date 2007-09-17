@@ -108,7 +108,6 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
           log.debug(ItemState.nameFromValue(state) + " "
               + (System.currentTimeMillis() - start) + "ms, "
               + data.getQPath().getAsString());
-
       }
       if (regularConnection != null)
         regularConnection.commit();

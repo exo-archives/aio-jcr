@@ -162,8 +162,7 @@ public class SessionImpl implements Session, NamespaceAccessor {
     this.registerLifecycleListener((ObservationManagerImpl) observationManager);
     this.registerLifecycleListener(lockManager);
 
-    SessionActionCatalog catalog = (SessionActionCatalog) container
-        .getComponentInstanceOfType(SessionActionCatalog.class);
+    SessionActionCatalog catalog = (SessionActionCatalog) container.getComponentInstanceOfType(SessionActionCatalog.class);
     actionHandler = new SessionActionInterceptor(catalog, container);
 
     sessionRegistry = (SessionRegistry) container.getComponentInstanceOfType(SessionRegistry.class);
@@ -280,15 +279,24 @@ public class SessionImpl implements Session, NamespaceAccessor {
    * @see javax.jcr.Session#getNodeByUUID(java.lang.String)
    */
   public NodeImpl getNodeByUUID(String uuid) throws ItemNotFoundException, RepositoryException {
-    Item item = nodesManager.getItemByIdentifier(uuid, true);
+    long start = System.currentTimeMillis();
+    if (log.isDebugEnabled())
+      log.debug("getNodeByUUID(" + uuid + ") >>>>>");
 
-    if (item != null && item.isNode()) {
-      NodeImpl node = (NodeImpl) item;
-      node.getUUID(); // throws exception
-      return node;
+    try {
+      Item item = nodesManager.getItemByIdentifier(uuid, true);
+  
+      if (item != null && item.isNode()) {
+        NodeImpl node = (NodeImpl) item;
+        node.getUUID(); // throws exception
+        return node;
+      }
+  
+      throw new ItemNotFoundException("Node not found " + uuid + " at " + workspaceName);
+    } finally {
+      if (log.isDebugEnabled())
+        log.debug("getNodeByUUID(" + uuid + ") <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
     }
-
-    throw new ItemNotFoundException("Node not found " + uuid + " at " + workspaceName);
   }
 
   /*
@@ -297,13 +305,22 @@ public class SessionImpl implements Session, NamespaceAccessor {
    * @see javax.jcr.Session#getItem(java.lang.String)
    */
   public Item getItem(String absPath) throws PathNotFoundException, RepositoryException {
-    JCRPath loc = locationFactory.parseAbsPath(absPath);
-
-    ItemImpl item = nodesManager.getItem(loc.getInternalPath(), true);
-    if (item != null)
-      return item;
-
-    throw new PathNotFoundException("Item not found " + absPath + " in workspace " + workspaceName);
+    long start = System.currentTimeMillis();
+    if (log.isDebugEnabled())
+      log.debug("getItem(" + absPath + ") >>>>>");
+    
+    try {
+      JCRPath loc = locationFactory.parseAbsPath(absPath);
+  
+      ItemImpl item = nodesManager.getItem(loc.getInternalPath(), true);
+      if (item != null)
+        return item;
+  
+      throw new PathNotFoundException("Item not found " + absPath + " in workspace " + workspaceName);
+    } finally {
+      if (log.isDebugEnabled())
+        log.debug("getItem(" + absPath + ") <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
+    }
   }
 
   /*

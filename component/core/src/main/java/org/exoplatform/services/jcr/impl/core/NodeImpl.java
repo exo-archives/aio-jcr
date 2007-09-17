@@ -184,9 +184,17 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
    */
   public NodeIterator getNodes() throws RepositoryException {
 
+    long start = System.currentTimeMillis();
+    if (log.isDebugEnabled())
+      log.debug("getNodes() >>>>>");
+      
     checkValid();
-
-    return new EntityCollection(childNodes());
+    try {
+      return new EntityCollection(childNodes());
+    } finally {
+      if (log.isDebugEnabled())
+        log.debug("getNodes() <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
+    }
   }
 
   /**
@@ -210,15 +218,24 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
    */
   public NodeIterator getNodes(String namePattern) throws RepositoryException {
 
+    long start = System.currentTimeMillis();
+    if (log.isDebugEnabled())
+      log.debug("getNodes(String) >>>>>");
+    
     checkValid();
 
-    ItemFilter filter = new NamePatternFilter(namePattern);
-    ArrayList<NodeImpl> list = new ArrayList<NodeImpl>();
-    for (NodeImpl item : childNodes()) {
-      if (filter.accept(item))
-        list.add(item);
+    try {
+      ItemFilter filter = new NamePatternFilter(namePattern);
+      ArrayList<NodeImpl> list = new ArrayList<NodeImpl>();
+      for (NodeImpl item : childNodes()) {
+        if (filter.accept(item))
+          list.add(item);
+      }
+      return new EntityCollection(list);
+    } finally {
+      if (log.isDebugEnabled())
+        log.debug("getNodes(String) <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
     }
-    return new EntityCollection(list);
   }
 
   /**
@@ -232,7 +249,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     JCRPath itemPath = locationFactory.parseRelPath(relPath);
     
     if (log.isDebugEnabled())
-      log.debug("getProperty() " + getLocation() + " " + relPath);
+      log.debug("getProperty() " + getLocation().getAsString(false) + " " + relPath);
 
     Item prop = dataManager.getItem(nodeData(), itemPath.getInternalPath().getEntries(), true);
     
@@ -269,9 +286,18 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
    */
   public PropertyIterator getProperties() throws RepositoryException {
 
+    long start = System.currentTimeMillis();
+    if (log.isDebugEnabled())
+      log.debug("getProperties() >>>>>");
+    
     checkValid();
 
-    return new EntityCollection(childProperties());
+    try {
+      return new EntityCollection(childProperties());
+    } finally {
+      if (log.isDebugEnabled())
+        log.debug("getProperties() <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
+    }
   }
 
   /**
@@ -317,16 +343,25 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
    */
   public PropertyIterator getProperties(String namePattern) throws RepositoryException {
 
+    long start = System.currentTimeMillis();
+    if (log.isDebugEnabled())
+      log.debug("getProperties(String) >>>>>");
+    
     checkValid();
 
-    ItemFilter filter = new NamePatternFilter(namePattern);
-    ArrayList<PropertyImpl> list = new ArrayList<PropertyImpl>();
-    for (PropertyImpl item : childProperties()) {
-      if (filter.accept(item))
-        list.add(item);
+    try {
+      ItemFilter filter = new NamePatternFilter(namePattern);
+      ArrayList<PropertyImpl> list = new ArrayList<PropertyImpl>();
+      for (PropertyImpl item : childProperties()) {
+        if (filter.accept(item))
+          list.add(item);
+      }
+  
+      return new EntityCollection(list);
+    } finally {
+      if (log.isDebugEnabled())
+        log.debug("getProperties(String) <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
     }
-
-    return new EntityCollection(list);
   }
 
   /**
@@ -410,6 +445,11 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     checkValid();
 
     return getNodes().hasNext();
+    
+    // TODO [PN] 14.09.07 check again why we can't use this line
+    // TCK NodeTest.testUpdateNoClone() crashes with message 
+    // 'Node has children assigned after Node.update() eventhough node has no clone'
+    //return dataManager.getChildNodes(nodeData(), true) != null;
   }
 
   /**

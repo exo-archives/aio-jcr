@@ -820,7 +820,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
 
       addValueData(getInternalId(data.getIdentifier()),i, stream, streamLength, vdDesc); 
     }
-  } 
+  }
 
   // ---- Data access methods (query wrappers) to override in concrete connection ------
 
