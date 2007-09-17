@@ -1,2 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<nodetypes></nodetypes>
+<nodetypes xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+    xmlns:mix="http://www.jcp.org/jcr/mix/1.0"
+    xmlns:jcr="http://www.jcp.org/jcr/1.0">
+    
+    <nodeType name="exo:artifact" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+        <propertyDefinitions> </propertyDefinitions>
+    </nodeType>
+
+    <nodeType name="exo:groupId" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+        <supertypes>
+            <supertype>exo:artifact</supertype>
+        </supertypes>
+        <propertyDefinitions> </propertyDefinitions>
+    </nodeType>
+
+    <nodeType name="exo:artifactId" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+        <supertypes>
+            <supertype>exo:artifact</supertype>
+        </supertypes>
+        <propertyDefinitions>
+            <propertyDefinition name="exo:versionList" onParentVersion="COPY" requiredType="String"
+                multiple="true" autoCreated="false" mandatory="false" protected="false">
+                <valueConstraints/>
+            </propertyDefinition>
+        </propertyDefinitions>
+    </nodeType>
+
+    <nodeType name="exo:versionId" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+        <supertypes>
+            <supertype>exo:artifact</supertype>
+        </supertypes>
+        <propertyDefinitions> </propertyDefinitions>
+    </nodeType>
+
+    <nodeType name="exo:file" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+        <propertyDefinitions>
+            <propertyDefinition name="exo:md5" onParentVersion="COPY" requiredType="String"
+                multiple="false" autoCreated="false" mandatory="false" protected="false">
+                <valueConstraints/>
+            </propertyDefinition>
+            <propertyDefinition name="exo:sha1" onParentVersion="COPY" requiredType="String"
+                multiple="false" autoCreated="false" mandatory="false" protected="false">
+                <valueConstraints/>
+            </propertyDefinition>
+        </propertyDefinitions>
+    </nodeType>
+
+    <nodeType name="exo:mvnjar" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+        <supertypes>
+            <supertype>exo:file</supertype>
+        </supertypes>
+    </nodeType>
+    
+    <nodeType name="exo:mvnpom" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+        <supertypes>
+            <supertype>exo:file</supertype>
+        </supertypes>
+    </nodeType>
+    
+    <nodeType name="exo:mavenmetadata" isMixin="true" hasOrderableChildNodes="false"
+        primaryItemName="">
+        <supertypes>
+            <supertype>exo:file</supertype>
+        </supertypes>
+    </nodeType>
+    
+</nodetypes>

@@ -80,6 +80,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 	private RepositoryService repositoryService;
 	private RegistryService registryService;
 	private InitParams initParams;
+	private SessionProvider sessionProvider;
 	private String repoWorkspaceName;
 	private String repoPath;
 
@@ -261,20 +262,13 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		// 3. initializing maven root if not initialized
 		LOGGER.debug("Starting ArtifactManagingService ...");
 		
-		SessionProvider sessionProvider = SessionProvider
-				.createSystemProvider();
+		sessionProvider = SessionProvider.createSystemProvider();
 		try {
-			LOGGER.debug("Step 1");
 			InputStream xml = getClass().getResourceAsStream(NT_FILE);
-			
-			LOGGER.debug("Step 2");
 			ManageableRepository rep = repositoryService.getCurrentRepository();
-			
-			LOGGER.debug("Step 3");
 			rep.getNodeTypeManager().registerNodeTypes(xml,
 					ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-
-			LOGGER.debug("Step 4");
+			
 			registryService.getEntry(sessionProvider,
 					RegistryService.EXO_SERVICES, "ArtifactManaging");
 			
@@ -297,7 +291,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		} catch (RepositoryException e) {
 			e.printStackTrace();
 		} finally {
-			sessionProvider.close();
+			//sessionProvider.close();
 		}
 	}
 
@@ -311,8 +305,10 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 
 	private Session currentSession(SessionProvider sp)
 			throws RepositoryException {
-		return sp.getSession(repoWorkspaceName, repositoryService
-				.getCurrentRepository());
+		return (sp != null) ? sp.getSession(repoWorkspaceName,
+				repositoryService.getCurrentRepository()) : sessionProvider
+				.getSession(repoWorkspaceName, repositoryService
+						.getCurrentRepository());
 	}
 
 	// this function creates hierarchy in JCR storage acording to groupID
@@ -441,7 +437,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		String mimeType; // for common use
 		Node jarNode = versionNode.addNode("jar", "nt:file");
 		Node jarContent = jarNode.addNode("jcr:content", "nt:resource");
-		mimeType = "application/zip";
+		mimeType = "application/java-archive";
 		jarContent.setProperty("jcr:mimeType", mimeType);
 		jarContent.setProperty("jcr:lastModified", Calendar.getInstance());
 		jarContent.addMixin("exo:mvnjar"); 
@@ -465,7 +461,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 	private void importPom(Node versionNode, File pomFile) throws RepositoryException {
 		Node pomNode = versionNode.addNode("pom", "nt:file");
 		Node pomContent = pomNode.addNode("jcr:content", "nt:resource");
-		String mimeType = "plain/text";
+		String mimeType = "text/xml";
 		pomContent.setProperty("jcr:mimeType", mimeType);
 		pomContent.setProperty("jcr:lastModified", Calendar.getInstance());
 		pomContent.addMixin("exo:mvnpom");
