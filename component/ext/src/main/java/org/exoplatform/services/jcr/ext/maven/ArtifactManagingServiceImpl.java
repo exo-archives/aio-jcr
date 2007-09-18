@@ -407,7 +407,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		String artifactId = artifact.getArtifactId();
 		String version = artifact.getVersionId();
 		
-		Node metadata = parentNode.addNode("maven-metadata.xml", "nt:file");
+		Node metadata = parentNode.addNode("xml", "nt:file");
 		Node xmlContent = metadata.addNode("jcr:content", "nt:resource");
 		String mimeType = "text/xml";
 		xmlContent.setProperty("jcr:mimeType", mimeType);
