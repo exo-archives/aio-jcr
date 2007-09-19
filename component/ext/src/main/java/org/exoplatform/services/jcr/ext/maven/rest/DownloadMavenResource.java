@@ -17,10 +17,12 @@ import javax.jcr.Session;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.Response;
 import org.exoplatform.services.rest.transformer.StringOutputTransformer;
 
@@ -32,7 +34,7 @@ import org.exoplatform.services.rest.transformer.StringOutputTransformer;
  */
 
 public class DownloadMavenResource {
-	private static final Logger LOGGER = Logger
+	private static final Log LOGGER = ExoLogger
 			.getLogger(DownloadMavenResource.class);
 	private static final long ARTIFACT_ERROR = 0;
 	private static final long ARTIFACT_SUCCESS = 1;
@@ -53,11 +55,6 @@ public class DownloadMavenResource {
 		this.session = session;
 
 		setTestArtifactTypes(); // fake - remove it with real configuration
-
-		SimpleLayout layout = new SimpleLayout();
-		ConsoleAppender appender = new ConsoleAppender(layout);
-		LOGGER.addAppender(appender);
-		LOGGER.setLevel(Level.DEBUG);
 
 	}
 
@@ -176,7 +173,7 @@ public class DownloadMavenResource {
 		entity = resourceNode.getProperty( queryEntity() ).getStream();
 		contentLength = resourceNode.getProperty( queryEntity() ).getLength();
 		lastModified = resourceNode.getProperty("jcr:lastModified").getDate();
-
+				
 		return DownloadMavenResource.ARTIFACT_SUCCESS;
 	}
 	

@@ -1,5 +1,6 @@
 package org.exoplatform.services.jcr.ext.maven;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -11,8 +12,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.jcr.ItemNotFoundException;
@@ -27,6 +30,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -39,6 +45,7 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.registry.RegistryService;
+import org.exoplatform.services.log.ExoLogger;
 import org.picocontainer.Startable;
 import org.apache.maven.wagon.observers.ChecksumObserver;
 
@@ -81,10 +88,11 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 	private RegistryService registryService;
 	private InitParams initParams;
 	private SessionProvider sessionProvider;
-	private String repoWorkspaceName;
+	private String repoWorkspaceName = "ws";
 	private String repoPath;
-
-	private static Logger LOGGER = Logger.getLogger(ArtifactManagingServiceImpl.class);
+	private ArtifactDescriptor artifactDescriptor;
+	private static Log LOGGER = ExoLogger.getLogger(ArtifactManagingServiceImpl.class);
+	private Map<String, String> mimeMap = new Hashtable<String, String>();
 
 	/**
 	 * @param params
@@ -98,11 +106,6 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		this.repositoryService = repositoryService;
 		this.registryService = registryService;
 		this.initParams = params;
-
-		SimpleLayout layout = new SimpleLayout();
-		ConsoleAppender appender = new ConsoleAppender(layout);
-		LOGGER.addAppender(appender);
-		LOGGER.setLevel(Level.DEBUG);
 	}
 
 	/**
@@ -118,13 +121,6 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		this(params, repositoryService, null);
 	}
 	
-	/** Test with Standalone Test
-	 */
-	public ArtifactManagingServiceImpl(RepositoryService repositoryService)
-			throws RepositoryConfigurationException {
-		this(null, repositoryService, null);
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -133,32 +129,21 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 	 *      java.io.InputStream)
 	 */
 	public void addArtifact(SessionProvider sp, ArtifactDescriptor artifact,
-			File jarFile, File pomFile) throws RepositoryException {
+			InputStream jarFile, InputStream pomFile) throws RepositoryException {
 		
-		LOGGER.debug("Starting adding artifact to Repository");
-		LOGGER.debug("Get session via SessionProvider");
 		Session session = currentSession(sp);
 		Node rootNode = session.getRootNode();
 		
-		LOGGER.debug("Create groupId path structure");
 		Node groupId_tail = createGroupIdLayout(rootNode, artifact );
 		
-		LOGGER.debug("Create artifactId path structure");
 		Node artifactId_node = createArtifactIdLayout(groupId_tail, artifact);
 		
-		LOGGER.debug("Create versionId path structure");
 		Node version_node = createVersionLayout(artifactId_node, artifact);
 		
-		LOGGER.debug("Importing JAR");
-		importJar( version_node, jarFile );
+		importResource(version_node, jarFile, "jar", artifact);
+		importResource(version_node, pomFile, "pom", artifact);
 		
-		LOGGER.debug("Importing POM");
-		importPom( version_node, pomFile );
-		
-		LOGGER.debug("Generating metadata");
 		importMetadata( version_node, artifact );
-		
-		LOGGER.debug("Finishing with adding artifact to Repository");
 		
 		session.save();
 
@@ -291,7 +276,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		} catch (RepositoryException e) {
 			e.printStackTrace();
 		} finally {
-			//sessionProvider.close();
+			sessionProvider.close();
 		}
 	}
 
@@ -305,10 +290,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 
 	private Session currentSession(SessionProvider sp)
 			throws RepositoryException {
-		return (sp != null) ? sp.getSession(repoWorkspaceName,
-				repositoryService.getCurrentRepository()) : sessionProvider
-				.getSession(repoWorkspaceName, repositoryService
-						.getCurrentRepository());
+		return sp.getSession(repoWorkspaceName,	repositoryService.getCurrentRepository());
 	}
 
 	// this function creates hierarchy in JCR storage acording to groupID
@@ -429,59 +411,82 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 			LOGGER.error("File IO error", e);
 		}
 	}
-
 	
-	private void importJar(Node versionNode, File jarFile )
+	private String getRelativeMimeType(String key){
+		return (String)mimeMap.get(key); 
+	}
+	
+	private void writeResourceData(Node resourceNode, InputStream resource, String mimeType) throws RepositoryException{
+
+		Node content = resourceNode.addNode("jcr:content", "nt:resource");
+		content.setProperty("jcr:mimeType", mimeType);
+		content.setProperty("jcr:lastModified", Calendar.getInstance());
+		
+		content.setProperty("jcr:data", resource);
+		IOUtils.closeQuietly(resource);
+
+	}
+	private void importResource(Node versionNode, InputStream file_in, String resourceType, ArtifactDescriptor artifact )
 			throws RepositoryException {
 		// Note that artifactBean been initialized within constructor
-		String mimeType; // for common use
-		Node jarNode = versionNode.addNode("jar", "nt:file");
-		Node jarContent = jarNode.addNode("jcr:content", "nt:resource");
-		mimeType = "application/java-archive";
-		jarContent.setProperty("jcr:mimeType", mimeType);
-		jarContent.setProperty("jcr:lastModified", Calendar.getInstance());
-		jarContent.addMixin("exo:mvnjar"); 
+		// resourceType can be jar, pom
 		
-		try{
-			InputStream ios = new FileInputStream(jarFile);		
-			jarContent.setProperty("jcr:data", ios);
-			ios.close();
-			try {
-				jarContent.setProperty("exo:md5", getChecksum(jarFile,	"MD5"));
-				jarContent.setProperty("exo:sha1", getChecksum(jarFile, "SHA-1"));
-			} catch (NoSuchAlgorithmException e) {
-				LOGGER.error("Wrong algorigthm used", e);
-			}
-		}catch (IOException e) {
-			LOGGER.error("File IO error", e);
+		String filename = String.format("%s-%s.%s",artifact.getArtifactId(), artifact.getVersionId(), resourceType);
+				
+		OutputStream fout = null;
+		File tmp_file = null;
+		try {
+			tmp_file = File.createTempFile(filename, null);
+			fout = new FileOutputStream(tmp_file);
+			IOUtils.copy(file_in, fout);
+			fout.flush();
+		} catch (FileNotFoundException e) {
+			LOGGER.error("Cannot create .tmp file for storing artifact", e);
 		}
+		catch(IOException e){
+			LOGGER.error("IO exception on .tmp file for storing artifact", e);
+		}finally {
+			IOUtils.closeQuietly(fout);
+		}
+		
+		String mimeType;
+		if( StringUtils.isEmpty(mimeType = getRelativeMimeType(resourceType)) )
+			mimeType = "text/xml";
+			
+		Node resourceFile = versionNode.addNode(filename, "nt:file");
+		
+		String mixinType = "exo:maven".concat(resourceType);
+		if (resourceFile.canAddMixin(mixinType))
+			resourceFile.addMixin(mixinType);
+		try{
+			writeResourceData(resourceFile, new FileInputStream(tmp_file), mimeType); //note that is close by this method
+		}catch(FileNotFoundException e){
+			LOGGER.error("Cannot read from .tmp resource file", e);
+		}
+		
+		Node checksumFile = versionNode.addNode(filename.concat(".sha1"), "nt:file");
+		
+		mixinType = "exo:maven".concat("sha1");
+		InputStream checksum_out = null;
+		if (checksumFile.canAddMixin(mixinType))
+			checksumFile.addMixin(mixinType);
+		try{
+			checksum_out = new ByteArrayInputStream(getChecksum(tmp_file, "SHA-1").getBytes());
+			mimeType = "text/xml";
+			writeResourceData(checksumFile, checksum_out , mimeType);	//note that is close by this method
+		}catch(FileNotFoundException e){
+			LOGGER.error("Cannot read from .tmp resource file", e);
+		}
+		catch(IOException e){
+			LOGGER.error("Cannot read from .tmp resource file", e);
+		}
+		catch(NoSuchAlgorithmException e){
+			LOGGER.error("No such algorithm for generating checksums", e);
+		}
+		
 
 	}
-
-	private void importPom(Node versionNode, File pomFile) throws RepositoryException {
-		Node pomNode = versionNode.addNode("pom", "nt:file");
-		Node pomContent = pomNode.addNode("jcr:content", "nt:resource");
-		String mimeType = "text/xml";
-		pomContent.setProperty("jcr:mimeType", mimeType);
-		pomContent.setProperty("jcr:lastModified", Calendar.getInstance());
-		pomContent.addMixin("exo:mvnpom");
 		
-		try{
-			InputStream ios = new FileInputStream(pomFile);		
-			pomContent.setProperty("jcr:data", ios);
-			ios.close();
-			try {
-				pomContent.setProperty("exo:md5", getChecksum(pomFile,	"MD5"));
-				pomContent.setProperty("exo:sha1", getChecksum(pomFile, "SHA-1"));
-			} catch (NoSuchAlgorithmException e) {
-				LOGGER.error("Wrong algorigthm used", e);
-			}
-		}catch (IOException e) {
-			LOGGER.error("File IO error", e);
-		}
-
-	}
-	
 	protected String getChecksum(File file, String algo)
 			throws NoSuchAlgorithmException, IOException {
 		ChecksumObserver checksum = null;
@@ -603,5 +608,10 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		}
 		return (temp.exists())?temp:null;
 	}
-
+	
+	private void setMimeMap(Map<String, String > mimeTypes){
+		mimeMap.clear();
+		mimeMap.putAll(mimeTypes);
+	}
+		
 }

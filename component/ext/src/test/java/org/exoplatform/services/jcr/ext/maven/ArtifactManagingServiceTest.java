@@ -18,11 +18,13 @@ import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.nodetype.NodeType;
 
+import org.apache.commons.logging.Log;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -33,22 +35,17 @@ import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 
 	private ArtifactManagingServiceImpl asImpl;
-	private static Logger logger = Logger.getLogger(ArtifactManagingServiceTest.class);
+	private static Log LOGGER = ExoLogger.getLogger(ArtifactManagingServiceTest.class);
 
 	public void setUp() throws Exception {
 		super.setUp();
-		
-		SimpleLayout layout = new SimpleLayout();
-		ConsoleAppender appneder = new ConsoleAppender(layout);
-		logger.addAppender(appneder);
-		logger.setLevel(Level.DEBUG);
 			
-		logger.debug("Trying to get ArtifactService  via container!");
+		LOGGER.debug("Trying to get ArtifactService  via container!");
 		asImpl = (ArtifactManagingServiceImpl) container.getComponentInstanceOfType(ArtifactManagingServiceImpl.class);
 	}
 
 	public void testImportArtifact() throws Exception {
-		logger.debug("Starting first test!");
+		LOGGER.debug("Starting first test!");
 		
 		File jarfile = new File("/home/satay/java/tmp/s3-0.1.jar");
 		File pomfile = new File("/home/satay/java/tmp/s3-0.1.pom");
@@ -101,7 +98,6 @@ public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 				String nodeName = node.getName();
 
 				System.out.print(nodeName.concat("/"));
-
 				
 				if ( node.isNodeType("exo:artifactId")) {
 					System.out.print(" : ");
