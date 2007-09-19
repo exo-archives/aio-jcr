@@ -391,7 +391,7 @@ public class NetBIOSDatagram {
     setMessageType(dgramTyp);
     setSourceName(fromName, fromNameType);
     setDestinationName(toName, toNameType);
-    setSourcePort(RFCNetBIOSProtocol.DATAGRAM);
+    setSourcePort(port);
     setSourceIPAddress(InetAddress.getLocalHost().getAddress());
     setFlags(FLG_FIRSTPKT);
 
@@ -407,7 +407,7 @@ public class NetBIOSDatagram {
     // Use the global NetBIOS datagram socket to sent the broadcast datagram
 
     NetBIOSDatagramSocket nbSocket = NetBIOSDatagramSocket.getInstance();
-    nbSocket.sendDatagram(this, addr, port);
+    nbSocket.sendDatagram(this, addr, RFCNetBIOSProtocol.NAME_PORT);
   }
 
   /**

@@ -25,6 +25,8 @@
 package org.exoplatform.services.cifs.smb.mailslot;
 
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -105,7 +107,7 @@ public abstract class HostAnnouncer extends Thread {
   public HostAnnouncer() {
 
     // Common constructor
-
+  
     commonConstructor();
   }
 
@@ -125,6 +127,8 @@ public abstract class HostAnnouncer extends Thread {
 
     commonConstructor();
 
+    byte[] arr = new byte[2];
+    int dfdf = new Integer("dfdf");
     // Add the host to the list of names to announce
 
     addHostName(name);

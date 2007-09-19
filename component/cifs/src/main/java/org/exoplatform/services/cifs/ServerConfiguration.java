@@ -46,7 +46,7 @@ public class ServerConfiguration {
 
   // Runtime platform type
 
-  private PlatformType m_platform = PlatformType.WINDOWS;
+  private PlatformType m_platform;
 
   // Main server enable flags, to enable SMB and/or NFS server components
 
@@ -58,8 +58,8 @@ public class ServerConfiguration {
 
   // Server type, used by the host announcer
 
-  private int m_srvType = ServerType.WorkStation + ServerType.Server +
-      ServerType.NTServer;
+  private int m_srvType = ServerType.WorkStation + ServerType.Server;// +
+      //ServerType.NTServer;
 
   // Server comment
 
@@ -86,11 +86,11 @@ public class ServerConfiguration {
   private int m_tcpSMBPort = TcpipSMB.PORT;
 
   // Announce the server to network neighborhood, announcement interval in
-  // minutes
+  // minutes used in NetBIOS (java and JNI)
 
-  private boolean m_announce;
+  private boolean m_announce = false;
 
-  private int m_announceInterval; // default 5
+  private int m_announceInterval = 5; // default 5
 
   // Default session debugging setting
 
@@ -139,9 +139,9 @@ public class ServerConfiguration {
 
   // Send out host announcements via the Win32 NetBIOS interface
 
-  private boolean m_win32NBAnnounce;
+  private boolean m_win32NBAnnounce = false;
 
-  private int m_win32NBAnnounceInterval;
+  private int m_win32NBAnnounceInterval = 5;
 
   // Use Winsock NetBIOS interface if true, else use the Netbios() API
   // interface
@@ -235,9 +235,10 @@ public class ServerConfiguration {
     setServerName(hostName);
 
     // Set the domain/workgroup name
-    
+    // TODO do correct workgroup/domain setup
+
     m_localDomain = "OFFICE";
-    
+
     // also Win32netBios.dll availability check in Windows platform case
     try {
       setDomainName(getLocalDomainName().toUpperCase());
@@ -263,33 +264,31 @@ public class ServerConfiguration {
     ValueParam pBindAddress = params.getValueParam("bind_address");
 
     if (pBindAddress != null) {
-      try{
-      InetAddress bindAddr = InetAddress.getByName(pBindAddress.getValue());
+      try {
+        InetAddress bindAddr = InetAddress.getByName(pBindAddress.getValue());
 
-      // Set the bind address for the server
-      setSMBBindAddress(bindAddr);
-      }catch(UnknownHostException e){
-        
-        setSMBBindAddress(null);  
+        // Set the bind address for the server
+        setSMBBindAddress(bindAddr);
+      } catch (UnknownHostException e) {
+
+        setSMBBindAddress(null);
       }
     }
-
-    // Check if the host announcer should be enabled
 
     // Configure NetBIOS SMB (Java Impl)
 
     PropertiesParam netBiosJava = params.getPropertiesParam("netbios_java");
     if (netBiosJava != null &&
-        netBiosJava.getProperty("enabled").equals("true")) {
+        netBiosJava.getProperty("enabled").equals("true") ) {
       setNetBIOSSMB(true);
+
       if (netBiosJava.getProperty("session_port") != null) {
         int sessport = Integer
             .parseInt(netBiosJava.getProperty("session_port"));
         if (sessport < 0 || sessport > 65535) {
           logger
               .error("Illegal value of netbios_java session_port partameter!");
-          setSMBServerEnabled(false);
-          return;
+          setNetBIOSSMB(false);
         } else {
           m_nbSessPort = sessport;
         }
@@ -301,8 +300,7 @@ public class ServerConfiguration {
         if (dtgport < 0 || dtgport > 65535) {
           logger
               .error("Illegal value of netbios_java datagram_port partameter!");
-          setSMBServerEnabled(false);
-          return;
+          setNetBIOSSMB(false);
         } else {
           m_nbDatagramPort = dtgport;
         }
@@ -313,12 +311,31 @@ public class ServerConfiguration {
         if (nmport < 0 || nmport > 65535) {
           logger
               .error("Illegal value of netbios_java datagram_port partameter!");
-          setSMBServerEnabled(false);
-          return;
+          setNetBIOSSMB(false);
         } else {
           m_nbNamePort = nmport;
         }
       }
+
+      // setup NetBIOS host announcer
+      if (netBiosJava.getProperty("announce_enabled")!=null && netBiosJava.getProperty("announce_enabled").equalsIgnoreCase("true")) {
+        setHostAnnounce(true);
+
+        if (netBiosJava.getProperty("announce_interval") != null) {
+          int interval = Integer.parseInt(netBiosJava
+              .getProperty("announce_interval"));
+          if (interval > 0) {
+            setHostAnnounceInterval(interval);
+          } else {
+            logger
+                .error("Illegal value of netbios_java host announcer interval partameter!");
+          }
+        } else {
+          // use default value
+          setHostAnnounceInterval(5);
+        }
+      }
+      
     } else {
       setNetBIOSSMB(false);
     }
@@ -332,8 +349,7 @@ public class ServerConfiguration {
         int sessport = Integer.parseInt(tcpSmb.getProperty("port"));
         if (sessport < 0 || sessport > 65535) {
           logger.error("Illegal value of tcpip port partameter!");
-          setSMBServerEnabled(false);
-          return;
+          setTcpipSMB(false);
         } else {
           m_tcpSMBPort = sessport;
         }
@@ -385,11 +401,12 @@ public class ServerConfiguration {
 
         if (nativeAPI.equalsIgnoreCase("netbios"))
           useWinsock = false;
-        else if (nativeAPI.equalsIgnoreCase("winsock") == false){
-          logger.error("Invalid NetBIOS API type, spefify 'winsock' or 'netbios'");
+        else if (nativeAPI.equalsIgnoreCase("winsock") == false) {
+          logger
+              .error("Invalid NetBIOS API type, spefify 'winsock' or 'netbios'");
           setSMBServerEnabled(false);
           return;
-        }  
+        }
         // Set the NetBIOS API to use
 
         setWin32WinsockNetBIOS(useWinsock);
@@ -430,19 +447,36 @@ public class ServerConfiguration {
 
         setWin32NetBIOS(false);
       }
+
+      // setup Win32 NetBIOS host announcer
+      if (winnbt.getProperty("announce_enabled") != null &&
+          winnbt.getProperty("announce_enabled").equalsIgnoreCase("true")) {
+        setWin32HostAnnouncer(true);
+
+        if (winnbt.getProperty("announce_interval") != null) {
+          int interval = Integer.parseInt(winnbt
+              .getProperty("announce_interval"));
+          if (interval > 0) {
+            setWin32HostAnnounceInterval(interval);
+          } else {
+            logger
+                .error("Illegal value of netbios_java host announcer interval partameter!");
+            setWin32HostAnnouncer(false);
+          }
+        } else {
+          // use default value
+          setWin32HostAnnounceInterval(5);
+        }
+      } else {
+        setWin32HostAnnouncer(false);
+      }
+
     } else {
 
       // Disable Win32 NetBIOS
 
       setWin32NetBIOS(false);
     }
-
-
-    // Check if the host announcer should be enabled
-    // win32 announcer
-    setWin32HostAnnounceInterval(5);
-    setWin32HostAnnouncer(false);
-
     // Check if NetBIOS and/or TCP/IP SMB have been enabled
 
     if (hasNetBIOSSMB() == false && hasTcpipSMB() == false &&
@@ -1080,4 +1114,13 @@ public class ServerConfiguration {
   public final boolean hasSMBBindAddress() {
     return m_smbBindAddress != null ? true : false;
   }
+
+  private void setHostAnnounce(boolean b) {
+    m_announce = b;
+  }
+
+  private void setHostAnnounceInterval(int interval) {
+    m_announceInterval = interval;
+  }
+
 }

@@ -218,11 +218,11 @@ public class TcpipNetBIOSHostAnnouncer extends HostAnnouncer {
 
     if (logger.isDebugEnabled())
       logger.debug("Send NetBIOS host announcement to "
-          + m_bcastAddr.getHostAddress() + ", port " + getPort());
+          + m_bcastAddr.getHostAddress() + ", used port " + getPort());
 
     // Send the host announce datagram
 
-    m_nbdgram.SendDatagram(NetBIOSDatagram.DIRECT_GROUP, hostName,
+    m_nbdgram.SendDatagram(NetBIOSDatagram.BROADCAST, hostName,
         NetBIOSName.FileServer, getDomain(), NetBIOSName.MasterBrowser, buf,
         len, offset, m_bcastAddr, getPort());
   }
