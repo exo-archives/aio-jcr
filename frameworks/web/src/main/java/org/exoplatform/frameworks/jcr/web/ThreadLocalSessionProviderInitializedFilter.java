@@ -15,10 +15,12 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+//import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
+//import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.auth.AuthenticationService;
 import org.exoplatform.services.organization.auth.Identity;
 
@@ -37,27 +39,31 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
   private AuthenticationService authenticationService;
 
   private ThreadLocalSessionProviderService providerService;
+  
+//  private static final Log LOGGER =
+//    ExoLogger.getLogger("ThreadLocalSessionProviderInitializedFilter"); 
 
   /* (non-Javadoc)
    * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
    */
   public void init(FilterConfig config) throws ServletException {
+  }
+
+  /* (non-Javadoc)
+   * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest,
+   * javax.servlet.ServletResponse, javax.servlet.FilterChain)
+   */
+  public void doFilter(ServletRequest request, ServletResponse response,
+      FilterChain chain) throws IOException, ServletException {
+
     ExoContainer container = ExoContainerContext.getCurrentContainer();
 
     authenticationService = (AuthenticationService) container
         .getComponentInstanceOfType(AuthenticationService.class);
     providerService = (ThreadLocalSessionProviderService) container
         .getComponentInstanceOfType(ThreadLocalSessionProviderService.class);
-  }
-
-  /* (non-Javadoc)
-   * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
-   */
-  public void doFilter(ServletRequest request, ServletResponse response,
-      FilterChain chain) throws IOException, ServletException {
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
-
     String user = httpRequest.getRemoteUser();
     SessionProvider provider = providerService.getSessionProvider(null);
     // is there SessionProvider in current thread?
@@ -78,9 +84,9 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
     if (provider == null) {
       provider = SessionProvider.createAnonimProvider();
     }
-
+    
     providerService.setSessionProvider(null, provider);
-
+    
     chain.doFilter(request, response);
 
   }
