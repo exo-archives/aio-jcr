@@ -19,77 +19,11 @@ import org.w3c.dom.Node;
 
 public class BasicSearch implements Search {
 
-  //private static Log log = ExoLogger.getLogger("jcr.BasicSearch");
-
   private String query;
 
   public boolean init(Node node) {
     return false;
-    
-//    try {
-//      
-//      Node selectNode = DavUtil.getChildNode(node, DavProperty.SELECT);
-//      log.info("SELECT NODE: " + selectNode);
-//      
-//      Node allPropNode = DavUtil.getChildNode(selectNode, DavProperty.ALLPROP);
-//      if (allPropNode != null) {
-//        log.info("REQUIRED ALL PROPERTIES..........");
-//      } else {
-//        Node propNode = DavUtil.getChildNode(selectNode, DavProperty.PROP);
-//                
-//        NodeList propertyNodes = propNode.getChildNodes();
-//        for (int i = 0; i < propertyNodes.getLength(); i++) {
-//          Node curNode = propertyNodes.item(i);
-//          
-//          log.info("----------------------------");
-//          log.info("NAMESPACE: " + curNode.getNamespaceURI());
-//          log.info("LOCALNAME: " + curNode.getLocalName());
-//        }
-//        
-//      }
-//      
-//    } catch (Exception exc) {
-//      log.info("Unhandled exception. " + exc.getMessage(), exc);
-//    }
-//    
-//    
-//	  Vector<String> nodeTypes = new Vector<String>();	  
-//	  
-//    nodeTypes.add("nt:base");
-	  
-    //nodeTypes.add("nt:folder");
-	  //nodeTypes.add("nt:file");        
-
-//    try {
-//       String searchRequestStr = getSerializedSearchRequest(node);
-//       DASLTag parser = new DASLTag(new StringReader(searchRequestStr));
-//       DASLDocument doc = parser.DASLDocument();
-//       DASLConvertor dc = new DASLConvertor(nodeTypes);
-//       dc.setFromElements(nodeTypes);
-//       SaxValidator sv = new SaxValidator(searchRequestStr);
-//       sv.validate();
-//       dc.setDASLPrefix(sv.getDASLPrefix());
-//       query = dc.convertQuery(doc);
-//       return true;
-//    } catch (Throwable exc) {
-//      log.info("Unhandled exception. " + exc.getMessage(), exc);
-//      return false;
-//    }
-
   }
-
-//  private String getSerializedSearchRequest(org.w3c.dom.Node node) throws Exception {
-//    ByteArrayOutputStream out = new ByteArrayOutputStream();
-//
-//    Document document = node.getOwnerDocument();
-//
-//    OutputFormat format = new OutputFormat("xml", "UTF-8", true);
-//    XMLSerializer serializer = new XMLSerializer(out, format);
-//    serializer.setNamespaces(true);
-//    serializer.asDOMSerializer().serialize(document);
-//
-//    return new String(out.toByteArray());
-//  }
 
   public String getQueryLanguage() {
     return SearchConst.SearchType.SQL;
