@@ -53,130 +53,50 @@ public class DownloadMavenResource {
 	public DownloadMavenResource(Session session, String mavenQuery) {
 		this.mavenQuery = mavenQuery;
 		this.session = session;
-
-		setTestArtifactTypes(); // fake - remove it with real configuration
-
 	}
 
-	public Response getResponse() throws RepositoryException {
-		try{
-			if (parse()) {
-				long hresult = getContentFromJCR();
-				if (hresult != DownloadMavenResource.ARTIFACT_ERROR)
-					return doResponse();
-			}
+	public Response getResponse() {
+		try {
+			getContentFromJCR();
+			return doResponse();
 		}
-		catch(NoSuchArtifactExcetion e){
-			
+		catch(RepositoryException e){
 			//!!! Dispatch download artifacts form remote repositories
-			
 			LOGGER.debug("Cannot resolve artifact, trying downloading from remote", e);
 		}
 		return Response.Builder.noContent().build();
 	}
 
-	private boolean parse() {
-		String tail = FilenameUtils.getExtension(mavenQuery);
-		boolean op_status = false;
-		if (primary.contains(tail)) {
-			// we have request like this /maven2/stax/stax/1.2.0/stax-1.2.0.pom
-			mainRes = tail;
-			servRes = "";
-			op_status = true;
-			
-			isPrimaryResource = true;
-		}
-		if (secondary.contains(tail)) {
-			// we have request like this
-			// /maven2/stax/stax/1.2.0/stax-1.2.0.pom.sha1
-			servRes = tail;
-			String[] strs = mavenQuery.split("\\W"); // split string with non
-			// word symbols - dot
-			mainRes = strs[strs.length - 2]; // pom or jar or ...
-			op_status = true;
-			
-			isPrimaryResource = false;
-		}
-
-		artifact_path = FilenameUtils.getFullPath(mavenQuery); // path to
-		// version Node
-		int index = mavenQuery.indexOf("/", 1); // skip first slash & name of
-		// repository
-		artifact_path = mavenQuery.substring(index + 1); // skip first
-		// leading slash
-
-		return op_status;
-	}
-
 	private Response doResponse() {
 		LOGGER.debug("Generating response");
-		if( isPrimaryResource ){
-			mimeType = "application/java-archive";
-			return Response.Builder.ok().contentLenght(contentLength).lastModified(
+		String jarResource = "application/java-archive";
+		Response response = null;
+		if( mimeType.equals(jarResource) ){
+			response = Response.Builder.ok().contentLenght(contentLength).lastModified(
 				lastModified.getTime()).entity(entity, mimeType).transformer(
 				new ArtifactOutputTransformer()).build();
 		}
 		else{
-			mimeType = "text/xml";
-			return Response.Builder.ok().contentLenght(contentLength).lastModified(
+			response = Response.Builder.ok().contentLenght(contentLength).lastModified(
 					lastModified.getTime()).entity(entity, mimeType).transformer(
 					new StringOutputTransformer()).build();
 		}
-	}
-
-	public void setPrimaryArtifactTypes(Collection<String> pc) {
-		primary.addAll(pc);
-	}
-
-	public void setSecondaryArtifactTypes(Collection<String> sc) {
-		secondary.addAll(sc);
-	}
-
-	private void setTestArtifactTypes() {
-		primary.add("jar");
-		primary.add("war");
-		primary.add("pom");
-		primary.add("xml");
-		secondary.add("sha1");
-		secondary.add("md5");
-	}
-	private String queryEntity(){
-		if(StringUtils.isEmpty(servRes))
-			return "jcr:data";
-		if(servRes == "sha1")
-			return "exo:sha1";
-		if(servRes == "md5")
-			return "exo:md5";
-		return null;
+		return response;
 	}
 	
-
-	private long getContentFromJCR() throws RepositoryException,
-			NoSuchArtifactExcetion {
+	private void getContentFromJCR() throws RepositoryException{
+		// path to version Node
+		artifact_path = FilenameUtils.getFullPath(mavenQuery); 
+		int index = mavenQuery.indexOf("/", 1); // skip first slash & name of
+		String resourcePath = mavenQuery.substring(index); // skip first
 		
-		LOGGER.debug("Getting artifact from :".concat(artifact_path));
-		/* stax/stax/1.2.0/ */
-		String[] folders = artifact_path.split("/");
-
-		Node current_node = session.getRootNode(); // root node at the start
-
-		// traversal down-run to version node
-		for (String folder : folders) {
-			if (current_node.hasNode(folder))
-				current_node = current_node.getNode(folder);
-			else throw new NoSuchArtifactExcetion("There is no such folder is repo: ".concat(folder));
-		}
-		// I am in version node;
-		Node resourceNode = current_node.getNode( mainRes );
-		resourceNode = resourceNode.getNode("jcr:content");
+		Node resourceNode = (Node)session.getItem( resourcePath );
+		Node content = resourceNode.getNode("jcr:content");
 		
-		entity = resourceNode.getProperty( queryEntity() ).getStream();
-		contentLength = resourceNode.getProperty( queryEntity() ).getLength();
-		lastModified = resourceNode.getProperty("jcr:lastModified").getDate();
-				
-		return DownloadMavenResource.ARTIFACT_SUCCESS;
+		entity = content.getProperty("jcr:data").getStream();
+		lastModified = content.getProperty("jcr:lastModified").getDate();
+		mimeType = content.getProperty("jcr:mimeType").getString();
+		
 	}
-	
-	
 	
 }
