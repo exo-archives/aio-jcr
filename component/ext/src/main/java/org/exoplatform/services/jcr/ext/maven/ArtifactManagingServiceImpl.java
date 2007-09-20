@@ -57,23 +57,19 @@ import org.apache.maven.wagon.observers.ChecksumObserver;
  * ---part-of-group-folder1/ (nt:folder + exo:groupId) ..
  * ---part-of-group-foldern/ 
  * ------artifact-root-folder/ (nt:folder + exo:artifactId)
- * ---------artifact-version-list(exo:versionList)
- * ---------------jcr:content
- * ---------------exo:md5
- * ---------------exo:sha1
+
+ * ---------maven-metadata.xml(nt:file)
+ * ---------maven-metadata.xml.sha1(nt:file)
+ * 
  * ---------artifact-version-folder/ (nt:folder + exo:versionId) 
- * ------------artifact-jar-file(nt:file/(nt:resource + exo:mvnjar))
- * ---------------jcr:content
- * ---------------exo:md5
- * ---------------exo:sha1
- * ------------artifact-pom-file(nt:file/(nt:resource + exo:mvnpom))
- * ---------------jcr:content
- * ---------------exo:md5
- * ---------------exo:sha1
- * ------------artifact-metadata-file (nt:file/(nt:resource + exo:mavenmetadata))
- * ---------------jcr:content
- * ---------------exo:md5
- * ---------------exo:sha1
+ * ------------artifactId-version.jar (nt:file + exo:mavenjar / nt:resource)
+ * ------------artifactId-version.jar.sha1 (nt:file + exo:mavensha1 / nt:resource )
+ * 
+ * ------------artifactId-version.pom (nt:file + exo:mavenpom / nt:resource)
+ * ------------artifactId-version.pom.sha1 (nt:file + exo:mavensha1/ (nt:resource)
+
+ * ------------maven-metadata.xml (nt:file + exo:mavenmetadata / (nt:resource )
+ * ------------maven-metadata.xml.sha1 (nt:file + exo:mavensha1 / (nt:resource)
  * 
  * @author Gennady Azarenkov
  * @author Volodymyr Krasnikov
@@ -138,12 +134,14 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		
 		Node artifactId_node = createArtifactIdLayout(groupId_tail, artifact);
 		
+		updateMetadata(artifactId_node, artifact);
+		
 		Node version_node = createVersionLayout(artifactId_node, artifact);
 		
 		importResource(version_node, jarFile, "jar", artifact);
 		importResource(version_node, pomFile, "pom", artifact);
 		
-		importMetadata( version_node, artifact );
+		updateMetadata( version_node, artifact );
 		
 		session.save();
 
@@ -377,66 +375,69 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		artifactId.setProperty("exo:versionList", newValues);
 	}
 	
+	private List<String> getAllArtifactVersions(Node artifactId) throws RepositoryException{
+		Property property = artifactId.getProperty("exo:versionList");
+		Value[] values = property.getValues();
+		Vector<String> versionList = new Vector<String>();
+		for (Value ver : values) {
+			String str = ver.getString();
+			if (!str.equals(ArtifactManagingServiceImpl.STRING_TERMINATOR)) {
+				versionList.addElement(str);
+			}
+		}
+		return versionList;
+	}
+	
 	
 	// this function is used to add a metadata to artifact;
 	// metadata can be placed in artifactId Node and contains a list of
 	// available artifacts
 	// also metadata is placed in each version forder with a jar and pom files.
 	// In this case it contains only version of current artifact
-	private void importMetadata(Node parentNode, ArtifactDescriptor artifact) throws RepositoryException {
+	private void updateMetadata(Node parentNode, ArtifactDescriptor artifact) throws RepositoryException {
 
 		String groupId = artifact.getGroupId().getAsString();
 		String artifactId = artifact.getArtifactId();
 		String version = artifact.getVersionId();
 		
-		Node metadata = parentNode.addNode("xml", "nt:file");
-		Node xmlContent = metadata.addNode("jcr:content", "nt:resource");
-		String mimeType = "text/xml";
-		xmlContent.setProperty("jcr:mimeType", mimeType);
-		xmlContent.setProperty("jcr:lastModified", Calendar.getInstance());
-		xmlContent.addMixin("exo:mavenmetadata");
-		
+		File srcFile = null;
 		try {
-			File temp = createSingleMetadata(groupId, artifactId, version);
-			InputStream ios = new FileInputStream(temp);
-			xmlContent.setProperty("jcr:data", ios);
-			ios.close();
-			try {
-				xmlContent.setProperty("exo:md5", getChecksum(temp,	"MD5"));
-				xmlContent.setProperty("exo:sha1", getChecksum(temp, "SHA-1"));
-			} catch (NoSuchAlgorithmException e) {
-				LOGGER.error("Wrong algorigthm used", e);
+			if (parentNode.isNodeType("exo:artifactId")) {
+				srcFile = createMultiMetadata(groupId, artifactId, getAllArtifactVersions(parentNode) );
 			}
-		} catch (IOException e) {
-			LOGGER.error("File IO error", e);
+			if (parentNode.isNodeType("exo:versionId")) {
+				srcFile = createSingleMetadata(groupId, artifactId, version);
+			}
+			
+			InputStream file_in = new FileInputStream(srcFile);
+			importResource(parentNode, file_in, "metadata", artifact);
+			
+		} catch (FileNotFoundException e) {
+			LOGGER.error("Cannot create temporary file hor holding artifact versions",e);
 		}
+		
 	}
 	
 	private String getRelativeMimeType(String key){
 		return (String)mimeMap.get(key); 
 	}
-	
-	private void writeResourceData(Node resourceNode, InputStream resource, String mimeType) throws RepositoryException{
-
-		Node content = resourceNode.addNode("jcr:content", "nt:resource");
-		content.setProperty("jcr:mimeType", mimeType);
-		content.setProperty("jcr:lastModified", Calendar.getInstance());
-		
-		content.setProperty("jcr:data", resource);
-		IOUtils.closeQuietly(resource);
-
-	}
-	private void importResource(Node versionNode, InputStream file_in, String resourceType, ArtifactDescriptor artifact )
+	//this method used for writing to repo jars, poms and their checksums
+	private void importResource(Node parentNode, InputStream file_in, String resourceType, ArtifactDescriptor artifact )
 			throws RepositoryException {
 		// Note that artifactBean been initialized within constructor
-		// resourceType can be jar, pom
+		// resourceType can be jar, pom, metadata
 		
-		String filename = String.format("%s-%s.%s",artifact.getArtifactId(), artifact.getVersionId(), resourceType);
+		String filename;
+		if(resourceType.equals("metadata"))
+			filename = "maven-metadata.xml";
+		else
+			filename = String.format("%s-%s.%s",artifact.getArtifactId(), artifact.getVersionId(), resourceType);
 				
 		OutputStream fout = null;
 		File tmp_file = null;
 		try {
-			tmp_file = File.createTempFile(filename, null);
+			String tmpFilename = getUniqueFilename(filename);
+			tmp_file = File.createTempFile( tmpFilename, null );
 			fout = new FileOutputStream(tmp_file);
 			IOUtils.copy(file_in, fout);
 			fout.flush();
@@ -446,45 +447,69 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		catch(IOException e){
 			LOGGER.error("IO exception on .tmp file for storing artifact", e);
 		}finally {
+			IOUtils.closeQuietly(file_in);
 			IOUtils.closeQuietly(fout);
 		}
+				
+		writePrimaryContent(parentNode, filename, resourceType, tmp_file);
+		writeChecksum(parentNode, filename, tmp_file, "SHA1");
 		
-		String mimeType;
-		if( StringUtils.isEmpty(mimeType = getRelativeMimeType(resourceType)) )
-			mimeType = "text/xml";
-			
-		Node resourceFile = versionNode.addNode(filename, "nt:file");
-		
+		try{
+			//and collect all garbage : temporary files
+			FileUtils.forceDelete(tmp_file);
+		}catch(IOException e){
+			LOGGER.error("Cannot delete tmp file", e);
+		}
+				
+	}
+	
+	private void writePrimaryContent(Node parentNode, String filename,
+			String resourceType, File srcFile) throws RepositoryException {
+		String mimeType = getRelativeMimeType(resourceType);
+
+		Node nodeResourceFile = parentNode.addNode(filename, "nt:file");
+
 		String mixinType = "exo:maven".concat(resourceType);
-		if (resourceFile.canAddMixin(mixinType))
-			resourceFile.addMixin(mixinType);
-		try{
-			writeResourceData(resourceFile, new FileInputStream(tmp_file), mimeType); //note that is close by this method
-		}catch(FileNotFoundException e){
+		if (nodeResourceFile.canAddMixin(mixinType))
+			nodeResourceFile.addMixin(mixinType);
+		try {
+			InputStream file_is = new FileInputStream(srcFile);
+			
+			Node content = nodeResourceFile.addNode("jcr:content", "nt:resource");
+			content.setProperty("jcr:mimeType", mimeType);
+			content.setProperty("jcr:lastModified", Calendar.getInstance());
+			content.setProperty("jcr:data", file_is);
+	
+			IOUtils.closeQuietly(file_is);
+		} catch (FileNotFoundException e) {
 			LOGGER.error("Cannot read from .tmp resource file", e);
 		}
-		
-		Node checksumFile = versionNode.addNode(filename.concat(".sha1"), "nt:file");
-		
-		mixinType = "exo:maven".concat("sha1");
-		InputStream checksum_out = null;
-		if (checksumFile.canAddMixin(mixinType))
-			checksumFile.addMixin(mixinType);
-		try{
-			checksum_out = new ByteArrayInputStream(getChecksum(tmp_file, "SHA-1").getBytes());
-			mimeType = "text/xml";
-			writeResourceData(checksumFile, checksum_out , mimeType);	//note that is close by this method
-		}catch(FileNotFoundException e){
+	}
+	private void writeChecksum(Node parentNode, String filename, File srcFile, String algorithm)
+			throws RepositoryException {
+		Node nodeChecksumFile = parentNode.addNode(filename.concat("."+algorithm.toLowerCase()),"nt:file");
+
+		String mixinType = "exo:maven".concat( algorithm.toLowerCase() );
+		if ( nodeChecksumFile.canAddMixin(mixinType))
+			nodeChecksumFile.addMixin(mixinType);
+		try {
+			InputStream checksum_is = new ByteArrayInputStream(getChecksum(
+					srcFile, algorithm).getBytes());
+			String mimeType = "text/xml";
+						
+			Node content = nodeChecksumFile.addNode("jcr:content", "nt:resource");
+			content.setProperty("jcr:mimeType", mimeType);
+			content.setProperty("jcr:lastModified", Calendar.getInstance());
+			content.setProperty("jcr:data", checksum_is);
+			
+			IOUtils.closeQuietly(checksum_is);
+		} catch (FileNotFoundException e) {
 			LOGGER.error("Cannot read from .tmp resource file", e);
-		}
-		catch(IOException e){
+		} catch (IOException e) {
 			LOGGER.error("Cannot read from .tmp resource file", e);
-		}
-		catch(NoSuchAlgorithmException e){
+		} catch (NoSuchAlgorithmException e) {
 			LOGGER.error("No such algorithm for generating checksums", e);
 		}
-		
-
 	}
 		
 	protected String getChecksum(File file, String algo)
@@ -494,7 +519,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 			byte[] buffer = FileUtils.readFileToByteArray(file);
 			if ("MD5".equals(algo)) {
 				checksum = new ChecksumObserver("MD5"); // md5 by default
-			} else if ("SHA-1".equals(algo)) {
+			} else if ("SHA1".equals(algo)) {
 				checksum = new ChecksumObserver("SHA-1");
 			} else {
 				throw new NoSuchAlgorithmException("No support for algorithm "
@@ -513,8 +538,9 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 			String version) throws FileNotFoundException {
 		File temp = null;
 		try{
-			temp = File.createTempFile("maven-matadata", null);
-			temp.deleteOnExit();
+			String filename = getUniqueFilename("maven-metadata.xml");
+			temp = File.createTempFile(filename, null);
+
 			OutputStream os = new FileOutputStream(temp);
 			XMLOutputFactory factory = XMLOutputFactory.newInstance();
 			XMLStreamWriter writer = factory.createXMLStreamWriter(os);
@@ -553,11 +579,11 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 
 	protected File createMultiMetadata(String groupId, String artifactId,
 			List<String> versions) throws FileNotFoundException {
-		
 		File temp = null;
 		try{
-			temp = File.createTempFile("maven-matadata", null);
-			temp.deleteOnExit();
+			String filename = getUniqueFilename("maven-metadata.xml");
+			temp = File.createTempFile(filename, null);
+			
 			OutputStream os = new FileOutputStream(temp);
 			XMLOutputFactory factory = XMLOutputFactory.newInstance();
 			XMLStreamWriter writer = factory.createXMLStreamWriter(os);
@@ -612,6 +638,11 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 	private void setMimeMap(Map<String, String > mimeTypes){
 		mimeMap.clear();
 		mimeMap.putAll(mimeTypes);
+	}
+	
+	private String getUniqueFilename(String basename){
+		String suffix = ((Double)Math.random()).toString().substring(2, 7);
+		return basename +"."+ suffix;
 	}
 		
 }
