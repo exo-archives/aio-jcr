@@ -64,6 +64,7 @@ public class DavTextUtil {
       URISave.set('\'');
       URISave.set('(');
       URISave.set(')');
+      URISave.set(':');
 
       URISaveEx = (BitSet) URISave.clone();
       URISaveEx.set('/');

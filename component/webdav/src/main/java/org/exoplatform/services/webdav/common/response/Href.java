@@ -40,7 +40,7 @@ public class Href extends AbstractXmlSerializable {
   
   public void serializeBody(Element element) {
     String escapedHref = DavTextUtil.Escape(href, '%', true);
-    escapedHref = escapedHref.replace(":", "%3a");
+    //escapedHref = escapedHref.replace(":", "%3a");
     element.setTextContent(escapedHref);    
   }
   

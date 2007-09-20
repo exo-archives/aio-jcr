@@ -58,7 +58,11 @@ public abstract class WebDavCommand implements ResourceContainer {
   }
 
   public String getServerPrefix(String repoName) {
-    return resourceDispatcher.getRuntimeContext().getContextHref() + "/jcr/" + repoName;
+    String prefix = resourceDispatcher.getRuntimeContext().getContextHref();
+    if (prefix.endsWith("portal")) {
+      prefix += "/rest";
+    }
+    return prefix + "/jcr/" + repoName;
   }
   
   protected Response xmlResponse(XmlSerializable serializable, int status) throws Exception {
