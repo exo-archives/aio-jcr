@@ -9,8 +9,6 @@ import java.util.ArrayList;
 
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.logging.Log;
-import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.common.request.documents.CommonPropDocument;
 import org.exoplatform.services.webdav.common.resource.WebDavResource;
 import org.exoplatform.services.webdav.common.response.MultiStatusResponse;
