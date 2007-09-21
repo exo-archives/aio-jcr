@@ -37,7 +37,7 @@ public interface ArtifactManagingService {
 	 * @throws RepositoryException
 	 */
 	
-	void addArtifact(SessionProvider sp, ArtifactDescriptor artifact, InputStream jarFile, InputStream pomFile)
+	void addArtifact(SessionProvider sp, ArtifactDescriptor artifact, InputStream jarIStream, InputStream pomIStream)
 			throws RepositoryException;
 
 	/**

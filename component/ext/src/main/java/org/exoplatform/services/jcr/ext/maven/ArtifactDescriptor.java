@@ -18,7 +18,7 @@ public final class ArtifactDescriptor implements Descriptor {
 	private final String artifactId;
 	private final String versionId;
 	
-	ArtifactDescriptor(FolderDescriptor groupId, String artifactId, String versionId) {
+	public ArtifactDescriptor(FolderDescriptor groupId, String artifactId, String versionId) {
 		this.groupId = groupId;
 		this.artifactId = artifactId;
 		this.versionId = versionId;

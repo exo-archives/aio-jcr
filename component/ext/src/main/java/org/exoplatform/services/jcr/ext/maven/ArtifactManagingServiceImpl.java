@@ -125,7 +125,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 	 *      java.io.InputStream)
 	 */
 	public void addArtifact(SessionProvider sp, ArtifactDescriptor artifact,
-			InputStream jarFile, InputStream pomFile) throws RepositoryException {
+			InputStream jarIStream, InputStream pomIStream) throws RepositoryException {
 		
 		Session session = currentSession(sp);
 		Node rootNode = session.getRootNode();
@@ -138,8 +138,8 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		
 		Node version_node = createVersionLayout(artifactId_node, artifact);
 		
-		importResource(version_node, jarFile, "jar", artifact);
-		importResource(version_node, pomFile, "pom", artifact);
+		importResource(version_node, jarIStream, "jar", artifact);
+		importResource(version_node, pomIStream, "pom", artifact);
 		
 		updateMetadata( version_node, artifact );
 		

@@ -6,9 +6,13 @@ package org.exoplatform.services.jcr.ext.maven;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -18,13 +22,17 @@ import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.nodetype.NodeType;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
+
 
 /**
  * Created by The eXo Platform SARL        .
@@ -35,91 +43,112 @@ import org.exoplatform.services.log.ExoLogger;
 public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 
 	private ArtifactManagingServiceImpl asImpl;
-	private static Log LOGGER = ExoLogger.getLogger(ArtifactManagingServiceTest.class);
+	private String repoPrefix = "/home/satay/java/exo-dependencies/repository";
+	private int index_j = 0, index_p = 0;
+	private int total = 0, suffixLength;
+	private List<String> list;
+	private SessionProvider sp;
 
 	public void setUp() throws Exception {
 		super.setUp();
 			
-		LOGGER.debug("Trying to get ArtifactService  via container!");
-		asImpl = (ArtifactManagingServiceImpl) container.getComponentInstanceOfType(ArtifactManagingServiceImpl.class);
+		log.debug("Trying to get ArtifactService  via container!");
+				
+		list = getDefaultArtifactList();
+		
+		sp = new SessionProvider(credentials);
 	}
 
-	public void testImportArtifact() throws Exception {
-		LOGGER.debug("Starting first test!");
+	public void testFileExists(){
 		
-		File jarfile = new File("/home/satay/java/tmp/s3-0.1.jar");
-		File pomfile = new File("/home/satay/java/tmp/s3-0.1.pom");
+		for(Iterator<String> iterator = list.iterator(); iterator.hasNext(); ){
+			String basepath = iterator.next();
+			
+			File jar = new File(basepath.concat(".jar"));
+			assertTrue( jar.exists() );
+			
+			File pom = new File(basepath.concat(".pom"));
+			assertTrue( pom.exists() );
+			
+		}
+		
+	}
+	
+	public void _testArtifactLoad() throws Exception {
+		log.debug("Starting artifact loading test !");
+		asImpl = (ArtifactManagingServiceImpl) container.getComponentInstanceOfType(ArtifactManagingServiceImpl.class);
+		assertNotNull(asImpl);
+			
+		for(Iterator<String> iterator = list.iterator(); iterator.hasNext(); ){
+			
+			String basename = iterator.next();
+			
+			InputStream is_jar = new FileInputStream( basename.concat(".jar") );
+			InputStream is_pom = new FileInputStream( basename.concat(".pom") );
+			
+			//this code parse full file name to appropriate structs - groupId, atrifactId, ver ...
+	        String str = FilenameUtils.getFullPath( basename );
+	        String els[] = str.split( File.separator );
+	        String versionId = els[ els.length-1 ];
+	        String artifactId = els[ els.length-2 ];
+	        int lastGroupId = str.indexOf(versionId) - artifactId.length() - File.separator.length();
+	        String groupId = str.substring(suffixLength + File.separator.length()  , lastGroupId);
 
-		
+			
+			FolderDescriptor fld = new FolderDescriptor(groupId);
+			ArtifactDescriptor artifact = new ArtifactDescriptor( fld, artifactId, versionId);
+			
+			asImpl.addArtifact(sp, artifact, is_jar, is_pom);
+			
+			String resPath;
+			
+			resPath = StringUtils.removeStart(basename.concat(".jar"), repoPrefix);
+			Node jar = (Node) session.getItem(resPath);
+			assertNotNull(jar);
+			
+			resPath = StringUtils.removeStart(basename.concat(".jar.sha1"), repoPrefix);
+			Node jar_sha1 = (Node) session.getItem(resPath);
+			assertNotNull(jar_sha1);
+			
+			resPath = StringUtils.removeStart(basename.concat(".pom"), repoPrefix);
+			Node pom = (Node) session.getItem(resPath);
+			assertNotNull(pom);
+			
+			resPath = StringUtils.removeStart(basename.concat(".pom.sha1"), repoPrefix);
+			Node pom_sha1 = (Node) session.getItem(resPath);
+			assertNotNull(pom_sha1);
+			
+			
+		}
+	
+	}
+	
+	public void testArtifactRead() throws Exception{
 		assertTrue(true);
 	}
-
-	private void printMetadata(Node parentNode) throws RepositoryException {
-		for (NodeIterator nt = parentNode.getNodes(); nt.hasNext();) {
-			Node node = nt.nextNode();
-			if (node.isNodeType("exo:artifact")) {
-				if (node.isNodeType("exo:artifactId")) {
-					printXML(node);
-				} else
-					printMetadata(node);
-			}
-		}
+	public void testArtifactLoadHuge() throws Exception{
+		assertTrue(true);
 	}
-
-	private void printXML(Node node) throws RepositoryException {
-		System.out.println();
-		Node data_node = node.getNode("maven-metadata.xml/jcr:content");
-		Property data = data_node.getProperty("jcr:data");
-		InputStream is = data.getStream();
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-		try {
-			try {
-				while (reader.ready()) {
-					System.out.println(reader.readLine());
-				}
-			} finally {
-				reader.close();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		System.out.println();
+	public void testArtifactReadHuge() throws Exception{
+		assertTrue(true);
 	}
-
-
-	private void printTree(Node parentNode, int space)
-			throws RepositoryException {
-		for (NodeIterator nt = parentNode.getNodes(); nt.hasNext();) {
-			Node node = nt.nextNode();
-			if (node.isNodeType("exo:artifact")) {
-				for (int i = 0; i < space; i++) {
-					System.out.print("-");
-				}
-				String nodeName = node.getName();
-
-				System.out.print(nodeName.concat("/"));
+	
+	private List<String> getAllArtifactList(String repoPath, int limit){
+		//!! urgent - must provide crosspaltform usage
+		return null;
+	}
+	 
+	private List<String> getDefaultArtifactList(){
+		List<String> list = new ArrayList<String>();
 				
-				if ( node.isNodeType("exo:artifactId")) {
-					System.out.print(" : ");
-					Property list = node.getProperty("exo:versionList");
-					Value[] vers = list.getValues();
-					for (Value val : vers) {
-						String str = val.getString();
-						System.out.print(str.concat(" "));
-					}
-
-				}
-
-				if (node.isNodeType("exo:versionId")) {
-
-				}
-
-				System.out.print("\n");
-
-				printTree(node, space + 5);
-			}
-
-		}
-
+		suffixLength = repoPrefix.length();
+		
+		list.add( repoPrefix + "/stax/stax/1.2.0/stax-1.2.0");
+		list.add( repoPrefix + "/stax/stax-api/1.0.1/stax-api-1.0.1");
+		
+		total = list.size();
+		
+		return list;
 	}
+	
 }
