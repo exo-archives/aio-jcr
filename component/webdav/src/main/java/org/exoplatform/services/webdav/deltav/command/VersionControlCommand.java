@@ -5,11 +5,15 @@
 
 package org.exoplatform.services.webdav.deltav.command;
 
+import java.util.ArrayList;
+
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Node;
 
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
+import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.rest.HTTPMethod;
+import org.exoplatform.services.rest.HeaderParam;
 import org.exoplatform.services.rest.InputTransformer;
 import org.exoplatform.services.rest.OutputTransformer;
 import org.exoplatform.services.rest.ResourceDispatcher;
@@ -21,6 +25,7 @@ import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.WebDavMethod;
 import org.exoplatform.services.webdav.WebDavService;
+import org.exoplatform.services.webdav.common.WebDavHeaders;
 import org.exoplatform.services.webdav.common.command.WebDavCommand;
 import org.exoplatform.services.webdav.common.resource.NodeResource;
 import org.exoplatform.services.webdav.common.resource.WebDavResource;
@@ -49,13 +54,20 @@ public class VersionControlCommand extends WebDavCommand {
   @OutputTransformer(PassthroughOutputTransformer.class)
   public Response versionControl(
       @URIParam("repoName") String repoName,
-      @URIParam("repoPath") String repoPath
+      @URIParam("repoPath") String repoPath,
+      @HeaderParam(WebDavHeaders.AUTHORIZATION) String authorization,
+      @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
+      @HeaderParam(WebDavHeaders.IF) String ifHeader
       ) {
     
     try {
       String serverPrefix = getServerPrefix(repoName);
+      
+      ArrayList<String> lockTokens = getLockTokens(lockTokenHeader, ifHeader);
+      
+      SessionProvider sessionProvider = getSessionProvider(authorization);
 
-      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, repoPath);      
+      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, lockTokens, serverPrefix, repoPath);      
       
       //DocumentDispatcher documentDispatcher = new DocumentDispatcher(webDavService.getConfig(), requestDocument);
 

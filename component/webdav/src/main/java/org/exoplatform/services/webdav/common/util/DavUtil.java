@@ -8,7 +8,9 @@ package org.exoplatform.services.webdav.common.util;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 
+import javax.jcr.Session;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -117,34 +119,20 @@ public class DavUtil {
     return outStream.toByteArray();
   }
   
-//  public static void sendMultistatus(HttpServletResponse response, MultiStatus multistatus) throws Exception {
-//    Document responseDocument = getDomDocument();
-//
-//    Element multistatusElement = multistatus.toXml(responseDocument);    
-//    byte []xmlBytes = getSerializedDom(multistatusElement);
-//    
-//    response.setStatus(WebDavStatus.MULTISTATUS);      
-//    response.addHeader(DavConst.Headers.CONTENTTYPE, "text/xml;charset=UTF-8 ");
-//    response.addHeader(DavConst.Headers.CONTENTLENGTH, String.format("%s", xmlBytes.length));
-//    
-//    response.getOutputStream().write(xmlBytes, 0, xmlBytes.length);
-//  }
-  
-//  public static void sendSingleProperty(HttpServletResponse response, WebDavProperty property) throws Exception {
-//    Document responseDocument = getDomDocument();
-//    
-//    Element propElement = responseDocument.createElementNS(DavConst.DAV_NAMESPACE, DavConst.DAV_PREFIX + DavProperty.PROP);
-//    responseDocument.appendChild(propElement);
-//
-//    property.serialize(responseDocument, propElement);
-//    
-//    byte []xmlBytes = getSerializedDom(propElement);
-//    
-//    response.setStatus(WebDavStatus.OK);
-//    response.addHeader(DavConst.Headers.CONTENTTYPE, "text/xml;charset=UTF-8 ");
-//    response.addHeader(DavConst.Headers.CONTENTLENGTH, String.format("%s", xmlBytes.length));
-//
-//    response.getOutputStream().write(xmlBytes, 0, xmlBytes.length);
-//  }
+  public static void tuneSession(Session session, ArrayList<String> lockTokens) {
+    String []sessionTokens = session.getLockTokens();
+    
+    ArrayList<String> sessionTokensList = new ArrayList<String>();
+    for (int i = 0; i < sessionTokens.length; i++) {
+      sessionTokensList.add(sessionTokens[i]);
+    }
+    
+    for (int i = 0; i < lockTokens.size(); i++) {
+      String token = lockTokens.get(i);
+      if (!sessionTokensList.contains(token)) {
+        session.addLockToken(token);
+      }      
+    }
+  }
     
 }

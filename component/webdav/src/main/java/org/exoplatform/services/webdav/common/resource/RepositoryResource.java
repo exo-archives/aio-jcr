@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.WebDavService;
+import org.exoplatform.services.webdav.common.util.DavUtil;
 
 /**
  * Created by The eXo Platform SARL
@@ -29,16 +30,20 @@ public class RepositoryResource extends AbstractWebDavResource {
   
   protected SessionProvider sessionProvider;
   
+  protected ArrayList<String> lockTokens;
+  
   public RepositoryResource(
       WebDavService webDavService, 
       String rootHref, 
       String repoName,
-      SessionProvider sessionProvider) {
+      SessionProvider sessionProvider,
+      ArrayList<String> lockTokens) {
     
     super(webDavService, rootHref);
     
     this.repoName = repoName;
     this.sessionProvider = sessionProvider;
+    this.lockTokens = lockTokens;
   }
   
   public boolean isCollection() throws RepositoryException {
@@ -64,6 +69,7 @@ public class RepositoryResource extends AbstractWebDavResource {
         
         try {
           childSession = sessionProvider.getSession(workspace, webDavService.getRepository());
+          DavUtil.tuneSession(childSession, lockTokens);
         } catch (LoginException exc) {
         }
         

@@ -6,22 +6,26 @@
 package org.exoplatform.services.webdav.common.command;
 
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 
 import javax.jcr.AccessDeniedException;
+import javax.jcr.Credentials;
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.PathNotFoundException;
+import javax.jcr.SimpleCredentials;
 import javax.jcr.lock.LockException;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
+import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.ResourceDispatcher;
 import org.exoplatform.services.rest.Response;
 import org.exoplatform.services.rest.container.ResourceContainer;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.WebDavService;
-import org.exoplatform.services.webdav.WebDavSessionProvider;
 import org.exoplatform.services.webdav.WebDavStatus;
 import org.exoplatform.services.webdav.common.BadRequestException;
 import org.exoplatform.services.webdav.common.document.XmlSerializable;
@@ -53,8 +57,37 @@ public abstract class WebDavCommand implements ResourceContainer {
     this.sessionProviderService = sessionProviderService;
   }
   
-  public WebDavSessionProvider getSessionProvider() {
-    return (WebDavSessionProvider)sessionProviderService.getSessionProvider(null);
+//  public SessionProvider getSessionProvider() {
+//    return sessionProviderService.getSessionProvider(null);
+//  }
+  
+  public SessionProvider getSessionProvider(String authorization) throws LoginException {    
+    Credentials credentials = null;    
+    String decodedAuth = "";
+      
+    if (authorization != null) {
+      try {
+        String []basic = authorization.split(" ");
+        if (basic.length >= 2 && basic[0].equalsIgnoreCase("BASIC")) {
+          decodedAuth = new String(Base64.decodeBase64(basic[1].getBytes()));
+        }        
+      } catch (Exception exc) {
+        throw new LoginException();
+      }
+    } else {
+      if (webDavService.getConfig().getDefIdentity() != null) {
+        decodedAuth = webDavService.getConfig().getDefIdentity();
+      }
+    }
+      
+    String []authParams = decodedAuth.split(":");
+    
+    String userId = (authParams.length > 0) ? authParams[0] : "";
+    String userPass = (authParams.length > 1) ? authParams[1] : "";
+    
+    credentials = new SimpleCredentials(userId, userPass.toCharArray());
+    SessionProvider sessionProvider = new SessionProvider(credentials);
+    return sessionProvider;
   }
 
   public String getServerPrefix(String repoName) {
@@ -79,7 +112,24 @@ public abstract class WebDavCommand implements ResourceContainer {
     return Response.Builder.withStatus(status).
         header(DavConst.Headers.CONTENTLENGTH, "" + xmlBytes.length).
         entity(inStream, "text/xml").build();    
-  }  
+  }
+
+  protected ArrayList<String> getLockTokens(String lockTokenHeader, String ifHeader) {
+    ArrayList<String> lockTokens = new ArrayList<String>();
+    
+    if (lockTokenHeader != null) {      
+      lockTokenHeader = lockTokenHeader.substring(1, lockTokenHeader.length() - 1);
+      lockTokens.add(lockTokenHeader);      
+    }
+    
+    if (ifHeader != null) {
+      String headerLockToken = ifHeader.substring(ifHeader.indexOf("("));
+      headerLockToken = headerLockToken.substring(2, headerLockToken.length() - 2);
+      lockTokens.add(headerLockToken);
+    }    
+    
+    return lockTokens;
+  }
   
   public Response responseByException(Exception exception) {
     

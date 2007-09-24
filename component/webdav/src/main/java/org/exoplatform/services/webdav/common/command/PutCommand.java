@@ -30,7 +30,6 @@ import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.WebDavMethod;
 import org.exoplatform.services.webdav.WebDavService;
-import org.exoplatform.services.webdav.WebDavSessionProvider;
 import org.exoplatform.services.webdav.WebDavStatus;
 import org.exoplatform.services.webdav.common.WebDavHeaders;
 import org.exoplatform.services.webdav.common.resource.AbstractNodeResource;
@@ -80,6 +79,11 @@ public class PutCommand extends NodeTypedCommand {
       @URIParam("repoPath") String repoPath,
       InputStream inputStream,
       
+      @HeaderParam(WebDavHeaders.AUTHORIZATION) String authorization,
+
+      @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
+      @HeaderParam(WebDavHeaders.IF) String ifHeader,
+      
       @HeaderParam(WebDavHeaders.NODETYPE) String nodeTypeHeader,
       @HeaderParam(WebDavHeaders.MIXTYPE) String mixinTypesHeader,
       @HeaderParam(WebDavHeaders.CONTENTTYPE) String mimeType      
@@ -87,6 +91,10 @@ public class PutCommand extends NodeTypedCommand {
     
     try {      
       String serverPrefix = getServerPrefix(repoName);
+      
+      ArrayList<String> lockTokens = getLockTokens(lockTokenHeader, ifHeader);
+      
+      SessionProvider sessionProvider = getSessionProvider(authorization);
       
       String fileName = getFileName(repoPath);
       
@@ -97,7 +105,7 @@ public class PutCommand extends NodeTypedCommand {
         nodeType = webDavService.getConfig().getDefFileNodeType();
       }      
       
-      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, repoPath);      
+      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, lockTokens, serverPrefix, repoPath);      
       
       ArrayList<String> mixinTypes = getMixinTypes(mixinTypesHeader);
       
@@ -110,7 +118,7 @@ public class PutCommand extends NodeTypedCommand {
       WebDavResource resource = resourceLocator.getSrcResource(true);
 
       if (resource instanceof FakeResource) {
-        checkLocked(resource.getHref(), getSessionProvider());
+        checkLocked(resource.getHref(), lockTokens);
         Session session = ((FakeResource)resource).getSession(); 
         createNtFile(session, fileDirectory, fileName, inputStream, mimeType, nodeType);
         return Response.Builder.withStatus(WebDavStatus.CREATED).build();
@@ -138,11 +146,9 @@ public class PutCommand extends NodeTypedCommand {
   }
   
 
-  private void checkLocked(String sourceHref, WebDavSessionProvider sessionProvider) throws LockException {
+  private void checkLocked(String sourceHref, ArrayList<String> sessionLockTokens) throws LockException {
     FakeLockTable lockTable = webDavService.getLockTable();      
     String presentLockToken = lockTable.getLockToken(sourceHref);
-    
-    ArrayList<String> sessionLockTokens = sessionProvider.getLockTokens();
     
     if (presentLockToken != null) {
       boolean tokenFinded = false; 

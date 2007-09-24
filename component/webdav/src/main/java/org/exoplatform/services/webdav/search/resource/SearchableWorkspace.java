@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.apache.commons.logging.Log;
-import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.WebDavService;
 import org.exoplatform.services.webdav.common.resource.WorkspaceResource;
 import org.exoplatform.services.webdav.common.response.MultiStatusResponse;
@@ -25,8 +23,6 @@ import org.exoplatform.services.webdav.search.Search;
 
 public class SearchableWorkspace extends WorkspaceResource implements SearchableResource {
   
-  private static Log log = ExoLogger.getLogger("jcr.SearchableWorkspace");
-  
   public SearchableWorkspace(
       WebDavService webDavService,
       String rootHref,
@@ -35,15 +31,11 @@ public class SearchableWorkspace extends WorkspaceResource implements Searchable
       ) {
     
     super(webDavService, rootHref, workspaceName, session);
-
-    log.info("construct..........");
   }
   
   public ArrayList<MultiStatusResponse> doSearch(Search search) throws RepositoryException {
     Session session = getSession();    
     
-    log.info("Using session: " + session);
-
     SearchableResource searchableResource = new SearchableNode(webDavService, getHref(), session.getRootNode());
     
     return searchableResource.doSearch(search);    

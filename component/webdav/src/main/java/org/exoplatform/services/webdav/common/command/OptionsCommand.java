@@ -7,9 +7,12 @@ package org.exoplatform.services.webdav.common.command;
 
 import java.util.ArrayList;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.HTTPMethod;
+import org.exoplatform.services.rest.HeaderParam;
 import org.exoplatform.services.rest.InputTransformer;
 import org.exoplatform.services.rest.OutputTransformer;
 import org.exoplatform.services.rest.ResourceDispatcher;
@@ -21,6 +24,7 @@ import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.WebDavMethod;
 import org.exoplatform.services.webdav.WebDavService;
 import org.exoplatform.services.webdav.WebDavXmlInputTransformer;
+import org.exoplatform.services.webdav.common.WebDavHeaders;
 import org.exoplatform.services.webdav.common.request.DocumentDispatcher;
 import org.exoplatform.services.webdav.common.resource.WebDavResourceLocator;
 import org.exoplatform.services.webdav.common.resource.WebDavResourceLocatorImpl;
@@ -35,6 +39,8 @@ import org.w3c.dom.Document;
 @URITemplate("/jcr/")
 public class OptionsCommand extends WebDavCommand {
   
+  private static Log log = ExoLogger.getLogger("jcr.OptionsCommand");
+  
   public OptionsCommand(WebDavService webDavService, 
       ResourceDispatcher resourceDispatcher,
       ThreadLocalSessionProviderService sessionProviderService) {
@@ -47,13 +53,16 @@ public class OptionsCommand extends WebDavCommand {
   @OutputTransformer(PassthroughOutputTransformer.class)
   public Response options(
       @URIParam("repoName") String repoName,
-      Document requestDocument      
+      Document requestDocument,
+      @HeaderParam(WebDavHeaders.AUTHORIZATION) String authorization
       ) {
     
     try {
       String serverPrefix = getServerPrefix(repoName);
       
-      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, null);      
+      SessionProvider sessionProvider = getSessionProvider(authorization);
+      
+      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, new ArrayList<String>(), serverPrefix, null);      
       
       DocumentDispatcher documentDispatcher = new DocumentDispatcher(webDavService.getConfig(), requestDocument);
       
@@ -70,14 +79,17 @@ public class OptionsCommand extends WebDavCommand {
   @OutputTransformer(PassthroughOutputTransformer.class)
   public Response options(
       @URIParam("repoName") String repoName,
-      @URIParam("repoPath") String repoPath,
-      Document requestDocument      
+      @URIParam("repoPath") String repoPath,      
+      Document requestDocument,
+      @HeaderParam(WebDavHeaders.AUTHORIZATION) String authorization
       ) {
     
     try {
       String serverPrefix = getServerPrefix(repoName);
       
-      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, repoPath);      
+      SessionProvider sessionProvider = getSessionProvider(authorization);
+      
+      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, new ArrayList<String>(), serverPrefix, repoPath);      
       
       DocumentDispatcher documentDispatcher = new DocumentDispatcher(webDavService.getConfig(), requestDocument);
       

@@ -11,8 +11,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.query.QueryManager;
 
-import org.apache.commons.logging.Log;
-import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.WebDavStatus;
 import org.exoplatform.services.webdav.common.property.DavProperty;
@@ -30,8 +28,6 @@ import org.w3c.dom.Element;
 
 public class SupportedQueryGrammarSetProp extends AbstractDAVProperty {
   
-  private static Log log = ExoLogger.getLogger("jcr.SupportedQueryGrammarSetProp");
-
   private ArrayList<String> queryGrammars = new ArrayList<String>();
   
   public SupportedQueryGrammarSetProp() {
@@ -41,9 +37,6 @@ public class SupportedQueryGrammarSetProp extends AbstractDAVProperty {
   @Override
   protected boolean initialize(WebDavResource resource) throws RepositoryException {
     if (!(resource instanceof WorkspaceResource)) {
-      
-      log.info("suppotred query grammar set >>> returned");
-      
       return false;
     }
     

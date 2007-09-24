@@ -5,10 +5,14 @@
 
 package org.exoplatform.services.webdav.deltav.command;
 
+import java.util.ArrayList;
+
 import javax.jcr.AccessDeniedException;
 
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
+import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.rest.HTTPMethod;
+import org.exoplatform.services.rest.HeaderParam;
 import org.exoplatform.services.rest.InputTransformer;
 import org.exoplatform.services.rest.OutputTransformer;
 import org.exoplatform.services.rest.ResourceDispatcher;
@@ -20,6 +24,7 @@ import org.exoplatform.services.webdav.WebDavMethod;
 import org.exoplatform.services.webdav.WebDavService;
 import org.exoplatform.services.webdav.WebDavXmlInputTransformer;
 import org.exoplatform.services.webdav.common.BadRequestException;
+import org.exoplatform.services.webdav.common.WebDavHeaders;
 import org.exoplatform.services.webdav.common.command.WebDavCommand;
 import org.exoplatform.services.webdav.common.request.DocumentDispatcher;
 import org.exoplatform.services.webdav.common.request.documents.RequestDocument;
@@ -54,13 +59,16 @@ public class ReportCommand extends WebDavCommand {
   public Response report(
       @URIParam("repoName") String repoName,
       @URIParam("repoPath") String repoPath,
-      Document requestDocument      
+      Document requestDocument,
+      @HeaderParam(WebDavHeaders.AUTHORIZATION) String authorization      
       ) {
     
     try {
       String serverPrefix = getServerPrefix(repoName);
+      
+      SessionProvider sessionProvider = getSessionProvider(authorization);
 
-      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, repoPath);      
+      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, new ArrayList<String>(), serverPrefix, repoPath);      
       
       DocumentDispatcher documentDispatcher = new DocumentDispatcher(webDavService.getConfig(), requestDocument);
       

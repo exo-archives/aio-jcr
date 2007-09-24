@@ -5,6 +5,8 @@
 
 package org.exoplatform.services.webdav.search.resource;
 
+import java.util.ArrayList;
+
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -28,8 +30,8 @@ import org.exoplatform.services.webdav.deltav.resource.DeltaVResource;
 
 public class SearchableResourceLocatorImpl extends WebDavResourceLocatorImpl implements SearchableResourceLocator {
   
-  public SearchableResourceLocatorImpl(WebDavService webDavService, SessionProvider sessionProvider, String serverPrefix, String resourcePath) {
-    super(webDavService, sessionProvider, serverPrefix, resourcePath);
+  public SearchableResourceLocatorImpl(WebDavService webDavService, SessionProvider sessionProvider, ArrayList<String> lockTokens, String serverPrefix, String resourcePath) {
+    super(webDavService, sessionProvider, lockTokens, serverPrefix, resourcePath);
   }
 
   public SearchableResource getSearchableResource() throws RepositoryException {
@@ -40,11 +42,11 @@ public class SearchableResourceLocatorImpl extends WebDavResourceLocatorImpl imp
     String resourceName = resource.getName();    
     
     if (resource instanceof RepositoryResource) {
-      return new SearchableRepository(webDavService, resourceHref, resourceName, sessionProvider);
+      return new SearchableRepository(webDavService, resourceHref, resourceName, sessionProvider, lockTokens);
     }
     
     if (resource instanceof WorkspaceResource) {
-      Session session = ((WorkspaceResource)resource).getSession();      
+      Session session = ((WorkspaceResource)resource).getSession();
       return new SearchableWorkspace(webDavService, resourceHref, resourceName, session);      
     }
     

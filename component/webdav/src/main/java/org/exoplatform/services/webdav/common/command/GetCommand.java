@@ -6,6 +6,7 @@
 package org.exoplatform.services.webdav.common.command;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
@@ -54,6 +55,7 @@ public class GetCommand extends WebDavCommand {
   public Response get(
       @URIParam("repoName") String repoName,
       @URIParam("repoPath") String repoPath,
+      @HeaderParam(WebDavHeaders.AUTHORIZATION) String authorization,
       @HeaderParam(WebDavHeaders.RANGE) String rangeHeader,
       @QueryParam("VERSIONID") String versionId
       ) {
@@ -61,12 +63,14 @@ public class GetCommand extends WebDavCommand {
     try {
       String serverPrefix = getServerPrefix(repoName);
       
+      SessionProvider sessionProvider = getSessionProvider(authorization);
+      
       WebDavResourceLocator resourceLocator = null;
 
       if (versionId != null) {
-        resourceLocator = new WebDavResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, repoPath, versionId);        
+        resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, new ArrayList<String>(), serverPrefix, repoPath, versionId);        
       } else {
-        resourceLocator = new WebDavResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, repoPath);
+        resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, new ArrayList<String>(), serverPrefix, repoPath);
       }
       
       long rangeStart = -1;

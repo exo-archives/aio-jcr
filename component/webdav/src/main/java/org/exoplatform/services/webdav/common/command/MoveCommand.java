@@ -5,10 +5,13 @@
 
 package org.exoplatform.services.webdav.common.command;
 
+import java.util.ArrayList;
+
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Node;
 
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
+import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.HeaderParam;
 import org.exoplatform.services.rest.InputTransformer;
@@ -54,14 +57,21 @@ public class MoveCommand extends WebDavCommand {
   public Response move(
       @URIParam("repoName") String repoName,
       @URIParam("repoPath") String repoPath,
+      @HeaderParam(WebDavHeaders.AUTHORIZATION) String authorization,
       @HeaderParam(WebDavHeaders.DESTINATION) String destinationHeader,      
+      @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
+      @HeaderParam(WebDavHeaders.IF) String ifHeader,
       Document requestDocument
       ) {
 
     try {
       String serverPrefix = getServerPrefix(repoName);
       
-      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, repoPath);
+      ArrayList<String> lockTokens = getLockTokens(lockTokenHeader, ifHeader);
+      
+      SessionProvider sessionProvider = getSessionProvider(authorization);
+      
+      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, lockTokens, serverPrefix, repoPath);
       
       DocumentDispatcher documentDispatcher = new DocumentDispatcher(webDavService.getConfig(), requestDocument);
       

@@ -5,6 +5,8 @@
 
 package org.exoplatform.services.webdav.common.resource;
 
+import java.util.ArrayList;
+
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Item;
 import javax.jcr.Node;
@@ -18,6 +20,7 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.WebDavService;
 import org.exoplatform.services.webdav.common.util.DavTextUtil;
+import org.exoplatform.services.webdav.common.util.DavUtil;
 import org.exoplatform.services.webdav.deltav.resource.DeltaVResource;
 import org.exoplatform.services.webdav.deltav.resource.VersionResource;
 
@@ -33,15 +36,18 @@ public class WebDavResourceLocatorImpl implements WebDavResourceLocator {
   
   protected SessionProvider sessionProvider;
   
+  protected ArrayList<String> lockTokens;
+  
   protected String serverPrefix;
   
   protected String resourcePath;
   
   protected String versionName;
   
-  public WebDavResourceLocatorImpl(WebDavService webDavService, SessionProvider sessionProvider, String serverPrefix, String resPath, String versionName) {
+  public WebDavResourceLocatorImpl(WebDavService webDavService, SessionProvider sessionProvider, ArrayList<String> lockTokens, String serverPrefix, String resPath, String versionName) {
     this.webDavService = webDavService;
     this.sessionProvider = sessionProvider;
+    this.lockTokens = lockTokens;
     this.serverPrefix = serverPrefix;
     
     if (resPath == null) {
@@ -52,9 +58,10 @@ public class WebDavResourceLocatorImpl implements WebDavResourceLocator {
     this.versionName = versionName;    
   }
   
-  public WebDavResourceLocatorImpl(WebDavService webDavService, SessionProvider sessionProvider, String serverPrefix, String resPath) {
+  public WebDavResourceLocatorImpl(WebDavService webDavService, SessionProvider sessionProvider, ArrayList<String> lockTokens, String serverPrefix, String resPath) {
     this.webDavService = webDavService;
     this.sessionProvider = sessionProvider;
+    this.lockTokens = lockTokens;
     this.serverPrefix = serverPrefix;
     
     resourcePath = DavTextUtil.UnEscape(resPath, '%');
@@ -79,7 +86,7 @@ public class WebDavResourceLocatorImpl implements WebDavResourceLocator {
     String resourceHref = serverPrefix + "/" + resourcePath;
     
     if ("".equals(resourcePath)) {
-      return new RepositoryResource(webDavService, resourceHref, resourcePath, sessionProvider); 
+      return new RepositoryResource(webDavService, resourceHref, resourcePath, sessionProvider, lockTokens); 
     }
     
     String []pathes = resourcePath.split("/");
@@ -87,6 +94,7 @@ public class WebDavResourceLocatorImpl implements WebDavResourceLocator {
     String workspaceName = pathes[0];
     
     Session session = sessionProvider.getSession(workspaceName, webDavService.getRepository());
+    DavUtil.tuneSession(session, lockTokens);
     
     if (pathes.length == 1) {
       return new WorkspaceResource(webDavService, resourceHref, workspaceName, session);

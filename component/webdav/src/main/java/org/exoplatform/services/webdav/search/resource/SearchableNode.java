@@ -14,8 +14,6 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 
-import org.apache.commons.logging.Log;
-import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.WebDavService;
 import org.exoplatform.services.webdav.common.request.documents.PropFindDocument;
@@ -33,8 +31,6 @@ import org.exoplatform.services.webdav.search.Search;
  */
 
 public class SearchableNode extends AbstractNodeResource implements SearchableResource {
-  
-  private static Log log = ExoLogger.getLogger("jcr.SearchableNode");
   
   private String searchablePath;
   
@@ -57,8 +53,6 @@ public class SearchableNode extends AbstractNodeResource implements SearchableRe
       return new ArrayList<MultiStatusResponse>();
     }
         
-    log.info("SQL query: " + search.getQuery());
-    
     Query query = queryManager.createQuery(search.getQuery(), search.getQueryLanguage());        
     QueryResult result = query.execute();
     
@@ -103,9 +97,6 @@ public class SearchableNode extends AbstractNodeResource implements SearchableRe
    */
   
   private boolean isSameNode(Node node) throws RepositoryException {
-    
-    log.info(">> " + node.getPath());
-    
     if ("/".equals(searchablePath)) {
       return true;
     }

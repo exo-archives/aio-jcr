@@ -11,6 +11,7 @@ import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
 
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
+import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.HeaderParam;
 import org.exoplatform.services.rest.InputTransformer;
@@ -54,6 +55,9 @@ public class MkColCommand extends NodeTypedCommand {
   public Response mkcol(
       @URIParam("repoName") String repoName,
       @URIParam("repoPath") String repoPath,
+      @HeaderParam(WebDavHeaders.AUTHORIZATION) String authorization,
+      @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
+      @HeaderParam(WebDavHeaders.IF) String ifHeader,
       @HeaderParam(WebDavHeaders.NODETYPE) String nodeTypeHeader,
       @HeaderParam(WebDavHeaders.MIXTYPE) String mixinTypesHeader  
       ) {
@@ -61,7 +65,11 @@ public class MkColCommand extends NodeTypedCommand {
     try {
       String serverPrefix = getServerPrefix(repoName);
       
-      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, repoPath);
+      ArrayList<String> lockTokens = getLockTokens(lockTokenHeader, ifHeader);
+      
+      SessionProvider sessionProvider = getSessionProvider(authorization);
+      
+      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, lockTokens, serverPrefix, repoPath);
       
       String nodeType = getNodeType(nodeTypeHeader); 
       

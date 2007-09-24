@@ -5,9 +5,12 @@
 
 package org.exoplatform.services.webdav.common.command;
 
+import java.util.ArrayList;
+
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.rest.HTTPMethod;
+import org.exoplatform.services.rest.HeaderParam;
 import org.exoplatform.services.rest.InputTransformer;
 import org.exoplatform.services.rest.ResourceDispatcher;
 import org.exoplatform.services.rest.Response;
@@ -17,6 +20,7 @@ import org.exoplatform.services.rest.transformer.PassthroughInputTransformer;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.WebDavMethod;
 import org.exoplatform.services.webdav.WebDavService;
+import org.exoplatform.services.webdav.common.WebDavHeaders;
 import org.exoplatform.services.webdav.common.resource.WebDavResource;
 import org.exoplatform.services.webdav.common.resource.WebDavResourceLocator;
 import org.exoplatform.services.webdav.common.resource.WebDavResourceLocatorImpl;
@@ -41,10 +45,11 @@ public class HeadCommand extends WebDavCommand {
   @URITemplate("/{repoName}/")
   @InputTransformer(PassthroughInputTransformer.class)
   public Response head(
-      @URIParam("repoName") String repoName
+      @URIParam("repoName") String repoName,
+      @HeaderParam(WebDavHeaders.AUTHORIZATION) String authorization
       ) {
     
-    return doHead(repoName, "");
+    return doHead(repoName, "", authorization);
   }
 
     
@@ -53,17 +58,20 @@ public class HeadCommand extends WebDavCommand {
   @InputTransformer(PassthroughInputTransformer.class)
   public Response head(
       @URIParam("repoName") String repoName,
-      @URIParam("repoPath") String repoPath      
+      @URIParam("repoPath") String repoPath,
+      @HeaderParam(WebDavHeaders.AUTHORIZATION) String authorization
       ) {
     
-    return doHead(repoName, repoPath);
+    return doHead(repoName, repoPath, authorization);
   }
   
-  private Response doHead(String repoName, String repoPath) {
+  private Response doHead(String repoName, String repoPath, String authorization) {
     try {
       String serverPrefix = getServerPrefix(repoName);
       
-      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, repoPath);
+      SessionProvider sessionProvider = getSessionProvider(authorization);
+      
+      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, new ArrayList<String>(), serverPrefix, repoPath);
 
       WebDavResource resource = resourceLocator.getSrcResource(false);
 

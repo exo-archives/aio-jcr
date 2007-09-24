@@ -31,23 +31,28 @@ public class SearchableRepository extends RepositoryResource implements Searchab
       WebDavService webDavService, 
       String rootHref,
       String repoName,
-      SessionProvider sessionProvider
+      SessionProvider sessionProvider,
+      ArrayList<String> lockTokens
       ) {
     
-    super(webDavService, rootHref, repoName, sessionProvider);
+    super(webDavService, rootHref, repoName, sessionProvider, lockTokens);
     log.info("Construct.............");
   }
   
   public ArrayList<MultiStatusResponse> doSearch(Search search) throws RepositoryException {    
-//    ArrayList<MultiStatusResponse> responses = new ArrayList<MultiStatusResponse>(); 
+    ArrayList<MultiStatusResponse> responses = new ArrayList<MultiStatusResponse>();
+    
+//    ArrayList<WebDavResource> childs = getChildResources();
+//    for (int i = 0; i < childs.size(); i++) {
+//      WebDavResource resource = childs.get(i);
+//      
+//    }
 //    
 //    String []workspaces = context.getAvailableWorkspaces();   
 //    for (int i = 0; i < workspaces.length; i++) {            
 //      SearchableResource searchableResource = new SearchableWorkspace(context, workspaces[i]);      
 //      responses.addAll(searchableResource.doSearch(search));      
 //    }
-//    
-//    return responses;
     
     return new ArrayList<MultiStatusResponse>();    
   }

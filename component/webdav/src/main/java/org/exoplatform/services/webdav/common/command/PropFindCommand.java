@@ -7,8 +7,10 @@ package org.exoplatform.services.webdav.common.command;
 
 import java.util.ArrayList;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.HeaderParam;
 import org.exoplatform.services.rest.InputTransformer;
@@ -45,6 +47,8 @@ import org.w3c.dom.Document;
 @URITemplate("/jcr/")
 public class PropFindCommand extends WebDavCommand {
   
+  private static Log log = ExoLogger.getLogger("jcr.PropFindCommand");
+  
   public PropFindCommand(WebDavService webDavService, 
       ResourceDispatcher resourceDispatcher,
       ThreadLocalSessionProviderService sessionProviderService) {
@@ -58,9 +62,13 @@ public class PropFindCommand extends WebDavCommand {
   public Response propfind(
       @URIParam("repoName") String repoName,
       Document requestDocument,
-      @HeaderParam(WebDavHeaders.DEPTH) String depthHeader
-      ) {    
-    return doPropFind(repoName, "", requestDocument, new Integer(depthHeader));
+      @HeaderParam(WebDavHeaders.AUTHORIZATION) String authorization,
+      @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
+      @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
+      @HeaderParam(WebDavHeaders.IF) String ifHeader
+      ) {
+    
+    return doPropFind(repoName, "", authorization, requestDocument, new Integer(depthHeader), getLockTokens(lockTokenHeader, ifHeader));
   }  
   
   @HTTPMethod(WebDavMethod.PROPFIND)
@@ -71,17 +79,22 @@ public class PropFindCommand extends WebDavCommand {
       @URIParam("repoName") String repoName,
       @URIParam("repoPath") String repoPath,
       Document requestDocument,      
-      @HeaderParam(WebDavHeaders.DEPTH) String depthHeader
+      @HeaderParam(WebDavHeaders.AUTHORIZATION) String authorization,
+      @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
+      @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
+      @HeaderParam(WebDavHeaders.IF) String ifHeader
       ) {
-    return doPropFind(repoName, repoPath, requestDocument, new Integer(depthHeader));
+    return doPropFind(repoName, repoPath, authorization, requestDocument, new Integer(depthHeader), getLockTokens(lockTokenHeader, ifHeader));
   }  
   
-  private Response doPropFind(String repoName, String repoPath, Document requestDocument, int depth) {
+  private Response doPropFind(String repoName, String repoPath, String authorization, Document requestDocument, int depth, ArrayList<String> lockTokens) {
     
     try {
       String serverPrefix = getServerPrefix(repoName);
       
-      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, getSessionProvider(), serverPrefix, repoPath);      
+      SessionProvider sessionProvider = getSessionProvider(authorization);
+      
+      WebDavResourceLocator resourceLocator = new WebDavResourceLocatorImpl(webDavService, sessionProvider, lockTokens, serverPrefix, repoPath);      
       
       DocumentDispatcher documentDispatcher = new DocumentDispatcher(webDavService.getConfig(), requestDocument);
       
