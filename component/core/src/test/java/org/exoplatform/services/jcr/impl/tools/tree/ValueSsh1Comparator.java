@@ -1,0 +1,121 @@
+/***************************************************************************
+ * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ **************************************************************************/
+package org.exoplatform.services.jcr.impl.tools.tree;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import javax.jcr.RepositoryException;
+
+import org.apache.commons.logging.Log;
+import org.apache.ws.commons.util.Base64;
+import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
+import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
+import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.log.ExoLogger;
+
+/**
+ * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
+ * @version $Id: $
+ */
+public class ValueSsh1Comparator extends ItemDataTraversingVisitor {
+  private Map<String, HashMap<Integer, byte[]>> propertysCheckSum = new HashMap<String, HashMap<Integer, byte[]>>();
+
+  private final MessageDigest                   md;
+
+  protected Log                                 log               = ExoLogger
+                                                                      .getLogger(ValueSsh1Comparator.class);
+
+  public ValueSsh1Comparator(ItemDataConsumer dataManager, InputStream ssh1ChecksumStream) throws IOException,
+      NoSuchAlgorithmException {
+    super(dataManager);
+    this.md = MessageDigest.getInstance("SHA");
+    loadCheckSum(ssh1ChecksumStream);
+  }
+
+  @Override
+  protected void entering(PropertyData property, int arg1) throws RepositoryException {
+    List<ValueData> vals = property.getValues();
+    for (ValueData valueData : vals) {
+      HashMap<Integer, byte[]> propSums = propertysCheckSum.get(property.getQPath().getAsString());
+      if (propSums == null) {
+        log.info("Property " + property.getQPath().getAsString() + " check sum not found");
+        continue;
+      }
+      try {
+        byte[] checkSum = propSums.get(valueData.getOrderNumber());
+        if (checkSum == null) {
+          log.info("Property " + property.getQPath().getAsString() + " check sum not found");
+          continue;
+        }
+        md.update(valueData.getAsByteArray());
+        if (!Arrays.equals(checkSum, md.digest()))
+          throw new RepositoryException("Ssh1 not equals " + property.getQPath().getAsString());
+        
+      } catch (IllegalStateException e) {
+        throw new RepositoryException(e);
+      } catch (IOException e) {
+        throw new RepositoryException(e);
+      }
+      log.info("Property " + property.getQPath().getAsString() + " check ok");
+    }
+
+  }
+
+  @Override
+  protected void entering(NodeData arg0, int arg1) throws RepositoryException {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  protected void leaving(PropertyData arg0, int arg1) throws RepositoryException {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  protected void leaving(NodeData arg0, int arg1) throws RepositoryException {
+    // TODO Auto-generated method stub
+
+  }
+
+  private void loadCheckSum(InputStream ssh1ChecksumStream) throws IOException {
+    InputStreamReader eisr = new InputStreamReader(ssh1ChecksumStream, "UTF-8");
+    LineNumberReader lineNumberReader = new LineNumberReader(eisr);
+    String line;
+    while ((line = lineNumberReader.readLine()) != null) {
+      StringTokenizer stringTokenizer = new StringTokenizer(line);
+
+      if (stringTokenizer.countTokens() != 3)
+        throw new IOException("Invalid file");
+
+      String path = stringTokenizer.nextToken();
+      Integer orderNumber = Integer.parseInt(stringTokenizer.nextToken());
+      byte[] checkSum = Base64.decode(stringTokenizer.nextToken());
+
+      log.info(path + " " + orderNumber + " " + checkSum);
+      HashMap<Integer, byte[]> propMap = propertysCheckSum.get(path);
+      if (propMap == null) {
+        propMap = new HashMap<Integer, byte[]>();
+        propertysCheckSum.put(path, propMap);
+      }
+      propMap.put(orderNumber, checkSum);
+    }
+
+  };
+
+}
