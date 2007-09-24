@@ -5,7 +5,6 @@
 
 package org.exoplatform.services.jcr.ext.common;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,9 +32,7 @@ import org.exoplatform.services.security.impl.CredentialsImpl;
 public class SessionProvider {
 
   private Map <String, Session> cache;
-  private Credentials credentials;
-  
-  private ArrayList<String> lockTokens = new ArrayList<String>();
+  private Credentials credentials;  
   
   /**
    * Creates SessionProvider for certain identity
@@ -44,17 +41,7 @@ public class SessionProvider {
   public SessionProvider(Credentials cred) {
     this.cache = new HashMap<String, Session>();
     this.credentials = cred;
-  }
-  
-  public SessionProvider(Credentials cred, ArrayList<String> lockTokens) {
-    this.cache = new HashMap<String, Session>();
-    this.credentials = cred;
-    this.lockTokens = lockTokens;
-  }
-  
-  public ArrayList<String> getLockTokens() {
-    return lockTokens;
-  }
+  }  
   
   /**
    * Helper for creating System session provider
@@ -99,11 +86,6 @@ public class SessionProvider {
         session = repository.login(credentials, workspaceName);
       
       cache.put(repositoryName+workspaceName, session);
-      
-      for (int i = 0; i < lockTokens.size(); i++) {
-        session.addLockToken(lockTokens.get(i));
-      }
-      
     }
     
     return session;
