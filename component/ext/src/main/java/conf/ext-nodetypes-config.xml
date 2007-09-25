@@ -3,15 +3,25 @@
 	xmlns:jcr="http://www.jcp.org/jcr/1.0"
 	xmlns:dc="http://purl.org/dc/elements/1.1/">
 	
-	<!-- metadata nodetypes -->
-	
-	<!-- Dublin Core Metadata Elemet Set, Version 1.1  -->
-	
+	<!-- metadata nodetypes -->	
+	<nodeType name="exo:metadata" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+    <propertyDefinitions>
+      <propertyDefinition name="exo:internalUse" requiredType="Boolean" autoCreated="true" mandatory="false"
+        onParentVersion="COPY" protected="false" multiple="false">
+        <valueConstraints/>
+	      <defaultValues>
+	        <defaultValue>false</defaultValue>
+	      </defaultValues>
+      </propertyDefinition>
+    </propertyDefinitions>
+  </nodeType>
+  
+	<!-- Dublin Core Metadata Elemet Set, Version 1.1  -->	
 	<nodeType name="dc:elementSet" isMixin="true" hasOrderableChildNodes="false"
-		primaryItemName="">
+		primaryItemName="">		
 		<supertypes>
-			<supertype/>
-		</supertypes>
+      <supertype>exo:metadata</supertype>
+    </supertypes>
 		<propertyDefinitions>
 			<propertyDefinition name="dc:title" requiredType="String"
 				autoCreated="false" mandatory="false" onParentVersion="COPY"
