@@ -10,10 +10,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.jcr.Credentials;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;
@@ -32,6 +34,7 @@ import org.apache.log4j.SimpleLayout;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 
 
 /**
@@ -43,12 +46,12 @@ import org.exoplatform.services.log.ExoLogger;
 public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 
 	private ArtifactManagingServiceImpl asImpl;
-	private String repoPrefix = "/home/satay/java/exo-dependencies/repository";
-	private int index_j = 0, index_p = 0;
 	private int total = 0, suffixLength;
+	private String preffix;
 	private List<String> list;
 	private SessionProvider sp;
-
+	Credentials cred = new CredentialsImpl("exo", "exo".toCharArray());
+	
 	public void setUp() throws Exception {
 		super.setUp();
 			
@@ -56,83 +59,129 @@ public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 				
 		list = getDefaultArtifactList();
 		
-		sp = new SessionProvider(credentials);
 	}
 
 	public void testFileExists(){
 		
 		for(Iterator<String> iterator = list.iterator(); iterator.hasNext(); ){
 			String basepath = iterator.next();
-			
+	
 			File jar = new File(basepath.concat(".jar"));
 			assertTrue( jar.exists() );
 			
 			File pom = new File(basepath.concat(".pom"));
 			assertTrue( pom.exists() );
-			
+					
 		}
+		
 		
 	}
 	
-	public void _testArtifactLoad() throws Exception {
-		log.debug("Starting artifact loading test !");
+	public void testArtifactLoad() throws Exception {
+		log.info("Starting artifact loading test !");
 		asImpl = (ArtifactManagingServiceImpl) container.getComponentInstanceOfType(ArtifactManagingServiceImpl.class);
 		assertNotNull(asImpl);
+		
+		sp = new SessionProvider( cred );
 			
 		for(Iterator<String> iterator = list.iterator(); iterator.hasNext(); ){
 			
 			String basename = iterator.next();
-			
+						
 			InputStream is_jar = new FileInputStream( basename.concat(".jar") );
 			InputStream is_pom = new FileInputStream( basename.concat(".pom") );
 			
 			//this code parse full file name to appropriate structs - groupId, atrifactId, ver ...
-	        String str = FilenameUtils.getFullPath( basename );
+	        
+	        String str = StringUtils.removeStart(basename, preffix);
+	        
 	        String els[] = str.split( File.separator );
-	        String versionId = els[ els.length-1 ];
-	        String artifactId = els[ els.length-2 ];
-	        int lastGroupId = str.indexOf(versionId) - artifactId.length() - File.separator.length();
-	        String groupId = str.substring(suffixLength + File.separator.length()  , lastGroupId);
-
+	        String versionId = els[ els.length-2 ];
+	        String artifactId = els[ els.length-3 ];
+	        
+	        String groupId = "";
+	        for(int i=0; i < els.length - 3; i++)
+	        	groupId += els[i]+".";
 			
 			FolderDescriptor fld = new FolderDescriptor(groupId);
 			ArtifactDescriptor artifact = new ArtifactDescriptor( fld, artifactId, versionId);
 			
 			asImpl.addArtifact(sp, artifact, is_jar, is_pom);
+						
+		}
+		sp.close();
+	}
+		
+	public void testExistsContentNodes() throws Exception{
+
+		log.info("Starting artifact reading test !");
+		asImpl = (ArtifactManagingServiceImpl) container.getComponentInstanceOfType(ArtifactManagingServiceImpl.class);
+		assertNotNull(asImpl);
+						
+		for (Iterator<String> iterator = list.iterator(); iterator.hasNext();) {
+		
+			String basename = iterator.next();
+
+			String str = "/" + StringUtils.removeStart(basename, preffix);
 			
-			String resPath;
-			
-			resPath = StringUtils.removeStart(basename.concat(".jar"), repoPrefix);
-			Node jar = (Node) session.getItem(resPath);
+			Node jar = (Node) session.getItem(str.concat(".jar"));
 			assertNotNull(jar);
-			
-			resPath = StringUtils.removeStart(basename.concat(".jar.sha1"), repoPrefix);
-			Node jar_sha1 = (Node) session.getItem(resPath);
+
+			Node jar_sha1 = (Node) session.getItem(str.concat(".jar.sha1"));
 			assertNotNull(jar_sha1);
-			
-			resPath = StringUtils.removeStart(basename.concat(".pom"), repoPrefix);
-			Node pom = (Node) session.getItem(resPath);
+
+			Node pom = (Node) session.getItem(str.concat(".pom"));
 			assertNotNull(pom);
-			
-			resPath = StringUtils.removeStart(basename.concat(".pom.sha1"), repoPrefix);
-			Node pom_sha1 = (Node) session.getItem(resPath);
+
+			Node pom_sha1 = (Node) session.getItem(str.concat(".pom.sha1"));
 			assertNotNull(pom_sha1);
 			
+		}
+	}
+	
+	
+	public void testReadContent() throws Exception{
+		log.info("Starting artifact reading test !");
+		asImpl = (ArtifactManagingServiceImpl) container.getComponentInstanceOfType(ArtifactManagingServiceImpl.class);
+		assertNotNull(asImpl);
+						
+		for (Iterator<String> iterator = list.iterator(); iterator.hasNext();) {
+			
+			String basename = iterator.next();
+			String str = "/" + StringUtils.removeStart(basename, preffix);
+			
+			Node content;
+			InputStream is = null;
+			
+			Node jar = (Node) session.getItem( str.concat(".jar") );
+			content = jar.getNode("jcr:content");
+			is = content.getProperty("jcr:data").getStream();
+			assertTrue(is.available() > 0);
+			is.close();
+			
+			Node jar_sha1 = (Node) session.getItem(str.concat(".jar.sha1") );
+			content = jar_sha1.getNode("jcr:content");
+			is = content.getProperty("jcr:data").getStream();
+			assertTrue(is.available() > 0);
+			is.close();
+			
+			Node pom = (Node) session.getItem(str.concat(".pom") );
+			content = pom.getNode("jcr:content");
+			is = content.getProperty("jcr:data").getStream();
+			assertTrue(is.available() > 0);
+			is.close();
+			
+			Node pom_sha1 = (Node) session.getItem(str.concat(".pom.sha1"));
+			content = pom_sha1.getNode("jcr:content");
+			is = content.getProperty("jcr:data").getStream();
+			assertTrue(is.available() > 0);
+			is.close();
 			
 		}
-	
+
 	}
 	
-	public void testArtifactRead() throws Exception{
-		assertTrue(true);
-	}
-	public void testArtifactLoadHuge() throws Exception{
-		assertTrue(true);
-	}
-	public void testArtifactReadHuge() throws Exception{
-		assertTrue(true);
-	}
-	
+		
 	private List<String> getAllArtifactList(String repoPath, int limit){
 		//!! urgent - must provide crosspaltform usage
 		return null;
@@ -140,15 +189,51 @@ public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 	 
 	private List<String> getDefaultArtifactList(){
 		List<String> list = new ArrayList<String>();
-				
-		suffixLength = repoPrefix.length();
 		
-		list.add( repoPrefix + "/stax/stax/1.2.0/stax-1.2.0");
-		list.add( repoPrefix + "/stax/stax-api/1.0.1/stax-api-1.0.1");
+		URL url = getClass().getResource("/");
+		
+		preffix = url.getPath();
+		
+		list.add( preffix + "stax/stax/1.2.0/stax-1.2.0" );
+		list.add( preffix + "stax/stax-api/1.0.1/stax-api-1.0.1" );
+		
+		list.add( preffix + "com/sun/japex/japex/1.0.25/japex-1.0.25" );
+		
 		
 		total = list.size();
-		
+				
 		return list;
+	}
+	
+
+	private void printTree(Node parentNode, int space)
+			throws RepositoryException {
+		for (NodeIterator nt = parentNode.getNodes(); nt.hasNext();) {
+			Node node = nt.nextNode();
+			if (node.isNodeType("exo:artifact")) {
+				for (int i = 0; i < space; i++) {
+					System.out.print("-");
+				}
+				String nodeName = node.getName();
+
+				System.out.print(nodeName.concat("/"));
+				
+				if ( node.isNodeType("exo:artifactId")) {
+					System.out.print(" : ");
+					Property list = node.getProperty("exo:versionList");
+					Value[] vers = list.getValues();
+					for (Value val : vers) {
+						String str = val.getString();
+						System.out.print(str.concat(" "));
+					}
+				}
+
+				System.out.print("\n");
+				printTree(node, space + 5);
+			}
+
+		}
+
 	}
 	
 }

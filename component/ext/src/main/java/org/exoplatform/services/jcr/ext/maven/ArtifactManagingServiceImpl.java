@@ -31,16 +31,12 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.SimpleLayout;
 
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
@@ -127,6 +123,8 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 	public void addArtifact(SessionProvider sp, ArtifactDescriptor artifact,
 			InputStream jarIStream, InputStream pomIStream) throws RepositoryException {
 		
+		setDefaultMimes();	//use config to set this keys!! fake
+		
 		Session session = currentSession(sp);
 		Node rootNode = session.getRootNode();
 		
@@ -134,14 +132,14 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		
 		Node artifactId_node = createArtifactIdLayout(groupId_tail, artifact);
 		
-		updateMetadata(artifactId_node, artifact);
+		//updateMetadata(artifactId_node, artifact);
 		
 		Node version_node = createVersionLayout(artifactId_node, artifact);
 		
 		importResource(version_node, jarIStream, "jar", artifact);
 		importResource(version_node, pomIStream, "pom", artifact);
 		
-		updateMetadata( version_node, artifact );
+		//updateMetadata( version_node, artifact );
 		
 		session.save();
 
@@ -255,12 +253,12 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 			registryService.getEntry(sessionProvider,
 					RegistryService.EXO_SERVICES, "ArtifactManaging");
 			
-			LOGGER.debug("Started successful");
+			LOGGER.info("Started successful");
 			// TODO if registryService != null get workspaceName and rootPath
 			// from registryService
 			// else get it from init params
 		} catch (ItemNotFoundException e) {
-			LOGGER.debug("Getting workspaceName and rootPath from initParams");
+			LOGGER.info("Getting workspaceName and rootPath from initParams");
 			
 			// TODO get workspaceName and rootPath from initParams
 
@@ -297,7 +295,9 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 			throws RepositoryException {
 		FolderDescriptor groupId = artifact.getGroupId();
 		Vector<String> struct_groupId = new Vector<String>();
+		
 		String[] items = groupId.getAsPath().split("/");
+		
 		for (String subString : items) {
 			struct_groupId.add(subString);
 		}
@@ -375,8 +375,12 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		artifactId.setProperty("exo:versionList", newValues);
 	}
 	
-	private List<String> getAllArtifactVersions(Node artifactId) throws RepositoryException{
+	private List<String> getAllArtifactVersions(Node artifactId) throws RepositoryException, ArtifactManagingException{
 		Property property = artifactId.getProperty("exo:versionList");
+		if (property == null){
+			throw new ArtifactManagingException("There is no version list property");
+		}
+
 		Value[] values = property.getValues();
 		Vector<String> versionList = new Vector<String>();
 		for (Value ver : values) {
@@ -398,22 +402,26 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 
 		String groupId = artifact.getGroupId().getAsString();
 		String artifactId = artifact.getArtifactId();
-		String version = artifact.getVersionId();
+		String current_version = artifact.getVersionId();
 		
 		File srcFile = null;
 		try {
 			if (parentNode.isNodeType("exo:artifactId")) {
-				srcFile = createMultiMetadata(groupId, artifactId, getAllArtifactVersions(parentNode) );
+				List<String> available_versions = getAllArtifactVersions(parentNode);
+				srcFile = createMultiMetadata(groupId, artifactId, current_version, available_versions );
 			}
 			if (parentNode.isNodeType("exo:versionId")) {
-				srcFile = createSingleMetadata(groupId, artifactId, version);
+				srcFile = createSingleMetadata(groupId, artifactId, current_version);
 			}
 			
 			InputStream file_in = new FileInputStream(srcFile);
 			importResource(parentNode, file_in, "metadata", artifact);
 			
 		} catch (FileNotFoundException e) {
-			LOGGER.error("Cannot create temporary file hor holding artifact versions",e);
+			LOGGER.error("Cannot create temporary file for holding artifact versions",e);
+		}
+		catch (ArtifactManagingException e){
+			LOGGER.error("Cannot create list for holding artifact versions",e);
 		}
 		
 	}
@@ -421,6 +429,13 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 	private String getRelativeMimeType(String key){
 		return (String)mimeMap.get(key); 
 	}
+	
+	private void setDefaultMimes(){
+		mimeMap.put("jar", "application/java-archive");
+		mimeMap.put("pom", "text/xml");
+		mimeMap.put("metadata", "text/xml");
+	}
+	
 	//this method used for writing to repo jars, poms and their checksums
 	private void importResource(Node parentNode, InputStream file_in, String resourceType, ArtifactDescriptor artifact )
 			throws RepositoryException {
@@ -465,8 +480,8 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 	
 	private void writePrimaryContent(Node parentNode, String filename,
 			String resourceType, File srcFile) throws RepositoryException {
+		
 		String mimeType = getRelativeMimeType(resourceType);
-
 		Node nodeResourceFile = parentNode.addNode(filename, "nt:file");
 
 		String mixinType = "exo:maven".concat(resourceType);
@@ -577,8 +592,8 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		return (temp.exists())?temp:null;
 	}
 
-	protected File createMultiMetadata(String groupId, String artifactId,
-			List<String> versions) throws FileNotFoundException {
+	protected File createMultiMetadata(String groupId, String artifactId, String current_version,
+			List<String> v_list) throws FileNotFoundException {
 		File temp = null;
 		try{
 			String filename = getUniqueFilename("maven-metadata.xml");
@@ -599,8 +614,13 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 				writer.writeCharacters(artifactId);
 				writer.writeEndElement();
 
-				Collections.sort(versions); // sort list
-				String elderVersion = versions.get(0); // get first element
+				String elderVersion;
+				if(v_list.size() > 0){
+					Collections.sort(v_list); // sort list
+					elderVersion = v_list.get(0); // get first element
+				}else
+					elderVersion = current_version;
+				v_list.add(current_version);
 				
 				writer.writeStartElement("version");
 				writer.writeCharacters(elderVersion);
@@ -609,7 +629,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 				writer.writeStartElement("versions");
 				writer.writeStartElement("versioning");
 
-				for (Iterator<String> iterator = versions.iterator(); iterator.hasNext();) {
+				for (Iterator<String> iterator = v_list.iterator(); iterator.hasNext();) {
 					writer.writeStartElement("version");
 					writer.writeCharacters(iterator.next());
 					writer.writeEndElement();

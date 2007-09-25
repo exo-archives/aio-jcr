@@ -19,7 +19,7 @@ public class FolderDescriptor implements Descriptor {
 	 * @see org.exoplatform.services.jcr.ext.maven.Descriptor#getAsPath()
 	 */
 	public String getAsPath() {
-		return folderId.replaceAll(".", "/");
+		return folderId.replaceAll("\\W", "/");
 	}
 
 }

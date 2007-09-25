@@ -1,16 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<nodetypes xmlns:nt="http://www.jcp.org/jcr/nt/1.0" xmlns:mix="http://www.jcp.org/jcr/mix/1.0"
+<nodeTypes xmlns:nt="http://www.jcp.org/jcr/nt/1.0" xmlns:mix="http://www.jcp.org/jcr/mix/1.0"
     xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:exo="http://www.exoplatform.com/jcr/exo/1.0">
     
     <nodeType name="exo:artifact" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
-        <propertyDefinitions> </propertyDefinitions>
+        <supertypes>
+            <supertype/>
+        </supertypes>
     </nodeType>
+    
 
     <nodeType name="exo:groupId" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
         <supertypes>
             <supertype>exo:artifact</supertype>
         </supertypes>
-        <propertyDefinitions> </propertyDefinitions>
     </nodeType>
 
     <nodeType name="exo:artifactId" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
@@ -29,7 +30,6 @@
         <supertypes>
             <supertype>exo:artifact</supertype>
         </supertypes>
-        <propertyDefinitions> </propertyDefinitions>
     </nodeType>
 
     <nodeType name="exo:file" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
@@ -53,11 +53,10 @@
         </supertypes>
     </nodeType>
     
-    <nodeType name="exo:mavenmetadata" isMixin="true" hasOrderableChildNodes="false"
-        primaryItemName="">
+    <nodeType name="exo:mavenmetadata" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
         <supertypes>
             <supertype>exo:file</supertype>
         </supertypes>
     </nodeType>
-    
-</nodetypes>
+        
+</nodeTypes>

@@ -116,6 +116,9 @@
 					<include>**/*.xls</include>
 					<include>**/*.ppt</include>
 					<include>**/*.txt</include>
+					<include>**/*.jar</include>
+					<include>**/*.pom</include>
+					<include>**/*.sha1</include>
 				</includes>
 			</testResource>
 			<testResource>
@@ -159,12 +162,14 @@
 						<include>**/metadata/*Test.java</include>
 						<include>**/owner/*Test.java</include>
 						<include>**/registry/*Test.java</include>
+						<include>**/maven/ArtifactManagingServiceTest.java</include>
 					</includes>
 					
+					<!-- 
 					<excludes>
-						<exclude>**/maven/ArtifactManagingServiceTest.java</exclude>
-						<exclude>**/maven/RESTArtifactLoaderTest.java</exclude>	
+						<exclude>**/maven/*Test.java</exclude>
 					</excludes>
+					-->
 					
 				</configuration>
 			</plugin>

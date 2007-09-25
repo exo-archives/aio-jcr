@@ -42,7 +42,6 @@ import org.picocontainer.Startable;
  * @version $Id: RESTArtifactLoaderService.java 11:37:47
  */
 
-@URITemplate("/repomaven2/")
 public class RESTArtifactLoaderService implements ResourceContainer{
 	private static final String NT_FILE = "artifact-nodetypes.xml";
 	private final static Log LOGGER = ExoLogger.getLogger(RESTArtifactLoaderService.class);
@@ -66,7 +65,7 @@ public class RESTArtifactLoaderService implements ResourceContainer{
 	}
 	
 	@HTTPMethod("GET")
-	@URITemplate("/{path}/")
+	@URITemplate("/repomaven2/{path}/")
 	public Response getResource(@URIParam("path")String mavenQuery) throws RepositoryException {
 		//annotated methods are used as front dispatcher. 
 		LOGGER.debug("getResource: ".concat(mavenQuery));
