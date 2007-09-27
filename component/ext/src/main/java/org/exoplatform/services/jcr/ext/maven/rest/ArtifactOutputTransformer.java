@@ -22,6 +22,8 @@ public class ArtifactOutputTransformer extends OutputEntityTransformer {
 		// TODO Auto-generated method stub
 		//entity is a InputStream
 		IOUtils.copy((InputStream)entity, entityDataStream);
+		
+		IOUtils.closeQuietly( (InputStream)entity );
 	}
 }
 

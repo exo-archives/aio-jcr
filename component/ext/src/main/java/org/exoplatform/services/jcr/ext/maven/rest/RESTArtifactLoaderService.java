@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.jcr.Credentials;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -33,6 +34,8 @@ import org.exoplatform.services.rest.Response;
 import org.exoplatform.services.rest.URIParam;
 import org.exoplatform.services.rest.URITemplate;
 import org.exoplatform.services.rest.container.ResourceContainer;
+import org.exoplatform.services.rest.transformer.StringOutputTransformer;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.picocontainer.Startable;
 
 /**
@@ -41,7 +44,6 @@ import org.picocontainer.Startable;
  * @author Volodymyr Krasnikov
  * @version $Id: RESTArtifactLoaderService.java 11:37:47
  */
-
 public class RESTArtifactLoaderService implements ResourceContainer{
 	private static final String NT_FILE = "artifact-nodetypes.xml";
 	private final static Log LOGGER = ExoLogger.getLogger(RESTArtifactLoaderService.class);
@@ -49,18 +51,17 @@ public class RESTArtifactLoaderService implements ResourceContainer{
 	private ThreadLocalSessionProviderService sessionProviderService;
 	private RepositoryService repoService;
 	private SessionProvider sessionProvider;
-		
-	private String repoWorkspaceName = "ws";
+	private Credentials cred = new CredentialsImpl("exo","exo".toCharArray());
+	private String repoWorkspaceName = "draft";
 	private String repoPath;
 	
-	public RESTArtifactLoaderService(RepositoryService repoService,
-			ThreadLocalSessionProviderService sessionProviderService)
+	public RESTArtifactLoaderService(RepositoryService repoService)
 			throws Exception {
 		
 		this.repoService = repoService;
 		this.sessionProviderService = sessionProviderService;
 		
-		sessionProvider = sessionProviderService.getSessionProvider(null);
+		sessionProvider = new SessionProvider(cred); 
 		
 	}
 	
@@ -69,7 +70,14 @@ public class RESTArtifactLoaderService implements ResourceContainer{
 	public Response getResource(@URIParam("path")String mavenQuery) throws RepositoryException {
 		//annotated methods are used as front dispatcher. 
 		LOGGER.debug("getResource: ".concat(mavenQuery));
-		return new DownloadMavenResource(currentSession(sessionProvider), mavenQuery).getResponse();
+		String resoureQuery = "/".concat(mavenQuery);
+		return new DownloadMavenResource(currentSession(sessionProvider), resoureQuery).getResponse();
+		
+		/*
+		String entity = "<html><head><title>Hello</title></head><body align=\"center\"><h1>ARTIFACT PROTOTYPE</h1></body></html>";
+		return Response.Builder.ok().entity(entity, "text/html").transformer(
+						new StringOutputTransformer()).build();
+		*/				
 	}
 	private Session currentSession(SessionProvider sp)
 			throws RepositoryException {

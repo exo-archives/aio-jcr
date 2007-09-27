@@ -4,6 +4,8 @@
  */
 package org.exoplatform.services.jcr.ext.maven.rest;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Collection;
@@ -24,7 +26,9 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.Response;
+import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
 import org.exoplatform.services.rest.transformer.StringOutputTransformer;
+import org.exoplatform.services.rest.transformer.XMLOutputTransformer;
 
 /**
  * Created by The eXo Platform SARL .
@@ -69,6 +73,11 @@ public class DownloadMavenResource {
 
 	private Response doResponse() {
 		LOGGER.debug("Generating response");
+		
+		// because of I have not a correct JCR struct in repository - I use ftp uploading
+		// without setting of correct properties such jcr:mimeType - it use default application/octet-stream
+		//
+		/*
 		String jarResource = "application/java-archive";
 		Response response = null;
 		if( mimeType.equals(jarResource) ){
@@ -79,21 +88,44 @@ public class DownloadMavenResource {
 		else{
 			response = Response.Builder.ok().contentLenght(contentLength).lastModified(
 					lastModified.getTime()).entity(entity, mimeType).transformer(
-					new StringOutputTransformer()).build();
+					new XMLOutputTransformer()).build();
 		}
+		return response;
+		*/
+		
+		String tail = FilenameUtils.getExtension(mavenQuery);
+		if(tail.equals("pom"))
+			mimeType = "text/xml";
+		else if(tail.equals("jar")) 
+			mimeType = "application/java-archive";
+		else Response.Builder.notFound().build();
+		
+		Response response = Response.Builder.ok().contentLenght(contentLength)
+				.lastModified(lastModified.getTime()).entity(entity, mimeType)
+				.transformer(new PassthroughOutputTransformer()).build();
+		
 		return response;
 	}
 	
 	private void getContentFromJCR() throws RepositoryException{
-		// path to version Node
-		artifact_path = FilenameUtils.getFullPath(mavenQuery); 
-		int index = mavenQuery.indexOf("/", 1); // skip first slash & name of
-		String resourcePath = mavenQuery.substring(index); // skip first
-		
-		Node resourceNode = (Node)session.getItem( resourcePath );
+				
+		Node resourceNode = (Node)session.getItem( mavenQuery );
 		Node content = resourceNode.getNode("jcr:content");
 		
+		assert content != null;
+		
 		entity = content.getProperty("jcr:data").getStream();
+		
+		try{
+			contentLength = entity.available();
+			
+			System.out.println( new Long(contentLength).toString() );
+			LOGGER.info( new Integer(entity.available()).toString() );
+		}
+		catch(IOException e){
+			LOGGER.error("Cant get access to jcr:data", e);
+		}
+		
 		lastModified = content.getProperty("jcr:lastModified").getDate();
 		mimeType = content.getProperty("jcr:mimeType").getString();
 		

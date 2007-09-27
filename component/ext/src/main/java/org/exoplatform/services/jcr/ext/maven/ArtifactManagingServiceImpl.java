@@ -80,7 +80,8 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 	private RegistryService registryService;
 	private InitParams initParams;
 	private SessionProvider sessionProvider;
-	private String repoWorkspaceName = "ws";
+	private String repoWorkspaceName; // use initParams or RegistryService to
+										// obtain the name of workspace
 	private String repoPath;
 	private ArtifactDescriptor artifactDescriptor;
 	private static Log LOGGER = ExoLogger.getLogger(ArtifactManagingServiceImpl.class);
@@ -97,6 +98,10 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 			throws RepositoryConfigurationException {
 		this.repositoryService = repositoryService;
 		this.registryService = registryService;
+		
+		if (initParams == null)
+			throw new RepositoryConfigurationException("Init parameters expected");
+	
 		this.initParams = params;
 	}
 
@@ -253,13 +258,12 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 			registryService.getEntry(sessionProvider,
 					RegistryService.EXO_SERVICES, "ArtifactManaging");
 			
-			LOGGER.info("Started successful");
 			// TODO if registryService != null get workspaceName and rootPath
 			// from registryService
 			// else get it from init params
 		} catch (ItemNotFoundException e) {
 			LOGGER.info("Getting workspaceName and rootPath from initParams");
-			
+						
 			// TODO get workspaceName and rootPath from initParams
 
 			// if registryService != null
