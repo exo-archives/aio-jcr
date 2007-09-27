@@ -5,6 +5,7 @@
 package org.exoplatform.services.jcr.impl.core;
 
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 
@@ -23,5 +24,11 @@ public class TestMoveNode extends JcrImplBaseTest {
     session.save();
     node3.remove();
     session.save();
+    
+    try {
+      root.getNode("node3");
+    } catch(PathNotFoundException e) {
+      // ok
+    }
   }
 }
