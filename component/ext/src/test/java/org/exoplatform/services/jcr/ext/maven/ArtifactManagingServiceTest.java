@@ -46,7 +46,6 @@ import org.exoplatform.services.security.impl.CredentialsImpl;
 public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 
 	private ArtifactManagingServiceImpl asImpl;
-	private int total = 0, suffixLength;
 	private String preffix;
 	private List<String> list;
 	private SessionProvider sp;
@@ -56,7 +55,7 @@ public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 		super.setUp();
 			
 		log.debug("Trying to get ArtifactService  via container!");
-				
+						
 		list = getDefaultArtifactList();
 		
 	}
@@ -77,7 +76,7 @@ public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 		
 	}
 	
-	public void testArtifactLoad() throws Exception {
+	public void _testArtifactLoad() throws Exception {
 		log.info("Starting artifact loading test !");
 		asImpl = (ArtifactManagingServiceImpl) container.getComponentInstanceOfType(ArtifactManagingServiceImpl.class);
 		assertNotNull(asImpl);
@@ -112,7 +111,7 @@ public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 		sp.close();
 	}
 		
-	public void testExistsContentNodes() throws Exception{
+	public void _testExistsContentNodes() throws Exception{
 
 		log.info("Starting artifact reading test !");
 		asImpl = (ArtifactManagingServiceImpl) container.getComponentInstanceOfType(ArtifactManagingServiceImpl.class);
@@ -140,7 +139,7 @@ public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 	}
 	
 	
-	public void testReadContent() throws Exception{
+	public void _testReadContent() throws Exception{
 		log.info("Starting artifact reading test !");
 		asImpl = (ArtifactManagingServiceImpl) container.getComponentInstanceOfType(ArtifactManagingServiceImpl.class);
 		assertNotNull(asImpl);
@@ -198,10 +197,7 @@ public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 		list.add( preffix + "stax/stax-api/1.0.1/stax-api-1.0.1" );
 		
 		list.add( preffix + "com/sun/japex/japex/1.0.25/japex-1.0.25" );
-		
-		
-		total = list.size();
-				
+						
 		return list;
 	}
 	

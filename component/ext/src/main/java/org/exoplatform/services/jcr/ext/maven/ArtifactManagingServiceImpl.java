@@ -34,16 +34,23 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
-import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.jcr.ext.registry.RegistryEntry;
 import org.exoplatform.services.jcr.ext.registry.RegistryService;
 import org.exoplatform.services.log.ExoLogger;
 import org.picocontainer.Startable;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
 import org.apache.maven.wagon.observers.ChecksumObserver;
+
+import com.sun.org.apache.xerces.internal.dom.DOMImplementationImpl;
 
 /**
  * Created by The eXo Platform SARL .<br/> Service responsible for
@@ -76,14 +83,14 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 
 	private static final String STRING_TERMINATOR = "*";
 	private static final String NT_FILE = "artifact-nodetypes.xml";
+	private static final String SERVICE_NAME = "ArtifactManaging";
 	private RepositoryService repositoryService;
 	private RegistryService registryService;
 	private InitParams initParams;
 	private SessionProvider sessionProvider;
 	private String repoWorkspaceName; // use initParams or RegistryService to
-										// obtain the name of workspace
-	private String repoPath;
-	private ArtifactDescriptor artifactDescriptor;
+	
+	private String rootNodePath;
 	private static Log LOGGER = ExoLogger.getLogger(ArtifactManagingServiceImpl.class);
 	private Map<String, String> mimeMap = new Hashtable<String, String>();
 
@@ -131,7 +138,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		setDefaultMimes();	//use config to set this keys!! fake
 		
 		Session session = currentSession(sp);
-		Node rootNode = session.getRootNode();
+		Node rootNode = (Node)session.getItem(rootNodePath);
 		
 		Node groupId_tail = createGroupIdLayout(rootNode, artifact );
 		
@@ -249,32 +256,38 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 		LOGGER.debug("Starting ArtifactManagingService ...");
 		
 		sessionProvider = SessionProvider.createSystemProvider();
+
 		try {
 			InputStream xml = getClass().getResourceAsStream(NT_FILE);
 			ManageableRepository rep = repositoryService.getCurrentRepository();
 			rep.getNodeTypeManager().registerNodeTypes(xml,
 					ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-			
+
 			registryService.getEntry(sessionProvider,
-					RegistryService.EXO_SERVICES, "ArtifactManaging");
-			
-			// TODO if registryService != null get workspaceName and rootPath
-			// from registryService
-			// else get it from init params
+					RegistryService.EXO_SERVICES, SERVICE_NAME);
+
 		} catch (ItemNotFoundException e) {
-			LOGGER.info("Getting workspaceName and rootPath from initParams");
-						
-			// TODO get workspaceName and rootPath from initParams
+			ValueParam param_workspace = initParams
+					.getValueParam("artifact.workspace");
+			repoWorkspaceName = param_workspace.getValue();
+			ValueParam param_rootNode = initParams
+					.getValueParam("artifact.rootNode");
+			rootNodePath = param_rootNode.getValue();
 
-			// if registryService != null
-			// construct Entry from init params and createEntry
-			// registryService.createEntry(sessionProvider,
-			// RegistryService.EXO_SERVICES, "ArtifactM");
-			// endif
+			try {
+				Document doc = createInitConf(repoWorkspaceName, rootNodePath);
+				RegistryEntry serviceEntry = new RegistryEntry(doc);
+				registryService.createEntry(sessionProvider,
+						RegistryService.EXO_SERVICES, serviceEntry);
+			} catch (RepositoryException exc) {
+				LOGGER.error(
+						"Cannot write init configuration to RegistryService",
+						exc);
+			}
 
-			// TODO add maven root there (use rootPath)
 		} catch (RepositoryException e) {
-			e.printStackTrace();
+			LOGGER.error("Error while register nodetypes/checking existance",
+							e);
 		} finally {
 			sessionProvider.close();
 		}
@@ -292,7 +305,27 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 			throws RepositoryException {
 		return sp.getSession(repoWorkspaceName,	repositoryService.getCurrentRepository());
 	}
-
+	
+	private Document createInitConf(String workspace, String relPath){
+		// Create new DOM tree
+		DOMImplementation domImpl = new DOMImplementationImpl( );
+		Document doc = domImpl.createDocument(null, "initconf", null);
+		Element root = doc.getDocumentElement( );
+					
+		// Name of the workspace for holding artifacts
+		Element nameElement = doc.createElement("artifact.workspace");
+		Text nameText = doc.createTextNode( repoWorkspaceName );
+		nameElement.appendChild(nameText);
+		root.appendChild(nameElement);
+		
+		// Set path to internal root node
+		Element descriptionElement = doc.createElement("artifact.rootNode");
+		Text descriptionText = doc.createTextNode(rootNodePath);
+		descriptionElement.appendChild(descriptionText);
+		root.appendChild(descriptionElement);
+		
+		return doc;
+	}
 	// this function creates hierarchy in JCR storage acording to groupID
 	// parameter : com.google.code...
 	private Node createGroupIdLayout(Node rootNode, ArtifactDescriptor artifact)
