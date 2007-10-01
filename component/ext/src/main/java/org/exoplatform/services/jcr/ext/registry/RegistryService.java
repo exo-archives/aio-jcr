@@ -12,6 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.InflaterInputStream;
 
 import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -231,17 +232,21 @@ public class RegistryService extends Registry implements Startable {
    */
   public void start() {
     try {
-      InputStream xml = getClass().getResourceAsStream(NT_FILE);
+      
       for (RepositoryEntry repConfiguration : repConfigurations()) {
+        InputStream xml = getClass().getResourceAsStream(NT_FILE);
         String repName = repConfiguration.getName();
         repositoryService.getRepository(repName).getNodeTypeManager()
             .registerNodeTypes(xml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+        xml.close();
       }
       initStorage(false);
     } catch (RepositoryConfigurationException e) {
-      e.printStackTrace();
+      log.error(e.getLocalizedMessage());
     } catch (RepositoryException e) {
-      e.printStackTrace();
+      log.error(e.getLocalizedMessage());
+    } catch (IOException e) {
+      log.error(e.getLocalizedMessage());
     }
   }
 
