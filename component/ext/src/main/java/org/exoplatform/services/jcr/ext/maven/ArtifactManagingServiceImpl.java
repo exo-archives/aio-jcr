@@ -263,8 +263,13 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 			rep.getNodeTypeManager().registerNodeTypes(xml,
 					ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
 
-			registryService.getEntry(sessionProvider,
+			RegistryEntry entry = registryService.getEntry(sessionProvider,
 					RegistryService.EXO_SERVICES, SERVICE_NAME);
+			
+			Document doc = entry.getDocument();
+						
+			repoWorkspaceName = doc.getElementById("workspace").getTextContent();
+			rootNodePath = doc.getElementById("root").getTextContent();
 
 		} catch (ItemNotFoundException e) {
 			ValueParam param_workspace = initParams
@@ -314,12 +319,14 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 					
 		// Name of the workspace for holding artifacts
 		Element nameElement = doc.createElement("artifact.workspace");
+		nameElement.setAttribute("id", "workspace");
 		Text nameText = doc.createTextNode( repoWorkspaceName );
 		nameElement.appendChild(nameText);
 		root.appendChild(nameElement);
 		
 		// Set path to internal root node
 		Element descriptionElement = doc.createElement("artifact.rootNode");
+		descriptionElement.setAttribute("id", "root");
 		Text descriptionText = doc.createTextNode(rootNodePath);
 		descriptionElement.appendChild(descriptionText);
 		root.appendChild(descriptionElement);
