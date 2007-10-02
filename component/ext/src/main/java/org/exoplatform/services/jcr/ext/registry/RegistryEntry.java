@@ -60,8 +60,7 @@ public final class RegistryEntry {
   }
 
   /**
-   * Factory method to create RegistryEntry from stream XML 
-   * @param bytes
+   * Factory method to create RegistryEntry from stream XML
    * @return RegistryEntry
    * @throws IOException
    * @throws SAXException

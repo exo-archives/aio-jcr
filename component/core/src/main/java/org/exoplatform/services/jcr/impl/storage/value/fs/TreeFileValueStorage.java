@@ -75,7 +75,7 @@ public class TreeFileValueStorage extends FileValueStorage {
   protected class TreeFileIOChannel extends FileIOChannel {
     
     TreeFileIOChannel(File rootDir, FileCleaner cleaner) {
-      super(rootDir, cleaner);
+      super(rootDir, cleaner, getId());
     }
     
     @Override

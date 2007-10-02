@@ -363,4 +363,75 @@ public class TestWorkspaceStorageCache extends JcrImplBaseTest {
     assertEquals("Cached child properties count is wrong", cache.getChildProperties(nodeData2).size(), 2);
   }
 
+  public void testRemoveChildNodesInCN() throws Exception {
+
+    initNodesData();
+    initDataAsPersisted();
+
+    // the case here    
+    List<NodeData> nodes = new ArrayList<NodeData>();
+    nodes.add(nodeData31);
+    nodes.add(nodeData32);
+    cache.addChildNodes(nodeData3, nodes);
+    
+    // any stuff
+    cache.put(nodeData1);
+    cache.put(nodeData2);
+    cache.put(propertyData12);
+    
+    List<PropertyData> properties2 = new ArrayList<PropertyData>();
+    properties2.add(propertyData21);
+    properties2.add(propertyData22);
+    cache.addChildProperties(nodeData2, properties2);
+    
+    List<PropertyData> properties1 = new ArrayList<PropertyData>();
+    properties1.add(propertyData11);
+    properties1.add(propertyData12);
+    cache.addChildProperties(nodeData1, properties1);
+    
+    // remove
+    cache.remove(nodeData3); // remove node3 and its childs (31, 32) 
+    
+    // check
+    assertNull("Node " + nodeData3.getQPath().getAsString() + " in the cache", cache.get(nodeUuid3));
+    
+    assertNull("Child node " + nodeData31.getQPath().getAsString() + " in the cache", cache.get(nodeUuid31));
+    assertNull("Child node " + nodeData32.getQPath().getAsString() + " in the cache", cache.get(nodeUuid32));    
+  }
+  
+  public void testRemoveChildNodes() throws Exception {
+
+    initNodesData();
+    initDataAsPersisted();
+    
+    // the case here
+    cache.put(nodeData3);
+    cache.put(nodeData31);
+    cache.put(nodeData32);
+
+    // any stuff    
+    cache.put(nodeData1);
+    cache.put(nodeData2);
+    cache.put(propertyData12);
+    
+    List<PropertyData> properties2 = new ArrayList<PropertyData>();
+    properties2.add(propertyData21);
+    properties2.add(propertyData22);
+    cache.addChildProperties(nodeData2, properties2);
+    
+    List<PropertyData> properties1 = new ArrayList<PropertyData>();
+    properties1.add(propertyData11);
+    properties1.add(propertyData12);
+    cache.addChildProperties(nodeData1, properties1);
+    
+    // remove
+    cache.remove(nodeData3); // remove node3 and its childs (31, 32) 
+    
+    // check
+    assertNull("Node " + nodeData3.getQPath().getAsString() + " in the cache", cache.get(nodeUuid3));
+    
+    assertNull("Child node " + nodeData31.getQPath().getAsString() + " in the cache", cache.get(nodeUuid31));
+    assertNull("Child node " + nodeData32.getQPath().getAsString() + " in the cache", cache.get(nodeUuid32));    
+  }
+  
 }

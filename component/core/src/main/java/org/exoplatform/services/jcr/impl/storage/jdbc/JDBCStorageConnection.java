@@ -683,9 +683,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         // so, we don't need iterate throught each value of the property
         // IO channel will do this work according the existed files on FS
         if (valueRecords.next()) {
-          final String storageDesc = valueRecords.getString(COLUMN_VSTORAGE_DESC);
+          final String storageId = valueRecords.getString(COLUMN_VSTORAGE_DESC);
           if (!valueRecords.wasNull()) {
-            final ValueIOChannel channel = valueStorageProvider.getChannel(storageDesc, pdata);
+            final ValueIOChannel channel = valueStorageProvider.getChannel(storageId, pdata);
             try {
               channel.delete(pdata.getIdentifier());
             } finally {
@@ -714,10 +714,10 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       try {
         while (valueRecords.next()) {
           final int orderNum = valueRecords.getInt(COLUMN_VORDERNUM);
-          final String storageDesc = valueRecords.getString(COLUMN_VSTORAGE_DESC);
+          final String storageId = valueRecords.getString(COLUMN_VSTORAGE_DESC);
           ValueData vdata = valueRecords.wasNull() ? 
               readValueData(cid, orderNum) : 
-                readValueData(pdata, orderNum, storageDesc);
+                readValueData(pdata, orderNum, storageId);
           data.add(vdata);
         }
       } finally {
@@ -733,8 +733,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     return data;
   }
 
-  protected ValueData readValueData(PropertyData pdata, int orderNumber, String storageDesc) throws SQLException, IOException, ValueDataNotFoundException {
-    ValueIOChannel channel = valueStorageProvider.getChannel(storageDesc, pdata);
+  protected ValueData readValueData(PropertyData pdata, int orderNumber, String storageId) throws SQLException, IOException, ValueDataNotFoundException {
+    ValueIOChannel channel = valueStorageProvider.getChannel(storageId, pdata);
     try {
       return channel.read(pdata.getIdentifier(), orderNumber, maxBufferSize);
     } finally {
@@ -804,7 +804,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data, i);
       InputStream stream = null;
       int streamLength = 0;
-      String vdDesc = null;
+      String storageId = null;
       if (channel == null) {
         if (vd.isByteArray()) {
           byte[] dataBytes = vd.getAsByteArray();
@@ -815,10 +815,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
           streamLength = stream.available(); 
         }
       } else {
-        vdDesc = channel.write(data.getIdentifier(), vd);
+        storageId = channel.write(data.getIdentifier(), vd);
       }
-
-      addValueData(getInternalId(data.getIdentifier()),i, stream, streamLength, vdDesc); 
+      addValueData(getInternalId(data.getIdentifier()),i, stream, streamLength, storageId); 
     }
   }
 
@@ -844,7 +843,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   protected abstract int updatePropertyByIdentifier(int version, int type, String identifier) throws SQLException;
   
   // -------- values processing ------------
-  protected abstract void addValueData(String cid, int orderNumber, InputStream stream, int streamLength, String storageDesc) throws SQLException, IOException;
+  protected abstract void addValueData(String cid, int orderNumber, InputStream stream, int streamLength, String storageId) throws SQLException, IOException;
   protected abstract void deleteValues(String cid) throws SQLException;
   protected abstract ResultSet findValuesByPropertyId(String cid) throws SQLException;
   protected abstract ResultSet findValuesDataByPropertyId(String cid) throws SQLException;

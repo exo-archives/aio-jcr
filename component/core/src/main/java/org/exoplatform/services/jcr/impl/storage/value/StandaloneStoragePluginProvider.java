@@ -66,9 +66,9 @@ public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugi
         ArrayList<ValuePluginFilter> filters = new ArrayList<ValuePluginFilter>();
         List<ValueStorageFilterEntry> filterEntries = storageEntry.getFilters();
         for (ValueStorageFilterEntry filterEntry : filterEntries) {
-
-          ValuePluginFilter filter = new ValuePluginFilter(PropertyType.valueFromName(filterEntry
-              .getPropertyType()), null, null, filterEntry.getMinValueSize());
+          ValuePluginFilter filter = new ValuePluginFilter(
+              PropertyType.valueFromName(filterEntry.getPropertyType()), 
+              null, null, filterEntry.getMinValueSize());
           filters.add(filter);
         }
 
@@ -80,6 +80,7 @@ public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugi
         }
 
         plugin.init(props);
+        plugin.setId(storageEntry.getId());
         plugin.setFilters(filters);
 
         add(plugin);

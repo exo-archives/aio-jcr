@@ -29,12 +29,20 @@
               <property name="swap-directory" value="target/temp/swap/ws"/>
             </properties>
             <value-storages>
-              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+              <value-storage id="Storage #1" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws"/>
                 </properties>
                 <filters>
-                  <filter property-type="Binary"/>
+                  <filter property-type="Binary" min-value-size="204800"/>
+                </filters>
+              </value-storage>
+              <value-storage id="Storage #2" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+                <properties>
+                  <property name="path" value="target/temp/values/ws/files10m"/>
+                </properties>
+                <filters>
+                  <filter property-type="Binary" min-value-size="10240000"/>
                 </filters>
               </value-storage>
               <!--value-storage class="org.exoplatform.services.jcr.impl.storage.value.s3.SimpleS3ValueStorage">
@@ -52,8 +60,8 @@
           </container>
           <cache enabled="true">
             <properties>
-              <property name="maxSize" value="1000"/>
-              <property name="liveTime" value="1800"/><!-- 30 min -->
+              <property name="maxSize" value="3000"/>
+              <property name="liveTime" value="300"/><!-- 30 sec -->
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">

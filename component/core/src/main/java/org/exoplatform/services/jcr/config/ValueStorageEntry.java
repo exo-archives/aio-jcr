@@ -15,6 +15,8 @@ import java.util.ArrayList;
 
 public class ValueStorageEntry extends MappedParametrizedObjectEntry {
   
+  private String id;
+  
   private ArrayList<ValueStorageFilterEntry> filters;
   
   public ValueStorageEntry() {
@@ -31,5 +33,13 @@ public class ValueStorageEntry extends MappedParametrizedObjectEntry {
 
   public void setFilters(ArrayList<ValueStorageFilterEntry> filters) {
     this.filters = filters;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
   }
 }

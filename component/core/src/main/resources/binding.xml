@@ -82,6 +82,7 @@
   
   <mapping name="value-storage" class="org.exoplatform.services.jcr.config.ValueStorageEntry">
     <value name="class" field="type" style="attribute"/>
+    <value name="id" field="id" style="attribute"/>
     <collection name="properties" field="parameters" usage="optional" 
                 item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"/>
     <collection name="filters" field="filters"  

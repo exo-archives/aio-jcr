@@ -20,19 +20,19 @@ public class SimpleFileIOChannel extends FileIOChannel {
   
   protected class PropertyIDFilter implements FileFilter {
     
-    private String id;
+    private String propertyId;
 
-    public PropertyIDFilter(String id) {
-      this.id = id;
+    public PropertyIDFilter(String propertyId) {
+      this.propertyId = propertyId;
     }
 
     public boolean accept(File file) {
-      return file.getName().startsWith(id);
+      return file.getName().startsWith(propertyId);
     }
   }  
   
-  public SimpleFileIOChannel(File rootDir, FileCleaner cleaner) {
-    super(rootDir, cleaner);
+  public SimpleFileIOChannel(File rootDir, FileCleaner cleaner, String storageId) {
+    super(rootDir, cleaner, storageId);
   }
   
   protected File getFile(String propertyId, int orderNumber) {

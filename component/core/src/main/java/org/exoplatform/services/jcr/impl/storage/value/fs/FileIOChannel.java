@@ -36,10 +36,12 @@ public abstract class FileIOChannel implements ValueIOChannel {
   
   protected final File rootDir;
   protected final FileCleaner cleaner;
+  protected String storageId;
   
-  public FileIOChannel(File rootDir, FileCleaner cleaner) {
+  public FileIOChannel(File rootDir, FileCleaner cleaner, String storageId) {
     this.rootDir = rootDir;
     this.cleaner = cleaner;
+    this.storageId = storageId;
   }
   
   /**
@@ -135,5 +137,9 @@ public abstract class FileIOChannel implements ValueIOChannel {
       }
     }
     out.close();
+  }
+
+  public String getStorageId() {
+    return storageId;
   }
 }

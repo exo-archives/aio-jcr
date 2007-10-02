@@ -24,6 +24,8 @@ import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 public abstract class ValueStoragePlugin {
   
   protected List <ValuePluginFilter> filters;
+  
+  protected String id;
     
 
   /**
@@ -49,6 +51,14 @@ public abstract class ValueStoragePlugin {
     this.filters = filters;
   }
   
+  public final String getId() {
+    return id;
+  }
+
+  public final void setId(String id) {
+    this.id = id;
+  }
+  
   /**
    * Run consistency check operation
    * 
@@ -57,5 +67,6 @@ public abstract class ValueStoragePlugin {
   public abstract void checkConsistency(WorkspaceStorageConnection dataConnection);
   
   public abstract boolean match(String valueDataDescriptor, PropertyData prop);
+
 }
 
