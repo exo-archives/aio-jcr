@@ -29,7 +29,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * 
  */
-public class GetNodesConcurrentModificationTest extends JcrImplBaseTest {
+public class TestGetNodesConcurrentModification extends JcrImplBaseTest {
 
   public final String DATA_STRING = "DATA STRING";
   public final String DATA_PROPERTY = "data property";

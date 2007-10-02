@@ -23,7 +23,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: CachedMixinsTest.java 12841 2007-02-16 08:58:38Z peterit $
  */
-public class CachedMixinsTest extends JcrImplBaseTest {
+public class TestCachedMixins extends JcrImplBaseTest {
 
   public final String TEST_NODE_NAME = "cache_test";
   
