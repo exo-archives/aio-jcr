@@ -11,7 +11,7 @@ import org.exoplatform.services.jcr.JcrImplBaseTest;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class TestMoveNode extends JcrImplBaseTest {
   public void testMove() throws Exception {
@@ -22,7 +22,7 @@ public class TestMoveNode extends JcrImplBaseTest {
     session.move(node1.getPath(),
                  node3.getPath() + "/" + "node4");
     session.save();
-    node3.remove();
+    node3.remove(); 
     session.save();
     
     try {

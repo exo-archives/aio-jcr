@@ -57,27 +57,22 @@ public abstract class FileValueStorage extends ValueStoragePlugin {
    *      org.exoplatform.services.jcr.datamodel.PropertyData, int)
    */
   @Override
-  public boolean match(String valueDataDescriptor, PropertyData prop) {
-    return valueDataDescriptor.startsWith(rootDir.getAbsolutePath());
+  public boolean match(String storageId, PropertyData prop) {
+    return getId().equals(storageId);
   }
 
   protected void prepareRootDir(String rootDirPath) throws IOException,
       RepositoryConfigurationException {
     this.rootDir = new File(rootDirPath);
     
-    System.out.println("VS root: " + rootDirPath + " >> " + this.rootDir.getAbsolutePath());
-    
     if (!rootDir.exists()) {
       if (rootDir.mkdirs()) {
         log.info("Directory created: " + rootDir.getAbsolutePath());
-        System.out.println("Directory created: " + rootDir.getAbsolutePath());
       } else {
         log.warn("Directory IS NOT created: " + rootDir.getAbsolutePath());
-        System.out.println("Directory IS NOT created: " + rootDir.getAbsolutePath());
       }
     } else {
       if (!rootDir.isDirectory()) {
-        System.out.println("File exists but is not a directory: " + rootDir.getAbsolutePath());
         throw new RepositoryConfigurationException(
             "File exists but is not a directory " + rootDirPath);
       }

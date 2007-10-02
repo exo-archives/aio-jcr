@@ -118,36 +118,22 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     FIND_PROPERTY_BY_NAME = "select *" 
       + " from JCR_MITEM"
       + " where I_CLASS=2 and PARENT_ID=? and NAME=? order by VERSION DESC";
-//    FIND_PROPERTY_BY_NAME = "select *" 
-//      + " from JCR_MPROPERTY"
-//      + " where PARENT_ID=? and NAME=? order by VERSION DESC";
    
     FIND_REFERENCES = "select P.ID, P.PARENT_ID, P.VERSION, P.P_TYPE, P.P_MULTIVALUED, P.NAME" +
         " from JCR_MREF R, JCR_MITEM P" +
-        " where P.I_CLASS=2 and R.NODE_ID=? and P.ID=R.PROPERTY_ID";
-//    FIND_REFERENCES = "select P.ID, P.PARENT_ID, P.VERSION, P.P_TYPE, P.P_MULTIVALUED, P.NAME" +
-//    " from JCR_MREF R, JCR_MPROPERTY P" +
-//    " where R.NODE_ID=? and P.ID=R.PROPERTY_ID";
+        " where R.NODE_ID=? and P.ID=R.PROPERTY_ID and P.I_CLASS=2";
     
     FIND_VALUES_BY_PROPERTYID = "select PROPERTY_ID, ORDER_NUM, STORAGE_DESC from JCR_MVALUE where PROPERTY_ID=? order by ORDER_NUM";
     FIND_VALUESDATA_BY_PROPERTYID = "select * from JCR_MVALUE where PROPERTY_ID=? order by ORDER_NUM";
     FIND_VALUE_BY_PROPERTYID_OREDERNUMB = "select DATA from JCR_MVALUE where PROPERTY_ID=? and ORDER_NUM=?";
     
-    // TODO Index PARENT_ID, N_ORDER_NUM
     FIND_NODES_BY_PARENTID = "select * from JCR_MITEM"
       + " where I_CLASS=1 and PARENT_ID=?"
       + " order by N_ORDER_NUM";
-//    FIND_NODES_BY_PARENTID = "select * from JCR_MNODE"
-//      + " where PARENT_ID=?"
-//      + " order by N_ORDER_NUM";
     
-    // TODO Index PARENT_ID, ID    
     FIND_PROPERTIES_BY_PARENTID = "select * from JCR_MITEM"
       + " where I_CLASS=2 and PARENT_ID=?" 
       + " order by ID";
-//    FIND_PROPERTIES_BY_PARENTID = "select * from JCR_MPROPERTY"
-//      + " where PARENT_ID=?" 
-//      + " order by ID";
     
     INSERT_NODE = "insert into JCR_MITEM(ID, PARENT_ID, NAME, VERSION, I_CLASS, I_INDEX, N_ORDER_NUM) VALUES(?,?,?,?," + I_CLASS_NODE + ",?,?)";
     INSERT_PROPERTY = "insert into JCR_MITEM(ID, PARENT_ID, NAME, VERSION, I_CLASS, I_INDEX, P_TYPE, P_MULTIVALUED) VALUES(?,?,?,?," + I_CLASS_PROPERTY + ",?,?,?)";

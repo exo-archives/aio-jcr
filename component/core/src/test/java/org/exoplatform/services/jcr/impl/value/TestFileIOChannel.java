@@ -52,7 +52,7 @@ public class TestFileIOChannel extends TestCase {
     
     
     File root = new File("target");
-    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner);
+    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner, "#1");
     if(!root.exists())
       throw new Exception("Folder does not exist "+root.getAbsolutePath());
     
@@ -85,7 +85,7 @@ public class TestFileIOChannel extends TestCase {
   public void testWriteToIOChannel() throws Exception {
     File root = new File("target");
     
-    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner);
+    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner, "#1");
     if(!root.exists())
       throw new Exception("Folder does not exist "+root.getAbsolutePath());
     
@@ -115,7 +115,7 @@ public class TestFileIOChannel extends TestCase {
   
   public void testDeleteFromIOChannel() throws Exception {
     File root = new File("target");
-    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner);
+    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner, "#1");
     if(!root.exists())
       throw new Exception("Folder does not exist "+root.getAbsolutePath());
     
@@ -148,7 +148,7 @@ public class TestFileIOChannel extends TestCase {
   
   public void testConcurrentReadFromIOChannel() throws Exception {
     File root = new File("target");
-    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner);
+    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner, "#1");
     if(!root.exists())
       throw new Exception("Folder does not exist "+root.getAbsolutePath());
     
@@ -190,7 +190,7 @@ public class TestFileIOChannel extends TestCase {
 
   public void testDeleteLockedFileFromIOChannel() throws Exception {
     File root = new File("target");
-    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner);
+    FileIOChannel channel = new SimpleFileIOChannel(root, cleaner, "#1");
     if(!root.exists())
       throw new Exception("Folder does not exist "+root.getAbsolutePath());
     

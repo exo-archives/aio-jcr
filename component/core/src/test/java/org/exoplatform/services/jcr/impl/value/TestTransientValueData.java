@@ -18,6 +18,7 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
@@ -110,9 +111,8 @@ public class TestTransientValueData extends TestCase {
     assertEquals("string", new String(vd.getAsByteArray()));
     
     // default encoded string (utf-8)
-    vd = new  TransientValueData("����");
-    assertEquals(8, vd.getLength());
-
+    vd = new  TransientValueData("H\u0158l\u1e37o \u1e84\u00F6r\u013b\u01fc");
+    assertEquals(19, vd.getLength());
   }
   
   
@@ -125,12 +125,8 @@ public class TestTransientValueData extends TestCase {
     
     Calendar cal = Calendar.getInstance();
     long time = cal.getTimeInMillis();
-    //String str = ISO8601.format(cal);
-    TransientValueData vd = new  TransientValueData(cal);
-    /// ????????????????
-    //assertEquals(time, ISO8601.parse(new String(vd.getAsByteArray())).getTimeInMillis());
-    fail("How to compare Date Value ?????");
-    
+    TransientValueData vd = new TransientValueData(cal);
+    assertEquals(time, new JCRDateFormat().deserialize(new String(vd.getAsByteArray())).getTimeInMillis());
   }  
 
   public void testNewDoubleValueData() throws Exception {

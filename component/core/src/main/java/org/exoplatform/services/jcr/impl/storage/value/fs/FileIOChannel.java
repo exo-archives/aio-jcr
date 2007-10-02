@@ -78,10 +78,9 @@ public abstract class FileIOChannel implements ValueIOChannel {
   /**
    * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#write(java.lang.String, org.exoplatform.services.jcr.datamodel.ValueData)
    */
-  public String write(String propertyId, ValueData value) throws IOException {
+  public void write(String propertyId, ValueData value) throws IOException {
     File file = getFile(propertyId, value.getOrderNumber());
     writeValue(file, value);
-    return file.getAbsolutePath();
   }
   
   /**

@@ -34,7 +34,7 @@ public interface ValueIOChannel {
    * @param data - list of ValueData
    * @throws IOException
    */
-  String write(String propertyId, ValueData data) throws IOException;
+  void write(String propertyId, ValueData data) throws IOException;
 
   /**
    * deletes values
@@ -47,4 +47,9 @@ public interface ValueIOChannel {
    * closes channel 
    */
   void close();
+  
+  /**
+   * Return this value storage id. 
+   */
+  String getStorageId();
 }

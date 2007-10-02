@@ -29,7 +29,7 @@ public class TestFileValueIO extends TestCase {
   static class FileValueIOUtil extends FileIOChannel {
     
     FileValueIOUtil() {
-      super(null, null);
+      super(null, null, "Test #1");
     }
 
     @Override

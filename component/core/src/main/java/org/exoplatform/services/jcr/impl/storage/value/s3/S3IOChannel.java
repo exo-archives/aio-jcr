@@ -34,6 +34,8 @@ public abstract class S3IOChannel implements ValueIOChannel {
 
   protected final FileCleaner cleaner;
   
+  protected final String storageId;
+  
   
   /**
    * New S3 channel
@@ -43,13 +45,14 @@ public abstract class S3IOChannel implements ValueIOChannel {
    * @param cleaner file cleanre
    */
   public S3IOChannel(String bucket, String awsAccessKey,
-      String awsSecretAccessKey, File s3SwapDirectory, FileCleaner cleaner) {
+      String awsSecretAccessKey, File s3SwapDirectory, FileCleaner cleaner, String storageId) {
     
     this.bucket = bucket;
     this.awsAccessKey = awsAccessKey;
     this.awsSecretAccessKey = awsSecretAccessKey;
     this.s3SwapDirectory = s3SwapDirectory;
     this.cleaner = cleaner;
+    this.storageId = storageId;
   }
    
   
@@ -90,11 +93,11 @@ public abstract class S3IOChannel implements ValueIOChannel {
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#write(java.lang.String, org.exoplatform.services.jcr.datamodel.ValueData)
    */
-  public String write(String propertyId, ValueData value) throws IOException {
+  public void write(String propertyId, ValueData value) throws IOException {
     String s3fileName = getFile(propertyId, value.getOrderNumber());
     S3ValueIOUtil.writeValue(bucket, awsAccessKey,
         awsSecretAccessKey, s3fileName, value);
-    return "/" + bucket + "/" +s3fileName;
+    //return "/" + bucket + "/" +s3fileName;
   }
 
   /**
@@ -113,5 +116,8 @@ public abstract class S3IOChannel implements ValueIOChannel {
    * @return array of file names
    */
   protected abstract String[] getFiles(String propertyId);
-
+  
+  public String getStorageId() {
+    return storageId;
+  }
 }

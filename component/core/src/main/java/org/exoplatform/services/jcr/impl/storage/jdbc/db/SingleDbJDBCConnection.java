@@ -116,8 +116,8 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     
     FIND_REFERENCES = "select P.ID, P.PARENT_ID, P.VERSION, P.P_TYPE, P.P_MULTIVALUED, P.NAME" +
       " from JCR_SREF R, JCR_SITEM P" +
-      " where P.I_CLASS=2 and P.CONTAINER_NAME=? and R.NODE_ID=? and P.ID=R.PROPERTY_ID";
-
+      " where R.NODE_ID=? and P.CONTAINER_NAME=? and P.ID=R.PROPERTY_ID and P.I_CLASS=2";
+    
     FIND_VALUES_BY_PROPERTYID = "select PROPERTY_ID, ORDER_NUM, STORAGE_DESC from JCR_SVALUE where PROPERTY_ID=? order by ORDER_NUM";
     FIND_VALUESDATA_BY_PROPERTYID = "select * from JCR_SVALUE where PROPERTY_ID=? order by ORDER_NUM";
     FIND_VALUE_BY_PROPERTYID_OREDERNUMB = "select DATA from JCR_SVALUE where PROPERTY_ID=? and ORDER_NUM=?";
@@ -308,8 +308,8 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     else
       findReferences.clearParameters();
     
-    findReferences.setString(1, containerName);
-    findReferences.setString(2, cid);
+    findReferences.setString(1, cid);
+    findReferences.setString(2, containerName);
     return findReferences.executeQuery();
   }
 

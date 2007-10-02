@@ -45,6 +45,16 @@ public class TestRandomValueIO extends JcrImplBaseTest {
       testFile = createBLOBTempFile(this.getClass().getSimpleName() + "_", 2 * 1024); // 2M
       testFile.deleteOnExit();
     }
+    
+    root.getNodes();
+    
+//    try {
+//      throw new Exception("the err");
+//    } catch(Throwable e) {
+//      for (StackTraceElement ste: e.getStackTrace()) {
+//        log.info("\t" + ste.getClassName() + "." + ste.getMethodName() + "." + ste.getLineNumber());
+//      }
+//    }
   }
 
   @Override

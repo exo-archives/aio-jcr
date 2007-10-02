@@ -16,8 +16,8 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 public class SimpleS3IOChannel extends S3IOChannel {
 
   public SimpleS3IOChannel(String bucket, String awsAccessKey,
-      String awsSecretAccessKey, File s3SwapDirectory, FileCleaner cleaner) {
-    super(bucket, awsAccessKey, awsSecretAccessKey, s3SwapDirectory, cleaner);
+      String awsSecretAccessKey, File s3SwapDirectory, FileCleaner cleaner, String storageId) {
+    super(bucket, awsAccessKey, awsSecretAccessKey, s3SwapDirectory, cleaner, storageId);
   }
   
   /* (non-Javadoc)

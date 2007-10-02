@@ -87,8 +87,9 @@ public abstract class S3ValueStorage extends ValueStoragePlugin {
    *      org.exoplatform.services.jcr.datamodel.PropertyData, int)
    */
   @Override
-  public boolean match(String valueDataDescriptor, PropertyData prop) {
-    return valueDataDescriptor.startsWith("/" + bucket);
+  public boolean match(String storageId, PropertyData prop) {
+    //return storageId.startsWith("/" + bucket);
+    return getId().equals(storageId);
   }
 
 }

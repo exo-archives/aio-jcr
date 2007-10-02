@@ -745,7 +745,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   protected ValueData readValueData(String cid, int orderNumber) throws SQLException, IOException {
 
     byte[] buffer = new byte[0];
-    byte[] spoolBuffer = new byte[0x2000];
+    byte[] spoolBuffer = new byte[2048];
     int read;
     int len = 0;
     OutputStream out = null;
@@ -815,7 +815,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
           streamLength = stream.available(); 
         }
       } else {
-        storageId = channel.write(data.getIdentifier(), vd);
+        channel.write(data.getIdentifier(), vd);
+        storageId = channel.getStorageId();
       }
       addValueData(getInternalId(data.getIdentifier()),i, stream, streamLength, storageId); 
     }
