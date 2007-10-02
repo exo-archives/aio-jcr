@@ -38,6 +38,7 @@ public class ExportBase extends JcrAPIBaseTest {
     xpath = xPathFactory.newXPath();
 
     valList = new LinkedList<String[]>();
+    valList.add(new String[] { "" });
     valList.add(new String[] { "1" });
     valList.add(new String[] { "1", "2" });
     valList.add(new String[] { "\">" ,"\"<"});

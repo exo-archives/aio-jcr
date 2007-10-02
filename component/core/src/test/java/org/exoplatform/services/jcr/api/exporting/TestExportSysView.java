@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Calendar;
+import java.util.StringTokenizer;
 
 import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
@@ -93,8 +94,8 @@ public class TestExportSysView extends ExportBase {
     Node testNode = root.addNode("MultyValueExportStream");
 
     for (int i = 0; i < valList.size(); i++) {
-      testNode.setProperty("prop" + i + "_string", valList.get(i), PropertyType.STRING);
-      testNode.setProperty("prop" + i + "_binary", valList.get(i), PropertyType.BINARY);
+      testNode.setProperty("prop_" + i + "_string", valList.get(i), PropertyType.STRING);
+      testNode.setProperty("prop_" + i + "_binary", valList.get(i), PropertyType.BINARY);
     }
 
     session.save();
@@ -110,10 +111,13 @@ public class TestExportSysView extends ExportBase {
     Object result = expr.evaluate(doc, XPathConstants.NODESET);
     // System.out.println(result);
     NodeList nodes = (NodeList) result;
+    
     for (int i = 1; i < nodes.getLength(); i++) {
       String propertyName = nodes.item(i).getAttributes().getNamedItem("sv:name").getNodeValue();
-      String[] pureValues = valList.get(Integer.parseInt(propertyName.substring(4, 5)));
-      String type = propertyName.substring(6);
+      StringTokenizer tokenizer = new StringTokenizer(propertyName,"_");
+      tokenizer.nextToken();
+      String[] pureValues = valList.get(Integer.parseInt(tokenizer.nextToken()));
+      String type = tokenizer.nextToken();
       NodeList nodeValues = nodes.item(i).getChildNodes();
 
       assertEquals(pureValues.length, nodeValues.getLength());
@@ -144,8 +148,8 @@ public class TestExportSysView extends ExportBase {
     Node testNode = root.addNode("syschMultyValueExportStream");
 
     for (int i = 0; i < valList.size(); i++) {
-      testNode.setProperty("prop" + i + "_string", valList.get(i), PropertyType.STRING);
-      testNode.setProperty("prop" + i + "_binary", valList.get(i), PropertyType.BINARY);
+      testNode.setProperty("prop_" + i + "_string", valList.get(i), PropertyType.STRING);
+      testNode.setProperty("prop_" + i + "_binary", valList.get(i), PropertyType.BINARY);
     }
 
     session.save();
@@ -171,8 +175,12 @@ public class TestExportSysView extends ExportBase {
     NodeList nodes = (NodeList) result;
     for (int i = 1; i < nodes.getLength(); i++) {
       String propertyName = nodes.item(i).getAttributes().getNamedItem("sv:name").getNodeValue();
-      String[] pureValues = valList.get(Integer.parseInt(propertyName.substring(4, 5)));
-      String type = propertyName.substring(6);
+      StringTokenizer tokenizer = new StringTokenizer(propertyName,"_");
+      tokenizer.nextToken();
+      
+      String[] pureValues = valList.get(Integer.parseInt(tokenizer.nextToken()));
+      String type = tokenizer.nextToken();
+      
       NodeList nodeValues = nodes.item(i).getChildNodes();
 
       assertEquals(pureValues.length, nodeValues.getLength());
@@ -202,8 +210,8 @@ public class TestExportSysView extends ExportBase {
     Node testNode = root.addNode("MultyValueExportStream");
 
     for (int i = 0; i < valList.size(); i++) {
-      testNode.setProperty("prop" + i + "_string", valList.get(i), PropertyType.STRING);
-      testNode.setProperty("prop" + i + "_binary", valList.get(i), PropertyType.BINARY);
+      testNode.setProperty("prop_" + i + "_string", valList.get(i), PropertyType.STRING);
+      testNode.setProperty("prop_" + i + "_binary", valList.get(i), PropertyType.BINARY);
     }
 
     session.save();
@@ -221,8 +229,10 @@ public class TestExportSysView extends ExportBase {
     NodeList nodes = (NodeList) result;
     for (int i = 1; i < nodes.getLength(); i++) {
       String propertyName = nodes.item(i).getAttributes().getNamedItem("sv:name").getNodeValue();
-      String[] pureValues = valList.get(Integer.parseInt(propertyName.substring(4, 5)));
-      String type = propertyName.substring(6);
+      StringTokenizer tokenizer = new StringTokenizer(propertyName,"_");
+      tokenizer.nextToken();
+      String[] pureValues = valList.get(Integer.parseInt(tokenizer.nextToken()));
+      String type = tokenizer.nextToken();
       NodeList nodeValues = nodes.item(i).getChildNodes();
 
       assertEquals(pureValues.length, nodeValues.getLength());
@@ -326,7 +336,7 @@ public class TestExportSysView extends ExportBase {
     
     Node testNode = newSession.getRootNode().addNode("jcr:testExportNamespaceRemaping");
     for (int i = 0; i < valList.size(); i++) {
-      testNode.setProperty("prop" + i + "_string", valList.get(i), PropertyType.STRING);
+      testNode.setProperty("prop_" + i + "_string", valList.get(i), PropertyType.STRING);
       testNode.setProperty("prop" + i + "_binary", valList.get(i), PropertyType.BINARY);
     }
    
@@ -350,8 +360,8 @@ public class TestExportSysView extends ExportBase {
     
     Node testNode = newSession.getRootNode().addNode("jcr:testExportNamespaceRemaping");
     for (int i = 0; i < valList.size(); i++) {
-      testNode.setProperty("prop" + i + "_string", valList.get(i), PropertyType.STRING);
-      testNode.setProperty("prop" + i + "_binary", valList.get(i), PropertyType.BINARY);
+      testNode.setProperty("prop_" + i + "_string", valList.get(i), PropertyType.STRING);
+      testNode.setProperty("prop_" + i + "_binary", valList.get(i), PropertyType.BINARY);
     }
 
     newSession.save();

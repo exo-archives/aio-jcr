@@ -146,8 +146,8 @@ public class TestExportDocView extends ExportBase {
     Node testNode = root.addNode("MultyValueExportStream");
 
     for (int i = 0; i < valList.size(); i++) {
-      testNode.setProperty("prop" + i + "_string", valList.get(i), PropertyType.STRING);
-      testNode.setProperty("prop" + i + "_binary", valList.get(i), PropertyType.BINARY);
+      testNode.setProperty("prop_" + i + "_string", valList.get(i), PropertyType.STRING);
+      testNode.setProperty("prop_" + i + "_binary", valList.get(i), PropertyType.BINARY);
     }
 
     session.save();
@@ -172,12 +172,20 @@ public class TestExportDocView extends ExportBase {
       if ("jcr:primaryType".equals(attribute.getNodeName())) {
         assertEquals("nt:unstructured", attribute.getNodeValue());
       } else if (attribute.getNodeName().startsWith("prop")) {
-        String[] pureValues = valList
-            .get(Integer.parseInt(attribute.getNodeName().substring(4, 5)));
-        String type = attribute.getNodeName().substring(6);
+        
+        String propertyName = attribute.getNodeName();
+        StringTokenizer tokenizer = new StringTokenizer(propertyName,"_");
+        tokenizer.nextToken();
+        String[] pureValues = valList.get(Integer.parseInt(tokenizer.nextToken()));
+        String type = tokenizer.nextToken();
+        
+
         String attrValue = attribute.getNodeValue();
         StringTokenizer spaceTokenizer = new StringTokenizer(attrValue);
-        assertEquals(pureValues.length, spaceTokenizer.countTokens());
+        if (pureValues.length == 1 && pureValues[0].equals(""))
+          assertEquals("", attrValue);
+        else
+          assertEquals(pureValues.length, spaceTokenizer.countTokens());
         int index = 0;
         while (spaceTokenizer.hasMoreTokens()) {
           String exportedContent = spaceTokenizer.nextToken();
@@ -206,8 +214,8 @@ public class TestExportDocView extends ExportBase {
     Node testNode = root.addNode("MultyValueExportStream");
 
     for (int i = 0; i < valList.size(); i++) {
-      testNode.setProperty("prop" + i + "_string", valList.get(i), PropertyType.STRING);
-      testNode.setProperty("prop" + i + "_binary", valList.get(i), PropertyType.BINARY);
+      testNode.setProperty("prop_" + i + "_string", valList.get(i), PropertyType.STRING);
+      testNode.setProperty("prop_" + i + "_binary", valList.get(i), PropertyType.BINARY);
     }
 
     session.save();
@@ -241,23 +249,30 @@ public class TestExportDocView extends ExportBase {
       if ("jcr:primaryType".equals(attribute.getNodeName())) {
         assertEquals("nt:unstructured", attribute.getNodeValue());
       } else if (attribute.getNodeName().startsWith("prop")) {
-        String[] pureValues = valList
-            .get(Integer.parseInt(attribute.getNodeName().substring(4, 5)));
-        String type = attribute.getNodeName().substring(6);
-        String attrValue = attribute.getNodeValue();
-        StringTokenizer spaceTokenizer = new StringTokenizer(attrValue);
-        assertEquals(pureValues.length, spaceTokenizer.countTokens());
-        int index = 0;
-        while (spaceTokenizer.hasMoreTokens()) {
-          String exportedContent = spaceTokenizer.nextToken();
-          if ("string".equals(type)) {
-            assertEquals(pureValues[index], StringConverter.denormalizeString(exportedContent));
-          } else if ("binary".equals(type)) {
-            assertEquals(pureValues[index], new String(Base64.decode(exportedContent),
-                Constants.DEFAULT_ENCODING));
+        String propertyName = attribute.getNodeName();
+        StringTokenizer tokenizer = new StringTokenizer(propertyName,"_");
+        tokenizer.nextToken();
+        String[] pureValues = valList.get(Integer.parseInt(tokenizer.nextToken()));
+        String type = tokenizer.nextToken();
 
+        String attrValue = attribute.getNodeValue();
+        if (pureValues.length == 1 && pureValues[0].equals(""))
+          assertEquals("", attrValue);
+        else {
+          StringTokenizer spaceTokenizer = new StringTokenizer(attrValue);
+          assertEquals(pureValues.length, spaceTokenizer.countTokens());
+          int index = 0;
+          while (spaceTokenizer.hasMoreTokens()) {
+            String exportedContent = spaceTokenizer.nextToken();
+            if ("string".equals(type)) {
+              assertEquals(pureValues[index], StringConverter.denormalizeString(exportedContent));
+            } else if ("binary".equals(type)) {
+              assertEquals(pureValues[index], new String(Base64.decode(exportedContent),
+                                                         Constants.DEFAULT_ENCODING));
+
+            }
+            index++;
           }
-          index++;
         }
       }
     }
@@ -296,8 +311,8 @@ public class TestExportDocView extends ExportBase {
     
     Node testNode = newSession.getRootNode().addNode("jcr:testExportNamespaceRemaping");
     for (int i = 0; i < valList.size(); i++) {
-      testNode.setProperty("prop" + i + "_string", valList.get(i), PropertyType.STRING);
-      testNode.setProperty("prop" + i + "_binary", valList.get(i), PropertyType.BINARY);
+      testNode.setProperty("prop_" + i + "_string", valList.get(i), PropertyType.STRING);
+      testNode.setProperty("prop_" + i + "_binary", valList.get(i), PropertyType.BINARY);
     }
    
     
@@ -320,8 +335,8 @@ public class TestExportDocView extends ExportBase {
     
     Node testNode = newSession.getRootNode().addNode("jcr:testExportNamespaceRemaping");
     for (int i = 0; i < valList.size(); i++) {
-      testNode.setProperty("prop" + i + "_string", valList.get(i), PropertyType.STRING);
-      testNode.setProperty("prop" + i + "_binary", valList.get(i), PropertyType.BINARY);
+      testNode.setProperty("prop_" + i + "_string", valList.get(i), PropertyType.STRING);
+      testNode.setProperty("prop_" + i + "_binary", valList.get(i), PropertyType.BINARY);
     }
 
     newSession.save();

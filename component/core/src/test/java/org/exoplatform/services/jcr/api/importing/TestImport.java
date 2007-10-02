@@ -65,15 +65,7 @@ public class TestImport extends JcrAPIBaseTest {
                                 + "</jcr:content>"
                                 + "</childNode2>"
                                 + "</childNode>"
-                                +
-                                // "<testNodeWithText1
-                                // jcr:mixinTypes='mix:referenceable
-                                // exo:accessControllable' testProperty='test
-                                // property value'>Thisi is a text content of
-                                // node
-                                // &lt;testNodeWithText1/&gt;
-                                // </testNodeWithText1>"+
-                                "<testNodeWithText1 jcr:mixinTypes='mix:referenceable' testProperty='test property value'>Thisi is a text content of node &lt;testNodeWithText1/&gt; </testNodeWithText1>"
+                                + "<testNodeWithText1 jcr:mixinTypes='mix:referenceable' jcr:uuid='id_uuidNode3' testProperty='test property value'>Thisi is a text content of node &lt;testNodeWithText1/&gt; </testNodeWithText1>"
                                 + "<testNodeWithText2><![CDATA[This is a text content of node <testNodeWithText2>]]></testNodeWithText2>"
                                 + "<uuidNode1 jcr:mixinTypes='mix:referenceable' jcr:uuid='id_uuidNode1' source='docView'/>"
                                 + "</exo:test>";
@@ -159,8 +151,7 @@ public class TestImport extends JcrAPIBaseTest {
     session.getRootNode().addNode("test", "nt:unstructured");
     session.getRootNode().addNode("test2", "nt:unstructured");
     session.getRootNode().addNode("testECM", "nt:unstructured");
-    NodeTypeManagerImpl ntManager = (NodeTypeManagerImpl) session.getWorkspace()
-        .getNodeTypeManager();
+    NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
     byte[] xmlData1 = readXmlContent("/org/exoplatform/services/jcr/api/nodetypes/ecm/nodetypes-config.xml");
     ByteArrayInputStream xmlInput1 = new ByteArrayInputStream(xmlData1);
     ntManager.registerNodeTypes(xmlInput1, 0);
@@ -219,7 +210,7 @@ public class TestImport extends JcrAPIBaseTest {
     assertEquals("this is the binary content", property.getString());
     property = root.getProperty("exo:test/childNode/childNode2/jcr:content/jcr:data");
     assertEquals("Three bytes are concatenated, then split to form 4 groups of 6-bits each;",
-        property.getString());
+                 property.getString());
 
   }
 
@@ -281,27 +272,27 @@ public class TestImport extends JcrAPIBaseTest {
 
     PlainChangesLog changesLog = new PlainChangesLogImpl();
 
-    TransientNodeData testNodeData = TransientNodeData.createNodeData((NodeData) ((NodeImpl) root)
-        .getData(),
-        new InternalQName("", "nodeWithPredefUuid"),
-        Constants.NT_UNSTRUCTURED,
-        "id_uuidNode1");
+    TransientNodeData testNodeData = TransientNodeData.createNodeData((NodeData) ((NodeImpl) root).getData(),
+                                                                      new InternalQName("",
+                                                                                        "nodeWithPredefUuid"),
+                                                                      Constants.NT_UNSTRUCTURED,
+                                                                      "id_uuidNode1");
     changesLog.add(ItemState.createAddedState(testNodeData));
     TransientPropertyData primaryType = TransientPropertyData.createPropertyData(testNodeData,
-        Constants.JCR_PRIMARYTYPE,
-        PropertyType.NAME,
-        false);
+                                                                                 Constants.JCR_PRIMARYTYPE,
+                                                                                 PropertyType.NAME,
+                                                                                 false);
     primaryType.setValue(new TransientValueData(testNodeData.getPrimaryTypeName()));
     changesLog.add(ItemState.createAddedState(primaryType));
 
     session.getTransientNodesManager().getTransactManager().save(changesLog);
     root.getNode("nodeWithPredefUuid").addMixin("mix:referenceable");
-    
+
     session.save();
     XMLReader reader = XMLReaderFactory.createXMLReader();
 
     reader.setContentHandler(session.getImportContentHandler("/test",
-        ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW));
+                                                             ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW));
 
     InputSource inputSource = new InputSource(new ByteArrayInputStream(sysView.getBytes()));
     reader.parse(inputSource);
@@ -311,11 +302,10 @@ public class TestImport extends JcrAPIBaseTest {
     Node nodeUuidNode1 = session.getRootNode().getNode("test/exo:test/uuidNode1");
     Value valueUuidNode1 = nodeUuidNode1.getProperty("jcr:uuid").getValue();
 
-    assertTrue("Uuid must be new [" + valueUuidNode1.getString() + "]", !"id_uuidNode1"
-        .equals(valueUuidNode1.getString()));
-    
-    assertFalse( session.getNodeByUUID("id_uuidNode1").getName().equals("uuidNode1"));
+    assertTrue("Uuid must be new [" + valueUuidNode1.getString() + "]",
+               !"id_uuidNode1".equals(valueUuidNode1.getString()));
 
+    assertFalse(session.getNodeByUUID("id_uuidNode1").getName().equals("uuidNode1"));
 
   }
 
@@ -325,7 +315,7 @@ public class TestImport extends JcrAPIBaseTest {
     root.addNode("testCollision");
     session.save();
     reader.setContentHandler(session.getImportContentHandler("/testCollision",
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW));
+                                                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW));
 
     InputSource inputSource = new InputSource(new ByteArrayInputStream(sysView.getBytes()));
     reader.parse(inputSource);
@@ -336,8 +326,9 @@ public class TestImport extends JcrAPIBaseTest {
 
     Value valueUuid = node.getProperty("jcr:uuid").getValue();
 
-    assertEquals("Uuid must exists [" + valueUuid.getString() + "]", "id_uuidNode1", valueUuid
-        .getString());
+    assertEquals("Uuid must exists [" + valueUuid.getString() + "]",
+                 "id_uuidNode1",
+                 valueUuid.getString());
 
     try {
       session.getNodeByUUID("id_uuidNode1");
@@ -353,7 +344,7 @@ public class TestImport extends JcrAPIBaseTest {
 
     // part 2
     reader.setContentHandler(session.getImportContentHandler("/test2",
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW));
+                                                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW));
 
     inputSource = new InputSource(new ByteArrayInputStream(sysView.getBytes()));
     try {
@@ -385,7 +376,7 @@ public class TestImport extends JcrAPIBaseTest {
 
     Property property = root.getProperty("test/exo:test/childNode/childNode2/jcr:content/jcr:data");
     assertEquals("Three bytes are concatenated, then split to form 4 groups of 6-bits each;",
-        property.getString());
+                 property.getString());
 
     // property =
     // root.getProperty("childNode/childNode3/jcr:content/exo:content");
@@ -399,7 +390,7 @@ public class TestImport extends JcrAPIBaseTest {
 
     // first import
     reader.setContentHandler(session.getImportContentHandler("/test",
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING));
+                                                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING));
 
     inputSource = new InputSource(new ByteArrayInputStream(docView.getBytes()));
     reader.parse(inputSource);
@@ -411,14 +402,14 @@ public class TestImport extends JcrAPIBaseTest {
     assertEquals("Uuid must be same (docView)", "id_uuidNode1", propDocViewUuidNode1.getString());
 
     assertEquals("check (docView)", "docView", nodeDocViewUuidNode1.getProperty("source")
-        .getString());
+                                                                   .getString());
 
     session.save();
     // log.debug(" node location id "+((NodeImpl)nodeDocViewUuidNode1);
     assertNotNull("session.getNodeByUUID doc", session.getNodeByUUID("id_uuidNode1"));
 
     reader.setContentHandler(session.getImportContentHandler("/test2",
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING));
+                                                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING));
 
     inputSource = new InputSource(new ByteArrayInputStream(sysView.getBytes()));
     reader.parse(inputSource);
@@ -432,7 +423,7 @@ public class TestImport extends JcrAPIBaseTest {
     assertEquals("Uuid must be same (sysView)", "id_uuidNode1", propSysViewUuidNode1.getString());
 
     assertEquals("Sourse  sysView)", "sysView", nodeSysViewUuidNode1.getProperty("source")
-        .getString());
+                                                                    .getString());
 
     try {
       session.getRootNode().getNode("test/exo:test/uuidNode1");
@@ -450,7 +441,7 @@ public class TestImport extends JcrAPIBaseTest {
 
     // first import
     reader.setContentHandler(session.getImportContentHandler("/test",
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING));
+                                                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING));
 
     inputSource = new InputSource(new ByteArrayInputStream(docView.getBytes()));
     reader.parse(inputSource);
@@ -462,16 +453,17 @@ public class TestImport extends JcrAPIBaseTest {
     assertEquals("Uuid must be same (docView)", "id_uuidNode1", propDocViewUuidNode1.getString());
 
     assertEquals("check (docView)", "docView", nodeDocViewUuidNode1.getProperty("source")
-        .getString());
+                                                                   .getString());
 
     session.save();
     // log.debug(" node location id "+((NodeImpl)nodeDocViewUuidNode1);
     assertNotNull("session.getNodeByUUID doc", session.getNodeByUUID("id_uuidNode1"));
     assertEquals("Property source by uuid", "docView", session.getNodeByUUID("id_uuidNode1")
-        .getProperty("source").getString());
+                                                              .getProperty("source")
+                                                              .getString());
 
     reader.setContentHandler(session.getImportContentHandler("/test2",
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING));
+                                                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING));
 
     inputSource = new InputSource(new ByteArrayInputStream(sysView.getBytes()));
     reader.parse(inputSource);
@@ -491,7 +483,7 @@ public class TestImport extends JcrAPIBaseTest {
     assertEquals("Uuid must be same (sysView)", "id_uuidNode1", propSysViewUuidNode1.getString());
 
     assertEquals("Sourse  sysView)", "sysView", nodeSysViewUuidNode1.getProperty("source")
-        .getString());
+                                                                    .getString());
   }
 
   private byte[] readXmlContent(String fileName) {
