@@ -622,6 +622,7 @@ public class SystemViewImporter extends ImporterBase {
 
     public DecodedValue() {
       super();
+      this.stringBuffer = new StringBuffer();
     }
 
     /**
@@ -632,7 +633,7 @@ public class SystemViewImporter extends ImporterBase {
     public Decoder getBinaryDecoder() throws IOException {
       if (decoder == null) {
         decoder = new BufferedDecoder();
-
+        stringBuffer = null;
       }
       return decoder;
     }
@@ -645,14 +646,11 @@ public class SystemViewImporter extends ImporterBase {
       if (decoder == null) {
         return new ByteArrayInputStream(new byte[0]);
       }
+      
       return decoder.getInputStream();
     }
 
     public StringBuffer getStringBuffer() {
-      if (stringBuffer == null) {
-        stringBuffer = new StringBuffer();
-      }
-
       return stringBuffer;
     }
 
@@ -671,9 +669,10 @@ public class SystemViewImporter extends ImporterBase {
 
     @Override
     public String toString() {
-      if (stringBuffer == null) {
+      if (decoder != null) {
         return decoder.toString();
       }
+
       return stringBuffer.toString();
     }
   }
