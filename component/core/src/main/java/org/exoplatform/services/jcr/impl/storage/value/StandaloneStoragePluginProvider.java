@@ -49,6 +49,13 @@ public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugi
 
     if (storages != null)
       for (ValueStorageEntry storageEntry : storages) {
+        
+        // can be only one storage with given id
+        for (ValueStoragePlugin vsp : this) {
+          if (vsp.getId().equals(storageEntry.getId()))
+            throw new RepositoryConfigurationException("Value storage with ID '" + storageEntry.getId() + "' already exists");
+        }
+        
         Object o = null;
         try {
           o = Class.forName(storageEntry.getType()).newInstance();
