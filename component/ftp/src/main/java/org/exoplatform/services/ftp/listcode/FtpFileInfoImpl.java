@@ -45,22 +45,27 @@ public class FtpFileInfoImpl implements FtpFileInfo {
     if (!(node.isNodeType(FtpConst.NodeTypes.NT_FOLDER) || (node.isNodeType(FtpConst.NodeTypes.NT_FILE)))) {
       return;
     }
-    
-    Calendar calendar = node.getProperty(FtpConst.NodeTypes.JCR_CREATED).getDate();    
-    SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_MASK, Locale.ENGLISH);
-    
-    _time = dateFormat.format(calendar.getTime());
-    _month = MONTHES[calendar.getTime().getMonth()];
-    _day = calendar.getTime().getDate();
+
+    //JCR_CREATED    
+    Calendar calendar;
     
     if (node.isNodeType(FtpConst.NodeTypes.NT_FILE)) {
       _isCollection = false;
       Node contentNode = node.getNode(FtpConst.NodeTypes.JCR_CONTENT);
       Property dataProp = contentNode.getProperty(FtpConst.NodeTypes.JCR_DATA);
       _size = dataProp.getLength();
+      calendar = contentNode.getProperty(FtpConst.NodeTypes.JCR_LASTMODIFIED).getDate();
+    } else {
+      calendar = node.getProperty(FtpConst.NodeTypes.JCR_CREATED).getDate();
     }
+        
+    SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_MASK, Locale.ENGLISH);
+    
+    _time = dateFormat.format(calendar.getTime());
+    _month = MONTHES[calendar.getTime().getMonth()];
+    _day = calendar.getTime().getDate();
   }
-  
+
   public void setName(String name) {
     _name = name;
   }

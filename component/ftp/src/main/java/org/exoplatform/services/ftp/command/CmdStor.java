@@ -72,7 +72,7 @@ public class CmdStor extends FtpCommandImpl {
       boolean isNeedCheckIn = false;
       if (resourceNode == null) {
         if (FtpConst.Commands.CMD_REST.equals(clientSession().getPrevCommand())) {
-          reply(String.format(FtpConst.Replyes.REPLY_550, "Requiref file not exist"));
+          reply(String.format(FtpConst.Replyes.REPLY_550, "Requested file not exist"));
           return;
         }        
         
@@ -153,6 +153,8 @@ public class CmdStor extends FtpCommandImpl {
         inputStream = clientSession().getDataTransiver().getInputStream();
         reply(FtpConst.Replyes.REPLY_125);
       }
+      
+      resourceNode.setProperty(FtpConst.NodeTypes.JCR_LASTMODIFIED, Calendar.getInstance());
 
       resourceNode.setProperty(FtpConst.NodeTypes.JCR_DATA, inputStream);      
       
