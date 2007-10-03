@@ -59,7 +59,7 @@
         <dependency>
 		    <groupId>mysql</groupId>
 		    <artifactId>mysql-connector-java</artifactId>
-		    <version>3.1.11</version>
+		    <version>5.0.5</version>
 		    <scope>compile</scope>
 		</dependency>
 
@@ -117,7 +117,7 @@
                     <!--<source>1.5</source>
                         <target>1.5</target>-->
                     <excludes>
-                        <exclude>**/Jackrabbit*.java</exclude>
+                        <exclude>*Driver.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
