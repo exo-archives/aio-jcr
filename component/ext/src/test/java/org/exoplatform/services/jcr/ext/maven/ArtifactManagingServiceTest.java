@@ -76,7 +76,7 @@ public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 		
 	}
 	
-	public void _testArtifactLoad() throws Exception {
+	public void testArtifactLoad() throws Exception {
 		log.info("Starting artifact loading test !");
 		asImpl = (ArtifactManagingServiceImpl) container.getComponentInstanceOfType(ArtifactManagingServiceImpl.class);
 		assertNotNull(asImpl);
@@ -111,7 +111,7 @@ public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 		sp.close();
 	}
 		
-	public void _testExistsContentNodes() throws Exception{
+	public void testExistsContentNodes() throws Exception{
 
 		log.info("Starting artifact reading test !");
 		asImpl = (ArtifactManagingServiceImpl) container.getComponentInstanceOfType(ArtifactManagingServiceImpl.class);
@@ -139,7 +139,7 @@ public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 	}
 	
 	
-	public void _testReadContent() throws Exception{
+	public void testReadContent() throws Exception{
 		log.info("Starting artifact reading test !");
 		asImpl = (ArtifactManagingServiceImpl) container.getComponentInstanceOfType(ArtifactManagingServiceImpl.class);
 		assertNotNull(asImpl);
@@ -223,7 +223,6 @@ public class ArtifactManagingServiceTest extends BaseStandaloneTest {
 						System.out.print(str.concat(" "));
 					}
 				}
-
 				System.out.print("\n");
 				printTree(node, space + 5);
 			}
