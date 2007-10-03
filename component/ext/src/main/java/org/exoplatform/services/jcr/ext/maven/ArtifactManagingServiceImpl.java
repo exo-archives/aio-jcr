@@ -100,16 +100,16 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 	 * @param registryService
 	 * @throws RepositoryConfigurationException
 	 */
-	public ArtifactManagingServiceImpl(InitParams params,
+	public ArtifactManagingServiceImpl(InitParams initParams,
 			RepositoryService repositoryService, RegistryService registryService)
 			throws RepositoryConfigurationException {
 		this.repositoryService = repositoryService;
 		this.registryService = registryService;
 		
 		if (initParams == null)
-			throw new RepositoryConfigurationException("Init parameters expected");
+			throw new RepositoryConfigurationException("Init parameters expected !!!");
 	
-		this.initParams = params;
+		this.initParams = initParams;
 	}
 
 	/**
@@ -185,7 +185,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService,
 				+ parentFolder.getAsString());
 		LOGGER.debug("Getting session via SessionProvider");
 		Session session = currentSession(sp);
-		Node rootNode = session.getRootNode();
+		Node rootNode = (Node)session.getItem(rootNodePath);
 		String strPath = parentFolder.getAsPath();
 		Node targetNode = rootNode.getNode(strPath);
 

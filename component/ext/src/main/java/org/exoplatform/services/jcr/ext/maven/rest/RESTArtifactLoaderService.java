@@ -21,7 +21,10 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.codehaus.plexus.util.StringUtils;
 
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
@@ -52,25 +55,37 @@ public class RESTArtifactLoaderService implements ResourceContainer{
 	private RepositoryService repoService;
 	private SessionProvider sessionProvider;
 	private Credentials cred = new CredentialsImpl("exo","exo".toCharArray());
-	private String repoWorkspaceName = "draft";
-	private String repoPath;
+	private String repoWorkspaceName;
+	private String rootNodePath;
+	private InitParams initParams;
 	
-	public RESTArtifactLoaderService(RepositoryService repoService)
+	public RESTArtifactLoaderService(InitParams initParams, RepositoryService repoService)
 			throws Exception {
 		
 		this.repoService = repoService;
-		this.sessionProviderService = sessionProviderService;
+		this.initParams = initParams;
+		
+		if(initParams == null)
+			throw new RepositoryConfigurationException("Init parameters expected !!!");
+		
+		PropertiesParam props = initParams.getPropertiesParam("artifact.workspace");
+		
+		if (props == null)
+		      throw new RepositoryConfigurationException("Property parameters 'locations' expected");
+		
+		repoWorkspaceName = props.getProperty("workspace");
+		rootNodePath = props.getProperty("rootNode");
 		
 		sessionProvider = new SessionProvider(cred); 
 		
 	}
 	
 	@HTTPMethod("GET")
-	@URITemplate("/repomaven2/{path}/")
+	@URITemplate("/maven2/{path}/")
 	public Response getResource(@URIParam("path")String mavenQuery) throws RepositoryException {
 		//annotated methods are used as front dispatcher. 
 		LOGGER.debug("getResource: ".concat(mavenQuery));
-		String resoureQuery = "/".concat(mavenQuery);
+		String resoureQuery = rootNodePath + mavenQuery;
 		return new DownloadMavenResource(currentSession(sessionProvider), resoureQuery).getResponse();
 		
 		/*

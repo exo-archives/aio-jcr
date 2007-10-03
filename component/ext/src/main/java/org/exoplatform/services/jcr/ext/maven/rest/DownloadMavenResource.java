@@ -118,8 +118,6 @@ public class DownloadMavenResource {
 		
 		try{
 			contentLength = entity.available();
-			
-			System.out.println( new Long(contentLength).toString() );
 			LOGGER.info( new Integer(entity.available()).toString() );
 		}
 		catch(IOException e){
