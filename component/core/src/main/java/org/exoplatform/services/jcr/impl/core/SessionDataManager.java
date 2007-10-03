@@ -1286,10 +1286,13 @@ public class SessionDataManager implements ItemDataConsumer {
     /**
      * Load nodes ti the pool
      * 
+     * USED FOR TEST PURPOSE ONLY
+     * 
      * @param nodes
      * @return child nodes
      * @throws RepositoryException
      */
+    @Deprecated
     List<NodeImpl> getNodes(List<NodeImpl> nodes) throws RepositoryException {
       List<NodeImpl> children = new ArrayList<NodeImpl>();
       for (NodeImpl node : nodes) {
@@ -1309,10 +1312,13 @@ public class SessionDataManager implements ItemDataConsumer {
     /**
      * Load properties to the pool
      * 
+     * USED FOR TEST PURPOSE ONLY
+     * 
      * @param props
      * @return child properties
      * @throws RepositoryException
      */
+    @Deprecated
     List<PropertyImpl> getProperties(List<PropertyImpl> props) throws RepositoryException {
       List<PropertyImpl> children = new ArrayList<PropertyImpl>();
       for (PropertyImpl prop : props) {

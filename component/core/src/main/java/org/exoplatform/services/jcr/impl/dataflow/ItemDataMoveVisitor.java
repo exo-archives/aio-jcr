@@ -69,6 +69,9 @@ public class ItemDataMoveVisitor extends DefaultItemDataCopyVisitor {
   protected void entering(PropertyData property, int level) throws RepositoryException {
     super.entering(property, level);
     
+    // get last from super.entering(property, level)
+    //ItemState copy = itemAddStates.get(itemAddStates.size() - 1);
+    
     List<ValueData> vals = property.getValues();
     for (ValueData valueData : vals) {
       ((TransientValueData) valueData).lock();
