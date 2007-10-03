@@ -8,8 +8,10 @@ package org.exoplatform.services.jcr.impl.core.lock;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.WeakHashMap;
 
 import javax.jcr.AccessDeniedException;
@@ -33,11 +35,15 @@ import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.SessionLifecycleListener;
+import org.exoplatform.services.jcr.impl.dataflow.AbstractValueData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 import org.exoplatform.services.jcr.impl.proccess.WorkerThread;
@@ -68,15 +74,15 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
                                                                  .getLogger("jcr.lock.LockManager");
 
   // NodeIdentifier -- lockData
-  private WeakHashMap<String, LockData> locks;
+  private Map<String, LockData> locks;
 
   private final DataManager             dataManager;
 
   // NodeIdentifier -- lockData
-  private WeakHashMap<String, LockData> pendingLocks;
+  private Map<String, LockData> pendingLocks;
 
   // lockToken --lockData
-  private WeakHashMap<String, LockData> tokensMap;
+  private Map<String, LockData> tokensMap;
 
   // private final RepositoryEntry config;
 
@@ -96,9 +102,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
       lockTimeOut = config.getLockManager().getTimeout() > 0 ? config.getLockManager().getTimeout()
           : DEFAULT_LOCK_TIMEOUT;
 
-    locks = new WeakHashMap<String, LockData>();
-    pendingLocks = new WeakHashMap<String, LockData>();
-    tokensMap = new WeakHashMap<String, LockData>();
+    locks = Collections.synchronizedMap(new WeakHashMap<String, LockData>());
+    pendingLocks = Collections.synchronizedMap(new WeakHashMap<String, LockData>());
+    tokensMap = Collections.synchronizedMap(new WeakHashMap<String, LockData>());
 
     dataManager.addItemPersistenceListener(this);
   }
@@ -308,6 +314,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
               nodeIdentifier = itemState.getData().getIdentifier();
               if (itemState.isDeleted()) {
                 removedLock.add(nodeIdentifier);
+              //} else if (itemState.isAdded() || itemState.isRenamed()) {
               } else if (itemState.isAdded()) {
                 removedLock.remove(nodeIdentifier);
               }
@@ -444,24 +451,51 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     try {
       nData = (NodeData) dataManager.getItemData(nodeIdentifier);
       PlainChangesLog changesLog = new PlainChangesLogImpl(new ArrayList<ItemState>(),
-          SystemIdentity.SYSTEM,
-          ExtendedEvent.UNLOCK);
+                                                           SystemIdentity.SYSTEM,
+                                                           ExtendedEvent.UNLOCK);
 
-      ItemData lockOwner = dataManager.getItemData(nData,
-          new QPathEntry(Constants.JCR_LOCKOWNER, 1));
+      ItemData lockOwner = copyItemData((PropertyData) dataManager.getItemData(nData,
+                                                                               new QPathEntry(Constants.JCR_LOCKOWNER,
+                                                                                              1)));
+
       changesLog.add(ItemState.createDeletedState(lockOwner));
 
-      ItemData lockIsDeep = dataManager.getItemData(nData, new QPathEntry(Constants.JCR_LOCKISDEEP,
-          1));
+      ItemData lockIsDeep = copyItemData((PropertyData) dataManager.getItemData(nData,
+                                                                                new QPathEntry(Constants.JCR_LOCKISDEEP,
+                                                                                               1)));
       changesLog.add(ItemState.createDeletedState(lockIsDeep));
 
       dataManager.save(new TransactionChangesLog(changesLog));
     } catch (RepositoryException e) {
-      log.error("Error occur during removing lock");
+      log.error("Error occur during removing lock"+e.getLocalizedMessage());
     }
 
   }
 
+  private TransientItemData copyItemData(PropertyData prop) throws RepositoryException {
+
+    if (prop == null)
+      return null;
+
+    // make a copy
+    TransientPropertyData newData = new TransientPropertyData(prop.getQPath(),
+                                                              prop.getIdentifier(),
+                                                              prop.getPersistedVersion(),
+                                                              prop.getType(),
+                                                              prop.getParentIdentifier(),
+                                                              prop.isMultiValued());
+
+    List<ValueData> values = null;
+    // null is possible for deleting items
+    if (prop.getValues() != null) {
+      values = new ArrayList<ValueData>();
+      for (ValueData val : prop.getValues()) {
+        values.add(((AbstractValueData) val).createTransientCopy());
+      }
+    }
+    newData.setValues(values);
+    return newData;
+  }
   public void start() {
     lockRemover = new LockRemover();
   }
