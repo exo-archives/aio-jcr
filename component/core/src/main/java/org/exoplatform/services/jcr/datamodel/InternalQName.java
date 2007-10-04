@@ -54,7 +54,7 @@ public class InternalQName extends QName {
     if (!(o instanceof InternalQName))
       return false;
     
-    return hashCode == o.hashCode();
+    return hashCode == ((InternalQName) o).hashCode();
   }  
 
 }
