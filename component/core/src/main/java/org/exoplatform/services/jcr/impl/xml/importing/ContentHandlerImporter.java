@@ -32,14 +32,14 @@ public class ContentHandlerImporter implements ContentHandler,ErrorHandler {
 
   private final int         uuidBehavior;
 
-  private final ImportRespectingSemantics respectingSemantics;
+  private final boolean respectPropertyDefinitionsConstraints;
 
-  public ContentHandlerImporter(XmlSaveType saveType, NodeImpl parent, int uuidBehavior,ImportRespectingSemantics respectingSemantics) {
+  public ContentHandlerImporter(XmlSaveType saveType, NodeImpl parent, int uuidBehavior,boolean respectPropertyDefinitionsConstraints) {
     super();
     this.saveType = saveType;
     this.uuidBehavior = uuidBehavior;
     this.parent = parent;
-    this.respectingSemantics = respectingSemantics;
+    this.respectPropertyDefinitionsConstraints = respectPropertyDefinitionsConstraints;
 
   }
 
@@ -145,7 +145,7 @@ public class ContentHandlerImporter implements ContentHandler,ErrorHandler {
    * @see org.xml.sax.ContentHandler#startDocument()
    */
   public void startDocument() throws SAXException {
-    this.importer = new NeutralImporter(parent, uuidBehavior, saveType, respectingSemantics);
+    this.importer = new NeutralImporter(parent, uuidBehavior, saveType, respectPropertyDefinitionsConstraints);
 
   }
 

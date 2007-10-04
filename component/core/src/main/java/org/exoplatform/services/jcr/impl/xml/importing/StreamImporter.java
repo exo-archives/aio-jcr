@@ -45,17 +45,17 @@ public class StreamImporter {
 
   private final int         uuidBehavior;
 
-  private final ImportRespectingSemantics respectingSemantics;
+  private final boolean respectPropertyDefinitionsConstraints;
 
   public StreamImporter(XmlSaveType saveType,
                         NodeImpl parent,
                         int uuidBehavior,
-                        ImportRespectingSemantics respectingSemantics) {
+                        boolean respectPropertyDefinitionsConstraints) {
     super();
     this.saveType = saveType;
     this.uuidBehavior = uuidBehavior;
     this.parent = parent;
-    this.respectingSemantics = respectingSemantics;
+    this.respectPropertyDefinitionsConstraints = respectPropertyDefinitionsConstraints;
 
   }
 
@@ -66,7 +66,7 @@ public class StreamImporter {
       log.debug("FACTORY: " + factory);
     
     // TODO create in constructor
-    this.importer = new NeutralImporter(parent, uuidBehavior, saveType,respectingSemantics);
+    this.importer = new NeutralImporter(parent, uuidBehavior, saveType,respectPropertyDefinitionsConstraints);
     
     try {
 

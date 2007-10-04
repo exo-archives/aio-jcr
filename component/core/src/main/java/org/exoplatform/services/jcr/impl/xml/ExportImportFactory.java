@@ -117,17 +117,17 @@ public class ExportImportFactory {
   public ContentHandler getImportHandler(XmlSaveType saveType,
                                          NodeImpl node,
                                          int uuidBehavior,
-                                         ImportRespectingSemantics respectingSemantics) {
+                                         boolean respectPropertyDefinitionsConstraints) {
 
-    return new ContentHandlerImporter(saveType, node, uuidBehavior, respectingSemantics);
+    return new ContentHandlerImporter(saveType, node, uuidBehavior, respectPropertyDefinitionsConstraints);
   }
 
   public StreamImporter getStreamImporter(XmlSaveType saveType,
                                           NodeImpl node,
                                           int uuidBehavior,
-                                          ImportRespectingSemantics respectingSemantics) {
+                                          boolean respectPropertyDefinitionsConstraints) {
 
-    return new StreamImporter(saveType, node, uuidBehavior, respectingSemantics);
+    return new StreamImporter(saveType, node, uuidBehavior, respectPropertyDefinitionsConstraints);
   }
 
 }

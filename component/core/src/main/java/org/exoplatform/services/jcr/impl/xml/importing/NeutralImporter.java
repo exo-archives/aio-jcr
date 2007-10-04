@@ -23,8 +23,8 @@ public class NeutralImporter extends ImporterBase {
 
   private Importer contentImporter = null;
 
-  public NeutralImporter(NodeImpl parent, int uuidBehavior, XmlSaveType saveType,ImportRespectingSemantics respectingSemantics) {
-    super(parent, uuidBehavior, saveType, respectingSemantics);
+  public NeutralImporter(NodeImpl parent, int uuidBehavior, XmlSaveType saveType,boolean respectPropertyDefinitionsConstraints) {
+    super(parent, uuidBehavior, saveType, respectPropertyDefinitionsConstraints);
   }
 
   public void characters(char[] ch, int start, int length) throws RepositoryException {
@@ -57,10 +57,10 @@ public class NeutralImporter extends ImporterBase {
     if (contentImporter == null) {
       switch (NodeTypeRecognizer.recognize(namespaceURI, name)) {
       case DOCVIEW:
-        contentImporter = new DocumentViewImporter(parent, uuidBehavior, getSaveType(),respectingSemantics);
+        contentImporter = new DocumentViewImporter(parent, uuidBehavior, getSaveType(),respectPropertyDefinitionsConstraints);
         break;
       case SYSVIEW:
-        contentImporter = new SystemViewImporter(parent, uuidBehavior, getSaveType(),respectingSemantics);
+        contentImporter = new SystemViewImporter(parent, uuidBehavior, getSaveType(),respectPropertyDefinitionsConstraints);
         break;
       default:
         throw new IllegalStateException("No importer find");

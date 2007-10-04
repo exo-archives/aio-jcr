@@ -65,13 +65,13 @@ abstract public class ImporterBase implements Importer {
 
   protected final int                 uuidBehavior;
 
-  protected final ImportRespectingSemantics respectingSemantics;
+  protected final boolean respectPropertyDefinitionsConstraints;
 
-  public ImporterBase(NodeImpl parent, int uuidBehavior, XmlSaveType saveType,ImportRespectingSemantics respectingSemantics) {
+  public ImporterBase(NodeImpl parent, int uuidBehavior, XmlSaveType saveType,boolean respectPropertyDefinitionsConstraints) {
 
     this.parent = parent;
     this.saveType = saveType;
-    this.respectingSemantics = respectingSemantics;
+    this.respectPropertyDefinitionsConstraints = respectPropertyDefinitionsConstraints;
     this.session = parent.getSession();
     this.ntManager = (NodeTypeManagerImpl) this.session.getRepository().getNodeTypeManager();
     this.locationFactory = session.getLocationFactory();

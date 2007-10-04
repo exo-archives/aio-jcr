@@ -91,8 +91,8 @@ public class SystemViewImporter extends ImporterBase {
   public SystemViewImporter(NodeImpl parent,
                             int uuidBehavior,
                             XmlSaveType saveType,
-                            ImportRespectingSemantics respectingSemantics) {
-    super(parent, uuidBehavior, saveType, respectingSemantics);
+                            boolean respectPropertyDefinitionsConstraints) {
+    super(parent, uuidBehavior, saveType, respectPropertyDefinitionsConstraints);
 
     this.parent = (NodeData) parent.getData();
     this.tree = new Stack<NodeInfo>();
@@ -292,7 +292,7 @@ public class SystemViewImporter extends ImporterBase {
                 primaryTypeName,
                 mixinTypeNames);
           } catch (RepositoryException e) {
-            if (ImportRespectingSemantics.IMPORT_SEMANTICS_SKIP_PROPERTIES == respectingSemantics) {
+            if (!respectPropertyDefinitionsConstraints) {
               log.warn(e.getLocalizedMessage());
               continue;
             }

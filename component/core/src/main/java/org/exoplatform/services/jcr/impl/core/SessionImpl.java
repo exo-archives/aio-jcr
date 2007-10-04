@@ -41,6 +41,7 @@ import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
+import org.exoplatform.services.jcr.core.ExtendedSession;
 import org.exoplatform.services.jcr.core.NamespaceAccessor;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -77,7 +78,7 @@ import org.xml.sax.SAXException;
  * @version $Id: SessionImpl.java 13866 2007-03-28 13:39:28Z ksm $ The
  *          implementation supported CredentialsImpl
  */
-public class SessionImpl implements Session, NamespaceAccessor {
+public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
   private final Log log = ExoLogger.getLogger("jcr.SessionImpl");
 
@@ -634,20 +635,15 @@ public class SessionImpl implements Session, NamespaceAccessor {
       }
     }
   }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see javax.jcr.Session#importXML(java.lang.String, java.io.InputStream,
-   *      int)
-   */
-  public void importXML(String parentAbsPath, InputStream in, int uuidBehavior) throws IOException,
+  public void importXML(String parentAbsPath,
+                        InputStream in,
+                        int uuidBehavior,
+                        boolean respectPropertyDefinitionsConstraints) throws IOException,
       PathNotFoundException,
       ItemExistsException,
       ConstraintViolationException,
       InvalidSerializedDataException,
-      RepositoryException {
-
+      RepositoryException{
     NodeImpl node = (NodeImpl) getItem(parentAbsPath);
     // TODO it's not a place for this, checked-in check
     if (!node.isCheckedOut()) {
@@ -666,17 +662,32 @@ public class SessionImpl implements Session, NamespaceAccessor {
       throw new LockException("Node " + node.getPath() + " is locked ");
     }
 
-    ImportRespectingSemantics respectingSemantics = (ImportRespectingSemantics) getAttribute(XmlConstants.PARAMETER_IMPORT_RESPECTING);
+
     
-    if (respectingSemantics == null) {
-      respectingSemantics = ImportRespectingSemantics.IMPORT_SEMANTICS_RESPECT;
-    }
+
     
     StreamImporter importer = new ExportImportFactory(this).getStreamImporter(XmlSaveType.SESSION,
                                                                               node,
                                                                               uuidBehavior,
-                                                                              respectingSemantics);
+                                                                              respectPropertyDefinitionsConstraints);
     importer.importStream(in);
+    
+  }
+  
+  /*
+   * (non-Javadoc)
+   * 
+   * @see javax.jcr.Session#importXML(java.lang.String, java.io.InputStream,
+   *      int)
+   */
+  public void importXML(String parentAbsPath, InputStream in, int uuidBehavior) throws IOException,
+      PathNotFoundException,
+      ItemExistsException,
+      ConstraintViolationException,
+      InvalidSerializedDataException,
+      RepositoryException {
+
+    importXML(parentAbsPath,in,uuidBehavior,true);
   }
 
   /*
@@ -715,7 +726,7 @@ public class SessionImpl implements Session, NamespaceAccessor {
     return new ExportImportFactory(this).getImportHandler(XmlSaveType.SESSION,
                                                           node,
                                                           uuidBehavior,
-                                                          respectingSemantics);
+                                                          true);
   }
   
   /*

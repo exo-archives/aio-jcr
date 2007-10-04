@@ -34,6 +34,7 @@ import javax.jcr.version.VersionException;
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.access.PermissionType;
+import org.exoplatform.services.jcr.core.ExtendedWorkspace;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
@@ -65,7 +66,7 @@ import org.xml.sax.ContentHandler;
  * @version $Id: WorkspaceImpl.java 13572 2007-03-20 11:03:12Z peterit $
  */
 
-public class WorkspaceImpl implements Workspace {
+public class WorkspaceImpl implements ExtendedWorkspace {
 
   protected static Log log = ExoLogger.getLogger("jcr.WorkspaceImpl");
 
@@ -131,29 +132,21 @@ public class WorkspaceImpl implements Workspace {
     if (!node.checkLocking()) {
       throw new LockException("Node " + node.getPath() + " is locked ");
     }
-    ImportRespectingSemantics respectingSemantics = (ImportRespectingSemantics) session.getAttribute(XmlConstants.PARAMETER_IMPORT_RESPECTING);
-
-    if (respectingSemantics == null) {
-      respectingSemantics = ImportRespectingSemantics.IMPORT_SEMANTICS_RESPECT;
-    }
 
     return new ExportImportFactory(session).getImportHandler(XmlSaveType.WORKSPACE,
                                                              node,
                                                              uuidBehavior,
-                                                             respectingSemantics);
+                                                             true);
   }
-
-  /**
-   * @see javax.jcr.Workspace#importXML TODO (the same as Session.importXML - ?)
-   */
-  public void importXML(String parentAbsPath, InputStream in, int uuidBehavior) throws IOException,
+  public void importXML(String parentAbsPath,
+                        InputStream in,
+                        int uuidBehavior,
+                        boolean respectPropertyDefinitionsConstraints) throws IOException,
       PathNotFoundException,
       ItemExistsException,
       ConstraintViolationException,
       InvalidSerializedDataException,
-      RepositoryException {
-    
-
+      RepositoryException{
     NodeImpl node = (NodeImpl) session.getItem(parentAbsPath);
     // TODO it's not a place for this, checked-in check
     if (!node.isCheckedOut()) {
@@ -180,8 +173,21 @@ public class WorkspaceImpl implements Workspace {
     StreamImporter importer = new ExportImportFactory(session).getStreamImporter(XmlSaveType.WORKSPACE,
                                                                                  node,
                                                                                  uuidBehavior,
-                                                                                 respectingSemantics);
+                                                                                 respectPropertyDefinitionsConstraints);
     importer.importStream(in);
+  }
+  /**
+   * @see javax.jcr.Workspace#importXML TODO (the same as Session.importXML - ?)
+   */
+  public void importXML(String parentAbsPath, InputStream in, int uuidBehavior) throws IOException,
+      PathNotFoundException,
+      ItemExistsException,
+      ConstraintViolationException,
+      InvalidSerializedDataException,
+      RepositoryException {
+    
+    importXML(parentAbsPath, in, uuidBehavior, true);
+  
    }
   /**
    * @see javax.jcr.Workspace#getSession

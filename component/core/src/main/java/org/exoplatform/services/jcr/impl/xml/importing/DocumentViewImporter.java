@@ -67,8 +67,8 @@ public class DocumentViewImporter extends ImporterBase {
   public DocumentViewImporter(NodeImpl parent,
                               int uuidBehavior,
                               XmlSaveType saveType,
-                              ImportRespectingSemantics respectingSemantics) {
-    super(parent, uuidBehavior, saveType, respectingSemantics);
+                              boolean respectPropertyDefinitionsConstraints) {
+    super(parent, uuidBehavior, saveType, respectPropertyDefinitionsConstraints);
     this.tree = new Stack<NodeData>();
     this.xmlCharactersProperty = null;
     this.XmlCharactersPropertyValue = null;
@@ -284,7 +284,7 @@ public class DocumentViewImporter extends ImporterBase {
                                                      primaryTypeName,
                                                      mixinNodeTypes.toArray(new InternalQName[mixinNodeTypes.size()]));
           } catch (RepositoryException e) {
-            if (ImportRespectingSemantics.IMPORT_SEMANTICS_SKIP_PROPERTIES == respectingSemantics) {
+            if (!respectPropertyDefinitionsConstraints) {
               log.warn(e.getLocalizedMessage());
               continue;
             }
