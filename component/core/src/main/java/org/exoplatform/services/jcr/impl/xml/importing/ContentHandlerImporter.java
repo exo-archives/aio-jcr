@@ -10,7 +10,6 @@ import java.util.Map;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
-import org.exoplatform.services.jcr.impl.xml.ImportRespectingSemantics;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;

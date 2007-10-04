@@ -55,7 +55,6 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
-import org.exoplatform.services.jcr.impl.xml.ImportRespectingSemantics;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;

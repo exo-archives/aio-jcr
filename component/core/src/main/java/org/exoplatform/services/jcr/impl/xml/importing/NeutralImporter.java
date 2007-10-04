@@ -10,7 +10,6 @@ import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.util.NodeTypeRecognizer;
-import org.exoplatform.services.jcr.impl.xml.ImportRespectingSemantics;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 
 /**

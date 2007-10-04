@@ -30,7 +30,6 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeDefinitionImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.PropertyDefinitionImpl;
-import org.exoplatform.services.jcr.impl.xml.ImportRespectingSemantics;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 import org.exoplatform.services.log.ExoLogger;
 

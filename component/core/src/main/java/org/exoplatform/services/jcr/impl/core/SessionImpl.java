@@ -59,8 +59,6 @@ import org.exoplatform.services.jcr.impl.ext.action.SessionActionCatalog;
 import org.exoplatform.services.jcr.impl.ext.action.SessionActionInterceptor;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.impl.xml.ExportImportFactory;
-import org.exoplatform.services.jcr.impl.xml.ImportRespectingSemantics;
-import org.exoplatform.services.jcr.impl.xml.XmlConstants;
 import org.exoplatform.services.jcr.impl.xml.XmlMapping;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 import org.exoplatform.services.jcr.impl.xml.exporting.ExportXmlBase;
@@ -717,11 +715,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
       throw new LockException("Node " + node.getPath() + " is locked ");
     }
 
-    ImportRespectingSemantics respectingSemantics = (ImportRespectingSemantics) getAttribute(XmlConstants.PARAMETER_IMPORT_RESPECTING);
 
-    if (respectingSemantics == null) {
-      respectingSemantics = ImportRespectingSemantics.IMPORT_SEMANTICS_RESPECT;
-    }
 
     return new ExportImportFactory(this).getImportHandler(XmlSaveType.SESSION,
                                                           node,

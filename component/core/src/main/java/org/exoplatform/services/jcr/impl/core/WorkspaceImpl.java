@@ -22,7 +22,6 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.UnsupportedRepositoryOperationException;
-import javax.jcr.Workspace;
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NodeTypeManager;
@@ -52,8 +51,6 @@ import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableDataManager;
 import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
 import org.exoplatform.services.jcr.impl.xml.ExportImportFactory;
-import org.exoplatform.services.jcr.impl.xml.ImportRespectingSemantics;
-import org.exoplatform.services.jcr.impl.xml.XmlConstants;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
 import org.exoplatform.services.log.ExoLogger;
@@ -164,12 +161,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     if (!node.checkLocking()) {
       throw new LockException("Node " + node.getPath() + " is locked ");
     }
-    ImportRespectingSemantics respectingSemantics = (ImportRespectingSemantics) session.getAttribute(XmlConstants.PARAMETER_IMPORT_RESPECTING);
 
-    if (respectingSemantics == null) {
-      respectingSemantics = ImportRespectingSemantics.IMPORT_SEMANTICS_RESPECT;
-    }
-    
     StreamImporter importer = new ExportImportFactory(session).getStreamImporter(XmlSaveType.WORKSPACE,
                                                                                  node,
                                                                                  uuidBehavior,

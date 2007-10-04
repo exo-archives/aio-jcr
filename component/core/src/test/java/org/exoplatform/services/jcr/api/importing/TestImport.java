@@ -7,11 +7,8 @@ package org.exoplatform.services.jcr.api.importing;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.InvalidSerializedDataException;
@@ -23,11 +20,11 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.nodetype.ConstraintViolationException;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
+import org.exoplatform.services.jcr.core.ExtendedSession;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
@@ -39,9 +36,6 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
-import org.exoplatform.services.jcr.impl.xml.ImportRespectingSemantics;
-import org.exoplatform.services.jcr.impl.xml.XmlConstants;
-import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -527,21 +521,15 @@ public class TestImport extends JcrAPIBaseTest {
   public void testSysImportUnExistingPropertyDefinition() throws Exception {
 
     try {
-      session.importXML(root.getPath(), new ByteArrayInputStream(sysView2.getBytes()), 0);
+      ((ExtendedSession)session).importXML(root.getPath(), new ByteArrayInputStream(sysView2.getBytes()), 0,true);
       session.save();
       fail();
     } catch (RepositoryException e) {
       //ok
     }
-    CredentialsImpl credentials2 = new CredentialsImpl("admin", "admin".toCharArray());
-    
-    credentials2.setAttribute(XmlConstants.PARAMETER_IMPORT_RESPECTING,
-                              ImportRespectingSemantics.IMPORT_SEMANTICS_SKIP_PROPERTIES);
-    
-    Session sess2 = repository.login(credentials2);
     try {
-      sess2.importXML(root.getPath(), new ByteArrayInputStream(sysView2.getBytes()), 0);
-      sess2.save();
+      ((ExtendedSession)session).importXML(root.getPath(), new ByteArrayInputStream(sysView2.getBytes()), 0,false);
+      session.save();
       
     } catch (RepositoryException e) {
       e.printStackTrace();
@@ -551,21 +539,15 @@ public class TestImport extends JcrAPIBaseTest {
   }
   public void testDocImportUnExistingPropertyDefinition() throws Exception {
     try {
-      session.importXML(root.getPath(), new ByteArrayInputStream(docView2.getBytes()), 0);
+      ((ExtendedSession)session).importXML(root.getPath(), new ByteArrayInputStream(docView2.getBytes()), 0,true);
       session.save();
       fail();
     } catch (RepositoryException e) {
       //ok
     }
-    CredentialsImpl credentials2 = new CredentialsImpl("admin", "admin".toCharArray());
-    
-    credentials2.setAttribute(XmlConstants.PARAMETER_IMPORT_RESPECTING,
-                              ImportRespectingSemantics.IMPORT_SEMANTICS_SKIP_PROPERTIES);
-    
-    Session sess2 = repository.login(credentials2);
     try {
-      sess2.importXML(root.getPath(), new ByteArrayInputStream(docView2.getBytes()), 0);
-      sess2.save();
+      ((ExtendedSession)session).importXML(root.getPath(), new ByteArrayInputStream(docView2.getBytes()), 0,false);
+      session.save();
     } catch (RepositoryException e) {
       e.printStackTrace();
       fail();    
