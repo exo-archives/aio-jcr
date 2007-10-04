@@ -44,6 +44,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.ISO9075;
 import org.exoplatform.services.jcr.impl.util.StringConverter;
+import org.exoplatform.services.jcr.impl.xml.ImportRespectingSemantics;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
@@ -63,8 +64,11 @@ public class DocumentViewImporter extends ImporterBase {
 
   private String                XmlCharactersPropertyValue;
 
-  public DocumentViewImporter(NodeImpl parent, int uuidBehavior, XmlSaveType saveType) {
-    super(parent, uuidBehavior, saveType);
+  public DocumentViewImporter(NodeImpl parent,
+                              int uuidBehavior,
+                              XmlSaveType saveType,
+                              ImportRespectingSemantics respectingSemantics) {
+    super(parent, uuidBehavior, saveType, respectingSemantics);
     this.tree = new Stack<NodeData>();
     this.xmlCharactersProperty = null;
     this.XmlCharactersPropertyValue = null;
@@ -273,11 +277,22 @@ public class DocumentViewImporter extends ImporterBase {
               values.add(((BaseValue) value).getInternalData());
             }
           }
-          // determinating is property multivalue;
+          
+          PropertyDefinitions defs;
+          try {
+            defs = ntManager.findPropertyDefinitions(propName,
+                                                     primaryTypeName,
+                                                     mixinNodeTypes.toArray(new InternalQName[mixinNodeTypes.size()]));
+          } catch (RepositoryException e) {
+            if (ImportRespectingSemantics.IMPORT_SEMANTICS_SKIP_PROPERTIES == respectingSemantics) {
+              log.warn(e.getLocalizedMessage());
+              continue;
+            }
+            throw e;
+          }
           boolean isMultivalue = true;
-          PropertyDefinitions defs = ntManager.findPropertyDefinitions(propName,
-              primaryTypeName,
-              mixinNodeTypes.toArray(new InternalQName[mixinNodeTypes.size()]));
+          
+          // determinating is property multivalue;
 
           if (values.size() == 1) {
             // there is single-value defeniton

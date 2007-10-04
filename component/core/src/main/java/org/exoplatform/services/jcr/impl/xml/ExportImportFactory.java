@@ -49,16 +49,23 @@ public class ExportImportFactory {
    * @throws RepositoryException
    */
   public ExportXmlBase getExportVisitor(XmlMapping type,
-      ContentHandler contentHandler,
-      boolean skipBinary,
-      boolean noRecurse) throws NamespaceException, RepositoryException {
+                                        ContentHandler contentHandler,
+                                        boolean skipBinary,
+                                        boolean noRecurse) throws NamespaceException,
+      RepositoryException {
 
     if (type == XmlMapping.SYSVIEW) {
-      return new ContentHandlerSysExport(contentHandler, sessionImpl, sessionImpl
-          .getTransientNodesManager(), skipBinary, noRecurse);
+      return new ContentHandlerSysExport(contentHandler,
+                                         sessionImpl,
+                                         sessionImpl.getTransientNodesManager(),
+                                         skipBinary,
+                                         noRecurse);
     } else if (type == XmlMapping.DOCVIEW) {
-      return new ContentHandlerDocExport(contentHandler, sessionImpl, sessionImpl
-          .getTransientNodesManager(), skipBinary, noRecurse);
+      return new ContentHandlerDocExport(contentHandler,
+                                         sessionImpl,
+                                         sessionImpl.getTransientNodesManager(),
+                                         skipBinary,
+                                         noRecurse);
     }
     return null;
   }
@@ -77,9 +84,11 @@ public class ExportImportFactory {
    * @throws IOException
    */
   public ExportXmlBase getExportVisitor(XmlMapping type,
-      OutputStream stream,
-      boolean skipBinary,
-      boolean noRecurse) throws NamespaceException, RepositoryException, IOException {
+                                        OutputStream stream,
+                                        boolean skipBinary,
+                                        boolean noRecurse) throws NamespaceException,
+      RepositoryException,
+      IOException {
 
     XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
     XMLStreamWriter streamWriter;
@@ -91,28 +100,34 @@ public class ExportImportFactory {
 
     if (type == XmlMapping.SYSVIEW) {
       return new StreamSysExport(streamWriter,
-          sessionImpl,
-          sessionImpl.getTransientNodesManager(),
-          skipBinary,
-          noRecurse);
+                                 sessionImpl,
+                                 sessionImpl.getTransientNodesManager(),
+                                 skipBinary,
+                                 noRecurse);
     } else if (type == XmlMapping.DOCVIEW) {
       return new StreamDocExport(streamWriter,
-          sessionImpl,
-          sessionImpl.getTransientNodesManager(),
-          skipBinary,
-          noRecurse);
+                                 sessionImpl,
+                                 sessionImpl.getTransientNodesManager(),
+                                 skipBinary,
+                                 noRecurse);
     }
     return null;
   }
 
-  public ContentHandler getImportHandler(XmlSaveType saveType, NodeImpl node, int uuidBehavior) {
+  public ContentHandler getImportHandler(XmlSaveType saveType,
+                                         NodeImpl node,
+                                         int uuidBehavior,
+                                         ImportRespectingSemantics respectingSemantics) {
 
-    return new ContentHandlerImporter(saveType, node, uuidBehavior);
+    return new ContentHandlerImporter(saveType, node, uuidBehavior, respectingSemantics);
   }
 
-  public StreamImporter getStreamImporter(XmlSaveType saveType, NodeImpl node, int uuidBehavior) {
+  public StreamImporter getStreamImporter(XmlSaveType saveType,
+                                          NodeImpl node,
+                                          int uuidBehavior,
+                                          ImportRespectingSemantics respectingSemantics) {
 
-    return new StreamImporter(saveType, node, uuidBehavior);
+    return new StreamImporter(saveType, node, uuidBehavior, respectingSemantics);
   }
 
 }

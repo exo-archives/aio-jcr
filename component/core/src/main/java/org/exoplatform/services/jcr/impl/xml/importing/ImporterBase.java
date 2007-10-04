@@ -30,6 +30,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeDefinitionImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.PropertyDefinitionImpl;
+import org.exoplatform.services.jcr.impl.xml.ImportRespectingSemantics;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -64,10 +65,13 @@ abstract public class ImporterBase implements Importer {
 
   protected final int                 uuidBehavior;
 
-  public ImporterBase(NodeImpl parent, int uuidBehavior, XmlSaveType saveType) {
+  protected final ImportRespectingSemantics respectingSemantics;
+
+  public ImporterBase(NodeImpl parent, int uuidBehavior, XmlSaveType saveType,ImportRespectingSemantics respectingSemantics) {
 
     this.parent = parent;
     this.saveType = saveType;
+    this.respectingSemantics = respectingSemantics;
     this.session = parent.getSession();
     this.ntManager = (NodeTypeManagerImpl) this.session.getRepository().getNodeTypeManager();
     this.locationFactory = session.getLocationFactory();

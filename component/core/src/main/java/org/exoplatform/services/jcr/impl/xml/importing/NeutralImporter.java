@@ -10,6 +10,7 @@ import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.util.NodeTypeRecognizer;
+import org.exoplatform.services.jcr.impl.xml.ImportRespectingSemantics;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 
 /**
@@ -22,8 +23,8 @@ public class NeutralImporter extends ImporterBase {
 
   private Importer contentImporter = null;
 
-  public NeutralImporter(NodeImpl parent, int uuidBehavior, XmlSaveType saveType) {
-    super(parent, uuidBehavior, saveType);
+  public NeutralImporter(NodeImpl parent, int uuidBehavior, XmlSaveType saveType,ImportRespectingSemantics respectingSemantics) {
+    super(parent, uuidBehavior, saveType, respectingSemantics);
   }
 
   public void characters(char[] ch, int start, int length) throws RepositoryException {
@@ -56,10 +57,10 @@ public class NeutralImporter extends ImporterBase {
     if (contentImporter == null) {
       switch (NodeTypeRecognizer.recognize(namespaceURI, name)) {
       case DOCVIEW:
-        contentImporter = new DocumentViewImporter(parent, uuidBehavior, getSaveType());
+        contentImporter = new DocumentViewImporter(parent, uuidBehavior, getSaveType(),respectingSemantics);
         break;
       case SYSVIEW:
-        contentImporter = new SystemViewImporter(parent, uuidBehavior, getSaveType());
+        contentImporter = new SystemViewImporter(parent, uuidBehavior, getSaveType(),respectingSemantics);
         break;
       default:
         throw new IllegalStateException("No importer find");

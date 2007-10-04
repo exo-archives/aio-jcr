@@ -51,6 +51,8 @@ import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableDataManager;
 import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
 import org.exoplatform.services.jcr.impl.xml.ExportImportFactory;
+import org.exoplatform.services.jcr.impl.xml.ImportRespectingSemantics;
+import org.exoplatform.services.jcr.impl.xml.XmlConstants;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
 import org.exoplatform.services.log.ExoLogger;
@@ -129,9 +131,16 @@ public class WorkspaceImpl implements Workspace {
     if (!node.checkLocking()) {
       throw new LockException("Node " + node.getPath() + " is locked ");
     }
+    ImportRespectingSemantics respectingSemantics = (ImportRespectingSemantics) session.getAttribute(XmlConstants.PARAMETER_IMPORT_RESPECTING);
+
+    if (respectingSemantics == null) {
+      respectingSemantics = ImportRespectingSemantics.IMPORT_SEMANTICS_RESPECT;
+    }
+
     return new ExportImportFactory(session).getImportHandler(XmlSaveType.WORKSPACE,
-        node,
-        uuidBehavior);
+                                                             node,
+                                                             uuidBehavior,
+                                                             respectingSemantics);
   }
 
   /**
@@ -162,9 +171,16 @@ public class WorkspaceImpl implements Workspace {
     if (!node.checkLocking()) {
       throw new LockException("Node " + node.getPath() + " is locked ");
     }
+    ImportRespectingSemantics respectingSemantics = (ImportRespectingSemantics) session.getAttribute(XmlConstants.PARAMETER_IMPORT_RESPECTING);
+
+    if (respectingSemantics == null) {
+      respectingSemantics = ImportRespectingSemantics.IMPORT_SEMANTICS_RESPECT;
+    }
+    
     StreamImporter importer = new ExportImportFactory(session).getStreamImporter(XmlSaveType.WORKSPACE,
-        node,
-        uuidBehavior);
+                                                                                 node,
+                                                                                 uuidBehavior,
+                                                                                 respectingSemantics);
     importer.importStream(in);
    }
   /**

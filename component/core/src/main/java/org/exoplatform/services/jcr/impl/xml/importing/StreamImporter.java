@@ -23,6 +23,7 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.xml.ImportRespectingSemantics;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -44,11 +45,17 @@ public class StreamImporter {
 
   private final int         uuidBehavior;
 
-  public StreamImporter(XmlSaveType saveType, NodeImpl parent, int uuidBehavior) {
+  private final ImportRespectingSemantics respectingSemantics;
+
+  public StreamImporter(XmlSaveType saveType,
+                        NodeImpl parent,
+                        int uuidBehavior,
+                        ImportRespectingSemantics respectingSemantics) {
     super();
     this.saveType = saveType;
     this.uuidBehavior = uuidBehavior;
     this.parent = parent;
+    this.respectingSemantics = respectingSemantics;
 
   }
 
@@ -59,7 +66,7 @@ public class StreamImporter {
       log.debug("FACTORY: " + factory);
     
     // TODO create in constructor
-    this.importer = new NeutralImporter(parent, uuidBehavior, saveType);
+    this.importer = new NeutralImporter(parent, uuidBehavior, saveType,respectingSemantics);
     
     try {
 

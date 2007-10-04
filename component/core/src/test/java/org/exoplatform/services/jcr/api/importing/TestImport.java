@@ -7,8 +7,11 @@ package org.exoplatform.services.jcr.api.importing;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.InvalidSerializedDataException;
@@ -20,6 +23,7 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.nodetype.ConstraintViolationException;
 
@@ -35,6 +39,9 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.xml.ImportRespectingSemantics;
+import org.exoplatform.services.jcr.impl.xml.XmlConstants;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -146,7 +153,39 @@ public class TestImport extends JcrAPIBaseTest {
                                 + "</sv:node>" +
 
                                 "</sv:node>";
-
+  
+  private String sysView2    = "<sv:node xmlns:nt=\"http://www.jcp.org/jcr/nt/1.0\" "
+    + "xmlns:jcr=\"http://www.jcp.org/jcr/1.0\" "
+    + "xmlns:sv=\"http://www.jcp.org/jcr/sv/1.0\" "
+    + "xmlns:exo=\"http://www.exoplatform.com/jcr/exo/1.0\" "
+    + "xmlns:mix=\"http://www.jcp.org/jcr/mix/1.0\" sv:name=\"childNode2\">"
+      + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:file</sv:value></sv:property>"
+      + "<sv:property sv:name=\"jcr:created\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
+      + "<sv:node sv:name=\"jcr:content\">"
+      + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:resource</sv:value></sv:property>"
+      + "<sv:property sv:name=\"jcr:uuid\" sv:type=\"String\"><sv:value>1092835020616_</sv:value></sv:property>"
+      + "<sv:property sv:name=\"jcr:data\" sv:type=\"Binary\"><sv:value>dGhpcyBpcyB0aGUgYmluYXJ5IGNvbnRlbnQ=</sv:value></sv:property>"
+      + "<sv:property sv:name=\"jcr:mimeType\" sv:type=\"String\"><sv:value>text/text</sv:value></sv:property>"
+      + "<sv:property sv:name=\"jcr:lastModified\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
+      //Special unexisting property
+      + "<sv:property sv:name=\"jcr:lastModified2\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
+      + "</sv:node>" +
+     "</sv:node>";
+  private String docView2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+  		"<childNode2 " +
+  		"xmlns:nt=\"http://www.jcp.org/jcr/nt/1.0\" " +
+  		"xmlns:jcr=\"http://www.jcp.org/jcr/1.0\" " +
+  		"jcr:primaryType=\"nt:file\" " +
+  		"jcr:created=\"2004-08-18T17:17:00.856+03:00\">" +
+  		"<jcr:content " +
+    		"jcr:primaryType=\"nt:resource\" " +
+    		"jcr:uuid=\"6a3859dac0a8004b006e6e0bf444ebaa\" " +
+    		"jcr:data=\"dGhpcyBpcyB0aGUgYmluYXJ5IGNvbnRlbnQ=\" " +
+    		"jcr:lastModified=\"2004-08-18T17:17:00.856+03:00\" " +
+    		"jcr:lastModified2=\"2004-08-18T17:17:00.856+03:00\" " +    		
+    		"jcr:mimeType=\"text/text\"/>" +
+  		"</childNode2>";
+  
   public void initRepository() throws RepositoryException {
     session.getRootNode().addNode("test", "nt:unstructured");
     session.getRootNode().addNode("test2", "nt:unstructured");
@@ -485,7 +524,53 @@ public class TestImport extends JcrAPIBaseTest {
     assertEquals("Sourse  sysView)", "sysView", nodeSysViewUuidNode1.getProperty("source")
                                                                     .getString());
   }
+  public void testSysImportUnExistingPropertyDefinition() throws Exception {
 
+    try {
+      session.importXML(root.getPath(), new ByteArrayInputStream(sysView2.getBytes()), 0);
+      session.save();
+      fail();
+    } catch (RepositoryException e) {
+      //ok
+    }
+    CredentialsImpl credentials2 = new CredentialsImpl("admin", "admin".toCharArray());
+    
+    credentials2.setAttribute(XmlConstants.PARAMETER_IMPORT_RESPECTING,
+                              ImportRespectingSemantics.IMPORT_SEMANTICS_SKIP_PROPERTIES);
+    
+    Session sess2 = repository.login(credentials2);
+    try {
+      sess2.importXML(root.getPath(), new ByteArrayInputStream(sysView2.getBytes()), 0);
+      sess2.save();
+      
+    } catch (RepositoryException e) {
+      e.printStackTrace();
+      fail();    
+    }
+
+  }
+  public void testDocImportUnExistingPropertyDefinition() throws Exception {
+    try {
+      session.importXML(root.getPath(), new ByteArrayInputStream(docView2.getBytes()), 0);
+      session.save();
+      fail();
+    } catch (RepositoryException e) {
+      //ok
+    }
+    CredentialsImpl credentials2 = new CredentialsImpl("admin", "admin".toCharArray());
+    
+    credentials2.setAttribute(XmlConstants.PARAMETER_IMPORT_RESPECTING,
+                              ImportRespectingSemantics.IMPORT_SEMANTICS_SKIP_PROPERTIES);
+    
+    Session sess2 = repository.login(credentials2);
+    try {
+      sess2.importXML(root.getPath(), new ByteArrayInputStream(docView2.getBytes()), 0);
+      sess2.save();
+    } catch (RepositoryException e) {
+      e.printStackTrace();
+      fail();    
+    }
+  }
   private byte[] readXmlContent(String fileName) {
     try {
       InputStream is = TestImport.class.getResourceAsStream(fileName);

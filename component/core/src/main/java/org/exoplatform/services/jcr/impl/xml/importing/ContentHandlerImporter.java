@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.xml.ImportRespectingSemantics;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -31,11 +32,14 @@ public class ContentHandlerImporter implements ContentHandler,ErrorHandler {
 
   private final int         uuidBehavior;
 
-  public ContentHandlerImporter(XmlSaveType saveType, NodeImpl parent, int uuidBehavior) {
+  private final ImportRespectingSemantics respectingSemantics;
+
+  public ContentHandlerImporter(XmlSaveType saveType, NodeImpl parent, int uuidBehavior,ImportRespectingSemantics respectingSemantics) {
     super();
     this.saveType = saveType;
     this.uuidBehavior = uuidBehavior;
     this.parent = parent;
+    this.respectingSemantics = respectingSemantics;
 
   }
 
@@ -141,7 +145,7 @@ public class ContentHandlerImporter implements ContentHandler,ErrorHandler {
    * @see org.xml.sax.ContentHandler#startDocument()
    */
   public void startDocument() throws SAXException {
-    this.importer = new NeutralImporter(parent, uuidBehavior, saveType);
+    this.importer = new NeutralImporter(parent, uuidBehavior, saveType, respectingSemantics);
 
   }
 

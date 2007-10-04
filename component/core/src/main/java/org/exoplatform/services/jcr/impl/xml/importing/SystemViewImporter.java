@@ -55,6 +55,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
+import org.exoplatform.services.jcr.impl.xml.ImportRespectingSemantics;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
@@ -87,8 +88,11 @@ public class SystemViewImporter extends ImporterBase {
 
   protected Log                    log = ExoLogger.getLogger("jcr.SysNodeImporter");
 
-  public SystemViewImporter(NodeImpl parent, int uuidBehavior, XmlSaveType saveType) {
-    super(parent, uuidBehavior, saveType);
+  public SystemViewImporter(NodeImpl parent,
+                            int uuidBehavior,
+                            XmlSaveType saveType,
+                            ImportRespectingSemantics respectingSemantics) {
+    super(parent, uuidBehavior, saveType, respectingSemantics);
 
     this.parent = (NodeData) parent.getData();
     this.tree = new Stack<NodeInfo>();
@@ -281,9 +285,19 @@ public class SystemViewImporter extends ImporterBase {
         } else {
           // determinating is property multivalue;
           boolean isMultivalue = true;
-          PropertyDefinitions defs = ntManager.findPropertyDefinitions(prop.getName(),
-              primaryTypeName,
-              mixinTypeNames);
+          
+          PropertyDefinitions defs;
+          try {
+            defs = ntManager.findPropertyDefinitions(prop.getName(),
+                primaryTypeName,
+                mixinTypeNames);
+          } catch (RepositoryException e) {
+            if (ImportRespectingSemantics.IMPORT_SEMANTICS_SKIP_PROPERTIES == respectingSemantics) {
+              log.warn(e.getLocalizedMessage());
+              continue;
+            }
+            throw e;
+          }
 
           if (vDataList.size() == 1) {
             // there is single-value defeniton
