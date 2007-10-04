@@ -51,10 +51,10 @@ public class InternalQName extends QName {
     if (o == null)
       return false;    
     
-    if (!(o instanceof InternalQName))
-      return false;
+//    if (!(o instanceof InternalQName))
+//      return false;
     
-    return hashCode == ((InternalQName) o).hashCode();
+    return hashCode == o.hashCode();
   }  
 
 }
