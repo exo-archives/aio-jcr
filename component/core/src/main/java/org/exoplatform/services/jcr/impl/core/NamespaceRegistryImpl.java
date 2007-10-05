@@ -85,8 +85,8 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
 
   public NamespaceRegistryImpl(NamespaceDataPersister persister) {
 
-    this.namespaces = Collections.synchronizedMap(new HashMap<String, String>(DEF_NAMESPACES));
-    this.prefixes = Collections.synchronizedMap(new HashMap<String, String>(DEF_PREFIXES));
+    this.namespaces = new HashMap<String, String>(DEF_NAMESPACES);
+    this.prefixes = new HashMap<String, String>(DEF_PREFIXES);
     this.persister = persister;
   }
 
@@ -196,7 +196,7 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
    * @see javax.jcr.NamespaceRegistry#registerNamespace(java.lang.String,
    *      java.lang.String)
    */
-  public void registerNamespace(String prefix, String uri) throws NamespaceException,
+  public synchronized void registerNamespace(String prefix, String uri) throws NamespaceException,
       RepositoryException {
 
     validateNamespace(prefix, uri);

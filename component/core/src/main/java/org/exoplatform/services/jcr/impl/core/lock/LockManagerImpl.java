@@ -102,9 +102,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
       lockTimeOut = config.getLockManager().getTimeout() > 0 ? config.getLockManager().getTimeout()
           : DEFAULT_LOCK_TIMEOUT;
 
-    locks = Collections.synchronizedMap(new WeakHashMap<String, LockData>());
-    pendingLocks = Collections.synchronizedMap(new WeakHashMap<String, LockData>());
-    tokensMap = Collections.synchronizedMap(new WeakHashMap<String, LockData>());
+    locks = new WeakHashMap<String, LockData>();
+    pendingLocks = new WeakHashMap<String, LockData>();
+    tokensMap = new WeakHashMap<String, LockData>();
 
     dataManager.addItemPersistenceListener(this);
   }
@@ -352,7 +352,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     }
   }
 
-  private synchronized LockData getLockData(NodeData data, int searchType) {
+  private LockData getLockData(NodeData data, int searchType) {
     if (data == null)
       return null;
     LockData retval = null;
