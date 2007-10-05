@@ -411,18 +411,17 @@
             <childDelegation>false</childDelegation>
 			<forkMode>never</forkMode>
               <!-- TCK tests, uncomment <execution id #1> in maven-antrun-plugin -->
-              <!--<includes>
-                <include>**/init/TestAll.java</include>
-
+              <includes>
+                <!-- TCK -->
+                <!-- include>**/init/TestAll.java</include>
                 <include>**/api/*Test.java</include>
                 <include>**/api/observation/*Test.java</include>
                 <include>**/api/lock/*Test.java</include>
                 <include>**/api/nodetype/*Test.java</include>
                 <include>**/api/query/*Test.java</include>
-                <include>**/api/version/*Test.java</include>
-              </includes>-->
-              <!-- eXo tests, usecases -->
-              <includes>
+                <include>**/api/version/*Test.java</include -->
+
+                <!-- eXo tests, usecases -->
                 <include>**/api/**/Test*.java</include>
                 <include>**/usecases/**/Test*.java</include>
                 <include>**/usecases/**/*Test.java</include>
@@ -432,30 +431,27 @@
                 <exclude>**/*$*</exclude>nested classes prb, http://jira.codehaus.org/browse/SUREFIRE-288
                 <exclude>**/Base*Test.java</exclude>
                 <exclude>**/api/TestAll.java</exclude>
+                
 				<exclude>**/*JcrNamespaceContext*</exclude>
 				<exclude>**/*ExportBase*</exclude>
 				<exclude>**/api/Abstract*.java</exclude>
 				<exclude>**/api/**/Abstract*.java</exclude>
 				<exclude>**/api/**/PropertyDefTest.java</exclude>
-				<!--<ignored>-->
-			  	<!--only developers and testers knows about the tests which are excluded below (related issue must be created).
-				There is no need to run this tests for continuous integrating testing. You may remove the
-				test from here if the related issue is resolved-->
-				<exclude>**/api/**/DocumentViewImportTest.java</exclude>
+        
+			  	<exclude>**/api/**/DocumentViewImportTest.java</exclude>
 				<exclude>**/usecases/**/TestDateBetween.java</exclude>
-				<!--</ignored>-->
               </excludes>
 
               <systemProperties>
-                    <property>
-                        <name>jcr.test.configuration.file</name>
-                        <value>src/test/java/conf/standalone/test-configuration.xml</value>
-                    </property>
-                    <property>
-                        <name>emma.coverage.out.file</name>
-                        <value>target/emma/coverage.ec</value>
-                    </property>
-                </systemProperties>
+                <property>
+                    <name>jcr.test.configuration.file</name>
+                    <value>src/test/java/conf/standalone/test-configuration.xml</value>
+                </property>
+                <property>
+                    <name>emma.coverage.out.file</name>
+                    <value>target/emma/coverage.ec</value>
+                </property>
+              </systemProperties>
             </configuration>
         </plugin>
 
