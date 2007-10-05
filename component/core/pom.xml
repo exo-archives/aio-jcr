@@ -433,8 +433,6 @@
                 <exclude>**/api/TestAll.java</exclude>
                 
 				<exclude>**/*JcrNamespaceContext*</exclude>
-				<exclude>**/*ExportBase*</exclude>
-				<exclude>**/api/Abstract*.java</exclude>
 				<exclude>**/api/**/Abstract*.java</exclude>
 				<exclude>**/api/**/PropertyDefTest.java</exclude>
         
