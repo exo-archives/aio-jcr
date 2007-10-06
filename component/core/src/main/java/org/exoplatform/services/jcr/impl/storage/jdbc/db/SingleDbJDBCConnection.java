@@ -65,6 +65,7 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
   protected PreparedStatement deleteProperty;
   protected PreparedStatement deleteReference;
   protected PreparedStatement deleteValue;
+  protected PreparedStatement renameNode;
   
   public SingleDbJDBCConnection(Connection dbConnection,
       String containerName, ValueStoragePluginProvider valueStorageProvider,
@@ -407,7 +408,15 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
   @Override
   protected void renameNode(String parentIdentifier, String name, String identifier) throws SQLException,
       IOException {
-    // TODO Auto-generated method stub
+    if (renameNode == null)
+      renameNode = dbConnection.prepareStatement(RENAME_NODE);
+    else
+      renameNode.clearParameters();
+    
+    renameNode.setString(1, parentIdentifier);
+    renameNode.setString(2, name); 
+    renameNode.setString(3, identifier);
+    renameNode.executeUpdate();    
     
   }  
 }
