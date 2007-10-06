@@ -15,7 +15,11 @@ import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 public class TestMetaInfo extends BaseUsecasesTest {
 
   public void testXLSFile() throws Exception {
-    InputStream is = new FileInputStream("src/test/resources/index/test_index.xls");
+    String xlsFile = "src/test/resources/index/test_index.xls";
+    if (Thread.currentThread().getContextClassLoader().getResource(xlsFile)==null){
+      xlsFile = "component/core/" + xlsFile;
+    }
+    InputStream is = new FileInputStream(xlsFile);
 
     Node file = root.addNode("testXLSFile","nt:file");
     Node contentNode = file.addNode("jcr:content", "nt:resource");

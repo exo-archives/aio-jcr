@@ -44,7 +44,11 @@ public class IndexWordFileTest extends BaseUsecasesTest {
    * @throws Exception
    */
   public void testIndexTextPlainFile() throws Exception {
-    InputStream is = new FileInputStream("src/test/resources/index/test_index.doc");
+    String file = "src/test/resources/index/test_index.doc";
+    if (Thread.currentThread().getContextClassLoader().getResource(file)==null){
+      file = "component/core/" + file;
+    }
+    InputStream is = new FileInputStream(file);
     this.assertNotNull("Can not create an input stream from file for indexing",is);
     int size = is.available();
     byte b[] = new byte[size];

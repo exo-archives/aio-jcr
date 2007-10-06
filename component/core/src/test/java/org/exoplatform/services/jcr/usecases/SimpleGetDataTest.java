@@ -41,7 +41,11 @@ public class SimpleGetDataTest extends BaseUsecasesTest {
     Node contentNode = localSmallFile.addNode("jcr:content", "nt:resource");
     //byte[] data = new byte[32];
     // Need to copy a file named test.txt to resources folder
-    File f = new File("src/test/resources/test.txt");
+    String file = "src/test/resources/test.txt";
+    if (Thread.currentThread().getContextClassLoader().getResource(file)==null){
+      file = "component/core/" + file;
+    }
+    File f = new File(file);
     InputStream is = new FileInputStream(f);
     byte[] byteContent = new byte[is.available()] ;
     is.read(byteContent) ;

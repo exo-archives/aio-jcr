@@ -67,16 +67,22 @@ public abstract class BaseStandaloneTest extends TestCase {
 
   public void setUp() throws Exception {
 
-    StandaloneContainer
-      .addConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
-      //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.pgsql.xml");
-      //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-mjdbc.mysql.xml");
+    String conf = "src/test/java/conf/standalone/test-configuration.xml";
+    //String conf = "src/test/java/conf/standalone/test-configuration-sjdbc.pgsql.xml";
+    String loginConf = "src/main/resources/login.conf";
+    if (Thread.currentThread().getContextClassLoader().getResource(conf)==null){
+      conf = "component/core/" + conf;
+    }
+    if (Thread.currentThread().getContextClassLoader().getResource(loginConf)==null){
+      loginConf = "component/core/" + loginConf;
+    }
+
+    StandaloneContainer.addConfigurationPath(conf);
 
     container = StandaloneContainer.getInstance();
 
     if (System.getProperty("java.security.auth.login.config") == null)
-      System.setProperty("java.security.auth.login.config",
-          "src/main/resources/login.conf");
+      System.setProperty("java.security.auth.login.config", loginConf);
 
     credentials = new CredentialsImpl("admin", "admin".toCharArray());
 

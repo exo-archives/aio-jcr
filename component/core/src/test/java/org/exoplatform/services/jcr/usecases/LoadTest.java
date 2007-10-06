@@ -20,6 +20,9 @@ public class LoadTest extends BaseUsecasesTest {
 	private int ntFiles = 1;
 	
   public void testInitTree() throws Exception {
+    if (Thread.currentThread().getContextClassLoader().getResource(tiffFile)==null){
+      tiffFile = "component/core/" + tiffFile;
+    }
 	  Node root = session.getRootNode();
 	  Node fsn = root.addNode("FSN", "nt:folder");
 	  
