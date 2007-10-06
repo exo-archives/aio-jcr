@@ -514,7 +514,7 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
             + " parent:" + data.getParentIdentifier());
 
       try {
-        if (state.isAdded()) {
+        if (state.isAdded() || state.isRenamed()) {
           if (!data.isNode() && needReload(data)) {
             unloadProperty((PropertyData) data);
           } 

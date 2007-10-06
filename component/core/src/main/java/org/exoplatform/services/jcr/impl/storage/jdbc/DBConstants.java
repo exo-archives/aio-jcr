@@ -46,6 +46,8 @@ public class DBConstants {
   protected String INSERT_VALUE;
   protected String INSERT_REF;
   
+  protected String RENAME_NODE;
+  
   //protected String UPDATE_ITEM;
   //protected String UPDATE_ITEM_PATH;
   protected String UPDATE_NODE;

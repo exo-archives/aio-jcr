@@ -200,4 +200,12 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
     return str;
   }
 
+  public void rename(NodeData destData) throws RepositoryException,
+      UnsupportedOperationException,
+      InvalidItemStateException,
+      IllegalStateException {
+   throw new UnsupportedOperationException();
+    
+  }
+
 }

@@ -142,6 +142,10 @@ public interface WorkspaceStorageConnection {
   void update(PropertyData data) throws RepositoryException, UnsupportedOperationException,
       InvalidItemStateException, IllegalStateException;
 
+  
+  void rename(NodeData data) throws RepositoryException, UnsupportedOperationException,
+  InvalidItemStateException, IllegalStateException;
+  
   /**
    * Deletes node or property data. 
    * @param data that identifies data to be deleted

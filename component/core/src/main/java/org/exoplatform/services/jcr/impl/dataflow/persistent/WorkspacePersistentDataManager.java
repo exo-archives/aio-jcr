@@ -63,7 +63,8 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     try {
 
       for (ItemState itemState : changes) {
-
+        if(!itemState.isPersisted())
+          continue;
         long start = System.currentTimeMillis();
 
         TransientItemData data = (TransientItemData) itemState.getData();
@@ -102,6 +103,8 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
           doUpdate(data, conn);
         } else if (itemState.isDeleted()) {
           doDelete(data, conn);
+        } else if(itemState.isRenamed()){
+          doRename(data,conn);
         }
 
         if (log.isDebugEnabled())
@@ -255,6 +258,10 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     }
   }
 
+  protected void doRename(TransientItemData data,
+      WorkspaceStorageConnection con) throws RepositoryException, InvalidItemStateException {
+    con.rename((NodeData)data);
+  }
   /**
    * @return current time
    */

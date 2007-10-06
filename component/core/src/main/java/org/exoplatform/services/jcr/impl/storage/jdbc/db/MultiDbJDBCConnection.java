@@ -75,6 +75,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
   protected PreparedStatement deleteProperty;
   protected PreparedStatement deleteReference;
   protected PreparedStatement deleteValue;
+  private PreparedStatement renameNode;
    
   public MultiDbJDBCConnection(Connection dbConnection,
       String containerName, ValueStoragePluginProvider valueStorageProvider,
@@ -141,6 +142,8 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     INSERT_VALUE = "insert into JCR_MVALUE(DATA, ORDER_NUM, PROPERTY_ID, STORAGE_DESC) VALUES(?,?,?,?)";
     INSERT_REF = "insert into JCR_MREF(NODE_ID, PROPERTY_ID, ORDER_NUM) VALUES(?,?,?)";
 
+    RENAME_NODE = "update JCR_MITEM set PARENT_ID=?, NAME=? where ID=? ";
+    
     UPDATE_NODE = "update JCR_MITEM set VERSION=?, I_INDEX=?, N_ORDER_NUM=? where ID=?";
     UPDATE_PROPERTY = "update JCR_MITEM set VERSION=?, P_TYPE=? where ID=?";
     
@@ -232,6 +235,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     deleteItem.setString(1, identifier);
     return deleteItem.executeUpdate();
   }
+  
 
   @Override
   protected int updateNodeByIdentifier(int version, int index, int orderNumb, String identifier) throws SQLException {
@@ -391,5 +395,20 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     findValueByPropertyIdOrderNumber.setString(1, cid);
     findValueByPropertyIdOrderNumber.setInt(2, orderNumb);
     return findValueByPropertyIdOrderNumber.executeQuery();
+  }
+
+  @Override
+  protected void renameNode(String parentIdentifier, String name, String identifier) throws SQLException,
+      IOException {
+    if (renameNode == null)
+      renameNode = dbConnection.prepareStatement(RENAME_NODE);
+    else
+      renameNode.clearParameters();
+    
+    renameNode.setString(1, parentIdentifier);
+    renameNode.setString(2, name); // if root then parent identifier equals empty string 
+    renameNode.setString(3, identifier);
+    renameNode.executeUpdate();    
+    
   }  
 }

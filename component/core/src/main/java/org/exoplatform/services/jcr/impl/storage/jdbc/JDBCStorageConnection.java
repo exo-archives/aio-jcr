@@ -50,6 +50,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 abstract public class JDBCStorageConnection extends DBConstants implements WorkspaceStorageConnection {
 
+
   protected static Log log = ExoLogger.getLogger("jcr.JDBCStorageConnection");
 
   public static final int I_CLASS_NODE = 1;
@@ -231,7 +232,25 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       exceptionHandler.handleAddException(e, data);
     }
   }
-
+  public void rename(NodeData data) throws RepositoryException,
+      UnsupportedOperationException,
+      InvalidItemStateException,
+      IllegalStateException {
+    // TODO Auto-generated method stub
+    checkIfOpened();
+    try {
+      renameNode(data.getParentIdentifier(), data.getQPath().getName().getAsString(), data
+          .getIdentifier());
+    } catch (IOException e) {
+      if (log.isDebugEnabled())
+        log.error("Property add. IO error: " + e, e);
+      exceptionHandler.handleAddException(e, data);
+    } catch (SQLException e) {
+      if (log.isDebugEnabled())
+        log.error("Property add. Database error: " + e, e);
+      exceptionHandler.handleAddException(e, data);
+    }
+  }
   public void delete(NodeData data) throws RepositoryException, UnsupportedOperationException, InvalidItemStateException, IllegalStateException {
     checkIfOpened();
 
@@ -821,7 +840,6 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       addValueData(getInternalId(data.getIdentifier()),i, stream, streamLength, storageId); 
     }
   }
-
   // ---- Data access methods (query wrappers) to override in concrete connection ------
 
   protected abstract void addNodeRecord(NodeData data) throws SQLException;
@@ -835,6 +853,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   protected abstract ResultSet findChildPropertiesByParentIdentifier(String parentIdentifier) throws SQLException;
 
   protected abstract void addReference(PropertyData data) throws SQLException, IOException;
+  protected abstract void renameNode(String parentIdentifier, String name, String identifier) throws SQLException,
+      IOException;
   protected abstract void deleteReference(String propertyIdentifier) throws SQLException;
   protected abstract ResultSet findReferences(String nodeIdentifier) throws SQLException;
 

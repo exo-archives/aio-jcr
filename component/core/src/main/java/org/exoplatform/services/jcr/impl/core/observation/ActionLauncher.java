@@ -195,7 +195,7 @@ public class ActionLauncher implements ItemsPersistenceListener {
   private int eventType(ItemState state) throws RepositoryException {
     
     if(state.getData().isNode()) {
-      if (state.isAdded() || state.isOrderAdded()) 
+      if (state.isAdded() || state.isOrderAdded() || state.isRenamed()) 
         return Event.NODE_ADDED;
       else if (state.isDeleted()|| state.isOrderDeleted())
         return Event.NODE_REMOVED;

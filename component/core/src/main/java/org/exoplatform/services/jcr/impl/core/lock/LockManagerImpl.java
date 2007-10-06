@@ -315,7 +315,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
               if (itemState.isDeleted()) {
                 removedLock.add(nodeIdentifier);
               //} else if (itemState.isAdded() || itemState.isRenamed()) {
-              } else if (itemState.isAdded()) {
+              } else if (itemState.isAdded() || itemState.isRenamed()) {
                 removedLock.remove(nodeIdentifier);
               }
             }

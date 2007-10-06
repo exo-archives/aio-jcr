@@ -771,24 +771,19 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     if (!srcNode.checkLocking())
       throw new LockException("Source parent node " + srcNode.getPath() + " is locked ");
 
+    
+    
     ItemDataMoveVisitor initializer = new ItemDataMoveVisitor((NodeData) destParentNode.getData(),
         destNodePath.getName().getInternalName(),
         getWorkspace().getNodeTypeManager(),
         getTransientNodesManager(),
         true);
-
-    srcNode.getData().accept(initializer);
-
-    // deleting nodes
-    getTransientNodesManager().getChangesLog().addAll(initializer.getItemDeletedStates(true));
-    // [PN] 06.01.07 Reindex same-name siblings after deletion
-    getTransientNodesManager().getChangesLog().addAll(getTransientNodesManager()
-        .reindexSameNameSiblings(srcNode.nodeData(), getTransientNodesManager()));
-
-    List<ItemState> itemStates = initializer.getItemAddStates();
-    for (ItemState itemState : itemStates) {
-      getTransientNodesManager().update(itemState, true);
-    }
+    
+    getTransientNodesManager().rename((NodeData) srcNode.getData(),initializer);
+    
+    
+   
+    
   }
 
   // //////////////////// OPTIONAL

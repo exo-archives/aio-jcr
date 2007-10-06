@@ -402,5 +402,12 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     findValueByPropertyIdOrderNumber.setString(1, cid);
     findValueByPropertyIdOrderNumber.setInt(2, orderNumb);
     return findValueByPropertyIdOrderNumber.executeQuery();
+  }
+
+  @Override
+  protected void renameNode(String parentIdentifier, String name, String identifier) throws SQLException,
+      IOException {
+    // TODO Auto-generated method stub
+    
   }  
 }

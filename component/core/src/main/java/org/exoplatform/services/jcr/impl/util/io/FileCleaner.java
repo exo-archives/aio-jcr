@@ -33,6 +33,7 @@ public class FileCleaner extends WorkerThread {
   public FileCleaner(long timeout) {
     super(timeout);
     setName("FileCleaner "+getId());
+    setDaemon(true);
     setPriority(Thread.MIN_PRIORITY);
     start();
     registerShutdownHook();

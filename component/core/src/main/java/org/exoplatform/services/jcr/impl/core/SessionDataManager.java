@@ -40,6 +40,7 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.version.ChildVersionRemoveVisitor;
 import org.exoplatform.services.jcr.impl.core.version.VersionHistoryImpl;
 import org.exoplatform.services.jcr.impl.core.version.VersionImpl;
+import org.exoplatform.services.jcr.impl.dataflow.ItemDataMoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.LocalWorkspaceDataManagerStub;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
@@ -661,7 +662,25 @@ public class SessionDataManager implements ItemDataConsumer {
         log.debug("getACL(" + parent.getQPath().getAsString() + " + " + name.getAsString() + ") <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
     }
   }
+  public void rename(NodeData itemDataFrom, ItemDataMoveVisitor initializer) throws RepositoryException {
 
+    
+    itemDataFrom.accept(initializer);
+    
+    changesLog.addAll(initializer.getAllStates());
+    
+    reindexSameNameSiblings(itemDataFrom, this);
+
+    Collection<ItemImpl> pooledItems = itemsPool.getAll();
+    for (ItemImpl item : pooledItems) {
+      if (item.getInternalPath().isDescendantOf(itemDataFrom.getQPath(), false)
+          || item.getInternalPath().equals(itemDataFrom.getQPath())) {
+        itemsPool.reload(getItemData(item.getInternalIdentifier()));
+        invalidated.add(item);
+      }
+    }
+
+  }
   /**
    * Traverses all the descendants of incoming item and creates DELETED state
    * for them Adds DELETED incoming state of incoming and descendants to the
@@ -1231,7 +1250,9 @@ public class SessionDataManager implements ItemDataConsumer {
     ItemImpl remove(String identifier) {
       return items.remove(identifier);
     }
-
+    Collection<ItemImpl> getAll(){
+      return items.values();
+    }
     int size() {
       return items.size();
     }
