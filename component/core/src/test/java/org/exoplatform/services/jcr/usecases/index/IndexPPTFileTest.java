@@ -6,6 +6,7 @@
 package org.exoplatform.services.jcr.usecases.index;
 
 import java.util.Calendar;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
@@ -44,7 +45,7 @@ public class IndexPPTFileTest extends BaseUsecasesTest {
    */
   public void testIndexTextPlainFile() throws Exception {
     String file = "src/test/resources/index/test_index.ppt";
-    if (Thread.currentThread().getContextClassLoader().getResource(file)==null){
+    if (!new File(file).exists()){
       file = "component/core/" + file;
     }
     InputStream is = new FileInputStream(file);

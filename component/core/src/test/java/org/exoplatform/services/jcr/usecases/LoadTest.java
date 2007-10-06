@@ -5,6 +5,7 @@
 
 package org.exoplatform.services.jcr.usecases;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.util.Calendar;
 import javax.jcr.Node;
@@ -20,7 +21,7 @@ public class LoadTest extends BaseUsecasesTest {
 	private int ntFiles = 1;
 	
   public void testInitTree() throws Exception {
-    if (Thread.currentThread().getContextClassLoader().getResource(tiffFile)==null){
+    if (!new File(tiffFile).exists()){
       tiffFile = "component/core/" + tiffFile;
     }
 	  Node root = session.getRootNode();

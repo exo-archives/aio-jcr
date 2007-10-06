@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Random;
 
 import javax.jcr.Node;
@@ -67,13 +68,14 @@ public abstract class BaseStandaloneTest extends TestCase {
 
   public void setUp() throws Exception {
 
-    String conf = "src/test/java/conf/standalone/test-configuration.xml";
+    String conf = System.getProperty("jcr.test.configuration.file");
     //String conf = "src/test/java/conf/standalone/test-configuration-sjdbc.pgsql.xml";
     String loginConf = "src/main/resources/login.conf";
-    if (Thread.currentThread().getContextClassLoader().getResource(conf)==null){
+    
+    if (!new File(conf).exists()){
       conf = "component/core/" + conf;
     }
-    if (Thread.currentThread().getContextClassLoader().getResource(loginConf)==null){
+    if (!new File(loginConf).exists()){
       loginConf = "component/core/" + loginConf;
     }
 
@@ -345,4 +347,5 @@ public abstract class BaseStandaloneTest extends TestCase {
   protected String execTime(long from) {
     return Math.round(((System.currentTimeMillis() - from) * 100.00d / 60000.00d)) / 100.00d + "min";
   }
+  
 }

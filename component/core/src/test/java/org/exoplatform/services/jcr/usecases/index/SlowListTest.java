@@ -5,6 +5,7 @@
 
 package org.exoplatform.services.jcr.usecases.index;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Calendar;
@@ -37,7 +38,7 @@ public class SlowListTest extends BaseUsecasesTest {
     // variables for the execution time
     long start, end;
     String file = "src/test/resources/index/test_index.xls";
-    if (Thread.currentThread().getContextClassLoader().getResource(file)==null){
+    if (!new File(file).exists()){
       file = "component/core/" + file;
     }
     InputStream is = new FileInputStream(file);

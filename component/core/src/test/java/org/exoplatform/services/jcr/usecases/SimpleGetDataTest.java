@@ -42,7 +42,7 @@ public class SimpleGetDataTest extends BaseUsecasesTest {
     //byte[] data = new byte[32];
     // Need to copy a file named test.txt to resources folder
     String file = "src/test/resources/test.txt";
-    if (Thread.currentThread().getContextClassLoader().getResource(file)==null){
+    if (!new File(file).exists()){
       file = "component/core/" + file;
     }
     File f = new File(file);

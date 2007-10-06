@@ -4,6 +4,7 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.usecases.metainfo;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Calendar;
@@ -16,7 +17,7 @@ public class TestMetaInfo extends BaseUsecasesTest {
 
   public void testXLSFile() throws Exception {
     String xlsFile = "src/test/resources/index/test_index.xls";
-    if (Thread.currentThread().getContextClassLoader().getResource(xlsFile)==null){
+    if (!new File(xlsFile).exists()){
       xlsFile = "component/core/" + xlsFile;
     }
     InputStream is = new FileInputStream(xlsFile);
