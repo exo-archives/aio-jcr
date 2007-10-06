@@ -555,7 +555,7 @@ public abstract class ItemImpl implements Item {
             // mix:referenceable
             if (changedItem.isDeleted())
               refNodes.add(refNode); // add to refs (delete - alway is first)
-            else if (changedItem.isAdded())
+            else if (changedItem.isAdded() || changedItem.isRenamed())
               refNodes.remove(refNode); // remove from refs (add - always at the end)
           }
         }
