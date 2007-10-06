@@ -55,36 +55,36 @@
             </exclusions>
         </dependency>
 
-    	<!-- For MySQL support -->
-        <dependency>
+    	    <!-- For MySQL support -->
+		    <dependency>
 		    <groupId>mysql</groupId>
 		    <artifactId>mysql-connector-java</artifactId>
 		    <version>5.0.5</version>
 		    <scope>compile</scope>
-		</dependency>
+		    </dependency>
 
-	    <!-- For PostgresSQL support -->
-		<dependency>
+	        <!-- For PostgresSQL support -->
+		    <dependency>
 		    <groupId>postgresql</groupId>
 		    <artifactId>postgresql</artifactId>
-		    <version>8.1-407.jdbc3</version>
+		    <version>8.2-504.jdbc3</version>
 		    <scope>compile</scope>
-        </dependency>
+		    </dependency>
 
-        <!-- For Oracle 10g support (local-jcr repository) -->
-        <dependency>
-            <groupId>ojdbc</groupId>
-            <artifactId>ojdbc</artifactId>
-            <version>14</version>
-            <scope>compile</scope>
-        </dependency>
+	        <!-- For Oracle 10g support (local-jcr repository) -->
+		    <dependency>
+		    <groupId>ojdbc</groupId>
+		    <artifactId>ojdbc</artifactId>
+		    <version>14</version>
+		    <scope>compile</scope>
+		    </dependency>
 
-        <dependency>
-            <groupId>ojdbc</groupId>
-            <artifactId>orai18n</artifactId>
-            <version>14</version>
-            <scope>compile</scope>
-        </dependency>
+		    <dependency>
+		    <groupId>ojdbc</groupId>
+		    <artifactId>orai18n</artifactId>
+		    <version>14</version>
+		    <scope>compile</scope>
+    		</dependency>
     </dependencies>
 
     <build>
