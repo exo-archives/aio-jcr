@@ -401,9 +401,9 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
         itemState = (ItemState) items.next();
 
         if (itemState.isNode()) {
-          if (itemState.getState() == ItemState.ADDED) {
+          if (itemState.isAdded()) {
             addedNodes.add(itemState.getData());
-          } else if (itemState.getState() == ItemState.DELETED) {
+          } else if (itemState.isDeleted()) {
             removedNodes.add(itemState.getData().getIdentifier());
           }
         } else {

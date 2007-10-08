@@ -187,17 +187,11 @@ abstract public class ImporterBase implements Importer {
     switch (saveType) {
     case SESSION:
       for (ItemState itemState : itemStatesList) {
-        switch (itemState.getState()) {
-        case ItemState.ADDED:
+        if(itemState.isAdded())
           session.getTransientNodesManager().update(itemState, true);
-          break;
-        case ItemState.DELETED:
+        else if (itemState.isDeleted())
           session.getTransientNodesManager().delete(itemState.getData());
-        default:
-          break;
         }
-
-      }
       break;
     case WORKSPACE:
       PlainChangesLogImpl changesLog = new PlainChangesLogImpl(itemStatesList, session.getId());

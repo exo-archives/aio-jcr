@@ -167,8 +167,8 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     assertEquals(1, changesLog.getAllStates().size());
     assertNotNull(changesLog.getItemState(node1.getInternalIdentifier()));
     assertNotNull(changesLog.getItemState(node1.getInternalPath()));
-    assertEquals(ItemState.ADDED, changesLog.getItemState(node1.getInternalIdentifier()).getState());
-
+    assertTrue(changesLog.getItemState(node1.getInternalIdentifier()).isAdded());
+    
     // System.out.println(" > !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! after
     // testSessionChangesLog> "+modificationManager.dump());
 
@@ -177,7 +177,8 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     assertEquals(2, changesLog.getAllStates().size());
     List<ItemState> lst = changesLog.getItemStates(data.getIdentifier());
     assertEquals(2, lst.size());
-    assertEquals(ItemState.DELETED, changesLog.getItemState(data.getIdentifier()).getState());
+    assertTrue(changesLog.getItemState(data.getIdentifier()).isDeleted());
+    
 
     // System.out.println(" > 2 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! after
     // testSessionChangesLog> "+modificationManager.dump());
@@ -185,7 +186,8 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     // add the same node ... state should be ADDED again
     node1 = (NodeImpl) modificationManager.update(ItemState.createAddedState(data), true);
     assertEquals(3, changesLog.getItemStates(data.getIdentifier()).size());
-    assertEquals(ItemState.ADDED, changesLog.getItemState(data.getIdentifier()).getState());
+    assertTrue(changesLog.getItemState(data.getIdentifier()).isAdded());
+
 
     assertEquals(3, changesLog.getAllStates().size());
 
@@ -198,8 +200,9 @@ public class TestSessionDataManager extends JcrImplBaseTest {
 
     PropertyImpl prop1 = (PropertyImpl) modificationManager
         .update(ItemState.createAddedState(prop), true);
-    assertEquals(ItemState.ADDED, changesLog.getItemState(node1.getInternalIdentifier()).getState());
-    assertEquals(ItemState.ADDED, changesLog.getItemState(prop.getIdentifier()).getState());
+    
+    assertTrue(changesLog.getItemState(node1.getInternalIdentifier()).isAdded());
+    assertTrue(changesLog.getItemState(prop.getIdentifier()).isAdded());
 
     assertEquals(4, changesLog.getAllStates().size());
 

@@ -994,7 +994,7 @@ public class SessionDataManager implements ItemDataConsumer {
       AccessDeniedException {
     if (changedItem.getData().isNode()
         && changedItem.isAdded()
-        && changesLog.getItemState(changedItem.getData().getQPath()).getState() != ItemState.DELETED) {
+        && !changesLog.getItemState(changedItem.getData().getQPath()).isDeleted()) {
       // Node not in delete state. It might be a wrong
       if (!changesLog.getItemState(changedItem.getData().getIdentifier()).isDeleted()) {
         NodeData nData = (NodeData) changedItem.getData();

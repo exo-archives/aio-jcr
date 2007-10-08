@@ -68,7 +68,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
         long start = System.currentTimeMillis();
 
         TransientItemData data = (TransientItemData) itemState.getData();
-        int state = itemState.getState();
+
 
         WorkspaceStorageConnection conn = null;
         if (isSystemPath(data.getQPath())) {
@@ -108,7 +108,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
         }
 
         if (log.isDebugEnabled())
-          log.debug(ItemState.nameFromValue(state) + " "
+          log.debug(ItemState.nameFromValue(itemState.getState()) + " "
               + (System.currentTimeMillis() - start) + "ms, "
               + data.getQPath().getAsString());
       }

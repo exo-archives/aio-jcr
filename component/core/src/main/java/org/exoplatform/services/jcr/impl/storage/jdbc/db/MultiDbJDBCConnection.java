@@ -75,7 +75,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
   protected PreparedStatement deleteProperty;
   protected PreparedStatement deleteReference;
   protected PreparedStatement deleteValue;
-  private PreparedStatement renameNode;
+  protected PreparedStatement renameNode;
    
   public MultiDbJDBCConnection(Connection dbConnection,
       String containerName, ValueStoragePluginProvider valueStorageProvider,

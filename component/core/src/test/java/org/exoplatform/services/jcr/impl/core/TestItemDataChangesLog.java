@@ -66,17 +66,16 @@ public class TestItemDataChangesLog extends JcrImplBaseTest {
     cLog.add(ItemState.createUpdatedState(data3));
     
     assertEquals(5, cLog.getSize());
-    assertEquals(ItemState.ADDED, cLog.getItemState(data1.getQPath()).getState());
-    assertEquals(ItemState.ADDED, cLog.getItemState(data1.getQPath()).getState());
-    assertEquals(ItemState.DELETED, cLog.getItemState(data2.getQPath()).getState());
-    assertEquals(ItemState.ADDED, cLog.getItemState("1").getState());
-    assertEquals(ItemState.DELETED, cLog.getItemState("2").getState());
+    assertTrue(cLog.getItemState(data1.getQPath()).isAdded());
+    assertTrue(cLog.getItemState(data2.getQPath()).isDeleted());
+    assertTrue(cLog.getItemState("1").isAdded());
+    assertTrue(cLog.getItemState("2").isDeleted());
+    
     
     List <ItemState> states = cLog.getItemStates("3");
     assertEquals(2, states.size());
-    assertEquals(ItemState.ADDED, states.get(0).getState());
-    assertEquals(ItemState.UPDATED, states.get(1).getState());
-    
+    assertTrue(states.get(0).isAdded());
+    assertTrue(states.get(1).isUpdated());
   }
   
   public void testSessionOperations() throws Exception {
