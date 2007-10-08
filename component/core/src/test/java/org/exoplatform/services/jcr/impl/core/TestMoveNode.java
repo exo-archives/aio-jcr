@@ -116,13 +116,40 @@ public class TestMoveNode extends JcrImplBaseTest {
     session.save();
     session.move(node1.getPath(),
                  node3.getPath() + "/" + "node4");
+    
+    try {
+      root.getNode("node1");
+      fail();
+    } catch(PathNotFoundException e) {
+      // ok
+    }
+    Node node34 = root.getNode("node3/node4");
+    Node node342 = root.getNode("node3/node4/node2");
+    
+    
     session.move(node3.getPath()+"/node4/node2",
                  root.getPath() + "node5");
     
+    try {
+      root.getNode("node3/node4/node2");
+      fail();
+    } catch(PathNotFoundException e) {
+      // ok
+    }
+    Node node5 = root.getNode("node5");
+    
+    
+    
     assertEquals(QPath.makeChildPath(((NodeImpl) root).getData().getQPath(),
                                      new InternalQName("", "node5"),
+   
                                      0).getAsString(), ((NodeImpl) node2).getData().getQPath().getAsString());
+    
     session.save();
+    
+    
+    
+    node5.remove();
     node3.remove();
     session.save();
     
@@ -132,6 +159,7 @@ public class TestMoveNode extends JcrImplBaseTest {
     } catch(PathNotFoundException e) {
       // ok
     }
+   
   }
   
   public void testLocalBigFiles() throws Exception {
