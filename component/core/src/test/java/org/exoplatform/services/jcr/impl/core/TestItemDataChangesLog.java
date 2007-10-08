@@ -14,6 +14,7 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -104,7 +105,7 @@ public class TestItemDataChangesLog extends JcrImplBaseTest {
     assertEquals(1, cLog.getDescendantsChanges(data2.getQPath()).size());
     
     // test pushLog
-    SessionChangesLog newLog = (SessionChangesLog)cLog.pushLog(data1.getQPath());
+    PlainChangesLog newLog = cLog.pushLog(data1.getQPath());
     assertEquals(2, newLog.getSize());
     assertEquals(1, cLog.getSize());
     cLog.remove(data2.getQPath());

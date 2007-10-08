@@ -142,7 +142,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     INSERT_VALUE = "insert into JCR_MVALUE(DATA, ORDER_NUM, PROPERTY_ID, STORAGE_DESC) VALUES(?,?,?,?)";
     INSERT_REF = "insert into JCR_MREF(NODE_ID, PROPERTY_ID, ORDER_NUM) VALUES(?,?,?)";
 
-    RENAME_NODE = "update JCR_MITEM set PARENT_ID=?, NAME=? where ID=?";
+    RENAME_NODE = "update JCR_MITEM set PARENT_ID = ?, NAME = ?, VERSION = ?, I_INDEX = ?, N_ORDER_NUM = ? where ID = ?";
     
     UPDATE_NODE = "update JCR_MITEM set VERSION=?, I_INDEX=?, N_ORDER_NUM=? where ID=?";
     UPDATE_PROPERTY = "update JCR_MITEM set VERSION=?, P_TYPE=? where ID=?";
@@ -396,18 +396,20 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     findValueByPropertyIdOrderNumber.setInt(2, orderNumb);
     return findValueByPropertyIdOrderNumber.executeQuery();
   }
-
   @Override
-  protected void renameNode(String parentIdentifier, String name, String identifier) throws SQLException,
+  protected void renameNode(NodeData data) throws SQLException,
       IOException {
     if (renameNode == null)
       renameNode = dbConnection.prepareStatement(RENAME_NODE);
     else
       renameNode.clearParameters();
     
-    renameNode.setString(1, parentIdentifier == null ? Constants.ROOT_PARENT_UUID : parentIdentifier);
-    renameNode.setString(2, name); 
-    renameNode.setString(3, identifier);
+    renameNode.setString(1, data.getParentIdentifier() == null ? Constants.ROOT_PARENT_UUID : data.getParentIdentifier());
+    renameNode.setString(2, data.getQPath().getName().getAsString()); 
+    renameNode.setInt(3, data.getPersistedVersion());
+    renameNode.setInt(4, data.getQPath().getIndex());
+    renameNode.setInt(5, data.getOrderNumber());
+    renameNode.setString(6, data.getIdentifier());
     renameNode.executeUpdate();    
   }  
 }

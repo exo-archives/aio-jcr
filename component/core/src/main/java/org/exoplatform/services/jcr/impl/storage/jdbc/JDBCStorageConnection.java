@@ -239,8 +239,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     // TODO Auto-generated method stub
     checkIfOpened();
     try {
-      renameNode(data.getParentIdentifier(), data.getQPath().getName().getAsString(), data
-          .getIdentifier());
+      renameNode(data);
     } catch (IOException e) {
       if (log.isDebugEnabled())
         log.error("Property add. IO error: " + e, e);
@@ -853,7 +852,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   protected abstract ResultSet findChildPropertiesByParentIdentifier(String parentIdentifier) throws SQLException;
 
   protected abstract void addReference(PropertyData data) throws SQLException, IOException;
-  protected abstract void renameNode(String parentIdentifier, String name, String identifier) throws SQLException,
+  protected abstract void renameNode(NodeData data) throws SQLException,
       IOException;
   protected abstract void deleteReference(String propertyIdentifier) throws SQLException;
   protected abstract ResultSet findReferences(String nodeIdentifier) throws SQLException;
