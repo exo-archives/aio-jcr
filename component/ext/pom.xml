@@ -162,15 +162,7 @@
 						<include>**/metadata/*Test.java</include>
 						<include>**/owner/*Test.java</include>
 						<include>**/registry/*Test.java</include>
-						<include>**/maven/ArtifactManagingServiceTest.java</include>
 					</includes>
-					
-					<!-- 
-					<excludes>
-						<exclude>**/maven/*Test.java</exclude>
-					</excludes>
-					-->
-					
 				</configuration>
 			</plugin>
 		</plugins>
