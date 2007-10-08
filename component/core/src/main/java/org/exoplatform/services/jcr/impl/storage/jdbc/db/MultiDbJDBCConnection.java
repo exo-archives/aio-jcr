@@ -142,7 +142,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     INSERT_VALUE = "insert into JCR_MVALUE(DATA, ORDER_NUM, PROPERTY_ID, STORAGE_DESC) VALUES(?,?,?,?)";
     INSERT_REF = "insert into JCR_MREF(NODE_ID, PROPERTY_ID, ORDER_NUM) VALUES(?,?,?)";
 
-    RENAME_NODE = "update JCR_MITEM set PARENT_ID = ?, NAME = ?, VERSION = ?, I_INDEX = ?, N_ORDER_NUM = ? where ID = ?";
+    RENAME_NODE = "update JCR_MITEM set PARENT_ID=?, NAME =?, VERSION=?, I_INDEX =?, N_ORDER_NUM =? where ID=?";
     
     UPDATE_NODE = "update JCR_MITEM set VERSION=?, I_INDEX=?, N_ORDER_NUM=? where ID=?";
     UPDATE_PROPERTY = "update JCR_MITEM set VERSION=?, P_TYPE=? where ID=?";
