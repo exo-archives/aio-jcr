@@ -173,15 +173,6 @@
     </component>
     
     <component>
-    	<key>org.exoplatform.services.jcr.ext.maven.ArtifactManagingService</key>
-    	<type>org.exoplatform.services.jcr.ext.maven.ArtifactManagingServiceImpl</type>
-    </component>
-  
-    <component>
-      <type>org.exoplatform.services.jcr.ext.maven.rest.RESTArtifactLoaderService</type>
-    </component>
-
-    <component>
       <key>org.exoplatform.services.jcr.RepositoryService</key>
       <type>org.exoplatform.services.jcr.impl.RepositoryServiceImpl</type>
       <component-plugins>
