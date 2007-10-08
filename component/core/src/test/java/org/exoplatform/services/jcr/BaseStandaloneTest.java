@@ -68,8 +68,10 @@ public abstract class BaseStandaloneTest extends TestCase {
 
   public void setUp() throws Exception {
 
-    String conf = System.getProperty("jcr.test.configuration.file");
-    //String conf = "src/test/java/conf/standalone/test-configuration-sjdbc.pgsql.xml";
+    String conf = System.getProperty("jcr.test.configuration.file") == null ? "src/test/java/conf/standalone/test-configuration.xml"
+        : System.getProperty("jcr.test.configuration.file");
+    // String conf =
+    // "src/test/java/conf/standalone/test-configuration-sjdbc.pgsql.xml";
     String loginConf = "src/main/resources/login.conf";
     
     if (!new File(conf).exists()){
