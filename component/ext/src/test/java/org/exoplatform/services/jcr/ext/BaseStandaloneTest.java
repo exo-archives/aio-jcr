@@ -51,31 +51,38 @@ public abstract class BaseStandaloneTest extends TestCase {
 
   public void setUp() throws Exception {
 
-       StandaloneContainer
-          .addConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
+    String conf = "src/test/java/conf/standalone/test-configuration.xml";
+    String loginConf = "src/test/resources/login.conf";
 
-      container = StandaloneContainer.getInstance();
+    if (!new File(conf).exists()) {
+      conf = "component/ext/" + conf;
+    }
+    if (!new File(loginConf).exists()) {
+      loginConf = "component/ext/" + loginConf;
+    }
 
-      if (System.getProperty("java.security.auth.login.config") == null)
-        System.setProperty("java.security.auth.login.config",
-            "src/test/resources/login.conf");
+    StandaloneContainer.addConfigurationPath(conf);
+    container = StandaloneContainer.getInstance();
 
-      credentials = new CredentialsImpl("exo", "exo".toCharArray());
+    if (System.getProperty("java.security.auth.login.config") == null)
+      System.setProperty("java.security.auth.login.config", loginConf);
 
-      repositoryService = (RepositoryService) container
-          .getComponentInstanceOfType(RepositoryService.class);
+    credentials = new CredentialsImpl("exo", "exo".toCharArray());
 
-      repository = (RepositoryImpl) repositoryService.getDefaultRepository();
+    repositoryService = (RepositoryService) container
+        .getComponentInstanceOfType(RepositoryService.class);
 
-      // repository.getContainer().start();
+    repository = (RepositoryImpl) repositoryService.getDefaultRepository();
 
-      if (!repository.isWorkspaceInitialized("ws"))
-        repository.initWorkspace("ws", "nt:unstructured");
+    // repository.getContainer().start();
 
-      session = (SessionImpl) repository.login(credentials, "ws");
-      workspace = session.getWorkspace();
-      root = session.getRootNode();
-      valueFactory = session.getValueFactory();
+    if (!repository.isWorkspaceInitialized("ws"))
+      repository.initWorkspace("ws", "nt:unstructured");
+
+    session = (SessionImpl) repository.login(credentials, "ws");
+    workspace = session.getWorkspace();
+    root = session.getRootNode();
+    valueFactory = session.getValueFactory();
   }
 
   protected void tearDown() throws Exception {
