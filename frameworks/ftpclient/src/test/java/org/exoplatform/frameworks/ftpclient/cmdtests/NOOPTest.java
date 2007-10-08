@@ -19,7 +19,7 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdNoop;
  * @version $Id: $
  */
 
-public class NOOPTest extends TestCase implements TestConst {
+public class NOOPTest extends TestCase {
   
   private static Log log = new Log("NOOPTest");
 

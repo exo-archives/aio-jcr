@@ -25,7 +25,7 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdUser;
  * @version $Id: $
  */
 
-public class STORTest extends TestCase implements TestConst {
+public class STORTest extends TestCase {
   
   private static Log log = new Log("STORTest");
 
@@ -46,8 +46,8 @@ public class STORTest extends TestCase implements TestConst {
 
     // login
     {
-      assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(new CmdUser(USER_ID)));
-      assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(new CmdPass(USER_PASS)));
+      assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(new CmdUser(FtpTestConfig.USER_ID)));
+      assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(new CmdPass(FtpTestConfig.USER_PASS)));
     }
 
     // desired reply - 425 Unable to build data connection

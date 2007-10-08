@@ -22,7 +22,7 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdUser;
  * @version $Id: $
  */
 
-public class NLSTTest extends TestCase implements TestConst {
+public class NLSTTest extends TestCase {
   
   private static Log log = new Log("NLSTTest");
   
@@ -38,12 +38,12 @@ public class NLSTTest extends TestCase implements TestConst {
     }
     
     {
-      CmdUser cmdUser = new CmdUser(USER_ID);
+      CmdUser cmdUser = new CmdUser(FtpTestConfig.USER_ID);
       assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(cmdUser));
     }
     
     {
-      CmdPass cmdPass = new CmdPass(USER_PASS);
+      CmdPass cmdPass = new CmdPass(FtpTestConfig.USER_PASS);
       assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(cmdPass));
     }
     

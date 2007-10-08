@@ -50,8 +50,8 @@ public class MultiThreadFtpTest extends TestCase {
         FtpClientSession client = FtpTestConfig.getTestFtpClient();
         client.connect();
 
-        assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(new CmdUser("admin")));
-        assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(new CmdPass("admin")));
+        assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(new CmdUser(FtpTestConfig.USER_ID)));
+        assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(new CmdPass(FtpTestConfig.USER_PASS)));
 
         assertEquals(FtpConst.Replyes.REPLY_215, client.executeCommand(new CmdSyst()));
         assertEquals(FtpConst.Replyes.REPLY_200, client.executeCommand(new CmdType("A")));

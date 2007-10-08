@@ -19,7 +19,7 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdQuit;
  * @version $Id: $
  */
 
-public class QUITTest extends TestCase implements TestConst {
+public class QUITTest extends TestCase {
   
   private static Log log = new Log("QUITTest");
 

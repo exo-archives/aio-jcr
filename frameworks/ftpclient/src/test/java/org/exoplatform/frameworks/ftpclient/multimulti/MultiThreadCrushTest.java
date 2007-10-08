@@ -11,8 +11,9 @@ import java.util.Random;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
 import org.exoplatform.frameworks.ftpclient.FtpConst;
+import org.exoplatform.frameworks.ftpclient.FtpTestConfig;
+import org.exoplatform.frameworks.ftpclient.Log;
 import org.exoplatform.frameworks.ftpclient.client.FtpClientSession;
 import org.exoplatform.frameworks.ftpclient.client.FtpClientSessionImpl;
 import org.exoplatform.frameworks.ftpclient.commands.CmdCwd;
@@ -21,7 +22,6 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdMkd;
 import org.exoplatform.frameworks.ftpclient.commands.CmdPass;
 import org.exoplatform.frameworks.ftpclient.commands.CmdSyst;
 import org.exoplatform.frameworks.ftpclient.commands.CmdUser;
-import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SARL
@@ -31,16 +31,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class MultiThreadCrushTest extends TestCase {
   
-  private static Log log = ExoLogger.getLogger("jcr.MultiThreadCrushTest");
-  
-  public static final int CLIENTS_COUNT = 500;
-  public static final int CLIENT_DEPTH = 2;  
-  
-  public static final String HOST = "192.168.0.15";
-  public static final int PORT = 21;  
-  public static final String USER_ID = "admin";
-  public static final String USER_PASS = "admin";  
-  public static final String TEST_FOLDER = "/production/crash_test2";
+  private static Log log = new Log("MultiThreadCrushTest");  
   
   public static boolean IsNeedWaitAll = true;
   
@@ -48,16 +39,16 @@ public class MultiThreadCrushTest extends TestCase {
     log.info("testSingleThread...");
     
     {
-      FtpClientSession client = new FtpClientSessionImpl(MultiThreadCrushTest.HOST, MultiThreadCrushTest.PORT);
+      FtpClientSession client = new FtpClientSessionImpl(FtpTestConfig.FTP_HOST, FtpTestConfig.FTP_PORT);
       client.connect();
 
       {        
-        CmdUser cmdUser = new CmdUser(MultiThreadCrushTest.USER_ID);
+        CmdUser cmdUser = new CmdUser(FtpTestConfig.USER_ID);
         assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(cmdUser));
       }
       
       {
-        CmdPass cmdPass = new CmdPass(MultiThreadCrushTest.USER_PASS);
+        CmdPass cmdPass = new CmdPass(FtpTestConfig.USER_PASS);
         assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(cmdPass));
       }
       
@@ -67,18 +58,18 @@ public class MultiThreadCrushTest extends TestCase {
       }
 
       {
-        CmdCwd cmdCwd = new CmdCwd(TEST_FOLDER);
+        CmdCwd cmdCwd = new CmdCwd(FtpTestConfig.TEST_FOLDER);
         if (FtpConst.Replyes.REPLY_550 == client.executeCommand(cmdCwd)) {
-          CmdMkd cmdMkd = new CmdMkd(TEST_FOLDER);
+          CmdMkd cmdMkd = new CmdMkd(FtpTestConfig.TEST_FOLDER);
           assertEquals(FtpConst.Replyes.REPLY_257, client.executeCommand(cmdMkd));          
 
-          cmdCwd = new CmdCwd(TEST_FOLDER);
+          cmdCwd = new CmdCwd(FtpTestConfig.TEST_FOLDER);
           assertEquals(FtpConst.Replyes.REPLY_250, client.executeCommand(cmdCwd));
         }
         
         for (int i1 = 0; i1 < 10; i1++) {
 
-          String folderName = TEST_FOLDER + "/" + i1;          
+          String folderName = FtpTestConfig.TEST_FOLDER + "/" + i1;          
           assertEquals(FtpConst.Replyes.REPLY_257, client.executeCommand(new CmdMkd(folderName)));          
           
           for (int i2 = 0; i2 < 10; i2++) {
@@ -97,7 +88,7 @@ public class MultiThreadCrushTest extends TestCase {
     
     Random random = new Random();
     
-    while (count < CLIENTS_COUNT) {
+    while (count < FtpTestConfig.CLIENTS_COUNT) {
       int nextId = random.nextInt(Integer.MAX_VALUE);
       log.info("NEXT ID: [" + nextId + "]");
       
@@ -110,7 +101,7 @@ public class MultiThreadCrushTest extends TestCase {
         continue;
       }
          
-      TestAgent testAgent = new TestAgent(curInteger, CLIENT_DEPTH);
+      TestAgent testAgent = new TestAgent(curInteger, FtpTestConfig.CLIENT_DEPTH);
       clients.put(curInteger, testAgent);
       count++;
     }
@@ -148,16 +139,16 @@ public class MultiThreadCrushTest extends TestCase {
 
     {
       {
-        FtpClientSession client = new FtpClientSessionImpl(MultiThreadCrushTest.HOST, MultiThreadCrushTest.PORT);
+        FtpClientSession client = new FtpClientSessionImpl(FtpTestConfig.FTP_HOST, FtpTestConfig.FTP_PORT);
         client.connect();
 
         {        
-          CmdUser cmdUser = new CmdUser(MultiThreadCrushTest.USER_ID);
+          CmdUser cmdUser = new CmdUser(FtpTestConfig.USER_ID);
           assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(cmdUser));
         }
         
         {
-          CmdPass cmdPass = new CmdPass(MultiThreadCrushTest.USER_PASS);
+          CmdPass cmdPass = new CmdPass(FtpTestConfig.USER_PASS);
           assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(cmdPass));
         }
         
@@ -166,7 +157,7 @@ public class MultiThreadCrushTest extends TestCase {
           assertEquals(FtpConst.Replyes.REPLY_215, client.executeCommand(cmdSyst));
         }
         
-        assertEquals(FtpConst.Replyes.REPLY_250, client.executeCommand(new CmdDele(TEST_FOLDER)));
+        assertEquals(FtpConst.Replyes.REPLY_250, client.executeCommand(new CmdDele(FtpTestConfig.TEST_FOLDER)));
       }
     }
     
@@ -184,8 +175,12 @@ public class MultiThreadCrushTest extends TestCase {
       }
       
       log.info("SUCCESSED: [" + successed + "]");
-      log.info("FAILURES: [" + (CLIENTS_COUNT - successed) + "]");
+      log.info("FAILURES: [" + (FtpTestConfig.CLIENTS_COUNT - successed) + "]");
       Thread.sleep(2000);
+      
+      if (FtpTestConfig.CLIENTS_COUNT != successed) {
+        fail();
+      }
     }
     
     

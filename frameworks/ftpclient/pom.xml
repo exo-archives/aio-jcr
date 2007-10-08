@@ -62,8 +62,10 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <includes>
+			<!--
             <include>**/FtpTests.java</include>
-            <!-- include>**/multimulti/MultiThreadCrushTest.java</include -->
+            <include>**/multimulti/MultiThreadCrushTest.java</include>
+			-->
           </includes>
         </configuration>
       </plugin>

@@ -19,7 +19,7 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdHelp;
  * @version $Id: $
  */
 
-public class HELPTest extends TestCase implements TestConst {
+public class HELPTest extends TestCase {
   
   private static Log log = new Log("HELPTest");
   

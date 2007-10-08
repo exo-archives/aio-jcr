@@ -21,7 +21,7 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdUser;
  * @version $Id: $
  */
 
-public class MODETest extends TestCase implements TestConst {
+public class MODETest extends TestCase {
 
   private static Log log = new Log("MODETest");
   
@@ -32,12 +32,12 @@ public class MODETest extends TestCase implements TestConst {
     client.connect();
 
     {
-      CmdUser cmdUser = new CmdUser(USER_ID);
+      CmdUser cmdUser = new CmdUser(FtpTestConfig.USER_ID);
       assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(cmdUser));
     }
     
     {
-      CmdPass cmdPass = new CmdPass(USER_PASS);
+      CmdPass cmdPass = new CmdPass(FtpTestConfig.USER_PASS);
       assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(cmdPass));
     }
 
