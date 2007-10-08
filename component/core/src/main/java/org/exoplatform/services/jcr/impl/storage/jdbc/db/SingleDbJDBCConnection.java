@@ -137,7 +137,7 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     INSERT_VALUE = "insert into JCR_SVALUE(DATA, ORDER_NUM, PROPERTY_ID, STORAGE_DESC) VALUES(?,?,?,?)";
     INSERT_REF = "insert into JCR_SREF(NODE_ID, PROPERTY_ID, ORDER_NUM) VALUES(?,?,?)";
     
-    RENAME_NODE = "update JCR_MITEM set PARENT_ID = ?, NAME = ?, VERSION = ?, I_INDEX = ?, N_ORDER_NUM = ? where ID = ?";
+    RENAME_NODE = "update JCR_SITEM set PARENT_ID = ?, NAME = ?, VERSION = ?, I_INDEX = ?, N_ORDER_NUM = ? where ID = ?";
 
     UPDATE_NODE = "update JCR_SITEM set VERSION=?, I_INDEX=?, N_ORDER_NUM=? where ID=?";
     UPDATE_PROPERTY = "update JCR_SITEM set VERSION=?, P_TYPE=? where ID=?";
