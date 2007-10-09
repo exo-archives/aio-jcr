@@ -52,7 +52,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class DocumentViewImporter extends ImporterBase {
+public class DocumentViewImporter extends BaseXmlImporter {
   private static Log            log = ExoLogger.getLogger("jcr.DocNodeImporter");
 
   private String                primaryNodeType;

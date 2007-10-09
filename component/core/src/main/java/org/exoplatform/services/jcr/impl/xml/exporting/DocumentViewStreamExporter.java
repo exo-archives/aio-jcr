@@ -27,9 +27,9 @@ import org.exoplatform.services.jcr.impl.util.StringConverter;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class StreamDocExport extends StreamExport {
+public class DocumentViewStreamExporter extends StreamExporter {
 
-  public StreamDocExport(XMLStreamWriter writer,
+  public DocumentViewStreamExporter(XMLStreamWriter writer,
       SessionImpl session,
       ItemDataConsumer dataManager,
       boolean skipBinary,

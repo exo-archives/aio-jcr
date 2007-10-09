@@ -16,11 +16,11 @@ import javax.xml.stream.XMLStreamWriter;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.xml.exporting.ContentHandlerDocExport;
-import org.exoplatform.services.jcr.impl.xml.exporting.ContentHandlerSysExport;
-import org.exoplatform.services.jcr.impl.xml.exporting.ExportXmlBase;
-import org.exoplatform.services.jcr.impl.xml.exporting.StreamDocExport;
-import org.exoplatform.services.jcr.impl.xml.exporting.StreamSysExport;
+import org.exoplatform.services.jcr.impl.xml.exporting.DocumentViewContentExporter;
+import org.exoplatform.services.jcr.impl.xml.exporting.SystemViewContentExporter;
+import org.exoplatform.services.jcr.impl.xml.exporting.BaseXmlExporter;
+import org.exoplatform.services.jcr.impl.xml.exporting.DocumentViewStreamExporter;
+import org.exoplatform.services.jcr.impl.xml.exporting.SystemViewStreamExporter;
 import org.exoplatform.services.jcr.impl.xml.importing.ContentHandlerImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
 import org.xml.sax.ContentHandler;
@@ -48,20 +48,20 @@ public class ExportImportFactory {
    * @throws NamespaceException
    * @throws RepositoryException
    */
-  public ExportXmlBase getExportVisitor(XmlMapping type,
+  public BaseXmlExporter getExportVisitor(XmlMapping type,
                                         ContentHandler contentHandler,
                                         boolean skipBinary,
                                         boolean noRecurse) throws NamespaceException,
       RepositoryException {
 
     if (type == XmlMapping.SYSVIEW) {
-      return new ContentHandlerSysExport(contentHandler,
+      return new SystemViewContentExporter(contentHandler,
                                          sessionImpl,
                                          sessionImpl.getTransientNodesManager(),
                                          skipBinary,
                                          noRecurse);
     } else if (type == XmlMapping.DOCVIEW) {
-      return new ContentHandlerDocExport(contentHandler,
+      return new DocumentViewContentExporter(contentHandler,
                                          sessionImpl,
                                          sessionImpl.getTransientNodesManager(),
                                          skipBinary,
@@ -83,7 +83,7 @@ public class ExportImportFactory {
    * @throws RepositoryException
    * @throws IOException
    */
-  public ExportXmlBase getExportVisitor(XmlMapping type,
+  public BaseXmlExporter getExportVisitor(XmlMapping type,
                                         OutputStream stream,
                                         boolean skipBinary,
                                         boolean noRecurse) throws NamespaceException,
@@ -99,13 +99,13 @@ public class ExportImportFactory {
     }
 
     if (type == XmlMapping.SYSVIEW) {
-      return new StreamSysExport(streamWriter,
+      return new SystemViewStreamExporter(streamWriter,
                                  sessionImpl,
                                  sessionImpl.getTransientNodesManager(),
                                  skipBinary,
                                  noRecurse);
     } else if (type == XmlMapping.DOCVIEW) {
-      return new StreamDocExport(streamWriter,
+      return new DocumentViewStreamExporter(streamWriter,
                                  sessionImpl,
                                  sessionImpl.getTransientNodesManager(),
                                  skipBinary,

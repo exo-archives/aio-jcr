@@ -60,7 +60,7 @@ import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.impl.xml.ExportImportFactory;
 import org.exoplatform.services.jcr.impl.xml.XmlMapping;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
-import org.exoplatform.services.jcr.impl.xml.exporting.ExportXmlBase;
+import org.exoplatform.services.jcr.impl.xml.exporting.BaseXmlExporter;
 import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
@@ -493,7 +493,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
       boolean skipBinary,
       boolean noRecurse) throws PathNotFoundException, SAXException, RepositoryException {
 
-    ExportXmlBase exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.SYSVIEW,
+    BaseXmlExporter exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.SYSVIEW,
         contentHandler,
         skipBinary,
         noRecurse);
@@ -527,7 +527,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
       boolean skipBinary,
       boolean noRecurse) throws IOException, PathNotFoundException, RepositoryException {
 
-    ExportXmlBase exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.SYSVIEW,
+    BaseXmlExporter exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.SYSVIEW,
         out,
         skipBinary,
         noRecurse);
@@ -565,7 +565,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
       SAXException,
       RepositoryException {
 
-    ExportXmlBase exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.DOCVIEW,
+    BaseXmlExporter exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.DOCVIEW,
         contentHandler,
         skipBinary,
         noRecurse);
@@ -605,7 +605,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
       PathNotFoundException,
       RepositoryException {
 
-    ExportXmlBase exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.DOCVIEW,
+    BaseXmlExporter exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.DOCVIEW,
         out,
         skipBinary,
         noRecurse);

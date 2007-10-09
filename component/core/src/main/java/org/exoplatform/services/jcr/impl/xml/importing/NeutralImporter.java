@@ -18,7 +18,7 @@ import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class NeutralImporter extends ImporterBase {
+public class NeutralImporter extends BaseXmlImporter {
 
   private Importer contentImporter = null;
 

@@ -63,7 +63,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class SystemViewImporter extends ImporterBase {
+public class SystemViewImporter extends BaseXmlImporter {
 
   private String                   curPropName;
 

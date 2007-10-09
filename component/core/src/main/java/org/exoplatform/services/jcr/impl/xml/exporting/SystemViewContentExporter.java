@@ -27,7 +27,7 @@ import org.xml.sax.helpers.AttributesImpl;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version
  */
-public class ContentHandlerSysExport extends ContentHandlerExport {
+public class SystemViewContentExporter extends HandlingContentExporter {
 
   /**
    * @param handler
@@ -37,7 +37,7 @@ public class ContentHandlerSysExport extends ContentHandlerExport {
    * @throws NamespaceException
    * @throws RepositoryException
    */
-  public ContentHandlerSysExport(ContentHandler handler,
+  public SystemViewContentExporter(ContentHandler handler,
       SessionImpl session,
       ItemDataConsumer dataManager,
       boolean skipBinary,

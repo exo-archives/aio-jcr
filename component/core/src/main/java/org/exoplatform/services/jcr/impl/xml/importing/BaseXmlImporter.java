@@ -40,7 +40,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: ImporterBase.java 13421 2007-03-15 10:46:47Z geaz $
  */
-abstract public class ImporterBase implements Importer {
+abstract public class BaseXmlImporter implements Importer {
 
   private static final Log            log = ExoLogger.getLogger("jcr.ImporterBase");
 
@@ -66,7 +66,7 @@ abstract public class ImporterBase implements Importer {
 
   protected final boolean respectPropertyDefinitionsConstraints;
 
-  public ImporterBase(NodeImpl parent, int uuidBehavior, XmlSaveType saveType,boolean respectPropertyDefinitionsConstraints) {
+  public BaseXmlImporter(NodeImpl parent, int uuidBehavior, XmlSaveType saveType,boolean respectPropertyDefinitionsConstraints) {
 
     this.parent = parent;
     this.saveType = saveType;

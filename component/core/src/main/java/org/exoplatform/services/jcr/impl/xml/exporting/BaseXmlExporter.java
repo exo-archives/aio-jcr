@@ -10,11 +10,7 @@ package org.exoplatform.services.jcr.impl.xml.exporting;
  */
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.jcr.NamespaceException;
 import javax.jcr.NamespaceRegistry;
@@ -24,7 +20,6 @@ import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.ValueFormatException;
 
 import org.apache.ws.commons.util.Base64;
-import org.exoplatform.commons.utils.QName;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -34,14 +29,13 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.NodeDataOrderComparator;
 import org.exoplatform.services.jcr.impl.dataflow.PropertyDataOrderComparator;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.ISO9075;
 
-public abstract class ExportXmlBase extends ItemDataTraversingVisitor {
+public abstract class BaseXmlExporter extends ItemDataTraversingVisitor {
 
   public static final String        MULTI_VALUE_DELIMITER          = " ";
 
@@ -64,9 +58,9 @@ public abstract class ExportXmlBase extends ItemDataTraversingVisitor {
 
   protected final NamespaceRegistry namespaceRegistry;
 
-  protected Map<String, String>     writedNamespaces;
+  
 
-  public ExportXmlBase(SessionImpl session,
+  public BaseXmlExporter(SessionImpl session,
       ItemDataConsumer dataManager,
       boolean skipBinary,
       int maxLevel) throws NamespaceException, RepositoryException {
@@ -75,7 +69,6 @@ public abstract class ExportXmlBase extends ItemDataTraversingVisitor {
     this.skipBinary = skipBinary;
     this.namespaceRegistry = session.getWorkspace().getNamespaceRegistry();
     this.SV_NAMESPACE_URI = session.getNamespaceURI("sv");
-    this.writedNamespaces = new HashMap<String, String>();
   }
 
   public abstract void export(NodeData node) throws Exception;

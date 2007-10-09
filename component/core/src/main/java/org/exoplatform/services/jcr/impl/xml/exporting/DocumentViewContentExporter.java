@@ -28,12 +28,12 @@ import org.xml.sax.helpers.AttributesImpl;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version
  */
-public class ContentHandlerDocExport extends ContentHandlerExport {
+public class DocumentViewContentExporter extends HandlingContentExporter {
   private AttributesImpl currentAttr = null;
 
   protected String       encoding;           ;
 
-  public ContentHandlerDocExport(ContentHandler handler,
+  public DocumentViewContentExporter(ContentHandler handler,
       SessionImpl session,
       ItemDataConsumer dataManager,
       boolean skipBinary,

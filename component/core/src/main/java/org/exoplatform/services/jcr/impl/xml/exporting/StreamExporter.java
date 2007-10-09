@@ -18,11 +18,11 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public abstract class StreamExport extends ExportXmlBase {
+public abstract class StreamExporter extends BaseXmlExporter {
 
   protected final XMLStreamWriter writer;
 
-  public StreamExport(XMLStreamWriter writer,
+  public StreamExporter(XMLStreamWriter writer,
       SessionImpl session,
       ItemDataConsumer dataManager,
       boolean skipBinary,

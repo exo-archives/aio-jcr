@@ -4,15 +4,10 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.impl.xml.exporting;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import javax.jcr.NamespaceException;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
-import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -23,11 +18,11 @@ import org.xml.sax.SAXException;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version
  */
-public abstract class ContentHandlerExport extends ExportXmlBase {
+public abstract class HandlingContentExporter extends BaseXmlExporter {
 
   protected final ContentHandler contentHandler;
 
-  public ContentHandlerExport(ContentHandler handler,
+  public HandlingContentExporter(ContentHandler handler,
       SessionImpl session,
       ItemDataConsumer dataManager,
       boolean skipBinary,

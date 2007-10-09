@@ -26,7 +26,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class StreamSysExport extends StreamExport {
+public class SystemViewStreamExporter extends StreamExporter {
 
   /**
    * @param writer
@@ -36,7 +36,7 @@ public class StreamSysExport extends StreamExport {
    * @throws RepositoryException
    * @throws NamespaceException
    */
-  public StreamSysExport(XMLStreamWriter writer,
+  public SystemViewStreamExporter(XMLStreamWriter writer,
       SessionImpl session,
       ItemDataConsumer dataManager,
       boolean skipBinary,
