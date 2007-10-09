@@ -36,7 +36,7 @@ public class SpoolFile extends File {
     super(absPath);
   }
   
-  public static SpoolFile createSpoolFile(String prefix, String suffix, File directory) throws IOException {
+  public static SpoolFile createTempFile(String prefix, String suffix, File directory) throws IOException {
     return new SpoolFile(File.createTempFile(prefix, suffix, directory).getAbsolutePath());
   }
   
@@ -44,8 +44,7 @@ public class SpoolFile extends File {
     if (users == null)
       throw new FileNotFoundException("File was deleted " + getAbsolutePath());
     
-    users.put(holder, System.currentTimeMillis()); //users.keySet().toArray()
-    //log.info(this + ", acquire by " + Thread.currentThread().getName());
+    users.put(holder, System.currentTimeMillis());
   }
   
   public synchronized void release(Object holder) throws FileNotFoundException {
@@ -53,7 +52,6 @@ public class SpoolFile extends File {
       throw new FileNotFoundException("File was deleted " + getAbsolutePath());
     
     users.remove(holder);
-    //log.info(this + ", released by " + Thread.currentThread().getName() + ", " + (users.size() <= 0 ? "ready for delete" : users.size() + "users"));
   }
 
   public synchronized boolean inUse() throws FileNotFoundException {
@@ -68,7 +66,6 @@ public class SpoolFile extends File {
   @Override
   public synchronized boolean delete() {
     if (users.size() <= 0) {
-      //log.info(getName() + "... delete");
       // make unusable
       users.clear();
       users = null;

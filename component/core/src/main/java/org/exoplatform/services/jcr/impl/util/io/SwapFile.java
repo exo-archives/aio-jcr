@@ -92,18 +92,6 @@ public class SwapFile extends SpoolFile {
     this.spoolLatch = null;
     sl.countDown();
   }
-
-  
-  //------ SpoolFile ------
-
-  /**
-   * Not applicable. Call get(File, String) method instead
-   * 
-   * @throws IOException
-   */  
-  public static SpoolFile createSpoolFile(String prefix, String suffix, File directory) throws IOException {
-    throw new IOException("Not applicable. Call get(File, String) method instead");
-  }
   
   //------ java.io.File ------
   
@@ -133,7 +121,7 @@ public class SwapFile extends SpoolFile {
    * 
    * @throws IOException
    */
-  public static File createTempFile(String prefix, String suffix,
+  public static SwapFile createTempFile(String prefix, String suffix,
       File directory) throws IOException {
     throw new IOException("Not applicable. Call get(File, String) method instead");
   }

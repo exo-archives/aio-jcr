@@ -496,7 +496,7 @@ public class TransientValueData extends AbstractValueData implements
         } else if (len + read > maxBufferSize && fileCleaner != null) {
           // threshold for keeping data in memory exceeded, 
           // if have a fileCleaner create temp file and spool buffer contents.
-          sf = SpoolFile.createSpoolFile("jcrvd", null, tempDirectory);
+          sf = SpoolFile.createTempFile("jcrvd", null, tempDirectory);
           sf.acquire(this);
           
           sfout = new FileOutputStream(sf);
