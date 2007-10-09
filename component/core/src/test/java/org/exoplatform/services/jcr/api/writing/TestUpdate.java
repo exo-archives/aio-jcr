@@ -71,10 +71,9 @@ public class TestUpdate extends JcrAPIBaseTest {
   }
   
   /**
-   * The test but be executed with disabled workspace cache!!!
+   * The test should be executed with disabled workspace cache!!!
    */
   public void testUpdate() throws Exception {
-    
     Node n1 = testRoot.getNode("node1");
     
     assertFalse("There are not property in ws should be", n1.hasProperty("prop1"));

@@ -243,12 +243,8 @@ public class TransientValueData extends AbstractValueData implements
    * @see org.exoplatform.services.jcr.datamodel.ValueData#getLength()
    */
   public long getLength() {
-    try {
-      spoolInputStream();
-    } catch (IOException e) {
-      e.printStackTrace();
-      return -1;
-    }
+    spoolInputStream();
+    
     if (data == null) {
       log.debug("getLength spoolFile : " + spoolFile.length());
       return spoolFile.length();
@@ -265,12 +261,8 @@ public class TransientValueData extends AbstractValueData implements
    * @see org.exoplatform.services.jcr.datamodel.ValueData#isByteArray()
    */
   public boolean isByteArray() {
-    try {
-      spoolInputStream();
-    } catch (IOException e) {
-      e.printStackTrace();
-      return false;
-    }
+    spoolInputStream();
+    
     return data != null;
   }
 
@@ -378,12 +370,8 @@ public class TransientValueData extends AbstractValueData implements
    * @return spool file if any
    */
   public File getSpoolFile() {
-    try {
-      spoolInputStream();
-    } catch (IOException e) {
-      e.printStackTrace();
-      return null;
-    }
+    spoolInputStream();
+
     return spoolFile;
   }
 
@@ -475,7 +463,7 @@ public class TransientValueData extends AbstractValueData implements
 
   // ///////////////////////////////////
 
-  private void spoolInputStream() throws IOException {
+  private void spoolInputStream() {
 
     if (spooled || tmpStream == null) // already spooled
       return;
