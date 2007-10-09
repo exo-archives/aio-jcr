@@ -68,7 +68,8 @@ public abstract class BaseStandaloneTest extends TestCase {
 
   public void setUp() throws Exception {
 
-    String conf = System.getProperty("jcr.test.configuration.file") == null ? "src/test/java/conf/standalone/test-configuration.xml"
+    String conf = System.getProperty("jcr.test.configuration.file") == null ?
+        "src/test/java/conf/standalone/test-configuration.xml"
         : System.getProperty("jcr.test.configuration.file");
     // String conf =
     // "src/test/java/conf/standalone/test-configuration-sjdbc.pgsql.xml";
@@ -84,7 +85,7 @@ public abstract class BaseStandaloneTest extends TestCase {
     //StandaloneContainer.addConfigurationPath(conf);
     
     StandaloneContainer
-      .addConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
+      .addConfigurationPath(conf);
       //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.xml");
       //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-mjdbc.pgsql.xml");
       //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.ora.xml");
