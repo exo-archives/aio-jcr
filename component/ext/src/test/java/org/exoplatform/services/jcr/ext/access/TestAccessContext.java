@@ -123,12 +123,12 @@ public class TestAccessContext extends BaseStandaloneTest {
     }
     session.save();
     // Run each thread
-    ArrayList<JCRClient4AccessContextTest> clients = new ArrayList<JCRClient4AccessContextTest>();
+    ArrayList<JCRClient4AccessContext> clients = new ArrayList<JCRClient4AccessContext>();
     //SessionImpl sysSession = repository.getSystemSession();
     for (int i = 0; i < THREAD_COUNT; i++) {
 //      JCRClient4AccessContextTest jcrClient = new JCRClient4AccessContextTest(sysSession,
 //          sysSession, session);
-      JCRClient4AccessContextTest jcrClient = new JCRClient4AccessContextTest();
+      JCRClient4AccessContext jcrClient = new JCRClient4AccessContext();
       jcrClient.start();
       clients.add(jcrClient);
     }
@@ -138,7 +138,7 @@ public class TestAccessContext extends BaseStandaloneTest {
     while (isNeedWait) {
       isNeedWait = false;
       for (int i = 0; i < THREAD_COUNT; i++) {
-        JCRClient4AccessContextTest curClient = clients.get(i);
+        JCRClient4AccessContext curClient = clients.get(i);
         if (curClient.isAlive()) {
           isNeedWait = true;
           break;
@@ -147,7 +147,7 @@ public class TestAccessContext extends BaseStandaloneTest {
       Thread.sleep(100);
 
     }
-    for (JCRClient4AccessContextTest client4AccessContextTest : clients) {
+    for (JCRClient4AccessContext client4AccessContextTest : clients) {
 
       totalErrors += client4AccessContextTest.errorsCount;
     }
@@ -155,7 +155,7 @@ public class TestAccessContext extends BaseStandaloneTest {
         + totalErrors);
   }
 
-  protected class JCRClient4AccessContextTest extends Thread {
+  protected class JCRClient4AccessContext extends Thread {
     private SessionImpl systemSession;
 
     private SessionImpl adminSession;
@@ -166,7 +166,7 @@ public class TestAccessContext extends BaseStandaloneTest {
 
     private Log         log = ExoLogger.getLogger("jcr.JCRClient4AccessContextTest");
     
-    public JCRClient4AccessContextTest() {
+    public JCRClient4AccessContext() {
       try {
 //        StandaloneContainer container = StandaloneContainer.getInstance();
 //        CredentialsImpl credentials = new CredentialsImpl("exo", "exo".toCharArray());
