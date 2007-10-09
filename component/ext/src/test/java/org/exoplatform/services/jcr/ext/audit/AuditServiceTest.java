@@ -10,7 +10,6 @@ import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 
-import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
@@ -47,12 +46,12 @@ public class AuditServiceTest extends BaseStandaloneTest {
   
   private static final String ROOT_PATH = "AuditServiceTest";
   private static final String AUTO_ROOT_NAME = "autoAdd";
-  
+  private AuditService service ;
   private Node rootNode = null;
   
   public void setUp() throws Exception {
     super.setUp();
-    
+    service = (AuditService)container.getComponentInstanceOfType(AuditService.class);
     if(session.getRootNode().hasNode(ROOT_PATH))
       rootNode = session.getRootNode().getNode(ROOT_PATH);
     else
@@ -77,7 +76,8 @@ public class AuditServiceTest extends BaseStandaloneTest {
       service.createHistory(node);
       session.save();
     } catch (RepositoryException e) {
-      fail("Fail to init AuditStorage");
+      e.printStackTrace();
+      fail("Fail to init AuditStorage"+e.getLocalizedMessage());
     }
     Property property1 = node.setProperty("property1","value1");
     service.addRecord(node,ExtendedEvent.NODE_ADDED);
@@ -91,7 +91,7 @@ public class AuditServiceTest extends BaseStandaloneTest {
   
   
   public void testCreateAndRemoveStorage() throws RepositoryException {
-    AuditService service = (AuditService)container.getComponentInstanceOfType(AuditService.class);
+    
     ExtendedNode node = null;
     try {
       node = (ExtendedNode)session.getRootNode().addNode("teststotage");
@@ -269,8 +269,9 @@ public class AuditServiceTest extends BaseStandaloneTest {
    */
   
   public void testRemoveAuditable() throws Exception {
-    ExtendedNode node = (ExtendedNode)rootNode.addNode(AUTO_ROOT_NAME, "nt:unstructured");
-    //node.addMixin("exo:auditable");
+    
+    ExtendedNode node = (ExtendedNode)rootNode.addNode("testRemoveAudit", "nt:unstructured");
+    node.addMixin("exo:auditable");
     session.save();
     assertTrue(node.isNodeType("exo:auditable"));
     String history = node.getProperty("exo:auditHistory").getString();
@@ -284,37 +285,4 @@ public class AuditServiceTest extends BaseStandaloneTest {
       //ok
     }
   }
-  
-  
-  
-  
-
-//  public void testAddNode() throws RepositoryException {
-//    AuditService service = (AuditService)container.getComponentInstanceOfType(AuditService.class);
-//    ExtendedNode node = null;
-//    Node auditHistory =null;
-//    try {
-//      node = (ExtendedNode)session.getRootNode().addNode("auditablenode");
-//      node.addMixin("exo:auditable");
-//      service.createHistory(node);
-//      node.setProperty("p1","val");
-//      node.setProperty("p1","va2");
-//      node.setProperty("p1",(String)null);
-//      auditHistory = session.getNodeByUUID(node.getProperty("exo:auditHistory").getString());
-//      node.remove();
-//      Node node2 =  session.getRootNode().addNode("test2");
-//      node2.setProperty("p2","test");
-//      node2.setProperty("p2","2");
-//      node2.setProperty("p2",(String)null);
-//      node2.remove();
-//    } catch (RepositoryException e) {
-//      fail("Fail to init AuditStorage");
-//    }
-//     
-//    assertNotNull(auditHistory);
-//    assertEquals(5,auditHistory.getNodes().getSize());
-//     
-//  }
-  
-
 }
