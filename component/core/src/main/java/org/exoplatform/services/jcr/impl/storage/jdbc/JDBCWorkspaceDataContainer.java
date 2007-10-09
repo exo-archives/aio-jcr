@@ -230,6 +230,8 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     if (!swapDirectory.exists())
       swapDirectory.mkdirs();
 
+    this.swapCleaner = new FileCleaner(false);
+    
     initDatabase();
 
     String suParam = null;
@@ -245,16 +247,16 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
         .getJdbcConnection(), multiDb, enableStorageUpdate);
 
     // check for FileValueStorage
-    if (valueStorageProvider instanceof StandaloneStoragePluginProvider) {
-      WorkspaceStorageConnection conn = null;
-      try {
-        conn = openConnection();
-        ((StandaloneStoragePluginProvider) valueStorageProvider).checkConsistency(conn);
-      } finally {
-        if (conn != null)
-          conn.rollback();
-      }
-    }
+//    if (valueStorageProvider instanceof StandaloneStoragePluginProvider) {
+//      WorkspaceStorageConnection conn = null;
+//      try {
+//        conn = openConnection();
+//        ((StandaloneStoragePluginProvider) valueStorageProvider).checkConsistency(conn);
+//      } finally {
+//        if (conn != null)
+//          conn.rollback();
+//      }
+//    }
 
     log.info(getInfo());
   }
@@ -542,7 +544,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
    * @see org.picocontainer.Startable#start()
    */
   public void start() {
-    this.swapCleaner = new FileCleaner();
+    this.swapCleaner.start(); 
   }
 
   /* (non-Javadoc)

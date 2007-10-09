@@ -737,10 +737,6 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     }
   }
   
-  /**
-   * Remove successors by parent path.
-   * Path is a string, if an item's path starts with it then the item will be removed 
-   * */
   @Deprecated
   protected void removeSuccessors(final String parentPath) {
     final ByPathRemoveSelector remover = new ByPathRemoveSelector(parentPath);
@@ -750,7 +746,11 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       log.error(name + ", removeSuccessors() " + parentPath, e);
     }
   }
-  
+
+  /**
+   * Remove successors by parent path.
+   * Path is a string, if an item's path starts with it then the item will be removed 
+   * */
   protected void removeSuccessors(final NodeData parent) {
     final ByParentRemoveSelector remover = new ByParentRemoveSelector(parent);
     try {

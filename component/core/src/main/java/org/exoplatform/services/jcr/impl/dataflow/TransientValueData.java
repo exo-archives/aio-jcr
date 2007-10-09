@@ -6,7 +6,6 @@
 package org.exoplatform.services.jcr.impl.dataflow;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.Externalizable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,7 +16,6 @@ import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
@@ -36,6 +34,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
 
 /**
  * Created by The eXo Platform SARL .<br/>
@@ -49,8 +48,6 @@ public class TransientValueData extends AbstractValueData implements
   protected byte[] data;
 
   protected InputStream tmpStream;
-
-  protected InputStream lockStream;
 
   protected File spoolFile;
   
@@ -104,7 +101,7 @@ public class TransientValueData extends AbstractValueData implements
 
   public TransientValueData(int orderNumber, byte[] bytes, InputStream stream,
       File spoolFile, FileCleaner fileCleaner, int maxBufferSize,
-      File tempDirectory, boolean deleteSpoolFile) {
+      File tempDirectory, boolean deleteSpoolFile) throws IOException {
 
     super(orderNumber);
     this.data = bytes;
@@ -116,6 +113,9 @@ public class TransientValueData extends AbstractValueData implements
     this.deleteSpoolFile = deleteSpoolFile;
 
     if (spoolFile != null) {
+      if (spoolFile instanceof SpoolFile)
+        ((SpoolFile) spoolFile).acquire(this);
+      
       this.spooled = true;
     }
   }
@@ -219,7 +219,6 @@ public class TransientValueData extends AbstractValueData implements
     } else {
       return fileToByteArray();
     }
-
   }
 
   /*
@@ -283,8 +282,12 @@ public class TransientValueData extends AbstractValueData implements
       System.arraycopy(data, 0, newBytes, 0, newBytes.length);
       
       // be more precise if this is a binary but so small, but can be increased in EditableValueData
-      return new TransientValueData(orderNumber, newBytes, null, 
-          spoolFile, fileCleaner, maxBufferSize, tempDirectory, deleteSpoolFile);
+      try {
+        return new TransientValueData(orderNumber, newBytes, null, 
+          null, fileCleaner, maxBufferSize, tempDirectory, deleteSpoolFile);
+      } catch (IOException e) {
+        throw new RepositoryException(e);
+      }
     } else {
       // spool file, i.e. shared across sessions
       return this;
@@ -296,8 +299,13 @@ public class TransientValueData extends AbstractValueData implements
       // bytes, make a copy of real data
       byte[] newBytes = new byte[data.length];
       System.arraycopy(data, 0, newBytes, 0, newBytes.length);
-      return new EditableValueData(newBytes, orderNumber,
-          fileCleaner, maxBufferSize, tempDirectory);
+      
+      try {
+        return new EditableValueData(newBytes, orderNumber,
+            fileCleaner, maxBufferSize, tempDirectory);
+      } catch (IOException e) {
+        throw new RepositoryException(e);
+      }
     } else {
       // edited BLOB file, make a copy
       try {
@@ -310,7 +318,7 @@ public class TransientValueData extends AbstractValueData implements
         throw new RepositoryException("Create transient copy error. " + e, e);
       }
     }
-  }  
+  }
   
   /** 
    * Read <code>length</code> bytes from the binary value at <code>position</code>
@@ -419,10 +427,10 @@ public class TransientValueData extends AbstractValueData implements
       spoolChannel.close();
     
     if (spoolFile != null) {
-      if (lockStream != null) {
-        lockStream.close();
-        lockStream = null;
-      }
+      
+      if (spoolFile instanceof SpoolFile)
+        ((SpoolFile) spoolFile).release(this);
+      
       if (deleteSpoolFile && spoolFile.exists()) {
         if (!spoolFile.delete())
           if (fileCleaner != null) {
@@ -471,47 +479,56 @@ public class TransientValueData extends AbstractValueData implements
 
     if (spooled || tmpStream == null) // already spooled
       return;
-
-    this.spoolFile = File.createTempFile("jcrvd", null, tempDirectory);
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    FileOutputStream fos = new FileOutputStream(spoolFile);
-
-    byte[] buffer = new byte[2048];
-    int len;
-    long total = 0;
+    
+    byte[] buffer = new byte[0];
+    byte[] tmpBuff = new byte[2048];
+    int read = 0;
+    int len = 0;
+    SpoolFile sf = null; 
+    OutputStream sfout = null;
+    
     try {
-      while ((len = tmpStream.read(buffer)) > 0) {
-        if (fileCleaner != null)
-          fos.write(buffer, 0, len);
-        total += len;
-        if (total < maxBufferSize || fileCleaner == null) {
-          baos.write(buffer, 0, len);
+      while ((read = tmpStream.read(tmpBuff)) >= 0) {
+        if (sfout != null) {
+          // spool to temp file
+          sfout.write(tmpBuff, 0, read);
+          len += read;
+        } else if (len + read > maxBufferSize && fileCleaner != null) {
+          // threshold for keeping data in memory exceeded, 
+          // if have a fileCleaner create temp file and spool buffer contents.
+          sf = SpoolFile.createSpoolFile("jcrvd", null, tempDirectory);
+          sf.acquire(this);
+          
+          sfout = new FileOutputStream(sf);
+          sfout.write(buffer, 0, len);
+          sfout.write(tmpBuff, 0, read);
+          buffer = null;
+          len += read;
         } else {
-          baos = null;
+          // reallocate new buffer and spool old buffer contents
+          byte[] newBuffer = new byte[len + read];
+          System.arraycopy(buffer, 0, newBuffer, 0, len);
+          System.arraycopy(tmpBuff, 0, newBuffer, len, read);
+          buffer = newBuffer;
+          len += read;
         }
       }
-      fos.close();
-      if (baos != null) { // spool to byte array
-        this.spoolFile.delete();
-        this.spoolFile = null;
-        this.data = baos.toByteArray();
-        baos.close();
-      } else { // spool to file
+    
+      if (sf != null) {
+        // spooled to file
+        sfout.close();
+        this.spoolFile = sf;
         this.data = null;
+      } else {
+        // ...bytes
+        this.spoolFile = null;
+        this.data = buffer;
       }
+      
       this.tmpStream = null;
       this.spooled = true;
     } catch (IOException e) {
       throw new IllegalStateException(e);
-    }
-  }
-
-  public void lock() {
-    if (lockStream == null && spoolFile != null) {
-      try {
-        lockStream = new FileInputStream(spoolFile);
-      } catch (FileNotFoundException e) {
-      }
     }
   }
 
@@ -542,23 +559,6 @@ public class TransientValueData extends AbstractValueData implements
     } finally {
       fch.close();
     }
-    
-//    ByteArrayOutputStream out = new ByteArrayOutputStream();
-//
-//    byte[] buffer = new byte[0x2000];
-//    int len;
-//    int total = 0;
-//    FileInputStream stream = new FileInputStream(spoolFile);
-//    while ((len = stream.read(buffer)) > 0) {
-//      out.write(buffer, 0, len);
-//      total += len;
-//      if (log.isDebugEnabled() && total > maxBufferSize)
-//        log
-//            .warn("Potential lack of memory due to call getAsByteArray() on stream data exceeded "
-//                + total + " bytes");
-//    }
-//    out.close();
-//    return out.toByteArray();
   }
 
   // ------------- Serializable
@@ -597,6 +597,4 @@ public class TransientValueData extends AbstractValueData implements
   public void setStream(InputStream in) {
     this.tmpStream = in;
   }
-
-
 }

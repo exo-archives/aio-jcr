@@ -5,10 +5,13 @@
 
 package org.exoplatform.services.jcr.impl.dataflow.persistent;
 
-import java.io.File;
+import java.io.IOException;
+
+import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.exoplatform.services.jcr.impl.util.io.SwapFile;
 
 /**
  * Created by The eXo Platform SARL        .
@@ -21,7 +24,7 @@ public class CleanableFileStreamValueData extends FileStreamPersistedValueData {
 
   protected final FileCleaner cleaner;
   
-  public CleanableFileStreamValueData(File file, int orderNumber, FileCleaner cleaner) {
+  public CleanableFileStreamValueData(SwapFile file, int orderNumber, FileCleaner cleaner) {
     super(file, orderNumber, false);
     this.cleaner = cleaner;
   }
@@ -30,9 +33,13 @@ public class CleanableFileStreamValueData extends FileStreamPersistedValueData {
     cleaner.addFile(file);
   }
 
-  public TransientValueData createTransientCopy() {
-    return new TransientValueData(orderNumber, null, null, 
+  public TransientValueData createTransientCopy() throws RepositoryException {
+    try {
+      return new TransientValueData(orderNumber, null, null, 
         file, cleaner, -1, null, false);
+    } catch (IOException e) {
+      throw new RepositoryException(e);
+    }
   }
 
 }

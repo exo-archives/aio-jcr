@@ -21,11 +21,11 @@ import org.exoplatform.services.log.ExoLogger;
 
 public abstract class UserThread extends Thread {
   
-  final Session threadSession;
+  protected final Session threadSession;
   
-  final Log threadLog;
+  protected final Log threadLog;
   
-  boolean process = false;    
+  protected boolean process = false;    
   
   public UserThread(Session threadSession) {
     super();
@@ -37,6 +37,7 @@ public abstract class UserThread extends Thread {
   }
 
   public void testStop() {
+    threadSession.logout();
     process = false;
   }
   

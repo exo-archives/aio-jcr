@@ -37,6 +37,7 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedV
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CleanableFileStreamValueData;
 import org.exoplatform.services.jcr.impl.storage.value.ValueDataNotFoundException;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.exoplatform.services.jcr.impl.util.io.SwapFile;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
@@ -232,11 +233,12 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       exceptionHandler.handleAddException(e, data);
     }
   }
+  
   public void rename(NodeData data) throws RepositoryException,
       UnsupportedOperationException,
       InvalidItemStateException,
       IllegalStateException {
-    // TODO Auto-generated method stub
+    
     checkIfOpened();
     try {
       renameNode(data);
@@ -734,7 +736,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
           final int orderNum = valueRecords.getInt(COLUMN_VORDERNUM);
           final String storageId = valueRecords.getString(COLUMN_VSTORAGE_DESC);
           ValueData vdata = valueRecords.wasNull() ? 
-              readValueData(cid, orderNum) : 
+              readValueData(cid, orderNum, pdata.getPersistedVersion()) : 
                 readValueData(pdata, orderNum, storageId);
           data.add(vdata);
         }
@@ -760,22 +762,24 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     } 
   }
   
-  protected ValueData readValueData(String cid, int orderNumber) throws SQLException, IOException {
+  protected ValueData readValueData(String cid, int orderNumber, int version) throws SQLException, IOException {
 
+    ResultSet valueResultSet = null;
+    
     byte[] buffer = new byte[0];
     byte[] spoolBuffer = new byte[2048];
     int read;
     int len = 0;
     OutputStream out = null;
-    File spoolFile = null;
-    ResultSet valueResultSet = null;
+    
+    SwapFile swapFile = null;
     try {
       // stream from database
       valueResultSet = findValueByPropertyIdOrderNumber(cid, orderNumber);
       if (valueResultSet.next()) {
         final InputStream in = valueResultSet.getBinaryStream(COLUMN_VDATA);
         if (in != null) 
-          while ((read = in.read(spoolBuffer)) > 0) {
+          while ((read = in.read(spoolBuffer)) >= 0) {
             if (out != null) {
               // spool to temp file
               out.write(spoolBuffer, 0, read);
@@ -783,8 +787,13 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
             } else if (len + read > maxBufferSize) {
               // threshold for keeping data in memory exceeded;
               // create temp file and spool buffer contents
-              spoolFile = new File(swapDirectory, cid+orderNumber);
-              out = new FileOutputStream(spoolFile);
+              swapFile = SwapFile.get(swapDirectory, cid+orderNumber+"."+version);
+              if (swapFile.isSpooled()) {
+                // break, value already spooled
+                buffer = null;
+                break;
+              }
+              out = new FileOutputStream(swapFile);
               out.write(buffer, 0, len);
               out.write(spoolBuffer, 0, read);
               buffer = null;
@@ -804,11 +813,12 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         valueResultSet.close();
       if (out != null) {
         out.close();
+        swapFile.spoolDone(); 
       }
     }
 
     if(buffer == null)
-      return new CleanableFileStreamValueData(spoolFile, orderNumber, swapCleaner);
+      return new CleanableFileStreamValueData(swapFile, orderNumber, swapCleaner);
 
     return new ByteArrayPersistedValueData(buffer, orderNumber);
   }

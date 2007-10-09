@@ -10,7 +10,6 @@ import java.util.List;
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
 
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -144,7 +143,7 @@ public interface WorkspaceStorageConnection {
 
   
   void rename(NodeData data) throws RepositoryException, UnsupportedOperationException,
-  InvalidItemStateException, IllegalStateException;
+    InvalidItemStateException, IllegalStateException;
   
   /**
    * Deletes node or property data. 
@@ -179,22 +178,4 @@ public interface WorkspaceStorageConnection {
    * @return true if connection is opened
    */
   boolean isOpened();
-  
-  /**
-   * Reindex NodeData location and all its descendants. 
-   * 
-   * @param oldData - the old data
-   * @param data - the new data
-   * @throws InvalidItemStateException (1)if the data is already updated, i.e. persisted version value
-   * of persisted data >= of new data's persisted version value
-   * (2) if the persisted data is not NodeData (i.e. it is PropertyData). 
-   * It means that some other proccess deleted original data and replace it with other type of data.
-   * @throws UnsupportedOperationException if operation is not supported (it is container for level 1)
-   * @throws RepositoryException if some exception occured
-   * @throws IllegalStateException if connection is closed
-   */
-  @Deprecated
-  void reindex(NodeData oldData, NodeData data) throws RepositoryException, UnsupportedOperationException,
-      InvalidItemStateException, IllegalStateException;
-
 }

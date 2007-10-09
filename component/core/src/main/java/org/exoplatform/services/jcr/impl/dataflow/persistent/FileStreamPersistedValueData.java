@@ -10,6 +10,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.jcr.RepositoryException;
+
 import org.exoplatform.services.jcr.impl.dataflow.AbstractValueData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 
@@ -60,9 +62,13 @@ public class FileStreamPersistedValueData extends AbstractValueData {
   }
   
   @Override
-  public TransientValueData createTransientCopy() {
-    return new TransientValueData(orderNumber, null, null, 
+  public TransientValueData createTransientCopy() throws RepositoryException {
+    try {
+      return new TransientValueData(orderNumber, null, null, 
         file, null, -1, null, false);
+    } catch (IOException e) {
+      throw new RepositoryException(e);
+    }
   }
 
 

@@ -95,8 +95,6 @@ public class ItemDataMoveVisitor   extends ItemDataTraversingVisitor{
       ancestorToSave = QPath.getPrimogenitorPath(curParent().getQPath(),node.getQPath());
     }
 
-
-
     NodeData parent = curParent();
     
     InternalQName qname = null;
@@ -189,20 +187,14 @@ public class ItemDataMoveVisitor   extends ItemDataTraversingVisitor{
     // get last from super.entering(property, level)
     //ItemState copy = itemAddStates.get(itemAddStates.size() - 1);
     
-//    List<ValueData> vals = property.getValues();
-//    for (ValueData valueData : vals) {
-//      ((TransientValueData) valueData).lock();
-//    }
-    
     itemDeletedStates.add(new ItemState(property,
                                         ItemState.DELETED,
                                         false,
                                         ancestorToSave,
                                         false,
                                         false));
-  
-    
   }
+  
   public List<ItemState> getAllStates() {
     List<ItemState> list  = getItemDeletedStates(true);
     list.addAll(getItemAddStates());
@@ -227,14 +219,10 @@ public class ItemDataMoveVisitor   extends ItemDataTraversingVisitor{
 
   @Override
   protected void leaving(PropertyData property, int level) throws RepositoryException {
-    // TODO Auto-generated method stub
-    
   }
 
   @Override
   protected void leaving(NodeData node, int level) throws RepositoryException {
-    // TODO Auto-generated method stub
-    
   }
   /**
    * Returns the list of item add states

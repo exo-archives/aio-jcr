@@ -10,7 +10,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
-import org.exoplatform.services.jcr.load.blob.TestConcurrent;
+import org.exoplatform.services.jcr.load.blob.TestConcurrentItems;
 
 /**
  * Created by The eXo Platform SARL Author : Peter Nedonosko
@@ -25,7 +25,7 @@ public class DeleteThread extends UserThread {
   }
   
   public void testAction() {
-    while (process || TestConcurrent.consumedNodes.size()>0) {
+    while (process || TestConcurrentItems.consumedNodes.size()>0) {
       deleteAction();
       try {
         sleep(2500);
@@ -37,7 +37,7 @@ public class DeleteThread extends UserThread {
   
   public void deleteAction() {
     
-    final String[] nodes = TestConcurrent.consumedNodes.toArray(new String[TestConcurrent.consumedNodes.size()]);
+    final String[] nodes = TestConcurrentItems.consumedNodes.toArray(new String[TestConcurrentItems.consumedNodes.size()]);
     try {
       threadSession.refresh(false);
     } catch(RepositoryException th) {
@@ -64,7 +64,7 @@ public class DeleteThread extends UserThread {
       } catch(Throwable th) {
         threadLog.error("Delete error: " + th.getMessage() + ". " + nodeInfo, th);
       } finally {
-        TestConcurrent.consumedNodes.remove(nodePath);
+        TestConcurrentItems.consumedNodes.remove(nodePath);
       }
     }
   }

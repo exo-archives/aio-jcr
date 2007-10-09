@@ -32,7 +32,6 @@ import org.exoplatform.services.jcr.impl.core.SessionRegistry;
 import org.exoplatform.services.jcr.impl.core.WorkspaceInitializer;
 import org.exoplatform.services.jcr.impl.core.access.DefaultAccessManagerImpl;
 import org.exoplatform.services.jcr.impl.core.lock.LockManagerImpl;
-import org.exoplatform.services.jcr.impl.core.lock.LockPersister;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataPersister;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.observation.ObservationManagerRegistry;

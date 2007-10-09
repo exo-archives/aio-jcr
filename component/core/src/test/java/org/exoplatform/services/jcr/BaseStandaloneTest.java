@@ -81,7 +81,15 @@ public abstract class BaseStandaloneTest extends TestCase {
       loginConf = "component/core/" + loginConf;
     }
 
-    StandaloneContainer.addConfigurationPath(conf);
+    //StandaloneContainer.addConfigurationPath(conf);
+    
+    StandaloneContainer
+      .addConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
+      //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.xml");
+      //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-mjdbc.pgsql.xml");
+      //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.ora.xml");
+      //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-mjdbc.mysql.xml");
+  
 
     container = StandaloneContainer.getInstance();
 
@@ -205,78 +213,51 @@ public abstract class BaseStandaloneTest extends TestCase {
    */
   protected void compareStream(InputStream etalon, InputStream data, long etalonPos, long dataPos, long length) throws IOException, CompareStreamException {
 
-    int index = 0;
+    int dindex = 0;
+    
+    skipStream(etalon, etalonPos);
+    skipStream(data, dataPos);
     
     byte[] ebuff = new byte[1024];
     int eread = 0;
-    ByteArrayOutputStream buff = new ByteArrayOutputStream();
-    
-    skipStream(etalon, etalonPos);
-//    if (etalonPos > 0) {
-//      long pos = etalonPos; 
-//      long sk = 0;
-//      long sks = 0;
-//      while (sks < etalonPos && (sk = etalon.skip(etalonPos)) > 0) {
-//        sks += sk;
-//      };
-//      if (sk <0)
-//        fail("Can not read the etalon (skip bytes)");
-//      if (sks < dataPos)
-//        fail("Can not skip bytes from the etalon (" + etalonPos + " bytes)");
-//    }
-    
-    skipStream(data, dataPos);
-//    if (dataPos > 0) {
-//      long sk = 0;
-//      long sks = 0;
-//      while (sks < dataPos && (sk = data.skip(dataPos)) > 0) {
-//        sks += sk;
-//      };
-//      if (sk <0)
-//        fail("Can not read the data (skip bytes)");
-//      if (sks < dataPos)
-//        fail("Can not skip bytes from the data (" + dataPos + " bytes)");
-//    }
     
     while ((eread = etalon.read(ebuff)) > 0) {
 
       byte[] dbuff = new byte[eread];
-      while (buff.size() < eread) {
+      int erindex = 0;
+      while (erindex < eread) {
         int dread = -1;
         try {
           dread = data.read(dbuff);
         } catch(IOException e) {
           throw new CompareStreamException("Streams is not equals by length or data stream is unreadable. Cause: " + e.getMessage());
         }
-        buff.write(dbuff, 0, dread);
+        
+        if (dread == -1)
+          throw new CompareStreamException("Streams is not equals by length. Data end-of-stream reached at position " + dindex);
+        
+        for (int i=0; i<dread; i++) {
+          byte eb = ebuff[i];
+          byte db = dbuff[i];
+          if (eb != db)
+            throw new CompareStreamException (
+                "Streams is not equals. Wrong byte stored at position " + dindex + " of data stream. Expected 0x" + 
+                Integer.toHexString(eb) + " '" + new String(new byte[] {eb}) + 
+                "' but found 0x" + Integer.toHexString(db) + " '" + new String(new byte[] {db}) + "'");
+          
+          erindex++;
+          dindex++;
+          if (length > 0 && dindex >= length)
+            return; // tested length reached
+        }
+        
         if (dread < eread)
           dbuff = new byte[eread - dread];
       }
-
-      dbuff = buff.toByteArray();
-
-      for (int i=0; i<eread; i++) {
-        byte eb = ebuff[i];
-        byte db = dbuff[i];
-        if (eb != db)
-          throw new CompareStreamException(
-              "Streams is not equals. Wrong byte stored at position " + index + " of data stream. Expected 0x" + 
-              Integer.toHexString(eb) + " '" + new String(new byte[] {eb}) + 
-              "' but found 0x" + Integer.toHexString(db) + " '" + new String(new byte[] {db}) + "'");
-        
-        index++;
-        if (length > 0 && index >= length)
-          return; // tested length reached
-      }
-
-      buff = new ByteArrayOutputStream();
-      if (dbuff.length > eread) {
-        buff.write(dbuff, eread, dbuff.length);
-      }
     }
 
-    if (buff.size() > 0 || data.available() > 0)
-      throw new CompareStreamException("Streams is not equals by length. Readed " + index);
+    if (data.available() > 0)
+      throw new CompareStreamException("Streams is not equals by length. Data stream contains more data. Were read " + dindex);
   }  
   
   protected void skipStream(InputStream stream, long pos) throws IOException {

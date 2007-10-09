@@ -25,7 +25,6 @@ public class PlainChangesLogImpl implements Externalizable, PlainChangesLog {
   protected String sessionId;
 
   protected int eventType;
-
   
   /**
    * full qualified constructor

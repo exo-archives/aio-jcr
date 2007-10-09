@@ -6,8 +6,8 @@
 package org.exoplatform.services.jcr.impl.util.io;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.impl.proccess.WorkerThread;
@@ -20,22 +20,33 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class FileCleaner extends WorkerThread {
   
-  protected static final long DEFAULT_TIMEOUT = 10000;
+  protected static final long DEFAULT_TIMEOUT = 30000;
   
   protected static Log log = ExoLogger.getLogger("jcr.FileCleaner");
 
-  protected List <File> files = new ArrayList <File> ();
+  protected Set<File> files = new LinkedHashSet<File> ();
   
   public FileCleaner() {
     this(DEFAULT_TIMEOUT);
   }
   
   public FileCleaner(long timeout) {
+    this(timeout, true);
+  }
+  
+  public FileCleaner(boolean start) {
+    this(DEFAULT_TIMEOUT, start);
+  }
+  
+  public FileCleaner(long timeout, boolean start) {
     super(timeout);
-    setName("FileCleaner "+getId());
+    setName("FileCleaner " + getId());
     setDaemon(true);
     setPriority(Thread.MIN_PRIORITY);
-    start();
+    
+    if (start)
+      start();
+    
     registerShutdownHook();
     log.info("FileCleaner instantiated name= "+getName()+" timeout= "+timeout);
   }
@@ -53,6 +64,7 @@ public class FileCleaner extends WorkerThread {
     try {
       callPeriodically();
     } catch (Exception e) {}
+    
     if(files.size() > 0)
       log.warn("There are uncleared files: "+files.size());
       
@@ -64,17 +76,19 @@ public class FileCleaner extends WorkerThread {
    */
   protected void callPeriodically() throws Exception {
     if (files != null && files.size() > 0) {
-      List<File> oldFiles = files;
-      files = new ArrayList<File>();
+      Set<File> oldFiles = files;
+      files = new LinkedHashSet<File>();
       for (File file : oldFiles) {
         if (file.exists()) {
-          String ftype = file.isDirectory() ? "Directory" : "File";
           if(!file.delete()) {
-            log.warn("Could not delete " + ftype.toLowerCase() + ". Will try next time: "
-              + file.getAbsolutePath());
-            files.add(new File(file.getAbsolutePath()));
+            log.warn("Could not delete " + (file.isDirectory() ? "directory" : "file") + 
+                ". Will try next time: " + file.getAbsolutePath());
+            
+            // [PN] 08.10.07 should use same file (i.e. SpoolFile instance)
+            //files.add(new File(file.getAbsolutePath())); 
+            files.add(file);
           } else if (log.isDebugEnabled()) {
-            log.debug(ftype + " deleted : " + file.getAbsolutePath());
+            log.debug((file.isDirectory() ? "Directory" : "File") + " deleted : " + file.getAbsolutePath());
           }
         }
       }
@@ -86,7 +100,7 @@ public class FileCleaner extends WorkerThread {
     try {
       Runtime.getRuntime().addShutdownHook(new Thread() {
         public void run() {
-          List<File> oldFiles = files;
+          Set<File> oldFiles = files;
           files = null; 
           // synchronize on the list before iterating over it in order
           // to avoid ConcurrentModificationException (JCR-549)

@@ -12,6 +12,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.net.HttpURLConnection;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.jcr.datamodel.ValueData;
@@ -32,9 +36,7 @@ import com.amazon.s3.ListEntry;
  */
 public class S3ValueIOUtil {
 
-  private static final Log logger = ExoLogger.getLogger("S3Plugin");
-
-  private static final boolean debug = logger.isDebugEnabled();
+  private static final Log log = ExoLogger.getLogger("jcr.S3ValueIOUtil");
 
   public static ValueData readValue(String bucket, String awsAccessKey,
       String awsSecretAccessKey, String s3fielName, int orderNum,
@@ -49,33 +51,45 @@ public class S3ValueIOUtil {
       throw new IOException("Filed read data from S3 storage. HTTP status "
           + responseCode);
     }
-    if (debug) {
-      logger.info("Read from S3: STATUS = " + responseCode);
-    }
+    if (log.isDebugEnabled())
+      log.debug("Read from S3: STATUS = " + responseCode);
+
     int size = resp.connection.getContentLength();
     InputStream in = resp.connection.getInputStream();
 
     if (size > maxBufferSize) {
-      File f = new File(swapDir, s3fielName + orderNum);
-      FileOutputStream fout = new FileOutputStream(f);
-      int rd = -1;
-      byte[] buff = new byte[4096];
-      while ((rd = in.read(buff)) != -1) {
-        fout.write(buff, 0, rd);
-      }
-      fout.flush();
-      fout.close();
-      return new CleanableFileStreamValueData(f, orderNum, cleaner);
+      SwapFile swapFile = SwapFile.get(swapDir, s3fielName + orderNum);
+      if (!swapFile.isSpooled()) {
+        FileOutputStream fout = new FileOutputStream(swapFile);
+        try {
+          // NIO work...
+          FileChannel fch = fout.getChannel();
+          ReadableByteChannel inch = Channels.newChannel(in);
+          
+          long actualSize = fch.transferFrom(inch, 0, size);
+          
+  //        int rd = -1;
+  //        byte[] buff = new byte[4096];
+  //        while ((rd = in.read(buff)) != -1) {
+  //          fout.write(buff, 0, rd);
+  //        }
+  //        fout.flush();
+        } finally {
+          fout.close();
+        }
+      } else 
+        return new CleanableFileStreamValueData(swapFile, orderNum, cleaner);
     }
+    
     int rd = -1;
     byte[] buff = new byte[4096];
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    while ((rd = in.read(buff)) != -1) {
+    while ((rd = in.read(buff)) != -1)
       out.write(buff, 0, rd);
-    }
-    if (debug) {
-      logger.info("Value created as ByteArrayPersistedValueData");
-    }
+
+    if (log.isDebugEnabled())
+      log.debug("Value created as ByteArrayPersistedValueData");
+
     return new ByteArrayPersistedValueData(out.toByteArray(), orderNum);
   }
 
@@ -88,9 +102,10 @@ public class S3ValueIOUtil {
 
     GetResponse resp = conn.get(bucket, s3fielName, null);
     int responseCode = resp.connection.getResponseCode();
-    if (debug) {
-      logger.info("Read from S3: STATUS = " + responseCode);
-    }
+    
+    if (log.isDebugEnabled())
+      log.info("Read from S3: STATUS = " + responseCode);
+
     if (responseCode != HttpURLConnection.HTTP_OK) {
       return false;
     }
@@ -109,9 +124,8 @@ public class S3ValueIOUtil {
        throw new IOException("Can't create BUCKET on S3 storage. HTTP status "
            + responseCode);
      }
-     if (debug) {
-       logger.info("Create bucket on S3: STATUS = " + responseCode);
-     }
+     if (log.isDebugEnabled()) 
+       log.debug("Create bucket on S3: STATUS = " + responseCode);
    }
 
 
@@ -129,9 +143,8 @@ public class S3ValueIOUtil {
           + responseCode);
     }
 
-    if (debug) {
-      logger.info("Write to S3: STATUS = " + responseCode);
-    }
+    if (log.isDebugEnabled())
+      log.info("Write to S3: STATUS = " + responseCode);
   }
   
   
@@ -144,12 +157,9 @@ public class S3ValueIOUtil {
     int responseCode = resp.connection.getResponseCode();
     if (responseCode != HttpURLConnection.HTTP_NO_CONTENT) {
       return false;
-//      throw new IOException("Filed DELETE data from S3 storage. HTTP status "
-//          + responseCode);
     }
-    if (debug) {
-      logger.info("Delete from S3: STATUS = " + responseCode);
-    }
+    if (log.isDebugEnabled())
+      log.info("Delete from S3: STATUS = " + responseCode);
     return true;
   }
   
@@ -162,9 +172,9 @@ public class S3ValueIOUtil {
     ListBucketResponse resp = conn.listBucket(bucket, prefix, null, null, null);
     int responseCode = resp.connection.getResponseCode();
 
-    if (debug) {
-      logger.info("Get list of bucket from S3: STATUS = " + responseCode);
-    }
+    if (log.isDebugEnabled())
+      log.info("Get list of bucket from S3: STATUS = " + responseCode);
+    
     List < ListEntry > entries = resp.entries;
     String[] keys = new String[entries.size()];
     int i = 0;

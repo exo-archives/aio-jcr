@@ -6,8 +6,10 @@ package org.exoplatform.services.jcr.load.blob;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -17,9 +19,11 @@ import javax.jcr.Node;
 import javax.jcr.Session;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
+import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.load.blob.thread.CreateThread;
 import org.exoplatform.services.jcr.load.blob.thread.DeleteThread;
 import org.exoplatform.services.jcr.load.blob.thread.ReadThread;
+import org.exoplatform.services.jcr.util.IdGenerator;
 
 
 /**
@@ -36,7 +40,7 @@ import org.exoplatform.services.jcr.load.blob.thread.ReadThread;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: TestSwap.java 12535 2007-02-02 15:39:26Z peterit $
  */
-public class TestConcurrent extends JcrAPIBaseTest {
+public class TestConcurrentItems extends JcrAPIBaseTest {
 
   private Node          testBinaryValue   = null;
 
@@ -91,13 +95,90 @@ public class TestConcurrent extends JcrAPIBaseTest {
     } catch(Throwable e) {
       log.error("Temp test file error of delete: " + e.getMessage(), e);
     } finally {
+      testBinaryValue.getSession().refresh(false);
       testBinaryValue.remove();
       testBinaryValue.getSession().save();
       super.tearDown();
     }
   }
+  
+  public void testReadSame() throws Exception {
+    // creators
+    Session csession = repository.login(session.getCredentials(), "ws1");
+    String nodeName = IdGenerator.generate();
+    InputStream dataStream = null; 
+    try {
+      Node testRoot = csession.getRootNode().getNode(TestConcurrentItems.TEST_ROOT);
+      Node ntFile = testRoot.addNode(nodeName, "nt:file");
+      Node contentNode = ntFile.addNode("jcr:content", "nt:resource");
+      dataStream =  new FileInputStream(TestConcurrentItems.TEST_FILE);
+      PropertyImpl data = (PropertyImpl) contentNode.setProperty("jcr:data", dataStream);
+      contentNode.setProperty("jcr:mimeType", "video/avi");
+      contentNode.setProperty("jcr:lastModified", Calendar.getInstance());
+      csession.save();
+      log.debug("Create node: " + ntFile.getPath() + ", data: " + data.getInternalIdentifier());
+    } finally {
+      if (dataStream != null)
+        try {
+          dataStream.close();
+        } catch(IOException e) {
+          log.error("Stream read error: " + e.getMessage(), e);
+        }
+    }
+    
+    List<ReadThread> readers = new ArrayList<ReadThread>();
+    
+    log.info("Begin readers...");
+    for (int i=0; i<10; i++) {
+      ReadThread readed = new ReadThread(repository.login(session.getCredentials(), "ws1"));
+      readed.start();
+      readers.add(readed);
+      try {
+        Thread.sleep(100);
+      } catch(InterruptedException e) {
+        log.error("Start reader. Sleep error: " + e.getMessage(), e);
+      }
+    }
 
-  public void testSmallValue() throws Exception {
+    // wait cycles, for process visualisation
+    // 360 - 60 min
+    // 4320 - 12 hours
+    int cycles = 5;
+    while (cycles >= 0) {
+      Thread.yield();
+      try {
+        Thread.sleep(10000);
+      } catch (InterruptedException e) {
+        log.error("Test lifecycle. Sleep error: " + e.getMessage(), e);
+      }
+      log.info("<<<<<<<<<<<<<<<<<<<< Cycle " + cycles + " >>>>>>>>>>>>>>>>>>>>>");
+      cycles--;
+    }
+
+    log.info("<<<<<<<<<<<<<<<<<<<< Stopping >>>>>>>>>>>>>>>>>>>>>");
+    
+    for (ReadThread reader: readers) {
+      try {
+        reader.testStop();
+        reader.join();
+      } catch (InterruptedException e) {
+        log.error("Test lifecycle. Readed stop error: " + e.getMessage(), e);
+      }
+    }
+    
+    csession.logout(); // release the session
+    
+    log.info("<<<<<<<<<<<<<<<<<<<< Stopped >>>>>>>>>>>>>>>>>>>>>");
+    try {
+      System.gc();
+      Thread.yield();
+      Thread.sleep(5000);
+    } catch (InterruptedException e) {
+      log.error("Test stop. Sleep error: " + e.getMessage(), e);
+    }
+  }
+  
+  public void _testReadWriteSet() throws Exception {
     // creators
     CreateThread creator = new CreateThread(repository.login(session.getCredentials(), "ws1"));
     creator.start();

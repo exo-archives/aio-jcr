@@ -5,36 +5,23 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
 
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 public class EditableValueData extends TransientValueData {
-
-  //protected final FileCleaner fileCleaner;
-
-  //protected final int maxBufferSize;
-
-  //protected final File tempDirectory;
   
   protected final int maxIOBuffSize;
   
-  // file used for random writing
-  //protected byte[] data;
-  //protected File changeFile = null;
-  //protected FileChannel spoolChannel = null; 
-
   public EditableValueData(byte[] bytes, int orderNumber, 
-      FileCleaner fileCleaner, int maxBufferSize, File tempDirectory) {
+      FileCleaner fileCleaner, int maxBufferSize, File tempDirectory) throws IOException {
     
     // send bytes to super.<init>
     super(orderNumber, bytes, null, null, fileCleaner, maxBufferSize, tempDirectory, true);
@@ -120,35 +107,6 @@ public class EditableValueData extends TransientValueData {
       }
     } 
   }
-
-//  public byte[] getAsByteArray() throws IOException {
-//    if (spoolFile != null)
-//      return fileToBytes(spoolFile);
-//    
-//    return copyBytes;
-//  }
-//
-//  public InputStream getAsStream() throws IOException {
-//    if (spoolFile != null) {
-//      return new FileInputStream(spoolFile);
-//    }
-//
-//    byte[] copyBytes = new byte[data.length];
-//    System.arraycopy(data, 0, copyBytes, 0, copyBytes.length);
-//    return new ByteArrayInputStream(copyBytes);
-//  }
-
-//  public long getLength() {
-//    if (spoolFile != null) {
-//      return spoolFile.length();
-//    }
-//    
-//    return data.length;
-//  }
-//
-//  public boolean isByteArray() {
-//    return data != null;
-//  }
 
   /** 
    * Update with <code>length</code> bytes from the specified <code>stream</code> 
@@ -278,56 +236,7 @@ public class EditableValueData extends TransientValueData {
       bb.force();
     }
   }
-  
-//  /**
-//   * Read <code>length</code> bytes from the binary value at <code>position</code>
-//   * to the <code>stream</code>. 
-//   * 
-//   * @param stream - destenation OutputStream
-//   * @param length - data length to be read
-//   * @param position - position in value data from which the read will be performed 
-//   * @return - The number of bytes, possibly zero,
-//   *          that were actually transferred
-//   * @throws IOException
-//   * @throws RepositoryException
-//   */
-//  public long read(OutputStream stream, long length, long position) throws IOException {
-//    
-//    if (position < 0)
-//      throw new IOException("Position must be higher or equals 0. But given " + position);
-//    
-//    if (length < 0)
-//      throw new IOException("Length must be higher or equals 0. But given " + length);
-//    
-//    if (isByteArray()) {
-//      // validation
-//      if (position >= data.length && position > 0)
-//        throw new IOException("Position " + position + " out of value size " + data.length);
-//      
-//      if (position + length >= data.length)
-//        length = data.length - position;
-//
-//      stream.write(data, (int) position, (int) length);
-//      
-//      return length;
-//    } else {
-//      // validation
-//      if (position >= spoolChannel.size() && position > 0)
-//        throw new IOException("Position " + position + " out of value size " + spoolChannel.size());
-//      
-//      if (position + length >= spoolChannel.size())
-//        length = spoolChannel.size() - position;
-//      
-//      MappedByteBuffer bb = spoolChannel.map(FileChannel.MapMode.READ_ONLY, position, length);
-//      
-//      WritableByteChannel ch = Channels.newChannel(stream);
-//      ch.write(bb);
-//      ch.close();
-//      
-//      return length;
-//    }
-//  }
-  
+
   /**
    * Set length of the Value in bytes to the specified <code>size</code>.
    *  

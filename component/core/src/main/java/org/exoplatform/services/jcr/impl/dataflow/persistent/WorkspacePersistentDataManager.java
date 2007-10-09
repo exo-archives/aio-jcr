@@ -65,6 +65,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
       for (ItemState itemState : changes) {
         if(!itemState.isPersisted())
           continue;
+        
         long start = System.currentTimeMillis();
 
         TransientItemData data = (TransientItemData) itemState.getData();

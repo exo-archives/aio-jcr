@@ -9,6 +9,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.jcr.RepositoryException;
+
 import org.exoplatform.services.jcr.impl.dataflow.AbstractValueData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 
@@ -58,10 +60,13 @@ public class ByteArrayPersistedValueData extends AbstractValueData {
 
   
   @Override
-  public TransientValueData createTransientCopy() {
-    return new TransientValueData(orderNumber, data, 
-        null, null, null, -1, null, false);
-
+  public TransientValueData createTransientCopy() throws RepositoryException {
+    try {
+      return new TransientValueData(orderNumber, data, 
+          null, null, null, -1, null, false);
+    } catch (IOException e) {
+      throw new RepositoryException(e);
+    }
   }
 
 }

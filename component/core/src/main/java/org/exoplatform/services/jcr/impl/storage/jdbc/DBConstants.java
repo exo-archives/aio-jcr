@@ -40,7 +40,6 @@ public class DBConstants {
   protected String FIND_NODES_BY_PARENTID;
   protected String FIND_PROPERTIES_BY_PARENTID;
   
-  // protected String INSERT_ITEM;
   protected String INSERT_NODE;
   protected String INSERT_PROPERTY;
   protected String INSERT_VALUE;
@@ -48,15 +47,10 @@ public class DBConstants {
   
   protected String RENAME_NODE;
   
-  //protected String UPDATE_ITEM;
-  //protected String UPDATE_ITEM_PATH;
   protected String UPDATE_NODE;
   protected String UPDATE_PROPERTY;
-  //protected String UPDATE_VALUE;
   
   protected String DELETE_ITEM;
-  //protected String DELETE_NODE;
-  //protected String DELETE_PROPERTY;
   protected String DELETE_VALUE;
   protected String DELETE_REF;
   
@@ -64,7 +58,6 @@ public class DBConstants {
   protected static final String COLUMN_ID = "ID";
   protected static final String COLUMN_PARENTID = "PARENT_ID";
   protected static final String COLUMN_NAME = "NAME";
-  //protected static final String COLUMN_PATH = "PATH";
   protected static final String COLUMN_VERSION = "VERSION";
   protected static final String COLUMN_CLASS = "I_CLASS";
   protected static final String COLUMN_INDEX = "I_INDEX";

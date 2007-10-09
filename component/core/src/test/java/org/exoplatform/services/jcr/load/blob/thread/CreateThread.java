@@ -13,7 +13,7 @@ import javax.jcr.Node;
 import javax.jcr.Session;
 
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
-import org.exoplatform.services.jcr.load.blob.TestConcurrent;
+import org.exoplatform.services.jcr.load.blob.TestConcurrentItems;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
@@ -49,11 +49,11 @@ public class CreateThread extends UserThread {
     String nodeName = IdGenerator.generate();
     InputStream dataStream = null; 
     try {
-      Node testRoot = threadSession.getRootNode().getNode(TestConcurrent.TEST_ROOT);
+      Node testRoot = threadSession.getRootNode().getNode(TestConcurrentItems.TEST_ROOT);
       Node ntFile = testRoot.addNode(nodeName, "nt:file");
       Node contentNode = ntFile.addNode("jcr:content", "nt:resource");
       //dataStream =  new URL(TestSwap.URL_BIG_MEDIA_FILE).openStream();
-      dataStream =  new FileInputStream(TestConcurrent.TEST_FILE);
+      dataStream =  new FileInputStream(TestConcurrentItems.TEST_FILE);
       PropertyImpl data = (PropertyImpl) contentNode.setProperty("jcr:data", dataStream);
       contentNode.setProperty("jcr:mimeType", "video/avi");
       contentNode.setProperty("jcr:lastModified", Calendar.getInstance());
