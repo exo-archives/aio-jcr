@@ -16,6 +16,16 @@ import java.util.concurrent.CountDownLatch;
  *          peter.nedonosko@exoplatform.com.ua
  * 05.10.2007  
  *
+ * For use in persistent layer, i.e. JDBCStorageConnection (ClenableFileValueData), 
+ * will be shared across the Workspace cache with many Sessions . 
+ * Swap files creation (like in JDBCStorageConnection.readValueData(String, int, int)) managed by SwapFile.get(File, String) method. 
+ * There are no way to get swap file in another way.
+ *  
+ * A SwapFile extends the SpoolFile. But in runtime all swap files will be stored in global map used for 
+ * prevent files rewriting in concurrent environment (case of issue JCR-329). 
+ * Till the SwapFile spool operation in progress all other users who will attempt to get the file will wait the 
+ * operation completion (java.util.concurrent.CountDownLatch used).
+ *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */

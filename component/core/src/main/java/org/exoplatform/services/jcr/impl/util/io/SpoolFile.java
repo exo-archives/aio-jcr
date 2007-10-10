@@ -19,6 +19,19 @@ import org.exoplatform.services.log.ExoLogger;
  *          peter.nedonosko@exoplatform.com.ua
  * 05.10.2007  
  *
+ * For use in TransienValueData (may be shared in the Workspace cache with another Sessions). 
+ * Spool files used in ValueData for incoming values managed by SpoolFile class. 
+ * Spool file may be created with constructor or be obtained from static method createTempFile(String, String, File), 
+ * which itself create physical file using File.createTempFile(prefix, suffix, directory) call.
+ * Spool file may be acquired for usage by any object (SpoolFile.acquire(Object)). 
+ * Till this object will call release (SpoolFile.release(Object)) or will be garbage collected it's impossible 
+ * to delete the spool file (by File.delete() method).
+ * 
+ * Spool file will be created in TransientValueData during a source stream spool operation (caused by getAsBytes() or 
+ * getAsStream()). This file is a own of this ValueData, which itself contains in Property and Session. 
+ * After the save this file (as part of ValueData) will become a part of workspace cache and may be shared with 
+ * other sessions. After the JCR core restart (JVM restart) ValueData will use file/BLOB from workspace storage. 
+ *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
