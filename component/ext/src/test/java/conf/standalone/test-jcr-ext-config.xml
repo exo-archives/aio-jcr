@@ -18,7 +18,7 @@
               <property name="multi-db" value="true"/>
               <property name="update-storage" value="true"/>
               <property name="max-buffer-size" value="204800"/>
-              <property name="swap-directory" value="target/temp/swap/ws"/>
+              <property name="swap-directory" value="target/temp2/swap/ws"/>
             </properties>
             <!--<value-storages>
               <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
@@ -39,7 +39,7 @@
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
             <properties>
-              <property name="indexDir" value="target/temp/index"/>
+              <property name="indexDir" value="target/temp2/index"/>
             </properties>
           </query-handler>
         </workspace>
@@ -50,7 +50,7 @@
               <property name="multi-db" value="true"/>
               <property name="update-storage" value="true"/>
               <property name="max-buffer-size" value="204800"/>
-              <property name="swap-directory" value="target/temp/swap/ws1"/>
+              <property name="swap-directory" value="target/temp2/swap/ws1"/>
             </properties>
             <!-- value-storages>
               <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
@@ -76,7 +76,7 @@
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
             <properties>
-              <property name="indexDir" value="target/temp/index"/>
+              <property name="indexDir" value="target/temp2/index"/>
             </properties>
           </query-handler>
         </workspace>
@@ -87,7 +87,7 @@
               <property name="multi-db" value="true"/>
               <property name="update-storage" value="true"/>
               <property name="max-buffer-size" value="204800"/>
-              <property name="swap-directory" value="target/temp/swap/ws2"/>
+              <property name="swap-directory" value="target/temp2/swap/ws2"/>
             </properties>
             <!-- value-storages>
               <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
@@ -113,7 +113,7 @@
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
             <properties>
-              <property name="indexDir" value="target/temp/index"/>
+              <property name="indexDir" value="target/temp2/index"/>
             </properties>
           </query-handler>
         </workspace>

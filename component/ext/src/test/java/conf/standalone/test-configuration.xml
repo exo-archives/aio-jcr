@@ -171,7 +171,7 @@
       <key>org.exoplatform.services.jcr.ext.audit.AuditService</key>
       <type>org.exoplatform.services.jcr.ext.audit.AuditServiceImpl</type>
     </component>
-    
+
     <component>
       <key>org.exoplatform.services.jcr.RepositoryService</key>
       <type>org.exoplatform.services.jcr.impl.RepositoryServiceImpl</type>
@@ -241,7 +241,7 @@
               <name>ref-addresses</name>
               <description>ref-addresses</description>
               <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
-              <property name="url" value="jdbc:hsqldb:file:target/temp/data/portal"/>
+              <property name="url" value="jdbc:hsqldb:file:target/temp2/data/portal"/>
               <property name="username" value="sa"/>
               <property name="password" value=""/>
             </properties-param>
@@ -268,7 +268,7 @@
               <name>ref-addresses</name>
               <description>ref-addresses</description>
               <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
-              <property name="url" value="jdbc:hsqldb:file:target/temp/data/jcr"/>
+              <property name="url" value="jdbc:hsqldb:file:target/temp2/data/jcr"/>
               <property name="username" value="sa"/>
               <property name="password" value=""/>
             </properties-param>
@@ -295,7 +295,7 @@
               <name>ref-addresses</name>
               <description>ref-addresses</description>
               <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
-              <property name="url" value="jdbc:hsqldb:file:target/temp/data/jcr2"/>
+              <property name="url" value="jdbc:hsqldb:file:target/temp2/data/jcr2"/>
               <property name="username" value="sa"/>
               <property name="password" value=""/>
             </properties-param>
