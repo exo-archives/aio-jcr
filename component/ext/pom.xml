@@ -160,7 +160,7 @@
 			            <include>**/actions/*Test.java</include>
 						<include>**/metadata/*Test.java</include>
 						<include>**/owner/*Test.java</include>
-						<!--include>**/audit/*Test.java</include--> <!--http://jira.exoplatform.org/browse/UA-85-->
+						<include>**/audit/*Test.java</include>
 					    <include>**/registry/*Test.java</include>
 					</includes>
 				</configuration>
