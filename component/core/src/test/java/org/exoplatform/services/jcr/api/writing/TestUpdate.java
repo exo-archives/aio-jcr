@@ -44,16 +44,14 @@ public class TestUpdate extends JcrAPIBaseTest {
     
     Node corrNode = (Node) ws1session.getItem(ws1node.getPath());
     
-    File propData = createBLOBTempFile(1024 * 10);
+    File propData = createBLOBTempFile(1024);
     propData.deleteOnExit();
     
     InputStream pds = new FileInputStream(propData);
     try {
-      log.info("===pds==null:" + (pds==null));
       corrNode.setProperty("prop1", pds);
       corrNode.save();
     } catch(RepositoryException e) {
-      log.info("===error occured:" + e);
       e.printStackTrace();
       pds.close();
       propData.delete();
