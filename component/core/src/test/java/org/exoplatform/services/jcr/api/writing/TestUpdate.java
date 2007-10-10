@@ -53,7 +53,8 @@ public class TestUpdate extends JcrAPIBaseTest {
       corrNode.setProperty("prop1", pds);
       corrNode.save();
     } catch(RepositoryException e) {
-      log.info("===error occured!");
+      log.info("===error occured:" + e);
+      e.printStackTrace();
       pds.close();
       propData.delete();
       ws1session.refresh(false);
