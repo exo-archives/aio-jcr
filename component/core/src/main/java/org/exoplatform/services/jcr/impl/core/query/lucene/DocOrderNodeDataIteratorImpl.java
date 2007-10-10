@@ -361,9 +361,7 @@ class DocOrderNodeDataIteratorImpl implements ScoreNodeIterator {
               log.debug("" + identifiers.length + " node(s) ordered in " + (System.currentTimeMillis() - time) + " ms");
           }
 
-        } catch(RepositoryException e) {
-          log.error("Can't init query result order. The natural one will be used. " + e, e);
-        } finally {
+        } finally {   
           session = null;
           lcache.clear();
         }
