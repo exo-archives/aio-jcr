@@ -71,7 +71,11 @@ public class RegistryTest extends BaseStandaloneTest{
       fail("ItemNotFoundException should have been thrown");
     } catch (ItemNotFoundException e) {}
     
-    File entryFile = new File("src/test/java/org/exoplatform/services/jcr/ext/registry/exo_user.xml");
+    String path = "src/test/java/org/exoplatform/services/jcr/ext/registry/exo_user.xml";
+      if (!new File(path).exists()){
+        path = "component/ext/" + path;
+      }
+    File entryFile = new File(path);
     
     regService.createEntry(sessionProviderService.getSessionProvider(null),
     		RegistryService.EXO_USERS, RegistryEntry.parse(new FileInputStream(entryFile)));
@@ -122,7 +126,11 @@ public class RegistryTest extends BaseStandaloneTest{
     MultivaluedMetadata mv = new MultivaluedMetadata();
     String baseURI = "http://localhost:8080/rest";
     String extURI = "/registry/db1/";
-    File file = new File("src/test/java/org/exoplatform/services/jcr/ext/registry/exo_service.xml");
+    String path = "src/test/java/org/exoplatform/services/jcr/ext/registry/exo_service.xml";
+    if (!new File(path).exists()){
+      path = "component/ext/" + path;
+    }
+    File file = new File(path);
 
     // registry should be empty
     Request request = new Request(null, new ResourceIdentifier(baseURI, extURI), "GET", mv, null);
