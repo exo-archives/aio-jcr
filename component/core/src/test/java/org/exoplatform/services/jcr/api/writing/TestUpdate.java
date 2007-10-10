@@ -49,9 +49,11 @@ public class TestUpdate extends JcrAPIBaseTest {
     
     InputStream pds = new FileInputStream(propData);
     try {
+      log.info("===pds==null:" + (pds==null));
       corrNode.setProperty("prop1", pds);
       corrNode.save();
     } catch(RepositoryException e) {
+      log.info("===error occured!");
       pds.close();
       propData.delete();
       ws1session.refresh(false);
