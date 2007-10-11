@@ -8,7 +8,6 @@ package org.exoplatform.services.jcr.impl.core.lock;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +61,7 @@ import org.picocontainer.Startable;
 public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecycleListener,
     LockManager, Startable {
   // 30 min
-  private static final long             DEFAULT_LOCK_TIMEOUT = 1000 * 60 * 30;                      // sec
+  public static final long             DEFAULT_LOCK_TIMEOUT = 1000 * 60 * 30;                      // sec
 
   private static final int              SEARCH_EXECMATCH     = 1;
 
@@ -353,7 +352,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
   }
 
   private LockData getLockData(NodeData data, int searchType) {
-    if (data == null)
+    if (data == null || locks.size() == 0)
       return null;
     LockData retval = null;
     try {
@@ -504,8 +503,8 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     lockRemover.halt();
   }
 
-  private class LockRemover extends WorkerThread {
-    private static final long DEFAULT_THREAD_TIMEOUT = 30000; // 30sec
+  protected class LockRemover extends WorkerThread {
+    public static final long DEFAULT_THREAD_TIMEOUT = 30000; // 30sec
 
     public LockRemover() {
       this(DEFAULT_THREAD_TIMEOUT);
