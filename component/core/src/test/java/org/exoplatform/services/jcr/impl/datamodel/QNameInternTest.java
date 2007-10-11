@@ -17,13 +17,15 @@ import org.exoplatform.services.jcr.util.SIDGenerator;
  *          peter.nedonosko@exoplatform.com.ua
  * 11.10.2007  
  *
+ * -XX:MaxPermSize=128m
+ *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: QNameInterTest.java 111 2007-11-11 11:11:11Z peterit $
  */
 public class QNameInternTest extends TestCase {
 
-  static public final int INTERN_SIZE = 10000000;
-  static public final int SAMPLE_MOD = INTERN_SIZE / 1000;
+  static public final int INTERN_SIZE = 500000;
+  static public final int SAMPLE_MOD = INTERN_SIZE / 100;
   static public final int NOTSAMPLE_MOD = SAMPLE_MOD / 10;
 
   private String memoryInfo() {
@@ -43,8 +45,10 @@ public class QNameInternTest extends TestCase {
     
     long dsum = 0;
     
+    String[] interList = new String[INTERN_SIZE];
     for (int i=0; i<INTERN_SIZE; i++) {
       String s = SIDGenerator.generate().intern();
+      interList[i] = s; // save ref to prevent GCing
       if (i%SAMPLE_MOD == 0)
         samples.add(s);
     }
@@ -61,7 +65,7 @@ public class QNameInternTest extends TestCase {
       dsum += d;
     }
     
-    System.out.println("\tSample avg. get time " + (dsum/samples.size()));
+    System.out.println("\tSample avg. get time " + (dsum * 1f/samples.size()));
     System.out.println("FINISH " + getName() + ", " + memoryInfo());
   }
   
@@ -72,8 +76,10 @@ public class QNameInternTest extends TestCase {
     
     long dsum = 0;
     
+    String[] interList = new String[INTERN_SIZE];
     for (int i=0; i<INTERN_SIZE; i++) {
       String s = SIDGenerator.generate().intern();
+      interList[i] = s; // save ref to prevent GCing
       if (i%SAMPLE_MOD == 0)
         samples.add(s);
     }
@@ -91,11 +97,11 @@ public class QNameInternTest extends TestCase {
       //System.out.println("Sample found " + d);
     }
     
-    System.out.println("\tSample avg. get time " + (dsum/samples.size()));
+    System.out.println("\tSample avg. get time " + (dsum * 1f/samples.size()));
     System.out.println("FINISH " + getName() + ", " + memoryInfo());
   }
   
-  public void _testStringArrayTraverse() throws Exception {
+  public void testStringArrayTraverse() throws Exception {
     
     System.out.println("START " + getName() + ", " + memoryInfo());
     
@@ -106,6 +112,7 @@ public class QNameInternTest extends TestCase {
     String[] interList = new String[INTERN_SIZE];
     for (int i=0; i<interList.length; i++) {
       String s = SIDGenerator.generate();
+      interList[i] = s; // save ref to prevent GCing
       interList[i] = s;
       if (i%SAMPLE_MOD == 0)
         samples.add(s);
@@ -129,7 +136,7 @@ public class QNameInternTest extends TestCase {
       dsum += System.currentTimeMillis() - start;
     }
     
-    System.out.println("\tSample avg. get time " + (dsum/samples.size()));
+    System.out.println("\tSample avg. get time " + (dsum * 1f/samples.size()));
     System.out.println("FINISH " + getName() + ", " + memoryInfo());
   }
     
