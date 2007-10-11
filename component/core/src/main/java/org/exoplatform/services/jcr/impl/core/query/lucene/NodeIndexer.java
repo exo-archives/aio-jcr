@@ -28,6 +28,7 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.logging.Log;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.exoplatform.services.document.DocumentReader;
 import org.exoplatform.services.document.DocumentReaderService;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
@@ -51,31 +52,30 @@ public class NodeIndexer {
   /**
    * The logger instance for this class.
    */
-  private static Log log = ExoLogger.getLogger("jcr.NodeIndexer");
+  private static Log                       log                   = ExoLogger.getLogger("jcr.NodeIndexer");
 
   /**
    * The <code>NodeState</code> of the node to index
    */
-  protected final NodeData node;
+  protected final NodeData                 node;
 
   protected WorkspacePersistentDataManager dataManager;
-
 
   /**
    * The variable for the stripping text from files with different formats.
    */
-  private DocumentReaderService documentReaderService = null;
+  private DocumentReaderService            documentReaderService = null;
 
-  protected LocationFactory sysLocationFactory;
+  protected LocationFactory                sysLocationFactory;
 
   /**
    * Creates a new node indexer.
-   *
-   * @param node          the node state to index.
+   * 
+   * @param node the node state to index.
    * @param sysLocationFactory sysLocationFactory.
    */
-  protected NodeIndexer(NodeData node, LocationFactory sysLocationFactory,
-                                                  DocumentReaderService ds, WorkspacePersistentDataManager dataManager) {
+  protected NodeIndexer(NodeData node, LocationFactory sysLocationFactory, DocumentReaderService ds,
+      WorkspacePersistentDataManager dataManager) {
     this.node = node;
     this.sysLocationFactory = sysLocationFactory;
     this.documentReaderService = ds;
@@ -84,34 +84,32 @@ public class NodeIndexer {
 
   /**
    * Creates a lucene Document from a node.
-   *
-   * @param node          the node state to index.
+   * 
+   * @param node the node state to index.
    * @param sysLocationFactory sysLocationFactory.
-   * @param ds the document reader service for the stripping text from files with different formats.
+   * @param ds the document reader service for the stripping text from files
+   *          with different formats.
    * @return the lucene Document.
    * @throws RepositoryException if an error occurs while reading property
-   *                             values from the <code>ItemStateProvider</code>.
+   *           values from the <code>ItemStateProvider</code>.
    */
-  public static Document createDocument(NodeData node, LocationFactory sysLocationFactory,
-                                                                                  DocumentReaderService ds, WorkspacePersistentDataManager dataManager)
-  throws RepositoryException {
+  public static Document createDocument(NodeData node, LocationFactory sysLocationFactory, DocumentReaderService ds,
+      WorkspacePersistentDataManager dataManager) throws RepositoryException {
 
-    if(node != null)
-    {
-	  NodeIndexer indexer = new NodeIndexer(node,
-        sysLocationFactory, ds, dataManager);
+    if (node != null) {
+      NodeIndexer indexer = new NodeIndexer(node, sysLocationFactory, ds, dataManager);
       Document doc = indexer.createDoc();
       return doc;
-    }
-    else return null;
+    } else
+      return null;
   }
 
   /**
    * Creates a lucene Document.
-   *
+   * 
    * @return the lucene Document with the index layout.
    * @throws RepositoryException if an error occurs while reading property
-   *                             values from the <code>ItemStateProvider</code>.
+   *           values from the <code>ItemStateProvider</code>.
    */
   protected Document createDoc() throws RepositoryException {
     Document doc = new Document();
@@ -120,9 +118,8 @@ public class NodeIndexer {
 
     String parentIdentifier = node.getParentIdentifier();
 
-    if(parentIdentifier != null) {
-      doc.add(new Field(FieldNames.PARENT, parentIdentifier, true,
-          true, false));
+    if (parentIdentifier != null) {
+      doc.add(new Field(FieldNames.PARENT, parentIdentifier, true, true, false));
       String label = sysLocationFactory.createJCRName(node.getQPath().getName()).getAsString();
       doc.add(new Field(FieldNames.LABEL, label, false, true, false));
     } else { // root
@@ -130,32 +127,32 @@ public class NodeIndexer {
       doc.add(new Field(FieldNames.LABEL, "", false, true, false));
     }
 
-    for (Iterator it = dataManager.getChildPropertiesData(node).iterator(); it.hasNext();) {
-      PropertyData prop = (PropertyData)it.next();
+    List<PropertyData> cprops = dataManager.getChildPropertiesData(node);
+    for (Iterator<PropertyData> it = cprops.iterator(); it.hasNext();) {
+      PropertyData prop = it.next();
 
       String fieldName = sysLocationFactory.createJCRName(prop.getQPath().getName()).getAsString();
-      List values = prop.getValues();
+      List<ValueData> values = prop.getValues();
 
       if (values == null)
         log.warn("null value found at property " + prop.getQPath().getAsString());
-      
+
       for (int i = 0; i < values.size(); i++) {
         if (log.isDebugEnabled())
           try {
-            log.debug("Inside NodeIndexer property value " + fieldName + " [" + i + "], type: " 
+            log.debug("Inside NodeIndexer property value " + fieldName + " [" + i + "], type: "
                 + PropertyType.nameFromValue(prop.getType()));
-          } catch(IllegalArgumentException e) {
-            if (e.getMessage().indexOf("unknown type")>=0)
-              log.debug("Inside NodeIndexer property value " + fieldName + " [" + i + "], type: " 
-                  + prop.getType());
+          } catch (IllegalArgumentException e) {
+            if (e.getMessage().indexOf("unknown type") >= 0)
+              log.debug("Inside NodeIndexer property value " + fieldName + " [" + i + "], type: " + prop.getType());
             else
               log.warn("Error of debug log, inside NodeIndexer property " + fieldName + ", [" + i + "]");
           }
-        addValue(doc, (ValueData)values.get(i), fieldName, prop.getType());
+        addValue(doc, values.get(i), fieldName, prop.getType());
       }
 
       if (values.size() > 1) {
-        //real multi-valued
+        // real multi-valued
         doc.add(new Field(FieldNames.MVP, fieldName, false, true, false));
       }
 
@@ -165,13 +162,13 @@ public class NodeIndexer {
 
   /**
    * Adds a value to the lucene Document.
-   *
-   * @param doc   the document.
+   * 
+   * @param doc the document.
    * @param fieldName fieldName.
    * @param propType propType.
    */
   private void addValue(Document doc, ValueData internalValue, String fieldName, int propType)
-  throws RepositoryException {
+      throws RepositoryException {
     switch (propType) {
     case PropertyType.BINARY:
       addBinaryValue(doc, fieldName, internalValue);
@@ -204,72 +201,67 @@ public class NodeIndexer {
       addPermissionValue(doc, fieldName, internalValue);
       break;
     default:
-      throw new IllegalArgumentException("illegal internal value type "+propType);
+      throw new IllegalArgumentException("illegal internal value type " + propType);
     }
   }
 
   /**
-   * Adds the binary value to the document as the named field.
-   * <p/>
-   * This implementation checks if this {@link #node} is of type nt:resource
-   * and if that is the case, tries to extract text from the data atom using
-   * {@link TextFilterService}add a {@link FieldNames#FULLTEXT} field
-   * .
-   *
-   * @param doc           The document to which to add the field
-   * @param fieldName     The name of the field to add
+   * Adds the binary value to the document as the named field. <p/> This
+   * implementation checks if this {@link #node} is of type nt:resource and if
+   * that is the case, tries to extract text from the data atom using
+   * {@link TextFilterService}add a {@link FieldNames#FULLTEXT} field .
+   * 
+   * @param doc The document to which to add the field
+   * @param fieldName The name of the field to add
    * @param internalValue The value for the field to add to the document.
    */
-  protected void addBinaryValue(Document doc, String fieldName,
-                                ValueData internalValue)
-                         throws RepositoryException {
+  protected void addBinaryValue(Document doc, String fieldName, ValueData internalValue) throws RepositoryException {
 
-          String text = "";
-          if(node.getQPath().getName().equals(Constants.JCR_CONTENT))
-              {
-                    for (int i = 0; i < dataManager.getChildPropertiesData(node).size(); i++)
-                {
-                   PropertyData prop = (PropertyData) dataManager.getChildPropertiesData(node).get(i);
-                   if(prop.getQPath().getName().equals(Constants.JCR_MIMETYPE))
-                   {
-                      try
-                      {
-                         List values = prop.getValues();
-                         ValueData mimeValue = (ValueData) values.get(0);
-                         String mime = new String(mimeValue.getAsByteArray());
+    String text = "";
+    if (node.getQPath().getName().equals(Constants.JCR_CONTENT)) {
+      List<PropertyData> cprops = dataManager.getChildPropertiesData(node);
+      for (int i = 0; i < cprops.size(); i++) {
+        PropertyData prop = (PropertyData) cprops.get(i);
+        if (prop.getQPath().getName().equals(Constants.JCR_MIMETYPE)) {
+          try {
+            List<ValueData> values = prop.getValues();
+            ValueData mimeValue = values.get(0);
+            String mime = new String(mimeValue.getAsByteArray());
 
-                         InputStream is = internalValue.getAsStream();
-                         text = documentReaderService.getDocumentReader(mime).getContentAsText(is);
+            DocumentReader dreader = documentReaderService.getDocumentReader(mime);
 
-                         is.close();
-                      }
-                      catch(Exception e)
-                      {
-                      }
-                   }
-                }
-              }
-          if(text != null)
-          {
-           doc.add(new Field(FieldNames.FULLTEXT, text, false, true, true));
+            InputStream is = null; 
+            try {
+              is = internalValue.getAsStream();
+              text = dreader.getContentAsText(is);
+            } finally {
+              try {
+                is.close();
+              } catch (Throwable e) {}  
+            }
+          } catch (Exception e) {
           }
+        }
+      }
+    }
+    if (text != null) {
+      doc.add(new Field(FieldNames.FULLTEXT, text, false, true, true));
+    }
   }
 
   /**
-   * Adds the string representation of the boolean value to the document as
-   * the named field.
-   *
-   * @param doc           The document to which to add the field
-   * @param fieldName     The name of the field to add
+   * Adds the string representation of the boolean value to the document as the
+   * named field.
+   * 
+   * @param doc The document to which to add the field
+   * @param fieldName The name of the field to add
    * @param internalValue The value for the field to add to the document.
    */
-  protected void addBooleanValue(Document doc, String fieldName,
-      ValueData internalValue) throws RepositoryException {
+  protected void addBooleanValue(Document doc, String fieldName, ValueData internalValue) throws RepositoryException {
     try {
       String strValue = new String(internalValue.getAsByteArray());
-      doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(
-          fieldName, strValue), false, true, false));
-    } catch(IOException e) {
+      doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(fieldName, strValue), false, true, false));
+    } catch (IOException e) {
       log.error("Error of add boolean value: " + e.getMessage(), e);
     }
   }
@@ -278,66 +270,58 @@ public class NodeIndexer {
    * Adds the calendar value to the document as the named field. The calendar
    * value is converted to an indexable string value using the {@link DateField}
    * class.
-   *
-   * @param doc           The document to which to add the field
-   * @param fieldName     The name of the field to add
+   * 
+   * @param doc The document to which to add the field
+   * @param fieldName The name of the field to add
    * @param internalValue The value for the field to add to the document.
    */
-  protected void addCalendarValue(Document doc, String fieldName,
-      ValueData internalValue) throws RepositoryException {
+  protected void addCalendarValue(Document doc, String fieldName, ValueData internalValue) throws RepositoryException {
 
     try {
-      Calendar cal = new JCRDateFormat().deserialize(new String(internalValue.getAsByteArray(), Constants.DEFAULT_ENCODING));
+      Calendar cal = new JCRDateFormat().deserialize(new String(internalValue.getAsByteArray(),
+          Constants.DEFAULT_ENCODING));
       String strValue = DateField.dateToString(cal.getTime());
-    
-      doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(
-          fieldName, strValue), false, true, false));
-    } catch(IOException e) {
+
+      doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(fieldName, strValue), false, true, false));
+    } catch (IOException e) {
       log.error("Error of add calendar value: " + e.getMessage(), e);
     }
   }
 
   /**
-   * Adds the double value to the document as the named field. The double
-   * value is converted to an indexable string value using the
-   * {@link DoubleField} class.
-   *
-   * @param doc           The document to which to add the field
-   * @param fieldName     The name of the field to add
+   * Adds the double value to the document as the named field. The double value
+   * is converted to an indexable string value using the {@link DoubleField}
+   * class.
+   * 
+   * @param doc The document to which to add the field
+   * @param fieldName The name of the field to add
    * @param internalValue The value for the field to add to the document.
    */
-  protected void addDoubleValue(Document doc, String fieldName,
-      ValueData internalValue) throws RepositoryException {
+  protected void addDoubleValue(Document doc, String fieldName, ValueData internalValue) throws RepositoryException {
 
     try {
-      String strValue = DoubleField.doubleToString(Double.parseDouble(
-          new String(internalValue.getAsByteArray())));
-      doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(
-          fieldName, strValue), false, true, false));
-    } catch(IOException e) {
+      String strValue = DoubleField.doubleToString(Double.parseDouble(new String(internalValue.getAsByteArray())));
+      doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(fieldName, strValue), false, true, false));
+    } catch (IOException e) {
       log.error("Error of add double value: " + e.getMessage(), e);
     }
   }
 
   /**
-   * Adds the long value to the document as the named field. The long
-   * value is converted to an indexable string value using the {@link LongField}
-   * class.
-   *
-   * @param doc           The document to which to add the field
-   * @param fieldName     The name of the field to add
+   * Adds the long value to the document as the named field. The long value is
+   * converted to an indexable string value using the {@link LongField} class.
+   * 
+   * @param doc The document to which to add the field
+   * @param fieldName The name of the field to add
    * @param internalValue The value for the field to add to the document.
    */
-  protected void addLongValue(Document doc, String fieldName,
-      ValueData internalValue) throws RepositoryException {
+  protected void addLongValue(Document doc, String fieldName, ValueData internalValue) throws RepositoryException {
 
     try {
-      String strValue = LongField.longToString(Long.parseLong(
-          new String(internalValue.getAsByteArray())));
-    
-      doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(
-          fieldName, strValue), false, true, false));
-    } catch(IOException e) {
+      String strValue = LongField.longToString(Long.parseLong(new String(internalValue.getAsByteArray())));
+
+      doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(fieldName, strValue), false, true, false));
+    } catch (IOException e) {
       log.error("Error of add permission value: " + e.getMessage(), e);
     }
   }
@@ -346,44 +330,40 @@ public class NodeIndexer {
    * Adds the reference value to the document as the named field. The value's
    * string representation is added as the reference data. Additionally the
    * reference data is stored in the index.
-   *
-   * @param doc           The document to which to add the field
-   * @param fieldName     The name of the field to add
+   * 
+   * @param doc The document to which to add the field
+   * @param fieldName The name of the field to add
    * @param internalValue The value for the field to add to the document.
    */
-  protected void addReferenceValue(Document doc, String fieldName,
-      ValueData internalValue) throws RepositoryException {
-    
+  protected void addReferenceValue(Document doc, String fieldName, ValueData internalValue) throws RepositoryException {
+
     try {
       String strValue = new String(internalValue.getAsByteArray());
 
-      doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(
-          fieldName, strValue), true, true, false));
-      
-    } catch(IOException e) {
+      doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(fieldName, strValue), true, true, false));
+
+    } catch (IOException e) {
       log.error("Error of add reference value: " + e.getMessage(), e);
     }
   }
 
   /**
-   * Adds the path value to the document as the named field. The path
-   * value is converted to an indexable string value using the name space
-   * mappings with which this class has been created.
-   *
-   * @param doc           The document to which to add the field
-   * @param fieldName     The name of the field to add
+   * Adds the path value to the document as the named field. The path value is
+   * converted to an indexable string value using the name space mappings with
+   * which this class has been created.
+   * 
+   * @param doc The document to which to add the field
+   * @param fieldName The name of the field to add
    * @param internalValue The value for the field to add to the document.
    */
-  protected void addPathValue(Document doc, String fieldName,
-      ValueData internalValue) throws RepositoryException {
-    
+  protected void addPathValue(Document doc, String fieldName, ValueData internalValue) throws RepositoryException {
+
     try {
       String strQpath = new String(internalValue.getAsByteArray());
 
       String strValue = this.sysLocationFactory.createJCRPath(QPath.parse(strQpath)).getAsString(false);
 
-      doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(
-          fieldName, strValue), false, true, false));
+      doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(fieldName, strValue), false, true, false));
     } catch (IllegalPathException e) {
       throw new RepositoryException(e);
     } catch (IOException e) {
@@ -392,53 +372,49 @@ public class NodeIndexer {
   }
 
   /**
-   * Adds the string value to the document both as the named field and for
-   * full text indexing.
-   *
-   * @param doc           The document to which to add the field
-   * @param fieldName     The name of the field to add
+   * Adds the string value to the document both as the named field and for full
+   * text indexing.
+   * 
+   * @param doc The document to which to add the field
+   * @param fieldName The name of the field to add
    * @param internalValue The value for the field to add to the document.
    */
-  protected void addStringValue(Document doc, String fieldName,
-      ValueData internalValue) throws RepositoryException  {
+  protected void addStringValue(Document doc, String fieldName, ValueData internalValue) throws RepositoryException {
 
     try {
       String stringValue = new String(internalValue.getAsByteArray());
-  
+
       // simple String
-      doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(
-          fieldName, stringValue), false, true, false));
+      doc
+          .add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(fieldName, stringValue), false, true, false));
       // also create fulltext index of this value
       doc.add(new Field(FieldNames.FULLTEXT, stringValue, false, true, true));
       // create fulltext index on property
       int idx = fieldName.indexOf(':');
-      fieldName = fieldName.substring(0, idx + 1) + FieldNames.FULLTEXT_PREFIX
-          + fieldName.substring(idx + 1);
+      fieldName = fieldName.substring(0, idx + 1) + FieldNames.FULLTEXT_PREFIX + fieldName.substring(idx + 1);
       doc.add(new Field(fieldName, stringValue, false, true, true));
-    } catch(IOException e) {
+    } catch (IOException e) {
       throw new RepositoryException("Error of add string value: " + e.getMessage(), e);
     }
   }
 
   /**
-   * Adds the name value to the document as the named field. The name
-   * value is converted to an indexable string treating the internal value
-   * as a qualified name and mapping the name space using the name space
-   * mappings with which this class has been created.
-   *
-   * @param doc           The document to which to add the field
-   * @param fieldName     The name of the field to add
+   * Adds the name value to the document as the named field. The name value is
+   * converted to an indexable string treating the internal value as a qualified
+   * name and mapping the name space using the name space mappings with which
+   * this class has been created.
+   * 
+   * @param doc The document to which to add the field
+   * @param fieldName The name of the field to add
    * @param internalValue The value for the field to add to the document.
    */
-  protected void addNameValue(Document doc, String fieldName,
-      ValueData internalValue) throws RepositoryException {
-    
+  protected void addNameValue(Document doc, String fieldName, ValueData internalValue) throws RepositoryException {
+
     try {
       String strQname = new String(internalValue.getAsByteArray());
 
       String strValue = this.sysLocationFactory.createJCRName(InternalQName.parse(strQname)).getAsString();
-      doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(
-          fieldName, strValue), false, true, false));
+      doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(fieldName, strValue), false, true, false));
     } catch (IllegalNameException e) {
       throw new RepositoryException(e);
     } catch (IOException e) {
@@ -446,15 +422,13 @@ public class NodeIndexer {
     }
   }
 
-  protected void addPermissionValue(Document doc, String fieldName,
-      ValueData internalValue) throws RepositoryException {
-    
+  protected void addPermissionValue(Document doc, String fieldName, ValueData internalValue) throws RepositoryException {
+
     try {
       String strValue = new String(internalValue.getAsByteArray());
 
-      doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(
-          fieldName, strValue), false, true, false));
-    } catch(IOException e) {
+      doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(fieldName, strValue), false, true, false));
+    } catch (IOException e) {
       log.error("Error of add permission value: " + e.getMessage(), e);
     }
   }
