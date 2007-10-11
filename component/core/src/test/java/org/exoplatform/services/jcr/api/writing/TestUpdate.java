@@ -52,7 +52,7 @@ public class TestUpdate extends JcrAPIBaseTest {
       corrNode.setProperty("prop1", pds);
       corrNode.save();
     } catch(RepositoryException e) {
-      e.printStackTrace();
+      log.error(e);
       pds.close();
       propData.delete();
       ws1session.refresh(false);
