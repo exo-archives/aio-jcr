@@ -24,7 +24,7 @@ import org.exoplatform.services.jcr.util.SIDGenerator;
  */
 public class QNameInternTest extends TestCase {
 
-  static public final int INTERN_SIZE = 500000;
+  static public final int INTERN_SIZE = 100000;
   static public final int SAMPLE_MOD = INTERN_SIZE / 100;
   static public final int NOTSAMPLE_MOD = SAMPLE_MOD / 10;
 
