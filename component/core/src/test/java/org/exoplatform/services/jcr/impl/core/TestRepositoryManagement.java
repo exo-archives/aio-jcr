@@ -385,6 +385,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
       Node testNode = newRoot.getNode("testNode2");
       assertNotNull(testNode);
     } catch (RepositoryException e) {
+      e.printStackTrace();
       fail();
     }
     try {
