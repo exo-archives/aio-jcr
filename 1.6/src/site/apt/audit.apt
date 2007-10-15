@@ -1,0 +1,89 @@
+                             --------
+                             Auditing
+                             ------- 
+
+Auditing
+
+* Introduction
+
+  Auditing captures client interaction with the repository recording all the underlying 
+  changes to auditable items. To say repository to audit items i.e. to store all the 
+  changes of underlying node and its properties the node should have been <<exo:auditable>>
+  eXo JCR used dedicated place under <</exo:audit>> node to store workspace's audit records.
+  Each auditable node is referenced to its <<audit history>> which consists of ordered list 
+  of <<audit records>>.
+
+  eXo JCR introduces dedicated AuditService and set of Actions to serve auditing automatically.
+
+* Audit Service
+
+  Audit Service covers adding and removing audit history, adding audit record as well as 
+  reading Audit storage using dedicated <AuditHistory> and <AuditRecords> objects, wrapping
+  audit storage items as follows:
+
+----------------------
+public interface AuditService {
+
+  void createHistory(Node node) throws RepositoryException;
+  void removeHistory(Node node) throws RepositoryException;
+  void addRecord(Item item, int eventType) throws RepositoryException;
+  AuditHistory getHistory(Node node) throws RepositoryException, UnsupportedOperationException;
+  boolean hasHistory(Node node);
+}
+
+---------------------
+
+  First 3 methods used for serving Audit Storege itself and called by dedicated
+  Actions (see below), while other 2 are useful for a client program to audit review. 
+
+* Audit Action
+
+  An <<AuditAction>> is a "heart" of audit system. It actually called AuditService.createHistory() 
+  and addRecord() methods to serve an Audit Storage. To make it work include configuration like below 
+  to the AddActionsPlugin:
+
+---------------------
+
+  <value>
+    <object type="org.exoplatform.services.jcr.impl.ext.action.ActionConfiguration">
+      <field  name="eventTypes"><string>addNode</string></field>
+      <field  name="path"><string>/AuditServiceTest/autoAdd</string></field>       
+      <field  name="isDeep"><boolean>true</boolean></field>       
+      <field  name="actionClassName"><string>org.exoplatform.services.jcr.ext.audit.AddAuditableAction</string></field>       
+    </object>
+  </value>
+  <value>
+    <object type="org.exoplatform.services.jcr.impl.ext.action.ActionConfiguration">
+      <field  name="eventTypes"><string>addProperty,changeProperty,removeProperty</string></field> 
+      <field  name="path"><string>/AuditServiceTest</string></field>
+      <field  name="parentNodeType"><string>exo:auditable</string></field>
+      <field  name="isDeep"><boolean>true</boolean></field>
+      <field  name="actionClassName"><string>org.exoplatform.services.jcr.ext.audit.AuditAction</string></field>
+    </object>
+  </value>
+
+---------------------
+
+  In this example all operations for the whole /AuditServiceTest tree will be under audit.
+  Note, 2 different configurations needed, one for auditable Node's operation and second for 
+  it's Properties. 
+
+* AddAuditableAction
+
+  AddAuditableAction can be useful for automatically making nodes auditable:
+
+---------------------
+
+  <value>
+    <object type="org.exoplatform.services.jcr.impl.ext.action.ActionConfiguration">
+      <field  name="eventTypes"><string>addNode</string></field>
+      <field  name="path"><string>/AuditServiceTest/autoAdd</string></field>       
+      <field  name="isDeep"><boolean>true</boolean></field>       
+      <field  name="actionClassName"><string>org.exoplatform.services.jcr.ext.audit.AddAuditableAction</string></field>       
+    </object>
+  </value>
+
+---------------------
+
+
+    

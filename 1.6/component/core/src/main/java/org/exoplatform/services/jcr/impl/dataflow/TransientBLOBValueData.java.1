@@ -1,0 +1,89 @@
+/**
+ * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ */
+
+package org.exoplatform.services.jcr.impl.dataflow;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+/**
+ * Created by The eXo Platform SARL        .
+ * 
+ * 
+ * @author Gennady Azarenkov
+ * @version $Id$
+ */
+
+public class TransientBLOBValueData extends TransientValueData {
+  
+  /**
+   * Create binary TransientValueData with in-memory buffer option.
+   * Used in ItemDataFactory.makeValueData(ValueData).
+   */
+  public TransientBLOBValueData(InputStream stream, int orderNumber, 
+      FileCleaner cleaner, File tempDirectory, int maxBufferSize) 
+  throws IOException {
+    super(orderNumber);
+    this.stream = stream;
+    this.fileCleaner = cleaner;
+    this.tempDirectory = tempDirectory;
+    this.maxBufferSize = maxBufferSize;
+  }
+  
+  public TransientBLOBValueData(InputStream stream,
+      FileCleaner cleaner, File tempDirectory, int maxBufferSize)) throws IOException {
+    this(stream, 0, cleaner, tempDirectory, maxBufferSize);
+  }  
+      
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#getAsStream()
+   */
+  public InputStream getAsStream() throws IOException {
+    return stream;
+  }
+  
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#getAsByteArray()
+   */
+  public byte[] getAsByteArray() throws IllegalStateException {
+    log.warn("Potential lack of memory due to call getAsByteArray() on stream data");
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    byte[] buffer = new byte[0x2000];
+    int len;
+    try {
+      while ((len = stream.read(buffer)) > 0) {
+        out.write(buffer, 0, len);
+      }
+      out.close();
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
+    this.data = out.toByteArray();
+    this.stream = null;
+    return data;
+  }
+  
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#getLength()
+   */
+  public long getLength() {
+    try {
+      return stream.available();
+    } catch (IOException e) {
+      return -1;
+    }
+  }
+  
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#isByteArray()
+   */
+  public boolean isByteArray() {
+    return data != null;
+  }
+
+}

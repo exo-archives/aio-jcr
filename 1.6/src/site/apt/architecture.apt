@@ -1,0 +1,55 @@
+<<eXo JCR Implementation>> 
+
+  <<How it works>>
+
+  eXo Repository Service is a standard eXo service and is a registerable IoC component, i.e. can be deployed in some ExoContainer (see {{{configuration.html}Service configuration}} for details)
+  Relationships between components is shown in the picture below:  
+
+[images/exojcr.gif]
+
+  *  <<Exo Container>> some subclass of <org.exoplatform.container.ExoContainer> (usually <org.exoplatform.container.StandaloneContainer> or <org.exoplatform.container.PortalContainer>) that holds reference to RepositoryService
+
+  *  <<Repository Service>> Repository references holding component, eXo JCR is able to manage many Repositories
+
+  *  <<Repository>> Implementation of <javax.jcr.Repository>. It holds references to one or more Workspace(s)
+
+  *  <<Workspace>> container of a single rooted tree of Items (Note that here it is not exactly the same as <javax.jcr.Workspace> as is not per Session object)  
+
+  Usual JCR application use case includes 2 initial steps:
+
+  *  Obtaining Repository object via getting RepositoryService from current ExoContainer (eXo "native" way) or via JNDI lookup if eXo repository is bound to the naming context using  (see {{{configuration.html}Service configuration}} for details)
+
+  *  Creating <javax.jcr.Session> object calling Repository.login(..)
+
+  <<Workspace Data Model>>
+
+  The following diagram some explains which components of eXo JCR implementation are used in data flow to perform operations specified in JCR API
+
+[images/wsdatamodel.gif]
+
+  The Workspace Data Model can be splitted on 4 levels by data isolation and meaning from JCR model point of view.
+
+  * <<JCR API>> includes components implemented core JCR data related intefaces such as Item, Node, Property. It contains JCR "logical" view on stored data
+
+  * <<Session Level>> isolates transient data viewable inside one JCR Session and interacts with API level using eXo JCR internal API 
+
+    * <<Session Data Manager>> serves transient session data. Along with data accessing/modification/validation logic it contains Modified Items Storage to hold the data changed between subsequent save() calling and Session Items Cache
+
+    * <<Transaction Data Manager>> serves session data between save() and transaction commit/rollback if current session is in transaction
+
+  * <<Workspace Level>> operates shared for particular workspace data. It contains per-Workspace objects
+
+    * <<Workspace Storage Data Manager>> serves workspace data including final validation, events firing, caching.
+
+    * <<Workspace Data Container>> implements physical data storage. It allows different type of backend (like RDB, FS files etc) to be used as a storage of for JCR data. Along with main Data Container other storages for persisted Property Values can be configured and used 
+
+    * <<Indexer>> serves workspace data indexing for futher query.
+
+  * <<Storage Level>> persistence storages for:
+
+    * JCR Data
+
+    * Indexes (Lucene)
+
+    * Values (for BLOBs for ex) if different from main Data Container
+    
