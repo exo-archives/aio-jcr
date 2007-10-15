@@ -1,6 +1,0 @@
-<catalog name="REST">
-	
-	<command name="GET" className="org.exoplatform.services.rest.common.command.GetCommand" />
-	<command name="PUT" className="org.exoplatform.services.rest.common.command.PutCommand" />	
-	
-</catalog>

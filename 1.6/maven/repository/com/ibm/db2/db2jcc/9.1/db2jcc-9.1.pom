@@ -1,7 +1,0 @@
-<project>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.ibm.db2</groupId>
-  <artifactId>db2jcc</artifactId>
-  <version>9.1</version>
-  <name>IBM DB2 JDBC Driver</name>
-</project>
