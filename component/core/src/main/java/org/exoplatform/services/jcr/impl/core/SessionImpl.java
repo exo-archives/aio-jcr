@@ -279,11 +279,6 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
    * @see javax.jcr.Session#getNodeByUUID(java.lang.String)
    */
   public NodeImpl getNodeByUUID(String uuid) throws ItemNotFoundException, RepositoryException {
-    long start = System.currentTimeMillis();
-    if (log.isDebugEnabled())
-      log.debug("getNodeByUUID(" + uuid + ") >>>>>");
-
-    try {
       Item item = nodesManager.getItemByIdentifier(uuid, true);
   
       if (item != null && item.isNode()) {
@@ -293,10 +288,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
       }
   
       throw new ItemNotFoundException("Node not found " + uuid + " at " + workspaceName);
-    } finally {
-      if (log.isDebugEnabled())
-        log.debug("getNodeByUUID(" + uuid + ") <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
-    }
+
   }
 
   /*
@@ -305,11 +297,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
    * @see javax.jcr.Session#getItem(java.lang.String)
    */
   public Item getItem(String absPath) throws PathNotFoundException, RepositoryException {
-    long start = System.currentTimeMillis();
-    if (log.isDebugEnabled())
-      log.debug("getItem(" + absPath + ") >>>>>");
     
-    try {
       JCRPath loc = locationFactory.parseAbsPath(absPath);
   
       ItemImpl item = nodesManager.getItem(loc.getInternalPath(), true);
@@ -317,10 +305,6 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
         return item;
   
       throw new PathNotFoundException("Item not found " + absPath + " in workspace " + workspaceName);
-    } finally {
-      if (log.isDebugEnabled())
-        log.debug("getItem(" + absPath + ") <<<<< " + ((System.currentTimeMillis() - start)/1000d) + "sec");
-    }
   }
 
   /*
