@@ -1459,7 +1459,13 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     return false;
 
   }
-
+  
+  private static class NodeDataOrderComparator implements Comparator<NodeData> {
+    public int compare(NodeData n1, NodeData n2) {
+      return n1.getOrderNumber() - n2.getOrderNumber();
+    }
+  }
+  
   protected void doOrderBefore(QPath srcPath, QPath destPath) throws RepositoryException {
     if (!getPrimaryNodeType().hasOrderableChildNodes())
       throw new UnsupportedRepositoryOperationException("child node ordering not supported on node "
@@ -1487,6 +1493,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
           + "i.e. is not a childs of same parent node");
 
     List<NodeData> siblings = dataManager.getChildNodesData(nodeData());
+    Collections.sort(siblings,new NodeDataOrderComparator());
     if (siblings.size() < 2)
       throw new UnsupportedRepositoryOperationException("Nothing to order Count of child nodes "
           + siblings.size());
