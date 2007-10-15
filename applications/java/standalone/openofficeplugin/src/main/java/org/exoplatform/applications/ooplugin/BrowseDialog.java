@@ -218,8 +218,6 @@ public abstract class BrowseDialog extends PlugInDialog {
     CommonProp mimeTypeProperty = (CommonProp)response.getProperty(MIMETYPE_PROP);
     if (mimeTypeProperty != null) {
       fileItem += mimeTypeProperty.getValue();
-    } else {
-      showMessageBox("mime type not found!!!");
     }
     
     while (fileItem.length() < MIMETYPE_SIZE) {
@@ -270,9 +268,9 @@ public abstract class BrowseDialog extends PlugInDialog {
         
         String serverPrefix = config.getContext().getServerPrefix();
         String currentHref = serverPrefix + currentPath;
-        if (currentHref.endsWith("/")) {
-          currentHref = currentHref.substring(0, currentHref.length() - 1);
-        }
+//        if (currentHref.endsWith("/")) {
+//          currentHref = currentHref.substring(0, currentHref.length() - 1);
+//        }
         
         if (status != Const.HttpStatus.MULTISTATUS) {
           showMessageBox("Can't open remote directory. ErrorCode: " + status);
@@ -287,6 +285,8 @@ public abstract class BrowseDialog extends PlugInDialog {
         for (int i = 0; i < tmpResponses.size(); i++) {
           ResponseDoc response = tmpResponses.get(i);          
           String responseHref = TextUtils.UnEscape(response.getHref(), '%');
+          
+          //showMessageBox("RESPHREF: " + responseHref + "\r\nCurrentHref: " + currentHref);
           
           if (i == 0 && responseHref.equals(currentHref)) {
             continue;
