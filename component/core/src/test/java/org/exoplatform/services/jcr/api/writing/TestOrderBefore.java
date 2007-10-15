@@ -4,11 +4,16 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.api.writing;
 
+import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.lock.LockException;
+import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NodeType;
+import javax.jcr.version.VersionException;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
@@ -97,6 +102,18 @@ public class TestOrderBefore extends JcrAPIBaseTest {
     
     root.save();
   }
+  private void initCustom(String[] names) throws ItemExistsException,
+      PathNotFoundException,
+      VersionException,
+      ConstraintViolationException,
+      LockException,
+      RepositoryException {
+    for (int i = 0; i < names.length; i++) {
+      testBase.addNode(names[i]);
+    }
+    root.save();
+  }
+ 
   
   private void initSNSCaseLargeArray() throws Exception {
     for (int i=1; i<=100; i++) {
@@ -704,5 +721,36 @@ public class TestOrderBefore extends JcrAPIBaseTest {
     
     assertEquals("Nodes must be equals ", n_21, nodes.getList().get(121)); // pos: 122
     assertEquals("Nodes must be equals ", n_21, testBase.getNode("n_21"));
+  }
+
+  public void testOrderTwice() throws Exception {
+
+    String[] order = new String[] {"n1", "n2", "n3", "n4", "n5"};
+    initCustom(order);
+    checkOrder(testBase, order);
+
+    
+    testBase.orderBefore("n1", "n4");
+    
+    order = new String[] {"n2", "n3", "n1", "n4", "n5"};
+    
+    checkOrder(order);
+    
+    testBase.save();
+    
+    checkOrder(order);
+    
+    checkOrderAnotherSession(order);
+    
+    testBase.orderBefore("n4", "n3");
+    
+    order = new String[] {"n2", "n4", "n3", "n1", "n5"};
+    
+    checkOrder(order);
+    
+    testBase.save();
+    checkOrder(order);
+    checkOrderAnotherSession(order);
+    
   }
 }
