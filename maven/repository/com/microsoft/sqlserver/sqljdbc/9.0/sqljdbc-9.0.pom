@@ -1,0 +1,7 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.microsoft.sqlserver</groupId>
+  <artifactId>sqljdbc</artifactId>
+  <version>9.0</version>
+</project>
+

@@ -1,0 +1,14 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>ojdbc</groupId>
+  <artifactId>orai18n</artifactId>
+  <version>14</version>
+  <name>Oracle JDBC Driver Globalization support</name>
+  <description>
+    Oracle JDBC Driver Globalization support
+  </description>
+  <url>http://www.oracle.com/technology/software/tech/java/sqlj_jdbc/index.html</url>
+  <distributionManagement>
+    <downloadUrl>http://www.oracle.com/technology/software/tech/java/sqlj_jdbc/index.html</downloadUrl>
+  </distributionManagement>
+</project>
