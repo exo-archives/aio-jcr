@@ -22,7 +22,6 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.UnsupportedRepositoryOperationException;
-import javax.jcr.Workspace;
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NodeTypeManager;
@@ -30,18 +29,17 @@ import javax.jcr.observation.ObservationManager;
 import javax.jcr.query.QueryManager;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.access.PermissionType;
+import org.exoplatform.services.jcr.core.ExtendedWorkspace;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.query.QueryManagerFactory;
 import org.exoplatform.services.jcr.impl.core.query.QueryManagerImpl;
@@ -52,10 +50,11 @@ import org.exoplatform.services.jcr.impl.dataflow.ItemDataMoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableDataManager;
 import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
-import org.exoplatform.services.jcr.impl.xml.NodeImporter;
+import org.exoplatform.services.jcr.impl.xml.ExportImportFactory;
+import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
+import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
 import org.exoplatform.services.log.ExoLogger;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
 /**
  * Created by The eXo Platform SARL .
@@ -64,7 +63,7 @@ import org.xml.sax.SAXException;
  * @version $Id: WorkspaceImpl.java 13572 2007-03-20 11:03:12Z peterit $
  */
 
-public class WorkspaceImpl implements Workspace {
+public class WorkspaceImpl implements ExtendedWorkspace {
 
   protected static Log log = ExoLogger.getLogger("jcr.WorkspaceImpl");
 
@@ -106,52 +105,82 @@ public class WorkspaceImpl implements Workspace {
   public String getName() {
     return name;
   }
-
   /**
    * @see javax.jcr.Workspace#importXML TODO (the same as Session.importXML - ?)
    */
-  public ContentHandler getImportContentHandler(String parentAbsPath, int uuidBehavior)
-      throws PathNotFoundException, ConstraintViolationException, VersionException,
+  public ContentHandler getImportContentHandler(String parentAbsPath, int uuidBehavior) throws PathNotFoundException,
+      ConstraintViolationException,
+      VersionException,
       RepositoryException {
-    NodeImporter contentHandler = (NodeImporter) session.getImportContentHandler(parentAbsPath,
-        uuidBehavior);
-    contentHandler.setSaveType(NodeImporter.SAVETYPE_SAVE);
-    
-    return contentHandler;
-  }
+    NodeImpl node = (NodeImpl) session.getItem(parentAbsPath);
+    // checked-in check
+    if (!node.isCheckedOut()) {
+      throw new VersionException("Node " + node.getPath()
+          + " or its nearest ancestor is checked-in");
+    }
 
+    // Check if node is not protected
+    if (node.getDefinition().isProtected()) {
+      throw new ConstraintViolationException("Can't add protected node " + node.getName() + " to "
+          + node.getParent().getPath());
+    }
+
+    // Check locking
+    if (!node.checkLocking()) {
+      throw new LockException("Node " + node.getPath() + " is locked ");
+    }
+
+    return new ExportImportFactory(session).getImportHandler(XmlSaveType.WORKSPACE,
+                                                             node,
+                                                             uuidBehavior,
+                                                             true);
+  }
+  public void importXML(String parentAbsPath,
+                        InputStream in,
+                        int uuidBehavior,
+                        boolean respectPropertyDefinitionsConstraints) throws IOException,
+      PathNotFoundException,
+      ItemExistsException,
+      ConstraintViolationException,
+      InvalidSerializedDataException,
+      RepositoryException{
+    NodeImpl node = (NodeImpl) session.getItem(parentAbsPath);
+    // TODO it's not a place for this, checked-in check
+    if (!node.isCheckedOut()) {
+      throw new VersionException("Node " + node.getPath()
+          + " or its nearest ancestor is checked-in");
+    }
+
+    // Check if node is not protected
+    if (node.getDefinition().isProtected()) {
+      throw new ConstraintViolationException("Can't add protected node " + node.getName() + " to "
+          + node.getParent().getPath());
+    }
+
+    // Check locking
+    if (!node.checkLocking()) {
+      throw new LockException("Node " + node.getPath() + " is locked ");
+    }
+
+    StreamImporter importer = new ExportImportFactory(session).getStreamImporter(XmlSaveType.WORKSPACE,
+                                                                                 node,
+                                                                                 uuidBehavior,
+                                                                                 respectPropertyDefinitionsConstraints);
+    importer.importStream(in);
+  }
   /**
    * @see javax.jcr.Workspace#importXML TODO (the same as Session.importXML - ?)
    */
   public void importXML(String parentAbsPath, InputStream in, int uuidBehavior) throws IOException,
-      PathNotFoundException, ItemExistsException, ConstraintViolationException,
-      InvalidSerializedDataException, RepositoryException {
-
-    try {
-      NodeImporter importer = (NodeImporter) getImportContentHandler(parentAbsPath, uuidBehavior);
-      importer.parse(in);
-    } catch (IOException e) {
-      throw new InvalidSerializedDataException("importXML failed", e);
-    } catch (SAXException e) {
-      Throwable rootCause = e.getException();
-      if (rootCause == null) {
-        rootCause = session.getRootCauseException(e);
-      }
-      if (rootCause == null) {
-        rootCause = e;
-      }
-      if (rootCause instanceof ItemExistsException) {
-        throw new ItemExistsException("importXML failed", rootCause);
-      } else if (rootCause instanceof ConstraintViolationException) {
-        throw new ConstraintViolationException("importXML failed", rootCause);
-      } else {
-        throw new InvalidSerializedDataException("importXML failed", e);
-      }
-    } catch (ParserConfigurationException e) {
-      throw new InvalidSerializedDataException("importXML failed", e);
-    }
-  }
-
+      PathNotFoundException,
+      ItemExistsException,
+      ConstraintViolationException,
+      InvalidSerializedDataException,
+      RepositoryException {
+    
+    importXML(parentAbsPath, in, uuidBehavior, true);
+  
+   }
   /**
    * @see javax.jcr.Workspace#getSession
    */
@@ -226,9 +255,6 @@ public class WorkspaceImpl implements Workspace {
     if (!srcNode.isCheckedOut())
       throw new VersionException("Source parent node " + srcNode.getPath()
           + " or its nearest ancestor is checked-in");
-    // Check locking
-    if (!srcNode.checkLocking())
-      throw new LockException("Source parent node " + srcNode.getPath() + " is locked ");
     
     ItemDataCopyVisitor initializer = new ItemDataCopyVisitor(
         (NodeData) destParentNode.getData(),
@@ -404,22 +430,15 @@ public class WorkspaceImpl implements Workspace {
       }
     }
 
-    // Check if versionable ancestor is not checked-in
-    if (!srcNode.isCheckedOut())
-      throw new VersionException("Source parent node " + srcNode.getPath()
-          + " or its nearest ancestor is checked-in");
-    // Check locking
-    if (!srcNode.checkLocking())
-      throw new LockException("Source parent node " + srcNode.getPath() + " is     locked ");
 
     ItemDataCloneVisitor initializer = new ItemDataCloneVisitor((NodeData) destParentNode.getData(),
-
         destNodePath.getName().getInternalName(),
         getNodeTypeManager(),
         srcSession.getTransientNodesManager(),
         session.getTransientNodesManager(),
         removeExisting,
         changes);
+    
     srcNode.getData().accept(initializer);
 
     // removeing existing nodes and properties

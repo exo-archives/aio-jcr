@@ -17,7 +17,7 @@
 
 @REM mvn -Dtest.repository=db1 -Dtest=SerializationTest test
 
-@set JAVA_HOME=%JDK5_HOME%
+@REM @set JAVA_HOME=%JDK5_HOME%
 
 @SET MAVEN_OPTS=-Duser.language=en -Duser.region=us %MAVEN_OPTS%
 

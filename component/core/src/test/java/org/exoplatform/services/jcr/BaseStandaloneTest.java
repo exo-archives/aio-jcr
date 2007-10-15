@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
+import java.net.URL;
 import java.util.Random;
 
 import javax.jcr.Node;
@@ -19,11 +19,11 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.StandaloneContainer;
-import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SARL .
@@ -54,19 +54,45 @@ public abstract class BaseStandaloneTest extends TestCase {
   protected ValueFactory valueFactory;
 
   protected StandaloneContainer container;
+  
+  protected class CompareStreamException extends Exception {
+    
+    CompareStreamException(String message) {
+      super(message);
+    }
+    
+    CompareStreamException(String message, Throwable e) {
+      super(message, e);
+    }
+  }
 
   public void setUp() throws Exception {
 
+    String conf = System.getProperty("jcr.test.configuration.file");
+    //please see pom.xml for details, <systemProperties> tag
+    String loginConf = "src/main/resources/login.conf";
+    
+    if (!new File(conf).exists()){
+      conf = "component/core/" + conf;
+    }
+    if (!new File(loginConf).exists()){
+      loginConf = "component/core/" + loginConf;
+    }
+
+    //StandaloneContainer.addConfigurationPath(conf);
+    
     StandaloneContainer
-    //.addConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
-    .addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.pgsql.xml");
-    //.addConfigurationPath("src/main/java/conf/standalone/test/test-configuration-sjdbc.xml");
+      .addConfigurationPath(conf);
+      //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.xml");
+      //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-mjdbc.pgsql.xml");
+      //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.ora.xml");
+      //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-mjdbc.mysql.xml");
+  
 
     container = StandaloneContainer.getInstance();
 
     if (System.getProperty("java.security.auth.login.config") == null)
-      System.setProperty("java.security.auth.login.config",
-          "src/main/resources/login.conf");
+      System.setProperty("java.security.auth.login.config", loginConf);
 
     credentials = new CredentialsImpl("admin", "admin".toCharArray());
 
@@ -163,66 +189,85 @@ public abstract class BaseStandaloneTest extends TestCase {
       }
     }
   }
-
-  protected void compareStream_Old(InputStream etalon, InputStream data) throws IOException {
-
-    int ebyte = etalon.read();
-    int dbyte = data.read();
-    int bytesCount = 0;
-    while (true) {
-      boolean hasData = ebyte >= 0 && dbyte >= 0;
-      if (hasData && ((byte) (ebyte & 0x0f)) == ((byte) (dbyte & 0x0f))) {
-        ebyte = etalon.read();
-        dbyte = data.read();
-        bytesCount++;
-      } else if (ebyte == -1 && dbyte == -1) {
-        return; // all ok
-      } else if (hasData) {
-        fail("Streams is not equals. Wrong byte stored at position " + bytesCount + " of data stream." );
-      } else {
-        fail("Streams is not equals by length");
-      }
+  
+  protected void compareStream(InputStream etalon, InputStream data) throws IOException  {
+    try {
+      compareStream(etalon, data, 0, 0, -1);
+    } catch(CompareStreamException e) {
+      fail(e.getMessage());
     }
   }
+  
+  /**
+   * Compare etalon stream with data stream begining from the offset in etalon and position in data.
+   * Length bytes will be readed and compared. if length is lower 0 then compare streams till one of them will be read.
+   *  
+   * @param etalon
+   * @param data
+   * @param etalonPos
+   * @param length
+   * @param dataPos
+   * @throws IOException
+   */
+  protected void compareStream(InputStream etalon, InputStream data, long etalonPos, long dataPos, long length) throws IOException, CompareStreamException {
 
-  protected void compareStream(InputStream etalon, InputStream data) throws IOException  {
-
-    int index = 0;
-
-    byte[] ebuff = new byte[64 * 1024];
+    int dindex = 0;
+    
+    skipStream(etalon, etalonPos);
+    skipStream(data, dataPos);
+    
+    byte[] ebuff = new byte[1024];
     int eread = 0;
-    ByteArrayOutputStream buff = new ByteArrayOutputStream();
+    
     while ((eread = etalon.read(ebuff)) > 0) {
 
       byte[] dbuff = new byte[eread];
-      while (buff.size() < eread) {
+      int erindex = 0;
+      while (erindex < eread) {
         int dread = -1;
         try {
           dread = data.read(dbuff);
         } catch(IOException e) {
-          fail("Streams is not equals by length or data stream is unreadable. Cause: " + e.getMessage());
+          throw new CompareStreamException("Streams is not equals by length or data stream is unreadable. Cause: " + e.getMessage());
         }
-        buff.write(dbuff, 0, dread);
-      }
-
-      dbuff = buff.toByteArray();
-
-      for (int i=0; i<eread; i++) {
-        byte eb = ebuff[i];
-        byte db = dbuff[i];
-        index++;
-        if (eb != db)
-          fail("Streams is not equals. Wrong byte stored at position " + index + " of data stream." );
-      }
-
-      buff = new ByteArrayOutputStream();
-      if (dbuff.length > eread) {
-        buff.write(dbuff, eread, dbuff.length);
+        
+        if (dread == -1)
+          throw new CompareStreamException("Streams is not equals by length. Data end-of-stream reached at position " + dindex);
+        
+        for (int i=0; i<dread; i++) {
+          byte eb = ebuff[i];
+          byte db = dbuff[i];
+          if (eb != db)
+            throw new CompareStreamException (
+                "Streams is not equals. Wrong byte stored at position " + dindex + " of data stream. Expected 0x" + 
+                Integer.toHexString(eb) + " '" + new String(new byte[] {eb}) + 
+                "' but found 0x" + Integer.toHexString(db) + " '" + new String(new byte[] {db}) + "'");
+          
+          erindex++;
+          dindex++;
+          if (length > 0 && dindex >= length)
+            return; // tested length reached
+        }
+        
+        if (dread < eread)
+          dbuff = new byte[eread - dread];
       }
     }
 
-    if (buff.size() > 0 || data.available() > 0)
-      fail("Streams is not equals by length.");
+    if (data.available() > 0)
+      throw new CompareStreamException("Streams is not equals by length. Data stream contains more data. Were read " + dindex);
+  }  
+  
+  protected void skipStream(InputStream stream, long pos) throws IOException {
+    long curPos = pos; 
+    long sk = 0;
+    while ((sk = stream.skip(curPos)) > 0) {
+      curPos -= sk; 
+    };
+    if (sk <0)
+      fail("Can not read the stream (skip bytes)");
+    if (curPos != 0)
+      fail("Can not skip bytes from the stream (" + pos + " bytes)");
   }
 
   protected File createBLOBTempFile(int sizeInKb) throws IOException {
@@ -268,5 +313,20 @@ public abstract class BaseStandaloneTest extends TestCase {
       fail("Mixin '" + mixin + "' isn't accessible");
     }
   }
-
+  
+  protected String memoryInfo() {
+    String info = "";
+    info = "free: " + mb(Runtime.getRuntime().freeMemory()) + "M of " + mb(Runtime.getRuntime().totalMemory()) + "M (max: " + mb(Runtime.getRuntime().maxMemory()) + "M)";
+    return info;
+  }
+  
+  // bytes to Mbytes
+  protected String mb(long mem) {
+    return String.valueOf(Math.round(mem * 100d/ (1024d * 1024d)) / 100d);
+  }
+  
+  protected String execTime(long from) {
+    return Math.round(((System.currentTimeMillis() - from) * 100.00d / 60000.00d)) / 100.00d + "min";
+  }
+  
 }

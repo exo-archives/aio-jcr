@@ -18,13 +18,24 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
+import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.nodetype.ConstraintViolationException;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
-import org.exoplatform.services.jcr.api.nodetypes.TestValueConstraints;
+import org.exoplatform.services.jcr.core.ExtendedSession;
+import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
+import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -50,24 +61,17 @@ public class TestImport extends JcrAPIBaseTest {
                                 + "</jcr:content>"
                                 + "</childNode3>"
                                 + "<childNode2 jcr:created=\"2004-08-18T20:07:42.636+01:00\" jcr:primaryType=\"nt:file\">"
-                                + "<jcr:content jcr:data=\"this is the content\" jcr:primaryType=\"nt:resource\" jcr:mimeType=\"text/html\" jcr:lastModified=\"2004-08-18T20:07:42.626+01:00\" jcr:uuid=\"1092852462406_\">"
+                                + "<jcr:content jcr:data=\"VGhyZWUgYnl0ZXMgYXJlIGNvbmNhdGVuYXRlZCwgdGhlbiBzcGxpdCB0byBmb3JtIDQgZ3JvdXBz"
+                                + "IG9mIDYtYml0cyBlYWNoOw==\" jcr:primaryType=\"nt:resource\" jcr:mimeType=\"text/html\" jcr:lastModified=\"2004-08-18T20:07:42.626+01:00\" jcr:uuid=\"1092852462406_\">"
                                 + "</jcr:content>"
                                 + "</childNode2>"
                                 + "</childNode>"
-                                +
-                                // "<testNodeWithText1
-                                // jcr:mixinTypes='mix:referenceable
-                                // exo:accessControllable' testProperty='test
-                                // property value'>Thisi is a text content of
-                                // node
-                                // &lt;testNodeWithText1/&gt;
-                                // </testNodeWithText1>"+
-                                "<testNodeWithText1 jcr:mixinTypes='mix:referenceable' testProperty='test property value'>Thisi is a text content of node &lt;testNodeWithText1/&gt; </testNodeWithText1>"
+                                + "<testNodeWithText1 jcr:mixinTypes='mix:referenceable' jcr:uuid='id_uuidNode3' testProperty='test property value'>Thisi is a text content of node &lt;testNodeWithText1/&gt; </testNodeWithText1>"
                                 + "<testNodeWithText2><![CDATA[This is a text content of node <testNodeWithText2>]]></testNodeWithText2>"
                                 + "<uuidNode1 jcr:mixinTypes='mix:referenceable' jcr:uuid='id_uuidNode1' source='docView'/>"
                                 + "</exo:test>";
 
-  private String docViewECM = "<test-article xmlns:nt=\"http://www.jcp.org/jcr/nt/1.0\" xmlns:kfx=\"http://www.exoplatform.com/jcr/kfx/1.1/\" xmlns:Fwd=\"http://www.exoplatform.com/jcr/Fwd/1.1/\" xmlns:Re=\"http://www.exoplatform.com/jcr/Re/1.1/\" xmlns:rma=\"http://www.rma.com/jcr/\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xmlns:sv=\"http://www.jcp.org/jcr/sv/1.0\" xmlns:mix=\"http://www.jcp.org/jcr/mix/1.0\" xmlns:fn=\"http://www.w3.org/2004/10/xpath-functions\" xmlns:jcr=\"http://www.jcp.org/jcr/1.0\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:exo=\"http://www.exoplatform.com/jcr/exo/1.0\" exo:summary=\"\" exo:voteTotal=\"0\" exo:votingRate=\"0.0\" jcr:primaryType=\"exo:article\" jcr:mixinTypes=\"mix:votable mix:i18n\" jcr:uuid=\"6da3fcebc0a800070043d28761e00078\" exo:language=\"en\" exo:title=\"\" exo:text=\"\"></test-article>";
+  private String docViewECM = "<test-article xmlns:nt=\"http://www.jcp.org/jcr/nt/1.0\" xmlns:kfx=\"http://www.exoplatform.com/jcr/kfx/1.1/\" xmlns:Fwd=\"http://www.exoplatform.com/jcr/Fwd/1.1/\" xmlns:Re=\"http://www.exoplatform.com/jcr/Re/1.1/\" xmlns:rma=\"http://www.rma.com/jcr/\" xmlns:xml=\"http://www.w3.org/XML/1998/namespace\" xmlns:sv=\"http://www.jcp.org/jcr/sv/1.0\" xmlns:mix=\"http://www.jcp.org/jcr/mix/1.0\" xmlns:fn=\"http://www.w3.org/2004/10/xpath-functions\" xmlns:jcr=\"http://www.jcp.org/jcr/1.0\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:exo=\"http://www.exoplatform.com/jcr/exo/1.0\" exo:summary=\"\" exo:voteTotal=\"0\" exo:votingRate=\"0.0\" jcr:primaryType=\"exo:article\" jcr:mixinTypes=\"mix:votable mix:i18n\" jcr:uuid=\"6da3fcebc0a800070043d28761e00078\" exo:language=\"en\" exo:title=\"title\" exo:text=\"\"></test-article>";
 
   private String sysView    = "<sv:node xmlns:nt=\"http://www.jcp.org/jcr/nt/1.0\" "
                                 + "xmlns:jcr=\"http://www.jcp.org/jcr/1.0\" "
@@ -143,13 +147,44 @@ public class TestImport extends JcrAPIBaseTest {
                                 + "</sv:node>" +
 
                                 "</sv:node>";
-
+  
+  private String sysView2    = "<sv:node xmlns:nt=\"http://www.jcp.org/jcr/nt/1.0\" "
+    + "xmlns:jcr=\"http://www.jcp.org/jcr/1.0\" "
+    + "xmlns:sv=\"http://www.jcp.org/jcr/sv/1.0\" "
+    + "xmlns:exo=\"http://www.exoplatform.com/jcr/exo/1.0\" "
+    + "xmlns:mix=\"http://www.jcp.org/jcr/mix/1.0\" sv:name=\"childNode2\">"
+      + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:file</sv:value></sv:property>"
+      + "<sv:property sv:name=\"jcr:created\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
+      + "<sv:node sv:name=\"jcr:content\">"
+      + "<sv:property sv:name=\"jcr:primaryType\" sv:type=\"Name\"><sv:value>nt:resource</sv:value></sv:property>"
+      + "<sv:property sv:name=\"jcr:uuid\" sv:type=\"String\"><sv:value>1092835020616_</sv:value></sv:property>"
+      + "<sv:property sv:name=\"jcr:data\" sv:type=\"Binary\"><sv:value>dGhpcyBpcyB0aGUgYmluYXJ5IGNvbnRlbnQ=</sv:value></sv:property>"
+      + "<sv:property sv:name=\"jcr:mimeType\" sv:type=\"String\"><sv:value>text/text</sv:value></sv:property>"
+      + "<sv:property sv:name=\"jcr:lastModified\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
+      //Special unexisting property
+      + "<sv:property sv:name=\"jcr:lastModified2\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
+      + "</sv:node>" +
+     "</sv:node>";
+  private String docView2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+  		"<childNode2 " +
+  		"xmlns:nt=\"http://www.jcp.org/jcr/nt/1.0\" " +
+  		"xmlns:jcr=\"http://www.jcp.org/jcr/1.0\" " +
+  		"jcr:primaryType=\"nt:file\" " +
+  		"jcr:created=\"2004-08-18T17:17:00.856+03:00\">" +
+  		"<jcr:content " +
+    		"jcr:primaryType=\"nt:resource\" " +
+    		"jcr:uuid=\"6a3859dac0a8004b006e6e0bf444ebaa\" " +
+    		"jcr:data=\"dGhpcyBpcyB0aGUgYmluYXJ5IGNvbnRlbnQ=\" " +
+    		"jcr:lastModified=\"2004-08-18T17:17:00.856+03:00\" " +
+    		"jcr:lastModified2=\"2004-08-18T17:17:00.856+03:00\" " +    		
+    		"jcr:mimeType=\"text/text\"/>" +
+  		"</childNode2>";
+  
   public void initRepository() throws RepositoryException {
     session.getRootNode().addNode("test", "nt:unstructured");
     session.getRootNode().addNode("test2", "nt:unstructured");
     session.getRootNode().addNode("testECM", "nt:unstructured");
-    NodeTypeManagerImpl ntManager = (NodeTypeManagerImpl) session.getWorkspace()
-    .getNodeTypeManager();
+    NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
     byte[] xmlData1 = readXmlContent("/org/exoplatform/services/jcr/api/nodetypes/ecm/nodetypes-config.xml");
     ByteArrayInputStream xmlInput1 = new ByteArrayInputStream(xmlData1);
     ntManager.registerNodeTypes(xmlInput1, 0);
@@ -158,8 +193,11 @@ public class TestImport extends JcrAPIBaseTest {
     ntManager.registerNodeTypes(xmlInput2, 0);
   }
 
-  public void testImportSysView() throws RepositoryException, InvalidSerializedDataException,
-      ConstraintViolationException, IOException, ItemExistsException {
+  public void testImportSysView() throws RepositoryException,
+      InvalidSerializedDataException,
+      ConstraintViolationException,
+      IOException,
+      ItemExistsException {
 
     // session.getRootNode().addNode("test", "nt:unstructured");
     session.importXML("/test", new ByteArrayInputStream(sysView.getBytes()), 0);
@@ -185,59 +223,55 @@ public class TestImport extends JcrAPIBaseTest {
     assertEquals("val1", property.getValues()[0].getString());
   }
 
-  public void testImportDocView() throws RepositoryException, InvalidSerializedDataException,
-      ConstraintViolationException, IOException, ItemExistsException {
+  public void testImportDocView() throws RepositoryException,
+      InvalidSerializedDataException,
+      ConstraintViolationException,
+      IOException,
+      ItemExistsException {
 
-    // session.getRootNode().addNode("test", "nt:unstructured");
     session.importXML("/test2", new ByteArrayInputStream(docView.getBytes()), 0);
     session.save();
-    /*
-     * Node root = session.getRootNode().getNode("test"); NodeIterator iterator =
-     * root.getNodes(); assertEquals(1, iterator.getSize());
-     * //log.debug(">>"+session.getWorkspaceDataContainer()); iterator =
-     * root.getNode("exo:test/childNode").getNodes(); assertEquals(2,
-     * iterator.getSize()); Property property = root
-     * .getProperty("exo:test/childNode/childNode3/jcr:content/jcr:data");
-     * assertEquals("this is the binary content", property.getString());
-     * property = root
-     * .getProperty("exo:test/childNode/childNode2/jcr:content/jcr:data");
-     * assertEquals("this is the binary content", property.getString());
-     * property = root.getProperty("exo:test/childNode4/jcr:test");
-     * assertEquals(2, property.getValues().length); assertEquals("val1",
-     * property.getValues()[0].getString());
-     */
+
+    Node root = session.getRootNode().getNode("test2");
+    NodeIterator iterator = root.getNodes();
+
+    assertEquals(1, iterator.getSize());
+    // log.debug(">>"+session.getWorkspaceDataContainer()); iterator =
+    iterator = root.getNode("exo:test/childNode").getNodes();
+    assertEquals(2, iterator.getSize());
+    Property property = root.getProperty("exo:test/childNode/childNode3/jcr:content/jcr:data");
+    assertEquals("this is the binary content", property.getString());
+    property = root.getProperty("exo:test/childNode/childNode2/jcr:content/jcr:data");
+    assertEquals("Three bytes are concatenated, then split to form 4 groups of 6-bits each;",
+                 property.getString());
+
   }
 
-  public void testImportDocViewECM() throws RepositoryException, InvalidSerializedDataException,
-      ConstraintViolationException, IOException, ItemExistsException {
+  public void testImportDocViewECM() throws RepositoryException,
+      InvalidSerializedDataException,
+      ConstraintViolationException,
+      IOException,
+      ItemExistsException {
 
-    // session.getRootNode().addNode("test", "nt:unstructured");
     session.importXML("/testECM", new ByteArrayInputStream(docViewECM.getBytes()), 0);
     session.save();
-    /*
-     * Node root = session.getRootNode().getNode("test"); NodeIterator iterator =
-     * root.getNodes(); assertEquals(1, iterator.getSize());
-     * //log.debug(">>"+session.getWorkspaceDataContainer()); iterator =
-     * root.getNode("exo:test/childNode").getNodes(); assertEquals(2,
-     * iterator.getSize()); Property property = root
-     * .getProperty("exo:test/childNode/childNode3/jcr:content/jcr:data");
-     * assertEquals("this is the binary content", property.getString());
-     * property = root
-     * .getProperty("exo:test/childNode/childNode2/jcr:content/jcr:data");
-     * assertEquals("this is the binary content", property.getString());
-     * property = root.getProperty("exo:test/childNode4/jcr:test");
-     * assertEquals(2, property.getValues().length); assertEquals("val1",
-     * property.getValues()[0].getString());
-     */
+
+    Node testEcmNode = session.getRootNode().getNode("testECM");
+
+    NodeIterator iterator = testEcmNode.getNodes();
+    assertEquals(1, iterator.getSize());
+
+    Node nodeArticle = root.getNode("testECM/test-article");
+    assertEquals("title", nodeArticle.getProperty("exo:title").getString());
   }
 
-  public void _testImportSysViewContentHandler() throws Exception {
+  public void testImportSysViewContentHandler() throws Exception {
 
     // session.getRootNode().addNode("test", "nt:unstructured");
 
     XMLReader reader = XMLReaderFactory.createXMLReader();
 
-    reader.setContentHandler(session.getImportContentHandler("test", 0));
+    reader.setContentHandler(session.getImportContentHandler("/test", 0));
     InputSource inputSource = new InputSource(new ByteArrayInputStream(sysView.getBytes()));
     reader.parse(inputSource);
 
@@ -263,16 +297,35 @@ public class TestImport extends JcrAPIBaseTest {
     assertEquals("val1", property.getValues()[0].getString());
   }
 
-  public void _testEmpty() throws Exception {
+  public void testEmpty() throws Exception {
 
   }
 
-  public void _testUuidBehaviourIMPORT_UUID_CREATE_NEW() throws Exception {
+  public void testUuidBehaviourIMPORT_UUID_CREATE_NEW() throws Exception {
 
+    PlainChangesLog changesLog = new PlainChangesLogImpl();
+
+    TransientNodeData testNodeData = TransientNodeData.createNodeData((NodeData) ((NodeImpl) root).getData(),
+                                                                      new InternalQName("",
+                                                                                        "nodeWithPredefUuid"),
+                                                                      Constants.NT_UNSTRUCTURED,
+                                                                      "id_uuidNode1");
+    changesLog.add(ItemState.createAddedState(testNodeData));
+    TransientPropertyData primaryType = TransientPropertyData.createPropertyData(testNodeData,
+                                                                                 Constants.JCR_PRIMARYTYPE,
+                                                                                 PropertyType.NAME,
+                                                                                 false);
+    primaryType.setValue(new TransientValueData(testNodeData.getPrimaryTypeName()));
+    changesLog.add(ItemState.createAddedState(primaryType));
+
+    session.getTransientNodesManager().getTransactManager().save(changesLog);
+    root.getNode("nodeWithPredefUuid").addMixin("mix:referenceable");
+
+    session.save();
     XMLReader reader = XMLReaderFactory.createXMLReader();
 
-    reader.setContentHandler(session.getImportContentHandler("test",
-        ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW));
+    reader.setContentHandler(session.getImportContentHandler("/test",
+                                                             ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW));
 
     InputSource inputSource = new InputSource(new ByteArrayInputStream(sysView.getBytes()));
     reader.parse(inputSource);
@@ -280,45 +333,35 @@ public class TestImport extends JcrAPIBaseTest {
     session.save();
 
     Node nodeUuidNode1 = session.getRootNode().getNode("test/exo:test/uuidNode1");
-
     Value valueUuidNode1 = nodeUuidNode1.getProperty("jcr:uuid").getValue();
 
-    assertTrue("Uuid must be new [" + valueUuidNode1.getString() + "]", !"id_uuidNode1"
-        .equals(valueUuidNode1.getString()));
+    assertTrue("Uuid must be new [" + valueUuidNode1.getString() + "]",
+               !"id_uuidNode1".equals(valueUuidNode1.getString()));
 
-    try {
-      session.getNodeByUUID("id_uuidNode1");
-      fail("Find node with uuid 'id_uuidNode1'");
-    } catch (javax.jcr.ItemNotFoundException ex) {
-
-    }
-
-    Node nodeUuidNode3 = session.getRootNode().getNode("test/exo:test/uuidNode3");
-
-    Value valueRef3ToUuidNode1 = nodeUuidNode3.getProperty("ref_to_1").getValue();
-
-    assertEquals("ref_to_1", valueUuidNode1.getString(), valueRef3ToUuidNode1.getString());
+    assertFalse(session.getNodeByUUID("id_uuidNode1").getName().equals("uuidNode1"));
 
   }
 
-  public void _testUuidBehaviourIMPORT_UUID_COLLISION_THROW() throws Exception {
+  public void testUuidBehaviourIMPORT_UUID_COLLISION_THROW() throws Exception {
 
     XMLReader reader = XMLReaderFactory.createXMLReader();
-
-    reader.setContentHandler(session.getImportContentHandler("test",
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW));
+    root.addNode("testCollision");
+    session.save();
+    reader.setContentHandler(session.getImportContentHandler("/testCollision",
+                                                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW));
 
     InputSource inputSource = new InputSource(new ByteArrayInputStream(sysView.getBytes()));
     reader.parse(inputSource);
 
     session.save();
 
-    Node node = session.getRootNode().getNode("test/exo:test/uuidNode1");
+    Node node = session.getRootNode().getNode("testCollision/exo:test/uuidNode1");
 
     Value valueUuid = node.getProperty("jcr:uuid").getValue();
 
-    assertEquals("Uuid must exists [" + valueUuid.getString() + "]", "id_uuidNode1", valueUuid
-        .getString());
+    assertEquals("Uuid must exists [" + valueUuid.getString() + "]",
+                 "id_uuidNode1",
+                 valueUuid.getString());
 
     try {
       session.getNodeByUUID("id_uuidNode1");
@@ -326,15 +369,15 @@ public class TestImport extends JcrAPIBaseTest {
       fail("not find node with uuid [id_uuidNode1] " + ex.getMessage());
     }
 
-    Node nodeUuidNode3 = session.getRootNode().getNode("test/exo:test/uuidNode3");
+    Node nodeUuidNode3 = session.getRootNode().getNode("testCollision/exo:test/uuidNode3");
 
     Value valueRef3ToUuidNode1 = nodeUuidNode3.getProperty("ref_to_1").getValue();
 
     assertEquals("ref_to_1", "id_uuidNode1", valueRef3ToUuidNode1.getString());
 
     // part 2
-    reader.setContentHandler(session.getImportContentHandler("test2",
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW));
+    reader.setContentHandler(session.getImportContentHandler("/test2",
+                                                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW));
 
     inputSource = new InputSource(new ByteArrayInputStream(sysView.getBytes()));
     try {
@@ -346,11 +389,11 @@ public class TestImport extends JcrAPIBaseTest {
 
   }
 
-  public void _testDocViewImportContentHandler() throws Exception {
+  public void testDocViewImportContentHandler() throws Exception {
 
     XMLReader reader = XMLReaderFactory.createXMLReader();
 
-    reader.setContentHandler(session.getImportContentHandler("test", 0));
+    reader.setContentHandler(session.getImportContentHandler("/test", 0));
     InputSource inputSource = new InputSource(new ByteArrayInputStream(docView.getBytes()));
 
     reader.parse(inputSource);
@@ -365,21 +408,22 @@ public class TestImport extends JcrAPIBaseTest {
     assertEquals(2, iterator.getSize());
 
     Property property = root.getProperty("test/exo:test/childNode/childNode2/jcr:content/jcr:data");
-    assertEquals("this is the content", property.getString());
+    assertEquals("Three bytes are concatenated, then split to form 4 groups of 6-bits each;",
+                 property.getString());
 
     // property =
     // root.getProperty("childNode/childNode3/jcr:content/exo:content");
     // assertEquals("this is the binary content", property.getString());
   }
 
-  public void __testUuidBehaviourIMPORT_UUID_COLLISION_REMOVE_EXISTING() throws Exception {
+  public void test_docViewUuidBehaviourIMPORT_UUID_COLLISION_REMOVE_EXISTING() throws Exception {
 
     XMLReader reader = XMLReaderFactory.createXMLReader();
     InputSource inputSource;
 
     // first import
-    reader.setContentHandler(session.getImportContentHandler("test",
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING));
+    reader.setContentHandler(session.getImportContentHandler("/test",
+                                                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING));
 
     inputSource = new InputSource(new ByteArrayInputStream(docView.getBytes()));
     reader.parse(inputSource);
@@ -391,14 +435,14 @@ public class TestImport extends JcrAPIBaseTest {
     assertEquals("Uuid must be same (docView)", "id_uuidNode1", propDocViewUuidNode1.getString());
 
     assertEquals("check (docView)", "docView", nodeDocViewUuidNode1.getProperty("source")
-        .getString());
+                                                                   .getString());
 
     session.save();
     // log.debug(" node location id "+((NodeImpl)nodeDocViewUuidNode1);
     assertNotNull("session.getNodeByUUID doc", session.getNodeByUUID("id_uuidNode1"));
 
-    reader.setContentHandler(session.getImportContentHandler("test2",
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING));
+    reader.setContentHandler(session.getImportContentHandler("/test2",
+                                                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING));
 
     inputSource = new InputSource(new ByteArrayInputStream(sysView.getBytes()));
     reader.parse(inputSource);
@@ -412,7 +456,7 @@ public class TestImport extends JcrAPIBaseTest {
     assertEquals("Uuid must be same (sysView)", "id_uuidNode1", propSysViewUuidNode1.getString());
 
     assertEquals("Sourse  sysView)", "sysView", nodeSysViewUuidNode1.getProperty("source")
-        .getString());
+                                                                    .getString());
 
     try {
       session.getRootNode().getNode("test/exo:test/uuidNode1");
@@ -423,14 +467,14 @@ public class TestImport extends JcrAPIBaseTest {
 
   }
 
-  public void __testUuidBehaviourIMPORT_UUID_COLLISION_REPLACE_EXISTING() throws Exception {
+  public void test_docView_UuidBehaviourIMPORT_UUID_COLLISION_REPLACE_EXISTING() throws Exception {
 
     XMLReader reader = XMLReaderFactory.createXMLReader();
     InputSource inputSource;
 
     // first import
-    reader.setContentHandler(session.getImportContentHandler("test",
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING));
+    reader.setContentHandler(session.getImportContentHandler("/test",
+                                                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING));
 
     inputSource = new InputSource(new ByteArrayInputStream(docView.getBytes()));
     reader.parse(inputSource);
@@ -442,16 +486,17 @@ public class TestImport extends JcrAPIBaseTest {
     assertEquals("Uuid must be same (docView)", "id_uuidNode1", propDocViewUuidNode1.getString());
 
     assertEquals("check (docView)", "docView", nodeDocViewUuidNode1.getProperty("source")
-        .getString());
+                                                                   .getString());
 
     session.save();
     // log.debug(" node location id "+((NodeImpl)nodeDocViewUuidNode1);
     assertNotNull("session.getNodeByUUID doc", session.getNodeByUUID("id_uuidNode1"));
     assertEquals("Property source by uuid", "docView", session.getNodeByUUID("id_uuidNode1")
-        .getProperty("source").getString());
+                                                              .getProperty("source")
+                                                              .getString());
 
-    reader.setContentHandler(session.getImportContentHandler("test2",
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING));
+    reader.setContentHandler(session.getImportContentHandler("/test2",
+                                                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING));
 
     inputSource = new InputSource(new ByteArrayInputStream(sysView.getBytes()));
     reader.parse(inputSource);
@@ -459,21 +504,55 @@ public class TestImport extends JcrAPIBaseTest {
     session.save();
 
     try {
-      Node nodeSysViewUuidNode1 = session.getRootNode().getNode("test2/exo:test/uuidNode1");
-      fail("test2/exo:test/uuidNode1 must be replace");
-
+      Node nodeSysViewUuidNode1 = session.getRootNode().getNode("test/exo:test/uuidNode1");
+      fail("test/exo:test/uuidNode1 must be replace");
     } catch (PathNotFoundException ex) {
+
     }
 
-    Node nodeSysViewUuidNode1 = session.getRootNode().getNode("test/exo:test/uuidNode1");
+    Node nodeSysViewUuidNode1 = session.getRootNode().getNode("test2/exo:test/uuidNode1");
     Property propSysViewUuidNode1 = nodeSysViewUuidNode1.getProperty("jcr:uuid");
 
     assertEquals("Uuid must be same (sysView)", "id_uuidNode1", propSysViewUuidNode1.getString());
 
     assertEquals("Sourse  sysView)", "sysView", nodeSysViewUuidNode1.getProperty("source")
-        .getString());
+                                                                    .getString());
   }
+  public void testSysImportUnExistingPropertyDefinition() throws Exception {
 
+    try {
+      ((ExtendedSession)session).importXML(root.getPath(), new ByteArrayInputStream(sysView2.getBytes()), 0,true);
+      session.save();
+      fail();
+    } catch (RepositoryException e) {
+      //ok
+    }
+    try {
+      ((ExtendedSession)session).importXML(root.getPath(), new ByteArrayInputStream(sysView2.getBytes()), 0,false);
+      session.save();
+      
+    } catch (RepositoryException e) {
+      e.printStackTrace();
+      fail();    
+    }
+
+  }
+  public void testDocImportUnExistingPropertyDefinition() throws Exception {
+    try {
+      ((ExtendedSession)session).importXML(root.getPath(), new ByteArrayInputStream(docView2.getBytes()), 0,true);
+      session.save();
+      fail();
+    } catch (RepositoryException e) {
+      //ok
+    }
+    try {
+      ((ExtendedSession)session).importXML(root.getPath(), new ByteArrayInputStream(docView2.getBytes()), 0,false);
+      session.save();
+    } catch (RepositoryException e) {
+      e.printStackTrace();
+      fail();    
+    }
+  }
   private byte[] readXmlContent(String fileName) {
     try {
       InputStream is = TestImport.class.getResourceAsStream(fileName);

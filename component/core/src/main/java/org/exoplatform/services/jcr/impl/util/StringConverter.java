@@ -9,8 +9,8 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL        .
- *
+ * Created by The eXo Platform SARL .
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: StringConverter.java 12841 2007-02-16 08:58:38Z peterit $
  */
@@ -18,13 +18,14 @@ import org.exoplatform.services.log.ExoLogger;
 public class StringConverter {
 
   private static String ILLEGAL_DNCHAR = "StringConverter: empty string for denormalization to char";
-  
-  private static Log log = ExoLogger.getLogger("jcr.StringConverter");
-  
+
+  private static Log    log            = ExoLogger.getLogger("jcr.StringConverter");
+
   private static class DNChar {
     private char dnChar;
-    private int dnLength;
-    
+
+    private int  dnLength;
+
     public DNChar(char dnChar, int dnLength) {
       this.dnChar = dnChar;
       this.dnLength = dnLength;
@@ -36,9 +37,9 @@ public class StringConverter {
 
     public int getDnLength() {
       return dnLength;
-    }    
+    }
   }
-  
+
   /**
    * Normalizes and prints the given string.
    */
@@ -56,8 +57,8 @@ public class StringConverter {
       }
     }
     return new String(strBuf);
-  } 
-  
+  }
+
   public static String denormalizeString(String s) {
 
     StringBuffer strBuf = new StringBuffer();
@@ -68,7 +69,7 @@ public class StringConverter {
         DNChar dnc = denormalize(s.substring(i));
         strBuf.append(dnc.getDnChar());
         i += dnc.getDnLength();
-      } catch(IllegalArgumentException e) {
+      } catch (IllegalArgumentException e) {
         if (!e.getMessage().equals(ILLEGAL_DNCHAR)) {
           throw e;
         }
@@ -94,46 +95,76 @@ public class StringConverter {
       return "&amp;";
     case '"':
       return "&quot;";
+    case '\'':
+      return "&apos;";
     case '\r':
-      if (canonical) 
+      if (canonical)
         return "_x000D_";
     case '\n':
-      if (canonical) 
+      if (canonical)
         return "_x000A_";
     case '\t':
-      if (canonical) 
+      if (canonical)
         return "_x0009_";
     case ' ':
-      if (canonical) 
+      if (canonical)
         return "_x0020_";
     case '_':
-      if (canonical) 
-        return "_x005f_";  
-    // else, default print char
+      if (canonical)
+        return "_x005f_";
+      // else, default print char
     default:
       return "" + c;
     }
   }
-  
+
   /**
    * Denormalizes and print the given character.
    */
   public static char denormalizeChar(String string) {
     return denormalize(string).getDnChar();
   }
-  
+
   /**
    * Denormalizes and print the given character.
    */
   private static DNChar denormalize(String string) {
 
-    if (string.equals("&lt;")) return new DNChar('<', 4);
-    else if (string.startsWith("&gt;")) return new DNChar('>', 4);
-    else if (string.startsWith("&quot;")) return new DNChar('"', 6);
-    else if (string.startsWith("_x000D_")) return new DNChar('\r', 7);
-    else if (string.startsWith("_x000A_")) return new DNChar('\n', 7);
-    else if (string.startsWith("_x0020_")) return new DNChar(' ', 7);
-    else if (string.startsWith("_x005f_")) return new DNChar('_', 7);
-    else throw new IllegalArgumentException(ILLEGAL_DNCHAR);
-  }  
+    if (string.startsWith("&lt;"))
+      return new DNChar('<', 4);
+    else if (string.startsWith("&gt;"))
+      return new DNChar('>', 4);
+    else if (string.startsWith("&amp;"))
+      return new DNChar('&', 5);
+    else if (string.startsWith("&quot;"))
+      return new DNChar('"', 6);
+    else if (string.startsWith("&apos;"))
+      return new DNChar('\'', 6);
+    else if (string.startsWith("_x000D_"))
+      return new DNChar('\r', 7);
+    else if (string.startsWith("_x000A_"))
+      return new DNChar('\n', 7);
+    /**
+     * Denormalize of this value cause a 4 fails in TCK. If we don'n do it, it
+     * text will be remain the "_x0009_" value instead of "\t" TCK tests fail
+     * because the checkImportSimpleXMLTree method of DocumentViewImportTest
+     * object have a small problem in this place
+     *  // both possibilities In logic
+     *                  if (!propVal.equals(encodedAttributeValue)
+     *                   || !propVal.equals(encodedAttributeValue)) {
+     *               fail("Value " + encodedAttributeValue + "  of attribute " +
+     *                       decodedAttributeName + " is not correctly imported.");
+     *
+     * of test the propVal must be equal of encodedAttributeValue the encoded
+     * version of value
+     */
+    else if (string.startsWith("_x0009_"))
+      return new DNChar('\t', 7);
+    else if (string.startsWith("_x0020_"))
+      return new DNChar(' ', 7);
+    else if (string.startsWith("_x005f_"))
+      return new DNChar('_', 7);
+    else
+      throw new IllegalArgumentException(ILLEGAL_DNCHAR);
+  }
 }

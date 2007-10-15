@@ -5,34 +5,54 @@
 
 package org.exoplatform.services.jcr.api.exporting;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Calendar;
+import java.util.StringTokenizer;
 
+import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
-import javax.jcr.PropertyIterator;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.lock.LockException;
+import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.version.VersionException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPathExpressionException;
 
-import org.exoplatform.services.jcr.JcrAPIBaseTest;
+import org.apache.ws.commons.util.Base64;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
-import org.exoplatform.services.jcr.impl.core.value.StringValue;
-/*import org.exoplatform.services.xml.querying.InvalidSourceException;
-import org.exoplatform.services.xml.querying.InvalidStatementException;
-import org.exoplatform.services.xml.querying.QueryRunTimeException;
-import org.exoplatform.services.xml.querying.UniFormTransformationException;*/
+import org.exoplatform.services.jcr.impl.util.StringConverter;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Created by The eXo Platform SARL        .
+ * Created by The eXo Platform SARL .
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: TestExportDocView.java 12841 2007-02-16 08:58:38Z peterit $
  */
 
-public class TestExportDocView extends JcrAPIBaseTest {
+public class TestExportDocView extends ExportBase {
 
-  //private XMLQueryingService xmlQueryingService;
+  public TestExportDocView() throws ParserConfigurationException {
+    super();
+  }
 
   public void initRepository() throws RepositoryException {
 
@@ -46,110 +66,34 @@ public class TestExportDocView extends JcrAPIBaseTest {
     } catch (IOException e) {
       throw new RepositoryException(e);
     }
-    contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(Calendar.getInstance()));
+    contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(Calendar
+        .getInstance()));
     log.debug(">> save childNode START");
     session.save();
     log.debug(">> save childNode END");
 
-    //xmlQueryingService = (XMLQueryingService) container.getComponentInstanceOfType(XMLQueryingService.class);
   }
 
   public void tearDown() throws Exception {
     log.debug(">> get rootNode on TD START");
 
-  	Node root = session.getRootNode();
+    Node root = session.getRootNode();
     log.debug(">> get childNode on TD START");
-    //session.getItem("/childNode");
+    // session.getItem("/childNode");
     root.getNode("childNode").remove();
     log.debug(">> get childNode on TD END ");
 
     session.save();
-    
+
     super.tearDown();
   }
 
-  public void testWithOutputStream() throws RepositoryException, IOException
-    //InvalidSourceException,InvalidStatementException, QueryRunTimeException, UniFormTransformationException 
-    {
-    
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-//    System.out.println(">>"+session.getItem("/childNode/jcr:created"));
-    log.debug(">> get /childNode >>"+session.getItem("/childNode"));
-    Node node1 = (Node)session.getItem("/childNode");
-    log.debug(">> END get /childNode >>"+session.getItem("/childNode"));
-
-    //System.out.println(">>"+node1.getProperty("jcr:created").getDate());
-    //+" "+props.nextProperty().getString()
-    PropertyIterator props = node1.getProperties();
-    while(props.hasNext())
-      System.out.println("props >>"+props.nextProperty().getPath());
-
-
-    session.exportDocumentView("/childNode", out, false, false);
-    byte[] bArray = out.toByteArray();
-//    System.out.println(""+new String(bArray));
-    
-    //SimpleStatementHelper sHelper = xmlQueryingService.createStatementHelper();
-    //XMLDataManager dManager = xmlQueryingService.createXMLDataManager();
-    //XMLQuery query = xmlQueryingService.createQuery();
-    
-    // [PN] 19.07.06 There are problem with XMLQueryingService work
-//    String sba = new String(bArray).trim();
-//    log.info("bArray: [" + sba + "]");
-//    sba = sba.substring("<?xml version=\"1.0\" encoding=\"UTF-8\"?>".length()); // !!! Otherwise XMLQueryingService don't work
-//    
-//    query.setInputStream(new ByteArrayInputStream(sba.getBytes()));
-//    query.prepare(sHelper.select("//childNode"));
-//    query.execute();
-//    NodeList nodes = dManager.toFragment(query.getResult()).getAsNodeList();
-//    assertEquals(1, nodes.getLength());
-//    query.prepare(sHelper.select("//*[name()='childNode2']"));
-//    query.execute();
-//    nodes = dManager.toFragment(query.getResult()).getAsNodeList();
-//    assertEquals(1, nodes.getLength());
-// 
-//    query.prepare(sHelper.select("//jcr:content"));
-//    query.execute();
-//    nodes = dManager.toFragment(query.getResult()).getAsNodeList();
-//    assertEquals(1, nodes.getLength());
-//    for (int i = 0; i < nodes.getLength(); i++) {
-//      Element node = (Element) nodes.item(i);
-//      String value = node.getAttribute("jcr:data");
-//      if (!(new String(Base64.encodeBase64("this is the content".getBytes())).
-//          equals(value) )) {
-//        fail("incorrect property value");
-//      }
-//    }
-//
-//    out = new ByteArrayOutputStream();
-//    session.exportDocumentView("/childNode", out, true, false);
-//    bArray = out.toByteArray();
-//    query.setInputStream(new ByteArrayInputStream(bArray));
-//    query.prepare(sHelper.select("//jcr:content"));
-//    query.execute();
-//    nodes = dManager.toFragment(query.getResult()).getAsNodeList();
-//    assertEquals(1, nodes.getLength());
-//
-//    out = new ByteArrayOutputStream();
-//    session.exportDocumentView("/childNode", out, true, true);
-//    bArray = out.toByteArray();
-//    query.setInputStream(new ByteArrayInputStream(bArray));
-//    query.prepare(sHelper.select("childNode"));
-//    query.execute();
-//    nodes = dManager.toFragment(query.getResult()).getAsNodeList();
-//    assertEquals(1, nodes.getLength());
-//    for (int i = 0; i < nodes.getLength(); i++) {
-//      Element node = (Element) nodes.item(i);
-//      //for(int j=0; j<node.getAttributes().getLength(); j++)
-//      //  System.out.println("NODE >> "+node.getAttributes().item(j).getNodeName());
-//
-//      assertTrue(node.getAttributes().getLength()>=7);
-//    }
-//    query.prepare(sHelper.select("//*[name()='childNode2']"));
-//    query.execute();
-//    nodes = dManager.toFragment(query.getResult()).getAsNodeList();
-//    assertEquals(0, nodes.getLength());
+  public void testRus() throws Exception {
+    Node nodeRus = root.addNode("testRus");
+    String val = "\u043c\u0430\u043c\u0430 \u043c\u044b\u043b\u0430 \u0440\u0430\u043c\u0443.";
+    nodeRus.setProperty("p1", val);
+    session.save();
+    assertEquals(val, nodeRus.getProperty("p1").getString());
   }
 
   public void testWithContentHandler() throws RepositoryException, SAXException {
@@ -163,7 +107,7 @@ public class TestExportDocView extends JcrAPIBaseTest {
 
   public void testExportPdf() throws RepositoryException, IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    //export Xml problem
+    // export Xml problem
     Node testPdf = root.addNode("testPdf", "nt:file");
     Node contentTestPdfNode = testPdf.addNode("jcr:content", "nt:resource");
     try {
@@ -174,8 +118,8 @@ public class TestExportDocView extends JcrAPIBaseTest {
     } catch (IOException e) {
       throw new RepositoryException(e);
     }
-    contentTestPdfNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(
-        Calendar.getInstance()));
+    contentTestPdfNode.setProperty("jcr:lastModified", session.getValueFactory()
+        .createValue(Calendar.getInstance()));
     session.save();
     try {
       log.info("===Starting export...");
@@ -188,8 +132,229 @@ public class TestExportDocView extends JcrAPIBaseTest {
       testPdf.remove();
       session.save();
     }
-    // byte[] bArray = out.toByteArray();
-    // System.out.println(""+new String(bArray));
+  }
 
+  public void testMultyValueExportStream() throws ItemExistsException,
+      PathNotFoundException,
+      VersionException,
+      ConstraintViolationException,
+      LockException,
+      RepositoryException,
+      IOException,
+      SAXException,
+      XPathExpressionException {
+    Node testNode = root.addNode("MultyValueExportStream");
+
+    for (int i = 0; i < valList.size(); i++) {
+      testNode.setProperty("prop_" + i + "_string", valList.get(i), PropertyType.STRING);
+      testNode.setProperty("prop_" + i + "_binary", valList.get(i), PropertyType.BINARY);
+    }
+
+    session.save();
+    File destFile = File.createTempFile("multyValueExportStream", ".xml");
+    destFile.deleteOnExit();
+    OutputStream outStream = new FileOutputStream(destFile);
+    session.exportDocumentView(testNode.getPath(), outStream, false, false);
+    outStream.close();
+
+    Document doc = builder.parse(new FileInputStream(destFile));
+
+    //assertEquals(Constants.DEFAULT_ENCODING, doc.getXmlEncoding());
+
+    NodeList list = doc.getElementsByTagName("MultyValueExportStream");
+    
+    assertEquals(1, list.getLength());
+
+    org.w3c.dom.Node domNode = list.item(0);
+    NamedNodeMap attr = domNode.getAttributes();
+    for (int i = 0; i < attr.getLength(); i++) {
+      org.w3c.dom.Node attribute = attr.item(i);
+      if ("jcr:primaryType".equals(attribute.getNodeName())) {
+        assertEquals("nt:unstructured", attribute.getNodeValue());
+      } else if (attribute.getNodeName().startsWith("prop")) {
+        
+        String propertyName = attribute.getNodeName();
+        StringTokenizer tokenizer = new StringTokenizer(propertyName,"_");
+        tokenizer.nextToken();
+        String[] pureValues = valList.get(Integer.parseInt(tokenizer.nextToken()));
+        String type = tokenizer.nextToken();
+        
+
+        String attrValue = attribute.getNodeValue();
+        StringTokenizer spaceTokenizer = new StringTokenizer(attrValue);
+        if (pureValues.length == 1 && pureValues[0].equals(""))
+          assertEquals("", attrValue);
+        else
+          assertEquals(pureValues.length, spaceTokenizer.countTokens());
+        int index = 0;
+        while (spaceTokenizer.hasMoreTokens()) {
+          String exportedContent = spaceTokenizer.nextToken();
+          if ("string".equals(type)) {
+            assertEquals(pureValues[index], StringConverter.denormalizeString(exportedContent));
+          } else if ("binary".equals(type)) {
+            assertEquals(pureValues[index], new String(Base64.decode(exportedContent),
+                Constants.DEFAULT_ENCODING));
+
+          }
+          index++;
+        }
+      }
+    }
+  }
+
+  public void testMultyValueExportCH() throws ItemExistsException,
+      PathNotFoundException,
+      VersionException,
+      ConstraintViolationException,
+      LockException,
+      RepositoryException,
+      IOException,
+      SAXException,
+      TransformerConfigurationException {
+    Node testNode = root.addNode("MultyValueExportStream");
+
+    for (int i = 0; i < valList.size(); i++) {
+      testNode.setProperty("prop_" + i + "_string", valList.get(i), PropertyType.STRING);
+      testNode.setProperty("prop_" + i + "_binary", valList.get(i), PropertyType.BINARY);
+    }
+
+    session.save();
+    File destFile = File.createTempFile("multyValueExportStream", ".xml");
+    destFile.deleteOnExit();
+    OutputStream outStream = new FileOutputStream(destFile);
+
+    SAXTransformerFactory saxFact = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+    TransformerHandler handler = saxFact.newTransformerHandler();
+    handler.setResult(new StreamResult(outStream));
+
+    try {
+      session.exportDocumentView(testNode.getPath(), handler, false, false);
+    } catch (RepositoryException e) {
+    }finally{
+      outStream.close();
+    }
+    
+
+    Document doc = builder.parse(new FileInputStream(destFile));
+
+    //assertEquals(Constants.DEFAULT_ENCODING, doc.getXmlEncoding());
+
+    NodeList list = doc.getElementsByTagName("MultyValueExportStream");
+    assertEquals(1, list.getLength());
+
+    org.w3c.dom.Node domNode = list.item(0);
+    NamedNodeMap attr = domNode.getAttributes();
+    for (int i = 0; i < attr.getLength(); i++) {
+      org.w3c.dom.Node attribute = attr.item(i);
+      if ("jcr:primaryType".equals(attribute.getNodeName())) {
+        assertEquals("nt:unstructured", attribute.getNodeValue());
+      } else if (attribute.getNodeName().startsWith("prop")) {
+        String propertyName = attribute.getNodeName();
+        StringTokenizer tokenizer = new StringTokenizer(propertyName,"_");
+        tokenizer.nextToken();
+        String[] pureValues = valList.get(Integer.parseInt(tokenizer.nextToken()));
+        String type = tokenizer.nextToken();
+
+        String attrValue = attribute.getNodeValue();
+        if (pureValues.length == 1 && pureValues[0].equals(""))
+          assertEquals("", attrValue);
+        else {
+          StringTokenizer spaceTokenizer = new StringTokenizer(attrValue);
+          assertEquals(pureValues.length, spaceTokenizer.countTokens());
+          int index = 0;
+          while (spaceTokenizer.hasMoreTokens()) {
+            String exportedContent = spaceTokenizer.nextToken();
+            if ("string".equals(type)) {
+              assertEquals(pureValues[index], StringConverter.denormalizeString(exportedContent));
+            } else if ("binary".equals(type)) {
+              assertEquals(pureValues[index], new String(Base64.decode(exportedContent),
+                                                         Constants.DEFAULT_ENCODING));
+
+            }
+            index++;
+          }
+        }
+      }
+    }
+  }
+
+  public void testLockNodeExport() throws Exception {
+    Node firstNode = root.addNode("forExport");
+    Node testNode = firstNode.addNode("docLockNode");
+    testNode.addMixin("mix:lockable");
+    session.save();
+    testNode.lock(true, true);
+
+    File destFile = File.createTempFile("docLockNodeExport", ".xml");
+    destFile.deleteOnExit();
+    OutputStream outStream = new FileOutputStream(destFile);
+
+    session.exportDocumentView(firstNode.getPath(), outStream, false, false);
+    outStream.close();
+
+    Document doc = builder.parse(new FileInputStream(destFile));
+
+    //assertEquals(Constants.DEFAULT_ENCODING, doc.getXmlEncoding());
+
+    NodeList list = doc.getElementsByTagName("docLockNode");
+    assertEquals(1, list.getLength());
+    // 2 properties primariType and mixinType
+    assertEquals(2, list.item(0).getAttributes().getLength());
+  }
+  
+  public void testExportStreamNamespaceRemaping() throws Exception {
+    
+    Session newSession = repository.login(session.getCredentials());
+    
+    
+    newSession.setNamespacePrefix("newjcr","http://www.jcp.org/jcr/1.0");
+    
+    Node testNode = newSession.getRootNode().addNode("jcr:testExportNamespaceRemaping");
+    for (int i = 0; i < valList.size(); i++) {
+      testNode.setProperty("prop_" + i + "_string", valList.get(i), PropertyType.STRING);
+      testNode.setProperty("prop_" + i + "_binary", valList.get(i), PropertyType.BINARY);
+    }
+   
+    
+    newSession.save();
+
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    
+    newSession.exportDocumentView(testNode.getPath(), bos, false, false);
+    bos.close();
+    String exportContent = bos.toString();
+    assertFalse(exportContent.contains("newjcr"));
+    
+    newSession.logout();
+  }
+  
+  public void testExportCHNamespaceRemaping() throws Exception {
+    
+    Session newSession = repository.login(session.getCredentials());
+    newSession.setNamespacePrefix("newjcr","http://www.jcp.org/jcr/1.0");
+    
+    Node testNode = newSession.getRootNode().addNode("jcr:testExportNamespaceRemaping");
+    for (int i = 0; i < valList.size(); i++) {
+      testNode.setProperty("prop_" + i + "_string", valList.get(i), PropertyType.STRING);
+      testNode.setProperty("prop_" + i + "_binary", valList.get(i), PropertyType.BINARY);
+    }
+
+    newSession.save();
+
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    
+    //session.exportDocumentView(testNode.getPath(), bos, false, false);
+    
+    SAXTransformerFactory saxFact = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+    TransformerHandler handler = saxFact.newTransformerHandler();
+    handler.setResult(new StreamResult(bos));
+    
+    
+    newSession.exportDocumentView(testNode.getPath(), handler, false, false);
+    
+    bos.close();
+    String exportContent = bos.toString();
+    assertFalse(exportContent.contains("newjcr"));
+    newSession.logout();
   }
 }
