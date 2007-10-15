@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Random;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
@@ -927,4 +928,57 @@ public class TestRandomValueIO extends JcrImplBaseTest {
       // ok
     }
   }
+  
+  
+  /**
+   * There is a test of next situation: non truncated zero value updated by data 
+   * (size in maxIOBuffSize byte buffer size bounds)
+   */
+  public void testUpdateSmallValues() throws Exception{
+    // create property
+    String pname = "jcr:data";
+    
+    Property p = testRoot.setProperty(pname,
+      new ByteArrayInputStream(new byte[] {}));
+
+    testRoot.save();
+    
+    EditableBinaryValue exv = (EditableBinaryValue) p.getValue();
+
+    long pos = 0;
+    
+    int size = 61440;
+    
+    byte[] data = new byte[size];
+    Random random = new Random();
+
+    random.nextBytes(data);
+    
+    
+    // update
+    exv.update(new ByteArrayInputStream(data),
+        size, pos);
+
+    // transient, before the save
+    try {
+
+      // the value obtained by getXXX must be same as on setProperty()
+      compareStream(new ByteArrayInputStream(new byte[] {}), testRoot.getProperty(pname).getStream());
+      p.setValue(exv);
+
+      compareStream(new ByteArrayInputStream(data),
+          testRoot.getProperty(pname).getStream(), 0, pos, size);
+
+      testRoot.save();
+
+      // persisted, after the save
+      compareStream(new ByteArrayInputStream(data),
+          testRoot.getProperty(pname).getStream(), 0, pos, size);
+
+    } catch (CompareStreamException e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+  }
+  
 }
