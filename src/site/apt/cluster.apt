@@ -1,0 +1,51 @@
+                             ----------
+                             Clustering
+                             ----------
+
+Clustering
+
+* Introduction
+
+  Clustering allows to run an applications on several parallel servers (a.k.a <cluster nodes>). 
+  The load is distributed across different servers, and even if any of the servers fails, 
+  the application is still accessible via other cluster nodes.  Clustering is crucial for scalable 
+  enterprise applications, as you can improve performance by simply adding more nodes to the cluster.
+
+  An eXo JCR comes with clustering support out of the box. Thanks to this feature it is possible
+  to configure several instances of Java Content Repository to use just like single instance of JCR.
+
+[images/cluster1.gif]
+
+  On the picture above shown that client request via load balancer comes to some choosen
+  cluster node. On the other hand if state of some Node is changed, the replication message 
+  is broadcasted to other nodes and made corresponding changes on each node.
+
+* Implementation
+
+  eXo JCR uses JGroups based peer-to-peer network messaging for data replication between
+  several instances of Repository. We have dedicated WorkspaceDataReplicator component
+  responsible for broadcasting local changes log as well as receiving changes log from
+  other Cluster nodes   
+
+* Configuration
+
+  Enable replication for the repository as follows:
+
+--------------------------------------
+
+    <repository name="repository" system-workspace="production" default-workspace="production">
+     <security-domain>exo-domain</security-domain>
+     <access-control>optional</access-control>
+     <replication
+        enabled="true"
+        mode="persistent"
+        channel-config="TCP_NIO(use_send_queues=false; .........">
+      </replication>
+
+--------------------------------------
+
+  where mode=persistent or proxy, <persistent> means that changes will be applied for repository's
+  persistent storage, and <proxy> means that only cache and indexes will be replicated 
+  (useful if you use single storage for all repository instances or external replication
+  mechanizm) 
+  <channel-config> - it is JGroups channel configuration string (see {{http://www.jgroups.org}})

@@ -1,0 +1,11 @@
+<<eXo JCR application model>>
+
+  A large picture of interaction between Applications and JCR looks as following:
+
+[images/jcrapps.gif]
+
+  All Content (JCR) dependent application interacts with eXo JCR via JSR-170 and eXo JCR API extension (mostly for administration) directly or using some intermediate Framework (Neither Application nor Framework should never rely on Implementation directly!)
+  
+  We call <<Content Application>> all applications that may use JCR as a data storage. Some of them are generic and completely decoupled from JCR API as interaction protocol hides Content storage nature (like WebDav client), some partially decoupled (like Command framework based) meaning that they do not use JCR API directly, and some (most part) use JSR-170 directly
+
+  <<Frameworks>> is a special kind of JCR client that acts as intermediate level between Content Repository and End Client Application. There are <<Protocol>> (WebDav, RMI or FTP servers for example) and <<Pattern>> (Command, Web(servlet), J2EE connector) specific Frameworks. It is possibly building multi-layered (in framework sence) JCR application, for example Web application uses Web framework that uses Command framework underneath
