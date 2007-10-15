@@ -1,0 +1,76 @@
+/***************************************************************************
+ * Copyright 2001-2003 The eXo Platform SARL         All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ **************************************************************************/
+package org.exoplatform.services.jcr.impl.dataflow.session;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.WeakHashMap;
+
+import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.impl.core.ItemImpl;
+import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.core.PropertyImpl;
+
+/**
+ * Created by The eXo Platform SARL        .
+ *
+ * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
+ * @version $Id$
+ */
+ final class SessionItemPool {
+  
+  private WeakHashMap <String, ItemImpl> items;
+  
+  SessionItemPool() {
+    items = new WeakHashMap <String, ItemImpl> ();
+  }
+  
+  void remove(String identifier) {
+    items.remove(identifier);
+    System.gc();
+  } 
+  
+  void put(ItemImpl item) {
+    if(!items.containsKey(item.getInternalIdentifier()))
+      items.put(item.getInternalIdentifier(), item);
+  }
+
+  ItemImpl get(String identifier) {
+    return items.get(identifier);
+  }
+
+  ItemImpl get(QPath path) {
+    for(Iterator <ItemImpl> i = items.values().iterator(); i.hasNext();) {
+      ItemImpl item = i.next();
+      if(item.getInternalPath().equals(path))
+        return item;
+    }
+    return null;
+  }
+
+  List <NodeImpl> getChildNodes(String parentIdentifier) {
+    List <NodeImpl> children = new ArrayList <NodeImpl> ();
+    for(Iterator <ItemImpl> i = items.values().iterator(); i.hasNext();) {
+      ItemImpl item = i.next();
+      if(item.getParentIdentifier().equals(parentIdentifier)
+          && item.isNode())
+        children.add((NodeImpl)item);
+    }
+    return children;
+  }
+
+  List <PropertyImpl> getChildProperties(String parentIdentifier) {
+    List <PropertyImpl> children = new ArrayList <PropertyImpl> ();
+    for(Iterator <ItemImpl> i = items.values().iterator(); i.hasNext();) {
+      ItemImpl item = i.next();
+      if(item.getParentIdentifier().equals(parentIdentifier)
+          && item.isNode())
+        children.add((PropertyImpl)item);
+    }
+    return children;
+  }
+
+}
