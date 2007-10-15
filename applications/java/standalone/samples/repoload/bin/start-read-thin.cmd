@@ -1,0 +1,4 @@
+java -Xmx256m -Duser.language=en -Duser.region=us -jar exo.jcr.applications.repoload-1.6.jar -conf=".\bin\config\configuration-thin.xml" -root="/testStorage/root1/node1/node1" -tree="10-100-100-100" -vdfile=".\bin\img.tif" -repo="db1" -ws="ws" -read -readdc -threads="5" -iteration="1" -concurrent 
+
+
+rem    -threads="5" -iteration="1" -concurrent > /dev/null &

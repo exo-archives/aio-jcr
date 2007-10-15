@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Font Name="Tahoma" Size="8.25" />
+  <Class Name="exo_jcr.msofficeplugin.AboutBox" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>AboutBox.cs</FileName>
+      <HashCode>AAAAAAAAACAAABAAAASAAAACAAAoAAAAAEAAAQBAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="exo_jcr.msofficeplugin.ComponentView" Collapsed="true">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>ComponentView.cs</FileName>
+      <HashCode>AgAAAAAAACAAAAAAAACAAAACAAAAAAAAAAAAAIAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="exo_jcr.msofficeplugin.Connect" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="4" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Connect.cs</FileName>
+      <HashCode>gEBAAIBAIQBAYAFAQgRAAAIAJAAAAAIAgCAACAIgIAE=</HashCode>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="exo_jcr.msofficeplugin.Open" Collapsed="true">
+    <Position X="0.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Open.cs</FileName>
+      <HashCode>BFCbJgiQACEDIAEggASzQgICIEKIkgAAEKQABSAlCQI=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="exo_jcr.msofficeplugin.RegKeys" Collapsed="true">
+    <Position X="2.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>RegKeys.cs</FileName>
+      <HashCode>AAAAAABCEAAAABABAAAAAAQIAIAIAAgAIAIAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="exo_jcr.msofficeplugin.Search" Collapsed="true">
+    <Position X="0.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Search.cs</FileName>
+      <HashCode>AAACAAEAACADBhAAwACCAQACAgAoEAIIACQQgAEpAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="exo_jcr.msofficeplugin.Settings" Collapsed="true">
+    <Position X="2.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Settings.cs</FileName>
+      <HashCode>gAACBBEkhKAAABAgAICCAEICAQADAACAASBSAAIAJAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="exo_jcr.msofficeplugin.ViewControl" Collapsed="true">
+    <Position X="4" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>ViewControl.cs</FileName>
+      <HashCode>AAAAAAAAACAAAAAAAACAAAACAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="exo_jcr.msofficeplugin.Properties.Resources" Collapsed="true">
+    <Position X="4" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAEAAAQADCAAAAgMEBkAACAQEIEAIAAQAAIgAAAIQ=</HashCode>
+    </TypeIdentifier>
+  </Class>
+</ClassDiagram>
