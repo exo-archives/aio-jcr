@@ -36,11 +36,7 @@ public class ItemState implements Externalizable {
 
   public static final int     MIXIN_CHANGED     = 16;
 
-  public static final int     ORDER_ADDED       = 32;
-
-  public static final int     ORDER_DELETED     = 64;
-
-  public static final int     RENAMED           = 128;
+  public static final int     RENAMED           = 32;
 
   /**
    * underlying item data
@@ -142,9 +138,6 @@ public class ItemState implements Externalizable {
     return data.isNode();
   }
 
-  public boolean isOrderAdded() {
-    return state == ORDER_ADDED;
-  }
 
   public boolean isAdded() {
     return state == ADDED;
@@ -152,10 +145,6 @@ public class ItemState implements Externalizable {
 
   public boolean isUpdated() {
     return (state == UPDATED);
-  }
-
-  public boolean isOrderDeleted() {
-    return state == ORDER_DELETED;
   }
 
   public boolean isDeleted() {
@@ -174,12 +163,7 @@ public class ItemState implements Externalizable {
     return (state == RENAMED);
   }
 
-  /**
-   * Tell if this state is Node.orderBefore() special state.
-   */
-  public boolean isOrderable() {
-    return state == ORDER_ADDED || state == ORDER_DELETED;
-  }
+
 
   public boolean isEventFire() {
     return eventFire;
@@ -247,26 +231,6 @@ public class ItemState implements Externalizable {
   public static ItemState createUpdatedState(ItemData data, boolean isInternalCreated) {
     return new ItemState(data, UPDATED, true, null, isInternalCreated);
   }
-
-  /**
-   * creates moved item state shortcut for new ItemState(data, UPDATED, true,
-   * true, null)
-   * 
-   * @param data
-   * @param needValidation
-   * @return
-   */
-  public static ItemState createMovedState(ItemData destData) {
-    return new ItemState(destData, RENAMED, true, null, false);
-
-  }
-
-  public static ItemState createMovedState(ItemData destData,
-      ItemData sourceData,
-      boolean isInternalCreated) {
-    return new ItemState(destData, RENAMED, true, null, isInternalCreated);
-  }
-
   /**
    * creates DELETED item state shortcut for new ItemState(data, DELETED, true,
    * true, null)
@@ -311,10 +275,6 @@ public class ItemState implements Externalizable {
       return "UNCHANGED";
     case MIXIN_CHANGED:
       return "MIXIN_CHANGED";
-    case ORDER_ADDED:
-      return "ORDER_ADDED";
-    case ORDER_DELETED:
-      return "ORDER_DELETED";
     case RENAMED:
       return "RENAMED";
     default:

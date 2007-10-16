@@ -412,7 +412,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     List<ItemState> allStates = changesLog.getAllStates();
     for (int i = allStates.size() - 1; i >= 0; i--) {
       ItemState state = allStates.get(i);
-      if (!state.isOrderable() && state.getData().getQPath().getName().equals(itemName))
+      if ( state.getData().getQPath().getName().equals(itemName))
         return state;
     }
     return null;

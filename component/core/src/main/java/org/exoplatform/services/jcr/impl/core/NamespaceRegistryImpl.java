@@ -5,7 +5,6 @@
 
 package org.exoplatform.services.jcr.impl.core;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;

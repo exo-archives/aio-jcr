@@ -100,7 +100,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i>=0; i--) {
       ItemState state = allStates.get(i); 
-      if (!state.isOrderable() && state.getData().getIdentifier().equals(itemIdentifier))
+      if (state.getData().getIdentifier().equals(itemIdentifier))
         return state;
     }
     return null;
@@ -110,8 +110,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i>=0; i--) {
       ItemState state = allStates.get(i); 
-      if (!state.isOrderable()
-          && state.getData().getParentIdentifier().equals(parentData.getIdentifier())
+      if (state.getData().getParentIdentifier().equals(parentData.getIdentifier())
           && state.getData().getQPath().getEntries()[state.getData().getQPath().getEntries().length - 1]
               .isSame(name))
         return state;
@@ -123,7 +122,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i>=0; i--) {
       ItemState state = allStates.get(i); 
-      if (!state.isOrderable() && state.getData().getQPath().equals(itemPath))
+      if (state.getData().getQPath().equals(itemPath))
         return  state;
     }
     return null;

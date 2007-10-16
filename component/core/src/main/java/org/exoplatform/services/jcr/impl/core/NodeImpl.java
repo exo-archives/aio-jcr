@@ -57,6 +57,7 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
@@ -64,7 +65,6 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.itemfilters.ItemFilter;
@@ -1498,7 +1498,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       throw new UnsupportedRepositoryOperationException("Nothing to order Count of child nodes "
           + siblings.size());
 
-    SessionChangesLog changes = new SessionChangesLog(session.getId());
+    
     //calculating source and destination position
     int srcInd = -1, destInd = -1;
     for (int i = 0; i < siblings.size(); i++) {
@@ -1552,6 +1552,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     }
     
     int sameNameIndex = 0;
+    //SessionChangesLog changes = new SessionChangesLog(session.getId());
+    List<ItemState> changes = new ArrayList<ItemState>();
+    ItemState deleteState = null;
     for (int j = 0; j < siblings.size(); j++) {
       NodeData sdata = siblings.get(j);
 
@@ -1570,17 +1573,32 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       }
       //crate update
       ((TransientNodeData) newData).setOrderNumber(j);
-      changes.add(ItemState.createUpdatedState(newData));
+      
 
-      //Observation manipulation
+      /*
+       * 8.3.7.8 Re-ordering a set of Child Nodes. When an orderBefore(A, B)
+       * is performed, an implementation must generate a NODE_REMOVED for node A
+       * and a NODE_ADDED for node A. Note that the paths associated with these
+       * two events will either differ by the last index number (if the movement
+       * of A causes it to be re-ordered with respect to its same-name siblings)
+       * or be identical (if A does not have same-name siblings or if the
+       * movement of A does not change its order relative to its same-name
+       * siblings). Additionally, an implementation should generate appropriate
+       * events reflecting the “shifting over” of the node B and any nodes that
+       * come after it in the child node ordering. Each such shifted node would
+       * also produce a NODE_REMOVED and NODE_ADDED event pair with paths
+       * differing at most by a final index.
+       */
       if(sdata.getQPath().equals(srcPath)){
-        changes.add(new ItemState(sdata, ItemState.ORDER_DELETED, true, null));
-        changes.add(new ItemState(newData, ItemState.ORDER_ADDED, true, null));
+        deleteState =  new ItemState(sdata, ItemState.DELETED, true, null, false, false);
+        changes.add( new ItemState(newData, ItemState.RENAMED, true, null, false, true));
+      }else{
+        changes.add(ItemState.createUpdatedState(newData));
       }
     }
-    
-    for (ItemState state : changes.getAllStates())
-      dataManager.update(state, true);
+    //delete state first
+    dataManager.getChangesLog().add(deleteState);
+    dataManager.getChangesLog().addAll(changes);
 
   }
 
@@ -1644,14 +1662,16 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     getVersionHistory().addVersion(this.nodeData(), verIdentifier, changesLog);
 
-    changesLog.add(ItemState.createUpdatedState(
-        updatePropertyData(Constants.JCR_ISCHECKEDOUT, new TransientValueData(false))));
 
-    changesLog.add(ItemState.createUpdatedState(
-        updatePropertyData(Constants.JCR_BASEVERSION, new TransientValueData(new Identifier(verIdentifier)))));
 
-    changesLog.add(ItemState.createUpdatedState(
-        updatePropertyData(Constants.JCR_PREDECESSORS, new ArrayList<ValueData>())));
+    changesLog.add(ItemState.createUpdatedState(updatePropertyData(Constants.JCR_ISCHECKEDOUT,
+                                                                   new TransientValueData(false))));
+
+    changesLog.add(ItemState.createUpdatedState(updatePropertyData(Constants.JCR_BASEVERSION,
+                                                                   new TransientValueData(new Identifier(verIdentifier)))));
+
+    changesLog.add(ItemState.createUpdatedState(updatePropertyData(Constants.JCR_PREDECESSORS,
+                                                                   new ArrayList<ValueData>())));
 
     dataManager.getTransactManager().save(changesLog); 
 
@@ -1673,14 +1693,16 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     SessionChangesLog changesLog = new SessionChangesLog(session.getId());
 
-    changesLog.add(ItemState.createUpdatedState(
-        updatePropertyData(Constants.JCR_ISCHECKEDOUT, new TransientValueData(true))));
+    changesLog.add(ItemState.createUpdatedState(updatePropertyData(Constants.JCR_ISCHECKEDOUT,
+                                                                   new TransientValueData(true))));
 
-    ValueData baseVersion = ((PropertyData) dataManager.getItemData(
-        nodeData(), new QPathEntry(Constants.JCR_BASEVERSION, 0))).getValues().get(0);
+    ValueData baseVersion = ((PropertyData) dataManager.getItemData(nodeData(),
+                                                                    new QPathEntry(Constants.JCR_BASEVERSION,
+                                                                                   0))).getValues()
+                                                                                       .get(0);
 
-    changesLog.add(ItemState.createUpdatedState(
-        updatePropertyData(Constants.JCR_PREDECESSORS, baseVersion)));
+    changesLog.add(ItemState.createUpdatedState(updatePropertyData(Constants.JCR_PREDECESSORS,
+                                                                   baseVersion)));
 
     dataManager.getTransactManager().save(changesLog);
     

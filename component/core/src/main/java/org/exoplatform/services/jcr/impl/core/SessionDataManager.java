@@ -833,7 +833,8 @@ public class SessionDataManager implements ItemDataConsumer {
       // update with new index
       NodeData reindexed = nextSibling.cloneAsSibling(nextSibling.getQPath().getIndex() - 1); // go
                                                                                               // up
-      changes.add(ItemState.createUpdatedState(reindexed));
+      ItemState reindexedState = ItemState.createUpdatedState(reindexed);
+      changes.add(reindexedState);
 
       // reload pooled implies... it's actual for session and workspace scope
       // operations

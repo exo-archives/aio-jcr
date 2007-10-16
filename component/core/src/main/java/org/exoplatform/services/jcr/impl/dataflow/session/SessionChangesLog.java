@@ -145,8 +145,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i>=0; i--) {
       ItemState state = allStates.get(i); 
-      if (!state.isOrderable()
-          && state.getData().getParentIdentifier().equals(parentData.getIdentifier())
+      if (state.getData().getParentIdentifier().equals(parentData.getIdentifier())
           && state.getData().getQPath().getEntries()[state.getData().getQPath().getEntries().length - 1]
               .isSame(name))
         return state;
@@ -158,7 +157,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i>=0; i--) {
       ItemState state = allStates.get(i); 
-      if (!state.isOrderable() && state.getData().getIdentifier().equals(itemIdentifier))
+      if (state.getData().getIdentifier().equals(itemIdentifier))
         return state;
     }
     return null;
@@ -168,8 +167,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i>=0; i--) {
       ItemState state = allStates.get(i); 
-      // [PN] 04.01.07 skip orderable item state
-      if (!state.isOrderable() && state.getData().getQPath().equals(itemPath))
+      if (state.getData().getQPath().equals(itemPath))
         return  state;
     }
     return null;
