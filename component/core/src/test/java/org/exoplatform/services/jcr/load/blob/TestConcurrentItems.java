@@ -22,6 +22,7 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.load.blob.thread.CreateThread;
 import org.exoplatform.services.jcr.load.blob.thread.DeleteThread;
+import org.exoplatform.services.jcr.load.blob.thread.NtFileCreatorThread;
 import org.exoplatform.services.jcr.load.blob.thread.ReadThread;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
@@ -88,21 +89,23 @@ public class TestConcurrentItems extends JcrAPIBaseTest {
   
   @Override
   protected void tearDown() throws Exception {
-    
+    log.info("Tear down begin...");
     try {
       if (testFile != null)
         testFile.delete();
     } catch(Throwable e) {
       log.error("Temp test file error of delete: " + e.getMessage(), e);
     } finally {
-      testBinaryValue.getSession().refresh(false);
+      log.info("Remove test root...");
       testBinaryValue.remove();
       testBinaryValue.getSession().save();
+      log.info("Remove test root done");
       super.tearDown();
+      log.info("Tear down done");
     }
   }
   
-  public void testReadSame() throws Exception {
+  public void _testReadSame() throws Exception {
     // creators
     Session csession = repository.login(session.getCredentials(), "ws1");
     String nodeName = IdGenerator.generate();
@@ -207,6 +210,7 @@ public class TestConcurrentItems extends JcrAPIBaseTest {
     DeleteThread cleaner = new DeleteThread(repository.login(session.getCredentials(), "ws1"));
     cleaner.start();
     
+    log.info("<<<<<<<<<<<<<<<<<<<< Wait cycle >>>>>>>>>>>>>>>>>>>>>");
     // 360 - 60 min
     // 4320 - 12 hours
     int cycles = 180; // 5min
@@ -257,4 +261,103 @@ public class TestConcurrentItems extends JcrAPIBaseTest {
     }
   }
   
+  public void testAddNtFiles() throws Exception {
+    List<NtFileCreatorThread> creators = new ArrayList<NtFileCreatorThread>();
+    
+    log.info("Begin creators...");
+    for (int i=0; i<100; i++) {
+      Session creatorSession = repository.login(session.getCredentials(), "ws1");
+      Node root = creatorSession.getRootNode().getNode(TestConcurrentItems.TEST_ROOT);
+      
+      String testRootName = "root-" + IdGenerator.generate();
+      root.addNode(testRootName);
+      creatorSession.save();
+      
+      NtFileCreatorThread creator = new NtFileCreatorThread(creatorSession, testRootName);
+      creator.start();
+      creators.add(creator);
+      try {
+        Thread.sleep(1000);
+      } catch(InterruptedException e) {
+        log.error("Start creator. Sleep error: " + e.getMessage(), e);
+      }
+    }
+    
+    log.info("<<<<<<<<<<<<<<<<<<<< Wait cycle >>>>>>>>>>>>>>>>>>>>>");
+    // 360 - 60 min
+    // 4320 - 12 hours
+    int cycles = 180; // 5min
+    while (cycles >= 0) {
+      Thread.yield();
+      try {
+        Thread.sleep(10000);
+      } catch (InterruptedException e) {
+        log.error("Test lifecycle. Sleep error: " + e.getMessage(), e);
+      }
+      log.info("<<<<<<<<<<<<<<<<<<<< Cycle " + cycles + " >>>>>>>>>>>>>>>>>>>>>");
+      cycles--;
+    }
+    
+    log.info("<<<<<<<<<<<<<<<<<<<< Stopping >>>>>>>>>>>>>>>>>>>>>");
+    
+    for (NtFileCreatorThread reader: creators) {
+      try {
+        reader.testStop();
+        reader.join();
+        Thread.yield();
+      } catch (InterruptedException e) {
+        log.error("Test lifecycle. Readed stop error: " + e.getMessage(), e);
+      } 
+    }
+    
+    log.info("<<<<<<<<<<<<<<<<<<<< Stopped >>>>>>>>>>>>>>>>>>>>>");
+    
+    final int waitSec = 5;  // 30 sec.
+    
+    log.info("<<<<<<<<<<<<<<<<<<<< Wait " + waitSec + "sec. >>>>>>>>>>>>>>>>>>>>>");
+    
+    Thread waiter = new Thread() {
+      public void run() {
+        try {
+          Thread.sleep(waitSec * 1000);
+        } catch(Throwable e) {
+          System.err.println("Waiter error " + e);
+        }
+      }
+    };
+    
+    try {
+      waiter.start();
+      waiter.join();
+    } catch (InterruptedException e) {
+      log.error("Wait error: " + e.getMessage(), e);
+    }
+    
+    log.info("<<<<<<<<<<<<<<<<<<<< Done >>>>>>>>>>>>>>>>>>>>>");
+  }
+  
+  public void _testAddNtBig() throws Exception {
+    // creators
+    Session csession = repository.login(session.getCredentials(), "ws1");
+    String nodeName = IdGenerator.generate();
+    InputStream dataStream = null; 
+    try {
+      Node testRoot = csession.getRootNode().getNode(TestConcurrentItems.TEST_ROOT);
+      Node ntFile = testRoot.addNode(nodeName, "nt:file");
+      Node contentNode = ntFile.addNode("jcr:content", "nt:resource");
+      dataStream =  new FileInputStream(TestConcurrentItems.TEST_FILE);
+      PropertyImpl data = (PropertyImpl) contentNode.setProperty("jcr:data", dataStream);
+      contentNode.setProperty("jcr:mimeType", "video/avi");
+      contentNode.setProperty("jcr:lastModified", Calendar.getInstance());
+      csession.save();
+      log.info("Create node: " + ntFile.getPath() + ", data: " + data.getInternalIdentifier());
+    } finally {
+      if (dataStream != null)
+        try {
+          dataStream.close();
+        } catch(IOException e) {
+          log.error("Stream read error: " + e.getMessage(), e);
+        }
+    }
+  }
 }

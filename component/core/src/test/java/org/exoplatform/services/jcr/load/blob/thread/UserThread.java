@@ -37,7 +37,6 @@ public abstract class UserThread extends Thread {
   }
 
   public void testStop() {
-    threadSession.logout();
     process = false;
   }
   
@@ -45,5 +44,15 @@ public abstract class UserThread extends Thread {
     testAction();
   }
   
-  public abstract void testAction(); 
+  public abstract void testAction();
+
+  @Override
+  protected void finalize() throws Throwable {
+    try {
+      threadSession.logout();
+    } catch(Throwable e) {}
+    super.finalize();
+  } 
+  
+  
 }
