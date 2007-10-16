@@ -4,6 +4,8 @@
  */
 package org.exoplatform.services.jcr.usecases.nodetypes;
 
+import java.util.Calendar;
+
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
@@ -28,7 +30,7 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 
     Node rootNode = session.getRootNode();
     Node queryNode = rootNode.addNode("queryNode", "nt:unstructured");
-    Node someNode = queryNode.addNode("smth", "nt:unstructured");
+    Node someNode = queryNode.addNode("pathToParent", "nt:unstructured");
 
     if (!someNode.canAddMixin("rma:record"))
       throw new RepositoryException("Cannot add mixin node");
@@ -38,27 +40,42 @@ public class TestSearchNodetype extends BaseUsecasesTest {
       someNode
           .setProperty("rma:originatingOrganization", "testProperty2");
     }
-
-    someNode.addNode("Test1");
-    someNode.addNode("Test2");
+    
+           
+    Node node1 = someNode.addNode("Test1", "nt:file");
+    Node content1 = node1.addNode("jcr:content","nt:resource");
+    content1.setProperty("jcr:lastModified", Calendar.getInstance());
+    content1.setProperty("jcr:mimeType", "text/xml");
+    content1.setProperty("jcr:data", getClass().getResourceAsStream("nodetypes-usecase-test.xml") );
+    node1.addMixin("rma:record");
+    node1.setProperty("rma:recordIdentifier", "testIdentificator");
+    node1.setProperty("rma:originatingOrganization", "testProperty2");
+    
+    Node node2 = someNode.addNode("Test2", "nt:file");
+    Node content2 = node2.addNode("jcr:content","nt:resource");
+    content2.setProperty("jcr:lastModified", Calendar.getInstance());
+    content2.setProperty("jcr:mimeType", "text/xml");
+    content2.setProperty("jcr:data", getClass().getResourceAsStream("nodetypes-usecase-test.xml") );
+    node2.addMixin("rma:record");
+    node2.setProperty("rma:recordIdentifier", "testIdentificator");
+    node2.setProperty("rma:originatingOrganization", "testProperty2");
     
     session.save();
     
-    String sqlQuery = "SELECT * FROM rma:record WHERE jcr:path LIKE '/queryNode/smth/%' ";
+    String sqlQuery = "SELECT * FROM rma:record WHERE jcr:path LIKE '/queryNode/pathToParent/%' ";
     QueryManager manager = session.getWorkspace().getQueryManager();
     Query query = manager.createQuery(sqlQuery, Query.SQL);
 
     QueryResult queryResult = query.execute();
     NodeIterator iter = queryResult.getNodes();
     
-    Node target = null;
-    assertTrue( iter.getSize() == 1 );  // check target node for existanse
-    assertNotNull( target = iter.nextNode() );
     
-    target.getNode("Test1");
-    target.getNode("Test2");
-        
-        
+    assertTrue( iter.getSize() == 2 );  // check target nodes for existanse
+    
+    while(iter.hasNext()){
+    	assertNotNull(iter.nextNode());
+    }
+
   }
   
   public void testCreateNodetypeWithLogout() throws Exception{
@@ -67,7 +84,7 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 
     Node rootNode = session.getRootNode();
     Node queryNode = rootNode.addNode("queryNode", "nt:unstructured");
-    Node someNode = queryNode.addNode("smth", "nt:unstructured");
+    Node someNode = queryNode.addNode("pathToParent", "nt:unstructured");
 
     if (!someNode.canAddMixin("rma:record"))
       throw new RepositoryException("Cannot add mixin node");
@@ -78,24 +95,38 @@ public class TestSearchNodetype extends BaseUsecasesTest {
           .setProperty("rma:originatingOrganization", "testProperty2");
     }
 
-    someNode.addNode("Test1");
-    someNode.addNode("Test2");
+    Node node1 = someNode.addNode("Test1", "nt:file");
+    Node content1 = node1.addNode("jcr:content","nt:resource");
+    content1.setProperty("jcr:lastModified", Calendar.getInstance());
+    content1.setProperty("jcr:mimeType", "text/xml");
+    content1.setProperty("jcr:data", getClass().getResourceAsStream("nodetypes-usecase-test.xml") );
+    node1.addMixin("rma:record");
+    node1.setProperty("rma:recordIdentifier", "testIdentificator");
+    node1.setProperty("rma:originatingOrganization", "testProperty2");
+    
+    Node node2 = someNode.addNode("Test2", "nt:file");
+    Node content2 = node2.addNode("jcr:content","nt:resource");
+    content2.setProperty("jcr:lastModified", Calendar.getInstance());
+    content2.setProperty("jcr:mimeType", "text/xml");
+    content2.setProperty("jcr:data", getClass().getResourceAsStream("nodetypes-usecase-test.xml") );
+    node2.addMixin("rma:record");
+    node2.setProperty("rma:recordIdentifier", "testIdentificator");
+    node2.setProperty("rma:originatingOrganization", "testProperty2");
     
     session.save();
     
-    String sqlQuery = "SELECT * FROM rma:record WHERE jcr:path LIKE '/queryNode/smth/%' ";
+    String sqlQuery = "SELECT * FROM rma:record WHERE jcr:path LIKE '/queryNode/pathToParent/%' ";
     QueryManager manager = session.getWorkspace().getQueryManager();
     Query query = manager.createQuery(sqlQuery, Query.SQL);
 
     QueryResult queryResult = query.execute();
     NodeIterator iter = queryResult.getNodes();
     
-    Node target = null;
-    assertTrue( iter.getSize() == 1 );  // check target node for existanse
-    assertNotNull( target = iter.nextNode() );
+    assertTrue( iter.getSize() == 2 );  // check target nodes for existanse
     
-    Node testNode1 = target.getNode("Test1");
-    Node testNode2 = target.getNode("Test2");
+    while(iter.hasNext()){
+    	assertNotNull(iter.nextNode());
+    }
     
     session.logout();
     
@@ -106,24 +137,23 @@ public class TestSearchNodetype extends BaseUsecasesTest {
     QueryResult queryResult2 = query2.execute();
     NodeIterator iter2 = queryResult2.getNodes();
     
-    assertTrue( iter2.getSize() == 1 ); // check target node for existanse
-    assertNotNull( target = iter2.nextNode() );
-    
-    testNode1 = target.getNode("Test1");
-    testNode2 = target.getNode("Test2");
+    assertTrue( iter2.getSize() == 2 );  // check target nodes for existanse
+    while(iter2.hasNext()){
+    	assertNotNull(iter2.nextNode());
+    }
   
   }
   
   public void testCreateNodetypeWithPreQueryManader() throws Exception{
     log.info("!!Adding node with test nodetype - USE LOGOUT/LOGIN");
     
-    String sqlQuery = "SELECT * FROM rma:record WHERE jcr:path LIKE '/queryNode/smth/%' ";
+    String sqlQuery = "SELECT * FROM rma:record WHERE jcr:path LIKE '/queryNode/pathToParent/%' ";
     QueryManager manager = session.getWorkspace().getQueryManager();
     Query query = manager.createQuery(sqlQuery, Query.SQL);
 
     Node rootNode = session.getRootNode();
     Node queryNode = rootNode.addNode("queryNode", "nt:unstructured");
-    Node someNode = queryNode.addNode("smth", "nt:unstructured");
+    Node someNode = queryNode.addNode("pathToParent", "nt:unstructured");
 
     if (!someNode.canAddMixin("rma:record"))
       throw new RepositoryException("Cannot add mixin node");
@@ -134,21 +164,34 @@ public class TestSearchNodetype extends BaseUsecasesTest {
           .setProperty("rma:originatingOrganization", "testProperty2");
     }
 
-    someNode.addNode("Test1");
-    someNode.addNode("Test2");
+    Node node1 = someNode.addNode("Test1", "nt:file");
+    Node content1 = node1.addNode("jcr:content","nt:resource");
+    content1.setProperty("jcr:lastModified", Calendar.getInstance());
+    content1.setProperty("jcr:mimeType", "text/xml");
+    content1.setProperty("jcr:data", getClass().getResourceAsStream("nodetypes-usecase-test.xml") );
+    node1.addMixin("rma:record");
+    node1.setProperty("rma:recordIdentifier", "testIdentificator");
+    node1.setProperty("rma:originatingOrganization", "testProperty2");
+    
+    Node node2 = someNode.addNode("Test2", "nt:file");
+    Node content2 = node2.addNode("jcr:content","nt:resource");
+    content2.setProperty("jcr:lastModified", Calendar.getInstance());
+    content2.setProperty("jcr:mimeType", "text/xml");
+    content2.setProperty("jcr:data", getClass().getResourceAsStream("nodetypes-usecase-test.xml") );
+    node2.addMixin("rma:record");
+    node2.setProperty("rma:recordIdentifier", "testIdentificator");
+    node2.setProperty("rma:originatingOrganization", "testProperty2");
     
     session.save();
     
     QueryResult queryResult = query.execute();
     NodeIterator iter = queryResult.getNodes();
     
-    Node target = null;
-    assertTrue( iter.getSize() == 1 );  // check target node for existanse
-    assertNotNull( target = iter.nextNode() );
-    
-    Node testNode1 = target.getNode("Test1");
-    Node testNode2 = target.getNode("Test2");
-    
+
+	assertTrue(iter.getSize() == 2); // check target nodes for existanse
+	while (iter.hasNext()) {
+			assertNotNull(iter.nextNode());
+	}
     session.logout();
     
     // new login
@@ -158,11 +201,11 @@ public class TestSearchNodetype extends BaseUsecasesTest {
     QueryResult queryResult2 = query2.execute();
     NodeIterator iter2 = queryResult2.getNodes();
     
-    assertTrue( iter2.getSize() == 1 ); // check target node for existanse
-    assertNotNull( target = iter2.nextNode() );
+    assertTrue( iter2.getSize() == 2 );  // check target nodes for existanse
     
-    testNode1 = target.getNode("Test1");
-    testNode2 = target.getNode("Test2");
+    while(iter2.hasNext()){
+    	assertNotNull(iter2.nextNode());
+    }
 
   }
 }
