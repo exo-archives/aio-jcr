@@ -89,6 +89,10 @@
                 <name>namespaces</name>
                 <property name="test" value="http://www.apache.org/jackrabbit/test"/>
                 <property name="exojcrtest" value="http://www.exoplatform.org/jcr/test/1.0"/>
+				
+				<property name="rma" value="http://www.rma.com/jcr/"/>
+				<property name="metadata" value="http://www.exoplatform.com/jcr/metadata/1.1/"/>
+				  
               </properties-param>
             </init-params>
         </component-plugin>
@@ -102,17 +106,28 @@
             <description>Node types configuration file</description>
             <value>jar:/conf/test/nodetypes-tck.xml</value>
             <value>jar:/conf/test/nodetypes-impl.xml</value>
+			<value>jar:/conf/test/nodetypes-test3-usecase.xml</value>
+			  
           </values-param>
-          <values-param>
+          
+		<values-param>
             <name>testInitNodeTypesRepository</name>
             <description>Node types configuration file for repository with name testInitNodeTypesRepository</description>
             <value>jar:/conf/test/nodetypes-test.xml</value>
           </values-param>
-          <values-param>
+          
+		 <values-param>
             <name>testInitNodeTypesRepositoryTest2</name>
             <description>Node types configuration file for repository with name testInitNodeTypesRepositoryTest2</description>
             <value>jar:/conf/test/nodetypes-test2.xml</value>
           </values-param>
+		
+		<!--values-param>
+            <name>testInitNodeTypesRepositoryTest3</name>
+            <description>Node types from ext. Needed bacause core starup earlie than ext</description>
+            <value>jar:/conf/test/nodetypes-test3_ext.xml</value>
+          </values-param-->
+			  
         </init-params>
         </component-plugin>
       </component-plugins>
