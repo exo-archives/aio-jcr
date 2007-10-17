@@ -122,6 +122,7 @@ public class SearchDialog extends BrowseDialog {
   private boolean tryOpenSelected() throws Exception {
     XListBox xListBox = (XListBox)UnoRuntime.queryInterface(XListBox.class, xControlContainer.getControl(LST_ITEMS));
     int selectedPos = xListBox.getSelectedItemPos();
+    
     if (selectedPos < 0) {
       return false;
     }
