@@ -4,7 +4,7 @@
 	xmlns:dc="http://purl.org/dc/elements/1.1/">
 	
 	<!-- metadata nodetypes -->	
-	<nodeType name="exo:metadata" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+	<nodeType name="exo:metadata" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
     <propertyDefinitions>
       <propertyDefinition name="exo:internalUse" requiredType="Boolean" autoCreated="true" mandatory="false"
         onParentVersion="COPY" protected="false" multiple="false">
@@ -17,89 +17,87 @@
   </nodeType>
   
 	<!-- Dublin Core Metadata Elemet Set, Version 1.1  -->	
-	<nodeType name="dc:elementSet" isMixin="true" hasOrderableChildNodes="false"
-		primaryItemName="">		
-		<supertypes>
-      <supertype>exo:metadata</supertype>
-    </supertypes>
-		<propertyDefinitions>
-			<propertyDefinition name="dc:title" requiredType="String"
-				autoCreated="false" mandatory="false" onParentVersion="COPY"
-				protected="false" multiple="true">
-				<valueConstraints/>
-			</propertyDefinition>
-			<propertyDefinition name="dc:creator" requiredType="String"
-				autoCreated="false" mandatory="false" onParentVersion="COPY"
-				protected="false" multiple="true">
-				<valueConstraints/>
-			</propertyDefinition>
-			<propertyDefinition name="dc:subject" requiredType="String"
-				autoCreated="false" mandatory="false" onParentVersion="COPY"
-				protected="false" multiple="true">
-				<valueConstraints/>
-			</propertyDefinition>
-			<propertyDefinition name="dc:description" requiredType="String"
-				autoCreated="false" mandatory="false" onParentVersion="COPY"
-				protected="false" multiple="true">
-				<valueConstraints/>
-			</propertyDefinition>
-			<propertyDefinition name="dc:publisher" requiredType="String"
-				autoCreated="false" mandatory="false" onParentVersion="COPY"
-				protected="false" multiple="true">
-				<valueConstraints/>
-			</propertyDefinition>
-			<propertyDefinition name="dc:contributor" requiredType="String"
-				autoCreated="false" mandatory="false" onParentVersion="COPY"
-				protected="false" multiple="true">
-				<valueConstraints/>
-			</propertyDefinition>
-			<propertyDefinition name="dc:date" requiredType="Date"
-				autoCreated="false" mandatory="false" onParentVersion="COPY"
-				protected="false" multiple="true">
-				<valueConstraints/>
-			</propertyDefinition>
-			<propertyDefinition name="dc:resourceType" requiredType="String"
-				autoCreated="false" mandatory="false" onParentVersion="COPY"
-				protected="false" multiple="true">
-				<valueConstraints/>
-			</propertyDefinition>
-			<propertyDefinition name="dc:format" requiredType="String"
-				autoCreated="false" mandatory="false" onParentVersion="COPY"
-				protected="false" multiple="true">
-				<valueConstraints/>
-			</propertyDefinition>
-			<propertyDefinition name="dc:identifier" requiredType="String"
-				autoCreated="false" mandatory="false" onParentVersion="COPY"
-				protected="false" multiple="true">
-				<valueConstraints/>
-			</propertyDefinition>
-			<propertyDefinition name="dc:source" requiredType="String"
-				autoCreated="false" mandatory="false" onParentVersion="COPY"
-				protected="false" multiple="true">
-				<valueConstraints/>
-			</propertyDefinition>
-			<propertyDefinition name="dc:language" requiredType="String"
-				autoCreated="false" mandatory="false" onParentVersion="COPY"
-				protected="false" multiple="true">
-				<valueConstraints/>
-			</propertyDefinition>
-			<propertyDefinition name="dc:relation" requiredType="String"
-				autoCreated="false" mandatory="false" onParentVersion="COPY"
-				protected="false" multiple="true">
-				<valueConstraints/>
-			</propertyDefinition>
-			<propertyDefinition name="dc:coverage" requiredType="String"
-				autoCreated="false" mandatory="false" onParentVersion="COPY"
-				protected="false" multiple="true">
-				<valueConstraints/>
-			</propertyDefinition>
-			<propertyDefinition name="dc:rights" requiredType="String"
-				autoCreated="false" mandatory="false" onParentVersion="COPY"
-				protected="false" multiple="true">
-				<valueConstraints/>
-			</propertyDefinition>
-			
-		</propertyDefinitions>
+	<nodeType name="dc:elementSet" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">		
+      <supertypes>
+        <supertype>exo:metadata</supertype>
+      </supertypes>
+	<propertyDefinitions>
+		<propertyDefinition name="dc:title" requiredType="String"
+			autoCreated="false" mandatory="false" onParentVersion="COPY"
+			protected="false" multiple="true">
+			<valueConstraints/>
+		</propertyDefinition>
+		<propertyDefinition name="dc:creator" requiredType="String"
+			autoCreated="false" mandatory="false" onParentVersion="COPY"
+			protected="false" multiple="true">
+			<valueConstraints/>
+		</propertyDefinition>
+		<propertyDefinition name="dc:subject" requiredType="String"
+			autoCreated="false" mandatory="false" onParentVersion="COPY"
+			protected="false" multiple="true">
+			<valueConstraints/>
+		</propertyDefinition>
+		<propertyDefinition name="dc:description" requiredType="String"
+			autoCreated="false" mandatory="false" onParentVersion="COPY"
+			protected="false" multiple="true">
+			<valueConstraints/>
+		</propertyDefinition>
+		<propertyDefinition name="dc:publisher" requiredType="String"
+			autoCreated="false" mandatory="false" onParentVersion="COPY"
+			protected="false" multiple="true">
+			<valueConstraints/>
+		</propertyDefinition>
+		<propertyDefinition name="dc:contributor" requiredType="String"
+			autoCreated="false" mandatory="false" onParentVersion="COPY"
+			protected="false" multiple="true">
+			<valueConstraints/>
+		</propertyDefinition>
+		<propertyDefinition name="dc:date" requiredType="Date"
+			autoCreated="false" mandatory="false" onParentVersion="COPY"
+			protected="false" multiple="true">
+			<valueConstraints/>
+		</propertyDefinition>
+		<propertyDefinition name="dc:resourceType" requiredType="String"
+			autoCreated="false" mandatory="false" onParentVersion="COPY"
+			protected="false" multiple="true">
+			<valueConstraints/>
+		</propertyDefinition>
+		<propertyDefinition name="dc:format" requiredType="String"
+			autoCreated="false" mandatory="false" onParentVersion="COPY"
+			protected="false" multiple="true">
+			<valueConstraints/>
+		</propertyDefinition>
+		<propertyDefinition name="dc:identifier" requiredType="String"
+			autoCreated="false" mandatory="false" onParentVersion="COPY"
+			protected="false" multiple="true">
+			<valueConstraints/>
+		</propertyDefinition>
+		<propertyDefinition name="dc:source" requiredType="String"
+			autoCreated="false" mandatory="false" onParentVersion="COPY"
+			protected="false" multiple="true">
+			<valueConstraints/>
+		</propertyDefinition>
+		<propertyDefinition name="dc:language" requiredType="String"
+			autoCreated="false" mandatory="false" onParentVersion="COPY"
+			protected="false" multiple="true">
+			<valueConstraints/>
+		</propertyDefinition>
+		<propertyDefinition name="dc:relation" requiredType="String"
+			autoCreated="false" mandatory="false" onParentVersion="COPY"
+			protected="false" multiple="true">
+			<valueConstraints/>
+		</propertyDefinition>
+		<propertyDefinition name="dc:coverage" requiredType="String"
+			autoCreated="false" mandatory="false" onParentVersion="COPY"
+			protected="false" multiple="true">
+			<valueConstraints/>
+		</propertyDefinition>
+		<propertyDefinition name="dc:rights" requiredType="String"
+			autoCreated="false" mandatory="false" onParentVersion="COPY"
+			protected="false" multiple="true">
+			<valueConstraints/>
+		</propertyDefinition>
+      </propertyDefinitions>
 	</nodeType>
 	
 	<!-- audit nodetypes -->
