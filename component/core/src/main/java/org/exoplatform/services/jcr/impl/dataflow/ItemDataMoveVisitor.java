@@ -73,7 +73,7 @@ public class ItemDataMoveVisitor   extends ItemDataTraversingVisitor{
    * @param parent - The parent node
    * @param dstNodeName Destination node name
    * @param nodeTypeManager - The NodeTypeManager
-   * @param dataManager - Source data manager
+   * @param srcDataManager - Source data manager
    * @param keepIdentifiers - Is it necessity to keep <code>Identifiers</code>
    */
 

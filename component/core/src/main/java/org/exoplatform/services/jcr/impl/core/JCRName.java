@@ -29,7 +29,7 @@ public class JCRName {
 		this.namespace = namespace.intern();
 		this.prefix = prefix.intern();
     
-    this.stringName = ((this.prefix.length() == 0 ? "" : this.prefix + ":") + this.name).intern();
+    this.stringName = ((this.prefix.length() == 0 ? "" : this.prefix + ":") + this.name); // .intern()
     this.hashCode = 31 * this.stringName.hashCode();
 	}
 	

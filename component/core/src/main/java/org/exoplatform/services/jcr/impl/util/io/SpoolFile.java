@@ -78,7 +78,7 @@ public class SpoolFile extends File {
   
   @Override
   public synchronized boolean delete() {
-    if (users.size() <= 0) {
+    if (users != null && users.size() <= 0) {
       // make unusable
       users.clear();
       users = null;

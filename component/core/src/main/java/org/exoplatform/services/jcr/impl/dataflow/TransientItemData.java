@@ -41,8 +41,8 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
    * @param parentIdentifier parentId
    */
   TransientItemData(QPath path, String identifier, int version, String parentIdentifier) {
-    this.parentIdentifier = parentIdentifier != null ? parentIdentifier.intern() : null;
-    this.identifier = identifier.intern();
+    this.parentIdentifier = parentIdentifier != null ? parentIdentifier : null;
+    this.identifier = identifier;
     this.qpath = path;
     this.persistedVersion = version;
   }
@@ -150,11 +150,11 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
     buf = new byte[in.readInt()];
     in.read(buf);
-    identifier = new String(buf , Constants.DEFAULT_ENCODING).intern();
+    identifier = new String(buf , Constants.DEFAULT_ENCODING);
 
     buf = new byte[in.readInt()];
     in.read(buf);
-    parentIdentifier = new String(buf, Constants.DEFAULT_ENCODING).intern();
+    parentIdentifier = new String(buf, Constants.DEFAULT_ENCODING);
 
     persistedVersion = in.readInt();
   }

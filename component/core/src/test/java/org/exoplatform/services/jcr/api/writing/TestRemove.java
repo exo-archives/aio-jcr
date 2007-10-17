@@ -76,7 +76,7 @@ public class TestRemove extends JcrAPIBaseTest{
     } catch (PathNotFoundException e) {
     }
   }
-
+  
   public void testSetNullValuedProperty() throws RepositoryException {
 
   	//log.debug(">>> set null value ");

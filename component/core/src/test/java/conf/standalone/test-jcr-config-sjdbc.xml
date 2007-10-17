@@ -26,18 +26,18 @@
             <value-storages>
               <value-storage id="Storage #1" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
-                  <property name="path" value="target/temp/values/ws"/>
-                </properties>
-                <filters>
-                  <filter property-type="Binary" min-value-size="204800"/>
-                </filters>
-              </value-storage>
-              <value-storage id="Storage #2" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
-                <properties>
                   <property name="path" value="target/temp/values/ws/files10m"/>
                 </properties>
                 <filters>
                   <filter property-type="Binary" min-value-size="10240000"/>
+                </filters>
+              </value-storage>            
+              <value-storage id="Storage #2" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+                <properties>
+                  <property name="path" value="target/temp/values/ws"/>
+                </properties>
+                <filters>
+                  <filter property-type="Binary" min-value-size="204800"/>
                 </filters>
               </value-storage>
             </value-storages>

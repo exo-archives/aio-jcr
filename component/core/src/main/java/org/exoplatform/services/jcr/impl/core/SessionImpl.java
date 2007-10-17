@@ -572,15 +572,8 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
       else
         throw new RepositoryException(e);
     }
-
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see javax.jcr.Session#exportDocumentView(java.lang.String,
-   *      java.io.OutputStream, boolean, boolean)
-   */
   public void exportDocumentView(String absPath,
       OutputStream out,
       boolean skipBinary,
@@ -616,6 +609,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
       }
     }
   }
+  
   public void importXML(String parentAbsPath,
                         InputStream in,
                         int uuidBehavior,
@@ -642,25 +636,14 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     if (!node.checkLocking()) {
       throw new LockException("Node " + node.getPath() + " is locked ");
     }
-
-
-    
-
     
     StreamImporter importer = new ExportImportFactory(this).getStreamImporter(XmlSaveType.SESSION,
                                                                               node,
                                                                               uuidBehavior,
                                                                               respectPropertyDefinitionsConstraints);
     importer.importStream(in);
-    
   }
   
-  /*
-   * (non-Javadoc)
-   * 
-   * @see javax.jcr.Session#importXML(java.lang.String, java.io.InputStream,
-   *      int)
-   */
   public void importXML(String parentAbsPath, InputStream in, int uuidBehavior) throws IOException,
       PathNotFoundException,
       ItemExistsException,
@@ -671,11 +654,6 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     importXML(parentAbsPath,in,uuidBehavior,true);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see javax.jcr.Session#getImportContentHandler(java.lang.String, int)
-   */
   public ContentHandler getImportContentHandler(String parentAbsPath, int uuidBehavior) throws PathNotFoundException,
       ConstraintViolationException,
       VersionException,
@@ -698,19 +676,12 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
       throw new LockException("Node " + node.getPath() + " is locked ");
     }
 
-
-
     return new ExportImportFactory(this).getImportHandler(XmlSaveType.SESSION,
                                                           node,
                                                           uuidBehavior,
                                                           true);
   }
   
-  /*
-   * (non-Javadoc)
-   * 
-   * @see javax.jcr.Session#move(java.lang.String, java.lang.String)
-   */
   public void move(String srcAbsPath, String destAbsPath) throws ItemExistsException,
       PathNotFoundException,
       VersionException,
@@ -753,8 +724,6 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
     if (!srcNode.checkLocking())
       throw new LockException("Source parent node " + srcNode.getPath() + " is locked ");
-
-    
     
     ItemDataMoveVisitor initializer = new ItemDataMoveVisitor((NodeData) destParentNode.getData(),
         destNodePath.getName().getInternalName(),
@@ -763,10 +732,6 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
         true);
     
     getTransientNodesManager().rename((NodeData) srcNode.getData(),initializer);
-    
-    
-   
-    
   }
 
   // //////////////////// OPTIONAL

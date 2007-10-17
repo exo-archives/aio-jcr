@@ -186,7 +186,7 @@ public class QPath implements Comparable {
       for (int i = 0; i < getLength(); i++) {
         str += names[i].getAsString(true);
       }
-      stringName = str.intern();
+      stringName = str;
     }
 
     return stringName;

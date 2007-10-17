@@ -128,7 +128,7 @@ public abstract class FileIOChannel implements ValueIOChannel {
       byte[] buff = value.getAsByteArray();
       out.write(buff);
     } else {
-      byte[] buffer = new byte[FileIOChannel.IOBUFFER_SIZE]; //was 0x2000 = 8K
+      byte[] buffer = new byte[FileIOChannel.IOBUFFER_SIZE];
       int len;
       InputStream in = value.getAsStream();
       while ((len = in.read(buffer)) > 0) {

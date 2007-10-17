@@ -267,7 +267,7 @@ public class JCRPath {
         indexStr = "[" + getIndex() + "]";
       else
         indexStr = "";
-      return (super.getAsString() + indexStr).intern(); 
+      return (super.getAsString() + indexStr); 
     }
 
     public boolean isIndexSetExplicitly() {

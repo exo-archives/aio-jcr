@@ -46,12 +46,13 @@ class CacheQPath implements Serializable {
   }
   
   protected String key(String parentId, QPathEntry name) {
-    return ((parentId != null ? parentId : ".") + name.getAsString(true)).intern();
+    return ((parentId != null ? parentId : ".") + name.getAsString(true)); // .intern()
   }
   
   @Override
   public boolean equals(Object obj) {
-    return obj.equals(key);
+    //return obj.equals(key); // [PN] 16.10.07
+    return key.hashCode() == obj.hashCode();
   }
 
   @Override
