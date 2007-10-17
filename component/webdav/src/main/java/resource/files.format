@@ -1,8 +1,0 @@
-<tr>
-<td width=10><img src='%s' width=17></td>
-<td><b><a href='%s'>%s</a></b></td>
-<td><font size=2 nowrap>%s</font></td>
-<td><font size=2 nowrap>%s</font></td>
-<td><font size=2 nowrap>%s</font></td>
-<td width=40%>&nbsp;</td>
-</tr>
