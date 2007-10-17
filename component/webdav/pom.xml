@@ -15,12 +15,19 @@
 
   <dependencies>
 
-	<dependency>
-		<groupId>org.exoplatform.ws.rest</groupId>
-		<artifactId>exo.rest.core</artifactId>
-		<version>0.1</version>
-		<scope>compile</scope>
-	</dependency>	  
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.4</version>
+      <scope>provided</scope>
+    </dependency>
+
+		<dependency>
+			<groupId>org.exoplatform.ws.rest</groupId>
+			<artifactId>exo.rest.core</artifactId>
+			<version>0.1</version>
+			<scope>compile</scope>
+		</dependency>	  
 	  
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
@@ -33,6 +40,20 @@
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.component.core</artifactId>
       <version>${org.exoplatform.jcr.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+      <version>1.0</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-chain</groupId>
+      <artifactId>commons-chain</artifactId>
+      <version>1.0</version>
       <scope>compile</scope>
     </dependency>
 
