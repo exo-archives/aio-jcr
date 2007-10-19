@@ -41,7 +41,9 @@ import org.exoplatform.services.jcr.impl.core.version.ChildVersionRemoveVisitor;
 import org.exoplatform.services.jcr.impl.core.version.VersionHistoryImpl;
 import org.exoplatform.services.jcr.impl.core.version.VersionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataMoveVisitor;
+import org.exoplatform.services.jcr.impl.dataflow.ItemDataRenameVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.LocalWorkspaceDataManagerStub;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableDataManager;
@@ -824,7 +826,10 @@ public class SessionDataManager implements ItemDataConsumer {
     NodeData parentNodeData = (NodeData) dataManager.getItemData(cause.getParentIdentifier());
 
     TransientNodeData nextSibling = (TransientNodeData) dataManager.getItemData(parentNodeData,
-        new QPathEntry(cause.getQPath().getName(), cause.getQPath().getIndex() + 1));
+                                                                                new QPathEntry(cause.getQPath()
+                                                                                                    .getName(),
+                                                                                               cause.getQPath()
+                                                                                                    .getIndex() + 1));
     while (nextSibling != null) {
       if (nextSibling.getIdentifier().equals(cause.getIdentifier())) {
         // it's a case of reindex if we deleteing few siblings
@@ -832,17 +837,77 @@ public class SessionDataManager implements ItemDataConsumer {
       }
       // update with new index
       NodeData reindexed = nextSibling.cloneAsSibling(nextSibling.getQPath().getIndex() - 1); // go
-                                                                                              // up
-      ItemState reindexedState = ItemState.createUpdatedState(reindexed);
+      ItemState nodeDeletedState = new ItemState(nextSibling,
+                                             ItemState.DELETED,
+                                             false,
+                                             null,
+                                             false,
+                                             false);
+      // up
+      ItemState reindexedState = ItemState.createRenamedState(reindexed);
+      changes.add(nodeDeletedState);
       changes.add(reindexedState);
 
       // reload pooled implies... it's actual for session and workspace scope
       // operations
       itemsPool.reload(reindexed);
 
+      // reload properties
+      List<PropertyData> childsProperies = dataManager.getChildPropertiesData(reindexed);
+      for (PropertyData propertyData : childsProperies) {
+        TransientPropertyData tData = (TransientPropertyData) propertyData;
+        TransientPropertyData tDataCopy = new TransientPropertyData(QPath.makeChildPath(reindexed.getQPath(),
+                                                                                        tData.getQName()),
+                                                                    tData.getIdentifier(),
+                                                                    tData.getPersistedVersion(),
+                                                                    tData.getType(),
+                                                                    tData.getParentIdentifier(),
+                                                                    tData.isMultiValued());
+        tDataCopy.setValues(tData.getValues());
+        ItemState deletedState = new ItemState(tData,
+                                               ItemState.DELETED,
+                                               false,
+                                               null,
+                                               false,
+                                               false);
+        
+        ItemState reanameState = new ItemState(tDataCopy,
+                                               ItemState.RENAMED,
+                                               false,
+                                               null,
+                                               false,
+                                               false);
+        changes.add(deletedState);
+        changes.add(reanameState);
+        itemsPool.reload(reindexed);
+
+      }
+      
+      // reload subnodes
+
+      List<NodeData> childsNodes = dataManager.getChildNodesData(reindexed);
+      for (NodeData nodeData : childsNodes) {
+        ItemDataRenameVisitor dataRenameVisitor = new ItemDataRenameVisitor(reindexed,
+                                                                            false,
+                                                                            false,
+                                                                            this,
+                                                                            -1);
+        nodeData.accept(dataRenameVisitor);
+
+        List<ItemState> renamedSubList = dataRenameVisitor.getItemRenamedStates();
+
+        for (ItemState itemState : renamedSubList) {
+          itemsPool.reload(itemState.getData());
+        }
+        changes.addAll(renamedSubList);
+      }
+
       // next...
       nextSibling = (TransientNodeData) dataManager.getItemData(parentNodeData,
-          new QPathEntry(nextSibling.getQPath().getName(), nextSibling.getQPath().getIndex() + 1));
+                                                                new QPathEntry(nextSibling.getQPath()
+                                                                                          .getName(),
+                                                                               nextSibling.getQPath()
+                                                                                          .getIndex() + 1));
     }
 
     return changes;
@@ -1427,6 +1492,7 @@ public class SessionDataManager implements ItemDataConsumer {
 
     public int compare(ItemState i1, ItemState i2) {
       int res = i1.getData().getQPath().compareTo(i2.getData().getQPath());
+      //int res = i1.getData().getQPath().getAsString().compareTo(i2.getData().getQPath().getAsString());
       if (reverse)
         res *= (-1);
       return res;

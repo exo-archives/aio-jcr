@@ -231,6 +231,26 @@ public class ItemState implements Externalizable {
   public static ItemState createUpdatedState(ItemData data, boolean isInternalCreated) {
     return new ItemState(data, UPDATED, true, null, isInternalCreated);
   }
+  
+  
+  
+
+  /**
+   * creates RENAMED item state shortcut for new ItemState(data, RENAMED, true,
+   * true, null)
+   * 
+   * @param data
+   * @param needValidation
+   * @return
+   */
+  public static ItemState createRenamedState(ItemData data) {
+    return new ItemState(data, RENAMED, true, null);
+
+  }
+
+  public static ItemState createRenamedState(ItemData data, boolean isInternalCreated) {
+    return new ItemState(data, RENAMED, true, null, isInternalCreated);
+  }
   /**
    * creates DELETED item state shortcut for new ItemState(data, DELETED, true,
    * true, null)

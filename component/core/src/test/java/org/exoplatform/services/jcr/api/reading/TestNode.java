@@ -462,16 +462,19 @@ public class TestNode extends JcrAPIBaseTest{
       node1.setProperty("prop", "_data1");
       Node node2 = testRoot.addNode("_node");
       node2.setProperty("prop", "_data2");
-      
+      Node node3 = node2.addNode("node3");
       testRoot.save();
       
       try {
-        
+        assertEquals("/snsRemoveTest/_node[2]/node3",node2.getNode("node3").getPath());
         node1.remove(); // /snsRemoveTest/_node[2] -> /snsRemoveTest/_node[1]
         
         // check  
         String n2p = node2.getProperty("prop").getString();
         assertEquals("A property must be same ", "_data2", n2p);
+        
+        assertEquals("/snsRemoveTest/_node/node3", node2.getNode("node3").getPath());
+        
       } catch(RepositoryException e) {
         e.printStackTrace();
         fail("A property must exists on the node /snsRemoveTest/_node[1] " + e);
