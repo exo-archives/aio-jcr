@@ -21,7 +21,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id$
  */
 
-public class QPath implements Comparable {
+public class QPath implements Comparable<QPath> {
 
   protected static Log log = ExoLogger.getLogger("jcr.SessionDataManager");
 
@@ -208,23 +208,29 @@ public class QPath implements Comparable {
     return hashCode == o.hashCode();
   }
 
-  public int compareTo(Object o) {
-    if(o == this) {
+  public int compareTo(QPath compare) {
+    if (compare.equals(this))
       return 0;
 
-    } else if(o instanceof QPath) {
-      QPath anotherPath = (QPath)o;
+    int len1 = names.length;
+    int len2 = compare.getLength();
 
-      final String myString = getAsString();
-      final String anotherString = anotherPath.getAsString();
+    QPathEntry[] e1 = names;
+    QPathEntry[] e2 = compare.getEntries();
 
-      if (myString == anotherString)
-        return 0;
-
-      return myString.compareTo(anotherString);
+    int k = 0;
+    int lim = Math.min(len1, len2) ;
+    while (k < lim) {
+      
+      QPathEntry c1 = e1[k];
+      QPathEntry c2 = e2[k];
+      
+      if (!c1.isSame(c2)) {
+        return c1.compareTo(c2);
+      }
+      k++;
     }
-
-    return 0;
+    return len1 - len2;
   }
 
   @Override

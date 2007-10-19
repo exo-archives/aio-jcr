@@ -3,7 +3,7 @@
  */
 package org.exoplatform.services.jcr.datamodel;
 
-public class QPathEntry extends InternalQName {
+public class QPathEntry extends InternalQName implements Comparable<QPathEntry> {
 
   private final int index;
 
@@ -44,5 +44,19 @@ public class QPathEntry extends InternalQName {
    */
   public String getAsString(boolean showIndex) {
     return super.getAsString() + (showIndex ? QPath.PREFIX_DELIMITER + this.index : "");
+  }
+
+  public int compareTo(QPathEntry compare) {
+    int result = 0;
+
+    if (this.equals(compare))
+      return result;
+    result = namespace.compareTo(compare.namespace);
+    if (result == 0) {
+      result = name.compareTo(compare.name);
+      if (result == 0)
+        result = (index < compare.index ? 1 : (index == compare.index ? 0 : -1));
+    }
+    return result;
   }
 }
