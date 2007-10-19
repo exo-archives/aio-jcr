@@ -6,7 +6,7 @@
 1.3. Maven version 2.0.4 (or higher).
 2. Run "mvn -f product-exo-jcr-as-tomcat6.xml clean install antrun:run" command.
 3. If the command has executed successfully, go to exo-tomcat and run "eXo run" command.
-4. You may use other product-exo-jcr-as* and an application server if you need.
+4. You may use other product-exo-jcr-as* and an application server if you need. 
 
 Application server's specific configs is placed in product-patches/as/ folder.
 Win32NetBIOS.dll - will be placed in root directory of an application server, this dll will be use by CIFS (Windows OS).
