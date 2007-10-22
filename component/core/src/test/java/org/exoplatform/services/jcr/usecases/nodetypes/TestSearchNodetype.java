@@ -67,7 +67,7 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 		QueryResult queryResult = query.execute();
 		NodeIterator iter = queryResult.getNodes();
 
-		assertTrue(iter.getSize() == 2); // check target nodes for existanse
+		assertTrue(iter.getSize() == nodePath.size() ); // check target nodes for existence
 		
 		Iterator<String> i_path = nodePath.iterator();
 		
@@ -116,7 +116,7 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 		QueryResult queryResult = query.execute();
 		NodeIterator iter = queryResult.getNodes();
 
-		assertTrue(iter.getSize() == 2); // check target nodes for existanse
+		assertTrue(iter.getSize() == nodePath.size() ); // check target nodes for existence
 
 		Iterator<String> i_path = nodePath.iterator();
 		
@@ -133,7 +133,7 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 		QueryResult queryResult2 = query2.execute();
 		NodeIterator iter2 = queryResult2.getNodes();
 
-		assertTrue(iter2.getSize() == 2); // check target nodes for existanse
+		assertTrue(iter2.getSize() == nodePath.size()); // check target nodes for existence
 		i_path = nodePath.iterator();
 		
 		while (iter.hasNext() && i_path.hasNext()) {
@@ -179,7 +179,7 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 		QueryResult queryResult = query.execute();
 		NodeIterator iter = queryResult.getNodes();
 
-		assertTrue(iter.getSize() == 2); // check target nodes for existanse
+		assertTrue(iter.getSize() == nodePath.size() ); // check target nodes for existence
 		Iterator<String> i_path = nodePath.iterator();
 		
 		while (iter.hasNext() && i_path.hasNext()) {
@@ -195,7 +195,7 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 		QueryResult queryResult2 = query2.execute();
 		NodeIterator iter2 = queryResult2.getNodes();
 
-		assertTrue(iter2.getSize() == 2); // check target nodes for existanse
+		assertTrue(iter2.getSize() == nodePath.size() ); // check target nodes for existence
 
 		i_path = nodePath.iterator();
 		
