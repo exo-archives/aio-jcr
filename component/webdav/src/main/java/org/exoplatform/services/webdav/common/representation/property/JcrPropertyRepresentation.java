@@ -15,6 +15,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.WebDavStatus;
 
 /**
@@ -79,7 +80,7 @@ public class JcrPropertyRepresentation extends CommonWebDavProperty {
     
   }  
 
-  public void read(Node node) {
+  public void read(Node node) {    
     try {
       Node nodeToSelect = node;
       
@@ -93,10 +94,19 @@ public class JcrPropertyRepresentation extends CommonWebDavProperty {
       
       String prefixedName = prefix + ":" + propertyName;
       
-      Property property = nodeToSelect.getProperty(prefixedName);
+      Property property = null;
       
-      if (property.getDefinition().isMultiple()) {
-        
+      try {
+        property = nodeToSelect.getProperty(prefixedName);
+      } catch (PathNotFoundException pexc) {
+        if (node.isNodeType(DavConst.NodeTypes.NT_FILE)) {
+          property = node.getNode(DavConst.NodeTypes.JCR_CONTENT).getProperty(prefixedName);
+        } else {
+          throw pexc;
+        }
+      }
+      
+      if (property.getDefinition().isMultiple()) {        
         Value []values = property.getValues();
         for (int i = 0; i < values.length; i++) {
           Value value = values[i];

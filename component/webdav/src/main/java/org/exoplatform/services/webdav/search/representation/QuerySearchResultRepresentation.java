@@ -47,6 +47,9 @@ public class QuerySearchResultRepresentation extends AllPropResponseRepresentati
       if (nextNode.isNodeType(DavConst.NodeTypes.NT_RESOURCE)) {
         if (nextNode.getParent().isNodeType(DavConst.NodeTypes.NT_FILE)) {
           nextNode = nextNode.getParent();
+        } else {
+          // skipping
+          continue;
         }
       }
       

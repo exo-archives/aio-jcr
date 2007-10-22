@@ -13,8 +13,6 @@ import java.io.InputStream;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.logging.Log;
-import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.transformer.InputEntityTransformer;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -27,7 +25,7 @@ import org.xml.sax.SAXException;
 
 public class WebDavXmlInputTransformer extends InputEntityTransformer {
   
-  private static Log log = ExoLogger.getLogger("jcr.WebDavXmlInputTransformer");
+  //private static Log log = ExoLogger.getLogger("jcr.WebDavXmlInputTransformer");
   
   @Override
   public Document readFrom(InputStream entityDataStream) throws IOException {

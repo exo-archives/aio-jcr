@@ -84,6 +84,10 @@ public class AllPropResponseRepresentation extends PropFindResponseRepresentatio
       
       String propertyName = property.getName();
       
+      if (DavConst.NodeTypes.JCR_DATA.equals(propertyName)) {
+        continue;
+      }
+      
       if (!presentedProperties.contains(propertyName)) {        
         presentedProperties.add(propertyName);
         

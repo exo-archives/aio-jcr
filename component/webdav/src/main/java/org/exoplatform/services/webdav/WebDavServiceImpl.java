@@ -196,7 +196,7 @@ public class WebDavServiceImpl implements WebDavService {
     return lockTable;
   }
   
-  public PropertyRepresentation getPropertyRepresentation(String nameSpaceURI, String propertyName, String href) {    
+  public PropertyRepresentation getPropertyRepresentation(String nameSpaceURI, String propertyName, String href) {
     HashMap<String, String> nameSpacedMap = properties.get(nameSpaceURI);
     if (nameSpacedMap == null) {
       return new JcrPropertyRepresentation(nameSpaceURI, propertyName);
