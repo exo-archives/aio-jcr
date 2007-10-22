@@ -29,15 +29,6 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 
 		Node queryNode = root.addNode("aFilePlan", "nt:unstructured");
 
-		if (!queryNode.canAddMixin("rma:record"))
-			throw new RepositoryException("Cannot add mixin node");
-		else {
-			queryNode.addMixin("rma:record");
-			queryNode.setProperty("rma:recordIdentifier", "testIdentificator");
-			queryNode.setProperty("rma:originatingOrganization",
-					"testProperty2");
-		}
-
 		Node node1 = queryNode.addNode("Test1", "nt:file");
 		Node content1 = node1.addNode("jcr:content", "nt:resource");
 		content1.setProperty("jcr:lastModified", Calendar.getInstance());
@@ -76,18 +67,9 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 	}
 
 	public void testCreateNodetypeWithLogout() throws Exception {
-
+		
 		Node queryNode = root.addNode("aFilePlan", "nt:unstructured");
-
-		if (!queryNode.canAddMixin("rma:record"))
-			throw new RepositoryException("Cannot add mixin node");
-		else {
-			queryNode.addMixin("rma:record");
-			queryNode.setProperty("rma:recordIdentifier", "testIdentificator");
-			queryNode.setProperty("rma:originatingOrganization",
-					"testProperty2");
-		}
-
+		
 		Node node1 = queryNode.addNode("Test1", "nt:file");
 		Node content1 = node1.addNode("jcr:content", "nt:resource");
 		content1.setProperty("jcr:lastModified", Calendar.getInstance());
@@ -145,14 +127,6 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 		Query query = manager.createQuery(sqlQuery, Query.SQL);
 
 		Node queryNode = root.addNode("aFilePlan", "nt:unstructured");
-
-	    if (!queryNode.canAddMixin("rma:record"))
-	      throw new RepositoryException("Cannot add mixin node");
-	    else {
-	    	queryNode.addMixin("rma:record");
-	    	queryNode.setProperty("rma:recordIdentifier", "testIdentificator");
-	    	queryNode.setProperty("rma:originatingOrganization", "testProperty2");
-	    }
 
 	    Node node1 = queryNode.addNode("Test1", "nt:file");
 	    Node content1 = node1.addNode("jcr:content", "nt:resource");
