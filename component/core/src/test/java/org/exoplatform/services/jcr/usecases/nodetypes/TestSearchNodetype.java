@@ -4,7 +4,10 @@
  */
 package org.exoplatform.services.jcr.usecases.nodetypes;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -26,6 +29,8 @@ import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 public class TestSearchNodetype extends BaseUsecasesTest {
 
 	public void testCreateNodetype() throws Exception {
+		
+		List<String> nodePath = new ArrayList<String>();
 
 		Node queryNode = root.addNode("aFilePlan", "nt:unstructured");
 
@@ -38,6 +43,8 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 		node1.addMixin("rma:record");
 		node1.setProperty("rma:recordIdentifier", "testIdentificator");
 		node1.setProperty("rma:originatingOrganization", "testProperty2");
+		
+		nodePath.add( node1.getPath() );
 
 		Node node2 = queryNode.addNode("Test2", "nt:file");
 		Node content2 = node2.addNode("jcr:content", "nt:resource");
@@ -48,6 +55,8 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 		node2.addMixin("rma:record");
 		node2.setProperty("rma:recordIdentifier", "testIdentificator");
 		node2.setProperty("rma:originatingOrganization", "testProperty2");
+		
+		nodePath.add( node2.getPath() );
 
 		session.save();
 
@@ -59,15 +68,19 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 		NodeIterator iter = queryResult.getNodes();
 
 		assertTrue(iter.getSize() == 2); // check target nodes for existanse
-
-		while (iter.hasNext()) {
-			assertNotNull(iter.nextNode());
+		
+		Iterator<String> i_path = nodePath.iterator();
+		
+		while (iter.hasNext() && i_path.hasNext()) {
+			assertEquals( iter.nextNode().getPath(), i_path.next() );
 		}
 
 	}
 
 	public void testCreateNodetypeWithLogout() throws Exception {
 		
+		List<String> nodePath = new ArrayList<String>();
+		
 		Node queryNode = root.addNode("aFilePlan", "nt:unstructured");
 		
 		Node node1 = queryNode.addNode("Test1", "nt:file");
@@ -79,6 +92,8 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 		node1.addMixin("rma:record");
 		node1.setProperty("rma:recordIdentifier", "testIdentificator");
 		node1.setProperty("rma:originatingOrganization", "testProperty2");
+		
+		nodePath.add(node1.getPath());
 
 		Node node2 = queryNode.addNode("Test2", "nt:file");
 		Node content2 = node2.addNode("jcr:content", "nt:resource");
@@ -89,6 +104,8 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 		node2.addMixin("rma:record");
 		node2.setProperty("rma:recordIdentifier", "testIdentificator");
 		node2.setProperty("rma:originatingOrganization", "testProperty2");
+		
+		nodePath.add(node2.getPath());
 
 		session.save();
 
@@ -101,8 +118,10 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 
 		assertTrue(iter.getSize() == 2); // check target nodes for existanse
 
-		while (iter.hasNext()) {
-			assertNotNull(iter.nextNode());
+		Iterator<String> i_path = nodePath.iterator();
+		
+		while (iter.hasNext() && i_path.hasNext()) {
+			assertEquals( iter.nextNode().getPath(), i_path.next() );
 		}
 
 		session.logout();
@@ -115,13 +134,18 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 		NodeIterator iter2 = queryResult2.getNodes();
 
 		assertTrue(iter2.getSize() == 2); // check target nodes for existanse
-		while (iter2.hasNext()) {
-			assertNotNull(iter2.nextNode());
+		i_path = nodePath.iterator();
+		
+		while (iter.hasNext() && i_path.hasNext()) {
+			assertEquals( iter.nextNode().getPath(), i_path.next() );
 		}
 
 	}
 
 	public void testCreateNodetypeWithPreQueryManader() throws Exception {
+		
+		List<String> nodePath = new ArrayList<String>();
+		
 		String sqlQuery = "SELECT * FROM rma:record WHERE jcr:path LIKE '/aFilePlan/%' ";
 		QueryManager manager = session.getWorkspace().getQueryManager();
 		Query query = manager.createQuery(sqlQuery, Query.SQL);
@@ -136,6 +160,8 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 	    node1.addMixin("rma:record");
 	    node1.setProperty("rma:recordIdentifier", "testIdentificator");
 	    node1.setProperty("rma:originatingOrganization", "testProperty2");
+	    
+	    nodePath.add(node1.getPath());
 
 	    Node node2 = queryNode.addNode("Test2", "nt:file");
 	    Node content2 = node2.addNode("jcr:content", "nt:resource");
@@ -146,15 +172,20 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 	    node2.setProperty("rma:recordIdentifier", "testIdentificator");
 	    node2.setProperty("rma:originatingOrganization", "testProperty2");
 	    
+	    nodePath.add(node2.getPath());
+	    
 		session.save();
 
 		QueryResult queryResult = query.execute();
 		NodeIterator iter = queryResult.getNodes();
 
 		assertTrue(iter.getSize() == 2); // check target nodes for existanse
-		while (iter.hasNext()) {
-			assertNotNull(iter.nextNode());
+		Iterator<String> i_path = nodePath.iterator();
+		
+		while (iter.hasNext() && i_path.hasNext()) {
+			assertEquals( iter.nextNode().getPath(), i_path.next() );
 		}
+		
 		session.logout();
 
 		// new login
@@ -166,8 +197,10 @@ public class TestSearchNodetype extends BaseUsecasesTest {
 
 		assertTrue(iter2.getSize() == 2); // check target nodes for existanse
 
-		while (iter2.hasNext()) {
-			assertNotNull(iter2.nextNode());
+		i_path = nodePath.iterator();
+		
+		while (iter.hasNext() && i_path.hasNext()) {
+			assertEquals( iter.nextNode().getPath(), i_path.next() );
 		}
 	}
 }
