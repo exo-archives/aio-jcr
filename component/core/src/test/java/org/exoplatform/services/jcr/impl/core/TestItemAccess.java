@@ -10,6 +10,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.JcrImplBaseTest;
+import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.tools.tree.NameTraversingVisitor;
 import org.exoplatform.services.jcr.impl.tools.tree.TreeGenerator;
@@ -37,7 +38,7 @@ public class TestItemAccess extends JcrImplBaseTest {
     testGetItemNode = root.addNode("testGetItemNode");
     root.save();
     //geneteting tree maxDepth = 5 and maxWidth = 12
-    nGen = new TreeGenerator(testGetItemNode, new WeightNodeGenerator(5, 12));
+    nGen = new TreeGenerator(testGetItemNode, new WeightNodeGenerator(5, 5));
     nGen.genereteTree();
     validNames = NameTraversingVisitor.getValidNames(testGetItemNode,
         NameTraversingVisitor.SCOPE_ALL);
@@ -53,31 +54,20 @@ public class TestItemAccess extends JcrImplBaseTest {
     Random random = new Random();
     SessionDataManager tm = newSession.getTransientNodesManager();
     for (int i = 0; i < TEST_ITEMS_COUNT; i++) {
-      QPath itemPath = validNames[random.nextInt(validNames.length)];
-      //assertNotNull(tm.getItem(itemPath, true));
-      fail("Must fix getItem method");
-      // System.out.println(itemPath.getAsString());
+      try {
+        QPath itemPath = validNames[random.nextInt(validNames.length)];
+        assertNotNull(tm.getItem(itemPath, true));
+      } catch (RuntimeException e) {
+        e.printStackTrace();
+        fail(e.getLocalizedMessage());
+      }
     }
     for (int i = 0; i < TEST_ITEMS_COUNT; i++) {
       String validUuid = validUuids[random.nextInt(validUuids.length)];
-      assertNotNull(tm.getItemData((validUuid)));
-      // System.out.println(itemPath.getAsString());
+      ItemData data = tm.getItemData((validUuid));
+      assertNotNull(data);
+      System.out.println(data.getQPath().getAsString());
     }
     newSession.logout();
-  }
-
-  public void testGetItemAfterMove() throws RepositoryException {
-    QPath[] validNodesNames = NameTraversingVisitor.getValidNames(testGetItemNode,
-        NameTraversingVisitor.SCOPE_NODES);
-    Random random = new Random();
-    QPath srcNode = validNodesNames[random.nextInt(validNames.length)];
-    QPath dstNode = null;
-    while (dstNode == null){
-      dstNode =  validNodesNames[random.nextInt(validNames.length)];
-      if(dstNode.isDescendantOf(srcNode,false)){
-        dstNode = null;
-      }
-    }
-    //session.move()
   }
 }
