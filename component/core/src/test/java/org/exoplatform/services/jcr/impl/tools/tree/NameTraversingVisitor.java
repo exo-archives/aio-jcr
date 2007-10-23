@@ -54,7 +54,7 @@ public class NameTraversingVisitor extends ItemDataTraversingVisitor {
 
   @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
-    if ((scope & SCOPE_PROPERTYES) != 0) {
+    if ((scope & SCOPE_NODES) != 0) {
       validNames.add(node.getQPath());
       validUuids.add(node.getIdentifier());
     }
