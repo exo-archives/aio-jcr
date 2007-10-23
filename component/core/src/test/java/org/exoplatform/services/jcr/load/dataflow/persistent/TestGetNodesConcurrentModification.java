@@ -2,7 +2,7 @@
  * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
-package org.exoplatform.services.jcr.impl.dataflow.persistent;
+package org.exoplatform.services.jcr.load.dataflow.persistent;
 
 import java.io.File;
 import java.io.IOException;
