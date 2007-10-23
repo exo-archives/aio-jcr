@@ -45,7 +45,9 @@ public class TestNodeMove extends BaseUsecasesTest {
 
 		//move procedure
 		session.getWorkspace().move(srcNode.getPath(), dest_path);
-
+		
+		Node test_node = (Node)session.getItem("/fakeroot/subnode2/target");
+		
 		sqlQuery = "SELECT * FROM nt:folder WHERE jcr:path LIKE '/fakeroot/subnode2/%' ";
 		QueryManager manager2 = session.getWorkspace().getQueryManager();
 		Query query2 = manager2.createQuery(sqlQuery, Query.SQL);
@@ -89,6 +91,8 @@ public class TestNodeMove extends BaseUsecasesTest {
 		//move procedure
 
 		session.getWorkspace().move(srcNode.getPath(), dest_path);
+		
+		Node test_node = (Node)session.getItem("/fakeroot/subnode2/target");
 
 		sqlQuery = "SELECT * FROM nt:folder WHERE jcr:path LIKE '/fakeroot/subnode2/%' ";
 		QueryManager manager2 = session.getWorkspace().getQueryManager();
