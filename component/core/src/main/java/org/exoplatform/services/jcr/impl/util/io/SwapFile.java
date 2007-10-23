@@ -39,10 +39,6 @@ public class SwapFile extends SpoolFile {
     super(parent, child);
   }
   
-  private SwapFile(String absPath) {
-    super(absPath);
-  }
-  
   /**
    * Obtain SwapFile by parent file and name.
    * 
