@@ -24,7 +24,7 @@ import javax.print.attribute.standard.Destination;
 public class TestReplicationEditData extends BaseReplicationTest {
   public void testAddNode() throws Exception {
     
-    Node test = root.addNode("cms2").addNode("test");
+    Node test = root.addNode("cms3").addNode("test");
 
     Node cool = test.addNode("nnn", "nt:file");
     Node contentNode = cool.addNode("jcr:content", "nt:resource");
@@ -42,22 +42,22 @@ public class TestReplicationEditData extends BaseReplicationTest {
     }
 
     // COMPARE REPLICATION DATA
-    String sourceData = root.getNode("cms2").getNode("test").getNode("nnn").getNode("jcr:content").getProperty("jcr:data").getString();
+    String sourceData = root.getNode("cms3").getNode("test").getNode("nnn").getNode("jcr:content").getProperty("jcr:data").getString();
     Thread.sleep(3 * 1000);
-    String desinationData = root2.getNode("cms2").getNode("test").getNode("nnn").getNode("jcr:content").getProperty("jcr:data").getString();
+    String desinationData = root2.getNode("cms3").getNode("test").getNode("nnn").getNode("jcr:content").getProperty("jcr:data").getString();
   
     log.info("Compare 1 data: \n" + sourceData +"\n" + desinationData);
     assertEquals(sourceData, desinationData);
     
     String newData = "____________simple_data_2____________";
     
-    root2.getNode("cms2").getNode("test").getNode("nnn").getNode("jcr:content").setProperty("jcr:data", newData);
+    root2.getNode("cms3").getNode("test").getNode("nnn").getNode("jcr:content").setProperty("jcr:data", newData);
     session2.save();
     
     Thread.sleep(3 * 1000);
     
-    sourceData = root.getNode("cms2").getNode("test").getNode("nnn").getNode("jcr:content").getProperty("jcr:data").getString();
-    desinationData = root2.getNode("cms2").getNode("test").getNode("nnn").getNode("jcr:content").getProperty("jcr:data").getString();
+    sourceData = root.getNode("cms3").getNode("test").getNode("nnn").getNode("jcr:content").getProperty("jcr:data").getString();
+    desinationData = root2.getNode("cms3").getNode("test").getNode("nnn").getNode("jcr:content").getProperty("jcr:data").getString();
     
     log.info("Compare 2 data: \n" + sourceData +"\n" + desinationData);
     assertEquals(sourceData, desinationData);

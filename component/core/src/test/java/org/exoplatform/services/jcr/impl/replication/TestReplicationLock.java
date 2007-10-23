@@ -24,7 +24,7 @@ public class TestReplicationLock extends BaseReplicationTest{
     nodeLocked.addMixin("mix:lockable");
     session.save();
     
-    Thread.sleep(2*1000);
+    Thread.sleep(4*1000);
     
     Node destNodeLocked = root2.getNode("Node Locked");
     assertEquals("node data",destNodeLocked.getProperty("jcr:data").getString());
@@ -34,7 +34,7 @@ public class TestReplicationLock extends BaseReplicationTest{
     Lock lock = nodeLocked.lock(false, false);
     session.save();
             
-    Thread.sleep(2*1000);
+    Thread.sleep(4*1000);
     
     assertEquals(true, destNodeLocked.isLocked());
     
@@ -48,7 +48,7 @@ public class TestReplicationLock extends BaseReplicationTest{
     
     nodeLocked.unlock();
 
-    Thread.sleep(2*1000);
+    Thread.sleep(4*1000);
 
     assertEquals(false, destNodeLocked.isLocked());
  }
