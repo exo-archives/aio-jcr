@@ -413,13 +413,12 @@
               <!-- TCK tests, uncomment <execution id #1> in maven-antrun-plugin -->
               <includes>
                 <!-- TCK -->
-                <!-- include>**/init/TestAll.java</include>
-                <include>**/api/*Test.java</include>
+                <!--<include>**/api/*Test.java</include>
                 <include>**/api/observation/*Test.java</include>
                 <include>**/api/lock/*Test.java</include>
                 <include>**/api/nodetype/*Test.java</include>
                 <include>**/api/query/*Test.java</include>
-                <include>**/api/version/*Test.java</include -->
+                <include>**/api/version/*Test.java</include>-->
 
                 <!-- eXo tests, usecases -->
                 <include>**/api/**/Test*.java</include>
