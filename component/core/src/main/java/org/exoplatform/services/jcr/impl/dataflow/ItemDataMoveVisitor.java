@@ -223,6 +223,7 @@ public class ItemDataMoveVisitor   extends ItemDataTraversingVisitor{
 
   @Override
   protected void leaving(NodeData node, int level) throws RepositoryException {
+    parents.pop();
   }
   /**
    * Returns the list of item add states
