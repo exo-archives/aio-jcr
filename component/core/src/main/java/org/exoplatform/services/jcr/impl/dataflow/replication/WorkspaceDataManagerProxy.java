@@ -1,6 +1,6 @@
 /**
- * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
- * Please look at license.txt in info directory for more license detail.   *
+ * Copyright 2001-2007 The eXo Platform SAS         All rights reserved. 
+ * Please look at license.txt in info directory for more license detail.  
  */
 
 package org.exoplatform.services.jcr.impl.dataflow.replication;
@@ -21,7 +21,7 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceD
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL        .<br/>
+ * Created by The eXo Platform SAS        .<br/>
  * Proxy of WorkspaceDataManager for "proxy" mode of replication
  * to let replicator not to make persistent changes but replicate
  * cache, indexes etc instead. This is the case if persistent replication

@@ -1,26 +1,14 @@
 /**
- * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
- * Please look at license.txt in info directory for more license detail.   *
+ * Copyright 2001-2007 The eXo Platform SAS         All rights reserved. 
+ * Please look at license.txt in info directory for more license detail.  
  */
 
 package org.exoplatform.services.jcr.impl.dataflow.replication;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
-import java.io.StringBufferInputStream;
 import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -49,10 +37,9 @@ import org.jgroups.View;
 import org.jgroups.blocks.GroupRequest;
 import org.jgroups.blocks.MessageDispatcher;
 import org.jgroups.blocks.RequestHandler;
-import org.jgroups.util.Util;
 
 /**
- * Created by The eXo Platform SARL .<br/> responsible for data replication
+ * Created by The eXo Platform SAS .<br/> responsible for data replication
  * (both storage and cache) in a case of cluster environment it is optional
  * component, its presense is dependent on whether cluster environment is
  * configured

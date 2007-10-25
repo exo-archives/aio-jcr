@@ -1,7 +1,7 @@
-/***************************************************************************
- * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
- * Please look at license.txt in info directory for more license detail.   *
- **************************************************************************/
+/**
+ * Copyright 2001-2007 The eXo Platform SAS         All rights reserved. 
+ * Please look at license.txt in info directory for more license detail.  
+ */
 
 package org.exoplatform.services.jcr.impl.dataflow.replication;
 
@@ -15,8 +15,8 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
 /**
- * Created by The eXo Platform SARL Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.org.ua 24.11.2006
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak
+ * alex.reshetnyak@exoplatform.com.ua 24.11.2006
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
