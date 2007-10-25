@@ -926,6 +926,7 @@ public class SessionDataManager implements ItemDataConsumer {
       // operations
       itemsPool.reload(reindexed);
 
+      // TODO remove traverse of props/nodes, only pooled should be reloaded.
       // reload properties
       List<PropertyData> childsProperies = dataManager.getChildPropertiesData(reindexed);
       for (PropertyData propertyData : childsProperies) {
