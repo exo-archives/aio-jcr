@@ -13,6 +13,7 @@ import java.util.Random;
 
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
+import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.JcrImplBaseTest;
@@ -24,25 +25,26 @@ import org.exoplatform.services.jcr.datamodel.QPath;
  * @version $Id$
  */
 public class TestMoveNode extends JcrImplBaseTest {
-  private static int    FILES_COUNT       = 20;
+  private static int FILES_COUNT = 20;
+
   public void testMove() throws Exception {
     Node node1 = root.addNode("node1");
     Node node2 = node1.addNode("node2");
     Node node3 = root.addNode("node3");
     session.save();
-    session.move(node1.getPath(),
-                 node3.getPath() + "/" + "node4");
+    session.move(node1.getPath(), node3.getPath() + "/" + "node4");
     session.save();
-    node3.remove(); 
+    node3.remove();
     session.save();
-    
+
     try {
       root.getNode("node3");
       fail();
-    } catch(PathNotFoundException e) {
+    } catch (PathNotFoundException e) {
       // ok
     }
   }
+
   public void testMoveAndRefreshFalse() throws Exception {
     Node node1 = root.addNode("node1");
     Node node2 = node1.addNode("node2");
@@ -50,9 +52,8 @@ public class TestMoveNode extends JcrImplBaseTest {
     String node1path = node1.getPath();
     Node node3 = root.addNode("node3");
     session.save();
-    session.move(node1.getPath(),
-                 node3.getPath() + "/" + "node4");
-    assertEquals(node3.getPath()+ "/" + "node4"+"/node2", node2.getPath());
+    session.move(node1.getPath(), node3.getPath() + "/" + "node4");
+    assertEquals(node3.getPath() + "/" + "node4" + "/node2", node2.getPath());
     session.refresh(false);
     assertEquals(node2path, node2.getPath());
     assertEquals(node1path, node1.getPath());
@@ -60,51 +61,49 @@ public class TestMoveNode extends JcrImplBaseTest {
       node3.getNode("node4");
       fail();
     } catch (PathNotFoundException e1) {
-      //ok
+      // ok
     }
-    
-    
+
     node3.remove();
     session.save();
-    
+
     try {
       root.getNode("node3");
       fail();
-    } catch(PathNotFoundException e) {
+    } catch (PathNotFoundException e) {
       // ok
     }
   }
+
   public void testIsMoveModifed() throws Exception {
     Node node1 = root.addNode("node1");
     Node node2 = node1.addNode("node2");
-    
+
     Node node3 = root.addNode("node3");
     session.save();
     assertFalse(node2.isModified());
-    node2.setProperty("test","sdf");
+    node2.setProperty("test", "sdf");
     assertTrue(node2.isModified());
-    session.move(node1.getPath(),
-                 node3.getPath() + "/" + "node4");
-     assertTrue(node2.isModified());
+    session.move(node1.getPath(), node3.getPath() + "/" + "node4");
+    assertTrue(node2.isModified());
   }
-  
+
   public void _testMoveAndRefreshTrue() throws Exception {
     Node node1 = root.addNode("node1");
     Node node2 = node1.addNode("node2");
     Node node3 = root.addNode("node3");
     session.save();
-    session.move(node1.getPath(),
-                 node3.getPath() + "/" + "node4");
+    session.move(node1.getPath(), node3.getPath() + "/" + "node4");
     session.refresh(false);
     session.save();
-    
+
     node3.remove();
     session.save();
-    
+
     try {
       root.getNode("node3");
       fail();
-    } catch(PathNotFoundException e) {
+    } catch (PathNotFoundException e) {
       // ok
     }
   }
@@ -114,56 +113,66 @@ public class TestMoveNode extends JcrImplBaseTest {
     Node node2 = node1.addNode("node2");
     Node node3 = root.addNode("node3");
     session.save();
-    session.move(node1.getPath(),
-                 node3.getPath() + "/" + "node4");
-    
+    // root/node1/node2
+    // root/node3
+    session.move(node1.getPath(), node3.getPath() + "/" + "node4");
+
+    // root/node3/node4/node2
+
     try {
       root.getNode("node1");
       fail();
-    } catch(PathNotFoundException e) {
+    } catch (PathNotFoundException e) {
       // ok
     }
     Node node34 = root.getNode("node3/node4");
     Node node342 = root.getNode("node3/node4/node2");
-    
-    
-    session.move(node3.getPath()+"/node4/node2",
-                 root.getPath() + "node5");
-    
+
+    // root/node3/node4
+    // root/node5
+    session.move(node3.getPath() + "/node4/node2", root.getPath() + "node5");
+
     try {
       root.getNode("node3/node4/node2");
       fail();
-    } catch(PathNotFoundException e) {
+    } catch (PathNotFoundException e) {
       // ok
     }
+
     Node node5 = root.getNode("node5");
-    
-    
-    
+
+    assertEquals("/node5/jcr:primaryType", root.getNode("node5")
+                                               .getProperty("jcr:primaryType")
+                                               .getPath());
+
     assertEquals(QPath.makeChildPath(((NodeImpl) root).getData().getQPath(),
                                      new InternalQName("", "node5"),
-   
-                                     0).getAsString(), ((NodeImpl) node2).getData().getQPath().getAsString());
-    
+
+                                     0).getAsString(), ((NodeImpl) node2).getData()
+                                                                         .getQPath()
+                                                                         .getAsString());
+
     session.save();
-    
-    
-    
+
+    assertEquals("/node5/jcr:primaryType", root.getNode("node5")
+                 .getProperty("jcr:primaryType")
+                 .getPath());
+
     node5.remove();
     node3.remove();
     session.save();
-    
+
     try {
       root.getNode("node3");
       fail();
-    } catch(PathNotFoundException e) {
+    } catch (PathNotFoundException e) {
       // ok
     }
-   
+
   }
-  
+
   public void testLocalBigFiles() throws Exception {
-    Node  testBinaryValue = root.addNode("testBinaryValue");
+    Node testBinaryValue = root.addNode("testBinaryValue");
     Node testLocalBigFiles = testBinaryValue.addNode("testLocalBigFiles");
     long startTime, endTime;
     startTime = System.currentTimeMillis(); // to get the time of start
@@ -185,7 +194,7 @@ public class TestMoveNode extends JcrImplBaseTest {
       // contentNode.setProperty("jcr:mimeType", "video/avi");
       contentNode.setProperty("jcr:lastModified", Calendar.getInstance());
     }
-    
+
     log.info("Saving: " + TEST_FILE + " " + Runtime.getRuntime().freeMemory());
     session.save();
     log.info("Saved: " + TEST_FILE + " " + Runtime.getRuntime().freeMemory());
@@ -210,7 +219,7 @@ public class TestMoveNode extends JcrImplBaseTest {
       Node localBigFile = dstNode.getNode("bigFile" + i);
       Node contentNode = localBigFile.getNode("jcr:content");
       compareStream(new FileInputStream(filesList.get(i)), contentNode.getProperty("jcr:data")
-          .getStream());
+                                                                      .getStream());
     }
   }
 }
