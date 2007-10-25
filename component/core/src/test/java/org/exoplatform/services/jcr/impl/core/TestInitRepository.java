@@ -1,12 +1,9 @@
 /**
- * Copyright 2001-2003 The eXo platform SARL All rights reserved.
- * Please look at license.txt in info directory for more license detail.
- **/
+ * Copyright 2001-2007 The eXo Platform SAS         All rights reserved.  
+ * Please look at license.txt in info directory for more license detail.   
+ */
 
 package org.exoplatform.services.jcr.impl.core;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.Node;
@@ -15,16 +12,10 @@ import javax.jcr.Session;
 import javax.jcr.nodetype.NodeTypeManager;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.SystemIdentity;
-import org.exoplatform.services.jcr.config.ContainerEntry;
-import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
-import org.exoplatform.services.jcr.config.SimpleParameterEntry;
-import org.exoplatform.services.jcr.config.ValueStorageEntry;
-import org.exoplatform.services.jcr.config.ValueStorageFilterEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.log.ExoLogger;
@@ -39,15 +30,15 @@ public class TestInitRepository extends JcrImplBaseTest {
 
   protected static Log log = ExoLogger.getLogger("jcr.JCRTest");
 
-  public void testRepositoryServiceRegistration() throws Exception {
-    RepositoryService service = (RepositoryService) container
-        .getComponentInstanceOfType(RepositoryService.class);
+  public void _testRepositoryServiceRegistration() throws Exception {
+    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
     assertNotNull(service);
     RepositoryImpl defRep = (RepositoryImpl) service.getRepository();
     assertNotNull(defRep);
     String sysWs = defRep.getSystemWorkspaceName();
-    assertFalse("Sys ws should not be    initialized for this test!!", defRep
-        .isWorkspaceInitialized(sysWs)); // Default Namespaces and NodeTypes
+    assertFalse("Sys ws should not be    initialized for this test!!",
+                defRep.isWorkspaceInitialized(sysWs)); // Default Namespaces
+                                                        // and NodeTypes
     NamespaceRegistry nsReg = defRep.getNamespaceRegistry();
     assertNotNull(nsReg);
     assertTrue(nsReg.getPrefixes().length > 0);
@@ -56,14 +47,13 @@ public class TestInitRepository extends JcrImplBaseTest {
     assertTrue(ntReg.getAllNodeTypes().getSize() > 0);
   }
 
-  public void testInitSystemWorkspace() throws Exception {
+  public void _testInitSystemWorkspace() throws Exception {
 
-    RepositoryService service = (RepositoryService) container
-        .getComponentInstanceOfType(RepositoryService.class);
+    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
     RepositoryImpl defRep = (RepositoryImpl) service.getRepository();
     String sysWs = defRep.getSystemWorkspaceName();
-    assertFalse("Sys ws should not be initialized for this test!!", defRep
-        .isWorkspaceInitialized(sysWs));
+    assertFalse("Sys ws should not be initialized for this test!!",
+                defRep.isWorkspaceInitialized(sysWs));
 
     defRep.initWorkspace(sysWs, "nt:unstructured");
 
@@ -81,8 +71,7 @@ public class TestInitRepository extends JcrImplBaseTest {
 
   public void testInitRegularWorkspace() throws Exception {
 
-    RepositoryService service = (RepositoryService) container
-        .getComponentInstanceOfType(RepositoryService.class);
+    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
     RepositoryImpl defRep = (RepositoryImpl) service.getDefaultRepository();
     String sysWs = defRep.getSystemWorkspaceName();
 
@@ -114,17 +103,22 @@ public class TestInitRepository extends JcrImplBaseTest {
   }
 
   public void testAutoInitRootPermition() {
-    String rawPermition = "any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove";
-    AccessControlList pureAcl = new AccessControlList();
-    pureAcl.removePermissions(SystemIdentity.ANY);
+
+    WorkspaceEntry wsEntry = (WorkspaceEntry) session.getContainer()
+                                                     .getComponentInstanceOfType(WorkspaceEntry.class);
+
+    AccessControlList expectedAcl = new AccessControlList();
     try {
-      pureAcl.addPermissions(rawPermition);
+      if (wsEntry.getAutoInitPermissions() != null) {
+        expectedAcl.removePermissions(SystemIdentity.ANY);
+        expectedAcl.addPermissions(wsEntry.getAutoInitPermissions());
+      }
       AccessControlList acl = ((ExtendedNode) session.getRootNode()).getACL();
-      assertTrue(pureAcl.equals(acl));
+      assertTrue(expectedAcl.equals(acl));
+
     } catch (RepositoryException e) {
       fail(e.getLocalizedMessage());
     }
+
   }
-
-
 }
