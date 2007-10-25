@@ -1326,8 +1326,11 @@ public class SessionDataManager implements ItemDataConsumer {
     }
     List<ItemData> retval = new ArrayList<ItemData>();
     Collection<ItemData> desc = descendants.values();
+    
+    ItemState[] rename = changesLog.findRenamed(rootData);
+    
     for (ItemData itemData : desc) {
-      retval.add(itemData);
+      retval.add(rename != null ? relocate(rename, itemData) : itemData);
       if (deep)
         retval.addAll(mergeList(itemData, dataManager, true, action));
     }
