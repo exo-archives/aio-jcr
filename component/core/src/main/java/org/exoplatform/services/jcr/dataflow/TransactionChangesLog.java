@@ -61,6 +61,8 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
    * @see org.exoplatform.services.jcr.dataflow.ItemStateChangesLog#getAllStates()
    */
   public List<ItemState> getAllStates() {
+    // TODO [PN] use a wrapping List/Iterator for all changes logs instead of putting all logs content into one list
+    // will increase a performance of tx-related operations
     List<ItemState> states = new ArrayList<ItemState>();
     for(PlainChangesLog changesLog: changesLogs) {
       for(ItemState state: changesLog.getAllStates()) {
@@ -137,6 +139,53 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
         list.add(state);
     }
     return list;
+  }
+  
+  /**
+   * Find if the node ancestor was renamed in this changes log.
+   * 
+   * @param item - target node
+   * @return - the pair of states of item ancestor, ItemState[] {DELETED, RENAMED} or null if renaming is not detected.
+   * @throws IllegalPathException
+   */
+  public ItemState[] findRenamed(ItemData item) throws IllegalPathException {
+    List<ItemState> allStates = getAllStates();
+    // search from the end for DELETED state.
+    // RENAMED comes after the DELETED in the log  immediately
+    for (int i = allStates.size() - 1; i >= 0; i--) {
+      ItemState state = allStates.get(i);  
+      if (state.getState() == ItemState.DELETED && !state.isPersisted() &&
+          item.getQPath().isDescendantOf(state.getData().getQPath(), false)) {
+        // 1. if it's a parent or the parent is descendant of logged data
+        try {
+          ItemState delete = state;
+          ItemState rename = allStates.get(i + 1);
+          
+          if (rename.getState() == ItemState.RENAMED && rename.isPersisted() &&
+              rename.getData().getIdentifier().equals(delete.getData().getIdentifier())) {
+            
+            // 2. search of most fresh state of rename for searched rename state (i.e. for ancestor state of the given node) 
+            for (int bi = allStates.size() - 1; bi >= i + 2; bi--) {
+              state = allStates.get(bi);
+              if (state.getState() == ItemState.RENAMED && state.isPersisted() &&
+                  state.getData().getIdentifier().equals(rename.getData().getIdentifier())) {
+                // got much fresh
+                rename = state;
+                delete = allStates.get(i - 1); // try the fresh delete state
+                if (delete.getData().getIdentifier().equals(rename.getData().getIdentifier()))
+                  return new ItemState[] {delete, rename}; // 3. ok, got it
+              }
+            }
+            
+            return new ItemState[] {delete, rename}; // 4. ok, there are no more fresh we have found before p.2
+          } // else, it's not a rename, search deeper
+        } catch(IndexOutOfBoundsException e) {
+          // the pair not found
+          return null;
+        }
+      }
+    }
+    return null;
   }
   
   public String dump() {

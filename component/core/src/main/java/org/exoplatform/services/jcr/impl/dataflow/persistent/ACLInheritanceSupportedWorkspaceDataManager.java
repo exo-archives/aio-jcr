@@ -117,6 +117,10 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataMa
     return persistentManager.getChildPropertiesData(parent);
   }
 
+  public List<PropertyData> listChildPropertiesData(NodeData parent) throws RepositoryException {
+    return persistentManager.listChildPropertiesData(parent);
+  }
+
   public List<PropertyData> getReferencesData(String identifier, boolean skipVersionStorage) throws RepositoryException {
     return persistentManager.getReferencesData(identifier, skipVersionStorage);
   }

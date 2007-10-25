@@ -59,7 +59,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     
     WorkspaceStorageConnection regularConnection = null;
     WorkspaceStorageConnection systemConnection = null;
-    
+    //log.info("ws save...");
     try {
 
       for (ItemState itemState : changes) {
@@ -69,7 +69,6 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
         long start = System.currentTimeMillis();
 
         TransientItemData data = (TransientItemData) itemState.getData();
-
 
         WorkspaceStorageConnection conn = null;
         if (isSystemPath(data.getQPath())) {
@@ -130,7 +129,10 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
         systemConnection.rollback();
     }
     
+    //log.info("ws save done");
+    
     notifySaveItems(changesLog);
+    //log.info("ws save notifySaveItems done");
   }
   
   /*
@@ -206,6 +208,16 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     }
   }
 
+  public List<PropertyData> listChildPropertiesData(final NodeData nodeData) throws RepositoryException {
+    final WorkspaceStorageConnection con = dataContainer.openConnection();
+    try {
+      final List<PropertyData> childProperties = con.listChildPropertiesData(nodeData);
+      return childProperties != null ? childProperties : new ArrayList<PropertyData>();
+    } finally {
+      con.rollback();
+    }
+  }
+  
 // ----------------------------------------------
   
   /**

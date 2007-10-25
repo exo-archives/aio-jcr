@@ -33,7 +33,10 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Implements a NodeIterator that returns the nodes in document order.
+ * 
+ * NOT USED.
  */
+@Deprecated
 class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
 
     /** Logger instance for this class */

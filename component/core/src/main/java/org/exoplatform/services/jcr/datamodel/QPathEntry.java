@@ -59,4 +59,9 @@ public class QPathEntry extends InternalQName implements Comparable<QPathEntry> 
     }
     return result;
   }
+
+  protected String asString() {
+    return getAsString(true);
+  }
+  
 }

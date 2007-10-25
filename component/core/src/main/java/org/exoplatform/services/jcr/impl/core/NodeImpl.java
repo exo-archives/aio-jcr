@@ -1479,6 +1479,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       throw new ItemNotFoundException(getPath() + " has no child node with name "
           + srcPath.getName().getAsString());
     }
+    
     if (destPath != null && dataManager.getItemData(destPath) == null) {
 
       throw new ItemNotFoundException(getPath() + " has no child node with name "

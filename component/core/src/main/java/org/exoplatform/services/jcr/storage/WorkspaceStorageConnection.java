@@ -74,6 +74,8 @@ public interface WorkspaceStorageConnection {
    * @throws IllegalStateException if connection is closed
    */
   List <PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException, IllegalStateException;
+  
+  List<PropertyData> listChildPropertiesData(NodeData parent) throws RepositoryException, IllegalStateException;
 
   
   /**

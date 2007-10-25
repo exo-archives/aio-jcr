@@ -4,13 +4,13 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.impl.core.query.lucene;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -75,7 +75,7 @@ class DocOrderNodeDataIteratorImpl implements ScoreNodeIterator {
     }
 
     /**
-     * Creates a <code>DocOrderNodeIteratorImpl</code> that orders the nodes
+     * Creates a <code>DocOrderNodeDataIteratorImpl</code> that orders the nodes
      * with <code>identifiers</code> in document order.
      * @param itemMgr the item manager of the session executing the query.
      * @param identifiers the identifiers of the nodes.
@@ -231,7 +231,7 @@ class DocOrderNodeDataIteratorImpl implements ScoreNodeIterator {
             nodes[i] = new ScoreNode(identifiers[i], scores[i]);
         }
 
-        final List<String> invalidIdentifiers = new ArrayList<String>(2);
+        final Set<String> invalidIdentifiers = new LinkedHashSet<String>(2);
 
         /** Cache for Nodes obtainer during the order (comparator work) */
         final Map<String, NodeData> lcache = new HashMap<String, NodeData>();

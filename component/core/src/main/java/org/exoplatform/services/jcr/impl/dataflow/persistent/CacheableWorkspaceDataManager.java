@@ -189,6 +189,11 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
   public List<PropertyData> getChildPropertiesData(NodeData nodeData) throws RepositoryException {
     return getChildPropertiesData(nodeData, false);
   }
+  
+  // same as getChildPropertiesData
+  public List<PropertyData> listChildPropertiesData(NodeData nodeData) throws RepositoryException {
+    return listChildPropertiesData(nodeData, false);
+  }
 
   /**
    * 
@@ -262,6 +267,23 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     } finally {
       request.done();
     }
+  }
+  
+  protected List<PropertyData> listChildPropertiesData(NodeData nodeData, boolean forcePersistentRead) throws RepositoryException {
+    
+    final DataRequest request = new DataRequest(nodeData.getIdentifier(), DataRequest.GET_PROPERTIES);
+    
+    List<PropertyData> childProperties = null;
+    if (!forcePersistentRead && cache.isEnabled()) {
+      request.waitSame();
+      childProperties = cache.getChildProperties(nodeData);
+      if (childProperties != null) {
+        return childProperties;
+      }
+    }
+
+    // get the list from data container, do no caching for this list
+    return super.listChildPropertiesData(nodeData);
   }
   
   /* (non-Javadoc)

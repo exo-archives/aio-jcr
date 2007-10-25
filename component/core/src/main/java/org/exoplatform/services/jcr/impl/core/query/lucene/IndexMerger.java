@@ -41,7 +41,7 @@ class IndexMerger extends Thread implements IndexListener {
     /**
      * Logger instance for this class.
      */
-    private static Log log = ExoLogger.getLogger("jcr.IndexMerger");
+    private final static Log log = ExoLogger.getLogger("jcr.IndexMerger");
 
     /**
      * Marker task to signal the background thread to quit.

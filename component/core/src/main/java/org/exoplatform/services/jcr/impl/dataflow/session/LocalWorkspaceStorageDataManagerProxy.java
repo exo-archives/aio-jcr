@@ -107,7 +107,10 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
   public List<PropertyData> getChildPropertiesData(NodeData parent)
       throws RepositoryException {
     return copyProperties(storageDataManager.getChildPropertiesData(parent));
-
+  }
+  
+  public List<PropertyData> listChildPropertiesData(NodeData parent) throws RepositoryException {
+    return copyPropertiesWithoutValues(storageDataManager.listChildPropertiesData(parent));
   }
 
   /* (non-Javadoc)
@@ -164,6 +167,20 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
     return newData;
   }
   
+  private TransientItemData copyPropertyDataWithoutValue(PropertyData property) throws RepositoryException {
+    
+    if(property == null)
+      return null;
+
+    // make a copy
+    TransientPropertyData newData = new TransientPropertyData(
+        property.getQPath(), property.getIdentifier(), property.getPersistedVersion(),
+        property.getType(), property.getParentIdentifier(), property.isMultiValued());
+    
+    newData.setValues(new ArrayList<ValueData>());
+    return newData;
+  }
+  
   private List<NodeData> copyNodes(final List<NodeData> childNodes) throws RepositoryException {
     final List<NodeData> copyOfChildsNodes = new LinkedList<NodeData>();
     synchronized (childNodes) {
@@ -179,6 +196,16 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
     synchronized (traverseProperties) {
       for (PropertyData nodeProperty: traverseProperties) {
         copyOfChildsProperties.add((PropertyData) copyItemData(nodeProperty));
+      }
+    }
+    return copyOfChildsProperties;
+  }
+  
+  private List<PropertyData> copyPropertiesWithoutValues(final List<PropertyData> traverseProperties) throws RepositoryException {
+    final List<PropertyData> copyOfChildsProperties = new LinkedList<PropertyData>();
+    synchronized (traverseProperties) {
+      for (PropertyData nodeProperty: traverseProperties) {
+        copyOfChildsProperties.add((PropertyData) copyPropertyDataWithoutValue(nodeProperty));
       }
     }
     return copyOfChildsProperties;

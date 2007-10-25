@@ -18,8 +18,11 @@ import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.LocalWorkspaceDataManagerStub;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.transaction.TransactionException;
@@ -93,6 +96,19 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
     return props; 
   }
 
+  public List<PropertyData> listChildPropertiesData(NodeData parent) throws RepositoryException {
+    List <PropertyData> props = storageDataManager.listChildPropertiesData(parent);
+
+    // merge data
+    if(txStarted()) {
+      for(ItemState state: transactionLog.getChildrenChanges(parent.getIdentifier(), false)) {
+        props.remove(state.getData());
+        if(!state.isDeleted())
+          props.add((PropertyData)state.getData());
+      }
+    }
+    return props; 
+  }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.exoplatform.services.jcr.datamodel.InternalQPath)
@@ -208,5 +224,53 @@ public class TransactionableDataManager implements  TransactionResource, DataMan
   public WorkspaceStorageDataManagerProxy getStorageDataManager() {
     return storageDataManager;
   }
+  
+  protected ItemData locate(final ItemData idata) throws RepositoryException {
+    if (idata == null)
+      return null;
+    
+    final ItemState[] renamedStates = transactionLog.findRenamed(idata);
+    if (renamedStates != null)
+      // change item location
+      return relocate(renamedStates, idata);
+    else
+      return idata;
+  }
+
+  /**
+   * Change item location according the RENAME operation states.
+   * 
+   * @param renamedStates
+   * @param idata
+   * @return
+   * @throws RepositoryException
+   */
+  protected ItemData relocate(final ItemState[] renamedStates, final ItemData idata) throws RepositoryException {
+    NodeData dancestor = (NodeData) renamedStates[0].getData(); // deleted
+    NodeData rancestor = (NodeData) renamedStates[1].getData(); // renamed
+    QPathEntry[] dpath = dancestor.getQPath().getEntries();
+    QPathEntry[] rpath = rancestor.getQPath().getEntries();
+    QPathEntry[] ipath = idata.getQPath().getEntries();
+
+    QPathEntry[] iNewPath = new QPathEntry[ipath.length - dpath.length + rpath.length];
+    // renamed ancestor path first
+    System.arraycopy(rpath, 0, iNewPath, 0, rpath.length);
+    // rel path of the item (moved subtree)
+    System.arraycopy(ipath, dpath.length, iNewPath, rpath.length, ipath.length - dpath.length);
+
+    if (idata.isNode()) {
+      TransientNodeData ndata = (TransientNodeData) idata;
+      return new TransientNodeData(new QPath(iNewPath), ndata.getIdentifier(), ndata.getPersistedVersion(), ndata
+          .getPrimaryTypeName(), ndata.getMixinTypeNames(), ndata.getOrderNumber(), ndata.getParentIdentifier(),
+          ndata.getACL());
+    } else {
+      TransientPropertyData pdata = (TransientPropertyData) idata;
+      TransientPropertyData newpd = new TransientPropertyData(new QPath(iNewPath), pdata.getIdentifier(), pdata
+          .getPersistedVersion(), pdata.getType(), pdata.getParentIdentifier(), pdata.isMultiValued());
+      newpd.setValues(pdata.getValues());
+      return newpd;
+    }
+  }
+
 
 }

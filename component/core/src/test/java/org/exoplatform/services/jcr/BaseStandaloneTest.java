@@ -82,8 +82,9 @@ public abstract class BaseStandaloneTest extends TestCase {
     //StandaloneContainer.addConfigurationPath(conf);
     
     StandaloneContainer
-      .addConfigurationPath(conf);
-      //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.xml");
+      //.addConfigurationPath(conf);
+      //.addConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
+      .addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.xml");
       //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-mjdbc.pgsql.xml");
       //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.ora.xml");
       //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-mjdbc.mysql.xml");

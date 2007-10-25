@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.impl.core.query.lucene;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.PropertyType;
@@ -30,13 +29,15 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.exoplatform.services.document.DocumentReader;
 import org.exoplatform.services.document.DocumentReaderService;
+import org.exoplatform.services.document.HandlerNotFoundException;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
@@ -59,14 +60,14 @@ public class NodeIndexer {
    */
   protected final NodeData                 node;
 
-  protected WorkspacePersistentDataManager dataManager;
+  protected final WorkspacePersistentDataManager dataManager;
 
   /**
    * The variable for the stripping text from files with different formats.
    */
   private DocumentReaderService            documentReaderService = null;
 
-  protected LocationFactory                sysLocationFactory;
+  protected final LocationFactory                sysLocationFactory;
 
   /**
    * Creates a new node indexer.
@@ -97,9 +98,9 @@ public class NodeIndexer {
       WorkspacePersistentDataManager dataManager) throws RepositoryException {
 
     if (node != null) {
-      NodeIndexer indexer = new NodeIndexer(node, sysLocationFactory, ds, dataManager);
-      Document doc = indexer.createDoc();
-      return doc;
+      //NodeIndexer indexer = new NodeIndexer(node, sysLocationFactory, ds, dataManager);
+      //Document doc = indexer.createDoc();
+      return new NodeIndexer(node, sysLocationFactory, ds, dataManager).createDoc();
     } else
       return null;
   }
@@ -127,10 +128,10 @@ public class NodeIndexer {
       doc.add(new Field(FieldNames.LABEL, "", false, true, false));
     }
 
-    List<PropertyData> cprops = dataManager.getChildPropertiesData(node);
-    for (Iterator<PropertyData> it = cprops.iterator(); it.hasNext();) {
-      PropertyData prop = it.next();
-
+    for (PropertyData prop: dataManager.getChildPropertiesData(node)) {
+      // test the case and switch to 
+      //addValues(doc, prop);
+      
       String fieldName = sysLocationFactory.createJCRName(prop.getQPath().getName()).getAsString();
       List<ValueData> values = prop.getValues();
 
@@ -155,7 +156,6 @@ public class NodeIndexer {
         // real multi-valued
         doc.add(new Field(FieldNames.MVP, fieldName, false, true, false));
       }
-
     }
     return doc;
   }
@@ -167,6 +167,7 @@ public class NodeIndexer {
    * @param fieldName fieldName.
    * @param propType propType.
    */
+  @Deprecated
   private void addValue(Document doc, ValueData internalValue, String fieldName, int propType)
       throws RepositoryException {
     switch (propType) {
@@ -204,6 +205,118 @@ public class NodeIndexer {
       throw new IllegalArgumentException("illegal internal value type " + propType);
     }
   }
+  
+  /**
+   * For concurrency usage case all internal vars were made a final. Need to be rechecked. 
+   * */
+  private void addValues(final Document doc, final PropertyData prop)
+      throws RepositoryException {
+    
+    int propType = prop.getType();
+    String fieldName = sysLocationFactory.createJCRName(prop.getQPath().getName()).getAsString();
+    
+    if (propType == PropertyType.BINARY) {
+      List<ValueData> data = null;
+      if (node.getQPath().getName().equals(Constants.JCR_CONTENT)) {
+        // seems nt:file found, try for nt:resource props
+        PropertyData pmime = (PropertyData) dataManager.getItemData(node, new QPathEntry(Constants.JCR_MIMETYPE, 0));
+        if (pmime != null) {
+          // index if have jcr:mimeType sibling for this binary property only
+          try {
+            DocumentReader dreader = documentReaderService.getDocumentReader(new String(pmime.getValues().get(0).getAsByteArray()));
+            
+            // ok, have a reader
+            // if the prop obtainer from cache it will contains a values, otherwise read prop with values from DM
+            data = prop.getValues().size() > 0 ? prop.getValues() :
+                ((PropertyData) dataManager.getItemData(node, new QPathEntry(Constants.JCR_DATA, 0))).getValues();
+            //PropertyData pcontent = (PropertyData) dataManager.getItemData(node, new QPathEntry(Constants.JCR_DATA, 0));
+            //List<ValueData> pcv = pcontent.getValues();
+            if (data == null)
+              log.warn("null value found at property " + prop.getQPath().getAsString());
+            
+            for (ValueData pvd: data) {
+              InputStream is = null; 
+              try {
+                doc.add(new Field(FieldNames.FULLTEXT, dreader.getContentAsText(is = pvd.getAsStream()), false, true, true));
+              } finally {
+                try {
+                  is.close();
+                } catch (Throwable e) {}  
+              }  
+            }
+            
+            
+          } catch(HandlerNotFoundException e) {
+            // no handler - no index
+            if (log.isDebugEnabled())
+              log.error("Binary value indexer handler error " + e, e);
+          } catch(IOException e) {
+            // no data - no index
+            if (log.isDebugEnabled())
+              log.error("Binary value indexer IO error " + e, e);
+          } catch(Exception e) {
+            //if (log.isDebugEnabled())
+            log.error("Binary value indexer error " + e, e);
+          }
+        }
+      }
+      
+      if (data == null)
+        doc.add(new Field(FieldNames.FULLTEXT, "", false, true, true));
+      else if (data.size() > 1)
+        // real multi-valued
+        doc.add(new Field(FieldNames.MVP, fieldName, false, true, false));
+    } else {
+      try {
+        // if the prop obtainer from cache it will contains a values, otherwise read prop with values from DM
+        QPathEntry[] path = prop.getQPath().getEntries();
+        List<ValueData> data = prop.getValues().size() > 0 ? prop.getValues() :
+          ((PropertyData) dataManager.getItemData(node, path[path.length - 1])).getValues();
+        
+        if (data == null)
+          log.warn("null value found at property " + prop.getQPath().getAsString());
+        
+        for (ValueData pvd: data) {
+          switch (propType) {
+          case PropertyType.BOOLEAN:
+            addBooleanValue(doc, fieldName, pvd);
+            break;
+          case PropertyType.DATE:
+            addCalendarValue(doc, fieldName, pvd);
+            break;
+          case PropertyType.DOUBLE:
+            addDoubleValue(doc, fieldName, pvd);
+            break;
+          case PropertyType.LONG:
+            addLongValue(doc, fieldName, pvd);
+            break;
+          case PropertyType.REFERENCE:
+            addReferenceValue(doc, fieldName, pvd);
+            break;
+          case PropertyType.PATH:
+            addPathValue(doc, fieldName, pvd);
+            break;
+          case PropertyType.STRING:
+            addStringValue(doc, fieldName, pvd);
+            break;
+          case PropertyType.NAME:
+            addNameValue(doc, fieldName, pvd);
+            break;
+          case ExtendedPropertyType.PERMISSION:
+            addPermissionValue(doc, fieldName, pvd);
+            break;
+          default:
+            throw new IllegalArgumentException("illegal internal value type " + propType);
+          }        
+        }
+        if (data.size() > 1)
+          // real multi-valued
+          doc.add(new Field(FieldNames.MVP, fieldName, false, true, false));
+      } catch(RepositoryException e) {
+        throw new RepositoryException("Index of property value error. " + prop.getQPath().getAsString() + ". " + e, e);
+      }
+    }
+  }
 
   /**
    * Adds the binary value to the document as the named field. <p/> This
@@ -215,6 +328,7 @@ public class NodeIndexer {
    * @param fieldName The name of the field to add
    * @param internalValue The value for the field to add to the document.
    */
+  @Deprecated
   protected void addBinaryValue(Document doc, String fieldName, ValueData internalValue) throws RepositoryException {
 
     String text = "";
@@ -232,14 +346,16 @@ public class NodeIndexer {
 
             InputStream is = null; 
             try {
-              is = internalValue.getAsStream();
-              text = dreader.getContentAsText(is);
+              text = dreader.getContentAsText(is = internalValue.getAsStream());
             } finally {
               try {
                 is.close();
               } catch (Throwable e) {}  
             }
+          } catch (HandlerNotFoundException e) {
+            // ok,
           } catch (Exception e) {
+            log.error("Error of add binary value " + e, e);
           }
         }
       }

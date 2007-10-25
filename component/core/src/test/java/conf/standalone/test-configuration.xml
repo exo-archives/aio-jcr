@@ -107,7 +107,7 @@
 			<value>jar:/conf/test/nodetypes-usecase.xml</value>
           </values-param>
           
-		<values-param>
+		  <values-param>
             <name>testInitNodeTypesRepository</name>
             <description>Node types configuration file for repository with name testInitNodeTypesRepository</description>
             <value>jar:/conf/test/nodetypes-test.xml</value>

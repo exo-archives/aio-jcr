@@ -97,7 +97,8 @@ public class ItemState implements Externalizable {
       int state,
       boolean eventFire,
       QPath ancestorToSave,
-      boolean isInternalCreated,boolean isPersisted) {
+      boolean isInternalCreated,
+      boolean isPersisted) {
     this.data = data;
     this.state = state;
     this.eventFire = eventFire;

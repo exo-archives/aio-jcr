@@ -81,6 +81,10 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
       throws RepositoryException, IllegalStateException {
     return null;
   }
+  
+  public List<PropertyData> listChildPropertiesData(NodeData parent) throws RepositoryException, IllegalStateException {
+    return null;
+  }
 
   public int getChildNodesCount(NodeData nodeData) throws RepositoryException {
     return 0;

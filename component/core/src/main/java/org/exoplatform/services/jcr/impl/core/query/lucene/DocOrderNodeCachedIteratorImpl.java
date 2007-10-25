@@ -80,7 +80,7 @@ class DocOrderNodeCachedIteratorImpl implements ScoreNodeIterator {
     }   
     
     /**
-     * Creates a <code>DocOrderNodeIteratorImpl</code> that orders the nodes
+     * Creates a <code>DocOrderNodeCachedIteratorImpl</code> that orders the nodes
      * with <code>identifiers</code> in document order.
      * @param itemMgr the item manager of the session executing the query.
      * @param identifiers the identifiers of the nodes.

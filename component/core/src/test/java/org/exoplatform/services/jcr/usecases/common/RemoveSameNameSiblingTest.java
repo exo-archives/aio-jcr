@@ -70,7 +70,7 @@ public class RemoveSameNameSiblingTest extends BaseUsecasesTest {
     }
   }
 
-  public void _testRemoveSameNameSiblingReindexGetChilds() throws RepositoryException {
+  public void testRemoveSameNameSiblingReindexGetChilds() throws RepositoryException {
     Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), WORKSPACE);
     Node root = session.getRootNode();
 
@@ -92,12 +92,13 @@ public class RemoveSameNameSiblingTest extends BaseUsecasesTest {
     n2.remove(); // reindex child[3] --> child[2]
     // root.save();
 
-    assertEquals("Same-name siblings path must be reindexed", "/u1/child[2]/n1/n2", n3_n1n2.getPath());
+    //assertEquals("Same-name siblings path must be reindexed", "/u1/child[2]/n1/n2", n3_n1n2.getPath());
 
     try {
       NodeIterator chns = n3_n1n2.getNodes();
       while (chns.hasNext()) {
         Node chn = chns.nextNode();
+        assertTrue("Node path must be reindexed ", chn.getPath().startsWith("/u1/child[2]"));
       }
     } catch (PathNotFoundException e) {
       fail("Nodes must exists but " + e);

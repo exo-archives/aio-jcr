@@ -415,6 +415,22 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       throw new RepositoryException(e);
     }
   }
+  
+  public List<PropertyData> listChildPropertiesData(NodeData parent) throws RepositoryException, IllegalStateException {
+    checkIfOpened();
+    try {
+      ResultSet prop = findChildPropertiesByParentIdentifier(getInternalId(parent.getIdentifier()));
+      List<PropertyData> children = new ArrayList<PropertyData>();
+      while(prop.next()) {
+        children.add(propertyData(parent.getQPath(), prop));
+      }
+      return children;
+    } catch (SQLException e) {
+      throw new RepositoryException(e);
+    } catch (IOException e) {
+      throw new RepositoryException(e);
+    }
+  }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#getItemData(java.lang.String)
@@ -584,6 +600,42 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         boolean cpmultivalued = item.getBoolean(COLUMN_PMULTIVALUED);
         return loadPropertyRecord(parentPath == null ? traverseQPath(cpid) : parentPath, 
             cname, cid, cpid, cversion, cptype, cpmultivalued);
+      } catch (InvalidItemStateException e) {
+        throw new InvalidItemStateException("FATAL: Can't build item path for name " + cname 
+            + " id: " + getIdentifier(cid) + ". " + e);
+      } catch (IllegalNameException e) {
+        throw new RepositoryException(e);
+      }
+    }
+    
+    private PropertyData propertyData(QPath parentPath, ResultSet item) throws RepositoryException, SQLException, IOException {
+      String cid = item.getString(COLUMN_ID);
+      String cname = item.getString(COLUMN_NAME);
+      int cversion = item.getInt(COLUMN_VERSION);
+      
+      String cpid = item.getString(COLUMN_PARENTID);
+      // if parent ID is empty string - it's a root node  
+      cpid = cpid.equals(Constants.ROOT_PARENT_UUID) ? null : cpid;
+      
+      try {
+        int cptype = item.getInt(COLUMN_PTYPE);
+        boolean cpmultivalued = item.getBoolean(COLUMN_PMULTIVALUED);
+        
+        InternalQName qname = InternalQName.parse(cname);
+        QPath qpath = QPath.makeChildPath(parentPath == null ? traverseQPath(cpid) : parentPath, qname);
+        
+        String identifier = getIdentifier(cid);
+        
+        PersistedPropertyData pdata = new PersistedPropertyData(identifier,
+            qpath,
+            getIdentifier(cpid),
+            cversion,
+            cptype,
+            cpmultivalued
+        );
+
+        pdata.setValues(new ArrayList<ValueData>());
+        return pdata;
       } catch (InvalidItemStateException e) {
         throw new InvalidItemStateException("FATAL: Can't build item path for name " + cname 
             + " id: " + getIdentifier(cid) + ". " + e);
