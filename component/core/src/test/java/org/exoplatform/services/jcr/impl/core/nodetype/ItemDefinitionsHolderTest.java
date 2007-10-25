@@ -5,36 +5,62 @@
 package org.exoplatform.services.jcr.impl.core.nodetype;
 
 import javax.jcr.nodetype.NodeDefinition;
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.nodetype.NodeTypeIterator;
 
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.Constants;
 
 public class ItemDefinitionsHolderTest extends JcrImplBaseTest {
+  private final boolean isImplemented = false;
+  private boolean isLoaded = false;
+  private ItemDefinitionsHolder holder;
   
-  public void testNodeDefinition() throws Exception {
-    ItemDefinitionsHolder holder = ((NodeTypeManagerImpl)repository.getNodeTypeManager()).getItemDefinitionsHolder();
+  @Override
+  public void setUp() throws Exception {
+    super.setUp();
+    if (isImplemented) {
+      isLoaded = true;
+    } else if (!isImplemented && !isLoaded) {
+      NodeTypeManagerImpl ntManager = ((NodeTypeManagerImpl) repository.getNodeTypeManager());
+      NodeTypeIterator nodeTypes = ntManager.getAllNodeTypes();
+      holder = ((NodeTypeManagerImpl) repository.getNodeTypeManager()).getItemDefinitionsHolder();
+      while (nodeTypes.hasNext()) {
+        NodeType type = nodeTypes.nextNodeType();
+        holder.putDefinitions(type);
+      }
+      isLoaded = true;
+    }
     
-    NodeDefinition def1 = holder.getChildNodeDefinition(Constants.NT_FILE,
-        Constants.JCR_CONTENT, Constants.NT_BASE);
-    NodeDefinition def2 = holder.getChildNodeDefinition(Constants.NT_FILE,
-        Constants.JCR_CONTENT, Constants.NT_RESOURCE);
-    
-    assertNotNull(def1);
-    assertNotNull(def2);
-    assertEquals(def1, def2);
-    assertEquals("jcr:content", def1.getName());
+  }
 
+  public void testNodeDefinition() throws Exception {
     
-    assertNull(holder.getChildNodeDefinition(Constants.NT_FILE,
-        Constants.JCR_DEFAULTPRIMNARYTYPE, Constants.NT_RESOURCE));
+    
+
+    if(isLoaded){
+      NodeDefinition def1 = holder.getChildNodeDefinition(Constants.NT_FILE,
+          Constants.JCR_CONTENT, Constants.NT_BASE);
+      NodeDefinition def2 = holder.getChildNodeDefinition(Constants.NT_FILE,
+          Constants.JCR_CONTENT, Constants.NT_RESOURCE);
+      
+      assertNotNull(def1);
+      assertNotNull(def2);
+      assertEquals(def1, def2);
+      assertEquals("jcr:content", def1.getName());
+  
+      
+      assertNull(holder.getChildNodeDefinition(Constants.NT_FILE,
+          Constants.JCR_DEFAULTPRIMNARYTYPE, Constants.NT_RESOURCE));
+    }
   }
   
   public void testResidualNodeDefinition() throws Exception {
-    ItemDefinitionsHolder holder = ((NodeTypeManagerImpl)repository.getNodeTypeManager()).getItemDefinitionsHolder();
+
 //    System.out.println(">>>>>>>>>>>> "+holder.getChildNodeDefinition(Constants.NT_FILE, 
 //        new InternalQName(null, "test"), Constants.NT_UNSTRUCTURED).getName());
-    
+    if(isLoaded){    
     NodeDefinition def1 = holder.getChildNodeDefinition(Constants.NT_UNSTRUCTURED, 
         new InternalQName(null, "test"), Constants.NT_UNSTRUCTURED);
     NodeDefinition def2 = holder.getChildNodeDefinition(Constants.NT_UNSTRUCTURED, 
@@ -44,7 +70,7 @@ public class ItemDefinitionsHolderTest extends JcrImplBaseTest {
     assertNotNull(def2);
     assertEquals(def1, def2);
     assertEquals("*", def1.getName());
-    
+    }
   }
 
 }
