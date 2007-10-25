@@ -1,7 +1,7 @@
-/**
-* Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
-* Please look at license.txt in info directory for more license detail.   *
-*/
+/***************************************************************************
+ * Copyright 2001-2007 The eXo Platform SAS          All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ **************************************************************************/
 
 package org.exoplatform.services.webdav;
 
@@ -53,9 +53,9 @@ import org.exoplatform.services.webdav.order.representation.property.OrderingTyp
 import org.exoplatform.services.webdav.search.representation.property.SupportedQueryGrammarSetRepresentation;
 
 /**
- * Created by The eXo Platform SARL
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
- * @version $Id: WebDavServiceImpl.java 12853 2007-02-16 16:24:30Z gavrikvetal $
+ * Created by The eXo Platform SAS
+ * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * @version $Id: $
  */
 
 public class WebDavServiceImpl implements WebDavService {

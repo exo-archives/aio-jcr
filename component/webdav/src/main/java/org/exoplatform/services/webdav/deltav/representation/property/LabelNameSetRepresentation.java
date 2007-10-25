@@ -1,5 +1,5 @@
 /***************************************************************************
- * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SAS          All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 
@@ -9,19 +9,15 @@ import javax.jcr.Node;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.commons.logging.Log;
-import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.common.representation.property.WebDavPropertyRepresentation;
 
 /**
- * Created by The eXo Platform SARL
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS
+ * Author : Vitaly Guly <gavrikvetal@gmail.com>
  * @version $Id: $
  */
 
 public class LabelNameSetRepresentation extends WebDavPropertyRepresentation {
-  
-  private static Log log = ExoLogger.getLogger("jcr.LabelNameSetRepresentation");
   
   public static final String TAGNAME = "label-name-set";
   

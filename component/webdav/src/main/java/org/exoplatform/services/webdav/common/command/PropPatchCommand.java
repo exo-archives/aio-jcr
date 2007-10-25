@@ -1,5 +1,5 @@
 /***************************************************************************
- * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SAS          All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 
@@ -36,8 +36,8 @@ import org.exoplatform.services.webdav.common.resource.JCRResourceDispatcher;
 import org.w3c.dom.Document;
 
 /**
- * Created by The eXo Platform SARL
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS
+ * Author : Vitaly Guly <gavrikvetal@gmail.com>
  * @version $Id: $
  */
 
@@ -102,7 +102,7 @@ public class PropPatchCommand extends WebDavCommand {
       
       tuneSession(item.getSession(), lockTokens);
       
-      String href = getHref(repoName, repoPath);
+      String href = getHref(repoPath);
       
       PropertyUpdateResponseRepresentation propertyUpdateRepresentation =
         PropertyUpdateRepresentationFactory.createResponseRepresentation(webDavService, document, item, href);

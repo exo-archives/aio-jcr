@@ -1,5 +1,5 @@
 /***************************************************************************
- * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SAS          All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 
@@ -25,8 +25,8 @@ import org.exoplatform.services.webdav.common.representation.property.JcrPropert
 import org.exoplatform.services.webdav.common.representation.property.PropertyRepresentation;
 
 /**
- * Created by The eXo Platform SARL
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS
+ * Author : Vitaly Guly <gavrikvetal@gmail.com>
  * @version $Id: $
  */
 
@@ -86,17 +86,23 @@ public class AllPropResponseRepresentation extends PropFindResponseRepresentatio
       
       if (DavConst.NodeTypes.JCR_DATA.equals(propertyName)) {
         continue;
+      }      
+      
+      if (presentedProperties.contains(propertyName)) {
+        continue;
       }
       
-      if (!presentedProperties.contains(propertyName)) {        
-        presentedProperties.add(propertyName);
-        
-        String prefixOnly = propertyName.split(":")[0];
-        String nameSpace = session.getNamespaceURI(prefixOnly); 
-        String nameOnly = propertyName.split(":")[1];        
-        
-        properties.add(new JcrPropertyRepresentation(nameSpace, nameOnly));
-      }
+      if (propertyName.indexOf(":") < 0) {
+        continue;
+      }      
+      
+      presentedProperties.add(propertyName);
+      
+      String prefixOnly = propertyName.split(":")[0];
+      String nameSpace = session.getNamespaceURI(prefixOnly); 
+      String nameOnly = propertyName.split(":")[1];        
+      
+      properties.add(new JcrPropertyRepresentation(nameSpace, nameOnly));
     }
 
     if (node.isNodeType(DavConst.NodeTypes.NT_FILE)) {
@@ -116,6 +122,10 @@ public class AllPropResponseRepresentation extends PropFindResponseRepresentatio
           continue;
         }
         
+        if (propertyName.indexOf(":") < 0) {
+          continue;
+        }
+
         presentedProperties.add(propertyName);
         
         String prefixOnly = propertyName.split(":")[0];

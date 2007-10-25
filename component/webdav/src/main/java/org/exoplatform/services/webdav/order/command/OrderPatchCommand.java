@@ -1,5 +1,5 @@
 /***************************************************************************
- * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SAS          All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 
@@ -34,11 +34,10 @@ import org.exoplatform.services.webdav.order.representation.OrderPatchRepresenta
 import org.exoplatform.services.webdav.order.representation.OrderPatchResponseRepresentation;
 import org.w3c.dom.Document;
 
-
 /**
- * Created by The eXo Platform SARL
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
- * @version $Id: OrderPatchCommand.java 12304 2007-01-25 10:23:57Z gavrikvetal $
+ * Created by The eXo Platform SAS
+ * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * @version $Id: $
  */
 
 @URITemplate("/jcr/")
@@ -93,7 +92,7 @@ public class OrderPatchCommand extends WebDavCommand {
       ArrayList<String> lockTokens = getLockTokens(lockTokenHeader, ifHeader);
       tuneSession(item.getSession(), lockTokens);
       
-      String href = getHref(repoName, repoPath);
+      String href = getHref(repoPath);
       
       OrderPatchResponseRepresentation orderPatchRepresentation = 
         OrderPatchRepresentationFactory.createResponseRepresentation(document, href, item);

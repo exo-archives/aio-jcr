@@ -1,5 +1,5 @@
 /***************************************************************************
- * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SAS          All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 
@@ -16,11 +16,13 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.HeaderParam;
 import org.exoplatform.services.rest.InputTransformer;
+import org.exoplatform.services.rest.OutputTransformer;
 import org.exoplatform.services.rest.ResourceDispatcher;
 import org.exoplatform.services.rest.Response;
 import org.exoplatform.services.rest.URIParam;
 import org.exoplatform.services.rest.URITemplate;
 import org.exoplatform.services.rest.transformer.PassthroughInputTransformer;
+import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.WebDavMethod;
 import org.exoplatform.services.webdav.WebDavService;
@@ -32,8 +34,8 @@ import org.exoplatform.services.webdav.common.resource.resourcedata.ResourceData
 import org.exoplatform.services.webdav.common.resource.resourcedata.XmlItemData;
 
 /**
- * Created by The eXo Platform SARL
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS
+ * Author : Vitaly Guly <gavrikvetal@gmail.com>
  * @version $Id: $
  */
 
@@ -49,7 +51,8 @@ public class HeadCommand extends WebDavCommand {
   @HTTPMethod(WebDavMethod.HEAD)
   @URITemplate("/{repoName}/")
   @InputTransformer(PassthroughInputTransformer.class)
-  public Response head() {    
+  @OutputTransformer(PassthroughOutputTransformer.class)
+  public Response head() {
     return Response.Builder.ok().
       header(DavConst.Headers.LASTMODIFIED, "" + Calendar.getInstance()).
       header(DavConst.Headers.CONTENTTYPE, "text/html").
@@ -60,18 +63,19 @@ public class HeadCommand extends WebDavCommand {
   @HTTPMethod(WebDavMethod.HEAD)
   @URITemplate("/{repoName}/{repoPath}/")
   @InputTransformer(PassthroughInputTransformer.class)
+  @OutputTransformer(PassthroughOutputTransformer.class)
   public Response head(
       @URIParam("repoName") String repoName,
       @URIParam("repoPath") String repoPath,
       @HeaderParam(WebDavHeaders.AUTHORIZATION) String authorization
       ) {
-    
+
     return doHead(repoName, repoPath, authorization);
   }
   
   private Response doHead(String repoName, String repoPath, String authorization) {
     try {
-      String serverPrefix = getServerPrefix(repoName, repoPath);
+      String href = getHref(repoPath);
       
       SessionProvider sessionProvider = getSessionProvider(authorization);
       
@@ -87,7 +91,7 @@ public class HeadCommand extends WebDavCommand {
         if (node.isNodeType(DavConst.NodeTypes.NT_FILE)) {
           resourceData = new JcrFileResourceData(node);
         } else {
-          resourceData = new XmlItemData(serverPrefix + node.getPath(), node);
+          resourceData = new XmlItemData(href + node.getPath(), node);
           isCollection = true;
         }
       } else {

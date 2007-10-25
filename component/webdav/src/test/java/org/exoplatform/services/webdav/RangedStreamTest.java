@@ -1,3 +1,8 @@
+/***************************************************************************
+ * Copyright 2001-2007 The eXo Platform SAS          All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ **************************************************************************/
+
 package org.exoplatform.services.webdav;
 
 import java.io.ByteArrayInputStream;
@@ -9,14 +14,9 @@ import org.exoplatform.services.webdav.common.response.RangedInputStream;
 
 import junit.framework.TestCase;
 
-/***************************************************************************
- * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
- * Please look at license.txt in info directory for more license detail.   *
- **************************************************************************/
-
 /**
- * Created by The eXo Platform SARL
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS
+ * Author : Vitaly Guly <gavrikvetal@gmail.com>
  * @version $Id: $
  */
 

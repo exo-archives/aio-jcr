@@ -1,14 +1,14 @@
 /***************************************************************************
- * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SAS          All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 
 package org.exoplatform.services.webdav;
 
 /**
- * Created by The eXo Platform SARL
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
- * @version $Id: DavProperty.java 12525 2007-02-02 12:26:47Z gavrikvetal $
+ * Created by The eXo Platform SAS
+ * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * @version $Id: $
  */
 
 public class WebDavProperty {

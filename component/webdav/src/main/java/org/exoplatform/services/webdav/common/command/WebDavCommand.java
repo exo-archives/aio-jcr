@@ -1,5 +1,5 @@
 /***************************************************************************
- * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SAS          All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 
@@ -30,8 +30,8 @@ import org.exoplatform.services.webdav.WebDavStatus;
 import org.exoplatform.services.webdav.common.BadRequestException;
 
 /**
- * Created by The eXo Platform SARL
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS
+ * Author : Vitaly Guly <gavrikvetal@gmail.com>
  * @version $Id: $
  */
 
@@ -86,20 +86,30 @@ public abstract class WebDavCommand implements ResourceContainer {
     return sessionProvider;
   }
 
-  public String getServerPrefix(String repoName) {
-    String prefix = resourceDispatcher.getRuntimeContext().getContextHref();
-    if (prefix.endsWith("portal")) {
-      prefix += "/rest";
+  public String getPrefix(String repoPath) {
+    String prefix = resourceDispatcher.getRuntimeContext().getAbsLocation();
+    if (prefix.endsWith("/")) {
+      prefix = prefix.substring(0, prefix.length() - 1);
     }
-    return prefix + "/jcr/" + repoName;
-  }
+    
+    prefix = prefix.substring(0, prefix.length() - repoPath.length());
+    prefix = prefix.substring(0, prefix.length() - 1);
+    return prefix;
+  }  
   
-  public String getServerPrefix(String repoName, String repoPath) {
-    return resourceDispatcher.getRuntimeContext().getContextHref() + "/jcr/" + repoName + "/" + repoPath.split("/")[0];
-  }
-  
-  public String getHref(String repoName, String repoPath) {
-    return resourceDispatcher.getRuntimeContext().getContextHref() + "/jcr/" + repoName + "/" + repoPath.split("/")[0];
+  public String getHref(String repoPath) {
+    String href = resourceDispatcher.getRuntimeContext().getAbsLocation();
+    if (href.endsWith("/")) {
+      href = href.substring(0, href.length() - 1);
+    }
+    
+    href = href.substring(0, href.length() - repoPath.length()) + repoPath.split("/")[0];
+    
+    if (href.endsWith("/")) {
+      href = href.substring(0, href.length() - 1);
+    }
+    
+    return href;
   }
   
   protected void tuneSession(Session session, ArrayList<String> lockTokens) {
