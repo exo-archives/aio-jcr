@@ -412,8 +412,8 @@
           <forkMode>never</forkMode>
           <!-- TCK tests, uncomment <execution id #1> in maven-antrun-plugin -->
           <includes>
-            <!-- TCK -->
-            <!-- include>**/init/TestAll.java</include -->
+            <!-- TCK, init section is implemented below -->
+
             <!-- include>**/api/*Test.java</include>
               <include>**/api/observation/*Test.java</include>
               <include>**/api/lock/*Test.java</include>
