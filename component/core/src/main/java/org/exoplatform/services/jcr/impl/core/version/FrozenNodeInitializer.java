@@ -66,6 +66,7 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
     this.contextNodes.push(frozen);
   }
 
+  @Override
   protected void entering(PropertyData property, int level) throws RepositoryException {
 
     if (log.isDebugEnabled()) 
@@ -96,7 +97,7 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
     } else if (qname.equals(Constants.JCR_MIXINTYPES) && level == 1) {
       frozenProperty = TransientPropertyData.createPropertyData(
           currentNode(), Constants.JCR_FROZENMIXINTYPES,
-          PropertyType.STRING, mv, values);
+          PropertyType.NAME, mv, values);
     } else {
       NodeData parent = (NodeData) dataManager.getItemData(property.getParentIdentifier());
 
@@ -148,6 +149,7 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
     changesLog.add(ItemState.createAddedState(frozenProperty));
   }
 
+  @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
 
     // this node is not taken in account
@@ -259,9 +261,11 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
     }
   }
 
+  @Override
   protected void leaving(PropertyData property, int level) throws RepositoryException {
   }
 
+  @Override
   protected void leaving(NodeData node, int level) throws RepositoryException {
     contextNodes.pop();
   }
@@ -270,6 +274,7 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
     return contextNodes.peek();
   }
 
+  @Override
   public SessionDataManager getDataManager() {
     return dataManager;
   }
