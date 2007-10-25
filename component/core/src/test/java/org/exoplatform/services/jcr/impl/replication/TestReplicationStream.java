@@ -1,7 +1,8 @@
-/***************************************************************************
- * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
- * Please look at license.txt in info directory for more license detail.   *
- **************************************************************************/
+/**
+ * Copyright 2001-2007 The eXo Platform SAS         All rights reserved. 
+ * Please look at license.txt in info directory for more license detail.  
+ */
+
 package org.exoplatform.services.jcr.impl.replication;
 
 import java.io.File;
@@ -13,25 +14,26 @@ import java.util.Calendar;
 import javax.jcr.Node;
 
 /**
- * Created by The eXo Platform SARL Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.org.ua reshetnyak.alex@gmail.com 16.01.2007
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak
+ * alex.reshetnyak@exoplatform.com.ua 16.01.2007
  * 15:21:45
  * 
  * @version $Id: TestReplicationStream.java 16.01.2007 15:21:45 rainf0x
  */
+
 public class TestReplicationStream extends BaseReplicationTest {
 
   public void testAddNode() throws Exception {
     long start, end;
     byte[] buf = new byte[1024];
-    int fileSize = 50000; // KB 
+    int fileSize = 50000; // KB
 
     File tempFile = File.createTempFile("tempF", "_");
     FileOutputStream fos = new FileOutputStream(tempFile);
 
     for (int i = 0; i < buf.length; i++)
-      buf[i] = (byte)(i % 255);
-    
+      buf[i] = (byte) (i % 255);
+
     for (int i = 0; i < fileSize; i++)
       fos.write(buf);
     fos.close();
@@ -72,9 +74,9 @@ public class TestReplicationStream extends BaseReplicationTest {
 
     assertEquals(sourceNode.getProperty("jcr:encoding").getString(), desinationNode.getProperty(
         "jcr:encoding").getString());
-    
-    assertEquals(sourceNode.getProperty("jcr:lastModified").getString(), desinationNode.getProperty(
-        "jcr:lastModified").getString());
+
+    assertEquals(sourceNode.getProperty("jcr:lastModified").getString(), desinationNode
+        .getProperty("jcr:lastModified").getString());
   }
 
   public void tearDown() throws Exception {

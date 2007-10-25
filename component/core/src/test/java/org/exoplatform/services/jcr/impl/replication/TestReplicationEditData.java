@@ -1,29 +1,25 @@
-/***************************************************************************
- * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
- * Please look at license.txt in info directory for more license detail.   *
- **************************************************************************/
+/**
+ * Copyright 2001-2007 The eXo Platform SAS         All rights reserved. 
+ * Please look at license.txt in info directory for more license detail.  
+ */
+
 package org.exoplatform.services.jcr.impl.replication;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.Calendar;
 
 import javax.jcr.Node;
-import javax.print.attribute.standard.Destination;
 
 /**
- * Created by The eXo Platform SARL
- * Author : Alex Reshetnyak
- *          alex.reshetnyak@exoplatform.org.ua
- *          reshetnyak.alex@gmail.com		
- * 25.07.2007 17:48:00 
- * @version $Id: TestReplicationEditData.java 25.07.2007 17:48:00 rainfox 
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak
+ * alex.reshetnyak@exoplatform.com.ua 25.07.2007
+ * 17:48:00
+ * 
+ * @version $Id: TestReplicationEditData.java 25.07.2007 17:48:00 rainfox
  */
+
 public class TestReplicationEditData extends BaseReplicationTest {
   public void testAddNode() throws Exception {
-    
+
     Node test = root.addNode("cms3").addNode("test");
 
     Node cool = test.addNode("nnn", "nt:file");
@@ -42,24 +38,29 @@ public class TestReplicationEditData extends BaseReplicationTest {
     }
 
     // COMPARE REPLICATION DATA
-    String sourceData = root.getNode("cms3").getNode("test").getNode("nnn").getNode("jcr:content").getProperty("jcr:data").getString();
+    String sourceData = root.getNode("cms3").getNode("test").getNode("nnn").getNode("jcr:content")
+        .getProperty("jcr:data").getString();
     Thread.sleep(3 * 1000);
-    String desinationData = root2.getNode("cms3").getNode("test").getNode("nnn").getNode("jcr:content").getProperty("jcr:data").getString();
-  
-    log.info("Compare 1 data: \n" + sourceData +"\n" + desinationData);
+    String desinationData = root2.getNode("cms3").getNode("test").getNode("nnn").getNode(
+        "jcr:content").getProperty("jcr:data").getString();
+
+    log.info("Compare 1 data: \n" + sourceData + "\n" + desinationData);
     assertEquals(sourceData, desinationData);
-    
+
     String newData = "____________simple_data_2____________";
-    
-    root2.getNode("cms3").getNode("test").getNode("nnn").getNode("jcr:content").setProperty("jcr:data", newData);
+
+    root2.getNode("cms3").getNode("test").getNode("nnn").getNode("jcr:content").setProperty(
+        "jcr:data", newData);
     session2.save();
-    
+
     Thread.sleep(3 * 1000);
-    
-    sourceData = root.getNode("cms3").getNode("test").getNode("nnn").getNode("jcr:content").getProperty("jcr:data").getString();
-    desinationData = root2.getNode("cms3").getNode("test").getNode("nnn").getNode("jcr:content").getProperty("jcr:data").getString();
-    
-    log.info("Compare 2 data: \n" + sourceData +"\n" + desinationData);
+
+    sourceData = root.getNode("cms3").getNode("test").getNode("nnn").getNode("jcr:content")
+        .getProperty("jcr:data").getString();
+    desinationData = root2.getNode("cms3").getNode("test").getNode("nnn").getNode("jcr:content")
+        .getProperty("jcr:data").getString();
+
+    log.info("Compare 2 data: \n" + sourceData + "\n" + desinationData);
     assertEquals(sourceData, desinationData);
   }
 

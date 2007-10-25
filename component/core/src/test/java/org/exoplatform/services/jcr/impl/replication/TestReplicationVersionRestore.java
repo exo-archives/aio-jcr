@@ -1,19 +1,21 @@
-/***************************************************************************
- * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
- * Please look at license.txt in info directory for more license detail.   *
- **************************************************************************/
+/**
+ * Copyright 2001-2007 The eXo Platform SAS         All rights reserved. 
+ * Please look at license.txt in info directory for more license detail.  
+ */
+
 package org.exoplatform.services.jcr.impl.replication;
 
 import javax.jcr.Node;
 import javax.jcr.version.Version;
 
 /**
- * Created by The eXo Platform SARL Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.org.ua reshetnyak.alex@gmail.com 02.03.2007
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak
+ * alex.reshetnyak@exoplatform.com.ua 02.03.2007
  * 14:31:17
  * 
  * @version $Id: TestReplicationVersionRestore.java 02.03.2007 14:31:17 rainfox
  */
+
 public class TestReplicationVersionRestore extends BaseReplicationTest {
   public void testRestore() throws Exception {
     Node srcVersionNode = root.addNode("Version node 1");

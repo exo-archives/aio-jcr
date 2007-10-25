@@ -1,7 +1,8 @@
-/***************************************************************************
- * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
- * Please look at license.txt in info directory for more license detail.   *
- **************************************************************************/
+/**
+ * Copyright 2001-2007 The eXo Platform SAS         All rights reserved. 
+ * Please look at license.txt in info directory for more license detail.  
+ */
+
 package org.exoplatform.services.jcr.impl.replication;
 
 import javax.jcr.Node;
@@ -16,8 +17,8 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
- * Created by The eXo Platform SARL Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.org.ua reshetnyak.alex@gmail.com 20.02.2007
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak
+ * alex.reshetnyak@exoplatform.com.ua 20.02.2007
  * 17:10:01
  * 
  * @version $Id: BaseReplicationTest.java 20.02.2007 17:10:01 rainfox
@@ -35,8 +36,9 @@ public class BaseReplicationTest extends BaseStandaloneTest {
   protected ValueFactory   valueFactory2;
 
   public void setUp() throws Exception {
-    
-    StandaloneContainer.addConfigurationPath("src/test/java/conf/standalone/test-configuration-for-replication.xml");
+
+    StandaloneContainer
+        .addConfigurationPath("src/test/java/conf/standalone/test-configuration-for-replication.xml");
 
     container = StandaloneContainer.getInstance();
 
@@ -82,8 +84,8 @@ public class BaseReplicationTest extends BaseStandaloneTest {
   protected String getRepositoryName() {
     return null;
   }
-  
+
   public void test() throws Exception {
-//    assertEquals(true,true);
+    // assertEquals(true,true);
   }
 }
