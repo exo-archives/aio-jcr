@@ -116,7 +116,17 @@
 
     </plugins>
   </build>
-
+  <reporting>
+   <plugins>
+     <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-checkstyle-plugin</artifactId>
+       <configuration>
+         <configLocation>${exo.projects.directory.src}/tools/trunk/config/exo-checkstyle-checker.xml</configLocation>
+       </configuration>
+     </plugin>
+   </plugins>
+  </reporting>
   <!-- repositories>
     <repository>
       <id>local-jcr</id>
