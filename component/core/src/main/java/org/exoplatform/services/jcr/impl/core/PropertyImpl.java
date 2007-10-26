@@ -5,7 +5,6 @@
 
 package org.exoplatform.services.jcr.impl.core;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 
@@ -40,10 +39,10 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 
 public class PropertyImpl extends ItemImpl implements Property {
 
-  protected int type;
+  protected int                 type;
 
   // private PropertyDefinitions definitions;
-  private PropertyDefinition propertyDef;
+  private PropertyDefinition    propertyDef;
 
   /**
    * just to simplify operations
@@ -61,20 +60,18 @@ public class PropertyImpl extends ItemImpl implements Property {
    * 
    * @see org.exoplatform.services.jcr.impl.core.ItemImpl#loadData(org.exoplatform.services.jcr.datamodel.ItemData)
    */
-  void loadData(ItemData data) throws RepositoryException,
-      ConstraintViolationException {
+  void loadData(ItemData data) throws RepositoryException, ConstraintViolationException {
 
     if (!(data instanceof TransientPropertyData))
-      throw new RepositoryException(
-          "Load data: TransientPropertyData is expected, but have " + data);
+      throw new RepositoryException("Load data: TransientPropertyData is expected, but have "
+          + data);
 
     this.data = data;
     this.propertyData = (TransientPropertyData) data;
     this.type = propertyData.getType();
 
     // [PN] 03.01.07
-    this.location = session.getLocationFactory().createJCRPath(
-        getData().getQPath());
+    this.location = session.getLocationFactory().createJCRPath(getData().getQPath());
     this.propertyDef = null;
     initDefinitions(this.propertyData.isMultiValued());
   }
@@ -87,16 +84,13 @@ public class PropertyImpl extends ItemImpl implements Property {
     checkValid();
 
     if (isMultiValued())
-      throw new ValueFormatException("The property " + getPath()
-          + " is multi-valued (6.2.4)");
+      throw new ValueFormatException("The property " + getPath() + " is multi-valued (6.2.4)");
 
-    if (propertyData.getValues() != null
-        && propertyData.getValues().size() == 0)
-      throw new ValueFormatException("The single valued property " + getPath()
-          + " is empty");
+    if (propertyData.getValues() != null && propertyData.getValues().size() == 0)
+      throw new ValueFormatException("The single valued property " + getPath() + " is empty");
 
-    return valueFactory.loadValue((TransientValueData) propertyData.getValues()
-        .get(0), propertyData.getType());
+    return valueFactory.loadValue((TransientValueData) propertyData.getValues().get(0),
+        propertyData.getType());
 
   }
 
@@ -109,8 +103,7 @@ public class PropertyImpl extends ItemImpl implements Property {
 
     // Check property definition and life-state flag both
     if (!isMultiValued()) {
-      throw new ValueFormatException("The property " + getPath()
-          + " is single-valued (6.2.4)");
+      throw new ValueFormatException("The property " + getPath() + " is single-valued (6.2.4)");
     }
 
     // The array returned is a copy of the stored values
@@ -124,11 +117,9 @@ public class PropertyImpl extends ItemImpl implements Property {
     try {
       return getValue().getString();
     } catch (ValueFormatException e) {
-      throw new ValueFormatException("PropertyImpl.getString() for "
-          + getPath() + " failed: " + e);
+      throw new ValueFormatException("PropertyImpl.getString() for " + getPath() + " failed: " + e);
     } catch (IllegalStateException e) {
-      throw new ValueFormatException("PropertyImpl.getString() for "
-          + getPath() + " failed: " + e);
+      throw new ValueFormatException("PropertyImpl.getString() for " + getPath() + " failed: " + e);
     }
   }
 
@@ -157,8 +148,7 @@ public class PropertyImpl extends ItemImpl implements Property {
   /**
    * @see javax.jcr.Property#getStream
    */
-  public InputStream getStream() throws ValueFormatException,
-      RepositoryException {
+  public InputStream getStream() throws ValueFormatException, RepositoryException {
     try {
       return getValue().getStream();
     } catch (IllegalStateException e) {
@@ -230,8 +220,8 @@ public class PropertyImpl extends ItemImpl implements Property {
     checkValid();
 
     if (propertyDef == null) {
-      throw new RepositoryException("FATAL: property definition is NULL "
-          + getPath() + " " + propertyData.getValues());
+      throw new RepositoryException("FATAL: property definition is NULL " + getPath() + " "
+          + propertyData.getValues());
     }
 
     return propertyDef;
@@ -249,8 +239,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     PropertyDefinitions defs = null;
     PropertyDefinitions definitions = null;
     for (int i = 0; i < nodeTypes.length; i++) {
-      defs = ((ExtendedNodeType) nodeTypes[i])
-          .getPropertyDefinitions(getInternalName());
+      defs = ((ExtendedNodeType) nodeTypes[i]).getPropertyDefinitions(getInternalName());
       if (defs.getAnyDefinition() != null) { // includes residual set
         definitions = defs;
         if (!((PropertyDefinitionImpl) defs.getAnyDefinition()).isResidualSet())
@@ -259,8 +248,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     }
 
     if (definitions == null)
-      throw new ConstraintViolationException("Definition for property "
-          + getPath() + " not found.");
+      throw new ConstraintViolationException("Definition for property " + getPath() + " not found.");
     propertyDef = definitions.getDefinition(multiple);
   }
 
@@ -274,27 +262,23 @@ public class PropertyImpl extends ItemImpl implements Property {
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(Value value) throws ValueFormatException,
-      VersionException, LockException, ConstraintViolationException,
-      RepositoryException {
+  public void setValue(Value value) throws ValueFormatException, VersionException, LockException,
+      ConstraintViolationException, RepositoryException {
 
     checkValid();
 
-    doUpdateProperty(parent(), getInternalName(), value, false,
-        PropertyType.UNDEFINED);
+    doUpdateProperty(parent(), getInternalName(), value, false, PropertyType.UNDEFINED);
   }
 
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(Value[] values) throws ValueFormatException,
-      VersionException, LockException, ConstraintViolationException,
-      RepositoryException {
+  public void setValue(Value[] values) throws ValueFormatException, VersionException,
+      LockException, ConstraintViolationException, RepositoryException {
 
     checkValid();
 
-    doUpdateProperty(parent(), getInternalName(), values, true,
-        PropertyType.UNDEFINED);
+    doUpdateProperty(parent(), getInternalName(), values, true, PropertyType.UNDEFINED);
   }
 
   /**
@@ -310,72 +294,64 @@ public class PropertyImpl extends ItemImpl implements Property {
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(String value) throws ValueFormatException,
-      VersionException, LockException, ConstraintViolationException,
-      RepositoryException {
+  public void setValue(String value) throws ValueFormatException, VersionException, LockException,
+      ConstraintViolationException, RepositoryException {
     setValue(valueFactory.createValue(value));
   }
 
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(InputStream stream) throws ValueFormatException,
-      VersionException, LockException, ConstraintViolationException,
-      RepositoryException {
+  public void setValue(InputStream stream) throws ValueFormatException, VersionException,
+      LockException, ConstraintViolationException, RepositoryException {
     setValue(valueFactory.createValue(stream));
   }
 
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(double number) throws ValueFormatException,
-      VersionException, LockException, ConstraintViolationException,
-      RepositoryException {
+  public void setValue(double number) throws ValueFormatException, VersionException, LockException,
+      ConstraintViolationException, RepositoryException {
     setValue(valueFactory.createValue(number));
   }
 
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(long number) throws ValueFormatException,
-      VersionException, LockException, ConstraintViolationException,
-      RepositoryException {
+  public void setValue(long number) throws ValueFormatException, VersionException, LockException,
+      ConstraintViolationException, RepositoryException {
     setValue(valueFactory.createValue(number));
   }
 
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(Calendar date) throws ValueFormatException,
-      VersionException, LockException, ConstraintViolationException,
-      RepositoryException {
+  public void setValue(Calendar date) throws ValueFormatException, VersionException, LockException,
+      ConstraintViolationException, RepositoryException {
     setValue(valueFactory.createValue(date));
   }
 
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(boolean b) throws ValueFormatException,
-      VersionException, LockException, ConstraintViolationException,
-      RepositoryException {
+  public void setValue(boolean b) throws ValueFormatException, VersionException, LockException,
+      ConstraintViolationException, RepositoryException {
     setValue(valueFactory.createValue(b));
   }
 
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(Node value) throws ValueFormatException,
-      VersionException, LockException, ConstraintViolationException,
-      RepositoryException {
+  public void setValue(Node value) throws ValueFormatException, VersionException, LockException,
+      ConstraintViolationException, RepositoryException {
     setValue(valueFactory.createValue(value));
   }
 
   /**
    * @see javax.jcr.Property#setValue
    */
-  public void setValue(String[] values) throws ValueFormatException,
-      VersionException, LockException, ConstraintViolationException,
-      RepositoryException {
+  public void setValue(String[] values) throws ValueFormatException, VersionException,
+      LockException, ConstraintViolationException, RepositoryException {
 
     Value[] strValues = null;
     if (values != null) {
@@ -404,33 +380,36 @@ public class PropertyImpl extends ItemImpl implements Property {
     return false;
   }
 
-//  // ----------------------- ExtendedProperty -----------------------
-//
-//  public void updateValue(int index, InputStream value, long length,
-//      long position) throws ValueFormatException, VersionException,
-//      LockException, ConstraintViolationException, RepositoryException {
-//
-//    checkValid();
-//    
-//    PropertyData pdata = (PropertyData) getData();
-//    TransientValueData vdata = (TransientValueData) pdata.getValues().get(index);
-//
-//    doUpdateProperty(parent(), getInternalName(), 
-//        valueFactory.loadValue(vdata, PropertyType.BINARY), false, PropertyType.BINARY);
-//    
-//    // get new data
-//    vdata = (TransientValueData) ((PropertyData) getData()).getValues().get(index);
-//    
-//    try {
-//      vdata.update(value, length, position);
-//    } catch (IOException e) {
-//      throw new RepositoryException(e);
-//    }
-//    
-//    //setValue(valueFactory.loadValue(vdata, PropertyType.BINARY));
-//  }
+  // // ----------------------- ExtendedProperty -----------------------
+  //
+  // public void updateValue(int index, InputStream value, long length,
+  // long position) throws ValueFormatException, VersionException,
+  // LockException, ConstraintViolationException, RepositoryException {
+  //
+  // checkValid();
+  //    
+  // PropertyData pdata = (PropertyData) getData();
+  // TransientValueData vdata = (TransientValueData)
+  // pdata.getValues().get(index);
+  //
+  // doUpdateProperty(parent(), getInternalName(),
+  // valueFactory.loadValue(vdata, PropertyType.BINARY), false,
+  // PropertyType.BINARY);
+  //    
+  // // get new data
+  // vdata = (TransientValueData) ((PropertyData)
+  // getData()).getValues().get(index);
+  //    
+  // try {
+  // vdata.update(value, length, position);
+  // } catch (IOException e) {
+  // throw new RepositoryException(e);
+  // }
+  //    
+  // //setValue(valueFactory.loadValue(vdata, PropertyType.BINARY));
+  // }
 
-  //////////////////////////////////
+  // ////////////////////////////////
 
   /**
    * @return
@@ -440,8 +419,8 @@ public class PropertyImpl extends ItemImpl implements Property {
 
     Value[] values = new Value[propertyData.getValues().size()];
     for (int i = 0; i < values.length; i++) {
-      values[i] = valueFactory.loadValue((TransientValueData) propertyData
-          .getValues().get(i), propertyData.getType());
+      values[i] = valueFactory.loadValue((TransientValueData) propertyData.getValues().get(i),
+          propertyData.getType());
     }
     return values;
   }
@@ -450,8 +429,7 @@ public class PropertyImpl extends ItemImpl implements Property {
     String vals = "Property " + getPath() + " values: ";
     try {
       for (int i = 0; i < getValueArray().length; i++) {
-        vals += new String(((BaseValue) getValueArray()[i]).getInternalData()
-            .getAsByteArray())
+        vals += new String(((BaseValue) getValueArray()[i]).getInternalData().getAsByteArray())
             + ";";
       }
     } catch (Exception e) {
