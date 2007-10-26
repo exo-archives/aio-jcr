@@ -24,7 +24,11 @@ import com.sun.star.uno.XComponentContext;
 
 public class OOUtils {
     
-  public static XComponent loadFromFile(XComponentContext xComponentContext, String url, String remoteUrl) throws Exception {    
+  public static XComponent loadFromFile(XComponentContext xComponentContext, String url, String remoteUrl) throws Exception {
+    
+    Log.info("LOAD FROM URL: " + url);
+    Log.info("REMOTE URL: " + remoteUrl);
+    
     PropertyValue[] loadProps = null;
 
     loadProps = new PropertyValue[1];

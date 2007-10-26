@@ -44,10 +44,14 @@ import com.sun.star.uno.XComponentContext;
 public abstract class BrowseDialog extends PlugInDialog {
   
   public static final int VNAME_LEN = 3;
-  public static final int NAME_LEN = 26;
-  public static final int SIZE_LEN = 38;
-  public static final int LASTMODOFIED_SIZE = 69;
-  public static final int MIMETYPE_SIZE = 89;
+  
+  public static final int NAME_LEN = 30;
+  
+  public static final int SIZE_LEN = 36;
+  
+  public static final int MIMETYPE_SIZE = 63;
+  
+  public static final int LASTMODOFIED_SIZE = 92;
   
   public static final String BTN_PREV = "btnPrev";
   public static final String LST_ITEMS = "lstItems";
@@ -101,13 +105,13 @@ public abstract class BrowseDialog extends PlugInDialog {
         headerValue += " ";
       }
       
-      headerValue += "Last Modified";
-      while (headerValue.length() < LASTMODOFIED_SIZE) {
+      headerValue += "Mime-Type";
+      while (headerValue.length() < MIMETYPE_SIZE) {
         headerValue += " ";
       }
       
-      headerValue += "Mime-Type";
-      while (headerValue.length() < MIMETYPE_SIZE) {
+      headerValue += "Last Modified";
+      while (headerValue.length() < LASTMODOFIED_SIZE) {
         headerValue += " ";
       }
       
@@ -187,13 +191,34 @@ public abstract class BrowseDialog extends PlugInDialog {
     ResourceTypeProp resourceTypeProperty =
       (ResourceTypeProp)response.getProperty(Const.DavProp.RESOURCETYPE);
     
-    if (resourceTypeProperty != null && resourceTypeProperty.isCollection()) {
+    String displayName = displayNameProperty.getDisplayName();
+    
+    
+    if (resourceTypeProperty != null && resourceTypeProperty.isCollection()) {      
+      if (displayName.length() > NAME_LEN - VNAME_LEN - 5) {
+        displayName = displayName.substring(0, NAME_LEN - VNAME_LEN - 5);
+      }
+      
       fileItem += "[ ";
-      fileItem += displayNameProperty.getDisplayName();
+      fileItem += displayName;
       fileItem += " ]";
     } else {
-      fileItem += displayNameProperty.getDisplayName();      
+      if (displayName.length() > NAME_LEN) {      
+//        if (displayName.indexOf(".") > 0) {        
+//          String name = displayName.substring(0, displayName.lastIndexOf("."));
+//          Log.info("NAME: " + name);
+//          String extension = displayName.substring(displayName.lastIndexOf("."));        
+//          name = name.substring(0, NAME_LEN - extension.length() - 8);        
+//          fileItem += (name + "... " + extension); 
+//        } else {
+//          
+//        }
+        fileItem += (displayName.substring(0, NAME_LEN - 7) + "...");
+      } else {
+        fileItem += displayName;
+      }
     }
+    
     while (fileItem.length() < NAME_LEN) {
       fileItem += " ";
     }
@@ -201,19 +226,28 @@ public abstract class BrowseDialog extends PlugInDialog {
     ContentLengthProp contentLengthProperty =
       (ContentLengthProp)response.getProperty(Const.DavProp.GETCONTENTLENGTH);
     if (contentLengthProperty != null) {
-      fileItem += contentLengthProperty.getContentLength();
+      
+      long contentLength = contentLengthProperty.getContentLength();
+
+      if (contentLength < 1024) {
+        fileItem += contentLength;
+      } else if (contentLength < (1024*1024)) {        
+        contentLength = contentLength >> 10;
+        fileItem += contentLength;
+        fileItem += "K";
+      } else {
+        String kb = "" + (contentLength >> 10) % 1024;
+        while (kb.length() < 3) {
+          kb = "0" + kb;
+        }        
+        contentLength = contentLength >> 20;
+        fileItem += contentLength;
+        fileItem += ".";
+        fileItem += kb.toCharArray()[0];
+        fileItem += "M";        
+      }
     }
     while (fileItem.length() < SIZE_LEN) {
-      fileItem += " ";
-    }
-    
-    LastModifiedProp lastModifiedProperty =
-      (LastModifiedProp)response.getProperty(Const.DavProp.GETLASTMODIFIED);
-    if (lastModifiedProperty != null) {
-      fileItem += lastModifiedProperty.getLastModified();
-    }
-    
-    while (fileItem.length() < LASTMODOFIED_SIZE) {
       fileItem += " ";
     }
     
@@ -223,9 +257,24 @@ public abstract class BrowseDialog extends PlugInDialog {
       fileItem += mimeTypeProperty.getValue();
     }
     
+    if (fileItem.length() > MIMETYPE_SIZE - 1) {
+      fileItem = fileItem.substring(0, MIMETYPE_SIZE - 4);
+      fileItem += "...";
+    }
+    
     while (fileItem.length() < MIMETYPE_SIZE) {
       fileItem += " ";
+    }    
+    
+    LastModifiedProp lastModifiedProperty =
+      (LastModifiedProp)response.getProperty(Const.DavProp.GETLASTMODIFIED);
+    if (lastModifiedProperty != null) {
+      fileItem += lastModifiedProperty.getLastModified();
     }
+    
+    while (fileItem.length() < LASTMODOFIED_SIZE) {
+      fileItem += " ";
+    }    
     
     CommonProp commentProperty =
       (CommonProp)response.getProperty(Const.DavProp.COMMENT);
