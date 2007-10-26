@@ -1,5 +1,5 @@
 /***************************************************************************
- * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SAS          All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 
@@ -9,10 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import org.exoplatform.applications.ooplugin.config.FilterListLoader;
-import org.exoplatform.applications.ooplugin.config.FilterType;
 import org.exoplatform.applications.ooplugin.dialog.Component;
-import org.exoplatform.applications.ooplugin.dialog.DialogException;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.frameworks.httpclient.TextUtils;
 import org.exoplatform.frameworks.webdavclient.Const;
@@ -39,8 +36,8 @@ import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
 
 /**
- * Created by The eXo Platform SARL
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS
+ * Author : Vitaly Guly <gavrikvetal@gmail.com>
  * @version $Id: $
  */
 

@@ -14,8 +14,8 @@ import org.exoplatform.frameworks.webdavclient.Log;
 import org.exoplatform.frameworks.webdavclient.WebDavContext;
 
 /**
- * Created by The eXo Platform SARL
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS
+ * Author : Vitaly Guly <gavrikvetal@gmail.com>
  * @version $Id: $
  */
 
@@ -30,7 +30,7 @@ public class WebDavConfig {
   
   private String host = "localhost";
   private int port = 8080;
-  private String servlet = "/jcr-webdav/repository";
+  private String servlet = "/rest/jcr/repository";
   private String workSpace = "production";
   private String user_id = "admin";
   private String user_pass = "admin";
