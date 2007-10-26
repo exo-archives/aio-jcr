@@ -71,12 +71,12 @@ public class testRenameMoveCopy extends BaseStandaloneTest {
     // done
     s.save();
 
-    SmbFile file = new SmbFile("smb://" + servername + "/ws/" + filename);
+    SmbFile file = new SmbFile("smb://"+user + servername + "/ws/" + filename);
 
     assertTrue(file.exists());
 
     String newname = "renfile.txt";
-    SmbFile renfile = new SmbFile("smb://" + servername + "/ws/" + newname);
+    SmbFile renfile = new SmbFile("smb://"+user + servername + "/ws/" + newname);
 
     assertFalse(renfile.exists());
     file.renameTo(renfile);
@@ -120,12 +120,12 @@ public class testRenameMoveCopy extends BaseStandaloneTest {
     // done
     s.save();
 
-    SmbFile folder = new SmbFile("smb://" + servername + "/ws/" + oldname);
+    SmbFile folder = new SmbFile("smb://"+user + servername + "/ws/" + oldname);
 
     assertTrue(folder.exists());
 
     String newname = "newfolder";
-    SmbFile renfolder = new SmbFile("smb://" + servername + "/ws/" + newname);
+    SmbFile renfolder = new SmbFile("smb://"+user + servername + "/ws/" + newname);
 
     // check if new name not exist
     assertFalse(renfolder.exists());
@@ -182,12 +182,12 @@ public class testRenameMoveCopy extends BaseStandaloneTest {
     // done
     s.save();
     
-    SmbFile file = new SmbFile("smb://" + servername + "/ws/" + oldname);
+    SmbFile file = new SmbFile("smb://"+user + servername + "/ws/" + oldname);
 
     assertTrue(file.exists());
 
     String newname = "newfile.txt";
-    SmbFile cpyfile = new SmbFile("smb://" + servername + "/ws/" + newname);
+    SmbFile cpyfile = new SmbFile("smb://"+user + servername + "/ws/" + newname);
 
     // check if new name not exist
     assertFalse(cpyfile.exists());
@@ -243,12 +243,12 @@ public class testRenameMoveCopy extends BaseStandaloneTest {
     // done
     s.save();
 
-    SmbFile folder = new SmbFile("smb://" + servername + "/ws/" + oldname+"/");
+    SmbFile folder = new SmbFile("smb://"+user + servername + "/ws/" + oldname+"/");
 
     assertTrue(folder.exists());
 
     String newname = "jcr'3a'system/newfolder";
-    SmbFile cpyfolder = new SmbFile("smb://" + servername + "/ws/" + newname+"/");
+    SmbFile cpyfolder = new SmbFile("smb://"+user + servername + "/ws/" + newname+"/");
 
     // check if new name not exist
     assertFalse(cpyfolder.exists());

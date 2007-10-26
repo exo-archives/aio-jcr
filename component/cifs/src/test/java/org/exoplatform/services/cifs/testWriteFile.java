@@ -56,7 +56,7 @@ public class testWriteFile extends BaseStandaloneTest {
 
     if (testFileBig == null) {
       testFileBig = createBLOBTempFile(this.getClass().getSimpleName() + "_",
-          100 * 1024); // 100 Mb
+          50 * 1024); // 100 Mb
       testFileBig.deleteOnExit();
     }
 
@@ -80,7 +80,7 @@ public class testWriteFile extends BaseStandaloneTest {
 
     String filename = file.getName();
 
-    SmbFile smbfile = new SmbFile("smb://" + servername + "/ws/" + filename);
+    SmbFile smbfile = new SmbFile("smb://"+user + servername + "/ws/" + filename);
 
     OutputStream os = smbfile.getOutputStream();
 
@@ -146,9 +146,9 @@ public class testWriteFile extends BaseStandaloneTest {
    * 
    * @throws Exception
    */
-  public void testWriteLargeFile() throws Exception {
+ /* public void testWriteLargeFile() throws Exception {
     processFile(testFileBig);
-  }
+  }*/
 
   /**
    * Process sequential write test
@@ -156,7 +156,7 @@ public class testWriteFile extends BaseStandaloneTest {
    * @param file
    * @throws Exception
    */
- /* public void testHugeFile() throws Exception {
+  /*public void testHugeFile() throws Exception {
 
     File file = createBLOBTempFile(this.getClass().getSimpleName() + "_", 1400*1024);
     file.deleteOnExit();
@@ -166,7 +166,7 @@ public class testWriteFile extends BaseStandaloneTest {
 
     String filename = file.getName();
 
-    SmbFile smbfile = new SmbFile("smb://" + servername + "/ws/" + filename);
+    SmbFile smbfile = new SmbFile("smb://"+user + servername + "/ws/" + filename);
 
     OutputStream os = smbfile.getOutputStream();
 

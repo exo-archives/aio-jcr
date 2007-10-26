@@ -4,12 +4,15 @@
  **************************************************************************/
 package org.exoplatform.services.cifs.smb.server;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Credentials;
 import javax.jcr.ItemExistsException;
+import javax.jcr.LoginException;
+import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
@@ -20,6 +23,9 @@ import javax.jcr.version.VersionException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.cifs.netbios.RFCNetBIOSProtocol;
+import org.exoplatform.services.cifs.server.auth.Client;
+import org.exoplatform.services.cifs.server.auth.NTLMv1;
+import org.exoplatform.services.cifs.server.auth.NTLanManAuthContext;
 import org.exoplatform.services.cifs.server.core.ShareType;
 import org.exoplatform.services.cifs.server.core.SharedDevice;
 import org.exoplatform.services.cifs.server.filesys.DiskInfo;
@@ -28,6 +34,7 @@ import org.exoplatform.services.cifs.server.filesys.FileAction;
 import org.exoplatform.services.cifs.server.filesys.FileInfo;
 import org.exoplatform.services.cifs.server.filesys.FileOpenParams;
 import org.exoplatform.services.cifs.server.filesys.JCRDriver;
+import org.exoplatform.services.cifs.server.filesys.JCRNetworkFile;
 import org.exoplatform.services.cifs.server.filesys.NameCoder;
 import org.exoplatform.services.cifs.server.filesys.NetworkFile;
 import org.exoplatform.services.cifs.server.filesys.SearchContext;
@@ -47,6 +54,7 @@ import org.exoplatform.services.cifs.util.DataBuffer;
 import org.exoplatform.services.cifs.util.DataPacker;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.organization.User;
 import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
@@ -59,20 +67,20 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
   // Debug logging
 
-  private static final Log logger = ExoLogger
-      .getLogger("org.exoplatform.services.cifs.smb.server.LanManProtocolHandler");
+  private static final Log   logger            = ExoLogger
+                                                   .getLogger("org.exoplatform.services.cifs.smb.server.LanManProtocolHandler");
 
   // Locking type flags
 
-  protected static final int LockShared = 0x01;
+  protected static final int LockShared        = 0x01;
 
   protected static final int LockOplockRelease = 0x02;
 
-  protected static final int LockChangeType = 0x04;
+  protected static final int LockChangeType    = 0x04;
 
-  protected static final int LockCancel = 0x08;
+  protected static final int LockCancel        = 0x08;
 
-  protected static final int LockLargeFiles = 0x10;
+  protected static final int LockLargeFiles    = 0x10;
 
   /**
    * LanManProtocolHandler constructor.
@@ -84,8 +92,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
   /**
    * LanManProtocolHandler constructor.
    * 
-   * @param sess
-   *          org.exoplatform.services.CIFS.smbsrv.SMBSrvSession
+   * @param sess org.exoplatform.services.CIFS.smbsrv.SMBSrvSession
    */
   public LanManProtocolHandler(SMBSrvSession sess) {
     super(sess);
@@ -104,8 +111,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
    * Process the chained SMB commands (AndX).
    * 
    * @return New offset to the end of the reply packet
-   * @param outPkt
-   *          Reply packet.
+   * @param outPkt Reply packet.
    */
   protected final int procAndXCommands(SMBSrvPacket outPkt) {
     logger.debug(":procAndXCommands");
@@ -153,8 +159,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       // block
 
       outPkt.setAndXCommand(prevEndOfPkt, andxCmd);
-      outPkt.setAndXParameter(paramBlk, 1, prevEndOfPkt
-          - RFCNetBIOSProtocol.HEADER_LEN);
+      outPkt.setAndXParameter(paramBlk, 1, prevEndOfPkt - RFCNetBIOSProtocol.HEADER_LEN);
 
       // Advance the current parameter block
 
@@ -175,21 +180,24 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
    * Process a chained tree connect request.
    * 
    * @return New end of reply offset.
-   * @param cmdOff
-   *          int Offset to the chained command within the request packet.
-   * @param outPkt
-   *          SMBSrvPacket Reply packet.
-   * @param endOff
-   *          int Offset to the current end of the reply packet.
+   * @param cmdOff int Offset to the chained command within the request packet.
+   * @param outPkt SMBSrvPacket Reply packet.
+   * @param endOff int Offset to the current end of the reply packet.
    */
-  protected final int procChainedTreeConnectAndX(int cmdOff,
-      SMBSrvPacket outPkt, int endOff) {
+  protected final int procChainedTreeConnectAndX(int cmdOff, SMBSrvPacket outPkt, int endOff) {
     logger.debug(":procChainedTreeConnectAndX");
     // Extract the parameters
 
     int flags = m_smbPkt.getAndXParameter(cmdOff, 2);
     int pwdLen = m_smbPkt.getAndXParameter(cmdOff, 3);
 
+    VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
+
+    if (vc == null) {
+      outPkt.setError(m_smbPkt.isLongErrorCode(), SMBStatus.NTInvalidParameter,
+          SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
+      return endOff;
+    }
     // Get the data bytes position and length
 
     int dataPos = m_smbPkt.getAndXByteOffset(cmdOff);
@@ -253,8 +261,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
     // Map the IPC$ share to the admin pipe type
 
-    if (servType == ShareType.NAMEDPIPE
-        && share.getShareName().compareTo("IPC$") == 0)
+    if (servType == ShareType.NAMEDPIPE && share.getShareName().compareTo("IPC$") == 0)
       servType = ShareType.ADMINPIPE;
 
     // Find the requested shared device
@@ -264,8 +271,8 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
       // Get/create the shared device
 
-      shareDev = m_sess.getSMBServer().findShare(share.getShareName(),
-          servType, getSession());//, true
+      shareDev = m_sess.getSMBServer().findShare(share.getShareName(), servType, getSession());// ,
+      // true
 
     } catch (Exception ex) {
 
@@ -277,8 +284,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
     // Check if the share is valid
 
-    if (shareDev == null
-        || (servType != ShareType.UNKNOWN && shareDev.getType() != servType)) {
+    if (shareDev == null || (servType != ShareType.UNKNOWN && shareDev.getType() != servType)) {
       outPkt.setError(SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
       return endOff;
     }
@@ -286,42 +292,80 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // Authenticate the share connect, if the server is using share mode
     // security
 
-    int filePerm = FileAccess.Writeable;
+    int sharePerm = FileAccess.Writeable;
 
     // Allocate a tree id for the new connection
-
     try {
 
-      // Allocate the tree id for this connection
-      VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
-      
-      
+      // Allocate a tree id for the new connection
       int treeId = vc.addTreeConnection(shareDev);
+
       outPkt.setTreeId(treeId);
 
-      // Set the file permission that this user has been granted for this
-      // share
-
       TreeConnection tree = vc.findTreeConnection(treeId);
-      tree.setPermission(filePerm);
 
+      // set session for workspaces
       Session s = null;
+
       if (shareDev.getType() == ShareType.DISK) {
-        Credentials credentials = new CredentialsImpl("admin", "admin"
-            .toCharArray());
+
+        Credentials credentials = new CredentialsImpl(vc.getClientInfo().getUsername(), vc
+            .getClientInfo().getPassword().toCharArray());
+
         try {
           // obtain session of shared device - workspace and
           if (logger.isDebugEnabled()) {
             logger.debug("Create JCR-session: login admin");
           }
-          s = (SessionImpl) (this.m_sess.getSMBServer().getRepository()).login(
-              credentials, shareDev.getName());
-        } catch (Exception ex) {
-          System.err.println(ex);
+          s = (SessionImpl) (this.m_sess.getSMBServer().getRepository()).login(credentials,
+              shareDev.getName());
+
+          // Set the file permission that this user has been granted for this
+          // share
+
+          // no access for default
+          sharePerm = FileAccess.NoAccess;
+
+          // check is ReadOnly
+          try {
+            s.checkPermission("/", "read");
+            sharePerm = FileAccess.ReadOnly;
+            logger.debug("share permission - read");
+          } catch (java.security.AccessControlException e) {
+          }
+
+          // check is Writable
+
+          try {
+            s.checkPermission("/", "add_node");
+            s.checkPermission("/", "set_property");
+            sharePerm = FileAccess.Writeable;
+            logger.debug("share permission - writable");
+
+          } catch (java.security.AccessControlException e) {
+          }
+
+        } catch (LoginException e) {
+          outPkt.setError(m_smbPkt.isLongErrorCode(), SMBStatus.NTLogonFailure,
+              SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+          return endOff;
+        } catch (NoSuchWorkspaceException e) {
+          outPkt.setError(m_smbPkt.isLongErrorCode(), SMBStatus.NTBadNetName,
+              SMBStatus.SRVInvalidNetworkName, SMBStatus.ErrSrv);
+          return endOff;
+        } catch (RepositoryException e) {
+          e.printStackTrace();
+          outPkt.setError(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
+          return endOff;
+        } catch (Exception e) {
+          e.printStackTrace();
+          outPkt.setError(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
+          return endOff;
         }
       }
-      tree.setSession(s);
 
+      tree.setSession(s);
+      tree.setPermission(sharePerm);
       // Debug
 
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_TREE))
@@ -344,8 +388,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
     int pos = outPkt.getAndXByteOffset(endOff);
     byte[] outBuf = outPkt.getBuffer();
-    pos = DataPacker.putString(ShareType.TypeAsService(servType), outBuf, pos,
-        true);
+    pos = DataPacker.putString(ShareType.TypeAsService(servType), outBuf, pos, true);
     int bytLen = pos - outPkt.getAndXByteOffset(endOff);
     outPkt.setAndXByteCount(endOff, bytLen);
 
@@ -357,21 +400,17 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
   /**
    * Close a search started via the transact2 find first/next command.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected final void procFindClose(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected final void procFindClose(SMBSrvPacket outPkt) throws java.io.IOException,
+      SMBSrvException {
     logger.debug(":procFindClose");
     // Check that the received packet looks like a valid find close request
 
     if (m_smbPkt.checkPacketIsValid(1, 0) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -390,8 +429,8 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
       // User does not have the required access rights
 
-      m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied,
-          SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+      m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied, SMBStatus.DOSAccessDenied,
+          SMBStatus.ErrDos);
       return;
     }
 
@@ -429,17 +468,15 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
   /**
    * Process the file lock/unlock request.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
+   * @param outPkt SMBSrvPacket
    */
-  protected final void procLockingAndX(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected final void procLockingAndX(SMBSrvPacket outPkt) throws java.io.IOException,
+      SMBSrvException {
     logger.debug(":procLockingAndX");
     // Check that the received packet looks like a valid locking andX request
 
     if (m_smbPkt.checkPacketIsValid(8, 0) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -458,8 +495,8 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
       // User does not have the required access rights
 
-      m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied,
-          SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+      m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied, SMBStatus.DOSAccessDenied,
+          SMBStatus.ErrDos);
       return;
     }
 
@@ -482,8 +519,8 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_LOCK))
       logger.debug("File Lock [" + netFile.getFileId() + "] : type=0x"
-          + Integer.toHexString(lockType) + ", tmo=" + lockTmo + ", locks="
-          + lockCnt + ", unlocks=" + unlockCnt);
+          + Integer.toHexString(lockType) + ", tmo=" + lockTmo + ", locks=" + lockCnt
+          + ", unlocks=" + unlockCnt);
 
     // Return a success status for now
 
@@ -500,17 +537,15 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
   /**
    * Process the logoff request.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
+   * @param outPkt SMBSrvPacket
    */
-  protected final void procLogoffAndX(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected final void procLogoffAndX(SMBSrvPacket outPkt) throws java.io.IOException,
+      SMBSrvException {
     logger.debug(":procLogoffAndX");
     // Check that the received packet looks like a valid logoff andX request
 
     if (m_smbPkt.checkPacketIsValid(15, 1) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -522,23 +557,20 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
   /**
    * Process the file open request.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
+   * @param outPkt SMBSrvPacket
    */
-  protected final void procOpenAndX(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected final void procOpenAndX(SMBSrvPacket outPkt) throws java.io.IOException,
+      SMBSrvException {
     logger.debug(":procOpenAndX");
     // Check that the received packet looks like a valid open andX request
 
     if (m_smbPkt.checkPacketIsValid(15, 1) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
     // Get the tree connection details
 
-    
     TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
@@ -636,8 +668,8 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       crDateTime = new SMBDate(crDate, crTime);
     logger.debug("openFunction [" + openFunc + "] TEMPORARY");
 
-    FileOpenParams params = new FileOpenParams(fileName, stream, openFunc,
-        access, srchAttr, fileAttr, allocSiz, crDateTime.getTime());
+    FileOpenParams params = new FileOpenParams(fileName, stream, openFunc, access, srchAttr,
+        fileAttr, allocSiz, crDateTime.getTime());
 
     // Debug
 
@@ -662,8 +694,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
             // User does not have the required access rights
 
-            m_sess.sendErrorResponseSMB(SMBStatus.DOSAccessDenied,
-                SMBStatus.ErrDos);
+            m_sess.sendErrorResponseSMB(SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
             return;
           }
 
@@ -677,15 +708,13 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
           responseAction = FileAction.FileCreated;
 
         } else {
-          m_sess.sendErrorResponseSMB(SMBStatus.DOSFileNotFound,
-              SMBStatus.ErrDos);
+          m_sess.sendErrorResponseSMB(SMBStatus.DOSFileNotFound, SMBStatus.ErrDos);
           return;
         }
         // if else response action still zero
       } else {
         // file/dir exist
-        if ((FileAction.openIfExists(openFunc))
-            || (FileAction.truncateExistingFile(openFunc))) {
+        if ((FileAction.openIfExists(openFunc)) || (FileAction.truncateExistingFile(openFunc))) {
           // Open the requested file
           file = JCRDriver.openFile(conn, params);
 
@@ -694,8 +723,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
           else
             responseAction = FileAction.FileExisted;
         } else {
-          m_sess.sendErrorResponseSMB(SMBStatus.DOSFileAlreadyExists,
-              SMBStatus.ErrDos);
+          m_sess.sendErrorResponseSMB(SMBStatus.DOSFileAlreadyExists, SMBStatus.ErrDos);
           return;
         }
       }
@@ -714,23 +742,20 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
       return;
     } catch (RepositoryException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
       return;
     } catch (TooManyFilesException ex) {
       // Too many files are open on this connection, cannot open any more
       // files.
-      m_sess.sendErrorResponseSMB(SMBStatus.DOSTooManyOpenFiles,
-          SMBStatus.ErrDos);
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSTooManyOpenFiles, SMBStatus.ErrDos);
       return;
     } catch (Exception e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
       return;
     }
 
-    logger.debug("resp Action " + FileAction.asString(responseAction)
-        + ", fid = " + fid + " TEMPORARY");
+    logger.debug("resp Action " + FileAction.asString(responseAction) + ", fid = " + fid
+        + " TEMPORARY");
 
     // Build the open file response
 
@@ -777,18 +802,16 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
   /**
    * Process the file read request.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
+   * @param outPkt SMBSrvPacket
    */
-  protected final void procReadAndX(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected final void procReadAndX(SMBSrvPacket outPkt) throws java.io.IOException,
+      SMBSrvException {
     logger.debug(":procReadAndX");
 
     // Check that the received packet looks like a valid read andX request
 
     if (m_smbPkt.checkPacketIsValid(10, 0) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -839,8 +862,8 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILEIO))
-      logger.debug("File Read AndX [" + netFile.getFileId() + "] : Size="
-          + maxCount + " ,Pos=" + offset);
+      logger.debug("File Read AndX [" + netFile.getFileId() + "] : Size=" + maxCount + " ,Pos="
+          + offset);
 
     // Read data from the file
 
@@ -865,8 +888,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
       // Read from the file
 
-      rdlen = JCRDriver.readFile(m_sess, conn, netFile, buf, dataPos, maxCount,
-          offset);
+      rdlen = ((JCRNetworkFile) netFile).read(buf, dataPos, maxCount, offset);
 
     } catch (AccessDeniedException ex) {
 
@@ -875,8 +897,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       // Debug
 
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILEIO))
-        logger.debug("File Read Error [" + netFile.getFileId() + "] : "
-            + ex.toString());
+        logger.debug("File Read Error [" + netFile.getFileId() + "] : " + ex.toString());
 
       // Failed to read the file
 
@@ -898,8 +919,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       // Internal repository exception
       // SMBStatus.DOSInvalidData
 
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
       return;
     }
     // Return the data block
@@ -931,28 +951,22 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
   /**
    * Rename a file.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procRenameFile(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected void procRenameFile(SMBSrvPacket outPkt) throws java.io.IOException, SMBSrvException {
     logger.debug(":procRenameFile");
 
     // Check that the received packet looks like a valid rename file request
 
     if (m_smbPkt.checkPacketIsValid(1, 4) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
     // Get the tree id from the received packet and validate that it is a
-    // valid
-    // connection id.
+    // valid connection id.
 
     TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
@@ -1005,8 +1019,6 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       return;
     }
 
-    // logger.debug("oldName ["+oldName+"]; newName ["+newName+"] TEMPORARY");
-
     // convert name's
 
     if (oldName.equals("")) {
@@ -1048,74 +1060,59 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
     Session sess = conn.getSession();
 
-    Node n_oldFile;
-    Node n_newFile;
-
     try {
-      Node path = (Node) sess.getItem(oldNamePath);
-    } catch (PathNotFoundException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.DOSFileNotFound, SMBStatus.ErrDos);
-      return;
-    } catch (RepositoryException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
-          SMBStatus.ErrSrv);
-      return;
-    }
-
-    try {
-      Node path = (Node) sess.getItem(newNamePath);
-    } catch (PathNotFoundException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.DOSFileNotFound, SMBStatus.ErrDos);
-      return;
-    } catch (RepositoryException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
-          SMBStatus.ErrSrv);
-      return;
-    }
-
-    try {
-      n_oldFile = (Node) sess.getItem(oldName);
-    } catch (PathNotFoundException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.DOSDirectoryInvalid,
-          SMBStatus.ErrDos);
-      return;
-    } catch (RepositoryException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
-          SMBStatus.ErrSrv);
-      return;
-    }
-
-    try {
-      n_newFile = (Node) sess.getItem(newName);
-      if (n_newFile != null) {
-        m_sess.sendErrorResponseSMB(SMBStatus.DOSFileAlreadyExists,
-            SMBStatus.ErrDos);
+      if (!sess.itemExists(oldNamePath)) {
+        m_sess.sendErrorResponseSMB(SMBStatus.DOSDirectoryInvalid, SMBStatus.ErrDos);
         return;
       }
-    } catch (PathNotFoundException e) {
-      // its all rigth the new file name must not exists
     } catch (RepositoryException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
       return;
     }
 
-    // in newName abs path must not be any indexes
+    try {
+      if (!sess.itemExists(newNamePath)) {
+        m_sess.sendErrorResponseSMB(SMBStatus.DOSDirectoryInvalid, SMBStatus.ErrDos);
+        return;
+      }
+    } catch (RepositoryException e) {
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
+      return;
+    }
+
+    try {
+      if (!sess.itemExists(oldName)) {
+        m_sess.sendErrorResponseSMB(SMBStatus.DOSFileNotFound, SMBStatus.ErrDos);
+        return;
+      }
+    } catch (RepositoryException e) {
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
+      return;
+    }
+
+    try {
+      if (sess.itemExists(newName)) {
+        m_sess.sendErrorResponseSMB(SMBStatus.DOSFileAlreadyExists, SMBStatus.ErrDos);
+        return;
+      }
+    } catch (RepositoryException e) {
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
+      return;
+    }
+
+    // newName abs path must not have any indexes
     // (required by jcr: move command)
     if ((newName.indexOf("[") != -1) || (newName.indexOf("]") != -1)) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
     }
 
-    n_newFile = null;
-    n_oldFile = null;
-
-    // old and new pathes are checked and valid
+    // old and new path are checked and valid
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
-      logger.debug("File Rename [" + m_smbPkt.getTreeId() + "] old name=" + oldName
-          + ", new name=" + newName);
+      logger.debug("File Rename [" + m_smbPkt.getTreeId() + "] old name=" + oldName + ", new name="
+          + newName);
 
     // Access the disk interface and rename the requested file
 
@@ -1125,24 +1122,23 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       sess.move(oldName, newName);
       sess.save();
 
+    } catch (AccessDeniedException e) {
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+      return;
     } catch (ConstraintViolationException e) {
-      // TODO check for another error status code
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
     } catch (PathNotFoundException e) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSFileNotFound, SMBStatus.ErrDos);
       return;
     } catch (ItemExistsException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.DOSFileAlreadyExists,
-          SMBStatus.ErrDos);
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSFileAlreadyExists, SMBStatus.ErrDos);
       return;
     } catch (VersionException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
       return;
     } catch (RepositoryException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
       return;
     }
 
@@ -1160,11 +1156,10 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
   /**
    * Process the SMB session setup request.
    * 
-   * @param outPkt
-   *          Response SMB packet.
+   * @param outPkt Response SMB packet.
    */
-  protected void procSessionSetup(SMBSrvPacket outPkt) throws SMBSrvException,
-      IOException, TooManyConnectionsException {
+  protected void procSessionSetup(SMBSrvPacket outPkt) throws SMBSrvException, IOException,
+      TooManyConnectionsException {
     logger.debug(":procSessionSetup");
     // Extract the client details from the session setup request
 
@@ -1183,10 +1178,15 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     byte[] pwd = null;
     int pwdLen = m_smbPkt.getParameter(7);
 
+    boolean isplaintext = false;
     if (pwdLen > 0) {
       pwd = new byte[pwdLen];
-      for (int i = 0; i < pwdLen; i++)
+      for (int i = 0; i < pwdLen; i++) {
         pwd[i] = buf[dataPos + i];
+        if (buf[dataPos + i] == 0)
+          isplaintext = true;
+      }
+
       dataPos += pwdLen;
       dataLen -= pwdLen;
     }
@@ -1244,9 +1244,8 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // DEBUG
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_NEGOTIATE))
-      logger.debug("Session setup from user=" + user + ", password=" + pwd
-          + ", domain=" + domain + ", os=" + clientOS + ", VC=" + vcNum
-          + ", maxBuf=" + maxBufSize + ", maxMpx=" + maxMpx);
+      logger.debug("Session setup from user=" + user + ", password=" + pwd + ", domain=" + domain
+          + ", os=" + clientOS + ", VC=" + vcNum + ", maxBuf=" + maxBufSize + ", maxMpx=" + maxMpx);
 
     // Store the client maximum buffer size and maximum multiplexed requests
     // count
@@ -1256,8 +1255,111 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
     // Create the client information and store in the session
 
-    // Authenticate the user, if the server is using user mode security
-    boolean isGuest = true;
+    boolean authenticated = false;
+
+    Client client = null;
+
+    try {
+
+      if (user.length() == 0 && pwdLen <= 1) {
+        // there is null session logon
+
+        client = new Client("", "");
+        client.setLogonType(Client.LOGON_NULL_SESSION);
+
+        authenticated = true;
+
+      } else {
+        // all other cases
+        if (user.equals(Client.GUEST_NAME)) {
+
+          authenticated = ((SMBServer) this.getSession().getServer()).getOrgainzationService()
+              .getUserHandler().authenticate(user, null);
+
+          client = new Client(user, "");
+          /*
+           * Here must be TRUE but some client drops connection when server sets
+           * guest status, for non "guest"-named user names
+           */
+          client.setGuest(false); // a.k.a setLogonType(Client.LOGON_NORMAL);
+
+        } else {
+
+          // TODO how check is it plaintext or not
+          if (false) {
+            // plain text authentication
+            String plainpassword = pwd != null ? unpackUnicode(pwd, 0, pwdLen + 1) : "";
+
+            authenticated = ((SMBServer) this.getSession().getServer()).getOrgainzationService()
+                .getUserHandler().authenticate(user, plainpassword);
+
+            client = new Client(user, plainpassword);
+            client.setGuest(false);
+
+          } else {
+            // LanMan authentication
+
+            User ushnd = ((SMBServer) this.getSession().getServer()).getOrgainzationService()
+                .getUserHandler().findUserByName(user);
+
+            // check if user exist
+            if (ushnd != null) {
+
+              String pass = ushnd.getPassword();
+
+              if (pass != null) {
+                // do authentication
+
+                NTLMv1 enc = new NTLMv1();
+                NTLanManAuthContext cont = (NTLanManAuthContext) m_sess.getAuthenticationContext();
+                byte[] encPwd = enc.computeLMHash(pass, cont.getChallenge());
+
+                authenticated = java.util.Arrays.equals(encPwd, pwd);
+              }
+
+              client = new Client(user, pass);
+              client.setGuest(false);
+            }
+          }
+        }
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+      return;
+
+    }
+
+    if (!authenticated) {
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+      return;
+    }
+
+    logger.debug("User [" + client.getUsername() + "] pass[" + client.getPassword()
+        + "] authenticated");
+
+    // Create a virtual circuit and allocate a UID to the new circuit
+
+    VirtualCircuit vc = new VirtualCircuit(vcNum, client);
+    int uid = m_sess.addVirtualCircuit(vc);
+
+    if (uid == VirtualCircuit.InvalidUID) {
+      // DEBUG
+
+      if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_NEGOTIATE))
+        logger.debug("Failed to allocate UID for virtual circuit, " + vc);
+
+      // Failed to allocate a UID
+
+      throw new SMBSrvException(SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+    } else if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_NEGOTIATE)) {
+
+      // DEBUG
+
+      logger.debug("Allocated UID=" + uid + " for VC=" + vc);
+    }
 
     // Set the guest flag for the client and logged on status
 
@@ -1268,7 +1370,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     outPkt.setParameterCount(3);
     outPkt.setParameter(0, 0); // No chained response
     outPkt.setParameter(1, 0); // Offset to chained response
-    outPkt.setParameter(2, isGuest ? 1 : 0);
+    outPkt.setParameter(2, client.isGuest() ? 1 : 0);
     outPkt.setByteCount(0);
 
     outPkt.setTreeId(0);
@@ -1288,10 +1390,9 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     buf = outPkt.getBuffer();
 
     pos = DataPacker.putString("Java", buf, pos, true);
-    pos = DataPacker.putString("JLAN Server " + m_sess.getServer().isVersion(),
-        buf, pos, true);
-    pos = DataPacker.putString(m_sess.getServer().getConfiguration()
-        .getDomainName(), buf, pos, true);
+    pos = DataPacker.putString("JLAN Server " + m_sess.getServer().isVersion(), buf, pos, true);
+    pos = DataPacker.putString(m_sess.getServer().getConfiguration().getDomainName(), buf, pos,
+        true);
 
     outPkt.setByteCount(pos - outPkt.getByteOffset());
 
@@ -1327,13 +1428,10 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
    * Process a transact2 request. The transact2 can contain many different
    * sub-requests.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procTransact2(SMBSrvPacket outPkt) throws IOException,
-      SMBSrvException {
+  protected void procTransact2(SMBSrvPacket outPkt) throws IOException, SMBSrvException {
     logger.debug(":procTransact2");
 
     // Check that we received enough parameters for a transact2 request
@@ -1342,8 +1440,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
       // Not enough parameters for a valid transact2 request
 
-      m_sess
-          .sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.NTErr);
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.NTErr);
       return;
     }
 
@@ -1351,12 +1448,11 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // valid connection id.
 
     VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
-    
+
     TreeConnection conn = vc.findTreeConnection(m_smbPkt.getTreeId());
 
     if (conn == null) {
-      m_sess
-          .sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.NTErr);
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.NTErr);
       return;
     }
 
@@ -1384,9 +1480,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
         && tranPkt.getTotalDataCount() == tranPkt.getDataBlockCount()) {
 
       // Create a transact buffer using the packet buffer, the entire
-      // request is contained in
-      // a single
-      // packet
+      // request is contained in a single packet
 
       transBuf = new SrvTransactBuffer(tranPkt);
     } else {
@@ -1394,8 +1488,8 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       // Create a transact buffer to hold the multiple transact request
       // parameter/data blocks
 
-      transBuf = new SrvTransactBuffer(tranPkt.getSetupCount(), tranPkt
-          .getTotalParameterCount(), tranPkt.getTotalDataCount());
+      transBuf = new SrvTransactBuffer(tranPkt.getSetupCount(), tranPkt.getTotalParameterCount(),
+          tranPkt.getTotalDataCount());
       transBuf.setType(tranPkt.getCommand());
       transBuf.setFunction(subCmd);
 
@@ -1404,12 +1498,10 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
       byte[] buf = tranPkt.getBuffer();
 
-      transBuf.appendSetup(buf, tranPkt.getSetupOffset(), tranPkt
-          .getSetupCount() * 2);
+      transBuf.appendSetup(buf, tranPkt.getSetupOffset(), tranPkt.getSetupCount() * 2);
       transBuf.appendParameter(buf, tranPkt.getParameterBlockOffset(), tranPkt
           .getParameterBlockCount());
-      transBuf.appendData(buf, tranPkt.getDataBlockOffset(), tranPkt
-          .getDataBlockCount());
+      transBuf.appendData(buf, tranPkt.getDataBlockOffset(), tranPkt.getDataBlockCount());
     }
 
     // Set the return data limits for the transaction
@@ -1418,9 +1510,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
         .getMaximumReturnParameterCount(), tranPkt.getMaximumReturnDataCount());
 
     // Check for a multi-packet transaction, for a multi-packet transaction
-    // we just acknowledge
-    // the receive with
-    // an empty response SMB
+    // we just acknowledge the receive with an empty response SMB
 
     if (transBuf.isMultiPacket()) {
 
@@ -1435,11 +1525,10 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     }
 
     // Check if the transaction is on the IPC$ named pipe, the request
-    // requires special
-    // processing
+    // requires special processing
 
     if (conn.getSharedDevice().getType() == ShareType.ADMINPIPE) {
-      IPCHandler.procTransaction(vc,transBuf, m_sess, outPkt);
+      IPCHandler.procTransaction(vc, transBuf, m_sess, outPkt);
       return;
     }
 
@@ -1457,13 +1546,10 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
   /**
    * Process a transact2 secondary request.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procTransact2Secondary(SMBSrvPacket outPkt)
-      throws IOException, SMBSrvException {
+  protected void procTransact2Secondary(SMBSrvPacket outPkt) throws IOException, SMBSrvException {
     logger.debug(":procTransact2Secondary");
 
     // Check that we received enough parameters for a transact2 request
@@ -1472,8 +1558,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
       // Not enough parameters for a valid transact2 request
 
-      m_sess
-          .sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.NTErr);
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.NTErr);
       return;
     }
 
@@ -1481,13 +1566,11 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // connection id.
 
     VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
-    
+
     TreeConnection conn = vc.findTreeConnection(m_smbPkt.getTreeId());
 
-
     if (conn == null) {
-      m_sess
-          .sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.NTErr);
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.NTErr);
       return;
     }
 
@@ -1504,17 +1587,14 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // Check if there is an active transaction, and it is an NT transaction
 
     if (m_sess.hasTransaction() == false
-        || (m_sess.getTransaction().isType() == PacketType.Transaction && m_smbPkt
-            .getCommand() != PacketType.TransactionSecond)
-        || (m_sess.getTransaction().isType() == PacketType.Transaction2 && m_smbPkt
-            .getCommand() != PacketType.Transaction2Second)) {
+        || (m_sess.getTransaction().isType() == PacketType.Transaction && m_smbPkt.getCommand() != PacketType.TransactionSecond)
+        || (m_sess.getTransaction().isType() == PacketType.Transaction2 && m_smbPkt.getCommand() != PacketType.Transaction2Second)) {
 
       // No transaction to continue, or packet does not match the existing
       // transaction, return
       // an error
 
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVNonSpecificError,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
       return;
     }
 
@@ -1573,11 +1653,10 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       m_sess.setTransaction(null);
 
       // Check if the transaction is on the IPC$ named pipe, the request
-      // requires special
-      // processing
+      // requires special processing
 
       if (conn.getSharedDevice().getType() == ShareType.ADMINPIPE) {
-        IPCHandler.procTransaction(vc,transBuf, m_sess, outPkt);
+        IPCHandler.procTransaction(vc, transBuf, m_sess, outPkt);
         return;
       }
 
@@ -1602,25 +1681,21 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
   /**
    * Process the SMB tree connect request.
    * 
-   * @param outPkt
-   *          Response SMB packet.
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
-   * @exception TooManyConnectionsException
-   *              Too many concurrent connections on this session.
+   * @param outPkt Response SMB packet.
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
+   * @exception TooManyConnectionsException Too many concurrent connections on
+   *              this session.
    */
 
-  protected void procTreeConnectAndX(SMBSrvPacket outPkt)
-      throws SMBSrvException, TooManyConnectionsException, java.io.IOException {
+  protected void procTreeConnectAndX(SMBSrvPacket outPkt) throws SMBSrvException,
+      TooManyConnectionsException, java.io.IOException {
     logger.debug(":procTreeConnectAndX");
     // Check that the received packet looks like a valid tree connect
     // request
 
     if (m_smbPkt.checkPacketIsValid(4, 3) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -1637,7 +1712,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
     // Extract the password string
 
-    String pwd = null;
+    String pwd = null; // not used
 
     if (pwdLen > 0) {
       pwd = new String(buf, dataPos, pwdLen);
@@ -1692,8 +1767,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
     // Map the IPC$ share to the admin pipe type
 
-    if (servType == ShareType.NAMEDPIPE
-        && share.getShareName().compareTo("IPC$") == 0)
+    if (servType == ShareType.NAMEDPIPE && share.getShareName().compareTo("IPC$") == 0)
       servType = ShareType.ADMINPIPE;
 
     // Find the requested shared device
@@ -1704,71 +1778,107 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
       // Get/create the shared device
 
-      shareDev = m_sess.getSMBServer().findShare(share.getShareName(),
-          servType, getSession());//, true
+      shareDev = m_sess.getSMBServer().findShare(share.getShareName(), servType, getSession());
     } catch (Exception ex) {
-      // Return a logon failure status
 
-      // m_sess.sendErrorResponseSMB(SMBStatus.DOSAccessDenied,
-      // SMBStatus.ErrDos);
-      // Return a general status, bad network name
-
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVInvalidNetworkName,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInvalidNetworkName, SMBStatus.ErrSrv);
       return;
     }
 
     // Check if the share is valid
 
-    if (shareDev == null
-        || (servType != ShareType.UNKNOWN && shareDev.getType() != servType)) {
-      m_sess
-          .sendErrorResponseSMB(SMBStatus.NETBadNetworkName, SMBStatus.NetErr);
+    if (shareDev == null || (servType != ShareType.UNKNOWN && shareDev.getType() != servType)) {
+      m_sess.sendErrorResponseSMB(SMBStatus.NETBadNetworkName, SMBStatus.NetErr);
       return;
     }
 
     // Authenticate the share connection depending upon the security mode
-    // the server is running
-    // under
+    // the server is running under
 
-    int filePerm = FileAccess.Writeable;
+    int sharePerm = FileAccess.Writeable;
 
-    // Allocate a tree id for the new connection
-    
-    VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
+    try {
 
-    int treeId = vc.addTreeConnection(shareDev);
-    outPkt.setTreeId(treeId);
+      // Allocate a tree id for the new connection
 
-    // Set the file permission that this user has been granted for this
-    // share
+      VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
+      int treeId = vc.addTreeConnection(shareDev);
 
-    TreeConnection tree = vc.findTreeConnection(treeId);
-    tree.setPermission(filePerm);
+      outPkt.setTreeId(treeId);
 
-    Session s = null;
-    if (shareDev.getType() == ShareType.DISK) {
-      Credentials credentials = new CredentialsImpl("admin", "admin"
-          .toCharArray());
-      try {
-        // obtain session of shared device - workspace and
-        if (logger.isDebugEnabled()) {
-          logger.debug("Create JCR-session: login admin");
+      TreeConnection tree = vc.findTreeConnection(treeId);
+
+      // set session for workspaces
+      Session s = null;
+
+      if (shareDev.getType() == ShareType.DISK) {
+
+        Credentials credentials = new CredentialsImpl(vc.getClientInfo().getUsername(), vc
+            .getClientInfo().getPassword().toCharArray());
+
+        try {
+          // obtain session of shared device - workspace and
+          if (logger.isDebugEnabled()) {
+            logger.debug("Create JCR-session: login admin");
+          }
+          s = (SessionImpl) (this.m_sess.getSMBServer().getRepository()).login(credentials,
+              shareDev.getName());
+
+          // Set the file permission that this user has been granted for this
+          // share
+
+          // no access for default
+          sharePerm = FileAccess.NoAccess;
+
+          // check is ReadOnly
+          try {
+            s.checkPermission("/", "read");
+            sharePerm = FileAccess.ReadOnly;
+            logger.debug("share permission - read");
+          } catch (java.security.AccessControlException e) {
+          }
+
+          // check is Writable
+
+          try {
+            s.checkPermission("/", "add_node");
+            s.checkPermission("/", "set_property");
+            sharePerm = FileAccess.Writeable;
+            logger.debug("share permission - writable");
+
+          } catch (java.security.AccessControlException e) {
+          }
+
+        } catch (LoginException e) {
+          m_sess.sendErrorResponseSMB(SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+          return;
+        } catch (NoSuchWorkspaceException e) {
+          m_sess.sendErrorResponseSMB(SMBStatus.SRVInvalidNetworkName, SMBStatus.ErrSrv);
+          return;
+        } catch (RepositoryException e) {
+          e.printStackTrace();
+          m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
+          return;
+        } catch (Exception e) {
+          e.printStackTrace();
+          m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
+          return;
         }
-        s = (SessionImpl) (this.m_sess.getSMBServer().getRepository()).login(
-            credentials, shareDev.getName());
-
-      } catch (Exception ex) {
-        System.err.println(ex);
       }
+      tree.setSession(s);
+      tree.setPermission(sharePerm);
+      // Debug
+
+      if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_TREE))
+        logger.debug("Tree Connect AndX - Allocated Tree Id = " + treeId + ", Permission = "
+            + FileAccess.asString(sharePerm));
+    } catch (TooManyConnectionsException ex) {
+
+      // Too many connections open at the moment
+
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVNoResourcesAvailable, SMBStatus.ErrSrv);
+      return;
     }
-    tree.setSession(s);
-
-    // Debug
-
-    if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_TREE))
-      logger.debug("Tree Connect AndX - Allocated Tree Id = " + treeId
-          + ", Permission = " + FileAccess.asString(filePerm));
 
     // Build the tree connect response
 
@@ -1780,8 +1890,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // Pack the service type
 
     int pos = outPkt.getByteOffset();
-    pos = DataPacker.putString(ShareType.TypeAsService(shareDev.getType()),
-        buf, pos, true);
+    pos = DataPacker.putString(ShareType.TypeAsService(shareDev.getType()), buf, pos, true);
     outPkt.setByteCount(pos - outPkt.getByteOffset());
 
     // Send the response
@@ -1794,18 +1903,16 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
   /**
    * Process the file write request.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
+   * @param outPkt SMBSrvPacket
    */
-  protected final void procWriteAndX(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected final void procWriteAndX(SMBSrvPacket outPkt) throws java.io.IOException,
+      SMBSrvException {
 
     logger.debug(":procWriteAndX");
     // Check that the received packet looks like a valid write andX request
 
     if (m_smbPkt.checkPacketIsValid(12, 0) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -1829,8 +1936,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     }
 
     // If the connection is to the IPC$ remote admin named pipe pass the
-    // request to the IPC
-    // handler.
+    // request to the IPC handler.
 
     if (conn.getSharedDevice().getType() == ShareType.ADMINPIPE) {
 
@@ -1857,39 +1963,48 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILEIO))
-      logger.debug("File Write AndX [" + netFile.getFileId() + "] : Size="
-          + dataLen + " ,Pos=" + offset);
+      logger.debug("File Write AndX [" + netFile.getFileId() + "] : Size=" + dataLen + " ,Pos="
+          + offset);
 
     // Write data to the file
 
     byte[] buf = m_smbPkt.getBuffer();
-    int wrtlen = 0;
+    int wrtlen = dataLen;
 
-    // Access the disk interface and write to the file
+    try {
 
-    /*try {
       // Write to the file
-      //TODO make correct writing
-     // wrtlen = (int) JCRDriver.writeFile(m_sess, conn, netFile, buf, dataPos,
-     //     dataLen, offset);
-    } catch (java.io.IOException ex) {
+
+      ((JCRNetworkFile) netFile).updateFile(new ByteArrayInputStream(buf, dataPos, dataLen),
+          dataLen, offset);
+
+      logger.debug(dataLen + " writed to binvalue");
+
+    } catch (AccessDeniedException ex) {
 
       // Debug
 
-      logger.error("File Write Error [" + netFile.getFileId() + "] : ", ex);
+      if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILEIO))
+        logger.debug("File Write Error [" + netFile.getFileId() + "] : " + ex.toString());
 
-      // Failed to read the file
+      // Not allowed to write to the file
 
-      m_sess.sendErrorResponseSMB(SMBStatus.HRDWriteFault, SMBStatus.ErrHrd);
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
       return;
+
+    } catch (RepositoryException ex) {
+      ex.printStackTrace();
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
+      return;
+
     } catch (Exception e) {
       e.printStackTrace();
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
-    }*/
+
+    }
 
     // Return the count of bytes actually written
-
     outPkt.setParameterCount(6);
     outPkt.setAndXCommand(0xFF);
     outPkt.setParameter(1, 0);
@@ -1909,7 +2024,6 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
    */
   public boolean runProtocol() throws java.io.IOException, SMBSrvException,
       TooManyConnectionsException {
-    logger.debug(":runProtocol");
     // Check if the SMB packet is initialized
 
     if (m_smbPkt == null)
@@ -1933,8 +2047,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       // Debug
 
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_STATE))
-        logger.debug("AndX Command = 0x"
-            + Integer.toHexString(m_smbPkt.getAndXCommand()));
+        logger.debug("AndX Command = 0x" + Integer.toHexString(m_smbPkt.getAndXCommand()));
 
       // Copy the request packet into a new packet for the reply
 
@@ -2079,17 +2192,13 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
   /**
    * Process a transaction buffer
    * 
-   * @param tbuf
-   *          TransactBuffer
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception IOException
-   *              If a network error occurs
-   * @exception SMBSrvException
-   *              If an SMB error occurs
+   * @param tbuf TransactBuffer
+   * @param outPkt SMBSrvPacket
+   * @exception IOException If a network error occurs
+   * @exception SMBSrvException If an SMB error occurs
    */
-  private final void processTransactionBuffer(SrvTransactBuffer tbuf,
-      SMBSrvPacket outPkt) throws IOException, SMBSrvException {
+  private final void processTransactionBuffer(SrvTransactBuffer tbuf, SMBSrvPacket outPkt)
+      throws IOException, SMBSrvException {
 
     // Get the transaction sub-command code and validate
 
@@ -2125,8 +2234,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
       // Return an unrecognized command error
 
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       break;
     }
   }
@@ -2134,17 +2242,13 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
   /**
    * Process a transact2 file search request.
    * 
-   * @param tbuf
-   *          Transaction request details
-   * @param outPkt
-   *          Packet to use for the reply.
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param tbuf Transaction request details
+   * @param outPkt Packet to use for the reply.
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected final void procTrans2FindFirst(SrvTransactBuffer tbuf,
-      SMBSrvPacket outPkt) throws java.io.IOException, SMBSrvException {
+  protected final void procTrans2FindFirst(SrvTransactBuffer tbuf, SMBSrvPacket outPkt)
+      throws java.io.IOException, SMBSrvException {
     logger.debug(":procTrans2FindFirst");
 
     // Get the tree connection details
@@ -2213,18 +2317,16 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
         // Failed to allocate a slot for the new search
 
-        m_sess.sendErrorResponseSMB(SMBStatus.SRVNoResourcesAvailable,
-            SMBStatus.ErrSrv);
+        m_sess.sendErrorResponseSMB(SMBStatus.SRVNoResourcesAvailable, SMBStatus.ErrSrv);
         return;
       }
 
       // Debug
 
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
-        logger.debug("Start trans search [" + searchId + "] - " + srchPath
-            + ", attr=0x" + Integer.toHexString(srchAttr) + ", maxFiles="
-            + maxFiles + ", infoLevel=" + infoLevl + ", flags=0x"
-            + Integer.toHexString(srchFlag));
+        logger.debug("Start trans search [" + searchId + "] - " + srchPath + ", attr=0x"
+            + Integer.toHexString(srchAttr) + ", maxFiles=" + maxFiles + ", infoLevel=" + infoLevl
+            + ", flags=0x" + Integer.toHexString(srchFlag));
 
       // Start a new search
 
@@ -2240,8 +2342,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
         // Failed to start the search, return a no more files error
 
-        m_sess
-            .sendErrorResponseSMB(SMBStatus.DOSFileNotFound, SMBStatus.ErrDos);
+        m_sess.sendErrorResponseSMB(SMBStatus.DOSFileNotFound, SMBStatus.ErrDos);
         return;
       }
 
@@ -2260,8 +2361,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
       // Check if resume keys are required
 
-      boolean resumeReq = (srchFlag & FindFirstNext.ReturnResumeKey) != 0 ? true
-          : false;
+      boolean resumeReq = (srchFlag & FindFirstNext.ReturnResumeKey) != 0 ? true : false;
 
       // Loop until we have filled the return buffer or there are no more
       // files to return
@@ -2304,8 +2404,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
           // Pack the file information
 
-          packLen = FindInfoPacker.packInfo(info, dataBuf, infoLevl, tbuf
-              .isUnicode());
+          packLen = FindInfoPacker.packInfo(info, dataBuf, infoLevl, tbuf.isUnicode());
 
           // Update the file count for this packet
 
@@ -2342,8 +2441,8 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       // Debug
 
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
-        logger.debug("Search [" + searchId + "] Returned " + fileCnt
-            + " files, moreFiles=" + ctx.hasMoreFiles());
+        logger.debug("Search [" + searchId + "] Returned " + fileCnt + " files, moreFiles="
+            + ctx.hasMoreFiles());
 
       // Check if the search is complete
 
@@ -2351,13 +2450,12 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
         // Debug
 
-        if (logger.isDebugEnabled()
-            && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
+        if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
           logger.debug("End start search [" + searchId + "] (Search complete)");
 
         // Release the search context
 
-       vc.deallocateSearchSlot(searchId);
+        vc.deallocateSearchSlot(searchId);
       }
     } catch (FileNotFoundException ex) {
 
@@ -2389,31 +2487,25 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
       // Requested server error
 
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
     }
   }
 
   /**
    * Process a transact2 file search continue request.
    * 
-   * @param tbuf
-   *          Transaction request details
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param tbuf Transaction request details
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected final void procTrans2FindNext(SrvTransactBuffer tbuf,
-      SMBSrvPacket outPkt) throws java.io.IOException, SMBSrvException {
+  protected final void procTrans2FindNext(SrvTransactBuffer tbuf, SMBSrvPacket outPkt)
+      throws java.io.IOException, SMBSrvException {
     logger.debug(":procTrans2FindNext");
     // Get the tree connection details
 
     VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
     TreeConnection conn = vc.findTreeConnection(m_smbPkt.getTreeId());
-
 
     if (conn == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.SRVInvalidTID, SMBStatus.ErrSrv);
@@ -2455,8 +2547,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
         // DEBUG
 
-        if (logger.isDebugEnabled()
-            && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
+        if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
           logger.debug("Search context null - [" + searchId + "]");
 
         // Invalid search handle
@@ -2468,9 +2559,8 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       // Debug
 
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
-        logger.debug("Continue search [" + searchId + "] - " + resumeName
-            + ", maxFiles=" + maxFiles + ", infoLevel=" + infoLevl
-            + ", flags=0x" + Integer.toHexString(srchFlag));
+        logger.debug("Continue search [" + searchId + "] - " + resumeName + ", maxFiles="
+            + maxFiles + ", infoLevel=" + infoLevl + ", flags=0x" + Integer.toHexString(srchFlag));
 
       // Create the reply transaction buffer
 
@@ -2483,8 +2573,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
       // Check if resume keys are required
 
-      boolean resumeReq = (srchFlag & FindFirstNext.ReturnResumeKey) != 0 ? true
-          : false;
+      boolean resumeReq = (srchFlag & FindFirstNext.ReturnResumeKey) != 0 ? true : false;
 
       // Loop until we have filled the return buffer or there are no more
       // files to return
@@ -2525,8 +2614,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
           // Pack the file information
 
-          packLen = FindInfoPacker.packInfo(info, dataBuf, infoLevl, tbuf
-              .isUnicode());
+          packLen = FindInfoPacker.packInfo(info, dataBuf, infoLevl, tbuf.isUnicode());
 
           // Update the file count for this packet
 
@@ -2562,8 +2650,8 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       // Debug
 
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
-        logger.debug("Search [" + searchId + "] Returned " + fileCnt
-            + " files, moreFiles=" + ctx.hasMoreFiles());
+        logger.debug("Search [" + searchId + "] Returned " + fileCnt + " files, moreFiles="
+            + ctx.hasMoreFiles());
 
       // Check if the search is complete
 
@@ -2571,8 +2659,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
         // Debug
 
-        if (logger.isDebugEnabled()
-            && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
+        if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_SEARCH))
           logger.debug("End start search [" + searchId + "] (Search complete)");
 
         // Release the search context
@@ -2604,25 +2691,20 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     } catch (RepositoryException e) {
       if (searchId != -1)
         vc.deallocateSearchSlot(searchId);
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
     }
   }
 
   /**
    * Process a transact2 file system query request.
    * 
-   * @param tbuf
-   *          Transaction request details
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param tbuf Transaction request details
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected final void procTrans2QueryFileSys(SrvTransactBuffer tbuf,
-      SMBSrvPacket outPkt) throws java.io.IOException, SMBSrvException {
+  protected final void procTrans2QueryFileSys(SrvTransactBuffer tbuf, SMBSrvPacket outPkt)
+      throws java.io.IOException, SMBSrvException {
     logger.debug(":procTrans2QueryFileSys");
     // Get the tree connection details
 
@@ -2652,8 +2734,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_INFO))
-      logger.debug("Query File System Info - level = 0x"
-          + Integer.toHexString(infoLevl));
+      logger.debug("Query File System Info - level = 0x" + Integer.toHexString(infoLevl));
 
     // Access the shared device disk interface
 
@@ -2721,8 +2802,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
         // Pack the volume information
 
-        DiskInfoPacker.packFsVolumeInformation(volInfo, replyBuf, tbuf
-            .isUnicode());
+        DiskInfoPacker.packFsVolumeInformation(volInfo, replyBuf, tbuf.isUnicode());
         break;
 
       // Filesystem size information
@@ -2747,8 +2827,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       // Filesystem attribute information
 
       case DiskInfoPacker.InfoFsAttribute:
-        DiskInfoPacker.packFsAttribute(0, 255, "JLAN", tbuf.isUnicode(),
-            replyBuf);
+        DiskInfoPacker.packFsAttribute(0, 255, "JLAN", tbuf.isUnicode(), replyBuf);
         break;
       }
 
@@ -2756,8 +2835,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       // is not supported
 
       if (replyBuf.getPosition() == dataPos) {
-        m_sess
-            .sendErrorResponseSMB(SMBStatus.SRVNotSupported, SMBStatus.ErrSrv);
+        m_sess.sendErrorResponseSMB(SMBStatus.SRVNotSupported, SMBStatus.ErrSrv);
         return;
       }
 
@@ -2780,20 +2858,14 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
   /**
    * Process a transact2 query path information request.
    * 
-   * @param tbuf
-   *          Transaction request details
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
-   * 
-   * 
+   * @param tbuf Transaction request details
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    * @TODO stream info is not suported!!!
    */
-  protected final void procTrans2QueryPath(SrvTransactBuffer tbuf,
-      SMBSrvPacket outPkt) throws java.io.IOException, SMBSrvException {
+  protected final void procTrans2QueryPath(SrvTransactBuffer tbuf, SMBSrvPacket outPkt)
+      throws java.io.IOException, SMBSrvException {
     logger.debug(":procTrans2QueryPath");
     // Get the tree connection details
 
@@ -2801,8 +2873,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     TreeConnection conn = m_sess.findTreeConnection(m_smbPkt);
 
     if (conn == null) {
-      m_sess
-          .sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.NTErr);
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.NTErr);
       return;
     }
 
@@ -2846,8 +2917,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_INFO))
-      logger.debug("Query Path - level = 0x" + Integer.toHexString(infoLevl)
-          + ", path = " + path);
+      logger.debug("Query Path - level = 0x" + Integer.toHexString(infoLevl) + ", path = " + path);
 
     try {
 
@@ -2878,22 +2948,19 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       // conn, path);
 
       if (fileInfo == null) {
-        m_sess
-            .sendErrorResponseSMB(SMBStatus.NTObjectNotFound, SMBStatus.NTErr);
+        m_sess.sendErrorResponseSMB(SMBStatus.NTObjectNotFound, SMBStatus.NTErr);
         return;
       }
 
       // Pack the file information into the return data packet
 
-      int dataLen = QueryInfoPacker
-          .packInfo(fileInfo, replyBuf, infoLevl, true);
+      int dataLen = QueryInfoPacker.packInfo(fileInfo, replyBuf, infoLevl, true);
 
       // Check if any data was packed, if not then the information level
       // is not supported
 
       if (dataLen == 0) {
-        m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
-            SMBStatus.NTErr);
+        m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.NTErr);
         return;
       }
 
@@ -2913,15 +2980,13 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
       // Requested information level is not supported
 
-      m_sess
-          .sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.NTErr);
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.NTErr);
       return;
     } catch (Exception ex) {
 
       // Failed to get/initialize the disk interface
 
-      m_sess
-          .sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.NTErr);
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.NTErr);
       return;
     }
   }

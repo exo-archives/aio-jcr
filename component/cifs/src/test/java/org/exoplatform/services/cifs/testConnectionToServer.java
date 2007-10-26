@@ -49,7 +49,7 @@ public class testConnectionToServer extends BaseStandaloneTest {
         : serv.getConfiguration().getServerName();
 
     long t1 = System.currentTimeMillis();
-    SmbFile host = new SmbFile("smb://" + servername + "/");
+    SmbFile host = new SmbFile("smb://"+ user + servername + "/");
     long t2 = System.currentTimeMillis() - t1;
 
     assertEquals(host.getType(), SmbFile.TYPE_SERVER);
@@ -68,7 +68,7 @@ public class testConnectionToServer extends BaseStandaloneTest {
         .getConfiguration().getWin32ServerName()
         : serv.getConfiguration().getServerName();
 
-    SmbFile host = new SmbFile("smb://" + servername + "/");
+    SmbFile host = new SmbFile("smb://"+ user + servername + "/");
 
     // Get share list from server and measure spended time
     long t1 = System.currentTimeMillis();

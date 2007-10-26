@@ -47,7 +47,8 @@ public class testCreateFileFolder extends BaseStandaloneTest {
   public void testCreateFile() throws Exception {
 
     String newname = "newfile.dat";
-    SmbFile newfile = new SmbFile("smb://" + servername + "/ws/" + newname);
+    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" +
+        newname);
 
     // assertFalse(newfile.exists());
 
@@ -75,7 +76,8 @@ public class testCreateFileFolder extends BaseStandaloneTest {
   public void testCreateFolder() throws Exception {
 
     String newname = "newfolder";
-    SmbFile newfile = new SmbFile("smb://" + servername + "/ws/" + newname);
+    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" +
+        newname);
 
     // assertFalse(newfile.exists());
 
@@ -117,7 +119,8 @@ public class testCreateFileFolder extends BaseStandaloneTest {
     root.addNode(newname);
     root.save();
 
-    SmbFile newfile = new SmbFile("smb://" + servername + "/ws/" + newname);
+    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" +
+        newname);
 
     // assertFalse(newfile.exists());
 
@@ -159,7 +162,8 @@ public class testCreateFileFolder extends BaseStandaloneTest {
 
     String newname = "newfile.dat";
 
-    SmbFile newfile = new SmbFile("smb://" + servername + "/ws/" + newname);
+    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" +
+        newname);
 
     s.getRootNode().addNode(newname);
 

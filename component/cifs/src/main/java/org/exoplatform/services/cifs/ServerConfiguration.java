@@ -22,6 +22,7 @@ import org.exoplatform.services.cifs.smb.Dialect;
 import org.exoplatform.services.cifs.smb.DialectSelector;
 import org.exoplatform.services.cifs.smb.ServerType;
 import org.exoplatform.services.cifs.smb.TcpipSMB;
+import org.exoplatform.services.cifs.smb.server.SecurityMode;
 import org.exoplatform.services.cifs.util.IPAddress;
 import org.exoplatform.services.cifs.util.X64;
 import org.exoplatform.services.log.ExoLogger;
@@ -59,7 +60,8 @@ public class ServerConfiguration {
   // Server type, used by the host announcer
 
   private int m_srvType = ServerType.WorkStation + ServerType.Server;// +
-      //ServerType.NTServer;
+
+  // ServerType.NTServer;
 
   // Server comment
 
@@ -170,6 +172,8 @@ public class ServerConfiguration {
 
   private boolean fromJndi = true;
 
+  private int securityMode;
+
   /*
    * Configuration by XML-config
    */
@@ -182,6 +186,7 @@ public class ServerConfiguration {
         setSMBServerEnabled(true);
       } else if (pEnable.getValue().equalsIgnoreCase("false")) {
         setSMBServerEnabled(false);
+        return;
       } else {
         logger.error("Illegal value of parameter enable_smb");
         setSMBServerEnabled(false);
@@ -235,29 +240,20 @@ public class ServerConfiguration {
     setServerName(hostName);
 
     // Set the domain/workgroup name
-    // TODO do correct workgroup/domain setup
 
-    m_localDomain = "OFFICE";
-
-    // also Win32netBios.dll availability check in Windows platform case
-    try {
-      setDomainName(getLocalDomainName().toUpperCase());
-    } catch (UnsatisfiedLinkError e) {
-      e.printStackTrace();
-      setSMBServerEnabled(false);
-      return;
-    } catch (Exception e) {
-      e.printStackTrace();
-      setSMBServerEnabled(false);
-      return;
+    ValueParam pDomainName = params.getValueParam("workgroup");
+    if (pDomainName != null) {
+      m_localDomain = pDomainName.getValue();
     }
+
+    setDomainName(getLocalDomainName().toUpperCase());
 
     // Check for a server comment
     ValueParam pComment = params.getValueParam("comment");
     if (pComment != null) {
       setComment(pComment.getValue());
     } else
-      setComment("Comment"); // TODO Check is not null in server setup
+      setComment("Default server coment");
 
     // Check the bind address
 
@@ -279,7 +275,7 @@ public class ServerConfiguration {
 
     PropertiesParam netBiosJava = params.getPropertiesParam("netbios_java");
     if (netBiosJava != null &&
-        netBiosJava.getProperty("enabled").equals("true") ) {
+        netBiosJava.getProperty("enabled").equals("true")) {
       setNetBIOSSMB(true);
 
       if (netBiosJava.getProperty("session_port") != null) {
@@ -318,7 +314,8 @@ public class ServerConfiguration {
       }
 
       // setup NetBIOS host announcer
-      if (netBiosJava.getProperty("announce_enabled")!=null && netBiosJava.getProperty("announce_enabled").equalsIgnoreCase("true")) {
+      if (netBiosJava.getProperty("announce_enabled") != null &&
+          netBiosJava.getProperty("announce_enabled").equalsIgnoreCase("true")) {
         setHostAnnounce(true);
 
         if (netBiosJava.getProperty("announce_interval") != null) {
@@ -335,28 +332,24 @@ public class ServerConfiguration {
           setHostAnnounceInterval(5);
         }
       }
-      
+
     } else {
       setNetBIOSSMB(false);
     }
 
     // Configure TCP/IP SMB
+/*
+ * PropertiesParam tcpSmb = params.getPropertiesParam("tcpip"); if (tcpSmb !=
+ * null && tcpSmb.getProperty("enabled").equals("true")) { setTcpipSMB(true); if
+ * (tcpSmb.getProperty("port") != null) { int sessport =
+ * Integer.parseInt(tcpSmb.getProperty("port")); if (sessport < 0 || sessport >
+ * 65535) { logger.error("Illegal value of tcpip port partameter!");
+ * setTcpipSMB(false); } else { m_tcpSMBPort = sessport; } } } else {
+ * setTcpipSMB(false); }
+ */
 
-    PropertiesParam tcpSmb = params.getPropertiesParam("tcpip");
-    if (tcpSmb != null && tcpSmb.getProperty("enabled").equals("true")) {
-      setTcpipSMB(true);
-      if (tcpSmb.getProperty("port") != null) {
-        int sessport = Integer.parseInt(tcpSmb.getProperty("port"));
-        if (sessport < 0 || sessport > 65535) {
-          logger.error("Illegal value of tcpip port partameter!");
-          setTcpipSMB(false);
-        } else {
-          m_tcpSMBPort = sessport;
-        }
-      }
-    } else {
-      setTcpipSMB(false);
-    }
+    // TODO Tcpip transport not used for now
+    setTcpipSMB(false);
 
     // Configure win32 NetBIOS (netbios or wins)
 
@@ -540,6 +533,26 @@ public class ServerConfiguration {
     if (wsParam != null) {
       workspaceList = wsParam.getValue().split(",");
     }
+
+    // security config
+
+    PropertiesParam secur = params.getPropertiesParam("security_param");
+
+    if (secur != null) {
+      securityMode = SecurityMode.UserMode;
+
+      String challResp = winnbt.getProperty("challenge_response");
+      if (challResp != null && challResp.equalsIgnoreCase("true")) {
+        securityMode = SecurityMode.UserMode + SecurityMode.EncryptedPasswords;
+      }
+    } else {
+      // set all available security modes for default;
+      securityMode = SecurityMode.UserMode + SecurityMode.EncryptedPasswords;
+      
+      
+    }
+    
+    securityMode = SecurityMode.UserMode + SecurityMode.EncryptedPasswords;
   }
 
   /**
@@ -937,12 +950,18 @@ public class ServerConfiguration {
     if (getPlatformType() == PlatformType.WINDOWS) {
       // Get the local domain/workgroup name via JNI
 
-      domainName = Win32NetBIOS.GetLocalDomainName();
+      if (Win32NetBIOS.isInitialized()) {
+        domainName = Win32NetBIOS.GetLocalDomainName();
 
-      // Debug
+        // Debug
 
-      if (logger.isDebugEnabled())
-        logger.debug("Local domain name is " + domainName + " (via JNI)");
+        if (logger.isDebugEnabled())
+          logger.debug("Local domain name is " + domainName + " (via JNI)");
+
+      } else {
+        logger
+            .error("Win32NetBIOS.dll isnt loaded so can't find local domain name!");
+      }
     } else {
       NetBIOSName nbName = null;
 
@@ -1121,6 +1140,10 @@ public class ServerConfiguration {
 
   private void setHostAnnounceInterval(int interval) {
     m_announceInterval = interval;
+  }
+
+  public int getSecurity() {
+    return securityMode;
   }
 
 }

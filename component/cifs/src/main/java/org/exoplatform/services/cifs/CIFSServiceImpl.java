@@ -23,6 +23,7 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.picocontainer.Startable;
 
@@ -41,44 +42,50 @@ public class CIFSServiceImpl implements CIFSService, Startable {
 
   private RepositoryService repositoryService;
 
+  private OrganizationService organizationService;
+
   private NetworkServer server;
 
-  public CIFSServiceImpl(InitParams params, RepositoryService repositoryService)
-      throws RepositoryException, RepositoryConfigurationException,
-      NamingException {
+  public CIFSServiceImpl(InitParams params,
+      RepositoryService repositoryService,
+      OrganizationService organizationService) throws RepositoryException,
+      RepositoryConfigurationException, NamingException {
 
     this.repositoryService = repositoryService;
-
+    this.organizationService = organizationService;
     config = new ServerConfiguration(params);
   }
 
-  public boolean isServerActive(){
-    if(server== null) return false;
-    
-    if(!server.isActive()) return false;
-    
+  public boolean isServerActive() {
+    if (server == null)
+      return false;
+
+    if (!server.isActive())
+      return false;
+
     return true;
   }
-  
+
   public void start() {
 
-      try {
-        if (config.isSMBServerEnabled()) {
-          log.info("Starting CIFS service");
-          server = new SMBServer(config, repositoryService);
-          server.startServer();
-          log.info("CIFS service is started server name: "
-              + config.getServerName()
-              + " on repository: "
-              + ((config.getRepoName() == null) ? "default" : config
-                  .getRepoName()));
-        } else {
-          log.error("Starting CIFS service error: server not initalized");
-          return;
-        }
-      } catch (Exception e) {
-        throw new RuntimeException(e);
+    try {
+      if (config.isSMBServerEnabled()) {
+        log.info("Starting CIFS service");
+        server = new SMBServer(config, repositoryService, organizationService);
+        server.startServer();
+        log
+            .info("CIFS service is started server name: " +
+                config.getServerName() +
+                " on repository: " +
+                ((config.getRepoName() == null) ? "default" : config
+                    .getRepoName()));
+      } else {
+        log.error("Starting CIFS service error: server not initalized");
+        return;
       }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public void stop() {

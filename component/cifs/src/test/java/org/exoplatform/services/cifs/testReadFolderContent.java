@@ -54,7 +54,7 @@ public class testReadFolderContent extends BaseStandaloneTest {
     s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
         credentials, "ws");
     s.refresh(false);
-    
+
     Node root = s.getRootNode();
 
     // create nt:file node
@@ -73,7 +73,7 @@ public class testReadFolderContent extends BaseStandaloneTest {
     // done
     s.save();
 
-    SmbFile share = new SmbFile("smb://" + servername + "/ws/");
+    SmbFile share = new SmbFile("smb://" + user + servername + "/ws/");
 
     long t1 = System.currentTimeMillis();
     SmbFile[] filelist = share.listFiles();
@@ -133,7 +133,7 @@ public class testReadFolderContent extends BaseStandaloneTest {
     s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
         credentials, "ws");
     s.refresh(false);
-    
+
     Node root = s.getRootNode();
 
     // create test parent folder node
@@ -160,7 +160,8 @@ public class testReadFolderContent extends BaseStandaloneTest {
 
     s.save();
 
-    SmbFile share = new SmbFile("smb://" + servername + "/ws/testfolder/");
+    SmbFile share = new SmbFile("smb://" + user + servername +
+        "/ws/testfolder/");
 
     long t1 = System.currentTimeMillis();
     SmbFile[] filelist = share.listFiles();

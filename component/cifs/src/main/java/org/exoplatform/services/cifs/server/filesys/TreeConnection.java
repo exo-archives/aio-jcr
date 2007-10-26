@@ -134,7 +134,7 @@ public class TreeConnection {
 
       // The file array needs to be extended, check if we reached the limit.
 
-      if (m_files.length >= MAXFILES)
+      if (isMaxFilesAchieved())
         throw new TooManyFilesException();
 
       // Extend the file array
@@ -151,6 +151,13 @@ public class TreeConnection {
     return idx;
   }
 
+  public final boolean isMaxFilesAchieved(){
+    return m_files.length >= MAXFILES;
+  }
+  
+  
+  
+  
   /**
    * Close the tree connection, release resources.
    * 

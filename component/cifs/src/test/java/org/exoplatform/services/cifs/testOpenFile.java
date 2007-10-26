@@ -56,7 +56,7 @@ public class testOpenFile extends BaseStandaloneTest {
     s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
         credentials, "ws");
     s.refresh(false);
-    
+
     Node root = s.getRootNode();
 
     String filename = "testnode";
@@ -77,7 +77,8 @@ public class testOpenFile extends BaseStandaloneTest {
     // done
     s.save();
 
-    SmbFile recfile = new SmbFile("smb://" + servername + "/ws/" + filename); // TRANS2_QUERY_PATH
+    SmbFile recfile = new SmbFile("smb://" + user + servername + "/ws/" +
+        filename); // TRANS2_QUERY_PATH
     // 101 used here
     // not NT_CREATE
 
@@ -102,7 +103,8 @@ public class testOpenFile extends BaseStandaloneTest {
    */
   public void testOpenUnExistFile() throws Exception {
 
-    SmbFile recfile = new SmbFile("smb://" + servername + "/ws/unexists.txt"); // TRANS2_QUERY_PATH
+    SmbFile recfile = new SmbFile("smb://" + user + servername +
+        "/ws/unexists.txt"); // TRANS2_QUERY_PATH
     // 101 used here
     // not NT_CREATE
 
@@ -142,7 +144,8 @@ public class testOpenFile extends BaseStandaloneTest {
 
     s.save();
 
-    SmbFile folder = new SmbFile("smb://" + servername + "/ws/" + foldername); // TRANS2_QUERY_PATH
+    SmbFile folder = new SmbFile("smb://" + user + servername + "/ws/" +
+        foldername); // TRANS2_QUERY_PATH
 
     assertTrue(folder.exists());
     assertTrue(folder.isDirectory());
@@ -153,8 +156,5 @@ public class testOpenFile extends BaseStandaloneTest {
     createdNodeRef.remove();
     s.save();
   }
-  
-  
-  
 
 }

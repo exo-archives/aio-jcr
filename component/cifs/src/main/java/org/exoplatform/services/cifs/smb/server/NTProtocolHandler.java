@@ -27,11 +27,12 @@ package org.exoplatform.services.cifs.smb.server;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Credentials;
 import javax.jcr.ItemExistsException;
+import javax.jcr.LoginException;
+import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
@@ -40,8 +41,12 @@ import javax.jcr.Session;
 import javax.jcr.lock.LockException;
 
 import org.exoplatform.services.cifs.smb.server.VirtualCircuit;
+
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.cifs.netbios.RFCNetBIOSProtocol;
+import org.exoplatform.services.cifs.server.auth.Client;
+import org.exoplatform.services.cifs.server.auth.NTLMv1;
+import org.exoplatform.services.cifs.server.auth.NTLanManAuthContext;
 import org.exoplatform.services.cifs.server.core.ShareType;
 import org.exoplatform.services.cifs.server.core.SharedDevice;
 import org.exoplatform.services.cifs.server.filesys.DiskInfo;
@@ -78,10 +83,10 @@ import org.exoplatform.services.cifs.util.DataBuffer;
 import org.exoplatform.services.cifs.util.DataPacker;
 import org.exoplatform.services.cifs.util.HexDump;
 import org.exoplatform.services.cifs.util.WildCard;
-import org.exoplatform.services.jcr.core.ExtendedProperty;
+
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.organization.User;
 import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
@@ -379,6 +384,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
   protected void procSessionSetup(SMBSrvPacket outPkt) throws SMBSrvException,
       IOException, TooManyConnectionsException {
 
+    logger.debug(":procSessionSetup");
+
     // Check that the received packet looks like a valid NT session setup andX
     // request
 
@@ -392,8 +399,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     int maxBufSize = m_smbPkt.getParameter(2); // max client buffer
     int maxMpx = m_smbPkt.getParameter(3); // max multiplex
     int vcNum = m_smbPkt.getParameter(4); // virtual circuit number
-    int ascPwdLen = m_smbPkt.getParameter(7); // caseInsensitive pathword length
-    int uniPwdLen = m_smbPkt.getParameter(8); // caseSensiteve pathword length
+    int ascPwdLen = m_smbPkt.getParameter(7); // caseInsensitive password length
+    int uniPwdLen = m_smbPkt.getParameter(8); // caseSensiteve password length
     int capabs = m_smbPkt.getParameterLong(11); // capabilities
 
     // Extract the client details from the session setup request
@@ -450,10 +457,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       }
     }
 
-    // DEBUG
-
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_NEGOTIATE)) {
-      logger.debug("NT Session setup from user=" + user + ", password=" +
+      logger.debug("NT Session setup from user=" + user + ", UNIpassword=" +
           (uniPwd != null ? HexDump.hexString(uniPwd) : "none") + ", ANSIpwd=" +
           (ascPwd != null ? HexDump.hexString(ascPwd) : "none") + ", domain=" +
           domain + ", os=" + clientOS + ", VC=" + vcNum + ", maxBuf=" +
@@ -463,6 +468,93 @@ public class NTProtocolHandler extends CoreProtocolHandler {
           m_smbPkt.getUserId() + ", PID=" + m_smbPkt.getProcessId());
     }
 
+    boolean authenticated = false;
+
+    Client client = null;
+
+    try {
+
+      if (user.length() == 0 && uniPwdLen == 0 && ascPwdLen <= 1) {
+        // there is null session logon
+
+        client = new Client("", "");
+        client.setLogonType(Client.LOGON_NULL_SESSION);
+
+        authenticated = true;
+
+      } else {
+        // all other cases
+        if (user.equals(Client.GUEST_NAME)) {
+
+          authenticated = ((SMBServer) this.getSession().getServer())
+              .getOrgainzationService().getUserHandler().authenticate(user,
+                  null);
+
+          client = new Client(user, "");
+          /*
+           * Here must be TRUE but some client drops connection when server sets
+           * guest status, for non "guest"-named user names
+           */
+          client.setGuest(false); // a.k.a setLogonType(Client.LOGON_NORMAL);
+
+        } else if (ascPwd == null) {
+          // plain text authentication
+          String plainpassword = uniPwd != null ? unpackUnicode(uniPwd, 0,
+              uniPwdLen + 1) : "";
+
+          authenticated = ((SMBServer) this.getSession().getServer())
+              .getOrgainzationService().getUserHandler().authenticate(user,
+                  plainpassword);
+
+          client = new Client(user, plainpassword);
+          client.setGuest(false);
+
+        } else {
+          // NTLMv1 authentication
+
+          User ushnd = ((SMBServer) this.getSession().getServer())
+              .getOrgainzationService().getUserHandler().findUserByName(user);
+
+          // check if user exist
+          if (ushnd != null) {
+
+            String pass = ushnd.getPassword();
+
+            if (pass != null) {
+              // do authentication
+
+              NTLMv1 enc = new NTLMv1();
+              NTLanManAuthContext cont = (NTLanManAuthContext) m_sess
+                  .getAuthenticationContext();
+              byte[] encPwd = enc.computeMD4Hash(pass, cont.getChallenge());
+
+              authenticated = java.util.Arrays.equals(encPwd, uniPwd);
+            }
+
+            client = new Client(user, pass);
+            client.setGuest(false);
+          }
+        }
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+
+      m_sess.sendErrorResponseSMB(SMBStatus.NTLogonFailure,
+          SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+      return;
+
+    }
+
+    if (!authenticated) {
+      m_sess.sendErrorResponseSMB(SMBStatus.NTLogonFailure,
+          SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+      return;
+    }
+
+    logger.debug("User [" + client.getUsername() + "] pass[" +
+        client.getPassword() + "] authenticated");
+
     // Store the client maximum buffer size, maximum multiplexed requests count
     // and client capability flags
 
@@ -471,17 +563,9 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     m_sess.setClientMaximumMultiplex(maxMpx);
     m_sess.setClientCapabilities(capabs);
 
-    // Create the client information and store in the session
-
-    // TODO Here must be Authenticate the user
-
-    boolean isGuest = true;
-    if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_NEGOTIATE))
-      logger.debug("User " + user + ", logged on as guest");
-
     // Create a virtual circuit and allocate a UID to the new circuit
 
-    VirtualCircuit vc = new VirtualCircuit(vcNum);
+    VirtualCircuit vc = new VirtualCircuit(vcNum, client);
     int uid = m_sess.addVirtualCircuit(vc);
 
     if (uid == VirtualCircuit.InvalidUID) {
@@ -512,7 +596,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     outPkt.setParameterCount(3);
     outPkt.setParameter(0, 0); // No chained response
     outPkt.setParameter(1, 0); // Offset to chained response
-    outPkt.setParameter(2, isGuest ? 1 : 0);
+    outPkt.setParameter(2, client.isGuest() ? 1 : 0);
     outPkt.setByteCount(0);
 
     outPkt.setTreeId(0);
@@ -538,8 +622,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       pos = DataPacker.wordAlign(pos);
 
     pos = DataPacker.putString("Java", buf, pos, true, isUni);
-    pos = DataPacker.putString("Alfresco CIFS Server " +
-        m_sess.getServer().isVersion(), buf, pos, true, isUni);
+    pos = DataPacker.putString("CIFS Server " + m_sess.getServer().isVersion(),
+        buf, pos, true, isUni);
     pos = DataPacker.putString(m_sess.getServer().getConfiguration()
         .getDomainName(), buf, pos, true, isUni);
 
@@ -738,7 +822,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Extract the password string
 
-    String pwd = null;
+    String pwd = null; // pwd not used
 
     if (pwdLen > 0) {
       byte[] pwdByt = m_smbPkt.unpackBytes(pwdLen);
@@ -799,6 +883,13 @@ public class NTProtocolHandler extends CoreProtocolHandler {
         (share.getShareName().compareTo("IPC$") == 0))
       servType = ShareType.ADMINPIPE;
 
+    if (vc.getClientInfo() != null && vc.getClientInfo().isNullSession() &&
+        servType != ShareType.ADMINPIPE) {
+      outPkt.setError(m_smbPkt.isLongErrorCode(), SMBStatus.NTAccessDenied,
+          SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+      return endOff;
+    }
+
     // Find the requested shared device
 
     SharedDevice shareDev = null;
@@ -810,11 +901,6 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       shareDev = m_sess.getSMBServer().findShare(share.getShareName(),
           servType, m_sess);
 
-      // Return a logon failure status
-
-      // outPkt.setError(m_smbPkt.isLongErrorCode(), SMBStatus.NTLogonFailure,
-      // SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
-      // return endOff;
     } catch (Exception ex) {
 
       // Log the generic error
@@ -840,32 +926,25 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       return endOff;
     }
 
-    // TODO here must be security for connection
-
     int sharePerm = FileAccess.Writeable;
-
-    // Allocate a tree id for the new connection
-
-    TreeConnection tree = null;
 
     try {
 
-      // Allocate the tree id for this connection
-
+      // Allocate a tree id for the new connection
       int treeId = vc.addTreeConnection(shareDev);
+
       outPkt.setTreeId(treeId);
 
-      // Set the file permission that this user has been granted for this share
+      TreeConnection tree = vc.findTreeConnection(treeId);
 
-      tree = vc.findTreeConnection(treeId);
-      tree.setPermission(sharePerm);
-
-      // create jcr-session for user
-      // TODO here must be security block
+      // set session for workspaces
       Session s = null;
+
       if (shareDev.getType() == ShareType.DISK) {
-        Credentials credentials = new CredentialsImpl("admin", "admin"
-            .toCharArray());
+
+        Credentials credentials = new CredentialsImpl(vc.getClientInfo()
+            .getUsername(), vc.getClientInfo().getPassword().toCharArray());
+
         try {
           // obtain session of shared device - workspace and
           if (logger.isDebugEnabled()) {
@@ -873,21 +952,66 @@ public class NTProtocolHandler extends CoreProtocolHandler {
           }
           s = (SessionImpl) (this.m_sess.getSMBServer().getRepository()).login(
               credentials, shareDev.getName());
-        } catch (Exception ex) {
-          System.err.println(ex);
+
+          // Set the file permission that this user has been granted for this
+          // share
+
+          // no access for default
+          sharePerm = FileAccess.NoAccess;
+
+          // check is ReadOnly
+          try {
+            s.checkPermission("/", "read");
+            sharePerm = FileAccess.ReadOnly;
+            logger.debug("share permission - read");
+          } catch (java.security.AccessControlException e) {
+          }
+
+          // check is Writable
+
+          try {
+            s.checkPermission("/", "add_node");
+            s.checkPermission("/", "set_property");
+            sharePerm = FileAccess.Writeable;
+            logger.debug("share permission - writable");
+
+          } catch (java.security.AccessControlException e) {
+          }
+
+        } catch (LoginException e) {
+          outPkt.setError(m_smbPkt.isLongErrorCode(), SMBStatus.NTLogonFailure,
+              SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+          return endOff;
+        } catch (NoSuchWorkspaceException e) {
+          outPkt.setError(m_smbPkt.isLongErrorCode(), SMBStatus.NTBadNetName,
+              SMBStatus.SRVInvalidNetworkName, SMBStatus.ErrSrv);
+          return endOff;
+        } catch (RepositoryException e) {
+          e.printStackTrace();
+          outPkt.setError(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
+          return endOff;
+        } catch (Exception e) {
+          e.printStackTrace();
+          outPkt.setError(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
+          return endOff;
         }
       }
+
+      tree.setPermission(sharePerm);
       tree.setSession(s);
 
       // Debug
 
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_TREE))
-        logger.debug("ANDX Tree Connect AndX - Allocated Tree Id = " + treeId);
+        logger.debug("Tree Connect AndX - Allocated Tree Id = " + treeId +
+            ", Permission = " + FileAccess.asString(sharePerm));
+
     } catch (TooManyConnectionsException ex) {
 
       // Too many connections open at the moment
 
-      outPkt.setError(SMBStatus.SRVNoResourcesAvailable, SMBStatus.ErrSrv);
+      outPkt.setError(m_smbPkt.isLongErrorCode(), SMBStatus.NTTooManyOpenFiles,
+          SMBStatus.SRVNoResourcesAvailable, SMBStatus.ErrSrv);
       return endOff;
     }
 
@@ -907,6 +1031,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Determine the filesystem type, for disk shares
 
     String devType = FileSystem.TypeFAT;
+
     // Pack the filesystem type
 
     pos = DataPacker.putString(devType, outBuf, pos, true, outPkt.isUnicode());
@@ -947,10 +1072,10 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Extract the read file parameters
 
-    long offset = (long) m_smbPkt.getAndXParameterLong(cmdOff, 3); // bottom
-    // 32bits of
-    // read
-    // offset
+    // bottom 32bits of read offset
+
+    long offset = (long) m_smbPkt.getAndXParameterLong(cmdOff, 3);
+
     offset &= 0xFFFFFFFFL;
     int maxCount = m_smbPkt.getAndXParameter(cmdOff, 5);
 
@@ -990,9 +1115,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
         maxCount = dataLen;
 
       // Read from the file
-
-      rdlen = JCRDriver.readFile(m_sess, conn, netFile, buf, dataPos, maxCount,
-          offset);
+      rdlen = ((JCRNetworkFile) netFile).read(buf, dataPos, maxCount, offset);
 
       // Return the data block
 
@@ -1004,9 +1127,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       outPkt.setAndXParameter(endOff, 4, 0); // reserved
       outPkt.setAndXParameter(endOff, 5, rdlen); // data length
       outPkt.setAndXParameter(endOff, 6, dataPos -
-          RFCNetBIOSProtocol.HEADER_LEN); // offset
-      // to
-      // data
+          RFCNetBIOSProtocol.HEADER_LEN); // offset to data
 
       // Clear the reserved parameters
 
@@ -1077,6 +1198,43 @@ public class NTProtocolHandler extends CoreProtocolHandler {
           fid);
 
     // Close the file
+    try {
+
+      // delete file if it market as delete on close file
+      if (netFile.hasDeleteOnClose()) {
+        if (netFile instanceof JCRNetworkFile) {
+
+          Node parent = ((JCRNetworkFile) netFile).getNodeRef().getParent();
+          ((JCRNetworkFile) netFile).getNodeRef().remove();
+          parent.save();
+
+          ((JCRNetworkFile) netFile).releaseResources();
+
+          logger.debug("file [" + netFile.getName() + "] deleted");
+
+        }
+      } else if (netFile instanceof JCRNetworkFile) {
+        ((JCRNetworkFile) netFile).saveChanges();
+
+        logger.debug("file [" + netFile.getName() + "] save changes");
+      }
+    } catch (LockException e) {
+      // Return an access denied error
+
+      outPkt.setError(m_smbPkt.isLongErrorCode(), SMBStatus.NTAccessDenied,
+          SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+      return endOff;
+    } catch (AccessDeniedException e) {
+      outPkt.setError(m_smbPkt.isLongErrorCode(), SMBStatus.NTAccessDenied,
+          SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+      return endOff;
+    } catch (RepositoryException e) {
+
+      e.printStackTrace();
+
+      outPkt.setError(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
+      return endOff;
+    }
 
     // Indicate that the file has been closed
 
@@ -1122,9 +1280,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       return;
     }
 
-    // Extract the parameters
-
-    int pwdLen = m_smbPkt.getParameter(3);
+    // Get the circuit
 
     VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
 
@@ -1133,6 +1289,10 @@ public class NTProtocolHandler extends CoreProtocolHandler {
           SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
       return;
     }
+
+    // Extract the parameters
+
+    int pwdLen = m_smbPkt.getParameter(3);
 
     // Initialize the byte area pointer
 
@@ -1144,7 +1304,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Extract the password string
 
-    String pwd = null;
+    String pwd = null; // password is'nt used
 
     if (pwdLen > 0) {
       byte[] pwdByts = m_smbPkt.unpackBytes(pwdLen);
@@ -1188,14 +1348,12 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Parse the requested share name
 
     String shareName = null;
-    String hostName = null;
 
     if (uncPath.startsWith("\\")) {
 
       try {
         PCShare share = new PCShare(uncPath);
         shareName = share.getShareName();
-        hostName = share.getNodeName();
       } catch (InvalidUNCPathException ex) {
         m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
             SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
@@ -1209,8 +1367,15 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     if (shareName.compareTo("IPC$") == 0)
       servType = ShareType.ADMINPIPE;
 
-    // Check if the session is a null session, only allow access to the IPC$
-    // named pipe share
+    // Check if the session is a null session, only allow access to the
+    // IPC$ named pipe share
+
+    if (vc.getClientInfo() != null && vc.getClientInfo().isNullSession() &&
+        servType != ShareType.ADMINPIPE) {
+      m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied,
+          SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+      return;
+    }
 
     // Find the requested shared device
 
@@ -1226,7 +1391,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
       // Log the generic error
 
-      logger.error("TreeConnectAndX error", ex);
+      logger.error("TreeConnectAndX error [" + ex.getMessage() + "] share [" +
+          shareName + "] not finded");
 
       // Return a general status, bad network name
 
@@ -1246,39 +1412,94 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     int sharePerm = FileAccess.Writeable;
 
-    // Allocate a tree id for the new connection
+    try {
 
-    int treeId = vc.addTreeConnection(shareDev);
-    outPkt.setTreeId(treeId);
+      // Allocate a tree id for the new connection
+      int treeId = vc.addTreeConnection(shareDev);
 
-    // Set the file permission that this user has been granted for this share
+      outPkt.setTreeId(treeId);
 
-    TreeConnection tree = vc.findTreeConnection(treeId);
-    tree.setPermission(sharePerm);
+      TreeConnection tree = vc.findTreeConnection(treeId);
 
-    // TODO security, errors
-    Session s = null;
-    if (shareDev.getType() == ShareType.DISK) {
-      Credentials credentials = new CredentialsImpl("admin", "admin"
-          .toCharArray());
-      try {
-        // obtain session of shared device - workspace and
-        if (logger.isDebugEnabled()) {
-          logger.debug("Create JCR-session: login admin");
+      // set session for workspaces
+      Session s = null;
+
+      if (shareDev.getType() == ShareType.DISK) {
+
+        Credentials credentials = new CredentialsImpl(vc.getClientInfo()
+            .getUsername(), vc.getClientInfo().getPassword().toCharArray());
+
+        try {
+          // obtain session of shared device - workspace and
+          if (logger.isDebugEnabled()) {
+            logger.debug("Create JCR-session: login admin");
+          }
+          s = (SessionImpl) (this.m_sess.getSMBServer().getRepository()).login(
+              credentials, shareDev.getName());
+
+          // Set the file permission that this user has been granted for this
+          // share
+
+          // no access for default
+          sharePerm = FileAccess.NoAccess;
+
+          // check is ReadOnly
+          try {
+            s.checkPermission("/", "read");
+            sharePerm = FileAccess.ReadOnly;
+            logger.debug("share permission - read");
+          } catch (java.security.AccessControlException e) {
+          }
+
+          // check is Writable
+
+          try {
+            s.checkPermission("/", "add_node");
+            s.checkPermission("/", "set_property");
+            sharePerm = FileAccess.Writeable;
+            logger.debug("share permission - writable");
+
+          } catch (java.security.AccessControlException e) {
+          }
+
+        } catch (LoginException e) {
+          m_sess.sendErrorResponseSMB(SMBStatus.NTLogonFailure,
+              SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+          return;
+        } catch (NoSuchWorkspaceException e) {
+          m_sess.sendErrorResponseSMB(SMBStatus.NTBadNetName,
+              SMBStatus.SRVInvalidNetworkName, SMBStatus.ErrSrv);
+          return;
+        } catch (RepositoryException e) {
+          e.printStackTrace();
+          m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
+              SMBStatus.ErrSrv);
+          return;
+        } catch (Exception e) {
+          e.printStackTrace();
+          m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
+              SMBStatus.ErrSrv);
+          return;
         }
-        s = (SessionImpl) (this.m_sess.getSMBServer().getRepository()).login(
-            credentials, shareDev.getName());
-      } catch (Exception ex) {
-        System.err.println(ex);
+
       }
+
+      tree.setSession(s);
+
+      tree.setPermission(sharePerm);
+
+      // Debug
+
+      if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_TREE))
+        logger.debug("Tree Connect AndX - Allocated Tree Id = " + treeId +
+            ", Permission = " + FileAccess.asString(sharePerm));
+
+    } catch (TooManyConnectionsException ex) {
+      // Too many connections open at the moment
+      m_sess.sendErrorResponseSMB(SMBStatus.NTTooManyOpenFiles,
+          SMBStatus.SRVNoResourcesAvailable, SMBStatus.ErrSrv);
+      return;
     }
-    tree.setSession(s);
-
-    // Debug
-
-    if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_TREE))
-      logger.debug("Tree Connect AndX - Allocated Tree Id = " + treeId +
-          ", Permission = " + FileAccess.asString(sharePerm));
 
     // Build the tree connect response
 
@@ -1295,7 +1516,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Determine the filesystem type, for disk shares
 
-    String devType = FileSystem.TypeFAT; // TypeNTFS permits streams, haha
+    String devType = FileSystem.TypeFAT; // TypeNTFS permits streams
 
     // Pack the filesystem type
 
@@ -1380,6 +1601,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
           ((JCRNetworkFile) netFile).getNodeRef().remove();
           parent.save();
 
+          ((JCRNetworkFile) netFile).releaseResources();
           logger.debug("file [" + netFile.getName() + "] deleted");
 
         }
@@ -1401,7 +1623,6 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
     }
-    // TODO bind closing file with possible adaption layer
 
     netFile.setClosed(true);
 
@@ -1921,21 +2142,6 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       logger.debug(" HERE MUST BE LOCK "); // TEMPORARY
     }
 
-    // Return an error status
-
-    // m_sess.sendErrorResponseSMB(SMBStatus.NTRangeNotLocked,
-    // SMBStatus.DOSNotLocked, SMBStatus.ErrDos);
-
-    // Return an error status
-
-    // m_sess.sendErrorResponseSMB(SMBStatus.NTLockNotGranted,
-    // SMBStatus.DOSLockConflict, SMBStatus.ErrDos);
-
-    // Return an error status
-
-    // m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
-    // SMBStatus.ErrSrv);
-
     // Return a success response
 
     outPkt.setParameterCount(2);
@@ -2032,9 +2238,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     }
 
     // If the connection is to the IPC$ remote admin named pipe pass the request
-    // to the IPC
-    // handler. If the device is
-    // not a disk type device then return an error.
+    // to the IPC handler. If the device is not a disk type device then return
+    // an error.
 
     if (conn.getSharedDevice().getType() == ShareType.ADMINPIPE) {
 
@@ -2068,8 +2273,6 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
     }
-
-    // logger.debug("\n fileName [" + fileName + "] TEMPLATE");
 
     // convert name
 
@@ -2105,7 +2308,6 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     long crDateTime = 0L;
     if (crTime > 0 && crDate > 0)
       crDateTime = new SMBDate(crDate, crTime).getTime();
-    logger.debug("openFunction [" + openFunc + "] TEMPORARY");
 
     FileOpenParams params = new FileOpenParams(fileName, stream, openFunc,
         access, srchAttr, fileAttr, allocSiz, crDateTime);
@@ -2115,7 +2317,6 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
       logger.debug("File Open AndX [" + m_smbPkt.getTreeId() + "] params=" +
           params);
-    logger.debug("is directory " + params.isDirectory() + " TEMPORARY");
 
     int responseAction = 0x0;
     int fid = -1;
@@ -2149,8 +2350,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
           responseAction = FileAction.FileCreated;
 
         } else {
-          m_sess.sendErrorResponseSMB(SMBStatus.DOSFileNotFound,
-              SMBStatus.ErrDos);
+          m_sess.sendErrorResponseSMB(SMBStatus.NTObjectNotFound,
+              SMBStatus.DOSFileNotFound, SMBStatus.ErrDos);
           return;
         }
         // if else response action still zero
@@ -2166,8 +2367,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
           else
             responseAction = FileAction.FileExisted;
         } else {
-          m_sess.sendErrorResponseSMB(SMBStatus.DOSFileAlreadyExists,
-              SMBStatus.ErrDos);
+          m_sess.sendErrorResponseSMB(SMBStatus.NTObjectNameCollision,
+              SMBStatus.DOSFileAlreadyExists, SMBStatus.ErrDos);
           return;
         }
       }
@@ -2177,13 +2378,16 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       }
 
     } catch (PathNotFoundException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.DOSFileNotFound, SMBStatus.ErrDos);
+      m_sess.sendErrorResponseSMB(SMBStatus.NTObjectNotFound,
+          SMBStatus.DOSFileNotFound, SMBStatus.ErrDos);
       return;
     } catch (AccessDeniedException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+      m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied,
+          SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
       return;
     } catch (LockException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
+      m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied,
+          SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
       return;
     } catch (RepositoryException e) {
       m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
@@ -2192,8 +2396,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     } catch (TooManyFilesException ex) {
       // Too many files are open on this connection, cannot open any more
       // files.
-      m_sess.sendErrorResponseSMB(SMBStatus.DOSTooManyOpenFiles,
-          SMBStatus.ErrDos);
+      m_sess.sendErrorResponseSMB(SMBStatus.NTTooManyOpenFiles,
+          SMBStatus.DOSTooManyOpenFiles, SMBStatus.ErrDos);
       return;
     } catch (Exception e) {
       m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
@@ -2285,8 +2489,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     }
 
     // If the connection is to the IPC$ remote admin named pipe pass the request
-    // to the IPC
-    // handler.
+    // to the IPC handler.
 
     if (conn.getSharedDevice().getType() == ShareType.ADMINPIPE) {
 
@@ -2350,8 +2553,6 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
       rdlen = ((JCRNetworkFile) netFile).read(buf, dataPos, maxCount, offset);
 
-// rdlen = JCRDriver.readFile(m_sess, conn, netFile, buf, dataPos, maxCount,
-// offset);
     } catch (AccessDeniedException ex) {
 
       // User does not have the required access rights or file is not accessible
@@ -2362,7 +2563,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     } catch (java.io.IOException ex) {
 
       // Failed to read the file
-
+      ex.printStackTrace();
       m_sess.sendErrorResponseSMB(SMBStatus.HRDReadFault, SMBStatus.ErrHrd);
       return;
     } catch (RepositoryException ex) {
@@ -2694,9 +2895,9 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     }
 
     if (fileName.equals("")) {
-      // root directory can't be delted
-      m_sess.sendErrorResponseSMB(SMBStatus.NTObjectNotFound,
-          SMBStatus.DOSFileNotFound, SMBStatus.ErrDos);
+      // root directory can't be deleted, throw access denied
+      m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied,
+          SMBStatus.DOSAccessDenied, SMBStatus.ErrDos);
       return;
     } else {
       // Convert slashes
@@ -2751,6 +2952,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
         while (it.hasNext()) {
           Node tempref = it.nextNode();
           tempref.remove();
+          d++;
         }
         // save changes
         conn.getSession().save();
@@ -2779,7 +2981,6 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     } catch (RepositoryException ex) {
 
       // Failed to get/initialize the disk interface
-
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
     }
@@ -2905,6 +3106,13 @@ public class NTProtocolHandler extends CoreProtocolHandler {
       if (conn.getSession().itemExists(dirName)) {
         Node dirNode = (Node) conn.getSession().getItem(dirName);
 
+        // Check is that a directory not file
+        if (dirNode.isNodeType("nt:file")) {
+          m_sess.sendErrorResponseSMB(SMBStatus.NTObjectNameInvalid,
+              SMBStatus.DOSFileNotFound, SMBStatus.ErrDos);
+          return;
+        }
+
         // Check if directory is empty
         if (dirNode.getNodes().hasNext()) {
           // Directory not empty
@@ -2913,7 +3121,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
               SMBStatus.ErrDos);
           return;
         } else {
-          // FINALY. Delete empty directory
+          // Delete empty directory
           dirNode.remove();
           conn.getSession().save();
         }
@@ -4895,8 +5103,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     }
 
     // If the connection is to the IPC$ remote admin named pipe pass the request
-    // to the IPC
-    // handler.
+    // to the IPC handler.
 
     if (conn.getSharedDevice().getType() == ShareType.ADMINPIPE) {
 
@@ -4910,9 +5117,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     int fid = m_smbPkt.getParameter(2);
     long offset = (long) (((long) m_smbPkt.getParameterLong(3)) & 0xFFFFFFFFL); // bottom
-    // 32bits
-    // of file
-    // offset
+    // 32bits of file offset
     int dataPos = m_smbPkt.getParameter(11) + RFCNetBIOSProtocol.HEADER_LEN;
 
     int dataLen = m_smbPkt.getParameter(10);
@@ -5050,9 +5255,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     }
 
     // If the connection is to the IPC$ remote admin named pipe pass the request
-    // to the IPC
-    // handler. If the device is
-    // not a disk type device then return an error.
+    // to the IPC handler. If the device is not a disk type device then return
+    // an error.
 
     if (conn.getSharedDevice().getType() == ShareType.ADMINPIPE) {
 
@@ -5203,7 +5407,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
           }
 
           // Create file/directory
-          // TODO check if created file or directore with attributes and
+          // TODO check if created file or directory with attributes and
           // createOptn
           netFile = JCRDriver.createFile(conn, params);
 
@@ -5608,9 +5812,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
           transBuf.isMultiPacket());
 
     // Check for a multi-packet transaction, for a multi-packet transaction we
-    // just acknowledge
-    // the receive with
-    // an empty response SMB
+    // just acknowledge the receive with an empty response SMB
 
     if (transBuf.isMultiPacket()) {
 
@@ -5950,9 +6152,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     }
 
     // Check if the file name contains a file stream name. If the disk interface
-    // does not
-    // implement the optional NTFS
-    // streams interface then return an error status, not supported.
+    // does not implement the optional NTFS streams interface then return an
+    // error status, not supported.
 
     if (stream != null) {
 
@@ -6201,7 +6402,6 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     // Debug
 
-    // TODO && m_sess.hasDebug(SMBSrvSession.DBG_TRAN)
     if (logger.isDebugEnabled())
       logger.debug("NT IOCtl code=" + NTIOCtl.asString(ctrlCode) + ", fid=" +
           fid + ", fsctrl=" + fsctrl + ", filter=" + filter);
@@ -6248,11 +6448,6 @@ public class NTProtocolHandler extends CoreProtocolHandler {
 
     m_sess.sendResponseSMB(outPkt);
 
-    // Send back an error, IOctl not supported
-
-    // m_sess.sendErrorResponseSMB(SMBStatus.NTNotImplemented,
-    // SMBStatus.SRVNotSupported, SMBStatus.ErrSrv);
-
   }
 
   /**
@@ -6261,7 +6456,7 @@ public class NTProtocolHandler extends CoreProtocolHandler {
    * @param tbuf
    *          TransactBuffer
    * @param outPkt
-   *          NTTransPacket
+   *          NTTransPacket,
    * @exception IOException
    * @exception SMBSrvException
    */
@@ -6397,110 +6592,15 @@ public class NTProtocolHandler extends CoreProtocolHandler {
   protected final void procNTTransactNotifyChange(NTTransPacket ntpkt,
       SMBSrvPacket outPkt) throws IOException, SMBSrvException {
     logger.debug(":procNTTransactNotifyChange");
-    /*
-     * // Get the virtual circuit for the request
-     * 
-     * VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
-     * 
-     * if (vc == null) {
-     * m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
-     * SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos); return; } // Get the tree
-     * connection details
-     * 
-     * int treeId = ntpkt.getTreeId(); TreeConnection conn =
-     * vc.findConnection(treeId);
-     * 
-     * if (conn == null) {
-     * m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
-     * SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos); return; } // Check if the
-     * user has the required access permission
-     * 
-     * if (conn.hasReadAccess() == false) { // User does not have the required
-     * access rights
-     * 
-     * m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied,
-     * SMBStatus.DOSAccessDenied, SMBStatus.ErrDos); return; } // Make sure the
-     * tree connection is for a disk device
-     * 
-     * if (conn.getContext() == null || conn.getContext() instanceof
-     * DiskDeviceContext == false) {
-     * m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
-     * SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv); return; } // Check if
-     * the device has change notification enabled
-     * 
-     * DiskDeviceContext diskCtx = (DiskDeviceContext) conn.getContext(); if
-     * (diskCtx.hasChangeHandler() == false) { // Return an error status, share
-     * does not have change notification enabled
-     * 
-     * m_sess.sendErrorResponseSMB(SMBStatus.NTNotImplemented,
-     * SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv); return; } // Unpack the
-     * request details
-     * 
-     * ntpkt.resetSetupPointer();
-     * 
-     * int filter = ntpkt.unpackInt(); int fid = ntpkt.unpackWord(); boolean
-     * watchTree = ntpkt.unpackByte() == 1 ? true : false; int mid =
-     * ntpkt.getMultiplexId(); // Get the file details
-     * 
-     * NetworkFile dir = conn.findFile(fid); if (dir == null) {
-     * m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
-     * SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv); return; } // Get the
-     * maximum notifications to buffer whilst waiting for the request to // be
-     * reset after // a notification // has been triggered
-     * 
-     * int maxQueue = 0; // Debug
-     * 
-     * if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_NOTIFY))
-     * logger.debug("NT NotifyChange fid=" + fid + ", mid=" + mid + ",
-     * filter=0x" + Integer.toHexString(filter) + ", dir=" + dir.getFullName() + ",
-     * maxQueue=" + maxQueue); // Check if there is an existing request in the
-     * notify list that matches the // new request and // is in a completed //
-     * state. If so then the client is resetting the notify request so reuse the //
-     * existing // request.
-     * 
-     * NotifyRequest req = m_sess.findNotifyRequest(dir, filter, watchTree);
-     * 
-     * if (req != null && req.isCompleted()) { // Reset the existing request
-     * with the new multiplex id
-     * 
-     * req.setMultiplexId(mid); req.setCompleted(false); // Check if there are
-     * any buffered notifications for this session
-     * 
-     * if (req.hasBufferedEvents() || req.hasNotifyEnum()) { // Get the buffered
-     * events from the request, clear the list from the // request
-     * 
-     * NotifyChangeEventList bufList = req.getBufferedEventList();
-     * req.clearBufferedEvents(); // Send the buffered events
-     * 
-     * diskCtx.getChangeHandler().sendBufferedNotifications(req, bufList); //
-     * DEBUG
-     * 
-     * if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_NOTIFY)) {
-     * if (bufList == null) logger.debug(" Sent buffered notifications, req=" +
-     * req.toString() + ", Enum"); else logger.debug(" Sent buffered
-     * notifications, req=" + req.toString() + ", count=" +
-     * bufList.numberOfEvents()); } } else { // DEBUG
-     * 
-     * if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_NOTIFY))
-     * logger.debug(" Reset notify request, " + req.toString()); } } else { //
-     * Create a change notification request
-     * 
-     * req = new NotifyRequest(filter, watchTree, m_sess, dir, mid, ntpkt
-     * .getTreeId(), ntpkt.getProcessId(), ntpkt.getUserId(), maxQueue); // Add
-     * the request to the pending notify change lists
-     * 
-     * m_sess.addNotifyRequest(req, diskCtx); // Debug
-     * 
-     * if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_NOTIFY))
-     * logger.debug(" Added new request, " + req.toString()); } // NOTE: If the
-     * change notification request is accepted then no reply is // sent to the
-     * client. // A reply will be sent // asynchronously if the change
-     * notification is triggered.
-     */
+    m_sess.sendErrorResponseSMB(SMBStatus.NTNotSupported,
+        SMBStatus.SRVNotSupported, SMBStatus.ErrSrv);
   }
 
   /**
-   * Process an NT rename via handle transaction
+   * Process an NT rename via handle transaction. 
+   * Non-NT machines can ignore the
+   * extra parameters (InfoLevel, SearchAttributes, ClusterCount) and just
+   * perform a normal rename.
    * 
    * @param tbuf
    *          TransactBuffer
@@ -6515,8 +6615,6 @@ public class NTProtocolHandler extends CoreProtocolHandler {
     // Unpack the request details
 
     DataBuffer paramBuf = tbuf.getParameterBuffer();
-
-    // Get the virtual circuit for the request
 
     // Get the tree connection details
 

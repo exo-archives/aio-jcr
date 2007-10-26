@@ -56,6 +56,7 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
@@ -108,19 +109,24 @@ public class SMBServer extends NetworkServer implements Runnable {
 
   private RepositoryService repositoryService;
 
+  //used for security (authentification purposes)
+  private OrganizationService organizationService;
+
   /**
    * Create an SMB server using the specified configuration and repository
    * Service
    * 
    * @param config
    * @param repositoryService
+   * @param organizationService 
    * @throws IOException
    */
   public SMBServer(ServerConfiguration config,
-      RepositoryService repositoryService) throws IOException {
+      RepositoryService repositoryService, OrganizationService organizationService) throws IOException {
 
     super(config);
     this.repositoryService = repositoryService;
+    this.organizationService = organizationService;
 
     // Set the server version
 
@@ -677,5 +683,9 @@ public class SMBServer extends NetworkServer implements Runnable {
       return isJndi ? (Repository) new InitialContext().lookup(repoName)
           : repositoryService.getRepository(repoName);
     }
+  }
+  
+  public OrganizationService getOrgainzationService(){
+    return organizationService;
   }
 }

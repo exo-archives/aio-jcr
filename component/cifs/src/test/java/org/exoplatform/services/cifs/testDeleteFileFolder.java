@@ -54,7 +54,7 @@ public class testDeleteFileFolder extends BaseStandaloneTest {
     s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
         credentials, "ws");
     s.refresh(false);
-    
+
     String newname = "newfile.dat";
 
     // create nt:file node
@@ -71,7 +71,8 @@ public class testDeleteFileFolder extends BaseStandaloneTest {
     dataNode.setProperty("jcr:data", "");
     s.save();
 
-    SmbFile newfile = new SmbFile("smb://" + servername + "/ws/" + newname);
+    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" +
+        newname);
 
     assertTrue(newfile.exists());
 
@@ -92,7 +93,8 @@ public class testDeleteFileFolder extends BaseStandaloneTest {
 
     String newname = "unexist.dat";
 
-    SmbFile newfile = new SmbFile("smb://" + servername + "/ws/" + newname);
+    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" +
+        newname);
 
     assertFalse(newfile.exists());
 
@@ -121,7 +123,7 @@ public class testDeleteFileFolder extends BaseStandaloneTest {
     s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
         credentials, "ws");
     s.refresh(false);
-    
+
     String newname = "hhfolder";
 
     Node cr = s.getRootNode().addNode(newname);
@@ -131,8 +133,8 @@ public class testDeleteFileFolder extends BaseStandaloneTest {
 
     s.save();
 
-    SmbFile newfile = new SmbFile("smb://" + servername + "/ws/" + newname
-        + "/");
+    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" +
+        newname + "/");
 
     assertTrue(newfile.exists());
 

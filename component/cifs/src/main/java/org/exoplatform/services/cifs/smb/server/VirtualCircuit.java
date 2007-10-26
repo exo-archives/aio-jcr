@@ -8,6 +8,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.exoplatform.services.cifs.server.SrvSession;
+import org.exoplatform.services.cifs.server.auth.Client;
 import org.exoplatform.services.cifs.server.core.SharedDevice;
 import org.exoplatform.services.cifs.server.filesys.JCRNetworkFile;
 import org.exoplatform.services.cifs.server.filesys.NetworkFile;
@@ -63,8 +64,12 @@ public class VirtualCircuit {
 
   private int srchCount;
 
-  public VirtualCircuit(int vcNum2) {
-    vcNum = vcNum2;
+  //holds info about owner of this circuit
+  private Client client;
+
+  public VirtualCircuit(int vcNum,Client client) {
+    this.vcNum = vcNum;
+    this.client = client;
   }
 
   public void setUID(int uid) {
@@ -350,8 +355,6 @@ public class VirtualCircuit {
               NetworkFile curFile = tree.findFile(i);
               if (curFile != null && curFile instanceof JCRNetworkFile) {
 
-                // Access the disk share interface
-
                 try {
 
                  // ((JCRNetworkFile) curFile).flush();
@@ -374,6 +377,10 @@ public class VirtualCircuit {
       connections.clear();
 
     }
+  }
+
+  public Client getClientInfo(){
+    return client;
   }
   
 }

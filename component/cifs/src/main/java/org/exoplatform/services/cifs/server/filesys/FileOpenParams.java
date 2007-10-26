@@ -131,10 +131,6 @@ public class FileOpenParams {
   public @Deprecated FileOpenParams(String path, int openAction, int accessMode,
       int fileAttr) {
 
-    // Parse the file path, split into file name and stream if specified
-
-    //parseFileName(path);
-
     m_openAction = convertToNTOpenAction(openAction);
     m_accessMode = convertToNTAccessMode(accessMode);
     m_attr = fileAttr;

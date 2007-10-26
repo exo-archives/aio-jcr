@@ -70,7 +70,7 @@ public class JCRDriver {
    */
   public static NetworkFile createFile(TreeConnection conn,
       FileOpenParams params) throws FileExistsException, LockException,
-      RepositoryException {
+      AccessDeniedException, RepositoryException {
 
     String path = params.getPath();
 
@@ -298,11 +298,6 @@ public class JCRDriver {
 
       // name setup
       String name = nodeRef.getName();
-
-      // TODO here is a sense to transfer name encoding directly to
-      // responsemaker //NO
-      // (like Trans2FindFirst2, Trans2FindNext2, QueryInfoPacker) and encode
-      // name at last possible momment befor send response paket;
 
       if (name != null) {
         // check is file is single
@@ -573,7 +568,7 @@ public class JCRDriver {
    * @throws RepositoryException
    */
   public static Node createNode(Session sess, String path, boolean isFile)
-      throws LockException, RepositoryException {
+      throws LockException, AccessDeniedException, RepositoryException {
     try {
 
       // split the path up into its constituents
@@ -611,30 +606,27 @@ public class JCRDriver {
 
         dataNode.setProperty("jcr:mimeType", mimeType);
         dataNode.setProperty("jcr:lastModified", Calendar.getInstance());
-        dataNode.setProperty("jcr:data", new ByteArrayInputStream(new byte[] {}));
+        dataNode.setProperty("jcr:data",
+            new ByteArrayInputStream(new byte[] {}));
       }
+
       // done
       sess.save();
       if (logger.isDebugEnabled()) {
-        logger.debug("Created node: \n" + "   path: " + path + "\n" +
-            "   is file: " + isFile + "\n" + "   new node: " +
-            createdNodeRef.getPath());
+        logger.debug("Created node: path [" + path + "] " +
+            (isFile ? "file" : "folder") + "   new node: [" +
+            createdNodeRef.getPath() + "]");
       }
       return createdNodeRef;
 
-      // Exception classes is chget for simple
     } catch (ConstraintViolationException e) {
-      e.printStackTrace();
       throw new RepositoryException(e.getMessage());
     } catch (VersionException e) {
-      e.printStackTrace();
       throw new RepositoryException(e.getMessage());
     } catch (ValueFormatException e) {
-      e.printStackTrace();
-      throw new RepositoryException(e.getMessage());
+      throw new RepositoryException(e);
     } catch (NoSuchNodeTypeException e) {
-      e.printStackTrace();
-      throw new RepositoryException(e.getMessage());
+      throw new RepositoryException(e);
     }
   }
 
@@ -661,7 +653,7 @@ public class JCRDriver {
    * @throws IOException
    * 
    */
-  public static int readFile(SMBSrvSession m_sess, TreeConnection conn,
+public @Deprecated static int readFile(SMBSrvSession m_sess, TreeConnection conn,
       NetworkFile netFile, byte[] buf, int dataPos, int maxCount, long offset)
       throws AccessDeniedException, RepositoryException, IOException {
     // Check if the file is a directory

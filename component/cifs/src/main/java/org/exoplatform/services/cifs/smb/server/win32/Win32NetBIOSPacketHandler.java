@@ -26,11 +26,13 @@ package org.exoplatform.services.cifs.smb.server.win32;
 
 import java.io.IOException;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.cifs.netbios.RFCNetBIOSProtocol;
 import org.exoplatform.services.cifs.netbios.win32.NetBIOS;
 import org.exoplatform.services.cifs.netbios.win32.Win32NetBIOS;
 import org.exoplatform.services.cifs.smb.server.PacketHandler;
 import org.exoplatform.services.cifs.smb.server.SMBSrvPacket;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Win32 NetBIOS Packet Handler Class
@@ -42,7 +44,8 @@ import org.exoplatform.services.cifs.smb.server.SMBSrvPacket;
  * @author GKSpencer
  */
 public class Win32NetBIOSPacketHandler extends PacketHandler {
-
+  private static Log logger = ExoLogger
+  .getLogger("org.exoplatform.services.cifs.smb.server.win32.Win32NetBIOSPacketHandler");
   // Constants
   //
   // Receive error encoding and length masks
@@ -166,17 +169,17 @@ public class Win32NetBIOSPacketHandler extends PacketHandler {
         if ((rxLen2 & ReceiveErrorMask) != 0) {
           sts = (rxLen2 & ReceiveErrorMask) >> 24;
           throw new IOException(
-              "Win32 NetBIOS multi-part receive failed, sts=0x" + sts
-                  + ", err=" + NetBIOS.getErrorString(sts));
+              "Win32 NetBIOS multi-part receive failed, sts=0x" + sts +
+                  ", err=" + NetBIOS.getErrorString(sts));
         }
 
         // Set the total received data length
 
         rxLen += rxLen2;
       } else {
-
+        logger.debug((Integer.toHexString(rxLen).toUpperCase()));
         // Indicate that the session has closed
-
+         
         return -1;
       }
     }

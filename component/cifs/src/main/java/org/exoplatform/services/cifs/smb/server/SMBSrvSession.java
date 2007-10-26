@@ -90,6 +90,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
   public static final int DefaultCircuits = 4;
 
   public static final int MaxCircuits = 16;
+  
 
   // Tree ids are 16bit values
 
@@ -1009,7 +1010,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
     }
 
     // Check if the extended security flag has been set by the client
-    // !WARNING
+   
     boolean extendedSecurity = false;
 
     // Build the negotiate response SMB for Core dialect
@@ -1035,10 +1036,8 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
       m_smbPkt.setParameterCount(13);
       m_smbPkt.setParameter(0, diaIdx);
-      // TODO security mode must be provided by some security/autentication
-      // manager
-      int securityMode = SecurityMode.UserMode +
-          SecurityMode.EncryptedPasswords;
+      
+      int securityMode = getServer().getConfiguration().getSecurity();// SecurityMode.UserMode + SecurityMode.EncryptedPasswords;
       m_smbPkt.setParameter(1, securityMode);
       m_smbPkt.setParameter(2, LanManBufferSize);
       m_smbPkt.setParameter(3, LanManMaxMultiplexed); // maximum multiplexed
@@ -1142,17 +1141,17 @@ public class SMBSrvSession extends SrvSession implements Runnable {
         setState(SMBSrvSessionState.NBHANGUP);
         return;
       }
+
     } else if (m_dialect == Dialect.NT) {
 
-      // We are using case sensitive pathnames and long file names
+      // We are using case insensitive pathnames and long file names
 
       setDefaultFlags(SMBSrvPacket.FLG_CASELESS);
       setDefaultFlags2(SMBSrvPacket.FLG2_LONGFILENAMES +
-          SMBSrvPacket.FLG2_UNICODE + SMBSrvPacket.FLG2_EXTENDEDATTRIB);
+          SMBSrvPacket.FLG2_UNICODE);//+ SMBSrvPacket.FLG2_EXTENDEDATTRIB
 
       // Access the authenticator for this server and determine if the server is
-      // in share or
-      // user level security mode.
+      // in share or user level security mode.
 
       // NT dialect negotiate response
 
@@ -1160,8 +1159,10 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
       m_smbPkt.setParameterCount(17);
       nt.packWord(diaIdx); // selected dialect index
-      int securityMode = SecurityMode.UserMode +
-          SecurityMode.EncryptedPasswords;
+      
+      
+      int securityMode = getServer().getConfiguration().getSecurity();//SecurityMode.UserMode + SecurityMode.EncryptedPasswords;
+      
       nt.packByte(securityMode);
       nt.packWord(NTMaxMultiplexed); // maximum multiplexed requests
       // setting to 1 will disable change notify requests from the client
@@ -1446,6 +1447,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
       if (isShutdown() == false)
         logger.error("Closing session due to exception", ex);
     } catch (Throwable ex) {
+      ex.printStackTrace();
       logger.error("Closing session due to throwable", ex);
     } finally {
       // If there is an active transaction then roll it back
@@ -2073,7 +2075,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
         // Close the circuit
 
-        vc.closeCircuit(this); //TODO sess isnot used
+        vc.closeCircuit(this); // TODO sess isnot used
 
         // Remove the circuit from the circuit table
 
@@ -2081,7 +2083,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
       }
     }
   }
-  
+
   /**
    * Return the active tree connection count
    * 

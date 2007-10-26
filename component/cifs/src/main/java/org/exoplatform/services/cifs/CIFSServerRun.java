@@ -40,6 +40,8 @@ public class CIFSServerRun {
       // obtain standalone container
       StandaloneContainer container = StandaloneContainer.getInstance();
 
+     
+      
       // set JAAS auth config
 
       URL loginURL = Thread.currentThread().getContextClassLoader()
@@ -73,7 +75,8 @@ public class CIFSServerRun {
       container.stop();
 
     } catch (Exception ex) {
-      ex.printStackTrace();
+
+ex.printStackTrace();
     }
 
     System.exit(1);

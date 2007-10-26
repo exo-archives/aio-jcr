@@ -64,19 +64,10 @@
 			        <value>192.168.0.66</value>
 			</value-param -->
 			
-
-                        <!-- TcpIp transport configuration-->
-                        <properties-param>
- 		            <name>tcpip</name>
- 		            <property name="enabled" value="false"/>
- 		            <property name="port" value="1445"/>
- 		        </properties-param>
- 		        
                         <!-- NetBIOS transport (Java impl) configuration-->
                         <properties-param>
  		            <name>netbios_java</name>
- 		            <property name="enabled" value="true"/>
- 		            <property name="netbiosname" value="TestCIFSJ"/>
+ 		            <property name="enabled" value="false"/>
  		            <property name="session_port" value="139"/>
  		            <property name="datagram_port" value="138"/>
  		            <property name="name_port" value="137"/>
@@ -88,7 +79,7 @@
 			<!--use JNI NetBIOS SMB transport layer - only for Windows-->
                         <properties-param>
  		            <name>winnetbios</name>
- 		            <property name="enabled" value="false"/>
+ 		            <property name="enabled" value="true"/>
  		            <property name="netbiosname" value="TestCIFS"/>
  		            <!--LANA - if not determined or equal -1 used all available -->
  		            <property name="lanas" value="-1"/>
@@ -97,6 +88,14 @@
  		            <!-- Win32 NetBIOS host announce config -->
  		            <property name="announce_enabled" value ="true"/>
  		            <property name="announce_interval" value = "5"/>
+ 		        </properties-param>
+ 		        
+ 		        <!-- set security mode -->
+ 		        <!-- security signatures is not suported -->
+ 		        			
+                        <properties-param>
+ 		            <name>security_param</name>
+ 		            <property name="challenge_response" value="true"/>
  		        </properties-param>
  		        
  		</init-params>

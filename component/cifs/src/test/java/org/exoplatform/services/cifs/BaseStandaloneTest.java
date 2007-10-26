@@ -33,6 +33,9 @@ public abstract class BaseStandaloneTest extends TestCase {
 
   // JAAS auth file
   public static String confAuth = "login.conf";
+  
+  
+  public static String user = "admin:admin@";
 
   // Standalone container has CIFSserver inside.
 

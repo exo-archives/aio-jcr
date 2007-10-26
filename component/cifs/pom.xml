@@ -117,12 +117,11 @@
 				<version>2.0</version>
 				<configuration>
 					<includes>
-						<!--include>**/*.java </include-->
-						
+						<include>**/*.java </include>						
 					</includes>
-					<excludes>
+					<!--excludes>
 						<exclude> **/testIncubator.java</exclude>
-					</excludes>
+					</excludes-->
 					
 				</configuration>
 			</plugin>
