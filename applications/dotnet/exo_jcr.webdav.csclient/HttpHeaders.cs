@@ -45,6 +45,7 @@ namespace exo_jcr.webdav.csclient
         public static String RANGE = "Range";
         public static String ACCEPT_RANGES = "Accept-Ranges";
         public static String NODETYPE = "NodeType";
+        public static String TRANSFER_ENCODING = "Transfer-Encoding";
 
     }
 

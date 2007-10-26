@@ -46,9 +46,7 @@ namespace exo_jcr.webdav.csclient.Commands
 
             string responseString = Encoding.UTF8.GetString(xmlBuffer.GetBuffer(), 0, (int)xmlBuffer.Length);
             responseString = responseString.Substring(1);
-            Console.WriteLine("RS:" + responseString);
-            return getBytes(responseString);
-            
+            return getBytes(responseString);            
         }
 
         public override void finalizeExecuting()

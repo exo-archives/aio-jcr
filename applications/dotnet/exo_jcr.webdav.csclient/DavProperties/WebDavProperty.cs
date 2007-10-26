@@ -77,6 +77,9 @@ namespace exo_jcr.webdav.csclient.DavProperties
                         break;
 
                     case XmlNodeType.EndElement:
+
+                        Console.WriteLine("PROPERTYNAME: " + propertyName);
+
                         if (reader.Name.EndsWith(propertyName))
                         {
                             return;

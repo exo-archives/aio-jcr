@@ -22,6 +22,7 @@ namespace exo_jcr.webdav.csclient.Commands
         public HeadCommand(DavContext context) : base(context)
         {
             CommandName = DavCommands.HEAD;
+            addRequestHeader(HttpHeaders.CONNECTION, "close");
         }
 
     }

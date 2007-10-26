@@ -22,8 +22,9 @@ namespace exo_jcr.webdav.csclient.Commands
     {
         protected String xmlName = DavDocuments.PROPFIND;
 
-        private ArrayList properties = new ArrayList();
-        private Hashtable nameSpaces = new Hashtable();
+        private Hashtable namespacedProperties = new Hashtable();
+
+        private Hashtable prefixes = new Hashtable();
 
         private int depth = 0;
 
@@ -31,33 +32,31 @@ namespace exo_jcr.webdav.csclient.Commands
         {
         }
 
-        public bool registerNameSpace(String propertyName)
-        {
-            if (propertyName.IndexOf(":") > 0)
-            {
-                String nameSpace = propertyName.Substring(0, propertyName.IndexOf(":"));
-                if (!nameSpaces.ContainsKey(nameSpace))
-                    nameSpaces.Add(nameSpace, nameSpace);
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-
-        }
-
         public void addRequiredProperty(String propertyName)
         {
-            if (registerNameSpace(propertyName))
+            addRequiredProperty("D:" + propertyName, "D", "DAV:");
+        }
+
+        public void addRequiredProperty(String prefixedName, String prefix, String nameSpace)
+        {
+            String propertyName = prefixedName.Substring(((String)(prefix + ":")).Length);
+
+            if (!prefixes.Contains(nameSpace)) {
+                prefixes.Add(nameSpace, prefix);
+            }
+
+            ArrayList properties = null;
+            if (namespacedProperties.Contains(nameSpace))
             {
-                properties.Add(propertyName);
+                properties = (ArrayList)namespacedProperties[nameSpace];
             }
             else
             {
-                properties.Add(DavConstants.PREFIX + ":" + propertyName);
-            }            
+                properties = new ArrayList();
+                namespacedProperties.Add(nameSpace, properties);
+            }
+
+            properties.Add(propertyName);
         }
 
         public void setDepth(int depth)
@@ -67,31 +66,42 @@ namespace exo_jcr.webdav.csclient.Commands
 
         public override void toXml(XmlTextWriter writer)
         {
+
             writer.WriteStartElement(DavConstants.PREFIX, xmlName, DavConstants.NAMESPACE);
 
-            if (properties.Count == 0)
+            if (namespacedProperties.Count == 0)
             {
                 writer.WriteStartElement("allprop", DavConstants.NAMESPACE);
                 writer.WriteEndElement();
             }
             else
             {
-                writer.WriteStartElement("prop", DavConstants.NAMESPACE);
-                foreach (DictionaryEntry de in nameSpaces)
-                {
-                    String name = de.Value.ToString();
-                    writer.WriteAttributeString("xmlns:" + name, name + ":");
-                }
 
-                for (int i = 0; i < properties.Count; i++)
-                {
-                    String curProperty = (String)properties[i];
-                    if (curProperty.IndexOf(":") < 0) {
-                        writer.WriteStartElement(curProperty, DavConstants.NAMESPACE);                        
-                    } else {
-                        writer.WriteStartElement(curProperty);                        
+                writer.WriteStartElement("prop", DavConstants.NAMESPACE);
+
+                foreach (DictionaryEntry entry in namespacedProperties) {
+                    String nameSpace = (String)entry.Key;
+
+                    String prefix = (String)prefixes[nameSpace];
+
+                    ArrayList properties = (ArrayList)entry.Value;
+
+                    for (int i = 0; i < properties.Count; i++ )
+                    {
+                        String propertyName = (String)properties[i];
+                        if ("DAV:".Equals(nameSpace))
+                        {
+                            writer.WriteStartElement(prefix, propertyName, nameSpace);
+                            writer.WriteEndElement();
+                        }
+                        else
+                        {
+                            writer.WriteStartElement(prefix, propertyName, nameSpace);
+
+                            writer.WriteEndElement();
+                        }
                     }
-                    writer.WriteEndElement();
+
                 }
 
                 writer.WriteEndElement();

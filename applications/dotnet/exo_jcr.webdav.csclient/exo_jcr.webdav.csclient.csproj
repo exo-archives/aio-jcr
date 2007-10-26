@@ -60,6 +60,7 @@
     <Compile Include="DavCommands.cs" />
     <Compile Include="DavConstants.cs" />
     <Compile Include="DavProperties\CheckedInProperty.cs" />
+    <Compile Include="DavProperties\OrderingTypeProperty.cs" />
     <Compile Include="DavProperties\ContentLenghtProperty.cs" />
     <Compile Include="DavProperties\SupportedQueryGrammarSetProperty.cs" />
     <Compile Include="DavProperties\CreationDateProperty.cs" />
@@ -98,6 +99,7 @@
   -->
   <PropertyGroup>
     <PostBuildEvent>copy /y "$(TargetPath)" "C:\Program Files\Exo Platform\eXo WebDav MSOffice Plugin\"
+
 </PostBuildEvent>
   </PropertyGroup>
 </Project>

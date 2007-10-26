@@ -47,6 +47,7 @@ namespace exo_jcr.webdav.csclient
         public static String ISROOT = "isroot";
         public static String ISVERSIONED = "isversioned";
         public static String SUPPORTEDMETHODSET = "supported-method-set";
+        public static String ORDERINGTYPE = "ordering-type";
         
         public static String SUPPORTEDQUERYGRAMMARSET = "supported-query-grammar-set";
         public static String SUPPORTEDQUERYGRAMMAR = "supported-query-grammar";

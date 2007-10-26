@@ -67,6 +67,11 @@ namespace exo_jcr.webdav.csclient.DavProperties
                     break;
                 }
 
+                if (propertyName.EndsWith("D:" + DavProperty.ORDERINGTYPE)) {
+                    property = new OrderingTypeProperty();
+                    break;
+                }
+
                 property = new WebDavProperty(propertyName);
                 break;
             }

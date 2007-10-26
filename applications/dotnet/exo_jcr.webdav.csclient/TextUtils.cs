@@ -51,15 +51,11 @@ namespace exo_jcr.webdav.csclient
 
         public static String convert(string sourceValue, Encoding source, Encoding target)
         {
-            //MessageBox.Show("SOURCE: " + sourceValue);
-
             Decoder decoder = source.GetDecoder();
             byte[] bytes = target.GetBytes(sourceValue);
             int length = decoder.GetCharCount(bytes, 0, bytes.Length);
             char[] chars = new char[length];
             decoder.GetChars(bytes, 0, bytes.Length, chars, 0);
-
-            //MessageBox.Show("CONVERTED: " + new String(chars));
 
             return new String(chars);
         }

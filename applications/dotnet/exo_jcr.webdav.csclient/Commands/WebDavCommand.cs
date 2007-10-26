@@ -43,13 +43,7 @@ namespace exo_jcr.webdav.csclient.Commands
         public WebDavCommand(DavContext context) {
             this.context = context;
             addRequestHeader(HttpHeaders.HOST, context.Host + ":" + context.Port);
-            addRequestHeader(HttpHeaders.CONNECTION, "TE");
-            addRequestHeader(HttpHeaders.TE, "trailers, deflate, gzip, compress");
-            
-            addRequestHeader(HttpHeaders.USERAGENT, "eXo Platform WebDav Client 1.0 alpha.");            
-            
-            addRequestHeader(HttpHeaders.TRANSLATE, "f");
-            addRequestHeader(HttpHeaders.ACCEPTENCODING, "deflate, gzip, x-gzip, compress, x-compress");
+            addRequestHeader(HttpHeaders.USERAGENT, "eXo Platform WebDav Client 1.0 alpha.");
         }
 
         public string CommandName {
@@ -77,6 +71,10 @@ namespace exo_jcr.webdav.csclient.Commands
 
 
         public void addRequestHeader(String headerName, String headerValue) {
+            if (requestHeaders.Contains(headerName)) {
+                requestHeaders.Remove(headerName);
+            }
+
             requestHeaders.Add(headerName, headerValue);
         }
 
@@ -192,11 +190,12 @@ namespace exo_jcr.webdav.csclient.Commands
             main += "\r\n";
 
             byte[] mainBytes = getBytes(main);
-            
+
             stream.Write(mainBytes, 0, mainBytes.Length);
             stream.Write(request, 0, request.Length);
 
             String reply = ReadLine(stream, 1024, 60000);
+
             reply = reply.Substring(reply.IndexOf(" ")).Trim();
             status = Convert.ToInt32(reply.Substring(0, reply.IndexOf(" ")));            
 
@@ -210,23 +209,64 @@ namespace exo_jcr.webdav.csclient.Commands
             if (commandName != DavCommands.HEAD) {
                 try
                 {
-                    int contentLenght = Convert.ToInt32(getResponseHeader(HttpHeaders.CONTENTLENGTH));
-
-                    responseBytes = new byte[contentLenght];
-                    int readed = 0;
-                    while (readed < contentLenght)
+                    String transferEncoding = getResponseHeader(HttpHeaders.TRANSFER_ENCODING);
+                    if (transferEncoding == "chunked")
                     {
-                        int curreaded = stream.Read(responseBytes, readed, contentLenght - readed);
-                        if (curreaded <= 0) break;
-                        readed = readed + curreaded;
-                        if (readed == contentLenght)
-                        {
-                            break;
+                        MemoryStream outStream = new MemoryStream();
+
+                        while (true) {
+                            String nextLengthValue = ReadLine(stream, 100, 60000);
+
+                            uint needsToRead = System.UInt32.Parse(nextLengthValue, System.Globalization.NumberStyles.AllowHexSpecifier);
+
+                            if (needsToRead == 0)
+                            {
+                                responseBytes = outStream.ToArray();
+                                break;
+                            }
+
+                            byte[] buffer = new byte[needsToRead];
+
+                            while (true)
+                            {
+                                int readed = stream.Read(buffer, 0, buffer.Length);
+
+                                outStream.Write(buffer, 0, readed);
+                                if (readed == needsToRead)
+                                {
+                                    break;
+                                }
+                                if (readed < 0) {
+                                    Thread.Sleep(100);
+                                    continue;
+                                }
+
+                                needsToRead -= (uint)readed;
+                                buffer = new byte[needsToRead];
+                            }
+
+                            String zeroLine = ReadLine(stream, 100, 60000);
                         }
-                        Thread.Sleep(100);
-
                     }
+                    else
+                    {
+                        String responseHeader = getResponseHeader(HttpHeaders.CONTENTLENGTH);
+                        int contentLenght = Convert.ToInt32(getResponseHeader(HttpHeaders.CONTENTLENGTH));
 
+                        responseBytes = new byte[contentLenght];
+                        int readed = 0;
+                        while (readed < contentLenght)
+                        {
+                            int curreaded = stream.Read(responseBytes, readed, contentLenght - readed);
+                            if (curreaded <= 0) break;
+                            readed = readed + curreaded;
+                            if (readed == contentLenght)
+                            {
+                                break;
+                            }
+                            Thread.Sleep(100);
+                        }
+                    }
                 }
                 catch (Exception exc)
                 {
