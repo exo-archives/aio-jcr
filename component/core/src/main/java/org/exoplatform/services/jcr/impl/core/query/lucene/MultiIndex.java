@@ -713,8 +713,7 @@ class MultiIndex {
    */
   private Document createDocument(String identifier) throws RepositoryException {
     try {
-      NodeData node = (NodeData) dataManager.getItemData(identifier);
-      return createDocument(node);
+      return createDocument((NodeData) dataManager.getItemData(identifier));
     } catch (ItemNotFoundException e) {
       throw new RepositoryException("Node " + identifier + " does not exist", e);
     } catch (InvalidItemStateException e) {

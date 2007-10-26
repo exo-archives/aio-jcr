@@ -18,8 +18,10 @@ package org.exoplatform.services.jcr.impl.core.query.lucene;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -297,7 +299,8 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
         NodeData state = (NodeData) super.next();
         try {
           if (state != null)
-            return createDocument(state);
+            // [PN] return createDocument(state);            
+            return new NodeIndexer(state, sysLocationFactory, documentReaderService, dataManager).createDoc();
           else
             return null;
         } catch (RepositoryException e) {
@@ -381,7 +384,8 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
 
   // ///////////////////
 
-  public synchronized void onSaveItems(final ItemStateChangesLog changesLog) {
+  // TODO synchronized 
+  public void onSaveItems(final ItemStateChangesLog changesLog) {
 
     // nodes that need to be removed from the index.
     final Set<String> removedNodes = new LinkedHashSet<String>();
@@ -391,6 +395,8 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
     // for error message
     final ThreadLocal<ItemState> currentItemState = new ThreadLocal<ItemState>();
     
+    //final long start = System.currentTimeMillis();
+    //log.info(Thread.currentThread().getName() + "\t" + new SimpleDateFormat("HH:mm:ss.SSS").format(new Date(start)) + "\t start\t\t>>>>");
     synchronized (onSaveMonitor) {
       List<ItemState> itemStates = changesLog.getAllStates();
       for (ItemState itemState : itemStates) {
@@ -418,7 +424,9 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
       onSaveMonitor.notifyAll();
     }
     try {
+      //log.info(Thread.currentThread().getName() + "\t" + new SimpleDateFormat("HH:mm:ss.SSS").format(new Date()) + "\t update " + (System.currentTimeMillis() - start) + "ms\t....");
       updateNodes(removedNodes.iterator(), addedNodes.iterator());
+      //log.info(Thread.currentThread().getName() + "\t" + new SimpleDateFormat("HH:mm:ss.SSS").format(new Date()) + "\t done " + (System.currentTimeMillis() - start) + "ms\t<<<<");
     } catch (RepositoryException e) {
       log.error("Error indexing node. " + (currentItemState.get() != null ? 
           currentItemState.get().getData().getQPath().getAsString() : "<null>"), e);
@@ -494,7 +502,7 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
    *           <code>node</code>.
    */
   protected Document createDocument(final NodeData node) throws RepositoryException {
-    //return NodeIndexer.createDocument(node, sysLocationFactory, documentReaderService, dataManager);
+    // [PN] return NodeIndexer.createDocument(node, sysLocationFactory, documentReaderService, dataManager);
     return node != null ? new NodeIndexer(node, sysLocationFactory, documentReaderService, dataManager).createDoc() : null;
   }
 

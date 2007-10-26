@@ -84,6 +84,9 @@ public class NodeIndexer {
   }
 
   /**
+   * 
+   * DON'T USE THE METHOD
+   * 
    * Creates a lucene Document from a node.
    * 
    * @param node the node state to index.
@@ -94,8 +97,9 @@ public class NodeIndexer {
    * @throws RepositoryException if an error occurs while reading property
    *           values from the <code>ItemStateProvider</code>.
    */
-  public static Document createDocument(NodeData node, LocationFactory sysLocationFactory, DocumentReaderService ds,
-      WorkspacePersistentDataManager dataManager) throws RepositoryException {
+  @Deprecated
+  public static Document createDocument(final NodeData node, final LocationFactory sysLocationFactory, final DocumentReaderService ds,
+      final WorkspacePersistentDataManager dataManager) throws RepositoryException {
 
     if (node != null) {
       //NodeIndexer indexer = new NodeIndexer(node, sysLocationFactory, ds, dataManager);
@@ -128,34 +132,34 @@ public class NodeIndexer {
       doc.add(new Field(FieldNames.LABEL, "", false, true, false));
     }
 
-    for (PropertyData prop: dataManager.getChildPropertiesData(node)) {
+    for (PropertyData prop: dataManager.listChildPropertiesData(node)) {
       // test the case and switch to 
-      //addValues(doc, prop);
+      addValues(doc, prop);
       
-      String fieldName = sysLocationFactory.createJCRName(prop.getQPath().getName()).getAsString();
-      List<ValueData> values = prop.getValues();
-
-      if (values == null)
-        log.warn("null value found at property " + prop.getQPath().getAsString());
-
-      for (int i = 0; i < values.size(); i++) {
-        if (log.isDebugEnabled())
-          try {
-            log.debug("Inside NodeIndexer property value " + fieldName + " [" + i + "], type: "
-                + PropertyType.nameFromValue(prop.getType()));
-          } catch (IllegalArgumentException e) {
-            if (e.getMessage().indexOf("unknown type") >= 0)
-              log.debug("Inside NodeIndexer property value " + fieldName + " [" + i + "], type: " + prop.getType());
-            else
-              log.warn("Error of debug log, inside NodeIndexer property " + fieldName + ", [" + i + "]");
-          }
-        addValue(doc, values.get(i), fieldName, prop.getType());
-      }
-
-      if (values.size() > 1) {
-        // real multi-valued
-        doc.add(new Field(FieldNames.MVP, fieldName, false, true, false));
-      }
+//      String fieldName = sysLocationFactory.createJCRName(prop.getQPath().getName()).getAsString();
+//      List<ValueData> values = prop.getValues();
+//
+//      if (values == null)
+//        log.warn("null value found at property " + prop.getQPath().getAsString());
+//
+//      for (int i = 0; i < values.size(); i++) {
+//        if (log.isDebugEnabled())
+//          try {
+//            log.debug("Inside NodeIndexer property value " + fieldName + " [" + i + "], type: "
+//                + PropertyType.nameFromValue(prop.getType()));
+//          } catch (IllegalArgumentException e) {
+//            if (e.getMessage().indexOf("unknown type") >= 0)
+//              log.debug("Inside NodeIndexer property value " + fieldName + " [" + i + "], type: " + prop.getType());
+//            else
+//              log.warn("Error of debug log, inside NodeIndexer property " + fieldName + ", [" + i + "]");
+//          }
+//        addValue(doc, values.get(i), fieldName, prop.getType());
+//      }
+//
+//      if (values.size() > 1) {
+//        // real multi-valued
+//        doc.add(new Field(FieldNames.MVP, fieldName, false, true, false));
+//      }
     }
     return doc;
   }
@@ -229,8 +233,6 @@ public class NodeIndexer {
             // if the prop obtainer from cache it will contains a values, otherwise read prop with values from DM
             data = prop.getValues().size() > 0 ? prop.getValues() :
                 ((PropertyData) dataManager.getItemData(node, new QPathEntry(Constants.JCR_DATA, 0))).getValues();
-            //PropertyData pcontent = (PropertyData) dataManager.getItemData(node, new QPathEntry(Constants.JCR_DATA, 0));
-            //List<ValueData> pcv = pcontent.getValues();
             if (data == null)
               log.warn("null value found at property " + prop.getQPath().getAsString());
             
@@ -241,11 +243,9 @@ public class NodeIndexer {
               } finally {
                 try {
                   is.close();
-                } catch (Throwable e) {}  
+                } catch (Throwable e) { }
               }  
             }
-            
-            
           } catch(HandlerNotFoundException e) {
             // no handler - no index
             if (log.isDebugEnabled())
