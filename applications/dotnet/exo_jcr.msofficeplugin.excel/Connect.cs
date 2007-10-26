@@ -22,6 +22,7 @@ using exo_jcr.webdav.csclient.DavProperties;
 
 using System.Security.Permissions;
 using Microsoft.Win32;
+using exo_jcr.msofficeplugin.common;
 
 /**
  * Created by The eXo Platform SARL
@@ -43,85 +44,58 @@ namespace exo_jcr.msofficeplugin.excel
 	// right click the project in the Solution Explorer, then choose install.
 	#endregion
     [GuidAttribute("0CEBEDF8-C8E8-4C34-B31C-567E24EFCCF8"), ProgId("exo_jcr.msofficeplugin.excel.setup.Connect")]
-	public class Connect : Object, Extensibility.IDTExtensibility2
+	public class Connect : Object, Extensibility.IDTExtensibility2, ApplicationInterface
 	{
         private CommandBarButton Open;
+        
         private CommandBarButton Search;
+        
         private CommandBarButton Save;
+        
         private CommandBarButton SaveAs;
-       // private CommandBarButton CompareWithBase;
+        
         private CommandBarButton Settings;
+
         private CommandBarButton About;
         
-
         private CommandBarPopup eXoMenu;
-        //public Word._Application app;
 
         public  Microsoft.Office.Interop.Excel._Application app;
         
         private NOpen DialogOpen;
+        
         private NSave DialogSave;
+        
         private Search DialogSearch;
+        
         private AboutBox AboutBox;
         
         private object applicationObject;
+        
         private object addInInstance;
 
-        private String filename;
+        private String fileName;
 
         private String workspace;
 
-        public string Workspace 
-        {
-            set
-            {
-                workspace = value;
-            }
-
-
-            get
-            {
-                return workspace;
-            }
-        }
-
-        public string Filename
-        {
-            set
-            {
-                filename = value;
-            }
-
-            get
-            {
-                return filename;
-            }
-        }
-        
+        private DavContext davContext;
 
 		public Connect()
 		{
 		}
 
-        private DavContext davContext; 
+        public DavContext getContext()
+        {
+            if (davContext == null)
+            {
+                davContext = getContext("");
+            }
+            return davContext;
+        }
 
         public DavContext getContext(String url)
         {
             davContext = createContext(url);
-            if (davContext == null) {
-                MessageBox.Show("Cannot load paramethers,\n please run Settings first.", "Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return null;
-            } else {
-                return davContext;
-            }
-
-            
-        }
-
-        public DavContext getContext()
-        {
-            davContext = createContext("");
             if (davContext == null)
             {
                 MessageBox.Show("Cannot load paramethers,\n please run Settings first.", "Error",
@@ -134,8 +108,65 @@ namespace exo_jcr.msofficeplugin.excel
             }
         }
 
+        public String getCacheFolder()
+        {
+            Environment.SpecialFolder p = Environment.SpecialFolder.Personal;
+            return Environment.GetFolderPath(p) + "\\eXo-Platform Documents\\repository\\";
+        }
+
+        public String getWorkspaceName()
+        {
+            return workspace;
+        }
+
+        public void setFileNameForOpen(String fileName)
+        {
+            this.fileName = fileName;
+        }
+
+        public void needsCompare(Boolean isNeedsCompare)
+        {
+        }
+
+        public String getActiveDocumentName()
+        {
+            return app.ActiveWorkbook.Name;
+        }
+
+        public String getActiveDocumentFullName()
+        {
+            return app.ActiveWorkbook.FullName;
+        }
+
+        public void saveDocumentWithFormat(String path, String contentType)
+        {
+            Microsoft.Office.Interop.Excel.Workbook doc = app.ActiveWorkbook;
+
+            object wFileName = path;
+
+            object omissing = Missing.Value;
+
+            object fileFormat = Missing.Value;
+
+            if (contentType == MimeTypes.MIMETYPE_XLS)
+            {
+                fileFormat = Microsoft.Office.Interop.Excel.XlFileFormat.xlWorkbookNormal;
+            }
+            else if (contentType == MimeTypes.MIMETYPE_XML)
+            {
+                fileFormat = Microsoft.Office.Interop.Excel.XlFileFormat.xlXMLSpreadsheet;
+            }
+            else if (contentType == MimeTypes.MIMETYPE_XLT)
+            {
+                fileFormat = Microsoft.Office.Interop.Excel.XlFileFormat.xlTemplate;
+            }
+
+            doc.SaveAs(wFileName, fileFormat, omissing, omissing, omissing,
+                                     omissing, Microsoft.Office.Interop.Excel.XlSaveAsAccessMode.xlShared, omissing, omissing, omissing,
+                                     omissing, omissing);
+        }
+
         public void OnConnection(object application, Extensibility.ext_ConnectMode connectMode, object addInInst, ref System.Array custom) {
-            //Console.Beep(3000, 20);
             applicationObject = application;
             addInInstance = addInInst;
 
@@ -162,14 +193,10 @@ namespace exo_jcr.msofficeplugin.excel
             CommandBar oStandardBar;
 
             object omissing = System.Reflection.Missing.Value;
-
             
             Thread.Sleep(50);
-            //Console.Beep(3000, 20);
-            
 
             app = (Microsoft.Office.Interop.Excel._Application)applicationObject;
-
 
             try
             {
@@ -177,20 +204,8 @@ namespace exo_jcr.msofficeplugin.excel
             }
             catch (Exception)
             {
-                //// Outlook has the CommandBars collection on the Explorer object.
-                //object oActiveExplorer;
-                //oActiveExplorer = applicationObject.GetType().InvokeMember("ActiveExplorer", BindingFlags.GetProperty, null, applicationObject, null);
-                //oCommandBars = (CommandBars)oActiveExplorer.GetType().InvokeMember("CommandBars", BindingFlags.GetProperty, null, oActiveExplorer, null);
                 return;
             }
-
-
-            //Looking for many command bars, if need to know new..
-            //foreach (CommandBar cb in oCommandBars){
-            //    //MessageBox.Show(cb.Name);
-            //}
-            
-
 
             // Set up a custom button on the "Standard" commandbar.
             try
@@ -222,12 +237,9 @@ namespace exo_jcr.msofficeplugin.excel
                 Open = (CommandBarButton)eXoMenu.Controls["Open"];
                 Save = (CommandBarButton)eXoMenu.Controls["Save"];
                 SaveAs = (CommandBarButton)eXoMenu.Controls["SaveAs"];
-                //CompareWithBase = (CommandBarButton)eXoMenu.Controls["Compare with base"];
                 Search = (CommandBarButton)eXoMenu.Controls["Search"];
                 Settings = (CommandBarButton)eXoMenu.Controls["Settings"];
                 About = (CommandBarButton)eXoMenu.Controls["About"];
-            
-
             }
 
             catch (Exception)
@@ -248,11 +260,6 @@ namespace exo_jcr.msofficeplugin.excel
                 SaveAs.Caption = "Save As...";
                 SaveAs.Tag = SaveAs.Caption;
 
-                //CompareWithBase = (CommandBarButton)eXoMenu.Controls.Add(1, omissing, omissing, omissing, omissing);
-                //CompareWithBase.Caption = "Compare with base";
-                //CompareWithBase.Tag = CompareWithBase.Caption;
-                //CompareWithBase.BeginGroup = true;
-               
                 Search = (CommandBarButton)eXoMenu.Controls.Add(1, omissing, omissing, omissing, omissing);
                 Search.Caption = "Search...";
                 Search.Tag = Search.Caption;
@@ -269,16 +276,11 @@ namespace exo_jcr.msofficeplugin.excel
             Open.Click += new Microsoft.Office.Core._CommandBarButtonEvents_ClickEventHandler(this.Open_Click);
 
             Save.Visible = true;
-            //Save.Enabled = false;
             Save.Click += new Microsoft.Office.Core._CommandBarButtonEvents_ClickEventHandler(this.Save_Click);
 
             SaveAs.Visible = true;
-            //SaveAs.Enabled = false;
             SaveAs.Click += new Microsoft.Office.Core._CommandBarButtonEvents_ClickEventHandler(this.SaveAs_Click);
 
-            //CompareWithBase.Visible = true;
-            //CompareWithBase.Click += new Microsoft.Office.Core._CommandBarButtonEvents_ClickEventHandler(this.compareWithBase_Click);
-            
             Search.Visible = true;
             Search.Click += new Microsoft.Office.Core._CommandBarButtonEvents_ClickEventHandler(this.Search_Click);
 
@@ -287,7 +289,6 @@ namespace exo_jcr.msofficeplugin.excel
 
             About.Visible = true;
             About.Click += new Microsoft.Office.Core._CommandBarButtonEvents_ClickEventHandler(this.About_Click);
-
 
             object oName = applicationObject.GetType().InvokeMember("Name", BindingFlags.GetProperty, null, applicationObject, null);         
             oStandardBar = null;
@@ -315,12 +316,6 @@ namespace exo_jcr.msofficeplugin.excel
         }
         #endregion
 
-        public String getCacheFolder()
-        {
-            Environment.SpecialFolder p = Environment.SpecialFolder.Personal;
-            return Environment.GetFolderPath(p) + "\\repository\\";
-        }
-
         private void clearRepository()
         {
             try
@@ -337,34 +332,26 @@ namespace exo_jcr.msofficeplugin.excel
             }
         }
 
-        public String getWordFileName()
-        {
-            try
-            {
-                return app.ActiveWorkbook.FullName;
-               
-            }
-            catch (Exception exc)
-            {
-            }
-            return "";
-        }
-   
         private void Open_Click(CommandBarButton cmdBarbutton, ref bool cancel) {
-            //MessageBox.Show("FILENAME: [" + Filename + "]");
-            DialogOpen = new NOpen(app, this);
+            DialogOpen = new NOpen(this);
             DialogOpen.ShowDialog();
             onDocumentLoad();
         }
 
         private void Search_Click(CommandBarButton cmdBarbutton, ref bool cancel)
         {
-            DialogSearch = new Search(app, this);
+            DialogSearch = new Search(this);
             DialogSearch.ShowDialog();
             onDocumentLoad();
         }
 
-        
+        private ArrayList getFileTypes()
+        {
+            ArrayList fileTypes = new ArrayList();
+            fileTypes.Add(NSave.EXCELFILE);
+            fileTypes.Add(NSave.EXCELTEMPLATE);
+            return fileTypes;
+        }
 
         private void Save_Click(CommandBarButton cmdBarbutton, ref bool cancel)
         {
@@ -374,107 +361,17 @@ namespace exo_jcr.msofficeplugin.excel
                 return;
             }
 
-            DialogSave = new NSave(app, this);
+            DialogSave = new NSave(this);
+            DialogSave.setFileTypes(getFileTypes());
             DialogSave.ShowDialog();
-            
         }
 
 
         private void SaveAs_Click(CommandBarButton cmdBarbutton, ref bool cancel)
         {
-            DialogSave = new NSave(app, this);
+            DialogSave = new NSave(this);
+            DialogSave.setFileTypes(getFileTypes());
             DialogSave.ShowDialog();
-            //onDocumentLoad();
-        }
-
-        private void compareWithBase_Click(CommandBarButton cmdBarbutton, ref bool cancel)
-        {
-        //{
-        //    String filePath = app.ActiveWorkbook.FullName;
-        //    if (!filePath.StartsWith(getCacheFolder()))
-        //    {
-        //        MessageBox.Show("File must be saved!");
-        //        return;
-        //    }
-
-        //    String fileName = filePath.Substring(getCacheFolder().Length);
-        //    fileName = fileName.Replace("\\", "/");
-        //    if (!fileName.StartsWith("/"))
-        //    {
-        //        fileName = "/" + fileName;
-        //    }
-
-        //    try
-        //    {
-        //        ReportCommand report = new ReportCommand(getContext());
-        //        report.setResourcePath(fileName);
-
-        //        report.addRequiredProperty(DavProperty.VERSIONNAME);
-
-        //        int status = report.execute();
-        //        if (status != DavStatus.MULTISTATUS)
-        //        {
-        //            MessageBox.Show("CAN GET VERSION LIST WITH ERROR: " + status);
-        //            return;
-        //        }
-
-        //        Multistatus multistatus = report.getMultistatus();
-        //        ArrayList responses = multistatus.getResponses();
-        //        if (responses.Count == 0)
-        //        {
-        //            MessageBox.Show("File must have versions!");
-        //            return;
-        //        }
-
-        //        DavResponse response = (DavResponse)responses[responses.Count - 1];
-
-        //        String href = response.getHref().getHref();
-        //        href = href.Substring(getContext().getContextHref().Length);
-
-        //        GetCommand getCommand = new GetCommand(getContext());
-        //        getCommand.setResourcePath(href);
-        //        status = getCommand.execute();
-
-        //        if (status != DavStatus.OK)
-        //        {
-        //            MessageBox.Show("CAN GET FILE WITH STATUS: " + status.ToString());
-        //            return;
-        //        }
-
-        //        if (href.StartsWith(""))
-        //        {
-        //            href = href.Substring(1);
-        //        }
-
-        //        href = href.Replace("/", "\\");
-
-        //        String versionedFileName = getCacheFolder() + href;
-
-        //        byte[] resp = getCommand.getResponseBody();
-        //        if (File.Exists(versionedFileName))
-        //        {
-        //            File.Delete(versionedFileName);
-        //        }
-        //        Thread.Sleep(200);
-
-        //        FileStream fs = new FileStream(versionedFileName, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
-        //        BinaryWriter w = new BinaryWriter(fs);
-        //        for (long i = 0; i < resp.Length; i++)
-        //        {
-        //            w.Write(resp[i]);
-        //        }
-        //        w.Close();
-        //        fs.Close();
-
-        //        object omissing = Missing.Value;
-        //        object target = Word.WdCompareTarget.wdCompareTargetCurrent;
-        //        app.ActiveWorkbook.Compare(versionedFileName, ref omissing, ref target, ref omissing, ref omissing,
-        //                        ref omissing, ref omissing, ref omissing);
-        //    }
-        //    catch (Exception exc)
-        //    {
-        //        MessageBox.Show("CAN'T RUN COMPARER!!!! UNHANDLED ERROR!");
-        //    }
         }
 
         private void Settings_Click(CommandBarButton cmdBarbutton, ref bool cancel)
@@ -484,8 +381,6 @@ namespace exo_jcr.msofficeplugin.excel
             onDocumentLoad();
         }
 
-
-
         private void About_Click(CommandBarButton cmdBarbutton, ref bool cancel) 
         {
             AboutBox AboutBox = new AboutBox(app);
@@ -494,11 +389,10 @@ namespace exo_jcr.msofficeplugin.excel
 
         private void onDocumentLoad()
         {
-            if (Filename == "") {
+            if (fileName == "") {
                 return;
             }
 
-            String fileName = Filename;
             object omissing = Missing.Value;
             Microsoft.Office.Interop.Excel.Workbook doc = app.Workbooks.Open(fileName, omissing,  omissing,  omissing,  omissing,
                                      omissing,  omissing,  omissing,  omissing,  omissing,  omissing,
@@ -506,40 +400,51 @@ namespace exo_jcr.msofficeplugin.excel
 
             doc.Activate();
             Save.Enabled = true;
-            Filename = "";
+            fileName = "";
         }
 
-        private void makePut() {
+        private void makePut()
+        {
             this.app.ActiveWorkbook.Save();
-            String fileSystemName = getWordFileName();
-            String remoteFileName = fileSystemName.Substring(fileSystemName.IndexOf("\\"+workspace));
-            remoteFileName = remoteFileName.Replace("\\", "/");
 
-            FileStream stream = new FileStream(fileSystemName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            long len = stream.Length;
-            byte[] filedata = new byte[len];
-            int readed = 0;
-            while (readed < len)
+            try
             {
-                readed += stream.Read(filedata, 0, (int)(len - readed));
+                String fileSystemName = getActiveDocumentFullName();
+                String remoteFileName = fileSystemName.Substring(fileSystemName.IndexOf("\\" + workspace));
+                remoteFileName = remoteFileName.Replace("\\", "/");
+                remoteFileName = remoteFileName.Replace("%3F", "?");
+
+                FileStream stream = new FileStream(fileSystemName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                long len = stream.Length;
+                byte[] filedata = new byte[len];
+                int readed = 0;
+                while (readed < len)
+                {
+                    readed += stream.Read(filedata, 0, (int)(len - readed));
+                }
+
+                DavContext context = getContext();
+                PutCommand put = new PutCommand(context);
+                put.setResourcePath(remoteFileName);
+                put.setRequestBody(filedata);
+                int status = put.execute();
+                if (status != DavStatus.CREATED)
+                {
+                    MessageBox.Show("Can't save file. Status: " + status, "Error",
+                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                {
+                    MessageBox.Show("File saved successfully!", "Info",
+                     MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show("Unhandled exception. " + exc.Message);
+                MessageBox.Show(exc.StackTrace);
             }
 
-            DavContext context = getContext();
-            PutCommand put = new PutCommand(context);
-            //MessageBox.Show("remoteFileName: " + remoteFileName);
-            put.setResourcePath(remoteFileName);
-            put.setRequestBody(filedata);
-            int status = put.execute();
-            if (status != DavStatus.CREATED)
-            {
-                MessageBox.Show("Can't save file. Status: " + status, "Error",
-                 MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            else
-            {
-                MessageBox.Show("File saved successfully!", "Info",
-                 MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
         }
 
         private DavContext createContext(String url)
@@ -547,7 +452,6 @@ namespace exo_jcr.msofficeplugin.excel
             RegistryKey soft_key = Registry.CurrentUser.OpenSubKey(RegKeys.SOFTWARE_KEY);
             try
             {
-
                 RegistryKey exo_key = soft_key.OpenSubKey(RegKeys.EXO_KEY);
                 RegistryKey client_key = exo_key.OpenSubKey(RegKeys.CLIENT_KEY);
 
@@ -562,8 +466,6 @@ namespace exo_jcr.msofficeplugin.excel
                 String _pass = Encoding.UTF8.GetString(bs_pass);
                 String servletPath = "";
                 String to_find = _server + ":" + _port;
-
-
 
                 if (!url.Equals(""))
                 {
@@ -583,7 +485,6 @@ namespace exo_jcr.msofficeplugin.excel
             }
             catch (Exception regexc)
             {
-                //MessageBox.Show(regexc.StackTrace);
                 return null;
 
             }

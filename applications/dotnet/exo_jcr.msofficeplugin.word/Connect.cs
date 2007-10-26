@@ -8,7 +8,6 @@ using Extensibility;
 using System.Runtime.InteropServices;
 using System.Reflection;
 using Microsoft.Office.Core;
-using Microsoft.Office.Interop.PowerPoint;
 using System.Drawing;
 using System.Text;
 using System.IO;
@@ -22,6 +21,7 @@ using exo_jcr.webdav.csclient.DavProperties;
 
 using System.Security.Permissions;
 using Microsoft.Win32;
+
 using exo_jcr.msofficeplugin.common;
 
 /**
@@ -29,15 +29,9 @@ using exo_jcr.msofficeplugin.common;
  * Authors : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
  *         : Max Shaposhnik <uy7c@yahoo.com>
  * @version $Id:
- *
  */
 
-[assembly: RegistryPermissionAttribute(SecurityAction.RequestMinimum,
-    ViewAndModify = "HKEY_CURRENT_USER")]
-
-
-namespace exo_jcr.msofficeplugin.ppoint
-
+namespace exo_jcr.msofficeplugin.word
 {
 
 	#region Read me for Add-in installation and setup information.
@@ -49,7 +43,7 @@ namespace exo_jcr.msofficeplugin.ppoint
 	// you will need to re-register the Add-in by building the eXo.msofficeplugin project, 
 	// right click the project in the Solution Explorer, then choose install.
 	#endregion
-    [GuidAttribute("0CEBEDF8-C8E8-4C34-B31C-567E24EFCCF6"), ProgId("exo_jcr.msofficeplugin.ppoint.setup.Connect")]
+    [GuidAttribute("0CEBEDF8-C8E8-4C34-B31C-567E24EFCCF9"), ProgId("exo_jcr.msofficeplugin.word.setup.Connect")]
 	public class Connect : Object, Extensibility.IDTExtensibility2, ApplicationInterface
 	{
         private CommandBarButton Open;
@@ -61,46 +55,40 @@ namespace exo_jcr.msofficeplugin.ppoint
         private CommandBarButton SaveAs;
         
         private CommandBarButton Settings;
-        
+
         private CommandBarButton About;
 
         private CommandBarPopup eXoMenu;
 
-        public  Microsoft.Office.Interop.PowerPoint._Application app;
+        public Word._Application app;
         
         private NOpen DialogOpen;
         
         private NSave DialogSave;
         
-        private Search DialogSearch;
-        
+        private Search DialogSearch;        
+
         private object applicationObject;
-        
+
         private object addInInstance;
 
         private String fileName;
 
         private String workspace;
 
-        private DavContext davContext;
+        private bool isNeedCompare = false;
 
-        public Connect()
+        public void needsCompare(Boolean isNeedsCompare)
         {
+            this.isNeedCompare = isNeedsCompare;
         }
 
         public DavContext getContext()
         {
-            davContext = createContext("");
-            if (davContext == null)
-            {
-                MessageBox.Show("Cannot load paramethers,\n please run Settings first.", "Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return null;
+            if (davContext == null) {
+                davContext = getContext("");
             }
-            else
-            {
-                return davContext;
-            }
+            return davContext;
         }
 
         public String getCacheFolder()
@@ -119,31 +107,66 @@ namespace exo_jcr.msofficeplugin.ppoint
             this.fileName = fileName;
         }
 
-        public void needsCompare(Boolean isNeedsCompare)
-        {
-        }
+		public Connect()
+		{
+		}
 
-        public String getActiveDocumentName()
-        {
-            return app.ActivePresentation.Name;
-        }
-
-        public String getActiveDocumentFullName()
-        {
-            return app.ActivePresentation.FullName;
+        public String getActiveDocumentName() {
+            return app.ActiveDocument.Name;
         }
 
         public void saveDocumentWithFormat(String path, String contentType)
         {
-            Presentation doc = app.ActivePresentation;
-            String wFileName = path;
+            Word.Document doc = app.ActiveDocument;
+
+            object wFileName = path;
             object omissing = Missing.Value;
 
-            PpSaveAsFileType fileType = PpSaveAsFileType.ppSaveAsPresentation;
-            doc.SaveAs(wFileName, fileType, MsoTriState.msoTrue);
+            object fileFormat = Missing.Value;
+
+            if (contentType == MimeTypes.MIMETYPE_DOC)
+            {
+                fileFormat = Word.WdSaveFormat.wdFormatDocument;
+            }
+            else if (contentType == MimeTypes.MIMETYPE_DOT)
+            {
+                fileFormat = Word.WdSaveFormat.wdFormatTemplate;
+            }
+            else if (contentType == MimeTypes.MIMETYPE_HTML)
+            {
+                fileFormat = Word.WdSaveFormat.wdFormatHTML;
+            }
+            else if (contentType == MimeTypes.MIMETYPE_TXT)
+            {
+                fileFormat = Word.WdSaveFormat.wdFormatText;
+            }
+
+            doc.SaveAs(ref wFileName, ref fileFormat, ref omissing, ref omissing, ref omissing,
+                ref omissing, ref omissing, ref omissing, ref omissing, ref omissing,
+                ref omissing, ref omissing, ref omissing, ref omissing, ref omissing, ref omissing);
+        }
+
+        public String getActiveDocumentFullName()
+        {
+            return  app.ActiveDocument.FullName;
+        }
+
+        private DavContext davContext; 
+
+        public DavContext getContext(String url)
+        {
+            davContext = createContext(url);
+            if (davContext == null) {
+                MessageBox.Show("Cannot load paramethers,\n please run Settings first.", "Error",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            } else {
+                return davContext;
+            }            
         }
 
         public void OnConnection(object application, Extensibility.ext_ConnectMode connectMode, object addInInst, ref System.Array custom) {
+            //Console.Beep(3000, 20);
             applicationObject = application;
             addInInstance = addInInst;
 
@@ -167,14 +190,13 @@ namespace exo_jcr.msofficeplugin.ppoint
         #region OnStartupComplete(ref System.Array custom)
         public void OnStartupComplete(ref System.Array custom) {
             CommandBars oCommandBars;
+
             CommandBar oStandardBar;
 
             object omissing = System.Reflection.Missing.Value;
 
-            Thread.Sleep(50);
-            //Console.Beep(3000, 20);
-
-            app = (Microsoft.Office.Interop.PowerPoint._Application)applicationObject;
+            app =  (Word._Application)applicationObject;
+            app.CustomizationContext = app.NormalTemplate;
 
             try
             {
@@ -182,25 +204,21 @@ namespace exo_jcr.msofficeplugin.ppoint
             }
             catch (Exception)
             {
-                //// Outlook has the CommandBars collection on the Explorer object.
-                //object oActiveExplorer;
-                //oActiveExplorer = applicationObject.GetType().InvokeMember("ActiveExplorer", BindingFlags.GetProperty, null, applicationObject, null);
-                //oCommandBars = (CommandBars)oActiveExplorer.GetType().InvokeMember("CommandBars", BindingFlags.GetProperty, null, oActiveExplorer, null);
                 return;
             }
-
 
             // Set up a custom button on the "Standard" commandbar.
             try
             {
                 oStandardBar = oCommandBars["Menu Bar"];
+
+
             }            
             catch (Exception)
             {
-                // Access names its main toolbar Database.
-                oStandardBar = oCommandBars["Database"];
+                return;
             }
-            
+
             CommandBarControls controls = oStandardBar.Controls;
 
             // remove old menus...
@@ -208,29 +226,12 @@ namespace exo_jcr.msofficeplugin.ppoint
             {
                 String caption = control.Caption;
 
-                if (caption.EndsWith("Remote Documents") || caption.EndsWith("Remote documents"))
+                if ( caption.EndsWith("Remote Documents") || caption.EndsWith("Remote documents"))
                 {                    
                     control.Delete(null);
                 }
             }
 
-            // In case the button was not deleted, use the exiting one.
-            try
-            {                
-                eXoMenu = (CommandBarPopup)oStandardBar.Controls["Remote documents"];
-                Open = (CommandBarButton)eXoMenu.Controls["Open"];
-                Save = (CommandBarButton)eXoMenu.Controls["Save"];
-                SaveAs = (CommandBarButton)eXoMenu.Controls["SaveAs"];
-                //CompareWithBase = (CommandBarButton)eXoMenu.Controls["Compare with base"];
-                Search = (CommandBarButton)eXoMenu.Controls["Search"];
-                Settings = (CommandBarButton)eXoMenu.Controls["Settings"];
-                About = (CommandBarButton)eXoMenu.Controls["About"];
-            
-
-            }
-
-            catch (Exception)
-            {
                 eXoMenu = (CommandBarPopup)oStandardBar.Controls.Add(MsoControlType.msoControlPopup, omissing, omissing, omissing, true);
                 eXoMenu.Caption = "Remote Documents";
                 eXoMenu.Tag = eXoMenu.Caption;
@@ -247,11 +248,6 @@ namespace exo_jcr.msofficeplugin.ppoint
                 SaveAs.Caption = "Save As...";
                 SaveAs.Tag = SaveAs.Caption;
 
-                //CompareWithBase = (CommandBarButton)eXoMenu.Controls.Add(1, omissing, omissing, omissing, omissing);
-                //CompareWithBase.Caption = "Compare with base";
-                //CompareWithBase.Tag = CompareWithBase.Caption;
-                //CompareWithBase.BeginGroup = true;
-               
                 Search = (CommandBarButton)eXoMenu.Controls.Add(1, omissing, omissing, omissing, omissing);
                 Search.Caption = "Search...";
                 Search.Tag = Search.Caption;
@@ -263,7 +259,7 @@ namespace exo_jcr.msofficeplugin.ppoint
                 About = (CommandBarButton)eXoMenu.Controls.Add(1, omissing, omissing, omissing, omissing);
                 About.Caption = "About...";
                 About.Tag = About.Caption;
-            }
+
             Open.Visible = true;
             Open.Click += new Microsoft.Office.Core._CommandBarButtonEvents_ClickEventHandler(this.Open_Click);
 
@@ -329,11 +325,32 @@ namespace exo_jcr.msofficeplugin.ppoint
             }
         }
 
+        public String getWordFileName()
+        {
+            try
+            {
+                return app.ActiveDocument.FullName;
+            }
+            catch (Exception exc)
+            {
+                return "";
+            }            
+        }
+   
         private void Open_Click(CommandBarButton cmdBarbutton, ref bool cancel) {
-            //MessageBox.Show("FILENAME: [" + Filename + "]");
+            isNeedCompare = false;
+
             DialogOpen = new NOpen(this);
             DialogOpen.ShowDialog();
-            onDocumentLoad();
+
+            if (isNeedCompare)
+            {
+                onDocumentCompare();
+            }
+            else
+            {
+                onDocumentLoad();
+            }
         }
 
         private void Search_Click(CommandBarButton cmdBarbutton, ref bool cancel)
@@ -346,24 +363,26 @@ namespace exo_jcr.msofficeplugin.ppoint
         private ArrayList getFileTypes()
         {
             ArrayList fileTypes = new ArrayList();
-            fileTypes.Add(NSave.PRESENTATIONFILE);
-            //fileTypes.Add(NSave.XMLTABLE);
+
+            fileTypes.Add(NSave.WORDDOCUMENT);
+            fileTypes.Add(NSave.WORDTEMPLATE);
+            fileTypes.Add(NSave.TEXTFILE);
+            fileTypes.Add(NSave.HTMLFILE);
+
             return fileTypes;
-        }        
+        }
 
         private void Save_Click(CommandBarButton cmdBarbutton, ref bool cancel)
         {
-            if (app.ActivePresentation.FullName.StartsWith(getCacheFolder()))
-            {
+            if (app.ActiveDocument.FullName.StartsWith(getCacheFolder())) {
                 makePut();
                 return;
             }
 
             DialogSave = new NSave(this);
             DialogSave.setFileTypes(getFileTypes());
-            DialogSave.ShowDialog();
+            DialogSave.ShowDialog();            
         }
-
 
         private void SaveAs_Click(CommandBarButton cmdBarbutton, ref bool cancel)
         {
@@ -376,7 +395,6 @@ namespace exo_jcr.msofficeplugin.ppoint
         {
             Settings DialogSettings = new Settings(app);
             DialogSettings.ShowDialog();
-            onDocumentLoad();
         }
 
         private void About_Click(CommandBarButton cmdBarbutton, ref bool cancel) 
@@ -387,22 +405,40 @@ namespace exo_jcr.msofficeplugin.ppoint
 
         private void onDocumentLoad()
         {
-            if (fileName == "") {
+            if (fileName == "")
+            {
                 return;
             }
 
-            String thisFileName = fileName;
+            object thisFileName = fileName;
             object omissing = Missing.Value;
-            Microsoft.Office.Interop.PowerPoint.Presentation doc = app.Presentations.Open(thisFileName, MsoTriState.msoFalse, MsoTriState.msoTrue, MsoTriState.msoFalse);
 
-            doc.NewWindow();
+            Word.Document doc = app.Documents.Open(ref thisFileName, ref omissing, ref omissing, ref omissing, ref omissing,
+                                    ref omissing, ref omissing, ref omissing, ref omissing, ref omissing, ref omissing,
+                                    ref omissing, ref omissing, ref omissing, ref omissing, ref omissing);
+
+            doc.Activate();
+
             Save.Enabled = true;
             fileName = "";
         }
 
+        private void onDocumentCompare()
+        {
+            if (fileName == null) {
+                return;
+            }
+
+            object omissing = Missing.Value;
+            object target = Word.WdCompareTarget.wdCompareTargetCurrent;
+            app.ActiveDocument.Compare(fileName, ref omissing, ref target, ref omissing, ref omissing,
+                            ref omissing, ref omissing, ref omissing);
+            fileName = "";
+        }
+
         private void makePut() {
-            this.app.ActivePresentation.Save();
-            String fileSystemName = getActiveDocumentFullName();
+            this.app.ActiveDocument.Save();
+            String fileSystemName = getWordFileName();
             String remoteFileName = fileSystemName.Substring(fileSystemName.IndexOf("\\"+workspace));
             remoteFileName = remoteFileName.Replace("\\", "/");
             remoteFileName = remoteFileName.Replace("%3F", "?");
@@ -438,7 +474,6 @@ namespace exo_jcr.msofficeplugin.ppoint
             RegistryKey soft_key = Registry.CurrentUser.OpenSubKey(RegKeys.SOFTWARE_KEY);
             try
             {
-
                 RegistryKey exo_key = soft_key.OpenSubKey(RegKeys.EXO_KEY);
                 RegistryKey client_key = exo_key.OpenSubKey(RegKeys.CLIENT_KEY);
 
@@ -454,12 +489,9 @@ namespace exo_jcr.msofficeplugin.ppoint
                 String servletPath = "";
                 String to_find = _server + ":" + _port;
 
-
-
                 if (!url.Equals(""))
                 {
                     servletPath = url.Substring(url.IndexOf(to_find) + to_find.Length);
-
                 }
 
                 if (servletPath != "")
@@ -470,16 +502,12 @@ namespace exo_jcr.msofficeplugin.ppoint
                 {
                     return new DavContext(_server, _port, _servlet, _username, _pass);
                 }
-
             }
             catch (Exception regexc)
             {
-                //MessageBox.Show(regexc.StackTrace);
                 return null;
-
             }
         }
-
 
 	}
 }
