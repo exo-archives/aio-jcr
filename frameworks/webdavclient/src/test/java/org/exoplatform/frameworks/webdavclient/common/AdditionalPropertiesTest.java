@@ -16,7 +16,6 @@ import org.exoplatform.frameworks.webdavclient.commands.DavPropFind;
 import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
 import org.exoplatform.frameworks.webdavclient.properties.PropApi;
-import org.exoplatform.frameworks.webdavclient.properties.ResourceTypeProp;
 
 /**
  * Created by The eXo Platform SAS
@@ -49,7 +48,9 @@ public class AdditionalPropertiesTest extends TestCase {
       davPropFind.setRequiredProperty(Const.DavProp.PARENTNAME);
       davPropFind.setRequiredProperty(Const.DavProp.ISROOT);
       davPropFind.setRequiredProperty(Const.DavProp.ISVERSIONED);
-      davPropFind.setRequiredProperty(Const.DavProp.GETETAG);
+      
+      //davPropFind.setRequiredProperty(Const.DavProp.GETETAG);
+      
       davPropFind.setRequiredProperty(Const.DavProp.RESOURCETYPE);
       davPropFind.setRequiredProperty(Const.DavProp.HASCHILDREN);
       davPropFind.setRequiredProperty(Const.DavProp.CHILDCOUNT);
@@ -83,15 +84,15 @@ public class AdditionalPropertiesTest extends TestCase {
         assertNotNull(resourceTypePrpoperty);
         assertEquals(Const.HttpStatus.OK, resourceTypePrpoperty.getStatus());
         
-        PropApi getETagProperty = response.getProperty(Const.DavProp.GETETAG);
-        assertNotNull(getETagProperty);
-        
-        boolean isCollection = ((ResourceTypeProp)resourceTypePrpoperty).isCollection();
-        if (!isCollection) {          
-          assertEquals(Const.HttpStatus.OK, getETagProperty.getStatus());
-        } else {
-          assertEquals(Const.HttpStatus.NOTFOUND, getETagProperty.getStatus());
-        }       
+//        PropApi getETagProperty = response.getProperty(Const.DavProp.GETETAG);
+//        assertNotNull(getETagProperty);
+//        
+//        boolean isCollection = ((ResourceTypeProp)resourceTypePrpoperty).isCollection();
+//        if (!isCollection) {          
+//          assertEquals(Const.HttpStatus.OK, getETagProperty.getStatus());
+//        } else {
+//          assertEquals(Const.HttpStatus.NOTFOUND, getETagProperty.getStatus());
+//        }       
         
         PropApi hasChildrenProp = response.getProperty(Const.DavProp.HASCHILDREN);
         assertNotNull(hasChildrenProp);
