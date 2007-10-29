@@ -24,22 +24,16 @@
 			<value-param>
 				<name>def-folder-node-type</name>
 				<value>nt:folder</value>
-
-				<!-- for ordering support -->
-				<!-- value>nt:orderablefolder</value -->
-				
-				<!-- value>webdav:folder</value -->
 			</value-param>
 			
 			<value-param>
 				<name>def-file-node-type</name>
 				<value>nt:file</value>
-				<!-- value>webdav:file</value -->
 			</value-param>
 			
 			<value-param>
 				<name>def-file-mimetype</name>
-				<value>text/plain</value>
+				<value>application/octet-stream</value>
 			</value-param>
 			
 			<value-param>

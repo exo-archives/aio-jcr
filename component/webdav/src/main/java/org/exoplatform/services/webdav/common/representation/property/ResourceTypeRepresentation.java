@@ -34,7 +34,7 @@ public class ResourceTypeRepresentation extends WebDavPropertyRepresentation {
     try {
       if (node.isNodeType(DavConst.NodeTypes.NT_FILE)) {
         resourceType = RESOURCETYPE_RESOURCE;
-      }
+      }      
       status = WebDavStatus.OK;
     } catch (RepositoryException exc) {
     }
@@ -49,8 +49,6 @@ public class ResourceTypeRepresentation extends WebDavPropertyRepresentation {
   protected void writeContent(XMLStreamWriter xmlWriter) throws XMLStreamException {
     if (resourceType == RESOURCETYPE_COLLECTION) {
       xmlWriter.writeEmptyElement("DAV:", WebDavProperty.COLLECTION);
-      //xmlWriter.writeStartElement("DAV:", DavProperty.COLLECTION);
-      //xmlWriter.writeEndElement();
     }
     
   }
