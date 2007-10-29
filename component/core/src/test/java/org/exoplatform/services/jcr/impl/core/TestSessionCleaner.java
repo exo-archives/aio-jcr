@@ -23,13 +23,32 @@ public class TestSessionCleaner extends JcrImplBaseTest {
   private final static int AGENT_COUNT = 10;
 
   private SessionRegistry  sessionRegistry;
-
+  
+  private long oldTimeOut;
+  
+  private final static long TEST_SESSION_TIMEOUT  = 20000;
   @Override
   public void setUp() throws Exception {
     // TODO Auto-generated method stub
     super.setUp();
-
+    sessionRegistry = (SessionRegistry) session.getContainer().getComponentInstanceOfType(SessionRegistry.class);
+    oldTimeOut = sessionRegistry.timeOut;
+    sessionRegistry.timeOut = TEST_SESSION_TIMEOUT;
+    sessionRegistry.stop();
+    Thread.yield();
+    sessionRegistry.start();
   }
+  
+
+  @Override
+  protected void tearDown() throws Exception {
+    super.tearDown();
+    sessionRegistry.stop();    
+    sessionRegistry.timeOut = oldTimeOut;
+    Thread.yield();
+    sessionRegistry.start();
+  }
+
 
   public void testSessionRemove() throws LoginException,
       NoSuchWorkspaceException,
@@ -38,18 +57,16 @@ public class TestSessionCleaner extends JcrImplBaseTest {
     SessionImpl session2 = repository.login(credentials, "ws");
     assertTrue(session2.isLive());
 
-    sessionRegistry = (SessionRegistry) container.getComponentInstanceOfType(SessionRegistry.class);
-    // sessionRegistry.setTimeOut(10000);
+    
+    assertNotNull(sessionRegistry);
+   
+    Thread.sleep(SessionRegistry.DEFAULT_CLEANER_TIMEOUT+20);
 
-    if (sessionRegistry.timeOut * 2 > 30000) {
-      log.warn("sessionRegistry time out = " + sessionRegistry.timeOut
-          + "too long. For reducing time of test change configuration");
-    }
-    Thread.sleep(sessionRegistry.timeOut * 2);
     assertFalse(session2.isLive());
   }
 
   public void testSessionRemoveMultiThread() throws InterruptedException {
+    assertNotNull(sessionRegistry);
     final Random random = new Random();
     class Agent extends Thread {
       boolean result = false;
@@ -68,13 +85,7 @@ public class TestSessionCleaner extends JcrImplBaseTest {
           rootNode.addNode("test");
           assertTrue(session2.isLive());
           
-          sessionRegistry = (SessionRegistry) container
-              .getComponentInstanceOfType(SessionRegistry.class);
-          // sessionRegistry.setTimeOut(10000);
-          if (sessionRegistry.timeOut * 2 > 30000) {
-            log.warn("sessionRegistry time out = " + sessionRegistry.timeOut
-                + "too long. For reducing time of test change configuration");
-          }
+
 
           if (active) {
             log.info("start active session");
@@ -88,7 +99,7 @@ public class TestSessionCleaner extends JcrImplBaseTest {
             result = session2.isLive();
           }else{
             log.info("start pasive session");
-            Thread.sleep(sessionRegistry.timeOut * 2);
+            Thread.sleep(SessionRegistry.DEFAULT_CLEANER_TIMEOUT+20);
             result = !session2.isLive();
           }
 

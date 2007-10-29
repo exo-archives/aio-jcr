@@ -21,7 +21,7 @@ public final class SessionRegistry implements Startable {
   private final Map<String, SessionImpl> sessionsMap;
 
   // 1 min
-  private int                            DEFAULT_CLEANER_TIMEOUT = 60 * 1000;
+  public final static int             DEFAULT_CLEANER_TIMEOUT = 60 * 1000;
 
   protected static Log                   log                     = ExoLogger
                                                                      .getLogger("jcr.SessionRegistry");
@@ -76,21 +76,23 @@ public final class SessionRegistry implements Startable {
   }
 
   public void stop() {
-    if (timeOut > 0)
+    if (timeOut > 0 && sessionCleaner != null)
       sessionCleaner.halt();
     sessionsMap.clear();
   }
 
   private class SessionCleaner extends WorkerThread {
 
-    private long sessionTimeOut;
+    private final long sessionTimeOut;
 
     public SessionCleaner(long workTime, long sessionTimeOut) {
       super(workTime);
       this.sessionTimeOut = sessionTimeOut;
       setName("SessionCleaner " + getId());
       setPriority(Thread.MIN_PRIORITY);
+      setDaemon(true);
       start();
+      
       log.info("SessionCleaner instantiated name= " + getName() + " workTime= " + workTime
           + " sessionTimeOut=" + sessionTimeOut);
     }
