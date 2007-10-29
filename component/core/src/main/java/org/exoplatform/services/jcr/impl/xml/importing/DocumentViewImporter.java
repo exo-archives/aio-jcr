@@ -5,6 +5,7 @@
 package org.exoplatform.services.jcr.impl.xml.importing;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,13 +17,11 @@ import java.util.StringTokenizer;
 import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.ItemExistsException;
 import javax.jcr.ItemNotFoundException;
-import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
-import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.PropertyDefinition;
 
 import org.apache.commons.logging.Log;
@@ -31,17 +30,20 @@ import org.apache.ws.commons.util.Base64.DecodingException;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.core.ItemImpl;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.value.BaseValue;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
 import org.exoplatform.services.jcr.impl.util.ISO9075;
 import org.exoplatform.services.jcr.impl.util.StringConverter;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
@@ -57,7 +59,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
 
   private String                primaryNodeType;
 
-  private Stack<NodeData>       tree;
+  private final Stack<NodeData> tree;
 
   private TransientPropertyData xmlCharactersProperty;
 
@@ -79,15 +81,16 @@ public class DocumentViewImporter extends BaseXmlImporter {
     text.append(ch, start, length);
     if (log.isDebugEnabled())
       log.debug("Property:xmltext=" + text + " Parent=" + parent().getQPath().getAsString());
-    
+
     if (xmlCharactersProperty != null) {
       XmlCharactersPropertyValue += text.toString();
       xmlCharactersProperty.setValue(new TransientValueData(XmlCharactersPropertyValue));
     } else {
       TransientNodeData nodeData = TransientNodeData.createNodeData(parent(),
-          Constants.JCR_XMLTEXT,
-          Constants.NT_UNSTRUCTURED,
-          getNodeIndex(parent(), Constants.JCR_XMLTEXT));
+                                                                    Constants.JCR_XMLTEXT,
+                                                                    Constants.NT_UNSTRUCTURED,
+                                                                    getNodeIndex(parent(),
+                                                                                 Constants.JCR_XMLTEXT));
       nodeData.setOrderNumber(getNextChildOrderNum(parent()));
 
       itemStatesList.add(new ItemState(nodeData, ItemState.ADDED, true, parent().getQPath()));
@@ -95,17 +98,17 @@ public class DocumentViewImporter extends BaseXmlImporter {
         log.debug("New node " + nodeData.getQPath().getAsString());
 
       TransientPropertyData newProperty = TransientPropertyData.createPropertyData(nodeData,
-          Constants.JCR_PRIMARYTYPE,
-          PropertyType.NAME,
-          false,
-          new TransientValueData(Constants.NT_UNSTRUCTURED));
+                                                                                   Constants.JCR_PRIMARYTYPE,
+                                                                                   PropertyType.NAME,
+                                                                                   false,
+                                                                                   new TransientValueData(Constants.NT_UNSTRUCTURED));
       itemStatesList.add(new ItemState(newProperty, ItemState.ADDED, true, nodeData.getQPath()));
 
       newProperty = TransientPropertyData.createPropertyData(nodeData,
-          Constants.JCR_XMLCHARACTERS,
-          PropertyType.STRING,
-          false,
-          new TransientValueData(text.toString()));
+                                                             Constants.JCR_XMLCHARACTERS,
+                                                             PropertyType.STRING,
+                                                             false,
+                                                             new TransientValueData(text.toString()));
       itemStatesList.add(new ItemState(newProperty, ItemState.ADDED, true, nodeData.getQPath()));
       xmlCharactersProperty = newProperty;
       XmlCharactersPropertyValue = text.toString();
@@ -119,9 +122,9 @@ public class DocumentViewImporter extends BaseXmlImporter {
   }
 
   public void startElement(String namespaceURI,
-      String localName,
-      String qName,
-      Map<String, String> atts) throws RepositoryException {
+                           String localName,
+                           String qName,
+                           Map<String, String> atts) throws RepositoryException {
 
     String nodeName = ISO9075.decode(qName);
     primaryNodeType = "nt:unstructured";
@@ -140,12 +143,15 @@ public class DocumentViewImporter extends BaseXmlImporter {
 
     parseAttr(nodeName, atts, nodeTypes, mixinNodeTypes, props);
 
-    // NodeData nodeData = null;
+    boolean isMixReferenceable = isNodeType(Constants.MIX_REFERENCEABLE, nodeTypes);
+    boolean isMixVersionable = false;
+    boolean isContainsVersionhistory = false;
+    String versionHistoryIdentifier = null;
 
-    // try {
-    boolean isMixReferenceable = isReferenceable(nodeTypes);
+    String baseVersionIdentifier = null;
     String identifier = null;
     if (isMixReferenceable) {
+      isMixVersionable = isNodeType(Constants.MIX_VERSIONABLE, nodeTypes);
       identifier = validateUuidCollision(props.get(Constants.JCR_UUID));
     }
     if (identifier == null) {
@@ -156,9 +162,9 @@ public class DocumentViewImporter extends BaseXmlImporter {
 
     InternalQName primaryTypeName = locationFactory.parseJCRName(primaryNodeType).getInternalName();
     TransientNodeData nodeData = TransientNodeData.createNodeData(parent(),
-        jcrName,
-        primaryTypeName,
-        getNodeIndex(parent(), jcrName));
+                                                                  jcrName,
+                                                                  primaryTypeName,
+                                                                  getNodeIndex(parent(), jcrName));
     nodeData.setOrderNumber(getNextChildOrderNum(parent()));
     nodeData.setMixinTypeNames(mixinNodeTypes.toArray(new InternalQName[mixinNodeTypes.size()]));
     nodeData.setIdentifier(identifier);
@@ -177,16 +183,17 @@ public class DocumentViewImporter extends BaseXmlImporter {
       newProperty = null;
 
       InternalQName key = keys.next();
-
+      if(log.isDebugEnabled())
+        log.debug("Property NAME: " + key + "=" + props.get(key));
       if (key.equals(Constants.JCR_PRIMARYTYPE)) {
         if (log.isDebugEnabled()) {
           log.debug("Property NAME: " + key + "=" + props.get(key));
         }
         newProperty = TransientPropertyData.createPropertyData(parent(),
-            Constants.JCR_PRIMARYTYPE,
-            PropertyType.NAME,
-            false,
-            new TransientValueData(props.get(key)));
+                                                               Constants.JCR_PRIMARYTYPE,
+                                                               PropertyType.NAME,
+                                                               false,
+                                                               new TransientValueData(props.get(key)));
 
       } else if (key.equals(Constants.JCR_MIXINTYPES)) {
 
@@ -197,23 +204,23 @@ public class DocumentViewImporter extends BaseXmlImporter {
         }
 
         newProperty = TransientPropertyData.createPropertyData(parent(),
-            key,
-            PropertyType.NAME,
-            false,
-            valuesData);
+                                                               key,
+                                                               PropertyType.NAME,
+                                                               true,
+                                                               valuesData);
 
       } else if (isMixReferenceable && key.equals(Constants.JCR_UUID)) {
         Value value = session.getValueFactory().createValue(nodeData.getIdentifier(),
-            PropertyType.STRING);
+                                                            PropertyType.STRING);
         if (log.isDebugEnabled()) {
           log.debug("Property STRING: " + key + "=" + value.getString());
         }
 
         newProperty = TransientPropertyData.createPropertyData(parent(),
-            Constants.JCR_UUID,
-            PropertyType.STRING,
-            false,
-            new TransientValueData(identifier));
+                                                               Constants.JCR_UUID,
+                                                               PropertyType.STRING,
+                                                               false,
+                                                               new TransientValueData(identifier));
 
       } else {
         PropertyDefinition pDef = getPropertyDefinition(key, nodeTypes);
@@ -235,10 +242,10 @@ public class DocumentViewImporter extends BaseXmlImporter {
           }
 
           newProperty = TransientPropertyData.createPropertyData(parent(),
-              key,
-              PropertyType.BINARY,
-              false,
-              new TransientValueData(new ByteArrayInputStream(decoded)));
+                                                                 key,
+                                                                 PropertyType.BINARY,
+                                                                 false,
+                                                                 new TransientValueData(new ByteArrayInputStream(decoded)));
 
         } else {
           StringTokenizer spaceTokenizer = new StringTokenizer(props.get(key));
@@ -251,17 +258,16 @@ public class DocumentViewImporter extends BaseXmlImporter {
             if (pType != PropertyType.STRING) {
               continue;
             }
-            Value value = session.getValueFactory().createValue(StringConverter
-                .denormalizeString(props.get(key)),
-                pType);
+            Value value = session.getValueFactory()
+                                 .createValue(StringConverter.denormalizeString(props.get(key)),
+                                              pType);
             values.add(((BaseValue) value).getInternalData());
           } else {
             while (spaceTokenizer.hasMoreTokens()) {
               String elem = spaceTokenizer.nextToken();
 
-              Value value = session.getValueFactory().createValue(StringConverter
-                  .denormalizeString(elem),
-                  pType);
+              Value value = session.getValueFactory()
+                                   .createValue(StringConverter.denormalizeString(elem), pType);
               if (log.isDebugEnabled()) {
                 String valueAsString = null;
                 try {
@@ -276,7 +282,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
               values.add(((BaseValue) value).getInternalData());
             }
           }
-          
+
           PropertyDefinitions defs;
           try {
             defs = ntManager.findPropertyDefinitions(propName,
@@ -290,7 +296,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
             throw e;
           }
           boolean isMultivalue = true;
-          
+
           // determinating is property multivalue;
 
           if (values.size() == 1) {
@@ -300,25 +306,55 @@ public class DocumentViewImporter extends BaseXmlImporter {
             }
           } else {
             if ((defs.getDefinition(true) == null) && (defs.getDefinition(false) != null)) {
-              throw new ValueFormatException("Can not assign multiple-values Value to a single-valued property "
-                  + propName.getAsString() + " node " + jcrName.getName());
+              throw new ValueFormatException("Can not assign multiple-values Value"
+                  + " to a single-valued property " + propName.getAsString() + " node "
+                  + jcrName.getName());
             }
           }
 
           newProperty = TransientPropertyData.createPropertyData(parent(),
-              propName,
-              pType,
-              isMultivalue,
-              values);
+                                                                 propName,
+                                                                 pType,
+                                                                 isMultivalue,
+                                                                 values);
+          if (isMixVersionable) {
+            if (propName.equals(Constants.JCR_VERSIONHISTORY)) {
+              try {
+                versionHistoryIdentifier = ((TransientValueData) values.get(0)).getString();
+              } catch (IOException e) {
+                throw new RepositoryException(e);
+              }
+              isContainsVersionhistory = session.getTransientNodesManager()
+                                                .getItemData(versionHistoryIdentifier) != null;
+            } else if (propName.equals(Constants.JCR_BASEVERSION)) {
+              try {
+                baseVersionIdentifier = ((TransientValueData) values.get(0)).getString();
+              } catch (IOException e) {
+                throw new RepositoryException(e);
+              }
+            }
+          }
         }
       }
+      
       itemStatesList.add(new ItemState(newProperty, ItemState.ADDED, true, parent().getQPath()));
     }
-    // } catch (Exception e) {
-    // log.error("Error in import: " + e.getMessage());
-    // e.printStackTrace();
-    // // throw new SAXException(e.getMessage(), e);
-    // }
+    if (isMixVersionable && !isContainsVersionhistory) {
+      PlainChangesLogImpl changes = new PlainChangesLogImpl();
+      // using VH helper as for one new VH, all changes in changes log
+      new VersionHistoryDataHelper(nodeData,
+                                   changes,
+                                   session.getTransientNodesManager(),
+                                   session.getWorkspace().getNodeTypeManager(),
+                                   versionHistoryIdentifier,
+                                   baseVersionIdentifier);
+      for (ItemState state : changes.getAllStates()) {
+        if (state.getData().getQPath().isDescendantOf(Constants.JCR_SYSTEM_PATH, false)) {
+          itemStatesList.add(state);
+        }
+      }
+
+    }
   }
 
   private NodeData parent() {
@@ -326,16 +362,19 @@ public class DocumentViewImporter extends BaseXmlImporter {
   }
 
   private void parseAttr(String nodeName,
-      Map<String, String> atts,
-      List<ExtendedNodeType> nodeTypes,
-      List<InternalQName> mixinNodeTypes,
-      HashMap<InternalQName, String> props) throws PathNotFoundException, RepositoryException {
+                         Map<String, String> atts,
+                         List<ExtendedNodeType> nodeTypes,
+                         List<InternalQName> mixinNodeTypes,
+                         HashMap<InternalQName, String> props) throws PathNotFoundException,
+      RepositoryException {
     if (atts != null) {
       for (String key : atts.keySet()) {
 
         String attValue = atts.get(key);
-
+        
         String propName = ISO9075.decode(key);
+        if(log.isDebugEnabled())
+          log.debug(propName+":"+attValue);
         InternalQName propInternalQName = locationFactory.parseJCRName(propName).getInternalName();
 
         if (Constants.JCR_PRIMARYTYPE.equals(propInternalQName)) {
@@ -369,72 +408,95 @@ public class DocumentViewImporter extends BaseXmlImporter {
     List<ItemState> removedStates = null;
     if (identifier != null) {
       try {
-        NodeImpl sameIdentifierNode = session.getNodeByUUID(identifier);
-        switch (uuidBehavior) {
-        case ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW:
-          // Incoming referenceable nodes are assigned newly created UUIDs
-          // upon addition to the workspace. As a result UUID collisions
-          // never occur.
+        // /NodeImpl sameIdentifierNode = session.getNodeByUUID(identifier);
+        ItemImpl sameUuidItem = session.getTransientNodesManager().getItemByIdentifier(identifier,
+                                                                                       true);
+        if (sameUuidItem != null) {
+          switch (uuidBehavior) {
+          case ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW:
+            // Incoming referenceable nodes are assigned newly created UUIDs
+            // upon addition to the workspace. As a result UUID collisions
+            // never occur.
 
-          // reset UUID and it will be autocreated in session
-          identifier = null;
-          break;
-        case ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING:
-          // If an incoming referenceable node has the same UUID as a node
-          // already existing in the workspace then the already existing
-          // node (and its subtree) is removed from wherever it may be in
-          // the workspace before the incoming node is added. Note that this
-          // can result in nodes �disappearing� from locations in the
-          // workspace that are remote from the location to which the
-          // incoming subtree is being written.
+            // reset UUID and it will be autocreated in session
+            identifier = null;
+            break;
+          case ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING:
+            if (!sameUuidItem.isNode()
+                || !((NodeImpl) sameUuidItem).isNodeType("mix:referenceable")) {
+              throw new RepositoryException("An incoming referenceable node has the same "
+                  + "UUID as a identifier of non mix:referenceable"
+                  + " node already existing in the workspace!");
+            }
+            // If an incoming referenceable node has the same UUID as a node
+            // already existing in the workspace then the already existing
+            // node (and its subtree) is removed from wherever it may be in
+            // the workspace before the incoming node is added. Note that this
+            // can result in nodes �disappearing� from locations in the
+            // workspace that are remote from the location to which the
+            // incoming subtree is being written.
 
-          NodeIterator samePatterns = sameIdentifierNode.getNodes(parentNodeData.getQPath()
-              .getName().getName());
-          if (samePatterns.hasNext()) {
-            throw new ConstraintViolationException("A uuidBehavior is set to "
-                + "IMPORT_UUID_COLLISION_REMOVE_EXISTING and an incoming node has the same "
-                + "UUID as the node at parentAbsPath or one of its ancestors");
+            // NodeIterator samePatterns =
+            // sameUuidItem.getNodes(parentNodeData.getQPath()
+            // .getName()
+            // .getName());
+            // if (samePatterns.hasNext()) {
+            // throw new ConstraintViolationException("A uuidBehavior is set to
+            // "
+            // + "IMPORT_UUID_COLLISION_REMOVE_EXISTING and an incoming node has
+            // the same "
+            // + "UUID as the node at parentAbsPath or one of its ancestors");
+            // }
+
+            visitor = new ItemDataRemoveVisitor(session, true);
+            sameUuidItem.getData().accept(visitor);
+            removedStates = visitor.getRemovedStates();
+            itemStatesList.addAll(removedStates);
+
+            // sameUuidNode = null;
+            break;
+          case ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING:
+            if (!sameUuidItem.isNode()
+                || !((NodeImpl) sameUuidItem).isNodeType("mix:referenceable")) {
+              throw new RepositoryException("An incoming referenceable node has the same "
+                  + "UUID as a identifier of non mix:referenceable"
+                  + " node already existing in the workspace!");
+            }
+            // If an incoming referenceable node has the same UUID as a node
+            // already existing in the workspace, then the already existing
+            // node is replaced by the incoming node in the same position as
+            // the existing node. Note that this may result in the incoming
+            // subtree being disaggregated and �spread around� to different
+            // locations in the workspace. In the most extreme case this
+            // behavior may result in no node at all being added as child of
+            // parentAbsPath. This will occur if the topmost element of the
+            // incoming XML has the same UUID as an existing node elsewhere in
+            // the workspace.
+
+            // replace in same location
+            parentNodeData = (NodeData) ((NodeImpl) sameUuidItem.getParent()).getData();
+            visitor = new ItemDataRemoveVisitor(session, true);
+            sameUuidItem.getData().accept(visitor);
+            removedStates = visitor.getRemovedStates();
+            itemStatesList.addAll(removedStates);
+            tree.push(parentNodeData);
+            // sameUuidNode = null;
+            break;
+          case ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW:
+            // If an incoming referenceable node has the same UUID as a node
+            // already existing in the workspace then a SAXException is thrown
+            // by the ContentHandler during deserialization.
+            throw new ItemExistsException("An incoming referenceable node has the same "
+                + "UUID as a node already existing in the workspace!");
+          default:
           }
-          visitor = new ItemDataRemoveVisitor(session, true);
-          sameIdentifierNode.getData().accept(visitor);
-          removedStates = visitor.getRemovedStates();
-          itemStatesList.addAll(removedStates);
-
-          // sameUuidNode = null;
-          break;
-        case ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING:
-          // If an incoming referenceable node has the same UUID as a node
-          // already existing in the workspace, then the already existing
-          // node is replaced by the incoming node in the same position as
-          // the existing node. Note that this may result in the incoming
-          // subtree being disaggregated and �spread around� to different
-          // locations in the workspace. In the most extreme case this
-          // behavior may result in no node at all being added as child of
-          // parentAbsPath. This will occur if the topmost element of the
-          // incoming XML has the same UUID as an existing node elsewhere in
-          // the workspace.
-
-          // replace in same location
-          parentNodeData = (NodeData) ((NodeImpl) sameIdentifierNode.getParent()).getData();
-          visitor = new ItemDataRemoveVisitor(session, true);
-          sameIdentifierNode.getData().accept(visitor);
-          removedStates = visitor.getRemovedStates();
-          itemStatesList.addAll(removedStates);
-          tree.push(parentNodeData);
-          // sameUuidNode = null;
-          break;
-        case ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW:
-          // If an incoming referenceable node has the same UUID as a node
-          // already existing in the workspace then a SAXException is thrown
-          // by the ContentHandler during deserialization.
-          throw new ItemExistsException("An incoming referenceable node has the same "
-              + "UUID as a node already existing in the workspace!");
-        default:
         }
       } catch (ItemNotFoundException e) {
         // node not found, it's ok - willing create one new
       }
+
     }
     return identifier;
   }
+
 }

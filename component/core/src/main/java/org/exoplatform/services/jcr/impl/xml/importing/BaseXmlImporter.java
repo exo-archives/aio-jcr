@@ -23,7 +23,6 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -252,10 +251,9 @@ abstract public class BaseXmlImporter implements Importer {
     return pdResidual;
   }
 
-  protected boolean isReferenceable(List<ExtendedNodeType> nodeTypes) {
-
+  protected boolean isNodeType(InternalQName name, List<ExtendedNodeType> nodeTypes) {
     for (ExtendedNodeType nt : nodeTypes) {
-      if (nt.isNodeType(Constants.MIX_REFERENCEABLE)) {
+      if (nt.isNodeType(name)) {
         return true;
       }
     }

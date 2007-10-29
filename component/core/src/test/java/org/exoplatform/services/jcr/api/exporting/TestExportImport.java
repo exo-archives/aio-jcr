@@ -7,14 +7,24 @@ package org.exoplatform.services.jcr.api.exporting;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Calendar;
 
-import javax.jcr.Node;
-import javax.jcr.PropertyType;
-import javax.jcr.Value;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.jcr.ImportUUIDBehavior;
+import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.PropertyType;
+import javax.jcr.RepositoryException;
+import javax.jcr.Value;
+import javax.jcr.version.Version;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.stream.StreamResult;
+
+import org.xml.sax.SAXException;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
@@ -104,4 +114,154 @@ public class TestExportImport extends ExportBase {
 
   }
 
+  public void testMixinExportImportSystemViewStream() throws Exception {
+
+    Node testNode = root.addNode("childNode");
+    testNode.setProperty("a", 1);
+    testNode.addMixin("mix:versionable");
+    testNode.addMixin("mix:lockable");
+
+    session.save();
+    doVersionTests(testNode);
+
+    doExportImport(root, "childNode", true, false);
+
+    Node childNode = root.getNode("childNode");
+    doVersionTests(childNode);
+  }
+  public void testMixinExportImportSystemViewContentHandler() throws Exception {
+
+    Node testNode = root.addNode("childNode");
+    testNode.setProperty("a", 1);
+    testNode.addMixin("mix:versionable");
+    testNode.addMixin("mix:lockable");
+
+    session.save();
+    doVersionTests(testNode);
+
+    doExportImport(root, "childNode", true, true);
+
+    Node childNode = root.getNode("childNode");
+    doVersionTests(childNode);
+  }
+
+  public void testMixinExportImportDocumentViewStream() throws Exception {
+
+    Node testNode = root.addNode("childNode");
+    testNode.setProperty("a", 1);
+    testNode.addMixin("mix:versionable");
+    testNode.addMixin("mix:lockable");
+
+    session.save();
+    doVersionTests(testNode);
+
+    session.save();
+
+    doExportImport(root, "childNode", false, false);
+
+    session.save();
+
+    Node childNode = root.getNode("childNode");
+    doVersionTests(childNode);
+  }
+  
+  public void testMixinExportImportDocumentViewContentHandler() throws Exception {
+
+    Node testNode = root.addNode("childNode");
+    testNode.setProperty("a", 1);
+    testNode.addMixin("mix:versionable");
+    testNode.addMixin("mix:lockable");
+
+    session.save();
+    doVersionTests(testNode);
+
+    session.save();
+
+    doExportImport(root, "childNode", false, true);
+
+    session.save();
+
+    Node childNode = root.getNode("childNode");
+    doVersionTests(childNode);
+  }
+  private void doExportImport(Node parentNode,
+                              String nodeName,
+                              boolean isSystemView,
+                              boolean isContentHandler) throws RepositoryException,
+      IOException,
+      TransformerConfigurationException,
+      SAXException {
+    Node exportNode = parentNode.getNode(nodeName);
+    File destFile = File.createTempFile("testMixinExportImport", ".xml");
+    destFile.deleteOnExit();
+    OutputStream outStream = new FileOutputStream(destFile);
+
+    if (isSystemView) {
+      if (isContentHandler) {
+        SAXTransformerFactory saxFact = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+        TransformerHandler handler = saxFact.newTransformerHandler();
+        handler.setResult(new StreamResult(outStream));
+        session.exportSystemView(exportNode.getPath(), handler, false, false);
+      } else {
+        session.exportSystemView(exportNode.getPath(), outStream, false, false);
+      }
+    } else {
+      if (isContentHandler) {
+        SAXTransformerFactory saxFact = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+        TransformerHandler handler = saxFact.newTransformerHandler();
+        handler.setResult(new StreamResult(outStream));
+        session.exportDocumentView(exportNode.getPath(), handler, false, false);
+      } else {
+        session.exportDocumentView(exportNode.getPath(), outStream, false, false);
+      }
+    }
+
+    outStream.close();
+
+    exportNode.remove();
+    session.save();
+
+    session.importXML(root.getPath(),
+                      new FileInputStream(destFile),
+                      ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
+
+    session.save();
+    assertTrue(parentNode.hasNode(nodeName));
+
+  }
+
+  private void doVersionTests(Node testNode) throws RepositoryException {
+    assertTrue(testNode.isNodeType("mix:lockable"));
+    assertTrue(testNode.isNodeType("mix:referenceable"));
+    assertTrue(testNode.hasProperty("jcr:uuid"));
+    assertTrue(testNode.isCheckedOut());
+    testNode.setProperty("a", 1);
+
+    session.save();
+    Version version1 = testNode.checkin();
+    testNode.checkout();
+    testNode.setProperty("a", 2);
+
+    session.save();
+    assertEquals(2, testNode.getProperty("a").getLong());
+    Version version2 = testNode.checkin();
+    testNode.checkout();
+    Property prop2 = testNode.getProperty("jcr:mixinTypes");
+    assertEquals(PropertyType.NAME, prop2.getType());
+
+    assertTrue(testNode.isCheckedOut());
+    testNode.restore(version1, true);
+    testNode.checkout();
+    assertTrue(testNode.isCheckedOut());
+    assertEquals(1, testNode.getProperty("a").getLong());
+
+    Property prop = testNode.getProperty("jcr:mixinTypes");
+    assertEquals(PropertyType.NAME, prop.getType());
+
+    assertTrue(testNode.isNodeType("mix:lockable"));
+    assertTrue(testNode.isNodeType("mix:referenceable"));
+    assertTrue(testNode.hasProperty("jcr:uuid"));
+    assertTrue(testNode.isCheckedOut());
+
+  }
 }

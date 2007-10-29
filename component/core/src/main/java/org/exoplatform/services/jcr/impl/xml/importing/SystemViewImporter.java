@@ -37,13 +37,14 @@ import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.core.ItemImpl;
 import org.exoplatform.services.jcr.impl.core.JCRPath;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.JCRPath.PathElement;
@@ -54,6 +55,7 @@ import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 import org.exoplatform.services.jcr.util.IdGenerator;
@@ -71,11 +73,7 @@ public class SystemViewImporter extends BaseXmlImporter {
 
   private List<DecodedValue>       curPropValues;
 
-  private InternalQName[]          mixinTypeNames;
-
-  private List<NodeInfo>           nodeInfos;
-
-  private List<ExtendedNodeType>   nodeTypes;
+  private final List<NodeInfo>     nodeInfos;
 
   private NodeData                 parent;
 
@@ -83,7 +81,7 @@ public class SystemViewImporter extends BaseXmlImporter {
 
   private List<ParsedPropertyInfo> propsParsed;
 
-  private Stack<NodeInfo>          tree;
+  private final Stack<NodeInfo>    tree;
 
   protected Log                    log = ExoLogger.getLogger("jcr.SysNodeImporter");
 
@@ -134,8 +132,8 @@ public class SystemViewImporter extends BaseXmlImporter {
 
   }
 
-  public NodeIterator getNodes(NodeData parent, String namePattern) throws RepositoryException {
-    List<NodeImpl> childNodes = session.getTransientNodesManager().getChildNodes(parent, true);
+  public NodeIterator getNodes(NodeData parentData, String namePattern) throws RepositoryException {
+    List<NodeImpl> childNodes = session.getTransientNodesManager().getChildNodes(parentData, true);
     ItemFilter filter = new NamePatternFilter(namePattern);
     ArrayList<NodeData> list = new ArrayList<NodeData>();
 
@@ -189,21 +187,29 @@ public class SystemViewImporter extends BaseXmlImporter {
     for (int i = 0; i < nodeInfos.size(); i++) {
       NodeInfo info = nodeInfos.get(i);
 
-      mixinTypeNames = null;
-      nodeTypes = new ArrayList<ExtendedNodeType>();
+      List<InternalQName> mixinTypeNames = new ArrayList<InternalQName>();
+
+      List<ExtendedNodeType> nodeTypes = new ArrayList<ExtendedNodeType>();
       propsParsed = new ArrayList<ParsedPropertyInfo>();
       primaryTypeName = null;
 
       NodeData parentNode = null;
       String relPathStr = info.getRelPath();
       String uuid = null;
-      uuid = traverseNodeInfo(relPathStr, info);
+
+      uuid = traverseNodeInfo(relPathStr, info, mixinTypeNames, nodeTypes);
 
       // check UUID Behavior of the import
 
-      boolean isMixReferenceable = isReferenceable(nodeTypes);
+      boolean isMixReferenceable = isNodeType(Constants.MIX_REFERENCEABLE, nodeTypes);
+      boolean isMixVersionable = false;
+      boolean isContainsVersionhistory = false;
+      String versionHistoryIdentifier = null;
+
+      String baseVersionIdentifier = null;
 
       if (isMixReferenceable) {
+        isMixVersionable = isNodeType(Constants.MIX_VERSIONABLE, nodeTypes);
         uuid = validateUuidCollision(uuid);
         if (uuid == null) {
           throw new InvalidItemStateException("Impossible state");
@@ -216,8 +222,8 @@ public class SystemViewImporter extends BaseXmlImporter {
         String relPathParentStr = relPathStr.substring(0, lastPathElem);
         // in case of empty last elem of rel path - JCR will throw an exception
         // below
-        relPathStr = lastPathElem < relPathStr.length() - 1 ? relPathStr
-            .substring(lastPathElem + 1) : "";
+        relPathStr = lastPathElem < relPathStr.length() - 1 ? relPathStr.substring(lastPathElem + 1)
+            : "";
         NodeData pathParent = parents.get(relPathParentStr);
         parentNode = pathParent != null ? pathParent : parent;
       } else {
@@ -225,24 +231,25 @@ public class SystemViewImporter extends BaseXmlImporter {
       }
 
       // build current path of the imported node
-      JCRPath path = locationFactory.createJCRPath(locationFactory.createJCRPath(parentNode
-          .getQPath()), relPathStr);
+      JCRPath path = locationFactory.createJCRPath(locationFactory.createJCRPath(parentNode.getQPath()),
+                                                   relPathStr);
 
       validatePath(path, parentNode, relPathStr);
 
-      if (mixinTypeNames == null) {
-        mixinTypeNames = new InternalQName[0];
-      }
+      // if (mixinTypeNames == null) {
+      // mixinTypeNames = new InternalQName[0];
+      // }
 
       InternalQName jcrName = path.getInternalPath().getName();
       int nodeIndex = getNodeIndex(parentNode, jcrName);
 
       TransientNodeData newNodeData = TransientNodeData.createNodeData(parentNode,
-          jcrName,
-          primaryTypeName,
-          nodeIndex);
+                                                                       jcrName,
+                                                                       primaryTypeName,
+                                                                       nodeIndex);
       newNodeData.setOrderNumber(getNextChildOrderNum(parentNode));
-      newNodeData.setMixinTypeNames(mixinTypeNames);
+
+      newNodeData.setMixinTypeNames(mixinTypeNames.toArray(new InternalQName[mixinTypeNames.size()]));
 
       if (isMixReferenceable) {
         newNodeData.setIdentifier(uuid);
@@ -253,7 +260,7 @@ public class SystemViewImporter extends BaseXmlImporter {
       if (log.isDebugEnabled()) {
         log.debug("node: " + newNodeData.getQPath().getAsString() + ", " + path.getIndex() + ", "
             + newNodeData.getIdentifier() + ", " + primaryTypeName.getAsString() + ", "
-            + (mixinTypeNames.length > 0 ? mixinTypeNames[0].getAsString() + "..." : ""));
+            + (mixinTypeNames.size() > 0 ? mixinTypeNames.get(0).getAsString() + "..." : ""));
       }
 
       for (ParsedPropertyInfo prop : propsParsed) {
@@ -278,18 +285,21 @@ public class SystemViewImporter extends BaseXmlImporter {
 
         PropertyData newProperty = null;
         if (prop.getName().equals(Constants.JCR_UUID) && isMixReferenceable) {
-          newProperty = TransientPropertyData.createPropertyData(newNodeData, prop.getName(), prop
-              .getType(), false, new TransientValueData(newNodeData.getIdentifier()));
+          newProperty = TransientPropertyData.createPropertyData(newNodeData,
+                                                                 prop.getName(),
+                                                                 prop.getType(),
+                                                                 false,
+                                                                 new TransientValueData(newNodeData.getIdentifier()));
 
         } else {
           // determinating is property multivalue;
           boolean isMultivalue = true;
-          
+
           PropertyDefinitions defs;
           try {
             defs = ntManager.findPropertyDefinitions(prop.getName(),
-                primaryTypeName,
-                mixinTypeNames);
+                                                     primaryTypeName,
+                                                     mixinTypeNames.toArray(new InternalQName[mixinTypeNames.size()]));
           } catch (RepositoryException e) {
             if (!respectPropertyDefinitionsConstraints) {
               log.warn(e.getLocalizedMessage());
@@ -312,43 +322,104 @@ public class SystemViewImporter extends BaseXmlImporter {
           log.debug("Import " + prop.getName() + " size=" + vDataList.size() + " isMultivalue="
               + isMultivalue);
 
-          newProperty = TransientPropertyData.createPropertyData(newNodeData, prop.getName(), prop
-              .getType(), isMultivalue, vDataList);
+          newProperty = TransientPropertyData.createPropertyData(newNodeData,
+                                                                 prop.getName(),
+                                                                 prop.getType(),
+                                                                 isMultivalue,
+                                                                 vDataList);
+          if (isMixVersionable) {
+            if (prop.getName().equals(Constants.JCR_VERSIONHISTORY)) {
+              try {
+                versionHistoryIdentifier = ((TransientValueData) vDataList.get(0)).getString();
+              } catch (IOException e) {
+                throw new RepositoryException(e);
+              }
+              isContainsVersionhistory = session.getTransientNodesManager()
+                                                .getItemData(versionHistoryIdentifier) != null;
+            } else if (prop.getName().equals(Constants.JCR_BASEVERSION)) {
+              try {
+                baseVersionIdentifier = ((TransientValueData) vDataList.get(0)).getString();
+              } catch (IOException e) {
+                throw new RepositoryException(e);
+              }
+            }
+
+          }
 
         }
 
-        itemStatesList
-            .add(new ItemState(newProperty, ItemState.ADDED, true, newNodeData.getQPath()));
+        itemStatesList.add(new ItemState(newProperty, ItemState.ADDED, true, newNodeData.getQPath()));
 
       }
 
+      if (isMixVersionable && !isContainsVersionhistory) {
+        PlainChangesLogImpl changes = new PlainChangesLogImpl();
+        // using VH helper as for one new VH, all changes in changes log
+        new VersionHistoryDataHelper(newNodeData,
+                                     changes,
+                                     session.getTransientNodesManager(),
+                                     session.getWorkspace().getNodeTypeManager(),
+                                     versionHistoryIdentifier,
+                                     baseVersionIdentifier);
+        for (ItemState state : changes.getAllStates()) {
+          if (state.getData().getQPath().isDescendantOf(Constants.JCR_SYSTEM_PATH, false)) {
+            itemStatesList.add(state);
+          }
+        }
+
+      }
       parents.put(info.getRelPath(), newNodeData); // add one new parent
     }
   }
 
-  private String traverseNodeInfo(String path, NodeInfo info) throws PathNotFoundException,
+  private List<InternalQName> reorganizeMixiTypes(List<InternalQName> names) {
+    List<InternalQName> result = new ArrayList<InternalQName>();
+
+    boolean containsMixReferenceable = false;
+    for (InternalQName internalQName : names) {
+      if (Constants.MIX_VERSIONABLE.equals(internalQName)) {
+        if (!containsMixReferenceable) {
+          result.add(Constants.MIX_REFERENCEABLE);
+          containsMixReferenceable = true;
+        }
+        continue;
+      }
+      if (Constants.MIX_REFERENCEABLE.equals(internalQName))
+        containsMixReferenceable = true;
+      result.add(internalQName);
+    }
+    return result;
+  }
+
+  private String traverseNodeInfo(String path,
+                                  NodeInfo info,
+                                  List<InternalQName> mixinTypeNames,
+                                  List<ExtendedNodeType> nodeTypes) throws PathNotFoundException,
       RepositoryException {
 
     String uuid = null;
     List<PropertyInfo> props = info.getProperties();
-
+    // boolean containsMixReferenceable = false;
     for (PropertyInfo prop : props) {
       InternalQName propName = locationFactory.parseJCRName(prop.getName()).getInternalName();
+      // if (Constants.JCR_LOCKISDEEP.equals(propName) ||
+      // Constants.JCR_LOCKOWNER.equals(propName)
+      // || Constants.JCR_VERSIONHISTORY.equals(propName)
+      // || Constants.JCR_BASEVERSION.equals(propName)
+      // || Constants.JCR_ISCHECKEDOUT.equals(propName)
+      // || Constants.JCR_PREDECESSORS.equals(propName)
+      // || Constants.JCR_MERGEFAILED.equals(propName)) {
+      // continue;
+      // }
       List<DecodedValue> valueList = prop.getValues();
 
       if (propName.equals(Constants.JCR_PRIMARYTYPE)) {
         if (valueList.size() > 0) {
           primaryTypeName = locationFactory.parseJCRName(new String(valueList.get(0).toString()))
-              .getInternalName();
+                                           .getInternalName();
           nodeTypes.add(ntManager.getNodeType(primaryTypeName));
         } else {
           log.warn("Imported property " + path + "/jcr:primaryType has empty value");
-        }
-      } else if (propName.equals(Constants.JCR_MIXINTYPES)) {
-        if (valueList.size() > 0) {
-          mixinTypeNames = new InternalQName[valueList.size()];
-        } else {
-          log.warn("Imported property " + path + "/jcr:mixinTypes has empty value(s)");
         }
       } else if (propName.equals(Constants.JCR_UUID)) {
         if (valueList.size() > 0) {
@@ -358,8 +429,7 @@ public class SystemViewImporter extends BaseXmlImporter {
         }
       }
 
-      List<ValueData> values = new ArrayList<ValueData>(valueList.size());// new
-      String valStr = "";
+      List<ValueData> values = new ArrayList<ValueData>(valueList.size());
       for (int k = 0; k < valueList.size(); k++) {
 
         if (prop.getType() == PropertyType.BINARY) {
@@ -381,18 +451,17 @@ public class SystemViewImporter extends BaseXmlImporter {
 
         } else {
           String val = new String(valueList.get(k).toString());
-          values.add(((BaseValue) session.getValueFactory().createValue(val, prop.getType()))
-              .getInternalData());
+          values.add(((BaseValue) session.getValueFactory().createValue(val, prop.getType())).getInternalData());
           if (propName.equals(Constants.JCR_MIXINTYPES)) {
-            mixinTypeNames[k] = locationFactory.parseJCRName(val).getInternalName();
-            nodeTypes.add(ntManager.getNodeType(mixinTypeNames[k]));
+            InternalQName mixinName = locationFactory.parseJCRName(val).getInternalName();
+            mixinTypeNames.add(mixinName);
+            nodeTypes.add(ntManager.getNodeType(mixinName));
           }
-          valStr += val + " ";
         }
       }
 
       if (log.isDebugEnabled()) {
-        log.debug("prop(1): " + prop.getName() + ", [" + valStr.trim() + "], "
+        log.debug("prop(1): " + prop.getName() + ", "
             + ExtendedPropertyType.nameFromValue(prop.getType()));
       }
 
@@ -420,9 +489,11 @@ public class SystemViewImporter extends BaseXmlImporter {
           relPathElems[depth] = pathElement = pathElement.clone((int) snsNodes.getSize());
 
           try {
-            parentNode = (NodeData) session.getTransientNodesManager().getItemData(parentNode,
-                new QPathEntry(pathElement.getNamespace(), pathElement.getName(), pathElement
-                    .getIndex()));
+            parentNode = (NodeData) session.getTransientNodesManager()
+                                           .getItemData(parentNode,
+                                                        new QPathEntry(pathElement.getNamespace(),
+                                                                       pathElement.getName(),
+                                                                       pathElement.getIndex()));
 
             if (log.isDebugEnabled()) {
               log.debug("BUILD NODE, <<< NEW ANCESTOR for RELATIVE path >>> : '"
@@ -457,75 +528,82 @@ public class SystemViewImporter extends BaseXmlImporter {
     ItemDataRemoveVisitor visitor = null;
 
     List<ItemState> removedStates = null;
-    ItemData sameUuidData = session.getTransientNodesManager().getItemData(uuid);
-    switch (uuidBehavior) {
-    case ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW:
-      // Incoming referenceable nodes are assigned newly created UUIDs
-      // upon addition to the workspace. As a result UUID collisions
-      // never occur.
+    ItemImpl sameUuidItem = session.getTransientNodesManager().getItemByIdentifier(uuid, true);
+    if (sameUuidItem != null) {
+      switch (uuidBehavior) {
+      case ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW:
+        // Incoming referenceable nodes are assigned newly created UUIDs
+        // upon addition to the workspace. As a result UUID collisions
+        // never occur.
 
-      // reset UUID and it will be autocreated in session
-      retUuid = IdGenerator.generate();
-      break;
-    case ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING:
-      // If an incoming referenceable node has the same UUID as a node
-      // already existing in the workspace then the already existing
-      // node (and its subtree) is removed from wherever it may be in
-      // the workspace before the incoming node is added. Note that this
-      // can result in nodes �disappearing� from locations in the
-      // workspace that are remote from the location to which the
-      // incoming subtree is being written.
-      if (sameUuidData != null) {
-        visitor = new ItemDataRemoveVisitor(session.getTransientNodesManager());
-        if (!sameUuidData.isNode()) {
-          throw new RepositoryException("the same uuid item "
-              + sameUuidData.getQPath().getAsString() + "is not a node");
+        // reset UUID and it will be autocreated in session
+        retUuid = IdGenerator.generate();
+        break;
+      case ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING:
+        // If an incoming referenceable node has the same UUID as a node
+        // already existing in the workspace then the already existing
+        // node (and its subtree) is removed from wherever it may be in
+        // the workspace before the incoming node is added. Note that this
+        // can result in nodes �disappearing� from locations in the
+        // workspace that are remote from the location to which the
+        // incoming subtree is being written.
+        if (!sameUuidItem.isNode() || !((NodeImpl) sameUuidItem).isNodeType("mix:referenceable")) {
+          throw new RepositoryException("An incoming referenceable node has the same "
+              + "UUID as a identifier of non mix:referenceable"
+              + " node already existing in the workspace!");
         }
-        sameUuidData.accept(visitor);
-        removedStates = visitor.getRemovedStates();
-        itemStatesList.addAll(removedStates);
-      }
-      break;
-    case ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING:
-      // If an incoming referenceable node has the same UUID as a node
-      // already existing in the workspace, then the already existing
-      // node is replaced by the incoming node in the same position as
-      // the existing node. Note that this may result in the incoming
-      // subtree being disaggregated and �spread around� to different
-      // locations in the workspace. In the most extreme case this
-      // behavior may result in no node at all being added as child of
-      // parentAbsPath. This will occur if the topmost element of the
-      // incoming XML has the same UUID as an existing node elsewhere in
-      // the workspace.
-
-      // replace in same location
-      if (sameUuidData != null) {
 
         visitor = new ItemDataRemoveVisitor(session.getTransientNodesManager());
-        if (!sameUuidData.isNode()) {
+        if (!sameUuidItem.isNode()) {
           throw new RepositoryException("the same uuid item "
-              + sameUuidData.getQPath().getAsString() + "is not a node");
+              + sameUuidItem.getData().getQPath().getAsString() + "is not a node");
         }
-        sameUuidData.accept(visitor);
+        sameUuidItem.getData().accept(visitor);
         removedStates = visitor.getRemovedStates();
         itemStatesList.addAll(removedStates);
-        parent = (NodeData) session.getTransientNodesManager().getItemData(sameUuidData
-            .getParentIdentifier());
-      }
-      break;
-    case ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW:
-      // If an incoming referenceable node has the same UUID as a node
-      // already existing in the workspace then a SAXException is thrown
-      // by the ContentHandler during deserialization.
-      if (sameUuidData != null) {
-        if (!sameUuidData.isNode()) {
+        break;
+      case ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING:
+        // If an incoming referenceable node has the same UUID as a node
+        // already existing in the workspace, then the already existing
+        // node is replaced by the incoming node in the same position as
+        // the existing node. Note that this may result in the incoming
+        // subtree being disaggregated and �spread around� to different
+        // locations in the workspace. In the most extreme case this
+        // behavior may result in no node at all being added as child of
+        // parentAbsPath. This will occur if the topmost element of the
+        // incoming XML has the same UUID as an existing node elsewhere in
+        // the workspace.
+        if (!sameUuidItem.isNode() || !((NodeImpl) sameUuidItem).isNodeType("mix:referenceable")) {
+          throw new RepositoryException("An incoming referenceable node has the same "
+              + "UUID as a identifier of non mix:referenceable"
+              + " node already existing in the workspace!");
+        }
+        // replace in same location
+
+        visitor = new ItemDataRemoveVisitor(session.getTransientNodesManager());
+        if (!sameUuidItem.isNode()) {
+          throw new RepositoryException("the same uuid item "
+              + sameUuidItem.getData().getQPath().getAsString() + "is not a node");
+        }
+        sameUuidItem.getData().accept(visitor);
+        removedStates = visitor.getRemovedStates();
+        itemStatesList.addAll(removedStates);
+        parent = (NodeData) session.getTransientNodesManager()
+                                   .getItemData(sameUuidItem.getData().getParentIdentifier());
+        break;
+      case ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW:
+        // If an incoming referenceable node has the same UUID as a node
+        // already existing in the workspace then a SAXException is thrown
+        // by the ContentHandler during deserialization.
+
+        if (!sameUuidItem.isNode()) {
           throw new RepositoryException("The same uuid item "
-              + sameUuidData.getQPath().getAsString() + "is not a node");
+              + sameUuidItem.getData().getQPath().getAsString() + "is not a node");
         }
         throw new ItemExistsException("An incoming referenceable node has the same UUID "
             + "as a node already existing in the workspace!");
+      default:
       }
-    default:
     }
     return retUuid;
   }
@@ -582,7 +660,8 @@ public class SystemViewImporter extends BaseXmlImporter {
         try {
           out.close();
           BufferedInputStream is = new BufferedInputStream(new FileInputStream(fileBuffer));
-          StringBuffer stringBuffer = new StringBuffer((int) fileBuffer.length());
+          // StringBuffer stringBuffer = new StringBuffer((int)
+          // fileBuffer.length());
           StringBuffer fileData = new StringBuffer(1000);
 
           byte[] buf = new byte[BUFFER_SIZE];
@@ -659,7 +738,7 @@ public class SystemViewImporter extends BaseXmlImporter {
       if (decoder == null) {
         return new ByteArrayInputStream(new byte[0]);
       }
-      
+
       return decoder.getInputStream();
     }
 
@@ -691,9 +770,9 @@ public class SystemViewImporter extends BaseXmlImporter {
   }
 
   private class NodeInfo {
-    private List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
+    private final List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
 
-    private String             relPath;
+    private final String             relPath;
 
     public NodeInfo(String relPath) {
       this.relPath = relPath;
@@ -744,11 +823,11 @@ public class SystemViewImporter extends BaseXmlImporter {
 
   private class PropertyInfo {
 
-    private String             name;
+    private final String             name;
 
-    private int                type;
+    private final int                type;
 
-    private List<DecodedValue> values;
+    private final List<DecodedValue> values;
 
     public PropertyInfo(String name, int type, List<DecodedValue> values) {
       this.name = name;
