@@ -18,7 +18,6 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.RepositoryContainer;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -110,8 +109,8 @@ public class SessionChangesLogTest extends JcrImplBaseTest {
   }  
 
   private SessionImpl getRegisteredSession(String sessionId) {
-    RepositoryContainer rc = (RepositoryContainer) container.getComponentInstanceOfType(RepositoryContainer.class);
-    SessionRegistry sreg = (SessionRegistry) rc.getComponentInstanceOfType(SessionRegistry.class);
+    
+    SessionRegistry sreg = (SessionRegistry) session.getContainer().getComponentInstanceOfType(SessionRegistry.class);
     
     return sreg.getSession(sessionId);
   }
