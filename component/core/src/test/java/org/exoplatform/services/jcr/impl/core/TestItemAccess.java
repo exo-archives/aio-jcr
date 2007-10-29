@@ -66,7 +66,6 @@ public class TestItemAccess extends JcrImplBaseTest {
       String validUuid = validUuids[random.nextInt(validUuids.length)];
       ItemData data = tm.getItemData((validUuid));
       assertNotNull(data);
-      System.out.println(data.getQPath().getAsString());
     }
     newSession.logout();
   }

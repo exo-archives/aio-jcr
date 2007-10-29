@@ -4,7 +4,6 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.impl.core;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -16,10 +15,8 @@ import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.ContainerEntry;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
-import org.exoplatform.services.jcr.config.SimpleParameterEntry;
-import org.exoplatform.services.jcr.config.ValueStorageEntry;
-import org.exoplatform.services.jcr.config.ValueStorageFilterEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
+import org.exoplatform.services.jcr.util.ConfigurationHelper;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
@@ -27,68 +24,53 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * @version $Id: $
  */
 public class TestWorkspaceManagement extends JcrImplBaseTest {
+  private boolean                   isDefaultWsMultiDb = false;
 
-  public void testInitNewWS() {
+  private final ConfigurationHelper helper;
 
-    List params = new ArrayList();
-    params.add(new SimpleParameterEntry("sourceName", "jdbcjcr"));
-    params.add(new SimpleParameterEntry("db-type", "generic"));
-    params.add(new SimpleParameterEntry("multi-db", "false"));
-    params.add(new SimpleParameterEntry("update-storage", "true"));
-    params.add(new SimpleParameterEntry("max-buffer-size", "204800"));
-    params.add(new SimpleParameterEntry("swap-directory", "target/temp/swap/ws"));
+  private WorkspaceEntry            wsEntry;
 
-    ContainerEntry containerEntry = new ContainerEntry("org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer",
-        (ArrayList) params);
-    containerEntry.setParameters(params);
-
-    WorkspaceEntry workspaceEntry = new WorkspaceEntry("newws", "nt:unstructured");
-    workspaceEntry.setContainer(containerEntry);
-
-    RepositoryService service = (RepositoryService) container
-        .getComponentInstanceOfType(RepositoryService.class);
-    RepositoryImpl defRep;
-    try {
-      defRep = (RepositoryImpl) service.getDefaultRepository();
-      defRep.configWorkspace(workspaceEntry);
-      defRep.createWorkspace(workspaceEntry.getName());
-
-      Session sess = defRep.getSystemSession(workspaceEntry.getName());
-
-      Node root = sess.getRootNode();
-      assertNotNull(root);
-
-      assertNotNull(root.getNode("jcr:system"));
-
-      assertNotNull(root.getNode("jcr:system/exo:namespaces"));
-      sess.logout();
-    } catch (RepositoryException e) {
-      fail(e.getLocalizedMessage());
-    } catch (RepositoryConfigurationException e) {
-      fail(e.getLocalizedMessage());
-    }
-
+  public TestWorkspaceManagement() {
+    super();
+    this.helper = ConfigurationHelper.getInstence();
   }
 
-  public void testCreateWsNoConfig() {
+  @Override
+  public void setUp() throws Exception {
+    super.setUp();
+    wsEntry = (WorkspaceEntry) session.getContainer()
+                                      .getComponentInstanceOfType(WorkspaceEntry.class);
+    if ("true".equals(wsEntry.getContainer().getParameterValue("multi-db"))) {
+      isDefaultWsMultiDb = true;
+    }
+  }
 
-    List params = new ArrayList();
-    params.add(new SimpleParameterEntry("sourceName", "jdbcjcr"));
-    params.add(new SimpleParameterEntry("db-type", "generic"));
-    params.add(new SimpleParameterEntry("multi-db", "false"));
-    params.add(new SimpleParameterEntry("update-storage", "true"));
-    params.add(new SimpleParameterEntry("max-buffer-size", "204800"));
-    params.add(new SimpleParameterEntry("swap-directory", "target/temp/swap/ws"));
+  public void testInitNewWS() throws RepositoryConfigurationException, Exception {
 
-    ContainerEntry containerEntry = new ContainerEntry("org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer",
-        (ArrayList) params);
-    containerEntry.setParameters(params);
+    WorkspaceEntry workspaceEntry = null;
+    workspaceEntry = helper.getNewWs("newws",
+                                     isDefaultWsMultiDb,
+                                     wsEntry.getContainer().getParameterValue("sourceName"),
+                                     null,
+                                     wsEntry.getContainer());
+    assertNotNull(workspaceEntry);
 
-    WorkspaceEntry workspaceEntry = new WorkspaceEntry("wsnoconfig", "nt:unstructured");
-    workspaceEntry.setContainer(containerEntry);
+    helper.createWorkspace(workspaceEntry, container);
 
-    RepositoryService service = (RepositoryService) container
-        .getComponentInstanceOfType(RepositoryService.class);
+    doTestOnWorkspace(workspaceEntry.getName());
+  }
+
+  public void testCreateWsNoConfig() throws RepositoryConfigurationException, Exception {
+
+    WorkspaceEntry workspaceEntry = helper.getNewWs("wsnoconfig",
+                                                    isDefaultWsMultiDb,
+                                                    wsEntry.getContainer()
+                                                           .getParameterValue("sourceName"),
+                                                    null,
+                                                    wsEntry.getContainer());
+    assertNotNull(workspaceEntry);
+
+    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
     RepositoryImpl defRep;
     try {
       defRep = (RepositoryImpl) service.getDefaultRepository();
@@ -100,26 +82,15 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
 
   }
 
-  public void testAddWorkspaceWithExistName() {
-    List params = new ArrayList();
-    params.add(new SimpleParameterEntry("sourceName", "jdbcjcr"));
-    params.add(new SimpleParameterEntry("db-type", "generic"));
-    params.add(new SimpleParameterEntry("multi-db", "true"));
-    params.add(new SimpleParameterEntry("update-storage", "true"));
-    params.add(new SimpleParameterEntry("max-buffer-size", "204800"));
-    params.add(new SimpleParameterEntry("swap-directory", "target/temp/swap/ws"));
+  public void testAddWorkspaceWithExistName() throws RepositoryConfigurationException, Exception {
 
-    ContainerEntry containerEntry = new ContainerEntry("org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer",
-        (ArrayList) params);
-    containerEntry.setParameters(params);
-
-    RepositoryService service = (RepositoryService) container
-        .getComponentInstanceOfType(RepositoryService.class);
+    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
     RepositoryImpl defRep = null;
     String[] names = null;
     try {
       defRep = (RepositoryImpl) service.getDefaultRepository();
       String sysWs = defRep.getSystemWorkspaceName();
+      assertNotNull(sysWs);
       names = defRep.getWorkspaceNames();
     } catch (RepositoryException e) {
       fail(e.getLocalizedMessage());
@@ -130,11 +101,16 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
       fail("Fail init params");
 
     for (int i = 0; i < names.length; i++) {
-      WorkspaceEntry workspaceEntry = new WorkspaceEntry(names[i], "nt:unstructured");
-      workspaceEntry.setContainer(containerEntry);
+      WorkspaceEntry workspaceEntry = helper.getNewWs(names[i],
+                                                      isDefaultWsMultiDb,
+                                                      wsEntry.getContainer()
+                                                             .getParameterValue("sourceName"),
+                                                      null,
+                                                      wsEntry.getContainer());
+      assertNotNull(workspaceEntry);
+
       try {
-        defRep.configWorkspace(workspaceEntry);
-        defRep.createWorkspace(workspaceEntry.getName());
+        helper.createWorkspace(workspaceEntry, container);
         fail();
       } catch (RepositoryConfigurationException e) {
         // Ok
@@ -144,16 +120,16 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
     }
   }
 
-  public void testAddWorkspaceWithIvalidVs() {
-    WorkspaceEntry workspaceEntry = getNewWs("WsInvalidVs", null, null, "C://AUTOEXEC.BAT");
+  public void testAddWorkspaceWithIvalidVs() throws RepositoryConfigurationException, Exception {
 
-    RepositoryService service = (RepositoryService) container
-        .getComponentInstanceOfType(RepositoryService.class);
-    RepositoryImpl defRep;
+    WorkspaceEntry workspaceEntry = helper.getNewWs("WsInvalidVs",
+                                                    isDefaultWsMultiDb,
+                                                    wsEntry.getContainer()
+                                                           .getParameterValue("sourceName"),
+                                                    "C://AUTOEXEC.BAT",
+                                                    wsEntry.getContainer());
     try {
-      defRep = (RepositoryImpl) service.getDefaultRepository();
-      defRep.configWorkspace(workspaceEntry);
-      defRep.createWorkspace(workspaceEntry.getName());
+      helper.createWorkspace(workspaceEntry, container);
       fail();
     } catch (Throwable e) {
       // ok
@@ -163,70 +139,44 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
   }
 
   public void testAddWorkspaceWithValidVs() throws Exception {
-    WorkspaceEntry workspaceEntry = getNewWs(null, null, null, "target/temp/values/"
-        + IdGenerator.generate());
 
-    RepositoryService service = (RepositoryService) container
-        .getComponentInstanceOfType(RepositoryService.class);
-    RepositoryImpl defRep = null;
-    try {
-      defRep = (RepositoryImpl) service.getDefaultRepository();
-      defRep.configWorkspace(workspaceEntry);
-      defRep.createWorkspace(workspaceEntry.getName());
+    WorkspaceEntry workspaceEntry = helper.getNewWs("WsValidVs",
+                                                    isDefaultWsMultiDb,
+                                                    wsEntry.getContainer()
+                                                           .getParameterValue("sourceName"),
+                                                    "target/temp/values/" + IdGenerator.generate(),
+                                                    wsEntry.getContainer());
 
-    } catch (RepositoryException e) {
-      fail(e.getLocalizedMessage());
-    }
+    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
+    RepositoryImpl defRep = (RepositoryImpl) service.getDefaultRepository();
+    ;
+
+    helper.createWorkspace(workspaceEntry, container);
+
     assertNotNull(defRep);
     RepositoryEntry repoEntry = defRep.getConfiguration();
     List<WorkspaceEntry> wsEntrys = repoEntry.getWorkspaceEntries();
-    
+
     for (WorkspaceEntry wEntry : wsEntrys) {
-      if(wEntry.getName().equals(workspaceEntry.getName())){
-        ContainerEntry containerEntry= wEntry.getContainer();
+      if (wEntry.getName().equals(workspaceEntry.getName())) {
+        ContainerEntry containerEntry = wEntry.getContainer();
         assertNotNull(containerEntry);
         assertNotNull(containerEntry.getValueStorages());
-        assertEquals(1,containerEntry.getValueStorages().size());
+        assertEquals(1, containerEntry.getValueStorages().size());
       }
     }
-    
+
   }
 
-  public void testMixMultiAndSingleDbWs() {
+  public void testMixMultiAndSingleDbWs() throws RepositoryConfigurationException, Exception {
 
-    RepositoryService service = (RepositoryService) container
-        .getComponentInstanceOfType(RepositoryService.class);
-    RepositoryImpl defRep;
-
+    WorkspaceEntry workspaceEntry = helper.getNewWs("MixMultiAndSingleDbWs",
+                                                    !isDefaultWsMultiDb,
+                                                    null,
+                                                    "target/temp/values/" + IdGenerator.generate(),
+                                                    wsEntry.getContainer());
     try {
-      defRep = (RepositoryImpl) service.getDefaultRepository();
-      String systemWsName = defRep.getSystemWorkspaceName();
-
-    } catch (RepositoryException e1) {
-      fail();
-    } catch (RepositoryConfigurationException e1) {
-      fail();
-    }
-
-    List params = new ArrayList();
-    params.add(new SimpleParameterEntry("sourceName", "jdbcjcr"));
-    params.add(new SimpleParameterEntry("db-type", "generic"));
-    params.add(new SimpleParameterEntry("multi-db", "true"));
-    params.add(new SimpleParameterEntry("update-storage", "true"));
-    params.add(new SimpleParameterEntry("max-buffer-size", "204800"));
-    params.add(new SimpleParameterEntry("swap-directory", "target/temp/swap/ws"));
-
-    ContainerEntry containerEntry = new ContainerEntry("org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer",
-        (ArrayList) params);
-    containerEntry.setParameters(params);
-
-    WorkspaceEntry workspaceEntry = new WorkspaceEntry("MixMultiAndSingleDbWs", "nt:unstructured");
-    workspaceEntry.setContainer(containerEntry);
-
-    try {
-      defRep = (RepositoryImpl) service.getDefaultRepository();
-      defRep.configWorkspace(workspaceEntry);
-      defRep.createWorkspace(workspaceEntry.getName());
+      helper.createWorkspace(workspaceEntry, container);
       fail();
     } catch (RepositoryException e) {
       fail();
@@ -236,43 +186,19 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
     }
   }
 
-  public void testAddSingleDbWsWithNewDs() {
+  public void testAddSingleDbWsWithNewDs() throws Exception {
 
-    RepositoryService service = (RepositoryService) container
-        .getComponentInstanceOfType(RepositoryService.class);
-    RepositoryImpl defRep;
-
-    try {
-      defRep = (RepositoryImpl) service.getDefaultRepository();
-      String systemWsName = defRep.getSystemWorkspaceName();
-
-    } catch (RepositoryException e1) {
-      fail();
-    } catch (RepositoryConfigurationException e1) {
-      fail();
-    }
-
-    List params = new ArrayList();
-    params.add(new SimpleParameterEntry("sourceName", "jdbcjcrNew"));
-    params.add(new SimpleParameterEntry("db-type", "generic"));
-    params.add(new SimpleParameterEntry("multi-db", "false"));
-    params.add(new SimpleParameterEntry("update-storage", "true"));
-    params.add(new SimpleParameterEntry("max-buffer-size", "204800"));
-    params.add(new SimpleParameterEntry("swap-directory", "target/temp/swap/ws"));
-
-    ContainerEntry containerEntry = new ContainerEntry("org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer",
-        (ArrayList) params);
-    containerEntry.setParameters(params);
-
-    WorkspaceEntry workspaceEntry = new WorkspaceEntry("SingleDbWsWithNewDs", "nt:unstructured");
-    workspaceEntry.setContainer(containerEntry);
+    WorkspaceEntry workspaceEntry = helper.getNewWs("SingleDbWsWithNewDs",
+                                                    true,
+                                                    null,
+                                                    "target/temp/values/" + IdGenerator.generate(),
+                                                    wsEntry.getContainer());
 
     try {
-      defRep = (RepositoryImpl) service.getDefaultRepository();
-      defRep.configWorkspace(workspaceEntry);
-      defRep.createWorkspace(workspaceEntry.getName());
+      helper.createWorkspace(workspaceEntry, container);
       fail();
     } catch (RepositoryException e) {
+      e.printStackTrace();
       fail();
     } catch (RepositoryConfigurationException e) {
       // ok;
@@ -281,27 +207,21 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
 
   public void testRemoveWorkspace() throws Exception {
 
-    WorkspaceEntry workspaceEntry = getNewWs(null, null, null, null);
+    WorkspaceEntry workspaceEntry = helper.getNewWs("wsForRemove",
+                                                    isDefaultWsMultiDb,
+                                                    wsEntry.getContainer()
+                                                           .getParameterValue("sourceName"),
+                                                    "target/temp/values/" + IdGenerator.generate(),
+                                                    wsEntry.getContainer());
 
-    RepositoryService service = (RepositoryService) container
-        .getComponentInstanceOfType(RepositoryService.class);
-    RepositoryImpl defRep = null;
+    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
+    RepositoryImpl defRep = (RepositoryImpl) service.getDefaultRepository();
     try {
-      defRep = (RepositoryImpl) service.getDefaultRepository();
-      defRep.configWorkspace(workspaceEntry);
-      defRep.createWorkspace(workspaceEntry.getName());
-
-      Session sess = defRep.getSystemSession(workspaceEntry.getName());
-
-      Node root = sess.getRootNode();
-      assertNotNull(root);
-
-      assertNotNull(root.getNode("jcr:system"));
-
-      assertNotNull(root.getNode("jcr:system/exo:namespaces"));
-      sess.logout();
+      helper.createWorkspace(workspaceEntry, container);
+      doTestOnWorkspace(workspaceEntry.getName());
       assertTrue(defRep.canRemoveWorkspace(workspaceEntry.getName()));
-      defRep.removeWorkspace(workspaceEntry.getName());
+
+      service.getDefaultRepository().removeWorkspace(workspaceEntry.getName());
 
     } catch (RepositoryException e) {
       fail();
@@ -320,58 +240,23 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
 
   public void testRemoveSystemWorkspace() throws Exception {
 
-    RepositoryService service = (RepositoryService) container
-        .getComponentInstanceOfType(RepositoryService.class);
+    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
     RepositoryImpl defRep = (RepositoryImpl) service.getDefaultRepository();
     String systemWsName = defRep.getSystemWorkspaceName();
     assertFalse(defRep.canRemoveWorkspace(systemWsName));
   }
+  private void doTestOnWorkspace(String wsName) throws RepositoryException,
+      RepositoryConfigurationException {
+    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
+    Session sess = service.getDefaultRepository().getSystemSession(wsName);
 
-  public static WorkspaceEntry getNewWs(String wsName,
-      Boolean isMultiDb,
-      String dsName,
-      String vsPath) {
+    Node root = sess.getRootNode();
+    assertNotNull(root);
 
-    List params = new ArrayList();
-    params.add(new SimpleParameterEntry("sourceName", dsName != null ? dsName : "jdbcjcr"));
-    params.add(new SimpleParameterEntry("db-type", "generic"));
-    params.add(new SimpleParameterEntry("multi-db", isMultiDb != null ? isMultiDb.toString()
-        : "false"));
-    params.add(new SimpleParameterEntry("update-storage", "true"));
-    params.add(new SimpleParameterEntry("max-buffer-size", "204800"));
-    params.add(new SimpleParameterEntry("swap-directory", "target/temp/swap/ws"));
+    assertNotNull(root.getNode("jcr:system"));
 
-    ContainerEntry containerEntry = new ContainerEntry("org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer",
-        (ArrayList) params);
-    containerEntry.setParameters(params);
-
-    if (vsPath != null) {
-
-      ArrayList<ValueStorageFilterEntry> vsparams = new ArrayList<ValueStorageFilterEntry>();
-      ValueStorageFilterEntry filterEntry = new ValueStorageFilterEntry();
-      filterEntry.setPropertyType("Binary");
-      vsparams.add(filterEntry);
-
-      ValueStorageEntry valueStorageEntry = new ValueStorageEntry("org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage",
-          vsparams);
-      ArrayList<SimpleParameterEntry> spe = new ArrayList<SimpleParameterEntry>();
-      spe.add(new SimpleParameterEntry("path", vsPath));
-
-      valueStorageEntry.setParameters(spe);
-      valueStorageEntry.setFilters(vsparams);
-
-      // containerEntry.setValueStorages();
-      containerEntry.setParameters(params);
-      ArrayList list = new ArrayList(1);
-      list.add(valueStorageEntry);
-
-      containerEntry.setValueStorages(list);
-
-    }
-    WorkspaceEntry workspaceEntry = new WorkspaceEntry(wsName != null ? wsName : IdGenerator
-        .generate(), "nt:unstructured");
-    workspaceEntry.setContainer(containerEntry);
-
-    return workspaceEntry;
+    assertNotNull(root.getNode("jcr:system/exo:namespaces"));
+    sess.logout();
   }
+
 }

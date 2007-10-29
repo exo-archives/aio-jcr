@@ -17,42 +17,46 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: $
  */
 public class TestSaveConfiguration extends JcrImplBaseTest {
-  protected static Log log = ExoLogger.getLogger("jcr.SessionDataManager");
-  private TestRepositoryManagement rpm = new TestRepositoryManagement();
+  protected static Log             log = ExoLogger.getLogger("jcr.SessionDataManager");
+
+  private final TestRepositoryManagement rpm = new TestRepositoryManagement();
+
   public void testSaveConfiguration() throws Exception {
-    RepositoryService service = (RepositoryService) container
-    .getComponentInstanceOfType(RepositoryService.class);
+    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
 
     for (RepositoryEntry rEntry : service.getConfig().getRepositoryConfigurations()) {
-      log.info("=Repository "+rEntry.getName());
+      log.info("=Repository " + rEntry.getName());
       for (WorkspaceEntry wsEntry : rEntry.getWorkspaceEntries()) {
-        log.info("===Workspace "+wsEntry.getName());
+        log.info("===Workspace " + wsEntry.getName());
       }
     }
-    
-    rpm.createDafaultRepository("repository4TestRepositoryManagement1","wsTestRepositoryManagement1");
-    rpm.createDafaultRepository("repository4TestRepositoryManagement2","wsTestRepositoryManagement2");
-    rpm.createDafaultRepository("repository4TestRepositoryManagement3","wsTestRepositoryManagement3");
-    
-    RepositoryServiceConfiguration repoConfig = (RepositoryServiceConfiguration) container
-    .getComponentInstanceOfType(RepositoryServiceConfiguration.class);
 
-    
+    rpm.createDafaultRepository("repository4TestRepositoryManagement1",
+                                "wsTestRepositoryManagement1");
+    rpm.createDafaultRepository("repository4TestRepositoryManagement2",
+                                "wsTestRepositoryManagement2");
+    rpm.createDafaultRepository("repository4TestRepositoryManagement3",
+                                "wsTestRepositoryManagement3");
+
+    RepositoryServiceConfiguration repoConfig = (RepositoryServiceConfiguration) container.getComponentInstanceOfType(RepositoryServiceConfiguration.class);
+
     assertTrue(repoConfig.isRetainable());
     repoConfig.retain();
-    Thread.sleep(10*1000);
+    Thread.sleep(10 * 1000);
   }
-public void testZZ() throws Exception {
-  System.out.println("testZZ");
-  root.addNode("testZZ");
-  root.save();
-  session.save();
-  Thread.sleep(10*1000);
-}
+
+  public void testZZ() throws Exception {
+    System.out.println("testZZ");
+    root.addNode("testZZ");
+    root.save();
+    session.save();
+    Thread.sleep(10 * 1000);
+  }
+
   @Override
   public void setUp() throws Exception {
     rpm.setUp();
     super.setUp();
-    
+
   }
 }
