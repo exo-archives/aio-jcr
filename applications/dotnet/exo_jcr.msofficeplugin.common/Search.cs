@@ -146,7 +146,7 @@ namespace exo_jcr.msofficeplugin.common
                 }
 
 
-                WebDavProperty getContentLengthProp = response.getProperty("D:" + DavProperty.GETCONTENTLENGTH);
+                WebDavProperty getContentLengthProp = response.getProperty(DavProperty.GETCONTENTLENGTH);
                 if (getContentLengthProp != null)
                 {
                     size = getContentLengthProp.getTextContent();
