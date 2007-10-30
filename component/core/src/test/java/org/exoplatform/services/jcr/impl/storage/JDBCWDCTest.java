@@ -152,7 +152,7 @@ public class JDBCWDCTest extends TestCase {
     DBSchemaCreator.initialize(sourceName, script);
   }
 
-  public void testAddRoot() throws Exception {
+  public void _testAddRoot() throws Exception {
 
     InternalQName nt = Constants.NT_UNSTRUCTURED;
     QPath rootPath = QPath.parse(Constants.ROOT_URI);
