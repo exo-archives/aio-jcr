@@ -109,7 +109,9 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
      */
     void start() {
       this.stared = true;
-      requestCache.put(this.hashCode(), this);
+      synchronized (requestCache) {
+        requestCache.put(this.hashCode(), this);
+      }
     }
     
     /**
@@ -118,7 +120,9 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
      */
     void done() {
       this.stared = false;
-      requestCache.remove(this.hashCode());
+      synchronized (requestCache) {
+        requestCache.remove(this.hashCode());
+      }
     }
     
     boolean isStarted() {
