@@ -2242,7 +2242,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
       if (propDefs[i].isAutoCreated()) {
         PropertyDefinitionImpl pdImpl = (PropertyDefinitionImpl) propDefs[i];
-        if (!hasProperty(pdImpl.getQName())) {
+        
+        ItemData pdata = dataManager.getItemData(nodeData(), new QPathEntry(pdImpl.getQName(), 0));
+        if (pdata == null || pdata.isNode()) {
 
           List<ValueData> listAutoCreateValue = autoCreatedValue(type, pdImpl);
 
