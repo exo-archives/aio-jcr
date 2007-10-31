@@ -15,11 +15,6 @@
 				<name>auth-header</name>
 				<value>Basic realm="eXo-Platform Webdav Server 1.6.1"</value>
 			</value-param>
-
-			<value-param>
-				<name>auto-mix-lockable</name>
-				<value></value>
-			</value-param>
 			
 			<value-param>
 				<name>def-folder-node-type</name>
@@ -35,6 +30,17 @@
 				<name>def-file-mimetype</name>
 				<value>application/octet-stream</value>
 			</value-param>
+			
+			<!--
+				This parameter indicates one of the three cases when updating content of the resource by PUT command.
+				
+				In case "create-version", PUT command creates the new version of the resource if resource is exist.
+				
+				In case "replace" if the resource is exist, PUT command updates the content of the resource and  it's last modification date.
+				
+				In case "add", the PUT command tries to create the new resource with the same name in the directory.
+				If the parent node is allowsSameNameSiblings() then new node creates with index.
+				 -->
 			
 			<value-param>
 				<name>update-policy</name>

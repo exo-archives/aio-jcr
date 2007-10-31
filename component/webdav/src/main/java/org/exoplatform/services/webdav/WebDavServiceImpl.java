@@ -240,7 +240,7 @@ public class WebDavServiceImpl implements WebDavService {
    * adding property description for next using by PROPFIND, PROPPATCH, ect
    */
   public void registerProperty(String nameSpace, String name, String className) {    
-    log.info("Registering property [" + nameSpace + "][" + name + "]...");    
+    //log.info("Registering property [" + nameSpace + "][" + name + "]...");    
     
     HashMap<String, String> nameSpacedList = properties.get(nameSpace);
     if (nameSpacedList == null) {
@@ -249,10 +249,10 @@ public class WebDavServiceImpl implements WebDavService {
     }
     
     if (nameSpacedList.get(name) != null) {
-      log.info("Property [" + nameSpace + "][" + name + "] already registered!");
+      //log.info("Property [" + nameSpace + "][" + name + "] already registered!");
     } else {
       nameSpacedList.put(name, className);
-      log.info("added [" + nameSpace + "] [" + name + "] [" + className + "]...");
+      //log.info("added [" + nameSpace + "] [" + name + "] [" + className + "]...");
     }    
   }  
 

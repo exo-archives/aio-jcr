@@ -5,9 +5,6 @@
 
 package org.exoplatform.services.webdav.config;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
@@ -15,10 +12,6 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.DavConst;
-import org.exoplatform.services.webdav.common.util.DavUtil;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * Created by The eXo Platform SAS
@@ -32,7 +25,6 @@ public class WebDavConfigImpl implements WebDavConfig {
 
   public static final String INIT_PARAM_DEFAULT_IDENTITY = "default-identity";
   public static final String INIT_PARAM_AUTH_HEADER = "auth-header";
-  public static final String INIT_PARAM_AUTO_MIX_LOCKABLE = "auto-mix-lockable";
   public static final String INIT_PARAM_DEF_FOLDER_NODE_TYPE = "def-folder-node-type";
   public static final String INIT_PARAM_DEF_FILE_NODE_TYPE = "def-file-node-type";
   public static final String INIT_PARAM_DEF_FILE_MIME_TYPE = "def-file-mimetype";
@@ -44,7 +36,6 @@ public class WebDavConfigImpl implements WebDavConfig {
 
   protected String _defIdentity = null;
   protected String _authHeader = "";
-  protected boolean _autoMixLockable = false;
   protected String _defFolderNodeType = DavConst.NodeTypes.NT_FOLDER;
   protected String _defFileNodeType = DavConst.NodeTypes.NT_FILE;
   protected String _defFileMimeType = DavConst.DAV_DEFAULT_MIME_TYPE;
@@ -61,8 +52,6 @@ public class WebDavConfigImpl implements WebDavConfig {
   public static final String XML_NAMESPACE = "namespace";
   public static final String XML_CLASSNAME = "class-name";
   
-  private ArrayList<HashMap<String, String>> documents = new ArrayList<HashMap<String, String>>();
-  
   public WebDavConfigImpl(InitParams params, String configFilePath) throws Exception {
     ValueParam pIdentity = params.getValueParam(INIT_PARAM_DEFAULT_IDENTITY);
     if (pIdentity != null) {
@@ -74,12 +63,6 @@ public class WebDavConfigImpl implements WebDavConfig {
     if (pAuthHeader != null) {
       _authHeader = pAuthHeader.getValue();
       log.info(INIT_PARAM_AUTH_HEADER + " = " + _authHeader);
-    }
-
-    ValueParam pAutoMixLocable = params.getValueParam(INIT_PARAM_AUTO_MIX_LOCKABLE);
-    if (pAutoMixLocable != null) {
-      _autoMixLockable = true;
-      log.info(INIT_PARAM_AUTO_MIX_LOCKABLE + " = " + _autoMixLockable);
     }
 
     ValueParam pDefFolderNodeType = params.getValueParam(INIT_PARAM_DEF_FOLDER_NODE_TYPE);
@@ -106,80 +89,14 @@ public class WebDavConfigImpl implements WebDavConfig {
       log.info(INIT_PARAM_UPDATE_POLICY + " = " + _updatePolicyType);
     }
     
-    try {
-      InputStream configFileStream = getClass().getResourceAsStream(configFilePath);    
-      Document configDocument = DavUtil.GetDocumentFromInputStream(configFileStream);
-      
-      Node configNode = configDocument.getChildNodes().item(0);
-      parseWebDavConfig(configNode);            
-    } catch (Exception exc) {
-      log.info("Unhandled exception. " + exc.getMessage(), exc);
-    }
-    
   }
   
-  protected void parseWebDavConfig(Node configNode) {
-    NodeList childs = configNode.getChildNodes();
-    
-    for (int i = 0; i < childs.getLength(); i++) {
-      Node childNode = childs.item(i);
-      
-      if (childNode.getLocalName() == null) {
-        continue;
-      }
-      
-      if (XML_DOCUMENTSET.equals(childNode.getLocalName())) {
-        parseDocumentSet(childNode);
-        continue;
-      }
-      
-      if (XML_PROPERTYSET.equals(childNode.getLocalName())) {
-        parsePropertySet(childNode);
-        continue;
-      }      
-    }
-    
-  }
-  
-  private void parseDocumentSet(Node documentSetNode) {
-    NodeList documentNodes = documentSetNode.getChildNodes();
-    for (int i = 0; i < documentNodes.getLength(); i++) {
-      Node documentNode = documentNodes.item(i);
-      
-      if (XML_DOCUMENT.equals(documentNode.getLocalName())) {
-        parseDocument(documentNode);
-      }
-
-    }
-    
-  }
-  
-  private void parsePropertySet(Node propertySetNode) {
-  }
-  
-  protected void parseDocument(Node documentNode) {    
-    String documentName = DavUtil.getChildNode(documentNode, XML_DOCUMENTNAME).getTextContent();
-    String nameSpace = DavUtil.getChildNode(documentNode, XML_NAMESPACE).getTextContent();
-    String className = DavUtil.getChildNode(documentNode, XML_CLASSNAME).getTextContent();
-    
-    HashMap<String, String> documentMap = new HashMap<String, String>();
-    documentMap.put(XML_DOCUMENTNAME, documentName);
-    documentMap.put(XML_NAMESPACE, nameSpace);
-    documentMap.put(XML_CLASSNAME, className);
-    
-    documents.add(documentMap);
-  }
-
   public String getDefIdentity() {
     return _defIdentity;
   }
 
   public String getAuthHeader() {
     return _authHeader;
-  }
-
-  public boolean isAutoMixLockable() {
-    return _autoMixLockable;
   }
 
   public String getDefFolderNodeType() {
@@ -205,10 +122,6 @@ public class WebDavConfigImpl implements WebDavConfig {
           nodeTypes.add("nt:file");
 
           return nodeTypes;
-  }
-  
-  public ArrayList<HashMap<String, String>> getRequestDocuments() {
-    return documents;
   }
   
 }

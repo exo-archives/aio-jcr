@@ -21,8 +21,6 @@ public interface WebDavConfig {
   
   String getAuthHeader();
   
-  boolean isAutoMixLockable();
-  
   String getDefFolderNodeType();
   
   String getDefFileNodeType();
@@ -32,7 +30,5 @@ public interface WebDavConfig {
   String getUpdatePolicyType();
   
   Vector<String> defSearchNodeTypes();
-  
-  ArrayList<HashMap<String, String>> getRequestDocuments();  
   
 }

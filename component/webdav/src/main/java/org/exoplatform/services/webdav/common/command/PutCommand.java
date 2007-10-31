@@ -202,18 +202,9 @@ public class PutCommand extends NodeTypedCommand {
   }
   
   protected void createNtFileVersion(Node fileNode, String mimeType, InputStream inputStream) throws Exception {
-    if (!fileNode.isNodeType(DavConst.NodeTypes.MIX_VERSIONABLE)) {
-      
-      if (webDavService.getConfig().isAutoMixLockable()) {
-        if (!fileNode.isNodeType(DavConst.NodeTypes.MIX_LOCKABLE)) {
-          fileNode.addMixin(DavConst.NodeTypes.MIX_LOCKABLE);
-        }        
-      }
-      
+    if (!fileNode.isNodeType(DavConst.NodeTypes.MIX_VERSIONABLE)) {      
       fileNode.addMixin(DavConst.NodeTypes.MIX_VERSIONABLE);
-      
       fileNode.getSession().save();
-      
       fileNode.checkout();
       fileNode.checkin();
     }

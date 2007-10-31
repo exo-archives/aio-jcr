@@ -76,13 +76,6 @@ public class VersionControlCommand extends WebDavCommand {
         return Response.Builder.ok().build();
       }
       
-      if (webDavService.getConfig().isAutoMixLockable()) {
-        if (!node.isNodeType(DavConst.NodeTypes.MIX_LOCKABLE)) {
-          node.addMixin(DavConst.NodeTypes.MIX_LOCKABLE);
-          node.getSession().save();
-        }      
-      }
-      
       if (!node.isNodeType(DavConst.NodeTypes.MIX_VERSIONABLE)) {
         node.addMixin(DavConst.NodeTypes.MIX_VERSIONABLE);
         node.getSession().save();      
