@@ -592,13 +592,13 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
           int cindex = item.getInt(COLUMN_INDEX);
           int cnordernumb = item.getInt(COLUMN_NORDERNUM);
           // QPath parentPath, String cname, String cid, String cpid, int cindex, int cversion, int cnordernumb
-          return loadNodeRecord(parentPath == null ? traverseQPath(cpid) : parentPath, 
+          return loadNodeRecord(traverseQPath(cpid), //parentPath == null ? traverseQPath(cpid) : parentPath, 
               cname, cid, cpid, cindex, cversion, cnordernumb);
         }
         
         int cptype = item.getInt(COLUMN_PTYPE);
         boolean cpmultivalued = item.getBoolean(COLUMN_PMULTIVALUED);
-        return loadPropertyRecord(parentPath == null ? traverseQPath(cpid) : parentPath, 
+        return loadPropertyRecord(traverseQPath(cpid), //parentPath == null ? traverseQPath(cpid) : parentPath, 
             cname, cid, cpid, cversion, cptype, cpmultivalued);
       } catch (InvalidItemStateException e) {
         throw new InvalidItemStateException("FATAL: Can't build item path for name " + cname 
@@ -622,7 +622,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         boolean cpmultivalued = item.getBoolean(COLUMN_PMULTIVALUED);
         
         InternalQName qname = InternalQName.parse(cname);
-        QPath qpath = QPath.makeChildPath(parentPath == null ? traverseQPath(cpid) : parentPath, qname);
+        QPath qpath = QPath.makeChildPath(traverseQPath(cpid), //parentPath == null ? traverseQPath(cpid) : parentPath, 
+            qname);
         
         String identifier = getIdentifier(cid);
         
