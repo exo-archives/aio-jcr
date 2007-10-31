@@ -6,6 +6,7 @@
 
 package org.exoplatform.services.jcr.impl.core;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -192,13 +193,22 @@ public class RepositoryImpl implements ManageableRepository {
    * @see org.exoplatform.services.jcr.core.ManageableRepository#getWorkspaceNames()
    */
   public String[] getWorkspaceNames() {
+    
     List adapters = repositoryContainer.getComponentAdaptersOfType(WorkspaceContainer.class);
-    String[] workspaceNames = new String[adapters.size()];
+    List<String> workspaceNames  = new ArrayList<String>();
     for (int i = 0; i < adapters.size(); i++) {
       ComponentAdapter adapter = (ComponentAdapter) adapters.get(i);
-      workspaceNames[i] = new String((String) adapter.getComponentKey());
+      String workspaceName = new String((String) adapter.getComponentKey());
+      
+      try {
+        if(repositoryContainer.getWorkspaceContainer(workspaceName).getWorkspaceInitializer().isWorkspaceInitialized())
+          workspaceNames.add(workspaceName);
+      } catch (RuntimeException e) {
+        log.warn(e.getLocalizedMessage());
+      }
+      
     }
-    return workspaceNames;
+    return workspaceNames.toArray(new String[workspaceNames.size()]);
   }
 
   /* (non-Javadoc)

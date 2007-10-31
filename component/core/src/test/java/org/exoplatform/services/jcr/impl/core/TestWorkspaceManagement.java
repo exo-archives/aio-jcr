@@ -4,6 +4,7 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.impl.core;
 
+import java.io.File;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -112,10 +113,12 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
   }
 
   public void testAddWorkspaceWithIvalidVs() throws RepositoryConfigurationException, Exception {
-
+    File file = File.createTempFile("test",".dat");
+    file.deleteOnExit();
+    
     WorkspaceEntry workspaceEntry = helper
         .getNewWs("WsInvalidVs", isDefaultWsMultiDb, wsEntry.getContainer()
-            .getParameterValue("sourceName"), "C://AUTOEXEC.BAT", wsEntry.getContainer());
+            .getParameterValue("sourceName"), file.getAbsolutePath(), wsEntry.getContainer());
     try {
       helper.createWorkspace(workspaceEntry, container);
       fail();
@@ -123,6 +126,8 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
       // ok
       // e.printStackTrace();
       // log.info(e.getLocalizedMessage());
+    }finally{
+      file.delete();
     }
   }
 
@@ -238,12 +243,12 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
         .getComponentInstanceOfType(RepositoryService.class);
     Session sess = service.getDefaultRepository().getSystemSession(wsName);
 
-    Node root = sess.getRootNode();
-    assertNotNull(root);
+    Node root2 = sess.getRootNode();
+    assertNotNull(root2);
 
-    assertNotNull(root.getNode("jcr:system"));
+    assertNotNull(root2.getNode("jcr:system"));
 
-    assertNotNull(root.getNode("jcr:system/exo:namespaces"));
+    assertNotNull(root2.getNode("jcr:system/exo:namespaces"));
     sess.logout();
   }
 

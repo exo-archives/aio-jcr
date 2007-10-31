@@ -1591,15 +1591,21 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
        * differing at most by a final index.
        */
       if(sdata.getQPath().equals(srcPath)){
-        deleteState =  new ItemState(sdata, ItemState.DELETED, true, null, false, false);
-        changes.add( new ItemState(newData, ItemState.RENAMED, true, null, false, true));
+        deleteState = new ItemState(sdata, ItemState.DELETED, true, null, false, false);
+        changes.add( new ItemState(newData, ItemState.UPDATED, true, null, false, true));
       }else{
-        changes.add(ItemState.createUpdatedState(newData));
+        ItemState state = ItemState.createUpdatedState(newData);
+        state.eraseEventFire();
+        changes.add(state);
+        //changes.add(new ItemState(sdata, ItemState.DELETED, false, null, false, false));
+        //changes.add( new ItemState(newData, ItemState.RENAMED, false, null, false, true));
+        
       }
     }
     //delete state first
     dataManager.getChangesLog().add(deleteState);
     dataManager.getChangesLog().addAll(changes);
+    System.out.println(dataManager.getChangesLog().dump());
 
   }
 
@@ -2252,8 +2258,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
         } else {
           // TODO [PN] Fix the logic
-          log.warn("Duplicate property " + pdImpl.getName() + " for node " + getName()
-              + " skeepd for mixin " + nodeTypeName.getName());
+          log.warn("Skipping existed property " + pdImpl.getName() + " in " + getPath()
+              + "   during the automatic creation of items for "+nodeTypeName.getAsString()+" nodetype or mixin type");
+          
         }
       }
     }

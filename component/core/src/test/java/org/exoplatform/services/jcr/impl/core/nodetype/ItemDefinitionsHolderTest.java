@@ -9,6 +9,7 @@ import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeIterator;
 
 import org.exoplatform.services.jcr.JcrImplBaseTest;
+import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.Constants;
 
@@ -28,7 +29,7 @@ public class ItemDefinitionsHolderTest extends JcrImplBaseTest {
       holder = ((NodeTypeManagerImpl) repository.getNodeTypeManager()).getItemDefinitionsHolder();
       while (nodeTypes.hasNext()) {
         NodeType type = nodeTypes.nextNodeType();
-        holder.putDefinitions(type);
+        holder.putDefinitions((ExtendedNodeType) type);
       }
       isLoaded = true;
     }

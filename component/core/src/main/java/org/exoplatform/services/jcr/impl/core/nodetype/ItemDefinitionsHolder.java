@@ -14,6 +14,7 @@ import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -137,9 +138,9 @@ public class ItemDefinitionsHolder {
     
   }
   
-  void putAllDefinitions(List<NodeType> nodeTypes) {
-    for(NodeType nodeType: nodeTypes) {
-      putDefinitions((NodeTypeImpl) nodeType);
+  void putAllDefinitions(List<ExtendedNodeType> nodeTypes) {
+    for(ExtendedNodeType nodeType: nodeTypes) {
+      putDefinitions(nodeType);
     }
   }
   
@@ -147,7 +148,7 @@ public class ItemDefinitionsHolder {
    * adds Child Node/Property Definitions for incoming NodeType (should be called by NodeTypeManager in register method)
    * @param nodeType
    */
-  void putDefinitions(NodeType nodeType) {
+  void putDefinitions(ExtendedNodeType nodeType) {
     NodeTypeImpl nodeTypeImpl = (NodeTypeImpl) nodeType;
     nodeTypesHierarchy.addNodeType(nodeTypeImpl);
     // put node defs
@@ -156,7 +157,7 @@ public class ItemDefinitionsHolder {
       NodeDefinitionImpl nodeDefImpl = (NodeDefinitionImpl)nodeDef;
       // put required node defs
       for(NodeType requiredNT: nodeDefImpl.getRequiredPrimaryTypes()) {
-        NodeTypeImpl requiredNodeType = (NodeTypeImpl)requiredNT;
+        ExtendedNodeType requiredNodeType = (ExtendedNodeType)requiredNT;
         ChildNodeDefKey nodeDefKey = new ChildNodeDefKey(
           nodeTypeImpl.getQName(), 
           nodeDefImpl.getQName(), 
