@@ -18,9 +18,7 @@
     <collection name="supertypes" field="declaredSupertypeNames" 
     			item-type="java.lang.String"
                 type="java.util.ArrayList" 
-                usage="optional"
-                serializer="org.exoplatform.services.jcr.core.nodetype.DefaulStringConversion.serializeString"
-    			deserializer="org.exoplatform.services.jcr.core.nodetype.DefaulStringConversion.deserializeString">                
+                usage="optional">                
     	<value name="supertype" 
     			serializer="org.exoplatform.services.jcr.core.nodetype.DefaulStringConversion.serializeString"
     			deserializer="org.exoplatform.services.jcr.core.nodetype.DefaulStringConversion.deserializeString"/>            
