@@ -35,7 +35,8 @@ public class SimpleListener implements EventListener {
       Event event = events.nextEvent();
       counter++;
       try {
-        System.out.println("EVENT fired by " + name + " " +event.getPath() + " " + event.getType());
+        if(log.isDebugEnabled())
+          log.debug("EVENT fired by " + name + " " +event.getPath() + " " + event.getType());
       } catch (RepositoryException e) {
         log.error("Error in " + name, e);
       }
