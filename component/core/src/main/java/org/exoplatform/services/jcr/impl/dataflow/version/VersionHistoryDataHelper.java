@@ -88,24 +88,9 @@ public class VersionHistoryDataHelper extends TransientNodeData {
                                   PlainChangesLogImpl changes,
                                   ItemDataConsumer dataManager,
                                   NodeTypeManagerImpl ntManager) throws RepositoryException {
-    this.dataManager = dataManager;
-    this.ntManager = ntManager;
-    this.versionHistoryIdentifier = IdGenerator.generate();
-    this.baseVersionIdentifier = IdGenerator.generate();
-
-    TransientNodeData vh = init(versionable, changes);
-
-    // TransientItemData
-    this.parentIdentifier = vh.getParentIdentifier().intern();
-    this.identifier = vh.getIdentifier().intern();
-    this.qpath = vh.getQPath();
-    this.persistedVersion = vh.getPersistedVersion();
-
-    // TransientNodeData
-    this.primaryTypeName = vh.getPrimaryTypeName();
-    this.mixinTypeNames = vh.getMixinTypeNames();
-    this.orderNum = vh.getOrderNumber();
-    this.acl = vh.getACL();
+    
+    this(versionable, changes, dataManager, ntManager, IdGenerator.generate(), IdGenerator
+        .generate());
   }
 
   /**
