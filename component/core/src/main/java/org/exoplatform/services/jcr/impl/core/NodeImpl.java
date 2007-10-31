@@ -1597,16 +1597,11 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         ItemState state = ItemState.createUpdatedState(newData);
         state.eraseEventFire();
         changes.add(state);
-        //changes.add(new ItemState(sdata, ItemState.DELETED, false, null, false, false));
-        //changes.add( new ItemState(newData, ItemState.RENAMED, false, null, false, true));
-        
       }
     }
     //delete state first
     dataManager.getChangesLog().add(deleteState);
     dataManager.getChangesLog().addAll(changes);
-    System.out.println(dataManager.getChangesLog().dump());
-
   }
 
   /**
