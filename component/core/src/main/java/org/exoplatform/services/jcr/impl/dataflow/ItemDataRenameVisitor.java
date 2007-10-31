@@ -21,6 +21,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS
+ * for reindexSameNameSiblings
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
@@ -58,7 +59,7 @@ public class ItemDataRenameVisitor extends ItemDataTraversingVisitor {
                                                                 property.isMultiValued());
     tDataCopy.setValues(property.getValues());
     ItemState deletedState = new ItemState(property,
-                                           ItemState.RENAMED,
+                                           ItemState.DELETED,
                                            isEventFire,
                                            null,
                                            false,
