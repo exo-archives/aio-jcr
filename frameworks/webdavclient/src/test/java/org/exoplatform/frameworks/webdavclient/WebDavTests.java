@@ -40,7 +40,7 @@ public class WebDavTests extends TestCase {
     TestSuite suite = new TestSuite("jcr.webdav tests");
 
     Log.info("Checking the server...");
-        
+    
     if (isServerExist()) {
       Log.info("Adding tests...");
 
