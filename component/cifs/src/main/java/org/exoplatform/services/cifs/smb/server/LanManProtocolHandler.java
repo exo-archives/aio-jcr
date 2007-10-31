@@ -657,8 +657,8 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     if (pos == -1) {
       fileName = NameCoder.DecodeName(temp);
     } else {
-      fileName = NameCoder.DecodeName(temp.substring(0, pos));
-      stream = temp.substring(pos);
+      // error codes correct - from snifer
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSFileNotFound, SMBStatus.ErrDos);
     }
 
     // Create the file open parameters
@@ -682,10 +682,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     NetworkFile file = null;
 
     try {
-      boolean isExist = conn.getSession().itemExists(fileName);
-      logger.debug("isExist " + isExist + "TEMPORARY");
-
-      if (!isExist) {
+      if (!conn.getSession().itemExists(fileName)) {
         // file/dir not exist
         if (FileAction.createNotExists(openFunc)) {
           // Check if the session has write access to the filesystem
