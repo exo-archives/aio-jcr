@@ -119,9 +119,9 @@
 					<includes>
 						<include>**/*.java </include>						
 					</includes>
-					<!--excludes>
-						<exclude> **/testIncubator.java</exclude>
-					</excludes-->
+					<excludes>
+						<exclude>**/testSameName.java</exclude>
+					</excludes>
 					
 				</configuration>
 			</plugin>

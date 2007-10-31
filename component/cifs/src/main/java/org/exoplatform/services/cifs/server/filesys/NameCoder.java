@@ -19,7 +19,7 @@ public class NameCoder {
 
   public static String EncodeName(String s) {
     StringBuilder s_new = new StringBuilder();
-    String mask = "\"[]:+|<>=;,*?";
+    String mask = "\":+|<>=;,*?"; //[]
 
     int i = 0;
     while (i < s.length()) {
