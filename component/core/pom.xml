@@ -439,7 +439,7 @@
 
             <exclude>**/api/**/DocumentViewImportTest.java</exclude>
             <exclude>**/usecases/**/TestDateBetween.java</exclude>
-            <exclude>**/usecases/**/RemoveSameNameSiblingTest</exclude>
+            <exclude>**/usecases/**/RemoveSameNameSiblingTest.java</exclude>
           </excludes>
 
           <systemProperties>
