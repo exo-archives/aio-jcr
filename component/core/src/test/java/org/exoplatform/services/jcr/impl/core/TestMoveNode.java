@@ -13,7 +13,6 @@ import java.util.Random;
 
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
-import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.JcrImplBaseTest;
