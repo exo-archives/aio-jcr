@@ -27,6 +27,7 @@ import org.exoplatform.services.jcr.config.ValueStorageEntry;
 import org.exoplatform.services.jcr.config.ValueStorageFilterEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
+import org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -91,6 +92,11 @@ public class ConfigurationHelper {
     params.add(new SimpleParameterEntry("multi-db", isMultiDb ? "true" : "false"));
     params.add(new SimpleParameterEntry("update-storage", "true"));
     params.add(new SimpleParameterEntry("max-buffer-size", "204800"));
+    
+    
+    if(entry.getParameterValue(JDBCWorkspaceDataContainer.DB_DIALECT) != null){
+      params.add(new SimpleParameterEntry(JDBCWorkspaceDataContainer.DB_DIALECT, entry.getParameterValue(JDBCWorkspaceDataContainer.DB_DIALECT)));
+    }
 
     String oldSwap = entry.getParameterValue("swap-directory");
     String newSwap = oldSwap.substring(0, oldSwap.lastIndexOf('/')) + '/' + wsName;
