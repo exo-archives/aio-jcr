@@ -28,19 +28,6 @@ public class WebDavProperty {
   public static final String SUPPORTEDMETHOD = "supported-method";
   public static final String NAME = "name";
   
-  // LOCK
-
-//  public static final String LOCKENTRY = "lockentry";
-//  public static final String SHARED = "shared";
-//  public static final String LOCKDISCOVERY = "lockdiscovery";
-//  public static final String SUPPORTEDLOCK = "supportedlock";  
-
-  
-  //PROPERTYUPDATE  
-  
-//  public static final String REMOVE = "remove";            
-//  public static final String SET = "set";      
-  
   //DELTAV
   public static final String CHECKEDIN = "checked-in";
   public static final String CHECKEDOUT = "checked-out";
