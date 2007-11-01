@@ -60,8 +60,8 @@
           </container>
           <cache enabled="true">
             <properties>
-              <property name="maxSize" value="3000"/>
-              <property name="liveTime" value="300"/><!-- 30 sec -->
+              <property name="maxSize" value="10000"/>
+              <property name="liveTime" value="300"/>
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -113,8 +113,8 @@
           </container>
           <cache enabled="true">
             <properties>
-              <property name="maxSize" value="1000"/>
-              <property name="liveTime" value="10000"/>
+              <property name="maxSize" value="10000"/>
+              <property name="liveTime" value="300"/>
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -158,8 +158,8 @@
           </container>
           <cache enabled="true">
             <properties>
-              <property name="maxSize" value="1000"/>
-              <property name="liveTime" value="10000"/>
+              <property name="maxSize" value="10000"/>
+              <property name="liveTime" value="300"/>
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
