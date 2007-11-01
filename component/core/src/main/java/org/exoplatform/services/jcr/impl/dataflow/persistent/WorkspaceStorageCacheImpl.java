@@ -137,6 +137,7 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     try {
       return getItem(identifier);
     } catch (Exception e) {
+      log.error("GET operation fails. Item ID=" + identifier + ". Error " + e + ". NULL returned.", e);
       return null;
     }
   }
@@ -152,6 +153,7 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     try {
       return getItem(parentId, name);
     } catch (Exception e) {
+      log.error("GET operation fails. Parent ID=" + parentId + " name " + name.getAsString() + ". Error " + e + ". NULL returned.", e);
       return null;
     }
   }  
@@ -365,14 +367,15 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
   
   protected void putItem(final ItemData data) throws Exception {
-    final CacheQPath path = new CacheQPath(data.getParentIdentifier(), data.getQPath());
+    
     final String identifier = data.getIdentifier();
+    final CacheQPath path = new CacheQPath(data.getParentIdentifier(), data.getQPath());
     
     if (log.isDebugEnabled())
       log.debug(name + ", putItem()    " + data.getQPath().getAsString() + "    " + identifier + "  --  " + data);
     
+    cache.put(identifier, data);
     cache.put(path, data);
-    cache.put(identifier, data);    
   }
   
   protected ItemData getItem(final String identifier) throws Exception {
@@ -505,8 +508,9 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     
     List <ItemState> itemStates = changesLog.getAllStates();
 
-    for (Iterator<ItemState> i = itemStates.iterator(); i.hasNext();) {
-      ItemState state = i.next();
+    //for (Iterator<ItemState> i = itemStates.iterator(); i.hasNext();) {
+    for (int i = 0; i < itemStates.size(); i++) {
+      ItemState state = itemStates.get(i);
       ItemData data = state.getData();
       if (log.isDebugEnabled())
         log.debug(name + ", onSaveItems() " + ItemState.nameFromValue(state.getState()) + " " + data.getQPath().getAsString()
@@ -514,34 +518,37 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
             + " parent:" + data.getParentIdentifier());
 
       try {
-        if (state.isAdded() || state.isRenamed()) {
+        if (state.isAdded()) {
           if (!data.isNode() && needReload(data)) {
             unloadProperty((PropertyData) data);
           } 
           put(data);
         } else if (state.isUpdated()) {
           if (data.isNode()) {
-            NodeData cached = (NodeData) get(data.getIdentifier());
-            if (cached != null && cached.getQPath().getDepth() == data.getQPath().getDepth() && 
-                cached.getQPath().getIndex() != data.getQPath().getIndex()) {
-              // reindex
-              ItemData parentData = get(data.getParentIdentifier());
-              if (parentData != null) {
-                // NOTE: on parent this node will be updated in put
-                removeDeep(parentData, false); // remove the parent only
-                synchronized (propertiesCache) {
-                  removeChildProperties(parentData.getIdentifier()); // remove child properties
-                }
-                synchronized (nodesCache) {
-                  if (removeChildNodes(parentData.getIdentifier(), true) == null) { // remove child nodes recursive
-                    // [PN] 01.02.07 if no childs for reindexed node perent were cached
-                    synchronized (propertiesCache) {
-                      removeDeep(cached, true); // remove reindexed node (i.e. this one UPDATEd only)
-                    }
-                  }
-                }
-              }
-            }
+            // TODO
+//            NodeData cached = (NodeData) get(data.getIdentifier());
+//            if (cached != null && cached.getQPath().getDepth() == data.getQPath().getDepth() && 
+//                cached.getQPath().getIndex() != data.getQPath().getIndex()) {
+//              // reindex
+//              ItemData parentData = get(data.getParentIdentifier());
+//              if (parentData != null) {
+//                // NOTE: on parent this node will be updated in put
+//                removeDeep(parentData, false); // remove the parent only
+//                synchronized (propertiesCache) {
+//                  removeChildProperties(parentData.getIdentifier()); // remove child properties
+//                }
+//                synchronized (nodesCache) {
+//                  if (removeChildNodes(parentData.getIdentifier(), true) == null) { // remove child nodes recursive
+//                    // [PN] 01.02.07 if no childs for reindexed node perent were cached
+//                    synchronized (propertiesCache) {
+//                      removeDeep(cached, true); // remove reindexed node (i.e. this one UPDATEd only)
+//                    }
+//                  }
+//                }
+//              }
+//            }
+            // orderable nodes will be removed, to be loaded back from the persistence
+            unloadNode((NodeData) data);
           } else if (needReload(data)) {
             unloadProperty((PropertyData) data); // remove mixins
           } 
@@ -549,13 +556,57 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
         } else if (state.isDeleted()) {
           if (!data.isNode() && needReload(data))
             unloadProperty((PropertyData) data);
-          else
+          else {
             remove(data);
+          }
+        } else if (state.isRenamed()) {
+          if (data.isNode()) {
+            unloadNode((NodeData) data);
+          } else if (needReload(data)) {
+            unloadProperty((PropertyData) data); // remove mixins
+          } 
+          put(data); // TODO 
         }
       } catch (Exception e) {
         log.error(name + ", Error process onSaveItems action for item data: " 
             + (data != null ? data.getQPath().getAsString() : "[null]"), e);
       }
+    }
+  }
+  
+  /**
+   * Mark the item to be reloaded from the persistence. 
+   * 
+   * The case made be removing all descendats of the item parent.
+   * Same as remove(item) but not delete 
+   */
+  private void unloadNode(final NodeData item) throws Exception {
+    ItemData parentData = get(item.getParentIdentifier());
+    // NOTE. it's possible that we have to not use the fact of caching and remove anyway by data.getParentIdentifier()  
+    if (parentData != null) { 
+      // remove the item parent (no whole tree)
+      //removeDeep(parentData, false);
+      
+      if (item.isNode()) {
+        // remove child nodes of the item parent recursive
+        synchronized (nodesCache) {
+          synchronized (propertiesCache) {
+            if (removeChildNodes(parentData.getIdentifier(), true) == null) { 
+              // if no childs of the item (node) parent were cached - remove renamed node directly 
+              removeDeep(item, true);
+            }
+          }
+        }
+        
+        // Traverse whole cache (C), select each descendant of the item and remove it from C. The costly operation.
+        removeSuccessors((NodeData) item);
+      } else {
+        // remove child properties of the item parent
+        synchronized (propertiesCache) {
+          removeChildProperties(parentData.getIdentifier());
+          //propertiesCache.remove(parentData.getIdentifier());
+        }
+      }         
     }
   }
 
@@ -617,7 +668,7 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     cache.remove(item.getIdentifier());
     final ItemData itemData = (ItemData) cache.remove(myPath);
     if (itemData != null && !itemData.getIdentifier().equals(item.getIdentifier())) {
-      // same path but diff identifier node
+      // same path but diff identifier node... phantom
       removeDeep(itemData, forceDeep);
     }
     if (log.isDebugEnabled())

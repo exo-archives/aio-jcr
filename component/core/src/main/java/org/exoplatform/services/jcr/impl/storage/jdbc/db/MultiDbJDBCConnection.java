@@ -54,6 +54,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
   protected PreparedStatement findReferences;
 
   protected PreparedStatement findValuesByPropertyId;
+  protected PreparedStatement findValuesDataByPropertyId;
   protected PreparedStatement findValueByPropertyIdOrderNumber;
 
   protected PreparedStatement findNodesByParentId;
@@ -367,13 +368,13 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
   }
 
   protected ResultSet findValuesDataByPropertyId(String cid) throws SQLException {
-    if (findValuesByPropertyId == null)
-      findValuesByPropertyId = dbConnection.prepareStatement(FIND_VALUESDATA_BY_PROPERTYID);
+    if (findValuesDataByPropertyId == null)
+      findValuesDataByPropertyId = dbConnection.prepareStatement(FIND_VALUESDATA_BY_PROPERTYID);
     else
-      findValuesByPropertyId.clearParameters();
+      findValuesDataByPropertyId.clearParameters();
       
-    findValuesByPropertyId.setString(1, cid);
-    return findValuesByPropertyId.executeQuery();
+    findValuesDataByPropertyId.setString(1, cid);
+    return findValuesDataByPropertyId.executeQuery();
   }
   
   protected ResultSet findValuesByPropertyId(String cid) throws SQLException {

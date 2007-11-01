@@ -1,11 +1,9 @@
 package org.exoplatform.services.jcr;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Random;
 
 import javax.jcr.Node;
@@ -83,9 +81,9 @@ public abstract class BaseStandaloneTest extends TestCase {
     
     StandaloneContainer
       //.addConfigurationPath(conf);
-      //.addConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
-      .addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.xml");
-      //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-mjdbc.pgsql.xml");
+      .addConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
+      //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.xml");
+      //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.pgsql.xml");
       //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.ora.xml");
       //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-mjdbc.mysql.xml");
   

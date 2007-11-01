@@ -341,11 +341,10 @@ public class WorkspaceImpl implements ExtendedWorkspace {
           .getTransientNodesManager(), true);
     srcNode.getData().accept(initializer);
 
-    // [PN] 06.01.07 Use one log - one transaction
     PlainChangesLog changes = new PlainChangesLogImpl(session.getId());  
     changes.addAll(initializer.getItemDeletedStates(true)); 
     
-    // [PN] 06.01.07 Reindex same-name siblings on the parent after deletion
+    // Reindex same-name siblings on the parent after deletion
     changes.addAll(session.getTransientNodesManager().reindexSameNameSiblings(
         srcNode.nodeData(), session.getTransientNodesManager().getTransactManager()));
     

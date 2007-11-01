@@ -41,9 +41,7 @@ import org.exoplatform.services.jcr.impl.core.version.ChildVersionRemoveVisitor;
 import org.exoplatform.services.jcr.impl.core.version.VersionHistoryImpl;
 import org.exoplatform.services.jcr.impl.core.version.VersionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataMoveVisitor;
-import org.exoplatform.services.jcr.impl.dataflow.ItemDataRenameVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.LocalWorkspaceDataManagerStub;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableDataManager;
@@ -185,7 +183,7 @@ public class SessionDataManager implements ItemDataConsumer {
       ItemState state = changesLog.getItemState(parent, name);
       if (state == null) {
         // 2. Try from txdatamanager
-        data = locate(transactionableManager.getItemData(parent, name));
+        data = transactionableManager.getItemData(parent, name);
       } else if (!state.isDeleted()) {
         data = state.getData();
       }
@@ -218,7 +216,7 @@ public class SessionDataManager implements ItemDataConsumer {
       ItemState state = changesLog.getItemState(identifier);
       if (state == null) {
         // 2. Try from txdatamanager
-        data = locate(transactionableManager.getItemData(identifier));
+        data = transactionableManager.getItemData(identifier);
       } else if (!state.isDeleted()) {
         data = state.getData();
       }
@@ -227,53 +225,6 @@ public class SessionDataManager implements ItemDataConsumer {
       // if (log.isDebugEnabled())
       // log.debug("getItemData(" + identifier + ") <<<<< " +
       // ((System.currentTimeMillis() - start)/1000d) + "sec");
-    }
-  }
-
-  protected ItemData locate(final ItemData idata) throws RepositoryException {
-    if (idata == null)
-      return null;
-
-    final ItemState[] renamedStates = changesLog.findRenamed(idata);
-    if (renamedStates != null)
-      // change item location
-      return relocate(renamedStates, idata);
-    else
-      return idata;
-  }
-
-  /**
-   * Change item location according the RENAME operation states.
-   * 
-   * @param renamedStates
-   * @param idata
-   * @return
-   * @throws RepositoryException
-   */
-  protected ItemData relocate(final ItemState[] renamedStates, final ItemData idata) throws RepositoryException {
-    NodeData dancestor = (NodeData) renamedStates[0].getData(); // deleted
-    NodeData rancestor = (NodeData) renamedStates[1].getData(); // renamed
-    QPathEntry[] dpath = dancestor.getQPath().getEntries();
-    QPathEntry[] rpath = rancestor.getQPath().getEntries();
-    QPathEntry[] ipath = idata.getQPath().getEntries();
-
-    QPathEntry[] iNewPath = new QPathEntry[ipath.length - dpath.length + rpath.length];
-    // renamed ancestor path first
-    System.arraycopy(rpath, 0, iNewPath, 0, rpath.length);
-    // rel path of the item (moved subtree)
-    System.arraycopy(ipath, dpath.length, iNewPath, rpath.length, ipath.length - dpath.length);
-
-    if (idata.isNode()) {
-      TransientNodeData ndata = (TransientNodeData) idata;
-      return new TransientNodeData(new QPath(iNewPath), ndata.getIdentifier(), ndata.getPersistedVersion(), ndata
-          .getPrimaryTypeName(), ndata.getMixinTypeNames(), ndata.getOrderNumber(), ndata.getParentIdentifier(), ndata
-          .getACL());
-    } else {
-      TransientPropertyData pdata = (TransientPropertyData) idata;
-      TransientPropertyData newpd = new TransientPropertyData(new QPath(iNewPath), pdata.getIdentifier(), pdata
-          .getPersistedVersion(), pdata.getType(), pdata.getParentIdentifier(), pdata.isMultiValued());
-      newpd.setValues(pdata.getValues());
-      return newpd;
     }
   }
 
@@ -668,7 +619,7 @@ public class SessionDataManager implements ItemDataConsumer {
     }
 
     try {
-      return (List<PropertyData>) merge(parent, transactionableManager, false, MERGE_PROPS);
+      return (List<PropertyData>) mergeList(parent, transactionableManager, false, MERGE_PROPS);
     } finally {
       if (log.isDebugEnabled())
         log.debug("listChildPropertiesData(" + parent.getQPath().getAsString() + ") <<<<< "
@@ -809,17 +760,18 @@ public class SessionDataManager implements ItemDataConsumer {
     }
 
     // 6 sort items to delete
-    Collections.sort(deletes, new PathSorter(true));
+    //log.info(new SessionChangesLog(deletes, changesLog.getSessionId()).dump());
+    Collections.sort(deletes, new PathSorter());
 
     if (!fireEvent)
       // 7 erase evenFire flag if it's a new item
       changesLog.eraseEventFire(itemData.getIdentifier());
 
     changesLog.addAll(deletes);
-
+    //log.info(changesLog.dump())
     if (itemData.isNode())
       // 8 reindex same-name siblings
-      changesLog.addAll(reindexSameNameSiblings((NodeData) itemData, this));
+      changesLog.addAll(reindexSameNameSiblings((NodeData) itemData, this)); 
   }
 
   /**
@@ -914,49 +866,17 @@ public class SessionDataManager implements ItemDataConsumer {
         return changes;
       }
       // update with new index
-      NodeData reindexed = nextSibling.cloneAsSibling(nextSibling.getQPath().getIndex() - 1); // go
-      // up
+      NodeData reindexed = nextSibling.cloneAsSibling(nextSibling.getQPath().getIndex() - 1); // go up
 
       ItemState nodeDeletedState = new ItemState(nextSibling.clone(), ItemState.DELETED, false, null, false, false);
       ItemState reindexedState = ItemState.createRenamedState(reindexed);
       changes.add(nodeDeletedState);
       changes.add(reindexedState);
 
-      // reload pooled implies... it's actual for session and workspace scope
-      // operations
+      // reload pooled implies... it's actual for session and workspace scope operations
+      // TODO this operation must respect all sub-tree of reindexed node
+      // http://jira.exoplatform.org/browse/JCR-340
       itemsPool.reload(reindexed);
-
-      // TODO remove traverse of props/nodes, only pooled should be reloaded.
-      // reload properties
-      List<PropertyData> childsProperies = dataManager.getChildPropertiesData(reindexed);
-      for (PropertyData propertyData : childsProperies) {
-        TransientPropertyData tData = (TransientPropertyData) propertyData;
-        TransientPropertyData tDataCopy = new TransientPropertyData(QPath.makeChildPath(reindexed.getQPath(), tData
-            .getQName()), tData.getIdentifier(), tData.getPersistedVersion(), tData.getType(), tData
-            .getParentIdentifier(), tData.isMultiValued());
-        tDataCopy.setValues(tData.getValues());
-        ItemState deletedState = new ItemState(tData, ItemState.DELETED, false, null, false, false);
-
-        ItemState reanameState = new ItemState(tDataCopy, ItemState.RENAMED, false, null, false, false);
-        changes.add(deletedState);
-        changes.add(reanameState);
-        itemsPool.reload(reindexed);
-      }
-
-      // reload subnodes
-
-      List<NodeData> childsNodes = dataManager.getChildNodesData(reindexed);
-      for (NodeData nodeData : childsNodes) {
-        ItemDataRenameVisitor dataRenameVisitor = new ItemDataRenameVisitor(reindexed, false, false, this, -1);
-        nodeData.accept(dataRenameVisitor);
-
-        List<ItemState> renamedSubList = dataRenameVisitor.getItemRenamedStates();
-
-        for (ItemState itemState : renamedSubList) {
-          itemsPool.reload(itemState.getData());
-        }
-        changes.addAll(renamedSubList);
-      }
 
       // next...
       nextSibling = (TransientNodeData) dataManager.getItemData(parentNodeData, new QPathEntry(nextSibling.getQPath()
@@ -1051,7 +971,7 @@ public class SessionDataManager implements ItemDataConsumer {
     List<PropertyData> persisted = transactionableManager.getReferencesData(identifier, skipVersionStorage);
     List<PropertyData> sessionTransient = new ArrayList<PropertyData>();
     for (PropertyData p : persisted) {
-      sessionTransient.add((PropertyData) locate(p));
+      sessionTransient.add((PropertyData) p);
     }
     return sessionTransient;
   }
@@ -1283,10 +1203,8 @@ public class SessionDataManager implements ItemDataConsumer {
     List<ItemData> retval = new ArrayList<ItemData>();
     Collection<ItemData> desc = descendants.values();
 
-    ItemState[] rename = changesLog.findRenamed(rootData);
-
     for (ItemData itemData : desc) {
-      retval.add(rename != null ? relocate(rename, itemData) : itemData);
+      retval.add(itemData);
       if (deep)
         retval.addAll(merge(itemData, dataManager, true, action));
     }
@@ -1327,10 +1245,8 @@ public class SessionDataManager implements ItemDataConsumer {
     List<ItemData> retval = new ArrayList<ItemData>();
     Collection<ItemData> desc = descendants.values();
     
-    ItemState[] rename = changesLog.findRenamed(rootData);
-    
-    for (ItemData itemData : desc) {
-      retval.add(rename != null ? relocate(rename, itemData) : itemData);
+    for (ItemData itemData : desc) { 
+      retval.add(itemData);
       if (deep)
         retval.addAll(mergeList(itemData, dataManager, true, action));
     }
@@ -1414,7 +1330,7 @@ public class SessionDataManager implements ItemDataConsumer {
       }
     }
   }
-
+  
   /**
    * Pool for touched items.
    */
@@ -1559,7 +1475,6 @@ public class SessionDataManager implements ItemDataConsumer {
 
       return str;
     }
-
   }
 
   /**
@@ -1595,20 +1510,8 @@ public class SessionDataManager implements ItemDataConsumer {
    */
   private class PathSorter implements Comparator<ItemState> {
 
-    private boolean reverse = false;
-
-    public PathSorter(boolean reverse) {
-      this.reverse = reverse;
-    }
-
-    public int compare(ItemState i1, ItemState i2) {
-      int res = i1.getData().getQPath().compareTo(i2.getData().getQPath());
-      // int res =
-      // i1.getData().getQPath().getAsString().compareTo(i2.getData().getQPath().getAsString());
-      if (reverse)
-        res *= (-1);
-      return res;
+    public int compare(final ItemState i1, final ItemState i2) {
+      return - i1.getData().getQPath().compareTo(i2.getData().getQPath());
     }
   }
-
 }

@@ -256,7 +256,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     checkIfOpened();
 
     final String cid = getInternalId(data.getIdentifier());
-
+    
     try {
       int nc = deleteItemByIdentifier(cid);
       if (nc <= 0)
@@ -666,7 +666,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
               + qpath.getAsString() + ", id " + ptProp.getString(COLUMN_ID) + ", container "
               + this.containerName);
 
-        byte[] data = ptValue.getBytes(COLUMN_VDATA);
+        byte[] data = ptValue.getBytes(COLUMN_VDATA); //ptValue.getString(4)
         InternalQName ptName = InternalQName.parse(new String((data != null ? data : new byte[] {})));
 
         // MIXIN

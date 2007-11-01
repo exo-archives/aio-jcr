@@ -5,6 +5,7 @@
 package org.exoplatform.services.jcr.impl.dataflow.session;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -233,21 +234,26 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
   }
   
   /**
-   * Find if the node ancestor was renamed in this changes log.
+   * EXPERIMENTAL.
    * 
-   * @param item - target node
-   * @return - the pair of states of item ancestor, ItemState[] {DELETED, RENAMED} or null if renaming is not detected.
+   * Find a rename operation pair of states by path of DELETED item.
+   * Search from the end of log for DELETED state first. 
+   * Then repeat the search for RENAMED state. 
+   * 
+   * @param deletedPath - target node path
+   * @return - the pair of states of item (or its ancestors), ItemState[] {DELETED, RENAMED} or null if renaming is not detected.
    * @throws IllegalPathException
    */
-  public ItemState[] findRenamed(ItemData item) throws IllegalPathException {
+  public ItemState[] findRenamed(QPath deletedPath) throws IllegalPathException {
     List<ItemState> allStates = getAllStates();
     // search from the end for DELETED state.
     // RENAMED comes after the DELETED in the log  immediately
     for (int i = allStates.size() - 1; i >= 0; i--) {
       ItemState state = allStates.get(i);  
       if (state.getState() == ItemState.DELETED && !state.isPersisted() &&
-          item.getQPath().isDescendantOf(state.getData().getQPath(), false)) {
-        // 1. if it's a parent or the parent is descendant of logged data
+          (deletedPath.isDescendantOf(state.getData().getQPath(), false) ||
+           deletedPath.equals(state.getData().getQPath()))) {
+        // 1. if it's an item or ancestor of logged data
         try {
           ItemState delete = state;
           ItemState rename = allStates.get(i + 1);
@@ -255,7 +261,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
           if (rename.getState() == ItemState.RENAMED && rename.isPersisted() &&
               rename.getData().getIdentifier().equals(delete.getData().getIdentifier())) {
             
-            // 2. search of most fresh state of rename for searched rename state (i.e. for ancestor state of the given node) 
+            // 2. search of most fresh state for searched rename state 
             for (int bi = allStates.size() - 1; bi >= i + 2; bi--) {
               state = allStates.get(bi);
               if (state.getState() == ItemState.RENAMED && state.isPersisted() &&
@@ -274,6 +280,77 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
           // the pair not found
           return null;
         }
+      }
+    }
+    return null;
+  }
+  
+  /**
+   * Search for an item state of item with given path (or its ancestor) and filter parameters. 
+   * 
+   * @param rootPath - item path (root path)
+   * @param states - filter only the given list states, or all if it's null
+   * @param isPersisted - filter only persisted/not persisted, or all if it's null
+   * @param orAncestor - may return the item ancestor if true and the ancestor was changed last, 
+   *                     or only item with given path if it's null
+   * @return - filtered {@link ItemState}
+   * @throws IllegalPathException
+   */
+  public ItemState findItemState(QPath rootPath, Boolean isPersisted, Boolean orAncestor, int...states) throws IllegalPathException {
+    List<ItemState> allStates = getAllStates();
+    // search from the end for state 
+    for (int i = allStates.size() - 1; i >= 0; i--) {
+      ItemState istate = allStates.get(i);
+      boolean byState = false;
+      if (states != null) {
+        for (int state: states) {
+          if (istate.getState() == state) {
+            byState = true;
+            break;
+          }
+        }
+      } else
+        byState = true;
+      if (byState && 
+          (isPersisted != null ? istate.isPersisted() == isPersisted : true) &&
+          ((orAncestor != null && orAncestor ? rootPath.isDescendantOf(istate.getData().getQPath(), false) : false) ||
+              rootPath.equals(istate.getData().getQPath()))) {
+        return istate;
+      }
+    }
+    return null;
+  }
+  
+  /**
+   * Search for an item state of item with given id and filter parameters. 
+   * 
+   * @param id - item id
+   * @param states - filter only the given list states (ORed), or all if it's null
+   * @param isPersisted - filter only persisted/not persisted, or all if it's null
+   * @param orAncestor - may return the item ancestor if true and the ancestor was changed last, 
+   *                     or only item with given path if it's null
+   * @return - filtered {@link ItemState}
+   * @throws IllegalPathException
+   */
+  public ItemState findItemState(String id, Boolean isPersisted, Boolean orAncestor, int...states) throws IllegalPathException {
+    List<ItemState> allStates = getAllStates();
+    // search from the end for state 
+    for (int i = allStates.size() - 1; i >= 0; i--) {
+      ItemState istate = allStates.get(i);
+      boolean byState = false;
+      if (states != null) {
+        for (int state: states) {
+          if (istate.getState() == state) {
+            byState = true;
+            break;
+          }
+        }
+      } else
+        byState = true;
+      if (byState && 
+          (isPersisted != null ? istate.isPersisted() == isPersisted : true) &&
+          istate.getData().getIdentifier().equals(id)) {
+        return istate;
       }
     }
     return null;

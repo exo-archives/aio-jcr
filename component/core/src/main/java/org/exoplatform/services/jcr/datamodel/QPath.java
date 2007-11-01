@@ -12,6 +12,7 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.commons.utils.QName;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -132,31 +133,33 @@ public class QPath implements Comparable<QPath> {
     }
     return true;
   }
+  
   /**
    *
    * @param firstPath
    * @param secondPath
-   * @return The general primogenitor of two ways.
+   * @return The common ancestor of two paths.
    * @throws PathNotFoundException
    */
- public static QPath getPrimogenitorPath(QPath firstPath, QPath secondPath)
+  public static QPath getCommonAncestorPath(QPath firstPath, QPath secondPath)
       throws PathNotFoundException {
 
     if (!firstPath.getEntries()[0].equals(secondPath.getEntries()[0])) {
-      throw new PathNotFoundException("For the given ways there is no general primogenitor.");
+      throw new PathNotFoundException("For the given ways there is no common ancestor.");
     }
 
-    List<QPathEntry> primoEntries = new ArrayList<QPathEntry>();
+    List<QPathEntry> caEntries = new ArrayList<QPathEntry>();
     for (int i = 0; i < firstPath.getEntries().length; i++) {
       if (firstPath.getEntries()[i].equals(secondPath.getEntries()[i])){
-        primoEntries.add(firstPath.getEntries()[i]);
+        caEntries.add(firstPath.getEntries()[i]);
       } else {
         break;
       }
     }
 
-    return new QPath(primoEntries.toArray(new QPathEntry[primoEntries.size()]));
+    return new QPath(caEntries.toArray(new QPathEntry[caEntries.size()]));
   }
+  
   /**
    * @return last name of this path
    */
@@ -208,15 +211,15 @@ public class QPath implements Comparable<QPath> {
     return hashCode == o.hashCode();
   }
 
-  public int compareTo(QPath compare) {
+  public int compareTo_Old(QPath compare) {
     if (compare.equals(this))
       return 0;
 
-    int len1 = names.length;
-    int len2 = compare.getLength();
-
     QPathEntry[] e1 = names;
     QPathEntry[] e2 = compare.getEntries();
+    
+    int len1 = e1.length;
+    int len2 = e2.length;
 
     int k = 0;
     int lim = Math.min(len1, len2) ;
@@ -233,6 +236,31 @@ public class QPath implements Comparable<QPath> {
     return len1 - len2;
   }
 
+  public int compareTo(QPath compare) {
+    if (compare.equals(this))
+      return 0;
+
+    QPathEntry[] e1 = names;
+    QPathEntry[] e2 = compare.getEntries();
+    
+    int len1 = e1.length;
+    int len2 = e2.length;
+
+    int k = 0;
+    int lim = Math.min(len1, len2) ;
+    while (k < lim) {
+      
+      QPathEntry c1 = e1[k];
+      QPathEntry c2 = e2[k];
+      
+      if (!c1.isSame(c2)) {
+        return c1.compareTo(c2);
+      }
+      k++;
+    }
+    return len1 - len2;
+  }
+  
   @Override
   public int hashCode() {
     return hashCode;
@@ -320,7 +348,7 @@ public class QPath implements Comparable<QPath> {
   }
 
   public static QPath makeChildPath(final QPath parent,
-      final InternalQName name, final int itemIndex) {
+      final QName name, final int itemIndex) {
 
     QPathEntry[] parentEntries = parent.getEntries();
     QPathEntry[] names = new QPathEntry[parentEntries.length + 1];

@@ -92,7 +92,7 @@ public class ItemDataMoveVisitor   extends ItemDataTraversingVisitor{
   protected void entering(NodeData node, int level) throws RepositoryException {
     
     if (ancestorToSave == null){
-      ancestorToSave = QPath.getPrimogenitorPath(curParent().getQPath(),node.getQPath());
+      ancestorToSave = QPath.getCommonAncestorPath(curParent().getQPath(),node.getQPath());
     }
 
     NodeData parent = curParent();

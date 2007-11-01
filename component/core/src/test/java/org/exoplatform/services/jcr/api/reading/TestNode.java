@@ -21,7 +21,6 @@ import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.Value;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
-import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 import org.exoplatform.services.jcr.impl.core.value.StringValue;
@@ -29,7 +28,7 @@ import org.exoplatform.services.jcr.impl.core.value.StringValue;
 /**
  * Created by The eXo Platform SARL        .
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: TestNode.java 12841 2007-02-16 08:58:38Z peterit $
+ * @version $Id$
  */
 public class TestNode extends JcrAPIBaseTest{
   
@@ -451,38 +450,6 @@ public class TestNode extends JcrAPIBaseTest{
     assertEquals(3l, i.getSize()); 
    }
 
-  public void testRemoveSameNameSiblings() throws Exception {
-    
-    Node testRoot = root.addNode("snsRemoveTest");
-    session.save();
-    
-    try {
-    
-      Node node1 = testRoot.addNode("_node");
-      node1.setProperty("prop", "_data1");
-      Node node2 = testRoot.addNode("_node");
-      node2.setProperty("prop", "_data2");
-      Node node3 = node2.addNode("node3");
-      testRoot.save();
-      
-      try {
-        assertEquals("/snsRemoveTest/_node[2]/node3",node2.getNode("node3").getPath());
-        node1.remove(); // /snsRemoveTest/_node[2] -> /snsRemoveTest/_node[1]
-        
-        // check  
-        String n2p = node2.getProperty("prop").getString();
-        assertEquals("A property must be same ", "_data2", n2p);
-        
-        assertEquals("/snsRemoveTest/_node/node3", node2.getNode("node3").getPath());
-        
-      } catch(RepositoryException e) {
-        e.printStackTrace();
-        fail("A property must exists on the node /snsRemoveTest/_node[1] " + e);
-      }
-    } finally {
-      testRoot.remove();
-      session.save();
-    }
-  }
+  
 
 }

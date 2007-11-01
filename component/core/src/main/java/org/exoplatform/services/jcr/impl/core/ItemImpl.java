@@ -77,7 +77,7 @@ public abstract class ItemImpl implements Item {
 
   protected ValueFactoryImpl valueFactory;
 
-  protected int itemHashCode = 0;
+  protected final int itemHashCode;
 
   ItemImpl(ItemData data, SessionImpl session) throws RepositoryException {
 

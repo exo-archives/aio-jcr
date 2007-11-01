@@ -49,13 +49,16 @@ public class QPathEntry extends InternalQName implements Comparable<QPathEntry> 
   public int compareTo(QPathEntry compare) {
     int result = 0;
 
-    if (this.equals(compare))
+    if (this.isSame(compare))
       return result;
     result = namespace.compareTo(compare.namespace);
+//    + name.compareTo(compare.name) + 
+//      (index - compare.index);
     if (result == 0) {
       result = name.compareTo(compare.name);
       if (result == 0)
-        result = (index < compare.index ? 1 : (index == compare.index ? 0 : -1));
+        //result = (index < compare.index ? 1 : (index == compare.index ? 0 : -1));
+        result = index - compare.index;
     }
     return result;
   }

@@ -25,7 +25,6 @@ import javax.jcr.ItemExistsException;
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.LoginException;
 import javax.jcr.NamespaceException;
-import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -264,7 +263,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
    * 
    * @see javax.jcr.Session#getRootNode()
    */
-  public Node getRootNode() throws RepositoryException {
+  public NodeImpl getRootNode() throws RepositoryException {
     Item item = nodesManager.getItemByIdentifier(Constants.ROOT_UUID, true);
     if (item != null && item.isNode()) {
       return (NodeImpl) item;
