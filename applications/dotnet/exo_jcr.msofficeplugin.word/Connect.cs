@@ -74,6 +74,8 @@ namespace exo_jcr.msofficeplugin.word
 
         private String fileName;
 
+        private String repository;
+
         private String workspace;
 
         private bool isNeedCompare = false;
@@ -81,14 +83,6 @@ namespace exo_jcr.msofficeplugin.word
         public void needsCompare(Boolean isNeedsCompare)
         {
             this.isNeedCompare = isNeedsCompare;
-        }
-
-        public DavContext getContext()
-        {
-            if (davContext == null) {
-                davContext = getContext("");
-            }
-            return davContext;
         }
 
         public String getCacheFolder()
@@ -153,20 +147,20 @@ namespace exo_jcr.msofficeplugin.word
 
         private DavContext davContext; 
 
-        public DavContext getContext(String url)
+        public DavContext getContext()
         {
-            davContext = createContext(url);
-            if (davContext == null) {
+            davContext = createContext();
+            
+            if (davContext == null)
+            {
                 MessageBox.Show("Cannot load paramethers,\n please run Settings first.", "Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return null;
-            } else {
-                return davContext;
-            }            
+            }
+
+            return davContext;
         }
 
         public void OnConnection(object application, Extensibility.ext_ConnectMode connectMode, object addInInst, ref System.Array custom) {
-            //Console.Beep(3000, 20);
             applicationObject = application;
             addInInstance = addInInst;
 
@@ -469,39 +463,28 @@ namespace exo_jcr.msofficeplugin.word
             }
         }
 
-        private DavContext createContext(String url)
+        private DavContext createContext()
         {
             RegistryKey soft_key = Registry.CurrentUser.OpenSubKey(RegKeys.SOFTWARE_KEY);
             try
             {
-                RegistryKey exo_key = soft_key.OpenSubKey(RegKeys.EXO_KEY);
+                RegistryKey exo_key = soft_key.OpenSubKey(RegKeys.EXO_KEY);                
                 RegistryKey client_key = exo_key.OpenSubKey(RegKeys.CLIENT_KEY);
 
                 String _server = client_key.GetValue(RegKeys.S_ADDDR_KEY, "").ToString();
                 int _port = System.Convert.ToInt32(client_key.GetValue(RegKeys.S_PORT_KEY, "").ToString());
                 String _servlet = client_key.GetValue(RegKeys.S_SERVLET_KEY, "").ToString();
+
+                this.workspace = Utils.getValidName(client_key.GetValue(RegKeys.WS_KEY, "").ToString());
+                this.repository = Utils.getValidName(client_key.GetValue(RegKeys.REPO_KEY, "").ToString());
+                
                 String _username = client_key.GetValue(RegKeys.USER_KEY, "").ToString();
-                String svalue = client_key.GetValue(RegKeys.PASS_KEY, "").ToString();
-                this.workspace = client_key.GetValue(RegKeys.WS_KEY, "").ToString();
-
-                byte[] bs_pass = System.Convert.FromBase64String(svalue);
-                String _pass = Encoding.UTF8.GetString(bs_pass);
-                String servletPath = "";
-                String to_find = _server + ":" + _port;
-
-                if (!url.Equals(""))
-                {
-                    servletPath = url.Substring(url.IndexOf(to_find) + to_find.Length);
-                }
-
-                if (servletPath != "")
-                {
-                    return new DavContext(_server, _port, servletPath, _username, _pass);
-                }
-                else
-                {
-                    return new DavContext(_server, _port, _servlet, _username, _pass);
-                }
+                String _userPass = client_key.GetValue(RegKeys.PASS_KEY, "").ToString();                
+                byte[] bs_pass = System.Convert.FromBase64String(_userPass);
+                _userPass = Encoding.UTF8.GetString(bs_pass);
+                
+                String servletPath = Utils.getValidServletPath(_servlet, repository, "");
+                return new DavContext(_server, _port, servletPath, _username, _userPass);
             }
             catch (Exception regexc)
             {

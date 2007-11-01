@@ -33,10 +33,10 @@ namespace exo_jcr.msofficeplugin.common
             this.box_search = new System.Windows.Forms.TextBox();
             this.btn_search = new System.Windows.Forms.Button();
             this.file_list = new System.Windows.Forms.ListView();
-            this.File_Name = new System.Windows.Forms.ColumnHeader();
-            this.path = new System.Windows.Forms.ColumnHeader();
-            this.lastmodidied = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
+            this.cFileName = new System.Windows.Forms.ColumnHeader();
+            this.cPath = new System.Windows.Forms.ColumnHeader();
+            this.cLastModified = new System.Windows.Forms.ColumnHeader();
+            this.cSize = new System.Windows.Forms.ColumnHeader();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.label2 = new System.Windows.Forms.Label();
             this.btn_open = new System.Windows.Forms.Button();
@@ -65,10 +65,10 @@ namespace exo_jcr.msofficeplugin.common
             // file_list
             // 
             this.file_list.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.File_Name,
-            this.path,
-            this.lastmodidied,
-            this.columnHeader1});
+            this.cFileName,
+            this.cPath,
+            this.cSize,
+            this.cLastModified});
             this.file_list.Location = new System.Drawing.Point(15, 43);
             this.file_list.Name = "file_list";
             this.file_list.Size = new System.Drawing.Size(741, 321);
@@ -78,24 +78,25 @@ namespace exo_jcr.msofficeplugin.common
             this.file_list.View = System.Windows.Forms.View.Details;
             this.file_list.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.file_list_MouseDoubleClick);
             // 
-            // File_Name
+            // cFileName
             // 
-            this.File_Name.Text = "File Name";
-            this.File_Name.Width = 173;
+            this.cFileName.Text = "File Name";
+            this.cFileName.Width = 180;
             // 
-            // path
+            // cPath
             // 
-            this.path.Text = "Path";
-            this.path.Width = 169;
+            this.cPath.Text = "Path";
+            this.cPath.Width = 300;
             // 
-            // lastmodidied
+            // cLastModified
             // 
-            this.lastmodidied.Text = "Last Modified";
-            this.lastmodidied.Width = 118;
+            this.cLastModified.Text = "Last Modified";
+            this.cLastModified.Width = 160;
             // 
-            // columnHeader1
+            // cSize
             // 
-            this.columnHeader1.Text = "Size";
+            this.cSize.Text = "Size";
+            this.cSize.Width = 70;
             // 
             // imageList1
             // 
@@ -163,12 +164,12 @@ namespace exo_jcr.msofficeplugin.common
         private System.Windows.Forms.TextBox box_search;
         private System.Windows.Forms.Button btn_search;
         private System.Windows.Forms.ListView file_list;
-        private System.Windows.Forms.ColumnHeader File_Name;
-        private System.Windows.Forms.ColumnHeader path;
-        private System.Windows.Forms.ColumnHeader lastmodidied;
+        private System.Windows.Forms.ColumnHeader cFileName;
+        private System.Windows.Forms.ColumnHeader cPath;
+        private System.Windows.Forms.ColumnHeader cLastModified;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ImageList imageList1;
-        private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.ColumnHeader cSize;
         private System.Windows.Forms.Button btn_open;
         private System.Windows.Forms.Button btn_cancel;
 

@@ -47,13 +47,15 @@ namespace exo_jcr.msofficeplugin.common
             this.password_lbl = new System.Windows.Forms.Label();
             this.box_Username = new System.Windows.Forms.TextBox();
             this.user_lbl = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.box_repository = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // btn_TestConn
             // 
-            this.btn_TestConn.Location = new System.Drawing.Point(12, 220);
+            this.btn_TestConn.Location = new System.Drawing.Point(12, 279);
             this.btn_TestConn.Name = "btn_TestConn";
             this.btn_TestConn.Size = new System.Drawing.Size(105, 23);
             this.btn_TestConn.TabIndex = 0;
@@ -63,9 +65,9 @@ namespace exo_jcr.msofficeplugin.common
             // 
             // btn_Save
             // 
-            this.btn_Save.Location = new System.Drawing.Point(283, 220);
+            this.btn_Save.Location = new System.Drawing.Point(244, 279);
             this.btn_Save.Name = "btn_Save";
-            this.btn_Save.Size = new System.Drawing.Size(75, 23);
+            this.btn_Save.Size = new System.Drawing.Size(92, 23);
             this.btn_Save.TabIndex = 1;
             this.btn_Save.Text = "Save";
             this.btn_Save.UseVisualStyleBackColor = true;
@@ -106,7 +108,7 @@ namespace exo_jcr.msofficeplugin.common
             this.groupBox1.Controls.Add(this.box_Server);
             this.groupBox1.Location = new System.Drawing.Point(12, 25);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(246, 179);
+            this.groupBox1.Size = new System.Drawing.Size(246, 233);
             this.groupBox1.TabIndex = 10;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Connection";
@@ -155,9 +157,9 @@ namespace exo_jcr.msofficeplugin.common
             // 
             // btn_Cancel
             // 
-            this.btn_Cancel.Location = new System.Drawing.Point(364, 220);
+            this.btn_Cancel.Location = new System.Drawing.Point(342, 279);
             this.btn_Cancel.Name = "btn_Cancel";
-            this.btn_Cancel.Size = new System.Drawing.Size(75, 23);
+            this.btn_Cancel.Size = new System.Drawing.Size(92, 23);
             this.btn_Cancel.TabIndex = 11;
             this.btn_Cancel.Text = "Cancel";
             this.btn_Cancel.UseVisualStyleBackColor = true;
@@ -165,6 +167,8 @@ namespace exo_jcr.msofficeplugin.common
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.box_repository);
+            this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Controls.Add(this.label3);
             this.groupBox2.Controls.Add(this.box_workspace);
             this.groupBox2.Controls.Add(this.box_Password);
@@ -173,7 +177,7 @@ namespace exo_jcr.msofficeplugin.common
             this.groupBox2.Controls.Add(this.user_lbl);
             this.groupBox2.Location = new System.Drawing.Point(276, 25);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(163, 179);
+            this.groupBox2.Size = new System.Drawing.Size(158, 233);
             this.groupBox2.TabIndex = 12;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Login";
@@ -181,7 +185,7 @@ namespace exo_jcr.msofficeplugin.common
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 117);
+            this.label3.Location = new System.Drawing.Point(9, 167);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(66, 13);
             this.label3.TabIndex = 5;
@@ -189,16 +193,16 @@ namespace exo_jcr.msofficeplugin.common
             // 
             // box_workspace
             // 
-            this.box_workspace.Location = new System.Drawing.Point(12, 136);
+            this.box_workspace.Location = new System.Drawing.Point(12, 184);
             this.box_workspace.Name = "box_workspace";
-            this.box_workspace.Size = new System.Drawing.Size(108, 20);
+            this.box_workspace.Size = new System.Drawing.Size(133, 20);
             this.box_workspace.TabIndex = 4;
             // 
             // box_Password
             // 
             this.box_Password.Location = new System.Drawing.Point(12, 81);
             this.box_Password.Name = "box_Password";
-            this.box_Password.Size = new System.Drawing.Size(108, 20);
+            this.box_Password.Size = new System.Drawing.Size(133, 20);
             this.box_Password.TabIndex = 3;
             this.box_Password.UseSystemPasswordChar = true;
             // 
@@ -215,23 +219,39 @@ namespace exo_jcr.msofficeplugin.common
             // 
             this.box_Username.Location = new System.Drawing.Point(12, 34);
             this.box_Username.Name = "box_Username";
-            this.box_Username.Size = new System.Drawing.Size(108, 20);
+            this.box_Username.Size = new System.Drawing.Size(133, 20);
             this.box_Username.TabIndex = 1;
             // 
             // user_lbl
             // 
             this.user_lbl.AutoSize = true;
-            this.user_lbl.Location = new System.Drawing.Point(7, 18);
+            this.user_lbl.Location = new System.Drawing.Point(9, 18);
             this.user_lbl.Name = "user_lbl";
             this.user_lbl.Size = new System.Drawing.Size(59, 13);
             this.user_lbl.TabIndex = 0;
             this.user_lbl.Text = "Username*";
             // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(9, 117);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(61, 13);
+            this.label4.TabIndex = 6;
+            this.label4.Text = "Repository*";
+            // 
+            // box_repository
+            // 
+            this.box_repository.Location = new System.Drawing.Point(12, 133);
+            this.box_repository.Name = "box_repository";
+            this.box_repository.Size = new System.Drawing.Size(133, 20);
+            this.box_repository.TabIndex = 7;
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(451, 256);
+            this.ClientSize = new System.Drawing.Size(447, 314);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.btn_Cancel);
             this.Controls.Add(this.groupBox1);
@@ -276,5 +296,7 @@ namespace exo_jcr.msofficeplugin.common
         private System.Windows.Forms.TextBox box_Username;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox box_workspace;
+        private System.Windows.Forms.TextBox box_repository;
+        private System.Windows.Forms.Label label4;
     }
 }

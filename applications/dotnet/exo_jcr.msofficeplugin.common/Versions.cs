@@ -116,13 +116,13 @@ namespace exo_jcr.msofficeplugin.common
 
                 }
                 else {
-                    MessageBox.Show("Cannot receive versions list!", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Utils.showMessageStatus(status);
                     this.Close();
                 }
 
             } catch (Exception etr) {
-                MessageBox.Show("at fillVersionList"+etr.Message+etr.StackTrace);
+                MessageBox.Show("Error! Can't connect to the server!", Utils.CAPTION,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
             }
 

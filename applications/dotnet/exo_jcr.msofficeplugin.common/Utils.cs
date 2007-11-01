@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Threading;
+using System.Text.RegularExpressions;
 
 using exo_jcr.webdav.csclient;
 using exo_jcr.webdav.csclient.Request;
@@ -27,7 +28,9 @@ namespace exo_jcr.msofficeplugin.common
     public class Utils
     {
 
-        public static void doGetFile(ApplicationInterface appInterface, String href)
+        public const String CAPTION = "eXo-Platform MSO Plugin";
+
+        public static Boolean doGetFile(ApplicationInterface appInterface, String href)
         {
             String contexthref = appInterface.getContext().getContextHref();
             href = href.Substring(contexthref.Length);
@@ -48,9 +51,10 @@ namespace exo_jcr.msofficeplugin.common
                 }
                 catch (Exception ee)
                 {
-                    MessageBox.Show("At doGetFile():" + ee.Message + ee.StackTrace);
+                    MessageBox.Show("Can't create temporary directory! Please check file system permissions!");
+                    return false;
                 }
-            }
+            }                 
 
             String f_name = href.Substring(href.LastIndexOf("/") + 1);
             String FILE_NAME = folder + "\\" + f_name;
@@ -90,14 +94,147 @@ namespace exo_jcr.msofficeplugin.common
             {
                 MessageBox.Show("The file seemed to be already opened", "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return false;
             }
             catch (Exception ed)
             {
-                MessageBox.Show("AT doGetFile " + ed.Message + ed.StackTrace);
-                return;
+                MessageBox.Show("Can't create temporary directory! Please check file system permissions!");
+                return false;
+            }
+            return true;
+        }
+
+        public static String getValidServletPath(String servlet, String repository, String workspace)
+        {
+            String servletPath = "/" + servlet + "/" + repository + "/" + workspace;
+            while (true)
+            {
+                String normalized = servletPath.Replace("\\", "/");
+                if (normalized.Equals(servletPath))
+                {
+                    break;
+                }
+                servletPath = normalized;
             }
 
+            while (true)
+            {
+                String normalized = servletPath.Replace("//", "/");
+                if (normalized.Equals(servletPath))
+                {
+                    break;
+                }
+                servletPath = normalized;
+            }
+
+            if (servletPath.EndsWith("/"))
+            {
+                servletPath = servletPath.Substring(0, servletPath.Length - 1);
+            }
+
+            return servletPath;
         }
+
+        public static String getValidName(String name)
+        {
+
+            while (true) {
+                String normalized = name.Replace("\\", "/");
+                if (normalized.Equals(name)) {
+                    break;
+                }
+                name = normalized;
+            }
+
+            while (name.StartsWith("/")) {
+                name = name.Substring(1);
+            }
+
+            while (name.EndsWith("/")) {
+                name = name.Substring(0, name.Length - 1);
+            }
+
+            return name;
+        }
+
+        private static String regexpPathName = "^[A-Za-z0-9. %]{1,}$";
+
+        private static String regexpSimpleName = "^[A-Za-z0-9.]{1,}$";
+
+        private static String regexpNumber = "^[0-9]{1,}$";
+
+        public static Boolean checkPathValid(String path)
+        {
+            while (true)
+            {
+                String[] pathes = path.Split('/');
+
+                if (!"".Equals(pathes[0]))
+                {
+                    return false;
+                }
+
+                path = path.Substring(1);
+                pathes = path.Split('/');
+
+                if (!Regex.IsMatch(pathes[0], regexpPathName))
+                {
+                    return false;
+                }
+
+                if (path.IndexOf("/") < 0)
+                {
+                    return true;
+                }
+
+                path = path.Substring(path.IndexOf("/"));
+            }
+        }
+
+
+        public static Boolean checkNameValid(String name)
+        {
+            return Regex.IsMatch(name, regexpPathName);
+        }
+
+        public static Boolean checkSimpleNameValid(String simpleName)
+        {
+            return Regex.IsMatch(simpleName, regexpSimpleName);
+        }
+
+        public static Boolean checkPortValid(String portValue)
+        {
+            return Regex.IsMatch(portValue, regexpNumber);
+        }
+
+        public static void showMessageStatus(int status)
+        {
+            if (status == -1)
+            {
+                MessageBox.Show("Error! Can't connect to the server!", Utils.CAPTION,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else if (status == DavStatus.NOT_FOUND)
+            {
+                MessageBox.Show("Error! Resource not found!", Utils.CAPTION,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else if (status == DavStatus.UNAUTHORIZED)
+            {
+                MessageBox.Show("Error! Not authorized!.", Utils.CAPTION,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else if (status == DavStatus.BAD_REQUEST) {
+                MessageBox.Show("Error! Bad request!.", Utils.CAPTION,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                MessageBox.Show("Internal server error! Status: " + status.ToString(), Utils.CAPTION,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
 
     }
 }

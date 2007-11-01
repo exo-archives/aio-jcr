@@ -37,6 +37,20 @@ namespace exo_jcr.msofficeplugin.common
     public partial class Settings : Form
     {
 
+        public static String host = "localhost";
+        
+        public static int port = 8080;
+        
+        public static String servlet = "/rest/jcr";
+        
+        public static String repository = "repository";
+        
+        public static String workspace = "production";
+
+        public static String userId = "admin";
+
+        public static String userPass = "admin";
+
         public exo_jcr.webdav.csclient.Request.DavContext context;
 
         private ArrayList path = new ArrayList();
@@ -66,37 +80,28 @@ namespace exo_jcr.msofficeplugin.common
             
 
                 box_Server.Text = client_key.GetValue(RegKeys.S_ADDDR_KEY, "").ToString();
-                if (box_Server.Text.Equals("")) box_Server.Text = "localhost";
+                if (box_Server.Text.Equals("")) box_Server.Text = host;
 
                 box_Port.Text = client_key.GetValue(RegKeys.S_PORT_KEY, "").ToString();
-                if (box_Port.Text.Equals("")) box_Port.Text = "8080";
+                if (box_Port.Text.Equals("")) box_Port.Text = port.ToString();
 
                 box_Servlet.Text = client_key.GetValue(RegKeys.S_SERVLET_KEY, "").ToString();
-                if (box_Servlet.Text.Equals("")) box_Servlet.Text = "/jcr-webdav/repository";
+                if (box_Servlet.Text.Equals("")) box_Servlet.Text = servlet;
 
-
-                box_Username.Text = client_key.GetValue(RegKeys.USER_KEY, "").ToString();
-                if (box_Username.Text.Equals("")) box_Username.Text = "admin";
-
+                box_repository.Text = client_key.GetValue(RegKeys.REPO_KEY, "").ToString();
+                if (box_repository.Text.Equals("")) box_repository.Text = repository;
 
                 box_workspace.Text = client_key.GetValue(RegKeys.WS_KEY, "").ToString();
-                if (box_workspace.Text.Equals("")) box_workspace.Text = "production";
+                if (box_workspace.Text.Equals("")) box_workspace.Text = workspace;
+
+                box_Username.Text = client_key.GetValue(RegKeys.USER_KEY, "").ToString();
+                if (box_Username.Text.Equals("")) box_Username.Text = userId;
 
                 String svalue = client_key.GetValue(RegKeys.PASS_KEY, "").ToString();
                 byte[] bs_pass = System.Convert.FromBase64String(svalue);
                 string spass = Encoding.UTF8.GetString(bs_pass);
-                if (spass.Equals("")) spass = "admin";
+                if (spass.Equals("")) spass = userPass;
                 box_Password.Text = spass;
-
-                //if ((int)client_key.GetValue(RegKeys.P_ALLOW_KEY, 0) == 1)
-                //{
-
-                //    box_ProxyAddress.Enabled = true;
-                //    box_ProxyPort.Enabled = true;
-                //    ProxyEnabled.Checked = true;
-                //}
-                //box_ProxyAddress.Text = client_key.GetValue(RegKeys.P_ADDDR_KEY, "").ToString();
-                //box_ProxyPort.Text = client_key.GetValue(RegKeys.P_PORT_KEY, "").ToString();
             }
 
         
@@ -105,67 +110,40 @@ namespace exo_jcr.msofficeplugin.common
         {
             this.Close();
         }
-       
-        private void ProxyEnabled_CheckedChanged(object sender, EventArgs e)
-        {
-
-            RegistryKey soft_key = Registry.CurrentUser.OpenSubKey(RegKeys.SOFTWARE_KEY,true);
-            RegistryKey exo_key = soft_key.OpenSubKey(RegKeys.EXO_KEY,true);
-            if (exo_key == null)
-            {
-                soft_key.CreateSubKey(RegKeys.EXO_KEY);
-
-            }
-            RegistryKey client_key = exo_key.OpenSubKey(RegKeys.CLIENT_KEY);
-            if (client_key == null)
-            {
-                exo_key.CreateSubKey(RegKeys.CLIENT_KEY);
-            }
-            
-            //if (ProxyEnabled.Checked == true)
-            //{
-            //    this.box_ProxyAddress.Enabled = true;
-            //    this.box_ProxyPort.Enabled = true;
-            //}
-            //else {
-            //    this.box_ProxyAddress.Enabled = false;
-            //    this.box_ProxyPort.Enabled = false;
-            //}
-
-            //box_ProxyAddress.Text = client_key.GetValue(RegKeys.P_ADDDR_KEY, "").ToString();
-            //box_ProxyPort.Text = client_key.GetValue(RegKeys.P_PORT_KEY, "").ToString();
-
-
-        }
 
         private void btn_TestConn_Click(object sender, EventArgs e)
         {
+            if (!checkValidParams())
+            {
+                return;
+            }
 
             try
             {
                 String curPath = getPath();
                 int port = Convert.ToInt32(box_Port.Text);
 
-                this.context = new exo_jcr.webdav.csclient.Request.DavContext(box_Server.Text, port, box_Servlet.Text+"/"+box_workspace.Text, box_Username.Text, box_Password.Text);
+                String servletPath = Utils.getValidServletPath(box_Servlet.Text, box_repository.Text, box_workspace.Text);
+
+                this.context = new exo_jcr.webdav.csclient.Request.DavContext(box_Server.Text, port, servletPath, box_Username.Text, box_Password.Text);
                 HeadCommand head = new HeadCommand(context);
                 head.setResourcePath("/");
                 int status = head.execute();
                 if (status == DavStatus.OK)
                 {
-                    MessageBox.Show("Succesfull connection!", "Succesfull",
+                    MessageBox.Show("Testing connection succesfully!", Utils.CAPTION,
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
-                    MessageBox.Show("Connection fail.", "Failed",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Utils.showMessageStatus(status);
                 }
 
             }
             catch (Exception tryexc)
             {
-                MessageBox.Show("Connection error..", "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error! Can't connect to the server!", Utils.CAPTION,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
         }
@@ -185,20 +163,49 @@ namespace exo_jcr.msofficeplugin.common
             return curPath;
         }
 
+        private Boolean checkValidParams()
+        {
+            if (!Utils.checkSimpleNameValid(box_Server.Text))
+            {
+                MessageBox.Show("Server name is invalid!", Utils.CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (!Utils.checkPortValid(box_Port.Text))
+            {
+                MessageBox.Show("Port is invalid!", Utils.CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (!Utils.checkPathValid(box_Servlet.Text))
+            {
+                MessageBox.Show("Servlet path is invalid!\r\nIt should confirm the following pattern '/name1/nameN'", Utils.CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (!Utils.checkNameValid(box_repository.Text))
+            {
+                MessageBox.Show("Repository name is invalid!", Utils.CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (!Utils.checkNameValid(box_workspace.Text))
+            {
+                MessageBox.Show("Workspace name is invalid!", Utils.CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            return true;
+        }
+
         private void btn_Save_Click(object sender, EventArgs e)
         {
+            if (!checkValidParams()) {
+                return;
+            }
+
             try
             {
-
-                if (box_Server.Text.Equals("") || box_Port.Text.Equals("") || box_Servlet.Text.Equals("") ||
-                    box_Username.Text.Equals("") || box_Password.Text.Equals("") || box_workspace.Text.Equals(""))
-                {
-                    MessageBox.Show("Please, fill all required fields!", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-
                 RegistryKey soft_key = Registry.CurrentUser.OpenSubKey(RegKeys.SOFTWARE_KEY, true);
                 RegistryKey exo_key = soft_key.OpenSubKey(RegKeys.EXO_KEY, true);
                 if (exo_key == null)
@@ -224,24 +231,13 @@ namespace exo_jcr.msofficeplugin.common
 
                 client_key.SetValue(RegKeys.USER_KEY, box_Username.Text);
                 client_key.SetValue(RegKeys.PASS_KEY, System.Convert.ToBase64String(bpass));
+
                 client_key.SetValue(RegKeys.WS_KEY, box_workspace.Text);
-
-                //client_key.SetValue(RegKeys.P_ADDDR_KEY, box_ProxyAddress.Text);
-
-                //if (!box_ProxyPort.Text.Equals(""))
-                //client_key.SetValue(RegKeys.P_PORT_KEY, Convert.ToInt32(box_ProxyPort.Text));
-
-                //if (ProxyEnabled.Checked){
-                //    client_key.SetValue(RegKeys.P_ALLOW_KEY, 1);
-                //}else{
-                //    client_key.SetValue(RegKeys.P_ALLOW_KEY, 0);
-                //}
-                MessageBox.Show("Settings Saved!", "Ok",
-                   MessageBoxButtons.OK, MessageBoxIcon.Information);                
+                client_key.SetValue(RegKeys.REPO_KEY, box_repository.Text);
             }
             catch (Exception ee)
             {
-                MessageBox.Show("Cannot save paramethers", "Error",
+                MessageBox.Show("Cannot save paramethers", Utils.CAPTION,
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                 MessageBox.Show(ee.StackTrace + ee.Message);
             }

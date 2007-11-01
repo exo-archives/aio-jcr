@@ -48,9 +48,9 @@ namespace exo_jcr.msofficeplugin.common
             // 
             this.panel2.Controls.Add(this.panel3);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 269);
+            this.panel2.Location = new System.Drawing.Point(0, 306);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(644, 49);
+            this.panel2.Size = new System.Drawing.Size(724, 49);
             this.panel2.TabIndex = 1;
             // 
             // panel3
@@ -62,7 +62,7 @@ namespace exo_jcr.msofficeplugin.common
             this.panel3.Controls.Add(this.btn_save);
             this.panel3.Controls.Add(this.btn_cancel);
             this.panel3.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel3.Location = new System.Drawing.Point(24, 0);
+            this.panel3.Location = new System.Drawing.Point(104, 0);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(620, 49);
             this.panel3.TabIndex = 0;
@@ -127,7 +127,7 @@ namespace exo_jcr.msofficeplugin.common
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(644, 318);
+            this.panel1.Size = new System.Drawing.Size(724, 355);
             this.panel1.TabIndex = 0;
             // 
             // mainControl1
@@ -135,14 +135,14 @@ namespace exo_jcr.msofficeplugin.common
             this.mainControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mainControl1.Location = new System.Drawing.Point(0, 0);
             this.mainControl1.Name = "mainControl1";
-            this.mainControl1.Size = new System.Drawing.Size(644, 318);
+            this.mainControl1.Size = new System.Drawing.Size(724, 355);
             this.mainControl1.TabIndex = 0;
             // 
             // NSave
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(644, 318);
+            this.ClientSize = new System.Drawing.Size(724, 355);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Name = "NSave";

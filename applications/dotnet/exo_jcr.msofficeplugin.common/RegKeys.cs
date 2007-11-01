@@ -28,11 +28,7 @@ namespace exo_jcr.msofficeplugin.common
 
         public static String USER_KEY = "UserName";
         public static String PASS_KEY = "UserPass";
+        public static String REPO_KEY = "Repository";
         public static String WS_KEY = "Workspace";
-
-        public static String P_ADDDR_KEY = "ProxyAddress";
-        public static String P_PORT_KEY = "ProxyPort";
-        public static String P_ALLOW_KEY = "AllowProxy";
-
     }
 }

@@ -65,26 +65,31 @@ namespace exo_jcr.msofficeplugin.common
                 this.Close();
             }
 
-            SearchCommand searchcomm = new SearchCommand(context);
-            SQLQuery query = new SQLQuery();
 
-            searchcomm.setResourcePath("/" + application.getWorkspaceName());
-            String query_string = "select * from nt:base where contains(*, '" + box_search.Text + "')";
-            query.setQuery(query_string);
-            searchcomm.setQuery(query);
+            try
+            {
+                SearchCommand searchcomm = new SearchCommand(context);
+                SQLQuery query = new SQLQuery();
 
-            int status = searchcomm.execute();
-            if (status == DavStatus.MULTISTATUS)
-            {
-                this.multistatus = searchcomm.getMultistatus();
-                DrawFileList();
+                searchcomm.setResourcePath("/" + application.getWorkspaceName());
+                String query_string = "select * from nt:base where contains(*, '" + box_search.Text + "')";
+                //String query_string = box_search.Text;
+                query.setQuery(query_string);
+                searchcomm.setQuery(query);
+
+                int status = searchcomm.execute();
+                if (status == DavStatus.MULTISTATUS)
+                {
+                    this.multistatus = searchcomm.getMultistatus();
+                    DrawFileList();
+                } else {
+                    Utils.showMessageStatus(status);
+                }
             }
-            else if (status == DavStatus.NOT_FOUND)
+            catch (Exception exc)
             {
-                MessageBox.Show("No results found.");
-            }
-            else {
-                MessageBox.Show("Error in query.");
+                MessageBox.Show("Error! Can't connect to the server!", Utils.CAPTION,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
         }
@@ -100,7 +105,7 @@ namespace exo_jcr.msofficeplugin.common
             ArrayList resplist = multistatus.getResponses();
             if (resplist.Count == 0)
             {
-                MessageBox.Show("No results found", "Not found", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("No results found", Utils.CAPTION, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -191,7 +196,9 @@ namespace exo_jcr.msofficeplugin.common
         {
             if (file_list.SelectedItems.Count == 0) return;
             ListViewItem curItem = file_list.SelectedItems[0];
-            Utils.doGetFile(application, curItem.SubItems[1].Text);
+            if (!Utils.doGetFile(application, curItem.SubItems[1].Text)) {
+                return;
+            }
             this.Close();
         }
 

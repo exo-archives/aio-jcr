@@ -51,7 +51,7 @@ namespace exo_jcr.msofficeplugin.common
             this.listFiles.FullRowSelect = true;
             this.listFiles.Location = new System.Drawing.Point(210, 0);
             this.listFiles.Name = "listFiles";
-            this.listFiles.Size = new System.Drawing.Size(417, 223);
+            this.listFiles.Size = new System.Drawing.Size(489, 299);
             this.listFiles.SmallImageList = this.imageList1;
             this.listFiles.TabIndex = 1;
             this.listFiles.UseCompatibleStateImageBehavior = false;
@@ -66,17 +66,18 @@ namespace exo_jcr.msofficeplugin.common
             // 
             // columnHeader2
             // 
-            this.columnHeader2.Text = "Created";
+            this.columnHeader2.Text = "Size";
+            this.columnHeader2.Width = 70;
             // 
             // columnHeader3
             // 
-            this.columnHeader3.Text = "Modified";
-            this.columnHeader3.Width = 85;
+            this.columnHeader3.Text = "Mime-Type";
+            this.columnHeader3.Width = 130;
             // 
             // columnHeader4
             // 
-            this.columnHeader4.Text = "Size";
-            this.columnHeader4.Width = 114;
+            this.columnHeader4.Text = "Modified";
+            this.columnHeader4.Width = 150;
             // 
             // imageList1
             // 
@@ -108,7 +109,7 @@ namespace exo_jcr.msofficeplugin.common
             this.NodeTree.Location = new System.Drawing.Point(0, 0);
             this.NodeTree.Name = "NodeTree";
             this.NodeTree.SelectedImageIndex = 0;
-            this.NodeTree.Size = new System.Drawing.Size(210, 223);
+            this.NodeTree.Size = new System.Drawing.Size(210, 299);
             this.NodeTree.TabIndex = 0;
             this.NodeTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.NodeTree_AfterSelect);
             // 
@@ -116,7 +117,7 @@ namespace exo_jcr.msofficeplugin.common
             // 
             this.splitter1.Location = new System.Drawing.Point(210, 0);
             this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new System.Drawing.Size(3, 223);
+            this.splitter1.Size = new System.Drawing.Size(3, 299);
             this.splitter1.TabIndex = 2;
             this.splitter1.TabStop = false;
             // 
@@ -128,7 +129,7 @@ namespace exo_jcr.msofficeplugin.common
             this.Controls.Add(this.listFiles);
             this.Controls.Add(this.NodeTree);
             this.Name = "MainControl";
-            this.Size = new System.Drawing.Size(627, 223);
+            this.Size = new System.Drawing.Size(699, 299);
             this.Load += new System.EventHandler(this.MainControl_Load);
             this.ResumeLayout(false);
 
@@ -141,8 +142,8 @@ namespace exo_jcr.msofficeplugin.common
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.ImageList imageList1;
         private System.Windows.Forms.ColumnHeader columnHeader1;
-        private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.ColumnHeader columnHeader3;
         private System.Windows.Forms.ColumnHeader columnHeader4;
+        private System.Windows.Forms.ColumnHeader columnHeader2;
     }
 }

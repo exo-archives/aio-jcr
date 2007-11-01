@@ -76,6 +76,8 @@ namespace exo_jcr.msofficeplugin.excel
 
         private String fileName;
 
+        private String repository;
+
         private String workspace;
 
         private DavContext davContext;
@@ -86,26 +88,13 @@ namespace exo_jcr.msofficeplugin.excel
 
         public DavContext getContext()
         {
-            if (davContext == null)
-            {
-                davContext = getContext("");
-            }
-            return davContext;
-        }
-
-        public DavContext getContext(String url)
-        {
-            davContext = createContext(url);
+            davContext = createContext();
             if (davContext == null)
             {
                 MessageBox.Show("Cannot load paramethers,\n please run Settings first.", "Error",
                 MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return null;
-            }
-            else
-            {
-                return davContext;
-            }
+            }   
+            return davContext;
         }
 
         public String getCacheFolder()
@@ -447,7 +436,7 @@ namespace exo_jcr.msofficeplugin.excel
 
         }
 
-        private DavContext createContext(String url)
+        private DavContext createContext()
         {
             RegistryKey soft_key = Registry.CurrentUser.OpenSubKey(RegKeys.SOFTWARE_KEY);
             try
@@ -458,35 +447,21 @@ namespace exo_jcr.msofficeplugin.excel
                 String _server = client_key.GetValue(RegKeys.S_ADDDR_KEY, "").ToString();
                 int _port = System.Convert.ToInt32(client_key.GetValue(RegKeys.S_PORT_KEY, "").ToString());
                 String _servlet = client_key.GetValue(RegKeys.S_SERVLET_KEY, "").ToString();
+
+                this.workspace = Utils.getValidName(client_key.GetValue(RegKeys.WS_KEY, "").ToString());
+                this.repository = Utils.getValidName(client_key.GetValue(RegKeys.REPO_KEY, "").ToString());
+
                 String _username = client_key.GetValue(RegKeys.USER_KEY, "").ToString();
-                String svalue = client_key.GetValue(RegKeys.PASS_KEY, "").ToString();
-                this.workspace = client_key.GetValue(RegKeys.WS_KEY, "").ToString();
+                String _userPass = client_key.GetValue(RegKeys.PASS_KEY, "").ToString();
+                byte[] bs_pass = System.Convert.FromBase64String(_userPass);
+                _userPass = Encoding.UTF8.GetString(bs_pass);
 
-                byte[] bs_pass = System.Convert.FromBase64String(svalue);
-                String _pass = Encoding.UTF8.GetString(bs_pass);
-                String servletPath = "";
-                String to_find = _server + ":" + _port;
-
-                if (!url.Equals(""))
-                {
-                    servletPath = url.Substring(url.IndexOf(to_find) + to_find.Length);
-
-                }
-
-                if (servletPath != "")
-                {
-                    return new DavContext(_server, _port, servletPath, _username, _pass);
-                }
-                else
-                {
-                    return new DavContext(_server, _port, _servlet, _username, _pass);
-                }
-
+                String servletPath = Utils.getValidServletPath(_servlet, repository, "");
+                return new DavContext(_server, _port, servletPath, _username, _userPass);
             }
             catch (Exception regexc)
             {
                 return null;
-
             }
         }
 

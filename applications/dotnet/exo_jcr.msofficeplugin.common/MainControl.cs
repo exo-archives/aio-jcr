@@ -82,15 +82,14 @@ namespace exo_jcr.msofficeplugin.common
         {
             DavContext context = application.getContext();
 
-            if (context != null)
-            {
-                string treeName = context.getContextHref() + "/" + application.getWorkspaceName();
-                TreeNode repositoryNode = NodeTree.Nodes.Add(treeName);
-            }
-            else
+            if (context == null)
             {
                 ParentForm.Close();
+                return;
             }
+
+            string treeName = context.getContextHref() + "/" + application.getWorkspaceName();
+            TreeNode repositoryNode = NodeTree.Nodes.Add(treeName);
         }
 
         public void openClick() 
@@ -151,8 +150,7 @@ namespace exo_jcr.msofficeplugin.common
                 int status = put.execute();
                 if (status != DavStatus.CREATED)
                 {
-                    MessageBox.Show("Can't save file. Status: " + status, "Error",
-                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Utils.showMessageStatus(status);
                 }
                 else
                 {
@@ -162,8 +160,7 @@ namespace exo_jcr.msofficeplugin.common
             }
             catch (FileNotFoundException ee)
             {
-
-                MessageBox.Show("Please, save the file locally first!", "Can't read file", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("File read error!", "Can't read file", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
 
             }
@@ -206,6 +203,10 @@ namespace exo_jcr.msofficeplugin.common
                     e.Node.Expand();
                     fillFileList(path, (Multistatus)multistatusCache[path]);
                 }
+                else
+                {
+                    Utils.showMessageStatus(status);
+                }
 
             }
 
@@ -222,86 +223,16 @@ namespace exo_jcr.msofficeplugin.common
                 return;
         }
 
-        public void doGetFile(int ItemId)
+        public Boolean doGetFile(int ItemId)
         {
             currentPath = currentPath.Replace("\\", "/");
             DavResponse response = (DavResponse)filteredResponses[ItemId];
             String href = response.getHref().getHref();
-            doGetFile(href);  
-        }
-
-        public void doGetFile(string href)
-        {
-            DavContext context = application.getContext();
-
-            String contexthref = context.getContextHref();
-            contexthref = href.Substring(contexthref.Length);
-
-            int index1 = href.IndexOf(application.getWorkspaceName());
-            int index2 = href.LastIndexOf("/");
-
-            String folder = application.getCacheFolder() + href.Substring(index1, index2 - index1);
-            folder = folder.Replace("/", "\\");
-
-            if (!Directory.Exists(folder))
-            {
-                try
-                {
-                    DirectoryInfo dirinfo = Directory.CreateDirectory(folder);
-                }
-                catch (Exception ee)
-                {
-                    MessageBox.Show("Can't create temp directory!");
-                }
-            }
-
-            String f_name = href.Substring(href.LastIndexOf("/") + 1);
-            String FILE_NAME = folder + "\\" + f_name;
-            
-            try
-            {
-                GetCommand get = new GetCommand(context);
-                get.setResourcePath(contexthref);
-
-                int status = get.execute();
-                if (status == DavStatus.OK)
-                {
-                    byte[] resp = get.getResponseBody();
-
-                    if (File.Exists(FILE_NAME))
-                    {
-                        File.Delete(FILE_NAME);
-                    }
-                    Thread.Sleep(200);
-
-                    FileStream fs = new FileStream(FILE_NAME, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
-                    BinaryWriter w = new BinaryWriter(fs);
-                    for (long i = 0; i < resp.Length; i++)
-                    {
-                        w.Write(resp[i]);
-                    }
-                    w.Close();
-                    fs.Close();
-                }
-                else
-                {
-                    MessageBox.Show("Could not open file! Status: " + status.ToString());
-                }
-                application.setFileNameForOpen(FILE_NAME);
+            if (Utils.doGetFile(application, href)) {
                 ParentForm.Close();
-            } 
-            catch (IOException rr)
-            {
-                MessageBox.Show("The file seemed to be already opened", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return true;
             }
-            catch (Exception ed)
-            {
-                MessageBox.Show("AT doGetFile " + ed.Message + ed.StackTrace);
-                return;
-            }
-
-
+            return false;
         }
 
         public int getFileList(String path)
@@ -323,7 +254,10 @@ namespace exo_jcr.msofficeplugin.common
                 propFind.addRequiredProperty(DavProperty.SUPPORTEDLOCK);
                 propFind.addRequiredProperty(DavProperty.VERSIONNAME);
 
-                propFind.addRequiredProperty("jcr:mimeType");
+                String jcrPrefix = "jcr";
+                String jcrMimeType = "jcr:mimeType";
+                String jcrNameSpace = "http://www.jcp.org/jcr/1.0";
+                propFind.addRequiredProperty(jcrMimeType, jcrPrefix, jcrNameSpace);
 
                 propFind.setDepth(1);
 
@@ -343,9 +277,8 @@ namespace exo_jcr.msofficeplugin.common
             }
             catch (Exception exc)
             {
-                MessageBox.Show("Cannot receive multistatus,\n please check Settings.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return -1;
             }
-            return -1;
         }
 
         public void fillTreeList(TreeNode node)
@@ -355,6 +288,9 @@ namespace exo_jcr.msofficeplugin.common
                 String nodePath = getFullPath(node);
                 
                 Multistatus multistatus = (Multistatus)multistatusCache[nodePath];
+                if (multistatus == null) {
+                    return;
+                }
                 ArrayList responses = multistatus.getResponses();
                 
                 for (int i = 0; i < responses.Count; i++)
@@ -365,10 +301,12 @@ namespace exo_jcr.msofficeplugin.common
 
                     String nodeFullPath = node.FullPath.Replace("\\", "/");
 
-                    //MessageBox.Show("H1: [" + responseHref + "]\r\n" + 
-                    //    "H2: [" + nodeFullPath + "]");
-
                     if (responseHref.Equals(nodeFullPath))
+                    {
+                        continue;
+                    }
+
+                    if (responseHref.Equals(nodeFullPath + "/"))
                     {
                         continue;
                     }
@@ -379,8 +317,6 @@ namespace exo_jcr.msofficeplugin.common
                     {
                         if (resourceType != null && resourceType.getResourceType() == ResourceTypeProperty.RESOURCE)
                         {
-                            //addedNode.ImageIndex = 2;
-                            //addedNode.SelectedImageIndex = 2;
                             continue;
                         }
                         else
@@ -395,7 +331,7 @@ namespace exo_jcr.msofficeplugin.common
             }
             catch (Exception exc)
             {
-                MessageBox.Show("Can't fill tree list! Error at " + exc.StackTrace);
+                MessageBox.Show("Error at " + exc.StackTrace);
             }
 
         }
@@ -491,50 +427,71 @@ namespace exo_jcr.msofficeplugin.common
                     DavResponse response = (DavResponse)filteredResponses[i];
 
                     String displayName = "";
-                    String created = "";
-                    String modified = "";
                     String size = "";
+                    String mimeType = "";
+                    String modified = "";
 
                     DisplayNameProperty displayNameProp = (DisplayNameProperty)response.getProperty(DavProperty.DISPLAYNAME);
                     ResourceTypeProperty resourceTypeProp = (ResourceTypeProperty)response.getProperty(DavProperty.RESOURCETYPE);
-                    CreationDateProperty creationDateProp = (CreationDateProperty)response.getProperty(DavProperty.CREATIONDATE);
                     LastModifiedProperty lastModifiedProp = (LastModifiedProperty)response.getProperty(DavProperty.GETLASTMODIFIED);
                     ContentLenghtProperty getContentLengthProp = (ContentLenghtProperty)response.getProperty(DavProperty.GETCONTENTLENGTH);
 
                     WebDavProperty versionNameProp = response.getProperty("D:" + DavProperty.VERSIONNAME);
+
                     WebDavProperty mimeTypeProperty = response.getProperty("jcr:mimeType");
 
                     if (displayNameProp != null)                    
                     {
                         displayName = displayNameProp.getDisplayName();
 
-                        if (creationDateProp != null)
-                        {
-                            created = creationDateProp.getCreationDate();
-                        }
-
                         if (lastModifiedProp != null)
                         {
                             modified = lastModifiedProp.getLastModified();
                         }
 
+                        if (mimeTypeProperty != null) {
+                            mimeType = mimeTypeProperty.getTextContent();
+                        }
+
                         if (getContentLengthProp != null)
                         {
-                            size = getContentLengthProp.getContentLenght();
+                            //size = getContentLengthProp.getContentLenght();
+
+                            long fileSize = System.Convert.ToInt64(getContentLengthProp.getContentLenght());
+
+                            if (fileSize < 1024)
+                            {
+                                size = fileSize.ToString();
+                            }
+                            else if (fileSize < (1024 * 1024))
+                            {
+                                fileSize = fileSize >> 10;
+                                size += fileSize;
+                                size += "K";
+                            }
+                            else
+                            {
+                                String kb = "" + (fileSize >> 10) % 1024;
+                                while (kb.Length < 3)
+                                {
+                                    kb = "0" + kb;
+                                }
+                                fileSize = fileSize >> 20;
+                                size += fileSize;
+                                size += ".";
+                                size += kb.ToCharArray()[0];
+                                size += "M";
+                            }
+
                         }
 
                         int imageId = getImageIdByMimeType(mimeTypeProperty);
 
-                        //if (versionNameProp != null && versionNameProp.getStatus() == DavStatus.OK)
-                        //{
-                        //    imageId = 6;
-                        //}
-
                         ListViewItem viewItem = new ListViewItem(new string[] {
                             displayName,
-                            created,
-                            modified,
-                            size}, imageId);
+                            size,
+                            mimeType,
+                            modified}, imageId);
 
                         listFiles.Items.Add(viewItem);
                     }
@@ -569,12 +526,10 @@ namespace exo_jcr.msofficeplugin.common
             if (versionNameProp != null && versionNameProp.getStatus() == DavStatus.OK)
             {
                 dialog.enableVersions(true);
-                //((NOpen)ParentForm).activateVersionButton(true);
             }
             else
             {
                 dialog.enableVersions(false);
-                //((NOpen)ParentForm).activateVersionButton(false);
             }
         }
 
