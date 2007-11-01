@@ -115,6 +115,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     loadData(data);
   }
 
+  @Override
   public void loadData(ItemData data) throws RepositoryException,
       InvalidItemStateException,
       ConstraintViolationException {
@@ -1108,7 +1109,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     checkValid();
 
-    SessionImpl corrSession = ((RepositoryImpl) session.getRepository()).login(session
+    SessionImpl corrSession = (session.getRepository()).login(session
         .getCredentials(), workspaceName);
 
     return corrSession.getLocationFactory().createJCRPath(getCorrespondingNodeData(corrSession)
@@ -1897,7 +1898,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     Map<String, String> failed = new HashMap<String, String>();
 
     // get corresponding node
-    SessionImpl corrSession = ((RepositoryImpl) session.getRepository()).login(session
+    SessionImpl corrSession = (session.getRepository()).login(session
         .getCredentials(), srcWorkspace);
 
     ItemDataMergeVisitor visitor = new ItemDataMergeVisitor(this.session,
@@ -1940,7 +1941,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     }
 
     nextFail: for (String identifier : failed.keySet()) {
-      NodeImpl versionable = (NodeImpl) session.getNodeByUUID(identifier);
+      NodeImpl versionable = session.getNodeByUUID(identifier);
       res.add(versionable);
       String offendingIdentifier = failed.get(identifier);
 
@@ -2254,6 +2255,12 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
                     .isMultiple(), listAutoCreateValue)), true);
 
         } else {
+          if(Constants.JCR_PRIMARYTYPE.equals(pdImpl.getName())){
+            log.warn("!!!!!!!!!!!!!!!!!!!!!!!");
+            log.warn("Please send report of this warning. mailto:Sergey.Kabashnyuk@gmail.com");
+            new Exception().printStackTrace();
+            log.warn("!!!!!!!!!!!!!!!!!!!!!!!");
+          }
           // TODO [PN] Fix the logic
           log.warn("Skipping existed property " + pdImpl.getName() + " in " + getPath()
               + "   during the automatic creation of items for "+nodeTypeName.getAsString()+" nodetype or mixin type");
