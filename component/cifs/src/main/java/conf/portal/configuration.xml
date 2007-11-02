@@ -10,12 +10,12 @@
 				
 			<value-param>
 				<name>repository-name</name>
-				<value>db1</value>
+				<value>repository</value>
 			</value-param>
 
 			<value-param>
 				<name>jndi-repository-name</name>
-				<value>repo-db1</value>
+				<value>repo-repository</value>
 			</value-param>
 
 			<!--Available workspaces - used if non eXo-repository used -->
