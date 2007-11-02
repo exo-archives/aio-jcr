@@ -20,11 +20,11 @@
 			<artifactId>exo.jcr.component.core</artifactId>
 			<version>${org.exoplatform.jcr.version}</version>
 			<scope>compile</scope>
-      <exclusions>
-    		<exclusion>
-				<groupId>xerces</groupId>
-				<artifactId>xerces</artifactId>
-	    	</exclusion>
+			<exclusions>
+				<exclusion>
+					<groupId>xerces</groupId>
+					<artifactId>xerces</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -35,56 +35,31 @@
 			<scope>compile</scope>
 		</dependency>
 
-		<!-- dependency>
-			<groupId>org.exoplatform.jcr</groupId>
-			<artifactId>exo.jcr.component.webdav</artifactId>
-			<version>${org.exoplatform.jcr.version}</version>
-			<scope>compile</scope>
-		</dependency -->
-
 		<dependency>
 			<groupId>commons-chain</groupId>
 			<artifactId>commons-chain</artifactId>
 			<version>1.0</version>
 			<scope>compile</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>org.codehaus.plexus</groupId>
-			<artifactId>plexus-digest</artifactId>
-			<version>1.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.codehaus.plexus</groupId>
-			<artifactId>plexus-utils</artifactId>
-			<version>1.4.1</version>
-		</dependency>
-
-	    <dependency>
-	        <groupId>maven</groupId>
-	        <artifactId>wagon-provider-api</artifactId>
-	        <version>1.0-alpha-3</version>
-	    </dependency>
-
+		
 	    <dependency>
 	    	<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>1.3</version>
 	    </dependency>
 
-		<!--dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>2.3</version>
-		</dependency-->
-
+		<dependency>
+		    <groupId>xerces</groupId>
+			<artifactId>xercesImpl</artifactId>
+			<version>2.8.0</version>
+		</dependency>
+		
 		<dependency>
 		    <groupId>stax</groupId>
 			<artifactId>stax</artifactId>
 			<version>1.2.0</version>
 		</dependency>
-
+		
 	</dependencies>
 
 	<build>
@@ -99,11 +74,13 @@
 				<includes>
 					<include>**/*.xml</include>
 					<include>**/*.html</include>
+					<include>**/*.vm</include>
+					<include>**/*.css</include>
 					<include>**/*.ion</include>
 				</includes>
 			</resource>
-
 		</resources>
+		
 		<testResources>
 			<testResource>
 				<directory>src/test/resources</directory>
