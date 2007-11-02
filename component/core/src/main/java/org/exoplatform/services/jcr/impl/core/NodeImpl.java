@@ -2256,15 +2256,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
         } else {
           if(Constants.JCR_PRIMARYTYPE.equals(pdImpl.getName())){
-            log.warn("!!!!!!!!!!!!!!!!!!!!!!!");
-            log.warn("Please send report of this warning. mailto:Sergey.Kabashnyuk@gmail.com");
-            new Exception().printStackTrace();
-            log.warn("!!!!!!!!!!!!!!!!!!!!!!!");
+            log.warn("Skipping existed property " + pdImpl.getName() + " in " + getPath()
+                + "   during the automatic creation of items for "+nodeTypeName.getAsString()+" nodetype or mixin type");
           }
-          // TODO [PN] Fix the logic
-          log.warn("Skipping existed property " + pdImpl.getName() + " in " + getPath()
-              + "   during the automatic creation of items for "+nodeTypeName.getAsString()+" nodetype or mixin type");
-          
         }
       }
     }
