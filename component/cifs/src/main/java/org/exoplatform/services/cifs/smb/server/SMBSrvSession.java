@@ -1028,7 +1028,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
 
       // We are using case sensitive pathnames and long file names
 
-    //  m_smbPkt.setFlags(SMBSrvPacket.FLG_CASELESS);
+      //m_smbPkt.setFlags(SMBSrvPacket.FLG_CASELESS);
       m_smbPkt.setFlags2(SMBSrvPacket.FLG2_LONGFILENAMES);
 
       // LanMan dialect negotiate response

@@ -630,7 +630,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
       return;
     }
 
-    // logger.debug("\n fileName [" + fileName + "] TEMPLATE");
+     logger.debug("\n fileName [" + fileName + "] TEMPLATE");
 
     // convert name
 
@@ -666,8 +666,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     SMBDate crDateTime = null;
     if (crTime > 0 && crDate > 0)
       crDateTime = new SMBDate(crDate, crTime);
-    logger.debug("openFunction [" + openFunc + "] TEMPORARY");
-
+   
     FileOpenParams params = new FileOpenParams(fileName, stream, openFunc, access, srchAttr,
         fileAttr, allocSiz, crDateTime.getTime());
 
@@ -675,8 +674,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
       logger.debug("File Open AndX [" + m_smbPkt.getTreeId() + "] params=" + params);
-    logger.debug("is directory " + params.isDirectory() + " TEMPORARY");
-
+   
     int responseAction = 0x0;
     int fid = -1;
     NetworkFile file = null;

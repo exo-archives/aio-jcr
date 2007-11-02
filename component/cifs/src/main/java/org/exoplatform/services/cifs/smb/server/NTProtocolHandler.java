@@ -515,6 +515,8 @@ public class NTProtocolHandler extends CoreProtocolHandler {
           User ushnd = ((SMBServer) this.getSession().getServer())
               .getOrgainzationService().getUserHandler().findUserByName(user);
 
+          logger.debug("user " + ((ushnd!=null)?ushnd.getUserName():"null"));
+          
           // check if user exist
           if (ushnd != null) {
 
