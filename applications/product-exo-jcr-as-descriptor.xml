@@ -50,7 +50,6 @@
 				<exclude>relaxngDatatype:relaxngDatatype</exclude>
 				<exclude>saxpath:saxpath</exclude>
 				<exclude>stax:stax</exclude>
-				<exclude>stax:stax-api:1.0</exclude>
 				<exclude>maven:wagon-provider-api</exclude>
 				<exclude>org.objectweb.carol:carol</exclude>
 				<exclude>isorelax:isorelax</exclude>
