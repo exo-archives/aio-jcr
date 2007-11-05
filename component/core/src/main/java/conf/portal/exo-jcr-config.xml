@@ -29,13 +29,11 @@
               <property name="sourceName" value="jdbcjcr"/>
               <property name="dialect" value="generic"/>
               <property name="multi-db" value="false"/>
-              <property name="update-storage" value="true"/>
+              <property name="update-storage" value="false"/>
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="../temp/swap/production"/>
             </properties>
             <value-storages>
-              <!-- NOTE! SimpleFileValueStorage and TreeFileValueStorage is not compatible in storage format, 
-              	TreeFileValueStorage optimized for store with a big number of values. -->
               <value-storage id="Storage #1" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="../temp/values/production"/>
@@ -44,20 +42,12 @@
                   <filter property-type="Binary" min-value-size="204800"/>
                 </filters>
               </value-storage>
-              <value-storage id="Storage #2" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
-                <properties>
-                  <property name="path" value="../temp/values/production/files10m"/>
-                </properties>
-                <filters>
-                  <filter property-type="Binary" min-value-size="10240000"/>
-                </filters>
-              </value-storage>
             </value-storages>                                     
          </container>
          <cache enabled="true">
           <properties>
-            <property name="maxSize" value="5000"/>
-            <property name="liveTime" value="30000"/>
+            <property name="maxSize" value="10000"/>
+            <property name="liveTime" value="10800"/><!-- 3h -->
           </properties>
          </cache>
          <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -72,7 +62,7 @@
               <property name="sourceName" value="jdbcjcr"/>
               <property name="dialect" value="generic"/>
               <property name="multi-db" value="false"/>
-              <property name="update-storage" value="true"/>
+              <property name="update-storage" value="false"/>
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="../temp/swap/draft"/>
             </properties>
@@ -89,8 +79,8 @@
          </container>
          <cache enabled="true">
           <properties>
-            <property name="maxSize" value="1000"/>
-            <property name="liveTime" value="10000"/>
+            <property name="maxSize" value="5000"/>
+            <property name="liveTime" value="5400"/><!-- 1.5h -->
           </properties>
          </cache>
        </workspace>
@@ -100,7 +90,7 @@
               <property name="sourceName" value="jdbcjcr"/>
               <property name="dialect" value="generic"/>
               <property name="multi-db" value="false"/>
-              <property name="update-storage" value="true"/>
+              <property name="update-storage" value="false"/>
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="../temp/swap/backup"/>
             </properties>
@@ -117,8 +107,8 @@
           </container>
          <cache enabled="true">
           <properties>
-            <property name="maxSize" value="1000"/>
-            <property name="liveTime" value="10000"/>
+            <property name="maxSize" value="5000"/>
+            <property name="liveTime" value="3000"/>
           </properties>
          </cache>
        </workspace>
@@ -128,7 +118,7 @@
               <property name="sourceName" value="jdbcjcr"/>
               <property name="dialect" value="generic"/>
               <property name="multi-db" value="false"/>
-              <property name="update-storage" value="true"/>
+              <property name="update-storage" value="false"/>
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="../temp/swap/digital-assets"/>
             </properties>
@@ -145,8 +135,8 @@
           </container>
           <cache enabled="true">
             <properties>
-              <property name="maxSize" value="2500"/>
-              <property name="liveTime" value="1800"/>
+              <property name="maxSize" value="5000"/>
+              <property name="liveTime" value="3000"/>
             </properties>
           </cache>
         </workspace>
