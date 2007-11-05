@@ -383,7 +383,7 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     final ItemData c = (ItemData) cache.get(identifier);
     if (log.isDebugEnabled())
       log.debug(name + ", getItem() " + identifier + " --> " 
-        + (c != null ? c.getQPath().getAsString() + " parent:" + c.getParentIdentifier() : "null"));
+        + (c != null ? c.getQPath().getAsString() + " parent:" + c.getParentIdentifier() : "[null]"));
     return c;
   }
   
@@ -396,8 +396,8 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     final CacheQPath spath = new CacheQPath(parentUuid, qname);
     final ItemData c = (ItemData) cache.get(spath);
     if (log.isDebugEnabled())
-      log.debug(name + ", getItem() " + c.getQPath().getAsString() + " --> " 
-          + (c != null ? c.getIdentifier() + " parent:" + c.getParentIdentifier() : "null"));
+      log.debug(name + ", getItem() " + (c != null ? c.getQPath().getAsString() : "[null]" ) + " --> " 
+          + (c != null ? c.getIdentifier() + " parent:" + c.getParentIdentifier() : "[null]"));
     return c;
   }  
   
