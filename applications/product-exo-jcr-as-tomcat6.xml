@@ -45,13 +45,13 @@
       <version>${org.exoplatform.jcr.version}</version>
       <scope>runtime</scope>
     </dependency>
-    
-    <dependency>
+
+    <!--<dependency>
       <groupId>org.exoplatform.ws.rest</groupId>
       <artifactId>exo.rest.core</artifactId>
       <version>0.1</version>
       <scope>runtime</scope>
-    </dependency>
+    </dependency>-->
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>

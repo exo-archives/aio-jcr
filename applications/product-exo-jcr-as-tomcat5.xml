@@ -33,7 +33,7 @@
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.applications.webdav</artifactId>
+      <artifactId>exo.jcr.applications.rest</artifactId>
       <version>${org.exoplatform.jcr.version}</version>
       <type>war</type>
       <scope>runtime</scope>
@@ -45,13 +45,13 @@
       <version>${org.exoplatform.jcr.version}</version>
       <scope>runtime</scope>
     </dependency>
-    
-    <dependency>
+
+    <!--<dependency>
       <groupId>org.exoplatform.ws.rest</groupId>
       <artifactId>exo.rest.core</artifactId>
       <version>0.1</version>
       <scope>runtime</scope>
-    </dependency>
+    </dependency>-->
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
@@ -62,7 +62,7 @@
 
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.component.rest</artifactId>
+      <artifactId>exo.jcr.component.webdav</artifactId>
       <version>${org.exoplatform.jcr.version}</version>
       <scope>runtime</scope>
     </dependency>
