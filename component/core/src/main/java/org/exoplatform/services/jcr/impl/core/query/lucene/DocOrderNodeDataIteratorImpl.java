@@ -4,10 +4,12 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.impl.core.query.lucene;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -245,18 +247,22 @@ class DocOrderNodeDataIteratorImpl implements ScoreNodeIterator {
           do {
               if (invalidIdentifiers.size() > 0) {
                   // previous sort run was not successful -> remove failed uuids
-                  ScoreNode[] tmp = new ScoreNode[nodes.length - invalidIdentifiers.size()];
-                  int newIdx = 0;
+                
+                  // [PN] 05.11.07 use Lits instead array
+                  final List<ScoreNode> tmp = new ArrayList<ScoreNode>();
+                  //ScoreNode[] tmp = new ScoreNode[nodes.length - invalidIdentifiers.size()];
+                  //int newIdx = 0;
                   for (int i = 0; i < nodes.length; i++) {
                     if (nodes[i] != null) {
                       if (!invalidIdentifiers.contains(nodes[i].identifier)) {
-                        tmp[newIdx++] = nodes[i];
+                        //tmp[newIdx++] = nodes[i];
+                        tmp.add(nodes[i]);
                       }
                     } else {
                       log.warn("Invalid identifiers set contains null ScoreNode, skiped");
                     }
                   }
-                  nodes = tmp;
+                  nodes = tmp.toArray(new ScoreNode[tmp.size()]);
                   invalidIdentifiers.clear();
               }
 
