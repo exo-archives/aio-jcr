@@ -13,7 +13,7 @@
 			
 			<value-param>
 				<name>auth-header</name>
-				<value>Basic realm="eXo-Platform Webdav Server 1.6.1"</value>
+				<value>Basic realm="eXo-Platform Webdav Server 1.7"</value>
 			</value-param>
 			
 			<value-param>

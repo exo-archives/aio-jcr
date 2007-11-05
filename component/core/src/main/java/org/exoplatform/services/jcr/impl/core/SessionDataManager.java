@@ -1176,6 +1176,8 @@ public class SessionDataManager implements ItemDataConsumer {
    * changes 4. if chaged data is marked as "deleted" it removes from outgoing
    * list
    * 
+   * WARN. THIS METHOD HAS SIBLING - mergeList, see below
+   * 
    * @param rootData
    * @param deep if true - traverses
    * @param action: MERGE_NODES | MERGE_PROPS | MERGE_ITEMS
@@ -1215,6 +1217,8 @@ public class SessionDataManager implements ItemDataConsumer {
    * Merge a list of nodes and properties of root data. NOTE. Properties in the
    * list will have empty value data. I.e. for operations not changes properties
    * content.
+   * 
+   * USED FOR DELETE
    * 
    * @param rootData
    * @param dataManager

@@ -27,7 +27,7 @@ on your system.
 If this conditions are true, you can install Open Office add-on using "unopkg" application from
 Open-Office project.
 
-Run "unopkg add exo-oo-addon-1.6.zip" in your console for register plug-in in Open Office.
+Run "unopkg add exo-oo-addon-1.7.zip" in your console for register plug-in in Open Office.
 
 You can try to use install.bat (at Windows system) or install.sh (at Linux systems).    
 
@@ -67,5 +67,5 @@ to search in search text field and press "Search" button. Results will appear in
 
 5. Uninstallation
 
-For uninstallation type in your console "unopkg add exo-oo-addon-1.6.zip" and run.
+For uninstallation type in your console "unopkg add exo-oo-addon-1.7.zip" and run.
 

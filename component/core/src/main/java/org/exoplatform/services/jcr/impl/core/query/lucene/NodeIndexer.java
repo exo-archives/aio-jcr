@@ -268,10 +268,10 @@ public class NodeIndexer {
         doc.add(new Field(FieldNames.MVP, fieldName, false, true, false));
     } else {
       try {
-        // if the prop obtainer from cache it will contains a values, otherwise read prop with values from DM
-        QPathEntry[] path = prop.getQPath().getEntries();
+        // if the prop obtainer from cache it will contains a values, otherwise read prop with values from DM        
+        // WARN. DON'T USE access item BY PATH - it's may be a node in case of residual definitions in NT       
         List<ValueData> data = prop.getValues().size() > 0 ? prop.getValues() :
-          ((PropertyData) dataManager.getItemData(node, path[path.length - 1])).getValues();
+          ((PropertyData) dataManager.getItemData(prop.getIdentifier())).getValues();
         
         if (data == null)
           log.warn("null value found at property " + prop.getQPath().getAsString());

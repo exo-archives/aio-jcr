@@ -248,9 +248,13 @@ class DocOrderNodeDataIteratorImpl implements ScoreNodeIterator {
                   ScoreNode[] tmp = new ScoreNode[nodes.length - invalidIdentifiers.size()];
                   int newIdx = 0;
                   for (int i = 0; i < nodes.length; i++) {
+                    if (nodes[i] != null) {
                       if (!invalidIdentifiers.contains(nodes[i].identifier)) {
                         tmp[newIdx++] = nodes[i];
                       }
+                    } else {
+                      log.warn("Invalid identifiers set contains null ScoreNode, skiped");
+                    }
                   }
                   nodes = tmp;
                   invalidIdentifiers.clear();
@@ -271,7 +275,7 @@ class DocOrderNodeDataIteratorImpl implements ScoreNodeIterator {
                           return node;
                       }
 
-                      public int compare(ScoreNode n1, ScoreNode n2) {
+                      public int compare(final ScoreNode n1, final ScoreNode n2) {
                           try {
                               NodeData ndata1;
                               try {
@@ -333,10 +337,18 @@ class DocOrderNodeDataIteratorImpl implements ScoreNodeIterator {
                           } catch (Exception e) {
                             log.error("Exception while sorting nodes in document order: " + e.toString(), e);
                           }
+                          
                           // if we get here something went wrong
                           // remove both identifiers from array
-                          invalidIdentifiers.add(n1.identifier);
-                          invalidIdentifiers.add(n2.identifier);
+                          if (n1 != null)
+                            invalidIdentifiers.add(n1.identifier);
+                          else
+                            log.warn("Null ScoreNode n1 will not be added into invalid identifiers set");
+                          if (n2 != null)
+                            invalidIdentifiers.add(n2.identifier);
+                          else
+                            log.warn("Null ScoreNode n2 will not be added into invalid identifiers set");
+                          
                           // terminate sorting
                           throw new SortFailedException();
                       }

@@ -3,7 +3,7 @@
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>config</artifactId>
   <name>eXo JCR Config</name>
-  <version>1.6</version>
+  <version>1.7</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -167,7 +167,7 @@
         <org.exoplatform.tool.version>2.0.3</org.exoplatform.tool.version>
         <org.exoplatform.kernel.version>2.0.3</org.exoplatform.kernel.version>
         <org.exoplatform.core.version>2.0.3</org.exoplatform.core.version>
-        <org.exoplatform.jcr.version>1.6</org.exoplatform.jcr.version>
+        <org.exoplatform.jcr.version>1.7</org.exoplatform.jcr.version>
 
 
         <!-- exo.platform.version>2.0.3</exo.platform.version>

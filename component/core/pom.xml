@@ -2,7 +2,7 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>config</artifactId>
-    <version>1.6</version>
+    <version>1.7</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -398,8 +398,8 @@
     </testResources>
 
     <testSourceDirectory>src/test/java</testSourceDirectory>
-    <!--<testSourceDirectory>src/TCK/java</testSourceDirectory>-->
-    <!--<testSourceDirectory>src/notest</testSourceDirectory>-->
+    <!-- testSourceDirectory>src/TCK/java</testSourceDirectory -->
+    <!-- testSourceDirectory>src/notest</testSourceDirectory -->
 
     <testOutputDirectory>target/test-classes</testOutputDirectory>
 
@@ -468,15 +468,15 @@
 
               <!-- sourceDirectory>${exo.directory.base}/projects/jcr/trunk/component/core/src/java/org/exoplatform/services/jcr/impl/core/query/xpath/</sourceDirectory -->
 
-              <!--<sourceDirectory>${exo.directory.base}/projects/jcr/trunk/component/core/src/java/org/exoplatform/services/jcr/impl/core/query/sql/</sourceDirectory> -->
+              <!-- sourceDirectory>${exo.directory.base}/projects/jcr/trunk/component/core/src/java/org/exoplatform/services/jcr/impl/core/query/sql/</sourceDirectory -->
 
-              <!-- <sourceDirectory>${exo.directory.base}/projects/jcr/trunk/component/core/src/grammar/sql/</sourceDirectory> -->
+              <!-- sourceDirectory>${exo.directory.base}/projects/jcr/trunk/component/core/src/grammar/sql/</sourceDirectory -->
 
-              <!-- <sourceDirectory>${exo.directory.base}/projects/jcr/trunk/component/core/src/grammar/xpath/</sourceDirectory> -->
+              <!-- sourceDirectory>${exo.directory.base}/projects/jcr/trunk/component/core/src/grammar/xpath/</sourceDirectory -->
 
               <!-- outputDirectory>${exo.directory.base}/projects/jcr/trunk/component/core/target/java/org/exoplatform/services/jcr/impl/core/query/xpath/</outputDirectory -->
 
-              <!-- <outputDirectory>${exo.directory.base}/projects/jcr/trunk/component/core/src/java/org/exoplatform/services/jcr/impl/core/query/sql/</outputDirectory> -->
+              <!-- outputDirectory>${exo.directory.base}/projects/jcr/trunk/component/core/src/java/org/exoplatform/services/jcr/impl/core/query/sql/</outputDirectory -->
             </configuration>
             <goals>
               <!-- goal>javacc</goal -->
@@ -540,7 +540,7 @@
             </goals>
             </execution-->
           <!-- This section is for TCK tests only. -->
-          <!--<execution>
+          <!-- execution>
             <id>1</id>
             <phase>test-compile</phase>
             <configuration>
@@ -574,7 +574,7 @@
             <goals>
             <goal>run</goal>
             </goals>
-            </execution>-->
+            </execution -->
           <!--execution>
             <id>2</id>
             <phase>test</phase>
@@ -605,7 +605,7 @@
             </goals>
             </execution-->
         </executions>
-        <!--<dependencies>
+        <!-- dependencies>
           <dependency>
             <groupId>emma</groupId>
             <artifactId>emma</artifactId>
@@ -630,7 +630,7 @@
             <version>1.6.5</version>
             <scope>test</scope>
           </dependency>
-        </dependencies>-->
+        </dependencies -->
       </plugin>
     </plugins>
   </build>

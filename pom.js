@@ -27,4 +27,4 @@ function JCR(version) {
   this.frameworks.command = new Project("org.exoplatform.jcr", "exo.jcr.framework.command", "jar", version) ; 
 }
 
-eXo.module.jcr = new JCR('1.6') ;
+eXo.module.jcr = new JCR('1.7') ;

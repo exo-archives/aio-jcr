@@ -2,7 +2,7 @@
       <resource>
          <pattern>
            <name>eXoDavBrowser.jar</name>
-            <version-id>1.6</version-id>
+            <version-id>1.7</version-id>
          </pattern>
          <file>eXoDavBrowser.jar</file>
       </resource>

@@ -3,7 +3,7 @@
 <application>
   <display-name>exoplatform</display-name>
   <module>
-    <connector>exo.jcr.connectors.localadapter-1.6.rar</connector>
+    <connector>exo.jcr.connectors.localadapter-1.7.rar</connector>
   </module>
   <module>
     <web>

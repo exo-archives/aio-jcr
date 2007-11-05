@@ -91,7 +91,7 @@ namespace exo_jcr.msofficeplugin.common
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(79, 13);
             this.label2.TabIndex = 2;
-            this.label2.Text = " eXo JCR 1.6.1";
+            this.label2.Text = " eXo JCR 1.7";
             // 
             // label1
             // 

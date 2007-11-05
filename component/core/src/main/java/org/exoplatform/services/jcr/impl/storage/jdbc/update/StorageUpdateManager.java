@@ -37,12 +37,13 @@ public class StorageUpdateManager {
   public static final String STORAGE_VERSION_1_1_0 = "1.1";
   public static final String STORAGE_VERSION_1_5_0 = "1.5";
   public static final String STORAGE_VERSION_1_6_0 = "1.6";
+  public static final String STORAGE_VERSION_1_7_0 = "1.7";
   
   public static final String FIRST_STORAGE_VERSION = STORAGE_VERSION_1_0_0;
   
-  public static final String PREV_STORAGE_VERSION = STORAGE_VERSION_1_5_0;
+  public static final String PREV_STORAGE_VERSION = STORAGE_VERSION_1_6_0;
   
-  public static final String REQUIRED_STORAGE_VERSION = STORAGE_VERSION_1_6_0;
+  public static final String REQUIRED_STORAGE_VERSION = STORAGE_VERSION_1_7_0;
   
   protected final String SQL_INSERT_VERSION;
   protected static final String SQL_INSERT_VERSION_MULTIDB = "insert into JCR_MCONTAINER(VERSION) values(?)";
@@ -256,11 +257,24 @@ public class StorageUpdateManager {
           
       Updater updater = null; 
       
-      if(STORAGE_VERSION_1_0_0.equals(curVersion)) {
-        updater = new Updater100();
-      } else if(STORAGE_VERSION_1_0_1.equals(curVersion)) {
-        updater = new Updater101();
+      
+      if(curVersion.startsWith(STORAGE_VERSION_1_7_0)) {
+        // ok
+      } else {
+        // warn
+        log.warn("UPDATE IS NOT AVAILABLE from " + curVersion + " to " + STORAGE_VERSION_1_7_0 + 
+            " using auto-update option. Use XML export/import to migrate to the next version of JCR. " +
+        		"See for details: http://wiki.exoplatform.org/xwiki/bin/view/JCR/How+to+JCR+import+export. " +
+        		"All data which were created prior (with " + curVersion + " and older) and stored in external value storage(s) will be unavailable with storage " + STORAGE_VERSION_1_7_0 + ". " +
+        		"No auto-update changes was made to database.");
       }
+      
+      // was before 1.7
+//      if(STORAGE_VERSION_1_0_0.equals(curVersion)) {
+//        updater = new Updater100();
+//      } else if(STORAGE_VERSION_1_0_1.equals(curVersion)) {
+//        updater = new Updater101();
+//      }
       
       if (updater != null)
         if(!updateNow) {

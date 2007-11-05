@@ -68,7 +68,7 @@ import org.exoplatform.services.log.ExoLogger;
       log.info("parse " + sdf.format(d)); // print date in GMT-03:00 timezone       
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: DateFormatHelper.java 12841 2007-02-16 08:58:38Z peterit $
+ * @version $Id$
  */
 public class JCRDateFormat {
   

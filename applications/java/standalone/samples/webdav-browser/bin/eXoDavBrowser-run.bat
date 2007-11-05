@@ -1,1 +1,1 @@
-java -jar eXoDavBrowser-1.6.jar
+java -jar eXoDavBrowser-1.7.jar

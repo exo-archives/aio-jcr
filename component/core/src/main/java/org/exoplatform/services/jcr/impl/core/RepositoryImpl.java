@@ -48,10 +48,10 @@ public class RepositoryImpl implements ManageableRepository {
   static {
     descriptors.put(SPEC_VERSION_DESC, "1.0");
     descriptors.put(SPEC_NAME_DESC, "Content Repository Java Technology API");
-    descriptors.put(REP_VENDOR_DESC, "eXo Platform SARL");
+    descriptors.put(REP_VENDOR_DESC, "eXo Platform SAS");
     descriptors.put(REP_VENDOR_URL_DESC, "http://www.exoplatform.com");
     descriptors.put(REP_NAME_DESC, "eXo Java Content Repository");
-    descriptors.put(REP_VERSION_DESC, "1.6");
+    descriptors.put(REP_VERSION_DESC, "1.7");
     descriptors.put(LEVEL_1_SUPPORTED, "true");
     descriptors.put(LEVEL_2_SUPPORTED, "true");
     descriptors.put(OPTION_TRANSACTIONS_SUPPORTED, "true");
