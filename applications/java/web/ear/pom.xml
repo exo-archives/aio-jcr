@@ -89,7 +89,7 @@
             <webModule>
               <groupId>org.exoplatform.jcr</groupId>
               <artifactId>exo.jcr.applications.rest</artifactId>
-              <bundleFileName>webdav.war</bundleFileName>
+              <bundleFileName>rest.war</bundleFileName>
               <contextRoot>webdav</contextRoot>
             </webModule>
             <webModule>
