@@ -24,7 +24,7 @@
               <property name="username" value="sa"/>
               <property name="password" value=""/ -->
               <property name="multi-db" value="true"/>
-              <property name="update-storage" value="true"/>
+              <property name="update-storage" value="false"/>
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="target/temp/swap/ws"/>
             </properties>
@@ -84,10 +84,9 @@
               <property name="sourceName" value="jdbcjcr1"/>
               <property name="dialect" value="generic"/>
               <property name="multi-db" value="true"/>
-              <property name="update-storage" value="true"/>
+              <property name="update-storage" value="false"/>
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="target/temp/swap/ws1"/>
-              <property name="db-type" value="generic"/>
             </properties>
             <value-storages>
               <!-- value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
@@ -129,10 +128,9 @@
               <property name="sourceName" value="jdbcjcr2"/>
               <property name="dialect" value="generic"/>
               <property name="multi-db" value="true"/>
-              <property name="update-storage" value="true"/>
+              <property name="update-storage" value="false"/>
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="target/temp/swap/ws2"/>
-              <property name="db-type" value="generic"/>
             </properties>
             <value-storages>
               <!-- value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">

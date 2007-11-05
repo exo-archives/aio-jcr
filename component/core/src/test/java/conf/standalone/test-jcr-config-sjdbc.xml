@@ -19,7 +19,7 @@
               <property name="db-username" value="su"/>
               <property name="db-password" value=""/ -->
               <property name="multi-db" value="false"/>
-              <property name="update-storage" value="true"/>
+              <property name="update-storage" value="false"/>
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="target/temp/swap/ws"/>
             </properties>
@@ -45,7 +45,7 @@
           <cache enabled="true">
             <properties>
               <property name="maxSize" value="10000"/>
-              <property name="liveTime" value="1800"/><!-- 30 min -->
+              <property name="liveTime" value="300"/>
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -60,7 +60,7 @@
               <property name="sourceName" value="jdbcjcr"/>
               <property name="dialect" value="generic"/>
               <property name="multi-db" value="false"/>
-              <property name="update-storage" value="true"/>
+              <property name="update-storage" value="false"/>
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="target/temp/swap/ws1"/>
             </properties>
@@ -68,7 +68,7 @@
           <cache enabled="true">
             <properties>
               <property name="maxSize" value="10000"/>
-              <property name="liveTime" value="1800"/><!-- 30 min -->
+              <property name="liveTime" value="300"/>
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -83,7 +83,7 @@
               <property name="sourceName" value="jdbcjcr"/>
               <property name="dialect" value="generic"/>
               <property name="multi-db" value="false"/>
-              <property name="update-storage" value="true"/>
+              <property name="update-storage" value="false"/>
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="target/temp/swap/ws2"/>
             </properties>
@@ -91,7 +91,7 @@
           <cache enabled="true">
             <properties>
               <property name="maxSize" value="2500"/>
-              <property name="liveTime" value="1800"/>
+              <property name="liveTime" value="300"/>
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
