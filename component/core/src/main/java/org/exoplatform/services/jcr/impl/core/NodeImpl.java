@@ -2255,8 +2255,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
                     .isMultiple(), listAutoCreateValue)), true);
 
         } else {
-          if(Constants.JCR_PRIMARYTYPE.equals(pdImpl.getName())){
-            log.warn("Skipping existed property " + pdImpl.getName() + " in " + getPath()
+          if(log.isDebugEnabled()){
+            log.debug("Skipping existed property " + pdImpl.getName() + " in " + getPath()
                 + "   during the automatic creation of items for "+nodeTypeName.getAsString()+" nodetype or mixin type");
           }
         }
