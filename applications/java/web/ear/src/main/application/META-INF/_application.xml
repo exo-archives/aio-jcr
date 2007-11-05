@@ -13,8 +13,8 @@
   </module>
   <module>
     <web>
-      <web-uri>webdav.war</web-uri>
-      <context-root>webdav</context-root>
+      <web-uri>rest.war</web-uri>
+      <context-root>rest</context-root>
     </web>
   </module>
   <module>
