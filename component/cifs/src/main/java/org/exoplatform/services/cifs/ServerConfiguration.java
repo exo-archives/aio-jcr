@@ -337,18 +337,7 @@ public class ServerConfiguration {
       setNetBIOSSMB(false);
     }
 
-    // Configure TCP/IP SMB
-/*
- * PropertiesParam tcpSmb = params.getPropertiesParam("tcpip"); if (tcpSmb !=
- * null && tcpSmb.getProperty("enabled").equals("true")) { setTcpipSMB(true); if
- * (tcpSmb.getProperty("port") != null) { int sessport =
- * Integer.parseInt(tcpSmb.getProperty("port")); if (sessport < 0 || sessport >
- * 65535) { logger.error("Illegal value of tcpip port partameter!");
- * setTcpipSMB(false); } else { m_tcpSMBPort = sessport; } } } else {
- * setTcpipSMB(false); }
- */
 
-    // TODO Tcpip transport not used for now
     setTcpipSMB(false);
 
     // Configure win32 NetBIOS (netbios or wins)

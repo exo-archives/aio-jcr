@@ -46,11 +46,13 @@ public class testReadFile extends BaseStandaloneTest {
 
   public void testReadSmallFile() throws Exception {
 
-    File tf = new File("src/test/resources/test.txt");
+    File testFileSmall = createBLOBTempFile(this.getClass().getSimpleName() + "_",
+          1); // 1 Kb
+      testFileSmall.deleteOnExit();
+    
+    assertTrue(testFileSmall.exists());
 
-    assertTrue(tf.exists());
-
-    FileInputStream str = new FileInputStream(tf);
+    FileInputStream str = new FileInputStream(testFileSmall);
 
     Session s = null;
     Credentials credentials = new CredentialsImpl("admin", "admin"

@@ -115,7 +115,7 @@
         <init-params>
           <value-param>
             <name>bind-name</name>
-            <value>repo-db1</value>
+            <value>jndi-db1</value>
           </value-param>
           <value-param>
             <name>class-name</name>
