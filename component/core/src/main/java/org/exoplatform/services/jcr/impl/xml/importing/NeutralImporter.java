@@ -22,7 +22,10 @@ public class NeutralImporter extends BaseXmlImporter {
 
   private Importer contentImporter = null;
 
-  public NeutralImporter(NodeImpl parent, int uuidBehavior, XmlSaveType saveType,boolean respectPropertyDefinitionsConstraints) {
+  public NeutralImporter(NodeImpl parent,
+                         int uuidBehavior,
+                         XmlSaveType saveType,
+                         boolean respectPropertyDefinitionsConstraints) {
     super(parent, uuidBehavior, saveType, respectPropertyDefinitionsConstraints);
   }
 
@@ -50,19 +53,26 @@ public class NeutralImporter extends BaseXmlImporter {
   }
 
   public void startElement(String namespaceURI,
-      String localName,
-      String name,
-      Map<String, String> atts) throws RepositoryException {
+                           String localName,
+                           String name,
+                           Map<String, String> atts) throws RepositoryException {
     if (contentImporter == null) {
       switch (NodeTypeRecognizer.recognize(namespaceURI, name)) {
       case DOCVIEW:
-        contentImporter = new DocumentViewImporter(parent, uuidBehavior, getSaveType(),respectPropertyDefinitionsConstraints);
+        contentImporter = new DocumentViewImporter(parent,
+                                                   uuidBehavior,
+                                                   getSaveType(),
+                                                   respectPropertyDefinitionsConstraints);
         break;
       case SYSVIEW:
-        contentImporter = new SystemViewImporter(parent, uuidBehavior, getSaveType(),respectPropertyDefinitionsConstraints);
+        contentImporter = new SystemViewImporter(parent,
+                                                 uuidBehavior,
+                                                 getSaveType(),
+                                                 respectPropertyDefinitionsConstraints);
         break;
       default:
-        throw new IllegalStateException("No importer find");
+        throw new IllegalStateException("There was an error during ascertaining the "
+            + "type of document. First element " + namespaceURI + ":" + name);
       }
     }
     contentImporter.startElement(namespaceURI, localName, name, atts);
