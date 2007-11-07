@@ -6,21 +6,13 @@ package org.exoplatform.services.jcr.ext.registry;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.List;
 
 import javax.jcr.ItemNotFoundException;
 
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
-import org.exoplatform.services.jcr.ext.common.SessionProvider;
-import org.exoplatform.services.rest.Request;
-import org.exoplatform.services.rest.ResourceBinder;
-import org.exoplatform.services.rest.ResourceDispatcher;
-import org.exoplatform.services.rest.ResourceIdentifier;
-import org.exoplatform.services.rest.container.ResourceDescriptor;
-import org.exoplatform.services.rest.MultivaluedMetadata;
-import org.exoplatform.services.rest.Response;
-import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
+import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
 
 
 public class RegistryTest extends BaseStandaloneTest{
@@ -35,16 +27,14 @@ public class RegistryTest extends BaseStandaloneTest{
     		container.getComponentInstanceOfType(ThreadLocalSessionProviderService.class);
     sessionProviderService.setSessionProvider(null, new SessionProvider(credentials));
   }
+	
+	
 
   public void testInit() throws Exception {
     RegistryService regService = (RegistryService) container
     .getComponentInstanceOfType(RegistryService.class);
     assertNotNull(regService);
       
-//    ManageableRepository rep = ((RepositoryService) container
-//    .getComponentInstanceOfType(RepositoryService.class)).getDefaultRepository();
-    
-//    SessionProvider sp = new SessionProvider(credentials);
     assertNotNull(regService.getRegistry(sessionProviderService.getSessionProvider(null)).getNode());
     assertTrue(regService.getRegistry(sessionProviderService.getSessionProvider(null)).getNode().hasNode(RegistryService.EXO_SERVICES));
     assertTrue(regService.getRegistry(sessionProviderService.getSessionProvider(null)).getNode().hasNode(RegistryService.EXO_APPLICATIONS));
@@ -59,11 +49,6 @@ public class RegistryTest extends BaseStandaloneTest{
   public void testRegister() throws Exception {
     RegistryService regService = (RegistryService) container
     .getComponentInstanceOfType(RegistryService.class);
-
-//    ManageableRepository rep = ((RepositoryService) container
-//        .getComponentInstanceOfType(RepositoryService.class)).getDefaultRepository();
-
-//    SessionProvider sp = new SessionProvider(credentials);
 
     try {
       regService.getEntry(sessionProviderService.getSessionProvider(null),
@@ -89,7 +74,7 @@ public class RegistryTest extends BaseStandaloneTest{
         RegistryEntry.parse(new FileInputStream(entryFile)));
 
     regService.removeEntry(sessionProviderService.getSessionProvider(null),
-    		RegistryService.EXO_USERS, "exo_user");
+    		RegistryService.EXO_USERS + "/exo_user");
     
     try {
       regService.getEntry(sessionProviderService.getSessionProvider(null),
@@ -99,6 +84,35 @@ public class RegistryTest extends BaseStandaloneTest{
     }
 
   }
+  
+  public void testRegisterToNonExistedGroup() throws Exception {
+    RegistryService regService = (RegistryService) container
+    .getComponentInstanceOfType(RegistryService.class);
+    
+    String groupPath = RegistryService.EXO_USERS+"/newGroup1/newGroup2";
+    String entryName = "testEntry";
+    
+    try {
+			regService.getEntry(sessionProviderService.getSessionProvider(null),
+					groupPath, entryName);
+			fail("ItemNotFoundException should have been thrown");
+		} catch (ItemNotFoundException e) {
+			// OK
+		}
+		
+    // group path should have been created along with entry
+    regService.createEntry(sessionProviderService.getSessionProvider(null),
+    		groupPath, new RegistryEntry(entryName));
+    
+
+    RegistryEntry entry = regService.getEntry(sessionProviderService.getSessionProvider(null),
+    		groupPath, entryName);
+    
+    assertNotNull(entry);
+    assertEquals(entryName, entry.getName());
+
+  }
+
 
   public void testLocation() throws Exception {
     RegistryService regService = (RegistryService) container
@@ -107,101 +121,4 @@ public class RegistryTest extends BaseStandaloneTest{
     regService.addRegistryLocation("wrong", "wrong");
   }
   
-  public void testRESTRegservice() throws Exception {
-    RESTRegistryService restRegService =
-      (RESTRegistryService) container.getComponentInstanceOfType(RESTRegistryService.class);
-    ResourceBinder binder =
-      (ResourceBinder) container.getComponentInstanceOfType(ResourceBinder.class);
-    ResourceDispatcher dispatcher =
-      (ResourceDispatcher) container.getComponentInstanceOfType(ResourceDispatcher.class);
-    assertNotNull(restRegService);
-    assertNotNull(binder);
-    assertNotNull(dispatcher);
-    
-    List<ResourceDescriptor> list = binder.getAllDescriptors();
-    assertEquals(5, list.size());
-
-    System.out.println("\n-----REST-----");
-    
-    MultivaluedMetadata mv = new MultivaluedMetadata();
-    String baseURI = "http://localhost:8080/rest";
-    String extURI = "/registry/db1/";
-    String path = "src/test/java/org/exoplatform/services/jcr/ext/registry/exo_service.xml";
-    if (!new File(path).exists()){
-      path = "component/ext/" + path;
-    }
-    File file = new File(path);
-
-    // registry should be empty
-    Request request = new Request(null, new ResourceIdentifier(baseURI, extURI), "GET", mv, null);
-    Response response = dispatcher.dispatch(request);
-    assertEquals(200, response.getStatus());
-    System.out.println(">>> Content-Length: " + response.getEntityMetadata().getLength());
-    response.writeEntity(System.out);
-    System.out.println();
-    // request to exo:services/exo_service
-    // request status should be 404 (NOT_FOUND)
-    request = new Request(null,
-        new ResourceIdentifier(baseURI, extURI + RegistryService.EXO_SERVICES +	"/exo_service"), "GET", mv, null);
-    response = dispatcher.dispatch(request);
-    assertEquals(404, response.getStatus());
-    response.writeEntity(System.out);
-    System.out.println();
-
-    // create exo:services/exo_service
-    FileInputStream fin = new FileInputStream(file);
-    request = new Request(fin, new ResourceIdentifier(baseURI, extURI + RegistryService.EXO_SERVICES),
-        "POST", mv, null);
-    response = dispatcher.dispatch(request);
-    assertEquals(201, response.getStatus());
-    System.out.println(">>> Content-Length: " + response.getEntityMetadata().getLength());
-    response.writeEntity(System.out);
-    System.out.println("\nRESPONSE HEADERS, LOCATION: " + response.getResponseHeaders().getFirst("Location"));
-
-    // request to exo:services/exo_service
-    request = new Request(null,
-        new ResourceIdentifier(baseURI, extURI + RegistryService.EXO_SERVICES +
-        "/exo_service"), "GET", mv, null);
-    response = dispatcher.dispatch(request);
-    assertEquals(200, response.getStatus());
-    System.out.println(">>> Content-Length: " + response.getEntityMetadata().getLength());
-    response.writeEntity(System.out);
-    System.out.println();
-
-    // registry
-    request = new Request(null, new ResourceIdentifier(baseURI, extURI), "GET", mv, null);
-    response = dispatcher.dispatch(request);
-    assertEquals(200, response.getStatus());
-    System.out.println(">>> Content-Length: " + response.getEntityMetadata().getLength());
-    response.writeEntity(System.out);
-    System.out.println();
-
-    // recreate exo:services/exo_service
-    fin = new FileInputStream(file);
-    request = new Request(fin, new ResourceIdentifier(baseURI, extURI + RegistryService.EXO_SERVICES),
-        "PUT", mv, null);
-    response = dispatcher.dispatch(request);
-    assertEquals(201, response.getStatus());
-    System.out.println("RESPONSE HEADERS, LOCATION: " + response.getResponseHeaders().getFirst("Location"));
-
-    // delete exo:services/exo_service
-    request = new Request(null, new ResourceIdentifier(baseURI, extURI + RegistryService.EXO_SERVICES +
-        "/exo_service"), "DELETE", mv, null);
-    response = dispatcher.dispatch(request);
-    assertEquals(204, response.getStatus());
-    System.out.println(">>> Content-Length: " + response.getEntityMetadata().getLength());
-    response.writeEntity(System.out);
-    System.out.println();
-    
-    // request to exo:services/exo_service
-    // request status should be 404 (NOT_FOUND)
-    request = new Request(null, new ResourceIdentifier(baseURI, extURI + RegistryService.EXO_SERVICES +
-    		"/exo_service"), "GET", mv, null);
-    response = dispatcher.dispatch(request);
-    assertEquals(404, response.getStatus());
-    System.out.println(">>> Content-Length: " + response.getEntityMetadata().getLength());
-    response.writeEntity(System.out);
-    System.out.println();
- 
-  }
 }

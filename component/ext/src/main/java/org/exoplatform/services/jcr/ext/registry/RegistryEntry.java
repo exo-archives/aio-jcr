@@ -33,10 +33,22 @@ public final class RegistryEntry {
 
   private Document document;
   
+  /**
+   * creates a RegistryEntry after XML DOM Document
+   * root element node name it is the name of the Entry
+   * @param dom
+   */
   public RegistryEntry(Document dom) {
     this.document = dom;
   }
   
+  /**
+   * creates an empty RegistryEntry
+   * @param rootName
+   * @throws IOException
+   * @throws SAXException
+   * @throws ParserConfigurationException
+   */
   public RegistryEntry(String rootName) throws IOException,
   SAXException, ParserConfigurationException {
   	DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();

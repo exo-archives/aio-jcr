@@ -6,7 +6,7 @@
     <init-params>
       <properties-param>
       <name>locations</name>
-      <property name="db1" value="ws1"/>
+      <!-- property name="db1" value="ws1"/ -->
       </properties-param>
     </init-params>
   </component>

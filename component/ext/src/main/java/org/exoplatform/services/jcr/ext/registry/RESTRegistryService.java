@@ -183,12 +183,11 @@ public class RESTRegistryService implements ResourceContainer {
 	}
 
 	@HTTPMethod(HTTPMethods.DELETE)
-	@URITemplate("/{group}/{entry}/")
+	@URITemplate("/{entryPath}/")
 	@OutputTransformer(StringOutputTransformer.class)
 	public Response removeEntry(@URIParam("repository")
-	String repository, @URIParam("group")
-	String groupName, @URIParam("entry")
-	String entryName) throws RepositoryException,
+	String repository,@URIParam("entryPath")
+	String entryPath) throws RepositoryException,
 			RepositoryConfigurationException {
 
 		regService.getRepositoryService().setCurrentRepositoryName(repository);
@@ -196,7 +195,7 @@ public class RESTRegistryService implements ResourceContainer {
 				.getSessionProvider(null);
 		Response response = Response.Builder.serverError().build();
 		try {
-			regService.removeEntry(sessionProvider, groupName, entryName);
+			regService.removeEntry(sessionProvider, entryPath);
 			response = Response.Builder.noContent().build();
 		} catch (ItemNotFoundException e) {
 			response = Response.Builder.notFound().entity("NOT_FOUND", "text/plain")

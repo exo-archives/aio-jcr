@@ -1,9 +1,15 @@
 <nodeTypes xmlns:nt="http://www.jcp.org/jcr/nt/1.0" xmlns:mix="http://www.jcp.org/jcr/mix/1.0"
   xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:exo="http://www.exoplatform.com/jcr/exo/1.0" >
 
-  <nodeType name="exo:registryEntry" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+  <nodeType name="exo:registryEntity" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
     <supertypes>
       <supertype>nt:base</supertype>
+    </supertypes>
+  </nodeType>
+
+  <nodeType name="exo:registryEntry" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+    <supertypes>
+      <supertype>exo:registryEntity</supertype>
     </supertypes>
     <propertyDefinitions>
       <propertyDefinition name="*" requiredType="undefined" autoCreated="false" mandatory="false" onParentVersion="COPY"
@@ -27,13 +33,13 @@
 	
   <nodeType name="exo:registryGroup" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
     <supertypes>
-      <supertype>nt:base</supertype>
+      <supertype>exo:registryEntity</supertype>
     </supertypes>
     <childNodeDefinitions>
       <childNodeDefinition name="*" defaultPrimaryType="exo:registryEntry" autoCreated="false" mandatory="false"
         onParentVersion="VERSION" protected="false" sameNameSiblings="false">
         <requiredPrimaryTypes>
-          <requiredPrimaryType>exo:registryEntry</requiredPrimaryType>
+          <requiredPrimaryType>exo:registryEntity</requiredPrimaryType>
         </requiredPrimaryTypes>
       </childNodeDefinition>
     </childNodeDefinitions>

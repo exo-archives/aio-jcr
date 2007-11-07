@@ -18,6 +18,7 @@ import java.util.Map;
 import javax.jcr.ItemExistsException;
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.xml.parsers.ParserConfigurationException;
@@ -123,7 +124,7 @@ public class RegistryService extends Registry implements Startable {
    *      org.exoplatform.services.jcr.core.ManageableRepository)
    */
   public RegistryEntry getEntry(SessionProvider sessionProvider, String groupName,
-      String entryName) throws RepositoryException {
+      String entryName) throws ItemNotFoundException, RepositoryException {
 
     String relPath = EXO_REGISTRY + "/" + groupName + "/" + entryName;
     Session session = session(sessionProvider, repositoryService.getCurrentRepository());
@@ -143,8 +144,8 @@ public class RegistryService extends Registry implements Startable {
         throw new RepositoryException(
             "Can't export node to XML representation " + e);
       }
-    }
-    throw new ItemNotFoundException("Item not found " + relPath);
+    } else
+      throw new ItemNotFoundException("Entry not found " + relPath);
   }
 
   /*
@@ -155,18 +156,19 @@ public class RegistryService extends Registry implements Startable {
    *      java.lang.String, org.w3c.dom.Document)
    */
   public void createEntry(SessionProvider sessionProvider,
-  		String groupName, RegistryEntry entry) throws RepositoryException {
+  		String groupPath, RegistryEntry entry) throws RepositoryException {
   	
-    String path = "/" + EXO_REGISTRY + "/" + groupName;
+    String fullPath = "/" + EXO_REGISTRY + "/" + groupPath;
     try {
+    	checkGroup(sessionProvider, groupPath);
       session(sessionProvider, repositoryService.getCurrentRepository()).
-      getWorkspace().importXML(path, entry.getAsInputStream(), IMPORT_UUID_CREATE_NEW);
+      getWorkspace().importXML(fullPath, entry.getAsInputStream(), IMPORT_UUID_CREATE_NEW);
     } catch(IOException ioe) {
-      throw new RepositoryException("Item " + path + "can't be created");
+      throw new RepositoryException("Item " + fullPath + "can't be created "+ioe);
     } catch(ItemExistsException iee) {
-      throw new RepositoryException("Item " + path + "alredy exists");
+      throw new RepositoryException("Item " + fullPath + "alredy exists "+iee);
     } catch(TransformerException te) {
-      throw new RepositoryException("Can't get XML representation from stream");
+      throw new RepositoryException("Can't get XML representation from stream "+te);
     }
   }
 
@@ -177,10 +179,10 @@ public class RegistryService extends Registry implements Startable {
    *      org.exoplatform.services.jcr.ext.common.SessionProvider,
    *      java.lang.String, java.lang.String)
    */
-  public void removeEntry(SessionProvider sessionProvider, String groupName,
-      String entryName) throws RepositoryException {
+  public void removeEntry(SessionProvider sessionProvider, String entryPath)
+      throws RepositoryException {
 
-    String relPath = EXO_REGISTRY + "/" + groupName + "/" + entryName;
+    String relPath = EXO_REGISTRY + "/" + entryPath;
     Node root = session(sessionProvider, repositoryService
         .getCurrentRepository()).getRootNode();
     if (!root.hasNode(relPath))
@@ -195,11 +197,11 @@ public class RegistryService extends Registry implements Startable {
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.registry.Registry#recreateEntry(org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String, org.exoplatform.services.jcr.ext.registry.RegistryEntry)
    */
-  public void recreateEntry(SessionProvider sessionProvider, String groupName,
+  public void recreateEntry(SessionProvider sessionProvider, String groupPath,
       RegistryEntry entry) throws RepositoryException {
 
-    removeEntry(sessionProvider, groupName, entry.getName());
-    createEntry(sessionProvider, groupName, entry);
+    removeEntry(sessionProvider, groupPath + "/" + entry.getName());
+    createEntry(sessionProvider, groupPath, entry);
   }
 
   /*
@@ -216,6 +218,12 @@ public class RegistryService extends Registry implements Startable {
         .getNode(EXO_REGISTRY));
   }
 
+  /**
+   * @param sessionProvider
+   * @param repo
+   * @return session
+   * @throws RepositoryException
+   */
   private Session session(SessionProvider sessionProvider,
       ManageableRepository repo) throws RepositoryException {
 
@@ -242,11 +250,14 @@ public class RegistryService extends Registry implements Startable {
       initStorage(false);
     } catch (RepositoryConfigurationException e) {
       log.error(e.getLocalizedMessage());
+      e.printStackTrace();
     } catch (RepositoryException e) {
       log.error(e.getLocalizedMessage());
+      e.printStackTrace();
     } catch (IOException e) {
       log.error(e.getLocalizedMessage());
-    }
+      e.printStackTrace();
+    } 
   }
 
   /*
@@ -328,13 +339,47 @@ public class RegistryService extends Registry implements Startable {
     }
   }
 
+  /**
+   * @return repository service
+   */
   public RepositoryService getRepositoryService() {
     return repositoryService;
   }
 
+  /**
+   * @return repository entries 
+   */
   private List<RepositoryEntry> repConfigurations() {
     return (List<RepositoryEntry>) repositoryService.getConfig()
         .getRepositoryConfigurations();
   }
 
+  /**
+   * check if group exists and creates one if necessary
+   * @param sessionProvider
+   * @param groupPath
+   * @throws RepositoryException
+   */
+  private void checkGroup(SessionProvider sessionProvider, String groupPath) 
+  throws RepositoryException {
+  	String[] groupNames = groupPath.split("/");
+  	String prefix = "/" + EXO_REGISTRY;
+  	Session session = session(sessionProvider, repositoryService
+		    .getCurrentRepository());
+  	for(String name : groupNames) {
+  		String path = prefix + "/" + name;  
+  		try {
+  			Node group = (Node)session.getItem(path);
+  			if(!group.isNodeType(EXO_REGISTRYGROUP_NT))
+  				throw new RepositoryException("Node at "+path+" should be  " + EXO_REGISTRYGROUP_NT + " type");
+			} catch (PathNotFoundException e) {
+				Node parent = (Node)session.getItem(prefix);
+				parent.addNode(name, EXO_REGISTRYGROUP_NT);
+				parent.save();
+			}
+			prefix = path;
+  	}
+  }
+  
+  
 }
