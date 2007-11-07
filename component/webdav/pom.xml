@@ -22,12 +22,12 @@
       <scope>provided</scope>
     </dependency>
 
-		<dependency>
-			<groupId>org.exoplatform.ws.rest</groupId>
-			<artifactId>exo.rest.core</artifactId>
-			<version>0.1</version>
-			<scope>compile</scope>
-		</dependency>	  
+	<dependency>
+		<groupId>org.exoplatform.ws.rest</groupId>
+		<artifactId>exo.rest.core</artifactId>
+		<version>0.1</version>
+		<scope>compile</scope>
+	</dependency>	  
 	  
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
