@@ -20,7 +20,6 @@
     <module>frameworks/web</module>
 
     <module>frameworks/httpclient</module>
-    <module>frameworks/restclient</module>
     <module>frameworks/webdavclient</module>
     <module>frameworks/ftpclient</module>
 
