@@ -44,14 +44,13 @@ public abstract class Registry {
   /**
    * Returns existed RegistryEntry which wraps Node of "exo:registryEntry" type  
    * @param sessionProvider
-   * @param entryType
+   * @param groupPath
    * @param entryName
-   * @param repository
    * @return existed RegistryEntry
    * @throws ItemNotFoundException if entry not found
    * @throws RepositoryException
    */
-  public abstract RegistryEntry getEntry(SessionProvider sessionProvider, String groupName,
+  public abstract RegistryEntry getEntry(SessionProvider sessionProvider, String groupPath,
       String entryName) throws ItemNotFoundException, RepositoryException;
 
   /**
