@@ -123,10 +123,10 @@ public class RegistryService extends Registry implements Startable {
    *      java.lang.String, java.lang.String,
    *      org.exoplatform.services.jcr.core.ManageableRepository)
    */
-  public RegistryEntry getEntry(SessionProvider sessionProvider, String groupName,
-      String entryName) throws ItemNotFoundException, RepositoryException {
+  public RegistryEntry getEntry(SessionProvider sessionProvider, 
+      String entryPath) throws ItemNotFoundException, RepositoryException {
 
-    String relPath = EXO_REGISTRY + "/" + groupName + "/" + entryName;
+    String relPath = EXO_REGISTRY + "/" + entryPath;
     Session session = session(sessionProvider, repositoryService.getCurrentRepository());
     if (session.getRootNode().hasNode(relPath)) {
       try {

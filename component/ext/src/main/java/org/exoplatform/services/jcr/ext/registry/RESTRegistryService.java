@@ -102,12 +102,11 @@ public class RESTRegistryService implements ResourceContainer {
 	}
 
 	@HTTPMethod(HTTPMethods.GET)
-	@URITemplate("/{group}/{entry}/")
+	@URITemplate("/{entryPath}/")
 	@OutputTransformer(RegistryEntryOutputTransformer.class)
 	public Response getEntry(@URIParam("repository")
-	String repository, @URIParam("group")
-	String groupName, @URIParam("entry")
-	String entryName) throws RepositoryException,
+	String repository, @URIParam("entryPath")
+	String entryPath) throws RepositoryException,
 			RepositoryConfigurationException {
 
 		regService.getRepositoryService().setCurrentRepositoryName(repository);
@@ -115,12 +114,10 @@ public class RESTRegistryService implements ResourceContainer {
 				.getSessionProvider(null);
 		Response response = Response.Builder.serverError().build();
 		try {
-			RegistryEntry entry = regService.getEntry(sessionProvider, groupName,
-					entryName);
+			RegistryEntry entry = regService.getEntry(sessionProvider, entryPath);
 			response = Response.Builder.ok(entry, "text/xml").build();
 		} catch (ItemNotFoundException e) {
-			response = Response.Builder.notFound().entity("NOT_FOUND", "text/plain")
-					.transformer(new StringOutputTransformer()).build();
+			response = Response.Builder.notFound().errorMessage("Path not found: "+entryPath).build();
 		} finally {
 			sessionProvider.close();
 		}
@@ -181,6 +178,17 @@ public class RESTRegistryService implements ResourceContainer {
 		}
 		return response;
 	}
+	
+	
+//	@HTTPMethod(HTTPMethods.GET)
+//	@URITemplate("/{entryPath}/")
+//	@QueryTemplate("metod=delete")
+//	@OutputTransformer(StringOutputTransformer.class)
+//	public Response deleteEntry(@URIParam("repository")
+//	String repository,@URIParam("entryPath")
+//	String entryPath) throws RepositoryException,
+//			RepositoryConfigurationException {
+//	}
 
 	@HTTPMethod(HTTPMethods.DELETE)
 	@URITemplate("/{entryPath}/")

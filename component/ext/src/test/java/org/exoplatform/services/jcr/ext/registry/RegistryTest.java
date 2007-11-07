@@ -52,7 +52,7 @@ public class RegistryTest extends BaseStandaloneTest{
 
     try {
       regService.getEntry(sessionProviderService.getSessionProvider(null),
-      		RegistryService.EXO_USERS, "exo_user");
+      		RegistryService.EXO_USERS + "/exo_user");
       fail("ItemNotFoundException should have been thrown");
     } catch (ItemNotFoundException e) {}
     
@@ -66,7 +66,7 @@ public class RegistryTest extends BaseStandaloneTest{
     		RegistryService.EXO_USERS, RegistryEntry.parse(new FileInputStream(entryFile)));
     
     RegistryEntry entry = regService.getEntry(sessionProviderService.getSessionProvider(null),
-    		RegistryService.EXO_USERS, "exo_user");
+    		RegistryService.EXO_USERS + "/exo_user");
     PassthroughOutputTransformer transformer = new PassthroughOutputTransformer();
     transformer.writeTo(entry.getAsInputStream(), System.out);
 
@@ -78,7 +78,7 @@ public class RegistryTest extends BaseStandaloneTest{
     
     try {
       regService.getEntry(sessionProviderService.getSessionProvider(null),
-      		RegistryService.EXO_USERS, "exo_user");
+      		RegistryService.EXO_USERS + "/exo_user");
       fail("ItemNotFoundException should have been thrown");
     } catch (ItemNotFoundException e) {
     }
@@ -94,7 +94,7 @@ public class RegistryTest extends BaseStandaloneTest{
     
     try {
 			regService.getEntry(sessionProviderService.getSessionProvider(null),
-					groupPath, entryName);
+					groupPath + "/" + entryName);
 			fail("ItemNotFoundException should have been thrown");
 		} catch (ItemNotFoundException e) {
 			// OK
@@ -106,7 +106,7 @@ public class RegistryTest extends BaseStandaloneTest{
     
 
     RegistryEntry entry = regService.getEntry(sessionProviderService.getSessionProvider(null),
-    		groupPath, entryName);
+    		groupPath + "/" + entryName);
     
     assertNotNull(entry);
     assertEquals(entryName, entry.getName());
