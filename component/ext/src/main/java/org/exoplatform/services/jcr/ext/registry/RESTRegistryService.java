@@ -20,6 +20,7 @@ import org.exoplatform.services.jcr.ext.registry.transformer.RegistryEntryOutput
 import org.exoplatform.services.rest.transformer.StringOutputTransformer;
 import org.exoplatform.services.rest.transformer.XMLInputTransformer;
 import org.exoplatform.services.rest.transformer.XMLOutputTransformer;
+import org.exoplatform.services.rest.ContextParam;
 import org.exoplatform.services.rest.InputTransformer;
 import org.exoplatform.services.rest.OutputTransformer;
 import org.exoplatform.services.rest.HTTPMethod;
@@ -45,29 +46,28 @@ public class RESTRegistryService implements ResourceContainer {
 
 	private ThreadLocalSessionProviderService sessionProviderService;
 
-	private ResourceDispatcher dispatcher;
+//	private ResourceDispatcher dispatcher;
 
 	private static final String REGISTRY = "registry";
 
 	private static final String EXO_REGISTRY = "exo:registry/";
 
 	public RESTRegistryService(RegistryService regService,
-			ThreadLocalSessionProviderService sessionProviderService,
-			ResourceDispatcher dispatcher) throws Exception {
+			ThreadLocalSessionProviderService sessionProviderService
+			/*ResourceDispatcher dispatcher*/) throws Exception {
 
 		this.regService = regService;
 		this.sessionProviderService = sessionProviderService;
-		this.dispatcher = dispatcher;
+//		this.dispatcher = dispatcher;
 	}
 
 	@HTTPMethod(HTTPMethods.GET)
 	@InputTransformer(XMLInputTransformer.class)
 	@OutputTransformer(XMLOutputTransformer.class)
-	public Response getRegistry(@URIParam("repository") String repository)
-	    throws RepositoryException,
-			RepositoryConfigurationException, ParserConfigurationException {
-
-		String furi = dispatcher.getRuntimeContext().getAbsLocation();
+	public Response getRegistry(
+	    @URIParam("repository") String repository,
+	    @ContextParam(ResourceDispatcher.CONTEXT_PARAM_ABSLOCATION) String fullURI) 
+	    throws RepositoryException, RepositoryConfigurationException, ParserConfigurationException {
 
 		regService.getRepositoryService().setCurrentRepositoryName(repository);
 		SessionProvider sessionProvider = sessionProviderService
@@ -79,7 +79,7 @@ public class RESTRegistryService implements ResourceContainer {
 			NodeIterator registryIterator = registryNode.getNodes();
 			Document entry = DocumentBuilderFactory.newInstance()
 					.newDocumentBuilder().newDocument();
-			XlinkHref xlinkHref = new XlinkHref(furi);
+			XlinkHref xlinkHref = new XlinkHref(fullURI);
 			Element root = entry.createElement(REGISTRY);
 			xlinkHref.putToElement(root);
 			while (registryIterator.hasNext()) {
@@ -104,10 +104,10 @@ public class RESTRegistryService implements ResourceContainer {
 	@HTTPMethod(HTTPMethods.GET)
 	@URITemplate("/{entryPath}/")
 	@OutputTransformer(RegistryEntryOutputTransformer.class)
-	public Response getEntry(@URIParam("repository")
-	String repository, @URIParam("entryPath")
-	String entryPath) throws RepositoryException,
-			RepositoryConfigurationException {
+	public Response getEntry(
+	    @URIParam("repository")	String repository,
+	    @URIParam("entryPath") String entryPath
+	    ) throws RepositoryException, RepositoryConfigurationException {
 
 		regService.getRepositoryService().setCurrentRepositoryName(repository);
 		SessionProvider sessionProvider = sessionProviderService
@@ -128,8 +128,11 @@ public class RESTRegistryService implements ResourceContainer {
 	@URITemplate("/{group}/")
 	@InputTransformer(RegistryEntryInputTransformer.class)
 	@OutputTransformer(StringOutputTransformer.class)
-	public Response createEntry(RegistryEntry entry, @URIParam("repository")
-	String repository, @URIParam("group") String groupName) throws RepositoryConfigurationException {
+	public Response createEntry(RegistryEntry entry,
+	    @URIParam("repository") String repository,
+	    @URIParam("group") String groupName,
+	    @ContextParam(ResourceDispatcher.CONTEXT_PARAM_ABSLOCATION) String fullURI
+	    ) throws RepositoryConfigurationException {
 
 	  regService.getRepositoryService().setCurrentRepositoryName(repository);
 		SessionProvider sessionProvider = sessionProviderService
@@ -137,9 +140,7 @@ public class RESTRegistryService implements ResourceContainer {
 		Response response = Response.Builder.serverError().build();
 		try {
 			regService.createEntry(sessionProvider, groupName, entry);
-			String locname = entry.getName();
-			String location = dispatcher.getRuntimeContext().createAbsLocation(
-					locname);
+			String location = fullURI + entry.getName();
 			response = Response.Builder.created(location, location).mediaType(
 					"text/plain").build();
 		} catch (RepositoryException re) {
@@ -155,9 +156,12 @@ public class RESTRegistryService implements ResourceContainer {
 	@URITemplate("/{group}/")
 	@InputTransformer(RegistryEntryInputTransformer.class)
 	@OutputTransformer(StringOutputTransformer.class)
-	public Response recreateEntry(RegistryEntry entry, @URIParam("repository")
-	String repository, @URIParam("group")
-	String groupName) throws RepositoryConfigurationException {
+	public Response recreateEntry(
+	    RegistryEntry entry,
+	    @URIParam("repository") String repository,
+	    @URIParam("group") String groupName,
+	    @ContextParam(ResourceDispatcher.CONTEXT_PARAM_ABSLOCATION) String fullURI
+	    ) throws RepositoryConfigurationException {
 
 		regService.getRepositoryService().setCurrentRepositoryName(repository);
 		SessionProvider sessionProvider = sessionProviderService
@@ -165,9 +169,7 @@ public class RESTRegistryService implements ResourceContainer {
 		Response response = Response.Builder.serverError().build();
 		try {
 			regService.recreateEntry(sessionProvider, groupName, entry);
-			String locname = entry.getName();
-			String location = dispatcher.getRuntimeContext().createAbsLocation(
-					locname);
+            String location = fullURI + entry.getName();
 			response = Response.Builder.created(location, location).mediaType(
 					"text/plain").build();
 		} catch (RepositoryException re) {
