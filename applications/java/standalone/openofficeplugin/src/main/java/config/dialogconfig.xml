@@ -1002,7 +1002,7 @@
 				<property name="Height" type="integer" value="12" />
 				<property name="Align" type="short" value="0" />
 				<property name="TabIndex" type="short" value="0" />
-				<property name="Label" type="string" value="Build 24.10.07" />
+				<property name="Label" type="string" value="Build 5.11.07" />
 			</component>
 			
 			<component>
