@@ -58,16 +58,16 @@ namespace exo_jcr.msofficeplugin.common
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(13, 195);
+            this.label4.Location = new System.Drawing.Point(168, 195);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(94, 13);
+            this.label4.Size = new System.Drawing.Size(88, 13);
             this.label4.TabIndex = 5;
-            this.label4.Text = "Build: 24/10/2007";
+            this.label4.Text = "Build: 5/11/2007";
             // 
             // linkLabel1
             // 
             this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Location = new System.Drawing.Point(80, 144);
+            this.linkLabel1.Location = new System.Drawing.Point(146, 144);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(147, 13);
             this.linkLabel1.TabIndex = 4;
@@ -78,7 +78,7 @@ namespace exo_jcr.msofficeplugin.common
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 120);
+            this.label3.Location = new System.Drawing.Point(70, 120);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(308, 13);
             this.label3.TabIndex = 3;
@@ -89,7 +89,7 @@ namespace exo_jcr.msofficeplugin.common
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(230, 68);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(79, 13);
+            this.label2.Size = new System.Drawing.Size(70, 13);
             this.label2.TabIndex = 2;
             this.label2.Text = " eXo JCR 1.7";
             // 
