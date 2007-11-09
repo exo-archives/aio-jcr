@@ -26,6 +26,7 @@
     <module>connectors/jca</module>
 
     <!-- check readme.txt in the project -->
+    <module>applications/config</module>
     <module>applications/java/web/samples/browser</module>
     <module>applications/java/web/samples/fckeditor</module>
     <module>applications/java/web/webdav</module>
