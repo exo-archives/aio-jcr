@@ -1,0 +1,186 @@
+<project>
+  <parent>
+    <groupId>org.exoplatform.jcr</groupId>
+    <artifactId>config</artifactId>
+    <version>1.7</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>exo.product.jcr</artifactId>
+  <packaging>jar</packaging>
+  <version>${org.exoplatform.jcr.version}</version>
+  <name>eXo JCR Product</name>
+  <url>http://www.exoplatform.org</url>
+  <description>eXo JCR Product</description>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.applications.fckeditor</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <type>war</type>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.applications.browser</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <type>war</type>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.applications.rest</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <type>war</type>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.ext</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <!--<dependency>
+      <groupId>org.exoplatform.ws.rest</groupId>
+      <artifactId>exo.rest.core</artifactId>
+      <version>0.1</version>
+      <scope>runtime</scope>
+    </dependency>-->
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.ftp</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.webdav</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+		      <groupId>org.exoplatform.jcr</groupId>
+		      <artifactId>exo.jcr.component.cifs</artifactId>
+		      <version>${org.exoplatform.jcr.version}</version>
+		      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.rmi</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.framework.command</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.framework.web</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+	      <groupId>commons-logging</groupId>
+	      <artifactId>commons-logging-api</artifactId>
+	      <version>1.1</version>
+	      <scope>runtime</scope>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.1</version>
+        <executions>
+          <execution>
+            <phase>install</phase>
+            <goals>
+              <goal>assembly</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <descriptors>
+            <descriptor>product-exo-jcr-as-descriptor.xml</descriptor>
+          </descriptors>
+          <finalName>lib</finalName>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <configuration>
+          <tasks>
+            <delete dir="${exo.projects.directory.working}/exo-tomcat"
+              includeEmptyDirs="true" quiet="yes" />
+            <copy todir="${exo.projects.directory.working}/exo-tomcat"
+              verbose="false" overwrite="true">
+              <fileset
+                dir="${exo.projects.directory.dependencies}/${exo.projects.app.tomcat.version}" />
+            </copy>
+            <copy
+              todir="${exo.projects.directory.working}/exo-tomcat/lib/"
+              verbose="true" overwrite="true">
+              <fileset
+                dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/"
+                excludes="**/*.war" />
+            </copy>
+            <copy todir="${exo.projects.directory.working}/exo-tomcat/"
+              verbose="true" overwrite="true">
+              <fileset dir="${basedir}/product-patches/as/tomcat/" />
+            </copy>
+            <move
+              todir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+              <fileset
+                dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+                <include name="**/*.war" />
+              </fileset>
+              <mapper>
+                <chainedmapper>
+                  <flattenmapper />
+                  <globmapper
+                    from="exo.jcr.applications.*-${org.exoplatform.jcr.version}.war"
+                    to="*.war" casesensitive="no" />
+                </chainedmapper>
+              </mapper>
+            </move>
+            <copy
+              todir="${exo.projects.directory.working}/exo-tomcat/webapps/"
+              verbose="true" flatten="true" overwrite="true">
+              <fileset
+                dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/"
+                casesensitive="yes">
+                <include name="**/*.war" />
+              </fileset>
+            </copy>
+            <copy
+              todir="${exo.projects.directory.working}/exo-tomcat/bin/">
+              <fileset
+                dir="${basedir}/product-patches/as/">
+                <include name="*.dll" />
+              </fileset>
+            </copy>
+          </tasks>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

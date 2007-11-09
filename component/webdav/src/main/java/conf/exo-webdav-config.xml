@@ -1,0 +1,60 @@
+<webdav-config>
+
+	<!-- here are described all documents whitch used in WebDav -->
+	<document-set>
+		<document>
+			<document-name>propfind</document-name>
+			<namespace>DAV:</namespace>
+			<class-name>org.exoplatform.services.webdav.common.request.documents.PropFindDocument</class-name>
+		</document>
+
+		<document>
+			<document-name>propertyupdate</document-name>
+			<namespace>DAV:</namespace>
+			<class-name>org.exoplatform.services.webdav.common.request.documents.PropertyUpdateDocument</class-name>
+		</document>
+		
+		<document>
+			<document-name>lockinfo</document-name>
+			<namespace>DAV:</namespace>
+			<class-name>org.exoplatform.services.webdav.lock.request.LockInfoDocument</class-name>
+		</document>
+
+		<document>
+			<document-name>version-tree</document-name>
+			<namespace>DAV:</namespace>
+			<class-name>org.exoplatform.services.webdav.deltav.report.versiontree.VersionTreeReportDocument</class-name>
+		</document>
+				
+		<document>
+			<document-name>orderpatch</document-name>
+			<namespace>DAV:</namespace>
+			<class-name>org.exoplatform.services.webdav.order.request.OrderPatchDocument</class-name>
+		</document>
+
+		<document>
+			<document-name>searchrequest</document-name>
+			<namespace>DAV:</namespace>
+			<class-name>org.exoplatform.services.webdav.search.request.SearchRequestDocument</class-name>
+		</document>		
+													
+	</document-set>
+	
+	<!-- here are described all properties whitch used in WebDav -->
+	<property-set>
+		
+		<property>
+			<name>displayname</name>
+			<namespace>DAV:</namespace>
+			<class-name>org.exoplatform.services.webdav.common.property.dav.DisplayNameProp</class-name>
+		</property>
+		
+		<property>
+			<name>resourcetype</name>
+			<namespace>DAV:</namespace>
+			<class-name>org.exoplatform.services.webdav.common.property.dav.ResourceTypeProp</class-name>
+		</property>
+		
+	</property-set>	
+	
+</webdav-config>

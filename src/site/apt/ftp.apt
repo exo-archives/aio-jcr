@@ -1,0 +1,148 @@
+FTP
+
+  JCR-FTP Server represents the standard eXo service, operates as FTP a server with access to a content stored in JCR repositories in the form of nt:file/nt:folder nodes or their successors.
+  The client of an executed Server can be any FTP the client 
+  FTP server is supported by a standard configuration which can be changed as required.
+
+  Configuration parameters:
+  
+    * command-port: 
+
+---------
+	<value-param>
+		<name>command-port</name>
+		<value>21</value>
+	</value-param>
+---------
+
+    	Value of command channel port. The value 21 is default.
+    	
+    	When you have already some FTP  server  installed in your system , this parameter needs to be changed (2121 for example) to avoid conflicts.
+
+    * data-min-port & data-max-port
+
+---------
+	<value-param>
+		<name>data-min-port</name>
+		<value>52000</value>
+	</value-param>
+---------
+	
+---------
+	<value-param>
+		<name>data-max-port</name>
+		<value>53000</value>
+	</value-param>
+---------
+	
+	These two parameters indicates the minimal and maximal values of a range of the channel of data.
+	Use of the additional channel of data is required by the FTP - protocol, and is used for transfer of contents of files and listing of catalogues.
+	This range of ports should be free from listening by others a server-programs. It is necessary to adjust personally for everyone a host-computer.
+
+    * system
+    
+---------
+	<value-param>
+		<name>system</name>
+
+		<value>Windows_NT</value>
+		  or
+		<value>UNIX Type: L8</value>
+
+	</value-param>
+---------
+
+	Type of a format of listing of catalogues are supported.
+
+    * client-side-encoding
+
+---------
+	<value-param>
+		<name>client-side-encoding</name>
+		
+		<value>windows-1251</value>
+		  or
+		<value>KOI8-R</value>
+		
+	</value-param>
+---------
+	
+	This parameter specifies the coding which is used for dialogue with the client
+
+	
+    * def-folder-node-type
+    
+---------
+	<value-param>
+		<name>def-folder-node-type</name>
+		<value>nt:folder</value>
+	</value-param>
+---------
+
+	This parameter parameter specifies type of node, at creation FTP - folders.
+	
+    * def-file-node-type
+    
+---------
+	<value-param>
+		<name>def-file-node-type</name>
+		<value>nt:file</value>
+	</value-param>
+---------
+	
+	This parameter parameter specifies type of node, at creation FTP - file.
+
+    * def-file-mime-type
+    
+---------
+	<value-param>
+		<name>def-file-mime-type</name>				      
+		<value>application/zip</value>
+	</value-param>			
+---------
+	
+	The mime type of a created file takes from a pattern where a key is extention of a file. In case of when a server cannot find the corresponding mime type, this value is used.
+
+    * cache-folder-name
+
+---------
+	<value-param>
+		<name>cache-folder-name</name>
+		<value>../temp/ftp_cache</value>
+	</value-param>
+---------
+
+	Path of cache folder.
+	
+    * upload-speed-limit
+
+---------
+	<value-param>
+		<name>upload-speed-limit</name>				
+		<value>20480</value>
+	</value-param>
+---------
+	
+	Restriction of speed of upload. It is measured in bytes.
+
+    * download-speed-limit
+
+---------
+	<value-param>
+		<name>download-speed-limit</name>
+		<value>20480</value>				
+	</value-param>
+---------
+
+	Restriction of speed of download. It is measured in bytes.
+
+    * timeout
+
+---------
+	<value-param>
+		<name>timeout</name>
+		<value>60</value>
+	</value-param>
+---------
+	
+	Defines value of timeout.

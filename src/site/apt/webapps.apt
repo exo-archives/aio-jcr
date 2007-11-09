@@ -1,0 +1,198 @@
+Deployment from Release bundle (JCR 1.5)
+
+  eXo JCR can be deployed standalone in Application Servers. Currently it is tested on:
+
+  * Tomcat 5.0 and 5.5
+
+  * JBoss 4.0.3
+
+  * JOnAS 4.7.4
+
+  * WebLogic 9.1
+
+EXO-JCR 1.5 Tomcat 5
+
+  EXO-JCR Tomcat 5.0 bundle includes Apache Tomcat 5.0.28 distributive
+  bundled with eXo JCR sample applications and neccessary libraries.
+
+  1. Start Up
+   Tomcat 5 with EXO-JCR 1.5 bundled can be started by executing the following commands:
+
+      $CATALINA_HOME\bin\exo-run.bat          (Windows)
+
+      $CATALINA_HOME/bin/exo-run.sh           (Unix)
+
+  2. After startup, EXO-JCR 1.5 sample applications will be available by visiting:
+
+    http://localhost:8080/jcr-browser
+
+    http://localhost:8080/fckeditor
+
+    http://localhost:8080/jcr-webdav/repository
+
+    The latest URL may be accessible using some WebDav explorer, e.g eXoDavBrowser.
+
+    FTP server is available too: hostname=localhost, username=admin, password=admin.
+
+EXO-JCR EAR
+
+  EXO-JCR EAR bundle <<(jcr.ear)>> includes sample application
+
+  EXO-JCR was tested under <<WebLogic 9.1>>, <<JBoss 4.0.3SP1, 4.0.4>> and <<JOnAS 4.6.6, 4.7.4>> application servers
+
+  Before use of EXO-EAR you need to configure eXo JRC services: add custom-commands.xml and exo-configuration.xml files to root of Application server.
+  These files can be found in any war file located in the EAR, e.g. fckeditor.war path /WEB-INF/classes/conf.
+
+*---*
+<<JBoss 4.0.3, 4.0.4>>
+*---*
+
+  1. Configuration
+
+    * Copy <jcr.ear> into <%jboss_home%/server/default/deploy>
+
+    * Configure JAAS by inserting XML fragment shown below into <%jboss_home%/server/default/conf/login-config.xml>
+
+---------
+<application-policy name="exo-domain">
+ <authentication>
+   <login-module code="org.exoplatform.services.security.jaas.StandaloneLoginModule" flag="required">
+   </login-module>
+ </authentication>
+</application-policy>
+---------
+
+
+  2. Start Up
+
+     Execute
+
+       * bin/run.bat <<(Windows)>>
+
+     or
+
+       * bin/run.sh  <<(Unix)>>
+
+  3. After startup, EXO-JCR 1.5 sample application will be available at {{http://localhost:8080/jcr-browser}}
+
+*---*
+<<JOnAS 4.6.6, 4.7.4>>
+*---*
+
+  1. Configuration
+
+    * Copy <jcr.ear> into <%jonas_home%/apps/autoload>
+
+    * Configure JAAS <%jonas_home%/conf/jaas.config>, the file must contain the text as shown below:
+
+---------
+tomcat {
+  org.exoplatform.services.security.jaas.StandaloneLoginModule required;
+};
+exo-domain {
+ // The same as shown above, just another name
+ org.exoplatform.services.security.jaas.StandaloneLoginModule required;
+};
+---------
+
+    * Go to <%jonas_home%/conf/context.xml>, replace <Context> tag with this one:
+
+---------
+<Context crossContext="true">
+---------
+
+    * Go to <%jonas_home%/conf/server.xml>, replace
+
+---------
+<Realm className="org.objectweb.jonas.security.realm.web.catalina55.JACC" resourceName="memrlm_1" />
+---------
+
+    with
+
+---------
+      <Realm className="org.objectweb.jonas.security.realm.web.catalina55.JAAS"
+           userClassNames="org.exoplatform.services.security.impl.UserPrincipalImpl"
+           roleClassNames="org.exoplatform.services.security.impl.RolePrincipalImpl"
+           debug="99"/>
+---------
+
+     This Realm uses the JAAS model to authenticate users.
+     User and Role Principals are eXo Platform specific.
+
+    * Make JOnAS Admin use the default database to identify users, go to the end of
+      <%jonas_home%/conf/server.xml> file (the end <Host name="localhost" debug="0" appBase="webapps"...> tag), add this fragment:
+
+---------
+        <Context className="org.objectweb.jonas.web.catalina55.JOnASStandardContext" path="/jonasAdmin">
+          <Realm className="org.objectweb.jonas.security.realm.web.catalina55.JACC" resourceName="memrlm_1"/>
+        </Context>
+---------
+
+    * Copy <log4j-1.2.8.jar> into JOnAS' <lib\apps> directory
+
+    * Finally, for the correct running our fckeditor, put configuration.xml and custom-commands.xml
+      (u may find it within jcr.ear\APP-INF\classes\conf\standalone\) into <%jonas_home%>
+
+  2. Start Up
+
+     Execute
+
+       * bin/nt/jonas.bat start <<(Windows)>>
+
+     or
+
+       * bin/unix/jonas start   <<(Unix)>>
+
+  3. After startup, EXO-JCR 1.5 sample application will be available at {{http://localhost:9000/jcr-browser}}
+
+  4. If you still can't get access to our sample applications, please modify your jonas.bat and run post-patch.bat
+  before running jonas.bat, see
+  {{{http://svn.forge.objectweb.org/cgi-bin/viewcvs.cgi/exoplatform/v2.x/exo-jcr/applications/product-patches/as/jonas/}patches}} for details.
+
+
+*---*
+<<WebLogic 9.1>>
+*---*
+
+  1. Configuration & start up
+
+    * Copy <log4j-1.2.8.jar> and <commons-logging-1.0.3.jar> into <%DOMAIN_HOME%\lib> directory
+
+    * Copy <exo-weblogic-loginmodule-1.0.jar> into <%DOMAIN_HOME%\lib> directory
+
+    * Copy <exo-weblogic-authproviders-1.0.jar> into <%BEA_HOME%\weblogic91\server\lib\mbeantypes> directory
+
+    * Run domain admin server with command <%DOMAIN_HOME%\startWebLogic.cmd> (or <.sh>)
+
+    * Configure (using Administration console, {{http://localhost:7001/console}}) new security realm by setting
+    corresponding eXo providers as an authentication, authorization and role mapper providers with any names.
+
+    * Place <jcr.ear> into random directory
+
+    * Run the following command to deploy EAR into server
+
+---------
+java weblogic.Deployer -adminurl t3://localhost:7001 -user weblogic -password xxx -deploy C:\path\where\lies\jcr.ear
+---------
+
+    * Select newly created realm as the default security realm
+
+  2. WebDAV support configuration
+
+    * Locate (or download) file <xercesImpl-2.7.1.jar>
+
+    * Insert line
+
+---------
+set PATCH_CLASSPATH=\where\is\your\file\xercesImpl-2.7.1.jar
+---------
+
+  before line
+
+---------
+call "%DOMAIN_HOME%\bin\startWebLogic.cmd" %*
+---------
+
+  in file <%DOMAIN_HOME%\startWebLogic.cmd> (or <*.sh>)
+
+  3. After startup, EXO-JCR 1.0 sample application will be available at {{http://localhost:7001/jcr-browser}}

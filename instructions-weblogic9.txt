@@ -1,0 +1,15 @@
+1.create new domain
+2.copy all jars to %domain_home%/lib
+3.run Admin server for your domain
+4.make a batch file with (or run by hands) the following lines
+  java weblogic.Deployer -adminurl t3://localhost:7001 -user weblogic -password 11111111 -deploy drive:\path\where\lies\exo-jcr.connectors.adapter-1.0.rar
+  java weblogic.Deployer -adminurl t3://localhost:7001 -user weblogic -password 11111111 -deploy drive:\path\where\lies\jcr
+!! don't forget to set up CLASSPATH to correct value for WebLogic 9.1 like the following:
+  set CLASSPATH=C:\exo-bea\patch_weblogic910\profiles\default\sys_manifest_classpath\weblogic_patch.jar;C:\exo-bea\JROCKI~1\lib\tools.jar;C:\exo-bea\WEBLOG~1\server\lib\weblogic_sp.jar;C:\exo-bea\WEBLOG~1\server\lib\weblogic.jar;C:\exo-bea\WEBLOG~1\server\lib\webservices.jar;
+
+patch %domain_home%/bin/startWebLogic.cmd to add jaas.config by changing
+  set JAVA_OPTIONS=%SAVE_JAVA_OPTIONS%
+to
+  set JAVA_OPTIONS=%SAVE_JAVA_OPTIONS% -Djava.security.auth.login.config=%DOMAIN_HOME%\config\jaas.config
+copy jaas.config to defined path
+restart server

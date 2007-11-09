@@ -1,0 +1,83 @@
+<<Frameworks>>
+
+  eXo JCR has several frameworks built on top of JCR API intended for:
+
+  * Simplifying End User JCR application development
+
+  * Helping to make good designed, layered application
+
+  * Decouple Application Business Logic from Content storage operations
+
+  * Fitting some data interchange protocol to be used on top of JCR (Protocol frameworks)
+
+Command
+
+  Command framework uses Command service (which is based on Apache's {{{http://jakarta.apache.org/commons/chain}commons-chain}}) and allows encapsulate Repository operations as an <Command> objects
+
+[images/command.gif]
+
+  A Command framework Application can create own Catalog of Commands, configuring org.exoplatform.services.command.impl.CommonsXMLConfigurationPlugin as following:
+
+----------
+  <component>
+    <key>org.exoplatform.services.command.impl.CommandService</key>
+    <type>org.exoplatform.services.command.impl.CommandService</type>
+    <component-plugins>    
+      <component-plugin> 
+          <name>config.catalog</name>
+          <set-method>addPlugin</set-method>
+          <type>org.exoplatform.services.command.impl.CommonsXMLConfigurationPlugin</type>
+          <init-params>
+            <value-param>
+              <name>config-file</name>
+              <value>conf/test-commands1.xml</value>
+            </value-param>
+          </init-params>    
+      </component-plugin>
+    </component-plugins>      
+  </component>
+-----------
+
+  Where <<test-commands1.xml>> is commons-chain standard chain definition xml
+
+  To simplify working with JCR the framework defined own Context interface as following:
+
+------------
+public interface JCRAppContext extends Context {
+  
+  void setCurrentWorkspace(String workspaceName);
+  
+  Session getSession() throws LoginException, NoSuchWorkspaceException, RepositoryException;
+}
+------------
+
+
+Web Framework
+
+  Web framework intended for building web (servlet) JCR based application, it is a set of Http Servlet Listeners, Filters and Servlets that can be declared in web.xml and used for building Web application and other frameworks (see below) on top of it.
+
+  Web framework uses Command framework underneath and so each application built using Web framework may define own set of commands 
+
+
+  <<FCKEditor - eXo JCR bridge>>
+
+  For example we integrate popular HTML editor {{{http://www.fckeditor.net}FCKEditor}} to use it for JCR stored content using standard <org.exoplatform.frameworks.jcr.web.CommandControllerServlet> servlet and adding its specific commands to the Catalog like:
+
+-------------------
+  <command   name="GetFolders"
+        className="org.exoplatform.frameworks.jcr.command.web.fckeditor.GetFoldersOrFilesCommand"/>
+  <command   name="GetFiles"
+        className="org.exoplatform.frameworks.jcr.command.web.fckeditor.GetFoldersOrFilesCommand"/>
+  <command   name="GetFoldersAndFiles"
+        className="org.exoplatform.frameworks.jcr.command.web.fckeditor.GetFoldersOrFilesCommand"/>
+  <command   name="FileUpload"
+        className="org.exoplatform.frameworks.jcr.command.web.fckeditor.UploadFileCommand"/>
+  <command   name="CreateFolder"
+        className="org.exoplatform.frameworks.jcr.command.web.fckeditor.CreateFolderCommand"/>
+-------------------
+
+  So it is possible to use this bridge standalone with eXo JCR or integrated into eXo ECM  
+
+
+   
+  

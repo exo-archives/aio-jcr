@@ -1,0 +1,183 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.exoplatform.jcr</groupId>
+  <artifactId>config</artifactId>
+  <name>eXo JCR Config</name>
+  <version>1.7</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>component/core</module>
+    <module>component/ext</module>
+
+    <module>component/rmi</module>
+    <module>component/ftp</module>
+    <module>component/webdav</module>
+    <module>component/cifs</module>
+
+
+    <module>frameworks/command</module>
+    <module>frameworks/web</module>
+
+    <module>frameworks/httpclient</module>
+    <module>frameworks/restclient</module>
+    <module>frameworks/webdavclient</module>
+    <module>frameworks/ftpclient</module>
+
+    <module>connectors/jca</module>
+
+    <!-- check readme.txt in the project -->
+    <module>applications/java/web/samples/browser</module>
+    <module>applications/java/web/samples/fckeditor</module>
+    <module>applications/java/web/webdav</module>
+    <module>applications/java/web/rest</module>
+    <module>applications/java/web/ear</module>
+
+    <module>applications/java/standalone/rmi-server</module>
+    <module>applications/java/standalone/rmi-client</module>
+    <module>applications/java/standalone/samples/webdav-browser</module>
+
+    <!-- module>applications/java/standalone/openofficeplugin</module -->
+    <!-- module>applications/jcr-console</module -->
+    <!-- module>site</module -->
+  </modules>
+
+  <build>
+    <!-- sourceDirectory>src/main/java</sourceDirectory>
+    <outputDirectory>target/classes</outputDirectory>
+
+    <testSourceDirectory>src/test/java</testSourceDirectory>
+    <testOutputDirectory>target/test-classes</testOutputDirectory -->
+
+    <resources>
+        <resource>
+            <directory>src/main/java</directory>
+            <includes>
+                <include>**/*.xml</include>
+                <include>**/*.xsl</include>
+                <include>**/*.properties</include>
+                <include>**/*.ion</include>
+            </includes>
+        </resource>
+        <resource>
+            <directory>src/main/resources</directory>
+            <includes>
+                <include>**/*.xml</include>
+                <include>**/*.xsl</include>
+                <include>**/*.properties</include>
+                <include>**/login.conf</include>
+                <include>**/*.ion</include>
+            </includes>
+        </resource>
+    </resources>
+    <testResources>
+        <testResource>
+            <directory>src/test/java</directory>
+            <includes>
+                <include>**/*.properties</include>
+                <include>**/*.xml</include>
+                <include>**/*.txt</include>
+            </includes>
+        </testResource>
+        <testResource>
+            <directory>src/test/resources</directory>
+            <includes>
+                <include>**/*.properties</include>
+                <include>**/*.xml</include>
+                <include>**/*.txt</include>
+            </includes>
+        </testResource>
+    </testResources>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+            <source>1.5</source>
+            <target>1.5</target>
+            <optimize>${exo.compile.optimize}</optimize>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skip>${exo.test.skip}</skip>
+          <useFile>${exo.test.use.file}</useFile>
+          <forkMode>once</forkMode><!--once , pertest -->
+          <testFailureIgnore>${exo.test.failure.ignore}</testFailureIgnore>
+          <includes>
+            <include implementation="java.lang.String">**/${test.classes}*.java1</include>
+          </includes>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+  <reporting>
+     <plugins>
+       <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-checkstyle-plugin</artifactId>
+           <configuration>
+             <configLocation>${exo.projects.directory.src}/tools/trunk/config/exo-checkstyle-checker.xml</configLocation>
+             <suppressionsLocation>${exo.projects.directory.src}/tools/trunk/config/exo-checkstyle-suppressions.xml</suppressionsLocation>
+           </configuration>
+         </plugin>
+     </plugins>
+  </reporting>
+  <!-- repositories>
+    <repository>
+      <id>maven.org</id>
+      <url>http://repo1.maven.org/maven2</url>
+    </repository>
+    <repository>
+      <id>ibiblio.org</id>
+      <url>http://www.ibiblio.org/maven2</url>
+    </repository>
+    <repository>
+      <id>exo-vietnam</id>
+      <url>http://vnserver.exoplatform.org/maven2</url>
+    </repository>
+    <repository>
+      <id>objectweb.org</id>
+      <url>http://maven.objectweb.org/maven2</url>
+    </repository>
+    <repository>
+      <id>objectweb.org-snapshot</id>
+      <url>http://maven.objectweb.org/maven2-snapshot/</url>
+    </repository>
+    <repository>
+      <id>java.net</id>
+      <url>https://maven-repository.dev.java.net/nonav/repository</url>
+      <layout>legacy</layout>
+    </repository>
+  </repositories -->
+
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <property><name>default</name></property>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <org.exoplatform.tool.version>2.0.3</org.exoplatform.tool.version>
+        <org.exoplatform.kernel.version>2.0.3</org.exoplatform.kernel.version>
+        <org.exoplatform.core.version>2.0.3</org.exoplatform.core.version>
+        <org.exoplatform.jcr.version>1.7</org.exoplatform.jcr.version>
+
+
+        <!-- exo.platform.version>2.0.3</exo.platform.version>
+        <exo.portlet-container.version>1.5</exo.portlet-container.version>
+        <exo.portal.version>1.1.4</exo.portal.version>
+        <exo.jcr.version>1.5</exo.jcr.version>
+        <exo.ecm.version>1.0</exo.ecm.version>
+        <exo.sso.version>1.0</exo.sso.version>
+        <exo.sso.cas2.version>1.0</exo.sso.cas2.version -->
+      </properties>
+    </profile>
+  </profiles>
+</project>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exo_service xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+xmlns:jcr="http://www.jcp.org/jcr/1.0"
+xmlns:dc="http://purl.org/dc/elements/1.1/"
+xmlns:xs="http://www.w3.org/2001/XMLSchema"
+xmlns:sv="http://www.jcp.org/jcr/sv/1.0"
+xmlns:exo="http://www.exoplatform.com/jcr/exo/1.0"
+xmlns:mix="http://www.jcp.org/jcr/mix/1.0"
+xmlns:fn="http://www.w3.org/2004/10/xpath-functions"
+jcr:primaryType="exo:registryEntry"/>

@@ -1,0 +1,309 @@
+Data container/Database configuration
+
+ eXo JCR persistent data container can work in two configuration modes:
+
+  * Multi-database - one database for each workspace (used in standalone eXo JCR service mode)
+
+  * Single-database - all workspaces persisted in one database (used in embedded eXo JCR service mode, e.g. in eXo portal)
+
+ Data container uses JDBC driver to communicate with actual database software, i.e. any JDBC-enabled data storage can be used
+ with eXo JCR implementation.
+
+ Currently data container tested with RDBMS:
+
+  * MySQL (5.0)
+
+  * PostgreSQL (8.1)
+
+  * Oracle Database (10g Express Edition R2)
+
+  * Microsoft SQL Server (2005 Express Edition)
+
+  * Sybase ASE (15.0 XE)
+
+  * Apache Derby/Java DB (10.1.2.1)
+
+  * HSQLDB (1.7.3.3)
+
+ Each database software support ANSI SQL standards but has own specifics too. So, each database has own configuration in eXo JCR
+ and can be flexible configured till the metadata SQL-script files. In case the non-ANSI node name is used under mysql and other db it's need to add additional parameter for JDBC driver at the end of JDBC URL. For instance:
+jdbc:mysql://exoua.dnsalias.net/portal?characterEncoding=utf8
+
+
+ There are preconfigured configuration files for listed RDBMS. Look for these files in /conf/portal and /conf/standalone
+ folders of the jar-file (<exo-jcr.services.jcr.impl-XXX.XXX.jar>) or source-distribution of eXo JCR implementation.
+
+
+*---*
+<<Multi-database configuration>>
+*---*
+
+  Need to configure each workspace in a repository. You may have each one on different servers
+  remotely as far as you need.
+
+  First of all configure data containers in the file {{{configuration.html}configuration.xml}} for <org.exoplatform.services.naming.InitialContextInitializer>
+  component. It's JNDI context initializer which register (bind) naming resources (datasources) for data container.
+
+  Example (fragment of {{{configuration.html}configuration.xml for standalone mode}}) of two data containers (<<jdbcjcr>> - local HSQLDB, <<jdbcjcr1>> - remote MySQL):
+
+---------
+  <component>
+    <key>org.exoplatform.services.naming.InitialContextInitializer</key>
+    <type>org.exoplatform.services.naming.InitialContextInitializer</type>
+    <component-plugins>
+      <component-plugin>
+        <name>bind.datasource</name>
+        <set-method>addPlugin</set-method>
+        <type>org.exoplatform.services.naming.BindReferencePlugin</type>
+        <init-params>
+          <value-param>
+            <name>bind-name</name>
+            <value>jdbcjcr</value>
+          </value-param>
+          <value-param>
+            <name>class-name</name>
+            <value>javax.sql.DataSource</value>
+          </value-param>
+          <value-param>
+            <name>factory</name>
+            <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
+          </value-param>
+          <properties-param>
+            <name>ref-addresses</name>
+            <description>ref-addresses</description>
+            <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+            <property name="url" value="jdbc:hsqldb:file:target/temp/data/portal"/>
+            <property name="username" value="sa"/>
+            <property name="password" value=""/>
+          </properties-param>
+        </init-params>
+            </component-plugin>
+      <component-plugin>
+        <name>bind.datasource</name>
+        <set-method>addPlugin</set-method>
+        <type>org.exoplatform.services.naming.BindReferencePlugin</type>
+        <init-params>
+          <value-param>
+            <name>bind-name</name>
+            <value>jdbcjcr1</value>
+          </value-param>
+          <value-param>
+            <name>class-name</name>
+            <value>javax.sql.DataSource</value>
+          </value-param>
+          <value-param>
+            <name>factory</name>
+            <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
+          </value-param>
+          <properties-param>
+            <name>ref-addresses</name>
+            <description>ref-addresses</description>
+            <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+            <property name="url" value="jdbc:mysql://exoua.dnsalias.net/jcr"/>
+            <property name="username" value="exoadmin"/>
+            <property name="password" value="exo12321"/>
+            <property name="maxActive" value="50"/>
+            <property name="maxIdle" value="5"/>
+            <property name="initialSize" value="5"/>
+          </properties-param>
+        </init-params>
+      </component-plugin>
+    <init-params>
+      <value-param>
+        <name>default-context-factory</name>
+        <value>org.exoplatform.services.naming.SimpleContextFactory</value>
+      </value-param>
+    </init-params>
+  </component>
+---------
+
+  We configure database connection parameters:
+
+    * driverClassName, e.g. "org.hsqldb.jdbcDriver", "com.mysql.jdbc.Driver", "org.postgresql.Driver"
+
+    * url, e.g. "jdbc:hsqldb:file:target/temp/data/portal", "jdbc:mysql://exoua.dnsalias.net/jcr"
+
+    * username, e.g. "sa", "exoadmin"
+
+    * password, e.g. "", "exo12321"
+
+
+  There can be connection pool configuration parameters (<org.apache.commons.dbcp.BasicDataSourceFactory> currently):
+
+    * maxActive, e.g. 50
+
+    * maxIdle, e.g. 5
+
+    * initialSize, e.g. 5
+
+    * and other according to {{{http://jakarta.apache.org/commons/dbcp/configuration.html}Apache DBCP configuration}}
+
+
+  When data container configuration done we can configure repository service in the file {{{configuration.html}exo-jcr-config.xml}}.
+  Each one workspace configured for own data container.
+
+  Example (fragment of {{{configuration.html}exo-jcr-config.xml}}) of two workspaces (<<ws>> - jdbcjcr, <<ws1>> - jdbcjcr1):
+
+---------
+      <workspaces>
+        <workspace name="ws" auto-init-root-nodetype="nt:unstructured">
+          <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
+            <properties>
+              <property name="sourceName" value="jdbcjcr"/>
+              <property name="multi-db" value="true"/>
+            </properties>
+          </container>
+          <cache enabled="true">
+            <properties>
+              <property name="maxSize" value="1000"/>
+              <property name="liveTime" value="1800"/><!-- 30 min -->
+            </properties>
+          </cache>
+          <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
+            <properties>
+              <property name="indexDir" value="target/temp/index"/>
+            </properties>
+          </query-handler>
+        </workspace>
+        <workspace name="ws1" auto-init-root-nodetype="nt:unstructured">
+          <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
+            <properties>
+              <property name="sourceName" value="jdbcjcr1"/>
+              <property name="multi-db" value="true"/>
+            </properties>
+          </container>
+          <cache enabled="true">
+            <properties>
+              <property name="maxSize" value="1000"/>
+              <property name="liveTime" value="10000"/>
+            </properties>
+          </cache>
+          <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
+            <properties>
+              <property name="indexDir" value="target/temp/index"/>
+            </properties>
+          </query-handler>
+        </workspace>
+      </workspaces>
+---------
+
+  Enable multi-database container with "multi-db" parameter (set value "true");
+
+  In this way we configure two workspace which will be persisted in two different databases
+
+
+*---*
+<<Single-database configuration>>
+*---*
+
+  It's more simple to configure single-database data container. We have to configure one naming resource.
+
+  Example (fragment of {{{configuration.html}configuration.xml for embedded mode}} for <<jdbcjcr>> data container):
+
+---------
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.naming.InitialContextInitializer</target-component>
+      <component-plugin>
+        <name>bind.datasource</name>
+        <set-method>addPlugin</set-method>
+        <type>org.exoplatform.services.naming.BindReferencePlugin</type>
+        <init-params>
+          <value-param>
+            <name>bind-name</name>
+            <value>jdbcjcr</value>
+          </value-param>
+          <value-param>
+            <name>class-name</name>
+            <value>javax.sql.DataSource</value>
+          </value-param>
+          <value-param>
+            <name>factory</name>
+            <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
+          </value-param>
+          <properties-param>
+            <name>ref-addresses</name>
+            <description>ref-addresses</description>
+            <property name="driverClassName" value="org.postgresql.Driver"/>
+            <property name="url" value="jdbc:postgresql://exoua.dnsalias.net/portal"/>
+            <property name="username" value="exoadmin"/>
+            <property name="password" value="exo12321"/>
+            <property name="maxActive" value="50"/>
+            <property name="maxIdle" value="5"/>
+            <property name="initialSize" value="5"/>
+          </properties-param>
+        </init-params>
+            </component-plugin>
+  </external-component-plugins>
+---------
+
+  And configure repository workspaces in {{{configuration.html}exo-jcr-config.xml}} with this one database. Parameter "multi-db" must be switched off (set value "false").
+
+  Example (fragment of {{{configuration.html}exo-jcr-config.xml}}) of two workspaces (<<ws>> - jdbcjcr, <<ws1>> - jdbcjcr):
+
+---------
+        <workspace name="ws" auto-init-root-nodetype="nt:unstructured">
+          <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
+            <properties>
+              <property name="sourceName" value="jdbcjcr"/>
+              <property name="multi-db" value="false"/>
+            </properties>
+          </container>
+          <cache enabled="true">
+            <properties>
+              <property name="maxSize" value="10000"/>
+              <property name="liveTime" value="1800"/><!-- 30 min -->
+            </properties>
+          </cache>
+          <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
+            <properties>
+              <property name="indexDir" value="../temp/index"/>
+            </properties>
+          </query-handler>
+        </workspace>
+        <workspace name="ws1" auto-init-root-nodetype="nt:unstructured">
+          <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
+            <properties>
+              <property name="sourceName" value="jdbcjcr"/>
+              <property name="multi-db" value="false"/>
+            </properties>
+          </container>
+          <cache enabled="true">
+            <properties>
+              <property name="maxSize" value="10000"/>
+              <property name="liveTime" value="1800"/><!-- 30 min -->
+            </properties>
+          </cache>
+        </workspace>
+---------
+  Therewith workspace can be added dynamically in runtime. It can be done in two  steps:
+
+     * First <<<ManageableRepository.configWorkspace(WorkspaceEntry wsConfig)>>> - registration a new configuration  in RepositoryContainer and create WorkspaceContainer. 
+
+     * Second, the main step, is <<<ManageableRepository.createWorkspace(String workspaceName) >>>– creation of new new workspace.
+
+  <<Notes for Microsoft Windows users>>
+
+  Current configuration of eXo JCR use {{{http://jakarta.apache.org/commons/dbcp}Apache DBCP}} connection pool (org.apache.commons.dbcp.BasicDataSourceFactory).
+  It's possible to set big value for maxActive parameter in {{{configuration.html}configuration.xml}}.
+  That means use of lot of TCP/IP ports from a client machine inside the pool (i.e. JDBC driver).
+  As result the data container can throws with exceptions like "Address already in use".
+  To solve this problem you have to configure client's machine networking software for use more short timeouts for opened TCP/IP ports.
+
+  Microsoft Windows has <<MaxUserPort>>, <<TcpTimedWaitDelay>> registry keys in node [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters],
+  by default these keys is unseted, set each one with values like these:
+
+   * "TcpTimedWaitDelay"=dword:0000001e, sets TIME_WAIT parameter to 30 seconds, default is 240.
+
+   * "MaxUserPort"=dword:00001b58, sets maximum open ports to 7000 or higher, default is 5000.
+
+
+  An example registry file below:
+
+---------------
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters]
+"MaxUserPort"=dword:00001b58
+"TcpTimedWaitDelay"=dword:0000001e
+---------------
+

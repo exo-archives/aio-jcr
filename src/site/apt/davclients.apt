@@ -1,0 +1,268 @@
+WebDav Java and C# Client Library
+
+
+		<<WebDav Clients is a two similar Java and C# library's thats allows using all WebDav services and features.>>
+
+
+		The main parts of the projects are:
+
+		-	Commands - set of classes that are implements all standard WebDav commands.
+
+		-	Documents - prototypes of XML response documents.
+
+		-	Properties - set of properties supported by repository. Properties can be a 
+		singlevalued or multivalued.
+
+		-	Search - implementation of search commands.
+
+		<<Available a next list of commands:>>
+	
+ - PropFind, Report, Options, Search, OrderPatch commands - multistatus commands, which requires a XML-request and normally returns 207 status and XML-response.
+
+ - Get, Put commands - commands for transmitting (receiving) contents of the file from/to server. GET returns 200(Ok) or 206 (Partial Content), PUT  returns 201(Created) when success.
+
+ - Copy, Move commands - simple commands that's only returns 201 status when succeed. Requires a ResourcePath and DestinationPath into request parameters.
+
+ - MkCol command - create a node on the server.
+
+ - Delete - delete a node from the server.
+
+ - Version Control, Check In, Check Out, UnCheckOut commands - using for enabling and operating with versionable files and folders.   Returns 200 or 201 (for Check-In command) status.
+
+ - Lock, Unlock commands - using for locking and unlocking folders at server.
+Lock command returns a 200 status with the Lock Token key, which must be used for 
+unlocking folder back (UnLock must returns 204 ).
+
+ - Prop Patch command - command for modifying node properties in repository.
+
+ - Head command - information and test command, retrieves only headers from server.
+
+
+
+
+
+
+	<<Supported DAV properties:>>
+
+	-	Checked In;
+
+	-	Checked Out;
+
+	-	Content Length;
+
+	-	Content Type;
+
+	-	Creator Display Name;
+
+	-	Display Name;
+
+	-	Last Modified;
+
+	-	Lock Discovery;
+
+	-	Resource Type;
+
+	-	Supported Lock;
+
+	-	Supported Method;
+
+	-	Supported Query Grammar Set;
+
+	-	Version Name and others;
+
+	For full properties list please refer to DavProperties.java or DavProperties.cs files.
+
+	<<Supported Search methods:>>
+
+	-	XPath Search;
+	
+	-	SQL Search;
+	
+	-	Basic Search;
+
+
+
+
+=====================
+
+
+	To execute a <<multistatus>> command need to complete these steps:
+
+ 
+*-------------------------*----------------*
+| Java Library		  | C# Library	 |
+| 				  | 		       |
+*-------------------------*----------------*
+| Create an instance of ServerLocation class with right     |Create an instance of DavContext class with right Server |
+| Server address, port, servlet path, username and password.|address, port, servlet path, username and password.      |
+*-------------------------*----------------*
+|Initialize a new command with this ServerLocation.| Initialize a new command with this DavContext.|
+*-------------------------*----------------*
+| Set resource path to command| Set resource path to command.|
+*-------------------------*----------------*
+| Add required properties to command.| Add required properties to command.|
+*-------------------------*----------------*
+| Execute command.| Execute command.       |
+*-------------------------*----------------*
+
+				
+	Code example:
+
+----------
+
+DavContext context = new DavContext("localhost", 8080,"/jcr-webdav/repository", "admin", "admin" );
+
+PropFindCommand propFind = new PropFindCommand(context);
+propFind.setResourcePath("/production");
+
+propFind.addRequiredProperty(DavProperty.DISPLAYNAME);
+propFind.addRequiredProperty(DavProperty.GETCONTENTTYPE);
+propFind.addRequiredProperty(DavProperty.RESOURCETYPE);
+propFind.addRequiredProperty(DavProperty.GETLASTMODIFIED);
+propFind.addRequiredProperty(DavProperty.SUPPORTEDLOCK);
+
+int status = propFind.execute();
+----------
+
+
+
+=====================
+
+
+	To execute a <<simple>> command (<<Delete, Version Control, Check In, Check Out>>) need to complete these steps:
+
+*-------------------------*----------------*
+| Java Library		  | C# Library	 |
+| 				  | 		       |
+*-------------------------*----------------*
+| Create an instance of ServerLocation class with right     |Create an instance of DavContext class with right Server |
+| Server address, port, servlet path, username and password.|address, port, servlet path, username and password.      |
+*-------------------------*----------------*
+|Initialize a new command with this ServerLocation.| Initialize a new command with this DavContext.|
+*-------------------------*----------------*
+| Set resource path to command| Set resource path to command.|
+*-------------------------*----------------*
+| Execute command.| Execute command.       |
+*-------------------------*----------------*
+
+
+	Code example:
+
+----------
+
+DavContext context = new DavContext("localhost", 8080, "/jcr-webdav/repository");
+VersionControlCommand vccomm = new VersionControlCommand(context);
+vccomm.setResourcePath("/production/1/1.zip");
+int status = vccomm.execute();
+----------
+
+=====================
+
+
+	To execute a <<Put>> command need to complete these steps:
+
+*-------------------------*----------------*
+| Java Library		  | C# Library	 |
+| 				  | 		       |
+*-------------------------*----------------*
+| Create an instance of ServerLocation class with right     |Create an instance of DavContext class with right Server |
+| Server address, port, servlet path, username and password.|address, port, servlet path, username and password.      |
+*-------------------------*----------------*
+|Initialize a new command with this ServerLocation.| Initialize a new command with this DavContext.|
+*-------------------------*----------------*
+| Set resource path to command| Set resource path to command.|
+*-------------------------*----------------*
+| Prepare contents of the uploaded file (setRequestDataBuffer(byte []) method)| Prepare contents of the uploaded file (setRequestData(byte []) method.)|
+*-------------------------*----------------*
+| Execute command.| Execute command.       |
+*-------------------------*----------------*
+	   
+
+	Code example:
+
+----------
+
+DavContext context = new DavContext("localhost", 8080, "/jcr-webdav/repository");
+PutCommand put = new PutCommand(context);
+put.setResourcePath("/production/1/1.txt");
+byte[] data = put.getBytes("Contents of the file");
+put.setRequestBody(data);
+int status = put.execute();
+----------
+
+=====================
+
+
+	To execute a <<Copy, Move>> command need to complete these steps:
+
+*-------------------------*----------------*
+| Java Library		  | C# Library	 |
+| 				  | 		       |
+*-------------------------*----------------*
+| Create an instance of ServerLocation class with right     |Create an instance of DavContext class with right Server |
+| Server address, port, servlet path, username and password.|address, port, servlet path, username and password.      |
+*-------------------------*----------------*
+|Initialize a new command with this ServerLocation.| Initialize a new command with this DavContext.|
+*-------------------------*----------------*
+| Set resource path to command| Set resource path to command.|
+*-------------------------*----------------*
+| Set destination path to command.| Set destination path to command.|
+*-------------------------*----------------*
+| Execute command.| Execute command.       |
+*-------------------------*----------------*
+
+
+
+	Code example:
+
+----------
+
+DavContext context = new DavContext("localhost", 8080, "/jcr-webdav/repository");
+CopyCommand copy = new CopyCommand(context);
+copy.setResourcePath(srcName);
+copy.setDestinationPath(destName);
+int status = copy.execute();
+----------
+
+=====================
+
+
+	To execute a <<Search>> command need to complete these steps:
+
+
+*-------------------------*----------------*
+| Java Library		  | C# Library	 |
+| 				  | 		       |
+*-------------------------*----------------*
+| Create an instance of ServerLocation class with right     |Create an instance of DavContext class with right Server |
+| Server address, port, servlet path, username and password.|address, port, servlet path, username and password.      |
+*-------------------------*----------------*
+|Initialize a new command with this ServerLocation.| Initialize a new command with this DavContext.|
+*-------------------------*----------------*
+| Set resource path to command| Set resource path to command.|
+*-------------------------*----------------*
+| Create new instance of query (SQLQuery, XPath query, or Basic Search Query).| Create new instance of query (SQLQuery, XPath query, or Basic Search Query).|
+*-------------------------*----------------*
+| Set the query text. (e.g."select * from nt:file").| Set the query text. (e.g."select * from nt:file").|
+*-------------------------*----------------*
+| Append query to command (setQuery() method)| Append query to command (setQuery() method)| 
+*-------------------------*----------------*
+| Execute command.| Execute command.       |
+*-------------------------*----------------*
+
+
+	Code example:
+
+----------
+
+DavContext context = new DavContext("localhost", 8080, "/jcr-webdav/repository");
+SearchCommand searchcomm = new SearchCommand(context);
+searchcomm.setResourcePath("/production");
+
+SQLQuery query = new SQLQuery();
+query.setQuery("select * from nt:file");
+searchcomm.setQuery(query);
+int status = searchcomm.execute();
+----------
+
+
