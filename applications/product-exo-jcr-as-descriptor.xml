@@ -94,8 +94,8 @@
 				<exclude>xerces:xerces</exclude>
 				<exclude>xdoclet:xjavadoc</exclude>
 				<exclude>xml-apis:xml-apis</exclude>-->
-				<!--===============================-->
-				<exclude>org.exoplatform.jcr:exo.jcr.applications.webdavclient</exclude>
+				<!--=====================================-->
+				<!--<exclude>org.exoplatform.jcr:exo.jcr.applications.webdavclient</exclude>
 				<exclude>javax.activation:activation</exclude>
 				<exclude>xalan:xalan</exclude>
 				<exclude>com.sun.xml.parsers:jaxp-ri</exclude>
@@ -116,7 +116,8 @@
 				<exclude>xdoclet:xdoclet-xdoclet-module</exclude>
 				<exclude>xerces:xerces</exclude>
 				<exclude>xdoclet:xjavadoc</exclude>
-				<exclude>xml-apis:xml-apis</exclude>
+				<exclude>xml-apis:xml-apis</exclude>-->
+				<exclude>javax.servlet:servlet-api</exclude>
 			</excludes>
 		</dependencySet>
 	</dependencySets>
