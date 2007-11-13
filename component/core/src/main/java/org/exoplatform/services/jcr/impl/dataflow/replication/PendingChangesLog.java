@@ -88,6 +88,14 @@ public class PendingChangesLog {
     data = new byte[dataLength];
   }
   
+  public PendingChangesLog(TransactionChangesLog transactionChangesLog, 
+      List<FixupStream> listFixupStreams, List<File> listFiles, FileCleaner fileCleaner) {
+    this.itemDataChangesLog = transactionChangesLog;
+    this.listFixupStream = listFixupStreams;
+    this.listFile = listFiles;
+    this.fileCleaner = fileCleaner;
+  }
+  
   public void putData(int offset, byte[] tempData){
     for (int i = 0; i < tempData.length; i++) 
       data[i+offset] = tempData[i];
