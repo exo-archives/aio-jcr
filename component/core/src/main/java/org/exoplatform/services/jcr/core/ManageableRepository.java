@@ -108,4 +108,5 @@ public interface ManageableRepository extends Repository {
     void registerWorker(Class<? extends RepositoryWorker> workerClass);
     
     void registerWorker(String workspaceName, Class<? extends RepositoryWorker> workerClass);
+    
 }
