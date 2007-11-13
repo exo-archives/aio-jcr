@@ -30,7 +30,6 @@ import org.exoplatform.services.jcr.impl.storage.jdbc.init.DBInitializerExceptio
 import org.exoplatform.services.jcr.impl.storage.jdbc.init.OracleDBInitializer;
 import org.exoplatform.services.jcr.impl.storage.jdbc.init.PgSQLDBInitializer;
 import org.exoplatform.services.jcr.impl.storage.jdbc.update.StorageUpdateManager;
-import org.exoplatform.services.jcr.impl.storage.value.StandaloneStoragePluginProvider;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;

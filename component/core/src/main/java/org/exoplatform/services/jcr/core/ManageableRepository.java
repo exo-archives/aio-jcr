@@ -96,5 +96,16 @@ public interface ManageableRepository extends Repository {
     /**
      * @return the configuration of this repository
      */
-    RepositoryEntry getConfiguration();  
+    RepositoryEntry getConfiguration();
+    
+    /**
+     * Add the items persistence listener to the named workspace. 
+     * @param workspaceName
+     * @param listener
+     */
+    //void addItemPersistenceListener(String workspaceName, ItemsPersistenceListener listener);
+    
+    void registerWorker(Class<? extends RepositoryWorker> workerClass);
+    
+    void registerWorker(String workspaceName, Class<? extends RepositoryWorker> workerClass);
 }

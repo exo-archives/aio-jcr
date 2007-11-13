@@ -23,7 +23,9 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.core.RepositoryWorker;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 
 /**
  * Created by The eXo Platform SARL .<br/> Bindable implementation of
@@ -203,5 +205,16 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
     delegatee.removeWorkspace(workspaceName);
     
   }
+
+  public void registerWorker(Class<? extends RepositoryWorker> workerClass) {
+    delegatee.registerWorker(workerClass);
+  }
+
+  public void registerWorker(String workspaceName,
+      Class<? extends RepositoryWorker> workerClass) {
+    delegatee.registerWorker(workspaceName, workerClass);
+  }
+  
+  
 
 }

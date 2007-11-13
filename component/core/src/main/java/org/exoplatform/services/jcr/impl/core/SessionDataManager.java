@@ -339,7 +339,6 @@ public class SessionDataManager implements ItemDataConsumer {
       ItemData itemData = getItemData(path);
       if (itemData == null)
         return null;
-
       item = itemFactory.createItem(itemData);
       session.getActionHandler().postRead(item);
       if (!item.hasPermission(PermissionType.READ)) {
@@ -1510,6 +1509,7 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
+   * TODO, QPath used
    * Class helps on to sort nodes on deleting
    */
   private class PathSorter implements Comparator<ItemState> {
