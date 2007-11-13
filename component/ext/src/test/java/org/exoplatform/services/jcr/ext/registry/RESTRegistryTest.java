@@ -1,5 +1,5 @@
 /***************************************************************************
- * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SAS         All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 package org.exoplatform.services.jcr.ext.registry;
@@ -11,6 +11,7 @@ import java.util.List;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.jcr.ext.registry.RegistryEntry;
 import org.exoplatform.services.rest.MultivaluedMetadata;
 import org.exoplatform.services.rest.Request;
 import org.exoplatform.services.rest.ResourceBinder;
@@ -62,7 +63,6 @@ public class RESTRegistryTest extends BaseStandaloneTest{
     Request request = new Request(null, new ResourceIdentifier(baseURI, extURI), "GET", mv, null);
     Response response = dispatcher.dispatch(request);
     assertEquals(200, response.getStatus());
-    System.out.println(">>> Content-Length: " + response.getEntityMetadata().getLength());
     response.writeEntity(System.out);
     System.out.println();
     // request to exo:services/exo_service
@@ -80,7 +80,6 @@ public class RESTRegistryTest extends BaseStandaloneTest{
         "POST", mv, null);
     response = dispatcher.dispatch(request);
     assertEquals(201, response.getStatus());
-    System.out.println(">>> Content-Length: " + response.getEntityMetadata().getLength());
     response.writeEntity(System.out);
     System.out.println("\nRESPONSE HEADERS, LOCATION: " + response.getResponseHeaders().getFirst("Location"));
 
@@ -90,7 +89,6 @@ public class RESTRegistryTest extends BaseStandaloneTest{
         "/exo_service"), "GET", mv, null);
     response = dispatcher.dispatch(request);
     assertEquals(200, response.getStatus());
-    System.out.println(">>> Content-Length: " + response.getEntityMetadata().getLength());
     response.writeEntity(System.out);
     System.out.println();
 
@@ -98,7 +96,6 @@ public class RESTRegistryTest extends BaseStandaloneTest{
     request = new Request(null, new ResourceIdentifier(baseURI, extURI), "GET", mv, null);
     response = dispatcher.dispatch(request);
     assertEquals(200, response.getStatus());
-    System.out.println(">>> Content-Length: " + response.getEntityMetadata().getLength());
     response.writeEntity(System.out);
     System.out.println();
 
@@ -115,7 +112,6 @@ public class RESTRegistryTest extends BaseStandaloneTest{
         "/exo_service"), "DELETE", mv, null);
     response = dispatcher.dispatch(request);
     assertEquals(204, response.getStatus());
-    System.out.println(">>> Content-Length: " + response.getEntityMetadata().getLength());
     response.writeEntity(System.out);
     System.out.println();
     
@@ -125,21 +121,43 @@ public class RESTRegistryTest extends BaseStandaloneTest{
     		"/exo_service"), "GET", mv, null);
     response = dispatcher.dispatch(request);
     assertEquals(404, response.getStatus());
-    System.out.println(">>> Content-Length: " + response.getEntityMetadata().getLength());
     response.writeEntity(System.out);
     System.out.println();
  
   }
   
-//  public void testCreateGetEntry() throws Exception {
-//    RESTRegistryService restRegService =
-//      (RESTRegistryService) container.getComponentInstanceOfType(RESTRegistryService.class);
-//    RegistryEntry testEntry = new RegistryEntry("test");
+  public void testCreateGetEntry() throws Exception {
+    RESTRegistryService restRegService =
+      (RESTRegistryService) container.getComponentInstanceOfType(RESTRegistryService.class);
+    ResourceDispatcher dispatcher =
+      (ResourceDispatcher) container.getComponentInstanceOfType(ResourceDispatcher.class);
+    RegistryEntry testEntry = new RegistryEntry("test");
+    String baseURI = "http://localhost:8080/rest";
+    String extURI = "/registry/db1/";
+    MultivaluedMetadata mv = new MultivaluedMetadata();
+    Request request = new Request(null,
+        new ResourceIdentifier(baseURI, extURI + RegistryService.EXO_SERVICES + "/group/test"), "GET", mv, mv);
+    Response response = dispatcher.dispatch(request);
+    assertEquals(404, response.getStatus());
+    response.writeEntity(System.out);
+    System.out.println();
+    request = new Request(testEntry.getAsInputStream(),
+        new ResourceIdentifier(baseURI, extURI + RegistryService.EXO_SERVICES + "/group/"), "POST", mv, mv);
+    response = dispatcher.dispatch(request);
+    assertEquals(201, response.getStatus());
+    response.writeEntity(System.out);
+    System.out.println();
+    request = new Request(null,
+        new ResourceIdentifier(baseURI, extURI + RegistryService.EXO_SERVICES + "/group/test"), "GET", mv, mv);
+    response = dispatcher.dispatch(request);
+    assertEquals(200, response.getStatus());
+    response.writeEntity(System.out);
 //    assertEquals(404, restRegService.getEntry(repository.getName(), RegistryService.EXO_SERVICES+"/group/test").getStatus());
 //    Response resp = restRegService.createEntry(testEntry, repository.getName(), RegistryService.EXO_SERVICES+"/group");
 //    assertEquals(201, resp.getStatus());
 //    resp = restRegService.getEntry(repository.getName(), RegistryService.EXO_SERVICES+"/group/test");
 //    assertEquals(200, resp.getStatus());
-//  	
-//  }
+  	
+  }
+
 }
