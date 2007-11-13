@@ -1,7 +1,7 @@
 <project>
 	<parent>
 		<groupId>org.exoplatform.jcr</groupId>
-		<artifactId>config</artifactId>
+		<artifactId>exo.jcr.applications.config</artifactId>
 		<version>1.7</version>
 	</parent>
 

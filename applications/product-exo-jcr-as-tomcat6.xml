@@ -46,6 +46,12 @@
 				<artifactId>maven-antrun-plugin</artifactId>
 				<configuration>
 					<tasks>
+					    <delete>
+					     <fileset dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+						   <include name="ejb*.jar" />
+						   <include name="jetty*.jar" />
+						 </fileset>
+        				</delete>
 						<delete
 							dir="${exo.projects.directory.working}/exo-tomcat"
 							includeEmptyDirs="true" quiet="yes" />

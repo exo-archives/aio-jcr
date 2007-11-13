@@ -1,7 +1,7 @@
 <project>
 	<parent>
 		<groupId>org.exoplatform.jcr</groupId>
-		<artifactId>config</artifactId>
+		<artifactId>exo.jcr.applications.config</artifactId>
 		<version>1.7</version>
 	</parent>
 
@@ -37,6 +37,12 @@
 				<artifactId>maven-antrun-plugin</artifactId>
 				<configuration>
 					<tasks>
+					    <delete>
+					     <fileset dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+						   <include name="ejb*.jar" />
+						   <include name="jetty*.jar" />
+						 </fileset>
+        				</delete>
 						<delete
 							dir="${exo.projects.directory.working}/exo-tomcat"
 							includeEmptyDirs="true" quiet="yes" />

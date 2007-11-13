@@ -117,6 +117,7 @@
 				<exclude>xerces:xerces</exclude>
 				<exclude>xdoclet:xjavadoc</exclude>
 				<exclude>xml-apis:xml-apis</exclude>-->
+				<exclude>directory-naming:naming-core</exclude>
 				<exclude>javax.servlet:servlet-api</exclude>
 			</excludes>
 		</dependencySet>
