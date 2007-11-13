@@ -5,6 +5,11 @@
 
 package org.exoplatform.services.jcr.impl.dataflow.replication;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 /**
  * Created by The eXo Platform SAS Author : Alex Reshetnyak
  * alex.reshetnyak@exoplatform.com.ua 24.11.2006
@@ -13,7 +18,7 @@ package org.exoplatform.services.jcr.impl.dataflow.replication;
  * @version $Id$
  */
 
-public class FixupStream{
+public class FixupStream implements Externalizable{
   int iItemStateId = -1;
   int iValueDataId = -1;
   
@@ -39,5 +44,15 @@ public class FixupStream{
     if (fs.getValueDataId() != this.getValueDataId())
       b = false;
     return b;
+  }
+
+  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    iItemStateId = in.readInt();
+    iValueDataId = in.readInt();
+  }
+
+  public void writeExternal(ObjectOutput out) throws IOException {
+    out.writeInt(iItemStateId);
+    out.writeInt(iValueDataId);
   }
 }
