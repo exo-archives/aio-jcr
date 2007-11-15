@@ -4,14 +4,12 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.ext.registry;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
 import java.util.List;
 
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
-import org.exoplatform.services.jcr.ext.registry.RegistryEntry;
 import org.exoplatform.services.rest.MultivaluedMetadata;
 import org.exoplatform.services.rest.Request;
 import org.exoplatform.services.rest.ResourceBinder;
@@ -24,6 +22,10 @@ import org.exoplatform.services.rest.container.ResourceDescriptor;
 public class RESTRegistryTest extends BaseStandaloneTest{
   
 	private ThreadLocalSessionProviderService sessionProviderService;
+	
+	private static final String SERVICE_XML="<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+
+  "<exo_service xmlns:jcr=\"http://www.jcp.org/jcr/1.0\" jcr:primaryType=\"exo:registryEntry\"/>";
+
 	
 	@Override
   public void setUp() throws Exception {
@@ -53,12 +55,13 @@ public class RESTRegistryTest extends BaseStandaloneTest{
     MultivaluedMetadata mv = new MultivaluedMetadata();
     String baseURI = "http://localhost:8080/rest";
     String extURI = "/registry/db1/";
-    String path = "src/test/java/org/exoplatform/services/jcr/ext/registry/exo_service.xml";
+/*
+    String path = "exo_service.xml";
     if (!new File(path).exists()){
       path = "component/ext/" + path;
     } 
     File file = new File(path);
-
+*/
     // registry should be empty
     Request request = new Request(null, new ResourceIdentifier(baseURI, extURI), "GET", mv, null);
     Response response = dispatcher.dispatch(request);
@@ -75,8 +78,9 @@ public class RESTRegistryTest extends BaseStandaloneTest{
     System.out.println();
 
     // create exo:services/exo_service
-    FileInputStream fin = new FileInputStream(file);
-    request = new Request(fin, new ResourceIdentifier(baseURI, extURI + RegistryService.EXO_SERVICES),
+//    FileInputStream fin = new FileInputStream(file);
+    request = new Request(new ByteArrayInputStream(SERVICE_XML.getBytes()), 
+    		new ResourceIdentifier(baseURI, extURI + RegistryService.EXO_SERVICES),
         "POST", mv, null);
     response = dispatcher.dispatch(request);
     assertEquals(201, response.getStatus());
@@ -100,8 +104,9 @@ public class RESTRegistryTest extends BaseStandaloneTest{
     System.out.println();
 
     // recreate exo:services/exo_service
-    fin = new FileInputStream(file);
-    request = new Request(fin, new ResourceIdentifier(baseURI, extURI + RegistryService.EXO_SERVICES),
+//    fin = new FileInputStream(file);
+    request = new Request(new ByteArrayInputStream(SERVICE_XML.getBytes()), 
+    		new ResourceIdentifier(baseURI, extURI + RegistryService.EXO_SERVICES),
         "PUT", mv, null);
     response = dispatcher.dispatch(request);
     assertEquals(201, response.getStatus());
