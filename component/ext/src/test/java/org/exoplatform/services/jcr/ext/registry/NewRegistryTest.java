@@ -50,8 +50,11 @@ public class NewRegistryTest extends BaseStandaloneTest {
   public void testCreateRegistryEntry() throws Exception {
     RegistryService regService = (RegistryService) container
     .getComponentInstanceOfType(RegistryService.class);
-    
-    Document doc = getDocument("src/test/java/org/exoplatform/services/jcr/ext/registry/navigation.xml") ;
+    String path = "src/test/java/org/exoplatform/services/jcr/ext/registry/navigation.xml";
+    if (!new File(path).exists()){
+      path = "component/core/" + path;
+    }
+    Document doc = getDocument(path) ;
     RegistryEntry newEntry = new RegistryEntry(doc) ;
     regService.createEntry(sessionProviderService.getSessionProvider(null),
         RegistryService.EXO_APPLICATIONS + "/MainPortal" + "/site", newEntry) ;    
