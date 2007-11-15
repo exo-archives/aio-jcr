@@ -428,9 +428,7 @@
             <include>**/impl/access/Test*.java</include>
           </includes>
           <excludes>
-            <exclude>**/*$*</exclude>
-            nested classes prb,
-            http://jira.codehaus.org/browse/SUREFIRE-288
+            <exclude>**/*$*</exclude><!--nested classes prb, http://jira.codehaus.org/browse/SUREFIRE-288-->
             <exclude>**/Base*Test.java</exclude>
             <exclude>**/api/TestAll.java</exclude>
 
@@ -440,14 +438,13 @@
             <exclude>**/api/**/DocumentViewImportTest.java</exclude>
             <exclude>**/usecases/**/TestDateBetween.java</exclude>
             <exclude>**/usecases/**/RemoveSameNameSiblingTest.java</exclude>
+            <exclude>**/usecases/**/TestNodeRemoveMixin.java</exclude><!--http://jira.exoplatform.org/browse/JCR-343-->
           </excludes>
 
           <systemProperties>
             <property>
               <name>jcr.test.configuration.file</name>
-              <value>
-                src/test/java/conf/standalone/test-configuration.xml
-              </value>
+              <value>src/test/java/conf/standalone/test-configuration.xml</value>
             </property>
             <property>
               <name>emma.coverage.out.file</name>
