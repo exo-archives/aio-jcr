@@ -15,6 +15,7 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 
 /**
  * Created by The eXo Platform SARL        .<br/>
@@ -103,10 +104,10 @@ public interface ManageableRepository extends Repository {
      * @param workspaceName
      * @param listener
      */
-    //void addItemPersistenceListener(String workspaceName, ItemsPersistenceListener listener);
+    void addItemPersistenceListener(String workspaceName, ItemsPersistenceListener listener);
     
-    void registerWorker(Class<? extends RepositoryWorker> workerClass);
-    
-    void registerWorker(String workspaceName, Class<? extends RepositoryWorker> workerClass);
+//    void registerWorker(Class<? extends RepositoryWorker> workerClass);
+//    
+//    void registerWorker(String workspaceName, Class<? extends RepositoryWorker> workerClass);
     
 }

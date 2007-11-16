@@ -27,9 +27,11 @@ import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.RepositoryWorker;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.RepositoryContainer;
 import org.exoplatform.services.jcr.impl.WorkspaceContainer;
+import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.picocontainer.ComponentAdapter;
@@ -367,31 +369,31 @@ public class RepositoryImpl implements ManageableRepository {
     return repositoryContainer.getLocationFactory();
   }
 
-//  public void addItemPersistenceListener(String workspaceName, ItemsPersistenceListener listener) {
-//    WorkspacePersistentDataManager pmanager = (WorkspacePersistentDataManager) 
-//      repositoryContainer.getWorkspaceContainer(workspaceName).getComponentInstanceOfType(WorkspacePersistentDataManager.class);
-//    
-//    pmanager.addItemPersistenceListener(listener);
-//    
-//    // get via managers chain, the method should be extended in stub-proxy managers
-//    //getSystemSession(workspaceName).getTransientNodesManager().getTransactManager().getStorageDataManager().!!!.addItemPersistenceListener(listener);
-//  }
+  public void addItemPersistenceListener(String workspaceName, ItemsPersistenceListener listener) {
+    WorkspacePersistentDataManager pmanager = (WorkspacePersistentDataManager) 
+      repositoryContainer.getWorkspaceContainer(workspaceName).getComponentInstanceOfType(WorkspacePersistentDataManager.class);
+    
+    pmanager.addItemPersistenceListener(listener);
+    
+    // get via managers chain, the method should be extended in stub-proxy managers
+    //getSystemSession(workspaceName).getTransientNodesManager().getTransactManager().getStorageDataManager().!!!.addItemPersistenceListener(listener);
+  }
 
-  public void registerWorker(Class<? extends RepositoryWorker> workerClass) {
-    if (workerClass.getConstructors() != null) {
-      repositoryContainer.registerComponentImplementation(workerClass);
-    } else
-      log.warn("Worker class " + workerClass.getName() + " registration rejected. " +
-          "The class has not a public constructor.");
-  }
-  
-  public void registerWorker(String workspaceName, Class<? extends RepositoryWorker> workerClass) {
-    if (workerClass.getConstructors() != null) {
-      repositoryContainer.getWorkspaceContainer(workspaceName).registerComponentImplementation(workerClass);
-      return;
-    } else
-      log.warn("Worker class " + workerClass.getName() + " registration rejected. " +
-          "The class has not a public constructor.");
-  }
+//  public void registerWorker(Class<? extends RepositoryWorker> workerClass) {
+//    if (workerClass.getConstructors() != null) {
+//      repositoryContainer.registerComponentImplementation(workerClass);
+//    } else
+//      log.warn("Worker class " + workerClass.getName() + " registration rejected. " +
+//          "The class has not a public constructor.");
+//  }
+//  
+//  public void registerWorker(String workspaceName, Class<? extends RepositoryWorker> workerClass) {
+//    if (workerClass.getConstructors() != null) {
+//      repositoryContainer.getWorkspaceContainer(workspaceName).registerComponentImplementation(workerClass);
+//      return;
+//    } else
+//      log.warn("Worker class " + workerClass.getName() + " registration rejected. " +
+//          "The class has not a public constructor.");
+//  }
   
 }
