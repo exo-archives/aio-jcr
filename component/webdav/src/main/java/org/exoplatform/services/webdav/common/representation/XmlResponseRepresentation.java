@@ -38,6 +38,7 @@ public abstract class XmlResponseRepresentation implements SerializableEntity {
 
   public void writeObject(OutputStream outputStream) throws IOException {
     try {      
+      
       XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream, Constants.DEFAULT_ENCODING);
       
       writer.writeStartDocument(Constants.DEFAULT_ENCODING, "1.0");
@@ -47,7 +48,6 @@ public abstract class XmlResponseRepresentation implements SerializableEntity {
       write(writer);
       
       writer.writeEndDocument();
-      
     } catch (Exception exc) {
       log.info("Unhandled ecxeption. " + exc.getMessage(), exc);
     }

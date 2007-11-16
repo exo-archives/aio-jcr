@@ -14,7 +14,9 @@ import javax.jcr.ValueFormatException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.WebDavStatus;
 
@@ -25,6 +27,8 @@ import org.exoplatform.services.webdav.WebDavStatus;
  */
 
 public class JcrPropertyRepresentation extends CommonWebDavProperty {
+  
+  private static Log log = ExoLogger.getLogger("jcr.JcrPropertyRepresentation");
   
   private String propertyNameSpace;
   
@@ -68,13 +72,22 @@ public class JcrPropertyRepresentation extends CommonWebDavProperty {
   public void write(XMLStreamWriter xmlWriter) throws XMLStreamException {
     prefix = xmlWriter.getNamespaceContext().getPrefix(getNameSpace());
     
+    if (prefix == null) {
+      prefix = "";
+    }
+
     if (status == WebDavStatus.OK) {
-      xmlWriter.writeStartElement(prefix, getTagName(), getNameSpace());      
-      xmlWriter.writeNamespace(prefix, getNameSpace());      
+      if (prefix != null) {
+        xmlWriter.writeStartElement(prefix, getTagName(), getNameSpace());      
+        xmlWriter.writeNamespace(prefix, getNameSpace());      
+      } else {        
+        xmlWriter.writeStartElement(getTagName(), getNameSpace());
+      }
+      
       writeContent(xmlWriter);      
       xmlWriter.writeEndElement();      
     } else {
-      xmlWriter.writeEmptyElement(prefix, getTagName(), getNameSpace());
+      xmlWriter.writeEmptyElement(prefix, getTagName(), getNameSpace());      
       xmlWriter.writeNamespace(prefix, getNameSpace());
     }
     

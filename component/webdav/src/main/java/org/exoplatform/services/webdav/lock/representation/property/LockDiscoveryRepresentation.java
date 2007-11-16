@@ -126,10 +126,10 @@ public class LockDiscoveryRepresentation extends WebDavPropertyRepresentation {
     xmlWriter.writeEndElement();
     
     xmlWriter.writeStartElement(getNameSpace(), XML_TIMEOUT);
-      if (timeOut < 0) {
-        xmlWriter.writeCharacters("Infinity");
+      if (timeOut <= 0) {
+        xmlWriter.writeCharacters("Second-" + Integer.MAX_VALUE);
       } else {
-        xmlWriter.writeCharacters("" + timeOut);
+        xmlWriter.writeCharacters("Second-" + timeOut);
       }
     xmlWriter.writeEndElement();
 

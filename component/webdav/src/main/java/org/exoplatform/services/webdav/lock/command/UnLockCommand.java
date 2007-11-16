@@ -12,8 +12,10 @@ import javax.jcr.Item;
 import javax.jcr.Node;
 import javax.jcr.Property;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.HeaderParam;
 import org.exoplatform.services.rest.InputTransformer;
@@ -41,6 +43,8 @@ import org.w3c.dom.Document;
 
 @URITemplate("/jcr/")
 public class UnLockCommand extends WebDavCommand {
+  
+  private static Log log = ExoLogger.getLogger("jcr.UnLockCommand");
   
   public UnLockCommand(WebDavService webDavService, 
       ResourceDispatcher resourceDispatcher,
