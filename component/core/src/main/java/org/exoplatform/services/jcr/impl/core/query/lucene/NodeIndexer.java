@@ -475,7 +475,7 @@ public class NodeIndexer {
   protected void addPathValue(Document doc, String fieldName, ValueData internalValue) throws RepositoryException {
 
     try {
-      String strQpath = new String(internalValue.getAsByteArray());
+      String strQpath = new String(internalValue.getAsByteArray(), Constants.DEFAULT_ENCODING);
 
       String strValue = this.sysLocationFactory.createJCRPath(QPath.parse(strQpath)).getAsString(false);
 
@@ -498,7 +498,7 @@ public class NodeIndexer {
   protected void addStringValue(Document doc, String fieldName, ValueData internalValue) throws RepositoryException {
 
     try {
-      String stringValue = new String(internalValue.getAsByteArray());
+      String stringValue = new String(internalValue.getAsByteArray(), Constants.DEFAULT_ENCODING);
 
       // simple String
       doc
@@ -525,9 +525,8 @@ public class NodeIndexer {
    * @param internalValue The value for the field to add to the document.
    */
   protected void addNameValue(Document doc, String fieldName, ValueData internalValue) throws RepositoryException {
-
     try {
-      String strQname = new String(internalValue.getAsByteArray());
+      String strQname = new String(internalValue.getAsByteArray(), Constants.DEFAULT_ENCODING);
 
       String strValue = this.sysLocationFactory.createJCRName(InternalQName.parse(strQname)).getAsString();
       doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(fieldName, strValue), false, true, false));
