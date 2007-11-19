@@ -25,7 +25,6 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
-import org.exoplatform.services.jcr.core.RepositoryWorker;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -378,22 +377,4 @@ public class RepositoryImpl implements ManageableRepository {
     // get via managers chain, the method should be extended in stub-proxy managers
     //getSystemSession(workspaceName).getTransientNodesManager().getTransactManager().getStorageDataManager().!!!.addItemPersistenceListener(listener);
   }
-
-//  public void registerWorker(Class<? extends RepositoryWorker> workerClass) {
-//    if (workerClass.getConstructors() != null) {
-//      repositoryContainer.registerComponentImplementation(workerClass);
-//    } else
-//      log.warn("Worker class " + workerClass.getName() + " registration rejected. " +
-//          "The class has not a public constructor.");
-//  }
-//  
-//  public void registerWorker(String workspaceName, Class<? extends RepositoryWorker> workerClass) {
-//    if (workerClass.getConstructors() != null) {
-//      repositoryContainer.getWorkspaceContainer(workspaceName).registerComponentImplementation(workerClass);
-//      return;
-//    } else
-//      log.warn("Worker class " + workerClass.getName() + " registration rejected. " +
-//          "The class has not a public constructor.");
-//  }
-  
 }

@@ -208,13 +208,4 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
   public void addItemPersistenceListener(String workspaceName, ItemsPersistenceListener listener) {
     delegatee.addItemPersistenceListener(workspaceName, listener);
   }
-
-//  public void registerWorker(Class<? extends RepositoryWorker> workerClass) {
-//    delegatee.registerWorker(workerClass);
-//  }
-//
-//  public void registerWorker(String workspaceName,
-//      Class<? extends RepositoryWorker> workerClass) {
-//    delegatee.registerWorker(workspaceName, workerClass);
-//  }
 }

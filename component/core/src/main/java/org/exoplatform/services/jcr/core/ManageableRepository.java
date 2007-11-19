@@ -105,9 +105,4 @@ public interface ManageableRepository extends Repository {
      * @param listener
      */
     void addItemPersistenceListener(String workspaceName, ItemsPersistenceListener listener);
-    
-//    void registerWorker(Class<? extends RepositoryWorker> workerClass);
-//    
-//    void registerWorker(String workspaceName, Class<? extends RepositoryWorker> workerClass);
-    
 }
