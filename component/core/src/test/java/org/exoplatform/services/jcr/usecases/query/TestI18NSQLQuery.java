@@ -57,14 +57,6 @@ public class TestI18NSQLQuery extends BaseUsecasesTest {
       assertEquals(1, iter.getSize());
     }
     
-    //Clean up
-    NodeIterator iter2 = rootNode.getNodes();
-    for (Iterator iterator = iter2; iterator.hasNext();) {
-      Node node = (Node) iterator.next();
-      node.remove();
-    }
-    rootNode.save();
-    
 	}
 	
 	public void testI18NQueryProperty() throws Exception {
@@ -100,14 +92,6 @@ public class TestI18NSQLQuery extends BaseUsecasesTest {
       NodeIterator iter = queryResult.getNodes() ;
       assertEquals(1, iter.getSize());
     }
-    
-    //Clean up
-    NodeIterator iter2 = rootNode.getNodes();
-    for (Iterator iterator = iter2; iterator.hasNext();) {
-      Node node = (Node) iterator.next();
-      node.remove();
-    }
-    rootNode.save();
     
   }
 	
