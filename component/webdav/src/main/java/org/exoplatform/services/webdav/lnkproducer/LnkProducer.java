@@ -8,8 +8,6 @@ package org.exoplatform.services.webdav.lnkproducer;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.InputTransformer;
 import org.exoplatform.services.rest.OutputTransformer;
@@ -32,12 +30,9 @@ import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
 @URITemplate("/lnkproducer/")
 public class LnkProducer implements ResourceContainer {
   
-  private static Log log = ExoLogger.getLogger("jcr.LnkProducer");
-  
   private ResourceDispatcher resourceDispatcher;
   
   public LnkProducer(ResourceDispatcher resourceDispatcher) {
-    log.info("Upping...");    
     this.resourceDispatcher = resourceDispatcher;
   }
   
@@ -52,12 +47,7 @@ public class LnkProducer implements ResourceContainer {
     
     String contextHref = resourceDispatcher.getRuntimeContext().getContextHref();
     
-    if (contextHref.endsWith("portal")) {
-      contextHref += "/rest";
-    }
-    
     contextHref += "/jcr";
-    //log.info("using context href: " + contextHref);
     
     Context context = resourceDispatcher.getRuntimeContext();
     String hostName = context.getServerName();

@@ -264,10 +264,10 @@ public class LinkGenerator {
   }
   
   private void simpleWriteString(String outString, OutputStream outStream) throws IOException {
-    for (int i = 0; i < outString.length(); i++) {
-      char curChar = outString.charAt(i);
-      outStream.write((byte)curChar);
-      outStream.write(0);
+    for (int i = 0; i < outString.length(); i++) {      
+      int charCode = outString.codePointAt(i);
+      outStream.write(charCode & 0xFF);
+      outStream.write((charCode >> 8) & 0xFF);
     }
   }
   
