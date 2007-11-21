@@ -37,19 +37,15 @@ public class SlowListTest extends BaseUsecasesTest {
   public void testIndexTextPlainFile() throws Exception {
     // variables for the execution time
     long start, end;
-    String file = "src/test/resources/index/test_index.xls";
-    if (!new File(file).exists()){
-      file = "component/core/" + file;
-    }
-    InputStream is = new FileInputStream(file);
-    this.assertNotNull("Can not create an input stream from file for indexing", is);
+    InputStream is = SlowListTest.class.getResourceAsStream("/index/test_index.xls");
+    assertNotNull("Can not create an input stream from file for indexing", is);
     int size = is.available();
     byte b[] = new byte[size];
     is.read(b);
     is.close();
     Node test = root.addNode("cms2").addNode("test");
     start = System.currentTimeMillis(); // to get the time of start
-    this.assertNotNull("Can not create a test node for indexing", test);
+    assertNotNull("Can not create a test node for indexing", test);
     for (int i = 0; i < 111; i++) {
       String name = new String("nnn-" + i);
       Node cool = test.addNode(name, "nt:file");
@@ -59,8 +55,8 @@ public class SlowListTest extends BaseUsecasesTest {
       contentNode.setProperty("jcr:mimeType", "application/excel");
       contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(
           Calendar.getInstance()));
-      this.assertNotNull("Can not create a cool node for indexing", cool);
-      this.assertNotNull("Can not create a contentNode node for indexing", contentNode);
+      assertNotNull("Can not create a cool node for indexing", cool);
+      assertNotNull("Can not create a contentNode node for indexing", contentNode);
     }
     end = System.currentTimeMillis();
     System.out.println("The time of the adding of 111 nodes: " + ((end - start) / 1000) + " sec");
@@ -71,7 +67,7 @@ public class SlowListTest extends BaseUsecasesTest {
     String xpath = "/jcr:root/cms2/test//*";
 
     q = session.getWorkspace().getQueryManager().createQuery(xpath, Query.XPATH);
-    this.assertNotNull("Can not create a query for indexing", q);
+    assertNotNull("Can not create a query for indexing", q);
     QueryResult result = q.execute();
     end = System.currentTimeMillis();
 

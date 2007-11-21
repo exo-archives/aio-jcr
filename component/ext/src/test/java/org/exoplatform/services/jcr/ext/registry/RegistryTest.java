@@ -70,13 +70,6 @@ public class RegistryTest extends BaseStandaloneTest{
       		RegistryService.EXO_USERS + "/exo_service");
       fail("ItemNotFoundException should have been thrown");
     } catch (ItemNotFoundException e) {}
-/*    
-    String path = "exo_user.xml";
-      if (!new File(path).exists()){
-        path = "component/ext/" + path;
-      }
-    File entryFile = new File(path);
-*/    
     regService.createEntry(sessionProviderService.getSessionProvider(null),
     		RegistryService.EXO_USERS, RegistryEntry.parse(new ByteArrayInputStream(SERVICE_XML.getBytes())));
     

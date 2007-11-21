@@ -55,13 +55,6 @@ public class RESTRegistryTest extends BaseStandaloneTest{
     MultivaluedMetadata mv = new MultivaluedMetadata();
     String baseURI = "http://localhost:8080/rest";
     String extURI = "/registry/db1/";
-/*
-    String path = "exo_service.xml";
-    if (!new File(path).exists()){
-      path = "component/ext/" + path;
-    } 
-    File file = new File(path);
-*/
     // registry should be empty
     Request request = new Request(null, new ResourceIdentifier(baseURI, extURI), "GET", mv, null);
     Response response = dispatcher.dispatch(request);

@@ -54,6 +54,7 @@ public class TestNodeRemoveMixin extends BaseUsecasesTest {
     //Do remove Mixin from Node
     testNode = null;
     testNode = rootNode.getNode("testMixinNode");
+    assertNotNull(testNode.getProperties());
     testNode.removeMixin(nodeType);
     testNode.save();
     rootNode.save();    

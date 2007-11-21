@@ -4,8 +4,6 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.ext.metadata;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Calendar;
 
@@ -61,11 +59,7 @@ public class MetaDataActionTest extends BaseStandaloneTest {
 //    catalog.clear();
 //    catalog.addPlugin(aap);
     
-    String path = "src/test/resources/test_index.xls";
-    if (!new File(path).exists()){
-      path = "component/ext/" + path;
-    }
-    InputStream is = new FileInputStream(path);
+    InputStream is = MetaDataActionTest.class.getResourceAsStream("/test_index.xls");
 
     Node contentNode = rootNode.addNode("testAddContent", "nt:resource");
     //contentNode.setProperty("jcr:encoding", "UTF-8");

@@ -4,8 +4,6 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.usecases.metainfo;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Calendar;
 
@@ -16,13 +14,9 @@ import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 public class TestMetaInfo extends BaseUsecasesTest {
 
   public void testXLSFile() throws Exception {
-    String xlsFile = "src/test/resources/index/test_index.xls";
-    if (!new File(xlsFile).exists()){
-      xlsFile = "component/core/" + xlsFile;
-    }
-    InputStream is = new FileInputStream(xlsFile);
+    InputStream is = TestMetaInfo.class.getResourceAsStream("/index/test_index.xls");
 
-    Node file = root.addNode("testXLSFile","nt:file");
+    Node file = root.addNode("testXLSFile", "nt:file");
     Node contentNode = file.addNode("jcr:content", "nt:resource");
     contentNode.setProperty("jcr:encoding", "UTF-8");
     contentNode.setProperty("jcr:data", is);

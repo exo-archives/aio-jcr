@@ -6,18 +6,10 @@
 package org.exoplatform.services.jcr.usecases;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Calendar;
 
-import javax.jcr.LoginException;
-import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-
-import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SARL .
@@ -41,12 +33,7 @@ public class SimpleGetDataTest extends BaseUsecasesTest {
     Node contentNode = localSmallFile.addNode("jcr:content", "nt:resource");
     //byte[] data = new byte[32];
     // Need to copy a file named test.txt to resources folder
-    String file = "src/test/resources/test.txt";
-    if (!new File(file).exists()){
-      file = "component/core/" + file;
-    }
-    File f = new File(file);
-    InputStream is = new FileInputStream(f);
+    InputStream is = SimpleGetDataTest.class.getResourceAsStream("/test.txt");
     byte[] byteContent = new byte[is.available()] ;
     is.read(byteContent) ;
     

@@ -5,8 +5,6 @@
 
 package org.exoplatform.services.jcr.usecases.index;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Calendar;
 
@@ -34,13 +32,9 @@ public class IndexPDFFileTest extends BaseUsecasesTest {
    * The test for indexing an Adobe pdf .pdf file
    * @throws Exception
    */
-  public void testIndexTextPlainFile() throws Exception {
-    String file = "src/test/resources/index/test_index.pdf";
-    if (!new File(file).exists()){
-      file = "component/core/" + file;
-    }
-    InputStream is = new FileInputStream(file);
-    this.assertNotNull("Can not create an input stream from file for indexing",is);
+  public void testIndexPDFFile() throws Exception {
+    InputStream is = IndexPDFFileTest.class.getResourceAsStream("/index/test_index.pdf");
+    assertNotNull("Can not create an input stream from file for indexing",is);
     int size = is.available();
     byte b[] = new byte[size];
     is.read(b);
@@ -53,9 +47,9 @@ public class IndexPDFFileTest extends BaseUsecasesTest {
     contentNode.setProperty("jcr:data", session.getValueFactory().createValue(new String(b)));
     contentNode.setProperty("jcr:mimeType", "application/pdf");
     contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(Calendar.getInstance()));
-    this.assertNotNull("Can not create a cmr node for indexing",cmr);
-    this.assertNotNull("Can not create a cool node for indexing",cool);
-    this.assertNotNull("Can not create a contentNode node for indexing",contentNode);
+    assertNotNull("Can not create a cmr node for indexing",cmr);
+    assertNotNull("Can not create a cool node for indexing",cool);
+    assertNotNull("Can not create a contentNode node for indexing",contentNode);
 
     Node football = cmr.addNode("sports").addNode("football");
     Node news = cmr.addNode("news");
@@ -63,12 +57,12 @@ public class IndexPDFFileTest extends BaseUsecasesTest {
     Node champions_league = football.addNode("champions-league");
     Node economy = news.addNode("economy");
     Node world = news.addNode("world");
-    this.assertNotNull("Can not create a football node for indexing", football);
-    this.assertNotNull("Can not create a news node for indexing", news);
-    this.assertNotNull("Can not create an uefa node for indexing", uefa);
-    this.assertNotNull("Can not create a champions_league node for indexing", champions_league);
-    this.assertNotNull("Can not create an economy node for indexing", economy);
-    this.assertNotNull("Can not create a world node for indexing", world);
+    assertNotNull("Can not create a football node for indexing", football);
+    assertNotNull("Can not create a news node for indexing", news);
+    assertNotNull("Can not create an uefa node for indexing", uefa);
+    assertNotNull("Can not create a champions_league node for indexing", champions_league);
+    assertNotNull("Can not create an economy node for indexing", economy);
+    assertNotNull("Can not create a world node for indexing", world);
 
     session.save();
 
@@ -78,7 +72,7 @@ public class IndexPDFFileTest extends BaseUsecasesTest {
     System.out.println(xpath);
     System.out.println("------------------ QUERY END-----------------------");
     q = session.getWorkspace().getQueryManager().createQuery(xpath, Query.XPATH);
-    this.assertNotNull("Can not create a query for indexing",q);
+    assertNotNull("Can not create a query for indexing",q);
     QueryResult result = q.execute();
     System.out.println("Information for query");
 
@@ -101,9 +95,9 @@ public class IndexPDFFileTest extends BaseUsecasesTest {
              DocumentReaderService service_ =
                  (DocumentReaderService) scontainer.getComponentInstanceOfType(
                           DocumentReaderService.class);
-             this.assertNotNull("Can not create service_ a for indexing",world);
+             assertNotNull("Can not create service_ a for indexing",world);
              String found_text = service_.getContentAsText(mimeType, is);
-             this.assertNotNull("Can not create found_text for indexing",world);
+             assertNotNull("Can not create found_text for indexing",world);
              is.close();
              System.out.println("------------------ SEARCH TEXT RESULTS START-----------------------");
              System.out.println(found_text);

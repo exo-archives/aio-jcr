@@ -50,18 +50,10 @@ public abstract class BaseStandaloneTest extends TestCase {
   protected StandaloneContainer container;
 
   public void setUp() throws Exception {
+    String containerConf = BaseStandaloneTest.class.getResource("/conf/standalone/test-configuration.xml").toString();
+    String loginConf = BaseStandaloneTest.class.getResource("/login.conf").toString();
 
-    String conf = "src/test/java/conf/standalone/test-configuration.xml";
-    String loginConf = "src/test/resources/login.conf";
-
-    if (!new File(conf).exists()) {
-      conf = "component/ext/" + conf;
-    }
-    if (!new File(loginConf).exists()) {
-      loginConf = "component/ext/" + loginConf;
-    }
-
-    StandaloneContainer.addConfigurationPath(conf);
+    StandaloneContainer.addConfigurationURL(containerConf);
     container = StandaloneContainer.getInstance();
 
     if (System.getProperty("java.security.auth.login.config") == null)

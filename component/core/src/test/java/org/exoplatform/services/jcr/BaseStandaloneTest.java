@@ -66,27 +66,16 @@ public abstract class BaseStandaloneTest extends TestCase {
 
   public void setUp() throws Exception {
 
-    String conf = System.getProperty("jcr.test.configuration.file");
-    //please see pom.xml for details, <systemProperties> tag
-    String loginConf = "src/main/resources/login.conf";
-    
-    if (!new File(conf).exists()){
-      conf = "component/core/" + conf;
-    }
-    if (!new File(loginConf).exists()){
-      loginConf = "component/core/" + loginConf;
-    }
-
-    //StandaloneContainer.addConfigurationPath(conf);
+    String containerConf = BaseStandaloneTest.class.getResource(System.getProperty("jcr.test.configuration.file")).toString();
+    String loginConf = BaseStandaloneTest.class.getResource("/login.conf").toString();
     
     StandaloneContainer
-      //.addConfigurationPath(conf);
-      .addConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
+      .addConfigurationURL(containerConf);
+      //.addConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
       //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.xml");
       //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.pgsql.xml");
       //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-sjdbc.ora.xml");
       //.addConfigurationPath("src/test/java/conf/standalone/test-configuration-mjdbc.mysql.xml");
-  
 
     container = StandaloneContainer.getInstance();
 

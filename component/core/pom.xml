@@ -385,14 +385,14 @@
           <include>**/*.xls</include>
           <include>**/*.ppt</include>
           <include>**/*.txt</include>
+          <include>**/*.tiff</include>
+          <include>**/*.pdf</include>
         </includes>
       </testResource>
       <testResource>
         <directory>src/TCK/java</directory>
         <includes>
-          <include>
-            **/org/apache/jackrabbit/test/api/nodetype/spec/*.txt
-          </include>
+          <include>**/org/apache/jackrabbit/test/api/nodetype/spec/*.txt</include>
         </includes>
       </testResource>
     </testResources>
@@ -444,7 +444,7 @@
           <systemProperties>
             <property>
               <name>jcr.test.configuration.file</name>
-              <value>src/test/java/conf/standalone/test-configuration.xml</value>
+              <value>/conf/standalone/test-configuration.xml</value>
             </property>
             <property>
               <name>emma.coverage.out.file</name>
