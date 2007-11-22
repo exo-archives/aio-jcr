@@ -551,7 +551,7 @@
             value="target/emma/coverage.ec" />
             <sysproperty
             key="jcr.test.configuration.file"
-            value="src/test/java/conf/standalone/test-configuration.xml" />
+            value="/conf/standalone/test-configuration.xml" />
 
             <classpath>
             <path refid="maven.test.classpath" />
