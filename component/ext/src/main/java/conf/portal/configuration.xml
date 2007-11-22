@@ -19,31 +19,45 @@
       <type>org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService</type>
   </component>
 
+  <component>
+    <key>org.exoplatform.services.jcr.ext.hierarchy.NodeHierarchyCreator</key>
+    <type>org.exoplatform.services.jcr.ext.hierarchy.impl.NodeHierarchyCreatorImpl</type>
+    <init-params>
+		  <properties-param>
+		    <name>cms.configuration</name>
+		    <property name="contentLocation" value="war:/conf"/>
+		    <property name="workspace" value="system"/>
+		    <property name="production" value="production"/>
+		    <property name="draft" value="draft"/>
+		    <property name="backup" value="backup"/>                
+		  </properties-param>      
+		</init-params>       
+  </component>  
 
   <external-component-plugins>
- 		      <target-component>org.exoplatform.services.jcr.RepositoryService</target-component>
- 		      <component-plugin>
- 		        <name>add.namespaces</name>
- 		        <set-method>addPlugin</set-method>
- 		        <type>org.exoplatform.services.jcr.impl.AddNamespacesPlugin</type>
- 		        <init-params>
- 		          <properties-param>
- 		            <name>namespaces</name>
- 		            <property name="dc" value="http://purl.org/dc/elements/1.1/"/>
- 		          </properties-param>
- 		        </init-params>
- 		      </component-plugin>
- 		      <component-plugin>
- 		        <name>add.nodeType</name>
- 		        <set-method>addPlugin</set-method>
- 		        <type>org.exoplatform.services.jcr.impl.AddNodeTypePlugin</type>
- 		        <init-params>
- 		          <values-param>
- 		            <name>autoCreatedInNewRepository</name>
- 		            <description>Node types configuration file</description>
- 		            <value>jar:/conf/ext-nodetypes-config.xml</value>
- 		          </values-param>
- 		        </init-params>
- 		      </component-plugin>
+ 		<target-component>org.exoplatform.services.jcr.RepositoryService</target-component>
+ 		<component-plugin>
+ 		  <name>add.namespaces</name>
+ 		  <set-method>addPlugin</set-method>
+ 		  <type>org.exoplatform.services.jcr.impl.AddNamespacesPlugin</type>
+ 		  <init-params>
+ 		    <properties-param>
+ 		      <name>namespaces</name>
+ 		      <property name="dc" value="http://purl.org/dc/elements/1.1/"/>
+ 		      </properties-param>
+ 		  </init-params>
+ 		</component-plugin>
+ 		<component-plugin>
+ 		  <name>add.nodeType</name>
+ 		  <set-method>addPlugin</set-method>
+ 		  <type>org.exoplatform.services.jcr.impl.AddNodeTypePlugin</type>
+ 		  <init-params>
+ 		    <values-param>
+ 		      <name>autoCreatedInNewRepository</name>
+ 		      <description>Node types configuration file</description>
+ 		      <value>jar:/conf/ext-nodetypes-config.xml</value>
+ 		    </values-param>
+ 		  </init-params>
+ 		</component-plugin>
   </external-component-plugins>
 </configuration>
