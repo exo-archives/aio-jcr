@@ -64,7 +64,7 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
   }  
   
   @SuppressWarnings("unchecked")
-  public void createNode(Node rootNode, String path, String nodetype, List<String> mixinTypes, 
+  public void createNode(Node rootNode, String path, String nodeType, List<String> mixinTypes, 
       Map permissions) throws Exception {    
     String[] tokens = path.split("/") ;
     Node node = rootNode ;
@@ -73,7 +73,8 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
       if(node.hasNode(token)) {
         node = node.getNode(token) ;
       }else {
-        node = node.addNode(token, nodetype);
+        if(nodeType == null || nodeType.length() == 0) nodeType = NT_UNSTRUCTURED ;
+        node = node.addNode(token, nodeType);
         if (node.canAddMixin("exo:privilegeable")) node.addMixin("exo:privilegeable");
         if(permissions != null) ((ExtendedNode)node).setPermissions(permissions);
         if(mixinTypes.size() > 0) {
@@ -110,9 +111,7 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
         Node rootNode = session.getRootNode() ;
         for(JcrPath jcrPath:jcrPaths) {                    
           String nodeType = jcrPath.getNodeType() ;
-          if(nodeType == null || nodeType.length() == 0) {
-            nodeType = NT_UNSTRUCTURED ;
-          }
+          if(nodeType == null || nodeType.length() == 0) nodeType = NT_UNSTRUCTURED ;
           List<String> mixinTypes = jcrPath.getMixinTypes() ;
           if(mixinTypes == null) mixinTypes = new ArrayList<String>() ;
           createNode(rootNode, jcrPath.getPath(),nodeType, mixinTypes, 
@@ -141,9 +140,7 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
         Node rootNode = session.getRootNode() ;
         for(JcrPath jcrPath:jcrPaths) {                    
           String nodeType = jcrPath.getNodeType() ;
-          if(nodeType == null || nodeType.length() == 0) {
-            nodeType = NT_UNSTRUCTURED ;
-          }
+          if(nodeType == null || nodeType.length() == 0) nodeType = NT_UNSTRUCTURED ;
           List<String> mixinTypes = jcrPath.getMixinTypes() ;
           if(mixinTypes == null) mixinTypes = new ArrayList<String>() ;
           createNode(rootNode, jcrPath.getPath(),nodeType, mixinTypes, 
