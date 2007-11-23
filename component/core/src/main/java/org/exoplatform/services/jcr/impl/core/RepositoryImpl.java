@@ -6,6 +6,7 @@
 
 package org.exoplatform.services.jcr.impl.core;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -287,6 +288,10 @@ public class RepositoryImpl implements ManageableRepository {
 
     
     log.info("Workspace " + wsName + "@" + this.name + " is initialized");
+  }
+  
+  public void importWorkspace(String wsName, InputStream xmlStream) throws RepositoryException {
+    log.warn("importWorkspace not implemented");
   }
   
   public void removeWorkspace(String workspaceName) throws RepositoryException {

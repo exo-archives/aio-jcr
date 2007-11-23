@@ -5,6 +5,8 @@
 
 package org.exoplatform.services.jcr.core;
 
+import java.io.InputStream;
+
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Repository;
@@ -50,6 +52,14 @@ public interface ManageableRepository extends Repository {
      * @throws RepositoryException
      */
     void createWorkspace(String workspaceName) throws RepositoryException;
+    
+    /**
+     * Create new workspace with name workspaceName and import data from exported XML. 
+     * @param workspaceName
+     * @param source
+     * @throws RepositoryException
+     */
+    void importWorkspace(String workspaceName, InputStream xmlSource) throws RepositoryException;
     
     /**
      * Remove workspace with name workspaceName

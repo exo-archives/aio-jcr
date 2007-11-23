@@ -501,8 +501,7 @@ public class NodeIndexer {
       String stringValue = new String(internalValue.getAsByteArray(), Constants.DEFAULT_ENCODING);
 
       // simple String
-      doc
-          .add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(fieldName, stringValue), false, true, false));
+      doc.add(new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(fieldName, stringValue), false, true, false));
       // also create fulltext index of this value
       doc.add(new Field(FieldNames.FULLTEXT, stringValue, false, true, true));
       // create fulltext index on property

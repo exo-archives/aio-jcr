@@ -26,7 +26,7 @@ public class JcrNamespaceContext implements NamespaceContext {
   public String getNamespaceURI(String prefix) {
     
     try {
-      return session.getNamespaceURI(prefix);
+      return session.getNamespaceURI(prefix); 
     } catch (NamespaceException e) {
     } catch (RepositoryException e) {
     }
