@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 
 import org.exoplatform.container.component.ComponentPlugin;
@@ -66,13 +67,11 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
   @SuppressWarnings("unchecked")
   public void createNode(Node rootNode, String path, String nodeType, List<String> mixinTypes, 
       Map permissions) throws Exception {    
-    String[] tokens = path.split("/") ;
     Node node = rootNode ;
-    for (int i = 0; i < tokens.length; i++) {
-      String token = tokens[i];
-      if(node.hasNode(token)) {
+    for (String token : path.split("/")) {
+      try {
         node = node.getNode(token) ;
-      }else {
+      } catch(PathNotFoundException e) {
         if(nodeType == null || nodeType.length() == 0) nodeType = NT_UNSTRUCTURED ;
         node = node.addNode(token, nodeType);
         if (node.canAddMixin("exo:privilegeable")) node.addMixin("exo:privilegeable");
