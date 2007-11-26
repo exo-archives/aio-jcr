@@ -33,6 +33,8 @@ public interface WebDavService {
   
   FakeLockTable getLockTable();
   
+  HashMap<String, String> getOwnerTable();
+  
   PropertyRepresentation getPropertyRepresentation(String nameSpaceURI, String propertyName, String href);
   
   void registerProperty(String nameSpace, String name, String className);

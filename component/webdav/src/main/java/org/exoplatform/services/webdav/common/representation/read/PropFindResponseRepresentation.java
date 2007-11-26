@@ -53,6 +53,8 @@ public abstract class PropFindResponseRepresentation extends XmlResponseRepresen
 
     xmlStreamWriter.writeNamespace("D", "DAV:");
     
+    xmlStreamWriter.writeAttribute("xmlns:b", "urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/");
+    
     listRecursive(xmlStreamWriter, node, depth);
     
     xmlStreamWriter.writeEndElement();    

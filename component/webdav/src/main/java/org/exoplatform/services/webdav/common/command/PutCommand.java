@@ -73,8 +73,7 @@ public class PutCommand extends NodeTypedCommand {
       @HeaderParam(WebDavHeaders.CONTENTTYPE) String mimeType      
       ) {
     
-    try {
-      
+    try {      
       if (repoPath.split("/").length < 2) {
         throw new AccessDeniedException();
       }

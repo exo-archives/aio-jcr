@@ -52,6 +52,7 @@ public class GetLastModifiedRepresentation extends WebDavPropertyRepresentation 
 
   @Override
   protected void writeContent(XMLStreamWriter xmlWriter) throws XMLStreamException {
+    xmlWriter.writeAttribute("b:dt", "dateTime.rfc1123");
     xmlWriter.writeCharacters(lastModified);
   }  
 

@@ -25,8 +25,6 @@ import org.xml.sax.SAXException;
 
 public class WebDavXmlInputTransformer extends InputEntityTransformer {
   
-  //private static Log log = ExoLogger.getLogger("jcr.WebDavXmlInputTransformer");
-  
   @Override
   public Document readFrom(InputStream entityDataStream) throws IOException {
     try {      
@@ -42,8 +40,6 @@ public class WebDavXmlInputTransformer extends InputEntityTransformer {
       }
       
       byte []bytes = outStream.toByteArray();
-      
-      //log.info("Request:\r\n" + new String(bytes));
       
       if (bytes.length == 0) {
         return null;

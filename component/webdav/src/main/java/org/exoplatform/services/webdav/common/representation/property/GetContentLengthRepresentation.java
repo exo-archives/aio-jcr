@@ -47,6 +47,7 @@ public class GetContentLengthRepresentation extends WebDavPropertyRepresentation
 
   @Override
   protected void writeContent(XMLStreamWriter xmlWriter) throws XMLStreamException {
+    xmlWriter.writeAttribute("b:dt", "int");
     xmlWriter.writeCharacters("" + contentLength);
   }
 

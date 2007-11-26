@@ -142,6 +142,12 @@ public class WebDavServiceImpl implements WebDavService {
   public WebDavConfig getConfig() {
     return config;
   }
+  
+  private HashMap<String, String> ownerTable = new HashMap<String, String>(); 
+  
+  public HashMap<String, String> getOwnerTable() {
+    return ownerTable;
+  }
 
   /*
    * (non-Javadoc)

@@ -116,7 +116,8 @@ public abstract class WebDavCommand implements ResourceContainer {
     String []presentLockTokens = session.getLockTokens();
     ArrayList<String> presentLockTokensList = new ArrayList<String>();
     for (int i = 0; i < presentLockTokens.length; i++) {
-      presentLockTokensList.add(presentLockTokens[i]);
+      String lockToken = presentLockTokens[i];
+      presentLockTokensList.add(lockToken);
     }
     
     for (int i = 0; i < lockTokens.size(); i++) {

@@ -12,6 +12,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.exoplatform.services.jcr.core.lock.ExtendedLock;
+import org.exoplatform.services.webdav.WebDavService;
 import org.exoplatform.services.webdav.WebDavStatus;
 import org.exoplatform.services.webdav.common.representation.HrefRepresentation;
 import org.exoplatform.services.webdav.common.representation.property.WebDavPropertyRepresentation;
@@ -52,6 +53,13 @@ public class LockDiscoveryRepresentation extends WebDavPropertyRepresentation {
   
   private String lockToken = "";
   
+  private WebDavService webDavService;
+  
+  public LockDiscoveryRepresentation(WebDavService webDavService) {
+    this.webDavService = webDavService;
+    timeOut = 86400;
+  }
+  
   @Override
   public String getTagName() {
     return TAGNAME;
@@ -77,7 +85,10 @@ public class LockDiscoveryRepresentation extends WebDavPropertyRepresentation {
     try {
       if (node.isLocked()) {
         locked = true;
-        owner = node.getLock().getLockOwner();
+        
+        owner = webDavService.getOwnerTable().get(node.getSession().getWorkspace().getName() + node.getPath());
+        
+        //owner = node.getLock().getLockOwner();        
         
         Lock lock = node.getLock();
         ExtendedLock lockExt = (ExtendedLock)lock;

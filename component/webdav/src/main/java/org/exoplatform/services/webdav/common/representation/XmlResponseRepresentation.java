@@ -37,8 +37,7 @@ public abstract class XmlResponseRepresentation implements SerializableEntity {
   protected abstract void write(XMLStreamWriter writer) throws XMLStreamException, RepositoryException;
 
   public void writeObject(OutputStream outputStream) throws IOException {
-    try {      
-      
+    try {
       XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream, Constants.DEFAULT_ENCODING);
       
       writer.writeStartDocument(Constants.DEFAULT_ENCODING, "1.0");

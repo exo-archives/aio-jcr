@@ -13,11 +13,9 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.lock.Lock;
 
-import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
-import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.HeaderParam;
 import org.exoplatform.services.rest.InputTransformer;
@@ -37,6 +35,7 @@ import org.exoplatform.services.webdav.common.command.WebDavCommand;
 import org.exoplatform.services.webdav.common.representation.PropertyResponseRepresentation;
 import org.exoplatform.services.webdav.common.resource.JCRResourceDispatcher;
 import org.exoplatform.services.webdav.lock.FakeLockTable;
+import org.exoplatform.services.webdav.lock.representation.LockInfoRepresentation;
 import org.exoplatform.services.webdav.lock.representation.property.LockDiscoveryRepresentation;
 import org.w3c.dom.Document;
 
@@ -48,8 +47,6 @@ import org.w3c.dom.Document;
 
 @URITemplate("/jcr/")
 public class LockCommand extends WebDavCommand {
-  
-  private static Log log = ExoLogger.getLogger("jcr.LockCommand");
   
   public LockCommand(WebDavService webDavService, 
       ResourceDispatcher resourceDispatcher,
@@ -85,6 +82,8 @@ public class LockCommand extends WebDavCommand {
       
       ManageableRepository repository = webDavService.getRepository(repoName);
       
+      LockInfoRepresentation lockInfo = new LockInfoRepresentation(document);
+      
       try {
         Item item = new JCRResourceDispatcher(sessionProvider, repository).getItem(repoPath);
 
@@ -94,12 +93,10 @@ public class LockCommand extends WebDavCommand {
 
         if ("/".equals(item.getPath())) {
           throw new AccessDeniedException();
-        }
+        }        
         
         ArrayList<String> lockTokens = getLockTokens(lockTokenHeader, ifHeader);
         tuneSession(item.getSession(), lockTokens);
-
-                
         
         if (!(item instanceof Node)) {
           throw new AccessDeniedException();
@@ -114,26 +111,35 @@ public class LockCommand extends WebDavCommand {
         Lock lockResult = node.lock(true, false);      
         node.getSession().save();
         
-        LockDiscoveryRepresentation lockDiscovery = new LockDiscoveryRepresentation();
+        String ownerKey = node.getSession().getWorkspace().getName() + node.getPath();
+        webDavService.getOwnerTable().put(ownerKey, lockInfo.getLockOwner());
+        
+        LockDiscoveryRepresentation lockDiscovery = new LockDiscoveryRepresentation(webDavService);
         lockDiscovery.read(node);        
-        lockDiscovery.setLockToken(lockResult.getLockToken());        
+        lockDiscovery.setLockToken(lockResult.getLockToken());
 
         PropertyResponseRepresentation propertyResponseRepresentation = new PropertyResponseRepresentation(repository, lockDiscovery);
         
         return Response.Builder.withStatus(WebDavStatus.OK).
-          header(DavConst.Headers.LOCKTOKEN, "<" + lockDiscovery.getLockToken() + ">").
+        header(DavConst.Headers.LOCKTOKEN, "<" + lockDiscovery.getLockToken() + ">").
+        
           entity(propertyResponseRepresentation, "text/xml").build();
         
-      } catch (PathNotFoundException pexc) {
+      } catch (PathNotFoundException pexc) {        
+        String ownerKey = repoPath;
+        webDavService.getOwnerTable().put(ownerKey, lockInfo.getLockOwner());
         
         FakeLockTable lockTable = webDavService.getLockTable();
         
         String lockToken = lockTable.lockResource(repoName + "/" + repoPath);
         
-        LockDiscoveryRepresentation lockDiscovery = new LockDiscoveryRepresentation();
+        LockDiscoveryRepresentation lockDiscovery = new LockDiscoveryRepresentation(webDavService);
         lockDiscovery.setLocked(true);
-        lockDiscovery.setLockOwner("admin");
+        
+        lockDiscovery.setLockOwner(lockInfo.getLockOwner());
+        
         lockDiscovery.setLockToken(lockToken);
+        
         lockDiscovery.setStatus(WebDavStatus.OK);
         
         PropertyResponseRepresentation propertyResponseRepresentation = new PropertyResponseRepresentation(repository, lockDiscovery);

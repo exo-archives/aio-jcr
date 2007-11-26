@@ -54,6 +54,7 @@ public class CreationDateRepresentation extends WebDavPropertyRepresentation {
 
   @Override
   protected void writeContent(XMLStreamWriter xmlWriter) throws XMLStreamException {
+    xmlWriter.writeAttribute("b:dt", "dateTime.tz");
     xmlWriter.writeCharacters(creationDate);
   }
 

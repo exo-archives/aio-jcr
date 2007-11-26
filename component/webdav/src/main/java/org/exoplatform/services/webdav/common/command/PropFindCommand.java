@@ -9,11 +9,9 @@ import javax.jcr.AccessDeniedException;
 import javax.jcr.Item;
 import javax.jcr.Node;
 
-import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
-import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.HeaderParam;
 import org.exoplatform.services.rest.InputTransformer;
@@ -42,8 +40,6 @@ import org.w3c.dom.Document;
 @URITemplate("/jcr/")
 public class PropFindCommand extends WebDavCommand {
   
-  private static Log log = ExoLogger.getLogger("jcr.PropFindCommand");
-  
   public PropFindCommand(WebDavService webDavService, 
       ResourceDispatcher resourceDispatcher,
       ThreadLocalSessionProviderService sessionProviderService) {
@@ -61,6 +57,7 @@ public class PropFindCommand extends WebDavCommand {
       @HeaderParam(WebDavHeaders.AUTHORIZATION) String authorization,
       @HeaderParam(WebDavHeaders.DEPTH) String depth
       ) {
+    
     try {
 
       /*
