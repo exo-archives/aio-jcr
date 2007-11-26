@@ -4,7 +4,7 @@
     <artifactId>config</artifactId>
     <version>1.7</version>
   </parent>
-	
+
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.component.cifs</artifactId>
   <packaging>jar</packaging>
@@ -14,70 +14,70 @@
   <description>eXo JCR CIFS Service</description>
 
 	<dependencies>
-		
+
 		<dependency>
 			<groupId>org.exoplatform.jcr</groupId>
 			<artifactId>exo.jcr.component.core</artifactId>
 			<version>${org.exoplatform.jcr.version}</version>
 			<scope>compile</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.exoplatform.core</groupId>
 			<artifactId>exo.core.component.security</artifactId>
 			<version>${org.exoplatform.core.version}</version>
 			<scope>compile</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.exoplatform.kernel</groupId>
-			<artifactId>exo.kernel.container</artifactId> 
-			<version>${org.exoplatform.kernel.version}</version> 
+			<artifactId>exo.kernel.container</artifactId>
+			<version>${org.exoplatform.kernel.version}</version>
 		</dependency>
-		
+
 		<dependency>
-            <groupId>org.exoplatform.core</groupId> 
-            <artifactId>exo.core.component.security</artifactId> 
-            <version>${org.exoplatform.core.version}</version> 
+            <groupId>org.exoplatform.core</groupId>
+            <artifactId>exo.core.component.security</artifactId>
+            <version>${org.exoplatform.core.version}</version>
 	        <scope>compile</scope>
         </dependency>
-		
+
 		<!--dependency>
 		<groupId>exo-jcr</groupId>
-		<artifactId>exo-jcr.services.jcr.impl</artifactId> 
+		<artifactId>exo-jcr.services.jcr.impl</artifactId>
 		<version>1.5</version>
 		<scope>compile</scope>
 		</dependency-->
-		
+
 		<!--dependency>
 		<groupId>org.exoplatform.core</groupId>
 		<artifactId>exo.core.component.organization.api</artifactId>
 		<version>${org.exoplatform.core.version}</version>
 		<scope>compile</scope>
 		</dependency-->
-			
+
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 			<version>1.0.4</version>
 			<scope>compile</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>1.2.8</version>
 			<scope>compile</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
-		
-		
+
+
 		<!--jcifs used just for test-->
 		<dependency>
 			<groupId>org.samba</groupId>
@@ -85,11 +85,11 @@
 			<version>1.1.11</version>
 			<scope>test</scope>
 		</dependency>
-	
+
 	</dependencies>
 
 	<build>
-		
+
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -110,22 +110,21 @@
 					</archive>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.0</version>
 				<configuration>
 					<includes>
-						<include></include>						
+						<include></include>
 					</includes>
 					<excludes>
 						<exclude>**/testSameName.java</exclude>
 					</excludes>
-					
+
 				</configuration>
 			</plugin>
-			
+
 			<!--plugin>
 				<groupId>org.jibx</groupId>
 				<artifactId>maven-jibx-plugin</artifactId>
@@ -144,7 +143,7 @@
 					</execution>
 				</executions>
 			</plugin-->
-			
+
 		</plugins>
 	</build>
 </project>
