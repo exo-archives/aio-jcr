@@ -4,12 +4,9 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.ext.hierarchy;
 
-import java.util.List;
-import java.util.Map;
-
 import javax.jcr.Node;
 
-import org.exoplatform.services.jcr.ext.hierarchy.impl.HierarchyConfig.Permission;
+import org.exoplatform.services.jcr.ext.common.SessionProvider;
 
 /**
  * Created by The eXo Platform SARL
@@ -19,16 +16,13 @@ import org.exoplatform.services.jcr.ext.hierarchy.impl.HierarchyConfig.Permissio
  */
 public interface NodeHierarchyCreator {
 
-  public String getBackupWorkspace();
-  
   public String getContentLocation();
   
   public String getJcrPath(String alias);
   
   public void init(String repository) throws Exception ;
   
-  public void createNode(Node rootNode, String path, String nodetype, List<String> mixinTypes, 
-      Map permissions) throws Exception ;
+  public Node getApplicationRegistryNode(SessionProvider sessionProvider, String userName, String appName) throws Exception ;
   
-  public Map getPermissions(List<Permission> permissions) ;
+  public Node getServiceRegistryNode(SessionProvider sessionProvider, String userName, String appName) throws Exception ;
 }

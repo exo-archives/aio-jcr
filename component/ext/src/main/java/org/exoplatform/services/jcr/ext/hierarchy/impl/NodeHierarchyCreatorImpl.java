@@ -13,6 +13,7 @@ import java.util.Map;
 
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.exoplatform.container.component.ComponentPlugin;
@@ -22,6 +23,7 @@ import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.hierarchy.NodeHierarchyCreator;
 import org.exoplatform.services.jcr.ext.hierarchy.impl.HierarchyConfig.JcrPath;
 import org.exoplatform.services.jcr.ext.hierarchy.impl.HierarchyConfig.Permission;
@@ -35,7 +37,8 @@ import org.picocontainer.Startable;
  */
 public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable{
 
-  final static String NT_UNSTRUCTURED = "nt:unstructured".intern() ;
+  final static private String NT_UNSTRUCTURED = "nt:unstructured".intern() ;
+  final static private String USERS_PATH = "usersPath";
 
   private RepositoryService jcrService_;
 
@@ -65,7 +68,7 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
   }  
   
   @SuppressWarnings("unchecked")
-  public void createNode(Node rootNode, String path, String nodeType, List<String> mixinTypes, 
+  private void createNode(Node rootNode, String path, String nodeType, List<String> mixinTypes, 
       Map permissions) throws Exception {    
     Node node = rootNode ;
     for (String token : path.split("/")) {
@@ -151,12 +154,44 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
     }       
   }
 
-  public String getBackupWorkspace() {
-    return propertiesParam_.getProperty("backup");
-  }
-
   public String getContentLocation() {
     return propertiesParam_.getProperty("contentLocation");
+  }
+  
+  public Node getApplicationRegistryNode(SessionProvider sessionProvider, String userName, String appName) throws Exception {
+    ManageableRepository currentRepo = jcrService_.getCurrentRepository() ;
+    Session session = session(sessionProvider, currentRepo, currentRepo.getConfiguration().getDefaultWorkspaceName()) ;
+    Node userNode = getUserNode(session, userName);
+    if(userNode == null) return null;
+    if( userNode.hasNode("exo:registry/exo:applications/" + appName)){
+      return userNode.getNode("exo:registry/exo:applications/" + appName);
+    }
+    return null;
+  }
+  
+  public Node getServiceRegistryNode(SessionProvider sessionProvider, String userName, String appName) throws Exception {
+    ManageableRepository currentRepo = jcrService_.getCurrentRepository() ;
+    Session session = session(sessionProvider, currentRepo, currentRepo.getConfiguration().getDefaultWorkspaceName()) ;    
+    Node userNode  = getUserNode(session, userName);
+    if(userNode == null) return null;
+    if( userNode.hasNode("exo:registry/exo:services/" + appName)) {
+      return userNode.getNode("exo:registry/exo:services/" + appName);
+    }
+    return null;
+  }
+  
+  private Node getUserNode(Session session, String userName) throws Exception{
+    String userPath = getJcrPath(USERS_PATH) ;
+    userPath = userPath.substring(1, userPath.length()) + "/" ;
+    if(session.getRootNode().hasNode(userPath + userName)) {
+      return session.getRootNode().getNode(userPath + userName);
+    }
+    return null;
+  }
+  
+  private Session session(SessionProvider sessionProvider, ManageableRepository repo, 
+      String defaultWorkspace) throws RepositoryException {
+    return sessionProvider.getSession(defaultWorkspace, repo);
   }
 
   public String getJcrPath(String alias) { 

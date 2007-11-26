@@ -4,7 +4,9 @@
  **************************************************************************/
 package org.exoplatform.services.jcr.ext.hierarchy.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
@@ -12,10 +14,13 @@ import javax.jcr.Session;
 
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
+import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.hierarchy.NodeHierarchyCreator;
 import org.exoplatform.services.jcr.ext.hierarchy.impl.HierarchyConfig.JcrPath;
+import org.exoplatform.services.jcr.ext.hierarchy.impl.HierarchyConfig.Permission;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
 
@@ -30,8 +35,8 @@ public class NewGroupListener extends GroupEventListener {
   private HierarchyConfig config_;
   private RepositoryService jcrService_;
   
-  private NodeHierarchyCreator nodeHierarchyCreatorService_;  
   private String groupsPath_ ;
+  final static String NT_UNSTRUCTURED = "nt:unstructured".intern() ;
   
   final static private String GROUPS_PATH = "groupsPath";
   
@@ -39,7 +44,6 @@ public class NewGroupListener extends GroupEventListener {
       NodeHierarchyCreator nodeHierarchyCreatorService, 
       InitParams params) throws Exception {
     jcrService_ = jcrService;
-    nodeHierarchyCreatorService_ = nodeHierarchyCreatorService;
     config_ = (HierarchyConfig) params.getObjectParamValues(HierarchyConfig.class).get(0);
     groupsPath_ = nodeHierarchyCreatorService.getJcrPath(GROUPS_PATH) ; 
   }
@@ -70,11 +74,45 @@ public class NewGroupListener extends GroupEventListener {
     }
     List jcrPaths = config_.getJcrPaths() ;
     for(JcrPath jcrPath : (List<JcrPath>)jcrPaths) {
-      nodeHierarchyCreatorService_.createNode(groupNode, jcrPath.getPath(), jcrPath.getNodeType(), 
-          jcrPath.getMixinTypes(), nodeHierarchyCreatorService_.getPermissions(jcrPath.getPermissions())) ;
+      createNode(groupNode, jcrPath.getPath(), jcrPath.getNodeType(), jcrPath.getMixinTypes(), 
+          getPermissions(jcrPath.getPermissions())) ;
     }
     groupsHome.save();
     session.save();
     session.logout();
+  }
+  
+  @SuppressWarnings("unchecked")
+  private void createNode(Node rootNode, String path, String nodeType, List<String> mixinTypes, 
+      Map permissions) throws Exception {    
+    Node node = rootNode ;
+    for (String token : path.split("/")) {
+      try {
+        node = node.getNode(token) ;
+      } catch(PathNotFoundException e) {
+        if(nodeType == null || nodeType.length() == 0) nodeType = NT_UNSTRUCTURED ;
+        node = node.addNode(token, nodeType);
+        if (node.canAddMixin("exo:privilegeable")) node.addMixin("exo:privilegeable");
+        if(permissions != null) ((ExtendedNode)node).setPermissions(permissions);
+        if(mixinTypes.size() > 0) {
+          for(String mixin : mixinTypes) {
+            if(node.canAddMixin(mixin)) node.addMixin(mixin) ;
+          }
+        }
+      }      
+    }
+  }
+  
+  private Map getPermissions(List<Permission> permissions) {
+    Map<String, String[]> permissionsMap = new HashMap<String, String[]>();
+    for(Permission permission : permissions) {
+      StringBuilder strPer = new StringBuilder() ;
+      if("true".equals(permission.getRead())) strPer.append(PermissionType.READ) ;
+      if("true".equals(permission.getAddNode())) strPer.append(",").append(PermissionType.ADD_NODE) ;
+      if("true".equals(permission.getSetProperty())) strPer.append(",").append(PermissionType.SET_PROPERTY) ;
+      if("true".equals(permission.getRemove())) strPer.append(",").append(PermissionType.REMOVE) ;
+      permissionsMap.put(permission.getIdentity(), strPer.toString().split(",")) ;
+    }
+    return permissionsMap;
   }
 }
