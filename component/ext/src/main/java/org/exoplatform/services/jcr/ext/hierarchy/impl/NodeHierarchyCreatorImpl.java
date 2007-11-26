@@ -39,6 +39,8 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
 
   final static private String NT_UNSTRUCTURED = "nt:unstructured".intern() ;
   final static private String USERS_PATH = "usersPath";
+  final static private String USER_APPLICATION = "Application Data" ;
+  final static private String PUBLIC_APPLICATION = "eXoApplications" ;
 
   private RepositoryService jcrService_;
 
@@ -158,26 +160,20 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
     return propertiesParam_.getProperty("contentLocation");
   }
   
-  public Node getApplicationRegistryNode(SessionProvider sessionProvider, String userName, String appName) throws Exception {
+  public Node getUserApplicationNode(SessionProvider sessionProvider, String userName) throws Exception {
     ManageableRepository currentRepo = jcrService_.getCurrentRepository() ;
     Session session = session(sessionProvider, currentRepo, currentRepo.getConfiguration().getDefaultWorkspaceName()) ;
     Node userNode = getUserNode(session, userName);
     if(userNode == null) return null;
-    if( userNode.hasNode("exo:registry/exo:applications/" + appName)){
-      return userNode.getNode("exo:registry/exo:applications/" + appName);
-    }
-    return null;
+    return userNode.getNode(USER_APPLICATION);
   }
   
-  public Node getServiceRegistryNode(SessionProvider sessionProvider, String userName, String appName) throws Exception {
+  public Node getPublicApplicationNode(SessionProvider sessionProvider) throws Exception {
     ManageableRepository currentRepo = jcrService_.getCurrentRepository() ;
     Session session = session(sessionProvider, currentRepo, currentRepo.getConfiguration().getDefaultWorkspaceName()) ;    
-    Node userNode  = getUserNode(session, userName);
-    if(userNode == null) return null;
-    if( userNode.hasNode("exo:registry/exo:services/" + appName)) {
-      return userNode.getNode("exo:registry/exo:services/" + appName);
-    }
-    return null;
+    Node rootNode = session.getRootNode() ;
+    String publicApplication = getJcrPath(PUBLIC_APPLICATION) ;
+    return rootNode.getNode(publicApplication.substring(1, publicApplication.length())) ;
   }
   
   private Node getUserNode(Session session, String userName) throws Exception{

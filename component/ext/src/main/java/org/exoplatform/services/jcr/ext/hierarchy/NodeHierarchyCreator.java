@@ -22,7 +22,7 @@ public interface NodeHierarchyCreator {
   
   public void init(String repository) throws Exception ;
   
-  public Node getApplicationRegistryNode(SessionProvider sessionProvider, String userName, String appName) throws Exception ;
+  public Node getUserApplicationNode(SessionProvider sessionProvider, String userName) throws Exception ;
   
-  public Node getServiceRegistryNode(SessionProvider sessionProvider, String userName, String appName) throws Exception ;
+  public Node getPublicApplicationNode(SessionProvider sessionProvider) throws Exception ;
 }
