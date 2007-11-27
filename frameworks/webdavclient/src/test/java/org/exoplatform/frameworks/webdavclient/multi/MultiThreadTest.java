@@ -7,8 +7,8 @@ package org.exoplatform.frameworks.webdavclient.multi;
 
 import junit.framework.TestCase;
 
-import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.TestUtils;
+import org.exoplatform.frameworks.webdavclient.http.Log;
 
 /**
  * Created by The eXo Platform SAS

@@ -7,6 +7,7 @@ package org.exoplatform.frameworks.webdavclient.commands;
 
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.WebDavContext;
+import org.exoplatform.frameworks.webdavclient.http.HttpHeader;
 
 /**
  * Created by The eXo Platform SAS
@@ -15,11 +16,23 @@ import org.exoplatform.frameworks.webdavclient.WebDavContext;
  */
 
 public class DavReport extends MultistatusCommand {
+  
+  private int depth = 0;
 
   public DavReport(WebDavContext context) throws Exception {
     super(context);
     commandName = Const.DavCommand.REPORT;
     xmlName = Const.StreamDocs.VERSION_TREE;
+  }
+  
+  public void setDepth(int depth) {
+    this.depth = depth;
+  }
+  
+  @Override
+  public int execute() throws Exception {
+    client.setRequestHeader(HttpHeader.DEPTH, "" + depth);    
+    return super.execute();
   }  
   
 }

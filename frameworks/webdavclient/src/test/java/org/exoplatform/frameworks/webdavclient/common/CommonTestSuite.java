@@ -7,7 +7,7 @@ package org.exoplatform.frameworks.webdavclient.common;
 
 import junit.framework.TestSuite;
 
-import org.exoplatform.frameworks.httpclient.Log;
+import org.exoplatform.frameworks.webdavclient.http.Log;
 
 /**
  * Created by The eXo Platform SAS

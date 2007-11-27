@@ -5,9 +5,9 @@
 
 package org.exoplatform.frameworks.webdavclient.commands;
 
-import org.exoplatform.frameworks.httpclient.HttpHeader;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.WebDavContext;
+import org.exoplatform.frameworks.webdavclient.http.HttpHeader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

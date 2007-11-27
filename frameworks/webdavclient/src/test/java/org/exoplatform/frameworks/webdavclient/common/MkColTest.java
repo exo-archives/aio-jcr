@@ -7,12 +7,12 @@ package org.exoplatform.frameworks.webdavclient.common;
 
 import junit.framework.TestCase;
 
-import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.TestContext;
 import org.exoplatform.frameworks.webdavclient.commands.DavDelete;
 import org.exoplatform.frameworks.webdavclient.commands.DavMkCol;
 import org.exoplatform.frameworks.webdavclient.commands.DavPropFind;
+import org.exoplatform.frameworks.webdavclient.http.Log;
 
 /**
  * Created by The eXo Platform SAS

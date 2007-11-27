@@ -5,12 +5,12 @@
 
 package org.exoplatform.frameworks.webdavclient.commands;
 
-import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.WebDavContext;
 import org.exoplatform.frameworks.webdavclient.documents.DocumentApi;
 import org.exoplatform.frameworks.webdavclient.documents.DocumentManager;
 import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
+import org.exoplatform.frameworks.webdavclient.http.Log;
 import org.exoplatform.frameworks.webdavclient.request.PropertyList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

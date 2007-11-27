@@ -8,10 +8,10 @@ package org.exoplatform.frameworks.webdavclient;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.commands.DavHead;
 import org.exoplatform.frameworks.webdavclient.common.CommonTestSuite;
 import org.exoplatform.frameworks.webdavclient.deltav.DeltaVTestSuite;
+import org.exoplatform.frameworks.webdavclient.http.Log;
 import org.exoplatform.frameworks.webdavclient.lock.LockTestSuite;
 import org.exoplatform.frameworks.webdavclient.order.OrderTestSuite;
 
@@ -32,6 +32,7 @@ public class WebDavTests extends TestCase {
         return true;
       }      
     } catch (Exception exc) {
+      Log.info("Unhandled exception. " + exc.getMessage(), exc);
     }    
     return false;
   }

@@ -5,9 +5,9 @@
 
 package org.exoplatform.frameworks.webdavclient.commands;
 
-import org.exoplatform.frameworks.httpclient.HttpHeader;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.WebDavContext;
+import org.exoplatform.frameworks.webdavclient.http.HttpHeader;
 
 /**
  * Created by The eXo Platform SAS
@@ -22,7 +22,6 @@ public class DavHead extends DavCommand {
     commandName = Const.DavCommand.HEAD;
     
     client.setRequestHeader(HttpHeader.CONNECTION, "close");
-    //setXmlEnabled(false);
   }  
 
 }

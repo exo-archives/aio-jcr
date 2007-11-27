@@ -9,7 +9,6 @@ import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
-import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.TestContext;
 import org.exoplatform.frameworks.webdavclient.TestUtils;
@@ -21,6 +20,7 @@ import org.exoplatform.frameworks.webdavclient.commands.DavPut;
 import org.exoplatform.frameworks.webdavclient.commands.DavUnLock;
 import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
+import org.exoplatform.frameworks.webdavclient.http.Log;
 import org.exoplatform.frameworks.webdavclient.properties.LockDiscoveryProp;
 import org.exoplatform.frameworks.webdavclient.properties.PropApi;
 import org.exoplatform.frameworks.webdavclient.properties.SupportedLockProp;

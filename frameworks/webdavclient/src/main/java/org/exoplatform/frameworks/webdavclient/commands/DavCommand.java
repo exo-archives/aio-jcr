@@ -19,9 +19,10 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.codec.binary.Base64;
-import org.exoplatform.frameworks.httpclient.HttpClient;
-import org.exoplatform.frameworks.httpclient.HttpHeader;
 import org.exoplatform.frameworks.webdavclient.WebDavContext;
+import org.exoplatform.frameworks.webdavclient.http.HttpClient;
+import org.exoplatform.frameworks.webdavclient.http.HttpHeader;
+import org.exoplatform.frameworks.webdavclient.http.Log;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.ls.LSOutput;
@@ -42,8 +43,6 @@ public abstract class DavCommand {
 
   protected String resourcePath;
   
-  protected long depth = 1;
-  
   private long rangeStart = -1;
   
   private long rangeEnd = -1;
@@ -61,15 +60,10 @@ public abstract class DavCommand {
   public DavCommand(WebDavContext context) throws Exception {
     this.context = context;
     client = new HttpClient(context.getHost(), context.getPort());
-    client.setRequestHeader(HttpHeader.DEPTH, "1");
   }
 
   public void setResourcePath(String resourcePath) {
     this.resourcePath = resourcePath;
-  }
-
-  public void setDepth(int depth) {
-    this.depth = depth;
   }
 
   public void setRange(int rangeStart) {
@@ -151,8 +145,6 @@ public abstract class DavCommand {
       client.setRequestHeader(HttpHeader.AUTHORIZATION, AUTH_BASIC + " " + encodedAuth);
     }
 
-    client.setRequestHeader(HttpHeader.DEPTH, "" + depth);
-
     if (rangeStart >= 0) {
       String rangeHeader = "bytes=" + rangeStart + "-";
       if (rangeEnd >= 0) {
@@ -188,6 +180,7 @@ public abstract class DavCommand {
     requestDataBytes = outStream.toByteArray();
     
     String request = new String(requestDataBytes);
+    Log.info("REQUEST: " + request);
   }  
   
   static class Output implements LSOutput {

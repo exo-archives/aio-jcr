@@ -15,12 +15,12 @@
 
   <dependencies>
 
-    <dependency>
+    <!-- dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.framework.httpclient</artifactId>
       <version>${org.exoplatform.jcr.version}</version>
       <scope>compile</scope>
-    </dependency>
+    </dependency -->
 
     <dependency>
       <groupId>commons-codec</groupId>
@@ -64,6 +64,7 @@
         <configuration>
           <includes>
               <include>**/WebDavTests.java</include>
+			  <!-- include>**/TestDavFS2.java</include -->
           </includes>
         </configuration>
       </plugin>

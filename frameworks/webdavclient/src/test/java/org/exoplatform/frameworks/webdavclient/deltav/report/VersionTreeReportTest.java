@@ -9,7 +9,6 @@ import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
-import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.TestContext;
 import org.exoplatform.frameworks.webdavclient.TestUtils;
@@ -19,6 +18,7 @@ import org.exoplatform.frameworks.webdavclient.commands.DavReport;
 import org.exoplatform.frameworks.webdavclient.commands.DavVersionControl;
 import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
+import org.exoplatform.frameworks.webdavclient.http.Log;
 
 /**
  * Created by The eXo Platform SAS

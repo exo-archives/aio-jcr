@@ -8,8 +8,8 @@ package org.exoplatform.frameworks.webdavclient.commands;
 import java.util.ArrayList;
 
 import org.apache.commons.codec.binary.Base64;
-import org.exoplatform.frameworks.httpclient.HttpHeader;
 import org.exoplatform.frameworks.webdavclient.WebDavContext;
+import org.exoplatform.frameworks.webdavclient.http.HttpHeader;
 
 /**
  * Created by The eXo Platform SAS

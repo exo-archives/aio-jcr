@@ -9,8 +9,6 @@ import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
-import org.exoplatform.frameworks.httpclient.HttpHeader;
-import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.TestContext;
 import org.exoplatform.frameworks.webdavclient.TestUtils;
@@ -20,6 +18,8 @@ import org.exoplatform.frameworks.webdavclient.commands.DavPropFind;
 import org.exoplatform.frameworks.webdavclient.commands.DavPut;
 import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
+import org.exoplatform.frameworks.webdavclient.http.HttpHeader;
+import org.exoplatform.frameworks.webdavclient.http.Log;
 
 /**
  * Created by The eXo Platform SAS
@@ -174,6 +174,7 @@ public class PropFindTest extends TestCase {
     DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
     davPropFind.setResourcePath(resourceName);
     davPropFind.setXmlEnabled(false);
+    davPropFind.setDepth(1);
     assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
     
     Multistatus multistatus = davPropFind.getMultistatus();

@@ -5,13 +5,13 @@
 
 package org.exoplatform.frameworks.webdavclient.commands;
 
-import org.exoplatform.frameworks.httpclient.HttpHeader;
-import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.WebDavContext;
 import org.exoplatform.frameworks.webdavclient.documents.DocumentApi;
 import org.exoplatform.frameworks.webdavclient.documents.DocumentManager;
 import org.exoplatform.frameworks.webdavclient.documents.PropDoc;
+import org.exoplatform.frameworks.webdavclient.http.HttpHeader;
+import org.exoplatform.frameworks.webdavclient.http.Log;
 import org.exoplatform.frameworks.webdavclient.properties.LockDiscoveryProp;
 import org.exoplatform.frameworks.webdavclient.properties.PropApi;
 import org.exoplatform.frameworks.webdavclient.properties.LockDiscoveryProp.ActiveLock;
@@ -28,10 +28,24 @@ public class DavLock extends DavCommand {
   
   protected DocumentApi propDocument = null;
   protected String lockToken = "";
+  protected int depth = 0;
+  protected int timeOut = Integer.MAX_VALUE;
   
   public DavLock(WebDavContext context) throws Exception {
     super(context);
     commandName = Const.DavCommand.LOCK;
+    
+    client.setRequestHeader("connection", "TE");
+    client.setRequestHeader("te", "trailers");
+    client.setRequestHeader("content-type", "application/xml");    
+  }
+  
+  public void setDepth(int depth) {
+    this.depth = depth;    
+  }
+  
+  public void setTimeOut(int timeOut) {
+    this.timeOut = timeOut;
   }
   
   public void finalExecute() {
@@ -69,7 +83,14 @@ public class DavLock extends DavCommand {
     return ((LockDiscoveryProp)property).getActiveLock();
   }
   
-  public Element toXml(Document xmlDocument) {
+  @Override
+  public int execute() throws Exception {
+    client.setRequestHeader(HttpHeader.DEPTH, "" + depth);
+    client.setRequestHeader(HttpHeader.TIMEOUT, "Second-" + timeOut);
+    return super.execute();
+  }
+  
+  public Element toXml(Document xmlDocument) {        
     Element lockInfoEl = xmlDocument.createElementNS(Const.Dav.NAMESPACE,
         Const.Dav.PREFIX + Const.StreamDocs.LOCKINFO);
     xmlDocument.appendChild(lockInfoEl);

@@ -5,8 +5,8 @@
 
 package org.exoplatform.frameworks.webdavclient;
 
-import org.exoplatform.frameworks.httpclient.HttpClient;
-import org.exoplatform.frameworks.httpclient.HttpHeader;
+import org.exoplatform.frameworks.webdavclient.http.HttpClient;
+import org.exoplatform.frameworks.webdavclient.http.HttpHeader;
 
 /**
  * Created by The eXo Platform SAS

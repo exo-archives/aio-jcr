@@ -9,7 +9,6 @@ import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
-import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.TestContext;
 import org.exoplatform.frameworks.webdavclient.commands.DavDelete;
@@ -19,6 +18,7 @@ import org.exoplatform.frameworks.webdavclient.commands.DavPropFind;
 import org.exoplatform.frameworks.webdavclient.commands.DavPut;
 import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
+import org.exoplatform.frameworks.webdavclient.http.Log;
 import org.exoplatform.frameworks.webdavclient.properties.DisplayNameProp;
 
 /**
@@ -100,6 +100,7 @@ public class OrderPatchTest extends TestCase {
     {
       DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
       davPropFind.setResourcePath(resourcePath);
+      davPropFind.setDepth(1);
       assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
 
       Multistatus multistatus = davPropFind.getMultistatus();
@@ -141,6 +142,7 @@ public class OrderPatchTest extends TestCase {
     {
       DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
       davPropFind.setResourcePath(resourcePath);
+      davPropFind.setDepth(1);
       assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
 
       Multistatus multistatus = davPropFind.getMultistatus();
@@ -184,6 +186,7 @@ public class OrderPatchTest extends TestCase {
     {
       DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
       davPropFind.setResourcePath(resourcePath);
+      davPropFind.setDepth(1);
       assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
 
       Multistatus multistatus = davPropFind.getMultistatus();
@@ -228,6 +231,7 @@ public class OrderPatchTest extends TestCase {
     {
       DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
       davPropFind.setResourcePath(resourcePath);
+      davPropFind.setDepth(1);
       assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
 
       Multistatus multistatus = davPropFind.getMultistatus();
@@ -282,6 +286,7 @@ public class OrderPatchTest extends TestCase {
     {
       DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
       davPropFind.setResourcePath(path);
+      davPropFind.setDepth(1);
       assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
 
       Multistatus multistatus = davPropFind.getMultistatus();
@@ -332,6 +337,7 @@ public class OrderPatchTest extends TestCase {
     {
       DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
       davPropFind.setResourcePath(resourcePath);
+      davPropFind.setDepth(1);
       assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
   
       Multistatus multistatus = davPropFind.getMultistatus();
@@ -474,6 +480,7 @@ public class OrderPatchTest extends TestCase {
     // Verify folder
     {
       DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
+      davPropFind.setDepth(1);
       davPropFind.setResourcePath(resourcePath);
       davPropFind.setRequiredProperty(Const.DavProp.DISPLAYNAME);
       assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());

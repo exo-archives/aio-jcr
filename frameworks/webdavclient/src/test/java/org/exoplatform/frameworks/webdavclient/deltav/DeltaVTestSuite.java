@@ -7,8 +7,8 @@ package org.exoplatform.frameworks.webdavclient.deltav;
 
 import junit.framework.TestSuite;
 
-import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.deltav.report.VersionTreeReportTest;
+import org.exoplatform.frameworks.webdavclient.http.Log;
 
 /**
  * Created by The eXo Platform SAS

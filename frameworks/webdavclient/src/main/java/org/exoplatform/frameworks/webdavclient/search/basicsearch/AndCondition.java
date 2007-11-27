@@ -7,8 +7,8 @@ package org.exoplatform.frameworks.webdavclient.search.basicsearch;
 
 import java.util.ArrayList;
 
-import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
+import org.exoplatform.frameworks.webdavclient.http.Log;
 import org.exoplatform.frameworks.webdavclient.search.SearchConst;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

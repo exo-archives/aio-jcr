@@ -5,8 +5,8 @@
 
 package org.exoplatform.frameworks.webdavclient.properties;
 
-import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.Const;
+import org.exoplatform.frameworks.webdavclient.http.Log;
 import org.w3c.dom.Node;
 
 /**

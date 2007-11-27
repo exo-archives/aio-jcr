@@ -7,9 +7,9 @@ package org.exoplatform.frameworks.webdavclient.dasl.sql;
 
 import junit.framework.TestSuite;
 
-import org.exoplatform.frameworks.httpclient.Log;
 import org.exoplatform.frameworks.webdavclient.TestContext;
 import org.exoplatform.frameworks.webdavclient.commands.DavSearch;
+import org.exoplatform.frameworks.webdavclient.http.Log;
 import org.exoplatform.frameworks.webdavclient.search.DavQuery;
 import org.exoplatform.frameworks.webdavclient.search.SQLQuery;
 

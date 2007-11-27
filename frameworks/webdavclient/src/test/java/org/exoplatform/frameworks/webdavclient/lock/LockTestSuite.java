@@ -7,7 +7,7 @@ package org.exoplatform.frameworks.webdavclient.lock;
 
 import junit.framework.TestSuite;
 
-import org.exoplatform.frameworks.httpclient.Log;
+import org.exoplatform.frameworks.webdavclient.http.Log;
 
 /**
  * Created by The eXo Platform SAS
@@ -25,6 +25,8 @@ public class LockTestSuite extends TestSuite {
     
     // 13 tests
     addTestSuite(LockTests.class);
+    
+    //addTestSuite(ExtLockTest.class);
     
     Log.info("Run tests...");
   }

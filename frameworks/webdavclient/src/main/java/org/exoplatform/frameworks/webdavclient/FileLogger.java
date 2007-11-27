@@ -17,7 +17,7 @@ import java.io.RandomAccessFile;
  * @version $Id: $
  */
 
-public class Log {
+public class FileLogger {
   
   public static final String LOGILENAME = "";
 
