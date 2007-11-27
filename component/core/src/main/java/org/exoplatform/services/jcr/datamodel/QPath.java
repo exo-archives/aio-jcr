@@ -211,31 +211,6 @@ public class QPath implements Comparable<QPath> {
     return hashCode == o.hashCode();
   }
 
-  public int compareTo_Old(QPath compare) {
-    if (compare.equals(this))
-      return 0;
-
-    QPathEntry[] e1 = names;
-    QPathEntry[] e2 = compare.getEntries();
-    
-    int len1 = e1.length;
-    int len2 = e2.length;
-
-    int k = 0;
-    int lim = Math.min(len1, len2) ;
-    while (k < lim) {
-      
-      QPathEntry c1 = e1[k];
-      QPathEntry c2 = e2[k];
-      
-      if (!c1.isSame(c2)) {
-        return c1.compareTo(c2);
-      }
-      k++;
-    }
-    return len1 - len2;
-  }
-
   public int compareTo(QPath compare) {
     if (compare.equals(this))
       return 0;
