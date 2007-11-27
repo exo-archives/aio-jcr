@@ -10,7 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.HashMap;
 
-import org.exoplatform.frameworks.webdavclient.Log;
+import org.exoplatform.frameworks.webdavclient.FileLogger;
 import org.exoplatform.frameworks.webdavclient.WebDavContext;
 
 /**
@@ -163,7 +163,7 @@ public class WebDavConfig {
       File configFile = new File(configFileName);
       
       if (!configFile.exists()) {
-        Log.info("Config file not exist!!!!!! USE DEFAULT !!!");
+        FileLogger.info("Config file not exist!!!!!! USE DEFAULT !!!");
         return;
       }
       
@@ -188,7 +188,7 @@ public class WebDavConfig {
       user_id = hParams.get(WUSER);
       user_pass = hParams.get(WPASS);      
     } catch (Exception exc) {
-      Log.info("Unhandled exception. " + exc.getMessage(), exc);
+      FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
     }
     
   }

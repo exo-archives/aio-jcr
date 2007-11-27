@@ -7,12 +7,12 @@ package org.exoplatform.applications.ooplugin;
 
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
-import org.exoplatform.frameworks.httpclient.TextUtils;
 import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.frameworks.webdavclient.Log;
+import org.exoplatform.frameworks.webdavclient.FileLogger;
 import org.exoplatform.frameworks.webdavclient.commands.DavSearch;
 import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
+import org.exoplatform.frameworks.webdavclient.http.TextUtils;
 import org.exoplatform.frameworks.webdavclient.search.SQLQuery;
 
 import com.sun.star.awt.ActionEvent;
@@ -78,7 +78,7 @@ public class SearchDialog extends BrowseDialog {
         searchThread.start();
         
       } catch (Exception exc) {
-        Log.info("Unhandled exception", exc);
+        FileLogger.info("Unhandled exception", exc);
       }
       
     }
@@ -113,7 +113,7 @@ public class SearchDialog extends BrowseDialog {
 
         enableAll();
       } catch (java.lang.Exception exc) {
-        Log.info("Unhandled exception. " + exc.getMessage(), exc);
+        FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
       }
       
     }
@@ -144,7 +144,7 @@ public class SearchDialog extends BrowseDialog {
       try {
         tryOpenSelected();
       } catch (Exception exc) {
-        Log.info("Unhandled exception. " + exc.getMessage(), exc);
+        FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
       }
       
     }
@@ -157,7 +157,7 @@ public class SearchDialog extends BrowseDialog {
       try {
         tryOpenSelected();
       } catch (Exception exc) {
-        Log.info("Unhandled exception. " + exc.getMessage(), exc);
+        FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
       }
       
     }

@@ -11,12 +11,12 @@ import java.util.Comparator;
 
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
-import org.exoplatform.frameworks.httpclient.TextUtils;
 import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.frameworks.webdavclient.Log;
+import org.exoplatform.frameworks.webdavclient.FileLogger;
 import org.exoplatform.frameworks.webdavclient.commands.DavPropFind;
 import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
+import org.exoplatform.frameworks.webdavclient.http.TextUtils;
 import org.exoplatform.frameworks.webdavclient.properties.CommonProp;
 import org.exoplatform.frameworks.webdavclient.properties.ContentLengthProp;
 import org.exoplatform.frameworks.webdavclient.properties.DisplayNameProp;
@@ -120,7 +120,7 @@ public abstract class BrowseDialog extends PlugInDialog {
       xLabelHead.setText(headerValue);
       
     } catch (Exception exc) {
-      Log.info("Unhandled exception", exc);
+      FileLogger.info("Unhandled exception", exc);
     }
     
     return true;
@@ -306,18 +306,18 @@ public abstract class BrowseDialog extends PlugInDialog {
     public void run() {
       try {    	  
         DavPropFind davPropFind = new DavPropFind(config.getContext());
+
         davPropFind.setResourcePath(currentPath);
         
         davPropFind.setRequiredProperty(Const.DavProp.DISPLAYNAME);
-        davPropFind.setRequiredProperty(Const.DavProp.RESOURCETYPE);
-        
-        davPropFind.setRequiredProperty(Const.DavProp.GETLASTMODIFIED);
-        
+        davPropFind.setRequiredProperty(Const.DavProp.RESOURCETYPE);        
+        davPropFind.setRequiredProperty(Const.DavProp.GETLASTMODIFIED);        
         davPropFind.setRequiredProperty(Const.DavProp.GETCONTENTLENGTH);
         davPropFind.setRequiredProperty(Const.DavProp.VERSIONNAME);
-        davPropFind.setRequiredProperty(Const.DavProp.COMMENT);
-        
+        davPropFind.setRequiredProperty(Const.DavProp.COMMENT);        
         davPropFind.setRequiredProperty(JCR_MIMETYPE, JCR_NAMESPACE);
+        
+        davPropFind.setDepth(1);
         
         int status = davPropFind.execute();
         
@@ -358,7 +358,7 @@ public abstract class BrowseDialog extends PlugInDialog {
         
         enableAll();
       } catch (Throwable exc) {
-        Log.info("Unhandled exception. " + exc.getMessage(), exc);
+        FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
       }
     }
     
@@ -412,7 +412,7 @@ public abstract class BrowseDialog extends PlugInDialog {
     } catch (Exception exc) {
       showMessageBox("Can't open remote file!");
       
-      Log.info("Can't open remote file... " + exc.getMessage(), exc);
+      FileLogger.info("Can't open remote file... " + exc.getMessage(), exc);
     }
     
   }

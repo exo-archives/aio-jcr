@@ -8,7 +8,7 @@ package org.exoplatform.applications.ooplugin;
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.frameworks.webdavclient.Log;
+import org.exoplatform.frameworks.webdavclient.FileLogger;
 import org.exoplatform.frameworks.webdavclient.WebDavContext;
 import org.exoplatform.frameworks.webdavclient.commands.DavHead;
 
@@ -75,7 +75,7 @@ public class SettingsDialog extends PlugInDialog {
         setTextBoxValue(EDT_PASS, config.getUserPass());
                 
       } catch (Exception exc) {
-        Log.info("Unhandled exception. " + exc.getMessage());
+        FileLogger.info("Unhandled exception. " + exc.getMessage());
       }
     }
   }
@@ -164,7 +164,7 @@ public class SettingsDialog extends PlugInDialog {
         DavHead davHead = new DavHead(testContext);
         davHead.setResourcePath("/");
         
-        Log.info("Testing connection....");
+        FileLogger.info("Testing connection....");
         
         int status = davHead.execute();
 
@@ -174,7 +174,7 @@ public class SettingsDialog extends PlugInDialog {
         }
         
       } catch (Exception exc) {
-        Log.info("Unhandled exception", exc);
+        FileLogger.info("Unhandled exception", exc);
       }
 
       showMessageBox(" Can not connect to repository!");      
@@ -204,7 +204,7 @@ public class SettingsDialog extends PlugInDialog {
         
         config.saveConfig();        
       } catch (Exception exc) {
-        Log.info("Unhandled exception. " + exc.getMessage(), exc);
+        FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
         showMessageBox("Parameters incorrect!!!");
       }
       

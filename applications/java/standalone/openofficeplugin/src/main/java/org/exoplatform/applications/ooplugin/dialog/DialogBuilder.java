@@ -12,7 +12,7 @@ import org.exoplatform.applications.ooplugin.Resources;
 import org.exoplatform.applications.ooplugin.config.XmlConfig;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.applications.ooplugin.events.ItemListener;
-import org.exoplatform.frameworks.webdavclient.Log;
+import org.exoplatform.frameworks.webdavclient.FileLogger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -238,7 +238,7 @@ public class DialogBuilder extends XmlConfig {
       }      
       
     } catch (Exception exc) {
-      Log.info("Unhandled exception. " + exc.getMessage(), exc);
+      FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
     }
   }
   

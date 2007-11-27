@@ -8,10 +8,10 @@ package org.exoplatform.applications.ooplugin;
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.applications.ooplugin.events.ItemListener;
-import org.exoplatform.frameworks.httpclient.TextUtils;
 import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.frameworks.webdavclient.Log;
+import org.exoplatform.frameworks.webdavclient.FileLogger;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
+import org.exoplatform.frameworks.webdavclient.http.TextUtils;
 import org.exoplatform.frameworks.webdavclient.properties.VersionNameProp;
 
 import com.sun.star.awt.ActionEvent;
@@ -66,7 +66,7 @@ public class OpenDialog extends BrowseDialog {
         
         doPropFind();
       } catch (Exception exc) {
-        Log.info("Unhandled exception. " + exc.getMessage());
+        FileLogger.info("Unhandled exception. " + exc.getMessage());
         exc.printStackTrace(System.out);
       }
     }
@@ -136,7 +136,7 @@ public class OpenDialog extends BrowseDialog {
       String serverPrefix = config.getContext().getServerPrefix();
       
       if (!path.startsWith(serverPrefix)) {
-        Log.info("Can't connect remote WebDav server!!!");
+        FileLogger.info("Can't connect remote WebDav server!!!");
         return;
       }
       
@@ -189,7 +189,7 @@ public class OpenDialog extends BrowseDialog {
         }
         
       } catch (Exception exc) {
-        Log.info("Unhandled exception. " + exc.getMessage(), exc);
+        FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
       }      
       
     }

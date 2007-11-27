@@ -7,7 +7,7 @@ package org.exoplatform.applications.ooplugin.config;
 
 import java.util.ArrayList;
 
-import org.exoplatform.frameworks.webdavclient.Log;
+import org.exoplatform.frameworks.webdavclient.FileLogger;
 import org.exoplatform.frameworks.webdavclient.XmlUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -50,7 +50,7 @@ public class FilterListLoader extends XmlConfig {
       }
       
     } catch (Exception exc) {
-      Log.info("Unhandled exception ", exc);
+      FileLogger.info("Unhandled exception ", exc);
     }    
   }
   

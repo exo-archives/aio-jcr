@@ -5,7 +5,7 @@
 
 package org.exoplatform.applications.ooplugin;
 
-import org.exoplatform.frameworks.webdavclient.Log;
+import org.exoplatform.frameworks.webdavclient.FileLogger;
 
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.document.XDocumentInfo;
@@ -24,11 +24,7 @@ import com.sun.star.uno.XComponentContext;
 
 public class OOUtils {
     
-  public static XComponent loadFromFile(XComponentContext xComponentContext, String url, String remoteUrl) throws Exception {
-    
-    Log.info("LOAD FROM URL: " + url);
-    Log.info("REMOTE URL: " + remoteUrl);
-    
+  public static XComponent loadFromFile(XComponentContext xComponentContext, String url, String remoteUrl) throws Exception {    
     PropertyValue[] loadProps = null;
 
     loadProps = new PropertyValue[1];
@@ -74,7 +70,7 @@ public class OOUtils {
 //      xStorable.store();
       
     } catch (Exception exc) {
-      Log.info("Can't store info to opened file...");
+      FileLogger.info("Can't store info to opened file...");
     }    
     
     return (xComponent);

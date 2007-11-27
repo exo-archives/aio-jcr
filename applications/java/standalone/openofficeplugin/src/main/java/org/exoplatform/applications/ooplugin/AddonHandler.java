@@ -5,7 +5,7 @@
 
 package org.exoplatform.applications.ooplugin;
 
-import org.exoplatform.frameworks.webdavclient.Log;
+import org.exoplatform.frameworks.webdavclient.FileLogger;
 
 import com.sun.star.awt.Rectangle;
 import com.sun.star.awt.WindowAttribute;
@@ -60,7 +60,7 @@ public class AddonHandler extends WeakBase
         config = new WebDavConfig();
       }      
     } catch (Throwable thr) {
-      Log.info("Exception", thr);
+      FileLogger.info("Exception", thr);
     }
   }
 
@@ -78,7 +78,7 @@ public class AddonHandler extends WeakBase
     try {
       return Factory.writeRegistryServiceInfo(m_implementationName, m_serviceNames, xRegistryKey);          
     } catch (Throwable thr) {
-      Log.info("Exception", thr);
+      FileLogger.info("Exception", thr);
     }
     return false;    
   }
@@ -132,7 +132,7 @@ public class AddonHandler extends WeakBase
   public com.sun.star.frame.XDispatch[] queryDispatches(
         com.sun.star.frame.DispatchDescriptor[] seqDescriptors )    
   {        
-    Log.info("public com.sun.star.frame.XDispatch[] queryDispatches(");
+    FileLogger.info("public com.sun.star.frame.XDispatch[] queryDispatches(");
     int nCount = seqDescriptors.length;        
     com.sun.star.frame.XDispatch[] seqDispatcher = 
           new com.sun.star.frame.XDispatch[seqDescriptors.length];         
@@ -198,7 +198,7 @@ public class AddonHandler extends WeakBase
         
       }      
     } catch (Exception exc) {
-      Log.info("Unhandled exception. " + exc.getMessage(), exc);
+      FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
     }
     
   }
@@ -240,7 +240,7 @@ public class AddonHandler extends WeakBase
             }
         }
     } catch (com.sun.star.uno.Exception e) {
-      Log.info("Unhandled exception. " + e.getMessage(), e);
+      FileLogger.info("Unhandled exception. " + e.getMessage(), e);
     }
   }
   

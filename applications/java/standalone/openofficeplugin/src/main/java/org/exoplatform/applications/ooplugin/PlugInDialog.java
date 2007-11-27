@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import org.exoplatform.applications.ooplugin.dialog.DialogBuilder;
 import org.exoplatform.applications.ooplugin.dialog.EventHandler;
 import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.frameworks.webdavclient.Log;
+import org.exoplatform.frameworks.webdavclient.FileLogger;
 import org.exoplatform.frameworks.webdavclient.commands.DavGet;
 
 import com.sun.star.awt.Rectangle;
@@ -113,7 +113,7 @@ public class PlugInDialog {
       xComponent.dispose();
       
     } catch (java.lang.Exception exc) {
-      Log.info("Unhandled exception. " + exc.getMessage(), exc);
+      FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
     }    
     
   }
@@ -207,7 +207,7 @@ public class PlugInDialog {
             }
         }
     } catch (com.sun.star.uno.Exception e) {
-    	Log.info("Unhandled exception", e);
+    	FileLogger.info("Unhandled exception", e);
     }
   }  
 
@@ -239,7 +239,7 @@ public class PlugInDialog {
             }
         }
     } catch (com.sun.star.uno.Exception e) {
-      Log.info("Unhandled exception", e);
+      FileLogger.info("Unhandled exception", e);
     }
     return 3;
   }  

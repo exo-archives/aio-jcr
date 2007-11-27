@@ -11,12 +11,12 @@ import java.util.Comparator;
 
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
-import org.exoplatform.frameworks.httpclient.TextUtils;
 import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.frameworks.webdavclient.Log;
+import org.exoplatform.frameworks.webdavclient.FileLogger;
 import org.exoplatform.frameworks.webdavclient.commands.DavReport;
 import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
+import org.exoplatform.frameworks.webdavclient.http.TextUtils;
 import org.exoplatform.frameworks.webdavclient.properties.ContentLengthProp;
 import org.exoplatform.frameworks.webdavclient.properties.CreationDateProp;
 import org.exoplatform.frameworks.webdavclient.properties.CreatorDisplayNameProp;
@@ -95,7 +95,7 @@ public class ViewVersions extends PlugInDialog {
       xLabelHead.setText(headerValue);
       
     } catch (Exception exc) {
-      Log.info("Unhandled exception", exc);
+      FileLogger.info("Unhandled exception", exc);
     }
     
     return true;
@@ -110,7 +110,7 @@ public class ViewVersions extends PlugInDialog {
         Thread.sleep(100);
         doReport();
       } catch (Exception exc) {
-        Log.info("Unhandled exception. " + exc.getMessage());
+        FileLogger.info("Unhandled exception. " + exc.getMessage());
       }
     }
   }
@@ -128,6 +128,8 @@ public class ViewVersions extends PlugInDialog {
     davReport.setRequiredProperty(Const.DavProp.GETCONTENTLENGTH);
     davReport.setRequiredProperty(Const.DavProp.CREATIONDATE);
     davReport.setRequiredProperty(Const.DavProp.CREATORDISPLAYNAME);
+    
+    davReport.setDepth(1);
     
     int status = davReport.execute();
     if (status != Const.HttpStatus.MULTISTATUS) {
@@ -240,7 +242,7 @@ public class ViewVersions extends PlugInDialog {
       xDialog.endExecute();
       
     } catch (Exception exc) {
-      Log.info("Unhandled exception.", exc);
+      FileLogger.info("Unhandled exception.", exc);
       showMessageBox("Can't open selected version.");
     }
   }
