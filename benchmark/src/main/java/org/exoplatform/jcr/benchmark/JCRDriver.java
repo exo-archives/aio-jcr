@@ -74,9 +74,13 @@ public class JCRDriver extends JapexDriverBase {
   @Override
   public void prepare(final TestCase tc) {
     try {
+      System.out.println("Start...");
       initContext(tc, context);
+      System.out.println("initContext done...");
       test = testInstance(tc);
+      System.out.println("testInstance done...");
       test.doPrepare(tc, context);
+      System.out.println("doPrepare done...");
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
@@ -125,7 +129,7 @@ public class JCRDriver extends JapexDriverBase {
   }
 
   private synchronized JCRTestContext initContext(TestCase tc, JCRTestContext context) {
-    context.setSession(oneSession);
+    //context.setSession(oneSession);
 
     if (!hasParam("jcr.sessionPolicy"))
       throw new RuntimeException("<jcr.sessionPolicy> parameter required");
