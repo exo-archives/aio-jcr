@@ -72,56 +72,6 @@ public class TestImportSysView extends JcrAPIBaseTest {
     xmlContent = tmp;
   }
 
-  @Override
-  protected void tearDown() throws Exception {
-
-    if (xmlContent != null)
-      xmlContent.delete();
-
-    super.tearDown();
-  }
-
-  public void testExportUuid_IMPORT_UUID_CREATE_NEW() throws Exception {
-    String uuid = sysview.getNode(SOURCE_NAME).getProperty("jcr:uuid").getString();
-
-    Node importTarget = sysview.addNode("import target");
-    sysview.save();
-
-    sysview.getSession().importXML(importTarget.getPath(),
-        new FileInputStream(xmlContent),
-        ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
-
-    sysview.save();
-
-    // check uuid
-
-    String importedUuid = importTarget.getNode(SOURCE_NAME).getProperty("jcr:uuid").getString();
-    assertFalse("Uuids must be different. " + uuid + " != " + importedUuid, uuid
-        .equals(importedUuid));
-
-    // create one more same-name sibling node
-    sysview.getSession().importXML(importTarget.getPath(),
-        new FileInputStream(xmlContent),
-        ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
-
-    sysview.save();
-
-    // check sns...
-    String importedSNSUuid = importTarget.getNode(SOURCE_NAME + "[2]").getProperty("jcr:uuid")
-        .getString();
-    assertFalse("Uuids must be different. " + uuid + " != " + importedSNSUuid, uuid
-        .equals(importedSNSUuid));
-    assertFalse("Uuids must be different. " + importedSNSUuid + " != " + importedUuid,
-        importedSNSUuid.equals(importedUuid));
-
-    // ...temp check
-    InputStream anyBinary = importTarget.getNode(SOURCE_NAME + "[2]/jcr:content")
-        .getProperty("anyBinary").getStream();
-    assertEquals("Stream length must be same", BIN_STRING.length(), anyBinary.available());
-    assertEquals("Stream content must be same", BIN_STRING, importTarget.getNode(SOURCE_NAME
-        + "[2]/jcr:content").getProperty("anyBinary").getString());
-  }
-
   public void testExportUuid_IMPORT_UUID_COLLISION_REMOVE_EXISTING() throws Exception {
     Node source = sysview.getNode(SOURCE_NAME);
     String uuid = source.getProperty("jcr:uuid").getString();
@@ -130,8 +80,8 @@ public class TestImportSysView extends JcrAPIBaseTest {
     sysview.save();
 
     sysview.getSession().importXML(importTarget.getPath(),
-        new FileInputStream(xmlContent),
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
+                                   new FileInputStream(xmlContent),
+                                   ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
 
     sysview.save();
 
@@ -145,8 +95,8 @@ public class TestImportSysView extends JcrAPIBaseTest {
     // try one more (for same-name sibling nodes test), mus replace before
     // imported node
     sysview.getSession().importXML(importTarget.getPath(),
-        new FileInputStream(xmlContent),
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
+                                   new FileInputStream(xmlContent),
+                                   ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
 
     sysview.save();
 
@@ -154,10 +104,10 @@ public class TestImportSysView extends JcrAPIBaseTest {
 
     assertFalse("Same-name sibling node must is not exists. ", importTarget.hasNode(SOURCE_NAME
         + "[2]"));
-
+    assertTrue(importTarget.hasNode(SOURCE_NAME));
     String importedSNSUuid = importTarget.getNode(SOURCE_NAME).getProperty("jcr:uuid").getString();
-    assertTrue("Uuids must be same. " + uuid + " = " + importedSNSUuid, uuid
-        .equals(importedSNSUuid));
+    assertTrue("Uuids must be same. " + uuid + " = " + importedSNSUuid,
+               uuid.equals(importedSNSUuid));
   }
 
   public void testExportUuid_IMPORT_UUID_COLLISION_REPLACE_EXISTING() throws Exception {
@@ -172,8 +122,8 @@ public class TestImportSysView extends JcrAPIBaseTest {
     sysview.save();
 
     sysview.getSession().importXML(importTarget.getPath(),
-        new FileInputStream(xmlContent),
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING);
+                                   new FileInputStream(xmlContent),
+                                   ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING);
 
     sysview.save();
 
@@ -187,12 +137,12 @@ public class TestImportSysView extends JcrAPIBaseTest {
     assertFalse("A imported node must has no property 'New property 1, boolean' "
         + target.getPath(), target.hasProperty("jcr:content/New property 1, boolean"));
     assertFalse("A imported node must has no property 'New property 2, string' " + target.getPath(),
-        target.hasProperty("jcr:content/New property 2, string"));
+                target.hasProperty("jcr:content/New property 2, string"));
 
     // create one more same-name sibling node
     sysview.getSession().importXML(importTarget.getPath(),
-        new FileInputStream(xmlContent),
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING);
+                                   new FileInputStream(xmlContent),
+                                   ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING);
 
     sysview.save();
 
@@ -200,8 +150,8 @@ public class TestImportSysView extends JcrAPIBaseTest {
 
     target = sysview.getNode(SOURCE_NAME);
     String importedSNSUuid = target.getProperty("jcr:uuid").getString();
-    assertTrue("Uuids must be same. " + uuid + " = " + importedSNSUuid, uuid
-        .equals(importedSNSUuid));
+    assertTrue("Uuids must be same. " + uuid + " = " + importedSNSUuid,
+               uuid.equals(importedSNSUuid));
 
     assertTrue("Uuid of SNS replaced node must be different. " + importedSNSUuid + " != "
         + importedSNSUuid, importedSNSUuid.equals(importedSNSUuid));
@@ -209,7 +159,7 @@ public class TestImportSysView extends JcrAPIBaseTest {
     assertFalse("A imported node must has no property 'New property 1, boolean' "
         + target.getPath(), target.hasProperty("jcr:content/New property 1, boolean"));
     assertFalse("A imported node must has no property 'New property 2, string' " + target.getPath(),
-        target.hasProperty("jcr:content/New property 2, string"));
+                target.hasProperty("jcr:content/New property 2, string"));
   }
 
   public void testExportUuid_IMPORT_UUID_COLLISION_THROW() throws Exception {
@@ -221,8 +171,8 @@ public class TestImportSysView extends JcrAPIBaseTest {
 
     try {
       sysview.getSession().importXML(importTarget.getPath(),
-          new FileInputStream(xmlContent),
-          ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
+                                     new FileInputStream(xmlContent),
+                                     ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
 
       fail("An exception ItemExistsException must be throwed. Node with same uuid already exists");
     } catch (ItemExistsException e) {
@@ -232,11 +182,63 @@ public class TestImportSysView extends JcrAPIBaseTest {
     // one more time...:)
     try {
       sysview.getSession().importXML(importTarget.getPath(),
-          new FileInputStream(xmlContent),
-          ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
+                                     new FileInputStream(xmlContent),
+                                     ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
       fail("An exception ItemExistsException must be throwed. Node with same uuid already exists. TEST CYCLE2");
     } catch (ItemExistsException e) {
       // ok
     }
+  }
+
+  public void testExportUuid_IMPORT_UUID_CREATE_NEW() throws Exception {
+    String uuid = sysview.getNode(SOURCE_NAME).getProperty("jcr:uuid").getString();
+
+    Node importTarget = sysview.addNode("import target");
+    sysview.save();
+
+    sysview.getSession().importXML(importTarget.getPath(),
+                                   new FileInputStream(xmlContent),
+                                   ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
+
+    sysview.save();
+
+    // check uuid
+
+    String importedUuid = importTarget.getNode(SOURCE_NAME).getProperty("jcr:uuid").getString();
+    assertFalse("Uuids must be different. " + uuid + " != " + importedUuid,
+                uuid.equals(importedUuid));
+
+    // create one more same-name sibling node
+    sysview.getSession().importXML(importTarget.getPath(),
+                                   new FileInputStream(xmlContent),
+                                   ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
+
+    sysview.save();
+
+    // check sns...
+    String importedSNSUuid = importTarget.getNode(SOURCE_NAME + "[2]")
+                                         .getProperty("jcr:uuid")
+                                         .getString();
+    assertFalse("Uuids must be different. " + uuid + " != " + importedSNSUuid,
+                uuid.equals(importedSNSUuid));
+    assertFalse("Uuids must be different. " + importedSNSUuid + " != " + importedUuid,
+                importedSNSUuid.equals(importedUuid));
+
+    // ...temp check
+    InputStream anyBinary = importTarget.getNode(SOURCE_NAME + "[2]/jcr:content")
+                                        .getProperty("anyBinary")
+                                        .getStream();
+    assertEquals("Stream length must be same", BIN_STRING.length(), anyBinary.available());
+    assertEquals("Stream content must be same", BIN_STRING, importTarget.getNode(SOURCE_NAME
+        + "[2]/jcr:content").getProperty("anyBinary").getString());
+  }
+
+  @Override
+  protected void tearDown() throws Exception {
+
+    if (xmlContent != null)
+      xmlContent.delete();
+
+    super.tearDown();
   }
 }

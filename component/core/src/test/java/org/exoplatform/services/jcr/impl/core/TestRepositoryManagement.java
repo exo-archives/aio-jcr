@@ -487,7 +487,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
       }
     }
   }
-
+  //TODO remove this method
   public void createDafaultRepository(String repoName, String defaultWs) throws Exception {
 
     RepositoryEntry repositoryEntry = new RepositoryEntry();
