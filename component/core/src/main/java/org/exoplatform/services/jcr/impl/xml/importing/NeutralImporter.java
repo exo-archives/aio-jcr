@@ -20,13 +20,16 @@ import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
  */
 public class NeutralImporter extends BaseXmlImporter {
 
-  private Importer contentImporter = null;
+  private Importer       contentImporter = null;
+
+  private final NodeImpl parent;
 
   public NeutralImporter(NodeImpl parent,
                          int uuidBehavior,
                          XmlSaveType saveType,
                          boolean respectPropertyDefinitionsConstraints) {
     super(parent, uuidBehavior, saveType, respectPropertyDefinitionsConstraints);
+    this.parent = parent;
   }
 
   public void characters(char[] ch, int start, int length) throws RepositoryException {
@@ -65,10 +68,14 @@ public class NeutralImporter extends BaseXmlImporter {
                                                    respectPropertyDefinitionsConstraints);
         break;
       case SYSVIEW:
+        // contentImporter = new SystemViewImporter(parent,
+        // uuidBehavior,
+        // getSaveType(),
+        // respectPropertyDefinitionsConstraints);
         contentImporter = new SystemViewImporter(parent,
-                                                 uuidBehavior,
-                                                 getSaveType(),
-                                                 respectPropertyDefinitionsConstraints);
+                                                  uuidBehavior,
+                                                  getSaveType(),
+                                                  respectPropertyDefinitionsConstraints);
         break;
       default:
         throw new IllegalStateException("There was an error during ascertaining the "

@@ -73,7 +73,7 @@ public interface Importer {
    * @see org.xml.sax.helpers.AttributesImpl
    */
   public void startElement(String namespaceURI,
-      String localName,
-      String qName,
-      Map<String, String> atts) throws RepositoryException;
+                           String localName,
+                           String qName,
+                           Map<String, String> atts) throws RepositoryException;
 }

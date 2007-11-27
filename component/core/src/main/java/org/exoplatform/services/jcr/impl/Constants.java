@@ -256,6 +256,29 @@ public class Constants {
 
   public static final InternalQName EXO_PERMISSIONS = new InternalQName(NS_EXO_URI, "permissions");
   
+  //-------- system view name constants
+  /**
+   * sv:node
+   */
+  public static final InternalQName SV_NODE = new InternalQName(NS_SV_URI, "node");
+  /**
+   * sv:property
+   */
+  public static final InternalQName SV_PROPERTY = new InternalQName(NS_SV_URI, "property");
+  /**
+   * sv:value
+   */
+  public static final InternalQName SV_VALUE = new InternalQName(NS_SV_URI, "value");
+  /**
+   * sv:type
+   */
+  public static final InternalQName SV_TYPE = new InternalQName(NS_SV_URI, "type");
+  /**
+   * sv:name
+   */
+  public static final InternalQName SV_NAME = new InternalQName(NS_SV_URI, "name");
+
+  
   public static QPath JCR_VERSION_STORAGE_PATH;
   
   public static QPath JCR_NODETYPES_PATH;

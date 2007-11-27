@@ -14,6 +14,7 @@ import javax.jcr.RepositoryException;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
@@ -44,7 +45,7 @@ public class StreamImporter {
 
   private final int         uuidBehavior;
 
-  private final boolean respectPropertyDefinitionsConstraints;
+  private final boolean     respectPropertyDefinitionsConstraints;
 
   public StreamImporter(XmlSaveType saveType,
                         NodeImpl parent,
@@ -59,27 +60,30 @@ public class StreamImporter {
   }
 
   public void importStream(InputStream stream) throws RepositoryException {
-    
+
     XMLInputFactory factory = XMLInputFactory.newInstance();
     if (log.isDebugEnabled())
       log.debug("FACTORY: " + factory);
-    
+
     // TODO create in constructor
-    this.importer = new NeutralImporter(parent, uuidBehavior, saveType,respectPropertyDefinitionsConstraints);
-    
+    importer = new NeutralImporter(parent,
+                                   uuidBehavior,
+                                   saveType,
+                                   respectPropertyDefinitionsConstraints);
+
     try {
 
       XMLEventReader reader = factory.createXMLEventReader(stream);
-      
+
       if (log.isDebugEnabled())
         log.debug("Start event handling");
       while (reader.hasNext()) {
         XMLEvent event = reader.nextEvent();
-         //log.info(event.toString());
+        // log.info(event.toString());
         switch (event.getEventType()) {
-        case XMLEvent.START_ELEMENT:
+        case XMLStreamConstants.START_ELEMENT:
           StartElement element = event.asStartElement();
-          //log.info(element.getLocation().getCharacterOffset());
+          // log.info(element.getLocation().getCharacterOffset());
           if (!namespacesRegistered) {
             namespacesRegistered = true;
             registerNamespaces(element);
@@ -89,40 +93,41 @@ public class StreamImporter {
           while (attributes.hasNext()) {
             Attribute attribute = (Attribute) attributes.next();
             attr.put(attribute.getName().getPrefix() + ":" + attribute.getName().getLocalPart(),
-                attribute.getValue());
+                     attribute.getValue());
           }
           QName name = element.getName();
           importer.startElement(name.getNamespaceURI(), name.getLocalPart(), name.getPrefix() + ":"
               + name.getLocalPart(), attr);
           break;
-        case XMLEvent.END_ELEMENT:
+        case XMLStreamConstants.END_ELEMENT:
           EndElement endElement = event.asEndElement();
-          importer.endElement(endElement.getName().getNamespaceURI(), endElement.getName()
-              .getLocalPart(), endElement.getName().getPrefix() + ":"
-              + endElement.getName().getLocalPart());
+          importer.endElement(endElement.getName().getNamespaceURI(),
+                              endElement.getName().getLocalPart(),
+                              endElement.getName().getPrefix() + ":"
+                                  + endElement.getName().getLocalPart());
           break;
-        case XMLEvent.PROCESSING_INSTRUCTION:
+        case XMLStreamConstants.PROCESSING_INSTRUCTION:
           break;
-        case XMLEvent.CHARACTERS:
+        case XMLStreamConstants.CHARACTERS:
           String chars = event.asCharacters().getData();
           importer.characters(chars.toCharArray(), 0, chars.length());
           break;
-        case XMLEvent.COMMENT:
+        case XMLStreamConstants.COMMENT:
           break;
-        case XMLEvent.START_DOCUMENT:
+        case XMLStreamConstants.START_DOCUMENT:
           break;
-        case XMLEvent.END_DOCUMENT:
+        case XMLStreamConstants.END_DOCUMENT:
           importer.save();
           break;
-        case XMLEvent.ENTITY_REFERENCE:
+        case XMLStreamConstants.ENTITY_REFERENCE:
           break;
-        case XMLEvent.ATTRIBUTE:
+        case XMLStreamConstants.ATTRIBUTE:
           break;
-        case XMLEvent.DTD:
+        case XMLStreamConstants.DTD:
           break;
-        case XMLEvent.CDATA:
+        case XMLStreamConstants.CDATA:
           break;
-        case XMLEvent.SPACE:
+        case XMLStreamConstants.SPACE:
           break;
         default:
           break;
@@ -133,7 +138,7 @@ public class StreamImporter {
 
     } catch (XMLStreamException e) {
       throw new InvalidSerializedDataException("ImportXML failed", e);
-   }
+    }
   }
 
   private void registerNamespaces(StartElement event) {

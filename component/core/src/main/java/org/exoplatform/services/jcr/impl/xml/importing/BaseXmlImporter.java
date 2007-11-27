@@ -5,9 +5,14 @@
 package org.exoplatform.services.jcr.impl.xml.importing;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Stack;
 
+import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.ItemExistsException;
+import javax.jcr.ItemNotFoundException;
 import javax.jcr.NamespaceException;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
@@ -22,13 +27,17 @@ import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.impl.core.ItemImpl;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeDefinitionImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.PropertyDefinitionImpl;
+import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
+import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -39,16 +48,17 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: ImporterBase.java 13421 2007-03-15 10:46:47Z geaz $
  */
-abstract public class BaseXmlImporter implements Importer {
-
-  private static final Log            log = ExoLogger.getLogger("jcr.ImporterBase");
+public abstract class BaseXmlImporter implements Importer {
+  /**
+   * 
+   */
+  private final Log                   log  = ExoLogger.getLogger("jcr.ImporterBase");
 
   private final XmlSaveType           saveType;
 
-  /**
-   * The list of added item states
-   */
-  protected List<ItemState>           itemStatesList;
+  protected final Stack<NodeData>     tree = new Stack<NodeData>();
+
+  protected final PlainChangesLogImpl changesLog;
 
   protected LocationFactory           locationFactory;
 
@@ -57,35 +67,31 @@ abstract public class BaseXmlImporter implements Importer {
    */
   protected final NodeTypeManagerImpl ntManager;
 
-  protected final NodeImpl            parent;
-
   protected final SessionImpl         session;
 
   protected final int                 uuidBehavior;
 
-  protected final boolean respectPropertyDefinitionsConstraints;
+  protected final boolean             respectPropertyDefinitionsConstraints;
 
-  public BaseXmlImporter(NodeImpl parent, int uuidBehavior, XmlSaveType saveType,boolean respectPropertyDefinitionsConstraints) {
+  public BaseXmlImporter(NodeImpl parent,
+                         int uuidBehavior,
+                         XmlSaveType saveType,
+                         boolean respectPropertyDefinitionsConstraints) {
 
-    this.parent = parent;
     this.saveType = saveType;
     this.respectPropertyDefinitionsConstraints = respectPropertyDefinitionsConstraints;
     this.session = parent.getSession();
-    this.ntManager = (NodeTypeManagerImpl) this.session.getRepository().getNodeTypeManager();
+    this.ntManager = (NodeTypeManagerImpl) session.getRepository().getNodeTypeManager();
     this.locationFactory = session.getLocationFactory();
     this.uuidBehavior = uuidBehavior;
-    this.itemStatesList = new ArrayList<ItemState>();
-  }
-
-  @Deprecated
-  public List<ItemState> getItemStatesList() {
-    return itemStatesList;
+    this.tree.push((NodeData) parent.getData());
+    this.changesLog = new PlainChangesLogImpl(session.getId());
   }
 
   public int getNextChildOrderNum(NodeData parentData) {
     int max = -1;
 
-    for (ItemState itemState : itemStatesList) {
+    for (ItemState itemState : changesLog.getAllStates()) {
       if (itemState.getData().getParentIdentifier().equals(parentData.getIdentifier())
           && itemState.getData().isNode()) {
         int cur = ((NodeData) itemState.getData()).getOrderNumber();
@@ -96,42 +102,41 @@ abstract public class BaseXmlImporter implements Importer {
     return ++max;
   }
 
-  public int getNodeIndex(NodeData parentData, InternalQName name) throws PathNotFoundException,
-      IllegalPathException,
-      RepositoryException {
+  public int getNodeIndex(NodeData parentData, InternalQName name, String skipIdentifier) throws PathNotFoundException,
+                                                                                         IllegalPathException,
+                                                                                         RepositoryException {
 
     int newIndex = 1;
 
-    // NodeImpl parentNode = ((NodeImpl)
-    // session.getTransientNodesManager().getItemByIdentifier(parentData
-    // .getIdentifier(),
-    // true));
+    NodeDefinitionImpl nodedef = session.getWorkspace()
+                                        .getNodeTypeManager()
+                                        .findNodeDefinition(name,
+                                                            parentData.getPrimaryTypeName(),
+                                                            parentData.getMixinTypeNames());
 
-    NodeDefinitionImpl nodedef = session.getWorkspace().getNodeTypeManager()
-        .findNodeDefinition(name, parentData.getPrimaryTypeName(), parentData.getMixinTypeNames());
-
-    NodeImpl sameNameNode = null;
+    ItemData sameNameNode = null;
     try {
-      sameNameNode = (NodeImpl) session.getTransientNodesManager().getItem(parentData,
-          new QPathEntry(name, 0),
-          true);
+      sameNameNode = session.getTransientNodesManager().getItemData(parentData,
+                                                                    new QPathEntry(name, 0));
     } catch (PathNotFoundException e) {
       // Ok no same name node;
       return newIndex;
     }
 
     List<ItemState> transientAddChilds = getItemStatesList(parentData,
-        new QPathEntry(name, 0),
-        ItemState.ADDED);
+                                                           new QPathEntry(name, 0),
+                                                           ItemState.ADDED,
+                                                           skipIdentifier);
     List<ItemState> transientDeletedChilds = getItemStatesList(parentData,
-        new QPathEntry(name, 0),
-        ItemState.DELETED);
+                                                               new QPathEntry(name, 0),
+                                                               ItemState.DELETED,
+                                                               null);
 
     if (!nodedef.allowsSameNameSiblings()
         && ((sameNameNode != null) || (transientAddChilds.size() > 0))) {
       if ((sameNameNode != null) && (transientDeletedChilds.size() < 1)) {
-        throw new ItemExistsException("The node  already exists in " + sameNameNode.getPath()
-            + " and same name sibling is not allowed ");
+        throw new ItemExistsException("The node  already exists in "
+            + sameNameNode.getQPath().getAsString() + " and same name sibling is not allowed ");
       }
       if (transientAddChilds.size() > 0) {
         throw new ItemExistsException("The node  already exists in add state "
@@ -183,59 +188,81 @@ abstract public class BaseXmlImporter implements Importer {
   }
 
   public void save() throws RepositoryException {
+    Collections.sort(changesLog.getAllStates(), new PathSorter());
+    // String str = "";
+    // for (int i = 0; i < changesLog.getAllStates().size(); i++)
+    // str += " " +
+    // ItemState.nameFromValue(changesLog.getAllStates().get(i).getState()) +
+    // "\t\t"
+    // + changesLog.getAllStates().get(i).getData().getIdentifier()
+    // + "\t"
+    // + "isPersisted="
+    // + changesLog.getAllStates().get(i).isPersisted()
+    // + "\t"
+    // // + "parentId = " +
+    // // itemStatesList.get(i).getData().getParentIdentifier() + "\t"
+    // + "isEventFire=" + changesLog.getAllStates().get(i).isEventFire() + "\t"
+    // + "isInternallyCreated=" +
+    // changesLog.getAllStates().get(i).isInternallyCreated() + "\t"
+    // + changesLog.getAllStates().get(i).getData().getQPath().getAsString() +
+    // "\n";
+    // // log.info(str);
+
     switch (saveType) {
     case SESSION:
-      for (ItemState itemState : itemStatesList) {
-        if(itemState.isAdded())
+      for (ItemState itemState : changesLog.getAllStates()) {
+        if (itemState.isAdded())
           session.getTransientNodesManager().update(itemState, true);
         else if (itemState.isDeleted())
           session.getTransientNodesManager().delete(itemState.getData());
-        }
+      }
       break;
     case WORKSPACE:
-      PlainChangesLogImpl changesLog = new PlainChangesLogImpl(itemStatesList, session.getId());
       session.getTransientNodesManager().getTransactManager().save(changesLog);
       break;
-    default:
-      throw new IllegalStateException("Save type undefined");
-
     }
 
   }
 
-  public void setItemStatesList(List<ItemState> itemStatesList) {
-    this.itemStatesList = itemStatesList;
-  }
-
-  private List<ItemState> getItemStatesList(NodeData parentData, QPathEntry name, int state) {
+  private List<ItemState> getItemStatesList(NodeData parentData,
+                                            QPathEntry name,
+                                            int state,
+                                            String skipIdentifier) {
     List<ItemState> states = new ArrayList<ItemState>();
-    for (ItemState itemState : itemStatesList) {
+    for (ItemState itemState : changesLog.getAllStates()) {
       if (itemState.getData().getParentIdentifier().equals(parentData.getIdentifier())
-          && itemState.getData().getQPath().getEntries()[itemState.getData().getQPath()
-              .getEntries().length - 1].isSame(name)) {
-        if ((state != 0) && (state != itemState.getState())) {
+          && itemState.getData().getQPath().getEntries()[itemState.getData()
+                                                                  .getQPath()
+                                                                  .getEntries().length - 1].isSame(name)) {
+        if ((state != 0) && (state != itemState.getState())
+            || itemState.getData().getIdentifier().equals(skipIdentifier)) {
           continue;
         }
-        log.info(states.add(itemState));
+        states.add(itemState);
 
       }
     }
     return states;
   }
 
-  protected ItemData getLocalItemData(NodeData parent, QPathEntry name) {
+  protected ItemData getLocalItemData(NodeData parentData, QPathEntry name, String skipIdentifier) {
     ItemData item = null;
-    List<ItemState> states = getItemStatesList(parent, name, 0);
+    List<ItemState> states = getItemStatesList(parentData, name, 0, skipIdentifier);
     // get last state
     ItemState state = states.get(states.size() - 1);
     if (!state.isDeleted()) {
       item = state.getData();
+
     }
     return item;
   }
 
+  protected NodeData getParent() {
+    return tree.peek();
+  }
+
   protected PropertyDefinition getPropertyDefinition(InternalQName propertyName,
-      List<ExtendedNodeType> nodeTypes) {
+                                                     List<ExtendedNodeType> nodeTypes) {
     PropertyDefinition pdResidual = null;
     for (ExtendedNodeType nt : nodeTypes) {
       PropertyDefinitions pds = nt.getPropertyDefinitions(propertyName);
@@ -258,5 +285,122 @@ abstract public class BaseXmlImporter implements Importer {
       }
     }
     return false;
+  }
+
+  protected void replaceFirstState(QPath path, int state, ItemState itemState) {
+    for (int i = 0; i < changesLog.getAllStates().size(); i++) {
+      if (changesLog.getAllStates().get(i).getState() == state
+          && changesLog.getAllStates().get(i).getData().getQPath().equals(path)) {
+        changesLog.getAllStates().set(i, itemState);
+        break;
+      }
+    }
+    throw new IllegalStateException("replace fail");
+  }
+
+  protected String validateUuidCollision(String identifier) throws RepositoryException {
+
+    NodeData parentNodeData = getParent();
+    ItemDataRemoveVisitor visitor = null;
+    List<ItemState> removedStates = null;
+    if (identifier != null) {
+      try {
+        ItemImpl sameUuidItem = session.getTransientNodesManager().getItemByIdentifier(identifier,
+                                                                                       true);
+        if (sameUuidItem != null) {
+          switch (uuidBehavior) {
+          case ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW:
+            // Incoming referenceable nodes are assigned newly created UUIDs
+            // upon addition to the workspace. As a result UUID collisions
+            // never occur.
+
+            // reset UUID and it will be autocreated in session
+            identifier = null;
+            break;
+          case ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING:
+            if (!sameUuidItem.isNode()
+                || !((NodeImpl) sameUuidItem).isNodeType("mix:referenceable")) {
+              throw new RepositoryException("An incoming referenceable node has the same "
+                  + "UUID as a identifier of non mix:referenceable"
+                  + " node already existing in the workspace!");
+            }
+            // If an incoming referenceable node has the same UUID as a node
+            // already existing in the workspace then the already existing
+            // node (and its subtree) is removed from wherever it may be in
+            // the workspace before the incoming node is added. Note that this
+            // can result in nodes disappearing from locations in the
+            // workspace that are remote from the location to which the
+            // incoming subtree is being written.
+
+            visitor = new ItemDataRemoveVisitor(session, true);
+            sameUuidItem.getData().accept(visitor);
+            removedStates = visitor.getRemovedStates();
+            changesLog.addAll(removedStates);
+
+            // sameUuidNode = null;
+            break;
+          case ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING:
+            if (!sameUuidItem.isNode()
+                || !((NodeImpl) sameUuidItem).isNodeType("mix:referenceable")) {
+              throw new RepositoryException("An incoming referenceable node has the same "
+                  + "UUID as a identifier of non mix:referenceable"
+                  + " node already existing in the workspace!");
+            }
+            // If an incoming referenceable node has the same UUID as a node
+            // already existing in the workspace, then the already existing
+            // node is replaced by the incoming node in the same position as
+            // the existing node. Note that this may result in the incoming
+            // subtree being disaggregated and spread around to different
+            // locations in the workspace. In the most extreme case this
+            // behavior may result in no node at all being added as child of
+            // parentAbsPath. This will occur if the topmost element of the
+            // incoming XML has the same UUID as an existing node elsewhere in
+            // the workspace.
+
+            // replace in same location
+            parentNodeData = (NodeData) ((NodeImpl) sameUuidItem.getParent()).getData();
+            visitor = new ItemDataRemoveVisitor(session, true);
+            sameUuidItem.getData().accept(visitor);
+            removedStates = visitor.getRemovedStates();
+            changesLog.addAll(removedStates);
+            tree.push(ImportedNodeData.createCopy((TransientNodeData) parentNodeData));
+            break;
+          case ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW:
+            // If an incoming referenceable node has the same UUID as a node
+            // already existing in the workspace then a SAXException is thrown
+            // by the ContentHandler during deserialization.
+            throw new ItemExistsException("An incoming referenceable node has the same "
+                + "UUID as a node already existing in the workspace!");
+          default:
+          }
+        }
+      } catch (ItemNotFoundException e) {
+        // node not found, it's ok - willing create one new
+      }
+
+    }
+    return identifier;
+  }
+
+  /**
+   * Class helps sort ItemStates list. After sorting the delete states is to be
+   * on top of the list
+   */
+  private class PathSorter implements Comparator<ItemState> {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+     */
+    public int compare(final ItemState i1, final ItemState i2) {
+      int sign = 0;
+      if (i1.getState() != i2.getState()) {
+        if (i2.isDeleted())
+          sign = 1;
+        else
+          sign = -1;
+      }
+      return sign;
+    }
   }
 }

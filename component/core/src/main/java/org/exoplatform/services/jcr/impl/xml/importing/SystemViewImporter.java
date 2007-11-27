@@ -1,110 +1,95 @@
 /***************************************************************************
- * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SAS. All rights reserved.          *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 package org.exoplatform.services.jcr.impl.xml.importing;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
-import javax.jcr.AccessDeniedException;
 import javax.jcr.ImportUUIDBehavior;
-import javax.jcr.InvalidItemStateException;
-import javax.jcr.ItemExistsException;
-import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
 
 import org.apache.commons.logging.Log;
-import org.apache.ws.commons.util.Base64;
-import org.apache.ws.commons.util.Base64.Decoder;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.exoplatform.services.jcr.datamodel.PropertyData;
-import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.ItemImpl;
-import org.exoplatform.services.jcr.impl.core.JCRPath;
+import org.exoplatform.services.jcr.impl.core.JCRName;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
-import org.exoplatform.services.jcr.impl.core.JCRPath.PathElement;
-import org.exoplatform.services.jcr.impl.core.itemfilters.ItemFilter;
-import org.exoplatform.services.jcr.impl.core.itemfilters.NamePatternFilter;
 import org.exoplatform.services.jcr.impl.core.value.BaseValue;
-import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
-import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
-import org.exoplatform.services.jcr.impl.util.EntityCollection;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
+ * Created by The eXo Platform SAS
+ * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
 public class SystemViewImporter extends BaseXmlImporter {
+  /**
+   * 
+   */
+  private static Log         log = ExoLogger.getLogger(SystemViewImporter.class);
 
-  private String                   curPropName;
+  /**
+   * 
+   */
+  private InternalQName      currentPropName;
 
-  private int                      curPropType;
+  /**
+   * 
+   */
+  private List<DecodedValue> currentPropValues;
 
-  private List<DecodedValue>       curPropValues;
+  /**
+   * 
+   */
+  private int                currentPropType;
 
-  private final List<NodeInfo>     nodeInfos;
-
-  private NodeData                 parent;
-
-  private InternalQName            primaryTypeName;
-
-  private List<ParsedPropertyInfo> propsParsed;
-
-  private final Stack<NodeInfo>    tree;
-
-  protected Log                    log = ExoLogger.getLogger("jcr.SysNodeImporter");
-
-  public SystemViewImporter(NodeImpl parent,
-                            int uuidBehavior,
-                            XmlSaveType saveType,
-                            boolean respectPropertyDefinitionsConstraints) {
+  /**
+   * @param parent
+   * @param uuidBehavior
+   * @param saveType
+   * @param respectPropertyDefinitionsConstraints
+   */
+  public SystemViewImporter(final NodeImpl parent,
+                             final int uuidBehavior,
+                             final XmlSaveType saveType,
+                             final boolean respectPropertyDefinitionsConstraints) {
     super(parent, uuidBehavior, saveType, respectPropertyDefinitionsConstraints);
-
-    this.parent = (NodeData) parent.getData();
-    this.tree = new Stack<NodeInfo>();
-    this.nodeInfos = new ArrayList<NodeInfo>();
-    this.curPropValues = new ArrayList<DecodedValue>();
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#characters(char[],
+   *      int, int)
+   */
   public void characters(char[] ch, int start, int length) throws RepositoryException {
     // property values
-    if (curPropValues.size() > 0) {
-      DecodedValue curPropValue = curPropValues.get(curPropValues.size() - 1);
-      if (curPropType == PropertyType.BINARY) {
-
+    if (currentPropValues.size() > 0) {
+      DecodedValue curPropValue = currentPropValues.get(currentPropValues.size() - 1);
+      if (currentPropType == PropertyType.BINARY) {
         try {
-
           curPropValue.getBinaryDecoder().write(ch, start, length);
         } catch (IOException e) {
           throw new RepositoryException(e);
@@ -113,747 +98,420 @@ public class SystemViewImporter extends BaseXmlImporter {
         curPropValue.getStringBuffer().append(ch, start, length);
       }
     } else {
-      // wrong XML, no sv:value visited before
       log.warn("Wrong XML content. Element 'sv:value' expected,"
-          + " but SAX event 'characters' occured. characters:[" + new String(ch) + "]");
+          + " but SAX event 'characters' occured. characters:[" + new String(ch, start, length)
+          + "]");
     }
-
   }
 
-  public void endElement(String uri, String localName, String qName) throws RepositoryException {
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#endElement(java.lang.String,
+   *      java.lang.String, java.lang.String)
+   */
+  public void endElement(String uri, String localName, String name) throws RepositoryException {
+    InternalQName elementName = locationFactory.parseJCRName(name).getInternalName();
 
-    if (qName.equals("sv:node")) {
-      tree.pop();
-    } else if (qName.equals("sv:property")) {
-      tree.peek().addProperty(curPropName, curPropValues);
-    } else if (qName.equals("sv:value")) {
-      // no thing to do
-    }
+    if (Constants.SV_NODE.equals(elementName)) {
+      // sv:node element
+      endNode();
+    } else if (Constants.SV_PROPERTY.equals(elementName)) {
+      // sv:property element
 
-  }
-
-  public NodeIterator getNodes(NodeData parentData, String namePattern) throws RepositoryException {
-    List<NodeImpl> childNodes = session.getTransientNodesManager().getChildNodes(parentData, true);
-    ItemFilter filter = new NamePatternFilter(namePattern);
-    ArrayList<NodeData> list = new ArrayList<NodeData>();
-
-    for (NodeImpl item : childNodes) {
-      if (filter.accept(item)) {
-        list.add((NodeData) item.getData());
-      }
-    }
-    return new EntityCollection(list);
-  }
-
-  @Override
-  public void save() throws RepositoryException {
-    buildNode();
-    super.save();
-
-  }
-
-  public void startElement(String uri, String localName, String qName, Map<String, String> atts) throws RepositoryException {
-    if (qName.equals("sv:node")) {
-      String name = "";
-      name = atts.get("sv:name");
-      String relPath;
-      if (!tree.isEmpty()) {
-        relPath = (tree.peek()).getRelPath() + "/" + name;
-      } else {
-        relPath = name;
-      }
-
-      NodeInfo info = new NodeInfo(relPath);
-      tree.push(info);
-      nodeInfos.add(info);
-    } else if (qName.equals("sv:property")) {
-
-      curPropType = ExtendedPropertyType.valueFromName(atts.get("sv:type"));
-      curPropName = atts.get("sv:name");
-      curPropValues = new ArrayList<DecodedValue>();
-    } else if (qName.equals("sv:value")) {
-      DecodedValue curPropValue = new DecodedValue();
-      curPropValues.add(curPropValue);
+      ImportedPropertyData propertyData = endProperty();
+      if (propertyData != null)
+        changesLog.add(new ItemState(propertyData, ItemState.ADDED, true, tree.peek().getQPath()));
+    } else if (Constants.SV_VALUE.equals(elementName)) {
+      // sv:value element
     } else {
-      throw new RepositoryException("'" + qName
-          + "' is not allowed. Only sv:node, sv:property and sv:value are allowed");
+      throw new RepositoryException("invalid element in system view xml document: " + localName);
     }
   }
 
-  private void buildNode() throws RepositoryException {
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#startElement(java.lang.String,
+   *      java.lang.String, java.lang.String, java.util.Map)
+   */
+  public void startElement(String namespaceURI,
+                           String localName,
+                           String name,
+                           Map<String, String> atts) throws RepositoryException {
+    InternalQName elementName = locationFactory.parseJCRName(name).getInternalName();
 
-    Map<String, NodeData> parents = new LinkedHashMap<String, NodeData>();
+    if (Constants.SV_NODE.equals(elementName)) {
+      // sv:node element
 
-    for (int i = 0; i < nodeInfos.size(); i++) {
-      NodeInfo info = nodeInfos.get(i);
-
-      List<InternalQName> mixinTypeNames = new ArrayList<InternalQName>();
-
-      List<ExtendedNodeType> nodeTypes = new ArrayList<ExtendedNodeType>();
-      propsParsed = new ArrayList<ParsedPropertyInfo>();
-      primaryTypeName = null;
-
-      NodeData parentNode = null;
-      String relPathStr = info.getRelPath();
-      String uuid = null;
-
-      uuid = traverseNodeInfo(relPathStr, info, mixinTypeNames, nodeTypes);
-
-      // check UUID Behavior of the import
-
-      boolean isMixReferenceable = isNodeType(Constants.MIX_REFERENCEABLE, nodeTypes);
-      boolean isMixVersionable = false;
-      boolean isContainsVersionhistory = false;
-      String versionHistoryIdentifier = null;
-
-      String baseVersionIdentifier = null;
-
-      if (isMixReferenceable) {
-        isMixVersionable = isNodeType(Constants.MIX_VERSIONABLE, nodeTypes);
-        uuid = validateUuidCollision(uuid);
-        if (uuid == null) {
-          throw new InvalidItemStateException("Impossible state");
-        }
+      // node name (value of sv:name attribute)
+      String svName = getAttribute(atts, Constants.SV_NAME);
+      if (svName == null) {
+        throw new RepositoryException("Missing mandatory sv:name attribute of element sv:node");
       }
 
-      // serach for parent of this rel path
-      int lastPathElem = relPathStr.lastIndexOf("/");
-      if (lastPathElem > 0) {
-        String relPathParentStr = relPathStr.substring(0, lastPathElem);
-        // in case of empty last elem of rel path - JCR will throw an exception
-        // below
-        relPathStr = lastPathElem < relPathStr.length() - 1 ? relPathStr.substring(lastPathElem + 1)
-            : "";
-        NodeData pathParent = parents.get(relPathParentStr);
-        parentNode = pathParent != null ? pathParent : parent;
-      } else {
-        parentNode = parent;
+      if ("jcr:root".equals(svName)) {
+        svName = "";
       }
+      NodeData parentData = null;
 
-      // build current path of the imported node
-      JCRPath path = locationFactory.createJCRPath(locationFactory.createJCRPath(parentNode.getQPath()),
-                                                   relPathStr);
+      parentData = tree.peek();
+      InternalQName currentNodeName = locationFactory.parseJCRName(svName).getInternalName();
+      int nodeIndex = getNodeIndex(parentData, currentNodeName, null);
+      ImportedNodeData newNodeData = new ImportedNodeData(parentData, currentNodeName, nodeIndex);
 
-      validatePath(path, parentNode, relPathStr);
+      newNodeData.setOrderNumber(getNextChildOrderNum(parentData));
+      newNodeData.setIdentifier(IdGenerator.generate());
 
-      // if (mixinTypeNames == null) {
-      // mixinTypeNames = new InternalQName[0];
-      // }
+      changesLog.add(new ItemState(newNodeData, ItemState.ADDED, true, parentData.getQPath()));
 
-      InternalQName jcrName = path.getInternalPath().getName();
-      int nodeIndex = getNodeIndex(parentNode, jcrName);
+      tree.push(newNodeData);
 
-      TransientNodeData newNodeData = TransientNodeData.createNodeData(parentNode,
-                                                                       jcrName,
-                                                                       primaryTypeName,
-                                                                       nodeIndex);
-      newNodeData.setOrderNumber(getNextChildOrderNum(parentNode));
+    } else if (Constants.SV_PROPERTY.equals(elementName)) {
+      // sv:property element
 
-      newNodeData.setMixinTypeNames(mixinTypeNames.toArray(new InternalQName[mixinTypeNames.size()]));
+      currentPropValues = new ArrayList<DecodedValue>();
 
-      if (isMixReferenceable) {
-        newNodeData.setIdentifier(uuid);
+      // property name (value of sv:name attribute)
+      String svName = getAttribute(atts, Constants.SV_NAME);
+      if (svName == null) {
+        throw new RepositoryException("missing mandatory sv:name attribute of element sv:property");
       }
+      currentPropName = locationFactory.parseJCRName(svName).getInternalName();
 
-      itemStatesList.add(new ItemState(newNodeData, ItemState.ADDED, true, parentNode.getQPath()));
-
-      if (log.isDebugEnabled()) {
-        log.debug("node: " + newNodeData.getQPath().getAsString() + ", " + path.getIndex() + ", "
-            + newNodeData.getIdentifier() + ", " + primaryTypeName.getAsString() + ", "
-            + (mixinTypeNames.size() > 0 ? mixinTypeNames.get(0).getAsString() + "..." : ""));
-      }
-
-      for (ParsedPropertyInfo prop : propsParsed) {
-        List<ValueData> vDataList = prop.getValues();
-        if (log.isDebugEnabled()) {
-
-          String vals = "";
-
-          for (ValueData vdata : vDataList) {
-            try {
-              vals += new String(vdata.getAsByteArray(), Constants.DEFAULT_ENCODING)
-                  + (vDataList.lastIndexOf(vdata) != vDataList.size() - 1 ? "," : "");
-
-            } catch (IOException e) {
-              log.error("Debug eror: ", e);
-            }
-            log.debug("prop(2): " + prop.getName().getAsString() + ", [" + vals + "], "
-                + ExtendedPropertyType.nameFromValue(prop.getType()));
-
-          }
-        }
-
-        PropertyData newProperty = null;
-        if (prop.getName().equals(Constants.JCR_UUID) && isMixReferenceable) {
-          newProperty = TransientPropertyData.createPropertyData(newNodeData,
-                                                                 prop.getName(),
-                                                                 prop.getType(),
-                                                                 false,
-                                                                 new TransientValueData(newNodeData.getIdentifier()));
-
-        } else {
-          // determinating is property multivalue;
-          boolean isMultivalue = true;
-
-          PropertyDefinitions defs;
-          try {
-            defs = ntManager.findPropertyDefinitions(prop.getName(),
-                                                     primaryTypeName,
-                                                     mixinTypeNames.toArray(new InternalQName[mixinTypeNames.size()]));
-          } catch (RepositoryException e) {
-            if (!respectPropertyDefinitionsConstraints) {
-              log.warn(e.getLocalizedMessage());
-              continue;
-            }
-            throw e;
-          }
-
-          if (vDataList.size() == 1) {
-            // there is single-value defeniton
-            if (defs.getDefinition(false) != null) {
-              isMultivalue = false;
-            }
-          } else {
-            if ((defs.getDefinition(true) == null) && (defs.getDefinition(false) != null)) {
-              throw new ValueFormatException("Can not assign multiple-values Value to a single-valued property "
-                  + prop.getName());
-            }
-          }
-          log.debug("Import " + prop.getName() + " size=" + vDataList.size() + " isMultivalue="
-              + isMultivalue);
-
-          newProperty = TransientPropertyData.createPropertyData(newNodeData,
-                                                                 prop.getName(),
-                                                                 prop.getType(),
-                                                                 isMultivalue,
-                                                                 vDataList);
-          if (isMixVersionable) {
-            if (prop.getName().equals(Constants.JCR_VERSIONHISTORY)) {
-              try {
-                versionHistoryIdentifier = ((TransientValueData) vDataList.get(0)).getString();
-              } catch (IOException e) {
-                throw new RepositoryException(e);
-              }
-              isContainsVersionhistory = session.getTransientNodesManager()
-                                                .getItemData(versionHistoryIdentifier) != null;
-            } else if (prop.getName().equals(Constants.JCR_BASEVERSION)) {
-              try {
-                baseVersionIdentifier = ((TransientValueData) vDataList.get(0)).getString();
-              } catch (IOException e) {
-                throw new RepositoryException(e);
-              }
-            }
-
-          }
-
-        }
-
-        itemStatesList.add(new ItemState(newProperty, ItemState.ADDED, true, newNodeData.getQPath()));
-
-      }
-
-      if (isMixVersionable && !isContainsVersionhistory) {
-        PlainChangesLogImpl changes = new PlainChangesLogImpl();
-        // using VH helper as for one new VH, all changes in changes log
-        new VersionHistoryDataHelper(newNodeData,
-                                     changes,
-                                     session.getTransientNodesManager(),
-                                     session.getWorkspace().getNodeTypeManager(),
-                                     versionHistoryIdentifier,
-                                     baseVersionIdentifier);
-        for (ItemState state : changes.getAllStates()) {
-          if (state.getData().getQPath().isDescendantOf(Constants.JCR_SYSTEM_PATH, false)) {
-            itemStatesList.add(state);
-          }
-        }
-
-      }
-      parents.put(info.getRelPath(), newNodeData); // add one new parent
-    }
-  }
-
-  private List<InternalQName> reorganizeMixiTypes(List<InternalQName> names) {
-    List<InternalQName> result = new ArrayList<InternalQName>();
-
-    boolean containsMixReferenceable = false;
-    for (InternalQName internalQName : names) {
-      if (Constants.MIX_VERSIONABLE.equals(internalQName)) {
-        if (!containsMixReferenceable) {
-          result.add(Constants.MIX_REFERENCEABLE);
-          containsMixReferenceable = true;
-        }
-        continue;
-      }
-      if (Constants.MIX_REFERENCEABLE.equals(internalQName))
-        containsMixReferenceable = true;
-      result.add(internalQName);
-    }
-    return result;
-  }
-
-  private String traverseNodeInfo(String path,
-                                  NodeInfo info,
-                                  List<InternalQName> mixinTypeNames,
-                                  List<ExtendedNodeType> nodeTypes) throws PathNotFoundException,
-      RepositoryException {
-
-    String uuid = null;
-    List<PropertyInfo> props = info.getProperties();
-    // boolean containsMixReferenceable = false;
-    for (PropertyInfo prop : props) {
-      InternalQName propName = locationFactory.parseJCRName(prop.getName()).getInternalName();
-      // if (Constants.JCR_LOCKISDEEP.equals(propName) ||
-      // Constants.JCR_LOCKOWNER.equals(propName)
-      // || Constants.JCR_VERSIONHISTORY.equals(propName)
-      // || Constants.JCR_BASEVERSION.equals(propName)
-      // || Constants.JCR_ISCHECKEDOUT.equals(propName)
-      // || Constants.JCR_PREDECESSORS.equals(propName)
-      // || Constants.JCR_MERGEFAILED.equals(propName)) {
-      // continue;
-      // }
-      List<DecodedValue> valueList = prop.getValues();
-
-      if (propName.equals(Constants.JCR_PRIMARYTYPE)) {
-        if (valueList.size() > 0) {
-          primaryTypeName = locationFactory.parseJCRName(new String(valueList.get(0).toString()))
-                                           .getInternalName();
-          nodeTypes.add(ntManager.getNodeType(primaryTypeName));
-        } else {
-          log.warn("Imported property " + path + "/jcr:primaryType has empty value");
-        }
-      } else if (propName.equals(Constants.JCR_UUID)) {
-        if (valueList.size() > 0) {
-          uuid = new String(valueList.get(0).toString());
-        } else {
-          log.warn("Imported property " + path + "/jcr:uuid has empty value");
-        }
-      }
-
-      List<ValueData> values = new ArrayList<ValueData>(valueList.size());
-      for (int k = 0; k < valueList.size(); k++) {
-
-        if (prop.getType() == PropertyType.BINARY) {
-          try {
-            InputStream vStream = valueList.get(k).getInputStream();
-
-            TransientValueData binaryValue = new TransientValueData(vStream);
-            binaryValue.setMaxBufferSize(session.getValueFactory().getMaxBufferSize());
-            binaryValue.setFileCleaner(session.getValueFactory().getFileCleaner());
-            // Call to spool file into tmp
-            binaryValue.getAsStream();
-            vStream.close();
-            valueList.get(k).remove();
-            values.add(binaryValue);
-
-          } catch (IOException e) {
-            throw new RepositoryException(e);
-          }
-
-        } else {
-          String val = new String(valueList.get(k).toString());
-          values.add(((BaseValue) session.getValueFactory().createValue(val, prop.getType())).getInternalData());
-          if (propName.equals(Constants.JCR_MIXINTYPES)) {
-            InternalQName mixinName = locationFactory.parseJCRName(val).getInternalName();
-            mixinTypeNames.add(mixinName);
-            nodeTypes.add(ntManager.getNodeType(mixinName));
-          }
-        }
-      }
-
-      if (log.isDebugEnabled()) {
-        log.debug("prop(1): " + prop.getName() + ", "
-            + ExtendedPropertyType.nameFromValue(prop.getType()));
-      }
-
-      propsParsed.add(new ParsedPropertyInfo(propName, prop.getType(), values));
-    }
-    return uuid;
-  }
-
-  private void validatePath(JCRPath path, NodeData parentNode, String relPathStr) {
-    int depthIndex = path.getDepth() - parentNode.getQPath().getDepth();
-    PathElement[] relPathElems = path.getRelPath(depthIndex);
-    if (log.isDebugEnabled()) {
-      log.debug("BUILD NODE, PREPARE: '" + parentNode.getQPath().getAsString() + "' + '"
-          + relPathStr + "', check from depth: " + depthIndex);
-    }
-    for (int depth = 0; depth < relPathElems.length; depth++) {
-      PathElement pathElement = relPathElems[depth];
-      if (log.isDebugEnabled()) {
-        log.debug("BUILD NODE, NODE: '" + pathElement.getAsString(true) + "', depth: " + depth);
+      // property type (sv:type attribute)
+      String type = getAttribute(atts, Constants.SV_TYPE);
+      if (type == null) {
+        throw new RepositoryException("missing mandatory sv:type attribute of element sv:property");
       }
       try {
-
-        NodeIterator snsNodes = getNodes(parentNode, pathElement.getAsString());
-        if (depth < relPathElems.length - 1) {
-          relPathElems[depth] = pathElement = pathElement.clone((int) snsNodes.getSize());
-
-          try {
-            parentNode = (NodeData) session.getTransientNodesManager()
-                                           .getItemData(parentNode,
-                                                        new QPathEntry(pathElement.getNamespace(),
-                                                                       pathElement.getName(),
-                                                                       pathElement.getIndex()));
-
-            if (log.isDebugEnabled()) {
-              log.debug("BUILD NODE, <<< NEW ANCESTOR for RELATIVE path >>> : '"
-                  + parentNode.getQPath().getAsString() + "', depth: " + depth + ", path: '"
-                  + path.getAsString(true) + "'");
-            }
-          } catch (PathNotFoundException e) {
-            log.warn("Next parent not found: '" + parentNode.getQPath().getAsString()
-                + "', depth: " + depth + ", relPath: '" + path.getAsString(true) + "'");
-          }
-        } else if (depth == relPathElems.length - 1) {
-          relPathElems[depth] = pathElement = pathElement.clone((int) snsNodes.getSize() + 1);
-        }
-        if (log.isDebugEnabled()) {
-          log.debug("BUILD NODE, FIX ANCESTOR: '" + parentNode.getQPath().getAsString()
-              + "', depth: " + depth + ", path: '" + path.getAsString(true) + "'");
-        }
-      } catch (PathNotFoundException e) {
-        log.warn("Node not found: '" + parentNode.getQPath().getAsString() + "', depth: " + depth
-            + ", relPath: '" + path.getAsString(true) + "'");
-      } catch (RepositoryException e) {
-        log.warn("Error of same-name-sibling nodes processing: " + e.getMessage() + ". Node: "
-            + parentNode.getQPath().getAsString());
-        // if exception will be thrown a node will be created at relPath
+        currentPropType = ExtendedPropertyType.valueFromName(type);
+      } catch (IllegalArgumentException e) {
+        throw new RepositoryException("Unknown property type: " + type, e);
       }
+    } else if (Constants.SV_VALUE.equals(elementName)) {
+      // sv:value element
+
+      currentPropValues.add(new DecodedValue());
+
+    } else {
+      throw new RepositoryException("Unknown element " + elementName.getAsString());
     }
-  }
-
-  private String validateUuidCollision(String uuid) throws AccessDeniedException,
-      RepositoryException {
-    String retUuid = uuid != null ? new String(uuid) : null;
-    ItemDataRemoveVisitor visitor = null;
-
-    List<ItemState> removedStates = null;
-    ItemImpl sameUuidItem = session.getTransientNodesManager().getItemByIdentifier(uuid, true);
-    if (sameUuidItem != null) {
-      switch (uuidBehavior) {
-      case ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW:
-        // Incoming referenceable nodes are assigned newly created UUIDs
-        // upon addition to the workspace. As a result UUID collisions
-        // never occur.
-
-        // reset UUID and it will be autocreated in session
-        retUuid = IdGenerator.generate();
-        break;
-      case ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING:
-        // If an incoming referenceable node has the same UUID as a node
-        // already existing in the workspace then the already existing
-        // node (and its subtree) is removed from wherever it may be in
-        // the workspace before the incoming node is added. Note that this
-        // can result in nodes �disappearing� from locations in the
-        // workspace that are remote from the location to which the
-        // incoming subtree is being written.
-        if (!sameUuidItem.isNode() || !((NodeImpl) sameUuidItem).isNodeType("mix:referenceable")) {
-          throw new RepositoryException("An incoming referenceable node has the same "
-              + "UUID as a identifier of non mix:referenceable"
-              + " node already existing in the workspace!");
-        }
-
-        visitor = new ItemDataRemoveVisitor(session.getTransientNodesManager());
-        if (!sameUuidItem.isNode()) {
-          throw new RepositoryException("the same uuid item "
-              + sameUuidItem.getData().getQPath().getAsString() + "is not a node");
-        }
-        sameUuidItem.getData().accept(visitor);
-        removedStates = visitor.getRemovedStates();
-        itemStatesList.addAll(removedStates);
-        break;
-      case ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING:
-        // If an incoming referenceable node has the same UUID as a node
-        // already existing in the workspace, then the already existing
-        // node is replaced by the incoming node in the same position as
-        // the existing node. Note that this may result in the incoming
-        // subtree being disaggregated and �spread around� to different
-        // locations in the workspace. In the most extreme case this
-        // behavior may result in no node at all being added as child of
-        // parentAbsPath. This will occur if the topmost element of the
-        // incoming XML has the same UUID as an existing node elsewhere in
-        // the workspace.
-        if (!sameUuidItem.isNode() || !((NodeImpl) sameUuidItem).isNodeType("mix:referenceable")) {
-          throw new RepositoryException("An incoming referenceable node has the same "
-              + "UUID as a identifier of non mix:referenceable"
-              + " node already existing in the workspace!");
-        }
-        // replace in same location
-
-        visitor = new ItemDataRemoveVisitor(session.getTransientNodesManager());
-        if (!sameUuidItem.isNode()) {
-          throw new RepositoryException("the same uuid item "
-              + sameUuidItem.getData().getQPath().getAsString() + "is not a node");
-        }
-        sameUuidItem.getData().accept(visitor);
-        removedStates = visitor.getRemovedStates();
-        itemStatesList.addAll(removedStates);
-        parent = (NodeData) session.getTransientNodesManager()
-                                   .getItemData(sameUuidItem.getData().getParentIdentifier());
-        break;
-      case ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW:
-        // If an incoming referenceable node has the same UUID as a node
-        // already existing in the workspace then a SAXException is thrown
-        // by the ContentHandler during deserialization.
-
-        if (!sameUuidItem.isNode()) {
-          throw new RepositoryException("The same uuid item "
-              + sameUuidItem.getData().getQPath().getAsString() + "is not a node");
-        }
-        throw new ItemExistsException("An incoming referenceable node has the same UUID "
-            + "as a node already existing in the workspace!");
-      default:
-      }
-    }
-    return retUuid;
-  }
-
-  private class BufferedDecoder extends Base64.Decoder {
-    private final static int DEFAULT_BUFFER_SIZE = 4096;
-
-    //
-    private final int        BUFFER_SIZE;
-
-    private File             fileBuffer;
-
-    private OutputStream     out;
-
-    public BufferedDecoder() {
-      super(DEFAULT_BUFFER_SIZE);
-      BUFFER_SIZE = DEFAULT_BUFFER_SIZE;
-      out = new ByteArrayOutputStream(DEFAULT_BUFFER_SIZE);
-    }
-
-    public BufferedDecoder(int bufferSize) {
-      super(bufferSize);
-      BUFFER_SIZE = bufferSize;
-      out = new ByteArrayOutputStream(DEFAULT_BUFFER_SIZE);
-    }
-
-    public InputStream getInputStream() throws IOException {
-      flush();
-      if (out instanceof ByteArrayOutputStream) {
-        return new ByteArrayInputStream(((ByteArrayOutputStream) out).toByteArray());
-      } else if (out instanceof BufferedOutputStream) {
-
-        out.close();
-        return new BufferedInputStream(new FileInputStream(fileBuffer));
-      } else {
-        throw new IOException("unexpected change of buffer");
-      }
-    }
-
-    public void remove() throws IOException {
-      if ((fileBuffer != null) && fileBuffer.exists()) {
-        if (!fileBuffer.delete()) {
-          throw new IOException("Cannot remove file " + fileBuffer.getAbsolutePath()
-              + " Close all streams.");
-        }
-      }
-    }
-
-    @Override
-    public String toString() {
-      if (out instanceof ByteArrayOutputStream) {
-        return ((ByteArrayOutputStream) out).toString();
-      } else if (out instanceof BufferedOutputStream) {
-        try {
-          out.close();
-          BufferedInputStream is = new BufferedInputStream(new FileInputStream(fileBuffer));
-          // StringBuffer stringBuffer = new StringBuffer((int)
-          // fileBuffer.length());
-          StringBuffer fileData = new StringBuffer(1000);
-
-          byte[] buf = new byte[BUFFER_SIZE];
-          int numRead = 0;
-          while ((numRead = is.read(buf)) != -1) {
-
-            fileData.append(new String(buf, 0, numRead));
-
-          }
-          is.close();
-          return fileData.toString();
-        } catch (IOException e) {
-          return null;
-        }
-
-      } else {
-        return null;
-      }
-    }
-
-    private void swapBuffers() throws IOException {
-      byte[] data = ((ByteArrayOutputStream) out).toByteArray();
-      fileBuffer = File.createTempFile("decoderBuffer", ".tmp");
-      fileBuffer.deleteOnExit();
-      out = new BufferedOutputStream(new FileOutputStream(fileBuffer), BUFFER_SIZE);
-      out.write(data);
-    }
-
-    @Override
-    protected void writeBuffer(byte[] buffer, int start, int length) throws IOException {
-      if (out instanceof ByteArrayOutputStream) {
-        if (((ByteArrayOutputStream) out).size() + length > BUFFER_SIZE) {
-          swapBuffers();
-        }
-      }
-      out.write(buffer, start, length);
-    }
-
   }
 
   /**
-   * Temporary class for swapping values and decode binary values during import.
-   * 
-   * @author ksm
+   * @return
+   * @throws PathNotFoundException
+   * @throws RepositoryException
+   * @throws NoSuchNodeTypeException
    */
-  private class DecodedValue {
-    private BufferedDecoder decoder;
+  private ImportedPropertyData endMixinTypes() throws PathNotFoundException,
+                                              RepositoryException,
+                                              NoSuchNodeTypeException {
+    ImportedPropertyData propertyData;
+    InternalQName[] mixinNames = new InternalQName[currentPropValues.size()];
+    List<ValueData> values = new ArrayList<ValueData>(currentPropValues.size());
+    ImportedNodeData currentNodeInfo = (ImportedNodeData) tree.peek();
+    for (int i = 0; i < currentPropValues.size(); i++) {
 
-    private StringBuffer    stringBuffer;
+      String value = currentPropValues.get(i).toString();
 
-    public DecodedValue() {
-      super();
-      this.stringBuffer = new StringBuffer();
+      mixinNames[i] = locationFactory.parseJCRName(value).getInternalName();
+      currentNodeInfo.addNodeType((ntManager.getNodeType(mixinNames[i])));
+      values.add(new TransientValueData(value.toString()));
     }
 
-    /**
-     * @return Base64 decoder. It is write decoded incoming data into the
-     *         temporary file
-     * @throws IOException
-     */
-    public Decoder getBinaryDecoder() throws IOException {
-      if (decoder == null) {
-        decoder = new BufferedDecoder();
-        stringBuffer = null;
-      }
-      return decoder;
-    }
+    currentNodeInfo.setMixinTypeNames(mixinNames);
 
-    /**
-     * @return InputStream from decoded file
-     * @throws IOException
-     */
-    public InputStream getInputStream() throws IOException {
-      if (decoder == null) {
-        return new ByteArrayInputStream(new byte[0]);
-      }
+    propertyData = new ImportedPropertyData(QPath.makeChildPath(currentNodeInfo.getQPath(),
+                                                                currentPropName),
+                                            IdGenerator.generate(),
+                                            0,
+                                            currentPropType,
+                                            currentNodeInfo.getIdentifier(),
+                                            true);
+    propertyData.setValues(parseValues());
+    return propertyData;
+  }
 
-      return decoder.getInputStream();
-    }
+  /**
+   * @throws RepositoryException
+   */
+  private void endNode() throws RepositoryException {
+    ImportedNodeData currentNodeInfo = (ImportedNodeData) tree.pop();
 
-    public StringBuffer getStringBuffer() {
-      return stringBuffer;
-    }
+    currentNodeInfo.setMixinTypeNames(currentNodeInfo.getMixinTypeNames());
 
-    /**
-     * Removes all temporary variables and files
-     * 
-     * @throws IOException
-     */
-    public void remove() throws IOException {
-
-      if (decoder != null) {
-        decoder.remove();
-        decoder = null;
-      }
-    }
-
-    @Override
-    public String toString() {
-      if (decoder != null) {
-        return decoder.toString();
+    if (currentNodeInfo.isMixVersionable() && !currentNodeInfo.isContainsVersionhistory()) {
+      PlainChangesLogImpl changes = new PlainChangesLogImpl();
+      // using VH helper as for one new VH, all changes in changes log
+      new VersionHistoryDataHelper(currentNodeInfo,
+                                   changes,
+                                   session.getTransientNodesManager(),
+                                   session.getWorkspace().getNodeTypeManager(),
+                                   currentNodeInfo.getVersionHistoryIdentifier(),
+                                   currentNodeInfo.getBaseVersionIdentifier());
+      for (ItemState state : changes.getAllStates()) {
+        if (state.getData().getQPath().isDescendantOf(Constants.JCR_SYSTEM_PATH, false)) {
+          changesLog.add(state);
+        }
       }
 
-      return stringBuffer.toString();
     }
   }
 
-  private class NodeInfo {
-    private final List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
+  /**
+   * @return
+   * @throws PathNotFoundException
+   * @throws RepositoryException
+   * @throws NoSuchNodeTypeException
+   */
+  private ImportedPropertyData endPrimaryType() throws PathNotFoundException,
+                                               RepositoryException,
+                                               NoSuchNodeTypeException {
+    ImportedPropertyData propertyData;
+    String sName = currentPropValues.get(0).toString();
+    InternalQName primaryTypeName = locationFactory.parseJCRName(sName).getInternalName();
 
-    private final String             relPath;
+    ImportedNodeData nodeData = (ImportedNodeData) tree.peek();
 
-    public NodeInfo(String relPath) {
-      this.relPath = relPath;
-    }
+    //
+    nodeData.addNodeType((ntManager.getNodeType(primaryTypeName)));
+    nodeData.setPrimaryTypeName(primaryTypeName);
 
-    public void addProperty(String name, List<DecodedValue> strValues) {
-      PropertyInfo prop = new PropertyInfo(name, curPropType, strValues);
-      properties.add(prop);
-    }
+    propertyData = new ImportedPropertyData(QPath.makeChildPath(nodeData.getQPath(),
+                                                                currentPropName),
+                                            IdGenerator.generate(),
+                                            0,
+                                            currentPropType,
+                                            nodeData.getIdentifier(),
+                                            false);
+    propertyData.setValues(parseValues());
 
-    public List<PropertyInfo> getProperties() {
-      return properties;
-    }
-
-    public String getRelPath() {
-      return relPath;
-    }
-
+    return propertyData;
   }
 
-  private class ParsedPropertyInfo {
+  /**
+   * @return
+   * @throws PathNotFoundException
+   * @throws RepositoryException
+   * @throws NoSuchNodeTypeException
+   * @throws IllegalPathException
+   * @throws ValueFormatException
+   */
+  private ImportedPropertyData endProperty() throws PathNotFoundException,
+                                            RepositoryException,
+                                            NoSuchNodeTypeException,
+                                            IllegalPathException,
+                                            ValueFormatException {
+    ImportedPropertyData propertyData = null;
+    if (Constants.JCR_PRIMARYTYPE.equals(currentPropName)) {
 
-    private final InternalQName   name;
+      propertyData = endPrimaryType();
 
-    private final int             type;
+    } else if (Constants.JCR_MIXINTYPES.equals(currentPropName)) {
+      propertyData = endMixinTypes();
 
-    private final List<ValueData> values;
+    } else if (Constants.JCR_UUID.equals(currentPropName)) {
+      propertyData = endUuid();
 
-    public ParsedPropertyInfo(InternalQName name, int type, List<ValueData> values) {
-      super();
-      this.name = name;
-      this.type = type;
-      this.values = values;
+    } else {
+      ImportedNodeData currentNodeInfo = (ImportedNodeData) tree.peek();
+      List<ValueData> values = parseValues();
+
+      // determinating is property multivalue;
+      boolean isMultivalue = true;
+
+      PropertyDefinitions defs;
+      try {
+        defs = ntManager.findPropertyDefinitions(currentPropName,
+                                                 currentNodeInfo.getPrimaryTypeName(),
+                                                 currentNodeInfo.getMixinTypeNames());
+      } catch (RepositoryException e) {
+        if (!respectPropertyDefinitionsConstraints) {
+          log.warn(e.getLocalizedMessage());
+          return null;
+        }
+        throw e;
+      }
+
+      if (values.size() == 1) {
+        // there is single-value defeniton
+        if (defs.getDefinition(false) != null) {
+          isMultivalue = false;
+        }
+      } else {
+        if ((defs.getDefinition(true) == null) && (defs.getDefinition(false) != null)) {
+          throw new ValueFormatException("Can not assign multiple-values "
+              + "Value to a single-valued property " + currentPropName.getName());
+        }
+      }
+      log.debug("Import " + currentPropName.getName() + " size=" + currentPropValues.size()
+          + " isMultivalue=" + isMultivalue);
+
+      propertyData = new ImportedPropertyData(QPath.makeChildPath(currentNodeInfo.getQPath(),
+                                                                  currentPropName),
+                                              IdGenerator.generate(),
+                                              0,
+                                              currentPropType,
+                                              currentNodeInfo.getIdentifier(),
+                                              isMultivalue);
+      propertyData.setValues(values);
+
+      if (currentNodeInfo.isMixVersionable())
+        endVersionable(currentNodeInfo, values);
+
+    }
+    return propertyData;
+  }
+
+  /**
+   * @return
+   * @throws RepositoryException
+   * @throws PathNotFoundException
+   * @throws IllegalPathException
+   */
+  private ImportedPropertyData endUuid() throws RepositoryException,
+                                        PathNotFoundException,
+                                        IllegalPathException {
+    ImportedPropertyData propertyData;
+    ImportedNodeData currentNodeInfo = (ImportedNodeData) tree.pop();
+
+    currentNodeInfo.setMixReferenceable(isNodeType(Constants.MIX_REFERENCEABLE,
+                                                   currentNodeInfo.getCurrentNodeTypes()));
+    String identifier = null;
+    if (currentNodeInfo.isMixReferenceable()) {
+      currentNodeInfo.setMixVersionable(isNodeType(Constants.MIX_VERSIONABLE,
+                                                   currentNodeInfo.getCurrentNodeTypes()));
+      identifier = validateUuidCollision(currentPropValues.get(0).toString());
+      if (identifier != null) {
+        boolean reloadSNS = uuidBehavior == ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING
+            || uuidBehavior == ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING;
+        QPath newPath = null;
+        if (reloadSNS) {
+          NodeData currentParentData = tree.peek();
+          // current node already in list
+          int nodeIndex = getNodeIndex(currentParentData,
+                                       currentNodeInfo.getQName(),
+                                       currentNodeInfo.getIdentifier());
+          newPath = QPath.makeChildPath(currentParentData.getQPath(),
+                                        currentNodeInfo.getQName(),
+                                        nodeIndex);
+          currentNodeInfo.setQPath(newPath);
+        }
+        String oldIdentifer = currentNodeInfo.getIdentifier();
+        // update parentIdentifer
+        for (ItemState state : changesLog.getAllStates()) {
+          ItemData data = state.getData();
+          if (data.getParentIdentifier().equals(oldIdentifer)) {
+            ((ImportedItemData) data).setParentIdentifer(identifier);
+            if (reloadSNS)
+              ((ImportedItemData) data).setQPath(QPath.makeChildPath(newPath, data.getQPath()
+                                                                                  .getName()));
+
+          }
+
+        }
+
+        currentNodeInfo.setIdentifier(identifier);
+
+      }
+      if (uuidBehavior == ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING)
+        currentNodeInfo.setParentIdentifer(tree.peek().getIdentifier());
     }
 
-    public InternalQName getName() {
-      return name;
-    }
+    propertyData = new ImportedPropertyData(QPath.makeChildPath(currentNodeInfo.getQPath(),
+                                                                currentPropName),
+                                            IdGenerator.generate(),
+                                            0,
+                                            currentPropType,
+                                            currentNodeInfo.getIdentifier(),
+                                            false);
+    propertyData.setValue(new TransientValueData(currentNodeInfo.getIdentifier()));
 
-    public int getType() {
-      return type;
-    }
+    tree.push(currentNodeInfo);
+    return propertyData;
+  }
 
-    public List<ValueData> getValues() {
-      return values;
+  /**
+   * @param currentNodeInfo
+   * @param values
+   * @throws RepositoryException
+   */
+  private void endVersionable(ImportedNodeData currentNodeInfo, List<ValueData> values) throws RepositoryException {
+    {
+      if (currentPropName.equals(Constants.JCR_VERSIONHISTORY)) {
+        String versionHistoryIdentifier = null;
+        try {
+          versionHistoryIdentifier = ((TransientValueData) values.get(0)).getString();
+
+        } catch (IOException e) {
+          throw new RepositoryException(e);
+        }
+        currentNodeInfo.setVersionHistoryIdentifier(versionHistoryIdentifier);
+        currentNodeInfo.setContainsVersionhistory(session.getTransientNodesManager()
+                                                         .getItemData(versionHistoryIdentifier) != null);
+
+      } else if (currentPropName.equals(Constants.JCR_BASEVERSION)) {
+        try {
+          currentNodeInfo.setBaseVersionIdentifier(((TransientValueData) values.get(0)).getString());
+        } catch (IOException e) {
+          throw new RepositoryException(e);
+        }
+      }
+
     }
   }
 
-  private class PropertyInfo {
+  /**
+   * Returns the value of the named XML attribute.
+   * 
+   * @param attributes set of XML attributes
+   * @param name attribute name
+   * @return attribute value, or <code>null</code> if the named attribute is
+   *         not found
+   * @throws RepositoryException
+   */
 
-    private final String             name;
+  private String getAttribute(Map<String, String> attributes, InternalQName name) throws RepositoryException {
+    JCRName jname = locationFactory.createJCRName(name);
+    return attributes.get(jname.getAsString());
+  }
 
-    private final int                type;
+  /**
+   * Returns the list of ValueData for current property
+   * 
+   * @return
+   * @throws RepositoryException
+   */
+  private List<ValueData> parseValues() throws RepositoryException {
+    List<ValueData> values = new ArrayList<ValueData>(currentPropValues.size());
+    for (int k = 0; k < currentPropValues.size(); k++) {
 
-    private final List<DecodedValue> values;
+      if (currentPropType == PropertyType.BINARY) {
+        try {
+          InputStream vStream = currentPropValues.get(k).getInputStream();
 
-    public PropertyInfo(String name, int type, List<DecodedValue> values) {
-      this.name = name;
-      this.type = type;
-      this.values = values;
+          TransientValueData binaryValue = new TransientValueData(vStream);
+          binaryValue.setMaxBufferSize(session.getValueFactory().getMaxBufferSize());
+          binaryValue.setFileCleaner(session.getValueFactory().getFileCleaner());
+          // Call to spool file into tmp
+          binaryValue.getAsStream();
+          vStream.close();
+          currentPropValues.get(k).remove();
+          values.add(binaryValue);
+
+        } catch (IOException e) {
+          throw new RepositoryException(e);
+        }
+
+      } else {
+        String val = new String(currentPropValues.get(k).toString());
+        values.add(((BaseValue) session.getValueFactory().createValue(val, currentPropType)).getInternalData());
+      }
     }
 
-    /**
-     * @return Returns the name.
-     */
-    public String getName() {
-      return name;
-    }
+    return values;
 
-    /**
-     * @return Returns the type.
-     */
-    public int getType() {
-      return type;
-    }
-
-    /**
-     * @return Returns the values.
-     */
-    public List<DecodedValue> getValues() {
-      return values;
-    }
   }
 }

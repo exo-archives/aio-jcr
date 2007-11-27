@@ -22,7 +22,7 @@ import org.xml.sax.SAXParseException;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class ContentHandlerImporter implements ContentHandler,ErrorHandler {
+public class ContentHandlerImporter implements ContentHandler, ErrorHandler {
   private Importer          importer;
 
   private final NodeImpl    parent;
@@ -31,9 +31,12 @@ public class ContentHandlerImporter implements ContentHandler,ErrorHandler {
 
   private final int         uuidBehavior;
 
-  private final boolean respectPropertyDefinitionsConstraints;
+  private final boolean     respectPropertyDefinitionsConstraints;
 
-  public ContentHandlerImporter(XmlSaveType saveType, NodeImpl parent, int uuidBehavior,boolean respectPropertyDefinitionsConstraints) {
+  public ContentHandlerImporter(XmlSaveType saveType,
+                                NodeImpl parent,
+                                int uuidBehavior,
+                                boolean respectPropertyDefinitionsConstraints) {
     super();
     this.saveType = saveType;
     this.uuidBehavior = uuidBehavior;
@@ -65,8 +68,9 @@ public class ContentHandlerImporter implements ContentHandler,ErrorHandler {
     try {
       importer.save();
     } catch (RepositoryException e) {
+      e.printStackTrace();
       throw new SAXException(e);
-    }catch (IllegalStateException e) {
+    } catch (IllegalStateException e) {
       throw new SAXException(e);
     }
 
@@ -93,6 +97,16 @@ public class ContentHandlerImporter implements ContentHandler,ErrorHandler {
    * @see org.xml.sax.ContentHandler#endPrefixMapping(java.lang.String)
    */
   public void endPrefixMapping(String arg0) throws SAXException {
+    // TODO Auto-generated method stub
+
+  }
+
+  public void error(SAXParseException exception) throws SAXException {
+    // TODO Auto-generated method stub
+
+  }
+
+  public void fatalError(SAXParseException exception) throws SAXException {
     // TODO Auto-generated method stub
 
   }
@@ -144,7 +158,10 @@ public class ContentHandlerImporter implements ContentHandler,ErrorHandler {
    * @see org.xml.sax.ContentHandler#startDocument()
    */
   public void startDocument() throws SAXException {
-    this.importer = new NeutralImporter(parent, uuidBehavior, saveType, respectPropertyDefinitionsConstraints);
+    this.importer = new NeutralImporter(parent,
+                                        uuidBehavior,
+                                        saveType,
+                                        respectPropertyDefinitionsConstraints);
 
   }
 
@@ -164,7 +181,7 @@ public class ContentHandlerImporter implements ContentHandler,ErrorHandler {
 
       importer.startElement(uri, localName, qName, attribute);
     } catch (RepositoryException e) {
-      //e.printStackTrace();
+      // e.printStackTrace();
       throw new SAXException(e);
     }
 
@@ -181,19 +198,9 @@ public class ContentHandlerImporter implements ContentHandler,ErrorHandler {
 
   }
 
-  public void error(SAXParseException exception) throws SAXException {
-    // TODO Auto-generated method stub
-    
-  }
-
-  public void fatalError(SAXParseException exception) throws SAXException {
-    // TODO Auto-generated method stub
-    
-  }
-
   public void warning(SAXParseException exception) throws SAXException {
     // TODO Auto-generated method stub
-    
+
   }
 
 }
