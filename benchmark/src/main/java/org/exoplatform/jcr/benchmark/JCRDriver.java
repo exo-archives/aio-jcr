@@ -39,7 +39,7 @@ public class JCRDriver extends JapexDriverBase {
   protected JCRTestContext context;
 
   private JCRTestBase      test;
-  
+
   @Override
   public void initializeDriver() {
     if (!hasParam("jcr.initializer"))
@@ -74,13 +74,13 @@ public class JCRDriver extends JapexDriverBase {
   @Override
   public void prepare(final TestCase tc) {
     try {
-      System.out.println("Start...");
+      //System.out.println("Start...");
       initContext(tc, context);
-      System.out.println("initContext done...");
+      //System.out.println("initContext done...");
       test = testInstance(tc);
-      System.out.println("testInstance done...");
+      //System.out.println("testInstance done...");
       test.doPrepare(tc, context);
-      System.out.println("doPrepare done...");
+      //System.out.println("doPrepare done...");
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
@@ -112,7 +112,7 @@ public class JCRDriver extends JapexDriverBase {
       throw new RuntimeException(e);
     }
   }
-  
+
   private synchronized JCRTestBase testInstance(TestCase tc) {
 
     if (!tc.hasParam("exo.testClass"))
