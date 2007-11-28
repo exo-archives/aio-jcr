@@ -22,7 +22,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class ImportedNodeData extends TransientNodeData implements ImportedItemData {
+public class ImportNodeData extends TransientNodeData implements ImportItemData {
   /**
    * 
    */
@@ -63,7 +63,7 @@ public class ImportedNodeData extends TransientNodeData implements ImportedItemD
    * @param name
    * @param index
    */
-  public ImportedNodeData(ItemData parent, InternalQName name, int index) {
+  public ImportNodeData(ItemData parent, InternalQName name, int index) {
     super();
     this.qpath = QPath.makeChildPath(parent.getQPath(), name, index);
     this.parentIdentifier = parent.getIdentifier();
@@ -79,7 +79,7 @@ public class ImportedNodeData extends TransientNodeData implements ImportedItemD
    * @param parentIdentifier
    * @param acl
    */
-  public ImportedNodeData(QPath path,
+  public ImportNodeData(QPath path,
                           String identifier,
                           int version,
                           InternalQName primaryTypeName,
@@ -223,8 +223,8 @@ public class ImportedNodeData extends TransientNodeData implements ImportedItemD
     this.versionHistoryIdentifier = versionHistoryIdentifier;
   }
 
-  public static ImportedNodeData createCopy(TransientNodeData source) {
-    return new ImportedNodeData(source.getQPath(),
+  public static ImportNodeData createCopy(TransientNodeData source) {
+    return new ImportNodeData(source.getQPath(),
                                 source.getIdentifier(),
                                 source.getPersistedVersion(),
                                 source.getPrimaryTypeName(),

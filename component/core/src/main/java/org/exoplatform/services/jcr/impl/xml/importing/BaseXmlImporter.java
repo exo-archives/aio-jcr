@@ -19,6 +19,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.PropertyDefinition;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.ext.action.InvocationContext;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -48,13 +49,15 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: ImporterBase.java 13421 2007-03-15 10:46:47Z geaz $
  */
-public abstract class BaseXmlImporter implements Importer {
+public abstract class BaseXmlImporter implements ContentImporter {
   /**
    * 
    */
   private final Log                   log  = ExoLogger.getLogger("jcr.ImporterBase");
 
   private final XmlSaveType           saveType;
+
+  protected final InvocationContext   context;
 
   protected final Stack<NodeData>     tree = new Stack<NodeData>();
 
@@ -71,15 +74,17 @@ public abstract class BaseXmlImporter implements Importer {
 
   protected final int                 uuidBehavior;
 
-  protected final boolean             respectPropertyDefinitionsConstraints;
+  // protected final boolean respectPropertyDefinitionsConstraints;
 
   public BaseXmlImporter(NodeImpl parent,
                          int uuidBehavior,
                          XmlSaveType saveType,
-                         boolean respectPropertyDefinitionsConstraints) {
+                         InvocationContext context) {
 
     this.saveType = saveType;
-    this.respectPropertyDefinitionsConstraints = respectPropertyDefinitionsConstraints;
+    this.context = context;
+    // this.respectPropertyDefinitionsConstraints =
+    // respectPropertyDefinitionsConstraints;
     this.session = parent.getSession();
     this.ntManager = (NodeTypeManagerImpl) session.getRepository().getNodeTypeManager();
     this.locationFactory = session.getLocationFactory();
@@ -88,13 +93,17 @@ public abstract class BaseXmlImporter implements Importer {
     this.changesLog = new PlainChangesLogImpl(session.getId());
   }
 
+  /**
+   * @param parentData
+   * @return
+   */
   public int getNextChildOrderNum(NodeData parentData) {
     int max = -1;
 
     for (ItemState itemState : changesLog.getAllStates()) {
-      if (itemState.getData().getParentIdentifier().equals(parentData.getIdentifier())
-          && itemState.getData().isNode()) {
-        int cur = ((NodeData) itemState.getData()).getOrderNumber();
+      ItemData stateData = itemState.getData();
+      if (isParent(stateData, parentData) && stateData.isNode()) {
+        int cur = ((NodeData) stateData).getOrderNumber();
         if (cur > max)
           max = cur;
       }
@@ -102,6 +111,15 @@ public abstract class BaseXmlImporter implements Importer {
     return ++max;
   }
 
+  /**
+   * @param parentData
+   * @param name
+   * @param skipIdentifier
+   * @return
+   * @throws PathNotFoundException
+   * @throws IllegalPathException
+   * @throws RepositoryException
+   */
   public int getNodeIndex(NodeData parentData, InternalQName name, String skipIdentifier) throws PathNotFoundException,
                                                                                          IllegalPathException,
                                                                                          RepositoryException {
@@ -166,10 +184,19 @@ public abstract class BaseXmlImporter implements Importer {
     return newIndex;
   }
 
+  /**
+   * @return
+   */
   public XmlSaveType getSaveType() {
     return saveType;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#registerNamespace(java.lang.String,
+   *      java.lang.String)
+   */
   public void registerNamespace(String prefix, String uri) {
     try {
       session.getWorkspace().getNamespaceRegistry().getPrefix(uri);
@@ -187,27 +214,30 @@ public abstract class BaseXmlImporter implements Importer {
 
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#save()
+   */
   public void save() throws RepositoryException {
     Collections.sort(changesLog.getAllStates(), new PathSorter());
-    // String str = "";
-    // for (int i = 0; i < changesLog.getAllStates().size(); i++)
-    // str += " " +
-    // ItemState.nameFromValue(changesLog.getAllStates().get(i).getState()) +
-    // "\t\t"
-    // + changesLog.getAllStates().get(i).getData().getIdentifier()
-    // + "\t"
-    // + "isPersisted="
-    // + changesLog.getAllStates().get(i).isPersisted()
-    // + "\t"
-    // // + "parentId = " +
-    // // itemStatesList.get(i).getData().getParentIdentifier() + "\t"
-    // + "isEventFire=" + changesLog.getAllStates().get(i).isEventFire() + "\t"
-    // + "isInternallyCreated=" +
-    // changesLog.getAllStates().get(i).isInternallyCreated() + "\t"
-    // + changesLog.getAllStates().get(i).getData().getQPath().getAsString() +
-    // "\n";
-    // // log.info(str);
 
+    if (log.isDebugEnabled()) {
+      String str = "";
+      for (int i = 0; i < changesLog.getAllStates().size(); i++)
+        str += " " + ItemState.nameFromValue(changesLog.getAllStates().get(i).getState()) + "\t\t"
+            + changesLog.getAllStates().get(i).getData().getIdentifier()
+            + "\t"
+            + "isPersisted="
+            + changesLog.getAllStates().get(i).isPersisted()
+            + "\t"
+            // + "parentId = " +
+            // itemStatesList.get(i).getData().getParentIdentifier() + "\t"
+            + "isEventFire=" + changesLog.getAllStates().get(i).isEventFire() + "\t"
+            + "isInternallyCreated=" + changesLog.getAllStates().get(i).isInternallyCreated()
+            + "\t" + changesLog.getAllStates().get(i).getData().getQPath().getAsString() + "\n";
+      log.debug(str);
+    }
     switch (saveType) {
     case SESSION:
       for (ItemState itemState : changesLog.getAllStates()) {
@@ -224,18 +254,24 @@ public abstract class BaseXmlImporter implements Importer {
 
   }
 
+  /**
+   * @param parentData
+   * @param name
+   * @param state
+   * @param skipIdentifier
+   * @return
+   */
   private List<ItemState> getItemStatesList(NodeData parentData,
                                             QPathEntry name,
                                             int state,
                                             String skipIdentifier) {
     List<ItemState> states = new ArrayList<ItemState>();
     for (ItemState itemState : changesLog.getAllStates()) {
-      if (itemState.getData().getParentIdentifier().equals(parentData.getIdentifier())
-          && itemState.getData().getQPath().getEntries()[itemState.getData()
-                                                                  .getQPath()
-                                                                  .getEntries().length - 1].isSame(name)) {
+      ItemData stateData = itemState.getData();
+      if (isParent(stateData, parentData)
+          && stateData.getQPath().getEntries()[stateData.getQPath().getEntries().length - 1].isSame(name)) {
         if ((state != 0) && (state != itemState.getState())
-            || itemState.getData().getIdentifier().equals(skipIdentifier)) {
+            || stateData.getIdentifier().equals(skipIdentifier)) {
           continue;
         }
         states.add(itemState);
@@ -245,6 +281,27 @@ public abstract class BaseXmlImporter implements Importer {
     return states;
   }
 
+  /**
+   * @param d1 - The first ItemData.
+   * @param d2 - The second ItemData.
+   * @return True if parent of both ItemData the same.
+   */
+  private boolean isParent(ItemData data, ItemData parent) {
+    String id1 = data.getParentIdentifier();
+    String id2 = parent.getIdentifier();
+    if (id1 == id2)
+      return true;
+    if (id1 == null && id2 != null)
+      return false;
+    return id1.equals(id2);
+  }
+
+  /**
+   * @param parentData
+   * @param name
+   * @param skipIdentifier
+   * @return
+   */
   protected ItemData getLocalItemData(NodeData parentData, QPathEntry name, String skipIdentifier) {
     ItemData item = null;
     List<ItemState> states = getItemStatesList(parentData, name, 0, skipIdentifier);
@@ -257,10 +314,18 @@ public abstract class BaseXmlImporter implements Importer {
     return item;
   }
 
+  /**
+   * @return
+   */
   protected NodeData getParent() {
     return tree.peek();
   }
 
+  /**
+   * @param propertyName
+   * @param nodeTypes
+   * @return
+   */
   protected PropertyDefinition getPropertyDefinition(InternalQName propertyName,
                                                      List<ExtendedNodeType> nodeTypes) {
     PropertyDefinition pdResidual = null;
@@ -278,6 +343,11 @@ public abstract class BaseXmlImporter implements Importer {
     return pdResidual;
   }
 
+  /**
+   * @param name
+   * @param nodeTypes
+   * @return
+   */
   protected boolean isNodeType(InternalQName name, List<ExtendedNodeType> nodeTypes) {
     for (ExtendedNodeType nt : nodeTypes) {
       if (nt.isNodeType(name)) {
@@ -287,6 +357,11 @@ public abstract class BaseXmlImporter implements Importer {
     return false;
   }
 
+  /**
+   * @param path
+   * @param state
+   * @param itemState
+   */
   protected void replaceFirstState(QPath path, int state, ItemState itemState) {
     for (int i = 0; i < changesLog.getAllStates().size(); i++) {
       if (changesLog.getAllStates().get(i).getState() == state
@@ -298,6 +373,11 @@ public abstract class BaseXmlImporter implements Importer {
     throw new IllegalStateException("replace fail");
   }
 
+  /**
+   * @param identifier
+   * @return
+   * @throws RepositoryException
+   */
   protected String validateUuidCollision(String identifier) throws RepositoryException {
 
     NodeData parentNodeData = getParent();
@@ -363,7 +443,7 @@ public abstract class BaseXmlImporter implements Importer {
             sameUuidItem.getData().accept(visitor);
             removedStates = visitor.getRemovedStates();
             changesLog.addAll(removedStates);
-            tree.push(ImportedNodeData.createCopy((TransientNodeData) parentNodeData));
+            tree.push(ImportNodeData.createCopy((TransientNodeData) parentNodeData));
             break;
           case ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW:
             // If an incoming referenceable node has the same UUID as a node

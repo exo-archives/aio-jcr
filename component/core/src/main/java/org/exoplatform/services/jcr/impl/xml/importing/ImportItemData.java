@@ -12,7 +12,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public interface ImportedItemData {
+public interface ImportItemData {
   /**
    * Set parent identifer
    * 

@@ -15,14 +15,14 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class ImportedPropertyData extends TransientPropertyData implements ImportedItemData {
+public class ImportPropertyData extends TransientPropertyData implements ImportItemData {
   private static Log log = ExoLogger.getLogger("jcr.ImportedPropertyData");
 
-  public ImportedPropertyData() {
+  public ImportPropertyData() {
 
   }
 
-  public ImportedPropertyData(QPath path,
+  public ImportPropertyData(QPath path,
                               String identifier,
                               int version,
                               int type,

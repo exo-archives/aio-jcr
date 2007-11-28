@@ -23,6 +23,7 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.ext.action.InvocationContext;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 import org.exoplatform.services.log.ExoLogger;
@@ -31,45 +32,60 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class StreamImporter {
+public class StreamImporter implements RawDataImporter {
+  /**
+   * 
+   */
+  private final Log             log                  = ExoLogger.getLogger("jcr.StreamImporter");
 
-  protected static Log      log                  = ExoLogger.getLogger("jcr.StreamImporter");
+  /**
+   * 
+   */
+  private final ContentImporter importer;
 
-  private NeutralImporter   importer;
+  /**
+   * 
+   */
+  private boolean               namespacesRegistered = false;
 
-  private boolean           namespacesRegistered = false;
-
-  private final NodeImpl    parent;
-
-  private final XmlSaveType saveType;
-
-  private final int         uuidBehavior;
-
-  private final boolean     respectPropertyDefinitionsConstraints;
-
-  public StreamImporter(XmlSaveType saveType,
-                        NodeImpl parent,
+  /**
+   * @param saveType
+   * @param parent
+   * @param uuidBehavior
+   * @param respectPropertyDefinitionsConstraints
+   */
+  public StreamImporter(NodeImpl parent,
                         int uuidBehavior,
-                        boolean respectPropertyDefinitionsConstraints) {
+                        XmlSaveType saveType,
+                        InvocationContext context) {
     super();
-    this.saveType = saveType;
-    this.uuidBehavior = uuidBehavior;
-    this.parent = parent;
-    this.respectPropertyDefinitionsConstraints = respectPropertyDefinitionsConstraints;
+    this.importer = createContentImporter(parent, uuidBehavior, saveType, context);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.impl.xml.importing.RawDataImporter#createContentImporter(org.exoplatform.services.jcr.impl.core.NodeImpl,
+   *      int, org.exoplatform.services.jcr.impl.xml.XmlSaveType,
+   *      org.exoplatform.services.ext.action.InvocationContext)
+   */
+  public ContentImporter createContentImporter(NodeImpl parent,
+                                               int uuidBehavior,
+                                               XmlSaveType saveType,
+                                               InvocationContext context) {
+    return new NeutralImporter(parent, uuidBehavior, saveType, context);
 
   }
 
+  /**
+   * @param stream
+   * @throws RepositoryException
+   */
   public void importStream(InputStream stream) throws RepositoryException {
 
     XMLInputFactory factory = XMLInputFactory.newInstance();
     if (log.isDebugEnabled())
       log.debug("FACTORY: " + factory);
-
-    // TODO create in constructor
-    importer = new NeutralImporter(parent,
-                                   uuidBehavior,
-                                   saveType,
-                                   respectPropertyDefinitionsConstraints);
 
     try {
 
@@ -83,7 +99,7 @@ public class StreamImporter {
         switch (event.getEventType()) {
         case XMLStreamConstants.START_ELEMENT:
           StartElement element = event.asStartElement();
-          // log.info(element.getLocation().getCharacterOffset());
+
           if (!namespacesRegistered) {
             namespacesRegistered = true;
             registerNamespaces(element);
@@ -141,6 +157,9 @@ public class StreamImporter {
     }
   }
 
+  /**
+   * @param event
+   */
   private void registerNamespaces(StartElement event) {
     Iterator<Namespace> iter = event.getNamespaces();
     while (iter.hasNext()) {

@@ -18,6 +18,7 @@ import javax.jcr.ValueFormatException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.ext.action.InvocationContext;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -34,12 +35,13 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.value.BaseValue;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
+import org.exoplatform.services.jcr.impl.xml.DecodedValue;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
@@ -48,7 +50,7 @@ public class SystemViewImporter extends BaseXmlImporter {
   /**
    * 
    */
-  private static Log         log = ExoLogger.getLogger(SystemViewImporter.class);
+  private static Log         log            = ExoLogger.getLogger(SystemViewImporter.class);
 
   /**
    * 
@@ -66,16 +68,21 @@ public class SystemViewImporter extends BaseXmlImporter {
   private int                currentPropType;
 
   /**
+   * Root node name.
+   */
+  protected String           ROOT_NODE_NAME = "jcr:root";
+
+  /**
    * @param parent
    * @param uuidBehavior
    * @param saveType
    * @param respectPropertyDefinitionsConstraints
    */
-  public SystemViewImporter(final NodeImpl parent,
-                             final int uuidBehavior,
-                             final XmlSaveType saveType,
-                             final boolean respectPropertyDefinitionsConstraints) {
-    super(parent, uuidBehavior, saveType, respectPropertyDefinitionsConstraints);
+  public SystemViewImporter(NodeImpl parent,
+                            int uuidBehavior,
+                            XmlSaveType saveType,
+                            InvocationContext context) {
+    super(parent, uuidBehavior, saveType, context);
   }
 
   /*
@@ -119,7 +126,7 @@ public class SystemViewImporter extends BaseXmlImporter {
     } else if (Constants.SV_PROPERTY.equals(elementName)) {
       // sv:property element
 
-      ImportedPropertyData propertyData = endProperty();
+      ImportPropertyData propertyData = endProperty();
       if (propertyData != null)
         changesLog.add(new ItemState(propertyData, ItemState.ADDED, true, tree.peek().getQPath()));
     } else if (Constants.SV_VALUE.equals(elementName)) {
@@ -150,15 +157,19 @@ public class SystemViewImporter extends BaseXmlImporter {
         throw new RepositoryException("Missing mandatory sv:name attribute of element sv:node");
       }
 
-      if ("jcr:root".equals(svName)) {
-        svName = "";
-      }
       NodeData parentData = null;
 
       parentData = tree.peek();
-      InternalQName currentNodeName = locationFactory.parseJCRName(svName).getInternalName();
+
+      InternalQName currentNodeName = null;
+      if (ROOT_NODE_NAME.equals(svName)) {
+        currentNodeName = Constants.ROOT_PATH.getName();
+      } else {
+        currentNodeName = locationFactory.parseJCRName(svName).getInternalName();
+      }
+
       int nodeIndex = getNodeIndex(parentData, currentNodeName, null);
-      ImportedNodeData newNodeData = new ImportedNodeData(parentData, currentNodeName, nodeIndex);
+      ImportNodeData newNodeData = new ImportNodeData(parentData, currentNodeName, nodeIndex);
 
       newNodeData.setOrderNumber(getNextChildOrderNum(parentData));
       newNodeData.setIdentifier(IdGenerator.generate());
@@ -205,13 +216,13 @@ public class SystemViewImporter extends BaseXmlImporter {
    * @throws RepositoryException
    * @throws NoSuchNodeTypeException
    */
-  private ImportedPropertyData endMixinTypes() throws PathNotFoundException,
-                                              RepositoryException,
-                                              NoSuchNodeTypeException {
-    ImportedPropertyData propertyData;
+  private ImportPropertyData endMixinTypes() throws PathNotFoundException,
+                                            RepositoryException,
+                                            NoSuchNodeTypeException {
+    ImportPropertyData propertyData;
     InternalQName[] mixinNames = new InternalQName[currentPropValues.size()];
     List<ValueData> values = new ArrayList<ValueData>(currentPropValues.size());
-    ImportedNodeData currentNodeInfo = (ImportedNodeData) tree.peek();
+    ImportNodeData currentNodeInfo = (ImportNodeData) tree.peek();
     for (int i = 0; i < currentPropValues.size(); i++) {
 
       String value = currentPropValues.get(i).toString();
@@ -223,13 +234,13 @@ public class SystemViewImporter extends BaseXmlImporter {
 
     currentNodeInfo.setMixinTypeNames(mixinNames);
 
-    propertyData = new ImportedPropertyData(QPath.makeChildPath(currentNodeInfo.getQPath(),
-                                                                currentPropName),
-                                            IdGenerator.generate(),
-                                            0,
-                                            currentPropType,
-                                            currentNodeInfo.getIdentifier(),
-                                            true);
+    propertyData = new ImportPropertyData(QPath.makeChildPath(currentNodeInfo.getQPath(),
+                                                              currentPropName),
+                                          IdGenerator.generate(),
+                                          0,
+                                          currentPropType,
+                                          currentNodeInfo.getIdentifier(),
+                                          true);
     propertyData.setValues(parseValues());
     return propertyData;
   }
@@ -238,7 +249,7 @@ public class SystemViewImporter extends BaseXmlImporter {
    * @throws RepositoryException
    */
   private void endNode() throws RepositoryException {
-    ImportedNodeData currentNodeInfo = (ImportedNodeData) tree.pop();
+    ImportNodeData currentNodeInfo = (ImportNodeData) tree.pop();
 
     currentNodeInfo.setMixinTypeNames(currentNodeInfo.getMixinTypeNames());
 
@@ -266,26 +277,25 @@ public class SystemViewImporter extends BaseXmlImporter {
    * @throws RepositoryException
    * @throws NoSuchNodeTypeException
    */
-  private ImportedPropertyData endPrimaryType() throws PathNotFoundException,
-                                               RepositoryException,
-                                               NoSuchNodeTypeException {
-    ImportedPropertyData propertyData;
+  private ImportPropertyData endPrimaryType() throws PathNotFoundException,
+                                             RepositoryException,
+                                             NoSuchNodeTypeException {
+    ImportPropertyData propertyData;
     String sName = currentPropValues.get(0).toString();
     InternalQName primaryTypeName = locationFactory.parseJCRName(sName).getInternalName();
 
-    ImportedNodeData nodeData = (ImportedNodeData) tree.peek();
+    ImportNodeData nodeData = (ImportNodeData) tree.peek();
 
     //
     nodeData.addNodeType((ntManager.getNodeType(primaryTypeName)));
     nodeData.setPrimaryTypeName(primaryTypeName);
 
-    propertyData = new ImportedPropertyData(QPath.makeChildPath(nodeData.getQPath(),
-                                                                currentPropName),
-                                            IdGenerator.generate(),
-                                            0,
-                                            currentPropType,
-                                            nodeData.getIdentifier(),
-                                            false);
+    propertyData = new ImportPropertyData(QPath.makeChildPath(nodeData.getQPath(), currentPropName),
+                                          IdGenerator.generate(),
+                                          0,
+                                          currentPropType,
+                                          nodeData.getIdentifier(),
+                                          false);
     propertyData.setValues(parseValues());
 
     return propertyData;
@@ -299,12 +309,12 @@ public class SystemViewImporter extends BaseXmlImporter {
    * @throws IllegalPathException
    * @throws ValueFormatException
    */
-  private ImportedPropertyData endProperty() throws PathNotFoundException,
-                                            RepositoryException,
-                                            NoSuchNodeTypeException,
-                                            IllegalPathException,
-                                            ValueFormatException {
-    ImportedPropertyData propertyData = null;
+  private ImportPropertyData endProperty() throws PathNotFoundException,
+                                          RepositoryException,
+                                          NoSuchNodeTypeException,
+                                          IllegalPathException,
+                                          ValueFormatException {
+    ImportPropertyData propertyData = null;
     if (Constants.JCR_PRIMARYTYPE.equals(currentPropName)) {
 
       propertyData = endPrimaryType();
@@ -316,7 +326,7 @@ public class SystemViewImporter extends BaseXmlImporter {
       propertyData = endUuid();
 
     } else {
-      ImportedNodeData currentNodeInfo = (ImportedNodeData) tree.peek();
+      ImportNodeData currentNodeInfo = (ImportNodeData) tree.peek();
       List<ValueData> values = parseValues();
 
       // determinating is property multivalue;
@@ -328,7 +338,7 @@ public class SystemViewImporter extends BaseXmlImporter {
                                                  currentNodeInfo.getPrimaryTypeName(),
                                                  currentNodeInfo.getMixinTypeNames());
       } catch (RepositoryException e) {
-        if (!respectPropertyDefinitionsConstraints) {
+        if (!context.getBoolean(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS)) {
           log.warn(e.getLocalizedMessage());
           return null;
         }
@@ -349,13 +359,13 @@ public class SystemViewImporter extends BaseXmlImporter {
       log.debug("Import " + currentPropName.getName() + " size=" + currentPropValues.size()
           + " isMultivalue=" + isMultivalue);
 
-      propertyData = new ImportedPropertyData(QPath.makeChildPath(currentNodeInfo.getQPath(),
-                                                                  currentPropName),
-                                              IdGenerator.generate(),
-                                              0,
-                                              currentPropType,
-                                              currentNodeInfo.getIdentifier(),
-                                              isMultivalue);
+      propertyData = new ImportPropertyData(QPath.makeChildPath(currentNodeInfo.getQPath(),
+                                                                currentPropName),
+                                            IdGenerator.generate(),
+                                            0,
+                                            currentPropType,
+                                            currentNodeInfo.getIdentifier(),
+                                            isMultivalue);
       propertyData.setValues(values);
 
       if (currentNodeInfo.isMixVersionable())
@@ -371,11 +381,11 @@ public class SystemViewImporter extends BaseXmlImporter {
    * @throws PathNotFoundException
    * @throws IllegalPathException
    */
-  private ImportedPropertyData endUuid() throws RepositoryException,
-                                        PathNotFoundException,
-                                        IllegalPathException {
-    ImportedPropertyData propertyData;
-    ImportedNodeData currentNodeInfo = (ImportedNodeData) tree.pop();
+  private ImportPropertyData endUuid() throws RepositoryException,
+                                      PathNotFoundException,
+                                      IllegalPathException {
+    ImportPropertyData propertyData;
+    ImportNodeData currentNodeInfo = (ImportNodeData) tree.pop();
 
     currentNodeInfo.setMixReferenceable(isNodeType(Constants.MIX_REFERENCEABLE,
                                                    currentNodeInfo.getCurrentNodeTypes()));
@@ -404,10 +414,10 @@ public class SystemViewImporter extends BaseXmlImporter {
         for (ItemState state : changesLog.getAllStates()) {
           ItemData data = state.getData();
           if (data.getParentIdentifier().equals(oldIdentifer)) {
-            ((ImportedItemData) data).setParentIdentifer(identifier);
+            ((ImportItemData) data).setParentIdentifer(identifier);
             if (reloadSNS)
-              ((ImportedItemData) data).setQPath(QPath.makeChildPath(newPath, data.getQPath()
-                                                                                  .getName()));
+              ((ImportItemData) data).setQPath(QPath.makeChildPath(newPath, data.getQPath()
+                                                                                .getName()));
 
           }
 
@@ -420,13 +430,13 @@ public class SystemViewImporter extends BaseXmlImporter {
         currentNodeInfo.setParentIdentifer(tree.peek().getIdentifier());
     }
 
-    propertyData = new ImportedPropertyData(QPath.makeChildPath(currentNodeInfo.getQPath(),
-                                                                currentPropName),
-                                            IdGenerator.generate(),
-                                            0,
-                                            currentPropType,
-                                            currentNodeInfo.getIdentifier(),
-                                            false);
+    propertyData = new ImportPropertyData(QPath.makeChildPath(currentNodeInfo.getQPath(),
+                                                              currentPropName),
+                                          IdGenerator.generate(),
+                                          0,
+                                          currentPropType,
+                                          currentNodeInfo.getIdentifier(),
+                                          false);
     propertyData.setValue(new TransientValueData(currentNodeInfo.getIdentifier()));
 
     tree.push(currentNodeInfo);
@@ -438,44 +448,27 @@ public class SystemViewImporter extends BaseXmlImporter {
    * @param values
    * @throws RepositoryException
    */
-  private void endVersionable(ImportedNodeData currentNodeInfo, List<ValueData> values) throws RepositoryException {
-    {
-      if (currentPropName.equals(Constants.JCR_VERSIONHISTORY)) {
-        String versionHistoryIdentifier = null;
-        try {
-          versionHistoryIdentifier = ((TransientValueData) values.get(0)).getString();
+  private void endVersionable(ImportNodeData currentNodeInfo, List<ValueData> values) throws RepositoryException {
+    if (currentPropName.equals(Constants.JCR_VERSIONHISTORY)) {
+      String versionHistoryIdentifier = null;
+      try {
+        versionHistoryIdentifier = ((TransientValueData) values.get(0)).getString();
 
-        } catch (IOException e) {
-          throw new RepositoryException(e);
-        }
-        currentNodeInfo.setVersionHistoryIdentifier(versionHistoryIdentifier);
-        currentNodeInfo.setContainsVersionhistory(session.getTransientNodesManager()
-                                                         .getItemData(versionHistoryIdentifier) != null);
-
-      } else if (currentPropName.equals(Constants.JCR_BASEVERSION)) {
-        try {
-          currentNodeInfo.setBaseVersionIdentifier(((TransientValueData) values.get(0)).getString());
-        } catch (IOException e) {
-          throw new RepositoryException(e);
-        }
+      } catch (IOException e) {
+        throw new RepositoryException(e);
       }
+      currentNodeInfo.setVersionHistoryIdentifier(versionHistoryIdentifier);
+      currentNodeInfo.setContainsVersionhistory(session.getTransientNodesManager()
+                                                       .getItemData(versionHistoryIdentifier) != null);
 
+    } else if (currentPropName.equals(Constants.JCR_BASEVERSION)) {
+      try {
+        currentNodeInfo.setBaseVersionIdentifier(((TransientValueData) values.get(0)).getString());
+      } catch (IOException e) {
+        throw new RepositoryException(e);
+      }
     }
-  }
 
-  /**
-   * Returns the value of the named XML attribute.
-   * 
-   * @param attributes set of XML attributes
-   * @param name attribute name
-   * @return attribute value, or <code>null</code> if the named attribute is
-   *         not found
-   * @throws RepositoryException
-   */
-
-  private String getAttribute(Map<String, String> attributes, InternalQName name) throws RepositoryException {
-    JCRName jname = locationFactory.createJCRName(name);
-    return attributes.get(jname.getAsString());
   }
 
   /**
@@ -513,5 +506,20 @@ public class SystemViewImporter extends BaseXmlImporter {
 
     return values;
 
+  }
+
+  /**
+   * Returns the value of the named XML attribute.
+   * 
+   * @param attributes set of XML attributes
+   * @param name attribute name
+   * @return attribute value, or <code>null</code> if the named attribute is
+   *         not found
+   * @throws RepositoryException
+   */
+
+  protected String getAttribute(Map<String, String> attributes, InternalQName name) throws RepositoryException {
+    JCRName jname = locationFactory.createJCRName(name);
+    return attributes.get(jname.getAsString());
   }
 }

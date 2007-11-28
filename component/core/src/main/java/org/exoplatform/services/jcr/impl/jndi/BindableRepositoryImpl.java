@@ -6,6 +6,7 @@
 
 package org.exoplatform.services.jcr.impl.jndi;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 
@@ -190,7 +191,8 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
     delegatee.createWorkspace(wsName);
   }
 
-  public void importWorkspace(String wsName, InputStream xmlStream) throws RepositoryException {
+  public void importWorkspace(String wsName, InputStream xmlStream) throws RepositoryException,
+                                                                   IOException {
     delegatee.importWorkspace(wsName, xmlStream);
   }
 

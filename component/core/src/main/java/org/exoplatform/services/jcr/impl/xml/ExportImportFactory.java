@@ -13,14 +13,16 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.exoplatform.services.ext.action.InvocationContext;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.xml.exporting.DocumentViewContentExporter;
-import org.exoplatform.services.jcr.impl.xml.exporting.SystemViewContentExporter;
 import org.exoplatform.services.jcr.impl.xml.exporting.BaseXmlExporter;
+import org.exoplatform.services.jcr.impl.xml.exporting.DocumentViewContentExporter;
 import org.exoplatform.services.jcr.impl.xml.exporting.DocumentViewStreamExporter;
+import org.exoplatform.services.jcr.impl.xml.exporting.SystemViewContentExporter;
 import org.exoplatform.services.jcr.impl.xml.exporting.SystemViewStreamExporter;
+import org.exoplatform.services.jcr.impl.xml.importing.BackupDataImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.ContentHandlerImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
 import org.xml.sax.ContentHandler;
@@ -36,6 +38,10 @@ public class ExportImportFactory {
     this.sessionImpl = sessionImpl;
   }
 
+  public BackupDataImporter getBackupImporter(InvocationContext context) {
+    return new BackupDataImporter(context);
+  }
+
   /**
    * Create export visitor for given type of view
    * 
@@ -49,23 +55,23 @@ public class ExportImportFactory {
    * @throws RepositoryException
    */
   public BaseXmlExporter getExportVisitor(XmlMapping type,
-                                        ContentHandler contentHandler,
-                                        boolean skipBinary,
-                                        boolean noRecurse) throws NamespaceException,
-      RepositoryException {
+                                          ContentHandler contentHandler,
+                                          boolean skipBinary,
+                                          boolean noRecurse) throws NamespaceException,
+                                                            RepositoryException {
 
     if (type == XmlMapping.SYSVIEW) {
       return new SystemViewContentExporter(contentHandler,
-                                         sessionImpl,
-                                         sessionImpl.getTransientNodesManager(),
-                                         skipBinary,
-                                         noRecurse);
+                                           sessionImpl,
+                                           sessionImpl.getTransientNodesManager(),
+                                           skipBinary,
+                                           noRecurse);
     } else if (type == XmlMapping.DOCVIEW) {
       return new DocumentViewContentExporter(contentHandler,
-                                         sessionImpl,
-                                         sessionImpl.getTransientNodesManager(),
-                                         skipBinary,
-                                         noRecurse);
+                                             sessionImpl,
+                                             sessionImpl.getTransientNodesManager(),
+                                             skipBinary,
+                                             noRecurse);
     }
     return null;
   }
@@ -84,11 +90,11 @@ public class ExportImportFactory {
    * @throws IOException
    */
   public BaseXmlExporter getExportVisitor(XmlMapping type,
-                                        OutputStream stream,
-                                        boolean skipBinary,
-                                        boolean noRecurse) throws NamespaceException,
-      RepositoryException,
-      IOException {
+                                          OutputStream stream,
+                                          boolean skipBinary,
+                                          boolean noRecurse) throws NamespaceException,
+                                                            RepositoryException,
+                                                            IOException {
 
     XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
     XMLStreamWriter streamWriter;
@@ -100,34 +106,47 @@ public class ExportImportFactory {
 
     if (type == XmlMapping.SYSVIEW) {
       return new SystemViewStreamExporter(streamWriter,
-                                 sessionImpl,
-                                 sessionImpl.getTransientNodesManager(),
-                                 skipBinary,
-                                 noRecurse);
+                                          sessionImpl,
+                                          sessionImpl.getTransientNodesManager(),
+                                          skipBinary,
+                                          noRecurse);
     } else if (type == XmlMapping.DOCVIEW) {
       return new DocumentViewStreamExporter(streamWriter,
-                                 sessionImpl,
-                                 sessionImpl.getTransientNodesManager(),
-                                 skipBinary,
-                                 noRecurse);
+                                            sessionImpl,
+                                            sessionImpl.getTransientNodesManager(),
+                                            skipBinary,
+                                            noRecurse);
     }
     return null;
   }
 
-  public ContentHandler getImportHandler(XmlSaveType saveType,
-                                         NodeImpl node,
+  /**
+   * @param saveType
+   * @param node
+   * @param uuidBehavior
+   * @param context
+   * @return
+   */
+  public ContentHandler getImportHandler(NodeImpl node,
                                          int uuidBehavior,
-                                         boolean respectPropertyDefinitionsConstraints) {
+                                         XmlSaveType saveType,
+                                         InvocationContext context) {
 
-    return new ContentHandlerImporter(saveType, node, uuidBehavior, respectPropertyDefinitionsConstraints);
+    return new ContentHandlerImporter(node, uuidBehavior, saveType, context);
   }
 
-  public StreamImporter getStreamImporter(XmlSaveType saveType,
-                                          NodeImpl node,
+  /**
+   * @param saveType
+   * @param node
+   * @param uuidBehavior
+   * @param context
+   * @return
+   */
+  public StreamImporter getStreamImporter(NodeImpl node,
                                           int uuidBehavior,
-                                          boolean respectPropertyDefinitionsConstraints) {
+                                          XmlSaveType saveType,
+                                          InvocationContext context) {
 
-    return new StreamImporter(saveType, node, uuidBehavior, respectPropertyDefinitionsConstraints);
+    return new StreamImporter(node, uuidBehavior, saveType, context);
   }
-
 }

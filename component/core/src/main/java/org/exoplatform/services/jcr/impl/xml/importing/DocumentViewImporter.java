@@ -25,6 +25,7 @@ import javax.jcr.nodetype.PropertyDefinition;
 import org.apache.commons.logging.Log;
 import org.apache.ws.commons.util.Base64;
 import org.apache.ws.commons.util.Base64.DecodingException;
+import org.exoplatform.services.ext.action.InvocationContext;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -48,6 +49,8 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
+ * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
@@ -55,17 +58,17 @@ public class DocumentViewImporter extends BaseXmlImporter {
   /**
    * 
    */
-  private static Log           log = ExoLogger.getLogger("jcr.DocNodeImporter");
+  private static Log         log = ExoLogger.getLogger("jcr.DocNodeImporter");
 
   /**
    * 
    */
-  private ImportedPropertyData xmlCharactersProperty;
+  private ImportPropertyData xmlCharactersProperty;
 
   /**
    * 
    */
-  private String               xmlCharactersPropertyValue;
+  private String             xmlCharactersPropertyValue;
 
   /**
    * Document view importer.
@@ -78,8 +81,8 @@ public class DocumentViewImporter extends BaseXmlImporter {
   public DocumentViewImporter(NodeImpl parent,
                               int uuidBehavior,
                               XmlSaveType saveType,
-                              boolean respectPropertyDefinitionsConstraints) {
-    super(parent, uuidBehavior, saveType, respectPropertyDefinitionsConstraints);
+                              InvocationContext context) {
+    super(parent, uuidBehavior, saveType, context);
     xmlCharactersProperty = null;
     xmlCharactersPropertyValue = null;
   }
@@ -113,23 +116,23 @@ public class DocumentViewImporter extends BaseXmlImporter {
       if (log.isDebugEnabled())
         log.debug("New node " + nodeData.getQPath().getAsString());
 
-      ImportedPropertyData newProperty = new ImportedPropertyData(QPath.makeChildPath(nodeData.getQPath(),
-                                                                                      Constants.JCR_PRIMARYTYPE),
-                                                                  IdGenerator.generate(),
-                                                                  0,
-                                                                  PropertyType.NAME,
-                                                                  nodeData.getIdentifier(),
-                                                                  false);
+      ImportPropertyData newProperty = new ImportPropertyData(QPath.makeChildPath(nodeData.getQPath(),
+                                                                                  Constants.JCR_PRIMARYTYPE),
+                                                              IdGenerator.generate(),
+                                                              0,
+                                                              PropertyType.NAME,
+                                                              nodeData.getIdentifier(),
+                                                              false);
 
       newProperty.setValue(new TransientValueData(Constants.NT_UNSTRUCTURED));
       changesLog.add(new ItemState(newProperty, ItemState.ADDED, true, nodeData.getQPath()));
-      newProperty = new ImportedPropertyData(QPath.makeChildPath(nodeData.getQPath(),
-                                                                 Constants.JCR_XMLCHARACTERS),
-                                             IdGenerator.generate(),
-                                             0,
-                                             PropertyType.STRING,
-                                             nodeData.getIdentifier(),
-                                             false);
+      newProperty = new ImportPropertyData(QPath.makeChildPath(nodeData.getQPath(),
+                                                               Constants.JCR_XMLCHARACTERS),
+                                           IdGenerator.generate(),
+                                           0,
+                                           PropertyType.STRING,
+                                           nodeData.getIdentifier(),
+                                           false);
       newProperty.setValue(new TransientValueData(text.toString()));
 
       changesLog.add(new ItemState(newProperty, ItemState.ADDED, true, nodeData.getQPath()));
@@ -172,7 +175,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
 
     InternalQName jcrName = locationFactory.parseJCRName(nodeName).getInternalName();
 
-    ImportedNodeData nodeData = createNode(nodeTypes, propertiesMap, mixinNodeTypes, jcrName);
+    ImportNodeData nodeData = createNode(nodeTypes, propertiesMap, mixinNodeTypes, jcrName);
 
     changesLog.add(new ItemState(nodeData, ItemState.ADDED, true, getParent().getQPath()));
 
@@ -263,7 +266,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
                                                      nodeData.getPrimaryTypeName(),
                                                      mixinNodeTypes.toArray(new InternalQName[mixinNodeTypes.size()]));
           } catch (RepositoryException e) {
-            if (!respectPropertyDefinitionsConstraints) {
+            if (!context.getBoolean(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS)) {
               log.warn(e.getLocalizedMessage());
               continue;
             }
@@ -326,15 +329,15 @@ public class DocumentViewImporter extends BaseXmlImporter {
    * @throws IllegalPathException
    * @throws RepositoryException
    */
-  private ImportedNodeData createNode(List<ExtendedNodeType> nodeTypes,
-                                      HashMap<InternalQName, String> propertiesMap,
-                                      List<InternalQName> mixinNodeTypes,
-                                      InternalQName jcrName) throws PathNotFoundException,
-                                                            IllegalPathException,
-                                                            RepositoryException {
-    ImportedNodeData nodeData = new ImportedNodeData(getParent(),
-                                                     jcrName,
-                                                     getNodeIndex(getParent(), jcrName, null));
+  private ImportNodeData createNode(List<ExtendedNodeType> nodeTypes,
+                                    HashMap<InternalQName, String> propertiesMap,
+                                    List<InternalQName> mixinNodeTypes,
+                                    InternalQName jcrName) throws PathNotFoundException,
+                                                          IllegalPathException,
+                                                          RepositoryException {
+    ImportNodeData nodeData = new ImportNodeData(getParent(), jcrName, getNodeIndex(getParent(),
+                                                                                    jcrName,
+                                                                                    null));
 
     nodeData.setPrimaryTypeName(locationFactory.parseJCRName(propertiesMap.get(Constants.JCR_PRIMARYTYPE))
                                                .getInternalName());
@@ -405,10 +408,10 @@ public class DocumentViewImporter extends BaseXmlImporter {
    * @throws RepositoryException
    * @throws IllegalStateException
    */
-  private PropertyData endUuid(ImportedNodeData nodeData, InternalQName key) throws ValueFormatException,
-                                                                            UnsupportedRepositoryOperationException,
-                                                                            RepositoryException,
-                                                                            IllegalStateException {
+  private PropertyData endUuid(ImportNodeData nodeData, InternalQName key) throws ValueFormatException,
+                                                                          UnsupportedRepositoryOperationException,
+                                                                          RepositoryException,
+                                                                          IllegalStateException {
     PropertyData newProperty;
     Value value = session.getValueFactory().createValue(nodeData.getIdentifier(),
                                                         PropertyType.STRING);
@@ -430,7 +433,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
    * @param propName
    * @throws RepositoryException
    */
-  private void endVersionable(ImportedNodeData nodeData,
+  private void endVersionable(ImportNodeData nodeData,
                               List<ValueData> values,
                               InternalQName propName) throws RepositoryException {
     {

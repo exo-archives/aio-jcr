@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.services.ext.action.InvocationContext;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 import org.xml.sax.Attributes;
@@ -22,26 +23,26 @@ import org.xml.sax.SAXParseException;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class ContentHandlerImporter implements ContentHandler, ErrorHandler {
-  private Importer          importer;
+public class ContentHandlerImporter implements ContentHandler, ErrorHandler, RawDataImporter {
+  private ContentImporter         importer;
 
-  private final NodeImpl    parent;
+  private final NodeImpl          parent;
 
-  private final XmlSaveType saveType;
+  private final XmlSaveType       saveType;
 
-  private final int         uuidBehavior;
+  private final int               uuidBehavior;
 
-  private final boolean     respectPropertyDefinitionsConstraints;
+  private final InvocationContext context;
 
-  public ContentHandlerImporter(XmlSaveType saveType,
-                                NodeImpl parent,
+  public ContentHandlerImporter(NodeImpl parent,
                                 int uuidBehavior,
-                                boolean respectPropertyDefinitionsConstraints) {
+                                XmlSaveType saveType,
+                                InvocationContext context) {
     super();
     this.saveType = saveType;
     this.uuidBehavior = uuidBehavior;
     this.parent = parent;
-    this.respectPropertyDefinitionsConstraints = respectPropertyDefinitionsConstraints;
+    this.context = context;
 
   }
 
@@ -56,6 +57,21 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler {
     } catch (RepositoryException e) {
       throw new SAXException(e);
     }
+
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.impl.xml.importing.RawDataImporter#createContentImporter(org.exoplatform.services.jcr.impl.core.NodeImpl,
+   *      int, org.exoplatform.services.jcr.impl.xml.XmlSaveType,
+   *      org.exoplatform.services.ext.action.InvocationContext)
+   */
+  public ContentImporter createContentImporter(NodeImpl parent,
+                                               int uuidBehavior,
+                                               XmlSaveType saveType,
+                                               InvocationContext context) {
+    return new NeutralImporter(parent, uuidBehavior, saveType, context);
 
   }
 
@@ -158,10 +174,7 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler {
    * @see org.xml.sax.ContentHandler#startDocument()
    */
   public void startDocument() throws SAXException {
-    this.importer = new NeutralImporter(parent,
-                                        uuidBehavior,
-                                        saveType,
-                                        respectPropertyDefinitionsConstraints);
+    this.importer = createContentImporter(parent, uuidBehavior, saveType, context);
 
   }
 

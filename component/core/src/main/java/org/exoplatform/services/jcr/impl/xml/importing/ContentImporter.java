@@ -12,7 +12,12 @@ import javax.jcr.RepositoryException;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public interface Importer {
+public interface ContentImporter {
+  /**
+   * 
+   */
+  public String RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS = "respectPropertyDefinitionsConstraints";
+
   /**
    * Receive notification of character data.
    * 
@@ -43,8 +48,15 @@ public interface Importer {
    */
   public void endElement(String uri, String localName, String qName) throws RepositoryException;
 
+  /**
+   * @param prefix
+   * @param uri
+   */
   public void registerNamespace(String prefix, String uri);
 
+  /**
+   * @throws RepositoryException
+   */
   public void save() throws RepositoryException;
 
   /**
