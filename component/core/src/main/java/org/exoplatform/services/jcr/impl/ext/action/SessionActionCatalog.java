@@ -6,13 +6,13 @@
 package org.exoplatform.services.jcr.impl.ext.action;
 
 import javax.jcr.RepositoryException;
+import javax.jcr.observation.Event;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.services.command.action.Action;
 import org.exoplatform.services.command.action.ActionCatalog;
 import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
@@ -29,9 +29,9 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class SessionActionCatalog extends ActionCatalog {
 
-  private static Log      log = ExoLogger.getLogger("jcr.SessionActionCatalog");
+  private static Log            log = ExoLogger.getLogger("jcr.SessionActionCatalog");
 
-  private LocationFactory locFactory;
+  private final LocationFactory locFactory;
 
   public SessionActionCatalog(RepositoryService repService) throws RepositoryException {
 
@@ -47,12 +47,10 @@ public class SessionActionCatalog extends ActionCatalog {
         try {
 
           SessionEventMatcher matcher = new SessionEventMatcher(getEventTypes(ac.getEventTypes()),
-              getPaths(ac.getPath()),
-              ac.isDeep(),
-              getNames(ac.getNodeType()),
-              getNames(ac.getParentNodeType()),
-              getWorkspaces(ac.getWorkspace()),
-              getNames(ac.getNodeTypes()));
+                                                                getPaths(ac.getPath()),
+                                                                ac.isDeep(),
+                                                                getWorkspaces(ac.getWorkspace()),
+                                                                getNames(ac.getNodeTypes()));
 
           Action action = (Action) Class.forName(ac.getActionClassName()).newInstance();
           addAction(matcher, action);
@@ -61,24 +59,6 @@ public class SessionActionCatalog extends ActionCatalog {
         }
       }
     }
-  }
-
-  private String[] getWorkspaces(String workspaces) throws RepositoryException {
-    if (workspaces == null)
-      return null;
-    return workspaces.split(",");
-  }
-
-  private QPath[] getPaths(String paths) throws RepositoryException {
-    if (paths == null)
-      return null;
-
-    String[] pathList = paths.split(",");
-    QPath[] qpaths = new QPath[pathList.length];
-    for (int i = 0; i < pathList.length; i++) {
-      qpaths[i] = locFactory.parseAbsPath(pathList[i]).getInternalPath();
-    }
-    return qpaths;
   }
 
   private InternalQName[] getNames(String names) throws RepositoryException {
@@ -93,6 +73,24 @@ public class SessionActionCatalog extends ActionCatalog {
     return qnames;
   }
 
+  private QPath[] getPaths(String paths) throws RepositoryException {
+    if (paths == null)
+      return null;
+
+    String[] pathList = paths.split(",");
+    QPath[] qpaths = new QPath[pathList.length];
+    for (int i = 0; i < pathList.length; i++) {
+      qpaths[i] = locFactory.parseAbsPath(pathList[i]).getInternalPath();
+    }
+    return qpaths;
+  }
+
+  private String[] getWorkspaces(String workspaces) throws RepositoryException {
+    if (workspaces == null)
+      return null;
+    return workspaces.split(",");
+  }
+
   private static int getEventTypes(String names) {
     if (names == null)
       return -1;
@@ -102,17 +100,17 @@ public class SessionActionCatalog extends ActionCatalog {
 
     for (String name : nameList) {
       if (name.equalsIgnoreCase("addNode")) {
-        res |= ExtendedEvent.NODE_ADDED;
+        res |= Event.NODE_ADDED;
       } else if (name.equalsIgnoreCase("addProperty")) {
-        res |= ExtendedEvent.PROPERTY_ADDED;
+        res |= Event.PROPERTY_ADDED;
       } else if (name.equalsIgnoreCase("changeProperty")) {
-        res |= ExtendedEvent.PROPERTY_CHANGED;
+        res |= Event.PROPERTY_CHANGED;
       } else if (name.equalsIgnoreCase("addMixin")) {
         res |= ExtendedEvent.ADD_MIXIN;
       } else if (name.equalsIgnoreCase("removeProperty")) {
-        res |= ExtendedEvent.PROPERTY_REMOVED;
+        res |= Event.PROPERTY_REMOVED;
       } else if (name.equalsIgnoreCase("removeNode")) {
-        res |= ExtendedEvent.NODE_REMOVED;
+        res |= Event.NODE_REMOVED;
       } else if (name.equalsIgnoreCase("removeMixin")) {
         res |= ExtendedEvent.REMOVE_MIXIN;
       } else if (name.equalsIgnoreCase("lock")) {
