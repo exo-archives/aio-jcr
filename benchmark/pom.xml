@@ -93,6 +93,7 @@
     		<directory>src/main</directory>
     		<includes>
     			<include>**/*.xsl</include>
+    			<include>**/*.pdf</include>
     		</includes>
     	</resource>
     </resources>

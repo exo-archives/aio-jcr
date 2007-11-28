@@ -14,15 +14,16 @@
       </includes>
     </fileSet>
     <fileSet>
-      <directory>/</directory>
+      <directory>.</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>bin/*</include>
         <include>config/*</include>
+        <include>resources/*</include>
       </includes>
     </fileSet>
     <fileSet>
-      <directory>/</directory>
+      <directory>.</directory>
       <outputDirectory>/logs</outputDirectory>
       <excludes>
         <exclude>**/*</exclude>
@@ -32,7 +33,7 @@
 
   <dependencySets>
     <dependencySet>
-      <outputDirectory>/lib</outputDirectory>
+      <outputDirectory>lib</outputDirectory>
       <unpack>false</unpack>
       <scope>runtime</scope>
       <excludes>
