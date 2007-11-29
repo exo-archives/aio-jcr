@@ -29,7 +29,7 @@ import org.exoplatform.services.jcr.RepositoryService;
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
  * @version $Id: JCRCommandsTest.java 9797 2006-10-26 12:00:12Z geaz $
  */
-public class JCRCommandsTest extends TestCase {
+public class TestJCRCommands extends TestCase {
 
   private StandaloneContainer container;
   private CommandService cservice;
@@ -51,7 +51,7 @@ public class JCRCommandsTest extends TestCase {
 
     Credentials cred = new SimpleCredentials("admin", "admin".toCharArray());
 
-    ctx = new BasicAppContext(repService.getRepository(), cred);
+    ctx = new BasicAppContext(repService.getDefaultRepository(), cred);
 
     //System.out.println("CTX "+ctx);
   }
@@ -80,7 +80,6 @@ public class JCRCommandsTest extends TestCase {
     save.execute(ctx);
 
     System.out.println(">>> SAVE >>> ");
-
   }
 
   public void testSetProperty() throws Exception {
@@ -109,7 +108,9 @@ public class JCRCommandsTest extends TestCase {
 
     assertTrue(ctx.get("result") instanceof NodeIterator);
     NodeIterator nodes = (NodeIterator)ctx.get("result");
+    
     //System.out.println("> getNodes >> "+nodes.getSize());
+    
     assertTrue(nodes.getSize()>0);
   }
 

@@ -41,7 +41,7 @@ import org.exoplatform.services.jcr.RepositoryService;
  * @version $Id: JCRClientCommandsTest.java 2006-11-22 15:45:12Z vetalok $
  */
 
-public class JCRClientCommandsTest extends TestCase {
+public class TestJCRClientCommands extends TestCase {
 
   private StandaloneContainer container;
   private CommandService cservice;
@@ -67,7 +67,7 @@ public class JCRClientCommandsTest extends TestCase {
 
     //we need to login (see BasicAppContext, 38) and set current item before ctx using
     if (ctx == null) {
-      ctx = new CliAppContext(repService.getRepository(), PARAMETERS_KEY, cred);
+      ctx = new CliAppContext(repService.getDefaultRepository(), PARAMETERS_KEY, cred);
       Node root = ctx.getSession().getRootNode();
       ctx.setCurrentItem(root);
       if (root.hasNode("testNode") == false) {
@@ -285,9 +285,10 @@ public class JCRClientCommandsTest extends TestCase {
     NodeIterator nodeIterator = root.getNodes();
     while (nodeIterator.hasNext()){
       Node node = nodeIterator.nextNode();
-      node.remove();
+      if (!node.getPath().startsWith("/jcr:system"))
+        node.remove();
     }
     root.save();
-    assertFalse(root.hasNodes());
+    assertTrue(root.getNodes().getSize() == 1 && root.getNode("jcr:system") != null);
   }
 }
