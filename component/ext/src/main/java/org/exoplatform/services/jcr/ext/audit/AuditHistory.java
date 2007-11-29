@@ -11,16 +11,18 @@ import java.util.List;
 import javax.jcr.Node;
 
 /**
- * Created by The eXo Platform SARL        .
+ * Created by The eXo Platform SARL.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public class AuditHistory {
-  
-  private final Node auditableNode;
-  private final List <AuditRecord> auditRecords;
-  
+
+  private final Node              auditableNode;
+
+  private final List<AuditRecord> auditRecords;
+
   public AuditHistory(final Node auditableNode, final List<AuditRecord> auditRecords) {
     this.auditableNode = auditableNode;
     this.auditRecords = auditRecords;
