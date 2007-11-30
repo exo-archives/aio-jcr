@@ -11,6 +11,7 @@ import java.util.Random;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
 
 import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
@@ -26,8 +27,9 @@ import com.sun.japex.TestCase;
 public class RandomReadNtFileWithMetadataTest extends JCRTestBase {
   /*
    * This test will read randomly one of 1 million nodes of type nt:file that
-   * has been created beforehand /download/node0..8/node0..49/node0..49/0..7-0..49-0..49-0..49.txt.
-   * Digits are genereted randomly using levelXNodesCount parameters.
+   * has been created beforehand
+   * /download/node0..8/node0..49/node0..49/0..7-0..49-0..49-0..49.txt. Digits
+   * are genereted randomly using levelXNodesCount parameters.
    */
   private Random rand   = new Random();
 
@@ -53,19 +55,26 @@ public class RandomReadNtFileWithMetadataTest extends JCRTestBase {
     int level2Index = rand.nextInt(level2);
     int level3Index = rand.nextInt(level3);
     int level4Index = rand.nextInt(level4);
-    String path = "download/node" + level1Index + "/node" + level2Index + "/node"
-        + level3Index + "/" + level1Index + "-" + level2Index + "-"
-        + level3Index + "-" + level4Index + ".txt";        
+    String path = "download/node" + level1Index + "/node" + level2Index + "/node" + level3Index
+        + "/" + level1Index + "-" + level2Index + "-" + level3Index + "-" + level4Index + ".txt";
     Node node = context.getSession().getRootNode().getNode(path);
     Node contentNode = node.getNode("jcr:content");
-    contentNode.getProperty("jcr:mimeType").getString();
-    contentNode.getProperty("jcr:lastModified").getDate();
-    InputStream stream = contentNode.getProperty("jcr:data").getStream();
-    int length = 0;
-    int len;
-    byte buf[] = new byte[1024];
-    while ((len = stream.read(buf)) > 0)
-      length += len;
+    try {
+      contentNode.getProperty("jcr:mimeType").getString();
+      contentNode.getProperty("jcr:lastModified").getDate();
+      contentNode.getProperty("dc:title").getValues()[0].getString();
+      contentNode.getProperty("dc:subject").getValues()[0].getString();
+      contentNode.getProperty("dc:creator").getValues()[0].getString();
+      InputStream stream = contentNode.getProperty("jcr:data").getStream();
+      int length = 0;
+      int len;
+      byte buf[] = new byte[1024];
+      while ((len = stream.read(buf)) > 0)
+        length += len;
+    } catch (PathNotFoundException e) {
+      System.out.println("[error] can not find property for node : " + contentNode.getPath());
+      e.printStackTrace();
+    }
   }
 
   @Override
