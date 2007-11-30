@@ -24,7 +24,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
- * Created by The eXo Platform SARL .
+ * Created by The eXo Platform SAS.
  *
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
  * @version $Id$

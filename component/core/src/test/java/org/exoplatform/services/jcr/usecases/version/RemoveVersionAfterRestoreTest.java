@@ -6,7 +6,7 @@ import javax.jcr.version.Version;
 import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 
 /**
- * Created by The eXo Platform SARL
+ * Created by The eXo Platform SAS
  * 
  * @version $Id: JCRRestoreNodeTest.java 12841 2007-02-16 08:58:38Z peterit $
  */

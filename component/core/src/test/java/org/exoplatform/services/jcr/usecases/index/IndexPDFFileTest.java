@@ -1,6 +1,18 @@
-/**
- * Copyright 2001-2003 The eXo Platform SARL         All rights reserved.  *
- * Please look at license.txt in info directory for more license detail.   *
+/*
+ * Copyright (C) 2003-2007 eXo Platform SAS.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
 package org.exoplatform.services.jcr.usecases.index;
@@ -18,7 +30,7 @@ import org.exoplatform.services.document.DocumentReaderService;
 import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 
 /**
- * Created by The eXo Platform SARL.
+ * Created by The eXo Platform SAS.
  * @author <a href="mailto:zagrebin_v@mail.ru">Victor Zagrebin</a>
  * @version $Id: IndexPDFFileTest.java 12841 2007-02-16 08:58:38Z peterit $
  *

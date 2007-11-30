@@ -8,7 +8,7 @@ import javax.jcr.version.VersionException;
 import javax.jcr.version.VersionHistory;
 
 /**
- * Created by The eXo Platform SARL
+ * Created by The eXo Platform SAS
  * 07.05.2006
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>

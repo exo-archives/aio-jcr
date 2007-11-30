@@ -6,7 +6,7 @@ import javax.jcr.version.VersionHistory;
 import javax.jcr.Item;
 
 /**
- * Created by The eXo Platform SARL
+ * Created by The eXo Platform SAS
  * 31.08.2006 [VO]
  * 
  * @author <a href="mailto:vitaliy.obmanjuk@exoplatform.com.ua">Vitaliy Obmanjuk</a>
