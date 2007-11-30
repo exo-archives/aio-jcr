@@ -58,8 +58,8 @@ public class RandomReadNtFileWithMetadataTest extends JCRTestBase {
     String path = "download/node" + level1Index + "/node" + level2Index + "/node" + level3Index
         + "/" + level1Index + "-" + level2Index + "-" + level3Index + "-" + level4Index + ".txt";
     Node node = context.getSession().getRootNode().getNode(path);
-    Node contentNode = node.getNode("jcr:content");
     try {
+      Node contentNode = node.getNode("jcr:content");
       contentNode.getProperty("jcr:mimeType").getString();
       contentNode.getProperty("jcr:lastModified").getDate();
       contentNode.getProperty("dc:title").getValues()[0].getString();
@@ -72,7 +72,7 @@ public class RandomReadNtFileWithMetadataTest extends JCRTestBase {
       while ((len = stream.read(buf)) > 0)
         length += len;
     } catch (PathNotFoundException e) {
-      System.out.println("[error] can not find property for node : " + contentNode.getPath());
+      System.out.println("[error] can not find property for node, parent is : " + node.getPath());
       e.printStackTrace();
     }
   }
