@@ -397,8 +397,8 @@
       </testResource>
     </testResources>
 
-    <testSourceDirectory>src/test/java</testSourceDirectory>
-    <!-- testSourceDirectory>src/TCK/java</testSourceDirectory -->
+    <!-- testSourceDirectory>src/test/java</testSourceDirectory -->
+    <testSourceDirectory>src/TCK/java</testSourceDirectory>
     <!-- testSourceDirectory>src/notest</testSourceDirectory -->
 
     <testOutputDirectory>target/test-classes</testOutputDirectory>
@@ -414,18 +414,18 @@
           <includes>
             <!-- TCK, init section is implemented below -->
 
-            <!-- include>**/api/*Test.java</include>
+              <include>**/api/*Test.java</include>
               <include>**/api/observation/*Test.java</include>
               <include>**/api/lock/*Test.java</include>
               <include>**/api/nodetype/*Test.java</include>
               <include>**/api/query/*Test.java</include>
-              <include>**/api/version/*Test.java</include -->
+              <include>**/api/version/*Test.java</include>
 
             <!-- eXo tests, usecases -->
-            <include>**/api/**/Test*.java</include>
+            <!-- include>**/api/**/Test*.java</include>
             <include>**/usecases/**/Test*.java</include>
             <include>**/usecases/**/*Test.java</include>
-            <include>**/impl/access/Test*.java</include>
+            <include>**/impl/access/Test*.java</include -->
           </includes>
           <excludes>
             <exclude>**/*$*</exclude><!--nested classes prb, http://jira.codehaus.org/browse/SUREFIRE-288-->
@@ -537,7 +537,7 @@
             </goals>
             </execution-->
           <!-- This section is for TCK tests only. -->
-          <!-- execution>
+          <execution>
             <id>1</id>
             <phase>test-compile</phase>
             <configuration>
@@ -571,7 +571,7 @@
             <goals>
             <goal>run</goal>
             </goals>
-            </execution -->
+            </execution>
           <!--execution>
             <id>2</id>
             <phase>test</phase>
@@ -602,7 +602,7 @@
             </goals>
             </execution-->
         </executions>
-        <!-- dependencies>
+        <dependencies>
           <dependency>
             <groupId>emma</groupId>
             <artifactId>emma</artifactId>
@@ -627,7 +627,7 @@
             <version>1.6.5</version>
             <scope>test</scope>
           </dependency>
-        </dependencies -->
+        </dependencies>
       </plugin>
     </plugins>
   </build>
