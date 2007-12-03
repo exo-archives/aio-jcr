@@ -1,5 +1,5 @@
 /***************************************************************************
- * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SAS         All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 package org.exoplatform.services.jcr.rmi;
@@ -20,7 +20,7 @@ import javax.jcr.SimpleCredentials;
 import org.exoplatform.services.jcr.rmi.api.client.ClientRepositoryFactory;
 
 /**
- * Created by The eXo Platform SARL
+ * Created by The eXo Platform SAS
  * 
  * @Author : Sergey Kabashnyuk
  */

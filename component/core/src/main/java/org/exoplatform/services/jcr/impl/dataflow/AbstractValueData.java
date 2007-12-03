@@ -25,7 +25,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * 
- * Created by The eXo Platform SARL        .
+ * Created by The eXo Platform SAS        .
  * 
  * @author Gennady Azarenkov
  * @version $Id:AbstractValueData.java 12534 2007-02-02 15:30:52Z peterit $

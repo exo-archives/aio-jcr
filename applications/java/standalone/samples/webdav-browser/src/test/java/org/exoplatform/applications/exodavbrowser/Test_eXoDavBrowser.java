@@ -3,7 +3,7 @@ package org.exoplatform.applications.exodavbrowser;
 import junit.framework.TestCase;
 
 /**
-* Created by The eXo Platform SARL        .
+* Created by The eXo Platform SAS        .
 * @author Alex Reshetnyak
 * @version $Id: $
 */

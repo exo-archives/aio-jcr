@@ -1,5 +1,5 @@
 /***************************************************************************
- * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SAS         All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 
@@ -10,7 +10,7 @@ import java.io.IOException;
 import org.exoplatform.services.ftp.FtpConst;
 
 /**
- * Created by The eXo Platform SARL
+ * Created by The eXo Platform SAS
  * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
  * @version $Id: $
  */

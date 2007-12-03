@@ -1,8 +1,19 @@
-/**
- * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
- * Please look at license.txt in info directory for more license detail.   *
+/*
+ * Copyright (C) 2003-2007 eXo Platform SAS.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-
 package org.exoplatform.services.jcr.ext.metadata;
 
 import java.io.InputStream;
@@ -35,7 +46,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL        .
+ * Created by The eXo Platform SAS        .
  * @author Gennady Azarenkov
  * @version $Id: AddMetadataAction.java 12539 2007-02-04 19:15:49Z brice $
  */

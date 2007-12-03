@@ -1,5 +1,5 @@
 /***************************************************************************
- * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SAS         All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 
@@ -21,7 +21,7 @@ import org.exoplatform.services.cifs.util.DataBuffer;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL Author : Sergiy Karpenko
+ * Created by The eXo Platform SAS Author : Sergiy Karpenko
  * 
  */
 

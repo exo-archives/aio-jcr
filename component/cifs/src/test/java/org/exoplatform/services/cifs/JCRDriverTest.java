@@ -1,5 +1,5 @@
 /***************************************************************************
- * Copyright 2001-2006 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2007 The eXo Platform SAS         All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 
@@ -36,7 +36,7 @@ import org.exoplatform.services.security.impl.CredentialsImpl;
 // import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 
 /**
- * Created by The eXo Platform SARL Karpenko Sergey
+ * Created by The eXo Platform SAS Karpenko Sergey
  */
 
 public class JCRDriverTest extends BaseStandaloneTest {
