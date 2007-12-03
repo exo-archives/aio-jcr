@@ -60,6 +60,29 @@ public class NewGroupListener extends GroupEventListener {
     }
   }
   
+  public void preDelete(Group group) throws Exception {
+    String  groupId = null ;
+    String parentId = group.getParentId() ;
+    if(parentId == null || parentId.length() == 0) groupId = "/" + group.getGroupName() ;
+    else groupId = parentId + "/" + group.getGroupName() ;
+    List<RepositoryEntry> repositories = jcrService_.getConfig().getRepositoryConfigurations() ;
+    for(RepositoryEntry repo : repositories) {
+      removeGroup(repo.getName(), groupId);
+    }
+  }
+  
+  private void removeGroup(String repoName, String groupId) throws Exception {
+    ManageableRepository manageableRepository = jcrService_.getRepository(repoName) ;
+    String systemWorkspace = manageableRepository.getConfiguration().getDefaultWorkspaceName() ;
+    Session session = manageableRepository.getSystemSession(systemWorkspace);           
+    Node groupsHome = (Node) session.getItem(groupsPath_);
+    Node groupNode = (Node) session.getItem(groupsPath_ + groupId) ;
+    groupNode.remove() ;
+    groupsHome.save() ;
+    session.save() ;
+    session.logout() ;
+  }
+  
   @SuppressWarnings("unchecked")
   private void buildGroupStructure(String repository, String groupId) throws Exception {           
     ManageableRepository manageableRepository = jcrService_.getRepository(repository) ;
