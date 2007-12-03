@@ -39,6 +39,7 @@ import org.exoplatform.services.webdav.WebDavMethod;
 import org.exoplatform.services.webdav.WebDavService;
 import org.exoplatform.services.webdav.WebDavStatus;
 import org.exoplatform.services.webdav.common.WebDavHeaders;
+import org.exoplatform.services.webdav.common.util.DavTextUtil;
 
 /**
  * Created by The eXo Platform SAS
@@ -70,6 +71,8 @@ public class CopyCommand extends WebDavCommand {
     
     try {
       String prefix = getPrefix(repoPath);
+      
+      destinationHeader = DavTextUtil.UnEscape(destinationHeader, '%');
       
       if (!destinationHeader.startsWith(prefix)) {
         throw new AccessDeniedException();
