@@ -379,14 +379,11 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   
   protected void putItem(final ItemData data) throws Exception {
     
-    final String identifier = data.getIdentifier();
-    final CacheQPath path = new CacheQPath(data.getParentIdentifier(), data.getQPath());
-    
     if (log.isDebugEnabled())
-      log.debug(name + ", putItem()    " + data.getQPath().getAsString() + "    " + identifier + "  --  " + data);
+      log.debug(name + ", putItem()    " + data.getQPath().getAsString() + "    " + data.getIdentifier() + "  --  " + data);
     
-    cache.put(identifier, data);
-    cache.put(path, data);
+    cache.put(data.getIdentifier(), data);
+    cache.put(new CacheQPath(data.getParentIdentifier(), data.getQPath()), data);
   }
   
   protected ItemData getItem(final String identifier) throws Exception {
@@ -404,8 +401,7 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   protected ItemData getItem(final String parentUuid, final QPathEntry qname) throws Exception {
 
     // ask direct cache (C)
-    final CacheQPath spath = new CacheQPath(parentUuid, qname);
-    final ItemData c = (ItemData) cache.get(spath);
+    final ItemData c = (ItemData) cache.get(new CacheQPath(parentUuid, qname));
     if (log.isDebugEnabled())
       log.debug(name + ", getItem() " + (c != null ? c.getQPath().getAsString() : "[null]" ) + " --> " 
           + (c != null ? c.getIdentifier() + " parent:" + c.getParentIdentifier() : "[null]"));
@@ -667,7 +663,6 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    *        the item only and theirs 'phantom by identifier' if exists.
    * */
   protected ItemData removeDeep(final ItemData item, final boolean forceDeep) throws Exception {
-    final CacheQPath myPath = new CacheQPath(item.getParentIdentifier(), item.getQPath());
     if (log.isDebugEnabled())
       log.debug(name + ", removeDeep(" + forceDeep + ") >>> item " + item.getQPath().getAsString() 
           + " " + item.getIdentifier());
@@ -677,13 +672,13 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     }
     
     cache.remove(item.getIdentifier());
-    final ItemData itemData = (ItemData) cache.remove(myPath);
+    final ItemData itemData = (ItemData) cache.remove(new CacheQPath(item.getParentIdentifier(), item.getQPath()));
     if (itemData != null && !itemData.getIdentifier().equals(item.getIdentifier())) {
       // same path but diff identifier node... phantom
       removeDeep(itemData, forceDeep);
     }
     if (log.isDebugEnabled())
-      log.debug(name + ", removeDeep(" + forceDeep + ") <<< item " + myPath + " " + item.getIdentifier());
+      log.debug(name + ", removeDeep(" + forceDeep + ") <<< item " + item.getQPath().getAsString() + " " + item.getIdentifier());
     return itemData;
   }
   
