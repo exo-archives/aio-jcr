@@ -17,50 +17,62 @@
 package org.exoplatform.jcr.benchmark.usecases;
 
 import java.io.ByteArrayInputStream;
-import java.util.Arrays;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.jcr.Node;
-import javax.jcr.Value;
 
 import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
+import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.storage.jdbc.JDBCStorageConnection;
+import org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer;
+import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 
 import com.sun.japex.TestCase;
 
 /**
- * Created by The eXo Platform SAS .
+ * Created by The eXo Platform SARL .
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 public class AddNtFileWithMetadataTest extends JCRTestBase {
   /*
-   * This test calculates the time (ms or tps) of adding of one node of type nt:file 
-   * (including addNode(), setProperty(), addMixin(), save() methods).
-   * Required parameters:
-   * jcr.lengthOfFile - file length in bytes, need to fill the content of jcr:data property;
-   * jcr.lengthOfDcElementSetProperty - e.g 10 means that dc:title will be like "1234567890"; 
-   * jcr.countOfDcElementSetProperties - must be less or equals 5, e.g 1 means "dc:title" property will be present only;
-   *     
-  */
-  private byte[]   contentOfFile                 = null;
+   * This test calculates the time (ms or tps) of adding of one nodes of type
+   * nt:file (including addNode(), setProperty(), addMixin(), save() methods).
+   */
 
-  private byte[]   contentOfDcElementSetProperty = null;
+  public static WorkspaceStorageConnection workspaceStorageConnection = null;
 
-  private int      countOfDcElementSetProperties = 0;
+  public static boolean                    dataBaseDropped            = false;
 
-  private String[] dcElementSetProperties        = { "dc:title", "dc:subject", "dc:description",
-      "dc:publisher", "dc:resourceType"         };
+  public static byte[]                     contentOfFile              = null;
 
-  private Node     rootNode                      = null;
+  private Node                             rootNode                   = null;
 
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    contentOfFile = new byte[tc.getIntParam("jcr.lengthOfFile")];
-    Arrays.fill(contentOfFile, (byte) 'F');
-    contentOfDcElementSetProperty = new byte[tc.getIntParam("jcr.lengthOfDcElementSetProperty")];
-    Arrays.fill(contentOfDcElementSetProperty, (byte) 'D');
+    if (contentOfFile == null) {
+      contentOfFile = new byte[(int) new File("../resources/benchmark.pdf").length()];
+      InputStream is = new FileInputStream("../resources/benchmark.pdf");
+      int offset = 0;
+      int numRead = 0;
+      while (offset < contentOfFile.length
+          && (numRead = is.read(contentOfFile, offset, contentOfFile.length - offset)) >= 0) {
+        offset += numRead;
+      }
+      if (offset < contentOfFile.length) {
+        throw new IOException("Could not completely read file ");
+      }
+      is.close();
+    }
     rootNode = context.getSession().getRootNode().addNode(context.generateUniqueName("rootNode"),
         "nt:unstructured");
     context.getSession().save();
@@ -71,34 +83,55 @@ public class AddNtFileWithMetadataTest extends JCRTestBase {
     Node nodeToAdd = rootNode.addNode(context.generateUniqueName("node"), "nt:file");
     Node contentNodeOfNodeToAdd = nodeToAdd.addNode("jcr:content", "nt:resource");
     contentNodeOfNodeToAdd.setProperty("jcr:data", new ByteArrayInputStream(contentOfFile));
-    contentNodeOfNodeToAdd.setProperty("jcr:mimeType", "application/octet-stream");
+    contentNodeOfNodeToAdd.setProperty("jcr:mimeType", "application/pdf");
     contentNodeOfNodeToAdd.setProperty("jcr:lastModified", Calendar.getInstance());
-    contentNodeOfNodeToAdd.addMixin("dc:elementSet");
-    contentNodeOfNodeToAdd.setProperty("dc:date", 
-        createMultiValue(context, Calendar.getInstance()));
-    for (int j = 0; j < countOfDcElementSetProperties; j++) {
-      contentNodeOfNodeToAdd.setProperty(dcElementSetProperties[j], 
-          createMultiValue(context, new String(contentOfDcElementSetProperty)));
-    }
+    // dc:elementset property will be setted automatically
     context.getSession().save();
   }
 
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
-    rootNode.remove();
-    context.getSession().save();
+    cleanDB(context);
   }
 
-  private Value[] createMultiValue(JCRTestContext context, String sValue) throws Exception {
-    Value[] values = new Value[1];
-    values[0] = context.getSession().getValueFactory().createValue(sValue);
-    return values;
-  }
-
-  private Value[] createMultiValue(JCRTestContext context, Calendar date) throws Exception {
-    Value[] values = new Value[1];
-    values[0] = context.getSession().getValueFactory().createValue(date);
-    return values;
+  private synchronized void cleanDB(JCRTestContext context) {
+    /*try {
+      if (!dataBaseDropped) {
+        Connection dbConnection;
+        JDBCStorageConnection storageConnection;
+        JDBCWorkspaceDataContainer workspaceDataContainer = (JDBCWorkspaceDataContainer) ((SessionImpl) context
+            .getSession()).getContainer().getComponentInstanceOfType(
+            JDBCWorkspaceDataContainer.class);
+        if (workspaceStorageConnection == null) {
+          workspaceStorageConnection = workspaceDataContainer.openConnection();
+        } else {
+          workspaceStorageConnection = workspaceDataContainer
+              .reuseConnection(workspaceStorageConnection);
+        }
+        storageConnection = (JDBCStorageConnection) workspaceStorageConnection;
+        dbConnection = storageConnection.getJdbcConnection();
+        // =============ORACLE=============
+        List<String> oracleQueryList = new ArrayList<String>();
+        oracleQueryList.add("DROP TABLE jcr_config");
+        oracleQueryList.add("DROP TABLE jcr_scontainer");
+        oracleQueryList.add("DROP TABLE jcr_svalue");
+        oracleQueryList.add("DROP TABLE jcr_sref");
+        oracleQueryList.add("DROP TABLE jcr_sitem");
+        oracleQueryList.add("DROP SEQUENCE JCR_SVALUE_SEQ");
+        for (String query : oracleQueryList) {
+          try {
+            dbConnection.prepareStatement(query).execute();
+          } catch (Exception e) {
+          }
+        }
+        // ================================
+        dbConnection.commit();
+        dataBaseDropped = true;
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }*/
   }
 
 }

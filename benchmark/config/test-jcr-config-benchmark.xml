@@ -16,28 +16,18 @@
               <property name="max-buffer-size" value="204800"/>
               <property name="swap-directory" value="../temp/swap/ws"/>
             </properties>
-            <!-- value-storages>
-              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
-                <properties>
-                  <property name="path" value="../temp/values/ws"/>
-                </properties>
-                <filters>
-                  <filter property-type="Binary"/>
-                </filters>
-              </value-storage>
-            </value-storages -->
           </container>
           <cache enabled="true">
             <properties>
-              <property name="maxSize" value="1000"/>
+              <property name="maxSize" value="1000000"/>
               <property name="liveTime" value="1800"/><!-- 30 min -->
             </properties>
           </cache>
-          <!-- query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
+          <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
             <properties>
               <property name="indexDir" value="../temp/index"/>
             </properties>
-          </query-handler -->
+          </query-handler>
         </workspace>
       </workspaces>
     </repository>
