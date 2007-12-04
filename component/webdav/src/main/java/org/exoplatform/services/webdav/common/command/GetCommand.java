@@ -115,8 +115,8 @@ public class GetCommand extends WebDavCommand {
           }
           
           resourceData = new JcrFileResourceData(fileNode);
-        } else {
-          resourceData = new XmlItemData(serverPrefix + node.getPath(), node);
+        } else {          
+          resourceData = new XmlItemData(serverPrefix + "/" + repoPath.split("/")[0], node);
         }
       } else {
         resourceData = new JcrPropertyData((Property)item);
