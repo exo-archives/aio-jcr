@@ -44,7 +44,7 @@ public class HierarchyConfig {
     private String alias ;
     private String path ;
     private String nodeType ;
-    private List mixinTypes ;
+    private List<String> mixinTypes = new ArrayList<String>();
     
     private List<Permission> permissions = new ArrayList<Permission>(4);
 
@@ -60,8 +60,8 @@ public class HierarchyConfig {
     public String getNodeType() { return this.nodeType ; }
     public void setNodeType(String nodetype) { this.nodeType = nodetype ; }
     
-    public List getMixinTypes() { return mixinTypes ; }
-    public void setMixinTypes(List mixinTypes) { this.mixinTypes = mixinTypes ; }
+    public List<String> getMixinTypes() { return mixinTypes ; }
+    public void setMixinTypes(List<String> mixinTypes) { this.mixinTypes = mixinTypes ; }
   }   
 
   static public class Permission {

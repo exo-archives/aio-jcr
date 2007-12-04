@@ -91,7 +91,7 @@ public class NewUserListener extends UserEventListener {
     List jcrPaths = config_.getJcrPaths() ;
     for(JcrPath jcrPath : (List<JcrPath>)jcrPaths) {
       createNode(userNode, jcrPath.getPath(), jcrPath.getNodeType(), jcrPath.getMixinTypes(), 
-          getPermissions(jcrPath.getPermissions())) ;
+          getPermissions(jcrPath.getPermissions(),userName)) ;
     }    
     usersHome.save();
     session.save();
@@ -106,8 +106,7 @@ public class NewUserListener extends UserEventListener {
     for(RepositoryEntry repo : repositories) {
       try{
         session = jcrService_.getRepository(repo.getName()).login();
-        Node usersHome = (Node) session.getItem(
-            nodeHierarchyCreatorService_.getJcrPath(USERS_PATH));
+        Node usersHome = (Node) session.getItem(nodeHierarchyCreatorService_.getJcrPath(USERS_PATH));
         usersHome.getNode(user.getUserName()).remove();
         usersHome.save();
         session.save();
@@ -138,8 +137,9 @@ public class NewUserListener extends UserEventListener {
     }
   }
   
-  private Map getPermissions(List<Permission> permissions) {
+  private Map getPermissions(List<Permission> permissions,String userId) {
     Map<String, String[]> permissionsMap = new HashMap<String, String[]>();
+    permissionsMap.put(userId,PermissionType.ALL);
     for(Permission permission : permissions) {
       StringBuilder strPer = new StringBuilder() ;
       if("true".equals(permission.getRead())) strPer.append(PermissionType.READ) ;

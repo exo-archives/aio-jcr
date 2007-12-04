@@ -110,7 +110,7 @@ public class NewGroupListener extends GroupEventListener {
     List jcrPaths = config_.getJcrPaths() ;
     for(JcrPath jcrPath : (List<JcrPath>)jcrPaths) {
       createNode(groupNode, jcrPath.getPath(), jcrPath.getNodeType(), jcrPath.getMixinTypes(), 
-          getPermissions(jcrPath.getPermissions())) ;
+          getPermissions(jcrPath.getPermissions(),groupId)) ;
     }
     groupsHome.save();
     session.save();
@@ -138,8 +138,10 @@ public class NewGroupListener extends GroupEventListener {
     }
   }
   
-  private Map getPermissions(List<Permission> permissions) {
+  private Map getPermissions(List<Permission> permissions,String groupId) {
     Map<String, String[]> permissionsMap = new HashMap<String, String[]>();
+    String groupIdentity = "*:".concat(groupId);
+    permissionsMap.put(groupIdentity,PermissionType.ALL);
     for(Permission permission : permissions) {
       StringBuilder strPer = new StringBuilder() ;
       if("true".equals(permission.getRead())) strPer.append(PermissionType.READ) ;
