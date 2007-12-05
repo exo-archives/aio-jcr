@@ -71,7 +71,8 @@ public class XmlItemData extends AbstractResourceData {
   public static final String XML_PROPERTY = PREFIX + "property";
   public static final String XML_HREF = "xlink:href";
   
-  protected Element searchData(String rootHref, Node node, Document document, int depth) throws RepositoryException {
+  protected Element searchData(String rootHref, Node node, Document document, int depth)
+  throws RepositoryException {
     Element nodeElement = document.createElement(XML_NODE);
     
     nodeElement.setAttribute(PREFIX_XMLNS, PREFIX_LINK);
