@@ -7,7 +7,7 @@
 	<param name="japex.plotGroupSize" value="5" />
 	<param name="japex.resultUnit" value="tps" />
 	<param name="japex.warmupIterations" value="0" />
-        <param name="japex.runTime" value="15:00" /> <!-- 15min -->
+  <param name="japex.runTime" value="15:00" /> <!-- 15min -->
 
 	<driverGroup name="ThreadDriverGroup" xmlns="http://www.sun.com/japex/testSuite">
 		<param name="japex.classPath" value="../lib/*.jar" />
@@ -26,7 +26,7 @@
 
 	<testCase name="AddNtFileWithMetadataTest">
 		<param name="exo.testClass"	value="org.exoplatform.jcr.benchmark.usecases.AddNtFileWithMetadataTest" />
-	    <param name="japex.runIterationDelay"	value="0" />
+    <param name="japex.runIterationDelay"	value="0" />
 	</testCase>
 
 	<!--<testCase name="RandomReadNtFileWithMetadataTest">
