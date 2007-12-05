@@ -18,11 +18,14 @@
 package org.exoplatform.services.webdav.common.command;
 
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.jcr.Item;
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.version.Version;
+import javax.xml.transform.stream.StreamSource;
 
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
@@ -37,6 +40,8 @@ import org.exoplatform.services.rest.URIParam;
 import org.exoplatform.services.rest.URITemplate;
 import org.exoplatform.services.rest.transformer.PassthroughInputTransformer;
 import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
+import org.exoplatform.services.rest.transformer.XSLT4SourceOutputTransformer;
+import org.exoplatform.services.rest.transformer.XSLTConstants;
 import org.exoplatform.services.webdav.DavConst;
 import org.exoplatform.services.webdav.WebDavMethod;
 import org.exoplatform.services.webdav.WebDavService;
@@ -67,7 +72,10 @@ public class GetCommand extends WebDavCommand {
   @HTTPMethod(WebDavMethod.GET)
   @URITemplate("/{repoName}/{repoPath}/")
   @InputTransformer(PassthroughInputTransformer.class)
-  @OutputTransformer(PassthroughOutputTransformer.class)
+  // XSLT4SourceOutputTransformer defined here but used only once
+  // because this type of transformer needs component from ExoContainer.
+  // It will be created by EntityTransformerFactory from REST engine.
+  @OutputTransformer(XSLT4SourceOutputTransformer.class)
   public Response get(
       @URIParam("repoName") String repoName,
       @URIParam("repoPath") String repoPath,
@@ -135,14 +143,14 @@ public class GetCommand extends WebDavCommand {
     
     if (resourceData.getContentLength() == 0) {
       return Response.Builder.ok().header(DavConst.Headers.CONTENTLENGTH,
-      "0").header(DavConst.Headers.ACCEPT_RANGES, "bytes")
-      .entity(resourceData.getContentStream(), contentType).build();
+      "0").header(DavConst.Headers.ACCEPT_RANGES, "bytes").entity(resourceData.getContentStream(), contentType)
+      .transformer(new PassthroughOutputTransformer()).build();
     }
     
     if ((startRange > contentLength - 1) || (endRange > contentLength - 1)) {
       return Response.Builder.withStatus(WebDavStatus.REQUESTED_RANGE_NOT_SATISFIABLE).
-          header(DavConst.Headers.ACCEPT_RANGES, "bytes").
-          entity(resourceData.getContentStream(), contentType).build();
+          header(DavConst.Headers.ACCEPT_RANGES, "bytes").entity(resourceData.getContentStream(), contentType)
+          .transformer(new PassthroughOutputTransformer()).build();
     }
 
     if (startRange < 0) {
@@ -158,17 +166,25 @@ public class GetCommand extends WebDavCommand {
     
     if (isPartial) {      
       long returnedContentLength = (endRange - startRange + 1);
-      
       return Response.Builder.withStatus(WebDavStatus.PARTIAL_CONTENT).
           header(DavConst.Headers.CONTENTLENGTH, "" + returnedContentLength).
           header(DavConst.Headers.ACCEPT_RANGES, "bytes").
           header(DavConst.Headers.CONTENTRANGE, "bytes " + startRange + "-" + endRange + "/" + contentLength).
-          entity(rangedInputStream, contentType).build();
+          entity(rangedInputStream, contentType).transformer(new PassthroughOutputTransformer()).build();
+    }
+    // Collection view
+    if (resourceData.isCollection()) {
+      Map<String, String> tp = new HashMap<String, String>();
+      tp.put(XSLTConstants.XSLT_TEMPLATE, "get.method.template");
+      return Response.Builder.ok().entity(new StreamSource(resourceData.getContentStream()),
+          "text/html").setTransformerParameters(tp).build();
     }
     
     return Response.Builder.ok().header(DavConst.Headers.CONTENTLENGTH,
         "" + resourceData.getContentLength()).header(DavConst.Headers.ACCEPT_RANGES, "bytes")
-        .entity(resourceData.getContentStream(), contentType).build();
+        .entity(resourceData.getContentStream(), contentType).transformer(new PassthroughOutputTransformer())
+        .build();
+
   }
   
 }
