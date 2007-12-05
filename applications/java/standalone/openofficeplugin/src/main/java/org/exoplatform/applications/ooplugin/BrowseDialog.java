@@ -29,6 +29,7 @@ import org.exoplatform.frameworks.webdavclient.commands.DavPropFind;
 import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
 import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
 import org.exoplatform.frameworks.webdavclient.http.TextUtils;
+import org.exoplatform.frameworks.webdavclient.http.TimeOutException;
 import org.exoplatform.frameworks.webdavclient.properties.CommonProp;
 import org.exoplatform.frameworks.webdavclient.properties.ContentLengthProp;
 import org.exoplatform.frameworks.webdavclient.properties.DisplayNameProp;
@@ -313,25 +314,38 @@ public abstract class BrowseDialog extends PlugInDialog {
     openThread.start();    
   }  
   
-  protected class OpenThread extends Thread {    
+  
+  protected class OpenThread extends Thread {
     
     public void run() {
-      try {    	  
+      try {        
         DavPropFind davPropFind = new DavPropFind(config.getContext());
-
-        davPropFind.setResourcePath(currentPath);
-        
+        davPropFind.setResourcePath(currentPath);        
         davPropFind.setRequiredProperty(Const.DavProp.DISPLAYNAME);
         davPropFind.setRequiredProperty(Const.DavProp.RESOURCETYPE);        
         davPropFind.setRequiredProperty(Const.DavProp.GETLASTMODIFIED);        
         davPropFind.setRequiredProperty(Const.DavProp.GETCONTENTLENGTH);
         davPropFind.setRequiredProperty(Const.DavProp.VERSIONNAME);
         davPropFind.setRequiredProperty(Const.DavProp.COMMENT);        
-        davPropFind.setRequiredProperty(JCR_MIMETYPE, JCR_NAMESPACE);
+        davPropFind.setRequiredProperty(JCR_MIMETYPE, JCR_NAMESPACE);        
+        davPropFind.setDepth(1);        
+        int status;
         
-        davPropFind.setDepth(1);
-        
-        int status = davPropFind.execute();
+        try {
+          status = davPropFind.execute();
+        } catch (TimeOutException exc) {
+          davPropFind = new DavPropFind(config.getContext());
+          davPropFind.setResourcePath(currentPath);        
+          davPropFind.setRequiredProperty(Const.DavProp.DISPLAYNAME);
+          davPropFind.setRequiredProperty(Const.DavProp.RESOURCETYPE);        
+          davPropFind.setRequiredProperty(Const.DavProp.GETLASTMODIFIED);        
+          davPropFind.setRequiredProperty(Const.DavProp.GETCONTENTLENGTH);
+          davPropFind.setRequiredProperty(Const.DavProp.VERSIONNAME);
+          davPropFind.setRequiredProperty(Const.DavProp.COMMENT);        
+          davPropFind.setRequiredProperty(JCR_MIMETYPE, JCR_NAMESPACE);        
+          davPropFind.setDepth(1);        
+          status = davPropFind.execute();
+        }
         
         String serverPrefix = config.getContext().getServerPrefix();
         String currentHref = serverPrefix + currentPath;
