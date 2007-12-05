@@ -17,9 +17,11 @@
 package org.exoplatform.services.jcr.impl.dataflow.persistent;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS
@@ -30,9 +32,36 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  */
 class CacheQPath implements Serializable {
 
+  private static final String BASE = String.valueOf(UUID.randomUUID().hashCode()) + "-";
+  
+//  static {
+//    UUID rnd = UUID.randomUUID();
+//    
+//    byte[] rb = new byte[16];
+//    rb[0] = (byte) (rnd.getMostSignificantBits() >>> 56 & 0x0f); 
+//    rb[1] = (byte) (rnd.getMostSignificantBits() >>> 48 & 0x0f);
+//    rb[2] = (byte) (rnd.getMostSignificantBits() >>> 40 & 0x0f);
+//    rb[3] = (byte) (rnd.getMostSignificantBits() >>> 32 & 0xff);
+//    rb[4] = (byte) (rnd.getMostSignificantBits() >>> 24 & 0xff);
+//    rb[5] = (byte) (rnd.getMostSignificantBits() >>> 16 & 0xff);
+//    rb[6] = (byte) (rnd.getMostSignificantBits() >>> 8 & 0xff);
+//    rb[7] = (byte) (rnd.getMostSignificantBits() & 0xff);
+//    
+//    rb[8] = (byte) (rnd.getLeastSignificantBits() >>> 56 & 0x0f); 
+//    rb[9] = (byte) (rnd.getLeastSignificantBits() >>> 48 & 0xff);
+//    rb[10] = (byte) (rnd.getLeastSignificantBits() >>> 40 & 0xff);
+//    rb[11] = (byte) (rnd.getLeastSignificantBits() >>> 32 & 0xff);
+//    rb[12] = (byte) (rnd.getLeastSignificantBits() >>> 24 & 0xff);
+//    rb[13] = (byte) (rnd.getLeastSignificantBits() >>> 16 & 0xff);
+//    rb[14] = (byte) (rnd.getLeastSignificantBits() >>> 8 & 0xff);
+//    rb[15] = (byte) (rnd.getLeastSignificantBits() & 0xff);
+//    
+//    //BASE = new String(rb);
+//  }
+  
   private final String parentId;
   private final QPath path;
-  private final String key;
+  private final int hashCode;
   
   /**
    * For CPath will be stored in cache C
@@ -40,7 +69,11 @@ class CacheQPath implements Serializable {
   CacheQPath(String parentId, QPath path) {
     this.parentId = parentId;
     this.path = path;
-    this.key = key(this.parentId, this.path.getEntries());
+    //this.key = key(this.parentId, this.path.getEntries());
+    
+//    int hk = 31 + (this.parentId != null ? this.parentId.hashCode() : 1);
+//    this.hashCode = hk * 31 + this.path.getEntries()[this.path.getEntries().length - 1].hashCode();
+    this.hashCode = key(this.parentId, this.path.getEntries()).hashCode();
   }
   
   /**
@@ -49,31 +82,42 @@ class CacheQPath implements Serializable {
   CacheQPath(String parentId, QPathEntry name) {
     this.parentId = parentId;
     this.path = null;
-    this.key = key(this.parentId, name);
+    //this.key = key(this.parentId, name);
+    
+//    int hk = 31 + (this.parentId != null ? this.parentId.hashCode() : 1);
+//    this.hashCode = hk * 31 + name.hashCode();
+    
+    this.hashCode = key(this.parentId, name).hashCode();
   }
-  
+    
   protected String key(String parentId, QPathEntry[] pathEntries) {
     return key(parentId, pathEntries[pathEntries.length - 1]);
   }
   
   protected String key(String parentId, QPathEntry name) {
-    return ((parentId != null ? parentId : ".") + name.getAsString(true)); // .intern()
+    StringBuilder sk = new StringBuilder();
+    sk.append(BASE);
+    sk.append(parentId != null ? parentId : Constants.ROOT_PARENT_UUID);
+    sk.append(name.getAsString(true));
+    return sk.toString();
   }
   
   @Override
   public boolean equals(Object obj) {
     //return obj.equals(key); // [PN] 16.10.07
-    return key.hashCode() == obj.hashCode();
+    return hashCode == obj.hashCode();
   }
 
   @Override
   public int hashCode() {
-    return key.hashCode();
+    return hashCode;
   }
 
   @Override
   public String toString() {
-    return key;
+    return (this.parentId != null ? this.parentId : Constants.ROOT_PARENT_UUID) + 
+      (path != null ? path.getEntries()[path.getEntries().length - 1] : "null") + "," +
+      hashCode;
   }
 
   protected String getParentId() {

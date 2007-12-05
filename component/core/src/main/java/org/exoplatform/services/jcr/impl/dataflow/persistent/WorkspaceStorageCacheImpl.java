@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -133,8 +134,8 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       };
       
       Calendar firstTime = Calendar.getInstance();
-      firstTime.add(Calendar.SECOND, 30); // begin task after 30 second
-      debugInformer.schedule(informerTask, firstTime.getTime(), 60 * 1000); // report each minute
+      firstTime.add(Calendar.SECOND, 5); // begin task after 30 second
+      debugInformer.schedule(informerTask, firstTime.getTime(), 10 * 1000); // report each minute
     }
   }
 
@@ -409,8 +410,15 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }  
   
   protected void putItems(final List<? extends ItemData> itemsList) throws Exception {
-    for (ItemData item: itemsList)
-      putItem(item);
+    final Map<Serializable, Object> subMap = new LinkedHashMap<Serializable, Object>(); 
+    for (ItemData item: itemsList) {
+      if (log.isDebugEnabled())
+        log.debug(name + ", putItems()    " + item.getQPath().getAsString() + "    " + item.getIdentifier() + "  --  " + item);
+      
+      subMap.put(item.getIdentifier(), item);
+      subMap.put(new CacheQPath(item.getParentIdentifier(), item.getQPath()), item);
+    }
+    cache.putMap(subMap);
   }
   
   public List<NodeData> getChildNodes(final NodeData parentData) {
@@ -837,11 +845,11 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
             + ": " + parent.getQPath().getAsString() + " key: " + key, e);
       }
     }
-
+    
     public boolean select(Serializable key, ObjectCacheInfo value) {
       if (key instanceof CacheQPath) {
         // path
-        CacheQPath path = (CacheQPath) key;
+        CacheQPath path = (CacheQPath) key;        
         if (path.getQPath().isDescendantOf(parent.getQPath(), false)) 
           return true;
       } else {
@@ -855,6 +863,7 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     }
   }
   
+  @Deprecated
   protected class ByPathRemoveSelector implements CachedObjectSelector {
 
     private final String parentPath;

@@ -40,8 +40,13 @@ public class JCRName {
 		this.namespace = namespace.intern();
 		this.prefix = prefix.intern();
     
-    this.stringName = ((this.prefix.length() == 0 ? "" : this.prefix + ":") + this.name); // .intern()
-    this.hashCode = 31 * this.stringName.hashCode();
+    this.stringName = ((this.prefix.length() == 0 ? "" : this.prefix + ":") + this.name);
+    
+    //this.hashCode = 31 * this.stringName.hashCode();
+    
+    int hk = 31 + this.namespace.hashCode();
+    hk = hk * 31 + this.name.hashCode();
+    this.hashCode = hk * 31 + this.prefix.hashCode();
 	}
 	
 	/**

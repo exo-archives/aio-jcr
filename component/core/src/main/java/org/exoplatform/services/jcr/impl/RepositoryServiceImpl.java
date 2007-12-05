@@ -142,11 +142,12 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
       init(container);
     } catch (RepositoryException e) {
       log.error("Error start repository service", e);
-
     } catch (RepositoryConfigurationException e) {
       log.error("Error start repository service", e);
+    } catch (Throwable e) {
+      log.error("Error start repository service", e);
+      throw new RuntimeException(e);
     }
-
   }
 
   public void stop() {
@@ -257,7 +258,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     // key=repository_name
     repositoryContainers.put(rEntry.getName(), repositoryContainer);
     repositoryContainer.start();
-
+    
     if (!config.getRepositoryConfigurations().contains(rEntry)) {
       config.getRepositoryConfigurations().add(rEntry);
     }

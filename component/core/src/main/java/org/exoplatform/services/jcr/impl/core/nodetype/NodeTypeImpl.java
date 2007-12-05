@@ -176,13 +176,13 @@ public class NodeTypeImpl implements ExtendedNodeType {
 	/** @see javax.jcr.nodetype.NodeType#getName */
 	public String getName() {
 
-    String n = null;
+    String n;
     try {
       n = manager.getLocationFactory().createJCRName(qName).getAsString();
     } catch (RepositoryException e) {
       // should never happen
       e.printStackTrace();
-      throw new RuntimeException("TYPE NAME >>> "+n+" "+e);
+      throw new RuntimeException("TYPE NAME >>> " + qName + " "+e);
     }
     return n;
     

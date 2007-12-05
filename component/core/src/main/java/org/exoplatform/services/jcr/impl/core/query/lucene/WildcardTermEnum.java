@@ -99,8 +99,18 @@ class WildcardTermEnum extends FilteredTermEnum {
 
     /**
      * @inheritDoc
+     * 
+     * WAS AN ERROR, for Lucene 1.9.1, but is not for 1.4.3
+D:\Projects\eXo\dev\projects\projects\jcr\trunk\component\core\src\main\java\org\exoplatform\services\jcr\impl\core\query\lucene\WildcardTermEnum.java:[103,20]
+difference() in org.exoplatform.services.jcr.impl.core.query.lucene.WildcardTermEnum cannot override difference() in org.apache.lucene.search.FilteredTermEnum;
+attempting to assign weaker access privileges; was public
+
+D:\Projects\eXo\dev\projects\projects\jcr\trunk\component\core\src\main\java\org\exoplatform\services\jcr\impl\core\query\lucene\WildcardTermEnum.java:[103,20]
+difference() in org.exoplatform.services.jcr.impl.core.query.lucene.WildcardTermEnum cannot override difference() in org.apache.lucene.search.FilteredTermEnum;
+attempting to assign weaker access privileges; was public
      */
-    protected float difference() {
+    // [PN] 23.11.07 protected float difference() {
+    public float difference() {
         return 1.0f;
     }
 
