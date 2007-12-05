@@ -194,5 +194,19 @@
 		</component-plugin>
 		
 	</external-component-plugins>
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.xml.transform.impl.trax.TRAXTemplatesServiceImpl</target-component>
+    <component-plugin>
+      <name>add.xslschema</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.services.xml.transform.impl.trax.TRAXTemplatesLoaderPlugin</type>
+      <init-params>
+      <properties-param>
+        <name>xsl-source-urls</name>
+        <property name="get.method.template" value="xslt/get-method.xsl"/>
+      </properties-param>
+    </init-params>
+    </component-plugin>
+  </external-component-plugins>
 								
 </configuration>
