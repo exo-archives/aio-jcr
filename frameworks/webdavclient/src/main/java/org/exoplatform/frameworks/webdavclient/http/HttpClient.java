@@ -19,6 +19,7 @@ package org.exoplatform.frameworks.webdavclient.http;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -91,7 +92,7 @@ public class HttpClient {
       this.httpRequestStr = httpRequestStr;
   }
   
-  public void setRequestHeader(String headerName, String headerValue) throws Exception {    
+  public void setRequestHeader(String headerName, String headerValue) {    
       int existedIndex = -1;
       for (int i = 0; i < requestHeaders.size(); i++) {
           String curHeader = (String)requestHeaders.get(i);
@@ -136,7 +137,7 @@ public class HttpClient {
       return mainHeader;
   }
   
-  public int getContentLength() throws Exception {
+  public int getContentLength() {
       for (int i = 0; i < responseHeaders.size(); i++) {
           String curHeader = (String)responseHeaders.get(i);
           if (curHeader.startsWith(HttpHeader.CONTENTLENGTH)) {
@@ -170,7 +171,7 @@ public class HttpClient {
       return null;
   }
 
-  public int getReplyCode() throws Exception {
+  public int getReplyCode() {
       int replyCode = 0;
       String []mPathes = mainHeader.split(" ");
       replyCode = new Integer(mPathes[1]);
@@ -193,7 +194,7 @@ public class HttpClient {
       return new ByteArrayInputStream(contentBytes);
   }
 
-  public int execute() throws Exception {
+  public int execute() throws IOException, TimeOutException {
     String escapedHttpPath = TextUtils.Escape(httpRequestStr, '%', true);
     String httpLine = httpCommand + " " + escapedHttpPath + " " + CLIENT_VERSION;    
     outPrintStream.println(httpLine);
@@ -326,7 +327,7 @@ public class HttpClient {
     return getReplyCode();
   }  
   
-  protected String readLine() throws Exception {
+  protected String readLine() throws TimeOutException, IOException {
     byte []buffer = new byte[4*1024];
     int bufPos = 0;
     byte prevByte = 0;
@@ -334,7 +335,7 @@ public class HttpClient {
     while (true) {
       int received = inputStream.read();
       if (received < 0) {
-        return null;
+        throw new TimeOutException();
       }
       
       buffer[bufPos] = (byte)received;
