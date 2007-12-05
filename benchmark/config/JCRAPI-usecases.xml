@@ -7,7 +7,7 @@
 	<param name="japex.plotGroupSize" value="5" />
 	<param name="japex.resultUnit" value="tps" />
 	<param name="japex.warmupIterations" value="0" />
-  <param name="japex.runTime" value="10" /> <!-- 10sec -->
+        <param name="japex.runTime" value="15:00" /> <!-- 15min -->
 
 	<driverGroup name="ThreadDriverGroup" xmlns="http://www.sun.com/japex/testSuite">
 		<param name="japex.classPath" value="../lib/*.jar" />
@@ -19,42 +19,30 @@
 		<param name="jcr.sessionPolicy" value="single" />
 		<param name="exo.jaasConf" value="login.conf" />
 		<param name="exo.containerConf"	value="../config/test-configuration-benchmark.xml" />
-		<driver name="JCRdriver10T">
+		<driver name="JCRdriver">
 			<param name="japex.numberOfThreads" value="10" />
 		</driver>
-		<driver name="JCRdriver20T">
-			<param name="japex.numberOfThreads" value="20" />
-		</driver>
-		<driver name="JCRdriver30T">
-			<param name="japex.numberOfThreads" value="30" />
-		</driver>
-		<!--<driver name="JCRdriver20T">
-			<param name="japex.numberOfThreads" value="20" />
-		</driver>
-		<driver name="JCRdriver30T">
-			<param name="japex.numberOfThreads" value="30" />
-		</driver>-->
 	</driverGroup>
 
 	<testCase name="AddNtFileWithMetadataTest">
-		<!--including addNode(), setProperty(), session.save()-->
-		<param name="exo.testClass"	value="org.exoplatform.jcr.benchmark.usecases.AddNtFileWithMetadataTest" />		
-	  <param name="japex.runIterationDelay"	value="0" /><!-- ms -->
+		<param name="exo.testClass"	value="org.exoplatform.jcr.benchmark.usecases.AddNtFileWithMetadataTest" />
+	    <param name="japex.runIterationDelay"	value="0" />
 	</testCase>
 
 	<!--<testCase name="RandomReadNtFileWithMetadataTest">
-		<!-#-including getNode(), getProperty()-#->
 		<param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.RandomReadNtFileWithMetadataTest" />
-		<param name="jcr.countOfNodes" value="10" />
-		<param name="jcr.lengthOfFile" value="10240" /><!-#- 10K -#->
-		<param name="jcr.lengthOfDcElementSetProperty" value="100" />
-		<param name="jcr.countOfDcElementSetProperties" value="5" />
-	</testCase>
+		<param name="jcr.level1NodesCount" value="1" />
+		<param name="jcr.level2NodesCount" value="50" />
+		<param name="jcr.level3NodesCount" value="50" />
+		<param name="jcr.level4NodesCount" value="50" />
+		<param name="japex.runIterationDelay" value="0" />
+	</testCase>-->
 
-	<testCase name="TraverseInnerFoldersTest">
+	<!--<testCase name="TraverseInnerFoldersTest">
 		<param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.TraverseInnerFoldersTest" />
 		<param name="jcr.amountOfInnerFolders" value="5" />
-		<param name="jcr.depthOfStructure" value="2" />
+		<param name="jcr.depthOfStructure" value="3" />
+		<param name="japex.runIterationDelay"	value="700" />
 	</testCase>-->
 
 </testSuite>
