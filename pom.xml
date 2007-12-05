@@ -18,7 +18,7 @@
 
     <module>frameworks/command</module>
     <module>frameworks/web</module>
-    <module>frameworks/webdavclient</module>
+    <!--<module>frameworks/webdavclient</module>-->
     <module>frameworks/ftpclient</module>
 
     <module>connectors/jca</module>
