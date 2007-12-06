@@ -107,8 +107,13 @@
           <forkMode>once</forkMode><!--once , pertest -->
           <testFailureIgnore>${exo.test.failure.ignore}</testFailureIgnore>
           <includes>
-            <include implementation="java.lang.String">**/${test.classes}*.java1</include>
+            <include>**/${exo.test.includes}.java</include>
           </includes>
+	  <excludes>
+	    <include>**/ftpclient/**/${exo.test.includes}.java</include>
+	    <include>**/webdavclient/**/${exo.test.includes}.java</include>
+	    <include>**/cifs/**/${exo.test.includes}.java</include>
+	  </excludes>
         </configuration>
       </plugin>
 
