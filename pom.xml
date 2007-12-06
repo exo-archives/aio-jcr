@@ -18,7 +18,6 @@
 
     <module>frameworks/command</module>
     <module>frameworks/web</module>
-    <!--<module>frameworks/webdavclient</module>-->
     <module>frameworks/ftpclient</module>
 
     <module>connectors/jca</module>
@@ -33,7 +32,6 @@
 
     <module>applications/java/standalone/rmi-server</module>
     <module>applications/java/standalone/rmi-client</module>
-    <module>applications/java/standalone/samples/webdav-browser</module>
 
     <!-- module>applications/java/standalone/openofficeplugin</module -->
     <!-- module>applications/jcr-console</module -->
