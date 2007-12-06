@@ -14,13 +14,6 @@
   <description>eXo JCR Open Office WebDav plugin</description>
 	
   <dependencies>
-
-    <dependency>
-      <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.framework.httpclient</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
-      <scope>compile</scope>
-    </dependency>	  
 	  
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
