@@ -22,16 +22,6 @@
   <component>
     <key>org.exoplatform.services.jcr.ext.hierarchy.NodeHierarchyCreator</key>
     <type>org.exoplatform.services.jcr.ext.hierarchy.impl.NodeHierarchyCreatorImpl</type>
-    <init-params>
-		  <properties-param>
-		    <name>cms.configuration</name>
-		    <property name="contentLocation" value="war:/conf"/>
-		    <property name="workspace" value="system"/>
-		    <property name="production" value="production"/>
-		    <property name="draft" value="draft"/>
-		    <property name="backup" value="backup"/>                
-		  </properties-param>      
-		</init-params>       
   </component>  
 
   <external-component-plugins>

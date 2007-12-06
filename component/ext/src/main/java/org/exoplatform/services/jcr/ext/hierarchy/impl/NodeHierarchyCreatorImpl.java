@@ -29,8 +29,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.exoplatform.container.component.ComponentPlugin;
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.core.ExtendedNode;
@@ -58,12 +56,8 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
 
   List<AddPathPlugin> pathPlugins_ = new ArrayList<AddPathPlugin>();
 
-  private PropertiesParam propertiesParam_;
-
-  public NodeHierarchyCreatorImpl(InitParams params,
-      RepositoryService jcrService) throws Exception {
+  public NodeHierarchyCreatorImpl(RepositoryService jcrService) throws Exception {
     jcrService_ = jcrService;
-    propertiesParam_ = params.getPropertiesParam("cms.configuration");
   }
 
   public void start() {    
@@ -168,10 +162,6 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
     }       
   }
 
-  public String getContentLocation() {
-    return propertiesParam_.getProperty("contentLocation");
-  }
-  
   public Node getUserApplicationNode(SessionProvider sessionProvider, String userName) throws Exception {
     ManageableRepository currentRepo = jcrService_.getCurrentRepository() ;
     Session session = session(sessionProvider, currentRepo, currentRepo.getConfiguration().getDefaultWorkspaceName()) ;

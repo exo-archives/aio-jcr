@@ -28,8 +28,6 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
  */
 public interface NodeHierarchyCreator {
 
-  public String getContentLocation();
-  
   public String getJcrPath(String alias);
   
   public void init(String repository) throws Exception ;
