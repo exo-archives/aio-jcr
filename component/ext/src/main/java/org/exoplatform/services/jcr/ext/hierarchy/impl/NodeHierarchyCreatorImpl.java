@@ -49,7 +49,7 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
 
   final static private String NT_UNSTRUCTURED = "nt:unstructured".intern() ;
   final static private String USERS_PATH = "usersPath";
-  final static private String USER_APPLICATION = "Application Data" ;
+  final static private String USER_APPLICATION = "ApplicationData" ;
   final static private String PUBLIC_APPLICATION = "eXoApplications" ;
 
   private RepositoryService jcrService_;
