@@ -50,8 +50,8 @@ public abstract class BaseStandaloneTest extends TestCase {
   protected StandaloneContainer container;
 
   public void setUp() throws Exception {
-    String containerConf = BaseStandaloneTest.class.getResource("/conf/standalone/test-configuration.xml").toString();
-    String loginConf = BaseStandaloneTest.class.getResource("/login.conf").toString();
+    String containerConf = getClass().getResource("/conf/standalone/test-configuration.xml").toString();
+    String loginConf = Thread.currentThread().getContextClassLoader().getResource("login.conf").toString();
 
     StandaloneContainer.addConfigurationURL(containerConf);
     container = StandaloneContainer.getInstance();

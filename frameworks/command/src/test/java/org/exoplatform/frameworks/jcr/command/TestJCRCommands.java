@@ -37,12 +37,13 @@ public class TestJCRCommands extends TestCase {
 //
   public void setUp() throws Exception {
 
+    String containerConf = getClass().getResource("/conf/standalone/test-configuration.xml").toString();
+    String loginConf = Thread.currentThread().getContextClassLoader().getResource("login.conf").toString();
+    
     if (System.getProperty("java.security.auth.login.config") == null)
-      System.setProperty("java.security.auth.login.config",
-          "src/main/resources/login.conf");
+      System.setProperty("java.security.auth.login.config", loginConf);
 
-    StandaloneContainer.addConfigurationPath("src/test/java/conf/standalone/test-configuration.xml");
-
+    StandaloneContainer.addConfigurationURL(containerConf);
     container = StandaloneContainer.getInstance();
 
     RepositoryService repService = (RepositoryService)container.getComponentInstanceOfType(RepositoryService.class);
