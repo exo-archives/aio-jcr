@@ -3,7 +3,7 @@
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>config</artifactId>
   <name>eXo JCR Config</name>
-  <version>1.7</version>
+  <version>trunk</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -169,7 +169,7 @@
         <org.exoplatform.tool.version>trunk</org.exoplatform.tool.version>
         <org.exoplatform.kernel.version>trunk</org.exoplatform.kernel.version>
         <org.exoplatform.core.version>trunk</org.exoplatform.core.version>
-        <org.exoplatform.jcr.version>1.7</org.exoplatform.jcr.version>
+        <org.exoplatform.jcr.version>trunk</org.exoplatform.jcr.version>
       </properties>
     </profile>
   </profiles>

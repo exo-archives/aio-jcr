@@ -2,7 +2,7 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>config</artifactId>
-    <version>1.7</version>
+    <version>trunk</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -81,7 +81,7 @@
               <classpath>
                 <pathelement path="${classpath}" />
                 <fileset dir="${basedir}/target">
-                  <include name="**/rmi-client-1.7.dir/*.jar" />
+                  <include name="**/rmi-client-trunk.dir/*.jar" />
                 </fileset>
               </classpath>
             </java>

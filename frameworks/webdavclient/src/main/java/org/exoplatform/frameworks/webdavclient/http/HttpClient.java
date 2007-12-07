@@ -194,7 +194,7 @@ public class HttpClient {
       return new ByteArrayInputStream(contentBytes);
   }
 
-  public int execute() throws IOException, TimeOutException {
+  public int execute() throws IOException {
     String escapedHttpPath = TextUtils.Escape(httpRequestStr, '%', true);
     String httpLine = httpCommand + " " + escapedHttpPath + " " + CLIENT_VERSION;    
     outPrintStream.println(httpLine);
@@ -327,7 +327,7 @@ public class HttpClient {
     return getReplyCode();
   }  
   
-  protected String readLine() throws TimeOutException, IOException {
+  protected String readLine() throws IOException {
     byte []buffer = new byte[4*1024];
     int bufPos = 0;
     byte prevByte = 0;
@@ -335,7 +335,7 @@ public class HttpClient {
     while (true) {
       int received = inputStream.read();
       if (received < 0) {
-        throw new TimeOutException();
+        throw new RuntimeException();
       }
       
       buffer[bufPos] = (byte)received;
