@@ -25,7 +25,7 @@
 	<dependency>
 		<groupId>org.exoplatform.ws.rest</groupId>
 		<artifactId>exo.rest.core</artifactId>
-		<version>0.1</version>
+		<version>trunk</version>
 		<scope>compile</scope>
 	</dependency>	  
 	  
