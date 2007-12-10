@@ -32,7 +32,7 @@ import org.exoplatform.services.jcr.impl.Constants;
  */
 class CacheQPath implements Serializable {
 
-  private static final String BASE = String.valueOf(UUID.randomUUID().hashCode()) + "-";
+  //private static final String BASE = String.valueOf(UUID.randomUUID().hashCode()) + "-";
   
 //  static {
 //    UUID rnd = UUID.randomUUID();
@@ -97,7 +97,7 @@ class CacheQPath implements Serializable {
   
   protected String key(String parentId, QPathEntry name) {
     StringBuilder sk = new StringBuilder();
-    sk.append(BASE);
+    //sk.append(BASE); for strong hash code, skip it when equals uses String.equals 
     sk.append(parentId != null ? parentId : Constants.ROOT_PARENT_UUID);
     sk.append(name.getAsString(true));
     return sk.toString();
