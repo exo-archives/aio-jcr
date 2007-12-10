@@ -61,7 +61,8 @@ class CacheQPath implements Serializable {
   
   private final String parentId;
   private final QPath path;
-  private final int hashCode;
+  //private final int hashCode;
+  private final String key;
   
   /**
    * For CPath will be stored in cache C
@@ -69,11 +70,11 @@ class CacheQPath implements Serializable {
   CacheQPath(String parentId, QPath path) {
     this.parentId = parentId;
     this.path = path;
-    //this.key = key(this.parentId, this.path.getEntries());
+    this.key = key(this.parentId, this.path.getEntries());
     
 //    int hk = 31 + (this.parentId != null ? this.parentId.hashCode() : 1);
 //    this.hashCode = hk * 31 + this.path.getEntries()[this.path.getEntries().length - 1].hashCode();
-    this.hashCode = key(this.parentId, this.path.getEntries()).hashCode();
+    //this.hashCode = key(this.parentId, this.path.getEntries()).hashCode();
   }
   
   /**
@@ -82,12 +83,12 @@ class CacheQPath implements Serializable {
   CacheQPath(String parentId, QPathEntry name) {
     this.parentId = parentId;
     this.path = null;
-    //this.key = key(this.parentId, name);
+    this.key = key(this.parentId, name);
     
 //    int hk = 31 + (this.parentId != null ? this.parentId.hashCode() : 1);
 //    this.hashCode = hk * 31 + name.hashCode();
     
-    this.hashCode = key(this.parentId, name).hashCode();
+//    this.hashCode = key(this.parentId, name).hashCode();
   }
     
   protected String key(String parentId, QPathEntry[] pathEntries) {
@@ -105,19 +106,21 @@ class CacheQPath implements Serializable {
   @Override
   public boolean equals(Object obj) {
     //return obj.equals(key); // [PN] 16.10.07
-    return hashCode == obj.hashCode();
+    if (key.hashCode() == obj.hashCode() && obj instanceof CacheQPath)
+      return key.equals(((CacheQPath) obj).key);
+    return false;
   }
 
   @Override
   public int hashCode() {
-    return hashCode;
+    return key.hashCode();
   }
 
   @Override
   public String toString() {
     return (this.parentId != null ? this.parentId : Constants.ROOT_PARENT_UUID) + 
-      (path != null ? path.getEntries()[path.getEntries().length - 1] : "null") + "," +
-      hashCode;
+      (path != null ? path.getEntries()[path.getEntries().length - 1] : "null") + ", " +
+      key;
   }
 
   protected String getParentId() {
