@@ -51,6 +51,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <childDelegation>false</childDelegation>
+          <testFailureIgnore>${exo.test.failure.ignore}</testFailureIgnore>
           <forkMode>never</forkMode>
           <includes>
             <include>**/TestJCRCommands.java</include>
