@@ -34,7 +34,7 @@ import org.exoplatform.services.jcr.impl.xml.exporting.DocumentViewContentExport
 import org.exoplatform.services.jcr.impl.xml.exporting.DocumentViewStreamExporter;
 import org.exoplatform.services.jcr.impl.xml.exporting.SystemViewContentExporter;
 import org.exoplatform.services.jcr.impl.xml.exporting.SystemViewStreamExporter;
-import org.exoplatform.services.jcr.impl.xml.importing.BackupDataImporter;
+import org.exoplatform.services.jcr.impl.xml.importing.WorkspaceDataImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.ContentHandlerImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
 import org.xml.sax.ContentHandler;
@@ -50,8 +50,8 @@ public class ExportImportFactory {
     this.sessionImpl = sessionImpl;
   }
 
-  public BackupDataImporter getBackupImporter(InvocationContext context) {
-    return new BackupDataImporter(context);
+  public WorkspaceDataImporter getWorkspaceImporter(InvocationContext context) {
+    return new WorkspaceDataImporter(context);
   }
 
   /**

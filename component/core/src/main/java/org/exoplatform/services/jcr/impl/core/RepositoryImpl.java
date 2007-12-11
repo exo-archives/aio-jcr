@@ -314,19 +314,20 @@ public class RepositoryImpl implements ManageableRepository {
    */
   public void importWorkspace(String wsName, InputStream xmlStream) throws RepositoryException,
                                                                    IOException {
-    log.warn("importWorkspace not implemented");
     createWorkspace(wsName);
     SessionImpl sysSession = getSystemSession(wsName);
 
-    InvocationContext context = new InvocationContext();
-    context.put(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS, true);
-    context.put(InvocationContext.EXO_CONTAINER, sysSession.getContainer());
-    context.put(InvocationContext.CURRENT_ITEM, sysSession.getRootNode());
-
-    StreamImporter importer = new ExportImportFactory(sysSession).getBackupImporter(context);
-    importer.importStream(xmlStream);
-
-    sysSession.logout();
+    try {
+      InvocationContext context = new InvocationContext();
+      context.put(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS, true);
+      context.put(InvocationContext.EXO_CONTAINER, sysSession.getContainer());
+      context.put(InvocationContext.CURRENT_ITEM, sysSession.getRootNode());
+  
+      StreamImporter importer = new ExportImportFactory(sysSession).getWorkspaceImporter(context);
+      importer.importStream(xmlStream);
+    } finally {
+      sysSession.logout();
+    }
   }
 
   /*

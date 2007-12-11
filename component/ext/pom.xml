@@ -14,7 +14,6 @@
 	<description>eXo JCR Services extension</description>
 
 	<dependencies>
-
 		<dependency>
 			<groupId>org.exoplatform.jcr</groupId>
 			<artifactId>exo.jcr.component.core</artifactId>
@@ -31,7 +30,7 @@
 		<dependency>
 			<groupId>org.exoplatform.ws.rest</groupId>
 			<artifactId>exo.rest.core</artifactId>
-			<version>0.1</version>
+			<version>trunk</version>
 			<scope>compile</scope>
 		</dependency>
 
@@ -54,12 +53,11 @@
 			<version>2.8.0</version>
 		</dependency>
 
-		<dependency>
+		<!-- dependency>
 		    <groupId>stax</groupId>
 			<artifactId>stax</artifactId>
 			<version>1.2.0</version>
-		</dependency>
-
+		</dependency -->
 	</dependencies>
 
 	<build>

@@ -38,11 +38,11 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class BackupContentImporter extends SystemViewImporter {
+public class WorkspaceContentImporter extends SystemViewImporter {
   /**
    * Class logger.
    */
-  private final Log log                   = ExoLogger.getLogger("jcr.BackupContentImporter");
+  private final Log log                   = ExoLogger.getLogger("jcr.WorkspaceContentImporter");
 
   /**
    * The flag indicates whether a verified that the first element is the root.
@@ -51,14 +51,14 @@ public class BackupContentImporter extends SystemViewImporter {
 
   /**
    * Class used to import content of workspace, using "System View XML Mapping",
-   * while restoring data from backup.
+   * e.g. for restore data during backup.
    * 
    * @param parent
    * @param uuidBehavior
    * @param saveType
    * @param context
    */
-  public BackupContentImporter(NodeImpl parent,
+  public WorkspaceContentImporter(NodeImpl parent,
                                int uuidBehavior,
                                XmlSaveType saveType,
                                InvocationContext context) {

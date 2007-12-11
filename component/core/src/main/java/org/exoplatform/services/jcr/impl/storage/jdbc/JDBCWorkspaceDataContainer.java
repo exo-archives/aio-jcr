@@ -54,7 +54,7 @@ import org.picocontainer.Startable;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id:GenericWorkspaceDataContainer.java 13433 2007-03-15 16:07:23Z peterit $
  */
-public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase implements Startable{
+public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase implements Startable {
   
   public final static String CONTAINER_NAME = "containerName";
   public final static String SOURCE_NAME = "sourceName";

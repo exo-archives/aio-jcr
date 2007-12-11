@@ -31,13 +31,10 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class BackupDataImporter extends StreamImporter {
-  /**
-   * 
-   */
-  private final Log log = ExoLogger.getLogger("jcr.BackupImporter");
+public class WorkspaceDataImporter extends StreamImporter {
+  private final Log log = ExoLogger.getLogger("jcr.WorkspaceDataImporter");
 
-  public BackupDataImporter(InvocationContext context) {
+  public WorkspaceDataImporter(InvocationContext context) {
     super((NodeImpl) context.getCurrentItem(),
           ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW,
           XmlSaveType.WORKSPACE,
@@ -59,7 +56,7 @@ public class BackupDataImporter extends StreamImporter {
                                                int uuidBehavior,
                                                XmlSaveType saveType,
                                                InvocationContext context) {
-    return new BackupContentImporter(parent, uuidBehavior, saveType, context);
+    return new WorkspaceContentImporter(parent, uuidBehavior, saveType, context);
   }
 
 }
