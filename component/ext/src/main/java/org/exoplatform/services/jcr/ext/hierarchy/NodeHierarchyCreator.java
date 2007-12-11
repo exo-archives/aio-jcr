@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.hierarchy;
 
 import javax.jcr.Node;
 
+import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 
 /**
@@ -35,4 +36,6 @@ public interface NodeHierarchyCreator {
   public Node getUserApplicationNode(SessionProvider sessionProvider, String userName) throws Exception ;
   
   public Node getPublicApplicationNode(SessionProvider sessionProvider) throws Exception ;
+  
+  public void addPlugin(ComponentPlugin plugin) ;
 }

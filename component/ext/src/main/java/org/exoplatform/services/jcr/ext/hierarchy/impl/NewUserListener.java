@@ -64,6 +64,7 @@ public class NewUserListener extends UserEventListener {
     nodeHierarchyCreatorService_ = nodeHierarchyCreatorService;
     log_ = logService.getLog(getClass().getName());
     config_ = (HierarchyConfig) params.getObjectParamValues(HierarchyConfig.class).get(0);
+    nodeHierarchyCreatorService_.addPlugin(new AddPathPlugin(params)) ;
     userPath_ = nodeHierarchyCreatorService.getJcrPath(USERS_PATH) ;
   }
   
@@ -127,7 +128,7 @@ public class NewUserListener extends UserEventListener {
         if(nodeType == null || nodeType.length() == 0) nodeType = NT_UNSTRUCTURED ;
         node = node.addNode(token, nodeType);
         if (node.canAddMixin("exo:privilegeable")) node.addMixin("exo:privilegeable");
-        if(permissions != null) ((ExtendedNode)node).setPermissions(permissions);
+        if(permissions != null && !permissions.isEmpty()) ((ExtendedNode)node).setPermissions(permissions);
         if(mixinTypes.size() > 0) {
           for(String mixin : mixinTypes) {
             if(node.canAddMixin(mixin)) node.addMixin(mixin) ;

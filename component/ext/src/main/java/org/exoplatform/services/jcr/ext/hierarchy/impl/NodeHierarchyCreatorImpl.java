@@ -49,8 +49,10 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
 
   final static private String NT_UNSTRUCTURED = "nt:unstructured".intern() ;
   final static private String USERS_PATH = "usersPath";
-  final static private String USER_APPLICATION = "ApplicationData" ;
+  final static private String USER_APPLICATION = "userApplicationData" ;
   final static private String PUBLIC_APPLICATION = "eXoApplications" ;
+  final static private String USER_PRIVATE = "userPrivate" ;
+  final static private String USER_PUBLIC = "userPublic" ;
 
   private RepositoryService jcrService_;
 
@@ -86,7 +88,7 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
         if(nodeType == null || nodeType.length() == 0) nodeType = NT_UNSTRUCTURED ;
         node = node.addNode(token, nodeType);
         if (node.canAddMixin("exo:privilegeable")) node.addMixin("exo:privilegeable");
-        if(permissions != null) ((ExtendedNode)node).setPermissions(permissions);
+        if(permissions != null && !permissions.isEmpty()) ((ExtendedNode)node).setPermissions(permissions);
         if(mixinTypes.size() > 0) {
           for(String mixin : mixinTypes) {
             if(node.canAddMixin(mixin)) node.addMixin(mixin) ;
@@ -153,8 +155,11 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
           if(nodeType == null || nodeType.length() == 0) nodeType = NT_UNSTRUCTURED ;
           List<String> mixinTypes = jcrPath.getMixinTypes() ;
           if(mixinTypes == null) mixinTypes = new ArrayList<String>() ;
-          createNode(rootNode, jcrPath.getPath(),nodeType, mixinTypes, 
-              getPermissions(jcrPath.getPermissions()));
+          if(!jcrPath.getAlias().equals(USER_APPLICATION) && !jcrPath.getAlias().startsWith(USER_PRIVATE) && 
+              !jcrPath.getAlias().startsWith(USER_PUBLIC)) {
+            createNode(rootNode, jcrPath.getPath(),nodeType, mixinTypes, 
+                getPermissions(jcrPath.getPermissions()));
+          }
         }
         session.save() ;
         session.logout() ;
@@ -166,8 +171,8 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
     ManageableRepository currentRepo = jcrService_.getCurrentRepository() ;
     Session session = session(sessionProvider, currentRepo, currentRepo.getConfiguration().getDefaultWorkspaceName()) ;
     Node userNode = getUserNode(session, userName);
-    if(userNode == null) return null;
-    return userNode.getNode(USER_APPLICATION);
+    if(userNode.hasNode(getJcrPath(USER_APPLICATION))) return userNode.getNode(getJcrPath(USER_APPLICATION)) ;
+    return userNode.addNode(getJcrPath(USER_APPLICATION)) ;
   }
   
   public Node getPublicApplicationNode(SessionProvider sessionProvider) throws Exception {
@@ -180,11 +185,9 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
   
   private Node getUserNode(Session session, String userName) throws Exception{
     String userPath = getJcrPath(USERS_PATH) ;
-    userPath = userPath.substring(1, userPath.length()) + "/" ;
-    if(session.getRootNode().hasNode(userPath + userName)) {
-      return session.getRootNode().getNode(userPath + userName);
-    }
-    return null;
+    Node usersNode = (Node)session.getItem(userPath) ;
+    if(usersNode.hasNode(userName)) return usersNode.getNode(userName);
+    return usersNode.addNode(userName) ;
   }
   
   private Session session(SessionProvider sessionProvider, ManageableRepository repo, 
