@@ -126,8 +126,11 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
           if(nodeType == null || nodeType.length() == 0) nodeType = NT_UNSTRUCTURED ;
           List<String> mixinTypes = jcrPath.getMixinTypes() ;
           if(mixinTypes == null) mixinTypes = new ArrayList<String>() ;
-          createNode(rootNode, jcrPath.getPath(),nodeType, mixinTypes, 
-              getPermissions(jcrPath.getPermissions()));
+          if(!jcrPath.getAlias().equals(USER_APPLICATION) && !jcrPath.getAlias().startsWith(USER_PRIVATE) && 
+              !jcrPath.getAlias().startsWith(USER_PUBLIC)) {
+            createNode(rootNode, jcrPath.getPath(),nodeType, mixinTypes, 
+                getPermissions(jcrPath.getPermissions()));
+          }
         }
         session.save() ;
         session.logout() ;
