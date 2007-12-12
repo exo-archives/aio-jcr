@@ -40,7 +40,9 @@
     <structure name="container" field="container">
       <value name="class" field="type" style="attribute"/>
       <collection name="properties" field="parameters" usage="optional" 
-                item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"/>
+                item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"
+                factory="org.jibx.runtime.Utility.arrayListFactory"
+                />
       <collection name="value-storages" field="valueStorages" usage="optional" 
                 item-type="org.exoplatform.services.jcr.config.ValueStorageEntry"/>
 	    <!-- structure name="binary-swap" field="binarySwap" usage="optional">
@@ -52,17 +54,22 @@
     <structure name="cache" field="cache" usage="optional">
       <value name="enabled" field="enabled" style="attribute"/>
       <collection name="properties" field="parameters" usage="optional" 
-                item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"/>
+                item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"
+                factory="org.jibx.runtime.Utility.arrayListFactory"
+                />
     </structure>
     <structure name="query-handler" field="queryHandler" usage="optional">
       <value name="class" field="type" style="attribute"/>
       <collection name="properties" field="parameters" usage="optional" 
-                item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"/>
+                item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"
+                factory="org.jibx.runtime.Utility.arrayListFactory"
+                />
     </structure>
     <structure name="access-manager" field="accessManager" usage="optional">
       <value name="class" field="type" style="attribute"/>
       <collection name="properties" field="parameters" usage="optional" 
-                item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"/>
+                item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"
+                factory="org.jibx.runtime.Utility.arrayListFactory"/>
     </structure>
     
     <structure name="lock-manager" field="lockManager" usage="optional">
@@ -70,12 +77,14 @@
         <structure name="persister" field="persister" usage="optional">
            <value name="class" field="type" style="attribute"/>
            <collection name="properties" field="parameters" usage="optional" 
-                item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"/>
+                item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"
+                factory="org.jibx.runtime.Utility.arrayListFactory"
+                />
         </structure>
      </structure>
   </mapping>
   
-  <mapping name="property" class="org.exoplatform.services.jcr.config.SimpleParameterEntry">
+  <mapping name="property" class="org.exoplatform.services.jcr.config.SimpleParameterEntry" >
     <value name="name" field="name" style="attribute"/>
     <value name="value" field="value" style="attribute"/>
   </mapping>
@@ -84,7 +93,9 @@
     <value name="class" field="type" style="attribute"/>
     <value name="id" field="id" style="attribute"/>
     <collection name="properties" field="parameters" usage="optional" 
-                item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"/>
+                item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"
+                factory="org.jibx.runtime.Utility.arrayListFactory"
+                />
     <collection name="filters" field="filters"  
                 item-type="org.exoplatform.services.jcr.config.ValueStorageFilterEntry"/>
   </mapping>

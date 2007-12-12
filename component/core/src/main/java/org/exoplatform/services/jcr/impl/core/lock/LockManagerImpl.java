@@ -72,52 +72,34 @@ import org.picocontainer.Startable;
 public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecycleListener,
     LockManager, Startable {
   // 30 min
-  public static final long             DEFAULT_LOCK_TIMEOUT = 1000 * 60 * 30;                      // sec
+  public static final long            DEFAULT_LOCK_TIMEOUT = 1000 * 60 * 30;                             // sec
 
-  private static final int              SEARCH_EXECMATCH     = 1;
+  private static final int            SEARCH_EXECMATCH     = 1;
 
-  private static final int              SEARCH_CLOSEDPARENT  = 2;
+  private static final int            SEARCH_CLOSEDPARENT  = 2;
 
-  private static final int              SEARCH_CLOSEDCHILD   = 4;
+  private static final int            SEARCH_CLOSEDCHILD   = 4;
 
-  private final Log                     log                  = ExoLogger
-                                                                 .getLogger("jcr.lock.LockManager");
-
-  // NodeIdentifier -- lockData
-  private Map<String, LockData> locks;
-
-  private final DataManager             dataManager;
+  private final Log                   log                  = ExoLogger.getLogger("jcr.lock.LockManager");
 
   // NodeIdentifier -- lockData
-  private Map<String, LockData> pendingLocks;
+  private final Map<String, LockData> locks;
+
+  private final DataManager           dataManager;
+
+  // NodeIdentifier -- lockData
+  private final Map<String, LockData> pendingLocks;
 
   // lockToken --lockData
-  private Map<String, LockData> tokensMap;
+  private final Map<String, LockData> tokensMap;
 
   // private final RepositoryEntry config;
 
-  private long                          lockTimeOut;
+  private long                        lockTimeOut;
 
-  private LockRemover                   lockRemover;
+  private LockRemover                 lockRemover;
 
-  private final LockPersister           persister;
-
-  public LockManagerImpl(WorkspacePersistentDataManager dataManager,
-      WorkspaceEntry config,
-      LockPersister persister) {
-
-    this.dataManager = dataManager;
-    this.persister = persister;
-    if (config.getLockManager() != null)
-      lockTimeOut = config.getLockManager().getTimeout() > 0 ? config.getLockManager().getTimeout()
-          : DEFAULT_LOCK_TIMEOUT;
-
-    locks = new WeakHashMap<String, LockData>();
-    pendingLocks = new WeakHashMap<String, LockData>();
-    tokensMap = new WeakHashMap<String, LockData>();
-
-    dataManager.addItemPersistenceListener(this);
-  }
+  private final LockPersister         persister;
 
   /**
    * Constructor for workspace without LockPersister
@@ -127,6 +109,23 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
    */
   public LockManagerImpl(WorkspacePersistentDataManager dataManager, WorkspaceEntry config) {
     this(dataManager, config, null);
+  }
+
+  public LockManagerImpl(WorkspacePersistentDataManager dataManager,
+                         WorkspaceEntry config,
+                         LockPersister persister) {
+
+    this.dataManager = dataManager;
+    this.persister = persister;
+    if (config.getLockManager() != null)
+      lockTimeOut = config.getLockManager().getTimeout() > 0 ? config.getLockManager().getTimeout()
+                                                            : DEFAULT_LOCK_TIMEOUT;
+
+    locks = new WeakHashMap<String, LockData>();
+    pendingLocks = new WeakHashMap<String, LockData>();
+    tokensMap = new WeakHashMap<String, LockData>();
+
+    dataManager.addItemPersistenceListener(this);
   }
 
   /*
@@ -143,9 +142,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
   }
 
   public synchronized Lock addPendingLock(NodeImpl node,
-      boolean isDeep,
-      boolean isSessionScoped,
-      long timeOut) throws LockException {
+                                          boolean isDeep,
+                                          boolean isSessionScoped,
+                                          long timeOut) throws LockException {
     LockData lData = getLockData((NodeData) node.getData(), SEARCH_EXECMATCH | SEARCH_CLOSEDPARENT);
     if (lData != null) {
       if (lData.getNodeIdentifier().equals(node.getInternalIdentifier())) {
@@ -160,8 +159,12 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     }
 
     String lockToken = IdGenerator.generate();
-    lData = new LockData(node.getInternalIdentifier(), lockToken, isDeep, isSessionScoped, node
-        .getSession().getUserID(), timeOut > 0 ? timeOut : lockTimeOut);
+    lData = new LockData(node.getInternalIdentifier(),
+                         lockToken,
+                         isDeep,
+                         isSessionScoped,
+                         node.getSession().getUserID(),
+                         timeOut > 0 ? timeOut : lockTimeOut);
 
     lData.addLockHolder(node.getSession().getId());
     pendingLocks.put(node.getInternalIdentifier(), lData);
@@ -233,9 +236,8 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
             // if no session currently holds lock except this
             if (lockData.getLockHolderSize() == 1) {
               try {
-                ((NodeImpl) session.getTransientNodesManager().getItemByIdentifier(lockData
-                    .getNodeIdentifier(),
-                    true)).unlock();
+                ((NodeImpl) session.getTransientNodesManager()
+                                   .getItemByIdentifier(lockData.getNodeIdentifier(), true)).unlock();
               } catch (UnsupportedRepositoryOperationException e) {
                 log.error(e.getLocalizedMessage());
               } catch (LockException e) {
@@ -268,8 +270,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     if (changesLog instanceof PlainChangesLog) {
       chengesLogList.add((PlainChangesLog) changesLog);
     } else if (changesLog instanceof CompositeChangesLog) {
-      for (ChangesLogIterator iter = ((CompositeChangesLog) changesLog).getLogIterator(); iter
-          .hasNextLog();) {
+      for (ChangesLogIterator iter = ((CompositeChangesLog) changesLog).getLogIterator(); iter.hasNextLog();) {
         chengesLogList.add(iter.nextLog());
       }
     }
@@ -291,18 +292,18 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
             ItemState isDeepState = getItemState(currChangesLog, Constants.JCR_LOCKISDEEP);
             if (ownerState != null && isDeepState != null) {
 
-              String owner = new String(((((TransientPropertyData) (ownerState.getData()))
-                  .getValues()).get(0)).getAsByteArray(), Constants.DEFAULT_ENCODING);
+              String owner = new String(((((TransientPropertyData) (ownerState.getData())).getValues()).get(0)).getAsByteArray(),
+                                        Constants.DEFAULT_ENCODING);
 
-              boolean isDeep = Boolean.valueOf(new String(((((TransientPropertyData) (isDeepState
-                  .getData())).getValues()).get(0)).getAsByteArray(), Constants.DEFAULT_ENCODING))
-                  .booleanValue();
+              boolean isDeep = Boolean.valueOf(new String(((((TransientPropertyData) (isDeepState.getData())).getValues()).get(0)).getAsByteArray(),
+                                                          Constants.DEFAULT_ENCODING))
+                                      .booleanValue();
               LockData lData = new LockData(nodeIdentifier,
-                  lockToken,
-                  isDeep,
-                  false,
-                  owner,
-                  lockTimeOut);
+                                            lockToken,
+                                            isDeep,
+                                            false,
+                                            owner,
+                                            lockTimeOut);
               lData.addLockHolder(currChangesLog.getSessionId());
               locks.put(nodeIdentifier, lData);
               tokensMap.put(lockToken, lData);
@@ -311,8 +312,10 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
           break;
         case ExtendedEvent.UNLOCK:
 
-          internalUnLock(currChangesLog.getSessionId(), currChangesLog.getAllStates().get(0)
-              .getData().getParentIdentifier());
+          internalUnLock(currChangesLog.getSessionId(), currChangesLog.getAllStates()
+                                                                      .get(0)
+                                                                      .getData()
+                                                                      .getParentIdentifier());
           break;
         default:
           HashSet<String> removedLock = new HashSet<String>();
@@ -324,7 +327,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
               nodeIdentifier = itemState.getData().getIdentifier();
               if (itemState.isDeleted()) {
                 removedLock.add(nodeIdentifier);
-              //} else if (itemState.isAdded() || itemState.isRenamed()) {
+                // } else if (itemState.isAdded() || itemState.isRenamed()) {
               } else if (itemState.isAdded() || itemState.isRenamed() || itemState.isUpdated()) {
                 removedLock.remove(nodeIdentifier);
               }
@@ -360,6 +363,55 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     if (lData != null && lData.isLockHolder(sessionId)) {
       lData.removeLockHolder(sessionId);
     }
+  }
+
+  public void start() {
+    lockRemover = new LockRemover();
+    lockRemover.start();
+  }
+
+  public void stop() {
+    lockRemover.halt();
+    lockRemover.interrupt();
+    locks.clear();
+    pendingLocks.clear();
+    tokensMap.clear();
+
+  }
+
+  private TransientItemData copyItemData(PropertyData prop) throws RepositoryException {
+
+    if (prop == null)
+      return null;
+
+    // make a copy
+    TransientPropertyData newData = new TransientPropertyData(prop.getQPath(),
+                                                              prop.getIdentifier(),
+                                                              prop.getPersistedVersion(),
+                                                              prop.getType(),
+                                                              prop.getParentIdentifier(),
+                                                              prop.isMultiValued());
+
+    List<ValueData> values = null;
+    // null is possible for deleting items
+    if (prop.getValues() != null) {
+      values = new ArrayList<ValueData>();
+      for (ValueData val : prop.getValues()) {
+        values.add(((AbstractValueData) val).createTransientCopy());
+      }
+    }
+    newData.setValues(values);
+    return newData;
+  }
+
+  private ItemState getItemState(PlainChangesLog changesLog, InternalQName itemName) {
+    List<ItemState> allStates = changesLog.getAllStates();
+    for (int i = allStates.size() - 1; i >= 0; i--) {
+      ItemState state = allStates.get(i);
+      if (state.getData().getQPath().getName().equals(itemName))
+        return state;
+    }
+    return null;
   }
 
   private LockData getLockData(NodeData data, int searchType) {
@@ -419,16 +471,6 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     }
   }
 
-  private ItemState getItemState(PlainChangesLog changesLog, InternalQName itemName) {
-    List<ItemState> allStates = changesLog.getAllStates();
-    for (int i = allStates.size() - 1; i >= 0; i--) {
-      ItemState state = allStates.get(i);
-      if ( state.getData().getQPath().getName().equals(itemName))
-        return state;
-    }
-    return null;
-  }
-
   private synchronized void internalUnLock(String sessionId, String nodeIdentifier) throws LockException {
     LockData lData = locks.get(nodeIdentifier);
 
@@ -477,41 +519,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
       dataManager.save(new TransactionChangesLog(changesLog));
     } catch (RepositoryException e) {
-      log.error("Error occur during removing lock"+e.getLocalizedMessage());
+      log.error("Error occur during removing lock" + e.getLocalizedMessage());
     }
 
-  }
-
-  private TransientItemData copyItemData(PropertyData prop) throws RepositoryException {
-
-    if (prop == null)
-      return null;
-
-    // make a copy
-    TransientPropertyData newData = new TransientPropertyData(prop.getQPath(),
-                                                              prop.getIdentifier(),
-                                                              prop.getPersistedVersion(),
-                                                              prop.getType(),
-                                                              prop.getParentIdentifier(),
-                                                              prop.isMultiValued());
-
-    List<ValueData> values = null;
-    // null is possible for deleting items
-    if (prop.getValues() != null) {
-      values = new ArrayList<ValueData>();
-      for (ValueData val : prop.getValues()) {
-        values.add(((AbstractValueData) val).createTransientCopy());
-      }
-    }
-    newData.setValues(values);
-    return newData;
-  }
-  public void start() {
-    lockRemover = new LockRemover();
-  }
-
-  public void stop() {
-    lockRemover.halt();
   }
 
   protected class LockRemover extends WorkerThread {
@@ -526,7 +536,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
       setName("LockRemover " + getId());
       setPriority(Thread.MIN_PRIORITY);
       setDaemon(true);
-      start();
+      // start();
       log.info("LockRemover instantiated name= " + getName() + " timeout= " + timeout);
 
     }

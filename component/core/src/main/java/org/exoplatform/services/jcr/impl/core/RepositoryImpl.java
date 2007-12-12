@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
- 
+
 package org.exoplatform.services.jcr.impl.core;
 
 import java.io.IOException;
@@ -53,8 +53,7 @@ import org.exoplatform.services.security.impl.CredentialsImpl;
 import org.picocontainer.ComponentAdapter;
 
 /**
- * Created by The eXo Platform SAS.<br/> Implementation of
- * javax.jcr.Repository
+ * Created by The eXo Platform SAS.<br/> Implementation of javax.jcr.Repository
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
  * @version $Id: RepositoryImpl.java 12841 2007-02-16 08:58:38Z peterit $
@@ -175,9 +174,11 @@ public class RepositoryImpl implements ManageableRepository {
     initWorkspace(wsConfig.getName(), wsConfig.getAutoInitializedRootNt());
 
     // Third step
-    repositoryContainer.getWorkspaceContainer(wsConfig.getName())
-                       .getWorkspaceInitializer()
-                       .startWorkspace();
+
+    wsContainer.getWorkspaceInitializer().startWorkspace();
+
+    // Fourth step
+    wsContainer.start();
 
     log.info("Workspace " + wsName + "@" + this.name + " is initialized");
   }
@@ -322,7 +323,7 @@ public class RepositoryImpl implements ManageableRepository {
       context.put(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS, true);
       context.put(InvocationContext.EXO_CONTAINER, sysSession.getContainer());
       context.put(InvocationContext.CURRENT_ITEM, sysSession.getRootNode());
-  
+
       StreamImporter importer = new ExportImportFactory(sysSession).getWorkspaceImporter(context);
       importer.importStream(xmlStream);
     } finally {
@@ -360,6 +361,7 @@ public class RepositoryImpl implements ManageableRepository {
       workspaceContainer = repositoryContainer.getWorkspaceContainer(workspaceName);
       try {
         workspaceContainer.stopContainer();
+        workspaceContainer.stop();
       } catch (Exception e) {
         throw new RepositoryException(e);
       }

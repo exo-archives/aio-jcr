@@ -29,46 +29,45 @@ import java.util.List;
 
 public abstract class MappedParametrizedObjectEntry {
 
-  //protected String name;
+  // protected String name;
 
   protected String type;
 
-  protected ArrayList parameters;
+  protected List   parameters;
 
   public MappedParametrizedObjectEntry() {
     parameters = new ArrayList();
   }
 
-  public MappedParametrizedObjectEntry(String type, ArrayList params) {
-    //this.name = name;
+  public MappedParametrizedObjectEntry(String type, List params) {
+    // this.name = name;
     this.type = type;
     this.parameters = params;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
   }
 
   public List getParameters() {
     return parameters;
   }
 
-  public void setParameters(List parameters) {
-    this.parameters = (ArrayList) parameters;
-  }
-
-  public String getParameterValue(String name)
-      throws RepositoryConfigurationException {
+  public String getParameterValue(String name) throws RepositoryConfigurationException {
     for (int i = 0; i < parameters.size(); i++) {
       SimpleParameterEntry p = (SimpleParameterEntry) parameters.get(i);
       if (p.getName().equals(name))
         return p.getValue();
     }
     throw new RepositoryConfigurationException("Parameter not found " + name);
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public void setParameters(List parameters) {
+    this.parameters = parameters;
+  }
+
+  public void setType(String type) {
+    this.type = type;
   }
 
 }

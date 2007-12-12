@@ -16,8 +16,7 @@
  */
 package org.exoplatform.services.jcr.config;
 
-import java.util.ArrayList;
-
+import java.util.List;
 
 /**
  * Created by The eXo Platform SAS.
@@ -28,11 +27,11 @@ import java.util.ArrayList;
 
 public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
 
-	public QueryHandlerEntry() {
-		super();
-	}
-	
-	public QueryHandlerEntry(String type, ArrayList params) {
-		super(type, params);
-	}
+  public QueryHandlerEntry() {
+    super();
+  }
+
+  public QueryHandlerEntry(String type, List<SimpleParameterEntry> params) {
+    super(type, params);
+  }
 }
