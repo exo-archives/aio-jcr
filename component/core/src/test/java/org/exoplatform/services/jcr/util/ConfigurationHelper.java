@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.ContainerEntry;
+import org.exoplatform.services.jcr.config.QueryHandlerEntry;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.SimpleParameterEntry;
 import org.exoplatform.services.jcr.config.ValueStorageEntry;
@@ -58,6 +59,17 @@ public class ConfigurationHelper {
                        "org.exoplatform.services.naming.SimpleContextFactory");
   }
 
+  public void createWorkspace(WorkspaceEntry workspaceEntry, ExoContainer container) throws RepositoryConfigurationException,
+                                                                                    RepositoryException {
+    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
+    RepositoryImpl defRep;
+
+    defRep = (RepositoryImpl) service.getDefaultRepository();
+    defRep.configWorkspace(workspaceEntry);
+    defRep.createWorkspace(workspaceEntry.getName());
+
+  }
+
   public String getNewDataSource(String type) throws Exception {
 
     String newDS = IdGenerator.generate();
@@ -81,12 +93,6 @@ public class ConfigurationHelper {
 
   }
 
-  private void createDatabase(DataSource ds, String dbName) throws SQLException {
-    Connection connection = ds.getConnection();
-    PreparedStatement st = connection.prepareStatement("create database " + dbName);
-    st.executeQuery();
-  }
-
   public WorkspaceEntry getNewWs(String wsName,
                                  boolean isMultiDb,
                                  String dsName,
@@ -95,7 +101,7 @@ public class ConfigurationHelper {
 
     List params = new ArrayList();
 
-    if (isMultiDb ||  dsName == null) {
+    if (isMultiDb || dsName == null) {
       dsName = getNewDataSource("");
     }
 
@@ -104,10 +110,10 @@ public class ConfigurationHelper {
     params.add(new SimpleParameterEntry("multi-db", isMultiDb ? "true" : "false"));
     params.add(new SimpleParameterEntry("update-storage", "true"));
     params.add(new SimpleParameterEntry("max-buffer-size", "204800"));
-    
-    
-    if(entry.getParameterValue(JDBCWorkspaceDataContainer.DB_DIALECT) != null){
-      params.add(new SimpleParameterEntry(JDBCWorkspaceDataContainer.DB_DIALECT, entry.getParameterValue(JDBCWorkspaceDataContainer.DB_DIALECT)));
+
+    if (entry.getParameterValue(JDBCWorkspaceDataContainer.DB_DIALECT) != null) {
+      params.add(new SimpleParameterEntry(JDBCWorkspaceDataContainer.DB_DIALECT,
+                                          entry.getParameterValue(JDBCWorkspaceDataContainer.DB_DIALECT)));
     }
 
     String oldSwap = entry.getParameterValue("swap-directory");
@@ -142,11 +148,24 @@ public class ConfigurationHelper {
       containerEntry.setValueStorages(list);
 
     }
-    WorkspaceEntry workspaceEntry = new WorkspaceEntry(wsName != null ? wsName
-        : IdGenerator.generate(), "nt:unstructured");
-    workspaceEntry.setContainer(containerEntry);
+    ArrayList qParams = new ArrayList();
+    qParams.add(new SimpleParameterEntry("indexDir", "../temp/index"));
+    QueryHandlerEntry qEntry = new QueryHandlerEntry("org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex",
+                                                     qParams);
 
+    WorkspaceEntry workspaceEntry = new WorkspaceEntry(wsName != null ? wsName
+                                                                     : IdGenerator.generate(),
+                                                       "nt:unstructured");
+    workspaceEntry.setContainer(containerEntry);
+    workspaceEntry.setQueryHandler(qEntry);
+    // workspaceEntry
     return workspaceEntry;
+  }
+
+  private void createDatabase(DataSource ds, String dbName) throws SQLException {
+    Connection connection = ds.getConnection();
+    PreparedStatement st = connection.prepareStatement("create database " + dbName);
+    st.executeQuery();
   }
 
   public static ConfigurationHelper getInstence() {
@@ -155,16 +174,5 @@ public class ConfigurationHelper {
     }
 
     return instence;
-  }
-
-  public void createWorkspace(WorkspaceEntry workspaceEntry, ExoContainer container) throws RepositoryConfigurationException,
-      RepositoryException {
-    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
-    RepositoryImpl defRep;
-
-    defRep = (RepositoryImpl) service.getDefaultRepository();
-    defRep.configWorkspace(workspaceEntry);
-    defRep.createWorkspace(workspaceEntry.getName());
-
   }
 }
