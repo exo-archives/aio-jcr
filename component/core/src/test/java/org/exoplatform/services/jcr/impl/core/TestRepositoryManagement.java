@@ -41,7 +41,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
   private static boolean            isBinded        = false;
 
-  private final int                       lastDS          = 0;
+  private final int                 lastDS          = 0;
 
   private WorkspaceEntry            wsEntry;
 
@@ -52,6 +52,41 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
   public TestRepositoryManagement() {
     super();
     this.helper = ConfigurationHelper.getInstence();
+  }
+
+  // TODO remove this method
+  public void createDafaultRepository(String repoName, String defaultWs) throws Exception {
+
+    RepositoryEntry repositoryEntry = new RepositoryEntry();
+
+    repositoryEntry.setName(repoName);
+    repositoryEntry.setSessionTimeOut(3600000);
+    repositoryEntry.setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy");
+    repositoryEntry.setSecurityDomain("exo-domain");
+    repositoryEntry.setSystemWorkspaceName(defaultWs);
+    repositoryEntry.setDefaultWorkspaceName(defaultWs);
+
+    WorkspaceEntry workspaceEntry = helper.getNewWs(defaultWs,
+                                                    isDefaultWsMultiDb,
+                                                    null,
+                                                    "target/temp/values/" + IdGenerator.generate(),
+                                                    wsEntry.getContainer());
+
+    repositoryEntry.addWorkspace(workspaceEntry);
+
+    WorkspaceEntry secondWs = helper.getNewWs(defaultWs + IdGenerator.generate(),
+                                              isDefaultWsMultiDb,
+                                              isDefaultWsMultiDb ? null
+                                                                : workspaceEntry.getContainer()
+                                                                                .getParameterValue("sourceName"),
+                                              "target/temp/values/" + IdGenerator.generate(),
+                                              wsEntry.getContainer());
+
+    repositoryEntry.addWorkspace(secondWs);
+
+    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
+
+    service.createRepository(repositoryEntry);
   }
 
   @Override
@@ -219,8 +254,8 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
     WorkspaceEntry secondWs = helper.getNewWs("ws4testCanRemove2",
                                               isDefaultWsMultiDb,
                                               isDefaultWsMultiDb ? null
-                                                  : workspaceEntry.getContainer()
-                                                                  .getParameterValue("sourceName"),
+                                                                : workspaceEntry.getContainer()
+                                                                                .getParameterValue("sourceName"),
                                               "target/temp/values/" + IdGenerator.generate(),
                                               wsEntry.getContainer());
     // WorkspaceEntry secondWs = TestWorkspaceManagement.getNewWs(null, false,
@@ -247,7 +282,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
       assertFalse(service.canRemoveRepository("repo4testCanRemove"));
       sess2.logout();
       assertTrue(service.canRemoveRepository("repo4testCanRemove"));
-
+      service.removeRepository("repo4testCanRemove");
     } catch (RepositoryException e) {
       e.printStackTrace();
       fail();
@@ -255,88 +290,27 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
   }
 
-  public void testRemove() throws Exception {
-    RepositoryEntry repositoryEntry = new RepositoryEntry();
+  public void testInitNameSpaces() throws Exception {
+    // Test initialization of common node types
+    String REPONAME = "testInitNameSpaces";
+    String WSNAME = "ws4" + REPONAME;
 
-    repositoryEntry.setName("repo4testRemove");
-    repositoryEntry.setSessionTimeOut(3600000);
-    repositoryEntry.setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy");
-    repositoryEntry.setSecurityDomain("exo-domain");
-    repositoryEntry.setSystemWorkspaceName("ws4testRemove");
-    repositoryEntry.setDefaultWorkspaceName("ws4testRemove");
-
-    WorkspaceEntry workspaceEntry = helper.getNewWs("ws4testRemove",
-                                                    isDefaultWsMultiDb,
-                                                    null,
-                                                    "target/temp/values/" + IdGenerator.generate(),
-                                                    wsEntry.getContainer());
-
-    repositoryEntry.addWorkspace(workspaceEntry);
-
-    WorkspaceEntry secondWs = helper.getNewWs("ws4testRemove2",
-                                              isDefaultWsMultiDb,
-                                              isDefaultWsMultiDb ? null
-                                                  : workspaceEntry.getContainer()
-                                                                  .getParameterValue("sourceName"),
-                                              "target/temp/values/" + IdGenerator.generate(),
-                                              wsEntry.getContainer());
-    repositoryEntry.addWorkspace(secondWs);
-
+    createDafaultRepository(REPONAME, WSNAME);
     RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
 
-    service.createRepository(repositoryEntry);
+    RepositoryImpl newRepository = (RepositoryImpl) service.getRepository(REPONAME);
+    Session sess = newRepository.getSystemSession(WSNAME);
 
-    RepositoryImpl newRtepository = (RepositoryImpl) service.getRepository("repo4testRemove");
-    assertTrue(service.canRemoveRepository("repo4testRemove"));
+    assertEquals("http://www.apache.org/jackrabbit/test", sess.getNamespaceURI("test"));
+    assertEquals("http://www.exoplatform.org/jcr/test/1.0", sess.getNamespaceURI("exojcrtest"));
 
-    service.removeRepository("repo4testRemove");
-  }
-
-  public void testRemoveOtherThread() throws Exception {
-    RepositoryEntry repositoryEntry = new RepositoryEntry();
-
-    repositoryEntry.setName("repo4RemoveOtherThread");
-    repositoryEntry.setSessionTimeOut(3600000);
-    repositoryEntry.setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy");
-    repositoryEntry.setSecurityDomain("exo-domain");
-    repositoryEntry.setSystemWorkspaceName("ws4RemoveOtherThread");
-    repositoryEntry.setDefaultWorkspaceName("ws4RemoveOtherThread");
-
-    WorkspaceEntry workspaceEntry = helper.getNewWs("ws4RemoveOtherThread",
-                                                    isDefaultWsMultiDb,
-                                                    null,
-                                                    "target/temp/values/" + IdGenerator.generate(),
-                                                    wsEntry.getContainer());
-
-    repositoryEntry.addWorkspace(workspaceEntry);
-
-    WorkspaceEntry secondWs = helper.getNewWs("ws4RemoveOtherThread2",
-                                              isDefaultWsMultiDb,
-                                              isDefaultWsMultiDb ? null
-                                                  : workspaceEntry.getContainer()
-                                                                  .getParameterValue("sourceName"),
-                                              "target/temp/values/" + IdGenerator.generate(),
-                                              wsEntry.getContainer());
-
-    repositoryEntry.addWorkspace(secondWs);
-
-    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
-
-    service.createRepository(repositoryEntry);
-
-    // RepositoryImpl newRepository = (RepositoryImpl)
-    // service.getRepository("repo4RemoveOtherThread");
-    assertTrue(service.canRemoveRepository("repo4RemoveOtherThread"));
-
-    RepositoryRemover remover = new RepositoryRemover("repo4RemoveOtherThread", service);
-    remover.start();
-    Thread.currentThread().sleep(1000 * 10);// 10 sec
     try {
-      service.getRepository("repo4RemoveOtherThread");
+      sess.getNamespaceURI("blabla");
       fail();
-    } catch (RepositoryException e) {
-      // ok
+    } catch (NamespaceException e) {
+      // ok;
     }
+
   }
 
   public void testInitNodeTypes() throws Exception {
@@ -455,27 +429,88 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
   }
 
-  public void testInitNameSpaces() throws Exception {
-    // Test initialization of common node types
-    String REPONAME = "testInitNameSpaces";
-    String WSNAME = "ws4" + REPONAME;
+  public void testRemove() throws Exception {
+    RepositoryEntry repositoryEntry = new RepositoryEntry();
 
-    createDafaultRepository(REPONAME, WSNAME);
+    repositoryEntry.setName("repo4testRemove");
+    repositoryEntry.setSessionTimeOut(3600000);
+    repositoryEntry.setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy");
+    repositoryEntry.setSecurityDomain("exo-domain");
+    repositoryEntry.setSystemWorkspaceName("ws4testRemove");
+    repositoryEntry.setDefaultWorkspaceName("ws4testRemove");
+
+    WorkspaceEntry workspaceEntry = helper.getNewWs("ws4testRemove",
+                                                    isDefaultWsMultiDb,
+                                                    null,
+                                                    "target/temp/values/" + IdGenerator.generate(),
+                                                    wsEntry.getContainer());
+
+    repositoryEntry.addWorkspace(workspaceEntry);
+
+    WorkspaceEntry secondWs = helper.getNewWs("ws4testRemove2",
+                                              isDefaultWsMultiDb,
+                                              isDefaultWsMultiDb ? null
+                                                                : workspaceEntry.getContainer()
+                                                                                .getParameterValue("sourceName"),
+                                              "target/temp/values/" + IdGenerator.generate(),
+                                              wsEntry.getContainer());
+    repositoryEntry.addWorkspace(secondWs);
+
     RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
 
-    RepositoryImpl newRepository = (RepositoryImpl) service.getRepository(REPONAME);
-    Session sess = newRepository.getSystemSession(WSNAME);
+    service.createRepository(repositoryEntry);
 
-    assertEquals("http://www.apache.org/jackrabbit/test", sess.getNamespaceURI("test"));
-    assertEquals("http://www.exoplatform.org/jcr/test/1.0", sess.getNamespaceURI("exojcrtest"));
+    RepositoryImpl newRtepository = (RepositoryImpl) service.getRepository("repo4testRemove");
+    assertTrue(service.canRemoveRepository("repo4testRemove"));
 
+    service.removeRepository("repo4testRemove");
+  }
+
+  public void testRemoveOtherThread() throws Exception {
+    RepositoryEntry repositoryEntry = new RepositoryEntry();
+
+    repositoryEntry.setName("repo4RemoveOtherThread");
+    repositoryEntry.setSessionTimeOut(3600000);
+    repositoryEntry.setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy");
+    repositoryEntry.setSecurityDomain("exo-domain");
+    repositoryEntry.setSystemWorkspaceName("ws4RemoveOtherThread");
+    repositoryEntry.setDefaultWorkspaceName("ws4RemoveOtherThread");
+
+    WorkspaceEntry workspaceEntry = helper.getNewWs("ws4RemoveOtherThread",
+                                                    isDefaultWsMultiDb,
+                                                    null,
+                                                    "target/temp/values/" + IdGenerator.generate(),
+                                                    wsEntry.getContainer());
+
+    repositoryEntry.addWorkspace(workspaceEntry);
+
+    WorkspaceEntry secondWs = helper.getNewWs("ws4RemoveOtherThread2",
+                                              isDefaultWsMultiDb,
+                                              isDefaultWsMultiDb ? null
+                                                                : workspaceEntry.getContainer()
+                                                                                .getParameterValue("sourceName"),
+                                              "target/temp/values/" + IdGenerator.generate(),
+                                              wsEntry.getContainer());
+
+    repositoryEntry.addWorkspace(secondWs);
+
+    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
+
+    service.createRepository(repositoryEntry);
+
+    // RepositoryImpl newRepository = (RepositoryImpl)
+    // service.getRepository("repo4RemoveOtherThread");
+    assertTrue(service.canRemoveRepository("repo4RemoveOtherThread"));
+
+    RepositoryRemover remover = new RepositoryRemover("repo4RemoveOtherThread", service);
+    remover.start();
+    Thread.sleep(1000 * 10);// 10 sec
     try {
-      sess.getNamespaceURI("blabla");
+      service.getRepository("repo4RemoveOtherThread");
       fail();
-    } catch (NamespaceException e) {
-      // ok;
+    } catch (RepositoryException e) {
+      // ok
     }
-
   }
 
   private class RepositoryRemover extends Thread {
@@ -498,39 +533,5 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
         e.printStackTrace();
       }
     }
-  }
-  //TODO remove this method
-  public void createDafaultRepository(String repoName, String defaultWs) throws Exception {
-
-    RepositoryEntry repositoryEntry = new RepositoryEntry();
-
-    repositoryEntry.setName(repoName);
-    repositoryEntry.setSessionTimeOut(3600000);
-    repositoryEntry.setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy");
-    repositoryEntry.setSecurityDomain("exo-domain");
-    repositoryEntry.setSystemWorkspaceName(defaultWs);
-    repositoryEntry.setDefaultWorkspaceName(defaultWs);
-
-    WorkspaceEntry workspaceEntry = helper.getNewWs(defaultWs,
-                                                    isDefaultWsMultiDb,
-                                                    null,
-                                                    "target/temp/values/" + IdGenerator.generate(),
-                                                    wsEntry.getContainer());
-
-    repositoryEntry.addWorkspace(workspaceEntry);
-
-    WorkspaceEntry secondWs = helper.getNewWs(defaultWs + IdGenerator.generate(),
-                                              isDefaultWsMultiDb,
-                                              isDefaultWsMultiDb ? null
-                                                  : workspaceEntry.getContainer()
-                                                                  .getParameterValue("sourceName"),
-                                              "target/temp/values/" + IdGenerator.generate(),
-                                              wsEntry.getContainer());
-
-    repositoryEntry.addWorkspace(secondWs);
-
-    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
-
-    service.createRepository(repositoryEntry);
   }
 }
