@@ -219,20 +219,12 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
   }
 
   public void stop() {
-    /**
-     * RepositoryEntry repconfig = config.getRepositoryConfiguration(name);
-     * RepositoryImpl repo = (RepositoryImpl) getRepository(name); for
-     * (WorkspaceEntry wsEntry : repconfig.getWorkspaceEntries()) {
-     * repo.internalRemoveWorkspace(wsEntry.getName()); }
-     * repconfig.getWorkspaceEntries().clear(); RepositoryContainer
-     * repositoryContainer = repositoryContainers.get(name);
-     * repositoryContainer.stopContainer(); repositoryContainer.stop();
-     * repositoryContainers.remove(name);
-     * config.getRepositoryConfigurations().remove(repconfig);
-     */
     for (Entry<String, RepositoryContainer> entry : repositoryContainers.entrySet()) {
       entry.getValue().stop();
     }
+    repositoryContainers.clear();
+    addNamespacesPlugins.clear();
+    addNodeTypePlugins.clear();
   }
 
   private void addNamespaces() throws RepositoryException {
