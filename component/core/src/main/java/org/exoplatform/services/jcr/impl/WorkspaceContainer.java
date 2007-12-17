@@ -38,16 +38,16 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class WorkspaceContainer extends ExoContainer {
 
-  protected static Log log = ExoLogger.getLogger("jcr.WorkspaceContainer");
-  
-  private String name;
+  protected static Log              log = ExoLogger.getLogger("jcr.WorkspaceContainer");
 
-  private RepositoryContainer repositoryContainer;
+  private final String              name;
 
-  private MBeanServer mbeanServer;
+  private final RepositoryContainer repositoryContainer;
 
-  public WorkspaceContainer(RepositoryContainer parent, WorkspaceEntry config)
-      throws RepositoryException, RepositoryConfigurationException {
+  private final MBeanServer         mbeanServer;
+
+  public WorkspaceContainer(RepositoryContainer parent, WorkspaceEntry config) throws RepositoryException,
+      RepositoryConfigurationException {
 
     // Before repository instantiation
     super(new MX4JComponentAdapterFactory(), parent);
@@ -55,10 +55,11 @@ public class WorkspaceContainer extends ExoContainer {
     repositoryContainer = parent;
     this.name = config.getName();
 
-    this.mbeanServer = MBeanServerFactory.createMBeanServer("jcrws" + name
-        + "at" + repositoryContainer.getName() + "mx");
+    this.mbeanServer = MBeanServerFactory.createMBeanServer("jcrws" + name + "at"
+        + repositoryContainer.getName() + "mx");
   }
 
+  @Override
   public MBeanServer getMBeanServer() {
     return mbeanServer;
   }
@@ -66,11 +67,26 @@ public class WorkspaceContainer extends ExoContainer {
   // Components access methods -------
 
   public SessionFactory getSessionFactory() {
-    return (SessionFactory)getComponentInstanceOfType(SessionFactory.class);
+    return (SessionFactory) getComponentInstanceOfType(SessionFactory.class);
   }
-  
+
   public WorkspaceInitializer getWorkspaceInitializer() {
-    return (WorkspaceInitializer)getComponentInstanceOfType(WorkspaceInitializer.class);
+    return (WorkspaceInitializer) getComponentInstanceOfType(WorkspaceInitializer.class);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.picocontainer.defaults.DefaultPicoContainer#stop()
+   */
+  @Override
+  public void stop() {
+    try {
+      stopContainer();
+    } catch (Exception e) {
+      log.error(e.getLocalizedMessage(), e);
+    }
+    super.stop();
   }
 
 }

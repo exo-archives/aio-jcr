@@ -26,6 +26,7 @@ import javax.jcr.nodetype.NodeTypeManager;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.jmx.MX4JComponentAdapterFactory;
 import org.exoplatform.services.jcr.access.AccessControlPolicy;
@@ -58,6 +59,7 @@ import org.exoplatform.services.jcr.impl.storage.value.StandaloneStoragePluginPr
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.jcr.util.IdGenerator;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -68,11 +70,13 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 
 public class RepositoryContainer extends ExoContainer {
 
-  private RepositoryEntry               config;
+  private final RepositoryEntry         config;
 
-  private MBeanServer                   mbeanServer;
+  private final MBeanServer             mbeanServer;
 
   private LocalWorkspaceDataManagerStub systemDataManager = null;
+
+  private final Log                     log               = ExoLogger.getLogger("jcr.RepositoryContainer");
 
   public RepositoryContainer(ExoContainer parent, RepositoryEntry config) throws RepositoryException,
       RepositoryConfigurationException {
@@ -89,33 +93,11 @@ public class RepositoryContainer extends ExoContainer {
     registerComponents();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.picocontainer.defaults.DefaultPicoContainer#start()
-   */
-  @Override
-  public void start() {
-
-    try {
-
-      init();
-
-      load();
-
-      doStart();
-
-    } catch (RepositoryException e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
-    } catch (RepositoryConfigurationException e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
-    }
-
-    super.start();
+  public LocationFactory getLocationFactory() {
+    return (LocationFactory) getComponentInstanceOfType(LocationFactory.class);
   }
 
+  @Override
   public MBeanServer getMBeanServer() {
     return this.mbeanServer;
   }
@@ -127,43 +109,16 @@ public class RepositoryContainer extends ExoContainer {
     return config.getName();
   }
 
-  private void registerComponents() throws RepositoryConfigurationException, RepositoryException {
-
-    registerComponentInstance(config);
-
-    registerWorkspacesComponents();
-    registerRepositoryComponents();
+  public NamespaceRegistry getNamespaceRegistry() {
+    return (NamespaceRegistry) getComponentInstanceOfType(NamespaceRegistry.class);
   }
 
-  private void registerRepositoryComponents() throws RepositoryConfigurationException,
-      RepositoryException {
+  public ExtendedNodeTypeManager getNodeTypeManager() {
+    return (ExtendedNodeTypeManager) getComponentInstanceOfType(NodeTypeManager.class);
+  }
 
-    registerComponentImplementation(IdGenerator.class);
-
-    registerComponentImplementation(NamespaceDataPersister.class);
-    registerComponentImplementation(NamespaceRegistryImpl.class);
-
-    registerComponentImplementation(WorkspaceFileCleanerHolder.class);
-    registerComponentImplementation(LocationFactory.class);
-    registerComponentImplementation(ValueFactoryImpl.class);
-
-    registerComponentImplementation(NodeTypeDataPersister.class);
-    registerComponentImplementation(NodeTypeManagerImpl.class);
-
-    registerComponentImplementation(DefaultAccessManagerImpl.class);
-
-    registerComponentImplementation(SessionRegistry.class);
-    try {
-      registerComponentImplementation(Class.forName(config.getAuthenticationPolicy()));
-    } catch (ClassNotFoundException e) {
-      throw new RepositoryConfigurationException("Class not found for repository authentication policy: "
-          + e);
-    }
-
-    // Repository
-    RepositoryImpl repository = new RepositoryImpl(this);
-    registerComponentInstance(repository);
-
+  public WorkspaceContainer getWorkspaceContainer(String workspaceName) {
+    return (WorkspaceContainer) getComponentInstance(workspaceName);
   }
 
   public WorkspaceEntry getWorkspaceEntry(String wsName) {
@@ -174,25 +129,14 @@ public class RepositoryContainer extends ExoContainer {
     return null;
   }
 
-  private void registerWorkspacesComponents() throws RepositoryException,
-      RepositoryConfigurationException {
-    List<WorkspaceEntry> wsEntries = config.getWorkspaceEntries();
-    Collections.sort(wsEntries, new WorkspaceOrderComparator(config.getSystemWorkspaceName()));
-    for (int i = 0; i < wsEntries.size(); i++) {
-      registerWorkspace(wsEntries.get(i));
-    }
-  }
-
   public void registerWorkspace(WorkspaceEntry wsConfig) throws RepositoryException,
-      RepositoryConfigurationException {
-
+                                                        RepositoryConfigurationException {
 
     try {
       boolean isSystem = config.getSystemWorkspaceName().equals(wsConfig.getName());
 
       if (getWorkspaceContainer(wsConfig.getName()) != null)
         throw new RepositoryException("Workspace " + wsConfig.getName() + " already registred");
-
 
       WorkspaceContainer workspaceContainer = new WorkspaceContainer(this, wsConfig);
 
@@ -208,8 +152,7 @@ public class RepositoryContainer extends ExoContainer {
         Class containerType = Class.forName(wsConfig.getContainer().getType());
         workspaceContainer.registerComponentImplementation(containerType);
         if (isSystem) {
-          registerComponentInstance(new SystemDataContainerHolder((WorkspaceDataContainer) workspaceContainer
-              .getComponentInstanceOfType(WorkspaceDataContainer.class)));
+          registerComponentInstance(new SystemDataContainerHolder((WorkspaceDataContainer) workspaceContainer.getComponentInstanceOfType(WorkspaceDataContainer.class)));
         }
 
       } catch (ClassNotFoundException e) {
@@ -223,7 +166,7 @@ public class RepositoryContainer extends ExoContainer {
 
       workspaceContainer.registerComponentImplementation(LocalWorkspaceDataManagerStub.class);
       workspaceContainer.registerComponentImplementation(ObservationManagerRegistry.class);
-      //Lock manager and Lock persister is a optional parameters
+      // Lock manager and Lock persister is a optional parameters
       if (wsConfig.getLockManager() != null && wsConfig.getLockManager().getPersister() != null) {
         try {
 
@@ -262,15 +205,14 @@ public class RepositoryContainer extends ExoContainer {
       workspaceContainer.registerComponentImplementation(SessionFactory.class);
       workspaceContainer.registerComponentImplementation(WorkspaceFileCleanerHolder.class);
 
-      LocalWorkspaceDataManagerStub wsDataManager = (LocalWorkspaceDataManagerStub) workspaceContainer
-          .getComponentInstanceOfType(LocalWorkspaceDataManagerStub.class);
+      LocalWorkspaceDataManagerStub wsDataManager = (LocalWorkspaceDataManagerStub) workspaceContainer.getComponentInstanceOfType(LocalWorkspaceDataManagerStub.class);
 
       if (isSystem) {
         // system workspace
         systemDataManager = wsDataManager;
         registerComponentInstance(systemDataManager);
       }
-      
+
       wsDataManager.setSystemDataManager(systemDataManager);
 
       if ((config.getReplication() != null) && (config.getReplication().isEnabled())) {
@@ -297,37 +239,54 @@ public class RepositoryContainer extends ExoContainer {
 
   // Components access methods -------
 
-  public WorkspaceContainer getWorkspaceContainer(String workspaceName) {
-    return (WorkspaceContainer) getComponentInstance(workspaceName);
-  }
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.picocontainer.defaults.DefaultPicoContainer#start()
+   */
+  @Override
+  public void start() {
 
-  public ExtendedNodeTypeManager getNodeTypeManager() {
-    return (ExtendedNodeTypeManager) getComponentInstanceOfType(NodeTypeManager.class);
-  }
+    try {
 
-  public NamespaceRegistry getNamespaceRegistry() {
-    return (NamespaceRegistry) getComponentInstanceOfType(NamespaceRegistry.class);
-  }
+      init();
 
-  public LocationFactory getLocationFactory() {
-    return (LocationFactory) getComponentInstanceOfType(LocationFactory.class);
-  }
+      load();
 
-  // --------------------------------
-  private static class WorkspaceOrderComparator implements Comparator<WorkspaceEntry> {
-    private String sysWs;
+      doStart();
 
-    private WorkspaceOrderComparator(String sysWs) {
-      this.sysWs = sysWs;
+    } catch (RepositoryException e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    } catch (RepositoryConfigurationException e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
     }
 
-    public int compare(WorkspaceEntry o1, WorkspaceEntry o2) {
-      String n1 = o1.getName();
-      return n1.equals(sysWs) ? -1 : 0;
-    }
+    super.start();
   }
 
-  // ////// initialize --------------
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.picocontainer.defaults.DefaultPicoContainer#stop()
+   */
+  @Override
+  public void stop() {
+    try {
+      stopContainer();
+    } catch (Exception e) {
+      log.error(e.getLocalizedMessage(), e);
+    }
+    super.stop();
+  }
+
+  private void doStart() throws RepositoryException, RepositoryConfigurationException {
+    List<WorkspaceEntry> wsEntries = config.getWorkspaceEntries();
+    for (WorkspaceEntry ws : wsEntries) {
+      startWorkspace(ws);
+    }
+  }
 
   private void init() throws RepositoryException, RepositoryConfigurationException {
     List<WorkspaceEntry> wsEntries = config.getWorkspaceEntries();
@@ -336,11 +295,83 @@ public class RepositoryContainer extends ExoContainer {
     }
   }
 
-  private void doStart() throws RepositoryException, RepositoryConfigurationException {
-    List<WorkspaceEntry> wsEntries = config.getWorkspaceEntries();
-    for (WorkspaceEntry ws : wsEntries) {
-      startWorkspace(ws);
+  private void initWorkspace(WorkspaceEntry wsConfig) throws RepositoryException {
+
+    WorkspaceContainer workspaceContainer = getWorkspaceContainer(wsConfig.getName());
+
+    // touch independent components
+    workspaceContainer.getComponentInstanceOfType(IdGenerator.class);
+    workspaceContainer.getComponentInstanceOfType(WorkspaceDataReplicator.class);
+
+    WorkspaceInitializer wsInitializer = (WorkspaceInitializer) workspaceContainer.getComponentInstanceOfType(WorkspaceInitializer.class);
+
+    // Init Root and jcr:system if workspace is system workspace
+    if (wsConfig.getAutoInitializedRootNt() != null) {
+      InternalQName rootNodeTypeName = getLocationFactory().parseJCRName(wsConfig.getAutoInitializedRootNt())
+                                                           .getInternalName();
+      wsInitializer.initWorkspace(rootNodeTypeName);
     }
+
+  }
+
+  // ////// initialize --------------
+
+  private void registerComponents() throws RepositoryConfigurationException, RepositoryException {
+
+    registerComponentInstance(config);
+
+    registerWorkspacesComponents();
+    registerRepositoryComponents();
+  }
+
+  private void registerRepositoryComponents() throws RepositoryConfigurationException,
+                                             RepositoryException {
+
+    registerComponentImplementation(IdGenerator.class);
+
+    registerComponentImplementation(NamespaceDataPersister.class);
+    registerComponentImplementation(NamespaceRegistryImpl.class);
+
+    registerComponentImplementation(WorkspaceFileCleanerHolder.class);
+    registerComponentImplementation(LocationFactory.class);
+    registerComponentImplementation(ValueFactoryImpl.class);
+
+    registerComponentImplementation(NodeTypeDataPersister.class);
+    registerComponentImplementation(NodeTypeManagerImpl.class);
+
+    registerComponentImplementation(DefaultAccessManagerImpl.class);
+
+    registerComponentImplementation(SessionRegistry.class);
+    try {
+      registerComponentImplementation(Class.forName(config.getAuthenticationPolicy()));
+    } catch (ClassNotFoundException e) {
+      throw new RepositoryConfigurationException("Class not found for repository authentication policy: "
+          + e);
+    }
+
+    // Repository
+    RepositoryImpl repository = new RepositoryImpl(this);
+    registerComponentInstance(repository);
+
+  }
+
+  private void registerWorkspacesComponents() throws RepositoryException,
+                                             RepositoryConfigurationException {
+    List<WorkspaceEntry> wsEntries = config.getWorkspaceEntries();
+    Collections.sort(wsEntries, new WorkspaceOrderComparator(config.getSystemWorkspaceName()));
+    for (int i = 0; i < wsEntries.size(); i++) {
+      registerWorkspace(wsEntries.get(i));
+    }
+  }
+
+  private void startWorkspace(WorkspaceEntry wsConfig) throws RepositoryException {
+
+    WorkspaceContainer workspaceContainer = getWorkspaceContainer(wsConfig.getName());
+
+    WorkspaceInitializer wsInitializer = (WorkspaceInitializer) workspaceContainer.getComponentInstanceOfType(WorkspaceInitializer.class);
+
+    // start workspace
+    wsInitializer.startWorkspace();
   }
 
   void load() throws RepositoryException {
@@ -352,34 +383,17 @@ public class RepositoryContainer extends ExoContainer {
     ntManager.loadFromStorage();
   }
 
-  private void initWorkspace(WorkspaceEntry wsConfig) throws RepositoryException {
+  // --------------------------------
+  private static class WorkspaceOrderComparator implements Comparator<WorkspaceEntry> {
+    private final String sysWs;
 
-    WorkspaceContainer workspaceContainer = getWorkspaceContainer(wsConfig.getName());
-
-    // touch independent components
-    workspaceContainer.getComponentInstanceOfType(IdGenerator.class);
-    workspaceContainer.getComponentInstanceOfType(WorkspaceDataReplicator.class);
-
-    WorkspaceInitializer wsInitializer = (WorkspaceInitializer) workspaceContainer
-        .getComponentInstanceOfType(WorkspaceInitializer.class);
-
-    // Init Root and jcr:system if workspace is system workspace
-    if (wsConfig.getAutoInitializedRootNt() != null) {
-      InternalQName rootNodeTypeName = getLocationFactory().parseJCRName(wsConfig
-          .getAutoInitializedRootNt()).getInternalName();
-      wsInitializer.initWorkspace(rootNodeTypeName);
+    private WorkspaceOrderComparator(String sysWs) {
+      this.sysWs = sysWs;
     }
 
-  }
-
-  private void startWorkspace(WorkspaceEntry wsConfig) throws RepositoryException {
-
-    WorkspaceContainer workspaceContainer = getWorkspaceContainer(wsConfig.getName());
-
-    WorkspaceInitializer wsInitializer = (WorkspaceInitializer) workspaceContainer
-        .getComponentInstanceOfType(WorkspaceInitializer.class);
-
-    // start workspace
-    wsInitializer.startWorkspace();
+    public int compare(WorkspaceEntry o1, WorkspaceEntry o2) {
+      String n1 = o1.getName();
+      return n1.equals(sysWs) ? -1 : 0;
+    }
   }
 }

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.jcr.NamespaceException;
 import javax.jcr.NamespaceRegistry;
@@ -54,29 +55,28 @@ import org.picocontainer.Startable;
 
 public class RepositoryServiceImpl implements RepositoryService, Startable {
 
-  protected static Log                         log                   = ExoLogger
-                                                                         .getLogger("jcr.RepositoryService");
+  protected static Log                               log                   = ExoLogger.getLogger("jcr.RepositoryService");
 
-  private RepositoryServiceConfiguration       config;
+  private final RepositoryServiceConfiguration       config;
 
-  private ThreadLocal<String>                  currentRepositoryName = new ThreadLocal<String>();
+  private final ThreadLocal<String>                  currentRepositoryName = new ThreadLocal<String>();
 
-  private HashMap<String, RepositoryContainer> repositoryContainers  = new HashMap<String, RepositoryContainer>();
+  private final HashMap<String, RepositoryContainer> repositoryContainers  = new HashMap<String, RepositoryContainer>();
 
-  private List<ComponentPlugin>                addNodeTypePlugins;
+  private final List<ComponentPlugin>                addNodeTypePlugins;
 
-  private List<ComponentPlugin>                addNamespacesPlugins;
+  private final List<ComponentPlugin>                addNamespacesPlugins;
 
-  private ExoContainerContext                  containerContext;
+  private final ExoContainerContext                  containerContext;
 
-  private ExoContainer                         parentContainer;
+  private ExoContainer                               parentContainer;
 
   public RepositoryServiceImpl(RepositoryServiceConfiguration configuration) {
     this(configuration, null);
   }
 
   public RepositoryServiceImpl(RepositoryServiceConfiguration configuration,
-      ExoContainerContext context) {
+                               ExoContainerContext context) {
     this.config = configuration;
     addNodeTypePlugins = new ArrayList<ComponentPlugin>();
     addNamespacesPlugins = new ArrayList<ComponentPlugin>();
@@ -84,24 +84,54 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     currentRepositoryName.set(config.getDefaultRepositoryName());
   }
 
-  public ManageableRepository getDefaultRepository() throws RepositoryException {
-    return getRepository(config.getDefaultRepositoryName());
+  public void addPlugin(ComponentPlugin plugin) {
+    if (plugin instanceof AddNodeTypePlugin)
+      addNodeTypePlugins.add(plugin);
+    else if (plugin instanceof AddNamespacesPlugin)
+      addNamespacesPlugins.add(plugin);
   }
 
-  /**
-   * @deprecated use getDefaultRepository() instead
-   */
-  public ManageableRepository getRepository() throws RepositoryException {
-    return getDefaultRepository();
+  public boolean canRemoveRepository(String name) throws RepositoryException {
+    RepositoryImpl repo = (RepositoryImpl) getRepository(name);
+    try {
+      RepositoryEntry repconfig = config.getRepositoryConfiguration(name);
+
+      for (WorkspaceEntry wsEntry : repconfig.getWorkspaceEntries()) {
+        // Check non system workspaces
+        if (!repo.getSystemWorkspaceName().equals(wsEntry.getName())
+            && !repo.canRemoveWorkspace(wsEntry.getName()))
+          return false;
+      }
+      // check system workspace
+      RepositoryContainer repositoryContainer = repositoryContainers.get(name);
+      SessionRegistry sessionRegistry = (SessionRegistry) repositoryContainer.getComponentInstance(SessionRegistry.class);
+      if (sessionRegistry == null || sessionRegistry.isInUse(repo.getSystemWorkspaceName()))
+        return false;
+
+    } catch (RepositoryConfigurationException e) {
+      throw new RepositoryException(e);
+    }
+
+    return true;
   }
 
-  public ManageableRepository getRepository(String name) throws RepositoryException {
-    RepositoryContainer repositoryContainer = repositoryContainers.get(name);
-    log.debug("RepositoryServiceimpl() getRepository " + name);
-    if (repositoryContainer == null)
-      throw new RepositoryException("Repository '" + name + "' not found.");
+  public void createRepository(RepositoryEntry rEntry) throws RepositoryConfigurationException,
+                                                      RepositoryException {
+    if (repositoryContainers.containsKey(rEntry.getName()))
+      throw new RepositoryConfigurationException("Repository container " + rEntry.getName()
+          + " already started");
 
-    return (ManageableRepository) repositoryContainer.getComponentInstanceOfType(Repository.class);
+    RepositoryContainer repositoryContainer = new RepositoryContainer(parentContainer, rEntry);
+    // Storing and starting the repository container under
+    // key=repository_name
+    repositoryContainers.put(rEntry.getName(), repositoryContainer);
+    repositoryContainer.start();
+
+    if (!config.getRepositoryConfigurations().contains(rEntry)) {
+      config.getRepositoryConfigurations().add(rEntry);
+    }
+    addNamespaces(rEntry.getName());
+    registerNodeTypes(rEntry.getName());
   }
 
   public RepositoryServiceConfiguration getConfig() {
@@ -114,21 +144,59 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     return getRepository(currentRepositoryName.get());
   }
 
+  public ManageableRepository getDefaultRepository() throws RepositoryException {
+    return getRepository(config.getDefaultRepositoryName());
+  }
+
+  /**
+   * @deprecated use getDefaultRepository() instead
+   */
+  @Deprecated
+  public ManageableRepository getRepository() throws RepositoryException {
+    return getDefaultRepository();
+  }
+
+  // ------------------- Startable ----------------------------
+
+  public ManageableRepository getRepository(String name) throws RepositoryException {
+    RepositoryContainer repositoryContainer = repositoryContainers.get(name);
+    log.debug("RepositoryServiceimpl() getRepository " + name);
+    if (repositoryContainer == null)
+      throw new RepositoryException("Repository '" + name + "' not found.");
+
+    return (ManageableRepository) repositoryContainer.getComponentInstanceOfType(Repository.class);
+  }
+
+  public void removeRepository(String name) throws RepositoryException {
+    if (!canRemoveRepository(name))
+      throw new RepositoryException("Repository " + name + " in use. If you want to "
+          + " remove repository close all open sessions");
+
+    try {
+      RepositoryEntry repconfig = config.getRepositoryConfiguration(name);
+      RepositoryImpl repo = (RepositoryImpl) getRepository(name);
+      for (WorkspaceEntry wsEntry : repconfig.getWorkspaceEntries()) {
+        repo.internalRemoveWorkspace(wsEntry.getName());
+      }
+      repconfig.getWorkspaceEntries().clear();
+      RepositoryContainer repositoryContainer = repositoryContainers.get(name);
+      repositoryContainer.stopContainer();
+      repositoryContainer.stop();
+      repositoryContainers.remove(name);
+      config.getRepositoryConfigurations().remove(repconfig);
+    } catch (RepositoryConfigurationException e) {
+      throw new RepositoryException(e);
+    } catch (Exception e) {
+      throw new RepositoryException(e);
+    }
+  }
+
   public void setCurrentRepositoryName(String repositoryName) throws RepositoryConfigurationException {
     if (!repositoryContainers.containsKey(repositoryName))
       throw new RepositoryConfigurationException("Repository is not configured. Name "
           + repositoryName);
     currentRepositoryName.set(repositoryName);
   }
-
-  public void addPlugin(ComponentPlugin plugin) {
-    if (plugin instanceof AddNodeTypePlugin)
-      addNodeTypePlugins.add(plugin);
-    else if (plugin instanceof AddNamespacesPlugin)
-      addNamespacesPlugins.add(plugin);
-  }
-
-  // ------------------- Startable ----------------------------
 
   public void start() {
     try {
@@ -151,64 +219,19 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
   }
 
   public void stop() {
-  }
-
-  private void init(ExoContainer container) throws RepositoryConfigurationException,
-      RepositoryException {
-    this.parentContainer = container;
-    List<RepositoryEntry> rEntries = config.getRepositoryConfigurations();
-    for (int i = 0; i < rEntries.size(); i++) {
-      RepositoryEntry rEntry = rEntries.get(i);
-      // Making new repository container as portal's subcontainer
-      createRepository(rEntry);
-    }
-  }
-
-  private void registerNodeTypes() throws RepositoryException {
-    for (RepositoryEntry repoConfig : config.getRepositoryConfigurations()) {
-      registerNodeTypes(repoConfig.getName());
-    }
-
-  }
-
-  private void registerNodeTypes(String repositoryName) throws RepositoryException {
-    ConfigurationManager configService = (ConfigurationManager) parentContainer
-        .getComponentInstanceOfType(ConfigurationManager.class);
-
-    ExtendedNodeTypeManager ntManager = getRepository(repositoryName).getNodeTypeManager();
-    //
-    for (int j = 0; j < addNodeTypePlugins.size(); j++) {
-      AddNodeTypePlugin plugin = (AddNodeTypePlugin) addNodeTypePlugins.get(j);
-      List<String> autoNodeTypesFiles = plugin.getNodeTypesFiles(AddNodeTypePlugin.AUTO_CREATED);
-      if (autoNodeTypesFiles != null && autoNodeTypesFiles.size() > 0) {
-        for (String nodeTypeFilesName : autoNodeTypesFiles) {
-
-          InputStream inXml;
-          try {
-            inXml = configService.getInputStream(nodeTypeFilesName);
-          } catch (Exception e) {
-            throw new RepositoryException(e);
-          }
-          log.info("Trying register nodes from xml-file " + nodeTypeFilesName);
-          ntManager.registerNodeTypes(inXml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-          log.info("Nodes is registered from xml-file " + nodeTypeFilesName);
-        }
-        List<String> defaultNodeTypesFiles = plugin.getNodeTypesFiles(repositoryName);
-        if (defaultNodeTypesFiles != null && defaultNodeTypesFiles.size() > 0) {
-          for (String nodeTypeFilesName : defaultNodeTypesFiles) {
-
-            InputStream inXml;
-            try {
-              inXml = configService.getInputStream(nodeTypeFilesName);
-            } catch (Exception e) {
-              throw new RepositoryException(e);
-            }
-            log.info("Trying register nodes from xml-file " + nodeTypeFilesName);
-            ntManager.registerNodeTypes(inXml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-            log.info("Nodes is registered from xml-file " + nodeTypeFilesName);
-          }
-        }
-      }
+    /**
+     * RepositoryEntry repconfig = config.getRepositoryConfiguration(name);
+     * RepositoryImpl repo = (RepositoryImpl) getRepository(name); for
+     * (WorkspaceEntry wsEntry : repconfig.getWorkspaceEntries()) {
+     * repo.internalRemoveWorkspace(wsEntry.getName()); }
+     * repconfig.getWorkspaceEntries().clear(); RepositoryContainer
+     * repositoryContainer = repositoryContainers.get(name);
+     * repositoryContainer.stopContainer(); repositoryContainer.stop();
+     * repositoryContainers.remove(name);
+     * config.getRepositoryConfigurations().remove(repconfig);
+     */
+    for (Entry<String, RepositoryContainer> entry : repositoryContainers.entrySet()) {
+      entry.getValue().stop();
     }
   }
 
@@ -247,72 +270,62 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     }
   }
 
-  public void createRepository(RepositoryEntry rEntry) throws RepositoryConfigurationException,
-      RepositoryException {
-    if (repositoryContainers.containsKey(rEntry.getName()))
-      throw new RepositoryConfigurationException("Repository container " + rEntry.getName()
-          + " already started");
-
-    RepositoryContainer repositoryContainer = new RepositoryContainer(parentContainer, rEntry);
-    // Storing and starting the repository container under
-    // key=repository_name
-    repositoryContainers.put(rEntry.getName(), repositoryContainer);
-    repositoryContainer.start();
-    
-    if (!config.getRepositoryConfigurations().contains(rEntry)) {
-      config.getRepositoryConfigurations().add(rEntry);
-    }
-    addNamespaces(rEntry.getName());
-    registerNodeTypes(rEntry.getName());
-  }
-
-  public void removeRepository(String name) throws RepositoryException {
-    if (!canRemoveRepository(name))
-      throw new RepositoryException("Repository " + name + " in use. If you want to "
-          + " remove repository close all open sessions");
-
-    try {
-      RepositoryEntry repconfig = config.getRepositoryConfiguration(name);
-      RepositoryImpl repo = (RepositoryImpl) getRepository(name);
-      for (WorkspaceEntry wsEntry : repconfig.getWorkspaceEntries()) {
-        repo.internalRemoveWorkspace(wsEntry.getName());
-      }
-      repconfig.getWorkspaceEntries().clear();
-      RepositoryContainer repositoryContainer = repositoryContainers.get(name);
-      repositoryContainer.stopContainer();
-      //repositoryContainer.stop();
-      repositoryContainers.remove(name);
-      config.getRepositoryConfigurations().remove(repconfig);
-    } catch (RepositoryConfigurationException e) {
-      throw new RepositoryException(e);
-    } catch (Exception e) {
-      throw new RepositoryException(e);
+  private void init(ExoContainer container) throws RepositoryConfigurationException,
+                                           RepositoryException {
+    this.parentContainer = container;
+    List<RepositoryEntry> rEntries = config.getRepositoryConfigurations();
+    for (int i = 0; i < rEntries.size(); i++) {
+      RepositoryEntry rEntry = rEntries.get(i);
+      // Making new repository container as portal's subcontainer
+      createRepository(rEntry);
     }
   }
 
-  public boolean canRemoveRepository(String name) throws RepositoryException {
-    RepositoryImpl repo = (RepositoryImpl) getRepository(name);
-    try {
-      RepositoryEntry repconfig = config.getRepositoryConfiguration(name);
-
-      for (WorkspaceEntry wsEntry : repconfig.getWorkspaceEntries()) {
-        // Check non system workspaces
-        if (!repo.getSystemWorkspaceName().equals(wsEntry.getName())
-            && !repo.canRemoveWorkspace(wsEntry.getName()))
-          return false;
-      }
-      // check system workspace
-      RepositoryContainer repositoryContainer = repositoryContainers.get(name);
-      SessionRegistry sessionRegistry = (SessionRegistry) repositoryContainer
-          .getComponentInstance(SessionRegistry.class);
-      if (sessionRegistry == null || sessionRegistry.isInUse(repo.getSystemWorkspaceName()))
-        return false;
-
-    } catch (RepositoryConfigurationException e) {
-      throw new RepositoryException(e);
+  private void registerNodeTypes() throws RepositoryException {
+    for (RepositoryEntry repoConfig : config.getRepositoryConfigurations()) {
+      registerNodeTypes(repoConfig.getName());
     }
 
-    return true;
+  }
+
+  private void registerNodeTypes(String repositoryName) throws RepositoryException {
+    ConfigurationManager configService = (ConfigurationManager) parentContainer.getComponentInstanceOfType(ConfigurationManager.class);
+
+    ExtendedNodeTypeManager ntManager = getRepository(repositoryName).getNodeTypeManager();
+    //
+    for (int j = 0; j < addNodeTypePlugins.size(); j++) {
+      AddNodeTypePlugin plugin = (AddNodeTypePlugin) addNodeTypePlugins.get(j);
+      List<String> autoNodeTypesFiles = plugin.getNodeTypesFiles(AddNodeTypePlugin.AUTO_CREATED);
+      if (autoNodeTypesFiles != null && autoNodeTypesFiles.size() > 0) {
+        for (String nodeTypeFilesName : autoNodeTypesFiles) {
+
+          InputStream inXml;
+          try {
+            inXml = configService.getInputStream(nodeTypeFilesName);
+          } catch (Exception e) {
+            throw new RepositoryException(e);
+          }
+          log.info("Trying register nodes from xml-file " + nodeTypeFilesName);
+          ntManager.registerNodeTypes(inXml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+          log.info("Nodes is registered from xml-file " + nodeTypeFilesName);
+        }
+        List<String> defaultNodeTypesFiles = plugin.getNodeTypesFiles(repositoryName);
+        if (defaultNodeTypesFiles != null && defaultNodeTypesFiles.size() > 0) {
+          for (String nodeTypeFilesName : defaultNodeTypesFiles) {
+
+            InputStream inXml;
+            try {
+              inXml = configService.getInputStream(nodeTypeFilesName);
+            } catch (Exception e) {
+              throw new RepositoryException(e);
+            }
+            log.info("Trying register nodes from xml-file " + nodeTypeFilesName);
+            ntManager.registerNodeTypes(inXml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+            log.info("Nodes is registered from xml-file " + nodeTypeFilesName);
+          }
+        }
+      }
+    }
   }
 
 }
