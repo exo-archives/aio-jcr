@@ -79,7 +79,11 @@ public class NewGroupListener extends GroupEventListener {
     else groupId = parentId + "/" + group.getGroupName() ;
     List<RepositoryEntry> repositories = jcrService_.getConfig().getRepositoryConfigurations() ;
     for(RepositoryEntry repo : repositories) {
-      removeGroup(repo.getName(), groupId);
+      try {
+        removeGroup(repo.getName(), groupId);
+      } catch(Exception e) {
+        break ;
+      }
     }
   }
   
