@@ -82,7 +82,7 @@ public class NewGroupListener extends GroupEventListener {
       try {
         removeGroup(repo.getName(), groupId);
       } catch(Exception e) {
-        break ;
+        continue ;
       }
     }
   }
