@@ -100,19 +100,20 @@ public class NewUserListener extends UserEventListener {
   }
   
   public void preDelete(User user) {
-    Session session;
       //use a anonymous connection for the configuration as the user is not
       // authentified at that time
     List<RepositoryEntry> repositories = jcrService_.getConfig().getRepositoryConfigurations() ;
     for(RepositoryEntry repo : repositories) {
       try{
-        session = jcrService_.getRepository(repo.getName()).login();
+        ManageableRepository manaRepo = jcrService_.getRepository(repo.getName()) ;
+        Session session = manaRepo.getSystemSession(manaRepo.getConfiguration().getDefaultWorkspaceName());
         Node usersHome = (Node) session.getItem(nodeHierarchyCreatorService_.getJcrPath(USERS_PATH));
         usersHome.getNode(user.getUserName()).remove();
         usersHome.save();
         session.save();
         session.logout();
-      }catch(Exception e) {
+      } catch(Exception e) {
+        e.printStackTrace() ;
       }       
     }
   }
