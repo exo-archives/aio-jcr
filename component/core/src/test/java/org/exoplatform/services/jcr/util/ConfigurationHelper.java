@@ -33,6 +33,8 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.ContainerEntry;
+import org.exoplatform.services.jcr.config.LockManagerEntry;
+import org.exoplatform.services.jcr.config.LockPersisterEntry;
 import org.exoplatform.services.jcr.config.QueryHandlerEntry;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.SimpleParameterEntry;
@@ -148,6 +150,8 @@ public class ConfigurationHelper {
       containerEntry.setValueStorages(list);
 
     }
+
+    // Indexer
     ArrayList qParams = new ArrayList();
     qParams.add(new SimpleParameterEntry("indexDir", "../temp/index"));
     QueryHandlerEntry qEntry = new QueryHandlerEntry("org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex",
@@ -158,6 +162,17 @@ public class ConfigurationHelper {
                                                        "nt:unstructured");
     workspaceEntry.setContainer(containerEntry);
     workspaceEntry.setQueryHandler(qEntry);
+
+    LockManagerEntry lockManagerEntry = new LockManagerEntry();
+    lockManagerEntry.setTimeout(900000);
+    LockPersisterEntry persisterEntry = new LockPersisterEntry();
+    persisterEntry.setType("org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister");
+    ArrayList lpParams = new ArrayList();
+    lpParams.add(new SimpleParameterEntry("path", "../temp/lock"));
+    persisterEntry.setParameters(lpParams);
+    lockManagerEntry.setPersister(persisterEntry);
+    workspaceEntry.setLockManager(lockManagerEntry);
+
     // workspaceEntry
     return workspaceEntry;
   }
