@@ -1,19 +1,7 @@
-/*
- * Copyright (C) 2003-2007 eXo Platform SAS.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Affero General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, see<http://www.gnu.org/licenses/>.
- */
+/***************************************************************************
+ * Copyright 2001-2007 The eXo Platform SAS          All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ **************************************************************************/
 package org.exoplatform.services.cifs;
 
 import java.io.IOException;
@@ -428,6 +416,8 @@ public class ServerConfiguration {
 
         // Call the Win32NetBIOS native code to make sure it is initialized
 
+        try{
+        
         if (Win32NetBIOS.LanaEnumerate() != null) {
           // Enable Win32 NetBIOS
 
@@ -435,6 +425,11 @@ public class ServerConfiguration {
         } else {
           logger.warn("No NetBIOS LANAs available");
         }
+        }catch( java.lang.UnsatisfiedLinkError e){
+          logger.error("Win32NetBIOS.dll not finded!!");
+          setWin32NetBIOS(false);  
+        }
+        
       } else {
 
         // Win32 NetBIOS not supported on the current operating system
