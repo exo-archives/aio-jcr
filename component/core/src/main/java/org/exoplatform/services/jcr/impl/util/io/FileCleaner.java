@@ -76,7 +76,7 @@ public class FileCleaner extends WorkerThread {
       callPeriodically();
     } catch (Exception e) {}
     
-    if(files.size() > 0)
+    if (files != null && files.size() > 0)
       log.warn("There are uncleared files: "+files.size());
       
     super.halt();

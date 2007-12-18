@@ -203,10 +203,8 @@ public class FileSystemLockPersister implements LockPersister {
     try {
       removeAll();
     } catch (LockException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
-
   }
 
 }
