@@ -72,13 +72,6 @@
         <description>JCR configuration file</description>
         <value>test-jcr-config-benchmark.xml</value>
       </value-param>
-      <properties-param>
-				          <name>working-conf</name>
-				          <description>working-conf</description>
-				          <property name="sourceName" value="jdbcjcr"/>
-				          <property name="dialect" value="pgsql"/>
-				          <property name="persisterClassName" value="org.exoplatform.services.jcr.impl.config.JDBCConfigurationPersister"/>
-        </properties-param>
     </init-params>
   </component>
 
@@ -93,7 +86,7 @@
       <value-param>
         <name>timeout</name>
         <value>5</value>
-      </value-param>      
+      </value-param>
     </init-params>
   </component>
 
@@ -106,7 +99,7 @@
         </properties-param>
       </init-params>
   </component>
-  
+
   <component>
         <type>org.exoplatform.services.jcr.impl.ext.action.SessionActionCatalog</type>
         <component-plugins>
@@ -146,7 +139,7 @@
         <init-params>
           <value-param>
             <name>bind-name</name>
-            <value>jdbcjcr</value>
+            <value>jdbcexo</value>
           </value-param>
           <value-param>
             <name>class-name</name>
@@ -175,13 +168,13 @@
             <property name="initialSize" value="5"/>-->
 
 <!-- ORACLE-->
-            <!--<property name="driverClassName" value="oracle.jdbc.OracleDriver"/>
-			<property name="url" value="jdbc:oracle:thin:@tornado.exoua-int:1523:orcl"/>
-			<property name="username" value="exoperf"/>
-			<property name="password" value="exo12321"/>
-			<property name="maxActive" value="100"/>
-			<property name="maxIdle" value="2"/>
-            <property name="initialSize" value="2"/>-->
+            <!--<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+            <property name="url" value="jdbc:oracle:thin:@tornado.exoua-int:1523:orcl" />
+            <property name="username" value="exoperf" />
+            <property name="password" value="exo12321" />
+            <property name="maxActive" value="50" />
+            <property name="maxIdle" value="2" />
+            <property name="initialSize" value="2" />-->
 
 <!-- POSTGRESQL-->
             <property name="driverClassName" value="org.postgresql.Driver"/>

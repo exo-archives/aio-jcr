@@ -7,7 +7,7 @@
 	<param name="japex.plotGroupSize" value="5" />
 	<param name="japex.resultUnit" value="tps" />
 	<param name="japex.warmupIterations" value="0" />
-  <param name="japex.runTime" value="15:00" /> <!-- 15min -->
+  <param name="japex.runTime" value="15:00" /> <!-- 15:00 for 15min -->
 
 	<driverGroup name="ThreadDriverGroup" xmlns="http://www.sun.com/japex/testSuite">
 		<param name="japex.classPath" value="../lib/*.jar" />
@@ -15,25 +15,30 @@
 		<param name="jcr.initializer"	value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializer" />
 		<param name="jcr.user" value="admin" />
 		<param name="jcr.password" value="admin" />
-		<param name="jcr.workspace" value="ws" />
+		<param name="jcr.workspace" value="production" />
 		<param name="jcr.sessionPolicy" value="single" />
 		<param name="exo.jaasConf" value="login.conf" />
 		<param name="exo.containerConf"	value="../config/test-configuration-benchmark.xml" />
 		<driver name="JCRdriver">
-			<param name="japex.numberOfThreads" value="10" />
+			<param name="japex.numberOfThreads" value="300" />
 		</driver>
 	</driverGroup>
 
 	<testCase name="AddNtFileWithMetadataTest">
-		<param name="exo.testClass"	value="org.exoplatform.jcr.benchmark.usecases.AddNtFileWithMetadataTest" />
+	  <param name="exo.testClass"	value="org.exoplatform.jcr.benchmark.usecases.AddNtFileWithMetadataTest" />
     <param name="japex.runIterationDelay"	value="0" />
 	</testCase>
+	
+  <!--<testCase name="AddNtFileWithMetadataTestCleanDBOracle">
+	  <param name="exo.testClass"	value="org.exoplatform.jcr.benchmark.usecases.AddNtFileWithMetadataTestCleanDBOracle" />
+    <param name="japex.runIterationDelay"	value="0" />
+	</testCase>-->
 
 	<!--<testCase name="RandomReadNtFileWithMetadataTest">
 		<param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.RandomReadNtFileWithMetadataTest" />
 		<param name="jcr.level1NodesCount" value="1" />
-		<param name="jcr.level2NodesCount" value="50" />
-		<param name="jcr.level3NodesCount" value="50" />
+		<param name="jcr.level2NodesCount" value="2" />
+		<param name="jcr.level3NodesCount" value="10" />
 		<param name="jcr.level4NodesCount" value="50" />
 		<param name="japex.runIterationDelay" value="0" />
 	</testCase>-->
