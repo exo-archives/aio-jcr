@@ -49,7 +49,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class PortalContainerInitializedFilter implements Filter {
 
-  private static Log log = ExoLogger.getLogger("PortletContainerInitializedFilter");
+  private static Log log = ExoLogger.getLogger("PortatContainerInitializedFilter");
 
   private String contextName;
 
@@ -67,13 +67,13 @@ public class PortalContainerInitializedFilter implements Filter {
       throws IOException, ServletException {
     PortalContainer pcontainer =
       (PortalContainer)ExoContainerContext.getContainerByName(contextName);
-    log.info("get-by-name");
+    log.debug("get-by-name");
     if (pcontainer == null) {
       log.info("get-from-root");
       ExoContainer container = ExoContainerContext.getTopContainer();
       if (container instanceof RootContainer) {
         pcontainer = ((RootContainer) container).getPortalContainer(contextName);
-        log.info("PortalContainer is created after RootContainer");
+        log.debug("PortalContainer is created after RootContainer");
       }
     }
     if(pcontainer == null)  {
@@ -82,7 +82,7 @@ public class PortalContainerInitializedFilter implements Filter {
       + ExoContainerContext.getCurrentContainer());
     }
     ExoContainerContext.setCurrentContainer(pcontainer);
-    log.info("Curent Container: " + ExoContainerContext.getCurrentContainer());
+    log.debug("Curent Container: " + ExoContainerContext.getCurrentContainer());
     PortalContainer.setInstance(pcontainer);
     
     chain.doFilter(request, response);
