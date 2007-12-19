@@ -15,13 +15,6 @@
 
   <dependencies>
 
-    <!-- dependency>
-      <groupId>org.exoplatform.jcr</groupId>
-      <artifactId>exo.jcr.framework.httpclient</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
-      <scope>compile</scope>
-    </dependency -->
-
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
@@ -46,7 +39,9 @@
         <executions>
           <execution>
             <phase>compile</phase>
-            <goals><goal>jar</goal></goals>
+            <goals>
+              <goal>jar</goal>
+            </goals>
           </execution>
         </executions>
         <configuration>
@@ -62,9 +57,10 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <skip>true</skip>
           <includes>
-              <include>**/WebDavTests.java</include>
-			  <!-- include>**/TestDavFS2.java</include -->
+            <include>**/WebDavTests.java</include>
+            <!-- include>**/TestDavFS2.java</include -->
           </includes>
         </configuration>
       </plugin>
