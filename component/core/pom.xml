@@ -278,7 +278,7 @@
       <version>14</version>
       <scope>compile</scope>
       </dependency>
-
+      
       <dependency>
       <groupId>ojdbc</groupId>
       <artifactId>orai18n</artifactId>
@@ -293,7 +293,7 @@
       <version>9.1</version>
       <scope>compile</scope>
       </dependency>
-
+      
       <dependency>
       <groupId>com.ibm.db2</groupId>
       <artifactId>db2jcc_license_cu</artifactId>
@@ -408,18 +408,16 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <childDelegation>false</childDelegation>
-          <forkMode>never</forkMode>
-          <!-- TCK tests, uncomment <execution id #1> in maven-antrun-plugin -->
+          <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
+          <forkMode>${exo.test.forkmode}</forkMode><!-- never by default -->
           <includes>
             <!-- TCK, init section is implemented below -->
-
-            <!-- include>**/api/*Test.java</include>
-              <include>**/api/observation/*Test.java</include>
-              <include>**/api/lock/*Test.java</include>
-              <include>**/api/nodetype/*Test.java</include>
-              <include>**/api/query/*Test.java</include>
-              <include>**/api/version/*Test.java</include -->
+            <!--include>**/api/*Test.java</include>
+            <include>**/api/observation/*Test.java</include>
+            <include>**/api/lock/*Test.java</include>
+            <include>**/api/nodetype/*Test.java</include>
+            <include>**/api/query/*Test.java</include>
+            <include>**/api/version/*Test.java</include-->
 
             <!-- eXo tests, usecases -->
             <include>**/api/**/Test*.java</include>
@@ -501,108 +499,99 @@
           </execution>
         </executions>
       </plugin>
-      <!-- This is plugin for generating code coverage reports.   -->
-      <!-- Comment it if you do not like to produce such reports and use emma. -->
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.2-SNAPSHOT</version>
         <executions>
-          <!-- execution>
+          <execution>
             <id>0</id>
             <phase>test-compile</phase>
             <configuration>
-            <tasks>
-            <echo
-            message="[EMMA] Start instrumenting classes..." />
-            <taskdef resource="emma_ant.properties"
-            classpathref="maven.dependency.classpath" />
-            <emma enabled="true">
-            <instr mode="overwrite"
-            metadatafile="target/emma/metadata.em">
-            <filter excludes="*JiBX*" />
-            <filter excludes="*Entry*" />
-            <filter excludes="*Value*" />
-            <filter excludes="*RepositoryServiceConfiguration*" />
-            <instrpath>
-            <dirset dir="${basedir}/target">
-            <include name="test-classes" />
-            <include name="classes" />
-            </dirset>
-            </instrpath>
-            </instr>
-            </emma>
-            </tasks>
+              <tasks if="emma.run">
+                <echo message="[EMMA] Start instrumenting classes..." />
+                <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
+                <mkdir dir="${basedir}/target/emma"/>
+                <mkdir dir="${basedir}/target/emma/classes"/>
+                <copy todir="${basedir}/target/emma/classes" verbose="false" overwrite="true">
+                  <fileset dir="${basedir}/target/classes/" />
+                </copy>
+                <emma enabled="true">
+                  <instr mode="overwrite" metadatafile="${basedir}/target/emma/metadata.em">
+                    <filter excludes="*JiBX*" />
+                    <filter excludes="*Entry*" />
+                    <filter excludes="*Value*" />
+                    <filter excludes="*RepositoryServiceConfiguration*" />
+                    <instrpath>
+                      <dirset dir="${basedir}/target">
+                        <include name="test-classes" />
+                        <include name="emma/classes" />
+                      </dirset>
+                    </instrpath>
+                  </instr>
+                </emma>
+              </tasks>
             </configuration>
             <goals>
-            <goal>run</goal>
+              <goal>run</goal>
             </goals>
-            </execution-->
-          <!-- This section is for TCK tests only. -->
-          <!-- execution>
+          </execution>
+          <execution>
             <id>1</id>
             <phase>test-compile</phase>
             <configuration>
-            <tasks>
-            <echo    message="[JUNIT] Setup test data..." />
-            <mkdir dir="target/surefire-reports" />
-            <junit printsummary="yes" fork="yes"
-            haltonfailure="no" showoutput="yes">
-            <sysproperty
-            key="emma.coverage.out.file"
-            value="target/emma/coverage.ec" />
-            <sysproperty
-            key="jcr.test.configuration.file"
-            value="/conf/standalone/test-configuration.xml" />
-
-            <classpath>
-            <path refid="maven.test.classpath" />
-            </classpath>
-
-            <formatter type="plain" />
-            <batchtest todir="target/surefire-reports">
-            <fileset dir="target/test-classes">
-            <include name="**/init/TestAll*" />
-            </fileset>
-            </batchtest>
-            </junit>
-            <echo    message="[JUNIT] Slipping 10 secs (before starting TCK tests, to avoid problems with java processes)..." />
-            <sleep seconds="10"/>
-            </tasks>
+              <tasks if="tck.run">
+                <echo message="[JUNIT] Setup test data..." />
+                <mkdir dir="${basedir}/target/surefire-reports" />
+                <junit printsummary="yes" fork="yes" haltonfailure="no" showoutput="yes">
+                  <sysproperty key="emma.coverage.out.file" value="target/emma/coverage.ec" />
+                  <sysproperty key="jcr.test.configuration.file" value="/conf/standalone/test-configuration.xml" />
+                  <classpath>
+                    <path refid="maven.test.classpath" />
+                  </classpath>
+                  <formatter type="plain" />
+                  <batchtest todir="${basedir}/target/surefire-reports">
+                    <fileset dir="${basedir}/target/test-classes">
+                      <include name="**/init/TestAll*" />
+                    </fileset>
+                  </batchtest>
+                </junit>
+                <echo message="[JUNIT] Slipping 10 secs (before starting TCK tests, to avoid problems with java processes)..." />
+                <sleep seconds="10" />
+              </tasks>
             </configuration>
             <goals>
-            <goal>run</goal>
+              <goal>run</goal>
             </goals>
-            </execution -->
-          <!--execution>
+          </execution>
+          <execution>
             <id>2</id>
             <phase>test</phase>
             <configuration>
-            <tasks>
-            <echo
-            message="[EMMA] Start report generation..." />
-            <taskdef resource="emma_ant.properties"
-            classpathref="maven.dependency.classpath" />
-            <emma enabled="true">
-            <report>
-            <sourcepath>
-            <dirset dir="${basedir}">
-            <include name="src/**/java" />
-            </dirset>
-            </sourcepath>
-            <fileset dir="target/emma">
-            <include name="*.e*" />
-            </fileset>
-            <html
-            outfile="target/emma/coverage.html" />
-            </report>
-            </emma>
-            </tasks>
+              <tasks if="emma.run">
+                <echo message="[EMMA] Start report generation..." />
+                <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
+                <emma enabled="true">
+                  <report>
+                    <sourcepath>
+                      <dirset dir="${basedir}">
+                        <include name="src/**/java" />
+                      </dirset>
+                    </sourcepath>
+                    <fileset dir="${basedir}/target/emma">
+                      <include name="*.e*" />
+                    </fileset>
+                    <html outfile="${basedir}/target/emma/coverage.html" />
+                    <xml outfile="${basedir}/target/emma/coverage.xml" />
+                  </report>
+                </emma>
+              </tasks>
             </configuration>
             <goals>
-            <goal>run</goal>
+              <goal>run</goal>
             </goals>
-            </execution-->
+          </execution>
         </executions>
-        <!-- dependencies>
+        <dependencies>
           <dependency>
             <groupId>emma</groupId>
             <artifactId>emma</artifactId>
@@ -627,7 +616,7 @@
             <version>1.6.5</version>
             <scope>test</scope>
           </dependency>
-        </dependencies -->
+        </dependencies>
       </plugin>
     </plugins>
   </build>

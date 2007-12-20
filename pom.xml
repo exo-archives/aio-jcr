@@ -47,43 +47,43 @@
     <testOutputDirectory>target/test-classes</testOutputDirectory -->
 
     <resources>
-        <resource>
-            <directory>src/main/java</directory>
-            <includes>
-                <include>**/*.xml</include>
-                <include>**/*.xsl</include>
-                <include>**/*.properties</include>
-                <include>**/*.ion</include>
-            </includes>
-        </resource>
-        <resource>
-            <directory>src/main/resources</directory>
-            <includes>
-                <include>**/*.xml</include>
-                <include>**/*.xsl</include>
-                <include>**/*.properties</include>
-                <include>**/login.conf</include>
-                <include>**/*.ion</include>
-            </includes>
-        </resource>
+      <resource>
+        <directory>src/main/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+          <include>**/*.xsl</include>
+          <include>**/*.properties</include>
+          <include>**/*.ion</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <includes>
+          <include>**/*.xml</include>
+          <include>**/*.xsl</include>
+          <include>**/*.properties</include>
+          <include>**/login.conf</include>
+          <include>**/*.ion</include>
+        </includes>
+      </resource>
     </resources>
     <testResources>
-        <testResource>
-            <directory>src/test/java</directory>
-            <includes>
-                <include>**/*.properties</include>
-                <include>**/*.xml</include>
-                <include>**/*.txt</include>
-            </includes>
-        </testResource>
-        <testResource>
-            <directory>src/test/resources</directory>
-            <includes>
-                <include>**/*.properties</include>
-                <include>**/*.xml</include>
-                <include>**/*.txt</include>
-            </includes>
-        </testResource>
+      <testResource>
+        <directory>src/test/java</directory>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.xml</include>
+          <include>**/*.txt</include>
+        </includes>
+      </testResource>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.xml</include>
+          <include>**/*.txt</include>
+        </includes>
+      </testResource>
     </testResources>
 
     <plugins>
@@ -103,16 +103,15 @@
         <configuration>
           <skip>${exo.test.skip}</skip>
           <useFile>${exo.test.use.file}</useFile>
-          <forkMode>once</forkMode><!--once , pertest -->
           <testFailureIgnore>${exo.test.failure.ignore}</testFailureIgnore>
           <includes>
             <include>**/${exo.test.includes}.java</include>
           </includes>
-	  <excludes>
-	    <include>**/ftpclient/**/${exo.test.includes}.java</include>
-	    <include>**/webdavclient/**/${exo.test.includes}.java</include>
-	    <include>**/cifs/**/${exo.test.includes}.java</include>
-	  </excludes>
+          <excludes>
+            <include>**/ftpclient/**/${exo.test.includes}.java</include>
+            <include>**/webdavclient/**/${exo.test.includes}.java</include>
+            <include>**/cifs/**/${exo.test.includes}.java</include>
+          </excludes>
         </configuration>
       </plugin>
 
