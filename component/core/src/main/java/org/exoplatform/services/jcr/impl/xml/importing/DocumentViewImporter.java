@@ -57,6 +57,8 @@ import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelp
 import org.exoplatform.services.jcr.impl.util.ISO9075;
 import org.exoplatform.services.jcr.impl.util.StringConverter;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
+import org.exoplatform.services.jcr.impl.xml.importing.dataflow.ImportNodeData;
+import org.exoplatform.services.jcr.impl.xml.importing.dataflow.ImportPropertyData;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 

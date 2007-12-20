@@ -284,6 +284,37 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
    * @see javax.jcr.Session#exportSystemView(java.lang.String,
    *      org.xml.sax.ContentHandler, boolean, boolean)
    */
+  public void exportWorkspaceSystemView(OutputStream out, boolean skipBinary, boolean noRecurse) throws IOException,
+                                                                                                PathNotFoundException,
+                                                                                                RepositoryException {
+
+    BaseXmlExporter exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.BACKUP,
+                                                                              out,
+                                                                              skipBinary,
+                                                                              noRecurse);
+
+    ItemData srcItemData = nodesManager.getItemData(Constants.ROOT_UUID);
+    if (srcItemData == null) {
+      throw new PathNotFoundException("Root node not found");
+    }
+
+    try {
+      exporter.export((NodeData) srcItemData);
+    } catch (Exception e) {
+      if (e instanceof RepositoryException)
+        throw (RepositoryException) e;
+      else if (e instanceof IOException)
+        throw (IOException) e;
+      else
+        throw new RepositoryException(e);
+    }
+  }
+  /*
+   * (non-Javadoc)
+   * 
+   * @see javax.jcr.Session#exportSystemView(java.lang.String,
+   *      org.xml.sax.ContentHandler, boolean, boolean)
+   */
   public void exportSystemView(String absPath,
                                ContentHandler contentHandler,
                                boolean skipBinary,

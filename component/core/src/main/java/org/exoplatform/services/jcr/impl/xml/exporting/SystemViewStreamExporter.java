@@ -32,6 +32,7 @@ import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**
@@ -39,6 +40,8 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  * @version $Id: $
  */
 public class SystemViewStreamExporter extends StreamExporter {
+
+  private static final int BUFFER_SIZE = 3 * 1024 * 3;
 
   /**
    * @param writer
@@ -49,10 +52,10 @@ public class SystemViewStreamExporter extends StreamExporter {
    * @throws NamespaceException
    */
   public SystemViewStreamExporter(XMLStreamWriter writer,
-      SessionImpl session,
-      ItemDataConsumer dataManager,
-      boolean skipBinary,
-      boolean noRecurse) throws NamespaceException, RepositoryException {
+                                  SessionImpl session,
+                                  ItemDataConsumer dataManager,
+                                  boolean skipBinary,
+                                  boolean noRecurse) throws NamespaceException, RepositoryException {
     super(writer, session, dataManager, skipBinary, noRecurse);
   }
 
@@ -65,13 +68,15 @@ public class SystemViewStreamExporter extends StreamExporter {
   @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
     try {
-      writer.writeStartElement("sv", "node", SV_NAMESPACE_URI);
+      writer.writeStartElement(Constants.NS_SV_PREFIX, Constants.SV_NODE, SV_NAMESPACE_URI);
       if (level == 0) {
         startPrefixMapping();
       }
 
-
-      writer.writeAttribute("sv", SV_NAMESPACE_URI, "name", getExportName(node, false));
+      writer.writeAttribute(Constants.NS_SV_PREFIX,
+                            SV_NAMESPACE_URI,
+                            Constants.SV_NAME,
+                            getExportName(node, false));
     } catch (XMLStreamException e) {
       throw new RepositoryException(e);
     }
@@ -87,17 +92,22 @@ public class SystemViewStreamExporter extends StreamExporter {
   @Override
   protected void entering(PropertyData property, int level) throws RepositoryException {
     try {
-      writer.writeStartElement("sv", "property", SV_NAMESPACE_URI);
-      
-      writer.writeAttribute("sv", SV_NAMESPACE_URI, "name", getExportName(property, false));
+      writer.writeStartElement(Constants.NS_SV_PREFIX, Constants.SV_PROPERTY, SV_NAMESPACE_URI);
 
-      writer.writeAttribute("sv", SV_NAMESPACE_URI, "type", ExtendedPropertyType
-          .nameFromValue(property.getType()));
+      writer.writeAttribute(Constants.NS_SV_PREFIX,
+                            SV_NAMESPACE_URI,
+                            Constants.SV_NAME,
+                            getExportName(property, false));
+
+      writer.writeAttribute(Constants.NS_SV_PREFIX,
+                            SV_NAMESPACE_URI,
+                            Constants.SV_TYPE,
+                            ExtendedPropertyType.nameFromValue(property.getType()));
 
       List<ValueData> values = property.getValues();
       for (ValueData valueData : values) {
 
-        writer.writeStartElement("sv", "value", SV_NAMESPACE_URI);
+        writer.writeStartElement(Constants.NS_SV_PREFIX, Constants.SV_VALUE, SV_NAMESPACE_URI);
 
         writeValueData(valueData, property.getType());
 
@@ -146,18 +156,18 @@ public class SystemViewStreamExporter extends StreamExporter {
   }
 
   protected void writeValueData(ValueData data, int type) throws RepositoryException,
-      IllegalStateException,
-      XMLStreamException,
-      IOException {
+                                                         IllegalStateException,
+                                                         XMLStreamException,
+                                                         IOException {
 
     if (PropertyType.BINARY == type) {
       if (!isSkipBinary()) {
-        if (data.getLength() < 3 * 1024 * 3) {
+        if (data.getLength() < BUFFER_SIZE) {
           String charValue = getValueAsStringForExport(data, type);
           writer.writeCharacters(charValue.toCharArray(), 0, charValue.length());
         } else {
           InputStream is = data.getAsStream();
-          byte[] buffer = new byte[3 * 1024 * 3];
+          byte[] buffer = new byte[BUFFER_SIZE];
           int len;
           while ((len = is.read(buffer)) > 0) {
             char[] charbuf1 = Base64.encode(buffer, 0, len, 0, "").toCharArray();

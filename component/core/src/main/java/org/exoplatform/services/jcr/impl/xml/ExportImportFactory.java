@@ -34,6 +34,7 @@ import org.exoplatform.services.jcr.impl.xml.exporting.DocumentViewContentExport
 import org.exoplatform.services.jcr.impl.xml.exporting.DocumentViewStreamExporter;
 import org.exoplatform.services.jcr.impl.xml.exporting.SystemViewContentExporter;
 import org.exoplatform.services.jcr.impl.xml.exporting.SystemViewStreamExporter;
+import org.exoplatform.services.jcr.impl.xml.exporting.WorkspaceSystemViewStreamExporter;
 import org.exoplatform.services.jcr.impl.xml.importing.WorkspaceDataImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.ContentHandlerImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
@@ -48,10 +49,6 @@ public class ExportImportFactory {
 
   public ExportImportFactory(SessionImpl sessionImpl) {
     this.sessionImpl = sessionImpl;
-  }
-
-  public WorkspaceDataImporter getWorkspaceImporter(InvocationContext context) {
-    return new WorkspaceDataImporter(context);
   }
 
   /**
@@ -128,6 +125,13 @@ public class ExportImportFactory {
                                             sessionImpl.getTransientNodesManager(),
                                             skipBinary,
                                             noRecurse);
+
+    } else if (type == XmlMapping.BACKUP) {
+      return new WorkspaceSystemViewStreamExporter(streamWriter,
+                                                   sessionImpl,
+                                                   sessionImpl.getTransientNodesManager(),
+                                                   skipBinary,
+                                                   noRecurse);
     }
     return null;
   }
@@ -160,5 +164,9 @@ public class ExportImportFactory {
                                           InvocationContext context) {
 
     return new StreamImporter(node, uuidBehavior, saveType, context);
+  }
+
+  public WorkspaceDataImporter getWorkspaceImporter(InvocationContext context) {
+    return new WorkspaceDataImporter(context);
   }
 }

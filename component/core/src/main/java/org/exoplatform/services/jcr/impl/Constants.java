@@ -269,26 +269,56 @@ public class Constants {
   
   //-------- system view name constants
   /**
+   * 
+   */
+  public static final String SV_NODE = "node";
+  /**
+   * 
+   */
+  public static final String SV_PROPERTY = "property";
+  /**
+   * 
+   */
+  public static final String SV_VALUE = "value";
+  /**
+   * 
+   */
+  public static final String SV_TYPE = "type";
+  /**
+   * 
+   */
+  public static final String SV_NAME = "name";
+  
+  /**
+   * 
+   */
+  public static final String SV_ID = "id";
+
+  
+  /**
    * sv:node
    */
-  public static final InternalQName SV_NODE = new InternalQName(NS_SV_URI, "node");
+  public static final InternalQName SV_NODE_NAME = new InternalQName(NS_SV_URI, SV_NODE);
   /**
    * sv:property
    */
-  public static final InternalQName SV_PROPERTY = new InternalQName(NS_SV_URI, "property");
+  public static final InternalQName SV_PROPERTY_NAME = new InternalQName(NS_SV_URI, SV_PROPERTY);
   /**
    * sv:value
    */
-  public static final InternalQName SV_VALUE = new InternalQName(NS_SV_URI, "value");
+  public static final InternalQName SV_VALUE_NAME = new InternalQName(NS_SV_URI, SV_VALUE);
   /**
    * sv:type
    */
-  public static final InternalQName SV_TYPE = new InternalQName(NS_SV_URI, "type");
+  public static final InternalQName SV_TYPE_NAME = new InternalQName(NS_SV_URI, SV_TYPE);
   /**
    * sv:name
    */
-  public static final InternalQName SV_NAME = new InternalQName(NS_SV_URI, "name");
-
+  public static final InternalQName SV_NAME_NAME = new InternalQName(NS_SV_URI, SV_NAME);
+  /**
+   * exo:id
+   */
+  public static final InternalQName EXO_ID_NAME = new InternalQName(NS_EXO_PREFIX, SV_ID);
   
   public static QPath JCR_VERSION_STORAGE_PATH;
   

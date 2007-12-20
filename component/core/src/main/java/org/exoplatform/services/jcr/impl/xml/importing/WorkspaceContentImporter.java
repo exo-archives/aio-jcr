@@ -29,7 +29,7 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
-import org.exoplatform.services.jcr.util.IdGenerator;
+import org.exoplatform.services.jcr.impl.xml.importing.dataflow.ImportNodeData;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -59,9 +59,9 @@ public class WorkspaceContentImporter extends SystemViewImporter {
    * @param context
    */
   public WorkspaceContentImporter(NodeImpl parent,
-                               int uuidBehavior,
-                               XmlSaveType saveType,
-                               InvocationContext context) {
+                                  int uuidBehavior,
+                                  XmlSaveType saveType,
+                                  InvocationContext context) {
     super(parent, uuidBehavior, saveType, context);
   }
 
@@ -78,14 +78,19 @@ public class WorkspaceContentImporter extends SystemViewImporter {
                            Map<String, String> atts) throws RepositoryException {
     InternalQName elementName = locationFactory.parseJCRName(name).getInternalName();
 
-    if (Constants.SV_NODE.equals(elementName)) {
+    if (Constants.SV_NODE_NAME.equals(elementName)) {
       // sv:node element
 
       // node name (value of sv:name attribute)
-      String svName = getAttribute(atts, Constants.SV_NAME);
+      String svName = getAttribute(atts, Constants.SV_NAME_NAME);
       if (svName == null) {
         throw new RepositoryException("Missing mandatory sv:name attribute of element sv:node");
       }
+      String svId = getAttribute(atts, Constants.EXO_ID_NAME);
+      if (svId == null) {
+        throw new RepositoryException("Missing mandatory exo:id attribute of element sv:node");
+      }
+
       ImportNodeData newNodeData = null;
       InternalQName currentNodeName = null;
       int nodeIndex = 1;
@@ -123,12 +128,19 @@ public class WorkspaceContentImporter extends SystemViewImporter {
         nodeIndex = getNodeIndex(parentData, currentNodeName, null);
         newNodeData = new ImportNodeData(parentData, currentNodeName, nodeIndex);
         newNodeData.setOrderNumber(getNextChildOrderNum(parentData));
-        newNodeData.setIdentifier(IdGenerator.generate());
+        newNodeData.setIdentifier(svId);
         changesLog.add(new ItemState(newNodeData, ItemState.ADDED, true, parentData.getQPath()));
       }
       tree.push(newNodeData);
     } else {
       super.startElement(namespaceURI, localName, name, atts);
+      if (Constants.SV_PROPERTY_NAME.equals(elementName)) {
+        String svId = getAttribute(atts, Constants.EXO_ID_NAME);
+        if (svId == null) {
+          throw new RepositoryException("Missing mandatory exo:id attribute of element sv:property");
+        }
+        propertyInfo.setIndentifer(svId);
+      }
     }
   }
 

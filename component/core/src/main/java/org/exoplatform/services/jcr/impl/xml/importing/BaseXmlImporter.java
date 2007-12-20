@@ -52,6 +52,7 @@ import org.exoplatform.services.jcr.impl.core.nodetype.PropertyDefinitionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
+import org.exoplatform.services.jcr.impl.xml.importing.dataflow.ImportNodeData;
 import org.exoplatform.services.log.ExoLogger;
 
 /**

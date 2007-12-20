@@ -37,7 +37,11 @@ public enum XmlMapping {
   DOCVIEW,
   /**
    * The system view mapping provides a complete serialization of workspace
-   * content to XML without loss of information
+   * content to XML without loss of information.
    */
-  SYSVIEW
+  SYSVIEW,
+  /**
+   * Optimized for back up system view mapping.
+   */
+  BACKUP
 }
