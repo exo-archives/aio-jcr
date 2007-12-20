@@ -318,7 +318,7 @@ public class Constants {
   /**
    * exo:id
    */
-  public static final InternalQName EXO_ID_NAME = new InternalQName(NS_EXO_PREFIX, SV_ID);
+  public static final InternalQName EXO_ID_NAME = new InternalQName(NS_EXO_URI, SV_ID);
   
   public static QPath JCR_VERSION_STORAGE_PATH;
   
