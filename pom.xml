@@ -40,7 +40,7 @@
   </modules>
 
   <build>
-    <!-- sourceDirectory>src/main/java</sourceDirectory>
+    <!--sourceDirectory>src/main/java</sourceDirectory>
     <outputDirectory>target/classes</outputDirectory>
 
     <testSourceDirectory>src/test/java</testSourceDirectory>
