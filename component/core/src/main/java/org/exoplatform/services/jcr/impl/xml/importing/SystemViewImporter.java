@@ -239,7 +239,7 @@ public class SystemViewImporter extends BaseXmlImporter {
 
     propertyData = new ImportPropertyData(QPath.makeChildPath(currentNodeInfo.getQPath(),
                                                               propertyInfo.getName()),
-                                          IdGenerator.generate(),
+                                          propertyInfo.getIndentifer(),
                                           0,
                                           propertyInfo.getType(),
                                           currentNodeInfo.getIdentifier(),
@@ -295,7 +295,7 @@ public class SystemViewImporter extends BaseXmlImporter {
 
     propertyData = new ImportPropertyData(QPath.makeChildPath(nodeData.getQPath(),
                                                               propertyInfo.getName()),
-                                          IdGenerator.generate(),
+                                          propertyInfo.getIndentifer(),
                                           0,
                                           propertyInfo.getType(),
                                           nodeData.getIdentifier(),
@@ -436,7 +436,7 @@ public class SystemViewImporter extends BaseXmlImporter {
 
     propertyData = new ImportPropertyData(QPath.makeChildPath(currentNodeInfo.getQPath(),
                                                               propertyInfo.getName()),
-                                          IdGenerator.generate(),
+                                          propertyInfo.getIndentifer(),
                                           0,
                                           propertyInfo.getType(),
                                           currentNodeInfo.getIdentifier(),
