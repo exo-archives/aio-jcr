@@ -41,11 +41,11 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: $
  */
 public class RandomValueNodeGenerator extends WeightNodeGenerator {
+  private static final Random random = new Random();
+
   protected static Log        log    = ExoLogger.getLogger(RandomValueNodeGenerator.class);
 
   private final int           maxBinarySize;
-
-  private static final Random random = new Random();
 
   private final int           maxPropertiesCount;
 
@@ -56,11 +56,11 @@ public class RandomValueNodeGenerator extends WeightNodeGenerator {
   private final ValueFactory  valueFactory;
 
   public RandomValueNodeGenerator(ValueFactory valueFactory,
-      int maxDepth,
-      int maxWidth,
-      int maxPropertiesCount,
-      int maxValuesCount,
-      int maxBinarySize) {
+                                  int maxDepth,
+                                  int maxWidth,
+                                  int maxPropertiesCount,
+                                  int maxValuesCount,
+                                  int maxBinarySize) {
     super(maxDepth, maxWidth);
     this.valueFactory = valueFactory;
     this.maxPropertiesCount = maxPropertiesCount;
@@ -70,41 +70,10 @@ public class RandomValueNodeGenerator extends WeightNodeGenerator {
 
   }
 
-  @Override
-  protected void addProperties() throws RepositoryException {
-    
-    int propCount = random.nextInt(maxPropertiesCount);
-   log.info("add "+propCount+" properties to the node "+currentNode.getPath());
-    for (int i = 0; i < propCount; i++) {
-      log.info("add property number "+i);
-      int valueType = random.nextInt(8) + 1;
-      try {
-        if (this.isAddMultivalued && random.nextBoolean()) {
-          int valueCount = random.nextInt(maxValuesCount) + 1;
-          Value[] values = new Value[valueCount];
-          for (int j = 0; j < valueCount; j++) {
-            values[j] = getNewValue(valueType);
-          }
-          log.info("add "+valueCount +" values "+" type "+valueType);
-          currentNode.setProperty(IdGenerator.generate(), values);
-        } else {
-          log.info("add "+" type "+valueType);
-          currentNode.setProperty(IdGenerator.generate(), getNewValue(valueType));
-        }
-      } catch (FileNotFoundException e) {
-        throw new RepositoryException(e);
-      } catch (IllegalStateException e) {
-        throw new RepositoryException(e);
-      } catch (IOException e) {
-        throw new RepositoryException(e);
-      }
-    }
-  }
-
   private Value getNewValue(int propType) throws FileNotFoundException,
-      IOException,
-      IllegalStateException,
-      RepositoryException {
+                                         IOException,
+                                         IllegalStateException,
+                                         RepositoryException {
     Value val = null;
     byte[] buffer;
     switch (propType) {
@@ -143,7 +112,7 @@ public class RandomValueNodeGenerator extends WeightNodeGenerator {
       val = valueFactory.createValue(random.nextLong());
       break;
     case PropertyType.NAME:
-      val = valueFactory.createValue(IdGenerator.generate());
+      val = valueFactory.createValue(IdGenerator.generate(), propType);
       break;
     case PropertyType.PATH:
       val = valueFactory.createValue(currentNode.getPath(), propType);
@@ -152,6 +121,37 @@ public class RandomValueNodeGenerator extends WeightNodeGenerator {
       break;
     }
     return val;
+  }
+
+  @Override
+  protected void addProperties() throws RepositoryException {
+
+    int propCount = random.nextInt(maxPropertiesCount);
+    log.info("add " + propCount + " properties to the node " + currentNode.getPath());
+    for (int i = 0; i < propCount; i++) {
+      log.info("add property number " + i);
+      int valueType = random.nextInt(8) + 1;
+      try {
+        if (this.isAddMultivalued && random.nextBoolean()) {
+          int valueCount = random.nextInt(maxValuesCount) + 1;
+          Value[] values = new Value[valueCount];
+          for (int j = 0; j < valueCount; j++) {
+            values[j] = getNewValue(valueType);
+          }
+          log.info("add " + valueCount + " values " + " type " + valueType);
+          currentNode.setProperty(IdGenerator.generate(), values);
+        } else {
+          log.info("add " + " type " + valueType);
+          currentNode.setProperty(IdGenerator.generate(), getNewValue(valueType));
+        }
+      } catch (FileNotFoundException e) {
+        throw new RepositoryException(e);
+      } catch (IllegalStateException e) {
+        throw new RepositoryException(e);
+      } catch (IOException e) {
+        throw new RepositoryException(e);
+      }
+    }
   }
 
   public static File createBLOBTempFile(int sizeInb) throws IOException {
