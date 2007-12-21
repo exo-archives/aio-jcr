@@ -20,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -235,7 +236,7 @@ public class PendingChangesLog {
     return null;
   }
 
-  public void restore() throws Exception {
+  public void restore() throws FileNotFoundException {
     for (int i = 0; i < this.listFixupStream.size(); i++) {
       List<ItemState> listItemState = itemDataChangesLog.getAllStates();
       ItemState itemState = listItemState.get(listFixupStream.get(i).getItemSateId());
