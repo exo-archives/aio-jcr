@@ -172,7 +172,7 @@ namespace exo_jcr.msofficeplugin.common
 
         private static String regexpPathName = "^[A-Za-z0-9. %]{1,}$";
 
-        private static String regexpSimpleName = "^[A-Za-z0-9.]{1,}$";
+        private static String regexpSimpleName = "^[-A-Za-z0-9.]{1,}$";
 
         private static String regexpNumber = "^[0-9]{1,}$";
 

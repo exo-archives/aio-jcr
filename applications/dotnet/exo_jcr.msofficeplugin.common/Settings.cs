@@ -90,7 +90,6 @@ namespace exo_jcr.msofficeplugin.common
                 exo_key.CreateSubKey(RegKeys.CLIENT_KEY);
                 client_key = exo_key.OpenSubKey(RegKeys.CLIENT_KEY);
             }
-            
 
                 box_Server.Text = client_key.GetValue(RegKeys.S_ADDDR_KEY, "").ToString();
                 if (box_Server.Text.Equals("")) box_Server.Text = host;
@@ -151,7 +150,6 @@ namespace exo_jcr.msofficeplugin.common
                 {
                     Utils.showMessageStatus(status);
                 }
-
             }
             catch (Exception tryexc)
             {

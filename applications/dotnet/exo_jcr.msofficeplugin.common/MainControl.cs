@@ -304,6 +304,7 @@ namespace exo_jcr.msofficeplugin.common
                 if (multistatus == null) {
                     return;
                 }
+
                 ArrayList responses = multistatus.getResponses();
                 
                 for (int i = 0; i < responses.Count; i++)

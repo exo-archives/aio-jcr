@@ -54,7 +54,8 @@ namespace exo_jcr.webdav.csclient.Request
 
         public String getContextHref()
         {
-            return "http://" + host + ":" + port.ToString() + servletPath;
+            String serverPort = (port == 80) ? "" : ":" + port.ToString();
+            return "http://" + host + serverPort + servletPath;
         }
 
         public String Host 
