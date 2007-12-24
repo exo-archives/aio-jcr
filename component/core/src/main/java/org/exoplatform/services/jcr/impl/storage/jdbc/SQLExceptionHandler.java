@@ -20,9 +20,11 @@ import javax.jcr.InvalidItemStateException;
 import javax.jcr.ItemExistsException;
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.impl.storage.JCRInvalidItemStateException;
 
 /**
  * Created by The eXo Platform SAS.
@@ -175,7 +177,7 @@ public class SQLExceptionHandler {
         throw new RepositoryException(message, e);
       } else if (errMessage.toLowerCase().toUpperCase().indexOf(conn.JCR_PK_ITEM)>=0) {
         message += "Item already exists. Condition: ID. " + itemInfo;
-        throw new InvalidItemStateException(message, e);  
+        throw new JCRInvalidItemStateException(message, item.getIdentifier(), ItemState.ADDED, e);  
       }
 
     // try detect integrity violation

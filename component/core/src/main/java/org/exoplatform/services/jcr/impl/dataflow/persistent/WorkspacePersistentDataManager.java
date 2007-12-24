@@ -70,7 +70,6 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     
     WorkspaceStorageConnection regularConnection = null;
     WorkspaceStorageConnection systemConnection = null;
-    //log.info("ws save...");
     try {
 
       for (ItemState itemState : changes) {
@@ -127,12 +126,6 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
         regularConnection.commit();
       if (systemConnection != null && !systemConnection.equals(regularConnection))
         systemConnection.commit();
-    } catch (InvalidItemStateException e) {
-      throw e;
-    } catch (RepositoryException e) {
-      throw e;
-    } catch (RuntimeException e) {
-      throw e;
     } finally { 
       if (regularConnection != null && regularConnection.isOpened())
         regularConnection.rollback();
@@ -140,10 +133,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
         systemConnection.rollback();
     }
     
-    //log.info("ws save done");
-    
     notifySaveItems(changesLog);
-    //log.info("ws save notifySaveItems done");
   }
   
   /*

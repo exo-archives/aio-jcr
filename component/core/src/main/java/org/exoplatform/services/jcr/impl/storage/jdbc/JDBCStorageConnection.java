@@ -34,6 +34,7 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.access.AccessControlList;
+import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedPropertyData;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
@@ -47,6 +48,7 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CleanableFileStreamValueData;
+import org.exoplatform.services.jcr.impl.storage.JCRInvalidItemStateException;
 import org.exoplatform.services.jcr.impl.storage.value.ValueDataNotFoundException;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.SwapFile;
@@ -272,9 +274,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     try {
       int nc = deleteItemByIdentifier(cid);
       if (nc <= 0)
-        throw new InvalidItemStateException("(delete) Node "
+        throw new JCRInvalidItemStateException("(delete) Node "
             + data.getQPath().getAsString() + " " + data.getIdentifier()
-            + " not found. Probably was deleted by another session ");
+            + " not found. Probably was deleted by another session ", data.getIdentifier(), ItemState.DELETED);
 
       if (log.isDebugEnabled())
         log.debug("Node deleted " + data.getQPath().getAsString() + ", " + data.getIdentifier() + ", " + ((NodeData) data).getPrimaryTypeName().getAsString());
@@ -301,9 +303,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       // delete item
       int nc = deleteItemByIdentifier(cid);
       if (nc <= 0)
-        throw new InvalidItemStateException("(delete) Property "
+        throw new JCRInvalidItemStateException("(delete) Property "
             + data.getQPath().getAsString() + " " + data.getIdentifier()
-            + " not found. Probably was deleted by another session ");
+            + " not found. Probably was deleted by another session ", data.getIdentifier(), ItemState.DELETED);
 
       if (log.isDebugEnabled())
         log.debug("Property deleted " + data.getQPath().getAsString() + ", " + data.getIdentifier()
@@ -318,12 +320,6 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         log.error("Property remove. Database error: " + e, e);
       exceptionHandler.handleDeleteException(e, data);
     }
-  }
-
-  public void reindex(NodeData oldData, NodeData data) throws RepositoryException, UnsupportedOperationException, InvalidItemStateException, IllegalStateException {
-    // TODO remove it
-    log.warn("Nodes reordering is not supported currently");
-    return;    
   }
 
   /* (non-Javadoc)

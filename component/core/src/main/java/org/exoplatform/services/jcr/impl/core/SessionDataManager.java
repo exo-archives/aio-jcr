@@ -482,13 +482,24 @@ public class SessionDataManager implements ItemDataConsumer {
   public List<PropertyImpl> getReferences(String identifier) throws RepositoryException {
     List<PropertyImpl> refs = new ArrayList<PropertyImpl>();
     for (PropertyData data : transactionableManager.getReferencesData(identifier, true)) {
-      PropertyImpl item = (PropertyImpl) itemFactory.createItem(data);
-      session.getActionHandler().postRead(item);
-
       // check for permission for read
-      NodeImpl parentItem = (NodeImpl) getItemByIdentifier(data.getParentIdentifier(), true);
-      if (accessManager.hasPermission(parentItem.getACL(), PermissionType.READ, session.getUserID())) {
-        refs.add((PropertyImpl) itemFactory.createItem(data));
+      // [PN] 21.12.07 use item data
+      //NodeImpl parentItem = (NodeImpl) getItemByIdentifier(data.getParentIdentifier(), true);
+      NodeData parent = (NodeData) getItemData(data.getParentIdentifier());
+      // skip not permitted
+      if (accessManager.hasPermission(parent.getACL(), PermissionType.READ, session.getUserID())) {
+        PropertyImpl item = null;
+        ItemState state = changesLog.getItemState(identifier);
+        if (state != null) { 
+          if (state.isDeleted()) // skip deleted
+            continue;
+          
+          item = (PropertyImpl) itemFactory.createItem(state.getData());
+        } else
+          item = (PropertyImpl) itemFactory.createItem(data);
+        
+        refs.add(item);
+        session.getActionHandler().postRead(item);
       }
     }
     return refs;
