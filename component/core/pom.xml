@@ -278,7 +278,7 @@
       <version>14</version>
       <scope>compile</scope>
       </dependency>
-      
+
       <dependency>
       <groupId>ojdbc</groupId>
       <artifactId>orai18n</artifactId>
@@ -293,7 +293,7 @@
       <version>9.1</version>
       <scope>compile</scope>
       </dependency>
-      
+
       <dependency>
       <groupId>com.ibm.db2</groupId>
       <artifactId>db2jcc_license_cu</artifactId>
@@ -540,6 +540,7 @@
             <phase>test-compile</phase>
             <configuration>
               <tasks if="tck.run">
+                <!-- init section for TCK tests, need to run mvn with -Dtck.run parameter -->
                 <echo message="[JUNIT] Setup test data..." />
                 <mkdir dir="${basedir}/target/surefire-reports" />
                 <junit printsummary="yes" fork="yes" haltonfailure="no" showoutput="yes">
