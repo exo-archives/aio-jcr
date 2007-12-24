@@ -364,7 +364,7 @@ public abstract class BrowseDialog extends PlugInDialog {
           ResponseDoc response = tmpResponses.get(i);          
           String responseHref = TextUtils.UnEscape(response.getHref(), '%');
           
-          if (i == 0 && responseHref.equals(currentHref)) {
+          if (responseHref.equals(currentHref)) {
             continue;
           }              
           
