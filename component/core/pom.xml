@@ -74,7 +74,7 @@
       <version>${org.exoplatform.kernel.version}</version>
       <scope>compile</scope>
     </dependency>
-
+    
     <dependency>
       <groupId>org.exoplatform.core</groupId>
       <artifactId>exo.core.component.organization.api</artifactId>
@@ -92,6 +92,13 @@
     <dependency>
       <groupId>org.exoplatform.core</groupId>
       <artifactId>exo.core.component.security</artifactId>
+      <version>${org.exoplatform.core.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.core</groupId>
+      <artifactId>exo.core.component.database</artifactId>
       <version>${org.exoplatform.core.version}</version>
       <scope>compile</scope>
     </dependency>
