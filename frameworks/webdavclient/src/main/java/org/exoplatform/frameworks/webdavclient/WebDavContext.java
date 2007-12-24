@@ -98,7 +98,8 @@ public class WebDavContext {
   }
   
   public String getServerPrefix() {
-    return "http://" + serverHost + ":" + serverPort + servletPath;
+    String port = (serverPort == 80) ? "" : ":" + serverPort;
+    return "http://" + serverHost + port + servletPath;
   }
   
 }
