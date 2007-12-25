@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testSuite name="Calculating the average time of execution of the main JCR API methods"
-  xmlns="http://www.sun.com/japex/testSuite">
+<testSuite name="Calculating the average time of execution of the main JCR API methods" xmlns="http://www.sun.com/japex/testSuite">
 
   <param name="japex.reportsDirectory" value="../reports" />
   <param name="japex.plotGroupSize" value="5" />
   <param name="japex.resultUnit" value="tps" />
   <param name="japex.warmupIterations" value="0" />
-  <param name="japex.runTime" value="15:00" />
+  <param name="japex.runTime" value="10" />
+  <!-- 10 for 10 sec -->
   <!-- 15:00 for 15min -->
 
   <driverGroup name="ThreadDriverGroup" xmlns="http://www.sun.com/japex/testSuite">
@@ -20,9 +20,23 @@
     <param name="exo.jaasConf" value="login.conf" />
     <param name="exo.containerConf" value="../config/test-configuration-benchmark.xml" />
     <driver name="JCRdriver">
-      <param name="japex.numberOfThreads" value="300" />
+      <param name="japex.numberOfThreads" value="2" />
     </driver>
   </driverGroup>
+
+  <!--testCase name="SearchNodesByPathTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesTest" />
+    <param name="jcr.sqlQuery" value="select * from nt:base where jcr:path like '/download/node0/node1/node2/%'" />
+    <param name="jcr.resultNodes" value="120" />
+    <param name="japex.runIterationDelay" value="0" />
+  </testCase-->
+
+  <!--testCase name="SearchNodesByContentTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesTest" />
+    <param name="jcr.sqlQuery" value="select * from nt:base where contains(*,'fournodes')" />
+    <param name="jcr.resultNodes" value="4" />
+    <param name="japex.runIterationDelay" value="0" />
+  </testCase-->
 
   <testCase name="AddNtFileWithMetadataTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.AddNtFileWithMetadataTest" />
@@ -32,7 +46,7 @@
   <!--testCase name="AddNtFileWithMetadataTestCleanDBOracle">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.AddNtFileWithMetadataTestCleanDBOracle" />
     <param name="japex.runIterationDelay" value="0" />
-  </testCase-->
+    </testCase-->
 
   <!--testCase name="RandomReadNtFileWithMetadataTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.RandomReadNtFileWithMetadataTest" />
@@ -41,13 +55,13 @@
     <param name="jcr.level3NodesCount" value="10" />
     <param name="jcr.level4NodesCount" value="50" />
     <param name="japex.runIterationDelay" value="0" />
-  </testCase-->
+    </testCase-->
 
   <!--testCase name="TraverseInnerFoldersTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.TraverseInnerFoldersTest" />
     <param name="jcr.amountOfInnerFolders" value="5" />
     <param name="jcr.depthOfStructure" value="3" />
     <param name="japex.runIterationDelay" value="700" />
-  </testCase-->
+    </testCase-->
 
 </testSuite>
