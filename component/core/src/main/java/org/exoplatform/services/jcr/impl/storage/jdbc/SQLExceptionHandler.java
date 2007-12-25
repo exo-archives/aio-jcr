@@ -74,11 +74,11 @@ public class SQLExceptionHandler {
       String umsg = errMessage.toLowerCase().toUpperCase();
       if (umsg.indexOf(conn.JCR_FK_ITEM_PARENT)>=0) {
         message += "Parent not found. Item " + itemInfo;
-        throw new InvalidItemStateException(message, e);
+        throw new JCRInvalidItemStateException(message, item.getIdentifier(), ItemState.ADDED, e);
       } else if (umsg.indexOf(conn.JCR_PK_ITEM)>=0) {
         message += "Item is already exists. Condition: ID. " + itemInfo;
         // InvalidItemStateException ! - because it's impossible add new item with existed UUID
-        throw new InvalidItemStateException(message, e);
+        throw new JCRInvalidItemStateException(message, item.getIdentifier(), ItemState.ADDED, e);
       } else if (umsg.indexOf(conn.JCR_IDX_ITEM_PARENT)>=0 || umsg.indexOf(conn.JCR_IDX_ITEM_PARENT_NAME)>=0) {
         message += "Item already exists. Condition: parent ID, name, index. " + itemInfo;
         throw new ItemExistsException(message, e);
@@ -139,7 +139,7 @@ public class SQLExceptionHandler {
       if (ownException != null) throw ownException; 
     }
     message += "Error of item add. " + itemInfo;
-    throw new InvalidItemStateException(message, e); 
+    throw new JCRInvalidItemStateException(message, item.getIdentifier(), ItemState.ADDED, e);
   }
 
   protected String handleDeleteException(Exception e, ItemData item) throws RepositoryException, InvalidItemStateException {
@@ -153,7 +153,7 @@ public class SQLExceptionHandler {
       String umsg = errMessage.toLowerCase().toUpperCase();
       if (umsg.indexOf(conn.JCR_FK_ITEM_PARENT)>=0) {
         message += "Can not delete parent till childs exists. Item " + itemInfo;
-        throw new InvalidItemStateException(message, e);
+        throw new JCRInvalidItemStateException(message, item.getIdentifier(), ItemState.DELETED, e);
       } else if (umsg.indexOf(conn.JCR_FK_VALUE_PROPERTY)>=0) {
         message += "[FATAL] Can not delete property item till it contains values. Condition: property ID. " + itemInfo;
         throw new RepositoryException(message, e);
@@ -177,7 +177,7 @@ public class SQLExceptionHandler {
         throw new RepositoryException(message, e);
       } else if (errMessage.toLowerCase().toUpperCase().indexOf(conn.JCR_PK_ITEM)>=0) {
         message += "Item already exists. Condition: ID. " + itemInfo;
-        throw new JCRInvalidItemStateException(message, item.getIdentifier(), ItemState.ADDED, e);  
+        throw new JCRInvalidItemStateException(message, item.getIdentifier(), ItemState.UPDATED, e);  
       }
 
     // try detect integrity violation
@@ -195,7 +195,7 @@ public class SQLExceptionHandler {
       if (ownException != null) throw ownException;
     }
     message += "Error of item update. " + itemInfo;
-    throw new InvalidItemStateException(message, e);
+    throw new JCRInvalidItemStateException(message, item.getIdentifier(), ItemState.UPDATED, e);
   }
 
 }

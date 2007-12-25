@@ -18,8 +18,6 @@ package org.exoplatform.services.jcr.impl.storage;
 
 import javax.jcr.InvalidItemStateException;
 
-import org.exoplatform.services.jcr.dataflow.ItemState;
-
 /**
  * Created by The eXo Platform SAS 
  * Author : Peter Nedonosko
