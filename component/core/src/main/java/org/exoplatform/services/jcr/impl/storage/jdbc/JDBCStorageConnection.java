@@ -585,6 +585,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
      * 
      * PGSQL SP:
      * 
+     * 
+     * 
      * CREATE OR REPLACE FUNCTION get_qpath(parentId VARCHAR) RETURNS SETOF record AS $$
         DECLARE
             cur_item RECORD;
