@@ -38,7 +38,7 @@
     </dependency>
 
     <!-- ************************ jakarta commons ************************ -->
-    <dependency>
+    <!-- dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
@@ -97,10 +97,9 @@
     <dependency>
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
-      <!-- version>1.7.3.3</version -->
       <version>1.8.0.7</version>
       <scope>compile</scope>
-    </dependency>
+    </dependency -->
   </dependencies>
   <build>
     <plugins>

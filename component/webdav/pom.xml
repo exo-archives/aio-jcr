@@ -46,11 +46,11 @@
     <dependency>
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
-      <version>1.0</version>
+      <version>1.2</version>
       <scope>compile</scope>
     </dependency>
 
-    <dependency>
+    <!-- dependency>
       <groupId>commons-chain</groupId>
       <artifactId>commons-chain</artifactId>
       <version>1.0</version>
@@ -69,7 +69,7 @@
       <artifactId>log4j</artifactId>
       <version>1.2.8</version>
       <scope>compile</scope>
-    </dependency>
+    </dependency -->
 
   </dependencies>
 

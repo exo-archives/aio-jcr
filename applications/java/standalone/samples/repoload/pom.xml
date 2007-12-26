@@ -28,7 +28,7 @@
 			<scope>compile</scope>
 		</dependency>
 
-		<dependency>
+		<!-- dependency>
 			<groupId>hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
 			<version>1.8.0.7</version>
@@ -68,7 +68,7 @@
 			<artifactId>japex</artifactId>
 			<version>1.0.25</version>
 			<scope>compile</scope>
-		</dependency>
+		</dependency -->
 	</dependencies>
 
 	<build>

@@ -22,7 +22,7 @@
       <scope>compile</scope>
     </dependency>
 
-    <dependency>
+    <!-- dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
@@ -34,7 +34,7 @@
         <artifactId>log4j</artifactId>
         <version>1.2.8</version>
         <scope>compile</scope>
-    </dependency>
+    </dependency -->
 
   </dependencies>
 
