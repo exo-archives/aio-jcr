@@ -337,7 +337,6 @@ public class DocumentViewImporter extends BaseXmlImporter {
    * @param propertiesMap
    * @param mixinNodeTypes
    * @param jcrName
-   * @param primaryTypeName
    * @return
    * @throws PathNotFoundException
    * @throws IllegalPathException

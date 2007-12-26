@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -568,6 +569,81 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
             parent.close();
           }
         } while (!caid.equals(Constants.ROOT_PARENT_UUID));
+        
+        QPathEntry[] qentries = new QPathEntry[qrpath.size()];
+        int qi = 0;
+        for (int i = qrpath.size() - 1; i >= 0; i--) {
+          qentries[qi++] = qrpath.get(i);
+        }
+        return new QPath(qentries); 
+      }
+    }
+    
+    /**
+     * [PN] Experimental. Use SP for traversing Qpath on the database server side.
+     * Hm, I haven't a good result for that yet. Few seconds only for TCK execution. 
+     * 
+     * PGSQL SP:
+     * 
+     * CREATE OR REPLACE FUNCTION get_qpath(parentId VARCHAR) RETURNS SETOF record AS $$
+        DECLARE
+            cur_item RECORD;
+            cur_id varchar;
+        BEGIN
+            cur_id := parentId;
+        
+            WHILE NOT cur_id = ' ' LOOP
+                SELECT id, name, parent_id, i_index INTO cur_item FROM JCR_SITEM WHERE ID=cur_id;
+                IF NOT found THEN
+                    RETURN;
+                END IF;
+        
+                RETURN NEXT cur_item;
+        
+                cur_id := cur_item.parent_id;
+        
+            END LOOP;
+        
+            RETURN;
+        END;
+        $$
+        LANGUAGE plpgsql;
+     * 
+     * @param cpid
+     * @return
+     * @throws SQLException
+     * @throws InvalidItemStateException
+     * @throws IllegalNameException
+     */
+    private QPath traverseQPath_SP_PGSQL(String cpid) throws SQLException, InvalidItemStateException, IllegalNameException {
+      // get item by Identifier usecase:
+      // find parent path in db by cpid
+      if (cpid == null) {
+        // root node
+        return null; // Constants.ROOT_PATH
+      } else {
+        List<QPathEntry> qrpath = new ArrayList<QPathEntry>(); // reverted path
+        PreparedStatement cstmt = null;
+        try {
+          cstmt = dbConnection.prepareStatement("select * from get_qpath(?) AS (id varchar, name varchar, parent_id varchar, i_index int)");
+          cstmt.setString(1, cpid);
+          //cstmt.setString(2, caid);
+          ResultSet parent = cstmt.executeQuery();
+          
+          while (parent.next()) {
+            QPathEntry qpe = new QPathEntry(
+                InternalQName.parse(parent.getString(COLUMN_NAME)), 
+                parent.getInt(COLUMN_INDEX));
+            qrpath.add(qpe);
+          }
+          
+          //parent = findItemByIdentifier(caid);
+          if (qrpath.size() <= 0)
+            throw new InvalidItemStateException("Parent not found, uuid: " + getIdentifier(cpid));
+        } finally {
+          if (cstmt != null)
+            cstmt.close();
+        }
         
         QPathEntry[] qentries = new QPathEntry[qrpath.size()];
         int qi = 0;
