@@ -244,11 +244,11 @@
       <scope>compile</scope>
     </dependency>
 
-    <!-- Code coverage report -->
+    <!-- For TCK tests (init section) -->
     <dependency>
-      <groupId>emma</groupId>
-      <artifactId>emma</artifactId>
-      <version>2.0.5312</version>
+      <groupId>ant</groupId>
+      <artifactId>ant-junit</artifactId>
+      <version>1.6.5</version>
       <scope>test</scope>
     </dependency>
 
@@ -405,7 +405,7 @@
     </testResources>
 
     <testSourceDirectory>src/test/java</testSourceDirectory>
-    <!-- testSourceDirectory>src/TCK/java</testSourceDirectory -->
+    <!--testSourceDirectory>src/TCK/java</testSourceDirectory-->
     <!-- testSourceDirectory>src/notest</testSourceDirectory -->
 
     <testOutputDirectory>target/test-classes</testOutputDirectory>
@@ -418,7 +418,7 @@
           <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
           <forkMode>${exo.test.forkmode}</forkMode><!-- never by default -->
           <includes>
-            <!-- TCK, init section is implemented below -->
+            <!-- TCK, init section is implemented below, need to uncomment antrun plugin -->
             <!--include>**/api/*Test.java</include>
             <include>**/api/observation/*Test.java</include>
             <include>**/api/lock/*Test.java</include>
@@ -505,50 +505,17 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
+      </plugin>      
+      <!--plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <version>1.2-SNAPSHOT</version>
         <executions>
           <execution>
-            <id>0</id>
-            <phase>test-compile</phase>
-            <configuration>
-              <tasks if="emma.run">
-                <echo message="[EMMA] Start instrumenting classes..." />
-                <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
-                <mkdir dir="${basedir}/target/emma"/>
-                <mkdir dir="${basedir}/target/emma/classes"/>
-                <copy todir="${basedir}/target/emma/classes" verbose="false" overwrite="true">
-                  <fileset dir="${basedir}/target/classes/" />
-                </copy>
-                <emma enabled="true">
-                  <instr mode="overwrite" metadatafile="${basedir}/target/emma/metadata.em">
-                    <filter excludes="*JiBX*" />
-                    <filter excludes="*Entry*" />
-                    <filter excludes="*Value*" />
-                    <filter excludes="*RepositoryServiceConfiguration*" />
-                    <instrpath>
-                      <dirset dir="${basedir}/target">
-                        <include name="test-classes" />
-                        <include name="emma/classes" />
-                      </dirset>
-                    </instrpath>
-                  </instr>
-                </emma>
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-          <execution>
             <id>1</id>
             <phase>test-compile</phase>
             <configuration>
-              <tasks if="tck.run">
-                <!-- init section for TCK tests, need to run mvn with -Dtck.run parameter -->
-                <echo message="[JUNIT] Setup test data..." />
+              <tasks>
+                <echo message="[JUNIT] Setup TCK test data ..." />
                 <mkdir dir="${basedir}/target/surefire-reports" />
                 <junit printsummary="yes" fork="yes" haltonfailure="no" showoutput="yes">
                   <sysproperty key="emma.coverage.out.file" value="target/emma/coverage.ec" />
@@ -571,61 +538,8 @@
               <goal>run</goal>
             </goals>
           </execution>
-          <execution>
-            <id>2</id>
-            <phase>test</phase>
-            <configuration>
-              <tasks if="emma.run">
-                <echo message="[EMMA] Start report generation..." />
-                <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
-                <emma enabled="true">
-                  <report>
-                    <sourcepath>
-                      <dirset dir="${basedir}">
-                        <include name="src/**/java" />
-                      </dirset>
-                    </sourcepath>
-                    <fileset dir="${basedir}/target/emma">
-                      <include name="*.e*" />
-                    </fileset>
-                    <html outfile="${basedir}/target/emma/coverage.html" />
-                    <xml outfile="${basedir}/target/emma/coverage.xml" />
-                  </report>
-                </emma>
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
         </executions>
-        <dependencies>
-          <dependency>
-            <groupId>emma</groupId>
-            <artifactId>emma</artifactId>
-            <version>2.0.5312</version>
-            <scope>test</scope>
-          </dependency>
-          <dependency>
-            <groupId>emma</groupId>
-            <artifactId>emma_ant</artifactId>
-            <version>2.0.5312</version>
-            <scope>test</scope>
-          </dependency>
-          <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>3.8.2</version>
-            <scope>test</scope>
-          </dependency>
-          <dependency>
-            <groupId>ant</groupId>
-            <artifactId>ant-junit</artifactId>
-            <version>1.6.5</version>
-            <scope>test</scope>
-          </dependency>
-        </dependencies>
-      </plugin>
+      </plugin-->
     </plugins>
   </build>
 </project>
