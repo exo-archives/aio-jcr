@@ -5,7 +5,7 @@
   <param name="japex.plotGroupSize" value="5" />
   <param name="japex.resultUnit" value="tps" />
   <param name="japex.warmupIterations" value="0" />
-  <param name="japex.runTime" value="10" />
+  <param name="japex.runTime" value="15:00" />
   <!-- 10 for 10 sec -->
   <!-- 15:00 for 15min -->
 
