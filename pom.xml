@@ -38,7 +38,14 @@
     <!-- module>applications/jcr-console</module -->
     <!-- module>site</module -->
   </modules>
-
+  <dependencies>
+    <dependency>
+      <groupId>emma</groupId>
+      <artifactId>emma</artifactId>
+      <version>2.0.5312</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
   <build>
     <!--sourceDirectory>src/main/java</sourceDirectory>
     <outputDirectory>target/classes</outputDirectory>
@@ -105,6 +112,7 @@
           <skip>${exo.test.skip}</skip>
           <useFile>${exo.test.use.file}</useFile>
           <testFailureIgnore>${exo.test.failure.ignore}</testFailureIgnore>
+          <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
           <includes>
             <include>**/${exo.test.includes}.java</include>
           </includes>
@@ -113,13 +121,103 @@
             <include>**/webdavclient/**/${exo.test.includes}.java</include>
             <include>**/cifs/**/${exo.test.includes}.java</include>
           </excludes>
+          <systemProperties>
+            <property>
+              <name>emma.coverage.out.file</name>
+              <value>target/emma/coverage.ec</value>
+            </property>
+          </systemProperties>
         </configuration>
       </plugin>
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
         <version>1.2-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <id>0</id>
+            <phase>test-compile</phase>
+            <configuration>
+              <tasks if="emma.run">
+                <echo message="[EMMA] Start classes instrumentation ..." />
+                <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
+                <mkdir dir="target" />
+                <mkdir dir="target/classes" />
+                <mkdir dir="target/emma/classes" />
+                <!-- Do nothing if the directory already exist-->
+                <copy todir="target/emma/classes" verbose="false" overwrite="true">
+                  <fileset dir="target/classes" />
+                </copy>
+                <emma enabled="true">
+                  <instr mode="overwrite" metadatafile="target/emma/metadata.em">
+                    <filter excludes="*JiBX*" />
+                    <filter excludes="*Entry*" />
+                    <filter excludes="*Value*" />
+                    <filter excludes="*RepositoryServiceConfiguration*" />
+                    <instrpath>
+                      <dirset dir="target">
+                        <include name="emma/classes" />
+                      </dirset>
+                    </instrpath>
+                  </instr>
+                </emma>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>2</id>
+            <phase>test</phase>
+            <configuration>
+              <tasks if="emma.run">
+                <echo message="[EMMA] Start report generation..." />
+                <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
+                <emma enabled="true">
+                  <!-- merged file will be rewritted by last project -->
+                  <merge outfile="${exo.projects.directory.src}/jcr/trunk/target/coverage.es">
+                    <fileset dir="${exo.projects.directory.src}/jcr/trunk/">
+                      <include name="**/target/emma/*.e*" />
+                      <include name="**/target/emma/*.e*" />
+                    </fileset>
+                    <!-- just for the first launnch -->
+                    <fileset file="${exo.projects.directory.src}/tools/trunk/framework/junit/src/test/resources/emma/coverage.es" />
+                  </merge>
+                  <report>
+                    <sourcepath>
+                      <dirset dir="${exo.projects.directory.src}/jcr/trunk/">
+                        <include name="**/src/**/java" />
+                      </dirset>
+                    </sourcepath>
+                    <fileset dir="${exo.projects.directory.src}/jcr/trunk/target/">
+                      <include name="*.es" />
+                    </fileset>
+                    <html outfile="${exo.projects.directory.src}/jcr/trunk/target/coverage.html" />
+                    <xml outfile="${exo.projects.directory.src}/jcr/trunk/target/coverage.xml" />
+                  </report>
+                </emma>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>emma</groupId>
+            <artifactId>emma</artifactId>
+            <version>2.0.5312</version>
+            <scope>test</scope>
+          </dependency>
+          <dependency>
+            <groupId>emma</groupId>
+            <artifactId>emma_ant</artifactId>
+            <version>2.0.5312</version>
+            <scope>test</scope>
+          </dependency>
+        </dependencies>
       </plugin>
 
     </plugins>

@@ -71,7 +71,7 @@
           <finalName>rmi-client</finalName>
         </configuration>
       </plugin>
-      <plugin>
+      <!--plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <configuration>
           <tasks>
@@ -87,7 +87,7 @@
             </java>
           </tasks>
         </configuration>
-      </plugin>
+      </plugin-->
     </plugins>
   </build>
 
