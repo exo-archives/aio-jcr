@@ -154,6 +154,7 @@
                     <filter excludes="*Entry*" />
                     <filter excludes="*Value*" />
                     <filter excludes="*RepositoryServiceConfiguration*" />
+                    <filter excludes="*.query*" />
                     <instrpath>
                       <dirset dir="target">
                         <include name="emma/classes" />
