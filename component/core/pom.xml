@@ -74,7 +74,7 @@
       <version>${org.exoplatform.kernel.version}</version>
       <scope>compile</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.exoplatform.core</groupId>
       <artifactId>exo.core.component.organization.api</artifactId>
@@ -244,14 +244,6 @@
       <scope>compile</scope>
     </dependency>
 
-    <!-- For TCK tests (init section) -->
-    <dependency>
-      <groupId>ant</groupId>
-      <artifactId>ant-junit</artifactId>
-      <version>1.6.5</version>
-      <scope>test</scope>
-    </dependency>
-
     <!-- S3Plugin dependency -->
     <dependency>
       <groupId>amazon</groupId>
@@ -285,7 +277,7 @@
       <version>14</version>
       <scope>compile</scope>
       </dependency>
-
+      
       <dependency>
       <groupId>ojdbc</groupId>
       <artifactId>orai18n</artifactId>
@@ -300,7 +292,7 @@
       <version>9.1</version>
       <scope>compile</scope>
       </dependency>
-
+      
       <dependency>
       <groupId>com.ibm.db2</groupId>
       <artifactId>db2jcc_license_cu</artifactId>
@@ -420,11 +412,11 @@
           <includes>
             <!-- TCK, init section is implemented below, need to uncomment antrun plugin -->
             <!--include>**/api/*Test.java</include>
-            <include>**/api/observation/*Test.java</include>
-            <include>**/api/lock/*Test.java</include>
-            <include>**/api/nodetype/*Test.java</include>
-            <include>**/api/query/*Test.java</include>
-            <include>**/api/version/*Test.java</include-->
+              <include>**/api/observation/*Test.java</include>
+              <include>**/api/lock/*Test.java</include>
+              <include>**/api/nodetype/*Test.java</include>
+              <include>**/api/query/*Test.java</include>
+              <include>**/api/version/*Test.java</include-->
 
             <!-- eXo tests, usecases -->
             <include>**/api/**/Test*.java</include>
@@ -505,7 +497,7 @@
             </goals>
           </execution>
         </executions>
-      </plugin>      
+      </plugin>
       <!--plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <version>1.2-SNAPSHOT</version>
@@ -539,6 +531,20 @@
             </goals>
           </execution>
         </executions>
+        <dependencies>
+          <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+          </dependency>
+          <dependency>
+            <groupId>ant</groupId>
+            <artifactId>ant-junit</artifactId>
+            <version>1.6.5</version>
+            <scope>test</scope>
+          </dependency>
+        </dependencies>
       </plugin-->
     </plugins>
   </build>
