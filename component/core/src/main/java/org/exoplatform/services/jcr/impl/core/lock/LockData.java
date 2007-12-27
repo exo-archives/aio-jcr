@@ -103,7 +103,7 @@ public class LockData {
     this.owner = owner;
     this.timeOut = timeOut;
     this.live = true;
-    birthday = System.currentTimeMillis() / 1000;
+    this.birthday = System.currentTimeMillis() / 1000;
   }
 
   /**
