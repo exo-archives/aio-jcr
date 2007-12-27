@@ -131,7 +131,9 @@ public class FileSystemLockPersister implements LockPersister {
     log.debug("remove event fire");
     File lockFile = new File(rootDir, lock.getNodeIdentifier());
     if (!lockFile.exists()) {
-      throw new LockException("Persistent lock information not exists");
+      // throw new LockException("Persistent lock information not exists");
+      log.warn("Persistent lock information  for node " + lock.getNodeIdentifier()
+          + " doesn't exists");
     }
     if (!lockFile.delete())
       throw new LockException("Fail to remove lock information");
@@ -189,7 +191,8 @@ public class FileSystemLockPersister implements LockPersister {
     for (int i = 0; i < list.length; i++) {
       File lockFile = new File(rootDir, list[i]);
       if (!lockFile.exists()) {
-        throw new LockException("Persistent lock information not exists");
+        // throw new LockException("Persistent lock information not exists");
+        log.warn("Persistent lock information  for node " + list[i] + " doesn't exists");
       }
       if (!lockFile.delete())
         throw new LockException("Fail to remove lock information");
