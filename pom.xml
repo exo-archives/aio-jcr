@@ -135,7 +135,7 @@
         <version>1.2-SNAPSHOT</version>
         <executions>
           <execution>
-            <id>0</id>
+            <id>emma1</id>
             <phase>test-compile</phase>
             <configuration>
               <tasks if="emma.run">
@@ -168,7 +168,7 @@
             </goals>
           </execution>
           <execution>
-            <id>2</id>
+            <id>emma2</id>
             <phase>test</phase>
             <configuration>
               <tasks if="emma.run">
