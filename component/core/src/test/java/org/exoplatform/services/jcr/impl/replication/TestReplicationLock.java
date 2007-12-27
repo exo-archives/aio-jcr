@@ -58,10 +58,26 @@ public class TestReplicationLock extends BaseReplicationTest {
       // ok
     }
 
+    // unlock source node
     nodeLocked.unlock();
 
     Thread.sleep(4 * 1000);
 
     assertEquals(false, destNodeLocked.isLocked());
+ 
+    //TODO
+    // unlock destination node
+//    lock = nodeLocked.lock(false, false);
+//    session.save();
+//
+//    Thread.sleep(4 * 1000);
+//
+//    assertEquals(true, destNodeLocked.isLocked());
+//    
+//    destNodeLocked.unlock();
+//
+//    Thread.sleep(4 * 1000);
+//
+//    assertEquals(false, nodeLocked.isLocked());
   }
 }
