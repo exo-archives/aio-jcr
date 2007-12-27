@@ -33,58 +33,69 @@ public class LockData {
    * The time of birth. From this time we start count the time of death. death =
    * birthday+TIME_OUT;
    */
-  private long        birthday;
+  private long              birthday;
 
   /**
    * If isDeep is true then the lock applies to this node and all its descendant
    * nodes; if false, the lock applies only to this, the holding node.
    */
-  private boolean     deep;
-
-  private boolean live;
+  private final boolean     deep;
 
   /**
-   * List of session id's which holds a lock tokens
+   * 
    */
-  private Set<String> lockHolders = new HashSet<String>();
+  private boolean           live;
+
+  /**
+   * List of session id's which holds a lock tokens.
+   */
+  private final Set<String> lockHolders = new HashSet<String>();
 
   /**
    * A lock token is a string that uniquely identifies a particular lock and
    * acts as a “key” allowing a user to alter a locked node.
    */
-  private String      lockToken;
+  private String            lockToken;
 
   /**
-   * Identifier of locked node
+   * Identifier of locked node.
    */
-  private String      nodeIdentifier;
+  private String            nodeIdentifier;
 
   /**
-   * The owner of the locked node
+   * The owner of the locked node.
    */
-  private String      owner;
+  private String            owner;
 
   /**
    * If isSessionScoped is true then this lock will expire upon the expiration
    * of the current session (either through an automatic or explicit
    * Session.logout); if false, this lock does not expire until explicitly
    * unlocked or automatically unlocked due to a implementation-specific
-   * limitation, such as a timeout
+   * limitation, such as a timeout.
    */
-  private boolean     sessionScoped;
+  private final boolean     sessionScoped;
 
   /**
    * <B>8.4.9 Timing Out</B> An implementation may unlock any lock at any time
    * due to implementation-specific criteria, such as time limits on locks.
    */
-  private long  timeOut;
+  private long              timeOut;
 
+  /**
+   * @param nodeIdentifier
+   * @param lockToken
+   * @param deep
+   * @param sessionScoped
+   * @param owner
+   * @param timeOut
+   */
   public LockData(String nodeIdentifier,
-      String lockToken,
-      boolean deep,
-      boolean sessionScoped,
-      String owner,
-      long timeOut) {
+                  String lockToken,
+                  boolean deep,
+                  boolean sessionScoped,
+                  String owner,
+                  long timeOut) {
     this.nodeIdentifier = nodeIdentifier;
     this.lockToken = lockToken;
     this.deep = deep;
@@ -92,9 +103,13 @@ public class LockData {
     this.owner = owner;
     this.timeOut = timeOut;
     this.live = true;
-    birthday = System.currentTimeMillis()/1000;
+    birthday = System.currentTimeMillis() / 1000;
   }
 
+  /**
+   * @param sessionId
+   * @return
+   */
   public boolean addLockHolder(String sessionId) {
     return lockHolders.add(sessionId);
   }
@@ -133,6 +148,9 @@ public class LockData {
     return nodeIdentifier;
   }
 
+  /**
+   * @return
+   */
   public String getOwner() {
     return owner;
   }
@@ -141,7 +159,7 @@ public class LockData {
    * @return The time to death in millis
    */
   public long getTimeToDeath() {
-    return birthday + timeOut - System.currentTimeMillis()/1000;
+    return birthday + timeOut - System.currentTimeMillis() / 1000;
   }
 
   /*
@@ -165,18 +183,32 @@ public class LockData {
     return live;
   }
 
+  /**
+   * @param sessionId
+   * @return
+   */
   public boolean isLockHolder(String sessionId) {
     return lockHolders.contains(sessionId) || SystemIdentity.SYSTEM.equals(sessionId);
   }
 
+  /**
+   * @return
+   */
   public boolean isSessionScoped() {
     return sessionScoped;
   }
 
+  /**
+   * 
+   */
   public void refresh() {
     birthday = System.currentTimeMillis();
   }
 
+  /**
+   * @param sessionId
+   * @return
+   */
   public boolean removeLockHolder(String sessionId) {
     return lockHolders.remove(sessionId);
   }
@@ -188,6 +220,9 @@ public class LockData {
     this.live = live;
   }
 
+  /**
+   * @param lockToken
+   */
   public void setLockToken(String lockToken) {
     this.lockToken = lockToken;
   }
@@ -199,14 +234,23 @@ public class LockData {
     this.nodeIdentifier = nodeIdentifier;
   }
 
+  /**
+   * @param owner
+   */
   public void setOwner(String owner) {
     this.owner = owner;
   }
 
+  /**
+   * @return
+   */
   protected long getTimeOut() {
     return timeOut;
   }
 
+  /**
+   * @param timeOut
+   */
   protected void setTimeOut(long timeOut) {
     this.timeOut = timeOut;
   }
