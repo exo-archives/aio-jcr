@@ -48,4 +48,10 @@ public class ChangesLogIterator {
     return internalIterator.next();
   }
   
+  /**
+   * @void remove changes log
+   */
+  public void removeLog() {
+    internalIterator.remove();
+  }
 }
