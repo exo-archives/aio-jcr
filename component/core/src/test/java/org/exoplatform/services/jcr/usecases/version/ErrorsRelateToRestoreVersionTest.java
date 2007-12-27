@@ -1,0 +1,164 @@
+/***************************************************************************
+ * Copyright 2001-2007 The eXo Platform SARL         All rights reserved.  *
+ * Please look at license.txt in info directory for more license detail.   *
+ **************************************************************************/
+package org.exoplatform.services.jcr.usecases.version;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
+import javax.jcr.ImportUUIDBehavior;
+import javax.jcr.Node;
+import javax.jcr.version.Version;
+
+import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
+
+/**
+ * Created by The eXo Platform SARL Author : Anh Nguyen ntuananh.vn@gmail.com
+ * Dec 24, 2007
+ */
+public class ErrorsRelateToRestoreVersionTest extends BaseUsecasesTest {
+  
+  private boolean runTest = false;
+
+  public void testImportVersionableNodeThenRestore() throws Exception {
+    runTest = false;
+    if(!runTest) return ;
+     //Case 2 in ECM JIRA
+     Node node1 = root.addNode("Node1","nt:unstructured");
+     node1.addMixin("mix:versionable");
+     root.save();
+     //Create 1 versions
+     Version node1ver1 = node1.checkin();
+     node1.checkout();
+     //export node
+     ByteArrayOutputStream bos = new ByteArrayOutputStream() ;
+     session.exportDocumentView(node1.getPath(), bos, false, false ) ;
+     
+     //create new node
+     Node node2 = root.addNode("Node2","nt:unstructured");
+     //import docview of node1 to new node
+     ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(bos.toByteArray());
+     session.importXML(node2.getPath(),xmlInputStream, ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW) ;
+     session.save();
+     //Create 1 version for node2
+     Node node1clone = node2.getNode("Node1");
+     Version node2ver1 = node1clone.checkin();
+     node1clone.checkout();
+     //Create 1 version for node1
+     Version node1newver = node1.checkin();
+     node1.checkout();
+     
+     System.out.println("node1 BaseVersionNode Name:"+node1.getBaseVersion().getName());
+     //Resore Node1 to version 2
+     Version node1ver2 = node1.getVersionHistory().getVersion("2");
+     //Error
+     node1.restore(node1ver2, true);
+     //Remove node1
+     node1.remove();
+     root.save();
+  }  
+  
+  public void testActiveVersionSubnode() throws Exception {
+    //Case 10 in ECM JIRA
+    runTest = false;
+    if(!runTest) return ;
+    
+    Node testNode = root.addNode("Test","nt:unstructured");
+    root.save();
+    
+    //Create sub node
+    Node doc1 = testNode.addNode("Doc1", "nt:unstructured");
+    root.save();
+    
+    //Create 1 versions for Test Node
+    testNode.addMixin("mix:versionable");
+    testNode.save();
+    Version testNodVer1 = testNode.checkin();
+    testNode.checkout();
+    root.save();
+    
+    assertFalse(doc1.isNodeType("mix:versionable"));
+    assertTrue(doc1.canAddMixin("mix:versionable"));
+    
+    //Create 2 versions for Sub Node
+    doc1.addMixin("mix:versionable");
+    doc1.save();
+    
+    doc1.checkin();
+    doc1.checkout();
+    
+    doc1.checkin();
+    doc1.checkout();
+    root.save();
+    
+    //Create version 2 for Test Node
+    Version testNodVer2 = testNode.checkin();
+    testNode.checkout();
+    
+    assertTrue(doc1.isNodeType("mix:versionable"));
+    assertFalse(doc1.canAddMixin("mix:versionable"));
+    
+    //Restore testNode to version1
+    testNode.restore(testNodVer1, true);
+    root.save();
+    session.save();
+    
+    doc1 = root.getNode("Test").getNode("Doc1");
+    
+    assertFalse(doc1.isNodeType("mix:versionable"));
+    assertTrue(doc1.canAddMixin("mix:versionable"));
+    //Add mix:versionable for this node
+    //doc1.addMixin("mix:versionable");
+    
+ }
+  
+  public void testImportNodeThenRestore() throws Exception {
+    //Case 11 in ECM JIRA
+    
+    runTest = false;
+    if(!runTest) return ;
+    
+    Node node1 = root.addNode("Node1","nt:unstructured");
+    //Active vesrion to node
+    node1.addMixin("mix:versionable");
+    root.save();
+    
+    //Create some nodes to node1
+    node1.addNode("Node1_1", "nt:unstructured");
+    node1.addNode("Node1_2", "nt:unstructured");
+    node1.save();
+    
+    //Create 1 versions
+    Version ver1 = node1.checkin();
+    node1.checkout();
+    node1.save();
+    //export node
+    ByteArrayOutputStream bos = new ByteArrayOutputStream() ;
+    session.exportDocumentView(node1.getPath(), bos, false, false ) ;
+    
+    //import docview of node1
+    ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(bos.toByteArray());
+    session.importXML(node1.getPath(),xmlInputStream, ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW) ;
+    session.save();
+    
+    //Create version 2 for node1
+    Version ver2 = node1.checkin();
+    node1.checkout();
+    node1.save();
+    
+    assertNotNull(node1.getNode("Node1"));
+    assertNotNull(node1.getNode("Node1").getNode("Node1_1"));
+    assertNotNull(node1.getNode("Node1").getNode("Node1_2"));    
+    
+    //Resore Node1 to version 1
+    node1.restore(ver1, true);
+    //Resore Node1 to version 2
+    node1.restore(ver2, true);    
+    
+    assertNotNull(node1.getNode("Node1"));
+    assertNotNull(node1.getNode("Node1").getNode("Node1_1"));
+    assertNotNull(node1.getNode("Node1").getNode("Node1_2"));
+    
+ }
+}
