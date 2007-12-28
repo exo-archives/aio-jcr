@@ -44,6 +44,7 @@ import org.xml.sax.SAXException;
  * @version $Id: $
  */
 public class TestExportImport extends ExportBase {
+  private final int SNS_NODES_COUNT = 10;
 
   public TestExportImport() throws ParserConfigurationException {
     super();
@@ -249,59 +250,84 @@ public class TestExportImport extends ExportBase {
 
   public void testSNSDocumentViewCh() throws Exception {
     Node testSNS = root.addNode("testSNS");
-    testSNS.addNode("nodeSNS");
-    testSNS.addNode("nodeSNS");
+    testSNS.addMixin("mix:versionable");
+
+    for (int i = 0; i < SNS_NODES_COUNT; i++) {
+      testSNS.addNode("nodeSNS");
+    }
+
     Node testDest = root.addNode("testDest");
     session.save();
 
     doExportImport(root, "testSNS", false, true, testDest);
     assertTrue(testDest.hasNode("testSNS"));
     Node testSNSNew = testDest.getNode("testSNS");
-    assertTrue(testSNSNew.hasNode("nodeSNS[1]"));
-    assertTrue(testSNSNew.hasNode("nodeSNS[2]"));
+
+    for (int i = 0; i < SNS_NODES_COUNT; i++) {
+      testSNS.addNode("nodeSNS");
+      assertTrue(testSNSNew.hasNode("nodeSNS[" + (i + 1) + "]"));
+    }
+
   }
 
   public void testSNSDocumentViewStream() throws Exception {
     Node testSNS = root.addNode("testSNS");
-    testSNS.addNode("nodeSNS");
-    testSNS.addNode("nodeSNS");
+    testSNS.addMixin("mix:versionable");
+
+    for (int i = 0; i < SNS_NODES_COUNT; i++) {
+      testSNS.addNode("nodeSNS");
+    }
+
     Node testDest = root.addNode("testDest");
     session.save();
 
     doExportImport(root, "testSNS", false, false, testDest);
     assertTrue(testDest.hasNode("testSNS"));
     Node testSNSNew = testDest.getNode("testSNS");
-    assertTrue(testSNSNew.hasNode("nodeSNS[1]"));
-    assertTrue(testSNSNew.hasNode("nodeSNS[2]"));
+
+    for (int i = 0; i < SNS_NODES_COUNT; i++) {
+      testSNS.addNode("nodeSNS");
+      assertTrue(testSNSNew.hasNode("nodeSNS[" + (i + 1) + "]"));
+    }
 
   }
 
   public void testSNSSystemViewCh() throws Exception {
     Node testSNS = root.addNode("testSNS");
-    testSNS.addNode("nodeSNS");
-    testSNS.addNode("nodeSNS");
+    testSNS.addMixin("mix:versionable");
+    for (int i = 0; i < SNS_NODES_COUNT; i++) {
+      testSNS.addNode("nodeSNS");
+    }
     Node testDest = root.addNode("testDest");
     session.save();
 
     doExportImport(root, "testSNS", true, true, testDest);
     assertTrue(testDest.hasNode("testSNS"));
     Node testSNSNew = testDest.getNode("testSNS");
-    assertTrue(testSNSNew.hasNode("nodeSNS[1]"));
-    assertTrue(testSNSNew.hasNode("nodeSNS[2]"));
+
+    for (int i = 0; i < SNS_NODES_COUNT; i++) {
+      testSNS.addNode("nodeSNS");
+      assertTrue(testSNSNew.hasNode("nodeSNS[" + (i + 1) + "]"));
+    }
   }
 
   public void testSNSSystemViewStream() throws Exception {
     Node testSNS = root.addNode("testSNS");
-    testSNS.addNode("nodeSNS");
-    testSNS.addNode("nodeSNS");
+    testSNS.addMixin("mix:versionable");
+    for (int i = 0; i < SNS_NODES_COUNT; i++) {
+      testSNS.addNode("nodeSNS");
+    }
     Node testDest = root.addNode("testDest");
     session.save();
 
     doExportImport(root, "testSNS", true, false, testDest);
     assertTrue(testDest.hasNode("testSNS"));
     Node testSNSNew = testDest.getNode("testSNS");
-    assertTrue(testSNSNew.hasNode("nodeSNS[1]"));
-    assertTrue(testSNSNew.hasNode("nodeSNS[2]"));
+
+    for (int i = 0; i < SNS_NODES_COUNT; i++) {
+      testSNS.addNode("nodeSNS");
+      assertTrue(testSNSNew.hasNode("nodeSNS[" + (i + 1) + "]"));
+    }
 
   }
 
@@ -346,7 +372,7 @@ public class TestExportImport extends ExportBase {
 
     session.importXML(destParentNode != null ? destParentNode.getPath() : root.getPath(),
                       new FileInputStream(destFile),
-                      ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
+                      ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
 
     session.save();
     assertTrue(parentNode.hasNode(nodeName));

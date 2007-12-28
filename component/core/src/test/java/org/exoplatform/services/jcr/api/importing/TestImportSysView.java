@@ -29,6 +29,7 @@ import javax.jcr.Node;
 import javax.jcr.PropertyType;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 
 /**
  * Created by The eXo Platform SAS Author : Peter Nedonosko
@@ -243,6 +244,24 @@ public class TestImportSysView extends JcrAPIBaseTest {
     assertEquals("Stream length must be same", BIN_STRING.length(), anyBinary.available());
     assertEquals("Stream content must be same", BIN_STRING, importTarget.getNode(SOURCE_NAME
         + "[2]/jcr:content").getProperty("anyBinary").getString());
+  }
+
+  public void testImportSNS() throws Exception {
+    NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
+
+    InputStream nIs = TestImportSysView.class.getResourceAsStream("/org/exoplatform/services/jcr/"
+        + "api/nodetypes/ecm/nodetypes-config.xml");
+    ntManager.registerNodeTypes(nIs, 0);
+
+    InputStream nIs2 = TestImportSysView.class.getResourceAsStream("/org/exoplatform/services/jcr/"
+        + "api/nodetypes/ecm/nodetypes-config-extended.xml");
+    ntManager.registerNodeTypes(nIs2, 0);
+
+    Node testNode = root.addNode("testImportSNS");
+    session.save();
+    InputStream is = TestImportSysView.class.getResourceAsStream("/testImportSysView.xml");
+    session.importXML(testNode.getPath(), is, ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
+    session.save();
   }
 
   @Override
