@@ -275,6 +275,7 @@
         <org.exoplatform.kernel.version>trunk</org.exoplatform.kernel.version>
         <org.exoplatform.core.version>trunk</org.exoplatform.core.version>
         <org.exoplatform.jcr.version>trunk</org.exoplatform.jcr.version>
+        <org.exoplatform.ws.version>trunk</org.exoplatform.ws.version>
       </properties>
     </profile>
   </profiles>
