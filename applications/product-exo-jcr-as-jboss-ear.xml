@@ -1,0 +1,130 @@
+<project>
+	<parent>
+		<groupId>org.exoplatform.jcr</groupId>
+		<artifactId>exo.jcr.applications.config</artifactId>
+		<version>trunk</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>exo.product.jcr</artifactId>
+	<packaging>jar</packaging>
+	<version>${org.exoplatform.jcr.version}</version>
+	<name>eXo JCR Product</name>
+	<url>http://www.exoplatform.org</url>
+	<description>eXo JCR Product</description>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.exoplatform.jcr</groupId>
+			<artifactId>exo.jcr.ear</artifactId>
+			<version>${org.exoplatform.jcr.version}</version>
+			<type>ear</type>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<!-- version>1.7.3.3</version -->
+			<version>1.8.0.7</version>
+			<scope>compile</scope>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.1</version>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<goals>
+							<goal>assembly</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<descriptors>
+						<descriptor>product-exo-jcr-as-descriptor.xml</descriptor>
+					</descriptors>
+					<finalName>lib</finalName>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<configuration>
+					<tasks>
+						<!--copying the AS-->
+						<delete
+							dir="${exo.projects.directory.working}/exo-jboss"
+							includeEmptyDirs="true" quiet="yes" />
+						<copy
+							todir="${exo.projects.directory.working}/exo-jboss"
+							verbose="false" overwrite="true">
+							<fileset
+								dir="${exo.projects.directory.dependencies}/${exo.projects.app.jboss.version}" />
+						</copy>
+						<!--renaming ear-->
+						<move
+							todir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+							<fileset
+								dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+								<include name="**/*.ear" />
+							</fileset>
+							<mapper>
+								<chainedmapper>
+									<flattenmapper />
+									<globmapper
+										from="*-${org.exoplatform.jcr.version}.ear" to="*.ear"
+										casesensitive="no" />
+								</chainedmapper>
+							</mapper>
+						</move>
+						<!--copying the ear-->
+						<copy
+							todir="${exo.projects.directory.working}/exo-jboss/server/default/deploy/"
+							verbose="true" overwrite="true">
+							<fileset
+								dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/"
+								includes="**/*.ear" />
+						</copy>
+						<!--copying exo-configuration.xml-->
+						<copy
+							todir="${exo.projects.directory.working}/exo-jboss/"
+							verbose="true" overwrite="true">
+							<fileset
+								dir="${basedir}/product-patches/as/jboss/" includes="*.xml" />
+						</copy>
+						<copy
+							todir="${exo.projects.directory.working}/exo-jboss/server/default/conf/"
+							verbose="true" overwrite="true">
+							<fileset
+								dir="${basedir}/product-patches/as/jboss/exoplatform.sar/META-INF/"
+								includes="login*.xml" />
+						</copy>
+						<delete
+							file="${exo.projects.directory.working}/exo-jboss/server/default/lib/hsqldb.jar" />
+						<copy
+							todir="${exo.projects.directory.working}/exo-jboss/server/default/lib/">
+							<fileset
+								dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+								<include name="**/hsqldb*.jar" />
+							</fileset>
+						</copy>
+						<copy
+							todir="${exo.projects.directory.working}/exo-jboss/bin/">
+							<fileset
+								dir="${basedir}/product-patches/as/">
+								<include name="*.dll" />
+							</fileset>
+						</copy>
+					</tasks>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

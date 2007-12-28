@@ -1,0 +1,28 @@
+<catalog name="FTP">
+	<command name="CDUP" 	className="org.exoplatform.services.ftp.command.CmdCdUp" />
+	<command name="CWD" 	className="org.exoplatform.services.ftp.command.CmdCwd" />
+	<command name="DELE" 	className="org.exoplatform.services.ftp.command.CmdDele" />
+	<command name="HELP" 	className="org.exoplatform.services.ftp.command.CmdHelp" />
+	<command name="LIST" 	className="org.exoplatform.services.ftp.command.CmdList" />
+	<command name="MKD" 	className="org.exoplatform.services.ftp.command.CmdMkd" />
+	<command name="NLST" 	className="org.exoplatform.services.ftp.command.CmdNLst" />
+	<command name="NOOP" 	className="org.exoplatform.services.ftp.command.CmdNoop" />
+	<command name="PASS" 	className="org.exoplatform.services.ftp.command.CmdPass" />
+	<command name="PASV" 	className="org.exoplatform.services.ftp.command.CmdPasv" />
+	<command name="PORT" 	className="org.exoplatform.services.ftp.command.CmdPort" />
+	<command name="PWD" 	className="org.exoplatform.services.ftp.command.CmdPwd" />
+	<command name="QUIT" 	className="org.exoplatform.services.ftp.command.CmdQuit" />
+	<command name="REST" 	className="org.exoplatform.services.ftp.command.CmdRest" />
+	<command name="RETR" 	className="org.exoplatform.services.ftp.command.CmdRetr" />
+	<command name="RMD" 	className="org.exoplatform.services.ftp.command.CmdRmd" />
+	<command name="RNFR" 	className="org.exoplatform.services.ftp.command.CmdRnFr" />
+	<command name="RNTO" 	className="org.exoplatform.services.ftp.command.CmdRnTo" />
+	<command name="SIZE" 	className="org.exoplatform.services.ftp.command.CmdSize" />
+	<command name="STOR" 	className="org.exoplatform.services.ftp.command.CmdStor" />
+	<command name="SYST" 	className="org.exoplatform.services.ftp.command.CmdSyst" />
+	<command name="TYPE" 	className="org.exoplatform.services.ftp.command.CmdType" />
+	<command name="USER" 	className="org.exoplatform.services.ftp.command.CmdUser" />
+	<command name="MODE" 	className="org.exoplatform.services.ftp.command.CmdMode" />
+	<command name="STAT" 	className="org.exoplatform.services.ftp.command.CmdStat" />
+	<command name="STRU" 	className="org.exoplatform.services.ftp.command.CmdStru" />
+</catalog>

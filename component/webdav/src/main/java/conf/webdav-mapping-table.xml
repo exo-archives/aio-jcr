@@ -1,0 +1,179 @@
+<propertymapping>
+	
+	<nodetype>
+		<name>nt:file</name>
+		
+		<!-- mixindefinition>
+			<mixin>
+				<name>dc:elementSet</name>
+				<node>jcr:content</node>
+			</mixin>
+		</mixindefinition -->
+		
+		<propertydefinitions>
+			<!-- dc:title -->
+			<propertydefinition>
+				<name>dc:title</name>
+				<node>jcr:content</node>
+			</propertydefinition>
+			
+			<!-- dc:creator -->
+			<propertydefinition>
+				<name>dc:creator</name>
+				<node>jcr:content</node>
+			</propertydefinition>			
+			
+			<!-- dc:subject -->
+			<propertydefinition>
+				<name>dc:subject</name>
+				<node>jcr:content</node>
+			</propertydefinition>
+			
+			<!-- dc:description -->
+			<propertydefinition>
+				<name>dc:description</name>
+				<node>jcr:content</node>
+			</propertydefinition>
+			
+			<!-- dc:publisher -->
+			<propertydefinition>
+				<name>dc:publisher</name>
+				<node>jcr:content</node>
+			</propertydefinition>
+			
+			<!-- dc:contributor -->
+			<propertydefinition>
+				<name>dc:contributor</name>
+				<node>jcr:content</node>
+			</propertydefinition>
+			
+			<!-- dc:date -->
+			<propertydefinition>
+				<name>dc:date</name>
+				<node>jcr:content</node>
+			</propertydefinition>
+			
+			<!-- dc:resourceType -->
+			<propertydefinition>
+				<name>dc:resourceType</name>
+				<node>jcr:content</node>
+			</propertydefinition>
+			
+			<!-- dc:format -->
+			<propertydefinition>
+				<name>dc:format</name>
+				<node>jcr:content</node>
+			</propertydefinition>
+			
+			<!-- dc:identifier -->
+			<propertydefinition>
+				<name>dc:identifier</name>
+				<node>jcr:content</node>
+			</propertydefinition>
+			
+			<!-- dc:source -->
+			<propertydefinition>
+				<name>dc:source</name>
+				<node>jcr:content</node>
+			</propertydefinition>
+			
+			<!-- dc:language -->
+			<propertydefinition>
+				<name>dc:language</name>
+				<node>jcr:content</node>
+			</propertydefinition>
+			
+			<!-- dc:relation -->
+			<propertydefinition>
+				<name>dc:relation</name>
+				<node>jcr:content</node>
+			</propertydefinition>
+
+			<!-- dc:coverage -->
+			<propertydefinition>
+				<name>dc:coverage</name>
+				<node>jcr:content</node>
+			</propertydefinition>
+			
+			<!-- dc:rights -->
+			<propertydefinition>
+				<name>dc:rights</name>
+				<node>jcr:content</node>
+			</propertydefinition>
+			
+			<!-- DAV:creator-displayname -->			
+			<propertydefinition>
+				<name>DAV:creator-displayname</name>
+				<mapping>dc:creator</mapping>
+				<node>jcr:content</node>
+			</propertydefinition>				
+
+			<!-- DAV:comment -->
+			<propertydefinition>
+				<name>DAV:comment</name>
+				<mapping>dc:title</mapping>
+				<node>jcr:content</node>
+			</propertydefinition>
+
+			<!-- DAV:getcontenttype -->
+			<propertydefinition>
+				<name>DAV:getcontenttype</name>
+				<mapping>jcr:mimeType</mapping>
+				<node>jcr:content</node>
+			</propertydefinition>
+						
+			<!-- jcr:mimeType -->
+			<propertydefinition>
+				<name>jcr:mimeType</name>
+				<node>jcr:content</node>
+			</propertydefinition>			
+			
+			<!-- jcr:uuid -->
+			<propertydefinition>
+				<name>jcr:uuid</name>
+				<node>jcr:content</node>
+			</propertydefinition>			
+
+			<!-- DAV:getetag -->
+			<propertydefinition>
+				<name>DAV:getetag</name>
+				<mapping>jcr:uuid</mapping>
+				<node>jcr:content</node>
+			</propertydefinition>
+			
+		</propertydefinitions>				
+	</nodetype>
+	
+	<!--
+		comment this mapping if you don't use WebDav tests
+		-->
+	<nodetype>
+		<name>webdav:file</name>
+		<propertydefinitions>
+
+			<!-- jcr:mimeType -->
+			<propertydefinition>
+				<name>jcr:mimeType</name>
+				<node>jcr:content</node>
+			</propertydefinition>
+
+			<!-- webdav:creator -->
+			<propertydefinition>
+				<name>webdav:creator</name>
+				<mapping>dc:creator</mapping>
+				<!-- node>jcr:content</node -->
+			</propertydefinition>			
+									
+		</propertydefinitions>
+	</nodetype>
+
+	<!--		
+		default properties mapping
+		-->	
+	<nodetype>
+		<name>*</name>		
+		<propertydefinitions>
+		</propertydefinitions>
+	</nodetype>
+	
+</propertymapping>

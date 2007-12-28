@@ -1,0 +1,22 @@
+grant {
+    permission java.net.SocketPermission "*:1024-65535",
+        "connect,accept";
+    permission java.io.FilePermission
+        ".\\lib\\-", "read";
+    permission java.io.FilePermission
+        ".\\temp", "read,write,delete";
+    permission java.io.FilePermission
+        ".\\temp\\-", "read,write,delete";
+    permission java.io.FilePermission
+        "nul", "write";
+    permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+    permission javax.management.MBeanServerPermission "createMBeanServer";
+    permission javax.management.MBeanPermission "*", "registerMBean";
+    permission javax.management.MBeanTrustPermission "register";
+    permission java.util.PropertyPermission "*", "read,write";
+    permission java.lang.RuntimePermission "getProtectionDomain";
+    permission java.lang.RuntimePermission "accessDeclaredMembers";
+    permission javax.security.auth.AuthPermission "createLoginContext.*";
+    permission javax.security.auth.AuthPermission "modifyPrivateCredentials";
+    permission javax.security.auth.AuthPermission "modifyPrincipals";
+};

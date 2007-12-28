@@ -1,0 +1,193 @@
+/*
+ * Copyright (C) 2003-2007 eXo Platform SAS.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see<http://www.gnu.org/licenses/>.
+ */
+package org.exoplatform.services.jcr.rmi.impl.server;
+
+import java.rmi.RemoteException;
+
+import javax.jcr.Value;
+import javax.jcr.nodetype.NodeDefinition;
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.nodetype.PropertyDefinition;
+
+import org.exoplatform.services.jcr.rmi.api.remote.RemoteAdapterFactory;
+import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemoteNodeDefinition;
+import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemoteNodeType;
+import org.exoplatform.services.jcr.rmi.api.remote.nodetype.RemotePropertyDefinition;
+
+/**
+ * Remote adapter for the JCR {@link javax.jcr.nodetype.NodeType NodeType}
+ * interface. This class makes a local node type available as an RMI service
+ * using the
+ * {@link org.exoplatform.services.jcr.rmi.api.remote.RemoteNodeType RemoteNodeType}
+ * interface.
+ * 
+ * @see javax.jcr.nodetype.NodeType
+ * @see org.exoplatform.services.jcr.rmi.api.remote.RemoteNodeType
+ */
+public class ServerNodeType extends ServerObject implements RemoteNodeType {
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = -6009405633063854690L;
+
+  /** The adapted local node type. */
+  private NodeType          type;
+
+  /**
+   * Creates a remote adapter for the given local node type.
+   * 
+   * @param type local node type
+   * @param factory remote adapter factory
+   * @throws RemoteException on RMI errors
+   */
+  public ServerNodeType(NodeType type, RemoteAdapterFactory factory) throws RemoteException {
+    super(factory);
+    this.type = type;
+  }
+
+  /**
+   * Utility method for creating an array of remote references for local node
+   * definitions. The remote references are created using the remote adapter
+   * factory.
+   * <p>
+   * A <code>null</code> input is treated as an empty array.
+   * 
+   * @param defs local node definition array
+   * @return remote node definition array
+   * @throws RemoteException on RMI errors
+   */
+  private RemoteNodeDefinition[] getRemoteNodeDefArray(NodeDefinition[] defs)
+      throws RemoteException {
+    if (defs != null) {
+      RemoteNodeDefinition[] remotes = new RemoteNodeDefinition[defs.length];
+      for (int i = 0; i < defs.length; i++) {
+        remotes[i] = getFactory().getRemoteNodeDefinition(defs[i]);
+      }
+      return remotes;
+    } else {
+      return new RemoteNodeDefinition[0]; // for safety
+    }
+  }
+
+  /**
+   * Utility method for creating an array of remote references for local
+   * property definitions. The remote references are created using the remote
+   * adapter factory.
+   * <p>
+   * A <code>null</code> input is treated as an empty array.
+   * 
+   * @param defs local property definition array
+   * @return remote property definition array
+   * @throws RemoteException on RMI errors
+   */
+  private RemotePropertyDefinition[] getRemotePropertyDefArray(PropertyDefinition[] defs)
+      throws RemoteException {
+    if (defs != null) {
+      RemotePropertyDefinition[] remotes = new RemotePropertyDefinition[defs.length];
+      for (int i = 0; i < defs.length; i++) {
+        remotes[i] = getFactory().getRemotePropertyDefinition(defs[i]);
+      }
+      return remotes;
+    } else {
+      return new RemotePropertyDefinition[0]; // for safety
+    }
+  }
+
+  /** {@inheritDoc} */
+  public String getName() throws RemoteException {
+    return type.getName();
+  }
+
+  /** {@inheritDoc} */
+  public boolean isMixin() throws RemoteException {
+    return type.isMixin();
+  }
+
+  /** {@inheritDoc} */
+  public boolean hasOrderableChildNodes() throws RemoteException {
+    return type.hasOrderableChildNodes();
+  }
+
+  /** {@inheritDoc} */
+  public RemoteNodeType[] getSupertypes() throws RemoteException {
+    return getRemoteNodeTypeArray(type.getSupertypes());
+  }
+
+  /** {@inheritDoc} */
+  public RemoteNodeType[] getDeclaredSupertypes() throws RemoteException {
+    return getRemoteNodeTypeArray(type.getDeclaredSupertypes());
+  }
+
+  /** {@inheritDoc} */
+  public boolean isNodeType(String type) throws RemoteException {
+    return this.type.isNodeType(type);
+  }
+
+  /** {@inheritDoc} */
+  public RemotePropertyDefinition[] getPropertyDefs() throws RemoteException {
+    PropertyDefinition[] defs = type.getPropertyDefinitions();
+    return getRemotePropertyDefArray(defs);
+  }
+
+  /** {@inheritDoc} */
+  public RemotePropertyDefinition[] getDeclaredPropertyDefs() throws RemoteException {
+    PropertyDefinition[] defs = type.getDeclaredPropertyDefinitions();
+    return getRemotePropertyDefArray(defs);
+  }
+
+  /** {@inheritDoc} */
+  public RemoteNodeDefinition[] getChildNodeDefs() throws RemoteException {
+    return getRemoteNodeDefArray(type.getChildNodeDefinitions());
+  }
+
+  /** {@inheritDoc} */
+  public RemoteNodeDefinition[] getDeclaredChildNodeDefs() throws RemoteException {
+    return getRemoteNodeDefArray(type.getDeclaredChildNodeDefinitions());
+  }
+
+  /** {@inheritDoc} */
+  public boolean canSetProperty(String name, Value value) throws RemoteException {
+    return type.canSetProperty(name, value);
+  }
+
+  /** {@inheritDoc} */
+  public boolean canSetProperty(String name, Value[] values) throws RemoteException {
+    return type.canSetProperty(name, values);
+  }
+
+  /** {@inheritDoc} */
+  public boolean canAddChildNode(String name) throws RemoteException {
+    return type.canAddChildNode(name);
+  }
+
+  /** {@inheritDoc} */
+  public boolean canAddChildNode(String name, String type) throws RemoteException {
+    return this.type.canAddChildNode(name, type);
+  }
+
+  /** {@inheritDoc} */
+  public boolean canRemoveItem(String name) throws RemoteException {
+    return type.canRemoveItem(name);
+  }
+
+  /** {@inheritDoc} */
+  public String getPrimaryItemName() throws RemoteException {
+    return type.getPrimaryItemName();
+  }
+
+}
