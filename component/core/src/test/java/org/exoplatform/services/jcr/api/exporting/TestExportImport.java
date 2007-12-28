@@ -187,7 +187,7 @@ public class TestExportImport extends ExportBase {
 
     session.save();
 
-    doExportImport(root, "childNode", false, true);
+    doExportImport(root, "childNode", false, true, null);
 
     session.save();
 
@@ -207,7 +207,7 @@ public class TestExportImport extends ExportBase {
 
     session.save();
 
-    doExportImport(root, "childNode", false, false);
+    doExportImport(root, "childNode", false, false, null);
 
     session.save();
 
@@ -225,7 +225,7 @@ public class TestExportImport extends ExportBase {
     session.save();
     doVersionTests(testNode);
 
-    doExportImport(root, "childNode", true, true);
+    doExportImport(root, "childNode", true, true, null);
 
     Node childNode = root.getNode("childNode");
     doVersionTests(childNode);
@@ -241,21 +241,80 @@ public class TestExportImport extends ExportBase {
     session.save();
     doVersionTests(testNode);
 
-    doExportImport(root, "childNode", true, false);
+    doExportImport(root, "childNode", true, false, null);
 
     Node childNode = root.getNode("childNode");
     doVersionTests(childNode);
   }
 
+  public void testSNSDocumentViewCh() throws Exception {
+    Node testSNS = root.addNode("testSNS");
+    testSNS.addNode("nodeSNS");
+    testSNS.addNode("nodeSNS");
+    Node testDest = root.addNode("testDest");
+    session.save();
+
+    doExportImport(root, "testSNS", false, true, testDest);
+    assertTrue(testDest.hasNode("testSNS"));
+    Node testSNSNew = testDest.getNode("testSNS");
+    assertTrue(testSNSNew.hasNode("nodeSNS[1]"));
+    assertTrue(testSNSNew.hasNode("nodeSNS[2]"));
+  }
+
+  public void testSNSDocumentViewStream() throws Exception {
+    Node testSNS = root.addNode("testSNS");
+    testSNS.addNode("nodeSNS");
+    testSNS.addNode("nodeSNS");
+    Node testDest = root.addNode("testDest");
+    session.save();
+
+    doExportImport(root, "testSNS", false, false, testDest);
+    assertTrue(testDest.hasNode("testSNS"));
+    Node testSNSNew = testDest.getNode("testSNS");
+    assertTrue(testSNSNew.hasNode("nodeSNS[1]"));
+    assertTrue(testSNSNew.hasNode("nodeSNS[2]"));
+
+  }
+
+  public void testSNSSystemViewCh() throws Exception {
+    Node testSNS = root.addNode("testSNS");
+    testSNS.addNode("nodeSNS");
+    testSNS.addNode("nodeSNS");
+    Node testDest = root.addNode("testDest");
+    session.save();
+
+    doExportImport(root, "testSNS", true, true, testDest);
+    assertTrue(testDest.hasNode("testSNS"));
+    Node testSNSNew = testDest.getNode("testSNS");
+    assertTrue(testSNSNew.hasNode("nodeSNS[1]"));
+    assertTrue(testSNSNew.hasNode("nodeSNS[2]"));
+  }
+
+  public void testSNSSystemViewStream() throws Exception {
+    Node testSNS = root.addNode("testSNS");
+    testSNS.addNode("nodeSNS");
+    testSNS.addNode("nodeSNS");
+    Node testDest = root.addNode("testDest");
+    session.save();
+
+    doExportImport(root, "testSNS", true, false, testDest);
+    assertTrue(testDest.hasNode("testSNS"));
+    Node testSNSNew = testDest.getNode("testSNS");
+    assertTrue(testSNSNew.hasNode("nodeSNS[1]"));
+    assertTrue(testSNSNew.hasNode("nodeSNS[2]"));
+
+  }
+
   private void doExportImport(Node parentNode,
                               String nodeName,
                               boolean isSystemView,
-                              boolean isContentHandler) throws RepositoryException,
-                                                       IOException,
-                                                       TransformerConfigurationException,
-                                                       SAXException {
+                              boolean isContentHandler,
+                              Node destParentNode) throws RepositoryException,
+                                                  IOException,
+                                                  TransformerConfigurationException,
+                                                  SAXException {
     Node exportNode = parentNode.getNode(nodeName);
-    File destFile = File.createTempFile("testMixinExportImport", ".xml");
+    File destFile = File.createTempFile("testExportImport", ".xml");
     destFile.deleteOnExit();
     OutputStream outStream = new FileOutputStream(destFile);
 
@@ -280,11 +339,12 @@ public class TestExportImport extends ExportBase {
     }
 
     outStream.close();
+    if (destParentNode == null) {
+      exportNode.remove();
+      session.save();
+    }
 
-    exportNode.remove();
-    session.save();
-
-    session.importXML(root.getPath(),
+    session.importXML(destParentNode != null ? destParentNode.getPath() : root.getPath(),
                       new FileInputStream(destFile),
                       ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
 
