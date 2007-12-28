@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.impl.xml.importing.dataflow;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -33,7 +34,7 @@ public class PropertyInfo {
   /**
    * Class logger.
    */
-  private final Log          log = ExoLogger.getLogger("jcr.PropertyInfo");
+  private final Log          log    = ExoLogger.getLogger("jcr.PropertyInfo");
 
   /**
    * 
@@ -43,7 +44,7 @@ public class PropertyInfo {
   /**
    * 
    */
-  private List<DecodedValue> values;
+  private List<DecodedValue> values = new ArrayList<DecodedValue>();
 
   /**
    * 

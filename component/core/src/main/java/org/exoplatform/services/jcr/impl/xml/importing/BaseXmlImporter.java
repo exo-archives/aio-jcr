@@ -155,7 +155,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
     }
 
     List<ItemState> transientAddChilds = getItemStatesList(parentData,
-                                                           new QPathEntry(name, 0),
+                                                           name,
                                                            ItemState.ADDED,
                                                            skipIdentifier);
     List<ItemState> transientDeletedChilds = getItemStatesList(parentData,
@@ -275,14 +275,13 @@ public abstract class BaseXmlImporter implements ContentImporter {
    * @return
    */
   private List<ItemState> getItemStatesList(NodeData parentData,
-                                            QPathEntry name,
+                                            InternalQName name,
                                             int state,
                                             String skipIdentifier) {
     List<ItemState> states = new ArrayList<ItemState>();
     for (ItemState itemState : changesLog.getAllStates()) {
       ItemData stateData = itemState.getData();
-      if (isParent(stateData, parentData)
-          && stateData.getQPath().getEntries()[stateData.getQPath().getEntries().length - 1].isSame(name)) {
+      if (isParent(stateData, parentData) && stateData.getQPath().getName().equals(name)) {
         if ((state != 0) && (state != itemState.getState())
             || stateData.getIdentifier().equals(skipIdentifier)) {
           continue;
@@ -314,7 +313,9 @@ public abstract class BaseXmlImporter implements ContentImporter {
    * @param name
    * @param skipIdentifier
    * @return
+   * @deprecated
    */
+  @Deprecated
   protected ItemData getLocalItemData(NodeData parentData, QPathEntry name, String skipIdentifier) {
     ItemData item = null;
     List<ItemState> states = getItemStatesList(parentData, name, 0, skipIdentifier);
