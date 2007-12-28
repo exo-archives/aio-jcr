@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.impl.core;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -266,24 +265,6 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
         // Ok
       }
     }
-  }
-
-  public void testRestore() throws RepositoryConfigurationException, Exception {
-    WorkspaceEntry workspaceEntry = helper.getNewWs("testResotore",
-                                                    isDefaultWsMultiDb,
-                                                    wsEntry.getContainer()
-                                                           .getParameterValue("sourceName"),
-                                                    null,
-                                                    wsEntry.getContainer());
-
-    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
-    RepositoryImpl defRep;
-
-    defRep = (RepositoryImpl) service.getDefaultRepository();
-    defRep.configWorkspace(workspaceEntry);
-    InputStream is = TestWorkspaceManagement.class.getResourceAsStream("/db1_ws1-20071220_0430.xml");
-    repository.importWorkspace("testResotore", is);
-
   }
 
   private void doTestOnWorkspace(String wsName) throws RepositoryException,

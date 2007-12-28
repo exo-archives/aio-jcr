@@ -21,6 +21,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.jcr.Node;
@@ -53,28 +54,7 @@ public class TestWorkspaceRestore extends JcrImplBaseTest {
 
   private boolean                   isDefaultWsMultiDb;
 
-  @Override
-  public void setUp() throws Exception {
-    super.setUp();
-    wsEntry = (WorkspaceEntry) session.getContainer()
-                                      .getComponentInstanceOfType(WorkspaceEntry.class);
-    if ("true".equals(wsEntry.getContainer().getParameterValue("multi-db"))) {
-      isDefaultWsMultiDb = true;
-    }
-    if (!isDefaultWsCreated) {
-
-      WorkspaceEntry workspaceEntry = null;
-      workspaceEntry = helper.getNewWs("defWs",
-                                       isDefaultWsMultiDb,
-                                       wsEntry.getContainer().getParameterValue("sourceName"),
-                                       null,
-                                       wsEntry.getContainer());
-      helper.createWorkspace(workspaceEntry, container);
-      isDefaultWsCreated = true;
-    }
-  }
-
-  public void testRestore() throws Exception {
+  public void _testRestore() throws Exception {
     Session defSession = repository.login(session.getCredentials(), "defWs");
     Node defRoot = defSession.getRootNode();
 
@@ -106,6 +86,44 @@ public class TestWorkspaceRestore extends JcrImplBaseTest {
                            new BufferedInputStream(new FileInputStream(content)));
 
     doTestOnWorkspace(workspaceEntry.getName());
+  }
+
+  @Override
+  public void setUp() throws Exception {
+    super.setUp();
+    wsEntry = (WorkspaceEntry) session.getContainer()
+                                      .getComponentInstanceOfType(WorkspaceEntry.class);
+    if ("true".equals(wsEntry.getContainer().getParameterValue("multi-db"))) {
+      isDefaultWsMultiDb = true;
+    }
+    if (!isDefaultWsCreated) {
+
+      WorkspaceEntry workspaceEntry = null;
+      workspaceEntry = helper.getNewWs("defWs",
+                                       isDefaultWsMultiDb,
+                                       wsEntry.getContainer().getParameterValue("sourceName"),
+                                       null,
+                                       wsEntry.getContainer());
+      helper.createWorkspace(workspaceEntry, container);
+      isDefaultWsCreated = true;
+    }
+  }
+
+  public void testRestore() throws RepositoryConfigurationException, Exception {
+    WorkspaceEntry workspaceEntry = helper.getNewWs("testResotore",
+                                                    isDefaultWsMultiDb,
+                                                    wsEntry.getContainer()
+                                                           .getParameterValue("sourceName"),
+                                                    null,
+                                                    wsEntry.getContainer());
+
+    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
+    RepositoryImpl defRep;
+
+    defRep = (RepositoryImpl) service.getDefaultRepository();
+    defRep.configWorkspace(workspaceEntry);
+    InputStream is = TestWorkspaceManagement.class.getResourceAsStream("/db1_ws1-20071220_0430.xml");
+    repository.importWorkspace("testResotore", is);
   }
 
   public void testRestoreBadXml() throws Exception {

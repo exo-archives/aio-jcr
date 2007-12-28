@@ -32,6 +32,7 @@ import javax.jcr.Value;
 import javax.jcr.version.Version;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
@@ -48,17 +49,18 @@ public class TestExportImport extends ExportBase {
     super();
   }
 
-  public void testExportImportValuesSysView() throws Exception {
+  // TODO Fix. Move to non system workspace.
+  public void _testWorkspaceExportImportValuesSysView() throws Exception {
     Node testNode = root.addNode("testExportImport");
     for (int i = 0; i < valList.size(); i++) {
       testNode.setProperty("prop" + i + "_string", valList.get(i), PropertyType.STRING);
       testNode.setProperty("prop" + i + "_binary", valList.get(i), PropertyType.BINARY);
     }
     session.save();
-    File destFile = File.createTempFile("testExportImportValuesSysView", ".xml");
+    File destFile = File.createTempFile("testWorkspaceExportImportValuesSysView", ".xml");
     destFile.deleteOnExit();
     OutputStream outStream = new FileOutputStream(destFile);
-    session.exportSystemView(testNode.getPath(), outStream, false, false);
+    session.exportWorkspaceSystemView(outStream, false, false);
     outStream.close();
 
     testNode.remove();
@@ -126,22 +128,54 @@ public class TestExportImport extends ExportBase {
 
   }
 
-  public void testMixinExportImportSystemViewStream() throws Exception {
+  public void testExportImportValuesSysView() throws Exception {
+    Node testNode = root.addNode("testExportImport");
+    for (int i = 0; i < valList.size(); i++) {
+      testNode.setProperty("prop" + i + "_string", valList.get(i), PropertyType.STRING);
+      testNode.setProperty("prop" + i + "_binary", valList.get(i), PropertyType.BINARY);
+    }
+    session.save();
+    File destFile = File.createTempFile("testExportImportValuesSysView", ".xml");
+    destFile.deleteOnExit();
+    OutputStream outStream = new FileOutputStream(destFile);
+    session.exportSystemView(testNode.getPath(), outStream, false, false);
+    outStream.close();
 
-    Node testNode = root.addNode("childNode");
-    testNode.setProperty("a", 1);
-    testNode.addMixin("mix:versionable");
-    testNode.addMixin("mix:lockable");
+    testNode.remove();
+    session.save();
+
+    session.importXML(root.getPath(),
+                      new FileInputStream(destFile),
+                      ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
 
     session.save();
-    doVersionTests(testNode);
 
-    doExportImport(root, "childNode", true, false);
+    Node newNode = root.getNode("testExportImport");
 
-    Node childNode = root.getNode("childNode");
-    doVersionTests(childNode);
+    for (int i = 0; i < valList.size(); i++) {
+      if (valList.get(i).length > 1) {
+        Value[] stringValues = newNode.getProperty("prop" + i + "_string").getValues();
+        for (int j = 0; j < stringValues.length; j++) {
+          assertEquals(stringValues[j].getString(), valList.get(i)[j]);
+        }
+        Value[] binaryValues = newNode.getProperty("prop" + i + "_binary").getValues();
+        for (int j = 0; j < stringValues.length; j++) {
+          assertEquals(binaryValues[j].getString(), valList.get(i)[j]);
+        }
+      } else {
+        assertEquals(valList.get(i)[0], newNode.getProperty("prop" + i + "_string")
+                                               .getValue()
+                                               .getString());
+        assertEquals(valList.get(i)[0], newNode.getProperty("prop" + i + "_binary")
+                                               .getValue()
+                                               .getString());
+
+      }
+    }
+    destFile.delete();
   }
-  public void testMixinExportImportSystemViewContentHandler() throws Exception {
+
+  public void testMixinExportImportDocumentViewContentHandler() throws Exception {
 
     Node testNode = root.addNode("childNode");
     testNode.setProperty("a", 1);
@@ -151,7 +185,11 @@ public class TestExportImport extends ExportBase {
     session.save();
     doVersionTests(testNode);
 
-    doExportImport(root, "childNode", true, true);
+    session.save();
+
+    doExportImport(root, "childNode", false, true);
+
+    session.save();
 
     Node childNode = root.getNode("childNode");
     doVersionTests(childNode);
@@ -176,8 +214,8 @@ public class TestExportImport extends ExportBase {
     Node childNode = root.getNode("childNode");
     doVersionTests(childNode);
   }
-  
-  public void testMixinExportImportDocumentViewContentHandler() throws Exception {
+
+  public void testMixinExportImportSystemViewContentHandler() throws Exception {
 
     Node testNode = root.addNode("childNode");
     testNode.setProperty("a", 1);
@@ -187,22 +225,35 @@ public class TestExportImport extends ExportBase {
     session.save();
     doVersionTests(testNode);
 
-    session.save();
-
-    doExportImport(root, "childNode", false, true);
-
-    session.save();
+    doExportImport(root, "childNode", true, true);
 
     Node childNode = root.getNode("childNode");
     doVersionTests(childNode);
   }
+
+  public void testMixinExportImportSystemViewStream() throws Exception {
+
+    Node testNode = root.addNode("childNode");
+    testNode.setProperty("a", 1);
+    testNode.addMixin("mix:versionable");
+    testNode.addMixin("mix:lockable");
+
+    session.save();
+    doVersionTests(testNode);
+
+    doExportImport(root, "childNode", true, false);
+
+    Node childNode = root.getNode("childNode");
+    doVersionTests(childNode);
+  }
+
   private void doExportImport(Node parentNode,
                               String nodeName,
                               boolean isSystemView,
                               boolean isContentHandler) throws RepositoryException,
-      IOException,
-      TransformerConfigurationException,
-      SAXException {
+                                                       IOException,
+                                                       TransformerConfigurationException,
+                                                       SAXException {
     Node exportNode = parentNode.getNode(nodeName);
     File destFile = File.createTempFile("testMixinExportImport", ".xml");
     destFile.deleteOnExit();
@@ -210,7 +261,7 @@ public class TestExportImport extends ExportBase {
 
     if (isSystemView) {
       if (isContentHandler) {
-        SAXTransformerFactory saxFact = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+        SAXTransformerFactory saxFact = (SAXTransformerFactory) TransformerFactory.newInstance();
         TransformerHandler handler = saxFact.newTransformerHandler();
         handler.setResult(new StreamResult(outStream));
         session.exportSystemView(exportNode.getPath(), handler, false, false);
@@ -219,7 +270,7 @@ public class TestExportImport extends ExportBase {
       }
     } else {
       if (isContentHandler) {
-        SAXTransformerFactory saxFact = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+        SAXTransformerFactory saxFact = (SAXTransformerFactory) TransformerFactory.newInstance();
         TransformerHandler handler = saxFact.newTransformerHandler();
         handler.setResult(new StreamResult(outStream));
         session.exportDocumentView(exportNode.getPath(), handler, false, false);
