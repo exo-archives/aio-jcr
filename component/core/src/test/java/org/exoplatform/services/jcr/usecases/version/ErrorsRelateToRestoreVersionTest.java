@@ -6,6 +6,7 @@ package org.exoplatform.services.jcr.usecases.version;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Iterator;
 
 import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.Node;
@@ -22,9 +23,12 @@ public class ErrorsRelateToRestoreVersionTest extends BaseUsecasesTest {
   private boolean runTest = false;
 
   public void testImportVersionableNodeThenRestore() throws Exception {
+    //Case 2 in ECM JIRA 
+    //http://jira.exoplatform.org/browse/ECM-1160
+    
     runTest = false;
     if(!runTest) return ;
-     //Case 2 in ECM JIRA
+     
      Node node1 = root.addNode("Node1","nt:unstructured");
      node1.addMixin("mix:versionable");
      root.save();
@@ -57,10 +61,136 @@ public class ErrorsRelateToRestoreVersionTest extends BaseUsecasesTest {
      //Remove node1
      node1.remove();
      root.save();
-  }  
+  }
+  
+  public void case9() throws Exception{
+    runTest = true;
+    if(!runTest) return ;
+    
+    Node testNode = root.addNode("Test","nt:unstructured");
+    root.save();
+    
+    //Create sub node
+    Node doc1 = testNode.addNode("Doc1", "nt:unstructured");
+    root.save();
+    
+    //Create 1 versions for Doc1 Node
+    doc1.addMixin("mix:versionable");
+    doc1.save();
+    root.save();
+    
+    //Create 2 version
+    Version ver1doc = doc1.checkin();
+    doc1.checkout();
+    
+    Version ver2doc = doc1.checkin();
+    doc1.checkout();
+    root.save();
+    
+    //Restore ver 1
+    doc1.restore(ver1doc, true);
+    
+    
+  //Create 1 versions for Test Node
+    doc1.addMixin("mix:versionable");
+    doc1.save();
+    root.save();
+    
+    //Create 2 version
+    Version ver1test = testNode.checkin();
+    testNode.checkout();
+    
+    Version ver2test = testNode.checkin();
+    testNode.checkout();
+    root.save();
+    
+    //Restore ver 1
+    testNode.restore(ver1test, true);
+    
+    testNode.setProperty("name", "");
+  }
+  
+  //Not checked
+  public void testVersionMovedSubnode() throws Exception {
+    //Case 5 in ECM JIRA 
+    //http://jira.exoplatform.org/browse/ECM-1160
+    runTest = false;
+    if(!runTest) return ;
+    
+    Node testNode = root.addNode("Test","nt:unstructured");
+    root.save();
+    //Create 1 versions for Test Node
+    testNode.addMixin("mix:versionable");
+    testNode.save();
+    root.save();
+    
+    //Create version 1
+    testNode.checkin();
+    testNode.checkout();
+    root.save();
+    
+    //Create sub node
+    Node doc2 = testNode.addNode("Doc2", "nt:unstructured");
+    Node doc1 = testNode.addNode("Doc1", "nt:unstructured");
+    root.save();
+
+    //Create Versions 2,3 for Test Node
+    testNode.checkin();
+    testNode.checkout();
+
+    System.out.println("//First Create:");
+    for (Iterator iterator = testNode.getNodes(); iterator.hasNext();) {
+      Node node = (Node) iterator.next();
+      System.out.println("Name:"+node.getName());
+    }
+    
+    Version ver3 = testNode.checkin();
+    testNode.checkout();    
+    root.save();
+    
+    //Move subnodes
+    Node tempNode = root.addNode("Temp");
+    root.save();
+    
+    System.out.println("Temp:" + tempNode.getPath());
+    
+    session.getWorkspace().move(doc1.getPath(), tempNode.getPath());
+    session.getWorkspace().move(doc2.getPath(), tempNode.getPath());
+    session.save();
+
+    System.out.println("//Temp Create:");
+    for (Iterator iterator = tempNode.getNodes(); iterator.hasNext();) {
+      Node nodex = (Node) iterator.next();
+      System.out.println("tempNode Name:"+nodex.getName());
+    }
+    
+    System.out.println("//After move:");
+    for (Iterator iterator = testNode.getNodes(); iterator.hasNext();) {
+      Node node = (Node) iterator.next();
+      System.out.println("Name:"+node.getName());
+    }
+    
+    //Create version 4
+    Version ver4 = testNode.checkin();
+    testNode.checkout();
+    root.save();
+    
+    //Restore testNode to version3
+    testNode.restore(ver3, true);
+    root.save();
+    session.save();
+    
+    System.out.println("//After restore:");
+    for (Iterator iterator = testNode.getNodes(); iterator.hasNext();) {
+      Node node = (Node) iterator.next();
+      System.out.println("Name:"+node.getName());
+    }
+    
+ }
   
   public void testActiveVersionSubnode() throws Exception {
-    //Case 10 in ECM JIRA
+    //Case 10 in ECM JIRA 
+    //http://jira.exoplatform.org/browse/ECM-1160
     runTest = false;
     if(!runTest) return ;
     
@@ -111,10 +241,14 @@ public class ErrorsRelateToRestoreVersionTest extends BaseUsecasesTest {
     //Add mix:versionable for this node
     //doc1.addMixin("mix:versionable");
     
+    //Clean
+    testNode.remove();
+    root.save();
  }
   
   public void testImportNodeThenRestore() throws Exception {
-    //Case 11 in ECM JIRA
+    //Case 11 in ECM JIRA 
+    //http://jira.exoplatform.org/browse/ECM-1160
     
     runTest = false;
     if(!runTest) return ;
@@ -159,6 +293,10 @@ public class ErrorsRelateToRestoreVersionTest extends BaseUsecasesTest {
     assertNotNull(node1.getNode("Node1"));
     assertNotNull(node1.getNode("Node1").getNode("Node1_1"));
     assertNotNull(node1.getNode("Node1").getNode("Node1_2"));
+    
+    //Clean
+    node1.remove();
+    root.save();
     
  }
 }
