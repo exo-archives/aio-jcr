@@ -4,9 +4,9 @@ eXo.require("eXo.projects.Product") ;
 function getModule(params) {
   var module = {} ;
   
-  module.version = "trunk" ;
+  module.version = "1.7.1" ;
   module.relativeMavenRepo =  "org/exoplatform/jcr" ;
-  module.relativeSRCRepo =  "jcr/trunk" ;
+  module.relativeSRCRepo =  "jcr/1.7.1" ;
   module.name =  "jcr" ;
     
   module.services = {}
@@ -16,8 +16,8 @@ function getModule(params) {
     addDependency(new Project("org.exoplatform.jcr", "exo.jcr.component.webdav", "jar", module.version)).
     addDependency(new Project("org.exoplatform.jcr", "exo.jcr.component.ftp", "jar", module.version)) .
     addDependency(new Project("jcr", "jcr", "jar", "1.0")).
-    addDependency(new Project("concurrent", "concurrent", "jar", "1.3.2")).
-    addDependency(new Project("javagroups", "jgroups-all", "jar", "2.4")).
+    addDependency(new Project("concurrent", "concurrent", "jar", "1.3.4")).
+    addDependency(new Project("javagroups", "jgroups-all", "jar", "2.5.0")).
     addDependency(new Project("stax", "stax-api", "jar", "1.0.1")).
 		addDependency(new Project("stax", "stax", "jar", "1.2.0")).
 		addDependency(new Project("org.apache.ws.commons","ws-commons-util","jar","1.0.1")).
@@ -26,7 +26,7 @@ function getModule(params) {
   module.frameworks = {}
   module.frameworks.web = 
     new Project("org.exoplatform.jcr", "exo.jcr.framework.web", "jar", module.version).  
-    addDependency(new Project("org.exoplatform.ws.rest", "exo.rest.core", "jar", module.version)).
+    addDependency(new Project("org.exoplatform.ws.rest", "exo.rest.core", "jar", "trunk")).
     addDependency(new Project("commons-chain", "commons-chain", "jar", "1.0")).
     addDependency(new Project("log4j", "log4j", "jar", "1.2.8")) ;
 
