@@ -6,7 +6,6 @@ package org.exoplatform.services.jcr.usecases.version;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.Iterator;
 
 import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.Node;
@@ -63,7 +62,8 @@ public class ErrorsRelateToRestoreVersionTest extends BaseUsecasesTest {
      root.save();
   }
   
-  public void case9() throws Exception{
+  public void testCase9() throws Exception{
+    System.out.println("////Case 9"); //Not JCR Bugs
     runTest = true;
     if(!runTest) return ;
     
@@ -91,9 +91,9 @@ public class ErrorsRelateToRestoreVersionTest extends BaseUsecasesTest {
     doc1.restore(ver1doc, true);
     
     
-  //Create 1 versions for Test Node
-    doc1.addMixin("mix:versionable");
-    doc1.save();
+    //Create 1 versions for Test Node
+    testNode.addMixin("mix:versionable");
+    testNode.save();
     root.save();
     
     //Create 2 version
@@ -107,10 +107,17 @@ public class ErrorsRelateToRestoreVersionTest extends BaseUsecasesTest {
     //Restore ver 1
     testNode.restore(ver1test, true);
     
-    testNode.setProperty("name", "");
+    //Test rename testNode
+    String newName = "_new";
+    try {
+      //Error here
+      session.move(testNode.getPath() , testNode.getPath()+ newName);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
   
-  //Not checked
+  
   public void testVersionMovedSubnode() throws Exception {
     //Case 5 in ECM JIRA 
     //http://jira.exoplatform.org/browse/ECM-1160
@@ -137,37 +144,30 @@ public class ErrorsRelateToRestoreVersionTest extends BaseUsecasesTest {
     //Create Versions 2,3 for Test Node
     testNode.checkin();
     testNode.checkout();
-
-    System.out.println("//First Create:");
-    for (Iterator iterator = testNode.getNodes(); iterator.hasNext();) {
-      Node node = (Node) iterator.next();
-      System.out.println("Name:"+node.getName());
-    }
     
     Version ver3 = testNode.checkin();
     testNode.checkout();    
     root.save();
     
+    //Test rename testNode
+    String testName = "_test";
+    try {
+       //OK
+      session.move(testNode.getPath() , testNode.getPath()+ testName);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    
     //Move subnodes
     Node tempNode = root.addNode("Temp");
     root.save();
     
-    System.out.println("Temp:" + tempNode.getPath());
-    
-    session.getWorkspace().move(doc1.getPath(), tempNode.getPath());
-    session.getWorkspace().move(doc2.getPath(), tempNode.getPath());
-    session.save();
-
-    System.out.println("//Temp Create:");
-    for (Iterator iterator = tempNode.getNodes(); iterator.hasNext();) {
-      Node nodex = (Node) iterator.next();
-      System.out.println("tempNode Name:"+nodex.getName());
-    }
-    
-    System.out.println("//After move:");
-    for (Iterator iterator = testNode.getNodes(); iterator.hasNext();) {
-      Node node = (Node) iterator.next();
-      System.out.println("Name:"+node.getName());
+    try {
+      session.getWorkspace().move(doc1.getPath(), tempNode.getPath() + "new");
+      session.getWorkspace().move(doc2.getPath(), tempNode.getPath() + "new");
+      session.save();
+    } catch (Exception e) {
+      e.printStackTrace();
     }
     
     //Create version 4
@@ -176,16 +176,23 @@ public class ErrorsRelateToRestoreVersionTest extends BaseUsecasesTest {
     root.save();
     
     //Restore testNode to version3
-    testNode.restore(ver3, true);
-    root.save();
-    session.save();
-    
-    System.out.println("//After restore:");
-    for (Iterator iterator = testNode.getNodes(); iterator.hasNext();) {
-      Node node = (Node) iterator.next();
-      System.out.println("Name:"+node.getName());
+    try {
+      testNode.restore(ver3, true);
+      root.save();
+      session.save();
+    } catch (Exception e) {
+      e.printStackTrace();
     }
-    
+       
+    //Test rename testNode
+    String newName = "_new";
+    try {
+      //Error here
+      session.move(testNode.getPath() , testNode.getPath()+ newName);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
  }
   
   public void testActiveVersionSubnode() throws Exception {
