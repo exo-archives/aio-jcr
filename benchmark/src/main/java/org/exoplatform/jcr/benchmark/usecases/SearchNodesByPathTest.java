@@ -35,28 +35,17 @@ import com.sun.japex.TestCase;
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-public class SearchNodesTest extends JCRTestBase {
+public class SearchNodesByPathTest extends JCRTestBase {
   /*
    * This test calculates the time of query execution, dedicated structure has
-   * been created. 
-   * jcr.resultNodes - expected count of nodes that query will return.
-   * jcr.sqlQuery - sql query to execute.
-   * e.g
-   * "select * from nt:base where contains(*,'fournodes')" will return 4 nodes;
-   * "select * from nt:base where jcr:path like '/download/node0/node1/node2/%'" will return 120 nodes;
+   * been created.
    */
 
-  public static Log log = ExoLogger.getLogger("jcr.benchmark");
+  public static Log log          = ExoLogger.getLogger("jcr.benchmark");
 
-  private int       RESULT_NODES;
+  private int       RESULT_NODES = 20; //incl. content node
 
-  private String    sqlQuery;
-
-  @Override
-  public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    sqlQuery = tc.getParam("jcr.sqlQuery");
-    RESULT_NODES = tc.getIntParam("jcr.resultNodes");
-  }
+  private String    sqlQuery     = "select * from nt:base where exo:owner = 'exoadmin'";
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
@@ -72,7 +61,4 @@ public class SearchNodesTest extends JCRTestBase {
     }
   }
 
-  @Override
-  public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
-  }
 }

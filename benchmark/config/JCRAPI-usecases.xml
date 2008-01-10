@@ -5,7 +5,7 @@
   <param name="japex.plotGroupSize" value="5" />
   <param name="japex.resultUnit" value="tps" />
   <param name="japex.warmupIterations" value="0" />
-  <param name="japex.runTime" value="15:00" />
+  <param name="japex.runTime" value="10" />
   <!-- 10 for 10 sec -->
   <!-- 15:00 for 15min -->
 
@@ -24,23 +24,20 @@
     </driver>
   </driverGroup>
 
+  <!--testCase name="SearchNodesByPathWithLikeOperatorTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesByPathWithLikeOperatorTest" />  
+  </testCase-->
+
   <!--testCase name="SearchNodesByPathTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesTest" />
-    <param name="jcr.sqlQuery" value="select * from nt:base where jcr:path like '/download/node0/node1/node2/%'" />
-    <param name="jcr.resultNodes" value="120" />
-    <param name="japex.runIterationDelay" value="0" />
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesByPathTest" />  
   </testCase-->
 
   <!--testCase name="SearchNodesByContentTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesTest" />
-    <param name="jcr.sqlQuery" value="select * from nt:base where contains(*,'fournodes')" />
-    <param name="jcr.resultNodes" value="4" />
-    <param name="japex.runIterationDelay" value="0" />
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesByContentTest" />  
   </testCase-->
 
   <testCase name="AddNtFileWithMetadataTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.AddNtFileWithMetadataTest" />
-    <param name="japex.runIterationDelay" value="0" />
   </testCase>
 
   <!--testCase name="AddNtFileWithMetadataTestCleanDBOracle">
