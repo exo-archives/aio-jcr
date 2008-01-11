@@ -35,7 +35,7 @@ import com.sun.japex.TestCase;
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-public class SearchNodesByPathTest extends JCRTestBase {
+public class SearchNodesByPropertyTest extends JCRTestBase {
   /*
    * This test calculates the time of query execution, dedicated structure has
    * been created.

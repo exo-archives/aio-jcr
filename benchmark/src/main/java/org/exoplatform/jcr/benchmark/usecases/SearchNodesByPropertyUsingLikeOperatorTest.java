@@ -35,7 +35,7 @@ import com.sun.japex.TestCase;
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-public class SearchNodesByPathWithLikeOperatorTest extends JCRTestBase {
+public class SearchNodesByPropertyUsingLikeOperatorTest extends JCRTestBase {
   /*
    * This test calculates the time of query execution, dedicated structure has
    * been created.
@@ -43,9 +43,9 @@ public class SearchNodesByPathWithLikeOperatorTest extends JCRTestBase {
 
   public static Log log          = ExoLogger.getLogger("jcr.benchmark");
 
-  private int       RESULT_NODES = 120; //incl. content node
+  private int       RESULT_NODES = 20; //incl. content node
 
-  private String    sqlQuery     = "select * from nt:base where jcr:path like '/download/node0/node1/node2/%'";
+  private String    sqlQuery     = "select * from nt:base where exo:owner like 'exoa%'";
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
