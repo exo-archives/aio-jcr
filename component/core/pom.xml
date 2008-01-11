@@ -436,6 +436,8 @@
             <exclude>**/usecases/**/TestDateBetween.java</exclude>
             <exclude>**/usecases/**/RemoveSameNameSiblingTest.java</exclude>
             <exclude>**/usecases/**/TestNodeRemoveMixin.java</exclude><!--http://jira.exoplatform.org/browse/JCR-343-->
+            <exclude>**/usecases/access/TestAccess.java</exclude><!--http://jira.exoplatform.org/browse/JCR-361-->
+            
           </excludes>
 
           <systemProperties>
