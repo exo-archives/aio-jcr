@@ -366,7 +366,8 @@ public class RepositoryImpl implements ManageableRepository {
         throw new RepositoryException(e);
       }
       repositoryContainer.unregisterComponentByInstance(workspaceContainer);
-
+      repositoryContainer.unregisterComponent(workspaceName);
+      
     }
 
   }
