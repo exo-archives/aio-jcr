@@ -17,6 +17,8 @@
 package org.exoplatform.services.jcr.impl.core;
 
 import java.io.File;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -248,8 +250,17 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
       helper.createWorkspace(workspaceEntry, container);
       doTestOnWorkspace(workspaceEntry.getName());
       assertTrue(defRep.canRemoveWorkspace(workspaceEntry.getName()));
-
+      String[] names = service.getDefaultRepository().getWorkspaceNames();
       service.getDefaultRepository().removeWorkspace(workspaceEntry.getName());
+      String[] namesAfter = service.getDefaultRepository().getWorkspaceNames();
+
+      // remove one
+      assertTrue(names.length == namesAfter.length + 1);
+      for (int i = 0; i < namesAfter.length; i++) {
+        if (workspaceEntry.getName().equals(namesAfter[i])) {
+          fail();
+        }
+      }
 
     } catch (RepositoryException e) {
       e.printStackTrace();
