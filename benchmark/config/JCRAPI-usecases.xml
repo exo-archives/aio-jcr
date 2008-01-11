@@ -24,12 +24,12 @@
     </driver>
   </driverGroup>
 
-  <!--testCase name="SearchNodesByPathWithLikeOperatorTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesByPathWithLikeOperatorTest" />  
+  <!--testCase name="SearchNodesByPropertyUsingLikeOperatorTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesByPropertyUsingLikeOperatorTest" />  
   </testCase-->
 
-  <!--testCase name="SearchNodesByPathTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesByPathTest" />  
+  <!--testCase name="SearchNodesByPropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesByPropertyTest" />  
   </testCase-->
 
   <!--testCase name="SearchNodesByContentTest">
