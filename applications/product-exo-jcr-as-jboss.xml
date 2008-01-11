@@ -35,6 +35,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.2-SNAPSHOT</version>
 				<configuration>
 					<tasks>
 						<delete
