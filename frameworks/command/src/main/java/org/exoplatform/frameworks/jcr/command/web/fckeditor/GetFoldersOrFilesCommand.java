@@ -36,30 +36,30 @@ import org.w3c.dom.Element;
 public class GetFoldersOrFilesCommand extends FCKConnectorXMLOutput implements Command {
 
   public boolean execute(Context context) throws Exception {
-    
+
     GenericWebAppContext webCtx = (GenericWebAppContext)context;
     HttpServletResponse response = webCtx.getResponse();
     HttpServletRequest request = webCtx.getRequest();
-    
+
     String filter = (String)context.get("Command");
-        
+
     String type = (String)context.get("Type");
     if(type == null)
       type = "";
-    
-    // To limit browsing set Servlet init param "RootFolder"
+
+    // To limit browsing set Servlet init param "digitalAssetsPath"
     // with desired JCR path
-    String rootFolderStr = (String)context.get("RootFolder");
+    String rootFolderStr = (String)context.get("digitalAssetsPath");
     if(rootFolderStr == null)
       rootFolderStr = "/";
-    
+
     // set current folder
     String currentFolderStr = (String)context.get("CurrentFolder");
     if(currentFolderStr == null)
       currentFolderStr = "";
     else if(currentFolderStr.length() < rootFolderStr.length())
       currentFolderStr = rootFolderStr;
-    
+
     String jcrMapping = (String)context.get(GenericWebAppContext.JCR_CONTENT_MAPPING);
     if(jcrMapping == null)
       jcrMapping = DisplayResourceCommand.DEFAULT_MAPPING;
@@ -67,9 +67,9 @@ public class GetFoldersOrFilesCommand extends FCKConnectorXMLOutput implements C
     String digitalWS = (String)webCtx.get(AppConstants.DIGITAL_ASSETS_PROP);
     if(digitalWS == null)
       digitalWS = AppConstants.DEFAULT_DIGITAL_ASSETS_WS;
-    
+
     webCtx.setCurrentWorkspace(digitalWS);
-    
+
     Node currentFolder = (Node) webCtx.getSession().getItem(currentFolderStr);
 
     //initRootElement(filter, type, currentPath, request.getContextPath()+currentPath);
@@ -78,7 +78,7 @@ public class GetFoldersOrFilesCommand extends FCKConnectorXMLOutput implements C
     "&path="+currentFolderStr;
 
     initRootElement(filter, type, currentFolderStr, url);
-    
+
     Document doc = rootElement.getOwnerDocument();
     if(!filter.equals("GetFiles")) {
       Element nodesElement = rootElement.getOwnerDocument().createElement("Folders");
@@ -111,11 +111,11 @@ public class GetFoldersOrFilesCommand extends FCKConnectorXMLOutput implements C
         }
       }
     }
-    
+
     outRootElement(response);
-    
+
     return false;
   }
-  
+
 
 }
