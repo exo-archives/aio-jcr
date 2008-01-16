@@ -114,6 +114,7 @@ public class ErrorsRelateToRestoreVersionTest extends BaseUsecasesTest {
       session.move(testNode.getPath() , testNode.getPath()+ newName);
     } catch (Exception e) {
       e.printStackTrace();
+      fail(e.getMessage());
     }
   }
   
