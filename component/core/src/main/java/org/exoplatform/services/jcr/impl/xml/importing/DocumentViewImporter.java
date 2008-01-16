@@ -32,6 +32,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
+import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.PropertyDefinition;
 
 import org.apache.commons.logging.Log;
@@ -44,6 +45,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
@@ -190,8 +192,8 @@ public class DocumentViewImporter extends BaseXmlImporter {
     InternalQName jcrName = locationFactory.parseJCRName(nodeName).getInternalName();
 
     ImportNodeData nodeData = createNode(nodeTypes, propertiesMap, mixinNodeTypes, jcrName);
-
-    changesLog.add(new ItemState(nodeData, ItemState.ADDED, true, getParent().getQPath()));
+    NodeData parentNodeData = getParent();
+    changesLog.add(new ItemState(nodeData, ItemState.ADDED, true, parentNodeData.getQPath()));
 
     tree.push(nodeData);
 
@@ -211,6 +213,18 @@ public class DocumentViewImporter extends BaseXmlImporter {
         log.debug("Property NAME: " + key + "=" + propertiesMap.get(key));
 
       if (key.equals(Constants.JCR_PRIMARYTYPE)) {
+
+        if (!isChildNodePrimaryTypeAllowed(parentNodeData.getPrimaryTypeName(),
+                                           parentNodeData.getMixinTypeNames(),
+                                           propertiesMap.get(Constants.JCR_PRIMARYTYPE))) {
+          throw new ConstraintViolationException("Can't add node "
+              + nodeData.getQName().getAsString() + " to "
+              + parentNodeData.getQPath().getAsString() + " node type "
+              + propertiesMap.get(Constants.JCR_PRIMARYTYPE)
+              + " is not allowed as child's node type for parent node type "
+              + parentNodeData.getPrimaryTypeName().getAsString());
+
+        }
         newProperty = endPrimaryType(nodeData.getPrimaryTypeName());
 
       } else if (key.equals(Constants.JCR_MIXINTYPES)) {

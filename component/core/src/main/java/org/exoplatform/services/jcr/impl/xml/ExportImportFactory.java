@@ -166,7 +166,7 @@ public class ExportImportFactory {
     return new StreamImporter(node, uuidBehavior, saveType, context);
   }
 
-  public WorkspaceDataImporter getWorkspaceImporter(InvocationContext context) {
+  public StreamImporter getWorkspaceImporter(InvocationContext context) {
     return new WorkspaceDataImporter(context);
   }
 }

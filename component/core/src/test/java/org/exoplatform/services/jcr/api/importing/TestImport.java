@@ -16,10 +16,15 @@
  */
 package org.exoplatform.services.jcr.api.importing;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.InvalidSerializedDataException;
@@ -34,6 +39,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.nodetype.ConstraintViolationException;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.core.ExtendedSession;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -47,6 +53,8 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
+import org.exoplatform.services.log.ExoLogger;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -58,7 +66,8 @@ import org.xml.sax.helpers.XMLReaderFactory;
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: TestImport.java 12841 2007-02-16 08:58:38Z peterit $
  */
-public class TestImport extends JcrAPIBaseTest {
+public class TestImport extends BaseImportTest {
+  private Log          log        = ExoLogger.getLogger(TestImport.class);
 
   private final String docView    = "<exo:test xmlns:nt=\"http://www.jcp.org/jcr/nt/1.0\" "
                                       + "xmlns:jcr=\"http://www.jcp.org/jcr/1.0\" "
@@ -574,6 +583,107 @@ public class TestImport extends JcrAPIBaseTest {
 
     assertFalse(session.getNodeByUUID("id_uuidNode1").getName().equals("uuidNode1"));
 
+  }
+
+  public void testImportSystemViewStreamInvalidChildNodeType() throws Exception {
+
+    Node testRoot = root.addNode("testRoot", "nt:folder");
+
+    Node exportRoot = root.addNode("exportRoot", "exo:article");
+
+    exportRoot.setProperty("exo:title", "title");
+    exportRoot.setProperty("exo:text", "text");
+
+    session.save();
+    // try {
+    // testRoot.addNode("test", "exo:article");
+    // fail();
+    // } catch (RepositoryException e) {
+    // }
+
+    File destFile = serialize(exportRoot, true, true);
+
+    try {
+      deserialize(testRoot,
+                  XmlSaveType.SESSION,
+                  true,
+                  ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW,
+                  destFile);
+      fail();
+    } catch (RepositoryException e) {
+    }
+  }
+
+  public void testImportSystemViewContentHandlerInvalidChildNodeType() throws Exception {
+
+    Node testRoot = root.addNode("testRoot", "nt:folder");
+
+    Node exportRoot = root.addNode("exportRoot", "exo:article");
+
+    exportRoot.setProperty("exo:title", "title");
+    exportRoot.setProperty("exo:text", "text");
+
+    session.save();
+
+    File destFile = serialize(exportRoot, true, true);
+
+    try {
+      deserialize(testRoot,
+                  XmlSaveType.SESSION,
+                  false,
+                  ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW,
+                  destFile);
+      fail();
+    } catch (SAXException e) {
+    }
+  }
+
+  public void testImportDocumentViewStreamInvalidChildNodeType() throws Exception {
+
+    Node testRoot = root.addNode("testRoot", "nt:folder");
+
+    Node exportRoot = root.addNode("exportRoot", "exo:article");
+
+    exportRoot.setProperty("exo:title", "title");
+    exportRoot.setProperty("exo:text", "text");
+
+    session.save();
+
+    File destFile = serialize(exportRoot, false, true);
+
+    try {
+      deserialize(testRoot,
+                  XmlSaveType.SESSION,
+                  true,
+                  ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW,
+                  destFile);
+      fail();
+    } catch (RepositoryException e) {
+    }
+  }
+
+  public void testImportDocumentViewContentHandlerInvalidChildNodeType() throws Exception {
+
+    Node testRoot = root.addNode("testRoot", "nt:folder");
+
+    Node exportRoot = root.addNode("exportRoot", "exo:article");
+
+    exportRoot.setProperty("exo:title", "title");
+    exportRoot.setProperty("exo:text", "text");
+
+    session.save();
+
+    File destFile = serialize(exportRoot, false, true);
+
+    try {
+      deserialize(testRoot,
+                  XmlSaveType.SESSION,
+                  false,
+                  ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW,
+                  destFile);
+      fail();
+    } catch (SAXException e) {
+    }
   }
 
   private byte[] readXmlContent(String fileName) {

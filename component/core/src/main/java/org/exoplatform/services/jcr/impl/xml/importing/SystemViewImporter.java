@@ -27,6 +27,7 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
+import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 
 import org.apache.commons.logging.Log;
@@ -131,7 +132,7 @@ public class SystemViewImporter extends BaseXmlImporter {
 
       ImportPropertyData propertyData = endProperty();
       if (propertyData != null)
-        changesLog.add(new ItemState(propertyData, ItemState.ADDED, true, tree.peek().getQPath()));
+        changesLog.add(new ItemState(propertyData, ItemState.ADDED, true, getParent().getQPath()));
     } else if (Constants.SV_VALUE_NAME.equals(elementName)) {
       // sv:value element
     } else {
@@ -162,7 +163,7 @@ public class SystemViewImporter extends BaseXmlImporter {
 
       NodeData parentData = null;
 
-      parentData = tree.peek();
+      parentData = getParent();
 
       InternalQName currentNodeName = null;
       if (ROOT_NODE_NAME.equals(svName)) {
@@ -173,7 +174,6 @@ public class SystemViewImporter extends BaseXmlImporter {
 
       int nodeIndex = getNodeIndex(parentData, currentNodeName, null);
       ImportNodeData newNodeData = new ImportNodeData(parentData, currentNodeName, nodeIndex);
-
       newNodeData.setOrderNumber(getNextChildOrderNum(parentData));
       newNodeData.setIdentifier(IdGenerator.generate());
 
@@ -225,7 +225,7 @@ public class SystemViewImporter extends BaseXmlImporter {
     ImportPropertyData propertyData;
     InternalQName[] mixinNames = new InternalQName[propertyInfo.getValuesSize()];
     List<ValueData> values = new ArrayList<ValueData>(propertyInfo.getValuesSize());
-    ImportNodeData currentNodeInfo = (ImportNodeData) tree.peek();
+    ImportNodeData currentNodeInfo = (ImportNodeData) getParent();
     for (int i = 0; i < propertyInfo.getValuesSize(); i++) {
 
       String value = propertyInfo.getValues().get(i).toString();
@@ -287,8 +287,19 @@ public class SystemViewImporter extends BaseXmlImporter {
     String sName = propertyInfo.getValues().get(0).toString();
     InternalQName primaryTypeName = locationFactory.parseJCRName(sName).getInternalName();
 
-    ImportNodeData nodeData = (ImportNodeData) tree.peek();
+    ImportNodeData nodeData = (ImportNodeData) tree.pop();
+    if (!Constants.ROOT_UUID.equals(nodeData.getIdentifier())) {
+      NodeData parentNodeData = getParent();
 
+      if (!isChildNodePrimaryTypeAllowed(parentNodeData.getPrimaryTypeName(),
+                                         parentNodeData.getMixinTypeNames(),
+                                         sName)) {
+        throw new ConstraintViolationException("Can't add node "
+            + nodeData.getQName().getAsString() + " to " + parentNodeData.getQPath().getAsString()
+            + " node type " + sName + " is not allowed as child's node type for parent node type "
+            + parentNodeData.getPrimaryTypeName().getAsString());
+      }
+    }
     //
     nodeData.addNodeType((ntManager.getNodeType(primaryTypeName)));
     nodeData.setPrimaryTypeName(primaryTypeName);
@@ -301,7 +312,7 @@ public class SystemViewImporter extends BaseXmlImporter {
                                           nodeData.getIdentifier(),
                                           false);
     propertyData.setValues(parseValues());
-
+    tree.push(nodeData);
     return propertyData;
   }
 
@@ -330,7 +341,7 @@ public class SystemViewImporter extends BaseXmlImporter {
       propertyData = endUuid();
 
     } else {
-      ImportNodeData currentNodeInfo = (ImportNodeData) tree.peek();
+      ImportNodeData currentNodeInfo = (ImportNodeData) getParent();
       List<ValueData> values = parseValues();
 
       // determinating is property multivalue;
@@ -403,7 +414,7 @@ public class SystemViewImporter extends BaseXmlImporter {
             || uuidBehavior == ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING;
         QPath newPath = null;
         if (reloadSNS) {
-          NodeData currentParentData = tree.peek();
+          NodeData currentParentData = getParent();
           // current node already in list
           int nodeIndex = getNodeIndex(currentParentData,
                                        currentNodeInfo.getQName(),
@@ -431,7 +442,7 @@ public class SystemViewImporter extends BaseXmlImporter {
 
       }
       if (uuidBehavior == ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING)
-        currentNodeInfo.setParentIdentifer(tree.peek().getIdentifier());
+        currentNodeInfo.setParentIdentifer(getParent().getIdentifier());
     }
 
     propertyData = new ImportPropertyData(QPath.makeChildPath(currentNodeInfo.getQPath(),

@@ -28,6 +28,8 @@ import javax.jcr.ItemNotFoundException;
 import javax.jcr.NamespaceException;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
+import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.PropertyDefinition;
 
 import org.apache.commons.logging.Log;
@@ -291,6 +293,39 @@ public abstract class BaseXmlImporter implements ContentImporter {
       }
     }
     return states;
+  }
+  /**
+   * 
+   * @param parentNodeType
+   * @param parentMixinNames
+   * @param nodeTypeName
+   * @return
+   * @throws NoSuchNodeTypeException
+   * @throws RepositoryException
+   */
+  protected boolean isChildNodePrimaryTypeAllowed(InternalQName parentNodeType,
+                                                  InternalQName[] parentMixinNames,
+                                                  String nodeTypeName) throws NoSuchNodeTypeException,
+                                                                      RepositoryException {
+
+    List<ExtendedNodeType> parenNt = new ArrayList<ExtendedNodeType>();
+
+    parenNt.add(ntManager.getNodeType(parentNodeType));
+
+    if (parentMixinNames != null) {
+      for (int i = 0; i < parentMixinNames.length; i++) {
+        parenNt.add(ntManager.getNodeType(parentMixinNames[i]));
+      }
+    }
+
+    for (ExtendedNodeType extendedNodeType : parenNt) {
+      if (extendedNodeType.isChildNodePrimaryTypeAllowed(nodeTypeName)) {
+        return true;
+      }
+    }
+    
+    return false;
+
   }
 
   /**

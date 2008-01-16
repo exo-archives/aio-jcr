@@ -39,6 +39,8 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
+import org.exoplatform.services.jcr.core.ExtendedSession;
+import org.exoplatform.services.jcr.core.ExtendedWorkspace;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 import org.exoplatform.services.log.ExoLogger;
 import org.xml.sax.InputSource;
@@ -114,36 +116,38 @@ public class BaseImportTest extends JcrAPIBaseTest {
 
   }
 
-  private void deserialize(Node importRoot,
-                           XmlSaveType saveType,
-                           boolean isImportedByStream,
-                           int testedBehavior,
-                           File content) throws PathNotFoundException,
-                                        ItemExistsException,
-                                        ConstraintViolationException,
-                                        InvalidSerializedDataException,
-                                        IOException,
-                                        RepositoryException,
-                                        SAXException {
+  protected void deserialize(Node importRoot,
+                             XmlSaveType saveType,
+                             boolean isImportedByStream,
+                             int uuidBehavior,
+                             File content) throws PathNotFoundException,
+                                          ItemExistsException,
+                                          ConstraintViolationException,
+                                          InvalidSerializedDataException,
+                                          IOException,
+                                          RepositoryException,
+                                          SAXException {
 
     InputStream is = new BufferedInputStream(new FileInputStream(content));
+    ExtendedSession extendedSession = (ExtendedSession) importRoot.getSession();
+    ExtendedWorkspace extendedWorkspace = (ExtendedWorkspace) extendedSession.getWorkspace();
     if (isImportedByStream) {
       if (saveType == XmlSaveType.SESSION) {
-        session.importXML(importRoot.getPath(), is, testedBehavior);
-        session.save();
+        extendedSession.importXML(importRoot.getPath(), is, uuidBehavior);
+        extendedSession.save();
       } else if (saveType == XmlSaveType.WORKSPACE) {
-        workspace.importXML(importRoot.getPath(), is, testedBehavior);
+        extendedWorkspace.importXML(importRoot.getPath(), is, uuidBehavior);
       }
 
     } else {
       XMLReader reader = XMLReaderFactory.createXMLReader();
       if (saveType == XmlSaveType.SESSION) {
         reader.setContentHandler(session.getImportContentHandler(importRoot.getPath(),
-                                                                 testedBehavior));
-        session.save();
+                                                                 uuidBehavior));
+        extendedSession.save();
       } else if (saveType == XmlSaveType.WORKSPACE) {
-        reader.setContentHandler(workspace.getImportContentHandler(importRoot.getPath(),
-                                                                   testedBehavior));
+        reader.setContentHandler(extendedWorkspace.getImportContentHandler(importRoot.getPath(),
+                                                                           uuidBehavior));
       }
       InputSource inputSource = new InputSource(is);
 
@@ -173,10 +177,12 @@ public class BaseImportTest extends JcrAPIBaseTest {
     return importRoot;
   }
 
-  private File serialize(Node rootNode, boolean isSystemView, boolean isStream) throws IOException,
-                                                                               RepositoryException,
-                                                                               SAXException,
-                                                                               TransformerConfigurationException {
+  protected File serialize(Node rootNode, boolean isSystemView, boolean isStream) throws IOException,
+                                                                                 RepositoryException,
+                                                                                 SAXException,
+                                                                                 TransformerConfigurationException {
+
+    ExtendedSession extendedSession = (ExtendedSession) rootNode.getSession();
 
     File content = File.createTempFile("baseImportTest", ".xml");
     content.deleteOnExit();
@@ -184,21 +190,21 @@ public class BaseImportTest extends JcrAPIBaseTest {
     if (isSystemView) {
 
       if (isStream) {
-        session.exportSystemView(rootNode.getPath(), outStream, false, false);
+        extendedSession.exportSystemView(rootNode.getPath(), outStream, false, false);
       } else {
         SAXTransformerFactory saxFact = (SAXTransformerFactory) TransformerFactory.newInstance();
         TransformerHandler handler = saxFact.newTransformerHandler();
         handler.setResult(new StreamResult(outStream));
-        session.exportSystemView(rootNode.getPath(), handler, false, false);
+        extendedSession.exportSystemView(rootNode.getPath(), handler, false, false);
       }
     } else {
       if (isStream) {
-        session.exportDocumentView(rootNode.getPath(), outStream, false, false);
+        extendedSession.exportDocumentView(rootNode.getPath(), outStream, false, false);
       } else {
         SAXTransformerFactory saxFact = (SAXTransformerFactory) TransformerFactory.newInstance();
         TransformerHandler handler = saxFact.newTransformerHandler();
         handler.setResult(new StreamResult(outStream));
-        session.exportDocumentView(rootNode.getPath(), handler, false, false);
+        extendedSession.exportDocumentView(rootNode.getPath(), handler, false, false);
       }
     }
     outStream.close();
