@@ -22,7 +22,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.GregorianCalendar;
 
+import javax.jcr.NamespaceException;
 import javax.jcr.Node;
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
@@ -31,75 +33,109 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 
 /**
- * Created by The eXo Platform SARL
- * Author : Pham Xuan Hoa
- *          hoa.pham@exoplatform.com
- * Jan 16, 2008  
+ * Created by The eXo Platform SARL Author : Pham Xuan Hoa
+ * hoa.pham@exoplatform.com Jan 16, 2008
  */
 public class TestQueryMixinNodeTypes extends BaseUsecasesTest {
-  
-  public void testQueryMixinNodeTypes() throws Exception{  
+
+  public void testQueryMixinNodeTypes() throws Exception {
     registerNodetypes();
-    Node testFolder = root.addNode("testFolder","nt:unstructured");
+    Node testFolder = root.addNode("testFolder", "nt:unstructured");
     root.save();
-    //add an exo:article
-    Node article = testFolder.addNode("myArticle","exo:article");    
-    article.setProperty("exo:title","title");
-    article.setProperty("exo:summary","article summary");
-    article.setProperty("exo:text","article content");
-    
+    // add an exo:article
+    Node article = testFolder.addNode("myArticle", "exo:article");
+    article.setProperty("exo:title", "title");
+    article.setProperty("exo:summary", "article summary");
+    article.setProperty("exo:text", "article content");
+
     article.addMixin("exo:datetime");
     article.setProperty("exo:dateCreated", new GregorianCalendar());
     article.setProperty("exo:dateModified", new GregorianCalendar());
-    
+
     article.addMixin("mix:commentable");
     article.addMixin("mix:i18n");
-    article.addMixin("exo:owneable");        
-    article.addMixin("mix:votable");           
+    article.addMixin("exo:owneable");
+    article.addMixin("mix:votable");
     session.save();
     Session systemSession = repositoryService.getCurrentRepository().getSystemSession(WORKSPACE);
-    Node articleNode = (Node)systemSession.getItem("/testFolder/myArticle");
+    Node articleNode = (Node) systemSession.getItem("/testFolder/myArticle");
     articleNode.addMixin("exo:publishingState");
-    articleNode.setProperty("exo:currentState","Validating");    
+    articleNode.setProperty("exo:currentState", "Validating");
     articleNode.addMixin("exo:validationRequest");
     systemSession.save();
     systemSession.logout();
-    
+
     Session session1 = repositoryService.getCurrentRepository().getSystemSession(WORKSPACE);
-    Node testArticle = (Node)session1.getItem("/testFolder/myArticle");
+    Node testArticle = (Node) session1.getItem("/testFolder/myArticle");
     assertTrue(testArticle.isNodeType("exo:datetime"));
     assertTrue(testArticle.isNodeType("exo:publishingState"));
     assertTrue(testArticle.getProperty("exo:currentState").getString().equals("Validating"));
-    
+
     String datetimeStatement = "//element(*,exo:datetime)";
-    Query query = session1.getWorkspace().getQueryManager().createQuery(datetimeStatement,Query.XPATH);
+    Query query = session1.getWorkspace().getQueryManager().createQuery(datetimeStatement,
+                                                                        Query.XPATH);
     QueryResult result = query.execute();
-    assertEquals(1,result.getNodes().getSize());
-    
-    //Please try with both statements
-    //String stateStatement = "//element(*,exo:publishingState)[@exo:currentState='Validating']";
+    assertEquals(1, result.getNodes().getSize());
+
+    // Please try with both statements
+    // String stateStatement =
+    // "//element(*,exo:publishingState)[@exo:currentState='Validating']";
     String stateStatement = "//element(*,exo:publishingState)";
-    Query stateQuery = session1.getWorkspace().getQueryManager().createQuery(stateStatement,Query.XPATH);
+    Query stateQuery = session1.getWorkspace().getQueryManager().createQuery(stateStatement,
+                                                                             Query.XPATH);
     QueryResult result1 = stateQuery.execute();
-    assertEquals(1,result1.getNodes().getSize());        
+    assertEquals(1, result1.getNodes().getSize());
   }
-  
-  private void registerNodetypes() throws Exception{
-    repositoryService.getCurrentRepository().getNamespaceRegistry().registerNamespace("kfx","http://exoplatform.com/kfx");
-    repositoryService.getCurrentRepository().getNamespaceRegistry().registerNamespace("dc","http://exoplatform.com/dc");
+
+  private void registerNodetypes() throws Exception {
     
-    InputStream xml = this.getClass().getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/ext-nodetypes-config.xml");
-    repositoryService.getCurrentRepository().getNodeTypeManager().registerNodeTypes(xml,ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-    InputStream xml1 = this.getClass().getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/nodetypes-config.xml");
-    repositoryService.getCurrentRepository().getNodeTypeManager().registerNodeTypes(xml1,ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-    InputStream xml2 = this.getClass().getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/nodetypes-config-extended.xml");
-    repositoryService.getCurrentRepository().getNodeTypeManager().registerNodeTypes(xml2,ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-    InputStream xml3 = this.getClass().getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/nodetypes-ecm.xml");
-    repositoryService.getCurrentRepository().getNodeTypeManager().registerNodeTypes(xml3,ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-    InputStream xml4 = this.getClass().getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/business-process-nodetypes.xml");
-    repositoryService.getCurrentRepository().getNodeTypeManager().registerNodeTypes(xml4,ExtendedNodeTypeManager.IGNORE_IF_EXISTS);    
+    registerNamespace("kfx", "http://www.exoplatform.com/jcr/kfx/1.1/");
+    registerNamespace("dc", "http://purl.org/dc/elements/1.1");
+
+    InputStream xml = this.getClass()
+                          .getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/ext-nodetypes-config.xml");
+    repositoryService.getCurrentRepository()
+                     .getNodeTypeManager()
+                     .registerNodeTypes(xml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+    InputStream xml1 = this.getClass()
+                           .getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/nodetypes-config.xml");
+    repositoryService.getCurrentRepository()
+                     .getNodeTypeManager()
+                     .registerNodeTypes(xml1, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+    InputStream xml2 = this.getClass()
+                           .getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/nodetypes-config-extended.xml");
+    repositoryService.getCurrentRepository()
+                     .getNodeTypeManager()
+                     .registerNodeTypes(xml2, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+    InputStream xml3 = this.getClass()
+                           .getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/nodetypes-ecm.xml");
+    repositoryService.getCurrentRepository()
+                     .getNodeTypeManager()
+                     .registerNodeTypes(xml3, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+    InputStream xml4 = this.getClass()
+                           .getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/business-process-nodetypes.xml");
+    repositoryService.getCurrentRepository()
+                     .getNodeTypeManager()
+                     .registerNodeTypes(xml4, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
   }
-  
+
+  public void registerNamespace(String prefix, String uri) {
+    try {
+      session.getWorkspace().getNamespaceRegistry().getPrefix(uri);
+    } catch (NamespaceException e) {
+      try {
+        session.getWorkspace().getNamespaceRegistry().registerNamespace(prefix, uri);
+      } catch (NamespaceException e1) {
+        throw new RuntimeException(e1);
+      } catch (RepositoryException e1) {
+        throw new RuntimeException(e1);
+      }
+    } catch (RepositoryException e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
   private ByteArrayInputStream readXmlContent(String fileName) {
 
     try {
