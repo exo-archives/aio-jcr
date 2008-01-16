@@ -712,6 +712,23 @@ public class SessionDataManager implements ItemDataConsumer {
             + ((System.currentTimeMillis() - start) / 1000d) + "sec");
     }
   }
+  
+  void reloadPool(ItemData fromItem) throws RepositoryException {
+    Collection<ItemImpl> pooledItems = itemsPool.getAll(); // log.info(dump())
+    for (ItemImpl item : pooledItems) {
+      if (item.getInternalPath().isDescendantOf(fromItem.getQPath(), false)
+          || item.getInternalPath().equals(fromItem.getQPath())) {
+        ItemData ri = getItemData(item.getInternalIdentifier());
+        if (ri != null)
+          itemsPool.reload(ri);
+        else
+          // the item is invalid, case of version restore - the item from non current version
+          item.invalidate();
+        
+        invalidated.add(item);
+      }
+    }
+  }
 
   public void rename(NodeData itemDataFrom, ItemDataMoveVisitor initializer) throws RepositoryException {
 
@@ -721,14 +738,7 @@ public class SessionDataManager implements ItemDataConsumer {
 
     reindexSameNameSiblings(itemDataFrom, this);
 
-    Collection<ItemImpl> pooledItems = itemsPool.getAll();
-    for (ItemImpl item : pooledItems) {
-      if (item.getInternalPath().isDescendantOf(itemDataFrom.getQPath(), false)
-          || item.getInternalPath().equals(itemDataFrom.getQPath())) {
-        itemsPool.reload(getItemData(item.getInternalIdentifier()));
-        invalidated.add(item);
-      }
-    }
+    reloadPool(itemDataFrom);
   }
 
   /**
@@ -928,9 +938,9 @@ public class SessionDataManager implements ItemDataConsumer {
 
     ItemImpl item = itemFactory.createItem(itemState.getData());
 
-    if (pool) {
+    if (pool)
       item = itemsPool.get(item);
-    }
+    
     return item;
   }
 
@@ -1112,8 +1122,7 @@ public class SessionDataManager implements ItemDataConsumer {
       ItemState rstate = changes.getItemState(removedPath);
 
       if (rstate == null) {
-        exceptions += "Can't find removed item " + removed.getLocation().getAsString(false)
-            + " in changes for rollback.\n";
+        exceptions += "Can't find removed item " + removed.getLocation().getAsString(false) + " in changes for rollback.\n";
         continue;
       }
 
@@ -1128,10 +1137,10 @@ public class SessionDataManager implements ItemDataConsumer {
       removedIter.remove();
     }
 
-    if (exceptions.length() > 0)
-      // throw the error if got some exceptions
+    if (exceptions.length() > 0 && log.isDebugEnabled())
+      // TODO warn for debug
       log.warn(exceptions);
-    new RepositoryException(exceptions);
+      // new RepositoryException(exceptions);
   }
 
   /*
@@ -1495,9 +1504,10 @@ public class SessionDataManager implements ItemDataConsumer {
     String dump() {
       String str = "Items Pool: \n";
       for (ItemImpl item : items.values()) {
-        str += item.getPath() + "\n";
+        str += (item.isNode() ? "Node\t\t" : "Property\t") + "\t" + item.isValid() + "\t" + 
+        item.isNew() + "\t" + item.getInternalIdentifier() + "\t" + item.getPath() + "\n";
       }
-
+      
       return str;
     }
   }
@@ -1531,7 +1541,6 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * TODO, QPath used
    * Class helps on to sort nodes on deleting
    */
   private class PathSorter implements Comparator<ItemState> {

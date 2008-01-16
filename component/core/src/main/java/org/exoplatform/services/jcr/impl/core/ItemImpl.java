@@ -566,7 +566,7 @@ public abstract class ItemImpl implements Item {
   }
 
   protected ItemImpl item(String identifier) throws RepositoryException {
-    return dataManager.getItemByIdentifier(identifier, true);
+    return dataManager.getItemByIdentifier(identifier, false); // TODO pool=false
   }
 
   protected NodeImpl parent() throws RepositoryException {

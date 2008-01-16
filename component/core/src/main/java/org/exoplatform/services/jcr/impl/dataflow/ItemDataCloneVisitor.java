@@ -94,7 +94,7 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
     deletedExistingPropery = false;
     if (isMixReferenceable) {
       String identifier = node.getIdentifier();
-      ItemImpl relItem = dstDataManager.getItemByIdentifier(identifier, true);
+      ItemImpl relItem = dstDataManager.getItemByIdentifier(identifier, false); // TODO pool=false
       
       ItemState changesItemState = null;
       if (changes != null) {
@@ -107,9 +107,7 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
           itemDeletedExistingStates.add(new ItemState(relItem.getData(),
               ItemState.DELETED,
               true,
-              dstDataManager.getItemByIdentifier(relItem.getParentIdentifier(), true)
-                  .getInternalPath(),
-              level != 0));
+              dstDataManager.getItemByIdentifier(relItem.getParentIdentifier(), false).getInternalPath(),level != 0)); // TODO pool=false
         } else {
           throw new ItemExistsException("Item exists id = " + identifier + " name "
               + relItem.getName());
@@ -162,7 +160,7 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
       if (itemInItemStateList(itemDeletedExistingStates, property.getParentIdentifier(),
           ItemState.DELETED)) {
         // search destination propery
-        ItemData dstParentNodeData = dstDataManager.getItemByIdentifier(property.getParentIdentifier(), true)
+        ItemData dstParentNodeData = dstDataManager.getItemByIdentifier(property.getParentIdentifier(), false) // TODO pool=false
             .getData();
         List<PropertyData> dstChildProperties = dstDataManager
             .getChildPropertiesData((NodeData) dstParentNodeData);
@@ -176,7 +174,7 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
         }
         if (dstProperty != null) {
           itemDeletedExistingStates.add(new ItemState(dstProperty, ItemState.DELETED, true,
-              dstDataManager.getItemByIdentifier(dstProperty.getParentIdentifier(), true).getInternalPath(),level != 0));
+              dstDataManager.getItemByIdentifier(dstProperty.getParentIdentifier(), false).getInternalPath(),level != 0)); // TODO pool=false
         } else {
           throw new RepositoryException("Destination propery " + property.getQPath().getAsString()
               + " not found. ");

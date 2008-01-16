@@ -60,7 +60,6 @@ public class LockImpl implements ExtendedLock {
 
 
   public Node getNode() {
-    // TODO Auto-generated method stub
     try {
       return (Node) session.getTransientNodesManager().getItemByIdentifier(lockData.getNodeIdentifier(), true);
     } catch (RepositoryException e) {

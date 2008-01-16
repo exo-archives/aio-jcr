@@ -257,7 +257,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
     case SESSION:
       for (ItemState itemState : changesLog.getAllStates()) {
         if (itemState.isAdded())
-          session.getTransientNodesManager().update(itemState, true);
+          session.getTransientNodesManager().update(itemState, false); // TODO pool=false
         else if (itemState.isDeleted())
           session.getTransientNodesManager().delete(itemState.getData());
       }
@@ -434,8 +434,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
     List<ItemState> removedStates = null;
     if (identifier != null) {
       try {
-        ItemImpl sameUuidItem = session.getTransientNodesManager().getItemByIdentifier(identifier,
-                                                                                       true);
+        ItemImpl sameUuidItem = session.getTransientNodesManager().getItemByIdentifier(identifier, false); // TODO pool=false
         if (sameUuidItem != null) {
           switch (uuidBehavior) {
           case ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW:

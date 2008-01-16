@@ -31,14 +31,14 @@ import javax.jcr.version.VersionException;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
+import org.exoplatform.services.jcr.datamodel.Identifier;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -103,7 +103,7 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     try {
       for (int i=0; i<successorsValues.size(); i++) {
         String videntifier = new String(successorsValues.get(i).getAsByteArray());
-        VersionImpl version = (VersionImpl) dataManager.getItemByIdentifier(videntifier, false);
+        VersionImpl version = (VersionImpl) dataManager.getItemByIdentifier(videntifier, true);
         if (version != null)
           successors[i] = version;
         else
@@ -324,7 +324,6 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     
     VersionHistoryImpl vhistory = (VersionHistoryImpl) dataManager.getItemByIdentifier(nodeData().getParentIdentifier(), true);
      
-    
     if (vhistory == null)
       throw new VersionException("Version history item is not found for version " + getPath());
     
@@ -332,21 +331,20 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
   }
 
 
-  public SessionChangesLog restoreLog(NodeData nodeData, VersionHistoryDataHelper historyData, 
+  public SessionChangesLog restoreLog(NodeData destParent, InternalQName name, VersionHistoryDataHelper historyData, 
       SessionImpl restoreSession, boolean removeExisting, SessionChangesLog delegatedLog) throws RepositoryException {
 
     if (log.isDebugEnabled())
-      log.debug("Restore: " + nodeData.getQPath().getAsString() + ", removeExisting=" + removeExisting);
+      log.debug("Restore on parent " + destParent.getQPath().getAsString() + " as " + name.getAsString() +
+          ", removeExisting=" + removeExisting);
     
     DataManager dmanager = restoreSession.getTransientNodesManager().getTransactManager();
-    
-    NodeData parentData = (NodeData) dmanager.getItemData(nodeData.getParentIdentifier());
     
     NodeData frozenData = (NodeData) dmanager.getItemData(nodeData(), new QPathEntry(Constants.JCR_FROZENNODE, 1));
     
     ItemDataRestoreVisitor restoreVisitor = new ItemDataRestoreVisitor(
-        parentData, 
-        nodeData.getQPath().getName(),
+        destParent, 
+        name,
         historyData, 
         restoreSession, 
         removeExisting,
@@ -357,15 +355,38 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     return restoreVisitor.getRestoreChanges();
   }
   
-  public void restore(NodeImpl node, boolean removeExisting) throws RepositoryException {
+//  @Deprecated
+//  public void restore(NodeImpl node, boolean removeExisting) throws RepositoryException {
+//
+//    // use restored node session
+//    SessionImpl restoreSession = node.getSession();
+//    NodeData nodeData = (NodeData) node.getData();
+//    
+//    PropertyData vhProp = (PropertyData) dataManager.getItemData(nodeData(), new QPathEntry(Constants.JCR_VERSIONHISTORY, 1));
+//    
+//    try {
+//      NodeData vh = (NodeData) dataManager.getItemData(new String(vhProp.getValues().get(0).getAsByteArray()));
+//      VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper((NodeData) vh, 
+//          dataManager.getTransactManager(),
+//          session.getWorkspace().getNodeTypeManager());
+//      
+//      SessionChangesLog changesLog = restoreLog(nodeData, historyHelper, restoreSession, removeExisting, null);
+//      restoreSession.getTransientNodesManager().getTransactManager().save(changesLog);
+//    } catch(IOException e) {
+//      throw new RepositoryException("Restore error " + e, e);
+//    }
+//  }
+  
+  public void restore(SessionImpl restoreSession, NodeData destParent, InternalQName name, boolean removeExisting) throws RepositoryException {
 
-    // use restored node session
-    SessionImpl restoreSession = node.getSession();
-    NodeData nodeData = (NodeData) node.getData();
-    VersionHistoryDataHelper historyData = node.getVersionHistory().getData();
+    DataManager dmanager = restoreSession.getTransientNodesManager().getTransactManager();
     
-    SessionChangesLog changesLog = restoreLog(nodeData, historyData, restoreSession, removeExisting, null);
-    restoreSession.getTransientNodesManager().getTransactManager().save(changesLog);
+    NodeData vh = (NodeData) dmanager.getItemData(nodeData().getParentIdentifier()); // version parent it's a VH
+    VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper((NodeData) vh, dmanager,
+        session.getWorkspace().getNodeTypeManager());
+  
+    SessionChangesLog changesLog = restoreLog(destParent, name, historyHelper, restoreSession, removeExisting, null);
+    dmanager.save(changesLog);
   }
   
   public boolean isSuccessorOrSameOf(VersionImpl anotherVersion) 

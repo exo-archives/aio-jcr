@@ -41,7 +41,6 @@ import javax.jcr.version.VersionException;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.dataflow.session.WorkspaceStorageDataManagerProxy;
 
 /**
  * Created by The eXo Platform SAS.

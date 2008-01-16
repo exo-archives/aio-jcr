@@ -129,7 +129,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
   private final SessionRegistry                sessionRegistry;
 
-  protected final SessionDataManager           nodesManager;
+  protected final SessionDataManager           dataManager;
 
   public SessionImpl(String workspaceName, Credentials credentials, ExoContainer container) throws RepositoryException {
 
@@ -160,7 +160,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
     LocalWorkspaceDataManagerStub workspaceDataManager = (LocalWorkspaceDataManagerStub) container.getComponentInstanceOfType(LocalWorkspaceDataManagerStub.class);
 
-    this.nodesManager = new SessionDataManager(this, workspaceDataManager);
+    this.dataManager = new SessionDataManager(this, workspaceDataManager);
 
     this.workspace = new WorkspaceImpl(workspaceName, container, this, observationManager);
 
@@ -195,7 +195,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
     try {
       JCRPath jcrPath = locationFactory.parseAbsPath(absPath);
-      AccessControlList acl = nodesManager.getACL(jcrPath.getInternalPath());
+      AccessControlList acl = dataManager.getACL(jcrPath.getInternalPath());
       if (!accessManager.hasPermission(acl, actions, getUserID()))
         throw new AccessControlException("Permission denied " + absPath + " : " + actions);
     } catch (RepositoryException e) {
@@ -223,7 +223,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                                               noRecurse);
 
     JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
-    ItemData srcItemData = nodesManager.getItemData(srcNodePath.getInternalPath());
+    ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
 
     if (srcItemData == null) {
       throw new PathNotFoundException("No node exists at " + absPath);
@@ -256,7 +256,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                                               noRecurse);
 
     JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
-    ItemData srcItemData = nodesManager.getItemData(srcNodePath.getInternalPath());
+    ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
 
     if (srcItemData == null) {
       throw new PathNotFoundException("No node exists at " + absPath);
@@ -293,7 +293,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                                               skipBinary,
                                                                               noRecurse);
 
-    ItemData srcItemData = nodesManager.getItemData(Constants.ROOT_UUID);
+    ItemData srcItemData = dataManager.getItemData(Constants.ROOT_UUID);
     if (srcItemData == null) {
       throw new PathNotFoundException("Root node not found");
     }
@@ -328,7 +328,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                                               noRecurse);
 
     JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
-    ItemData srcItemData = nodesManager.getItemData(srcNodePath.getInternalPath());
+    ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
     if (srcItemData == null) {
       throw new PathNotFoundException("No node exists at " + absPath);
     }
@@ -364,7 +364,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                                               noRecurse);
 
     JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
-    ItemData srcItemData = nodesManager.getItemData(srcNodePath.getInternalPath());
+    ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
 
     if (srcItemData == null) {
       throw new PathNotFoundException("No node exists at " + absPath);
@@ -477,7 +477,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
     JCRPath loc = locationFactory.parseAbsPath(absPath);
 
-    ItemImpl item = nodesManager.getItem(loc.getInternalPath(), true);
+    ItemImpl item = dataManager.getItem(loc.getInternalPath(), true);
     if (item != null)
       return item;
 
@@ -581,7 +581,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
    * @see javax.jcr.Session#getNodeByUUID(java.lang.String)
    */
   public NodeImpl getNodeByUUID(String uuid) throws ItemNotFoundException, RepositoryException {
-    Item item = nodesManager.getItemByIdentifier(uuid, true);
+    Item item = dataManager.getItemByIdentifier(uuid, true);
 
     if (item != null && item.isNode()) {
       NodeImpl node = (NodeImpl) item;
@@ -608,7 +608,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
    * @see javax.jcr.Session#getRootNode()
    */
   public NodeImpl getRootNode() throws RepositoryException {
-    Item item = nodesManager.getItemByIdentifier(Constants.ROOT_UUID, true);
+    Item item = dataManager.getItemByIdentifier(Constants.ROOT_UUID, true);
     if (item != null && item.isNode()) {
       return (NodeImpl) item;
     }
@@ -621,7 +621,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
   }
 
   public SessionDataManager getTransientNodesManager() {
-    return this.nodesManager;
+    return this.dataManager;
   }
 
   /*
@@ -660,7 +660,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
    * @see javax.jcr.Session#hasPendingChanges()
    */
   public boolean hasPendingChanges() throws RepositoryException {
-    return nodesManager.hasPendingChanges(Constants.ROOT_PATH);
+    return dataManager.hasPendingChanges(Constants.ROOT_PATH);
   }
 
   /*
@@ -799,15 +799,15 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                          VersionException,
                                                          LockException,
                                                          RepositoryException {
-    JCRPath srcNodePath = getLocationFactory().parseAbsPath(srcAbsPath);
+    JCRPath srcNodePath = getLocationFactory().parseAbsPath(srcAbsPath); 
 
-    NodeImpl srcNode = (NodeImpl) nodesManager.getItem(srcNodePath.getInternalPath(), true);
+    NodeImpl srcNode = (NodeImpl) dataManager.getItem(srcNodePath.getInternalPath(), false); // TODO pool=false
     JCRPath destNodePath = getLocationFactory().parseAbsPath(destAbsPath);
     if (destNodePath.isIndexSetExplicitly())
       throw new RepositoryException("The relPath provided must not have an index on its final element. "
           + destNodePath.getAsString(false));
 
-    NodeImpl destParentNode = (NodeImpl) nodesManager.getItem(destNodePath.makeParentPath()
+    NodeImpl destParentNode = (NodeImpl) dataManager.getItem(destNodePath.makeParentPath()
                                                                           .getInternalPath(), true);
 
     if (srcNode == null || destParentNode == null) {
@@ -819,11 +819,11 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                      ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
 
     // Check for node with destAbsPath name in session
-    NodeImpl destNode = (NodeImpl) nodesManager.getItem((NodeData) destParentNode.getData(),
+    NodeImpl destNode = (NodeImpl) dataManager.getItem((NodeData) destParentNode.getData(),
                                                         new QPathEntry(destNodePath.getInternalPath()
                                                                                    .getName(),
                                                                        0),
-                                                        true);
+                                                        false); // TODO pool=false
 
     if (destNode != null) {
       if (!destNode.getDefinition().allowsSameNameSiblings()) {
@@ -841,12 +841,11 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
       throw new LockException("Source parent node " + srcNode.getPath() + " is locked ");
 
     ItemDataMoveVisitor initializer = new ItemDataMoveVisitor((NodeData) destParentNode.getData(),
-                                                              destNodePath.getName()
-                                                                          .getInternalName(),
+                                                              destNodePath.getName().getInternalName(),
                                                               getWorkspace().getNodeTypeManager(),
                                                               getTransientNodesManager(),
                                                               true);
-
+    
     getTransientNodesManager().rename((NodeData) srcNode.getData(), initializer);
   }
 

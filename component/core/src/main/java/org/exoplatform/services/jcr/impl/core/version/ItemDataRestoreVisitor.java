@@ -66,7 +66,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
   protected final Stack<NodeDataContext> parents = new Stack<NodeDataContext>();
   protected final NodeData context;
   protected final NodeData history;
-  protected final InternalQName restoringName;
+  protected final InternalQName destName;
 
   protected NodeData restored;
 
@@ -118,16 +118,16 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
     this(context, restoringName, history, userSession, removeExisting, null);
   }
 
-  ItemDataRestoreVisitor(NodeData context, InternalQName restoringName, NodeData history,
+  ItemDataRestoreVisitor(NodeData context, InternalQName destName, NodeData history,
       SessionImpl userSession, boolean removeExisting, SessionChangesLog delegatedChanges) throws RepositoryException {
     super(userSession.getTransientNodesManager().getTransactManager());
 
     this.userSession = userSession;
     this.changes = new SessionChangesLog(userSession.getId());
     this.context = context;
-    this.restoringName = restoringName;
+    this.destName = destName;
     this.history = history;
-    this.parents.push(new NodeDataContext(context));
+    this.parents.push(new NodeDataContext(context)); 
     this.removeExisting = removeExisting;
     this.ntManager = userSession.getWorkspace().getNodeTypeManager();
     this.delegatedChanges = delegatedChanges;
@@ -245,7 +245,6 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
     } catch (IOException e) {
       throw new RepositoryException("jcr:frozenUuid, error of data read " + frozenIdentifier.getQPath().getAsString(), e);
     }
-
     
     PropertyData frozenPrimaryType = (PropertyData) dataManager.getItemData(frozen,
         new QPathEntry(Constants.JCR_FROZENPRIMARYTYPE, 0));
@@ -312,8 +311,8 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
       if (log.isDebugEnabled())
         log.debug("jcr:frozenNode " + frozen.getQPath().getAsString());
 
-      // init target node
-      initRestoreRoot(currentNode(), restoringName, frozen);
+      // init destenation node
+      initRestoreRoot(currentNode(), destName, frozen);
 
       restored = currentNode();
 

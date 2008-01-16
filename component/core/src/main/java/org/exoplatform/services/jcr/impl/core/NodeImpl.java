@@ -274,9 +274,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   protected PropertyImpl property(InternalQName name) throws IllegalPathException,
       PathNotFoundException,
       RepositoryException {
-    PropertyImpl prop = (PropertyImpl) dataManager.getItem(nodeData(),
-        new QPathEntry(name, 0),
-        true);
+    PropertyImpl prop = (PropertyImpl) dataManager.getItem(nodeData(), new QPathEntry(name, 1), false); // TODO pool=false
     if (prop == null || prop.isNode())
       throw new PathNotFoundException("Property not found " + name);
     return prop;
@@ -284,7 +282,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   private boolean hasProperty(InternalQName name) {
     try {
-      ItemData pdata = dataManager.getItemData(nodeData(), new QPathEntry(name, 0));
+      ItemData pdata = dataManager.getItemData(nodeData(), new QPathEntry(name, 1));
 
       if (pdata != null && !pdata.isNode())
         return true;
@@ -441,12 +439,10 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     checkValid();
 
-    try {
-      getNode(relPath);
-    } catch (PathNotFoundException e) {
-      return false;
-    }
-    return true;
+    JCRPath itemPath = locationFactory.parseRelPath(relPath);
+    
+    ItemData node = dataManager.getItemData(nodeData(), itemPath.getInternalPath().getEntries());
+    return node != null && node.isNode();
   }
 
   /**
@@ -471,15 +467,10 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     checkValid();
 
-    try {
-      getProperty(relPath);
-      return true;
-    } catch (RepositoryException e) {
-      if (e instanceof AccessDeniedException)
-        throw e;
-
-      return false;
-    }
+    JCRPath itemPath = locationFactory.parseRelPath(relPath);
+    
+    ItemData prop = dataManager.getItemData(nodeData(), itemPath.getInternalPath().getEntries());
+    return prop != null && !prop.isNode();
   }
 
   /**
@@ -515,7 +506,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       throw new RepositoryException("The relPath provided must not have an index on its final element. "
           + itemPath.getAsString(false));
     
-    ItemImpl parentItem = dataManager.getItem(nodeData(), itemPath.makeParentPath().getInternalPath().getEntries(), true);
+    ItemImpl parentItem = dataManager.getItem(nodeData(), itemPath.makeParentPath().getInternalPath().getEntries(), false); // TODO pool=false
     
     if (parentItem == null)
       throw new PathNotFoundException("Parent not found for " + itemPath.getAsString(true));
@@ -578,7 +569,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       throw new RepositoryException("The relPath provided must not have an index on its final element. "
           + itemPath.getAsString(false));
 
-    ItemImpl parentItem = dataManager.getItem(nodeData(),itemPath.makeParentPath().getInternalPath().getEntries(), true);
+    ItemImpl parentItem = dataManager.getItem(nodeData(),itemPath.makeParentPath().getInternalPath().getEntries(), false); // TODO pool=false
 
     if (parentItem == null)
       throw new PathNotFoundException("Parent not found for " + itemPath.getAsString(true));
@@ -1281,7 +1272,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       log.debug("Node.addMixin " + mixinName + " " + getPath());
 
     // Mixin or not
-    if (type == null || !type.isMixin())
+    if (type == null || !type.isMixin()) 
       throw new NoSuchNodeTypeException("Node Type " + mixinName + " not found or not mixin type.");
 
     // Validate
@@ -1289,7 +1280,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       throw new ConstraintViolationException("Can not add mixin type " + mixinName + " to "
           + getPath());
 
-    if (getDefinition().isProtected())
+    if (getDefinition().isProtected()) 
       throw new ConstraintViolationException("Can not add mixin type. Node is protected "
           + getPath());
 
@@ -1298,7 +1289,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       throw new VersionException("Node " + getPath() + " or its nearest ancestor is checked-in");
 
     // Check locking
-    if (!checkLocking())
+    if (!checkLocking()) 
       throw new LockException("Node " + getPath() + " is locked ");
 
     InternalQName[] mixinTypes = nodeData().getMixinTypeNames();
@@ -1347,13 +1338,13 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     }
 
     // Should register jcr:mixinTypes and autocreated items if node is not added
-    updateMixin(newMixin);
-    dataManager.update(state, true);
+    updateMixin(newMixin);  
+    dataManager.update(state, false); // TODO pool=false
 
-    addAutoCreatedItems(mixinName);
+    addAutoCreatedItems(mixinName); //log.info(dataManager.dump())
 
     // launch event
-    session.getActionHandler().postAddMixin(this, mixinName);
+    session.getActionHandler().postAddMixin(this, mixinName); 
 
     if (log.isDebugEnabled())
       log.debug("Node.addMixin Property " + prop.getQPath().getAsString() + " values "
@@ -1420,7 +1411,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     session.getActionHandler().preRemoveMixin(this, name);
 
     if (newMixin.size() > 0) {
-      dataManager.update(ItemState.createUpdatedState(prop), true);
+      dataManager.update(ItemState.createUpdatedState(prop), false); // TODO pool=false
     } else {
       dataManager.delete(prop);
     }
@@ -1430,7 +1421,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     InternalQName[] mixins = new InternalQName[newMixin.size()];
     newMixin.toArray(mixins);
     ((TransientNodeData) data).setMixinTypeNames(mixins);
-    dataManager.update(new ItemState(data, ItemState.MIXIN_CHANGED, false, null), true);
+    dataManager.update(new ItemState(data, ItemState.MIXIN_CHANGED, false, null), false); // TODO pool=false
   }
 
   /**
@@ -1657,8 +1648,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     if (!this.isNodeType(Constants.MIX_VERSIONABLE))
       throw new UnsupportedRepositoryOperationException("Node.checkin() is not supported for not mix:versionable node ");
 
-    if (!this.isCheckedOut())
-      return this.getBaseVersion();
+    if (!this.isCheckedOut()) {
+      return (Version) dataManager.getItemByIdentifier(property(Constants.JCR_BASEVERSION).getString(), false);
+    }
 
     if (session.getTransientNodesManager().hasPendingChanges(getInternalPath()))
       throw new InvalidItemStateException("Node has pending changes " + getPath());
@@ -1674,9 +1666,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     
     SessionChangesLog changesLog = new SessionChangesLog(session.getId());
 
-    getVersionHistory().addVersion(this.nodeData(), verIdentifier, changesLog);
-
-
+    VersionHistoryImpl vh = versionHistory(false);
+    vh.addVersion(this.nodeData(), verIdentifier, changesLog);
 
     changesLog.add(ItemState.createUpdatedState(updatePropertyData(Constants.JCR_ISCHECKEDOUT,
                                                                    new TransientValueData(false))));
@@ -1757,16 +1748,28 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       RepositoryException {
 
     checkValid();
+    
+    return versionHistory(true);
+  }
+  
+  /**
+   * For internal use. Doesn't check the InvalidItemStateException and may return unpooled VersionHistory object.  
+   */
+  public VersionHistoryImpl versionHistory(boolean pool) throws UnsupportedRepositoryOperationException,
+      RepositoryException {
 
     if (!this.isNodeType(Constants.MIX_VERSIONABLE))
       throw new UnsupportedRepositoryOperationException("Node is not mix:versionable " + getPath());
 
-    PropertyImpl versionHistoryProp = property(Constants.JCR_VERSIONHISTORY);
-    if (versionHistoryProp == null)
-      throw new UnsupportedRepositoryOperationException("Node does not have jcr:versionHistory: "
-          + getPath());
+    PropertyData vhProp = (PropertyData) dataManager.getItemData(nodeData(), new QPathEntry(Constants.JCR_VERSIONHISTORY, 1));
+    if (vhProp == null)
+      throw new UnsupportedRepositoryOperationException("Node does not have jcr:versionHistory " + getPath());
 
-    return (VersionHistoryImpl) session.getNodeByUUID(versionHistoryProp.getString());
+    try {
+      return (VersionHistoryImpl) dataManager.getItemByIdentifier(new String(vhProp.getValues().get(0).getAsByteArray()), pool);
+    } catch (IOException e) {
+      throw new RepositoryException("Error of version history ID read " + e, e);
+    }
   }
 
   public Version getBaseVersion() throws UnsupportedRepositoryOperationException,
@@ -1777,9 +1780,12 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     if (!this.isNodeType(Constants.MIX_VERSIONABLE))
       throw new UnsupportedRepositoryOperationException("Node is not versionable " + getPath());
 
-    Version v = (Version) session.getNodeByUUID(property(Constants.JCR_BASEVERSION).getString());
-
-    return v;
+    PropertyData bvProp = (PropertyData) dataManager.getItemData(nodeData(), new QPathEntry(Constants.JCR_BASEVERSION, 1));
+    try {
+      return (Version) session.getNodeByUUID(new String(bvProp.getValues().get(0).getAsByteArray()));
+    } catch (IOException e) {
+      throw new RepositoryException("jcr:baseVersion property error " + e, e);
+    }
   }
 
   public void restore(Version version, boolean removeExisting) throws VersionException,
@@ -1791,35 +1797,24 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     checkValid();
 
-    try {
+    if (!this.isNodeType(Constants.MIX_VERSIONABLE))
+      throw new UnsupportedRepositoryOperationException("Node is not versionable " + getPath());
 
-      if (!this.isNodeType(Constants.MIX_VERSIONABLE))
-        throw new UnsupportedRepositoryOperationException("Node is not versionable " + getPath());
+    if (session.hasPendingChanges())
+      throw new InvalidItemStateException("Session has pending changes ");
 
-      if (session.hasPendingChanges())
-        throw new InvalidItemStateException("Session has pending changes ");
+    if (((VersionImpl) version).getInternalName().equals(Constants.JCR_ROOTVERSION))
+      throw new VersionException("It is illegal to call restore() on jcr:rootVersion");
 
-      if (((VersionImpl) version).getInternalName().equals(Constants.JCR_ROOTVERSION))
-        throw new VersionException("It is illegal to call restore() on jcr:rootVersion");
+    if (!versionHistory(false).isVersionBelongToThis(version))
+      throw new VersionException("Bad version " + version.getPath());
 
-      if (!(getVersionHistory()).isVersionBelongToThis(version))
-        throw new VersionException("Bad version " + version.getPath());
+    // Check locking
+    if (!checkLocking())
+      throw new LockException("Node " + getPath() + " is locked ");
 
-      // Check locking
-      if (!checkLocking())
-        throw new LockException("Node " + getPath() + " is locked ");
-
-      ((VersionImpl) version).restore(this, removeExisting);
-
-    } catch (UnsupportedRepositoryOperationException e) {
-      throw e;
-    } catch (VersionException e) {
-      throw e;
-    } catch (InvalidItemStateException e) {
-      throw e;
-    } catch (RepositoryException e) {
-      throw e;
-    }
+    NodeData destParent = (NodeData) dataManager.getItemData(nodeData().getParentIdentifier());
+    ((VersionImpl) version).restore(this.getSession(), destParent, nodeData().getQPath().getName(), removeExisting);//log.info(dataManager.dump())
   }
 
   public void restore(String versionName, boolean removeExisting) throws VersionException,
@@ -1829,10 +1824,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       RepositoryException,
       InvalidItemStateException {
 
-    checkValid();
-
-    // throw VersionException if not found
-    VersionImpl version = (VersionImpl) getVersionHistory().getVersion(versionName);
+    VersionImpl version = (VersionImpl) versionHistory(false).version(versionName, false);
     restore(version, removeExisting);
   }
 
@@ -1843,41 +1835,56 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       RepositoryException,
       InvalidItemStateException {
 
-    checkValid();
+    if (JCRPath.THIS_RELPATH.equals(relPath)) {
+      
+      // restore at this position
+      this.restore(version, removeExisting);
+      //throw new RepositoryException("Can't restore node to the path '" + relPath + "'");
+    } else {
+      
+      // restore at relPath
+      checkValid();
 
-    if (JCRPath.THIS_RELPATH.equals(relPath))
-      throw new RepositoryException("Can't restore node to the path '" + relPath + "'");
+      if (session.hasPendingChanges())
+        throw new InvalidItemStateException("Session has pending changes ");
+      
+      if (((VersionImpl) version).getInternalName().equals(Constants.JCR_ROOTVERSION))
+        throw new VersionException("It is illegal to call restore() on jcr:rootVersion");
+      
+      QPath destPath = locationFactory.parseRelPath(relPath).getInternalPath();
+      NodeImpl destParent = (NodeImpl) dataManager.getItem(nodeData(), destPath.makeParentPath().getEntries(), false);
+      if (destParent == null)
+        throw new PathNotFoundException("Parent not found for " + relPath);
+      
+      if (!destParent.isNode())
+        throw new ConstraintViolationException("Parent item is not a node. Rel path " + relPath);
 
-    JCRPath jcrPath = locationFactory.parseRelPath(relPath);
+      NodeImpl destNode = (NodeImpl) dataManager.getItem(destParent.nodeData(), 
+          new QPathEntry(destPath.getName(), destPath.getIndex()), false); // TODO pool=false
 
-    ItemData parentItem = dataManager.getItemData(nodeData(), jcrPath.makeParentPath()
-        .getInternalPath().getEntries());
+      if (destNode != null) {
+        // Dest node exists
+        
+        if (!destNode.isNode())
+          throw new ConstraintViolationException("Item at relPath is not a node " + destNode.getPath());
+          
+        if (!destNode.isNodeType(Constants.MIX_VERSIONABLE))
+          throw new UnsupportedRepositoryOperationException("Node at relPath is not versionable " + destNode.getPath());
+        
+        if (!destNode.versionHistory(false).isVersionBelongToThis(version))
+          throw new VersionException("Bad version " + version.getPath());
 
-  
-    if (parentItem == null)
-      throw new PathNotFoundException("Parent not found for " + jcrPath.getAsString(true));
-    if (!parentItem.isNode())
-      throw new ConstraintViolationException("Parent item is not a node "
-          + jcrPath.getAsString(true));
-
-    ItemImpl node = dataManager.getItem((NodeData) parentItem, new QPathEntry(jcrPath
-        .getInternalPath().getName(), jcrPath.getInternalPath().getIndex()), true);
-
-    if (node == null) {
-      // add restored Node
-      NodeData restoreNode = TransientNodeData.createNodeData((NodeData) parentItem, jcrPath
-          .getInternalPath().getName(), Constants.NT_BASE, jcrPath.getInternalPath().getIndex());
-      restoreNode.setACL(nodeData().getACL());
-      dataManager.update(ItemState.createAddedState(restoreNode), true);
-
-      node = dataManager.getItemByIdentifier(restoreNode.getIdentifier(), true);
+        // Check locking
+        if (!destNode.parent().checkLocking())
+          throw new LockException("Node " + destNode.getPath() + " is locked ");
+      } else {
+        // Dest node not found
+        if (!destParent.isCheckedOut())
+          throw new VersionException("Parent of a node at relPath is versionable and checked-in " + destNode.getPath());
+      }
+      
+      ((VersionImpl) version).restore(session, destParent.nodeData(), destPath.getName(), removeExisting);
     }
-
-    if (!node.isNode())
-      throw new ConstraintViolationException("Item is not a node " + node.getPath());
-
-    ((Node) node).restore(version, removeExisting);
-
   }
 
   public void restoreByLabel(String versionLabel, boolean removeExisting) throws VersionException,
@@ -2263,7 +2270,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
           if (listAutoCreateValue != null)
             dataManager.update(ItemState.createAddedState(TransientPropertyData
                 .createPropertyData(nodeData(), pdImpl.getQName(), pdImpl.getRequiredType(), pdImpl
-                    .isMultiple(), listAutoCreateValue)), true);
+                    .isMultiple(), listAutoCreateValue)), false); // TODO pool = false
 
         } else {
           if(log.isDebugEnabled()){
@@ -2282,7 +2289,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         dataManager.update(ItemState.createAddedState(TransientNodeData.createNodeData(nodeData(),
             ndImpl.getQName(),
             ((ExtendedNodeType) ndImpl.getDefaultPrimaryType()).getQName(),
-            IdGenerator.generate())), true);
+            IdGenerator.generate())), false); // TODO pool = false
       }
     }
 
@@ -2294,7 +2301,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
           nodeData(), changes, dataManager, 
           session.getWorkspace().getNodeTypeManager());
       for (ItemState istate: changes.getAllStates()) {
-        dataManager.update(istate, true);
+        dataManager.update(istate, false); // TODO pool = false
       }
     }
   }
@@ -2442,8 +2449,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     permProp.setValues(permValues);
 
-    dataManager.update(new ItemState(getData(), ItemState.MIXIN_CHANGED, false, null, true), true);
-    dataManager.update(ItemState.createUpdatedState(permProp, true), true);
+    dataManager.update(new ItemState(getData(), ItemState.MIXIN_CHANGED, false, null, true), false); // TODO pool=false
+    dataManager.update(ItemState.createUpdatedState(permProp, true), false); // TODO pool=false
 
   }
 

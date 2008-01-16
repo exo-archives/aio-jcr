@@ -141,15 +141,21 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     
     checkValid();
     
+    return version(versionName, true);
+  }
+  
+  /**
+   * For internal use. Doesn't check InvalidItemStateException. May return unpooled Version object.
+   */
+  public Version version(String versionName, boolean pool) throws VersionException, RepositoryException {
+    
     JCRName jcrVersionName = locationFactory.parseJCRName(versionName);
-    InternalQName versionQName = jcrVersionName.getInternalName();
-    VersionImpl version = (VersionImpl) dataManager.getItem(nodeData(),new QPathEntry(versionQName,0), true);
+    VersionImpl version = (VersionImpl) dataManager.getItem(nodeData(),new QPathEntry(jcrVersionName.getInternalName(), 1), pool);
     if (version == null)
       throw new VersionException("There are no version with name '" + versionName
         + "' in the version history " + getPath());
     
     return version;
-    
   }
 
   public Version getVersionByLabel(String label) throws RepositoryException {
@@ -453,7 +459,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
       } catch (IOException e) {
         throw new RepositoryException(e);
       }
-      VersionImpl predecessor = (VersionImpl) dataManager.getItemByIdentifier(predecessorIdentifier, true);
+      VersionImpl predecessor = (VersionImpl) dataManager.getItemByIdentifier(predecessorIdentifier, false); // TODO pool=false
       predecessor.addSuccessor(versionData.getIdentifier(), changesLog);
     }
     

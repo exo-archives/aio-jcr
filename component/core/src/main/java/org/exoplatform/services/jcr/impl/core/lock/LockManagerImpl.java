@@ -237,7 +237,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
             if (lockData.getLockHolderSize() == 1) {
               try {
                 ((NodeImpl) session.getTransientNodesManager()
-                                   .getItemByIdentifier(lockData.getNodeIdentifier(), true)).unlock();
+                                   .getItemByIdentifier(lockData.getNodeIdentifier(), false)).unlock(); // TODO pool=false
               } catch (UnsupportedRepositoryOperationException e) {
                 log.error(e.getLocalizedMessage());
               } catch (LockException e) {

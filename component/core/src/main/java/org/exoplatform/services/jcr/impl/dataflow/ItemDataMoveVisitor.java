@@ -182,7 +182,7 @@ public class ItemDataMoveVisitor   extends ItemDataTraversingVisitor{
     
     TransientPropertyData newProperty = new TransientPropertyData(QPath
         .makeChildPath(curParent().getQPath(), qname),
-        keepIdentifiers?property.getIdentifier():IdGenerator.generate(),
+        keepIdentifiers ? property.getIdentifier() : IdGenerator.generate(),
         -1,
         property.getType(),
         curParent().getIdentifier(),

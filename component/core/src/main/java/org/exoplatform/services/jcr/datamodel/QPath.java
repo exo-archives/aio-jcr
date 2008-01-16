@@ -24,6 +24,7 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.commons.utils.QName;
+import org.exoplatform.services.jcr.impl.core.JCRPath;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -81,10 +82,11 @@ public class QPath implements Comparable<QPath> {
    * @return
    */
   public QPath makeAncestorPath(int relativeDegree) throws IllegalPathException {
-    if (relativeDegree > getLength() || getLength() <= 1) {
-      throw new IllegalPathException("Relative degree " + relativeDegree
-          + " is more than depth for " + getAsString());
-    }
+    // [PN] 16.01.2007
+//    if (relativeDegree > getLength() || getLength() <= 1) {
+//      throw new IllegalPathException("Relative degree " + relativeDegree
+//          + " is more than depth for " + getAsString());
+//    }
 
     int entryCount = getLength() - relativeDegree;
     QPathEntry[] ancestorEntries = new QPathEntry[entryCount];
