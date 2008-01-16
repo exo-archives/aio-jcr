@@ -277,7 +277,7 @@
       <version>14</version>
       <scope>compile</scope>
       </dependency>
-      
+
       <dependency>
       <groupId>ojdbc</groupId>
       <artifactId>orai18n</artifactId>
@@ -292,7 +292,7 @@
       <version>9.1</version>
       <scope>compile</scope>
       </dependency>
-      
+
       <dependency>
       <groupId>com.ibm.db2</groupId>
       <artifactId>db2jcc_license_cu</artifactId>
@@ -432,13 +432,13 @@
             <exclude>**/api/**/Abstract*.java</exclude>
             <exclude>**/api/**/PropertyDefTest.java</exclude>
 
-            <exclude>**/api/**/DocumentViewImportTest.java</exclude><!--TCK-->
+            <exclude>**/api/**/DocumentViewImportTest.java</exclude><!--TCK section-->
             <exclude>**/usecases/**/TestDateBetween.java</exclude>
             <exclude>**/usecases/**/RemoveSameNameSiblingTest.java</exclude>
             <exclude>**/usecases/**/TestNodeRemoveMixin.java</exclude><!--http://jira.exoplatform.org/browse/JCR-343-->
             <exclude>**/usecases/access/TestAccess.java</exclude><!--http://jira.exoplatform.org/browse/JCR-361-->
             <exclude>**/usecases/query/TestQueryMixinNodeTypes.java</exclude><!--http://jira.exoplatform.org/browse/JCR-364-->
-            
+
           </excludes>
 
           <systemProperties>
