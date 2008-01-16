@@ -398,7 +398,7 @@
 
     <testSourceDirectory>src/test/java</testSourceDirectory>
     <!--testSourceDirectory>src/TCK/java</testSourceDirectory-->
-    <!-- testSourceDirectory>src/notest</testSourceDirectory -->
+    <!--testSourceDirectory>src/notest</testSourceDirectory-->
 
     <testOutputDirectory>target/test-classes</testOutputDirectory>
 
@@ -412,11 +412,11 @@
           <includes>
             <!-- TCK, init section is implemented below, need to uncomment antrun plugin -->
             <!--include>**/api/*Test.java</include>
-              <include>**/api/observation/*Test.java</include>
-              <include>**/api/lock/*Test.java</include>
-              <include>**/api/nodetype/*Test.java</include>
-              <include>**/api/query/*Test.java</include>
-              <include>**/api/version/*Test.java</include-->
+            <include>**/api/observation/*Test.java</include>
+            <include>**/api/lock/*Test.java</include>
+            <include>**/api/nodetype/*Test.java</include>
+            <include>**/api/query/*Test.java</include>
+            <include>**/api/version/*Test.java</include-->
 
             <!-- eXo tests, usecases -->
             <include>**/api/**/Test*.java</include>
@@ -432,11 +432,12 @@
             <exclude>**/api/**/Abstract*.java</exclude>
             <exclude>**/api/**/PropertyDefTest.java</exclude>
 
-            <exclude>**/api/**/DocumentViewImportTest.java</exclude>
+            <exclude>**/api/**/DocumentViewImportTest.java</exclude><!--TCK-->
             <exclude>**/usecases/**/TestDateBetween.java</exclude>
             <exclude>**/usecases/**/RemoveSameNameSiblingTest.java</exclude>
             <exclude>**/usecases/**/TestNodeRemoveMixin.java</exclude><!--http://jira.exoplatform.org/browse/JCR-343-->
             <exclude>**/usecases/access/TestAccess.java</exclude><!--http://jira.exoplatform.org/browse/JCR-361-->
+            <exclude>**/usecases/query/TestQueryMixinNodeTypes.java</exclude><!--http://jira.exoplatform.org/browse/JCR-365-->
             
           </excludes>
 
