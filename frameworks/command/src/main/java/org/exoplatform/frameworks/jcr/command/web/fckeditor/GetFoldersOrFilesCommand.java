@@ -49,7 +49,8 @@ public class GetFoldersOrFilesCommand extends FCKConnectorXMLOutput implements C
 
     // To limit browsing set Servlet init param "digitalAssetsPath"
     // with desired JCR path
-    String rootFolderStr = (String)context.get("digitalAssetsPath");
+    String rootFolderStr = (String)context.get("org.exoplatform.frameworks.jcr.command.web.fckeditor.digitalAssetsPath");
+    
     if(rootFolderStr == null)
       rootFolderStr = "/";
 

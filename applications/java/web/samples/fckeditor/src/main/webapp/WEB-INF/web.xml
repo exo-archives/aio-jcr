@@ -13,11 +13,16 @@
     <description>Repository mapping path. If there are servlet/filter for desplaying internal imeges/links inside html documents it should have the same mapping</description>
   </context-param>
 
-
   <context-param>
     <param-name>org.exoplatform.frameworks.jcr.command.web.fckeditor.digitalAssetsWorkspace</param-name>
     <param-value>digital-assets</param-value>
     <description>Binary assets workspace name</description>
+  </context-param>
+
+  <context-param>
+    <param-name>org.exoplatform.frameworks.jcr.command.web.fckeditor.digitalAssetsPath</param-name>
+    <param-value>/</param-value>
+    <description>Binary assets path</description>
   </context-param>
 
   <!-- context-param>

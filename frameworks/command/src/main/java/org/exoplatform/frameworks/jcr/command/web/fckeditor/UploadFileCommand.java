@@ -57,9 +57,19 @@ public class UploadFileCommand implements Command {
     if(type == null)
       type = "";
     
+//  To limit browsing set Servlet init param "digitalAssetsPath"
+    // with desired JCR path
+    String rootFolderStr = (String)context.get("org.exoplatform.frameworks.jcr.command.web.fckeditor.digitalAssetsPath");
+    
+    if(rootFolderStr == null)
+      rootFolderStr = "/";
+
+    // set current folder
     String currentFolderStr = (String)context.get("CurrentFolder");
     if(currentFolderStr == null)
       currentFolderStr = "";
+    else if(currentFolderStr.length() < rootFolderStr.length())
+      currentFolderStr = rootFolderStr;
     
     String jcrMapping = (String)context.get(GenericWebAppContext.JCR_CONTENT_MAPPING);
     if(jcrMapping == null)
