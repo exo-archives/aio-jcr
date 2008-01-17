@@ -44,6 +44,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.core.ExtendedSession;
 import org.exoplatform.services.jcr.core.ExtendedWorkspace;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.xml.XmlSaveType;
 import org.exoplatform.services.log.ExoLogger;
 import org.xml.sax.InputSource;
@@ -60,6 +61,151 @@ import org.xml.sax.helpers.XMLReaderFactory;
 public class BaseImportTest extends JcrAPIBaseTest {
 
   private static Log log = ExoLogger.getLogger("jcr.BaseImportTest");
+
+  protected void deserialize(Node importRoot,
+                             XmlSaveType saveType,
+                             boolean isImportedByStream,
+                             int uuidBehavior,
+                             File content) throws PathNotFoundException,
+                                          ItemExistsException,
+                                          ConstraintViolationException,
+                                          InvalidSerializedDataException,
+                                          IOException,
+                                          RepositoryException,
+                                          SAXException {
+
+    InputStream is = new BufferedInputStream(new FileInputStream(content));
+    deserialize(importRoot, saveType, isImportedByStream, uuidBehavior, content);
+  }
+
+  protected void deserialize(Node importRoot,
+                             XmlSaveType saveType,
+                             boolean isImportedByStream,
+                             int uuidBehavior,
+                             InputStream is) throws PathNotFoundException,
+                                            ItemExistsException,
+                                            ConstraintViolationException,
+                                            InvalidSerializedDataException,
+                                            IOException,
+                                            RepositoryException,
+                                            SAXException {
+
+    ExtendedSession extendedSession = (ExtendedSession) importRoot.getSession();
+    ExtendedWorkspace extendedWorkspace = (ExtendedWorkspace) extendedSession.getWorkspace();
+    if (isImportedByStream) {
+      if (saveType == XmlSaveType.SESSION) {
+        extendedSession.importXML(importRoot.getPath(), is, uuidBehavior);
+        extendedSession.save();
+      } else if (saveType == XmlSaveType.WORKSPACE) {
+        extendedWorkspace.importXML(importRoot.getPath(), is, uuidBehavior);
+      }
+
+    } else {
+      XMLReader reader = XMLReaderFactory.createXMLReader();
+      if (saveType == XmlSaveType.SESSION) {
+        reader.setContentHandler(session.getImportContentHandler(importRoot.getPath(), uuidBehavior));
+        extendedSession.save();
+      } else if (saveType == XmlSaveType.WORKSPACE) {
+        reader.setContentHandler(extendedWorkspace.getImportContentHandler(importRoot.getPath(),
+                                                                           uuidBehavior));
+      }
+      InputSource inputSource = new InputSource(is);
+
+      reader.parse(inputSource);
+
+    }
+  }
+
+  protected void importUuidCollisionTest(boolean isSystemView,
+                                         boolean isExportedByStream,
+                                         boolean isImportedByStream,
+                                         XmlSaveType saveType,
+                                         int testedBehavior) throws RepositoryException,
+                                                            TransformerConfigurationException,
+                                                            IOException,
+                                                            SAXException {
+    Node testRoot = prepareForExport();
+    byte[] content = serialize(testRoot, isSystemView, isExportedByStream);
+    Node importRoot = prepareForImport(testRoot);
+    Exception result = null;
+
+    try {
+      deserialize(importRoot,
+                  saveType,
+                  isImportedByStream,
+                  testedBehavior,
+                  new ByteArrayInputStream(content));
+    } catch (Exception e) {
+      result = e;
+    }
+
+    checkResult(importRoot, testRoot, result, isImportedByStream, testedBehavior);
+
+  }
+
+  protected byte[] serialize(Node rootNode, boolean isSystemView, boolean isStream) throws IOException,
+                                                                                   RepositoryException,
+                                                                                   SAXException,
+                                                                                   TransformerConfigurationException {
+
+    ExtendedSession extendedSession = (ExtendedSession) rootNode.getSession();
+
+    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+
+    if (isSystemView) {
+
+      if (isStream) {
+        extendedSession.exportSystemView(rootNode.getPath(), outStream, false, false);
+      } else {
+        SAXTransformerFactory saxFact = (SAXTransformerFactory) TransformerFactory.newInstance();
+        TransformerHandler handler = saxFact.newTransformerHandler();
+        handler.setResult(new StreamResult(outStream));
+        extendedSession.exportSystemView(rootNode.getPath(), handler, false, false);
+      }
+    } else {
+      if (isStream) {
+        extendedSession.exportDocumentView(rootNode.getPath(), outStream, false, false);
+      } else {
+        SAXTransformerFactory saxFact = (SAXTransformerFactory) TransformerFactory.newInstance();
+        TransformerHandler handler = saxFact.newTransformerHandler();
+        handler.setResult(new StreamResult(outStream));
+        extendedSession.exportDocumentView(rootNode.getPath(), handler, false, false);
+      }
+    }
+    outStream.close();
+    return outStream.toByteArray();
+  }
+
+  protected void serialize(Node rootNode, boolean isSystemView, boolean isStream, File content) throws IOException,
+                                                                                               RepositoryException,
+                                                                                               SAXException,
+                                                                                               TransformerConfigurationException {
+    ExtendedSession extendedSession = (ExtendedSession) rootNode.getSession();
+
+    OutputStream outStream = new FileOutputStream(content);
+    if (isSystemView) {
+
+      if (isStream) {
+        extendedSession.exportSystemView(rootNode.getPath(), outStream, false, false);
+      } else {
+        SAXTransformerFactory saxFact = (SAXTransformerFactory) TransformerFactory.newInstance();
+        TransformerHandler handler = saxFact.newTransformerHandler();
+        handler.setResult(new StreamResult(outStream));
+        extendedSession.exportSystemView(rootNode.getPath(), handler, false, false);
+      }
+    } else {
+      if (isStream) {
+        extendedSession.exportDocumentView(rootNode.getPath(), outStream, false, false);
+      } else {
+        SAXTransformerFactory saxFact = (SAXTransformerFactory) TransformerFactory.newInstance();
+        TransformerHandler handler = saxFact.newTransformerHandler();
+        handler.setResult(new StreamResult(outStream));
+        extendedSession.exportDocumentView(rootNode.getPath(), handler, false, false);
+      }
+    }
+    outStream.close();
+
+  }
 
   private void checkResult(Node importRoot,
                            Node testRoot,
@@ -119,60 +265,6 @@ public class BaseImportTest extends JcrAPIBaseTest {
 
   }
 
-  protected void deserialize(Node importRoot,
-                             XmlSaveType saveType,
-                             boolean isImportedByStream,
-                             int uuidBehavior,
-                             File content) throws PathNotFoundException,
-                                          ItemExistsException,
-                                          ConstraintViolationException,
-                                          InvalidSerializedDataException,
-                                          IOException,
-                                          RepositoryException,
-                                          SAXException {
-
-    InputStream is = new BufferedInputStream(new FileInputStream(content));
-    deserialize(importRoot, saveType, isImportedByStream, uuidBehavior, content);
-  }
-
-  protected void deserialize(Node importRoot,
-                             XmlSaveType saveType,
-                             boolean isImportedByStream,
-                             int uuidBehavior,
-                             InputStream is) throws PathNotFoundException,
-                                            ItemExistsException,
-                                            ConstraintViolationException,
-                                            InvalidSerializedDataException,
-                                            IOException,
-                                            RepositoryException,
-                                            SAXException {
-
-    ExtendedSession extendedSession = (ExtendedSession) importRoot.getSession();
-    ExtendedWorkspace extendedWorkspace = (ExtendedWorkspace) extendedSession.getWorkspace();
-    if (isImportedByStream) {
-      if (saveType == XmlSaveType.SESSION) {
-        extendedSession.importXML(importRoot.getPath(), is, uuidBehavior);
-        extendedSession.save();
-      } else if (saveType == XmlSaveType.WORKSPACE) {
-        extendedWorkspace.importXML(importRoot.getPath(), is, uuidBehavior);
-      }
-
-    } else {
-      XMLReader reader = XMLReaderFactory.createXMLReader();
-      if (saveType == XmlSaveType.SESSION) {
-        reader.setContentHandler(session.getImportContentHandler(importRoot.getPath(), uuidBehavior));
-        extendedSession.save();
-      } else if (saveType == XmlSaveType.WORKSPACE) {
-        reader.setContentHandler(extendedWorkspace.getImportContentHandler(importRoot.getPath(),
-                                                                           uuidBehavior));
-      }
-      InputSource inputSource = new InputSource(is);
-
-      reader.parse(inputSource);
-
-    }
-  }
-
   private Node prepareForExport() throws RepositoryException {
     Node node1 = root.addNode("node1");
     node1.addMixin("mix:referenceable");
@@ -194,94 +286,14 @@ public class BaseImportTest extends JcrAPIBaseTest {
     return importRoot;
   }
 
-  protected void serialize(Node rootNode, boolean isSystemView, boolean isStream, File content) throws IOException,
-                                                                                               RepositoryException,
-                                                                                               SAXException,
-                                                                                               TransformerConfigurationException {
-    ExtendedSession extendedSession = (ExtendedSession) rootNode.getSession();
-
-    OutputStream outStream = new FileOutputStream(content);
-    if (isSystemView) {
-
-      if (isStream) {
-        extendedSession.exportSystemView(rootNode.getPath(), outStream, false, false);
-      } else {
-        SAXTransformerFactory saxFact = (SAXTransformerFactory) TransformerFactory.newInstance();
-        TransformerHandler handler = saxFact.newTransformerHandler();
-        handler.setResult(new StreamResult(outStream));
-        extendedSession.exportSystemView(rootNode.getPath(), handler, false, false);
-      }
-    } else {
-      if (isStream) {
-        extendedSession.exportDocumentView(rootNode.getPath(), outStream, false, false);
-      } else {
-        SAXTransformerFactory saxFact = (SAXTransformerFactory) TransformerFactory.newInstance();
-        TransformerHandler handler = saxFact.newTransformerHandler();
-        handler.setResult(new StreamResult(outStream));
-        extendedSession.exportDocumentView(rootNode.getPath(), handler, false, false);
-      }
-    }
-    outStream.close();
-
-  }
-
-  protected byte[] serialize(Node rootNode, boolean isSystemView, boolean isStream) throws IOException,
-                                                                                   RepositoryException,
-                                                                                   SAXException,
-                                                                                   TransformerConfigurationException {
-
-    ExtendedSession extendedSession = (ExtendedSession) rootNode.getSession();
-
-    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-
-    if (isSystemView) {
-
-      if (isStream) {
-        extendedSession.exportSystemView(rootNode.getPath(), outStream, false, false);
-      } else {
-        SAXTransformerFactory saxFact = (SAXTransformerFactory) TransformerFactory.newInstance();
-        TransformerHandler handler = saxFact.newTransformerHandler();
-        handler.setResult(new StreamResult(outStream));
-        extendedSession.exportSystemView(rootNode.getPath(), handler, false, false);
-      }
-    } else {
-      if (isStream) {
-        extendedSession.exportDocumentView(rootNode.getPath(), outStream, false, false);
-      } else {
-        SAXTransformerFactory saxFact = (SAXTransformerFactory) TransformerFactory.newInstance();
-        TransformerHandler handler = saxFact.newTransformerHandler();
-        handler.setResult(new StreamResult(outStream));
-        extendedSession.exportDocumentView(rootNode.getPath(), handler, false, false);
-      }
-    }
-    outStream.close();
-    return outStream.toByteArray();
-  }
-
-  protected void importUuidCollisionTest(boolean isSystemView,
-                                         boolean isExportedByStream,
-                                         boolean isImportedByStream,
-                                         XmlSaveType saveType,
-                                         int testedBehavior) throws RepositoryException,
-                                                            TransformerConfigurationException,
-                                                            IOException,
-                                                            SAXException {
-    Node testRoot = prepareForExport();
-    byte[] content = serialize(testRoot, isSystemView, isExportedByStream);
-    Node importRoot = prepareForImport(testRoot);
-    Exception result = null;
-
-    try {
-      deserialize(importRoot,
-                  saveType,
-                  isImportedByStream,
-                  testedBehavior,
-                  new ByteArrayInputStream(content));
-    } catch (Exception e) {
-      result = e;
-    }
-
-    checkResult(importRoot, testRoot, result, isImportedByStream, testedBehavior);
-
+  @Override
+  public void initRepository() throws RepositoryException {
+    super.initRepository();
+    NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
+    InputStream is = TestDocumentViewImport.class.getResourceAsStream("/nodetypes/ext-registry-nodetypes.xml");
+    ntManager.registerNodeTypes(is, 0);
+    ntManager.registerNodeTypes(TestDocumentViewImport.class.getResourceAsStream("/org/exoplatform/services/jcr/api/nodetypes/ecm/nodetypes-config.xml"), 0);
+    ntManager.registerNodeTypes(TestDocumentViewImport.class.getResourceAsStream("/org/exoplatform/services/jcr/api/nodetypes/ecm/nodetypes-config-extended.xml"), 0);
+    
   }
 }
