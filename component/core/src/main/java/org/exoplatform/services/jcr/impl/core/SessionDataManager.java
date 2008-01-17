@@ -1117,23 +1117,33 @@ public class SessionDataManager implements ItemDataConsumer {
     for (Iterator<ItemImpl> removedIter = invalidated.iterator(); removedIter.hasNext();) {
       ItemImpl removed = removedIter.next();
 
-      // reload item data
       QPath removedPath = removed.getLocation().getInternalPath();
-      ItemState rstate = changes.getItemState(removedPath);
-
+      ItemState rstate = changes.getItemState(removedPath); //changes.getItemStates(rstate.getData().getIdentifier());
+      
       if (rstate == null) {
         exceptions += "Can't find removed item " + removed.getLocation().getAsString(false) + " in changes for rollback.\n";
         continue;
       }
-
+      
+      if (rstate.getState() == ItemState.RENAMED) {
+        // find DELETED
+        rstate = changes.findItemState(rstate.getData().getIdentifier(), false, new int[] {ItemState.DELETED});
+        if (rstate == null) {
+          exceptions += "Can't find removed item (of move operation) " + removed.getLocation().getAsString(false) + " in changes for rollback.\n";
+          continue;
+        }
+      }
+      
       NodeData parent = (NodeData) transactionableManager.getItemData(rstate.getData().getParentIdentifier());
       if (parent != null) {
-        ItemData persisted = transactionableManager.getItemData(parent,
-            removedPath.getEntries()[removedPath.getDepth()]);
+        ItemData persisted = transactionableManager.getItemData(parent, 
+            rstate.getData().getQPath().getEntries()[rstate.getData().getQPath().getEntries().length - 1]);
+        
         if (persisted != null)
+          // reload item data
           removed.loadData(persisted);
       } // else it's transient item
-
+        
       removedIter.remove();
     }
 

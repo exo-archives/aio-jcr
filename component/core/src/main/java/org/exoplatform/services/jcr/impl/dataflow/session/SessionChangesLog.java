@@ -325,7 +325,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
         byState = true;
       if (byState && 
           (isPersisted != null ? istate.isPersisted() == isPersisted : true) &&
-          ((orAncestor != null && orAncestor ? rootPath.isDescendantOf(istate.getData().getQPath(), false) : false) ||
+          ((orAncestor != null && orAncestor ? rootPath.isDescendantOf(istate.getData().getQPath(), false) : true) ||
               rootPath.equals(istate.getData().getQPath()))) {
         return istate;
       }
@@ -344,7 +344,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
    * @return - filtered {@link ItemState}
    * @throws IllegalPathException
    */
-  public ItemState findItemState(String id, Boolean isPersisted, Boolean orAncestor, int...states) throws IllegalPathException {
+  public ItemState findItemState(String id, Boolean isPersisted, int...states) throws IllegalPathException {
     List<ItemState> allStates = getAllStates();
     // search from the end for state 
     for (int i = allStates.size() - 1; i >= 0; i--) {

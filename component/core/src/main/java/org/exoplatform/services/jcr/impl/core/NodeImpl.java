@@ -1364,16 +1364,24 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     InternalQName name = locationFactory.parseJCRName(mixinName).getInternalName();
 
     // find mixin
-    // int ind = -1;
+    // Prepare mixin values
+    List<InternalQName> newMixin = new ArrayList<InternalQName>(mixinTypes.length - 1);
+    // new InternalQName[mixinTypes.length - 1];
+    List<ValueData> values = new ArrayList<ValueData>();
+    
     boolean found = false;
-    for (InternalQName curName : mixinTypes) {
-      if (curName.equals(name))
-        found = true;
+    for (InternalQName mt : mixinTypes) {
+      if (mt.equals(name)) {
+        found = true; 
+      } else {
+        newMixin.add(mt);
+        values.add(new TransientValueData(mt));
+      }
     }
+    
     // no mixin found
     if (!found)
-      throw new NoSuchNodeTypeException("No mixin type found " + mixinName + " for node "
-          + getPath());
+      throw new NoSuchNodeTypeException("No mixin type found " + mixinName + " for node " + getPath());
 
     // A ConstraintViolationException will be thrown either
     // immediately or on save if the removal of a mixin is not
@@ -1388,17 +1396,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     // Check locking
     if (!checkLocking())
       throw new LockException("Node " + getPath() + " is locked ");
-
-    // Prepare mixin values
-    List<InternalQName> newMixin = new ArrayList<InternalQName>(mixinTypes.length - 1);
-    // new InternalQName[mixinTypes.length - 1];
-    List<ValueData> values = new ArrayList<ValueData>();
-    for (InternalQName mt : mixinTypes) {
-      if (!mt.equals(name)) {
-        newMixin.add(mt);
-        values.add(new TransientValueData(mt));
-      }
-    }
 
     TransientPropertyData prop = (TransientPropertyData) dataManager.getItemData(nodeData(),
         new QPathEntry(Constants.JCR_MIXINTYPES, 0));
