@@ -25,7 +25,7 @@ package org.exoplatform.frameworks.webdavclient.deltav;
 
 public class DeltaVConst {
 
-  public static final String DAV_VERSIONIDENTIFIER = "VERSIONID";
+  public static final String DAV_VERSIONIDENTIFIER = "version";
   public static final String DAV_VERSIONPREFIX = "?" + DAV_VERSIONIDENTIFIER + "=";  
   
 }

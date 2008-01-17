@@ -119,7 +119,7 @@ public class ExtendedGetTest extends TestCase {
     }
     
     // get for version 1, 2, 3 -> assert
-    String VERSION_SUFFIX = "?VERSIONID=";
+    String VERSION_SUFFIX = "?version=";
     
     {
       DavGet davGet = new DavGet(TestContext.getContextAuthorized());

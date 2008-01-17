@@ -50,7 +50,7 @@ public class SupportedLockTest extends TestCase {
   }
   
   public void testSupportedLock() throws Exception {
-    Log.info("Process...");
+    Log.info("testSupportedLock...");
         
     DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
     davPropFind.setResourcePath(sourcePath);

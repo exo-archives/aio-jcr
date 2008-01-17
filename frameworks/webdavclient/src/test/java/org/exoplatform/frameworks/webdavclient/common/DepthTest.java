@@ -38,24 +38,12 @@ import org.exoplatform.frameworks.webdavclient.http.Log;
 
 public class DepthTest extends TestCase {
 
-//  public void testRepositoryResource() throws Exception {
-//    Log.info("DepthTest:testRepositoryResource...");
-//    
-//    DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
-//    davPropFind.setResourcePath("/");
-//    davPropFind.setDepth(2);
-//
-//    assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
-//    
-//    Log.info("Success.");
-//  }
-  
   public void testWorkspaceResource() throws Exception {
     Log.info("DepthTest:testWorkspaceResource...");
     
     DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
     davPropFind.setResourcePath("/production");
-    davPropFind.setDepth(3);
+    davPropFind.setDepth(2);
     
     assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
     

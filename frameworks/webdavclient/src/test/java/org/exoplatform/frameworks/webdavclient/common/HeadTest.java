@@ -78,17 +78,6 @@ public class HeadTest extends TestCase {
     Log.info("done.");
   }
   
-  public void testHeadForRoot() throws Exception {
-    Log.info("testHeadForRoot...");
-    
-    DavHead davHead = new DavHead(TestContext.getContext());
-    davHead.setResourcePath("/");
-    
-    assertEquals(Const.HttpStatus.OK, davHead.execute());
-    
-    Log.info("done.");
-  }
-  
   public void testRootVsWorkspace() throws Exception {
     Log.info("HeadTest:testRootVsWorkspace...");
     

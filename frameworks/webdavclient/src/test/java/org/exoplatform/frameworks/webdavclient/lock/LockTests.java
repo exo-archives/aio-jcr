@@ -84,16 +84,6 @@ public class LockTests extends TestCase {
     Log.info("done.");
   }
   
-  public void testLockForbidden() throws Exception {
-    Log.info("testLockForbidden...");
-    
-    DavLock davLock = new DavLock(TestContext.getContextAuthorized());
-    davLock.setResourcePath(SRC_WORKSPACE);
-    assertEquals(Const.HttpStatus.FORBIDDEN, davLock.execute());    
-    
-    Log.info("done.");
-  }  
-  
   public void testLockSuccess() throws Exception {
     Log.info("testLockSuccess...");
     
@@ -114,16 +104,6 @@ public class LockTests extends TestCase {
     Log.info("done.");
   }
   
-  public void testUnLockForbidden() throws Exception {
-    Log.info("testUnLockForbidden...");
-    
-    DavUnLock davUnLock = new DavUnLock(TestContext.getContextAuthorized());
-    davUnLock.setResourcePath(sourceName);
-    assertEquals(Const.HttpStatus.FORBIDDEN, davUnLock.execute());
-    
-    Log.info("done.");
-  }
-
   public void testSimpleLock() throws Exception {    
     Log.info("testSimpleLock...");
     
@@ -159,12 +139,12 @@ public class LockTests extends TestCase {
       lockToken = davLock.getLockToken();
     }
     
-    // test put without locktoken >> FORBIDDEN
+    // test put without locktoken >> LOCKED
     {
       DavPut davPut = new DavPut(TestContext.getContextAuthorized());
       davPut.setResourcePath(fakeSource);
       davPut.setRequestDataBuffer("FILE CONTENT".getBytes());      
-      assertEquals(Const.HttpStatus.FORBIDDEN, davPut.execute());
+      assertEquals(Const.HttpStatus.LOCKED, davPut.execute());
     }
     
     // put with locktoken
@@ -306,7 +286,12 @@ public class LockTests extends TestCase {
     assertNotNull(property);
 
     LockDiscoveryProp lockDiscovery = (LockDiscoveryProp)property;
-    assertEquals(Const.HttpStatus.OK, lockDiscovery.getStatus());
+    
+    if (needsIsLocked) {
+      assertEquals(Const.HttpStatus.OK, lockDiscovery.getStatus());
+    } else {
+      assertEquals(Const.HttpStatus.NOTFOUND, lockDiscovery.getStatus());
+    }
 
     if (needsIsLocked) {
       ActiveLock activeLock = lockDiscovery.getActiveLock();

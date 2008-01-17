@@ -186,10 +186,13 @@ public class Const {
     public static final int CONFLICT = 409;
     public static final int PRECONDITIONFAILED = 412; 
     public static final int REQUESTED_RANGE_NOT_SATISFIABLE = 416;
+    public static final int LOCKED = 423;
     
     public static final int UNSUPPORTEDMEDIATYPE = 415;
     public static final int HTTPNOTRECOGNIZED = 505;
     public static final int INSUFFICIENTSTORAGE = 507;
+    
+    public static final int SERVER_ERROR = 500;
   }
   
 }

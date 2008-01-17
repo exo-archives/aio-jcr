@@ -71,14 +71,14 @@ public class ReportTest extends TestCase {
     Log.info("done.");
   }
 
-  public void testForbidden() throws Exception {
-    Log.info("testForbidden...");
-
-    DavReport davReport = new DavReport(TestContext.getContextAuthorized());
-    davReport.setResourcePath(sourceName);
-    assertEquals(Const.HttpStatus.FORBIDDEN, davReport.execute());
-    
-    Log.info("done.");
-  }  
+//  public void testForbidden() throws Exception {
+//    Log.info("testForbidden...");
+//
+//    DavReport davReport = new DavReport(TestContext.getContextAuthorized());
+//    davReport.setResourcePath(sourceName);
+//    assertEquals(Const.HttpStatus.FORBIDDEN, davReport.execute());
+//    
+//    Log.info("done.");
+//  }  
   
 }

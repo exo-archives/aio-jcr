@@ -152,6 +152,10 @@ public class MoveTest extends TestCase {
       DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
       davPropFind.setResourcePath(testFileName);
       
+      davPropFind.setRequiredProperty("jcr:mimeType", "http://www.jcp.org/jcr/1.0");
+      davPropFind.setRequiredProperty("jcr:primaryType", "http://www.jcp.org/jcr/1.0");
+      davPropFind.setRequiredProperty(Const.DavProp.GETCONTENTLENGTH);
+      
       assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
       
       Multistatus multistatus = davPropFind.getMultistatus();
@@ -200,6 +204,11 @@ public class MoveTest extends TestCase {
     {
       DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
       davPropFind.setResourcePath(destinationFileName);
+      
+      davPropFind.setRequiredProperty("jcr:mimeType", "http://www.jcp.org/jcr/1.0");
+      davPropFind.setRequiredProperty("jcr:primaryType", "http://www.jcp.org/jcr/1.0");
+      davPropFind.setRequiredProperty(Const.DavProp.GETCONTENTLENGTH);
+      
       assertEquals(Const.HttpStatus.MULTISTATUS, davPropFind.execute());
       
       Multistatus multistatus = davPropFind.getMultistatus();

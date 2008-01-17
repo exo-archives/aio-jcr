@@ -484,10 +484,11 @@ public class OrderPatchTest extends TestCase {
     Multistatus multistatus = davOrderPatch.getMultistatus();
     ArrayList<ResponseDoc> responses = multistatus.getResponses();
     
-    assertEquals(2, responses.size());
+    //assertEquals(2, responses.size());
+    assertEquals(8, responses.size());
     
-    assertEquals(Const.HttpStatus.NOTFOUND, responses.get(0).getStatus());
-    assertEquals(Const.HttpStatus.FORBIDDEN, responses.get(1).getStatus());    
+    assertEquals(Const.HttpStatus.FORBIDDEN, responses.get(6).getStatus());
+    assertEquals(Const.HttpStatus.FORBIDDEN, responses.get(7).getStatus());    
 
     // Verify folder
     {

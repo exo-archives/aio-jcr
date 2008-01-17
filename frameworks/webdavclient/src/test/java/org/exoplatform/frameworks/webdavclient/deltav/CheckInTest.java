@@ -80,12 +80,12 @@ public class CheckInTest extends TestCase {
     Log.info("done.");
   }
   
-  public void testForbidden() throws Exception {
+  public void testConflict() throws Exception {
     Log.info("testForbidden...");
 
     DavCheckIn davCheckIn = new DavCheckIn(TestContext.getContextAuthorized());
     davCheckIn.setResourcePath(sourcePath);
-    assertEquals(Const.HttpStatus.FORBIDDEN, davCheckIn.execute());
+    assertEquals(Const.HttpStatus.CONFLICT, davCheckIn.execute());
     
     Log.info("done.");
   }
@@ -127,14 +127,14 @@ public class CheckInTest extends TestCase {
     assertNotNull(checkedOutProperty);
     assertEquals(Const.HttpStatus.NOTFOUND, checkedOutProperty.getStatus());
     
-    String checkedInHref = checkedInProperty.getHref();    
-    String hrefMustBe = TestContext.getContextAuthorized().getServerPrefix() + sourceName + "?VERSIONID=1";
+    String checkedInHref = checkedInProperty.getHref();
+    
+    String hrefMustBe = TestContext.getContextAuthorized().getServerPrefix() + sourceName + "?version=1";
     hrefMustBe = TextUtils.Escape(hrefMustBe, '%', true);
     
     assertEquals(hrefMustBe, checkedInHref);
     
-    Log.info("done.");
-    
+    Log.info("done.");    
   }  
   
 }

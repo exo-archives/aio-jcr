@@ -80,13 +80,13 @@ public class PropPatchTest extends TestCase {
     Log.info("done.");
   }
   
-  public void testForbidden() throws Exception {
+  public void testErrorAndMultistatus() throws Exception {
     Log.info("PropPatchTest:testForbidden...");
     
     {
       DavPropPatch davPropPatch = new DavPropPatch(TestContext.getContextAuthorized());
       davPropPatch.setResourcePath("/");
-      assertEquals(Const.HttpStatus.FORBIDDEN, davPropPatch.execute());
+      assertEquals(Const.HttpStatus.SERVER_ERROR, davPropPatch.execute());
     }
 
     /*
@@ -97,7 +97,6 @@ public class PropPatchTest extends TestCase {
       DavPropPatch davPropPatch = new DavPropPatch(TestContext.getContextAuthorized());
       davPropPatch.setResourcePath(SRC_WORKSPACE);
       assertEquals(Const.HttpStatus.MULTISTATUS, davPropPatch.execute());            
-      //assertEquals(Const.HttpStatus.FORBIDDEN, davPropPatch.execute());
     }
     
     Log.info("done.");

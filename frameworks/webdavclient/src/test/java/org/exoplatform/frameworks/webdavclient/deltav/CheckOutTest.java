@@ -22,6 +22,7 @@ import junit.framework.TestCase;
 import org.exoplatform.frameworks.webdavclient.Const;
 import org.exoplatform.frameworks.webdavclient.TestContext;
 import org.exoplatform.frameworks.webdavclient.TestUtils;
+import org.exoplatform.frameworks.webdavclient.commands.DavCheckIn;
 import org.exoplatform.frameworks.webdavclient.commands.DavCheckOut;
 import org.exoplatform.frameworks.webdavclient.commands.DavVersionControl;
 import org.exoplatform.frameworks.webdavclient.http.Log;
@@ -72,12 +73,12 @@ public class CheckOutTest extends TestCase {
     Log.info("done.");
   }  
   
-  public void testForbidden() throws Exception {
+  public void testConflict() throws Exception {
     Log.info("testForbidden...");
 
     DavCheckOut davCheckOut = new DavCheckOut(TestContext.getContextAuthorized());
     davCheckOut.setResourcePath(sourceName);
-    assertEquals(Const.HttpStatus.FORBIDDEN, davCheckOut.execute());
+    assertEquals(Const.HttpStatus.CONFLICT, davCheckOut.execute());
     
     Log.info("done.");
   }
@@ -91,7 +92,16 @@ public class CheckOutTest extends TestCase {
 
     DavCheckOut davCheckOut = new DavCheckOut(TestContext.getContextAuthorized());
     davCheckOut.setResourcePath(sourceName);
+    assertEquals(Const.HttpStatus.CONFLICT, davCheckOut.execute());
+
+    DavCheckIn davCheckIn = new DavCheckIn(TestContext.getContextAuthorized());
+    davCheckIn.setResourcePath(sourceName);
+    assertEquals(Const.HttpStatus.OK, davCheckIn.execute());
+    
+    davCheckOut = new DavCheckOut(TestContext.getContextAuthorized());
+    davCheckOut.setResourcePath(sourceName);
     assertEquals(Const.HttpStatus.OK, davCheckOut.execute());
+    
     
     Log.info("done.");    
   }  

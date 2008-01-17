@@ -35,14 +35,17 @@ import org.exoplatform.frameworks.webdavclient.order.OrderTestSuite;
 
 public class WebDavTests extends TestCase {
   
+  public static final String TEST_WS_NAME = "production";
+  
   private static boolean isServerExist() {
     try {      
-      DavHead davHead = new DavHead(TestContext.getContext());
-      davHead.setResourcePath("/");
+      DavHead davHead = new DavHead(TestContext.getContextAuthorized());
+      davHead.setResourcePath("/" + TEST_WS_NAME);
       
       if (Const.HttpStatus.OK == davHead.execute()) {
         return true;
-      }      
+      }
+      
     } catch (Exception exc) {
       Log.info("Unhandled exception. " + exc.getMessage(), exc);
     }    
@@ -58,8 +61,8 @@ public class WebDavTests extends TestCase {
       Log.info("Adding tests...");
 
       suite.addTestSuite(CommonTestSuite.class);      
-      suite.addTestSuite(LockTestSuite.class);      
-      suite.addTestSuite(DeltaVTestSuite.class);
+      suite.addTestSuite(LockTestSuite.class);
+      suite.addTestSuite(DeltaVTestSuite.class);      
       suite.addTestSuite(OrderTestSuite.class);    
       
 //      suite.addTestSuite(DASLTestSuite.class);      

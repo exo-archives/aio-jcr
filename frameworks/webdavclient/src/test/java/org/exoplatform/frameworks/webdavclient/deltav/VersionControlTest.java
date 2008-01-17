@@ -67,13 +67,13 @@ public class VersionControlTest extends TestCase {
     Log.info("done.");
   }
 
-  public void testForbidden() throws Exception {
-    Log.info("testForbidden...");
-    DavVersionControl davVersionControl = new DavVersionControl(TestContext.getContextAuthorized());
-    davVersionControl.setResourcePath("/not exist workspace");    
-    assertEquals(Const.HttpStatus.FORBIDDEN, davVersionControl.execute());
-    Log.info("done.");
-  }
+//  public void testForbidden() throws Exception {
+//    Log.info("testForbidden...");
+//    DavVersionControl davVersionControl = new DavVersionControl(TestContext.getContextAuthorized());
+//    davVersionControl.setResourcePath("/not exist workspace");    
+//    assertEquals(Const.HttpStatus.FORBIDDEN, davVersionControl.execute());
+//    Log.info("done.");
+//  }
 
   public void testOk() throws Exception {
     Log.info("testOk...");

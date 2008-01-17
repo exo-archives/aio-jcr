@@ -18,6 +18,8 @@
 package org.exoplatform.frameworks.webdavclient.deltav;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import junit.framework.TestCase;
 
@@ -41,6 +43,22 @@ import org.exoplatform.frameworks.webdavclient.properties.CheckedInProp;
  */
 
 public class CheckedInPropertyTest extends TestCase {
+  
+  class ResponseComparer implements Comparator<ResponseDoc> {
+    public int compare(ResponseDoc resp1, ResponseDoc resp2) {
+      
+      String href1 = resp1.getHref();
+      String href2 = resp2.getHref();
+      
+      if (href1.length() != href2.length()) {
+        Integer len = new Integer(href1.length());
+        return len.compareTo(new Integer(href2.length()));
+      }
+      
+      return href1.compareToIgnoreCase(href2);      
+    }
+    
+  }
   
   public void testHrefCheckedIn() throws Exception {
     Log.info("testHrefCheckedIn...");
@@ -66,6 +84,8 @@ public class CheckedInPropertyTest extends TestCase {
       ArrayList<ResponseDoc> responses = multistatus.getResponses();
       
       assertEquals(versionCount, responses.size());
+      
+      Collections.sort(responses, new ResponseComparer());
 
       for (int i = 0; i < responses.size(); i++) {
         ResponseDoc response = responses.get(i);
@@ -79,7 +99,6 @@ public class CheckedInPropertyTest extends TestCase {
         
         hrefMaked += context.getServletPath() + srcPath;        
         hrefMaked += DeltaVConst.DAV_VERSIONPREFIX + (i + 1);
-
         
         String hrefMakedEscaped = TextUtils.Escape(hrefMaked, '%', true);
         

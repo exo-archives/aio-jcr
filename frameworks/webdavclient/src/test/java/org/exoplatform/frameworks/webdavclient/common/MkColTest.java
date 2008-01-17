@@ -54,7 +54,7 @@ public class MkColTest extends TestCase {
 
     DavMkCol davMkCol = new DavMkCol(TestContext.getContextAuthorized());
     davMkCol.setResourcePath(INVALID_WORSPACE);   
-    assertEquals(Const.HttpStatus.FORBIDDEN, davMkCol.execute());
+    assertEquals(Const.HttpStatus.NOTFOUND, davMkCol.execute());
 
     Log.info("done.");
   }
@@ -85,10 +85,20 @@ public class MkColTest extends TestCase {
     String resourcePath = RES_WORKSPACE + "/test_folder_MKCOL_" + System.currentTimeMillis();
     
     String folderName = resourcePath + "/sub Folder 1/sub Folder 2/sub Folder 3";
-    
+
     DavMkCol davMkCol = new DavMkCol(TestContext.getContextAuthorized());
     davMkCol.setResourcePath(folderName);    
-    assertEquals(Const.HttpStatus.CREATED, davMkCol.execute());
+    assertEquals(Const.HttpStatus.CONFLICT, davMkCol.execute());
+    
+    String []pathes = folderName.split("/");
+    String path = "/" + pathes[1];
+    
+    for (int i = 2; i < pathes.length; i++) {
+      path += "/" + pathes[i];
+      davMkCol = new DavMkCol(TestContext.getContextAuthorized());
+      davMkCol.setResourcePath(path);    
+      assertEquals(Const.HttpStatus.CREATED, davMkCol.execute());
+    }
     
     DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
     davPropFind.setResourcePath(folderName);

@@ -34,7 +34,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.exoplatform.frameworks.webdavclient.WebDavContext;
 import org.exoplatform.frameworks.webdavclient.http.HttpClient;
 import org.exoplatform.frameworks.webdavclient.http.HttpHeader;
-import org.exoplatform.frameworks.webdavclient.http.Log;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.ls.LSOutput;
@@ -187,12 +186,8 @@ public abstract class DavCommand {
     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
     StreamResult resultStream = new StreamResult(outStream);
     
-    transformer.transform(source, resultStream);
-    
-    requestDataBytes = outStream.toByteArray();
-    
-    String request = new String(requestDataBytes);
-    Log.info("REQUEST: " + request);
+    transformer.transform(source, resultStream);    
+    requestDataBytes = outStream.toByteArray();    
   }  
   
   static class Output implements LSOutput {

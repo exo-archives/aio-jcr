@@ -74,12 +74,12 @@ public class UnCheckOutTest extends TestCase {
     Log.info("done.");
   }  
   
-  public void testForbidden() throws Exception {
+  public void testConflict() throws Exception {
     Log.info("testForbidden...");
 
     DavUnCheckOut davUnCheckOut = new DavUnCheckOut(TestContext.getContextAuthorized());
     davUnCheckOut.setResourcePath(sourceName);
-    assertEquals(Const.HttpStatus.FORBIDDEN, davUnCheckOut.execute());
+    assertEquals(Const.HttpStatus.CONFLICT, davUnCheckOut.execute());
     
     Log.info("done.");
   }
@@ -96,6 +96,12 @@ public class UnCheckOutTest extends TestCase {
       davVersionControl.setResourcePath(sourceName);
       assertEquals(Const.HttpStatus.OK, davVersionControl.execute());      
     }
+
+    {      
+      DavCheckIn davCheckIn = new DavCheckIn(TestContext.getContextAuthorized());
+      davCheckIn.setResourcePath(sourceName);
+      assertEquals(Const.HttpStatus.OK, davCheckIn.execute());
+    }    
     
     {      
       DavCheckOut davCheckOut = new DavCheckOut(TestContext.getContextAuthorized());

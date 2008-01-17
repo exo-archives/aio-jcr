@@ -78,7 +78,7 @@ public class CopyTest extends TestCase {
     }
     
     {
-      DavCopy davCopy = new DavCopy(TestContext.getContextAuthorized());
+      DavCopy davCopy = new DavCopy(TestContext.getContextAuthorized());      
       davCopy.setResourcePath(SRC_WORKSPACE + sourceName);
       davCopy.setDestinationPath(SRC_WORKSPACE + destinationName);
       assertEquals(Const.HttpStatus.CREATED, davCopy.execute());

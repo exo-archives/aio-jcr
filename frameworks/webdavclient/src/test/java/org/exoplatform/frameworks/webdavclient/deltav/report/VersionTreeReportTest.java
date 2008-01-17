@@ -76,6 +76,12 @@ public class VersionTreeReportTest extends TestCase {
       assertEquals(0, responses.size());      
     }
 
+    {      
+      DavCheckIn davCheckIn = new DavCheckIn(TestContext.getContextAuthorized());
+      davCheckIn.setResourcePath(sourceName);
+      assertEquals(Const.HttpStatus.OK, davCheckIn.execute());
+    }    
+    
     for (int i = 0; i < 3; i++) {
       {      
         DavCheckOut davCheckOut = new DavCheckOut(TestContext.getContextAuthorized());
@@ -97,7 +103,7 @@ public class VersionTreeReportTest extends TestCase {
       
       Multistatus multistatus = davReport.getMultistatus();
       ArrayList<ResponseDoc> responses = multistatus.getResponses();      
-      assertEquals(3, responses.size());      
+      assertEquals(4, responses.size());      
     }
     
     

@@ -81,15 +81,15 @@ public class PropFindTest extends TestCase {
     Log.info("done.");
   }
     
-  public void testPropFindForbidden() throws Exception {
-    Log.info("PropFindTest:testPropFindForbidden...");
-    
-    DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
-    davPropFind.setResourcePath(NOT_EXIST);
-    assertEquals(Const.HttpStatus.FORBIDDEN, davPropFind.execute());    
-    
-    Log.info("done.");
-  }
+//  public void testPropFindForbidden() throws Exception {
+//    Log.info("PropFindTest:testPropFindForbidden...");
+//    
+//    DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
+//    davPropFind.setResourcePath(NOT_EXIST);
+//    assertEquals(Const.HttpStatus.FORBIDDEN, davPropFind.execute());    
+//    
+//    Log.info("done.");
+//  }
   
   public void testPropFindNotFound() throws Exception {
     Log.info("PropFindTest:testPropFindNotFound...");

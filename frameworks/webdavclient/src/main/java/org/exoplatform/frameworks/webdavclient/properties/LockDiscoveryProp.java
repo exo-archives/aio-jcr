@@ -55,7 +55,7 @@ public class LockDiscoveryProp extends CommonProp {
     protected String lockType = Const.Lock.TYPE_WRITE;
     protected String lockScope = Const.Lock.SCOPE_EXCLUSIVE;
     protected String depth = "Infinity";
-    protected String owner = "gavrik-vetal@ukr.net";
+    protected String owner = "gavrikvetal@gmail.com";
     protected String lockToken = "";
     
     protected boolean enabled = false;
@@ -85,7 +85,9 @@ public class LockDiscoveryProp extends CommonProp {
         depth = depthN.getTextContent();
         
         Node ownerN = XmlUtil.getChildNode(node, Const.DavProp.OWNER);
-        owner = ownerN.getTextContent();
+        if (ownerN != null) {
+          owner = ownerN.getTextContent();
+        }
         
         Node lockTokenN = XmlUtil.getChildNode(node, Const.DavProp.LOCKTOKEN);
         if (lockTokenN != null) {
