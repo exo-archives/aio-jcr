@@ -22,7 +22,7 @@
       </propertyDefinition>
     </propertyDefinitions>
     <childNodeDefinitions>
-      <childNodeDefinition name="*" defaultPrimaryType="nt:base" autoCreated="false" mandatory="false"
+      <childNodeDefinition name="*" defaultPrimaryType="nt:unstructured" autoCreated="false" mandatory="false"
         onParentVersion="VERSION" protected="false" sameNameSiblings="false">
         <requiredPrimaryTypes>
           <requiredPrimaryType>nt:base</requiredPrimaryType>
