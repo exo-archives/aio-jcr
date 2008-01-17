@@ -396,8 +396,8 @@
       </testResource>
     </testResources>
 
-    <!--testSourceDirectory>src/test/java</testSourceDirectory-->
-    <testSourceDirectory>src/TCK/java</testSourceDirectory>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
+    <!--testSourceDirectory>src/TCK/java</testSourceDirectory-->
     <!--testSourceDirectory>src/notest</testSourceDirectory-->
 
     <testOutputDirectory>target/test-classes</testOutputDirectory>
@@ -411,18 +411,18 @@
           <forkMode>${exo.test.forkmode}</forkMode><!-- never by default -->
           <includes>
             <!-- TCK, init section is implemented below, need to uncomment antrun plugin -->
-            <include>**/api/*Test.java</include>
+            <!--include>**/api/*Test.java</include>
             <include>**/api/observation/*Test.java</include>
             <include>**/api/lock/*Test.java</include>
             <include>**/api/nodetype/*Test.java</include>
             <include>**/api/query/*Test.java</include>
-            <include>**/api/version/*Test.java</include>
+            <include>**/api/version/*Test.java</include-->
 
             <!-- eXo tests, usecases -->
-            <!--include>**/api/**/Test*.java</include>
+            <include>**/api/**/Test*.java</include>
             <include>**/usecases/**/Test*.java</include>
             <include>**/usecases/**/*Test.java</include>
-            <include>**/impl/access/Test*.java</include-->
+            <include>**/impl/access/Test*.java</include>
           </includes>
           <excludes>
             <exclude>**/*$*</exclude><!--nested classes prb, http://jira.codehaus.org/browse/SUREFIRE-288-->
@@ -501,7 +501,7 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
+      <!--plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <version>1.2-SNAPSHOT</version>
         <executions>
@@ -548,7 +548,7 @@
             <scope>test</scope>
           </dependency>
         </dependencies>
-      </plugin>
+      </plugin-->
     </plugins>
   </build>
 </project>
