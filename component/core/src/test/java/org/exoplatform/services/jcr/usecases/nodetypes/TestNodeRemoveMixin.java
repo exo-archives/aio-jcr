@@ -32,35 +32,31 @@ public class TestNodeRemoveMixin extends BaseUsecasesTest {
     
     //Register Nodetypes - performed in configuration
 
-    String nodeType = "exo:archiveable";
-    
     //Create Node
     Node rootNode = session.getRootNode();    
     Node testNode = rootNode.addNode("testMixinNode","exo:myType");
     
     //Add mixin to Node
-    testNode.addMixin(nodeType);
+    testNode.addMixin("exo:archiveable");
     
     //Set a value to Node's Property
     String restorePath = "test/restore/path";
     testNode.setProperty("exo:restorePath", restorePath);
     
     rootNode.save();
-    session.save();
     
-    assertTrue(testNode.isNodeType(nodeType));
+    assertTrue(testNode.isNodeType("exo:archiveable"));
     assertNotNull(testNode.getProperty("exo:restorePath"));
     
     //Do remove Mixin from Node
-    testNode = null;
     testNode = rootNode.getNode("testMixinNode");
     assertNotNull(testNode.getProperties());
-    testNode.removeMixin(nodeType);
-    testNode.save();
-    rootNode.save();    
+    testNode.removeMixin("exo:archiveable");
     session.save();
     
-    //Error should not be here!
-    assertNotNull(testNode.getProperties());       
+    //Error should not be here! // WRONG, node already has at least one property jcr:primaryType
+    //assertNotNull(testNode.getProperties());       
+    
+    assertFalse(testNode.hasProperty("exo:restorePath"));
   }  
 }
