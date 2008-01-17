@@ -80,6 +80,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
   public final static String DB_DIALECT_MYSQL = "MySQL".intern();
   public final static String DB_DIALECT_HSQLDB = "HSQLDB".intern();
   public final static String DB_DIALECT_DB2 = "DB2".intern();
+  public final static String DB_DIALECT_DB2V8 = "DB2V8".intern();
   public final static String DB_DIALECT_MSSQL = "MSSQL".intern();
   public final static String DB_DIALECT_SYBASE = "Sybase".intern();
   public final static String DB_DIALECT_DERBY = "Derby".intern();
@@ -465,6 +466,10 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     } else if (dbDialect == DB_DIALECT_DB2) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.db2.sql";
+      dbInitilizer = defaultDBInitializer(sqlPath);
+    } else if (dbDialect == DB_DIALECT_DB2V8) {
+      this.connFactory = defaultConnectionFactory();
+      sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.db2v8.sql";
       dbInitilizer = defaultDBInitializer(sqlPath);
     } else if (dbDialect == DB_DIALECT_SYBASE) {
       this.connFactory = defaultConnectionFactory();

@@ -67,9 +67,7 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     assertEquals(0, modificationManager.getChangesLog().getSize());
 
     // session.save();
-
     // modificationManager.getTransactManager().saveItem(testRoot);
-
   }
 
   @Override
@@ -91,7 +89,7 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     // log.info(" >after commit> "+modificationManager.dump());
 
     // root node
-    assertEquals(2, pool.size());
+    assertEquals(1, pool.size()); // contains root node only
 
     NodeData parent = (NodeData) testRoot.getData();
 
@@ -100,9 +98,9 @@ public class TestSessionDataManager extends JcrImplBaseTest {
 
     String uuid = data.getIdentifier();
 
-    assertEquals(2, pool.size());
+    assertEquals(1, pool.size());
     NodeImpl node1 = (NodeImpl) modificationManager.update(ItemState.createAddedState(data), true);
-    assertEquals(3, pool.size());
+    assertEquals(2, pool.size());
     assertEquals(uuid, node1.getInternalIdentifier());
     System.out.println("item >" + node1.getPath());
     assertTrue(pool.contains(uuid));
@@ -147,7 +145,7 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     // /TestSessionDataManager
     // /TestSessionDataManager/testItemReferencePool2
 
-    assertEquals(4, pool.size());
+    assertEquals(3, pool.size());
   }
 
   public void testSessionChangesLog() throws Exception {

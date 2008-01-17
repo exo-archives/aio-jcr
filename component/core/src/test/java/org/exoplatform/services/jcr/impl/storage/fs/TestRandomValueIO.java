@@ -48,14 +48,6 @@ public class TestRandomValueIO extends JcrImplBaseTest {
     }
     
     root.getNodes();
-    
-//    try {
-//      throw new Exception("the err");
-//    } catch(Throwable e) {
-//      for (StackTraceElement ste: e.getStackTrace()) {
-//        log.info("\t" + ste.getClassName() + "." + ste.getMethodName() + "." + ste.getLineNumber());
-//      }
-//    }
   }
 
   @Override
