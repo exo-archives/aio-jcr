@@ -406,6 +406,9 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
             addedNodes.add((NodeData) itemState.getData());
           } else if (itemState.isDeleted()) {
             removedNodes.add(itemState.getData().getIdentifier());
+          }else if (itemState.isMixinChanged()){
+            removedNodes.add(itemState.getData().getIdentifier());
+            addedNodes.add((NodeData) itemState.getData());
           }
         } else {
           String parentIdentifier = itemState.getData().getParentIdentifier();

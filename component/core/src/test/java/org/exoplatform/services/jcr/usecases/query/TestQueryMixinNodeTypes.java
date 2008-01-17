@@ -90,7 +90,7 @@ public class TestQueryMixinNodeTypes extends BaseUsecasesTest {
   private void registerNodetypes() throws Exception {
     
     registerNamespace("kfx", "http://www.exoplatform.com/jcr/kfx/1.1/");
-    registerNamespace("dc", "http://purl.org/dc/elements/1.1");
+    registerNamespace("dc", "http://purl.org/dc/elements/1.1/");
 
     InputStream xml = this.getClass()
                           .getResourceAsStream("/org/exoplatform/services/jcr/usecases/query/ext-nodetypes-config.xml");
