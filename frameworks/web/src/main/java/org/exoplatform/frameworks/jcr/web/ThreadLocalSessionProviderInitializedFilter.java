@@ -18,6 +18,8 @@ package org.exoplatform.frameworks.jcr.web;
 
 import java.io.IOException;
 
+import javax.jcr.Credentials;
+import javax.jcr.SimpleCredentials;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -26,12 +28,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-//import org.apache.commons.logging.Log;
+import org.apache.commons.codec.binary.Base64;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
-//import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.auth.AuthenticationService;
 import org.exoplatform.services.organization.auth.Identity;
 
@@ -76,6 +77,7 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     String user = httpRequest.getRemoteUser();
+    
     SessionProvider provider = providerService.getSessionProvider(null);
     // is there SessionProvider in current thread?
     if (provider == null) {
@@ -87,11 +89,30 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
         } catch (Exception e) {
           throw new ServletException(e);
         }
-        if(identity != null) {
-          provider = new SessionProvider(null);
+        
+        if(identity != null) {          
+          Credentials credentials = null;
+          try {
+            if ("BASIC".equals(httpRequest.getAuthType())) {
+              String authHeader = httpRequest.getHeader("Authorization");
+              if (authHeader != null) {
+                String decodedAuth = "";
+                String []basic = authHeader.split(" ");
+                if (basic.length >= 2 && basic[0].equalsIgnoreCase(HttpServletRequest.BASIC_AUTH)) {
+                  decodedAuth = new String(Base64.decodeBase64(basic[1].getBytes()));
+                }                 
+                String []authParams = decodedAuth.split(":");
+                credentials = new SimpleCredentials(authParams[0], authParams[1].toCharArray());                  
+              }
+            }            
+          } catch (Exception exc) {
+            throw new ServletException(exc);
+          }          
+          provider = new SessionProvider(credentials);
         }
       }
     }
+    
     if (provider == null) {
       provider = SessionProvider.createAnonimProvider();
     }
