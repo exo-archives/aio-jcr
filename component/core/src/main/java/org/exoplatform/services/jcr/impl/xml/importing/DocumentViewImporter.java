@@ -113,8 +113,9 @@ public class DocumentViewImporter extends BaseXmlImporter {
 
     StringBuilder text = new StringBuilder();
     text.append(ch, start, length);
-    if (log.isDebugEnabled())
+    if (log.isDebugEnabled()) {
       log.debug("Property:xmltext=" + text + " Parent=" + getParent().getQPath().getAsString());
+    }
 
     if (xmlCharactersProperty != null) {
       xmlCharactersPropertyValue += text.toString();
@@ -129,8 +130,9 @@ public class DocumentViewImporter extends BaseXmlImporter {
       nodeData.setOrderNumber(getNextChildOrderNum(getParent()));
 
       changesLog.add(new ItemState(nodeData, ItemState.ADDED, true, getParent().getQPath()));
-      if (log.isDebugEnabled())
+      if (log.isDebugEnabled()) {
         log.debug("New node " + nodeData.getQPath().getAsString());
+      }
 
       ImportPropertyData newProperty = new ImportPropertyData(QPath.makeChildPath(nodeData.getQPath(),
                                                                                   Constants.JCR_PRIMARYTYPE),
@@ -187,7 +189,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
 
     List<InternalQName> mixinNodeTypes = new ArrayList<InternalQName>();
 
-    parseAttr(atts, nodeTypes, mixinNodeTypes, propertiesMap);
+    parseAttr(atts, nodeTypes, mixinNodeTypes, propertiesMap, nodeName);
 
     InternalQName jcrName = locationFactory.parseJCRName(nodeName).getInternalName();
 
@@ -208,11 +210,12 @@ public class DocumentViewImporter extends BaseXmlImporter {
     while (keys.hasNext()) {
       newProperty = null;
 
-      InternalQName key = keys.next();
-      if (log.isDebugEnabled())
-        log.debug("Property NAME: " + key + "=" + propertiesMap.get(key));
+      InternalQName propName = keys.next();
+      if (log.isDebugEnabled()) {
+        log.debug("Property NAME: " + propName + "=" + propertiesMap.get(propName));
+      }
 
-      if (key.equals(Constants.JCR_PRIMARYTYPE)) {
+      if (propName.equals(Constants.JCR_PRIMARYTYPE)) {
 
         if (!isChildNodePrimaryTypeAllowed(parentNodeData.getPrimaryTypeName(),
                                            parentNodeData.getMixinTypeNames(),
@@ -227,36 +230,43 @@ public class DocumentViewImporter extends BaseXmlImporter {
         }
         newProperty = endPrimaryType(nodeData.getPrimaryTypeName());
 
-      } else if (key.equals(Constants.JCR_MIXINTYPES)) {
+      } else if (propName.equals(Constants.JCR_MIXINTYPES)) {
 
-        newProperty = endMixinTypes(mixinNodeTypes, key);
+        newProperty = endMixinTypes(mixinNodeTypes, propName);
 
-      } else if (nodeData.isMixReferenceable() && key.equals(Constants.JCR_UUID)) {
-        newProperty = endUuid(nodeData, key);
+      } else if (nodeData.isMixReferenceable() && propName.equals(Constants.JCR_UUID)) {
+        newProperty = endUuid(nodeData, propName);
 
       } else {
-        PropertyDefinition pDef = getPropertyDefinition(key, nodeTypes);
+        PropertyDefinition pDef;
+        PropertyDefinitions defs;
+        try {
+          defs = ntManager.findPropertyDefinitions(propName,
+                                                   nodeData.getPrimaryTypeName(),
+                                                   mixinNodeTypes.toArray(new InternalQName[mixinNodeTypes.size()]));
+          pDef = defs.getAnyDefinition();
+
+        } catch (RepositoryException e) {
+          if (!context.getBoolean(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS)) {
+            log.warn(e.getLocalizedMessage());
+            continue;
+          }
+          throw e;
+        }
+        if ((pDef == null) || (defs == null)) {
+          throw new RepositoryException("no propertyDefinition found");
+        }
 
         if (pDef.getRequiredType() == PropertyType.BINARY) {
-          byte[] decoded;
-          try {
-            decoded = Base64.decode(propertiesMap.get(key));
-          } catch (DecodingException e) {
-            throw new RepositoryException(e);
-          }
-          newProperty = TransientPropertyData.createPropertyData(getParent(),
-                                                                 key,
-                                                                 PropertyType.BINARY,
-                                                                 false,
-                                                                 new TransientValueData(new ByteArrayInputStream(decoded)));
+          newProperty = endBinary(propertiesMap, newProperty, propName);
 
         } else {
-          StringTokenizer spaceTokenizer = new StringTokenizer(propertiesMap.get(key));
+          StringTokenizer spaceTokenizer = new StringTokenizer(propertiesMap.get(propName));
 
           List<ValueData> values = new ArrayList<ValueData>();
           int pType = pDef.getRequiredType() > 0 ? pDef.getRequiredType() : PropertyType.STRING;
-          InternalQName propName = key;
-          if ("".equals(propertiesMap.get(key))) {
+
+          if ("".equals(propertiesMap.get(propName))) {
 
             // Skip empty non string values
             if (pType != PropertyType.STRING) {
@@ -264,7 +274,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
             }
 
             Value value = session.getValueFactory()
-                                 .createValue(StringConverter.denormalizeString(propertiesMap.get(key)),
+                                 .createValue(StringConverter.denormalizeString(propertiesMap.get(propName)),
                                               pType);
             values.add(((BaseValue) value).getInternalData());
           } else {
@@ -281,25 +291,13 @@ public class DocumentViewImporter extends BaseXmlImporter {
                   log.error("Can't present value as string. " + e.getMessage());
                   valueAsString = "[Can't present value as string]";
                 }
-                log.debug("Property " + PropertyType.nameFromValue(pType) + ": " + key + "="
+                log.debug("Property " + PropertyType.nameFromValue(pType) + ": " + propName + "="
                     + valueAsString);
               }
               values.add(((BaseValue) value).getInternalData());
             }
           }
 
-          PropertyDefinitions defs;
-          try {
-            defs = ntManager.findPropertyDefinitions(propName,
-                                                     nodeData.getPrimaryTypeName(),
-                                                     mixinNodeTypes.toArray(new InternalQName[mixinNodeTypes.size()]));
-          } catch (RepositoryException e) {
-            if (!context.getBoolean(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS)) {
-              log.warn(e.getLocalizedMessage());
-              continue;
-            }
-            throw e;
-          }
           boolean isMultivalue = true;
 
           // determinating is property multivalue;
@@ -321,8 +319,9 @@ public class DocumentViewImporter extends BaseXmlImporter {
                                                                  pType,
                                                                  isMultivalue,
                                                                  values);
-          if (nodeData.isMixVersionable())
+          if (nodeData.isMixVersionable()) {
             endVersionable(nodeData, values, propName);
+          }
         }
       }
 
@@ -381,10 +380,27 @@ public class DocumentViewImporter extends BaseXmlImporter {
         nodeData.setIdentifier(identifier);
       }
 
-      if (uuidBehavior == ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING)
+      if (uuidBehavior == ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING) {
         nodeData.setParentIdentifer(tree.peek().getIdentifier());
+      }
     }
     return nodeData;
+  }
+
+  private PropertyData endBinary(HashMap<InternalQName, String> propertiesMap,
+                                 PropertyData newProperty,
+                                 InternalQName propName) throws RepositoryException {
+    try {
+      newProperty = TransientPropertyData.createPropertyData(getParent(),
+                                                             propName,
+                                                             PropertyType.BINARY,
+                                                             false,
+                                                             new TransientValueData(new ByteArrayInputStream(Base64.decode(propertiesMap.get(propName)))));
+
+    } catch (DecodingException e) {
+      throw new RepositoryException(e);
+    }
+    return newProperty;
   }
 
   /**
@@ -495,13 +511,18 @@ public class DocumentViewImporter extends BaseXmlImporter {
   private void parseAttr(Map<String, String> atts,
                          List<ExtendedNodeType> nodeTypes,
                          List<InternalQName> mixinNodeTypes,
-                         HashMap<InternalQName, String> props) throws PathNotFoundException,
-                                                              RepositoryException {
+                         HashMap<InternalQName, String> props,
+                         String nodeName) throws PathNotFoundException, RepositoryException {
     // default primary type
+    if (!atts.containsKey("jcr:primaryType")) {
+      NodeData parent = getParent();
+      InternalQName nodeNt = findNodeType(parent.getPrimaryTypeName(),
+                                          parent.getMixinTypeNames(),
+                                          nodeName);
 
-    props.put(Constants.JCR_PRIMARYTYPE, locationFactory.createJCRName(Constants.NT_UNSTRUCTURED)
-                                                        .getAsString());
-    nodeTypes.add(ntManager.getNodeType(Constants.NT_UNSTRUCTURED));
+      nodeTypes.add(ntManager.getNodeType(nodeNt));
+      props.put(Constants.JCR_PRIMARYTYPE, locationFactory.createJCRName(nodeNt).getAsString());
+    }
 
     if (atts != null) {
       for (String key : atts.keySet()) {
@@ -509,8 +530,9 @@ public class DocumentViewImporter extends BaseXmlImporter {
         String attValue = atts.get(key);
 
         String propName = ISO9075.decode(key);
-        if (log.isDebugEnabled())
+        if (log.isDebugEnabled()) {
           log.debug(propName + ":" + attValue);
+        }
         InternalQName propInternalQName = locationFactory.parseJCRName(propName).getInternalName();
 
         if (Constants.JCR_PRIMARYTYPE.equals(propInternalQName)) {

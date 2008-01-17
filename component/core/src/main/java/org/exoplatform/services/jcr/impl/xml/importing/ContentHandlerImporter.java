@@ -96,7 +96,7 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
     try {
       importer.save();
     } catch (RepositoryException e) {
-      e.printStackTrace();
+      //e.printStackTrace();
       throw new SAXException(e);
     } catch (IllegalStateException e) {
       throw new SAXException(e);

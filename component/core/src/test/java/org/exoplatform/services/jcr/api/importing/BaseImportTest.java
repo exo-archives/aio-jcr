@@ -17,12 +17,15 @@
 package org.exoplatform.services.jcr.api.importing;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 
 import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.InvalidSerializedDataException;
@@ -129,6 +132,21 @@ public class BaseImportTest extends JcrAPIBaseTest {
                                           SAXException {
 
     InputStream is = new BufferedInputStream(new FileInputStream(content));
+    deserialize(importRoot, saveType, isImportedByStream, uuidBehavior, content);
+  }
+
+  protected void deserialize(Node importRoot,
+                             XmlSaveType saveType,
+                             boolean isImportedByStream,
+                             int uuidBehavior,
+                             InputStream is) throws PathNotFoundException,
+                                            ItemExistsException,
+                                            ConstraintViolationException,
+                                            InvalidSerializedDataException,
+                                            IOException,
+                                            RepositoryException,
+                                            SAXException {
+
     ExtendedSession extendedSession = (ExtendedSession) importRoot.getSession();
     ExtendedWorkspace extendedWorkspace = (ExtendedWorkspace) extendedSession.getWorkspace();
     if (isImportedByStream) {
@@ -142,8 +160,7 @@ public class BaseImportTest extends JcrAPIBaseTest {
     } else {
       XMLReader reader = XMLReaderFactory.createXMLReader();
       if (saveType == XmlSaveType.SESSION) {
-        reader.setContentHandler(session.getImportContentHandler(importRoot.getPath(),
-                                                                 uuidBehavior));
+        reader.setContentHandler(session.getImportContentHandler(importRoot.getPath(), uuidBehavior));
         extendedSession.save();
       } else if (saveType == XmlSaveType.WORKSPACE) {
         reader.setContentHandler(extendedWorkspace.getImportContentHandler(importRoot.getPath(),
@@ -177,15 +194,12 @@ public class BaseImportTest extends JcrAPIBaseTest {
     return importRoot;
   }
 
-  protected File serialize(Node rootNode, boolean isSystemView, boolean isStream) throws IOException,
-                                                                                 RepositoryException,
-                                                                                 SAXException,
-                                                                                 TransformerConfigurationException {
-
+  protected void serialize(Node rootNode, boolean isSystemView, boolean isStream, File content) throws IOException,
+                                                                                               RepositoryException,
+                                                                                               SAXException,
+                                                                                               TransformerConfigurationException {
     ExtendedSession extendedSession = (ExtendedSession) rootNode.getSession();
 
-    File content = File.createTempFile("baseImportTest", ".xml");
-    content.deleteOnExit();
     OutputStream outStream = new FileOutputStream(content);
     if (isSystemView) {
 
@@ -208,7 +222,40 @@ public class BaseImportTest extends JcrAPIBaseTest {
       }
     }
     outStream.close();
-    return content;
+
+  }
+
+  protected byte[] serialize(Node rootNode, boolean isSystemView, boolean isStream) throws IOException,
+                                                                                   RepositoryException,
+                                                                                   SAXException,
+                                                                                   TransformerConfigurationException {
+
+    ExtendedSession extendedSession = (ExtendedSession) rootNode.getSession();
+
+    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+
+    if (isSystemView) {
+
+      if (isStream) {
+        extendedSession.exportSystemView(rootNode.getPath(), outStream, false, false);
+      } else {
+        SAXTransformerFactory saxFact = (SAXTransformerFactory) TransformerFactory.newInstance();
+        TransformerHandler handler = saxFact.newTransformerHandler();
+        handler.setResult(new StreamResult(outStream));
+        extendedSession.exportSystemView(rootNode.getPath(), handler, false, false);
+      }
+    } else {
+      if (isStream) {
+        extendedSession.exportDocumentView(rootNode.getPath(), outStream, false, false);
+      } else {
+        SAXTransformerFactory saxFact = (SAXTransformerFactory) TransformerFactory.newInstance();
+        TransformerHandler handler = saxFact.newTransformerHandler();
+        handler.setResult(new StreamResult(outStream));
+        extendedSession.exportDocumentView(rootNode.getPath(), handler, false, false);
+      }
+    }
+    outStream.close();
+    return outStream.toByteArray();
   }
 
   protected void importUuidCollisionTest(boolean isSystemView,
@@ -220,12 +267,16 @@ public class BaseImportTest extends JcrAPIBaseTest {
                                                             IOException,
                                                             SAXException {
     Node testRoot = prepareForExport();
-    File content = serialize(testRoot, isSystemView, isExportedByStream);
+    byte[] content = serialize(testRoot, isSystemView, isExportedByStream);
     Node importRoot = prepareForImport(testRoot);
     Exception result = null;
 
     try {
-      deserialize(importRoot, saveType, isImportedByStream, testedBehavior, content);
+      deserialize(importRoot,
+                  saveType,
+                  isImportedByStream,
+                  testedBehavior,
+                  new ByteArrayInputStream(content));
     } catch (Exception e) {
       result = e;
     }

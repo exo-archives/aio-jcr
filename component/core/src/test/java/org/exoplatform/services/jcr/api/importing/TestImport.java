@@ -601,14 +601,14 @@ public class TestImport extends BaseImportTest {
     // } catch (RepositoryException e) {
     // }
 
-    File destFile = serialize(exportRoot, true, true);
+    byte[] content = serialize(exportRoot, true, true);
 
     try {
       deserialize(testRoot,
                   XmlSaveType.SESSION,
                   true,
                   ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW,
-                  destFile);
+                  new ByteArrayInputStream(content));
       fail();
     } catch (RepositoryException e) {
     }
@@ -625,14 +625,14 @@ public class TestImport extends BaseImportTest {
 
     session.save();
 
-    File destFile = serialize(exportRoot, true, true);
+    byte[] content = serialize(exportRoot, true, true);
 
     try {
       deserialize(testRoot,
                   XmlSaveType.SESSION,
                   false,
                   ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW,
-                  destFile);
+                  new ByteArrayInputStream(content));
       fail();
     } catch (SAXException e) {
     }
@@ -649,14 +649,14 @@ public class TestImport extends BaseImportTest {
 
     session.save();
 
-    File destFile = serialize(exportRoot, false, true);
+    byte[] content = serialize(exportRoot, false, true);
 
     try {
       deserialize(testRoot,
                   XmlSaveType.SESSION,
                   true,
                   ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW,
-                  destFile);
+                  new ByteArrayInputStream(content));
       fail();
     } catch (RepositoryException e) {
     }
@@ -673,14 +673,14 @@ public class TestImport extends BaseImportTest {
 
     session.save();
 
-    File destFile = serialize(exportRoot, false, true);
+     byte[] content = serialize(exportRoot, false, true);
 
     try {
       deserialize(testRoot,
                   XmlSaveType.SESSION,
                   false,
                   ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW,
-                  destFile);
+                  new ByteArrayInputStream(content));
       fail();
     } catch (SAXException e) {
     }
