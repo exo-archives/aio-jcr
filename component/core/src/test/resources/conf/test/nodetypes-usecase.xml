@@ -188,7 +188,7 @@
 		</childNodeDefinitions>
 	</nodeType>
 	
-	<nodeType name="nt:resource" isMixin="false" hasOrderableChildNodes="false" primaryItemName="jcr:data">
+	<!-- nodeType name="nt:resource" isMixin="false" hasOrderableChildNodes="false" primaryItemName="jcr:data">
 		<supertypes>
 			<supertype>nt:base</supertype>
 		</supertypes>
@@ -219,6 +219,27 @@
 				<valueConstraints/>
 			</propertyDefinition>
 		</propertyDefinitions>
-	</nodeType>
+	</nodeType -->
+  
+  <nodeType name="exo:myType" isMixin="false" hasOrderableChildNodes="true" primaryItemName="">
+    <supertypes>
+      <supertype>nt:base</supertype>      
+    </supertypes>    
+    <propertyDefinitions>
+      <propertyDefinition name="prop1" requiredType="undefined" autoCreated="false" mandatory="false" onParentVersion="COPY"
+        protected="false" multiple="true">
+        <valueConstraints/>
+      </propertyDefinition>
+    </propertyDefinitions>
+  </nodeType>
+  
+  <nodeType name="exo:archiveable" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+    <propertyDefinitions>
+      <propertyDefinition name="exo:restorePath" requiredType="String" autoCreated="false" mandatory="true"
+        onParentVersion="COPY" protected="false" multiple="false">
+        <valueConstraints/>
+      </propertyDefinition>      
+    </propertyDefinitions>
+  </nodeType>    
 	
 </nodeTypes>
