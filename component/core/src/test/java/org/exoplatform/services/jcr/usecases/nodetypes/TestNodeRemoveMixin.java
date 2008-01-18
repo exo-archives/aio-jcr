@@ -37,6 +37,7 @@ public class TestNodeRemoveMixin extends BaseUsecasesTest {
     Node testNode = rootNode.addNode("testMixinNode","exo:myType");
     
     //Add mixin to Node
+    testNode.addMixin("mix:versionable");
     testNode.addMixin("exo:archiveable");
     
     //Set a value to Node's Property

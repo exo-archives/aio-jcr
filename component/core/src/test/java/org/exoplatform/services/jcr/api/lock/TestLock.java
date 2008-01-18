@@ -23,6 +23,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.Lock;
+import javax.jcr.lock.LockException;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.security.impl.CredentialsImpl;
@@ -174,6 +175,7 @@ public class TestLock extends JcrAPIBaseTest {
       fail("error while adding same name node: " + e);
     }
   }  
+  
   public void testCopyLockedNode() throws Exception {
     Session session1 = repository.login(new CredentialsImpl("admin", "admin".toCharArray()), "ws");
     Node nodeToCopyLock = session1.getRootNode().addNode("node2testCopyLockedNode");
@@ -205,5 +207,43 @@ public class TestLock extends JcrAPIBaseTest {
     
     destCopyNode.unlock();
     nodeToCopyLock.unlock();
+  }
+  
+  public void testRemoveMixLockable() {
+    try {
+      lockedNode.removeMixin("mix:lockable");
+      root.save();
+    } catch(RepositoryException e) {
+      e.printStackTrace();
+      fail("removeMixin(\"mix:lockable\") impossible due to error " + e.getMessage());
+    }
+  }
+  
+  public void testRemoveMixLockableLocked() throws Exception {
+    
+    lockedNode.lock(true, false);
+    
+    try {
+      lockedNode.removeMixin("mix:lockable");
+      root.save();
+    } catch(RepositoryException e) {
+      e.printStackTrace();
+      fail("removeMixin(\"mix:lockable\") impossible due to error " + e.getMessage());
+    }
+  }
+  
+  public void testRemoveMixLockableLockedWithoutToken() throws Exception {
+    
+    lockedNode.lock(true, false);
+    
+    try {
+      Session s1 = repository.login(new CredentialsImpl("exo", "exo".toCharArray()), session.getWorkspace().getName());
+      s1.getRootNode().getNode("locked node").removeMixin("mix:lockable");
+      s1.save();
+      
+      fail("removeMixin(\"mix:lockable\") should throw LockException if use hasn't lock token");
+    } catch(LockException e) {
+      // ok
+    }
   }
 }
