@@ -51,7 +51,7 @@ public class WebDavTests extends TestCase {
     }    
     return false;
   }
-  
+
   public static TestSuite suite() throws Exception {
     TestSuite suite = new TestSuite("jcr.webdav tests");
 

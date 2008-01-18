@@ -59,7 +59,6 @@ public class SupportedMethodSetTest extends TestCase {
   public void testSupportedMethodSet() throws Exception {    
     TestUtils.logStart();
     
-     
     DavPropFind davPropFind = new DavPropFind(TestContext.getContextAuthorized());
     davPropFind.setResourcePath(srcPath);
     
