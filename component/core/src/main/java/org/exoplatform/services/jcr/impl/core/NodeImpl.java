@@ -1367,8 +1367,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     // find mixin
     InternalQName removedName = null;
     // Prepare mixin values
-    List<InternalQName> newMixin = new ArrayList<InternalQName>(mixinTypes.length - 1);
-    // new InternalQName[mixinTypes.length - 1];
+    List<InternalQName> newMixin = new ArrayList<InternalQName>();
     List<ValueData> values = new ArrayList<ValueData>();
     
     for (InternalQName mt : mixinTypes) {
