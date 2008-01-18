@@ -6,6 +6,11 @@
 
 	<display-name>Webdav JCR Server</display-name>
 
+  <filter>
+    <filter-name>ThreadLocalSessionProviderInitializedFilter</filter-name>
+    <filter-class>org.exoplatform.frameworks.jcr.web.ThreadLocalSessionProviderInitializedFilter</filter-class>
+  </filter>  
+  
 	<listener>
 		<listener-class>
 			org.exoplatform.frameworks.jcr.web.StandaloneContainerInitializedListener
@@ -20,11 +25,39 @@
 		</servlet-class>
 		<load-on-startup>4</load-on-startup>
 	</servlet>
-	
+
+  <filter-mapping>
+    <filter-name>ThreadLocalSessionProviderInitializedFilter</filter-name>
+    <url-pattern>/jcr/*</url-pattern>
+  </filter-mapping>
+
   <servlet-mapping>
 		<servlet-name>RestServer</servlet-name>
 		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
-		
-</web-app>
 
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>rest</web-resource-name>
+      <url-pattern>/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>user</role-name>
+      <role-name>admin</role-name>
+    </auth-constraint>
+    <user-data-constraint>
+      <transport-guarantee>NONE</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
+
+  <login-config>
+    <auth-method>BASIC</auth-method>
+    <realm-name>eXo REST services</realm-name>
+  </login-config>
+
+  <security-role>
+    <role-name>user</role-name>
+    <role-name>admin</role-name>
+  </security-role>
+
+</web-app>
