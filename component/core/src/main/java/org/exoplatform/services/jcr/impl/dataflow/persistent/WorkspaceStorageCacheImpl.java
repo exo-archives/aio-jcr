@@ -512,8 +512,7 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   private boolean needReload(ItemData data) {
     // [PN] Add ORed property NAMEs here to unload a parent on the save action
     return data.getQPath().getName().equals(Constants.JCR_MIXINTYPES) 
-      || data.getQPath().getName().equals(Constants.EXO_PERMISSIONS) 
-      ;
+      || data.getQPath().getName().equals(Constants.EXO_PERMISSIONS);
   }
   
   public synchronized void onSaveItems(final ItemStateChangesLog changesLog) {
@@ -523,7 +522,6 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     
     List <ItemState> itemStates = changesLog.getAllStates();
 
-    //for (Iterator<ItemState> i = itemStates.iterator(); i.hasNext();) {
     for (int i = 0; i < itemStates.size(); i++) {
       ItemState state = itemStates.get(i);
       ItemData data = state.getData();
@@ -534,53 +532,27 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
       try {
         if (state.isAdded()) {
-          if (!data.isNode() && needReload(data)) {
-            unloadProperty((PropertyData) data);
-          } 
+          if (!data.isNode() && needReload(data))
+            unloadProperty((PropertyData) data); 
           put(data);
         } else if (state.isUpdated()) {
-          if (data.isNode()) {
-            // TODO
-//            NodeData cached = (NodeData) get(data.getIdentifier());
-//            if (cached != null && cached.getQPath().getDepth() == data.getQPath().getDepth() && 
-//                cached.getQPath().getIndex() != data.getQPath().getIndex()) {
-//              // reindex
-//              ItemData parentData = get(data.getParentIdentifier());
-//              if (parentData != null) {
-//                // NOTE: on parent this node will be updated in put
-//                removeDeep(parentData, false); // remove the parent only
-//                synchronized (propertiesCache) {
-//                  removeChildProperties(parentData.getIdentifier()); // remove child properties
-//                }
-//                synchronized (nodesCache) {
-//                  if (removeChildNodes(parentData.getIdentifier(), true) == null) { // remove child nodes recursive
-//                    // [PN] 01.02.07 if no childs for reindexed node perent were cached
-//                    synchronized (propertiesCache) {
-//                      removeDeep(cached, true); // remove reindexed node (i.e. this one UPDATEd only)
-//                    }
-//                  }
-//                }
-//              }
-//            }
+          if (data.isNode())
             // orderable nodes will be removed, to be loaded back from the persistence
             unloadNode((NodeData) data);
-          } else if (needReload(data)) {
+          else if (needReload(data))
             unloadProperty((PropertyData) data); // remove mixins
-          } 
           put(data);
         } else if (state.isDeleted()) {
           if (!data.isNode() && needReload(data))
             unloadProperty((PropertyData) data);
-          else {
+          else
             remove(data);
-          }
         } else if (state.isRenamed()) {
-          if (data.isNode()) {
+          if (data.isNode())
             unloadNode((NodeData) data);
-          } else if (needReload(data)) {
+          else if (needReload(data))
             unloadProperty((PropertyData) data); // remove mixins
-          } 
-          put(data); // TODO 
+          put(data); 
         }
       } catch (Exception e) {
         log.error(name + ", Error process onSaveItems action for item data: " 
