@@ -1424,7 +1424,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     for (PropertyDefinition pd: removed.getPropertyDefinitions()) {
       InternalQName pdName = ((PropertyDefinitionImpl) pd).getQName();
       ItemData p = dataManager.getItemData(nodeData(), new QPathEntry(pdName, 1));
-      if (!p.isNode())
+      if (p != null && !p.isNode())
         // remove it
         dataManager.delete(p, ancestorToSave);
     }
@@ -1432,7 +1432,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     for (NodeDefinition nd: removed.getChildNodeDefinitions()) {
       InternalQName ndName = ((NodeDefinitionImpl) nd).getQName();
       ItemData n = dataManager.getItemData(nodeData(), new QPathEntry(ndName, 1));
-      if (n.isNode()) {
+      if (n != null && n.isNode()) {
         // remove node with subtree
         ItemDataRemoveVisitor remover = new ItemDataRemoveVisitor(dataManager, ancestorToSave);
         n.accept(remover);
@@ -1769,12 +1769,12 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
           0), false)).getBoolean();
     }
 
-    NodeImpl ancestor = (NodeImpl) getParent();
+    NodeImpl ancestor = parent();
     while (!ancestor.isRoot()) {
       if (ancestor.isNodeType(Constants.MIX_VERSIONABLE))
         return ancestor.isCheckedOut();
       else
-        ancestor = (NodeImpl) ancestor.getParent();
+        ancestor = (NodeImpl) ancestor.parent();
     }
     if (ancestor.isNodeType(Constants.MIX_VERSIONABLE))
       return ancestor.isCheckedOut();
