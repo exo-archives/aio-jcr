@@ -83,6 +83,7 @@ import org.exoplatform.services.jcr.impl.core.itemfilters.NamePatternFilter;
 import org.exoplatform.services.jcr.impl.core.lock.LockImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeDefinitionImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeImpl;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.PropertyDefinitionImpl;
 import org.exoplatform.services.jcr.impl.core.value.BaseValue;
 import org.exoplatform.services.jcr.impl.core.version.ItemDataMergeVisitor;
@@ -1364,15 +1365,15 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     InternalQName name = locationFactory.parseJCRName(mixinName).getInternalName();
 
     // find mixin
+    InternalQName removedName = null;
     // Prepare mixin values
     List<InternalQName> newMixin = new ArrayList<InternalQName>(mixinTypes.length - 1);
     // new InternalQName[mixinTypes.length - 1];
     List<ValueData> values = new ArrayList<ValueData>();
     
-    boolean found = false;
     for (InternalQName mt : mixinTypes) {
       if (mt.equals(name)) {
-        found = true; 
+        removedName = mt;
       } else {
         newMixin.add(mt);
         values.add(new TransientValueData(mt));
@@ -1380,7 +1381,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     }
     
     // no mixin found
-    if (!found)
+    if (removedName == null)
       throw new NoSuchNodeTypeException("No mixin type found " + mixinName + " for node " + getPath());
 
     // A ConstraintViolationException will be thrown either
@@ -1397,20 +1398,54 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     if (!checkLocking())
       throw new LockException("Node " + getPath() + " is locked ");
 
+    session.getActionHandler().preRemoveMixin(this, name);
+    
     TransientPropertyData prop = (TransientPropertyData) dataManager.getItemData(nodeData(),
         new QPathEntry(Constants.JCR_MIXINTYPES, 0));
 
     prop.setValues(values);
 
+    // remove mix:versionable stuff
+    if (session.getWorkspace().getNodeTypeManager().isNodeType(Constants.MIX_VERSIONABLE, removedName)) { 
+      removeVersionable();
+    }
+    
+    // remove mix:lockable stuff
+    if (session.getWorkspace().getNodeTypeManager().isNodeType(Constants.MIX_LOCKABLE, removedName)) {
+      removeLockable();
+    }
+    
     // Set mixin property and locally
     updateMixin(newMixin);
-
-    session.getActionHandler().preRemoveMixin(this, name);
+    
+    // Remove mixin nt definition node/properties from this node
+    QPath ancestorToSave = nodeData().getQPath();
+    ExtendedNodeType removed = session.getWorkspace().getNodeTypeManager().findNodeType(removedName);
+    for (PropertyDefinition pd: removed.getPropertyDefinitions()) {
+      InternalQName pdName = ((PropertyDefinitionImpl) pd).getQName();
+      ItemData p = dataManager.getItemData(nodeData(), new QPathEntry(pdName, 1));
+      if (!p.isNode())
+        // remove it
+        dataManager.delete(p, ancestorToSave);
+    }
+    
+    for (NodeDefinition nd: removed.getChildNodeDefinitions()) {
+      InternalQName ndName = ((NodeDefinitionImpl) nd).getQName();
+      ItemData n = dataManager.getItemData(nodeData(), new QPathEntry(ndName, 1));
+      if (n.isNode()) {
+        // remove node with subtree
+        ItemDataRemoveVisitor remover = new ItemDataRemoveVisitor(dataManager, ancestorToSave);
+        n.accept(remover);
+        for (ItemState deleted: remover.getRemovedStates()) {
+          dataManager.delete(deleted.getData(), ancestorToSave);
+        }
+      }
+    }
 
     if (newMixin.size() > 0) {
-      dataManager.update(ItemState.createUpdatedState(prop), false); // TODO pool=false
+      dataManager.update(new ItemState(prop, ItemState.UPDATED, true, ancestorToSave), false); // TODO pool=false
     } else {
-      dataManager.delete(prop);
+      dataManager.delete(prop, ancestorToSave);
     }
   }
 
@@ -1457,7 +1492,18 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       }
     }
     return false;
+  }
+  
+  protected void removeLockable() throws RepositoryException {
+    if (session.getLockManager().holdsLock(nodeData())) {
+      // locked, should be unlocked
+      
+      if (!session.getLockManager().isLockHolder(this))
+        throw new LockException("There are no permission to unlock the node " + getPath());
 
+      // remove mix:lockable properties (as the node is locked)
+      doUnlock();
+    }
   }
   
   private static class NodeDataOrderComparator implements Comparator<NodeData> {
@@ -2156,9 +2202,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /**
    * @see javax.jcr.Node#unlock()
    */
   public void unlock() throws UnsupportedRepositoryOperationException,
@@ -2167,33 +2211,44 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       RepositoryException {
 
     checkValid();
-    if (!session.getLockManager().holdsLock((NodeData) this.getData())) {
+    
+    if (!session.getLockManager().holdsLock((NodeData) this.getData()))
       throw new LockException("The node not locked " + getPath());
-
-    }
+    
     if (!session.getLockManager().isLockHolder(this))
       throw new LockException("There are no permission to unlock the node " + getPath());
 
     if (dataManager.hasPendingChanges(getInternalPath()))
       throw new InvalidItemStateException("Node has pending unsaved changes " + getPath());
 
-    PlainChangesLog changesLog = new PlainChangesLogImpl(new ArrayList<ItemState>(), session
-        .getId(), ExtendedEvent.UNLOCK);
-
-    ItemData lockOwner = dataManager.getItemData(nodeData(),
-        new QPathEntry(Constants.JCR_LOCKOWNER, 0));
-
-    changesLog.add(ItemState.createDeletedState(lockOwner));
-
-    ItemData lockIsDeep = dataManager.getItemData(nodeData(),
-        new QPathEntry(Constants.JCR_LOCKISDEEP, 0));
-    changesLog.add(ItemState.createDeletedState(lockIsDeep));
-
-    dataManager.getTransactManager().save(changesLog);
+    doUnlock();
 
     session.getActionHandler().postUnlock(this);
   }
 
+  /**
+   * Remove mix:lockable properties.
+   *  
+   * @throws RepositoryException
+   */
+  protected void doUnlock() throws RepositoryException {
+
+    PlainChangesLog changesLog = new PlainChangesLogImpl(new ArrayList<ItemState>(), session
+        .getId(), ExtendedEvent.UNLOCK);
+
+    ItemData lockOwner = dataManager.getItemData(nodeData(), new QPathEntry(
+        Constants.JCR_LOCKOWNER, 0));
+
+    changesLog.add(ItemState.createDeletedState(lockOwner));
+
+    ItemData lockIsDeep = dataManager.getItemData(nodeData(), new QPathEntry(
+        Constants.JCR_LOCKISDEEP, 0));
+    
+    changesLog.add(ItemState.createDeletedState(lockIsDeep));
+
+    dataManager.getTransactManager().save(changesLog);
+  }
+  
   /*
    * (non-Javadoc)
    * 
