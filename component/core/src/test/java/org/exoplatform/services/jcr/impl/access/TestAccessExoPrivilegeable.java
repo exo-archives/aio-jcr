@@ -55,7 +55,11 @@ public class TestAccessExoPrivilegeable extends BaseStandaloneTest {
   public void testSessionCheckPermission() throws Exception {
     NodeImpl node = null;
     node = (NodeImpl) accessTestRoot.addNode("testSessionCheckPermission");
-    node.addMixin("exo:accessControllable");
+    //node.addMixin("exo:accessControllable");
+    
+    node.addMixin("exo:owneable");
+    node.addMixin("exo:privilegeable");
+    
     //good style of set permission 
     //1. set for me
     //2. set for others
