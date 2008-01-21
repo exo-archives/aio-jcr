@@ -23,30 +23,35 @@ import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.access.AccessControlEntry;
+import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.SharedDataManager;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS.
- * Data Manager supported ACL Inheritance
+ * Created by The eXo Platform SAS. Data Manager supported ACL Inheritance
+ * 
  * @author Gennady Azarenkov
- * @version $Id$
+ * @version $Id: ACLInheritanceSupportedWorkspaceDataManager.java 8440
+ *          2007-11-30 15:52:29Z svm $
  */
 public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataManager {
 
-  private static Log log = ExoLogger.getLogger("jcr.ACLInheritanceSupportedWorkspaceDataManager");
-  
+  private static Log                          log = ExoLogger.getLogger("jcr.ACLInheritanceSupportedWorkspaceDataManager");
+
   private final CacheableWorkspaceDataManager persistentManager;
-  
+
   public ACLInheritanceSupportedWorkspaceDataManager(CacheableWorkspaceDataManager persistentManager) {
     this.persistentManager = persistentManager;
   }
-  
+
   /**
    * Traverse items parents in persistent storage for ACL containing parent.
    * Same work is made in SessionDataManager.getItemData(NodeData, QPathEntry[])
@@ -56,53 +61,69 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataMa
    * @return - parent or null
    * @throws RepositoryException
    */
-  private NodeData getNearestACAncestor(ItemData data) throws RepositoryException {
+  private AccessControlList getNearestACAncestorAcl(ItemData data) throws RepositoryException {
+
     if (data.getParentIdentifier() != null) {
       NodeData parent = (NodeData) getItemData(data.getParentIdentifier());
       while (parent != null) {
         if (parent.getACL() != null) {
           // has an AC parent
-          return parent;
-        } 
+          return parent.getACL();
+        }
         // going up to the root
         parent = (NodeData) getItemData(parent.getParentIdentifier());
       }
     }
-    return null;
+    return new AccessControlList();
   }
-  
+
   /**
-   * 
    * @param parent - a parent, can be null (get item by id)
    * @param data - an item data
    * @return - an item data with ACL was initialized
    * @throws RepositoryException
    */
   private ItemData initACL(NodeData parent, ItemData data) throws RepositoryException {
-    if (data != null) { 
-      if (data.isNode()) {
+    if (data != null && data.isNode()) {
+      NodeData nData = (NodeData) data;
+      if (((NodeData) data).getACL() == null) {
         // ACL
-        NodeData nData = (NodeData) data;
-        if (nData.getACL() == null) {
-          if (parent != null) {
-            nData.setACL(parent.getACL());  
-          } else {
-            // case of get by id
-            NodeData rparent = getNearestACAncestor(data);
-            nData.setACL(rparent.getACL());
-          }
+
+        if (parent != null) {
+          nData.setACL(parent.getACL());
+        } else {
+          // case of get by id
+          nData.setACL(getNearestACAncestorAcl(data));
         }
-        
-        // owner
-        if (nData.getACL() != null && nData.getACL().getOwner() == null) {
-          if (parent != null) {
-            nData.getACL().setOwner(parent.getACL().getOwner());
-          } else {
-            NodeData rparent = getNearestACAncestor(data);
-            nData.getACL().setOwner(rparent.getACL().getOwner());
-          }
+      } else {
+
+        boolean isMixOwnable = false;
+        boolean isMixPrivilegeble = false;
+        InternalQName[] mixinNames = nData.getMixinTypeNames();
+        for (int i = 0; i < mixinNames.length; i++) {
+          if (Constants.EXO_PRIVILEGEABLE.equals(mixinNames[i]))
+            isMixPrivilegeble = true;
+          else if (Constants.EXO_OWNEABLE.equals(mixinNames[i]))
+            isMixOwnable = true;
         }
-      } // no ACL for property
+        // isMixOwnable or isMixPrivilegeble
+
+        if (isMixOwnable ^ isMixPrivilegeble) {
+          // case of get by id
+          AccessControlList ancestorAcl = getNearestACAncestorAcl(data);
+          String newOwner = isMixOwnable ? nData.getACL().getOwner() : ancestorAcl.getOwner();
+          List<AccessControlEntry> newAccesssList = isMixPrivilegeble ? nData.getACL()
+                                                                             .getPermissionEntries()
+                                                                     : ancestorAcl.getPermissionEntries();
+
+          if (newOwner == null || newAccesssList == null || newAccesssList.size() < 1)
+            throw new RepositoryException("Invalid ACL " + newOwner + ":" + newAccesssList);
+
+          nData.setACL(new AccessControlList(newOwner, newAccesssList));
+
+        }
+
+      }
     }
 
     return data;
@@ -112,10 +133,11 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataMa
 
   public List<NodeData> getChildNodesData(NodeData parent) throws RepositoryException {
     List<NodeData> nodes = persistentManager.getChildNodesData(parent);
-    for(NodeData node: nodes) 
+    for (NodeData node : nodes)
       initACL(parent, node);
     return nodes;
   }
+
   public ItemData getItemData(NodeData parent, QPathEntry name) throws RepositoryException {
     return initACL(parent, persistentManager.getItemData(parent, name));
   }
@@ -123,7 +145,7 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataMa
   public ItemData getItemData(String identifier) throws RepositoryException {
     return initACL(null, persistentManager.getItemData(identifier));
   }
-  
+
   public List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException {
     return persistentManager.getChildPropertiesData(parent);
   }
@@ -135,10 +157,12 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataMa
   public List<PropertyData> getReferencesData(String identifier, boolean skipVersionStorage) throws RepositoryException {
     return persistentManager.getReferencesData(identifier, skipVersionStorage);
   }
-  
+
   // ------------ SharedDataManager ----------------------
-  
-  public void save(ItemStateChangesLog changes) throws InvalidItemStateException, UnsupportedOperationException, RepositoryException {
+
+  public void save(ItemStateChangesLog changes) throws InvalidItemStateException,
+                                               UnsupportedOperationException,
+                                               RepositoryException {
     persistentManager.save(changes);
   }
 

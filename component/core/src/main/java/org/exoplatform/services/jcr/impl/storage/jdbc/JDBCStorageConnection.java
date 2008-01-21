@@ -27,6 +27,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.jcr.InvalidItemStateException;
@@ -758,7 +759,12 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         // MIXIN
         ResultSet mtProp = findPropertyByName(cid, Constants.JCR_MIXINTYPES.getAsString());
 
+
+        //HashSet<InternalQName> mixinNames = new HashSet<InternalQName>();
+        
         InternalQName[] mixinNames = new InternalQName[0];
+        boolean isMixOwnable = false;
+        boolean isMixPrivilegeble = false;
         if (mtProp.next()) {
           List<byte[]> mts = new ArrayList<byte[]>();
           ResultSet mtValues = findValuesDataByPropertyId(mtProp.getString(COLUMN_ID));
@@ -767,32 +773,46 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
           }
           mixinNames = new InternalQName[mts.size()];
           for (int i = 0; i < mts.size(); i++) {
-            mixinNames[i] = InternalQName.parse(new String(mts.get(i)));
+            mixinNames[i] = InternalQName.parse(new String(mts.get(i)));//encoding;
+            
+            if(Constants.EXO_PRIVILEGEABLE.equals(mixinNames[i]))
+              isMixPrivilegeble = true;
+            else if(Constants.EXO_OWNEABLE.equals(mixinNames[i]))
+              isMixOwnable = true;
+
           }
         }
 
         // ACL
-        AccessControlList acl;
-        if (isAccessControllable(mixinNames)) {
+      PropertyData ownerData = null;
+      PropertyData permData = null;
 
-          PropertyData ownerData = (PropertyData) getItemByName(qpath, cid, new QPathEntry(Constants.EXO_OWNER, 1));
-          PropertyData permData = (PropertyData) getItemByName(qpath, cid, new QPathEntry(Constants.EXO_PERMISSIONS, 1));
-          acl = new AccessControlList(ownerData, permData);
-        } else {
-          if (parentPath == null) {
-            // make default ACL for root
-            acl = new AccessControlList();
-          } else {
-            acl = null;
-          }
-        }
+      if (isMixPrivilegeble) {
+        permData = (PropertyData) getItemByName(qpath,
+                                                cid,
+                                                new QPathEntry(Constants.EXO_PERMISSIONS, 1));
+      }
+      
+      if (isMixOwnable) {
+        ownerData = (PropertyData) getItemByName(qpath, cid, new QPathEntry(Constants.EXO_OWNER, 1));
+      }
+      
+      AccessControlList acl = null;
+      if (permData != null || ownerData != null)
+        acl = new AccessControlList(ownerData, permData);
 
-        return new PersistedNodeData(getIdentifier(cid), qpath, getIdentifier(cpid), cversion, cnordernumb,
-            ptName, mixinNames, acl);
+      return new PersistedNodeData(getIdentifier(cid),
+                                   qpath,
+                                   getIdentifier(cpid),
+                                   cversion,
+                                   cnordernumb,
+                                   ptName,
+                                   mixinNames,
+                                   acl);
 
-      } catch (IllegalNameException e) {
-        throw new RepositoryException(e);
-      }    
+    } catch (IllegalNameException e) {
+      throw new RepositoryException(e);
+    }    
   }
     
   protected PersistedPropertyData loadPropertyRecord(QPath parentPath, String cname, String cid, String cpid, int cversion, int cptype, boolean cpmultivalued) throws RepositoryException, SQLException, IOException {

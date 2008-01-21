@@ -553,6 +553,10 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
           else if (needReload(data))
             unloadProperty((PropertyData) data); // remove mixins
           put(data); 
+        }else if(state.isMixinChanged()){
+          unloadNode((NodeData) data);
+          //put(data); 
+          
         }
       } catch (Exception e) {
         log.error(name + ", Error process onSaveItems action for item data: " 
