@@ -465,7 +465,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     JCRPath srcNodePath = srcSession.getLocationFactory().parseAbsPath(srcAbsPath);
 
     NodeImpl srcNode = (NodeImpl) srcSession.getTransientNodesManager().getItem(
-        srcNodePath.getInternalPath(), false); // TODO pool=false
+        srcNodePath.getInternalPath(), false);
 
     NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager().getItem(
         destNodePath.makeParentPath().getInternalPath(), true);
