@@ -15,7 +15,7 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.services.webdav.lnkproducer;
+package org.exoplatform.services.jcr.webdav.lnkproducer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
