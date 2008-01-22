@@ -29,7 +29,7 @@
 
     <dependency>
       <groupId>org.exoplatform.ws.rest</groupId>
-      <artifactId>exo.rest.core</artifactId>
+      <artifactId>exo.ws.rest.core</artifactId>
       <version>${org.exoplatform.ws.version}</version>
       <scope>compile</scope>
     </dependency>
