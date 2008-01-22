@@ -471,8 +471,8 @@ public class WorkspaceImpl implements ExtendedWorkspace {
         destNodePath.makeParentPath().getInternalPath(), true);
 
     if (srcNode == null || destParentNode == null) {
-      throw new PathNotFoundException("No node exists at " + srcAbsPath
-          + " or no node exists one level above " + destAbsPath);
+      throw new PathNotFoundException("No node exists at source path " + srcAbsPath
+          + " or no node exists one level above on destenation " + destAbsPath);
     }
 
     try {
