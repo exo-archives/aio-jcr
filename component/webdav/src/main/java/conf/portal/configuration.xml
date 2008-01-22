@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<configuration>
+  <component>
+	<key>org.exoplatform.services.jcr.webdav.WebDavServiceImpl</key>
+	<type>org.exoplatform.services.jcr.webdav.WebDavServiceImpl</type>
+	<init-params>
+			
+		<value-param>
+			<name>auto-mix-lockable</name>
+			<value>false</value>
+		</value-param>
+			
+		<value-param>
+			<name>def-folder-node-type</name>
+			<value>nt:folder</value>
+		</value-param>
+			
+		<value-param>
+			<name>def-file-node-type</name>
+			<value>nt:file</value>
+		</value-param>
+			
+		<value-param>
+			<name>def-file-mimetype</name>
+			<value>text/plain</value>
+		</value-param>
+			
+		<value-param>
+			<name>update-policy</name>
+			<value>create-version</value>
+			<!--value>replace</value -->
+			<!-- value>add</value -->
+		</value-param>
+	</init-params>
+</component>
+	
+</configuration>
