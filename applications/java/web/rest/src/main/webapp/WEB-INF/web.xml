@@ -9,6 +9,15 @@
   <filter>
     <filter-name>ThreadLocalSessionProviderInitializedFilter</filter-name>
     <filter-class>org.exoplatform.frameworks.jcr.web.ThreadLocalSessionProviderInitializedFilter</filter-class>
+  </filter>
+  
+  <filter>
+    <filter-name>RestContentFilter</filter-name>
+    <filter-class>org.exoplatform.services.rest.servlet.RestEncodingFilter</filter-class>
+    <init-param>
+      <param-name>REQUEST_ENCODING</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
   </filter>  
   
 	<listener>
@@ -25,12 +34,17 @@
 		</servlet-class>
 		<load-on-startup>4</load-on-startup>
 	</servlet>
+  
+  <filter-mapping>
+    <filter-name>RestContentFilter</filter-name>
+    <servlet-name>RestServer</servlet-name>  
+  </filter-mapping>
 
   <filter-mapping>
     <filter-name>ThreadLocalSessionProviderInitializedFilter</filter-name>
     <url-pattern>/jcr/*</url-pattern>
   </filter-mapping>
-
+  
   <servlet-mapping>
 		<servlet-name>RestServer</servlet-name>
 		<url-pattern>/*</url-pattern>
@@ -56,6 +70,7 @@
   </login-config>
 
   <security-role>
+    <description>Security roles</description>
     <role-name>user</role-name>
     <role-name>admin</role-name>
   </security-role>
