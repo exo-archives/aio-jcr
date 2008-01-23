@@ -9,8 +9,8 @@
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <!-- property name="dialect" value="mysql"/ -->
-              <property name="dialect" value="pgsql"/>
-              <property name="sourceName" value="jdbcjcr"/>
+              <property name="dialect" value="generic"/>
+              <property name="sourceName" value="jdbcexo"/>
               <property name="multi-db" value="false"/>
               <property name="update-storage" value="true"/>
               <property name="max-buffer-size" value="204800"/>

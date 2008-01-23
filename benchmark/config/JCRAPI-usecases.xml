@@ -15,7 +15,7 @@
     <param name="jcr.initializer" value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializer" />
     <param name="jcr.user" value="admin" />
     <param name="jcr.password" value="admin" />
-    <param name="jcr.workspace" value="production" />
+    <param name="jcr.workspace" value="ws" />
     <param name="jcr.sessionPolicy" value="single" />
     <param name="exo.jaasConf" value="login.conf" />
     <param name="exo.containerConf" value="../config/test-configuration-benchmark.xml" />
@@ -25,15 +25,15 @@
   </driverGroup>
 
   <!--testCase name="SearchNodesByPropertyUsingLikeOperatorTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesByPropertyUsingLikeOperatorTest" />  
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesByPropertyUsingLikeOperatorTest" />
   </testCase-->
 
   <!--testCase name="SearchNodesByPropertyTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesByPropertyTest" />  
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesByPropertyTest" />
   </testCase-->
 
   <!--testCase name="SearchNodesByContentTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesByContentTest" />  
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesByContentTest" />
   </testCase-->
 
   <testCase name="AddNtFileWithMetadataTest">
