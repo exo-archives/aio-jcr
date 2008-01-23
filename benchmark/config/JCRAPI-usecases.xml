@@ -5,6 +5,7 @@
   <param name="japex.plotGroupSize" value="5" />
   <param name="japex.resultUnit" value="tps" />
   <param name="japex.warmupIterations" value="0" />
+  <!-- param name="japex.runIterations" value="2" /-->  
   <param name="japex.runTime" value="10" />
   <!-- 10 for 10 sec -->
   <!-- 15:00 for 15min -->
@@ -15,7 +16,7 @@
     <param name="jcr.initializer" value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializer" />
     <param name="jcr.user" value="admin" />
     <param name="jcr.password" value="admin" />
-    <param name="jcr.workspace" value="ws" />
+    <param name="jcr.workspace" value="collaboration" />
     <param name="jcr.sessionPolicy" value="single" />
     <param name="exo.jaasConf" value="login.conf" />
     <param name="exo.containerConf" value="../config/test-configuration-benchmark.xml" />
@@ -23,6 +24,14 @@
       <param name="japex.numberOfThreads" value="2" />
     </driver>
   </driverGroup>
+
+  <!--testCase name="LockUnlockCommonNodeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.LockUnlockCommonNodeTest" />
+  </testCase-->
+  
+  <!--testCase name="LockUnlockOwnNodeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.LockUnlockOwnNodeTest" />
+  </testCase-->
 
   <!--testCase name="SearchNodesByPropertyUsingLikeOperatorTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesByPropertyUsingLikeOperatorTest" />

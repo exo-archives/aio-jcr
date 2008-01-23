@@ -65,7 +65,7 @@
     <init-params>
       <properties-param>
         <name>locations</name>
-        <property name="db1" value="ws" />
+        <property name="repository" value="collaboration" />
       </properties-param>
     </init-params>
   </component>

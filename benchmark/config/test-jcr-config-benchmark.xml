@@ -1,10 +1,10 @@
-<repository-service default-repository="db1">
+<repository-service default-repository="repository">
   <repositories>
-    <repository name="db1" system-workspace="ws" default-workspace="ws">
+    <repository name="repository" system-workspace="collaboration" default-workspace="collaboration">
       <security-domain>exo-domain</security-domain>
       <authentication-policy>org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy</authentication-policy>
       <workspaces>
-        <workspace name="ws" auto-init-root-nodetype="nt:unstructured">
+        <workspace name="collaboration" auto-init-root-nodetype="nt:unstructured">
           <!-- for system storage -->
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
@@ -28,6 +28,14 @@
               <property name="indexDir" value="../temp/index"/>
             </properties>
           </query-handler>
+          <lock-manager>
+            <time-out>900000</time-out><!-- 15min -->
+            <persister class="org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister">
+              <properties>
+                <property name="path" value="../temp/lock" />
+              </properties>
+            </persister>
+          </lock-manager>
         </workspace>
       </workspaces>
     </repository>
