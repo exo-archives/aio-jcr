@@ -88,7 +88,8 @@ public class LockUnlockCommonNodeTest extends JCRTestBase {
         tmpSession.save();
         rootNode.addMixin("mix:lockable");
         tmpSession.save();
-        rootNode.lock(true, true);
+        rootNode.lock(true, false);
+        tmpSession.logout();
         rootNodeCreated = true;
       }
     } catch (Exception e) {
@@ -105,6 +106,7 @@ public class LockUnlockCommonNodeTest extends JCRTestBase {
         Node rootNode = tmpSession.getRootNode().getNode(rootNodeName);
         rootNode.remove();
         tmpSession.save();
+        tmpSession.logout();
         rootNodeDeleted = true;
       }
     } catch (Exception e) {

@@ -29,7 +29,7 @@
             </properties>
           </query-handler>
           <lock-manager>
-            <time-out>900000</time-out><!-- 15min -->
+            <time-out>1800000</time-out><!-- 30min -->
             <persister class="org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister">
               <properties>
                 <property name="path" value="../temp/lock" />
