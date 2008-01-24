@@ -88,7 +88,6 @@ public class LockUnlockCommonNodeTest extends JCRTestBase {
         tmpSession.save();
         rootNode.addMixin("mix:lockable");
         tmpSession.save();
-        context.getSession().save();
         rootNode.lock(true, true);
         rootNodeCreated = true;
       }
