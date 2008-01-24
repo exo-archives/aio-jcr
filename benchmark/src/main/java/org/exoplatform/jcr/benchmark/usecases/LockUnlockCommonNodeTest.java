@@ -103,7 +103,7 @@ public class LockUnlockCommonNodeTest extends JCRTestBase {
       if (!rootNodeDeleted) {
         Credentials tmpCredentials = ((SessionImpl) context.getSession()).getCredentials();
         Session tmpSession = context.getSession().getRepository().login(tmpCredentials);
-        Node rootNode = tmpSession.getRootNode().addNode(rootNodeName);
+        Node rootNode = tmpSession.getRootNode().getNode(rootNodeName);
         rootNode.remove();
         tmpSession.save();
         rootNodeDeleted = true;
