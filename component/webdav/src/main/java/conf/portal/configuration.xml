@@ -2,6 +2,10 @@
 
 <configuration>
   <component>
+    <key>org.exoplatform.services.jcr.webdav.lnkproducer.LnkProducer</key>
+    <type>>org.exoplatform.services.jcr.webdav.lnkproducer.LnkProducer</type>
+  </component>
+  <component>
 	<key>org.exoplatform.services.jcr.webdav.WebDavServiceImpl</key>
 	<type>org.exoplatform.services.jcr.webdav.WebDavServiceImpl</type>
 	<init-params>
