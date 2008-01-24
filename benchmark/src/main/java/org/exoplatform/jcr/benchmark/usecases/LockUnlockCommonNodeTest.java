@@ -68,7 +68,7 @@ public class LockUnlockCommonNodeTest extends JCRTestBase {
       rootNode.setProperty(context.generateUniqueName("property"), context
           .generateUniqueName("value"));
       context.getSession().save();
-      // throw new RuntimeException("LockException must be here");
+      throw new RuntimeException("LockException must be here");
     } catch (LockException e) {
       // as expected
     }
