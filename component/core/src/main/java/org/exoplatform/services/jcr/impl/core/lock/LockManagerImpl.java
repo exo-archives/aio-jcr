@@ -511,6 +511,8 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
       ItemData lockOwner = copyItemData((PropertyData) dataManager.getItemData(nData,
                                                                                new QPathEntry(Constants.JCR_LOCKOWNER,
                                                                                               1)));
+    
+
 
       changesLog.add(ItemState.createDeletedState(lockOwner));
 
@@ -518,7 +520,10 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
                                                                                 new QPathEntry(Constants.JCR_LOCKISDEEP,
                                                                                                1)));
       changesLog.add(ItemState.createDeletedState(lockIsDeep));
-
+      
+      //lock probably removed by other thread
+      if(lockOwner == null  || lockIsDeep == null)
+        return;
       dataManager.save(new TransactionChangesLog(changesLog));
     } catch (RepositoryException e) {
       log.error("Error occur during removing lock" + e.getLocalizedMessage());

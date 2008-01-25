@@ -16,6 +16,9 @@
  */
 package org.exoplatform.services.jcr.impl.core.lock;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.impl.proccess.WorkerThread;
@@ -52,12 +55,22 @@ public class LockRemover extends WorkerThread {
 
   @Override
   protected void callPeriodically() throws Exception {
+
+    List<LockData> lDatas;
+
     synchronized (lockManagerImpl.locks) {
-      for (LockData lock : lockManagerImpl.locks.values()) {
+      lDatas = new ArrayList<LockData>(lockManagerImpl.locks.values());
+    }
+
+    if (lDatas != null) {
+      for (LockData lock : lDatas) {
         if (!lock.isSessionScoped() && lock.getTimeToDeath() < 0) {
-          lockManagerImpl.removeLock(lock.getNodeIdentifier());
+          if (lockManagerImpl.locks.containsValue(lock)) {
+            lockManagerImpl.removeLock(lock.getNodeIdentifier());
+          }
         }
       }
     }
   }
+
 }
