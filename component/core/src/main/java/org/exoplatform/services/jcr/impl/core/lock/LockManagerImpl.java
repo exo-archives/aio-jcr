@@ -371,7 +371,12 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     lockRemover = new LockRemover(this);
     //lockRemover.start();
   }
-
+  
+  //  Quick method. We need to reconstruct
+  synchronized List<LockData>getLockList(){
+    return new ArrayList<LockData>(locks.values());
+  }
+  
   public void stop() {
     lockRemover.halt();
     lockRemover.interrupt();
