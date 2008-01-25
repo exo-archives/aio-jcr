@@ -47,7 +47,7 @@ public class LockUnlockCommonDeepNodeTest extends JCRTestBase {
 
   public static boolean rootNodeDeleted = false;
 
-  public static String  rootNodeName    = "rootNode";
+  public static String  rootNodeName    = "rootLockUnlockCommonDeepNodeTest";
   
   public static String  child1 = "child1";
   

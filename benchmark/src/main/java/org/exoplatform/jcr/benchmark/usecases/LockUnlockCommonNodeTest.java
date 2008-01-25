@@ -47,7 +47,7 @@ public class LockUnlockCommonNodeTest extends JCRTestBase {
 
   public static boolean rootNodeDeleted = false;
 
-  public static String  rootNodeName    = "rootNode";
+  public static String  rootNodeName    = "rootLockUnlockCommonNodeTest";
 
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
