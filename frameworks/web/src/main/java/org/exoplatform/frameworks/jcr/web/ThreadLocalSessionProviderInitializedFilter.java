@@ -67,9 +67,9 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
    */
   public void doFilter(ServletRequest request, ServletResponse response,
       FilterChain chain) throws IOException, ServletException {
-
+      
     ExoContainer container = ExoContainerContext.getCurrentContainer();
-
+    
     authenticationService = (AuthenticationService) container
         .getComponentInstanceOfType(AuthenticationService.class);
     providerService = (ThreadLocalSessionProviderService) container
@@ -77,9 +77,10 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     String user = httpRequest.getRemoteUser();
-    
+
     SessionProvider provider = providerService.getSessionProvider(null);
     // is there SessionProvider in current thread?
+
     if (provider == null) {
       // initialize thread local SessionProvider
       if (user != null) {
@@ -89,26 +90,8 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
         } catch (Exception e) {
           throw new ServletException(e);
         }
-        
         if(identity != null) {          
-          Credentials credentials = null;
-          try {
-            if ("BASIC".equals(httpRequest.getAuthType())) {
-              String authHeader = httpRequest.getHeader("Authorization");
-              if (authHeader != null) {
-                String decodedAuth = "";
-                String []basic = authHeader.split(" ");
-                if (basic.length >= 2 && basic[0].equalsIgnoreCase(HttpServletRequest.BASIC_AUTH)) {
-                  decodedAuth = new String(Base64.decodeBase64(basic[1].getBytes()));
-                }                 
-                String []authParams = decodedAuth.split(":");
-                credentials = new SimpleCredentials(authParams[0], authParams[1].toCharArray());                  
-              }
-            }            
-          } catch (Exception exc) {
-            throw new ServletException(exc);
-          }          
-          provider = new SessionProvider(credentials);
+          provider = new SessionProvider(null);
         }
       }
     }
@@ -118,9 +101,7 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
     }
     
     providerService.setSessionProvider(null, provider);
-    
     chain.doFilter(request, response);
-
   }
   
   /* (non-Javadoc)
