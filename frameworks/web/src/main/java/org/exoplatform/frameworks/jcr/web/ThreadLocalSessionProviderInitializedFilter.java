@@ -18,8 +18,6 @@ package org.exoplatform.frameworks.jcr.web;
 
 import java.io.IOException;
 
-import javax.jcr.Credentials;
-import javax.jcr.SimpleCredentials;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -28,7 +26,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.codec.binary.Base64;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
@@ -90,6 +87,7 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
         } catch (Exception e) {
           throw new ServletException(e);
         }
+        
         if(identity != null) {          
           provider = new SessionProvider(null);
         }
@@ -101,7 +99,9 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
     }
     
     providerService.setSessionProvider(null, provider);
+    
     chain.doFilter(request, response);
+
   }
   
   /* (non-Javadoc)
