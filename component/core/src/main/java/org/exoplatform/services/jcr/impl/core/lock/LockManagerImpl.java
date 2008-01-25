@@ -19,10 +19,12 @@ package org.exoplatform.services.jcr.impl.core.lock;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.RepositoryException;
@@ -83,7 +85,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
   private final Log                   log                  = ExoLogger.getLogger("jcr.lock.LockManager");
 
   // NodeIdentifier -- lockData
-  private final Map<String, LockData> locks;
+  final Map<String, LockData> locks; //TODO hide this field
 
   private final DataManager           dataManager;
 
@@ -121,9 +123,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
       lockTimeOut = config.getLockManager().getTimeout() > 0 ? config.getLockManager().getTimeout()
                                                             : DEFAULT_LOCK_TIMEOUT;
 
-    locks = new WeakHashMap<String, LockData>();
-    pendingLocks = new WeakHashMap<String, LockData>();
-    tokensMap = new WeakHashMap<String, LockData>();
+    locks = new HashMap<String, LockData>();
+    pendingLocks = new HashMap<String, LockData>();
+    tokensMap = new HashMap<String, LockData>();
 
     dataManager.addItemPersistenceListener(this);
   }
@@ -366,8 +368,8 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
   }
 
   public void start() {
-    lockRemover = new LockRemover();
-    lockRemover.start();
+    lockRemover = new LockRemover(this);
+    //lockRemover.start();
   }
 
   public void stop() {
@@ -497,8 +499,8 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     }
     lData = null;
   }
-
-  private void removeLock(String nodeIdentifier) {
+  //TODO hide this method
+  void removeLock(String nodeIdentifier) {
     NodeData nData;
     try {
       nData = (NodeData) dataManager.getItemData(nodeIdentifier);
@@ -523,33 +525,5 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     }
 
   }
-
-  protected class LockRemover extends WorkerThread {
-    public static final long DEFAULT_THREAD_TIMEOUT = 30000; // 30sec
-
-    public LockRemover() {
-      this(DEFAULT_THREAD_TIMEOUT);
-    }
-
-    public LockRemover(long timeout) {
-      super(timeout);
-      setName("LockRemover " + getId());
-      setPriority(Thread.MIN_PRIORITY);
-      setDaemon(true);
-      // start();
-      log.info("LockRemover instantiated name= " + getName() + " timeout= " + timeout);
-
-    }
-
-    @Override
-    protected void callPeriodically() throws Exception {
-      synchronized (locks) {
-        for (LockData lock : locks.values()) {
-          if (!lock.isSessionScoped() && lock.getTimeToDeath() < 0) {
-            removeLock(lock.getNodeIdentifier());
-          }
-        }
-      }
-    }
-  }
+  
 }
