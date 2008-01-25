@@ -38,7 +38,7 @@ import com.sun.japex.TestCase;
 public class LockUnlockCommonNodeTest extends JCRTestBase {
   /*
    * This test measures performance of lock mechanism, each thread has common
-   * node
+   * level2 node
    */
 
   public static Log     log             = ExoLogger.getLogger("jcr.benchmark");

@@ -37,7 +37,7 @@ import com.sun.japex.TestCase;
  */
 public class LockUnlockCommonDeepNodeTest extends JCRTestBase {
   /*
-   * This test measures performance of lock mechanism, each thread has common
+   * This test measures performance of lock mechanism, each thread has common level1
    * node
    */
 
