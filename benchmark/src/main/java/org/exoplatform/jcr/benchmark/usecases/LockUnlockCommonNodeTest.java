@@ -56,7 +56,7 @@ public class LockUnlockCommonNodeTest extends JCRTestBase {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    Node rootNode = context.getSession().getRootNode().getNode(rootNodeName);
+    Node rootNode = (Node)context.getSession().getItem("/" + rootNodeName);
     try {
       rootNode.addNode(context.generateUniqueName("node"), "nt:unstructured");
       context.getSession().save();
