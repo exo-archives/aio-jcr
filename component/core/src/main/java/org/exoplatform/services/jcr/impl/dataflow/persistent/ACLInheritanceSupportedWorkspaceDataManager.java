@@ -27,6 +27,7 @@ import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.SharedDataManager;
+import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -44,9 +45,11 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataManager {
 
-  private static Log                          log = ExoLogger.getLogger("jcr.ACLInheritanceSupportedWorkspaceDataManager");
+  private static Log                          log          = ExoLogger.getLogger("jcr.ACLInheritanceSupportedWorkspaceDataManager");
 
   private final CacheableWorkspaceDataManager persistentManager;
+
+  private static final AccessControlList      DEFAULT_ACL = new AccessControlList();
 
   public ACLInheritanceSupportedWorkspaceDataManager(CacheableWorkspaceDataManager persistentManager) {
     this.persistentManager = persistentManager;
@@ -74,7 +77,7 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataMa
         parent = (NodeData) getItemData(parent.getParentIdentifier());
       }
     }
-    return new AccessControlList();
+    return DEFAULT_ACL;
   }
 
   /**
@@ -96,33 +99,23 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataMa
           nData.setACL(getNearestACAncestorAcl(data));
         }
       } else {
+        if (nData instanceof PersistedNodeData) {
+          PersistedNodeData pData = (PersistedNodeData) nData;
+          if (pData.isOwnamble() ^ pData.isPrivilagable()) {
+            // case of get by id
+            AccessControlList ancestorAcl = getNearestACAncestorAcl(data);
+            String newOwner = pData.isOwnamble() ? nData.getACL().getOwner()
+                                                : ancestorAcl.getOwner();
+            List<AccessControlEntry> newAccesssList = pData.isPrivilagable() ? nData.getACL()
+                                                                                    .getPermissionEntries()
+                                                                            : ancestorAcl.getPermissionEntries();
 
-        boolean isMixOwnable = false;
-        boolean isMixPrivilegeble = false;
-        InternalQName[] mixinNames = nData.getMixinTypeNames();
-        for (int i = 0; i < mixinNames.length; i++) {
-          if (Constants.EXO_PRIVILEGEABLE.equals(mixinNames[i]))
-            isMixPrivilegeble = true;
-          else if (Constants.EXO_OWNEABLE.equals(mixinNames[i]))
-            isMixOwnable = true;
-        }
-        // isMixOwnable or isMixPrivilegeble
+            if (newOwner == null || newAccesssList == null || newAccesssList.size() < 1)
+              throw new RepositoryException("Invalid ACL " + newOwner + ":" + newAccesssList);
 
-        if (isMixOwnable ^ isMixPrivilegeble) {
-          // case of get by id
-          AccessControlList ancestorAcl = getNearestACAncestorAcl(data);
-          String newOwner = isMixOwnable ? nData.getACL().getOwner() : ancestorAcl.getOwner();
-          List<AccessControlEntry> newAccesssList = isMixPrivilegeble ? nData.getACL()
-                                                                             .getPermissionEntries()
-                                                                     : ancestorAcl.getPermissionEntries();
-
-          if (newOwner == null || newAccesssList == null || newAccesssList.size() < 1)
-            throw new RepositoryException("Invalid ACL " + newOwner + ":" + newAccesssList);
-
-          nData.setACL(new AccessControlList(newOwner, newAccesssList));
-
-        }
-
+            nData.setACL(new AccessControlList(newOwner, newAccesssList));
+          }
+        } 
       }
     }
 

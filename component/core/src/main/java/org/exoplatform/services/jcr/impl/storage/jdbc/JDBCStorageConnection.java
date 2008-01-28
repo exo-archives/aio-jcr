@@ -808,7 +808,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
                                    cnordernumb,
                                    ptName,
                                    mixinNames,
-                                   acl);
+                                   acl,isMixPrivilegeble,isMixOwnable);
 
     } catch (IllegalNameException e) {
       throw new RepositoryException(e);
