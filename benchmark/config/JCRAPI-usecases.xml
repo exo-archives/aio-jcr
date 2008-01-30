@@ -5,7 +5,7 @@
   <param name="japex.plotGroupSize" value="5" />
   <param name="japex.resultUnit" value="tps" />
   <param name="japex.warmupIterations" value="0" />
-  <!-- param name="japex.runIterations" value="2" /-->  
+  <!--param name="japex.runIterations" value="1" /-->  
   <param name="japex.runTime" value="10" />
   <!-- 10 for 10 sec -->
   <!-- 15:00 for 15min -->
@@ -24,6 +24,10 @@
       <param name="japex.numberOfThreads" value="2" />
     </driver>
   </driverGroup>
+
+  <testCase name="ExportOwnSubtreeDocViewTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.xml.ExportOwnSubtreeDocViewTest" />
+  </testCase>
 
   <!--testCase name="LockUnlockCommonDeepNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.LockUnlockCommonDeepNodeTest" />
@@ -49,9 +53,9 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesByContentTest" />
   </testCase-->
 
-  <testCase name="AddNtFileWithMetadataTest">
+  <!--testCase name="AddNtFileWithMetadataTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.AddNtFileWithMetadataTest" />
-  </testCase>
+  </testCase-->
 
   <!--testCase name="AddNtFileWithMetadataTestCleanDBOracle">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.AddNtFileWithMetadataTestCleanDBOracle" />
