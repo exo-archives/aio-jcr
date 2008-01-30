@@ -16,14 +16,6 @@
  */
 package org.exoplatform.jcr.benchmark.usecases.versioning;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Calendar;
-
-import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.Node;
 
 import org.apache.commons.logging.Log;
@@ -41,8 +33,9 @@ import com.sun.japex.TestCase;
  */
 public class CheckinCheckoutOwnNodeTest extends JCRTestBase {
   /*
-   * This test measures performance of versioning mechanism using checkin() and
-   * checkout() methods, each thread has own subnode
+   * Each thread makes a lot of versions of his own node using chekin-checkout
+   * methods (between them should be some node operations like adding) many
+   * times.
    */
 
   public static Log log      = ExoLogger.getLogger("jcr.benchmark");
