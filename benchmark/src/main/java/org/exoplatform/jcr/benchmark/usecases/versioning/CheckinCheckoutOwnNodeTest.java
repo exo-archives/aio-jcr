@@ -39,7 +39,7 @@ import com.sun.japex.TestCase;
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-public class CheckinCheckoutTest extends JCRTestBase {
+public class CheckinCheckoutOwnNodeTest extends JCRTestBase {
   /*
    * This test measures performance of versioning mechanism using checkin() and
    * checkout() methods, each thread has own subnode
