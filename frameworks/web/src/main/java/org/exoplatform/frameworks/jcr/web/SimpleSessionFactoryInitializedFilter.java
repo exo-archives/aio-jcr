@@ -18,12 +18,9 @@ package org.exoplatform.frameworks.jcr.web;
 
 import java.io.IOException;
 
-import javax.jcr.SimpleCredentials;
-import javax.jcr.Credentials;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.security.auth.Subject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -45,7 +42,6 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.auth.AuthenticationService;
 import org.exoplatform.services.organization.auth.Identity;
-import org.exoplatform.services.security.SecurityService;
 
 /**
  * Created by The eXo Platform SAS .
@@ -68,18 +64,16 @@ public class SimpleSessionFactoryInitializedFilter implements Filter {
   }
 
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-      throws IOException, ServletException {
-
-    HttpServletRequest httpRequest = (HttpServletRequest) request;
-    HttpSession httpSession = httpRequest.getSession();
-
+      throws IOException, ServletException {    
+    long start = System.currentTimeMillis();
+    HttpServletRequest httpRequest = (HttpServletRequest) request;    
     String portalName = servletContext.getServletContextName();
-    ExoContainer container = ExoContainerContext.getContainerByName(portalName);
+    ExoContainer container = ExoContainerContext.getContainerByName(portalName);    
     if (container == null)
       container = ExoContainerContext.getTopContainer();
 
-    ExoContainerContext.setCurrentContainer(container);
-
+    ExoContainerContext.setCurrentContainer(container);    
+    long startAuthenticated = System.currentTimeMillis();    
     AuthenticationService authenticationService = (AuthenticationService) container
         .getComponentInstanceOfType(AuthenticationService.class);
     if (httpRequest.getRemoteUser() != null) {
@@ -95,6 +89,7 @@ public class SimpleSessionFactoryInitializedFilter implements Filter {
         authenticationService.setCurrentIdentity(identity);
       }
     }
+    long startGetRepository = System.currentTimeMillis();
     try {
       if (httpRequest.getSession().getAttribute(SingleRepositorySessionFactory.SESSION_FACTORY) == null
           || userChanged(httpRequest, authenticationService)) {
@@ -102,8 +97,7 @@ public class SimpleSessionFactoryInitializedFilter implements Filter {
         ManageableRepository rep;
 
         // (1)try to get Repository from JNDI
-        String repositoryName = servletContext.getInitParameter(WebConstants.REPOSITORY_JNDI_NAME);
-
+        String repositoryName = servletContext.getInitParameter(WebConstants.REPOSITORY_JNDI_NAME);        
         if (repositoryName != null) {
           try {
             Context ctx = new InitialContext();
@@ -119,8 +113,7 @@ public class SimpleSessionFactoryInitializedFilter implements Filter {
           } catch (RepositoryConfigurationException e) {
             e.printStackTrace();
             throw new ServletException(e);
-          }
-
+          }                    
         } else {
           log.info("No Repository object found in the JNDI context. Try to get from container");
           RepositoryService service = (RepositoryService) container
@@ -130,7 +123,7 @@ public class SimpleSessionFactoryInitializedFilter implements Filter {
           } catch (Exception e) {
             e.printStackTrace();
             throw new ServletException(e);
-          }
+          }          
         }
 
         // httpRequest.getSession().setAttribute(
@@ -140,12 +133,17 @@ public class SimpleSessionFactoryInitializedFilter implements Filter {
             new SingleRepositorySessionFactory(rep));
             //new SingleRepositorySessionFactory(rep, new Credentials("admin", "admin".toCharArray())));
       }
-
+      long startChain = System.currentTimeMillis();
       chain.doFilter(request, response);
-
+      long endChain = System.currentTimeMillis();
+      System.out.println("====TOTAL TIME===>"+(endChain - start));
+      System.out.println("====Check container===>"+(startAuthenticated - start));
+      System.out.println("====authenticate===>"+(startGetRepository - startAuthenticated));
+      System.out.println("====GetRepo===>"+(startChain- startGetRepository));
+      System.out.println("====Filter Chain===>"+(endChain- startChain));
     } finally {
       // SessionContainer.setInstance(null);
-      PortalContainer.setInstance(null);
+      PortalContainer.setInstance(null);      
     }
 
   }

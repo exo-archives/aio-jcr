@@ -138,7 +138,7 @@ public class RegistryService extends Registry implements Startable {
       String entryPath) throws ItemNotFoundException, RepositoryException {
 
     String relPath = EXO_REGISTRY + "/" + entryPath;
-    Session session = session(sessionProvider, repositoryService.getCurrentRepository());
+    Session session = session(sessionProvider, repositoryService.getCurrentRepository());    
     if (session.getRootNode().hasNode(relPath)) {
       try {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
