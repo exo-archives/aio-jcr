@@ -60,7 +60,6 @@ public class ExportOwnSubtreeSysViewTest extends JCRTestBase {
     content.setProperty("jcr:data", new FileInputStream("../resources/benchmark.pdf"));
     content.setProperty("jcr:mimeType", "application/pdf");
     content.setProperty("jcr:lastModified", Calendar.getInstance());
-    // dc:elementset property will be setted automatically
     context.getSession().save();
     destFile = File.createTempFile(name, ".xml");
     destFile.deleteOnExit(); 
