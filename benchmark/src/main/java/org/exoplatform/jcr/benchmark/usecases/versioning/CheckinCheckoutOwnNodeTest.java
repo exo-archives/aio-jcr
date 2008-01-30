@@ -54,15 +54,10 @@ public class CheckinCheckoutOwnNodeTest extends JCRTestBase {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    log.info(1);
     rootNode.checkin();
-    log.info(2);
     rootNode.checkout();
-    log.info(3);
     rootNode.addNode(context.generateUniqueName("child"));
-    log.info(4);
     context.getSession().save();
-    log.info(5);
   }
 
   @Override
