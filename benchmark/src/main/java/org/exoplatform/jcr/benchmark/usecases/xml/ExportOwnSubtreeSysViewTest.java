@@ -64,7 +64,7 @@ public class ExportOwnSubtreeSysViewTest extends JCRTestBase {
     context.getSession().save();
     destFile = File.createTempFile(name, ".xml");
     destFile.deleteOnExit(); 
-    log.info(destFile.getAbsolutePath());
+    //log.info(destFile.getAbsolutePath());
   }
 
   @Override
