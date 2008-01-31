@@ -33,12 +33,12 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.versioning.CheckinCheckoutOwnNodeTest" />
   </testCase-->
 
-  <!--testCase name="ImportOwnSubtreeSysViewTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.xml.ImportOwnSubtreeSysViewTest" />
+  <!--testCase name="ImportOwnSubtreeSysViewCleanDBOracleTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.xml.ImportOwnSubtreeSysViewCleanDBOracleTest" />
   </testCase-->
 
-  <!--testCase name="ImportOwnSubtreeDocViewTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.xml.ImportOwnSubtreeDocViewTest" />
+  <!--testCase name="ImportOwnSubtreeDocViewCleanDBOracleTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.xml.ImportOwnSubtreeDocViewCleanDBOracleTest" />
   </testCase-->
 
   <!--testCase name="ExportOwnSubtreeSysViewTest">
