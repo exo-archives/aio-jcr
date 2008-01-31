@@ -20,11 +20,13 @@ package org.exoplatform.services.jcr.webdav.command;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import javax.jcr.Node;
 
 import org.exoplatform.services.jcr.webdav.BaseStandaloneWebDavTest;
+import org.exoplatform.services.jcr.webdav.Range;
 import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.rest.Response;
 
@@ -61,8 +63,15 @@ public class TestGet extends BaseStandaloneWebDavTest {
 
     String path = fileNode.getPath();
     
-    Response response = new GetCommand().get(session, path, null, "http://localhost", -1, -1);
-    assertEquals(WebDavStatus.OK, response.getStatus());
+    ArrayList<Range> ranges = new ArrayList<Range>();
+    Range range = new Range();
+    range.setStart(0);
+    range.setEnd(-1);
+    
+    ranges.add(range);
+    
+    Response response = new GetCommand().get(session, path, null, "http://localhost", ranges);
+    assertEquals(WebDavStatus.PARTIAL_CONTENT, response.getStatus());
     
     ByteArrayOutputStream outStrem = new ByteArrayOutputStream();
     InputStream inputStream = (InputStream)response.getEntity();
