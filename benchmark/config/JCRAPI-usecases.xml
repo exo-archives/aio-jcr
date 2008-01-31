@@ -25,9 +25,13 @@
     </driver>
   </driverGroup>
 
-  <testCase name="CheckinCheckoutOwnNodeTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.versioning.CheckinCheckoutOwnNodeTest" />
+  <testCase name="RestoreOwnNodeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.versioning.RestoreOwnNodeTest" />
   </testCase>
+
+  <!--testCase name="CheckinCheckoutOwnNodeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.versioning.CheckinCheckoutOwnNodeTest" />
+  </testCase-->
 
   <!--testCase name="ImportOwnSubtreeSysViewTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.xml.ImportOwnSubtreeSysViewTest" />
