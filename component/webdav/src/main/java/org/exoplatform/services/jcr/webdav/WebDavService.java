@@ -21,7 +21,6 @@ import java.io.InputStream;
 
 import org.exoplatform.services.jcr.webdav.resource.HierarchicalProperty;
 import org.exoplatform.services.rest.Response;
-import org.w3c.dom.Document;
 
 /**
  * Created by The eXo Platform SARL .<br/> 
@@ -47,7 +46,7 @@ public interface WebDavService {
    * @return HTTP response
    */
   Response get(String repoName, String repoPath,
-      String range, String version);
+      String range, String version, String baseURI);
   
   /**
    * the HEAD method
@@ -56,7 +55,7 @@ public interface WebDavService {
    * @param auth
    * @return HTTP response
    */
-  Response head(String repoName, String repoPath, String version);
+  Response head(String repoName, String repoPath, String baseURI, String version);
 
   /**
    * @param repoName
@@ -70,9 +69,10 @@ public interface WebDavService {
    * @param mimeType
    * @return HTTP response
    */
-  Response put(String repoName, String repoPath, InputStream inputStream,
+  Response put(String repoName, String repoPath,
       String lockTokenHeader, String ifHeader,
-      String nodeTypeHeader, String mixinTypesHeader, String mimeType);
+      String nodeTypeHeader, String mixinTypesHeader, String mimeType,
+      InputStream inputStream);
 
   /**
    * @param repoName
@@ -97,7 +97,7 @@ public interface WebDavService {
    */
   Response copy(String repoName, String repoPath,
       String destinationHeader, String lockTokenHeader, String ifHeader,
-      HierarchicalProperty body);
+      String baseURI, HierarchicalProperty body);
 
   /**
    * @param repoName
@@ -125,7 +125,7 @@ public interface WebDavService {
    */
   Response move(String repoName, String repoPath,
       String destinationHeader, String lockTokenHeader, String ifHeader,
-      HierarchicalProperty body);
+      String baseURI, HierarchicalProperty body);
 
   /**
    * @return HTTP response
@@ -140,7 +140,8 @@ public interface WebDavService {
    * @param body
    * @return HTTP response
    */
-  Response propfind(String repoName, String repoPath, String depth, HierarchicalProperty body);
+  Response propfind(String repoName, String repoPath, String depth,
+      String baseURI, HierarchicalProperty body);
   
   /**
    * @param repoName
@@ -152,7 +153,7 @@ public interface WebDavService {
    * @return HTTP response
    */
   Response proppatch(String repoName, String repoPath,
-      String lockTokenHeader, String ifHeader,
+      String lockTokenHeader, String ifHeader, String baseURI, 
       HierarchicalProperty body);
   
   /**
@@ -215,7 +216,7 @@ public interface WebDavService {
    * @return HTTP response
    */
   Response report(String repoName, String repoPath,
-      String depth, HierarchicalProperty body);
+      String depth, String baseURI, HierarchicalProperty body);
 
   /**
    * @param repoName
@@ -253,7 +254,7 @@ public interface WebDavService {
    * @return HTTP response
    */
   Response order(String repoName, String repoPath,
-      String lockTokenHeader, String ifHeader, HierarchicalProperty body);      
+      String lockTokenHeader, String ifHeader, String baseURI, HierarchicalProperty body);      
 
   // Search
   /**
@@ -265,5 +266,5 @@ public interface WebDavService {
    * @param body
    * @return HTTP response
    */
-  Response search(String repoName, String repoPath, HierarchicalProperty body);
+  Response search(String repoName, String repoPath, String baseURI, HierarchicalProperty body);
 }

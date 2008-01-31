@@ -58,6 +58,9 @@ public class WebDavHeaders {
   public static final String IF = "If";
   
   public static final String TIMEOUT = "Timeout";
+  
+  public static final String MULTIPART_BYTERANGES
+      = "multipart/byteranges; boundary=";
 
 
 }

@@ -20,6 +20,7 @@ package org.exoplatform.services.jcr.webdav.lnkproducer;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import org.exoplatform.services.rest.ContextParam;
 import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.InputTransformer;
 import org.exoplatform.services.rest.OutputTransformer;
@@ -28,7 +29,7 @@ import org.exoplatform.services.rest.ResourceDispatcher;
 import org.exoplatform.services.rest.Response;
 import org.exoplatform.services.rest.URIParam;
 import org.exoplatform.services.rest.URITemplate;
-import org.exoplatform.services.rest.ResourceDispatcher.Context;
+//import org.exoplatform.services.rest.ResourceDispatcher.Context;
 import org.exoplatform.services.rest.container.ResourceContainer;
 import org.exoplatform.services.rest.transformer.PassthroughInputTransformer;
 import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
@@ -42,10 +43,8 @@ import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
 @URITemplate("/lnkproducer/")
 public class LnkProducer implements ResourceContainer {
   
-  private ResourceDispatcher resourceDispatcher;
   
-  public LnkProducer(ResourceDispatcher resourceDispatcher) {
-    this.resourceDispatcher = resourceDispatcher;
+  public LnkProducer() {
   }
   
   @HTTPMethod("GET")
@@ -54,18 +53,15 @@ public class LnkProducer implements ResourceContainer {
   @OutputTransformer(PassthroughOutputTransformer.class)
   public Response produceLink(
       @URIParam("linkFilePath") String linkFilePath,
-      @QueryParam("path") String path
+      @QueryParam("path") String path,
+      @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
+      @ContextParam(ResourceDispatcher.CONTEXT_PARAM_HOST) String host
       ) {
     
-    String contextHref = resourceDispatcher.getRuntimeContext().getContextHref();
-    
-    contextHref += "/jcr";
-    
-    Context context = resourceDispatcher.getRuntimeContext();
-    String hostName = context.getServerName();
+    baseURI += "/jcr";
     
     try {
-      LinkGenerator linkGenerator = new LinkGenerator(hostName, contextHref, path);
+      LinkGenerator linkGenerator = new LinkGenerator(host, baseURI, path);
       byte []content = linkGenerator.generateLinkContent();
       
       ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(content);

@@ -35,14 +35,28 @@ import org.exoplatform.services.rest.Response;
 
 public class CopyCommand {
   
-  /**
-   * COPY node from source workspace to the destination workspace. 
-   * @param destSession
-   * @param sourceWorkspace
-   * @param sourcePath
-   * @param destPath
-   * @return
-   */
+  public Response copy(Session destSession, String sourcePath, String destPath) {    
+    try {
+      destSession.getWorkspace().copy(sourcePath, destPath);
+      return Response.Builder.withStatus(WebDavStatus.CREATED).build();      
+    } catch (ItemExistsException e) {
+      e.printStackTrace();
+      return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).build();
+    } catch (PathNotFoundException e) {
+      e.printStackTrace();
+      return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
+    } catch (AccessDeniedException e) {
+      e.printStackTrace();
+      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).build();
+    } catch (LockException e) {
+      e.printStackTrace();
+      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+    } catch (RepositoryException e) {
+      e.printStackTrace();
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
+    }
+  }
+  
   public Response copy(Session destSession, String sourceWorkspace, String sourcePath, String destPath) {    
     try {
       destSession.getWorkspace().copy(sourceWorkspace, sourcePath, destPath);
@@ -64,5 +78,4 @@ public class CopyCommand {
       return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
   }
-  
 }

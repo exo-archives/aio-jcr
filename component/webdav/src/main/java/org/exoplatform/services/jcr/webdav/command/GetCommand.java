@@ -17,15 +17,17 @@
 
 package org.exoplatform.services.jcr.webdav.command;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
+import org.exoplatform.services.jcr.webdav.Range;
+import org.exoplatform.services.jcr.webdav.WebDavConst;
 import org.exoplatform.services.jcr.webdav.WebDavHeaders;
 import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.resource.FileResource;
@@ -35,10 +37,12 @@ import org.exoplatform.services.jcr.webdav.resource.ResourceUtil;
 import org.exoplatform.services.jcr.webdav.resource.VersionResource;
 import org.exoplatform.services.jcr.webdav.resource.VersionedFileResource;
 import org.exoplatform.services.jcr.webdav.resource.VersionedResource;
+import org.exoplatform.services.jcr.webdav.util.MultipartByterangesEntity;
 import org.exoplatform.services.jcr.webdav.util.RangedInputStream;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.rest.Response;
+import org.exoplatform.services.rest.transformer.SerializableTransformer;
 
 /**
  * Created by The eXo Platform SAS
@@ -48,28 +52,21 @@ import org.exoplatform.services.rest.Response;
 
 public class GetCommand {
   
-  private InputStream inputStream;
-  
-  private long contentLength;
-  
-  private String contentType;
-  
   /**
    * GET content of the resource.
    * Can be return content of the file.
    * The content returns in the XML type.
    * If version parameter is present, returns the content of the version of the resource. 
    *  
-   * 
    * @param session
    * @param path
    * @param version
    * @param baseURI
-   * @param startRange
-   * @param endRange
+   * @param range
    * @return
    */
-  public Response get(Session session, String path, String version, String baseURI, long startRange, long endRange) {
+  public Response get(Session session, String path, String version, String baseURI, List<Range> ranges) {
+
     if (null == version) {
       if (path.indexOf("?version=") > 0) {
         version = path.substring(path.indexOf("?version=") + "?version=".length());
@@ -85,23 +82,74 @@ public class GetCommand {
         URI uri = new URI(TextUtil.escape(baseURI + node.getPath(), '%', true));        
 
         Resource resource;
+        InputStream istream;
         
         if (version != null) {
           VersionedResource versionedFile = new VersionedFileResource(uri, node, nsContext);
           resource = versionedFile.getVersionHistory().getVersion(version);
-          inputStream = ((VersionResource)resource).getContentAsStream();
+          istream = ((VersionResource)resource).getContentAsStream();
         } else {
           resource = new FileResource(uri, node, nsContext);
-          inputStream = ((FileResource)resource).getContentAsStream();
+          istream = ((FileResource)resource).getContentAsStream();
         }
         
         HierarchicalProperty contentLengthProperty = resource.getProperty(FileResource.GETCONTENTLENGTH); 
-        contentLength = new Long(contentLengthProperty.getValue());
+        long contentLength = new Long(contentLengthProperty.getValue());
         
         HierarchicalProperty mimeTypeProperty = resource.getProperty(FileResource.GETCONTENTTYPE);
-        contentType = mimeTypeProperty.getValue();        
+        String contentType = mimeTypeProperty.getValue();
         
-        return doGet(startRange, endRange);
+        // content length is not present
+        if (contentLength == 0) {
+          return Response.Builder.ok().header(WebDavHeaders.ACCEPT_RANGES, "bytes").
+          entity(istream, contentType).build();
+        }
+        
+        // no ranges request 
+        if (ranges.size() == 0) {
+          return Response.Builder.ok()
+              .header(WebDavHeaders.CONTENTLENGTH, Long.toString(contentLength))
+              .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
+              .entity(istream, contentType).build();    
+        }
+        
+        // one range
+        if (ranges.size() == 1) {
+          Range range = ranges.get(0);
+          if (!validateRange(range, contentLength))
+            return Response.Builder.withStatus(WebDavStatus.REQUESTED_RANGE_NOT_SATISFIABLE).
+            header(WebDavHeaders.CONTENTRANGE, "bytes */" + contentLength).build();
+          
+          long start = range.getStart();
+          long end = range.getEnd();
+          long returnedContentLength = (end - start + 1);
+          
+          RangedInputStream rangedInputStream =
+            new RangedInputStream(istream, start, end);
+          
+          return Response.Builder.withStatus(WebDavStatus.PARTIAL_CONTENT).
+              header(WebDavHeaders.CONTENTLENGTH, Long.toString(returnedContentLength)).
+              header(WebDavHeaders.ACCEPT_RANGES, "bytes").
+              header(WebDavHeaders.CONTENTRANGE, "bytes " + start + "-" + end + "/" + contentLength).
+              entity(rangedInputStream, contentType).build();
+        }
+        
+        // multipart byte ranges as byte:0-100,80-150,210-300
+        for (int i = 0; i < ranges.size(); i++) {
+          Range range = ranges.get(i);
+          if (!validateRange(range, contentLength))
+            return Response.Builder.withStatus(WebDavStatus.REQUESTED_RANGE_NOT_SATISFIABLE).
+            header(WebDavHeaders.CONTENTRANGE, "bytes */" + contentLength).build();
+          ranges.set(i, range);
+        }
+        
+        MultipartByterangesEntity mByterangesEntity = 
+          new MultipartByterangesEntity(resource, ranges, contentType, contentLength);
+        
+        return Response.Builder.withStatus(WebDavStatus.PARTIAL_CONTENT)
+            .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
+            .entity(mByterangesEntity, WebDavHeaders.MULTIPART_BYTERANGES + WebDavConst.BOUNDARY)
+            .transformer(new SerializableTransformer()).build();    
       }
 
       /*
@@ -110,55 +158,49 @@ public class GetCommand {
       return Response.Builder.ok().build();      
       
     } catch (PathNotFoundException exc) {
+      exc.printStackTrace();
       return Response.Builder.notFound().build();
-      
     } catch (RepositoryException exc) {
+      exc.printStackTrace();
       return Response.Builder.serverError().build();
-      
     } catch (Exception exc) {
+      exc.printStackTrace();
       return Response.Builder.serverError().build();
     }
-    
   }
   
-  private Response doGet(long startRange, long endRange) throws IOException {
+  private boolean validateRange(Range range, long contentLength) {
+    long start = range.getStart();
+    long end = range.getEnd();
     
-    if (contentLength == 0) {
-      return Response.Builder.ok().header(WebDavHeaders.ACCEPT_RANGES, "bytes").
-        entity(inputStream, contentType).build();
-    }
-
-    if ((startRange > contentLength - 1) || (endRange > contentLength - 1)) {
-      return Response.Builder.withStatus(WebDavStatus.REQUESTED_RANGE_NOT_SATISFIABLE).
-          header(WebDavHeaders.ACCEPT_RANGES, "bytes").
-          entity(inputStream, contentType).build();
-    }
-    
-    boolean isPartialContent = (startRange < 0) ? false : true;
-
-    if (startRange < 0) {
-      startRange = 0;
-    }    
-    
-    if (endRange < 0) {
-      endRange = contentLength - 1;
+    // range set as bytes:-100
+    // take 100 bytes from end
+    if (start < 0 && end == -1) {
+      if ((-1 * start) >= contentLength) {
+        start = 0;
+        end = contentLength - 1;
+      } else {
+        start = contentLength + start;
+        end = contentLength - 1;
+      }
     }
     
-    RangedInputStream rangedInputStream = new RangedInputStream(inputStream, startRange, endRange);
+    // range set as bytes:100-
+    // take from 100 to the end
+    if (start >= 0 && end == -1)
+      end = contentLength - 1;
     
-    if (isPartialContent) {      
-      long returnedContentLength = (endRange - startRange + 1);
-      
-      return Response.Builder.withStatus(WebDavStatus.PARTIAL_CONTENT).
-          header(WebDavHeaders.CONTENTLENGTH, "" + returnedContentLength).
-          header(WebDavHeaders.ACCEPT_RANGES, "bytes").
-          header(WebDavHeaders.CONTENTRANGE, "bytes " + startRange + "-" + endRange + "/" + contentLength).
-          entity(rangedInputStream, contentType).build();
+    // normal range set as bytes:100-200
+    // end can be greater then content-length
+    if (end >= contentLength)
+      end = contentLength - 1;
+    
+    if (start >= 0 && end >= 0 && start <= end) {
+      range.setStart(start);
+      range.setEnd(end);
+      return true;
     }
-    
-    return Response.Builder.ok().header(WebDavHeaders.CONTENTLENGTH,
-        "" + contentLength).header(WebDavHeaders.ACCEPT_RANGES, "bytes")
-        .entity(inputStream, contentType).build();    
-  }  
+    return false;
+  }
 
 }

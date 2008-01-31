@@ -111,7 +111,7 @@ public class PropPatchResponseEntity implements SerializableEntity {
       
       String statname;
       try {
-        String propertyName = nsContext.createName(setProperty.getName());
+        String propertyName = WebDavNamespaceContext.createName(setProperty.getName());
         
         try {
           node.setProperty(propertyName, setProperty.getValue());
@@ -145,7 +145,7 @@ public class PropPatchResponseEntity implements SerializableEntity {
       
       String statname;
       try {
-        String propertyName = nsContext.createName(removeProperty.getName());
+        String propertyName = WebDavNamespaceContext.createName(removeProperty.getName());
         
         Property property = node.getProperty(propertyName);
         property.remove();

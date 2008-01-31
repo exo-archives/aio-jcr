@@ -28,6 +28,8 @@ public class WebDavConst {
     public static final String WDBDAV_COMMAND_CATALOG = "WEBDAV";
   
     public static final String HTTPVER = "HTTP/1.1";
+    
+    public static final String BOUNDARY = "1234567890";
 
     public static final String DAV_MSAUTHORVIA = "DAV";
     

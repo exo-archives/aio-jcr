@@ -38,7 +38,7 @@ public class RangedInputStream extends InputStream {
     this.nativeInputStream = nativeInputStream;
     this.endRange = endRange;
     
-    byte []buff = new byte[4096];
+    byte []buff = new byte[0x1000];
 
     while (position < (startRange - 1)) {        
       long needToRead = buff.length;
