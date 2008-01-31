@@ -59,7 +59,7 @@ public class ImportOwnSubtreeSysViewTest extends JCRTestBase {
     rootNode = context.getSession().getRootNode().addNode(name);
     Node file = rootNode.addNode("child1").addNode("child2").addNode("file", "nt:file");
     Node content = file.addNode("jcr:content", "nt:resource");
-    content.setProperty("jcr:data", new FileInputStream("../resources/benchmark.pdf"));
+    content.setProperty("jcr:data", new FileInputStream("../resources/benchmark.gif"));
     content.setProperty("jcr:mimeType", "application/pdf");
     content.setProperty("jcr:lastModified", Calendar.getInstance());
     context.getSession().save();
