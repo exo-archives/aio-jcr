@@ -58,6 +58,8 @@ public class CheckinCheckoutOwnNodeTest extends JCRTestBase {
     rootNode.checkout();
     rootNode.addNode(context.generateUniqueName("child"));
     context.getSession().save();
+    rootNode.checkin();
+    rootNode.checkout();
   }
 
   @Override
