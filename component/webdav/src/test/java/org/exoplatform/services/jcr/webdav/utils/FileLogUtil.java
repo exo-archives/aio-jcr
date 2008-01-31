@@ -17,9 +17,9 @@
 
 package org.exoplatform.services.jcr.webdav.utils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+//import java.io.File;
+//import java.io.FileOutputStream;
+//import java.io.IOException;
 
 /**
  * Created by The eXo Platform SAS.
