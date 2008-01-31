@@ -171,29 +171,30 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
   }
 
   public Node getUserApplicationNode(SessionProvider sessionProvider, String userName) throws Exception {
-    ManageableRepository currentRepo = jcrService_.getCurrentRepository() ;
-    Session session = session(sessionProvider, currentRepo, currentRepo.getConfiguration().getDefaultWorkspaceName()) ;
-    Node userNode = getUserNode(session, userName);
+    Node userNode = getUserNode(sessionProvider, userName);
     if(userNode.hasNode(getJcrPath(USER_APPLICATION))) return userNode.getNode(getJcrPath(USER_APPLICATION)) ;
     return userNode.addNode(getJcrPath(USER_APPLICATION)) ;
   }
   
   public Node getPublicApplicationNode(SessionProvider sessionProvider) throws Exception {
     ManageableRepository currentRepo = jcrService_.getCurrentRepository() ;
-    Session session = session(sessionProvider, currentRepo, currentRepo.getConfiguration().getDefaultWorkspaceName()) ;    
+    Session session = getSession(sessionProvider, currentRepo, currentRepo.getConfiguration().getDefaultWorkspaceName()) ;    
     Node rootNode = session.getRootNode() ;
     String publicApplication = getJcrPath(PUBLIC_APPLICATION) ;
     return rootNode.getNode(publicApplication.substring(1, publicApplication.length())) ;
   }
   
-  private Node getUserNode(Session session, String userName) throws Exception{
+  public Node getUserNode(SessionProvider sessionProvider, String userName) throws Exception{
     String userPath = getJcrPath(USERS_PATH) ;
+    ManageableRepository currentRepo = jcrService_.getCurrentRepository() ;
+    Session session = 
+      getSession(sessionProvider, currentRepo, currentRepo.getConfiguration().getDefaultWorkspaceName()) ;
     Node usersNode = (Node)session.getItem(userPath) ;
     if(usersNode.hasNode(userName)) return usersNode.getNode(userName);
     return usersNode.addNode(userName) ;
   }
   
-  private Session session(SessionProvider sessionProvider, ManageableRepository repo, 
+  private Session getSession(SessionProvider sessionProvider, ManageableRepository repo, 
       String defaultWorkspace) throws RepositoryException {
     return sessionProvider.getSession(defaultWorkspace, repo);
   }

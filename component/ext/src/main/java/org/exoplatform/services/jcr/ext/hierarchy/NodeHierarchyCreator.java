@@ -33,6 +33,8 @@ public interface NodeHierarchyCreator {
   
   public void init(String repository) throws Exception ;
   
+  public Node getUserNode(SessionProvider sessionProvider, String userName) throws Exception ;
+  
   public Node getUserApplicationNode(SessionProvider sessionProvider, String userName) throws Exception ;
   
   public Node getPublicApplicationNode(SessionProvider sessionProvider) throws Exception ;
