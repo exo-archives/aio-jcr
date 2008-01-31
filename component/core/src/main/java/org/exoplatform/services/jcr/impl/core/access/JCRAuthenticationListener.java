@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.impl.core.access;
 
+import java.util.Set;
+
 import javax.security.auth.Subject;
 
 import org.apache.commons.logging.Log;
@@ -42,7 +44,14 @@ public class JCRAuthenticationListener extends Listener<AuthenticationService, I
     Identity identity = event.getData() ;
     String username = identity.getUsername() ;
     Subject subject = identity.getSubject() ;
-    subject.getPublicCredentials().add(new CredentialsImpl(username, "".toCharArray()));
+    Set<String> temp = subject.getPrivateCredentials(String.class);
+    if (temp.size() == 1)
+      subject.getPublicCredentials().add(new CredentialsImpl(username,
+          temp.iterator().next().toCharArray()));
+    else
+      log.warn("Could not obtain the password credentials from AuthenticationService."
+          + "JCR Credentials will not be created.");
+//      subject.getPublicCredentials().add(new CredentialsImpl(username, "".toCharArray()));
     
     if (log.isDebugEnabled())
       log.debug("Call JCRAuthenticationListener");
