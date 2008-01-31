@@ -101,8 +101,8 @@ public class WebDavNamespaceContext implements NamespaceContext {
   /* (non-Javadoc)
    * @see javax.xml.namespace.NamespaceContext#getPrefixes(java.lang.String)
    */
-  public Iterator getPrefixes(String namespaceURI) {
-    List list = new ArrayList();
+  public Iterator<String> getPrefixes(String namespaceURI) {
+    List<String> list = new ArrayList<String>();
     list.add(getPrefix(namespaceURI));
     return list.iterator();
   }  

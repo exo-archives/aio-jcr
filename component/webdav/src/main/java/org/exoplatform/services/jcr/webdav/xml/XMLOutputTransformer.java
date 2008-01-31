@@ -34,7 +34,8 @@ public class XMLOutputTransformer extends OutputEntityTransformer {
   @Override
   public void writeTo(Object obj, OutputStream out) throws IOException {
     if(!(obj instanceof HierarchicalProperty)) {
-      throw new ClassCastException ("HierarchicalProperty object expected, found "+obj.getClass().getName());
+      throw new ClassCastException ("HierarchicalProperty object expected, found "
+          +obj.getClass().getName());
     }
     
     HierarchicalProperty prop = (HierarchicalProperty) obj;
