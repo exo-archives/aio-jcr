@@ -21,10 +21,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import javax.jcr.Node;
 
 import org.exoplatform.services.jcr.webdav.BaseStandaloneWebDavTest;
+import org.exoplatform.services.jcr.webdav.Range;
 import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.command.GetCommand;
 import org.exoplatform.services.jcr.webdav.command.PutCommand;
@@ -56,7 +58,7 @@ public class TestGetByVersion extends BaseStandaloneWebDavTest {
   }
   
   private void assertResponseContent(String path, String versionName, String content) throws IOException {
-    Response response = new GetCommand().get(session, path, versionName, "http://localhost", -1, -1);
+    Response response = new GetCommand().get(session, path, versionName, "http://localhost", new ArrayList<Range>());
     assertEquals(WebDavStatus.OK, response.getStatus());
     InputStream entityStream = (InputStream)response.getEntity();    
     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
