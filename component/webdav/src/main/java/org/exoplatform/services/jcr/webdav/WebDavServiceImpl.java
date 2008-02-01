@@ -74,7 +74,6 @@ import org.exoplatform.services.rest.container.ResourceDescriptor;
 import org.exoplatform.services.rest.transformer.PassthroughInputTransformer;
 import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
 import org.exoplatform.services.rest.transformer.SerializableTransformer;
-//import org.w3c.dom.Document;
 
 /**
  * Created by The eXo Platform SARL .<br/> 
