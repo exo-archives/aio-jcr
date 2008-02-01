@@ -46,26 +46,32 @@ public class CheckinCheckoutOwnNodeTest extends JCRTestBase {
 
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
+    log.info("start");
     name = context.generateUniqueName("rootNode");
     rootNode = context.getSession().getRootNode().addNode(name);
     rootNode.addMixin("mix:versionable");
     context.getSession().save();
+    log.info("end");
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
+    log.info("start");
     rootNode.checkin();
     rootNode.checkout();
     rootNode.addNode(context.generateUniqueName("child"));
     context.getSession().save();
     rootNode.checkin();
     rootNode.checkout();
+    log.info("end");
   }
 
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
+    log.info("start");
     rootNode.remove();
     context.getSession().save();
+    log.info("end");
   }
 
 }
