@@ -122,7 +122,7 @@ public class TestWorkspaceRestore extends JcrImplBaseTest {
 
     defRep = (RepositoryImpl) service.getDefaultRepository();
     defRep.configWorkspace(workspaceEntry);
-    InputStream is = TestWorkspaceManagement.class.getResourceAsStream("/db1_ws1-20071220_0430.xml");
+    InputStream is = TestWorkspaceManagement.class.getResourceAsStream("/import-export/db1_ws1-20071220_0430.xml");
     repository.importWorkspace("testResotore", is);
   }
 
