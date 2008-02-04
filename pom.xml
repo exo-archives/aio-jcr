@@ -12,7 +12,6 @@
 
     <module>component/rmi</module>
     <module>component/ftp</module>
-    <module>component/webdav</module>
     <module>component/cifs</module>
 
 
