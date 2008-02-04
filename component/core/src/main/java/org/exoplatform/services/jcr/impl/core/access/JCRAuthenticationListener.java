@@ -51,7 +51,6 @@ public class JCRAuthenticationListener extends Listener<AuthenticationService, I
     else
       log.warn("Could not obtain the password credentials from AuthenticationService."
           + "JCR Credentials will not be created.");
-//      subject.getPublicCredentials().add(new CredentialsImpl(username, "".toCharArray()));
     
     if (log.isDebugEnabled())
       log.debug("Call JCRAuthenticationListener");
