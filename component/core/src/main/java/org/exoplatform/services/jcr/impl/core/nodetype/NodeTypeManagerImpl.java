@@ -505,18 +505,18 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     }
   }
   
-  public boolean isNodeType(InternalQName superTypeName, InternalQName[] typeNames) {
+  public boolean isNodeType(InternalQName testTypeName, InternalQName[] typeNames) {
 
     for (int i = 0; i < typeNames.length; i++) {
-      if (superTypeName.equals(typeNames[i])) {
+      if (testTypeName.equals(typeNames[i])) {
         return true;
       }
       
       ExtendedNodeType subType;
-      ExtendedNodeType superType;
+      ExtendedNodeType testType;
       try {
         subType = getNodeType(typeNames[i]);
-        superType = getNodeType(superTypeName);
+        testType = getNodeType(testTypeName);
       } catch (RepositoryException e) {
         log.error("Error obtaining node type " + e);
         continue;
@@ -525,7 +525,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       NodeType[] superTypes = subType.getSupertypes();
       for (int j = 0; j < superTypes.length; j++) {
         ExtendedNodeType testSuperType = (ExtendedNodeType) superTypes[j];
-        if (testSuperType.getQName().equals(superType.getQName()))
+        if (testSuperType.getQName().equals(testType.getQName()))
           return true;
       }
     }
@@ -535,47 +535,50 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   /**
    * For use with primary and mixin types in one call 
    * */
-  public boolean isNodeType(InternalQName superTypeName, InternalQName typeName, InternalQName[] typeNames) {
+  public boolean isNodeType(InternalQName testTypeName, InternalQName typeName, InternalQName[] typeNames) {
 
-    if (isNodeType(superTypeName, typeName))
+    if (isNodeType(testTypeName, typeName))
       return true;
     
-    for (int i = 0; i < typeNames.length; i++) {
-      if (superTypeName.equals(typeNames[i])) {
+    for (InternalQName tname: typeNames) {
+      if (isNodeType(testTypeName, tname))
         return true;
-      }
-      
-      ExtendedNodeType subType;
-      ExtendedNodeType superType;
-      try {
-        subType = getNodeType(typeNames[i]);
-        superType = getNodeType(superTypeName);
-      } catch (RepositoryException e) {
-        log.error("Error obtaining node type " + e);
-        continue;
-      }
-
-      NodeType[] superTypes = subType.getSupertypes();
-      for (int j = 0; j < superTypes.length; j++) {
-        ExtendedNodeType testSuperType = (ExtendedNodeType) superTypes[j];
-        if (testSuperType.getQName().equals(superType.getQName()))
-          return true;
-      }
+      // [PN] TODO 01.02.08
+//      if (testTypeName.equals(typeNames[i])) {
+//        return true;
+//      }
+//      
+//      ExtendedNodeType subType;
+//      ExtendedNodeType testType;
+//      try {
+//        subType = getNodeType(typeNames[i]);
+//        testType = getNodeType(testTypeName);
+//      } catch (RepositoryException e) {
+//        log.error("Error obtaining node type " + e);
+//        continue;
+//      }
+//
+//      NodeType[] superTypes = subType.getSupertypes();
+//      for (int j = 0; j < superTypes.length; j++) {
+//        ExtendedNodeType testSuperType = (ExtendedNodeType) superTypes[j];
+//        if (testSuperType.getQName().equals(testType.getQName()))
+//          return true;
+//      }
     }
     return false;
   }
 
-  public boolean isNodeType(InternalQName superTypeName, InternalQName typeName) {
+  public boolean isNodeType(InternalQName testTypeName, InternalQName typeName) {
 
-    if (superTypeName.equals(typeName)) {
+    if (testTypeName.equals(typeName)) {
       return true;
     }
     
     ExtendedNodeType subType;
-    ExtendedNodeType superType;
+    ExtendedNodeType testType;
     try {
       subType = getNodeType(typeName);
-      superType = getNodeType(superTypeName);
+      testType = getNodeType(testTypeName);
     } catch (RepositoryException e) {
       log.error("Error obtaining node type " + e);
       return false;
@@ -584,7 +587,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     NodeType[] superTypes = subType.getSupertypes();
     for (int j = 0; j < superTypes.length; j++) {
       ExtendedNodeType testSuperType = (ExtendedNodeType) superTypes[j];
-      if (testSuperType.getQName().equals(superType.getQName()))
+      if (testSuperType.getQName().equals(testType.getQName()))
         return true;
     }
     return false;

@@ -173,7 +173,7 @@ public class WorkspaceInitializer {
 
     PlainChangesLog changesLog = new PlainChangesLogImpl();
 
-    TransientNodeData nodeData = new TransientNodeData(Constants.ROOT_PATH,
+    TransientNodeData rootNode = new TransientNodeData(Constants.ROOT_PATH,
         Constants.ROOT_UUID,
         -1,
         rootNodeType,
@@ -181,14 +181,14 @@ public class WorkspaceInitializer {
         0,
         null,
         new AccessControlList());
-    changesLog.add(new ItemState(nodeData, ItemState.ADDED, false, null));
+    changesLog.add(new ItemState(rootNode, ItemState.ADDED, false, null));
 
-    TransientPropertyData primaryType = new TransientPropertyData(QPath.makeChildPath(nodeData
+    TransientPropertyData primaryType = new TransientPropertyData(QPath.makeChildPath(rootNode
         .getQPath(), Constants.JCR_PRIMARYTYPE),
         IdGenerator.generate(),
         -1,
         PropertyType.NAME,
-        nodeData.getIdentifier(),
+        rootNode.getIdentifier(),
         false);
     primaryType.setValue(new TransientValueData(rootNodeType));
 
@@ -204,96 +204,110 @@ public class WorkspaceInitializer {
         acl.addPermissions(autoInitPermissions);
       }
 
-      nodeData.setACL(acl);
+      rootNode.setACL(acl);
 
-      nodeData.setMixinTypeNames(new InternalQName[] { Constants.EXO_ACCESS_CONTROLLABLE });
+      InternalQName[] mixins = new InternalQName[] { Constants.EXO_OWNEABLE, Constants.EXO_PRIVILEGEABLE };
+      rootNode.setMixinTypeNames(mixins);
 
       // jcr:mixinTypes
-      TransientPropertyData exoMixinTypes = TransientPropertyData.createPropertyData(nodeData,
+      List<ValueData> mixValues = new ArrayList<ValueData>();
+      for (InternalQName mixin: mixins) {
+        mixValues.add(new TransientValueData(mixin));
+      }
+      TransientPropertyData exoMixinTypes = TransientPropertyData.createPropertyData(rootNode,
           Constants.JCR_MIXINTYPES,
           PropertyType.NAME,
-          false);
-      exoMixinTypes.setValue(new TransientValueData(Constants.EXO_ACCESS_CONTROLLABLE));
-
-      TransientPropertyData exoOwner = TransientPropertyData.createPropertyData(nodeData,
+          true, 
+          mixValues);
+      
+      TransientPropertyData exoOwner = TransientPropertyData.createPropertyData(rootNode,
           Constants.EXO_OWNER,
           PropertyType.STRING,
           false,
           new TransientValueData(acl.getOwner()));
-      TransientPropertyData exoPerms = TransientPropertyData.createPropertyData(nodeData,
-          Constants.EXO_PERMISSIONS,
-          ExtendedPropertyType.PERMISSION,
-          true);
-
-      List<ValueData> perms = new ArrayList<ValueData>();
+      
+      List<ValueData> permsValues = new ArrayList<ValueData>();
       for (int i = 0; i < acl.getPermissionEntries().size(); i++) {
         AccessControlEntry entry = acl.getPermissionEntries().get(i);
-        perms.add(new TransientValueData(entry));
+        permsValues.add(new TransientValueData(entry));
       }
-      exoPerms.setValues(perms);
+      TransientPropertyData exoPerms = TransientPropertyData.createPropertyData(rootNode,
+          Constants.EXO_PERMISSIONS,
+          ExtendedPropertyType.PERMISSION,
+          true,
+          permsValues);      
+      
       changesLog.add(ItemState.createAddedState(exoMixinTypes)).add(ItemState
           .createAddedState(exoOwner)).add(ItemState.createAddedState(exoPerms));
-      changesLog.add(new ItemState(nodeData, ItemState.MIXIN_CHANGED, false, null));
+      changesLog.add(new ItemState(rootNode, ItemState.MIXIN_CHANGED, false, null));
     }
+    
     dataManager.save(new TransactionChangesLog(changesLog));
 
-    return nodeData;
+    return rootNode;
   }
 
   private NodeData initJcrSystemNode(NodeData root) throws RepositoryException {
 
     PlainChangesLog changesLog = new PlainChangesLogImpl();
 
-    TransientNodeData sysNodeData = TransientNodeData.createNodeData(root,
+    TransientNodeData jcrSystem = TransientNodeData.createNodeData(root,
         Constants.JCR_SYSTEM,
         Constants.NT_UNSTRUCTURED,
         Constants.SYSTEM_UUID);
 
-    TransientPropertyData primaryType = TransientPropertyData.createPropertyData(sysNodeData,
+    TransientPropertyData primaryType = TransientPropertyData.createPropertyData(jcrSystem,
         Constants.JCR_PRIMARYTYPE,
         PropertyType.NAME,
         false);
-    primaryType.setValue(new TransientValueData(sysNodeData.getPrimaryTypeName()));
+    primaryType.setValue(new TransientValueData(jcrSystem.getPrimaryTypeName()));
 
-    changesLog.add(ItemState.createAddedState(sysNodeData)).add(ItemState
+    changesLog.add(ItemState.createAddedState(jcrSystem)).add(ItemState
         .createAddedState(primaryType));
 
     boolean addACL = !accessControlType.equals(AccessControlPolicy.DISABLE);
 
     if (addACL) {
       AccessControlList acl = new AccessControlList();
-
-      sysNodeData.setMixinTypeNames(new InternalQName[] { Constants.EXO_ACCESS_CONTROLLABLE });
-
+      
+      InternalQName[] mixins = new InternalQName[] { Constants.EXO_OWNEABLE, Constants.EXO_PRIVILEGEABLE };
+      jcrSystem.setMixinTypeNames(mixins);
+      
       // jcr:mixinTypes
-      TransientPropertyData exoMixinTypes = TransientPropertyData.createPropertyData(sysNodeData,
+      List<ValueData> mixValues = new ArrayList<ValueData>();
+      for (InternalQName mixin: mixins) {
+        mixValues.add(new TransientValueData(mixin));
+      }
+      TransientPropertyData exoMixinTypes = TransientPropertyData.createPropertyData(jcrSystem,
           Constants.JCR_MIXINTYPES,
           PropertyType.NAME,
-          false);
-      exoMixinTypes.setValue(new TransientValueData(Constants.EXO_ACCESS_CONTROLLABLE));
-
-      TransientPropertyData exoOwner = TransientPropertyData.createPropertyData(sysNodeData,
+          true, 
+          mixValues);
+      
+      TransientPropertyData exoOwner = TransientPropertyData.createPropertyData(jcrSystem,
           Constants.EXO_OWNER,
           PropertyType.STRING,
           false,
           new TransientValueData(acl.getOwner()));
-      TransientPropertyData exoPerms = TransientPropertyData.createPropertyData(sysNodeData,
-          Constants.EXO_PERMISSIONS,
-          ExtendedPropertyType.PERMISSION,
-          true);
-      List<ValueData> perms = new ArrayList<ValueData>();
+      
+      List<ValueData> permsValues = new ArrayList<ValueData>();
       for (int i = 0; i < acl.getPermissionEntries().size(); i++) {
         AccessControlEntry entry = acl.getPermissionEntries().get(i);
-        perms.add(new TransientValueData(entry));
+        permsValues.add(new TransientValueData(entry));
       }
-      exoPerms.setValues(perms);
+      TransientPropertyData exoPerms = TransientPropertyData.createPropertyData(jcrSystem,
+          Constants.EXO_PERMISSIONS,
+          ExtendedPropertyType.PERMISSION,
+          true,
+          permsValues);      
+      
       changesLog.add(ItemState.createAddedState(exoMixinTypes)).add(ItemState
           .createAddedState(exoOwner)).add(ItemState.createAddedState(exoPerms));
-      changesLog.add(new ItemState(sysNodeData, ItemState.MIXIN_CHANGED, false, null));
+      changesLog.add(new ItemState(jcrSystem, ItemState.MIXIN_CHANGED, false, null));
     }
 
     // init version storage
-    TransientNodeData versionStorageNodeData = TransientNodeData.createNodeData(sysNodeData,
+    TransientNodeData versionStorageNodeData = TransientNodeData.createNodeData(jcrSystem,
         Constants.JCR_VERSIONSTORAGE,
         Constants.EXO_VERSIONSTORAGE,
         Constants.VERSIONSTORAGE_UUID);
@@ -309,14 +323,13 @@ public class WorkspaceInitializer {
         .createAddedState(vsPrimaryType));
 
     dataManager.save(new TransactionChangesLog(changesLog));
-    changesLog.clear();
 
-    nsPersister.initStorage(sysNodeData, addACL, NamespaceRegistryImpl.DEF_NAMESPACES);
+    nsPersister.initStorage(jcrSystem, addACL, NamespaceRegistryImpl.DEF_NAMESPACES);
 
     // TODO make one method!
-    ntPersister.initNodetypesRoot(sysNodeData, addACL);
+    ntPersister.initNodetypesRoot(jcrSystem, addACL);
     ntPersister.initStorage(((EntityCollection) ntRegistry.getAllNodeTypes()).getList());
 
-    return sysNodeData;
+    return jcrSystem;
   }
 }

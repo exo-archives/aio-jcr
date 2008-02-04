@@ -191,7 +191,7 @@ class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
                         try {
                             NodeImpl node1;
                             try {
-                              node1 = (NodeImpl) itemMgr.getItemByIdentifier(n1.identifier, false); // TODO pool=false
+                              node1 = (NodeImpl) itemMgr.getItemByIdentifier(n1.identifier, false);
                               if(node1 == null)
                                 throw new RepositoryException("Node not found for "+n1.identifier);
                             } catch (RepositoryException e) {
@@ -202,7 +202,7 @@ class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
                             }
                             NodeImpl node2;
                             try {
-                              node2 = (NodeImpl) itemMgr.getItemByIdentifier(n2.identifier, false); // TODO pool=false
+                              node2 = (NodeImpl) itemMgr.getItemByIdentifier(n2.identifier, false);
                               if(node2 == null)
                                 throw new RepositoryException("Node not found for "+n2.identifier);
                             } catch (RepositoryException e) {

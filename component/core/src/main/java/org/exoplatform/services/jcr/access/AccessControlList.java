@@ -21,15 +21,13 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.Constants;
-import org.exoplatform.services.jcr.datamodel.PropertyData;
-import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -46,7 +44,7 @@ public class AccessControlList implements Externalizable {
 
   private String                   owner;
 
-  private List<AccessControlEntry> aces;
+  private final List<AccessControlEntry> aces;
 
   /**
    * @deprecated use AccessControlList()
@@ -73,30 +71,37 @@ public class AccessControlList implements Externalizable {
     }
   }
 
-  public AccessControlList(String owner, List<AccessControlEntry> aces) {
+  public AccessControlList(String owner, List<AccessControlEntry> aces) throws RepositoryException {
+    this.owner = owner;
+    this.aces = aces != null ? aces : new ArrayList<AccessControlEntry>();
+  }
+
+  /**
+   * Create ACL from owner name and collection of permission strings
+   * 
+   * @param owner
+   * @param permissions - strings with permissions
+   * @throws RepositoryException
+   */
+  public AccessControlList(String owner, Collection<String> permissions) throws RepositoryException {
+    List<AccessControlEntry> aces = new ArrayList<AccessControlEntry>();
+      
+    if (permissions != null)
+      for (String p: permissions) {
+        StringTokenizer parser = new StringTokenizer(p, AccessControlEntry.DELIMITER);
+        aces.add(new AccessControlEntry(parser.nextToken(), parser.nextToken()));
+      }
+
     this.owner = owner;
     this.aces = aces;
   }
-
-  public AccessControlList(PropertyData ownerProp, PropertyData permissionsProp) throws RepositoryException {
-
-    try {
-      if (ownerProp != null) // if property already initialized in storage
-        this.owner = new String(ownerProp.getValues().get(0).getAsByteArray());
-
-      if (permissionsProp != null) {
-        this.aces = new ArrayList<AccessControlEntry>();
-        List<ValueData> permValues = permissionsProp.getValues();
-
-        for (int i = 0; i < permValues.size(); i++) {
-          String p = new String(permValues.get(i).getAsByteArray());
-          StringTokenizer parser = new StringTokenizer(p, AccessControlEntry.DELIMITER);
-          aces.add(new AccessControlEntry(parser.nextToken(), parser.nextToken()));
-        }
-      }
-    } catch (IOException e) {
-      log.error("Error of AccessControlList create: " + e.getMessage(), e);
-    }
+  
+  public boolean hasPermissions() {
+    return aces != null;
+  }
+  
+  public boolean hasOwner() {
+    return owner != null;
   }
 
   public void addPermissions(String rawData) throws RepositoryException {

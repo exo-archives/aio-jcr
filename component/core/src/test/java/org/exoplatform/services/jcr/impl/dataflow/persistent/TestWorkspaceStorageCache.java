@@ -121,11 +121,11 @@ public class TestWorkspaceStorageCache extends JcrImplBaseTest {
     
     AccessControlList acl = ((NodeImpl) root).getACL();
     
-    nodeData1 = new PersistedNodeData(nodeUuid1, nodePath1, rootUuid, 1, 0, Constants.NT_UNSTRUCTURED, null, acl,true,true);
-    nodeData2 = new PersistedNodeData(nodeUuid2, nodePath2, rootUuid, 1, 1, Constants.NT_UNSTRUCTURED, null, acl,true,true);
-    nodeData3 = new PersistedNodeData(nodeUuid3, nodePath3, rootUuid, 1, 2, Constants.NT_UNSTRUCTURED, null, acl,true,true);
-    nodeData31 = new PersistedNodeData(nodeUuid31, nodePath31, nodeUuid3, 1, 0, Constants.NT_UNSTRUCTURED, null, acl,true,true);
-    nodeData32 = new PersistedNodeData(nodeUuid32, nodePath32, nodeUuid3, 1, 1, Constants.NT_UNSTRUCTURED, null, acl,true,true);
+    nodeData1 = new PersistedNodeData(nodeUuid1, nodePath1, rootUuid, 1, 0, Constants.NT_UNSTRUCTURED, null, acl);
+    nodeData2 = new PersistedNodeData(nodeUuid2, nodePath2, rootUuid, 1, 1, Constants.NT_UNSTRUCTURED, null, acl);
+    nodeData3 = new PersistedNodeData(nodeUuid3, nodePath3, rootUuid, 1, 2, Constants.NT_UNSTRUCTURED, null, acl);
+    nodeData31 = new PersistedNodeData(nodeUuid31, nodePath31, nodeUuid3, 1, 0, Constants.NT_UNSTRUCTURED, null, acl);
+    nodeData32 = new PersistedNodeData(nodeUuid32, nodePath32, nodeUuid3, 1, 1, Constants.NT_UNSTRUCTURED, null, acl);
     
     //nodeData31 = new TransientNodeData(nodePath31, nodeUuid31, 1, Constants.NT_UNSTRUCTURED, null, 1, nodeUuid3, new AccessControlList(true));
   }  

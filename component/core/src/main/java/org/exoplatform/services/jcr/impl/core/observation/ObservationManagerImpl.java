@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.impl.core.observation;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import javax.jcr.RepositoryException;

@@ -21,8 +21,8 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemDataVisitor;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 /**
  * Created by The eXo Platform SAS.</br>
  * 
@@ -38,19 +38,15 @@ public class PersistedNodeData extends PersistedItemData implements NodeData {
   protected final InternalQName primaryTypeName;
   protected final InternalQName[] mixinTypeNames;
   protected AccessControlList acl;
-  protected final boolean isPrivilagable; 
-  protected final boolean isOwnamble;
   
   public PersistedNodeData(String id, QPath qpath, String parentId, int version,
       int orderNumber, InternalQName primaryTypeName, InternalQName[] mixinTypeNames,
-      AccessControlList acl, boolean isPrivilagable,boolean isOwnamble) {
+      AccessControlList acl) {
     super(id, qpath, parentId, version);
     this.primaryTypeName = primaryTypeName;
     this.mixinTypeNames = mixinTypeNames;
     this.orderNumber = orderNumber;
     this.acl = acl;
-    this.isPrivilagable = isPrivilagable;
-    this.isOwnamble = isOwnamble;
   }
 
   /* (non-Javadoc)
@@ -100,14 +96,6 @@ public class PersistedNodeData extends PersistedItemData implements NodeData {
    */
   public boolean isNode() {
     return true;
-  }
-
-  public boolean isPrivilagable() {
-    return isPrivilagable;
-  }
-
-  public boolean isOwnamble() {
-    return isOwnamble;
   }
 
 }

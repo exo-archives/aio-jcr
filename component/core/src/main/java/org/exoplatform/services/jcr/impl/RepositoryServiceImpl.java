@@ -297,9 +297,9 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
           } catch (Exception e) {
             throw new RepositoryException(e);
           }
-          log.info("Trying register nodes from xml-file " + nodeTypeFilesName);
+          log.info("Trying register node types from xml-file " + nodeTypeFilesName);
           ntManager.registerNodeTypes(inXml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-          log.info("Nodes is registered from xml-file " + nodeTypeFilesName);
+          log.info("Node types is registered from xml-file " + nodeTypeFilesName);
         }
         List<String> defaultNodeTypesFiles = plugin.getNodeTypesFiles(repositoryName);
         if (defaultNodeTypesFiles != null && defaultNodeTypesFiles.size() > 0) {
@@ -311,9 +311,9 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
             } catch (Exception e) {
               throw new RepositoryException(e);
             }
-            log.info("Trying register nodes from xml-file " + nodeTypeFilesName);
+            log.info("Trying register node types (" + repositoryName + ") from xml-file " + nodeTypeFilesName);
             ntManager.registerNodeTypes(inXml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-            log.info("Nodes is registered from xml-file " + nodeTypeFilesName);
+            log.info("Node types is registered (" + repositoryName + ") from xml-file " + nodeTypeFilesName);
           }
         }
       }

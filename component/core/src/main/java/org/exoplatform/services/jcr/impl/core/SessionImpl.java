@@ -84,8 +84,7 @@ import org.xml.sax.SAXException;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: SessionImpl.java 13866 2007-03-28 13:39:28Z ksm $ The
- *          implementation supported CredentialsImpl
+ * @version $Id: SessionImpl.java 13866 2007-03-28 13:39:28Z ksm $ The implementation supported CredentialsImpl
  */
 public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
@@ -145,7 +144,8 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     this.lockManager = (LockManagerImpl) container.getComponentInstanceOfType(LockManagerImpl.class);
     this.sessionFactory = (SessionFactory) container.getComponentInstanceOfType(SessionFactory.class);
     RepositoryEntry repositoryConfig = (RepositoryEntry) container.getComponentInstanceOfType(RepositoryEntry.class);
-    WorkspaceFileCleanerHolder cleanerHolder = (WorkspaceFileCleanerHolder) container.getComponentInstanceOfType(WorkspaceFileCleanerHolder.class);
+    WorkspaceFileCleanerHolder cleanerHolder =
+        (WorkspaceFileCleanerHolder) container.getComponentInstanceOfType(WorkspaceFileCleanerHolder.class);
 
     this.credentials = (CredentialsImpl) credentials;
     this.locationFactory = new LocationFactory(this);
@@ -155,10 +155,12 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     this.prefixes = new LinkedHashMap<String, String>();
 
     // Observation manager per session
-    ObservationManagerRegistry observationManagerRegistry = (ObservationManagerRegistry) container.getComponentInstanceOfType(ObservationManagerRegistry.class);
+    ObservationManagerRegistry observationManagerRegistry =
+        (ObservationManagerRegistry) container.getComponentInstanceOfType(ObservationManagerRegistry.class);
     ObservationManager observationManager = observationManagerRegistry.createObservationManager(this);
 
-    LocalWorkspaceDataManagerStub workspaceDataManager = (LocalWorkspaceDataManagerStub) container.getComponentInstanceOfType(LocalWorkspaceDataManagerStub.class);
+    LocalWorkspaceDataManagerStub workspaceDataManager =
+        (LocalWorkspaceDataManagerStub) container.getComponentInstanceOfType(LocalWorkspaceDataManagerStub.class);
 
     this.dataManager = new SessionDataManager(this, workspaceDataManager);
 
@@ -206,21 +208,15 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
   /*
    * (non-Javadoc)
    * 
-   * @see javax.jcr.Session#exportDocumentView(java.lang.String,
-   *      org.xml.sax.ContentHandler, boolean, boolean)
+   * @see javax.jcr.Session#exportDocumentView(java.lang.String, org.xml.sax.ContentHandler, boolean, boolean)
    */
-  public void exportDocumentView(String absPath,
-                                 ContentHandler contentHandler,
-                                 boolean skipBinary,
-                                 boolean noRecurse) throws InvalidSerializedDataException,
-                                                   PathNotFoundException,
-                                                   SAXException,
-                                                   RepositoryException {
+  public void exportDocumentView(String absPath, ContentHandler contentHandler, boolean skipBinary, boolean noRecurse) throws InvalidSerializedDataException,
+                                                                                                                      PathNotFoundException,
+                                                                                                                      SAXException,
+                                                                                                                      RepositoryException {
 
-    BaseXmlExporter exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.DOCVIEW,
-                                                                              contentHandler,
-                                                                              skipBinary,
-                                                                              noRecurse);
+    BaseXmlExporter exporter =
+        new ExportImportFactory(this).getExportVisitor(XmlMapping.DOCVIEW, contentHandler, skipBinary, noRecurse);
 
     JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
     ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
@@ -242,18 +238,12 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     }
   }
 
-  public void exportDocumentView(String absPath,
-                                 OutputStream out,
-                                 boolean skipBinary,
-                                 boolean noRecurse) throws InvalidSerializedDataException,
-                                                   IOException,
-                                                   PathNotFoundException,
-                                                   RepositoryException {
+  public void exportDocumentView(String absPath, OutputStream out, boolean skipBinary, boolean noRecurse) throws InvalidSerializedDataException,
+                                                                                                         IOException,
+                                                                                                         PathNotFoundException,
+                                                                                                         RepositoryException {
 
-    BaseXmlExporter exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.DOCVIEW,
-                                                                              out,
-                                                                              skipBinary,
-                                                                              noRecurse);
+    BaseXmlExporter exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.DOCVIEW, out, skipBinary, noRecurse);
 
     JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
     ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
@@ -281,17 +271,13 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
   /*
    * (non-Javadoc)
    * 
-   * @see javax.jcr.Session#exportSystemView(java.lang.String,
-   *      org.xml.sax.ContentHandler, boolean, boolean)
+   * @see javax.jcr.Session#exportSystemView(java.lang.String, org.xml.sax.ContentHandler, boolean, boolean)
    */
   public void exportWorkspaceSystemView(OutputStream out, boolean skipBinary, boolean noRecurse) throws IOException,
                                                                                                 PathNotFoundException,
                                                                                                 RepositoryException {
 
-    BaseXmlExporter exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.BACKUP,
-                                                                              out,
-                                                                              skipBinary,
-                                                                              noRecurse);
+    BaseXmlExporter exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.BACKUP, out, skipBinary, noRecurse);
 
     ItemData srcItemData = dataManager.getItemData(Constants.ROOT_UUID);
     if (srcItemData == null) {
@@ -309,23 +295,18 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
         throw new RepositoryException(e);
     }
   }
+
   /*
    * (non-Javadoc)
    * 
-   * @see javax.jcr.Session#exportSystemView(java.lang.String,
-   *      org.xml.sax.ContentHandler, boolean, boolean)
+   * @see javax.jcr.Session#exportSystemView(java.lang.String, org.xml.sax.ContentHandler, boolean, boolean)
    */
-  public void exportSystemView(String absPath,
-                               ContentHandler contentHandler,
-                               boolean skipBinary,
-                               boolean noRecurse) throws PathNotFoundException,
-                                                 SAXException,
-                                                 RepositoryException {
+  public void exportSystemView(String absPath, ContentHandler contentHandler, boolean skipBinary, boolean noRecurse) throws PathNotFoundException,
+                                                                                                                    SAXException,
+                                                                                                                    RepositoryException {
 
-    BaseXmlExporter exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.SYSVIEW,
-                                                                              contentHandler,
-                                                                              skipBinary,
-                                                                              noRecurse);
+    BaseXmlExporter exporter =
+        new ExportImportFactory(this).getExportVisitor(XmlMapping.SYSVIEW, contentHandler, skipBinary, noRecurse);
 
     JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
     ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
@@ -348,20 +329,13 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
   /*
    * (non-Javadoc)
    * 
-   * @see javax.jcr.Session#exportSystemView(java.lang.String,
-   *      java.io.OutputStream, boolean, boolean)
+   * @see javax.jcr.Session#exportSystemView(java.lang.String, java.io.OutputStream, boolean, boolean)
    */
-  public void exportSystemView(String absPath,
-                               OutputStream out,
-                               boolean skipBinary,
-                               boolean noRecurse) throws IOException,
-                                                 PathNotFoundException,
-                                                 RepositoryException {
+  public void exportSystemView(String absPath, OutputStream out, boolean skipBinary, boolean noRecurse) throws IOException,
+                                                                                                       PathNotFoundException,
+                                                                                                       RepositoryException {
 
-    BaseXmlExporter exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.SYSVIEW,
-                                                                              out,
-                                                                              skipBinary,
-                                                                              noRecurse);
+    BaseXmlExporter exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.SYSVIEW, out, skipBinary, noRecurse);
 
     JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
     ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
@@ -421,8 +395,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
   }
 
   /**
-   * For debug purpose! Can accessed by admin only, otherwise null will be
-   * returned
+   * For debug purpose! Can accessed by admin only, otherwise null will be returned
    */
   public ExoContainer getContainer() {
     return container;
@@ -442,15 +415,13 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                                                        RepositoryException {
     NodeImpl node = (NodeImpl) getItem(parentAbsPath);
     // checked-in check
-    if (!node.isCheckedOut()) {
-      throw new VersionException("Node " + node.getPath()
-          + " or its nearest ancestor is checked-in");
+    if (!node.checkedOut()) {
+      throw new VersionException("Node " + node.getPath() + " or its nearest ancestor is checked-in");
     }
 
     // Check if node is not protected
     if (node.getDefinition().isProtected()) {
-      throw new ConstraintViolationException("Can't add protected node " + node.getName() + " to "
-          + node.getParent().getPath());
+      throw new ConstraintViolationException("Can't add protected node " + node.getName() + " to " + node.getParent().getPath());
     }
 
     // Check locking
@@ -462,10 +433,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     context.put(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS, true);
     context.put(InvocationContext.EXO_CONTAINER, getContainer());
     context.put(InvocationContext.CURRENT_ITEM, node);
-    return new ExportImportFactory(this).getImportHandler(node,
-                                                          uuidBehavior,
-                                                          XmlSaveType.SESSION,
-                                                          context);
+    return new ExportImportFactory(this).getImportHandler(node, uuidBehavior, XmlSaveType.SESSION, context);
   }
 
   /*
@@ -473,7 +441,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
    * 
    * @see javax.jcr.Session#getItem(java.lang.String)
    */
-  public Item getItem(String absPath) throws PathNotFoundException, RepositoryException {
+  public ItemImpl getItem(String absPath) throws PathNotFoundException, RepositoryException {
 
     JCRPath loc = locationFactory.parseAbsPath(absPath);
 
@@ -570,8 +538,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
    * 
    * @see org.exoplatform.services.jcr.core.NamespaceAccessor#getNamespaceURIByPrefix(java.lang.String)
    */
-  public String getNamespaceURIByPrefix(String prefix) throws NamespaceException,
-                                                      RepositoryException {
+  public String getNamespaceURIByPrefix(String prefix) throws NamespaceException, RepositoryException {
     return getNamespaceURI(prefix);
   }
 
@@ -638,8 +605,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
    * 
    * @see javax.jcr.Session#getValueFactory()
    */
-  public ValueFactoryImpl getValueFactory() throws UnsupportedRepositoryOperationException,
-                                           RepositoryException {
+  public ValueFactoryImpl getValueFactory() throws UnsupportedRepositoryOperationException, RepositoryException {
     return valueFactory;
   }
 
@@ -683,8 +649,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
   /*
    * (non-Javadoc)
    * 
-   * @see javax.jcr.Session#importXML(java.lang.String, java.io.InputStream,
-   *      int)
+   * @see javax.jcr.Session#importXML(java.lang.String, java.io.InputStream, int)
    */
   public void importXML(String parentAbsPath, InputStream in, int uuidBehavior) throws IOException,
                                                                                PathNotFoundException,
@@ -702,45 +667,34 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
   /*
    * (non-Javadoc)
    * 
-   * @see org.exoplatform.services.jcr.core.ExtendedSession#importXML(java.lang.String,
-   *      java.io.InputStream, int, boolean)
+   * @see org.exoplatform.services.jcr.core.ExtendedSession#importXML(java.lang.String, java.io.InputStream, int, boolean)
    */
-  public void importXML(String parentAbsPath,
-                        InputStream in,
-                        int uuidBehavior,
-                        boolean respectPropertyDefinitionsConstraints) throws IOException,
-                                                                      PathNotFoundException,
-                                                                      ItemExistsException,
-                                                                      ConstraintViolationException,
-                                                                      InvalidSerializedDataException,
-                                                                      RepositoryException {
+  public void importXML(String parentAbsPath, InputStream in, int uuidBehavior, boolean respectPropertyDefinitionsConstraints) throws IOException,
+                                                                                                                              PathNotFoundException,
+                                                                                                                              ItemExistsException,
+                                                                                                                              ConstraintViolationException,
+                                                                                                                              InvalidSerializedDataException,
+                                                                                                                              RepositoryException {
     InvocationContext context = new InvocationContext();
-    context.put(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS,
-                respectPropertyDefinitionsConstraints);
+    context.put(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS, respectPropertyDefinitionsConstraints);
     importXML(parentAbsPath, in, uuidBehavior, context);
 
   }
 
-  public void importXML(String parentAbsPath,
-                        InputStream in,
-                        int uuidBehavior,
-                        InvocationContext context) throws IOException,
-                                                  PathNotFoundException,
-                                                  ItemExistsException,
-                                                  ConstraintViolationException,
-                                                  InvalidSerializedDataException,
-                                                  RepositoryException {
+  public void importXML(String parentAbsPath, InputStream in, int uuidBehavior, InvocationContext context) throws IOException,
+                                                                                                          PathNotFoundException,
+                                                                                                          ItemExistsException,
+                                                                                                          ConstraintViolationException,
+                                                                                                          InvalidSerializedDataException,
+                                                                                                          RepositoryException {
     NodeImpl node = (NodeImpl) getItem(parentAbsPath);
-    // TODO it's not a place for this, checked-in check
-    if (!node.isCheckedOut()) {
-      throw new VersionException("Node " + node.getPath()
-          + " or its nearest ancestor is checked-in");
+    if (!node.checkedOut()) {
+      throw new VersionException("Node " + node.getPath() + " or its nearest ancestor is checked-in");
     }
 
     // Check if node is not protected
     if (node.getDefinition().isProtected()) {
-      throw new ConstraintViolationException("Can't add protected node " + node.getName() + " to "
-          + node.getParent().getPath());
+      throw new ConstraintViolationException("Can't add protected node " + node.getName() + " to " + node.getParent().getPath());
     }
 
     // Check locking
@@ -751,10 +705,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     context.put(InvocationContext.EXO_CONTAINER, getContainer());
     context.put(InvocationContext.CURRENT_ITEM, node);
 
-    StreamImporter importer = new ExportImportFactory(this).getStreamImporter(node,
-                                                                              uuidBehavior,
-                                                                              XmlSaveType.SESSION,
-                                                                              context);
+    StreamImporter importer = new ExportImportFactory(this).getStreamImporter(node, uuidBehavior, XmlSaveType.SESSION, context);
     importer.importStream(in);
   }
 
@@ -799,53 +750,48 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                          VersionException,
                                                          LockException,
                                                          RepositoryException {
-    JCRPath srcNodePath = getLocationFactory().parseAbsPath(srcAbsPath); 
+    JCRPath srcNodePath = getLocationFactory().parseAbsPath(srcAbsPath);
 
-    NodeImpl srcNode = (NodeImpl) dataManager.getItem(srcNodePath.getInternalPath(), false); // TODO pool=false
+    NodeImpl srcNode = (NodeImpl) dataManager.getItem(srcNodePath.getInternalPath(), false);
     JCRPath destNodePath = getLocationFactory().parseAbsPath(destAbsPath);
     if (destNodePath.isIndexSetExplicitly())
       throw new RepositoryException("The relPath provided must not have an index on its final element. "
           + destNodePath.getAsString(false));
 
-    NodeImpl destParentNode = (NodeImpl) dataManager.getItem(destNodePath.makeParentPath()
-                                                                          .getInternalPath(), true);
+    NodeImpl destParentNode = (NodeImpl) dataManager.getItem(destNodePath.makeParentPath().getInternalPath(), true);
 
     if (srcNode == null || destParentNode == null) {
-      throw new PathNotFoundException("No node exists at " + srcAbsPath
-          + " or no node exists one level above " + destAbsPath);
+      throw new PathNotFoundException("No node exists at " + srcAbsPath + " or no node exists one level above " + destAbsPath);
     }
 
     destParentNode.validateChildNode(destNodePath.getName().getInternalName(),
                                      ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
 
     // Check for node with destAbsPath name in session
-    NodeImpl destNode = (NodeImpl) dataManager.getItem((NodeData) destParentNode.getData(),
-                                                        new QPathEntry(destNodePath.getInternalPath()
-                                                                                   .getName(),
-                                                                       0),
-                                                        false); // TODO pool=false
+    NodeImpl destNode =
+        (NodeImpl) dataManager.getItem((NodeData) destParentNode.getData(), new QPathEntry(destNodePath.getInternalPath()
+                                                                                                       .getName(), 0), false);
 
     if (destNode != null) {
       if (!destNode.getDefinition().allowsSameNameSiblings()) {
-        // Throw exception
-        String msg = "A node with this name (" + destAbsPath + ") is already exists. ";
-        throw new ItemExistsException(msg);
+        throw new ItemExistsException("A node with this name (" + destAbsPath + ") is already exists. ");
       }
     }
 
     // Check if versionable ancestor is not checked-in
-    if (!srcNode.getParent().isCheckedOut())
+    if (!srcNode.parent().checkedOut())
       throw new VersionException("Parent or source Node or its nearest ancestor is checked-in");
 
     if (!srcNode.checkLocking())
       throw new LockException("Source parent node " + srcNode.getPath() + " is locked ");
 
-    ItemDataMoveVisitor initializer = new ItemDataMoveVisitor((NodeData) destParentNode.getData(),
-                                                              destNodePath.getName().getInternalName(),
-                                                              getWorkspace().getNodeTypeManager(),
-                                                              getTransientNodesManager(),
-                                                              true);
-    
+    ItemDataMoveVisitor initializer =
+        new ItemDataMoveVisitor((NodeData) destParentNode.getData(),
+                                destNodePath.getName().getInternalName(),
+                                getWorkspace().getNodeTypeManager(),
+                                getTransientNodesManager(),
+                                true);
+
     getTransientNodesManager().rename((NodeData) srcNode.getData(), initializer);
   }
 
@@ -887,23 +833,20 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
   /*
    * (non-Javadoc)
    * 
-   * @see javax.jcr.Session#setNamespacePrefix(java.lang.String,
-   *      java.lang.String)
+   * @see javax.jcr.Session#setNamespacePrefix(java.lang.String, java.lang.String)
    */
-  public void setNamespacePrefix(String prefix, String uri) throws NamespaceException,
-                                                           RepositoryException {
+  public void setNamespacePrefix(String prefix, String uri) throws NamespaceException, RepositoryException {
     NamespaceRegistryImpl nrg = (NamespaceRegistryImpl) workspace.getNamespaceRegistry();
     if (!nrg.isUriRegistered(uri))
-      throw new NamespaceException("The specified uri:" + uri + " is not among "
-          + "those registered in the NamespaceRegistry");
+      throw new NamespaceException("The specified uri:" + uri + " is not among " + "those registered in the NamespaceRegistry");
     if (nrg.isPrefixMaped(prefix))
-      throw new NamespaceException("A prefix '" + prefix + "' is currently already mapped to "
-          + nrg.getURI(prefix) + " URI persistently in the repository NamespaceRegistry "
+      throw new NamespaceException("A prefix '" + prefix + "' is currently already mapped to " + nrg.getURI(prefix)
+          + " URI persistently in the repository NamespaceRegistry "
           + "and cannot be remapped to a new URI using this method, since this would make any "
           + "content stored using the old URI unreadable.");
     if (namespaces.containsKey(prefix))
-      throw new NamespaceException("A prefix '" + prefix + "' is currently already mapped to "
-          + namespaces.get(prefix) + " URI transiently within this Session and cannot be "
+      throw new NamespaceException("A prefix '" + prefix + "' is currently already mapped to " + namespaces.get(prefix)
+          + " URI transiently within this Session and cannot be "
           + "remapped to a new URI using this method, since this would make any "
           + "content stored using the old URI unreadable.");
     nrg.validateNamespace(prefix, uri);

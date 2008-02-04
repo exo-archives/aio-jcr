@@ -128,16 +128,15 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     FIND_ITEM_BY_NAME = "select * from JCR_MITEM"
       + " where PARENT_ID=? and NAME=? and I_INDEX=? order by I_CLASS, VERSION DESC";
     
-    FIND_PROPERTY_BY_NAME = "select *" 
-      + " from JCR_MITEM"
-      + " where I_CLASS=2 and PARENT_ID=? and NAME=? order by VERSION DESC";
+    FIND_PROPERTY_BY_NAME = "select V.DATA" 
+      + " from JCR_MITEM I, JCR_MVALUE V"
+      + " where I.I_CLASS=2 and I.PARENT_ID=? and I.NAME=? and I.ID=V.PROPERTY_ID order by V.ORDER_NUM";
    
     FIND_REFERENCES = "select P.ID, P.PARENT_ID, P.VERSION, P.P_TYPE, P.P_MULTIVALUED, P.NAME" +
         " from JCR_MREF R, JCR_MITEM P" +
         " where R.NODE_ID=? and P.ID=R.PROPERTY_ID and P.I_CLASS=2";
     
     FIND_VALUES_BY_PROPERTYID = "select PROPERTY_ID, ORDER_NUM, STORAGE_DESC from JCR_MVALUE where PROPERTY_ID=? order by ORDER_NUM";
-    FIND_VALUESDATA_BY_PROPERTYID = "select * from JCR_MVALUE where PROPERTY_ID=? order by ORDER_NUM";
     FIND_VALUE_BY_PROPERTYID_OREDERNUMB = "select DATA from JCR_MVALUE where PROPERTY_ID=? and ORDER_NUM=?";
     
     FIND_NODES_BY_PARENTID = "select * from JCR_MITEM"
@@ -234,7 +233,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
       deleteReference.clearParameters();
     
     deleteReference.setString(1, propertyIdentifier);
-    int r = deleteReference.executeUpdate();
+    deleteReference.executeUpdate();
   }
 
   @Override
@@ -378,15 +377,15 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     deleteValue.executeUpdate();
   }
 
-  protected ResultSet findValuesDataByPropertyId(String cid) throws SQLException {
-    if (findValuesDataByPropertyId == null)
-      findValuesDataByPropertyId = dbConnection.prepareStatement(FIND_VALUESDATA_BY_PROPERTYID);
-    else
-      findValuesDataByPropertyId.clearParameters();
-      
-    findValuesDataByPropertyId.setString(1, cid);
-    return findValuesDataByPropertyId.executeQuery();
-  }
+//  protected ResultSet findValuesDataByPropertyId(String cid) throws SQLException {
+//    if (findValuesDataByPropertyId == null)
+//      findValuesDataByPropertyId = dbConnection.prepareStatement(FIND_VALUESDATA_BY_PROPERTYID);
+//    else
+//      findValuesDataByPropertyId.clearParameters();
+//      
+//    findValuesDataByPropertyId.setString(1, cid);
+//    return findValuesDataByPropertyId.executeQuery();
+//  }
   
   protected ResultSet findValuesByPropertyId(String cid) throws SQLException {
     if (findValuesByPropertyId == null)

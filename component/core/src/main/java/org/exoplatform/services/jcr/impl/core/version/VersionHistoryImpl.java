@@ -459,7 +459,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
       } catch (IOException e) {
         throw new RepositoryException(e);
       }
-      VersionImpl predecessor = (VersionImpl) dataManager.getItemByIdentifier(predecessorIdentifier, false); // TODO pool=false
+      VersionImpl predecessor = (VersionImpl) dataManager.getItemByIdentifier(predecessorIdentifier, false);
       predecessor.addSuccessor(versionData.getIdentifier(), changesLog);
     }
     

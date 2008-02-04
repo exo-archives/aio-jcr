@@ -23,51 +23,43 @@ import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.SharedDataManager;
-import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
-import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS. Data Manager supported ACL Inheritance
  * 
  * @author Gennady Azarenkov
- * @version $Id: ACLInheritanceSupportedWorkspaceDataManager.java 8440
- *          2007-11-30 15:52:29Z svm $
+ * @version $Id$
  */
 public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataManager {
 
-  private static Log                          log          = ExoLogger.getLogger("jcr.ACLInheritanceSupportedWorkspaceDataManager");
+  private static Log                          log = ExoLogger.getLogger("jcr.ACLInheritanceSupportedWorkspaceDataManager");
 
   private final CacheableWorkspaceDataManager persistentManager;
-
-  private static final AccessControlList      DEFAULT_ACL = new AccessControlList();
 
   public ACLInheritanceSupportedWorkspaceDataManager(CacheableWorkspaceDataManager persistentManager) {
     this.persistentManager = persistentManager;
   }
 
   /**
-   * Traverse items parents in persistent storage for ACL containing parent.
-   * Same work is made in SessionDataManager.getItemData(NodeData, QPathEntry[])
-   * but for session scooped items.
+   * Traverse items parents in persistent storage for ACL containing parent. Same work is made in
+   * SessionDataManager.getItemData(NodeData, QPathEntry[]) but for session scooped items.
    * 
-   * @param data - item
+   * @param node - item
    * @return - parent or null
    * @throws RepositoryException
    */
-  private AccessControlList getNearestACAncestorAcl(ItemData data) throws RepositoryException {
+  private AccessControlList getNearestACAncestorAcl(NodeData node) throws RepositoryException {
 
-    if (data.getParentIdentifier() != null) {
-      NodeData parent = (NodeData) getItemData(data.getParentIdentifier());
+    if (node.getParentIdentifier() != null) {
+      NodeData parent = (NodeData) getItemData(node.getParentIdentifier());
       while (parent != null) {
         if (parent.getACL() != null) {
           // has an AC parent
@@ -77,7 +69,7 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataMa
         parent = (NodeData) getItemData(parent.getParentIdentifier());
       }
     }
-    return DEFAULT_ACL;
+    return new AccessControlList();
   }
 
   /**
@@ -86,57 +78,48 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataMa
    * @return - an item data with ACL was initialized
    * @throws RepositoryException
    */
-  private ItemData initACL(NodeData parent, ItemData data) throws RepositoryException {
-    if (data != null && data.isNode()) {
-      NodeData nData = (NodeData) data;
-      if (((NodeData) data).getACL() == null) {
-        // ACL
-
+  private ItemData initACL(NodeData parent, NodeData node) throws RepositoryException {
+    if (node != null) {
+      AccessControlList acl = node.getACL();
+      if (acl == null) {
         if (parent != null) {
-          nData.setACL(parent.getACL());
+          // use parent ACL
+          node.setACL(parent.getACL());
         } else {
-          // case of get by id
-          nData.setACL(getNearestACAncestorAcl(data));
+          // use nearest ancestor ACL... case of get by id
+          node.setACL(getNearestACAncestorAcl(node));
         }
-      } else {
-        if (nData instanceof PersistedNodeData) {
-          PersistedNodeData pData = (PersistedNodeData) nData;
-          if (pData.isOwnamble() ^ pData.isPrivilagable()) {
-            // case of get by id
-            AccessControlList ancestorAcl = getNearestACAncestorAcl(data);
-            String newOwner = pData.isOwnamble() ? nData.getACL().getOwner()
-                                                : ancestorAcl.getOwner();
-            List<AccessControlEntry> newAccesssList = pData.isPrivilagable() ? nData.getACL()
-                                                                                    .getPermissionEntries()
-                                                                            : ancestorAcl.getPermissionEntries();
-
-            if (newOwner == null || newAccesssList == null || newAccesssList.size() < 1)
-              throw new RepositoryException("Invalid ACL " + newOwner + ":" + newAccesssList);
-
-            nData.setACL(new AccessControlList(newOwner, newAccesssList));
-          }
-        } 
+      } else if (!acl.hasPermissions()) {
+        // use nearest ancestor permissions
+        AccessControlList ancestorAcl = getNearestACAncestorAcl(node);
+        node.setACL(new AccessControlList(acl.getOwner(), ancestorAcl.getPermissionEntries()));
+      } else if (!acl.hasOwner()) {
+        // use nearest ancestor owner
+        AccessControlList ancestorAcl = getNearestACAncestorAcl(node);
+        node.setACL(new AccessControlList(ancestorAcl.getOwner(), acl.getPermissionEntries()));
       }
     }
 
-    return data;
+    return node;
   }
 
   // ------------ ItemDataConsumer impl ------------
 
   public List<NodeData> getChildNodesData(NodeData parent) throws RepositoryException {
-    List<NodeData> nodes = persistentManager.getChildNodesData(parent);
+    final List<NodeData> nodes = persistentManager.getChildNodesData(parent);
     for (NodeData node : nodes)
       initACL(parent, node);
     return nodes;
   }
 
   public ItemData getItemData(NodeData parent, QPathEntry name) throws RepositoryException {
-    return initACL(parent, persistentManager.getItemData(parent, name));
+    final ItemData item = persistentManager.getItemData(parent, name);
+    return item != null && item.isNode() ? initACL(parent, (NodeData) item) : item;
   }
 
   public ItemData getItemData(String identifier) throws RepositoryException {
-    return initACL(null, persistentManager.getItemData(identifier));
+    final ItemData item = persistentManager.getItemData(identifier);
+    return item != null && item.isNode() ? initACL(null, (NodeData) item) : item;
   }
 
   public List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException {

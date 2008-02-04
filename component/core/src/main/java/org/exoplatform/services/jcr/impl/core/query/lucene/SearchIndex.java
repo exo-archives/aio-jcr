@@ -70,7 +70,8 @@ import org.exoplatform.services.log.ExoLogger;
 public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenceListener {
 
   /** The logger instance for this class */
-  private static Log                     log                      = ExoLogger.getLogger("jcr.SearchIndex");
+  private static Log                     log                      = ExoLogger
+                                                                      .getLogger("jcr.SearchIndex");
 
   /**
    * The default value for property {@link #minMergeDocs}.
@@ -199,13 +200,14 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
   /**
    * Monitor to use to synchronize access in search index to {@link onSaveItems}
    */
-  private final Object                   onSaveMonitor        = new Object();
+  private final Object                   onSaveMonitor            = new Object();
 
   /**
    * Default constructor.
    */
-  public SearchIndex(WorkspaceEntry config, DocumentReaderService ds, WorkspacePersistentDataManager dataManager,
-      LocationFactory sysLocationFactory) throws RepositoryConfigurationException, IOException {
+  public SearchIndex(WorkspaceEntry config, DocumentReaderService ds,
+      WorkspacePersistentDataManager dataManager, LocationFactory sysLocationFactory)
+      throws RepositoryConfigurationException, IOException {
     this.analyzer = new StandardAnalyzer();
     String indexDir = config.getQueryHandler().getParameterValue("indexDir");
     indexDir = indexDir.replace("${java.io.tmpdir}", System.getProperty("java.io.tmpdir"));
@@ -287,7 +289,8 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
    * @throws RepositoryException if an error occurs while indexing a node.
    * @throws IOException if an error occurs while updating the index.
    */
-  public void updateNodes(final Iterator remove, final Iterator add) throws RepositoryException, IOException {
+  public void updateNodes(final Iterator remove, final Iterator add) throws RepositoryException,
+      IOException {
     checkOpen();
     index.update(new AbstractIteratorDecorator(remove) {
       public Object next() {
@@ -299,13 +302,14 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
         NodeData state = (NodeData) super.next();
         try {
           if (state != null)
-            // [PN] return createDocument(state);            
-            return new NodeIndexer(state, sysLocationFactory, documentReaderService, dataManager).createDoc();
+            // [PN] return createDocument(state);
+            return new NodeIndexer(state, sysLocationFactory, documentReaderService, dataManager)
+                .createDoc();
           else
             return null;
         } catch (RepositoryException e) {
-          log.error("Exception while creating document for node: " + state.getQPath().getAsString() + ": "
-              + e.toString(), e);
+          log.error("Exception while creating document for node: " + state.getQPath().getAsString()
+              + ": " + e.toString(), e);
           return null;
         }
       }
@@ -364,7 +368,8 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
    * @return the lucene Hits object.
    * @throws IOException if an error occurs while searching the index.
    */
-  QueryHits executeQuery(Query query, InternalQName[] orderProps, boolean[] orderSpecs) throws IOException {
+  QueryHits executeQuery(Query query, InternalQName[] orderProps, boolean[] orderSpecs)
+      throws IOException {
 
     checkOpen();
     SortField[] sortFields = createSortFields(orderProps, orderSpecs);
@@ -384,19 +389,21 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
 
   // ///////////////////
 
-  // TODO synchronized 
+  // TODO synchronized
   public void onSaveItems(final ItemStateChangesLog changesLog) {
 
     // nodes that need to be removed from the index.
     final Set<String> removedNodes = new LinkedHashSet<String>();
     // nodes that need to be added to the index.
     final Set<NodeData> addedNodes = new LinkedHashSet<NodeData>();
-    
+
     // for error message
     final ThreadLocal<ItemState> currentItemState = new ThreadLocal<ItemState>();
-    
-    //final long start = System.currentTimeMillis();
-    //log.info(Thread.currentThread().getName() + "\t" + new SimpleDateFormat("HH:mm:ss.SSS").format(new Date(start)) + "\t start\t\t>>>>");
+
+    // final long start = System.currentTimeMillis();
+    // log.info(Thread.currentThread().getName() + "\t" + new
+    // SimpleDateFormat("HH:mm:ss.SSS").format(new Date(start)) + "\t
+    // start\t\t>>>>");
     synchronized (onSaveMonitor) {
       List<ItemState> itemStates = changesLog.getAllStates();
       for (ItemState itemState : itemStates) {
@@ -406,13 +413,13 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
             addedNodes.add((NodeData) itemState.getData());
           } else if (itemState.isDeleted()) {
             removedNodes.add(itemState.getData().getIdentifier());
-          }else if (itemState.isMixinChanged()){
+          } else if (itemState.isMixinChanged()) {
             removedNodes.add(itemState.getData().getIdentifier());
             addedNodes.add((NodeData) itemState.getData());
           }
         } else {
           String parentIdentifier = itemState.getData().getParentIdentifier();
-  
+
           if (getItemState(parentIdentifier, itemStates) == null) {
             // add parent id to reindex
             removedNodes.add(parentIdentifier);
@@ -427,18 +434,25 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
       onSaveMonitor.notifyAll();
     }
     try {
-      //log.info(Thread.currentThread().getName() + "\t" + new SimpleDateFormat("HH:mm:ss.SSS").format(new Date()) + "\t update " + (System.currentTimeMillis() - start) + "ms\t....");
+      // log.info(Thread.currentThread().getName() + "\t" + new
+      // SimpleDateFormat("HH:mm:ss.SSS").format(new Date()) + "\t update " +
+      // (System.currentTimeMillis() - start) + "ms\t....");
       updateNodes(removedNodes.iterator(), addedNodes.iterator());
-      //log.info(Thread.currentThread().getName() + "\t" + new SimpleDateFormat("HH:mm:ss.SSS").format(new Date()) + "\t done " + (System.currentTimeMillis() - start) + "ms\t<<<<");
+      // log.info(Thread.currentThread().getName() + "\t" + new
+      // SimpleDateFormat("HH:mm:ss.SSS").format(new Date()) + "\t done " +
+      // (System.currentTimeMillis() - start) + "ms\t<<<<");
     } catch (RepositoryException e) {
-      log.error("Error indexing node. " + (currentItemState.get() != null ? 
-          currentItemState.get().getData().getQPath().getAsString() : "<null>"), e);
+      log.error("Error indexing node. "
+          + (currentItemState.get() != null ? currentItemState.get().getData().getQPath()
+              .getAsString() : "<null>"), e);
     } catch (IOException e) {
-      log.error("Error indexing node. " + (currentItemState.get() != null ? 
-          currentItemState.get().getData().getQPath().getAsString() : "<null>"), e);
+      log.error("Error indexing node. "
+          + (currentItemState.get() != null ? currentItemState.get().getData().getQPath()
+              .getAsString() : "<null>"), e);
     } catch (Throwable e) {
-      log.error("Error indexing node. " + (currentItemState.get() != null ? 
-          currentItemState.get().getData().getQPath().getAsString() : "<null>"), e);
+      log.error("Error indexing node. "
+          + (currentItemState.get() != null ? currentItemState.get().getData().getQPath()
+              .getAsString() : "<null>"), e);
     }
   }
 
@@ -505,8 +519,10 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
    *           <code>node</code>.
    */
   protected Document createDocument(final NodeData node) throws RepositoryException {
-    // [PN] return NodeIndexer.createDocument(node, sysLocationFactory, documentReaderService, dataManager);
-    return node != null ? new NodeIndexer(node, sysLocationFactory, documentReaderService, dataManager).createDoc() : null;
+    // [PN] return NodeIndexer.createDocument(node, sysLocationFactory,
+    // documentReaderService, dataManager);
+    return node != null ? new NodeIndexer(node, sysLocationFactory, documentReaderService,
+        dataManager).createDoc() : null;
   }
 
   /**

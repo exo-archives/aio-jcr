@@ -164,7 +164,7 @@ public abstract class ItemImpl implements Item {
   /** 
    * @see javax.jcr.Item#getParent()
    */
-  public Node getParent() throws ItemNotFoundException, AccessDeniedException, RepositoryException {
+  public NodeImpl getParent() throws ItemNotFoundException, AccessDeniedException, RepositoryException {
     
     checkValid();
     
@@ -257,7 +257,7 @@ public abstract class ItemImpl implements Item {
           + getPath());
     NodeImpl parentNode = parent();
     // Check if versionable ancestor is not checked-in
-    if (!parentNode.isCheckedOut())
+    if (!parentNode.checkedOut())
       throw new VersionException("Node " + parent().getPath()
           + " or its nearest ancestor is checked-in");
 
@@ -372,7 +372,7 @@ public abstract class ItemImpl implements Item {
           "Can not assign single-value Value to a multiple-valued property " + locationFactory.createJCRPath(qpath).getAsString(false));
     }
     
-    if (!parentNode.isCheckedOut())
+    if (!parentNode.checkedOut())
       throw new VersionException("Node " + parentNode.getPath()
           + " or its nearest ancestor is checked-in");
 
@@ -566,7 +566,7 @@ public abstract class ItemImpl implements Item {
   }
 
   protected ItemImpl item(String identifier) throws RepositoryException {
-    return dataManager.getItemByIdentifier(identifier, false); // TODO pool=false
+    return dataManager.getItemByIdentifier(identifier, false);
   }
 
   protected NodeImpl parent() throws RepositoryException {
@@ -574,6 +574,14 @@ public abstract class ItemImpl implements Item {
     if (parent == null)
       throw new ItemNotFoundException("FATAL: Parent is null for "
           + getInternalPath().getAsString() + " parent UUID: " + getParentIdentifier());
+    return parent;
+  }
+  
+  protected NodeData parentData() throws RepositoryException {
+    NodeData parent = (NodeData) dataManager.getItemData(data.getParentIdentifier());
+    if (parent == null)
+      throw new ItemNotFoundException("FATAL: Parent is null for "
+          + getInternalPath().getAsString() + " parent UUID: " + data.getParentIdentifier());
     return parent;
   }
 
@@ -586,7 +594,7 @@ public abstract class ItemImpl implements Item {
   }
 
   public boolean isRoot() {
-    return (getDepth() == 0);
+    return data.getIdentifier().equals(Constants.ROOT_UUID);
   }
 
   abstract void loadData(ItemData data) throws RepositoryException;

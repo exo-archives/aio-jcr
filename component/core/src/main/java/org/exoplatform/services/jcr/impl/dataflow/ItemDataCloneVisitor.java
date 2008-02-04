@@ -35,12 +35,9 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 
 /**
- * The class visits each node, all subnodes and all of them properties. It
- * transfer as parameter of a method <code>ItemData.visits()</code>. During
- * visiting the class forms the <b>itemAddStates</b> list of
- * <code>List&lt;ItemState&gt;</code> for clone new nodes and their
- * properties and <b>ItemDeletedExistingStates</b> list for remove existing nodes 
- * if <code>removeExisting</code> is true.
+ * The class visits each node, all subnodes and all of them properties. It transfer as parameter of a method <code>ItemData.visits()</code>. During visiting
+ * the class forms the <b>itemAddStates</b> list of <code>List&lt;ItemState&gt;</code> for clone new nodes and their properties and
+ * <b>ItemDeletedExistingStates</b> list for remove existing nodes if <code>removeExisting</code> is true.
  * 
  * @version $Id$
  */
@@ -57,7 +54,7 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
 
   private boolean                    deletedExistingPropery    = false;
 
-  private final SessionChangesLog changes;
+  private final SessionChangesLog    changes;
 
   /**
    * Creates an instance of this class.
@@ -67,18 +64,18 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
    * @param nodeTypeManager - The NodeTypeManager
    * @param dataManager - Source data manager
    * @param dstDataManager - Destination data manager
-   * @param removeExisting - If <code>removeExisting</code> is true and an
-   *          existing node in this workspace (the destination workspace) has
-   *          the same <code>UUID</code> as a node being cloned from
-   *          srcWorkspace, then the incoming node takes precedence, and the
-   *          existing node (and its subtree) is removed. If
-   *          <code>removeExisting</code> is false then a <code>UUID</code>
-   *          collision causes this method to throw a <b>ItemExistsException</b>
+   * @param removeExisting - If <code>removeExisting</code> is true and an existing node in this workspace (the destination workspace) has the same
+   *          <code>UUID</code> as a node being cloned from srcWorkspace, then the incoming node takes precedence, and the existing node (and its subtree) is
+   *          removed. If <code>removeExisting</code> is false then a <code>UUID</code> collision causes this method to throw a <b>ItemExistsException</b>
    *          and no changes are made.
    */
-  public ItemDataCloneVisitor(NodeData parent, InternalQName dstNodeName,
-      NodeTypeManagerImpl nodeTypeManager, SessionDataManager srcDataManager,
-      SessionDataManager dstDataManager, boolean removeExisting, SessionChangesLog changes) {
+  public ItemDataCloneVisitor(NodeData parent,
+                              InternalQName dstNodeName,
+                              NodeTypeManagerImpl nodeTypeManager,
+                              SessionDataManager srcDataManager,
+                              SessionDataManager dstDataManager,
+                              boolean removeExisting,
+                              SessionChangesLog changes) {
     super(parent, dstNodeName, nodeTypeManager, srcDataManager, false);
 
     this.dstDataManager = dstDataManager;
@@ -89,28 +86,29 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
   @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
 
-    boolean isMixReferenceable = ntManager.isNodeType(Constants.MIX_REFERENCEABLE, node
-        .getPrimaryTypeName(), node.getMixinTypeNames());
+    boolean isMixReferenceable =
+        ntManager.isNodeType(Constants.MIX_REFERENCEABLE, node.getPrimaryTypeName(), node.getMixinTypeNames());
     deletedExistingPropery = false;
     if (isMixReferenceable) {
       String identifier = node.getIdentifier();
-      ItemImpl relItem = dstDataManager.getItemByIdentifier(identifier, false); // TODO pool=false
-      
+      ItemImpl relItem = dstDataManager.getItemByIdentifier(identifier, false);
+
       ItemState changesItemState = null;
       if (changes != null) {
         changesItemState = changes.getItemState(identifier);
       }
-      
+
       if (relItem != null && !(changesItemState != null && changesItemState.isDeleted())) {
         if (removeExisting) {
           deletedExistingPropery = true;
           itemDeletedExistingStates.add(new ItemState(relItem.getData(),
-              ItemState.DELETED,
-              true,
-              dstDataManager.getItemByIdentifier(relItem.getParentIdentifier(), false).getInternalPath(),level != 0)); // TODO pool=false
+                                                      ItemState.DELETED,
+                                                      true,
+                                                      dstDataManager.getItemByIdentifier(relItem.getParentIdentifier(), false)
+                                                                    .getInternalPath(),
+                                                      level != 0));
         } else {
-          throw new ItemExistsException("Item exists id = " + identifier + " name "
-              + relItem.getName());
+          throw new ItemExistsException("Item exists id = " + identifier + " name " + relItem.getName());
         }
       }
       keepIdentifiers = true;
@@ -119,6 +117,7 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
     super.entering(node, level);
     keepIdentifiers = false;
   }
+
   /**
    * Returns the list of item delete existing states
    */
@@ -132,8 +131,7 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
   }
 
   /**
-   * Return true if the itemstate for item with <code>itemId</code> UUId exist in
-   * <code>List&lt;ItemState&gt;</code> list.
+   * Return true if the itemstate for item with <code>itemId</code> UUId exist in <code>List&lt;ItemState&gt;</code> list.
    * 
    * @param list
    * @param itemId
@@ -157,13 +155,10 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
     if (deletedExistingPropery && removeExisting) {
       // if parent of this property in destination must be deleted, property
       // must be deleted too.
-      if (itemInItemStateList(itemDeletedExistingStates, property.getParentIdentifier(),
-          ItemState.DELETED)) {
+      if (itemInItemStateList(itemDeletedExistingStates, property.getParentIdentifier(), ItemState.DELETED)) {
         // search destination propery
-        ItemData dstParentNodeData = dstDataManager.getItemByIdentifier(property.getParentIdentifier(), false) // TODO pool=false
-            .getData();
-        List<PropertyData> dstChildProperties = dstDataManager
-            .getChildPropertiesData((NodeData) dstParentNodeData);
+        ItemData dstParentNodeData = dstDataManager.getItemByIdentifier(property.getParentIdentifier(), false).getData();
+        List<PropertyData> dstChildProperties = dstDataManager.getChildPropertiesData((NodeData) dstParentNodeData);
         PropertyData dstProperty = null;
 
         for (PropertyData propertyData : dstChildProperties) {
@@ -173,11 +168,14 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
           }
         }
         if (dstProperty != null) {
-          itemDeletedExistingStates.add(new ItemState(dstProperty, ItemState.DELETED, true,
-              dstDataManager.getItemByIdentifier(dstProperty.getParentIdentifier(), false).getInternalPath(),level != 0)); // TODO pool=false
+          itemDeletedExistingStates.add(new ItemState(dstProperty,
+                                                      ItemState.DELETED,
+                                                      true,
+                                                      dstDataManager.getItemByIdentifier(dstProperty.getParentIdentifier(), false)
+                                                                    .getInternalPath(),
+                                                      level != 0));
         } else {
-          throw new RepositoryException("Destination propery " + property.getQPath().getAsString()
-              + " not found. ");
+          throw new RepositoryException("Destination propery " + property.getQPath().getAsString() + " not found. ");
         }
       }
     }

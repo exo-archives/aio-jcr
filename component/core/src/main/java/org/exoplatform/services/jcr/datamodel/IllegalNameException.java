@@ -16,8 +16,6 @@
  */
 package org.exoplatform.services.jcr.datamodel;
 
-import javax.jcr.RepositoryException;
-
 /**
  * Created by The eXo Platform SAS.
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>

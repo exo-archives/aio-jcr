@@ -261,7 +261,7 @@ class DocOrderNodeCachedIteratorImpl implements ScoreNodeIterator {
                     private NodeImpl getNode(String id) throws RepositoryException {
                       NodeImpl node = lcache.get(id);
                       if (node == null) {
-                        node = (NodeImpl) dataManager.getItemByIdentifier(id, false); // TODO pool=false
+                        node = (NodeImpl) dataManager.getItemByIdentifier(id, false);
                         if (node != null)
                           lcache.put(id, node);
                         return node;
@@ -405,13 +405,13 @@ class DocOrderNodeCachedIteratorImpl implements ScoreNodeIterator {
       if (cached) {
         NodeImpl node = lcache.get(id);
         if (node == null) { // TODO, all nodes already cached
-          node = (NodeImpl) dataManager.getItemByIdentifier(id, false); // TODO pool=false
+          node = (NodeImpl) dataManager.getItemByIdentifier(id, false);
           if (node != null)
             lcache.put(id, node);
           return node;
         } else
           return node;
       }
-      return (NodeImpl) dataManager.getItemByIdentifier(id, false); // TODO pool=false
+      return (NodeImpl) dataManager.getItemByIdentifier(id, false);
     }
 }

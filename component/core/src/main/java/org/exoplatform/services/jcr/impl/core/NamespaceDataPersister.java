@@ -81,49 +81,58 @@ public class NamespaceDataPersister {
 
   public void initStorage(NodeData nsSystem, boolean addACL, Map<String, String> namespaces) throws RepositoryException {
 
-    TransientNodeData root = TransientNodeData.createNodeData(nsSystem,
+    TransientNodeData exoNamespaces = TransientNodeData.createNodeData(nsSystem,
         Constants.EXO_NAMESPACES,
         Constants.NT_UNSTRUCTURED);
 
-    TransientPropertyData primaryType = TransientPropertyData.createPropertyData(root,
+    TransientPropertyData primaryType = TransientPropertyData.createPropertyData(exoNamespaces,
         Constants.JCR_PRIMARYTYPE,
         PropertyType.NAME,
         false);
-    primaryType.setValue(new TransientValueData(root.getPrimaryTypeName()));
+    primaryType.setValue(new TransientValueData(exoNamespaces.getPrimaryTypeName()));
 
-    changesLog.add(ItemState.createAddedState(root)).add(ItemState.createAddedState(primaryType));
+    changesLog.add(ItemState.createAddedState(exoNamespaces)).add(ItemState.createAddedState(primaryType));
 
     if (addACL) {
       AccessControlList acl = new AccessControlList();
-      root.setMixinTypeNames(new InternalQName[] { Constants.EXO_ACCESS_CONTROLLABLE });
+      
+      InternalQName[] mixins = new InternalQName[] { Constants.EXO_OWNEABLE, Constants.EXO_PRIVILEGEABLE };
+      exoNamespaces.setMixinTypeNames(mixins);
+      
       // jcr:mixinTypes
-      TransientPropertyData rootMixinTypes = TransientPropertyData.createPropertyData(root,
+      List<ValueData> mixValues = new ArrayList<ValueData>();
+      for (InternalQName mixin: mixins) {
+        mixValues.add(new TransientValueData(mixin));
+      }
+      TransientPropertyData exoMixinTypes = TransientPropertyData.createPropertyData(exoNamespaces,
           Constants.JCR_MIXINTYPES,
           PropertyType.NAME,
-          false);
-      rootMixinTypes.setValue(new TransientValueData(Constants.EXO_ACCESS_CONTROLLABLE));
-
-      TransientPropertyData exoOwner = TransientPropertyData.createPropertyData(root,
+          true, 
+          mixValues);
+      
+      TransientPropertyData exoOwner = TransientPropertyData.createPropertyData(exoNamespaces,
           Constants.EXO_OWNER,
           PropertyType.STRING,
-          false);
-      exoOwner.setValue(new TransientValueData(acl.getOwner()));
-      TransientPropertyData exoPerms = TransientPropertyData.createPropertyData(root,
-          Constants.EXO_PERMISSIONS,
-          ExtendedPropertyType.PERMISSION,
-          true);
-      List<ValueData> perms = new ArrayList<ValueData>();
+          false,
+          new TransientValueData(acl.getOwner()));
+      
+      List<ValueData> permsValues = new ArrayList<ValueData>();
       for (int i = 0; i < acl.getPermissionEntries().size(); i++) {
         AccessControlEntry entry = acl.getPermissionEntries().get(i);
-        perms.add(new TransientValueData(entry));
+        permsValues.add(new TransientValueData(entry));
       }
-      exoPerms.setValues(perms);
-      changesLog.add(ItemState.createAddedState(rootMixinTypes)).add(ItemState
+      TransientPropertyData exoPerms = TransientPropertyData.createPropertyData(exoNamespaces,
+          Constants.EXO_PERMISSIONS,
+          ExtendedPropertyType.PERMISSION,
+          true,
+          permsValues);      
+      
+      changesLog.add(ItemState.createAddedState(exoMixinTypes)).add(ItemState
           .createAddedState(exoOwner)).add(ItemState.createAddedState(exoPerms));
-      changesLog.add(new ItemState(root, ItemState.MIXIN_CHANGED, false, null));
+      changesLog.add(new ItemState(exoNamespaces, ItemState.MIXIN_CHANGED, false, null));
     }
 
-    nsRoot = root;
+    nsRoot = exoNamespaces;
 
     Iterator<String> i = namespaces.keySet().iterator();
     while (i.hasNext()) {
