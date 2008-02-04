@@ -76,8 +76,6 @@ public class TestAccess extends BaseStandaloneTest {
    * @throws Exception
    */
   public void testNoAccessControllable() throws Exception {
-    
-
     AccessControlList acl = ((ExtendedNode) root).getACL();
     assertEquals(SystemIdentity.SYSTEM, acl.getOwner());
     assertEquals(PermissionType.ALL.length, acl.getPermissionEntries().size());

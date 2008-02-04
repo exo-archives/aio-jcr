@@ -92,6 +92,33 @@ public class TestVersionable extends BaseVersionTest {
       // ok
     }
   }
+  
+  public void testIsCheckedOut() throws Exception {
+    // create versionable subnode and checkin its versionable parent
+    // testRoot - versionable ancestor
+    
+    testRoot.checkout();
+    Node subNode = testRoot.addNode("node1").addNode("node2").addNode("subNode");
+    testRoot.save();
+    
+    subNode.addMixin("mix:versionable");
+    testRoot.save();
+    
+    subNode.checkin();
+    subNode.checkout();
+    subNode.setProperty("property1", "property1 v1");
+    subNode.save();
+    subNode.checkin();
+    subNode.checkout();
+    
+    // test
+    testRoot.checkin(); // make subtree checked-in
+    try {
+      assertTrue("subNode should be checked-out as it's a mix:versionable", subNode.isCheckedOut());
+    } catch(RepositoryException e) {
+      
+    }
+  }
 
 }
 
