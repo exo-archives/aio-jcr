@@ -24,6 +24,7 @@ import java.util.GregorianCalendar;
 
 import javax.jcr.NamespaceException;
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.query.Query;
@@ -75,7 +76,14 @@ public class TestQueryMixinNodeTypes extends BaseUsecasesTest {
     Query query = session1.getWorkspace().getQueryManager().createQuery(datetimeStatement,
                                                                         Query.XPATH);
     QueryResult result = query.execute();
-    assertEquals(1, result.getNodes().getSize());
+    NodeIterator resNodes = result.getNodes();
+    int nodesFound = 0;
+    while (resNodes.hasNext()) {
+      log.info("The query '" + datetimeStatement + "' find node " + article.getPath());
+      nodesFound++;
+    }
+    
+    assertEquals("The search should find one node. Result size = " + resNodes.getSize() + ", actual = " + nodesFound, 1, nodesFound);
 
     // Please try with both statements
     // String stateStatement =
