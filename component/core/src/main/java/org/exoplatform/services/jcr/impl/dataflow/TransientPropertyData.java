@@ -42,7 +42,8 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 
 public class TransientPropertyData extends TransientItemData implements MutablePropertyData,
     Externalizable /*, Cloneable*/ {
-
+  private final static int NULL_VALUES = -1; 
+  
   private List<ValueData> values;
 
   private int             type;
@@ -195,10 +196,14 @@ public class TransientPropertyData extends TransientItemData implements MutableP
     out.writeInt(type);
     out.writeBoolean(multiValued);
 
-    int listSize = values.size();
-    out.writeInt(listSize);
-    for (int i = 0; i < listSize; i++) 
-      out.writeObject(values.get(i));
+    if (values != null) {
+      int listSize = values.size();
+      out.writeInt(listSize);
+      for (int i = 0; i < listSize; i++) 
+        out.writeObject(values.get(i));
+    } else {
+      out.writeInt(NULL_VALUES);
+    }
   }
 
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
@@ -208,9 +213,11 @@ public class TransientPropertyData extends TransientItemData implements MutableP
     
     multiValued = in.readBoolean();
 
-    values = new ArrayList<ValueData>();
     int listSize = in.readInt();
-    for (int i = 0; i < listSize; i++)
-      values.add((ValueData) in.readObject());
+    if (listSize  != NULL_VALUES) {
+      values = new ArrayList<ValueData>();
+      for (int i = 0; i < listSize; i++)
+        values.add((ValueData) in.readObject());
+    }
   }
 }
