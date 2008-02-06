@@ -31,8 +31,7 @@
     <init-params>
       <values-param>
           <name>repositories</name>
-            <value>db1</value>
-            <value>db2</value>
+            <value>repository</value>
       </values-param>
       <properties-param>
         <name>replication-properties</name>
@@ -50,8 +49,7 @@
     <init-params>
       <values-param>
           <name>repositories</name>
-            <value>db1</value>
-            <value>db2</value>
+            <value>repository</value>
       </values-param>
       <properties-param>
         <name>replication-properties</name>
@@ -69,8 +67,7 @@
     <init-params>
       <values-param>
           <name>repositories</name>
-            <value>db1</value>
-            <value>db2</value>
+            <value>repository</value>
       </values-param>
       <properties-param>
         <name>replication-properties</name>
