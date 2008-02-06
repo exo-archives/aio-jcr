@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<configuration>
+    
+  <import>file:src/test/java/conf/standalone/test-configuration-for-replication.xml</import>  
+  <import>file:src/test/java/conf/standalone/test-replication-config.xml</import>
+
+</configuration>
