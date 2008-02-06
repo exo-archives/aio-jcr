@@ -53,7 +53,6 @@ import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.LocalWorkspaceDataManagerStub;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspaceStorageCacheImpl;
-import org.exoplatform.services.jcr.impl.dataflow.replication.WorkspaceDataReplicator;
 import org.exoplatform.services.jcr.impl.storage.SystemDataContainerHolder;
 import org.exoplatform.services.jcr.impl.storage.value.StandaloneStoragePluginProvider;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
@@ -215,10 +214,6 @@ public class RepositoryContainer extends ExoContainer {
 
       wsDataManager.setSystemDataManager(systemDataManager);
 
-      if ((config.getReplication() != null) && (config.getReplication().isEnabled())) {
-        workspaceContainer.registerComponentImplementation(WorkspaceDataReplicator.class);
-      }
-
       if (!config.getWorkspaceEntries().contains(wsConfig))
         config.getWorkspaceEntries().add(wsConfig);
     } catch (RuntimeException e) {
@@ -301,7 +296,6 @@ public class RepositoryContainer extends ExoContainer {
 
     // touch independent components
     workspaceContainer.getComponentInstanceOfType(IdGenerator.class);
-    workspaceContainer.getComponentInstanceOfType(WorkspaceDataReplicator.class);
 
     WorkspaceInitializer wsInitializer = (WorkspaceInitializer) workspaceContainer.getComponentInstanceOfType(WorkspaceInitializer.class);
 
