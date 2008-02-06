@@ -36,8 +36,6 @@ public class RepositoryEntry {
 
   private String                    accessControl;
 
-  private ReplicationEntry          replication;
-
   private String                    securityDomain;
 
   private ArrayList<WorkspaceEntry> workspaces;
@@ -147,14 +145,6 @@ public class RepositoryEntry {
 
   public void setBinaryTemp(BinarySwapEntry binaryTemp) {
     this.binaryTemp = binaryTemp;
-  }
-
-  public ReplicationEntry getReplication() {
-    return replication;
-  }
-
-  public void setReplication(ReplicationEntry replication) {
-    this.replication = replication;
   }
 
   public long getSessionTimeOut() {
