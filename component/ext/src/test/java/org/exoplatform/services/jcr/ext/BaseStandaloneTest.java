@@ -1,11 +1,10 @@
 package org.exoplatform.services.jcr.ext;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
+import java.util.Random;
 
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
@@ -18,6 +17,7 @@ import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
@@ -48,6 +48,17 @@ public abstract class BaseStandaloneTest extends TestCase {
   protected ValueFactory valueFactory;
 
   protected StandaloneContainer container;
+
+  protected class CompareStreamException extends Exception {
+    
+    CompareStreamException(String message) {
+      super(message);
+    }
+    
+    CompareStreamException(String message, Throwable e) {
+      super(message, e);
+    }
+  }
 
   public void setUp() throws Exception {
     String containerConf = getClass().getResource("/conf/standalone/test-configuration.xml").toString();
@@ -112,7 +123,7 @@ public abstract class BaseStandaloneTest extends TestCase {
 //  public void initRepository() throws RepositoryException {
 //  }
 
-  // ====== utils =======
+//====== utils =======
 
   protected void checkItemsExisted(String[] exists, String[] notExists) throws RepositoryException {
     String path = null;
@@ -161,46 +172,85 @@ public abstract class BaseStandaloneTest extends TestCase {
       }
     }
   }
-
-
+  
   protected void compareStream(InputStream etalon, InputStream data) throws IOException  {
+    try {
+      compareStream(etalon, data, 0, 0, -1);
+    } catch(CompareStreamException e) {
+      fail(e.getMessage());
+    }
+  }
+  
+  /**
+   * Compare etalon stream with data stream begining from the offset in etalon and position in data.
+   * Length bytes will be readed and compared. if length is lower 0 then compare streams till one of them will be read.
+   *  
+   * @param etalon
+   * @param data
+   * @param etalonPos
+   * @param length
+   * @param dataPos
+   * @throws IOException
+   */
+  protected void compareStream(InputStream etalon, InputStream data, long etalonPos, long dataPos, long length) throws IOException, CompareStreamException {
 
-    int index = 0;
-
-    byte[] ebuff = new byte[64 * 1024];
+    int dindex = 0;
+    
+    skipStream(etalon, etalonPos);
+    skipStream(data, dataPos);
+    
+    byte[] ebuff = new byte[1024];
     int eread = 0;
-    ByteArrayOutputStream buff = new ByteArrayOutputStream();
+    
     while ((eread = etalon.read(ebuff)) > 0) {
 
       byte[] dbuff = new byte[eread];
-      while (buff.size() < eread) {
+      int erindex = 0;
+      while (erindex < eread) {
         int dread = -1;
         try {
           dread = data.read(dbuff);
         } catch(IOException e) {
-          fail("Streams is not equals by length or data stream is unreadable. Cause: " + e.getMessage());
+          throw new CompareStreamException("Streams is not equals by length or data stream is unreadable. Cause: " + e.getMessage());
         }
-        buff.write(dbuff, 0, dread);
-      }
-
-      dbuff = buff.toByteArray();
-
-      for (int i=0; i<eread; i++) {
-        byte eb = ebuff[i];
-        byte db = dbuff[i];
-        index++;
-        if (eb != db)
-          fail("Streams is not equals. Wrong byte stored at position " + index + " of data stream." );
-      }
-
-      buff = new ByteArrayOutputStream();
-      if (dbuff.length > eread) {
-        buff.write(dbuff, eread, dbuff.length);
+        
+        if (dread == -1)
+          throw new CompareStreamException("Streams is not equals by length. Data end-of-stream reached at position " + dindex);
+        
+        for (int i=0; i<dread; i++) {
+          byte eb = ebuff[i];
+          byte db = dbuff[i];
+          if (eb != db)
+            throw new CompareStreamException (
+                "Streams is not equals. Wrong byte stored at position " + dindex + " of data stream. Expected 0x" + 
+                Integer.toHexString(eb) + " '" + new String(new byte[] {eb}) + 
+                "' but found 0x" + Integer.toHexString(db) + " '" + new String(new byte[] {db}) + "'");
+          
+          erindex++;
+          dindex++;
+          if (length > 0 && dindex >= length)
+            return; // tested length reached
+        }
+        
+        if (dread < eread)
+          dbuff = new byte[eread - dread];
       }
     }
 
-    if (buff.size() > 0 || data.available() > 0)
-      fail("Streams is not equals by length.");
+    if (data.available() > 0)
+      throw new CompareStreamException("Streams is not equals by length. Data stream contains more data. Were read " + dindex);
+  }  
+  
+  protected void skipStream(InputStream stream, long pos) throws IOException {
+    long curPos = pos; 
+    long sk = 0;
+    while ((sk = stream.skip(curPos)) > 0) {
+      curPos -= sk; 
+    };
+    if (sk <0)
+      fail("Can not read the stream (skip bytes)");
+    if (curPos != 0)
+      fail("Can not skip bytes from the stream (" + pos + " bytes)");
   }
 
   protected File createBLOBTempFile(int sizeInKb) throws IOException {
@@ -209,17 +259,57 @@ public abstract class BaseStandaloneTest extends TestCase {
 
   protected File createBLOBTempFile(String prefix, int sizeInKb) throws IOException {
     // create test file
-    byte[] data = new byte[1024]; // 1KB
-    Arrays.fill(data, (byte)65); // symbol A
+    byte[] data = new byte[1024]; // 1Kb
+
     File testFile = File.createTempFile(prefix, ".tmp");
     FileOutputStream tempOut = new FileOutputStream(testFile);
+    Random random = new Random();
+
     for (int i=0; i<sizeInKb; i++) {
+      random.nextBytes(data);
       tempOut.write(data);
     }
     tempOut.close();
     testFile.deleteOnExit(); // delete on test exit
     log.info("Temp file created: " + testFile.getAbsolutePath()+" size: "+testFile.length());
     return testFile;
+  }
+
+  protected void checkMixins(String[] mixins, NodeImpl node) {
+    try {
+      String[] nodeMixins = node.getMixinTypeNames();
+      assertEquals("Mixins count is different", mixins.length, nodeMixins.length);
+
+      compareMixins(mixins, nodeMixins);
+    } catch(RepositoryException e) {
+      fail("Mixins isn't accessible on the node " + node.getPath());
+    }
+  }
+
+  protected void compareMixins(String[] mixins, String[] nodeMixins) {
+    nextMixin: for (String mixin: mixins) {
+      for (String nodeMixin: nodeMixins) {
+        if (mixin.equals(nodeMixin))
+          continue nextMixin;
+      }
+
+      fail("Mixin '" + mixin + "' isn't accessible");
+    }
+  }
+  
+  protected String memoryInfo() {
+    String info = "";
+    info = "free: " + mb(Runtime.getRuntime().freeMemory()) + "M of " + mb(Runtime.getRuntime().totalMemory()) + "M (max: " + mb(Runtime.getRuntime().maxMemory()) + "M)";
+    return info;
+  }
+  
+  // bytes to Mbytes
+  protected String mb(long mem) {
+    return String.valueOf(Math.round(mem * 100d/ (1024d * 1024d)) / 100d);
+  }
+  
+  protected String execTime(long from) {
+    return Math.round(((System.currentTimeMillis() - from) * 100.00d / 60000.00d)) / 100.00d + "min";
   }
 
 }

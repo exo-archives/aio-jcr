@@ -115,10 +115,9 @@ public class TestAccessContext extends BaseStandaloneTest {
     } catch (AccessDeniedException e) {
       fail("AccessDeniedException ");
     }
-
   }
 
-  public void testAccessMenedgerContextMultiThiard() throws RepositoryException,
+  public void testAccessMenedgerContextMultiThread() throws RepositoryException,
       InterruptedException {
 
     Node multiACTNode = root.addNode("testMultiACT");

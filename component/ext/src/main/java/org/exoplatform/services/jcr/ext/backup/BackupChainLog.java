@@ -1,0 +1,457 @@
+/*
+ * Copyright (C) 2003-2007 eXo Platform SAS.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see<http://www.gnu.org/licenses/>.
+ */
+package org.exoplatform.services.jcr.ext.backup;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
+import javax.xml.stream.events.StartElement;
+
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
+
+/**
+ * Created by The eXo Platform SARL .<br/>
+ * 
+ * @author Gennady Azarenkov
+ * @version $Id: $
+ */
+public class BackupChainLog {
+
+  protected static Log             logger = ExoLogger.getLogger("ext.BackupChainLog");
+
+  private static final String      PREFIX = "backup-";
+
+  private static final String      SUFFIX = ".xml";
+
+  private File                     log;
+
+  private String                   configInfo;
+
+  private final List<JobEntryInfo> jobEntries;
+
+  private LogWriter                logWriter;
+  
+  private LogReader                logReader;
+  
+  private BackupConfig             config;
+
+  public BackupChainLog(File logDir, BackupConfig config) throws BackupOperationException {
+    try {
+      this.log = File.createTempFile(PREFIX, SUFFIX, logDir);
+      this.config = config;
+      this.jobEntries = new ArrayList<JobEntryInfo>();
+  
+      // write config info here
+      logWriter = new LogWriter(log);
+      logWriter.write(config);
+    } catch (IOException e) {
+      throw new BackupOperationException(e);
+    } catch (XMLStreamException e) {
+      throw new BackupOperationException(e);
+    } catch (FactoryConfigurationError e) {
+      throw new BackupOperationException(e);
+    }
+  }
+
+  public BackupChainLog(File log) throws BackupOperationException {
+    this.log = log;
+    
+    try {
+      logReader = new LogReader(log);
+      logReader.readLogFile();
+      logReader.jobEntrysNormalize();
+      
+      config = logReader.getBackupConfig();
+      jobEntries = logReader.getJobEntryInfoNormalizeList();
+    } catch (FileNotFoundException e) {
+      throw new BackupOperationException(e);
+    } catch (XMLStreamException e) {
+      throw new BackupOperationException(e);
+    } catch (FactoryConfigurationError e) {
+      throw new BackupOperationException(e);
+    } catch (MalformedURLException e) {
+      throw new BackupOperationException(e);
+    }    
+  }
+
+  public void addJobEntry(BackupJob job) {
+    // jobEntries
+    try {
+      JobEntryInfo info = new JobEntryInfo();
+      info.setDate(Calendar.getInstance());
+      info.setType(job.getType());
+      info.setState(job.getState());
+      info.setURL(job.getStorageURL());
+      
+      logWriter.write(info);
+    } catch (Exception e) {
+      logger.error("Can't add job",e);
+    }
+  }
+
+  public String getConfigInfo() {
+    return configInfo;
+  }
+
+  public List<JobEntryInfo> getJobEntryInfos() {
+    return jobEntries;
+  }
+
+  public void endLog() {
+    logWriter.writeEndLog();
+  }
+
+  public Collection<JobEntryInfo> getJobEntryStates() {
+    HashMap<Integer, JobEntryInfo> infos = new HashMap<Integer, JobEntryInfo>();
+    for (JobEntryInfo jobEntry : jobEntries) {
+      infos.put(jobEntry.getID(), jobEntry);
+    }
+    return infos.values();
+  }
+  
+  public BackupConfig getBackupConfig() {
+    return config;
+  }
+  
+  public String getLogFilePath() {
+    return log.getAbsolutePath();
+  }
+  
+  
+  class LogReader {
+    protected Log       logger = ExoLogger.getLogger("ext.LogWriter");
+
+    private File               logFile;
+
+    private XMLStreamReader    reader;
+
+    private BackupConfig       config;
+
+    private List<JobEntryInfo> jobEntries;
+      
+    private List<JobEntryInfo> jobEntriesNormalize;
+
+    public LogReader(File logFile) throws FileNotFoundException, XMLStreamException, FactoryConfigurationError {
+      this.logFile = logFile;
+      jobEntries = new ArrayList<JobEntryInfo>();
+
+      reader = XMLInputFactory.newInstance().createXMLStreamReader(
+          new FileInputStream(this.logFile));
+    }
+    
+    public BackupConfig getBackupConfig() {
+      return config;
+    }
+    
+    public List<JobEntryInfo> getJobEntryInfoList() {
+      return jobEntries;
+    }
+    
+    public List<JobEntryInfo> getJobEntryInfoNormalizeList() {
+      return jobEntriesNormalize;
+    }
+
+    public void readLogFile() throws XMLStreamException, MalformedURLException {
+      boolean endDocument = false;
+
+      while (!endDocument) {
+        int eventCode = reader.next();
+        switch (eventCode) {
+
+        case StartElement.START_ELEMENT:
+          String name = reader.getLocalName();
+
+          if (name.equals("backup-config"))
+            config = readBackupConfig();
+
+          if (name.equals("job-entry-info"))
+            jobEntries.add(readJobEntryInfo());
+
+          break;
+
+        case StartElement.END_DOCUMENT:
+          endDocument = true;
+          break;
+        }
+      }
+    }
+
+    private JobEntryInfo readJobEntryInfo() throws XMLStreamException, MalformedURLException {
+      JobEntryInfo info = new JobEntryInfo();
+
+      boolean endJobEntryInfo = false;
+
+      while (!endJobEntryInfo) {
+        int eventCode = reader.next();
+        switch (eventCode) {
+
+        case StartElement.START_ELEMENT:
+          String name = reader.getLocalName();
+
+          if (name.equals("type"))
+            info.setType(getType(readContent()));
+
+          if (name.equals("state"))
+            info.setState(getState(readContent()));
+
+          if (name.equals("url"))
+            info.setURL(new URL(readContent()));
+
+          break;
+
+        case StartElement.END_ELEMENT:
+          String tagName = reader.getLocalName();
+
+          if (tagName.equals("job-entry-info"))
+            endJobEntryInfo = true;
+          break;
+        }
+      }
+
+      return info;
+    }
+
+    private int getState(String content) {
+      int state = -1;
+
+      if (content.equals("FINISHED"))
+        state = BackupJob.FINISHED;
+
+      if (content.equals("STARTING"))
+        state = BackupJob.STARTING;
+
+      if (content.equals("WAITING"))
+        state = BackupJob.WAITING;
+
+      if (content.equals("WORKING"))
+        state = BackupJob.WORKING;
+
+      return state;
+    }
+
+    private int getType(String content) {
+      int type = -1;
+
+      if (content.equals("FULL"))
+        type = BackupJob.FULL;
+
+      if (content.equals("INCREMENTAL"))
+        type = BackupJob.INCREMENTAL;
+
+      return type;
+    }
+
+    private BackupConfig readBackupConfig() throws XMLStreamException {
+      BackupConfig conf = new BackupConfig();
+
+      boolean endBackupConfig = false;
+
+      while (!endBackupConfig) {
+        int eventCode = reader.next();
+        switch (eventCode) {
+
+        case StartElement.START_ELEMENT:
+          String name = reader.getLocalName();
+
+          if (name.equals("full-backup-type"))
+            conf.setFullBackupType(readContent());
+
+          if (name.equals("incremental-backup-type"))
+            conf.setIncrementalBackupType(readContent());
+
+          if (name.equals("backup-dir"))
+            conf.setBackupDir(new File(readContent()));
+          
+          if (name.equals("repository"))
+            conf.setRepository(readContent());
+          
+          if (name.equals("workspace"))
+            conf.setWorkspace(readContent());
+
+          break;
+
+        case StartElement.END_ELEMENT:
+          String tagName = reader.getLocalName();
+
+          if (tagName.equals("backup-config"))
+            endBackupConfig = true;
+          break;
+        }
+      }
+
+      return conf;
+    }
+
+    private String readContent() throws XMLStreamException {
+      String content = null;
+
+      int eventCode = reader.next();
+
+      if (eventCode == StartElement.CHARACTERS)
+        content = reader.getText();
+
+      return content;
+    }
+
+    public void jobEntrysNormalize() {
+      jobEntriesNormalize = new ArrayList<JobEntryInfo>();
+      
+      for (int i = 0; i < jobEntries.size(); i++) {
+        JobEntryInfo entryInfo = jobEntries.get(i);
+        
+        boolean alreadyExist = false;
+        
+        for (int j = 0; j < jobEntriesNormalize.size(); j++) 
+          if (jobEntriesNormalize.get(j).getURL().toString().equals(entryInfo.getURL().toString()))
+            alreadyExist = true;
+        
+        if (!alreadyExist)
+          jobEntriesNormalize.add(entryInfo);
+      }
+    }
+  }
+  
+  
+  class LogWriter {
+
+    protected Log logger = ExoLogger.getLogger("ext.LogWriter");
+
+    private File         logFile;
+
+    XMLStreamWriter      writer;
+
+    public LogWriter(File logFile) throws FileNotFoundException, XMLStreamException, FactoryConfigurationError {
+      this.logFile = logFile;
+
+      writer = XMLOutputFactory.newInstance().createXMLStreamWriter(
+          new FileOutputStream(this.logFile));
+
+      writer.writeStartDocument();
+      writer.writeStartElement("backup-cain-log");
+      writer.flush();
+    }
+
+    public synchronized void write(BackupConfig config) throws XMLStreamException {
+      writer.writeStartElement("backup-config");
+
+      if (config.getFullBackupType() != null) {
+        writer.writeStartElement("full-backup-type");
+        writer.writeCharacters(config.getFullBackupType());
+        writer.writeEndElement();
+      }
+
+      if (config.getIncrementalBackupType() != null) {
+        writer.writeStartElement("incremental-backup-type");
+        writer.writeCharacters(config.getIncrementalBackupType());
+        writer.writeEndElement();
+      }
+
+      if (config.getBackupDir() != null) {
+        writer.writeStartElement("backup-dir");
+        writer.writeCharacters(config.getBackupDir().getAbsolutePath());
+        writer.writeEndElement();
+      }
+      
+      if (config.getRepository() != null) {
+        writer.writeStartElement("repository");
+        writer.writeCharacters(config.getRepository());
+        writer.writeEndElement();
+      }
+      
+      if (config.getWorkspace() != null) {
+        writer.writeStartElement("workspace");
+        writer.writeCharacters(config.getWorkspace());
+        writer.writeEndElement();
+      }
+
+      writer.writeEndElement();
+
+      writer.flush();
+    }
+
+    public synchronized void write(JobEntryInfo info) throws XMLStreamException {
+      writer.writeStartElement("job-entry-info");
+
+      writer.writeStartElement("type");
+      writer.writeCharacters((info.getType() == BackupJob.FULL ? "FULL" : "INCREMENTAL"));
+      writer.writeEndElement();
+
+      writer.writeStartElement("state");
+      writer.writeCharacters(getState(info.getState()));
+      writer.writeEndElement();
+      
+      writer.writeStartElement("url");
+      writer.writeCharacters(info.getURL().toString());
+      writer.writeEndElement();
+      
+      writer.writeStartElement("date");
+      writer.writeCharacters(info.getDate().getTime().toString());
+      writer.writeEndElement();
+      
+      writer.writeEndElement();
+
+      writer.flush();
+    }
+
+    public synchronized void writeEndLog() {
+      try {
+        writer.writeEndElement();
+        writer.writeEndDocument();
+        writer.flush();
+      } catch (Exception e) {
+        logger.error("Can't write log",e);
+      }
+    }
+
+    private String getState(int iState) {
+      String sState = ""+iState;
+      switch (iState) {
+      case BackupJob.FINISHED:
+        sState = "FINISHED";
+        break;
+      case BackupJob.STARTING:
+        sState = "STARTING";
+        break;
+      case BackupJob.WAITING:
+        sState = "WAITING";
+        break;
+      case BackupJob.WORKING:
+        sState = "WORKING";
+        break;
+      }
+
+      return sState;
+    }
+  }
+}
