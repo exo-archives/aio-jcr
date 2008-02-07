@@ -23,6 +23,7 @@ import javax.jcr.Session;
 import javax.jcr.lock.LockException;
 
 import org.exoplatform.services.jcr.webdav.WebDavStatus;
+import org.exoplatform.services.rest.CacheControl;
 import org.exoplatform.services.rest.Response;
 
 /**
@@ -30,14 +31,21 @@ import org.exoplatform.services.rest.Response;
  * Author : Vitaly Guly <gavrikvetal@gmail.com>
  * @version $Id: $
  */
-
 public class MoveCommand {
+  
+  private static CacheControl cacheControl = new CacheControl();
+  
+  // Fix problem with moving under Windows Explorer.
+  static {
+    cacheControl.setNoCache(true);
+  }
+  
   
   public Response move(Session session, String srcPath, String destPath) {    
     try {
       session.move(srcPath, destPath);
       session.save();
-      return Response.Builder.withStatus(WebDavStatus.CREATED).build();
+      return Response.Builder.withStatus(WebDavStatus.CREATED).cacheControl(cacheControl).build();
       
     } catch (LockException exc) {
       return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
@@ -56,12 +64,10 @@ public class MoveCommand {
     try {
       
       destSession.getWorkspace().copy(sourceSession.getWorkspace().getName(), srcPath, destPath);
-      
       sourceSession.getItem(srcPath).remove();
-      
       sourceSession.save();
       
-      return Response.Builder.withStatus(WebDavStatus.CREATED).build();
+      return Response.Builder.withStatus(WebDavStatus.CREATED).cacheControl(cacheControl).build();
       
     } catch (LockException exc) {
       return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
