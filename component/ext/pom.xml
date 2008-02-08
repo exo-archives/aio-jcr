@@ -153,6 +153,7 @@
             <include>**/backup/TestBackupManager.java</include -->
           </includes>
           <excludes>
+            <exclude>**/*$*</exclude><!--nested classes prb, http://jira.codehaus.org/browse/SUREFIRE-288-->
             <exclude>**/Base*Test.java</exclude>
             <exclude>**/replication/Test*.java</exclude>
           </excludes>
