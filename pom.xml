@@ -13,7 +13,7 @@
     <module>component/rmi</module>
     <module>component/ftp</module>
     <module>component/cifs</module>
-
+    <module>component/webdav</module>
 
     <module>frameworks/command</module>
     <module>frameworks/web</module>
