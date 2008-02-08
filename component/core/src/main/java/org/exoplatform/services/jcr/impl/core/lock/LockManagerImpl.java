@@ -229,10 +229,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   public synchronized void onCloseSession(SessionImpl session) {
     List<String> deadLocksList = new ArrayList<String>();
-    for (String key : locks.keySet()) {
-      LockData lockData = locks.get(key);
-      if (lockData.isLive()) {
-
+    List<LockData> lockList = getLockList();
+    for (LockData lockData : lockList) {
+      if (lockData.isLive()){
         if (lockData.isLockHolder(session.getId())) {
           if (lockData.isSessionScoped()) {
             // if no session currently holds lock except this
@@ -258,7 +257,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
           }
         }
       } else {
-        deadLocksList.add(key);
+        deadLocksList.add(lockData.getNodeIdentifier());
       }
     }
     // possibly this is a unnecessary cod
