@@ -115,9 +115,10 @@
             <include>**/${exo.test.includes}.java</include>
           </includes>
           <excludes>
-            <include>**/ftpclient/**/${exo.test.includes}.java</include>
-            <include>**/webdavclient/**/${exo.test.includes}.java</include>
-            <include>**/cifs/**/${exo.test.includes}.java</include>
+            <exclude>**/*$*</exclude><!--nested classes prb, http://jira.codehaus.org/browse/SUREFIRE-288-->
+            <exclude>**/ftpclient/**/${exo.test.includes}.java</exclude>
+            <exclude>**/webdavclient/**/${exo.test.includes}.java</exclude>
+            <exclude>**/cifs/**/${exo.test.includes}.java</exclude>
           </excludes>
           <systemProperties>
             <property>
