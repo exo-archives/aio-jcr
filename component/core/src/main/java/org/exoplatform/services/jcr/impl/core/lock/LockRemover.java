@@ -51,16 +51,15 @@ public class LockRemover extends WorkerThread {
     setDaemon(true);
     start();
     log.info("LockRemover instantiated name= " + getName() + " timeout= " + timeout);
-
   }
 
   @Override
   protected void callPeriodically() throws Exception {
-    List<LockData> lDatas =  lockManagerImpl.getLockList();
-      for (LockData lock : lDatas) {
-        if (!lock.isSessionScoped() && lock.getTimeToDeath() < 0) {
-            lockManagerImpl.removeLock(lock.getNodeIdentifier());
-        }
+    List<LockData> lDatas = lockManagerImpl.getLockList();
+    for (LockData lock : lDatas) {
+      if (!lock.isSessionScoped() && lock.getTimeToDeath() < 0) {
+        lockManagerImpl.removeLock(lock.getNodeIdentifier());
+      }
     }
   }
 }
