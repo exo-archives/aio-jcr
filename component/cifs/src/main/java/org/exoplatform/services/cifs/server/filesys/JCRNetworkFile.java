@@ -151,10 +151,11 @@ public class JCRNetworkFile extends NetworkFile {
       ExtByteArrayOutputStream bout = new ExtByteArrayOutputStream(length);
 
       // read data to output stream
-      try {
+      
+      if(exv.getLength()<position){
         readed = (int) exv.read(bout, length, position);
-      } catch (IOException e) {
-        // Read failed
+      }else{
+        // End file
         readed = -1;
       }
 
