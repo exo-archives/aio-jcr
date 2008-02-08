@@ -32,16 +32,11 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS Author : Karpenko
- * 
- * TODO this class is potentaly unstable
  */
 
 public class JCRNetworkFile extends NetworkFile {
   private static final Log logger = ExoLogger
       .getLogger("org.exoplatform.services.cifs.smb.server.JCRNetworkFile");
-
-  // private static final int MAX_FILE_SIZE_FOR_RANDOM_WRITE = 100 * 1024 *
-  // 1024; // in
 
   // Reference to node representing the file
   private Node node;
@@ -124,8 +119,8 @@ public class JCRNetworkFile extends NetworkFile {
 
     int readed = 0;
     if (!isExtendedBinaryValueAssigned()) {
-      // use persisted data
 
+      // use persisted data
       if (!node.isNodeType("nt:file"))
         throw new AccessDeniedException();
 
@@ -156,7 +151,12 @@ public class JCRNetworkFile extends NetworkFile {
       ExtByteArrayOutputStream bout = new ExtByteArrayOutputStream(length);
 
       // read data to output stream
-      readed = (int) exv.read(bout, length, position);
+      try {
+        readed = (int) exv.read(bout, length, position);
+      } catch (IOException e) {
+        // Read failed
+        readed = -1;
+      }
 
       // copy data to buffer (originally it is smb packet)
       if (readed != -1) {
