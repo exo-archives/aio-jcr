@@ -3,7 +3,7 @@
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>config</artifactId>
   <name>eXo JCR Config</name>
-  <version>trunk</version>
+  <version>1.8</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -13,7 +13,7 @@
     <module>component/rmi</module>
     <module>component/ftp</module>
     <module>component/cifs</module>
-
+    <module>component/webdav</module>
 
     <module>frameworks/command</module>
     <module>frameworks/web</module>
@@ -176,8 +176,8 @@
                 <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
                 <emma enabled="true">
                   <!-- merged file will be rewritted by last project -->
-                  <merge outfile="${exo.projects.directory.src}/jcr/trunk/target/coverage.es">
-                    <fileset dir="${exo.projects.directory.src}/jcr/trunk/">
+                  <merge outfile="${exo.projects.directory.src}/jcr/tags/1.8/target/coverage.es">
+                    <fileset dir="${exo.projects.directory.src}/jcr/tags/1.8/">
                       <include name="**/target/emma/*.e*" />
                       <include name="**/target/emma/*.e*" />
                     </fileset>
@@ -186,15 +186,15 @@
                   </merge>
                   <report>
                     <sourcepath>
-                      <dirset dir="${exo.projects.directory.src}/jcr/trunk/">
+                      <dirset dir="${exo.projects.directory.src}/jcr/tags/1.8/">
                         <include name="**/src/**/java" />
                       </dirset>
                     </sourcepath>
-                    <fileset dir="${exo.projects.directory.src}/jcr/trunk/target/">
+                    <fileset dir="${exo.projects.directory.src}/jcr/tags/1.8/target/">
                       <include name="*.es" />
                     </fileset>
-                    <html outfile="${exo.projects.directory.src}/jcr/trunk/target/coverage.html" />
-                    <xml outfile="${exo.projects.directory.src}/jcr/trunk/target/coverage.xml" />
+                    <html outfile="${exo.projects.directory.src}/jcr/tags/1.8/target/coverage.html" />
+                    <xml outfile="${exo.projects.directory.src}/jcr/tags/1.8/target/coverage.xml" />
                   </report>
                 </emma>
               </tasks>
@@ -271,9 +271,9 @@
       </activation>
       <properties>
         <org.exoplatform.tool.version>trunk</org.exoplatform.tool.version>
-        <org.exoplatform.kernel.version>trunk</org.exoplatform.kernel.version>
-        <org.exoplatform.core.version>trunk</org.exoplatform.core.version>
-        <org.exoplatform.jcr.version>trunk</org.exoplatform.jcr.version>
+        <org.exoplatform.kernel.version>2.0</org.exoplatform.kernel.version>
+        <org.exoplatform.core.version>2.0</org.exoplatform.core.version>
+        <org.exoplatform.jcr.version>1.8</org.exoplatform.jcr.version>
         <org.exoplatform.ws.version>trunk</org.exoplatform.ws.version>
       </properties>
     </profile>

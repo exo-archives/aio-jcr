@@ -4,9 +4,9 @@ eXo.require("eXo.projects.Product") ;
 function getModule(params) {
   var module = {} ;
   
-  module.version = "trunk" ;
+  module.version = "1.8" ;
   module.relativeMavenRepo =  "org/exoplatform/jcr" ;
-  module.relativeSRCRepo =  "jcr/trunk" ;
+  module.relativeSRCRepo =  "jcr/tags/1.8" ;
   module.name =  "jcr" ;
     
   module.services = {}
@@ -26,7 +26,7 @@ function getModule(params) {
   module.frameworks = {}
   module.frameworks.web = 
     new Project("org.exoplatform.jcr", "exo.jcr.framework.web", "jar", module.version).  
-    addDependency(new Project("org.exoplatform.ws.rest", "exo.rest.core", "jar", module.version)).
+    addDependency(new Project("org.exoplatform.ws.rest", "exo.ws.rest.core", "jar", "1.1")).
     addDependency(new Project("commons-chain", "commons-chain", "jar", "1.0")).
     addDependency(new Project("log4j", "log4j", "jar", "1.2.8")) ;
 
