@@ -134,6 +134,7 @@ public class FileSystemLockPersister implements LockPersister {
       // throw new LockException("Persistent lock information not exists");
       log.warn("Persistent lock information  for node " + lock.getNodeIdentifier()
           + " doesn't exists");
+     return; 
     }
     if (!lockFile.delete())
       throw new LockException("Fail to remove lock information");
