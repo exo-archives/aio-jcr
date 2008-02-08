@@ -239,14 +239,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
           }
         }
       } else {
-        //deadLocksList.add(lockData.getNodeIdentifier());
         entries.remove();
       }
     }
-    // possibly this is a unnecessary cod
-    //    for (String deadkey : deadLocksList) {
-    //      locks.remove(deadkey);
-    //    }
   }
 
   public void onSaveItems(ItemStateChangesLog changesLog) {
@@ -337,7 +332,6 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   public void start() {
     lockRemover = new LockRemover(this);
-    // lockRemover.start();
   }
 
   // Quick method. We need to reconstruct
