@@ -56,17 +56,11 @@ public class LockRemover extends WorkerThread {
 
   @Override
   protected void callPeriodically() throws Exception {
-
     List<LockData> lDatas =  lockManagerImpl.getLockList();
-    if (lDatas != null) {
       for (LockData lock : lDatas) {
         if (!lock.isSessionScoped() && lock.getTimeToDeath() < 0) {
-          if (lockManagerImpl.locks.containsValue(lock)) {
             lockManagerImpl.removeLock(lock.getNodeIdentifier());
-          }
         }
-      }
     }
   }
-
 }

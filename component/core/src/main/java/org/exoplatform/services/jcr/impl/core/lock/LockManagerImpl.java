@@ -85,7 +85,10 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
   private final Log                   log                  = ExoLogger.getLogger("jcr.lock.LockManager");
 
   // NodeIdentifier -- lockData
-  final Map<String, LockData> locks; //TODO hide this field
+  final Map<String, LockData>         locks;                                                             // TODO
+                                                                                                          // hide
+                                                                                                          // this
+                                                                                                          // field
 
   private final DataManager           dataManager;
 
@@ -231,7 +234,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     List<String> deadLocksList = new ArrayList<String>();
     List<LockData> lockList = getLockList();
     for (LockData lockData : lockList) {
-      if (lockData.isLive()){
+      if (lockData.isLive()) {
         if (lockData.isLockHolder(session.getId())) {
           if (lockData.isSessionScoped()) {
             // if no session currently holds lock except this
@@ -368,14 +371,14 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   public void start() {
     lockRemover = new LockRemover(this);
-    //lockRemover.start();
+    // lockRemover.start();
   }
-  
-  //  Quick method. We need to reconstruct
-  synchronized List<LockData>getLockList(){
+
+  // Quick method. We need to reconstruct
+  synchronized List<LockData> getLockList() {
     return new ArrayList<LockData>(locks.values());
   }
-  
+
   public void stop() {
     lockRemover.halt();
     lockRemover.interrupt();
@@ -503,36 +506,35 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     }
     lData = null;
   }
-  //TODO hide this method
-  void removeLock(String nodeIdentifier) {
-    NodeData nData;
-    try {
-      nData = (NodeData) dataManager.getItemData(nodeIdentifier);
-      PlainChangesLog changesLog = new PlainChangesLogImpl(new ArrayList<ItemState>(),
-                                                           SystemIdentity.SYSTEM,
-                                                           ExtendedEvent.UNLOCK);
 
-      ItemData lockOwner = copyItemData((PropertyData) dataManager.getItemData(nData,
-                                                                               new QPathEntry(Constants.JCR_LOCKOWNER,
-                                                                                              1)));
-    
+  // TODO hide this method
+  synchronized void removeLock(String nodeIdentifier) {
+    if (locks.containsKey(nodeIdentifier)) {
+      try {
+        NodeData nData = (NodeData) dataManager.getItemData(nodeIdentifier);
+        PlainChangesLog changesLog = new PlainChangesLogImpl(new ArrayList<ItemState>(),
+                                                             SystemIdentity.SYSTEM,
+                                                             ExtendedEvent.UNLOCK);
 
+        ItemData lockOwner = copyItemData((PropertyData) dataManager.getItemData(nData,
+                                                                                 new QPathEntry(Constants.JCR_LOCKOWNER,
+                                                                                                1)));
 
-      changesLog.add(ItemState.createDeletedState(lockOwner));
+        changesLog.add(ItemState.createDeletedState(lockOwner));
 
-      ItemData lockIsDeep = copyItemData((PropertyData) dataManager.getItemData(nData,
-                                                                                new QPathEntry(Constants.JCR_LOCKISDEEP,
-                                                                                               1)));
-      changesLog.add(ItemState.createDeletedState(lockIsDeep));
-      
-      //lock probably removed by other thread
-      if(lockOwner == null  || lockIsDeep == null)
-        return;
-      dataManager.save(new TransactionChangesLog(changesLog));
-    } catch (RepositoryException e) {
-      log.error("Error occur during removing lock" + e.getLocalizedMessage());
+        ItemData lockIsDeep = copyItemData((PropertyData) dataManager.getItemData(nData,
+                                                                                  new QPathEntry(Constants.JCR_LOCKISDEEP,
+                                                                                                 1)));
+        changesLog.add(ItemState.createDeletedState(lockIsDeep));
+
+        // lock probably removed by other thread
+        if (lockOwner == null && lockIsDeep == null)
+          return;
+        dataManager.save(new TransactionChangesLog(changesLog));
+      } catch (RepositoryException e) {
+        log.error("Error occur during removing lock" + e.getLocalizedMessage());
+      }
     }
-
   }
-  
+
 }
