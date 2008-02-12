@@ -497,8 +497,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       throw new RepositoryException("The relPath provided must not have an index on its final element. "
           + itemPath.getAsString(false));
 
-    ItemImpl parentItem = dataManager.getItem(nodeData(), itemPath.makeParentPath().getInternalPath().getEntries(), false); // TODO
-    // pool=false
+    ItemImpl parentItem = dataManager.getItem(nodeData(), itemPath.makeParentPath().getInternalPath().getEntries(), false);
 
     if (parentItem == null)
       throw new PathNotFoundException("Parent not found for " + itemPath.getAsString(true));

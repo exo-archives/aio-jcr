@@ -75,10 +75,16 @@ public abstract class PersistedItemData implements ItemData {
    * @see java.lang.Object#equals(java.lang.Object)
    */
   public boolean equals(Object obj) {
-    if (obj instanceof ItemData) {
-      return getIdentifier().equals(((ItemData) obj).getIdentifier());
-    } else {
+    if (obj == this)
+      return true;
+    
+    if (obj == null)
       return false;
-    }
+
+    if (obj instanceof ItemData) {
+      return getIdentifier().hashCode() == ((ItemData) obj).getIdentifier().hashCode();
+    } 
+
+    return false;
   }  
 }

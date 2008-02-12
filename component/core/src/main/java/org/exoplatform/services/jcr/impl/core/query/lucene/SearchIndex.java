@@ -18,13 +18,13 @@ package org.exoplatform.services.jcr.impl.core.query.lucene;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -51,7 +51,6 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
@@ -64,14 +63,12 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistent
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Implements a {@link org.apache.jackrabbit.core.query.QueryHandler} using
- * Lucene.
+ * Implements a {@link org.apache.jackrabbit.core.query.QueryHandler} using Lucene.
  */
 public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenceListener {
 
   /** The logger instance for this class */
-  private static Log                     log                      = ExoLogger
-                                                                      .getLogger("jcr.SearchIndex");
+  private static Log                     log                      = ExoLogger.getLogger("jcr.SearchIndex");
 
   /**
    * The default value for property {@link #minMergeDocs}.
@@ -109,8 +106,7 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
   private List                           textFilters;
 
   /**
-   * The location of the search index. <p/> Note: This is a <b>mandatory</b>
-   * parameter!
+   * The location of the search index. <p/> Note: This is a <b>mandatory</b> parameter!
    */
   private String                         path;
 
@@ -150,35 +146,29 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
   private boolean                        useCompoundFile          = true;
 
   /**
-   * Flag indicating whether document order is enable as the default ordering.
-   * was true, [PN] 07.08.07
+   * Flag indicating whether document order is enable as the default ordering. was true, [PN] 07.08.07
    */
   private boolean                        documentOrder            = true;
 
   /**
-   * If set <code>true</code> the index is checked for consistency on startup.
-   * If <code>false</code> a consistency check is only performed when there
-   * are entries in the redo log on startup. <p/> Default value is:
-   * <code>false</code>.
+   * If set <code>true</code> the index is checked for consistency on startup. If <code>false</code> a consistency check is only performed when there are
+   * entries in the redo log on startup. <p/> Default value is: <code>false</code>.
    */
   private boolean                        forceConsistencyCheck    = false;
 
   /**
-   * If set <code>true</code> errors detected by the consistency check are
-   * repaired. If <code>false</code> the errors are only reported in the log.
-   * <p/> Default value is: <code>true</code>.
+   * If set <code>true</code> errors detected by the consistency check are repaired. If <code>false</code> the errors are only reported in the log. <p/>
+   * Default value is: <code>true</code>.
    */
   private boolean                        autoRepair               = true;
 
   /**
-   * The identifier resolver cache size. <p/> Default value is:
-   * <code>1000</code>.
+   * The identifier resolver cache size. <p/> Default value is: <code>1000</code>.
    */
   private int                            cacheSize                = 1000;
 
   /**
-   * The field for transferring a DocumentReaderService variable by the
-   * SearchIndex constructor to the NodeIndexer.
+   * The field for transferring a DocumentReaderService variable by the SearchIndex constructor to the NodeIndexer.
    */
   private DocumentReaderService          documentReaderService    = null;
 
@@ -192,8 +182,7 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
   private final String                   rootIdentifier;
 
   /**
-   * Indicates if this <code>SearchIndex</code> is closed and cannot be used
-   * anymore.
+   * Indicates if this <code>SearchIndex</code> is closed and cannot be used anymore.
    */
   private boolean                        closed                   = false;
 
@@ -205,9 +194,10 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
   /**
    * Default constructor.
    */
-  public SearchIndex(WorkspaceEntry config, DocumentReaderService ds,
-      WorkspacePersistentDataManager dataManager, LocationFactory sysLocationFactory)
-      throws RepositoryConfigurationException, IOException {
+  public SearchIndex(WorkspaceEntry config,
+                     DocumentReaderService ds,
+                     WorkspacePersistentDataManager dataManager,
+                     LocationFactory sysLocationFactory) throws RepositoryConfigurationException, IOException {
     this.analyzer = new StandardAnalyzer();
     String indexDir = config.getQueryHandler().getParameterValue("indexDir");
     indexDir = indexDir.replace("${java.io.tmpdir}", System.getProperty("java.io.tmpdir"));
@@ -219,8 +209,7 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
   }
 
   /**
-   * Initializes this <code>QueryHandler</code>. This implementation requires
-   * that a path parameter is set in the configuration. If this condition is not
+   * Initializes this <code>QueryHandler</code>. This implementation requires that a path parameter is set in the configuration. If this condition is not
    * met, a <code>IOException</code> is thrown.
    * 
    * @throws IOException if an error occurs while initializing this handler.
@@ -270,27 +259,23 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
    * Removes the node with <code>identifier</code> from the search index.
    * 
    * @param identifier the Identifier of the node to remove from the index.
-   * @throws IOException if an error occurs while removing the node from the
-   *           index.
+   * @throws IOException if an error occurs while removing the node from the index.
    */
   public void deleteNode(String identifier) throws IOException {
     throw new UnsupportedOperationException("deleteNode");
   }
 
   /**
-   * This implementation forwards the call to
-   * {@link MultiIndex#update(java.util.Iterator, java.util.Iterator)} and
-   * transforms the two iterators to the required types.
+   * This implementation forwards the call to {@link MultiIndex#update(java.util.Iterator, java.util.Iterator)} and transforms the two iterators to the required
+   * types.
    * 
    * @param remove uuids of nodes to remove.
-   * @param add NodeStates to add. Calls to <code>next()</code> on this
-   *          iterator may return <code>null</code>, to indicate that a node
-   *          could not be indexed successfully.
+   * @param add NodeStates to add. Calls to <code>next()</code> on this iterator may return <code>null</code>, to indicate that a node could not be indexed
+   *          successfully.
    * @throws RepositoryException if an error occurs while indexing a node.
    * @throws IOException if an error occurs while updating the index.
    */
-  public void updateNodes(final Iterator remove, final Iterator add) throws RepositoryException,
-      IOException {
+  public void updateNodes(final Iterator remove, final Iterator add) throws RepositoryException, IOException {
     checkOpen();
     index.update(new AbstractIteratorDecorator(remove) {
       public Object next() {
@@ -302,14 +287,11 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
         NodeData state = (NodeData) super.next();
         try {
           if (state != null)
-            // [PN] return createDocument(state);
-            return new NodeIndexer(state, sysLocationFactory, documentReaderService, dataManager)
-                .createDoc();
+            return new NodeIndexer(state, sysLocationFactory, documentReaderService, dataManager).createDoc();
           else
             return null;
         } catch (RepositoryException e) {
-          log.error("Exception while creating document for node: " + state.getQPath().getAsString()
-              + ": " + e.toString(), e);
+          log.error("Exception while creating document for node: " + state.getQPath().getAsString() + ": " + e.toString(), e);
           return null;
         }
       }
@@ -317,25 +299,21 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
   }
 
   /**
-   * Creates a new query by specifying the query statement itself and the
-   * language in which the query is stated. If the query statement is
-   * syntactically invalid, given the language specified, an
-   * InvalidQueryException is thrown. <code>language</code> must specify a
-   * query language string from among those returned by
-   * QueryManager.getSupportedQueryLanguages(); if it is not then an
-   * <code>InvalidQueryException</code> is thrown.
+   * Creates a new query by specifying the query statement itself and the language in which the query is stated. If the query statement is syntactically
+   * invalid, given the language specified, an InvalidQueryException is thrown. <code>language</code> must specify a query language string from among those
+   * returned by QueryManager.getSupportedQueryLanguages(); if it is not then an <code>InvalidQueryException</code> is thrown.
    * 
    * @param session the session of the current user creating the query object.
    * @param itemMgr the item manager of the current user.
    * @param statement the query statement.
    * @param language the syntax of the query statement.
-   * @throws InvalidQueryException if statement is invalid or language is
-   *           unsupported.
+   * @throws InvalidQueryException if statement is invalid or language is unsupported.
    * @return A <code>Query</code> object.
    */
   public ExecutableQuery createExecutableQuery(SessionImpl session,
   // ItemManager itemMgr,
-      String statement, String language) throws InvalidQueryException {
+                                               String statement,
+                                               String language) throws InvalidQueryException {
 
     QueryImpl query = new QueryImpl(session, this, statement, language);
     query.setRespectDocumentOrder(documentOrder);
@@ -345,8 +323,7 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
   }
 
   /**
-   * Closes this <code>QueryHandler</code> and frees resources attached to
-   * this handler.
+   * Closes this <code>QueryHandler</code> and frees resources attached to this handler.
    */
   public void close() {
     if (!closed) {
@@ -362,14 +339,11 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
    * 
    * @param query the lucene query.
    * @param orderProps name of the properties for sort order.
-   * @param orderSpecs the order specs for the sort order properties.
-   *          <code>true</code> indicates ascending order, <code>false</code>
-   *          indicates descending.
+   * @param orderSpecs the order specs for the sort order properties. <code>true</code> indicates ascending order, <code>false</code> indicates descending.
    * @return the lucene Hits object.
    * @throws IOException if an error occurs while searching the index.
    */
-  QueryHits executeQuery(Query query, InternalQName[] orderProps, boolean[] orderSpecs)
-      throws IOException {
+  QueryHits executeQuery(Query query, InternalQName[] orderProps, boolean[] orderSpecs) throws IOException {
 
     checkOpen();
     SortField[] sortFields = createSortFields(orderProps, orderSpecs);
@@ -387,35 +361,30 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
     return new QueryHits(hits, reader);
   }
 
-  // ///////////////////
-
-  // TODO synchronized
   public void onSaveItems(final ItemStateChangesLog changesLog) {
 
     // nodes that need to be removed from the index.
     final Set<String> removedNodes = new LinkedHashSet<String>();
     // nodes that need to be added to the index.
-    final Set<NodeData> addedNodes = new LinkedHashSet<NodeData>();
+    final Map<String, NodeData> addedNodes = new LinkedHashMap<String, NodeData>();
 
     // for error message
     final ThreadLocal<ItemState> currentItemState = new ThreadLocal<ItemState>();
 
-    // final long start = System.currentTimeMillis();
-    // log.info(Thread.currentThread().getName() + "\t" + new
-    // SimpleDateFormat("HH:mm:ss.SSS").format(new Date(start)) + "\t
-    // start\t\t>>>>");
     synchronized (onSaveMonitor) {
       List<ItemState> itemStates = changesLog.getAllStates();
       for (ItemState itemState : itemStates) {
         currentItemState.set(itemState);
         if (itemState.isNode()) {
           if (itemState.isAdded() || itemState.isRenamed()) {
-            addedNodes.add((NodeData) itemState.getData());
+            addedNodes.put(itemState.getData().getIdentifier(), (NodeData) itemState.getData());
           } else if (itemState.isDeleted()) {
             removedNodes.add(itemState.getData().getIdentifier());
           } else if (itemState.isMixinChanged()) {
-            removedNodes.add(itemState.getData().getIdentifier());
-            addedNodes.add((NodeData) itemState.getData());
+            if (!addedNodes.containsKey(itemState.getData().getIdentifier())) {
+              removedNodes.add(itemState.getData().getIdentifier());
+              addedNodes.put(itemState.getData().getIdentifier(), (NodeData) itemState.getData());
+            }
           }
         } else {
           String parentIdentifier = itemState.getData().getParentIdentifier();
@@ -424,7 +393,8 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
             // add parent id to reindex
             removedNodes.add(parentIdentifier);
             try {
-              addedNodes.add((NodeData) dataManager.getItemData(parentIdentifier));
+              NodeData parentData = (NodeData) dataManager.getItemData(parentIdentifier);
+              addedNodes.put(parentData.getIdentifier(), parentData);
             } catch (RepositoryException e) {
               log.error("Error indexing node (addNode: " + parentIdentifier + ").", e);
             }
@@ -434,25 +404,16 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
       onSaveMonitor.notifyAll();
     }
     try {
-      // log.info(Thread.currentThread().getName() + "\t" + new
-      // SimpleDateFormat("HH:mm:ss.SSS").format(new Date()) + "\t update " +
-      // (System.currentTimeMillis() - start) + "ms\t....");
-      updateNodes(removedNodes.iterator(), addedNodes.iterator());
-      // log.info(Thread.currentThread().getName() + "\t" + new
-      // SimpleDateFormat("HH:mm:ss.SSS").format(new Date()) + "\t done " +
-      // (System.currentTimeMillis() - start) + "ms\t<<<<");
+      updateNodes(removedNodes.iterator(), addedNodes.values().iterator());
     } catch (RepositoryException e) {
       log.error("Error indexing node. "
-          + (currentItemState.get() != null ? currentItemState.get().getData().getQPath()
-              .getAsString() : "<null>"), e);
+          + (currentItemState.get() != null ? currentItemState.get().getData().getQPath().getAsString() : "<null>"), e);
     } catch (IOException e) {
       log.error("Error indexing node. "
-          + (currentItemState.get() != null ? currentItemState.get().getData().getQPath()
-              .getAsString() : "<null>"), e);
+          + (currentItemState.get() != null ? currentItemState.get().getData().getQPath().getAsString() : "<null>"), e);
     } catch (Throwable e) {
       log.error("Error indexing node. "
-          + (currentItemState.get() != null ? currentItemState.get().getData().getQPath()
-              .getAsString() : "<null>"), e);
+          + (currentItemState.get() != null ? currentItemState.get().getData().getQPath().getAsString() : "<null>"), e);
     }
   }
 
@@ -508,21 +469,17 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
   }
 
   /**
-   * Creates a lucene <code>Document</code> from a node state using the
-   * namespace mappings <code>nsMappings</code>.
+   * Creates a lucene <code>Document</code> from a node state using the namespace mappings <code>nsMappings</code>.
    * 
    * @param node the node state to index.
    * @param nsMappings the namespace mappings of the search index.
-   * @return a lucene <code>Document</code> that contains all properties of
-   *         <code>node</code>.
-   * @throws RepositoryException if an error occurs while indexing the
-   *           <code>node</code>.
+   * @return a lucene <code>Document</code> that contains all properties of <code>node</code>.
+   * @throws RepositoryException if an error occurs while indexing the <code>node</code>.
    */
   protected Document createDocument(final NodeData node) throws RepositoryException {
     // [PN] return NodeIndexer.createDocument(node, sysLocationFactory,
     // documentReaderService, dataManager);
-    return node != null ? new NodeIndexer(node, sysLocationFactory, documentReaderService,
-        dataManager).createDoc() : null;
+    return node != null ? new NodeIndexer(node, sysLocationFactory, documentReaderService, dataManager).createDoc() : null;
   }
 
   /**
@@ -535,14 +492,11 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
   }
 
   /**
-   * Sets a new set of text filter classes that are in use for indexing binary
-   * properties. The <code>filterClasses</code> must be a comma separated
-   * <code>String</code> of fully qualified class names implementing
-   * {@link org.apache.jackrabbit.core.query.TextFilter}. Each class must
-   * provide a default constructor.
+   * Sets a new set of text filter classes that are in use for indexing binary properties. The <code>filterClasses</code> must be a comma separated
+   * <code>String</code> of fully qualified class names implementing {@link org.apache.jackrabbit.core.query.TextFilter}. Each class must provide a default
+   * constructor.
    * </p>
-   * Filter class names that cannot be resolved are skipped and a warn message
-   * is logged.
+   * Filter class names that cannot be resolved are skipped and a warn message is logged.
    * 
    * @param filterClasses comma separated list of filter class names
    */
@@ -566,8 +520,7 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
   }
 
   /**
-   * Returns the fully qualified class names of the text filter instances
-   * currently in use. The names are comma separated.
+   * Returns the fully qualified class names of the text filter instances currently in use. The names are comma separated.
    * 
    * @return class names of the text filters in use.
    */
@@ -585,8 +538,7 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
   // ----------------------------< internal >----------------------------------
 
   /**
-   * Combines multiple {@link CachingMultiReader} into a
-   * <code>MultiReader</code> with {@link HierarchyResolver} support.
+   * Combines multiple {@link CachingMultiReader} into a <code>MultiReader</code> with {@link HierarchyResolver} support.
    */
   protected static final class CombinedIndexReader extends MultiReader implements HierarchyResolver {
 
@@ -624,8 +576,7 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
     }
 
     /**
-     * Returns the reader index for document <code>n</code>. Implementation
-     * copied from lucene MultiReader class.
+     * Returns the reader index for document <code>n</code>. Implementation copied from lucene MultiReader class.
      * 
      * @param n document number.
      * @return the reader index.
@@ -665,8 +616,7 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
   }
 
   /**
-   * Returns the location of the search index. Returns <code>null</code> if
-   * not set.
+   * Returns the location of the search index. Returns <code>null</code> if not set.
    * 
    * @return the location of the search index.
    */
@@ -822,8 +772,7 @@ public class SearchIndex extends AbstractQueryHandler implements ItemsPersistenc
   // ----------------------------< internal >----------------------------------
 
   /**
-   * Checks if this <code>SearchIndex</code> is open, otherwise throws an
-   * <code>IOException</code>.
+   * Checks if this <code>SearchIndex</code> is open, otherwise throws an <code>IOException</code>.
    * 
    * @throws IOException if this <code>SearchIndex</code> had been closed.
    */
