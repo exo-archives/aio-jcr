@@ -34,6 +34,7 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.hierarchy.NodeHierarchyCreator;
 import org.exoplatform.services.jcr.ext.hierarchy.impl.HierarchyConfig.JcrPath;
 import org.exoplatform.services.jcr.ext.hierarchy.impl.HierarchyConfig.Permission;
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.LogService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserEventListener;
@@ -45,6 +46,8 @@ import org.exoplatform.services.organization.UserEventListener;
  * Nov 15, 2007 11:13:12 AM
  */
 public class NewUserListener extends UserEventListener {
+  
+  private static Log      log = ExoLogger.getLogger("jcr.NewUserListener");
   
   private HierarchyConfig config_;
   private RepositoryService jcrService_;
@@ -72,13 +75,14 @@ public class NewUserListener extends UserEventListener {
   public void preSave(User user, boolean isNew) throws Exception {        
     String userName = user.getUserName();
     List<RepositoryEntry> repositories = jcrService_.getConfig().getRepositoryConfigurations() ;
+    // TODO [PN, 12.02.08] only default repository should contains user structure
     for(RepositoryEntry repo : repositories) {
       processUserStructure(repo.getName(), userName);
     }
   }
   
   @SuppressWarnings("unchecked")
-  private void processUserStructure(String repository, String userName) throws Exception {           
+  private void processUserStructure(String repository, String userName) throws Exception {     
     ManageableRepository manageableRepository = jcrService_.getRepository(repository) ;
     String systemWorkspace = manageableRepository.getConfiguration().getDefaultWorkspaceName() ;
     Session session = manageableRepository.getSystemSession(systemWorkspace);           
@@ -89,12 +93,13 @@ public class NewUserListener extends UserEventListener {
     } catch(PathNotFoundException e) {
       userNode = usersHome.addNode(userName) ;
     }
-    List jcrPaths = config_.getJcrPaths() ;
-    for(JcrPath jcrPath : (List<JcrPath>)jcrPaths) {
+    List<JcrPath> jcrPaths = config_.getJcrPaths() ;
+    
+    for(JcrPath jcrPath: jcrPaths) {
       createNode(userNode, jcrPath.getPath(), jcrPath.getNodeType(), jcrPath.getMixinTypes(), 
           getPermissions(jcrPath.getPermissions(),userName)) ;
     }    
-    usersHome.save();
+    //usersHome.save();
     session.save();
     session.logout();
   }
@@ -109,7 +114,7 @@ public class NewUserListener extends UserEventListener {
         Session session = manaRepo.getSystemSession(manaRepo.getConfiguration().getDefaultWorkspaceName());
         Node usersHome = (Node) session.getItem(nodeHierarchyCreatorService_.getJcrPath(USERS_PATH));
         usersHome.getNode(user.getUserName()).remove();
-        usersHome.save();
+        //usersHome.save();
         session.save();
         session.logout();
       } catch(Exception e) {

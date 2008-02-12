@@ -94,7 +94,7 @@ public class NewGroupListener extends GroupEventListener {
     Node groupsHome = (Node) session.getItem(groupsPath_);
     Node groupNode = (Node) session.getItem(groupsPath_ + groupId) ;
     groupNode.remove() ;
-    groupsHome.save() ;
+    //groupsHome.save() ;
     session.save() ;
     session.logout() ;
   }
@@ -116,7 +116,7 @@ public class NewGroupListener extends GroupEventListener {
       createNode(groupNode, jcrPath.getPath(), jcrPath.getNodeType(), jcrPath.getMixinTypes(), 
           getPermissions(jcrPath.getPermissions(),groupId)) ;
     }
-    groupsHome.save();
+    //groupsHome.save();
     session.save();
     session.logout();
   }
