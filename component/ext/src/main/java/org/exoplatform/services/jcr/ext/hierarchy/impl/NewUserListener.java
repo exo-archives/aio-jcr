@@ -83,8 +83,6 @@ public class NewUserListener extends UserEventListener {
   
   @SuppressWarnings("unchecked")
   private void processUserStructure(String repository, String userName) throws Exception {     
-    log.info("processUserStructure " + userName + " in " + repository);
-    
     ManageableRepository manageableRepository = jcrService_.getRepository(repository) ;
     String systemWorkspace = manageableRepository.getConfiguration().getDefaultWorkspaceName() ;
     Session session = manageableRepository.getSystemSession(systemWorkspace);           
