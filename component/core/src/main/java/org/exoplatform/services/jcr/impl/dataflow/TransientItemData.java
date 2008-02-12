@@ -122,7 +122,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
     return false;
   }
-
+  
   /**
    * @return Qname - shortcut for getQPath().getName();
    */
