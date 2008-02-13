@@ -72,21 +72,6 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
   public final static String DB_URL = "url";
   public final static String DB_USERNAME = "username";
   public final static String DB_PASSWORD = "password";
-  
-  public final static String DB_DIALECT_GENERIC = "Generic".intern();
-  public final static String DB_DIALECT_ORACLE = "Oracle".intern();
-  public final static String DB_DIALECT_ORACLEOCI = "Oracle-OCI".intern();
-  public final static String DB_DIALECT_PGSQL = "PgSQL".intern();
-  public final static String DB_DIALECT_MYSQL = "MySQL".intern();
-  public final static String DB_DIALECT_HSQLDB = "HSQLDB".intern();
-  public final static String DB_DIALECT_DB2 = "DB2".intern();
-  public final static String DB_DIALECT_DB2V8 = "DB2V8".intern();
-  public final static String DB_DIALECT_MSSQL = "MSSQL".intern();
-  public final static String DB_DIALECT_SYBASE = "Sybase".intern();
-  public final static String DB_DIALECT_DERBY = "Derby".intern();
-      
-  public final static String[] DB_DIALECTS = {DB_DIALECT_GENERIC, DB_DIALECT_ORACLE, DB_DIALECT_ORACLEOCI, DB_DIALECT_PGSQL, 
-    DB_DIALECT_MYSQL, DB_DIALECT_HSQLDB, DB_DIALECT_DB2, DB_DIALECT_DB2V8, DB_DIALECT_MSSQL, DB_DIALECT_SYBASE, DB_DIALECT_DERBY};
 
   /**
    * Describe which type of JDBC dialect will be used to iteract with RDBMS.
@@ -185,8 +170,8 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
       pDbDialect = detectDialect(wsConfig.getContainer().getParameterValue(DB_DIALECT));
       log.info("Using a dialect '" + pDbDialect + "'");
     } catch (RepositoryConfigurationException e) {
-      log.info("Using a default dialect '" + DB_DIALECT_GENERIC + "'");
-      pDbDialect = DB_DIALECT_GENERIC;
+      log.info("Using a default dialect '" + DBConstants.DB_DIALECT_GENERIC + "'");
+      pDbDialect = DBConstants.DB_DIALECT_GENERIC;
     }
     this.dbDialect = pDbDialect;
 
@@ -389,7 +374,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
 
     DBInitializer dbInitilizer = null;
     String sqlPath = null;
-    if (dbDialect == DB_DIALECT_ORACLEOCI) {
+    if (dbDialect == DBConstants.DB_DIALECT_ORACLEOCI) {
       // sample of connection factory customization
       if (dbSourceName != null)
         this.connFactory = defaultConnectionFactory();
@@ -412,21 +397,21 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
           this.connFactory.getJdbcConnection(),
           sqlPath,
           multiDb);
-    } else if (dbDialect == DB_DIALECT_ORACLE) {
+    } else if (dbDialect == DBConstants.DB_DIALECT_ORACLE) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.ora.sql";
       dbInitilizer = new OracleDBInitializer(containerName,
           this.connFactory.getJdbcConnection(),
           sqlPath,
           multiDb);
-    } else if (dbDialect == DB_DIALECT_PGSQL) {
+    } else if (dbDialect == DBConstants.DB_DIALECT_PGSQL) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.pgsql.sql";
       dbInitilizer = new PgSQLDBInitializer(containerName,
           this.connFactory.getJdbcConnection(),
           sqlPath,
           multiDb);
-    } else if (dbDialect == DB_DIALECT_MYSQL) {
+    } else if (dbDialect == DBConstants.DB_DIALECT_MYSQL) {
       // [PN] 28.06.07
       if (dbSourceName != null) {
         DataSource ds = (DataSource) new InitialContext().lookup(dbSourceName);
@@ -455,23 +440,52 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
       
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.mysql.sql";
       dbInitilizer = defaultDBInitializer(sqlPath);
-    } else if (dbDialect == DB_DIALECT_MSSQL) {
+    } else if (dbDialect == DBConstants.DB_DIALECT_MYSQL_UTF8) {
+      // [PN] 13.07.08
+      if (dbSourceName != null) {
+        DataSource ds = (DataSource) new InitialContext().lookup(dbSourceName);
+        if (ds != null)
+          this.connFactory = new MySQLConnectionFactory(ds,
+              containerName,
+              multiDb,
+              valueStorageProvider,
+              maxBufferSize,
+              swapDirectory,
+              swapCleaner);
+        else
+          throw new RepositoryException("Datasource '" + dbSourceName
+              + "' is not bound in this context.");
+      } else
+        this.connFactory = new MySQLConnectionFactory(dbDriver,
+            dbUrl,
+            dbUserName,
+            dbPassword,
+            containerName,
+            multiDb,
+            valueStorageProvider,
+            maxBufferSize,
+            swapDirectory,
+            swapCleaner);
+      
+      sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.mysql-utf8.sql";
+      dbInitilizer = defaultDBInitializer(sqlPath);
+    } else if (dbDialect == DBConstants.DB_DIALECT_MSSQL) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.mssql.sql";
       dbInitilizer = defaultDBInitializer(sqlPath);
-    } else if (dbDialect == DB_DIALECT_DERBY) {
+    } else if (dbDialect == DBConstants.DB_DIALECT_DERBY) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.derby.sql";
       dbInitilizer = defaultDBInitializer(sqlPath);
-    } else if (dbDialect == DB_DIALECT_DB2) {
+    } else if (dbDialect == DBConstants.DB_DIALECT_DB2) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.db2.sql";
       dbInitilizer = defaultDBInitializer(sqlPath);
-    } else if (dbDialect == DB_DIALECT_DB2V8) {
+    } else if (dbDialect == DBConstants.DB_DIALECT_DB2V8) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.db2v8.sql";
       dbInitilizer = defaultDBInitializer(sqlPath);
-    } else if (dbDialect == DB_DIALECT_SYBASE) {
+    } else if (dbDialect == DBConstants.DB_DIALECT_SYBASE) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.sybase.sql";
       dbInitilizer = defaultDBInitializer(sqlPath);
@@ -495,12 +509,12 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
   }
 
   protected String detectDialect(String confParam) {
-    for (String dbType : DB_DIALECTS) {
+    for (String dbType : DBConstants.DB_DIALECTS) {
       if (dbType.equalsIgnoreCase(confParam))
         return dbType;
     }
 
-    return DB_DIALECT_GENERIC; // by default
+    return DBConstants.DB_DIALECT_GENERIC; // by default
   }
 
   /* (non-Javadoc)

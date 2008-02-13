@@ -84,4 +84,23 @@ public class DBConstants {
   protected static final String COLUMN_VDATA = "DATA";
   protected static final String COLUMN_VORDERNUM = "ORDER_NUM";  
   protected static final String COLUMN_VSTORAGE_DESC = "STORAGE_DESC";
+  
+  // Dialects
+  public final static String DB_DIALECT_GENERIC = "Generic".intern();
+  public final static String DB_DIALECT_ORACLE = "Oracle".intern();
+  public final static String DB_DIALECT_ORACLEOCI = "Oracle-OCI".intern();
+  public final static String DB_DIALECT_PGSQL = "PgSQL".intern();
+  public final static String DB_DIALECT_MYSQL = "MySQL".intern();
+  public final static String DB_DIALECT_MYSQL_UTF8 = "MySQL-UTF8".intern();
+  public final static String DB_DIALECT_HSQLDB = "HSQLDB".intern();
+  public final static String DB_DIALECT_DB2 = "DB2".intern();
+  public final static String DB_DIALECT_DB2V8 = "DB2V8".intern();
+  public final static String DB_DIALECT_MSSQL = "MSSQL".intern();
+  public final static String DB_DIALECT_SYBASE = "Sybase".intern();
+  public final static String DB_DIALECT_DERBY = "Derby".intern();
+      
+  public final static String[] DB_DIALECTS = {DB_DIALECT_GENERIC, DB_DIALECT_ORACLE, DB_DIALECT_ORACLEOCI, DB_DIALECT_PGSQL, 
+    DB_DIALECT_MYSQL, DB_DIALECT_HSQLDB, DB_DIALECT_DB2, DB_DIALECT_DB2V8, DB_DIALECT_MSSQL, DB_DIALECT_SYBASE, DB_DIALECT_DERBY, 
+    DB_DIALECT_MYSQL_UTF8};
+  
 }
