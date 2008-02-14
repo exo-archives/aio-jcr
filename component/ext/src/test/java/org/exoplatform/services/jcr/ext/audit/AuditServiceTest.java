@@ -261,6 +261,7 @@ public class AuditServiceTest extends BaseStandaloneTest {
    */
   public void testAutoAddAuditable() throws Exception {
     Node node = rootNode.addNode(AUTO_ROOT_NAME, "nt:unstructured");
+    session.save();
     assertTrue(node.isNodeType("exo:auditable"));
   }
   
