@@ -71,7 +71,7 @@ public class AddNtFileWithMetadataNoJapex {
       long end = System.currentTimeMillis();      
       rootNode.remove();
       session.save();
-      System.out.println("===AddNtFileWithMetadataNoJapex, TIME : " + (end - start) + " ms");
+      System.out.println("===AddNtFileWithMetadataNoJapex, TIME : " + (end - start)/NUMBER_OF_ITERATIONS + " ms");
     } catch (Exception e) {
       e.printStackTrace();
       System.exit(1);
