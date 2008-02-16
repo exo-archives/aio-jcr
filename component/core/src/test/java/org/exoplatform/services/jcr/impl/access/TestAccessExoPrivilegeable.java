@@ -18,6 +18,9 @@ package org.exoplatform.services.jcr.impl.access;
 
 import java.security.AccessControlException;
 
+import javax.jcr.AccessDeniedException;
+import javax.jcr.Node;
+import javax.jcr.Property;
 import javax.jcr.Session;
 
 import org.exoplatform.services.jcr.BaseStandaloneTest;
@@ -86,4 +89,57 @@ public class TestAccessExoPrivilegeable extends BaseStandaloneTest {
     } catch (AccessControlException e) {
     }
   }
+  
+  public void testNewNodeACL() throws Exception {
+    NodeImpl newNode = (NodeImpl) accessTestRoot.addNode("node1");
+    newNode.addMixin("exo:privilegeable");
+    newNode.setPermission("exo", new String[] { PermissionType.READ });
+    newNode.setPermission("*:/admin", PermissionType.ALL);
+    newNode.removePermission("any");
+    accessTestRoot.save();
+    
+    NodeImpl node2 = (NodeImpl) newNode.addNode("node2");
+    node2.addMixin("exo:privilegeable");
+    newNode.save();
+    
+    assertEquals("'exo' permissions are wrong", PermissionType.READ, node2.getACL().getPermissions("exo").get(0));
+    assertEquals("'exo' permissions are wrong", "exo " + PermissionType.READ, node2.getProperty("exo:permissions").getValues()[0].getString());
+  }
+  
+  public void testGetPropertyWithoutRead() throws Exception {
+    NodeImpl newNode = (NodeImpl) accessTestRoot.addNode("node1");
+    newNode.addMixin("exo:privilegeable");
+    newNode.setPermission("exo", new String[] { PermissionType.SET_PROPERTY });
+    newNode.setPermission("*:/admin", PermissionType.ALL);
+    newNode.removePermission("any");
+    Node n = newNode.addNode("subnode");
+    Property p = newNode.setProperty("property", "property");
+    
+    accessTestRoot.save();
+    
+    // user exo will try set property
+    Session session1 = repository.login(new CredentialsImpl("exo", "exo".toCharArray()));
+    NodeImpl acr = (NodeImpl) session1.getItem(accessTestRoot.getPath());
+    try {
+      acr.getNode("node1");
+      fail("Node " + newNode.getPath() + " has no permissions for read by 'exo'");
+    } catch (AccessDeniedException e) {
+      // ok
+    }
+    
+    try {
+      assertNotNull("Node should be readable", acr.getNode("node1/subnode"));
+    } catch (AccessDeniedException e) {
+      //e.printStackTrace();
+      //fail("User 'exo' shoould be able to get node " + n.getPath());
+    }
+    
+    try {
+      assertEquals("property should be equals", "property", acr.getProperty("node1/property").getString());
+    } catch (AccessDeniedException e) {
+      //e.printStackTrace();
+      //fail("User 'exo' shoould be able to get property " + p.getPath());
+    }
+  }
+  
 }
