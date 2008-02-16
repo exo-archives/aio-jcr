@@ -34,8 +34,11 @@ import javax.jcr.version.VersionException;
 
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.PropertyDefinitionImpl;
 import org.exoplatform.services.jcr.impl.core.value.BaseValue;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -244,6 +247,44 @@ public class PropertyImpl extends ItemImpl implements Property {
    * @throws ConstraintViolationException
    */
   private void initDefinitions(boolean multiple) throws RepositoryException,
+      ConstraintViolationException {
+
+    NodeData parent = parentData();
+    
+    InternalQName primaryTypeName = parent.getPrimaryTypeName();
+    InternalQName[] mixinNames = parent.getMixinTypeNames();
+    ExtendedNodeType[] parentNodeTypes = new ExtendedNodeType[mixinNames.length + 1];
+    
+    NodeTypeManagerImpl ntm = session.getWorkspace().getNodeTypeManager();
+    parentNodeTypes[0] = ntm.getNodeType(primaryTypeName);
+    for (int i=1; i<parentNodeTypes.length; i++) {
+      parentNodeTypes[i] = ntm.getNodeType(mixinNames[i - 1]);
+    }
+    
+    //NodeType[] nodeTypes1 = parent().getAllNodeTypes();
+    //PropertyDefinitions defs = null;
+    PropertyDefinitions definitions = null;
+    InternalQName pname = getData().getQPath().getName();
+    for (ExtendedNodeType nt: parentNodeTypes) {
+      PropertyDefinitions defs = nt.getPropertyDefinitions(pname);
+      if (defs.getAnyDefinition() != null) { // includes residual set
+        definitions = defs;
+        if (!((PropertyDefinitionImpl) defs.getAnyDefinition()).isResidualSet())
+          break;
+      }
+    }
+
+    if (definitions == null)
+      throw new ConstraintViolationException("Definition for property " + getPath() + " not found.");
+    
+    propertyDef = definitions.getDefinition(multiple);
+  }
+  
+  /**
+   * @throws RepositoryException
+   * @throws ConstraintViolationException
+   */
+  private void initDefinitions_Old(boolean multiple) throws RepositoryException,
       ConstraintViolationException {
 
     NodeType[] nodeTypes = parent().getAllNodeTypes();

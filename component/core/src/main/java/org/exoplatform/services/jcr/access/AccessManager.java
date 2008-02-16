@@ -135,8 +135,9 @@ public abstract class AccessManager {
       
       while (groups.hasNext()) {
         Group group = (Group) groups.next();
-        log.debug("Check of user " + userId + " membership. Test if " + groupName + " == "
-            + group.getId() + " " + groupName.equals(group.getId()));
+        if (log.isDebugEnabled())
+          log.debug("Check of user " + userId + " membership. Test if " + groupName + " == "
+              + group.getId() + " " + groupName.equals(group.getId()));
         if (groupName.equals(group.getId()))
           return true;
       }
@@ -147,6 +148,9 @@ public abstract class AccessManager {
             .findMembershipsByUserAndGroup(userId, groupName);
         for (Object obj : memberships) {
           Membership membership = (Membership) obj;
+          if (log.isDebugEnabled())
+            log.debug("Check of user " + userId + " membership. Test if " + membershipName + " == "
+                + membership.getMembershipType() + " " + membership.getMembershipType().equals(membershipName));
           if (membership.getMembershipType().equals(membershipName))
             return true;
         }
