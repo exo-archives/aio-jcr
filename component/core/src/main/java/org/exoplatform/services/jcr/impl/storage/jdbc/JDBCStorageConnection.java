@@ -35,7 +35,6 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
@@ -1147,7 +1146,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
           } else {
             // have to search nearest ancestor permissions in ACL manager
             // acl = new AccessControlList(readACLOwner(cid), traverseACLPermissions(cpid));
-            acl = new AccessControlList(readACLOwner(cid), (List<AccessControlEntry>) null);
+            acl = new AccessControlList(readACLOwner(cid), (Collection<String>) null);
           }
         } else if (mixins.hasPrivilegeable()) {
           // has own permissions

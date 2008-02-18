@@ -73,7 +73,7 @@ public class AccessControlList implements Externalizable {
 
   public AccessControlList(String owner, List<AccessControlEntry> aces) throws RepositoryException {
     this.owner = owner;
-    this.aces = aces != null ? aces : new ArrayList<AccessControlEntry>();
+    this.aces = aces;
   }
 
   /**
@@ -84,16 +84,19 @@ public class AccessControlList implements Externalizable {
    * @throws RepositoryException
    */
   public AccessControlList(String owner, Collection<String> permissions) throws RepositoryException {
-    List<AccessControlEntry> aces = new ArrayList<AccessControlEntry>();
       
-    if (permissions != null)
+    if (permissions != null) {
+      List<AccessControlEntry> aces = new ArrayList<AccessControlEntry>();
       for (String p: permissions) {
         StringTokenizer parser = new StringTokenizer(p, AccessControlEntry.DELIMITER);
         aces.add(new AccessControlEntry(parser.nextToken(), parser.nextToken()));
       }
+      this.aces = aces;
+    } else
+      this.aces = null;
 
     this.owner = owner;
-    this.aces = aces;
+    
   }
   
   public boolean hasPermissions() {
