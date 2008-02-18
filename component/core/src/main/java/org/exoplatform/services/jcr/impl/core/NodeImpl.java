@@ -693,7 +693,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     ItemState state = ItemState.createAddedState(nodeData, false);
     NodeImpl node = (NodeImpl) dataManager.update(state, true);
 
-    node.addAutoCreatedItems(primaryTypeName);
+    addAutoCreatedItems(node.nodeData(), primaryTypeName);
 
     if (log.isDebugEnabled())
       log.debug("new node : " + node.getPath() + " name: " + " primaryType: " + node.getPrimaryNodeType().getName() + " index: "
@@ -2251,6 +2251,74 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
    * Add autocreated items to this node. No checks will be passed for autocreated items.
    */
   public void addAutoCreatedItems(InternalQName nodeTypeName) throws RepositoryException, ConstraintViolationException {
+    addAutoCreatedItems(nodeData(), nodeTypeName);
+  }
+  
+  public void addAutoCreatedItems(NodeData parent, InternalQName nodeTypeName) throws RepositoryException, ConstraintViolationException {
+
+    ExtendedNodeType type = nodeType(nodeTypeName);
+    NodeDefinition[] nodeDefs = type.getChildNodeDefinitions();
+    PropertyDefinition[] propDefs = type.getPropertyDefinitions();
+
+    // Add autocreated child properties
+    for (int i = 0; i < propDefs.length; i++) {
+
+      if (propDefs[i] == null) // it is possible for not mandatory propDef
+        continue;
+
+      if (propDefs[i].isAutoCreated()) {
+        PropertyDefinitionImpl pdImpl = (PropertyDefinitionImpl) propDefs[i];
+
+        ItemData pdata = dataManager.getItemData(parent, new QPathEntry(pdImpl.getQName(), 0));
+        if (pdata == null || pdata.isNode()) {
+
+          List<ValueData> listAutoCreateValue = autoCreatedValue(parent, type, pdImpl);
+
+          if (listAutoCreateValue != null)
+            dataManager.update(ItemState.createAddedState(TransientPropertyData.createPropertyData(parent,
+                                                                                                   pdImpl.getQName(),
+                                                                                                   pdImpl.getRequiredType(),
+                                                                                                   pdImpl.isMultiple(),
+                                                                                                   listAutoCreateValue)), 
+                                                                                                   false);
+        } else {
+          // TODO if autocreated property exists it's has wrong data (e.g. ACL) - throw an exception          
+          if (log.isDebugEnabled()) {
+            log.debug("Skipping existed property " + pdImpl.getName() + " in " + getPath()
+                + "   during the automatic creation of items for " + nodeTypeName.getAsString() + " nodetype or mixin type");
+          }
+        }
+      }
+    }
+
+    // Add autocreated child nodes
+    for (int i = 0; i < nodeDefs.length; i++) {
+      if (nodeDefs[i].isAutoCreated()) {
+        NodeDefinitionImpl ndImpl = (NodeDefinitionImpl) nodeDefs[i];
+
+        dataManager.update(ItemState.createAddedState(TransientNodeData.createNodeData(parent,
+                                                                                       ndImpl.getQName(),
+                                                                                       ((ExtendedNodeType) ndImpl.getDefaultPrimaryType()).getQName(),
+                                                                                       IdGenerator.generate())),
+                                                                                       false);
+      }
+    }
+
+    // versionable
+    if (type.isNodeType(Constants.MIX_VERSIONABLE)) {
+      PlainChangesLogImpl changes = new PlainChangesLogImpl();
+      // using VH helper as for one new VH, all changes in changes log
+      new VersionHistoryDataHelper(parent, changes, dataManager, session.getWorkspace().getNodeTypeManager());
+      for (ItemState istate : changes.getAllStates()) {
+        dataManager.update(istate, false);
+      }
+    }
+  }
+  
+  /**
+   * Add autocreated items to this node. No checks will be passed for autocreated items.
+   */
+  public void addAutoCreatedItems_Old(InternalQName nodeTypeName) throws RepositoryException, ConstraintViolationException {
 
     ExtendedNodeType type = nodeType(nodeTypeName);
     NodeDefinition[] nodeDefs = type.getChildNodeDefinitions();
@@ -2268,7 +2336,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         ItemData pdata = dataManager.getItemData(nodeData(), new QPathEntry(pdImpl.getQName(), 0));
         if (pdata == null || pdata.isNode()) {
 
-          List<ValueData> listAutoCreateValue = autoCreatedValue(type, pdImpl);
+          List<ValueData> listAutoCreateValue = autoCreatedValue(nodeData(), type, pdImpl);
 
           if (listAutoCreateValue != null)
             dataManager.update(ItemState.createAddedState(TransientPropertyData.createPropertyData(nodeData(),
@@ -2313,7 +2381,47 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     }
   }
 
-  private List<ValueData> autoCreatedValue(ExtendedNodeType type, PropertyDefinitionImpl def) throws RepositoryException {
+  private List<ValueData> autoCreatedValue(NodeData parent, ExtendedNodeType type, PropertyDefinitionImpl def) throws RepositoryException {
+
+    List<ValueData> vals = new ArrayList<ValueData>();
+    if (type.isNodeType(Constants.NT_BASE) && def.getQName().equals(Constants.JCR_PRIMARYTYPE)) {
+      vals.add(new TransientValueData(parent.getPrimaryTypeName()));
+
+    } else if (type.isNodeType(Constants.MIX_REFERENCEABLE) && def.getQName().equals(Constants.JCR_UUID)) {
+      vals.add(new TransientValueData(parent.getIdentifier()));
+
+    } else if (type.isNodeType(Constants.NT_HIERARCHYNODE) && def.getQName().equals(Constants.JCR_CREATED)) {
+      vals.add(new TransientValueData(dataManager.getTransactManager().getStorageDataManager().getCurrentTime()));
+
+    } else if (type.isNodeType(Constants.EXO_OWNEABLE) && def.getQName().equals(Constants.EXO_OWNER)) {
+      String owner = session.getUserID();
+      vals.add(new TransientValueData(owner));
+      setACL(new AccessControlList(owner, getACL().getPermissionEntries()));
+
+    } else if (type.isNodeType(Constants.EXO_PRIVILEGEABLE) && def.getQName().equals(Constants.EXO_PERMISSIONS)) {
+      for (AccessControlEntry ace : parent.getACL().getPermissionEntries()) {
+        vals.add(new TransientValueData(ace));
+      }
+
+    } else {
+      Value[] propVal = def.getDefaultValues();
+      // there can be null in definition but should not be null value
+      if (propVal != null) {
+        for (Value v : propVal) {
+          if (v != null)
+            vals.add(((BaseValue) v).getInternalData());
+          else {
+            vals.add(null);
+          }
+        }
+      } else
+        return null;
+    }
+
+    return vals;
+  }
+  
+  private List<ValueData> autoCreatedValue_Old(ExtendedNodeType type, PropertyDefinitionImpl def) throws RepositoryException {
 
     List<ValueData> vals = new ArrayList<ValueData>();
     if (type.isNodeType(Constants.NT_BASE) && def.getQName().equals(Constants.JCR_PRIMARYTYPE)) {
@@ -2332,7 +2440,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     } else if (type.isNodeType(Constants.EXO_PRIVILEGEABLE) && def.getQName().equals(Constants.EXO_PERMISSIONS)) {
 
-      AccessControlList superACL = getACL();
+      AccessControlList superACL = nodeData().getACL();
       // if wee have parent and parent have acl
       if (parent() != null && parent().getACL() != null) {
         superACL = parent().getACL();

@@ -578,10 +578,10 @@ public abstract class ItemImpl implements Item {
   }
   
   protected NodeData parentData() throws RepositoryException {
-    NodeData parent = (NodeData) dataManager.getItemData(data.getParentIdentifier());
+    NodeData parent = (NodeData) dataManager.getItemData(getData().getParentIdentifier());
     if (parent == null)
       throw new ItemNotFoundException("FATAL: Parent is null for "
-          + getInternalPath().getAsString() + " parent UUID: " + data.getParentIdentifier());
+          + getInternalPath().getAsString() + " parent UUID: " + getData().getParentIdentifier());
     return parent;
   }
 
@@ -600,18 +600,13 @@ public abstract class ItemImpl implements Item {
   abstract void loadData(ItemData data) throws RepositoryException;
 
   public boolean hasPermission(String action) throws RepositoryException {
-    NodeData nData;
-    if (isNode()) {
-
-      nData = (NodeData) getData();
-    } else {
-      nData = (NodeData) dataManager.getItemData(data.getParentIdentifier());
-
-      if (nData == null) {
-        throw new RepositoryException("FATAL: parent not found for " + this.getPath());
-      }
-    }
-    return session.getAccessManager().hasPermission(nData.getACL(), action, session.getUserID());
+    NodeData ndata;
+    if (isNode())
+      ndata = (NodeData) getData();
+    else
+      ndata = parentData(); // (NodeData) dataManager.getItemData(data.getParentIdentifier())
+    
+    return session.getAccessManager().hasPermission(ndata.getACL(), action, session.getUserID());
   }
 
   @Override
