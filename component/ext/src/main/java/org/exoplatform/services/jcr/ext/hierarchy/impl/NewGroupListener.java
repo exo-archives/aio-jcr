@@ -132,7 +132,7 @@ public class NewGroupListener extends GroupEventListener {
         if(nodeType == null || nodeType.length() == 0) nodeType = NT_UNSTRUCTURED ;
         node = node.addNode(token, nodeType);
         if (node.canAddMixin("exo:privilegeable")) node.addMixin("exo:privilegeable");
-        if(permissions != null) ((ExtendedNode)node).setPermissions(permissions);
+        if(permissions != null && !permissions.isEmpty()) ((ExtendedNode)node).setPermissions(permissions);
         if(mixinTypes.size() > 0) {
           for(String mixin : mixinTypes) {
             if(node.canAddMixin(mixin)) node.addMixin(mixin) ;
