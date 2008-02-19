@@ -102,8 +102,7 @@
                         <field  name="eventTypes"><string>addNode</string></field>
                         <field  name="path"><string>/test</string></field>
                         <field  name="isDeep"><boolean>true</boolean></field>
-                        <field  name="nodeType"><string>nt:base</string></field>
-                        <field  name="parentNodeType"><string>nt:unstructured</string></field>
+                        <field  name="nodeTypes"><string>nt:unstructured</string></field>
                         <field  name="workspace"><string>production</string></field>
                         <field  name="actionClassName"><string>org.exoplatform.services.jcr.ext.DummyAction</string></field>
                       </object>
@@ -114,7 +113,7 @@
                         <field  name="eventTypes"><string>addProperty,changeProperty</string></field>
                         <field  name="path"><string>/MetaDataActionTest/testAddContent</string></field>
                         <field  name="isDeep"><boolean>true</boolean></field>
-                        <field  name="parentNodeType"><string>nt:resource</string></field>
+                        <field  name="nodeTypes"><string>nt:resource</string></field>
                         <field  name="actionClassName"><string>org.exoplatform.services.jcr.ext.metadata.AddMetadataAction</string></field>
                       </object>
                     </value>
@@ -147,7 +146,7 @@
                       <object type="org.exoplatform.services.jcr.impl.ext.action.ActionConfiguration">
                         <field  name="eventTypes"><string>addProperty,changeProperty,removeProperty</string></field>
                         <field  name="path"><string>/AuditServiceTest</string></field>
-                        <field  name="parentNodeType"><string>exo:auditable</string></field>
+                        <field  name="nodeTypes"><string>exo:auditable</string></field>
                         <field  name="isDeep"><boolean>true</boolean></field>
                         <field  name="actionClassName"><string>org.exoplatform.services.jcr.ext.audit.AuditAction</string></field>
                       </object>
@@ -156,7 +155,7 @@
                       <object type="org.exoplatform.services.jcr.impl.ext.action.ActionConfiguration">
                         <field  name="eventTypes"><string>addMixin</string></field>
                         <field  name="path"><string>/AuditServiceTest</string></field>
-                        <field  name="nodeType"><string>exo:auditable</string></field>
+                        <field  name="nodeTypes"><string>exo:auditable</string></field>
                         <field  name="isDeep"><boolean>false</boolean></field>
                         <field  name="actionClassName"><string>org.exoplatform.services.jcr.ext.audit.AuditAction</string></field>
                       </object>
