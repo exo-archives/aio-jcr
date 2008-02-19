@@ -56,6 +56,7 @@ import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
+import javax.jcr.version.VersionHistory;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.access.AccessControlEntry;
@@ -1120,7 +1121,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     throw new ItemNotFoundException("No corresponding path for " + getPath() + " in " + corrSession.getWorkspace().getName());
   }
 
-  public NodeImpl getCorrespondingNode(SessionImpl correspSession) throws ItemNotFoundException,
+  public Node getCorrespondingNode(SessionImpl correspSession) throws ItemNotFoundException,
                                                                   NoSuchWorkspaceException,
                                                                   AccessDeniedException,
                                                                   RepositoryException {
@@ -1756,7 +1757,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
    * 
    * @see javax.jcr.Node#getVersionHistory()
    */
-  public VersionHistoryImpl getVersionHistory() throws UnsupportedRepositoryOperationException, RepositoryException {
+  public VersionHistory getVersionHistory() throws UnsupportedRepositoryOperationException, RepositoryException {
 
     checkValid();
 
@@ -2708,16 +2709,18 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   public ExtendedNodeType[] getAllNodeTypes() throws RepositoryException {
-    ExtendedNodeType primaryType = nodeType(nodeData().getPrimaryTypeName());
-
-    InternalQName[] mixinNames = nodeData().getMixinTypeNames();
-    ExtendedNodeType[] nodeTypes = new ExtendedNodeType[mixinNames.length + 1];
-    nodeTypes[0] = primaryType;
-    for (int i = 1; i <= mixinNames.length; i++) {
-      nodeTypes[i] = nodeType(mixinNames[i - 1]);
-    }
-
-    return nodeTypes;
+//    ExtendedNodeType primaryType = nodeType(nodeData().getPrimaryTypeName());
+//
+//    InternalQName[] mixinNames = nodeData().getMixinTypeNames();
+//    ExtendedNodeType[] nodeTypes = new ExtendedNodeType[mixinNames.length + 1];
+//    nodeTypes[0] = primaryType;
+//    for (int i = 1; i <= mixinNames.length; i++) {
+//      nodeTypes[i] = nodeType(mixinNames[i - 1]);
+//    }
+//
+//    return nodeTypes;
+    
+    return nodeTypes(nodeData());
   }
 
   protected NodeData nodeData() {

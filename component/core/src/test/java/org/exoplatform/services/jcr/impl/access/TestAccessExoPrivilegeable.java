@@ -135,14 +135,17 @@ public class TestAccessExoPrivilegeable extends BaseStandaloneTest {
     }
   }
 
-  public void testGetNodeWithoutREAD() throws Exception {
+  public void testGetNodeWithoutParentREAD() throws Exception {
     NodeImpl newNode = (NodeImpl) accessTestRoot.addNode("node1");
     newNode.addMixin("exo:privilegeable");
     newNode.setPermission("exo", new String[] { PermissionType.SET_PROPERTY });
     newNode.setPermission("*:/admin", PermissionType.ALL);
     newNode.removePermission("any");
-    Node n = newNode.addNode("subnode");
     Property p = newNode.setProperty("property", "property");
+    NodeImpl n = (NodeImpl) newNode.addNode("subnode");
+    Property np = n.setProperty("property1", "property1");
+    n.addMixin("exo:privilegeable");
+    n.setPermission("exo", new String[] { PermissionType.READ, PermissionType.SET_PROPERTY });
 
     accessTestRoot.save();
 
@@ -159,24 +162,52 @@ public class TestAccessExoPrivilegeable extends BaseStandaloneTest {
     try {
       assertNotNull("Node should be accessible", acr.getNode("node1/subnode"));
     } catch (AccessDeniedException e) {
-//      e.printStackTrace();
-//      fail("User 'exo' shoould be able to get the node " + n.getPath());
+      e.printStackTrace();
+      fail("User 'exo' shoould be able to get the node " + n.getPath());
+    }
+    
+    try {
+      assertNotNull("Property should be accessible", acr.getProperty("node1/subnode/property1"));
+    } catch (AccessDeniedException e) {
+      e.printStackTrace();
+      fail("User 'exo' shoould be able to get the property " + np.getPath());
     }
     
     try {
       assertNotNull("Node should be accessible", session1.getItem(n.getPath()));
     } catch (AccessDeniedException e) {
-//      e.printStackTrace();
-//      fail("User 'exo' shoould be able to get the node " + n.getPath());
+      e.printStackTrace();
+      fail("User 'exo' shoould be able to get the node " + n.getPath());
     }
+    
+    try {
+      assertNotNull("Property should be accessible", session1.getItem(np.getPath()));
+    } catch (AccessDeniedException e) {
+      e.printStackTrace();
+      fail("User 'exo' shoould be able to get the property " + np.getPath());
+    }
+  }
+  
+  public void testGetPropertyWithoutParentREAD() throws Exception {
+    NodeImpl newNode = (NodeImpl) accessTestRoot.addNode("node1");
+    newNode.addMixin("exo:privilegeable");
+    newNode.setPermission("exo", new String[] { PermissionType.ADD_NODE });
+    newNode.setPermission("*:/admin", PermissionType.ALL);
+    newNode.removePermission("any");
+    Property p = newNode.setProperty("property", "property");
+
+    accessTestRoot.save();
+
+    // user exo will try set property
+    Session session1 = repository.login(new CredentialsImpl("exo", "exo".toCharArray()));
+    NodeImpl acr = (NodeImpl) session1.getItem(accessTestRoot.getPath());
 
     // property it's a node rights issue
-//    try {
-//      assertEquals("Property should be accessible and value equals to 'property'",
-//          "property", acr.getProperty("node1/property").getString());
-//    } catch (AccessDeniedException e) {
-//      //e.printStackTrace();
-//      //fail("User 'exo' shoould be able to get property " + p.getPath());
-//    }
+    try {
+      acr.getProperty("node1/property").getString();
+      fail("User 'exo' hasn't rights to get property " + p.getPath());
+    } catch (AccessDeniedException e) {
+      // ok
+    }
   }
 }
