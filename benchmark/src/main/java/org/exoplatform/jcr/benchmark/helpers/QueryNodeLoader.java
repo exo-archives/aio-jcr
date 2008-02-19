@@ -60,7 +60,8 @@ public class QueryNodeLoader {
       Node rootNode = session.getRootNode().getNode("download").getNode("node0").getNode("node1").getNode("node2");
       for (int i = 0; i < NUMBER_OF_NODES; i++) {
         Node nodeToAdd = rootNode.addNode("query-0-1-2-" + i + ".html", "nt:file");
-        nodeToAdd.setProperty("testQueryProperty", "testQueryValue");
+        nodeToAdd.addMixin("dc:elementSet");
+        nodeToAdd.setProperty("dc:creator", "Vova");
         Node contentNodeOfNodeToAdd = nodeToAdd.addNode("jcr:content", "nt:resource");
         contentNodeOfNodeToAdd.setProperty("jcr:data", new FileInputStream(
             "../resources/query-0-1-2-" + i + ".html"));
