@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.rmi.api.xml;
 
 import java.io.ByteArrayOutputStream;
 
-import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
@@ -32,7 +31,6 @@ import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
-import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.ErrorHandler;
@@ -55,7 +53,7 @@ public abstract class ImportContentHandler implements ContentHandler, ErrorHandl
   private ByteArrayOutputStream buffer;
 
   /** The internal XML serializer. */
-  private SessionImpl               session;
+  private Session               session;
   private TransformerHandler handler;
   /**
    * Creates a SAX content handler for importing XML data.
@@ -68,7 +66,7 @@ public abstract class ImportContentHandler implements ContentHandler, ErrorHandl
 
   public ImportContentHandler(Session session, String absPath) throws VersionException,
       ConstraintViolationException, LockException, RepositoryException {
-    this.session = (SessionImpl) session;
+    this.session = session;
 
     checkNodeImport(absPath);
     this.buffer = new ByteArrayOutputStream();
