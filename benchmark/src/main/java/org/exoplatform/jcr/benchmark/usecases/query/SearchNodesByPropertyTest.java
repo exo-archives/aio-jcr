@@ -45,7 +45,7 @@ public class SearchNodesByPropertyTest extends JCRTestBase {
 
   private int       RESULT_NODES = 20; //incl. content node
 
-  private String    sqlQuery     = "select * from nt:base where exo:owner = 'exoadmin'";
+  private String    sqlQuery     = "select * from nt:base where someowner = 'exoadmin'";
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
