@@ -45,7 +45,7 @@ public class SearchNodesByPropertyUsingLikeOperatorTest extends JCRTestBase {
 
   private int       RESULT_NODES = 20; //incl. content node
 
-  private String    sqlQuery     = "select * from nt:base where someowner like 'exoa%'";
+  private String    sqlQuery     = "select * from nt:base where exo:owner like 'exoa%'";
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
