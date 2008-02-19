@@ -31,6 +31,8 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
+import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.ErrorHandler;
@@ -53,7 +55,7 @@ public abstract class ImportContentHandler implements ContentHandler, ErrorHandl
   private ByteArrayOutputStream buffer;
 
   /** The internal XML serializer. */
-  private Session               session;
+  private SessionImpl               session;
   private TransformerHandler handler;
   /**
    * Creates a SAX content handler for importing XML data.
@@ -66,7 +68,7 @@ public abstract class ImportContentHandler implements ContentHandler, ErrorHandl
 
   public ImportContentHandler(Session session, String absPath) throws VersionException,
       ConstraintViolationException, LockException, RepositoryException {
-    this.session = session;
+    this.session = (SessionImpl) session;
 
     checkNodeImport(absPath);
     this.buffer = new ByteArrayOutputStream();
@@ -222,13 +224,13 @@ public abstract class ImportContentHandler implements ContentHandler, ErrorHandl
 
   private void checkNodeImport(String absNodePath) throws VersionException,
       ConstraintViolationException, LockException, RepositoryException {
-    checkNodeImport((Node) session.getItem(absNodePath));
+    checkNodeImport((NodeImpl) session.getItem(absNodePath));
   }
 
-  private void checkNodeImport(Node node) throws VersionException, ConstraintViolationException,
+  private void checkNodeImport(NodeImpl node) throws VersionException, ConstraintViolationException,
       LockException, RepositoryException {
     // checked-in check
-    if (!node.isCheckedOut()) {
+    if (!node.checkedOut()) {
       throw new VersionException("Node " + node.getPath()
           + " or its nearest ancestor is checked-in");
     }

@@ -89,7 +89,7 @@
                       <field name="eventTypes">
                         <string>addProperty,changeProperty</string>
                       </field>
-                      <field name="parentNodeType">
+                      <field name="nodeTypes">
                         <string>nt:resource</string>
                       </field>
                       <field name="actionClassName">
