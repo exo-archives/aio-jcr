@@ -60,13 +60,12 @@ public class QueryNodeLoader {
       Node rootNode = session.getRootNode().getNode("download").getNode("node0").getNode("node1").getNode("node2");
       for (int i = 0; i < NUMBER_OF_NODES; i++) {
         Node nodeToAdd = rootNode.addNode("query-0-1-2-" + i + ".html", "nt:file");
-        nodeToAdd.setProperty("exo:owner", "exoadmin");
+        nodeToAdd.setProperty("testQueryProperty", "testQueryValue");
         Node contentNodeOfNodeToAdd = nodeToAdd.addNode("jcr:content", "nt:resource");
         contentNodeOfNodeToAdd.setProperty("jcr:data", new FileInputStream(
             "../resources/query-0-1-2-" + i + ".html"));
         contentNodeOfNodeToAdd.setProperty("jcr:mimeType", "text/html");
         contentNodeOfNodeToAdd.setProperty("jcr:lastModified", Calendar.getInstance());
-        contentNodeOfNodeToAdd.setProperty("exo:owner", "exoadmin");
         session.save();
       }
       session.save();

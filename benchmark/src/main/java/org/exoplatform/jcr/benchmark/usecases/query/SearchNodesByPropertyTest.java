@@ -43,9 +43,9 @@ public class SearchNodesByPropertyTest extends JCRTestBase {
 
   public static Log log          = ExoLogger.getLogger("jcr.benchmark");
 
-  private int       RESULT_NODES = 20; //incl. content node
+  private int       RESULT_NODES = 10; 
 
-  private String    sqlQuery     = "select * from nt:base where exo:owner = 'exoadmin'";
+  private String    sqlQuery     = "select * from nt:base where testQueryProperty = 'testQueryValue'";
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {

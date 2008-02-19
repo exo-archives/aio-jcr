@@ -43,9 +43,9 @@ public class SearchNodesByPropertyUsingLikeOperatorTest extends JCRTestBase {
 
   public static Log log          = ExoLogger.getLogger("jcr.benchmark");
 
-  private int       RESULT_NODES = 20; //incl. content node
+  private int       RESULT_NODES = 10; 
 
-  private String    sqlQuery     = "select * from nt:base where exo:owner like 'exoa%'";
+  private String    sqlQuery     = "select * from nt:base where testQueryProperty like 'testQueryVa%'";
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
