@@ -16,14 +16,16 @@
  */
 package org.exoplatform.services.jcr.ext.replication;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.Calendar;
 
 import javax.jcr.Node;
 
 /**
  * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 28.02.2007
- * 10:59:36
+ * alex.reshetnyak@exoplatform.com.ua 28.02.2007 10:59:36
  * 
  * @version $Id: TestReplicationCopyNode.java 28.02.2007 10:59:36 rainfox
  */
@@ -122,6 +124,58 @@ public class TestReplicationCopyMoveNode extends BaseReplicationTest {
 
     assertEquals(srcNode.getProperty("jcr:data").getString(), destNode.getProperty("jcr:data")
         .getString());
+    assertEquals(srcNode.getProperty("jcr:mimeType").getString(), destNode.getProperty(
+        "jcr:mimeType").getString());
+    assertEquals(srcNode.getProperty("jcr:lastModified").getString(), destNode.getProperty(
+        "jcr:lastModified").getString());
+  }
+
+  public void testBigDataMove() throws Exception {
+
+    File tempFile = File.createTempFile("tempFile", "doc");
+    tempFile.deleteOnExit();
+
+    FileOutputStream fos = new FileOutputStream(tempFile);
+
+    String content = "this is the content";
+
+    for (int i = 0; i < 15000; i++)
+      fos.write((i + " " + content).getBytes());
+
+    fos.close();
+
+    log.info("MOVE: file size = " + tempFile.length() + " bytes");
+
+    Node file = root.addNode("testMove_", "nt:folder").addNode("childNode2", "nt:file");
+    Node contentNode = file.addNode("jcr:content", "nt:resource");
+    contentNode.setProperty("jcr:data", new FileInputStream(tempFile));
+    contentNode.setProperty("jcr:mimeType", "text/plain");
+    contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(
+        Calendar.getInstance()));
+
+    session.save();
+
+    workspace.move("/testMove_", "/testMove_dest");
+    
+    session.save();
+
+    log.info("Sleep 10 secands");
+    Thread.yield();
+    Thread.sleep(10 * 1000);
+
+    // COMPARE REPLICATION DATA
+    assertNotNull(session2.getItem("/testMove_dest"));
+    assertNotNull(session2.getItem("/testMove_dest/childNode2"));
+    assertNotNull(session2.getItem("/testMove_dest/childNode2/jcr:content"));
+
+    Node srcNode = root.getNode("testMove_dest").getNode("childNode2").getNode("jcr:content");
+    Node destNode = root2.getNode("testMove_dest").getNode("childNode2").getNode("jcr:content");
+
+    log.info("source data size      = " + srcNode.getProperty("jcr:data").getStream().available());
+    log.info("destination data size = " + destNode.getProperty("jcr:data").getStream().available());
+    
+    assertEquals(srcNode.getProperty("jcr:data").getStream().available(), destNode.getProperty(
+        "jcr:data").getStream().available());
     assertEquals(srcNode.getProperty("jcr:mimeType").getString(), destNode.getProperty(
         "jcr:mimeType").getString());
     assertEquals(srcNode.getProperty("jcr:lastModified").getString(), destNode.getProperty(
