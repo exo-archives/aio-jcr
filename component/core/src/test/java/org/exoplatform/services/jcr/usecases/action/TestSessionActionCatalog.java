@@ -308,6 +308,28 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
 
   }
 
+  public void testAddMixinAction() throws Exception {
+    SessionActionCatalog catalog = (SessionActionCatalog) container.getComponentInstanceOfType(SessionActionCatalog.class);
+    catalog.clear();
+
+    // test by path
+    SessionEventMatcher matcher = new SessionEventMatcher(ExtendedEvent.ADD_MIXIN,
+                                                          null,
+                                                          true,
+                                                          null,
+                                                          new InternalQName[] { Constants.MIX_REFERENCEABLE, Constants.EXO_OWNEABLE });
+    DummyAction dAction = new DummyAction();
+    catalog.addAction(matcher, dAction);
+
+    assertEquals(0, dAction.getActionExecuterCount());
+    Node tnode = root.addNode("testnode");
+    assertEquals(0, dAction.getActionExecuterCount());
+    tnode.addMixin("exo:owneable");
+    assertEquals(1, dAction.getActionExecuterCount());
+    tnode.addMixin("mix:referenceable");
+    assertEquals(2, dAction.getActionExecuterCount());
+  }
+  
   public void testRemoveMixinAction() throws Exception {
     SessionActionCatalog catalog = (SessionActionCatalog) container.getComponentInstanceOfType(SessionActionCatalog.class);
     catalog.clear();
@@ -317,7 +339,7 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
                                                           null,
                                                           true,
                                                           null,
-                                                          new InternalQName[] { Constants.NT_UNSTRUCTURED });
+                                                          new InternalQName[] { Constants.EXO_OWNEABLE });
     DummyAction dAction = new DummyAction();
     catalog.addAction(matcher, dAction);
 
