@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.impl.core;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.jcr.RepositoryException;
@@ -93,15 +94,17 @@ public class SessionFactory {
    */
   SessionImpl createSession(CredentialsImpl credentials) throws RepositoryException {
 
-    Collection groups;
-    try {
-      groups = organizationService.getGroupHandler().findGroupsOfUser(credentials.getUserID());
-    } catch (Exception e) {
-      log
-          .error("JCR session create error, user: " + credentials.getUserID() + " "
-              + e.getMessage());
-      throw new RepositoryException("JCR session creation failed ", e);
-    }
+//    Collection groups = new ArrayList();
+//    try {
+//    	if (!"__system".equals(credentials.getUserID())) {
+//    		groups = organizationService.getUserHandler().getGroupHandler().findGroupsOfUser(credentials.getUserID());
+//    	} 
+//    } catch (Exception e) {
+//      log
+//          .error("JCR session create error, user: " + credentials.getUserID() + " "
+//              + e.getMessage());
+//      throw new RepositoryException("JCR session creation failed ", e);
+//    }
     // Check privilegies to access workspace first?
     // ....
 

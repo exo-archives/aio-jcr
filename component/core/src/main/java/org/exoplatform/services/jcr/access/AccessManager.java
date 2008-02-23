@@ -35,6 +35,8 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.auth.AuthenticationService;
+import org.exoplatform.services.organization.auth.Identity;
 
 /**
  * Created by The eXo Platform SAS.
@@ -50,20 +52,19 @@ public abstract class AccessManager {
 
   protected final Map<String, String>           parameters;
 
-  private final OrganizationService             orgService;
+  private final AuthenticationService             authService;
 
   private static ThreadLocal<InvocationContext> contextHolder = new ThreadLocal<InvocationContext>();
 
   protected AccessManager(RepositoryEntry config,
-      WorkspaceEntry wsConfig,
-      OrganizationService orgService) throws RepositoryException {
+      WorkspaceEntry wsConfig, AuthenticationService authService) throws RepositoryException {
     this.parameters = new HashMap<String, String>();
     if (wsConfig != null && wsConfig.getAccessManager() != null) {
       List<SimpleParameterEntry> paramList = wsConfig.getAccessManager().getParameters();
       for (SimpleParameterEntry param : paramList)
         parameters.put(param.getName(), param.getValue());
     }
-    this.orgService = orgService;
+    this.authService = authService;
   }
 
   protected final InvocationContext context() {
@@ -120,12 +121,30 @@ public abstract class AccessManager {
     if (identity.indexOf(":") == -1) 
       // just user
       return identity.equals(userId);
+
+    String membershipName = identity.substring(0, identity.indexOf(":"));
+    String groupName = identity.substring(identity.indexOf(":") + 1);        
+    
+    try {
+      Identity ident = authService.getIdentityBySessionId(userId);
+
+     if ("*".equals(membershipName)) {      
+       return ident.isInGroup(groupName);
+     } else {
+       return ident.hasMembership(membershipName, groupName);
+     }     
+    }
+    catch (Exception e){
+      //
+      return false;
+    }    
+  }
+
+  private boolean getMatchInOrgService(String userId, String membershipName, String groupName) {
     // group
     Iterator groups;
-    String membershipName = identity.substring(0, identity.indexOf(":"));
-    String groupName = identity.substring(identity.indexOf(":") + 1);
     try {
-      groups = orgService.getGroupHandler().findGroupsOfUser(userId).iterator();
+      groups = authService.getOrganizationService().getGroupHandler().findGroupsOfUser(userId).iterator();
     } catch (Exception e) {
       log.error("AccessManager.isUserMatch() failed " + e);
       return false;
@@ -144,7 +163,7 @@ public abstract class AccessManager {
       
     } else {
       try {
-        Collection memberships = orgService.getMembershipHandler()
+        Collection memberships = authService.getOrganizationService().getMembershipHandler()
             .findMembershipsByUserAndGroup(userId, groupName);
         for (Object obj : memberships) {
           Membership membership = (Membership) obj;
@@ -157,7 +176,7 @@ public abstract class AccessManager {
       } catch (Exception e) {
         log.error("AccessManager.isUserMatch() failed " + e);
         return false;
-      }
+      }            
     }
     return false;
   }

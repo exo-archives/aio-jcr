@@ -26,7 +26,7 @@ import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.impl.core.ItemImpl;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
-import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.auth.AuthenticationService;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
@@ -35,8 +35,8 @@ import org.exoplatform.services.organization.OrganizationService;
 public class DenyAccessManager extends AccessManager {
   private String denyName = "";
   public DenyAccessManager(RepositoryEntry config, WorkspaceEntry wsConfig,
-      OrganizationService orgService) throws RepositoryException, RepositoryConfigurationException {
-    super(config, wsConfig, orgService);
+      AuthenticationService authService) throws RepositoryException, RepositoryConfigurationException {
+    super(config, wsConfig, authService);
     this.denyName = wsConfig.getAccessManager().getParameterValue("name");
     log.info("DenyAccessManager created");
   }
