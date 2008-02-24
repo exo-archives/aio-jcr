@@ -116,6 +116,7 @@ public abstract class AccessManager {
   }
 
   protected boolean isUserMatch(String identity, String userId) {
+
     if (identity.equals(SystemIdentity.ANY)) // any
       return true;
     if (identity.indexOf(":") == -1) 
@@ -124,29 +125,56 @@ public abstract class AccessManager {
 
     String membershipName = identity.substring(0, identity.indexOf(":"));
     String groupName = identity.substring(identity.indexOf(":") + 1);        
+    return checkMembershipInIdentity(userId, membershipName, groupName);
+    //return isMatchInOrgService(userId, membershipName, groupName);    
+  }
+
+  /**
+   * Check for a membership match in Identity object
+   * @param userId user id
+   * @param membershipName membership type
+   * @param groupName group Id
+   * @return true if the identity has the triplet match
+   */
+  private boolean checkMembershipInIdentity(String userId, String membershipName, String groupName) {
+    if (log.isDebugEnabled())
+      log.debug("Check of user " + userId + " " + membershipName + " membership in group " + groupName);
     
     try {
       Identity ident = authService.getIdentityBySessionId(userId);
-
-     if ("*".equals(membershipName)) {      
+      
+     if ("*".equals(membershipName)) {
+       if (log.isDebugEnabled())
+         log.debug("isInGroup " + groupName);
        return ident.isInGroup(groupName);
      } else {
+       if (log.isDebugEnabled())
+         log.debug("hasMembership " + membershipName + ":" + groupName);
        return ident.hasMembership(membershipName, groupName);
      }     
     }
     catch (Exception e){
-      //
+      log.error("AccessManager.checkMembershipInIdentity() failed " + e);
       return false;
-    }    
+    }
   }
 
-  private boolean getMatchInOrgService(String userId, String membershipName, String groupName) {
+  /**
+   * Check for a membership match in OrganizationService.
+   * 
+   * @deprecated use isMatchInIdentity
+   * @param userId
+   * @param membershipName
+   * @param groupName
+   * @return
+   */
+  private boolean checkMembershipInOrgService(String userId, String membershipName, String groupName) {
     // group
     Iterator groups;
     try {
       groups = authService.getOrganizationService().getGroupHandler().findGroupsOfUser(userId).iterator();
     } catch (Exception e) {
-      log.error("AccessManager.isUserMatch() failed " + e);
+      log.error("AccessManager.checkMembershipInOrgService() failed " + e);
       return false;
     }
     
