@@ -112,6 +112,7 @@
                       <object type="org.exoplatform.services.jcr.impl.ext.action.ActionConfiguration">
                         <field  name="eventTypes"><string>addProperty,changeProperty</string></field>
                         <field  name="path"><string>/MetaDataActionTest/testAddContent</string></field>
+                        <!-- field  name="path"><string>/</string></field -->
                         <field  name="isDeep"><boolean>true</boolean></field>
                         <field  name="nodeTypes"><string>nt:resource</string></field>
                         <field  name="actionClassName"><string>org.exoplatform.services.jcr.ext.metadata.AddMetadataAction</string></field>
@@ -120,7 +121,7 @@
                     <value>
                       <object type="org.exoplatform.services.jcr.impl.ext.action.ActionConfiguration">
                         <field  name="eventTypes"><string>addNode</string></field>
-                        <field  name="path"><string>/MetaDataActionTest/setmetadata</string></field>
+                        <field  name="path"><string>/MetaDataActionTest/testSetMetaData</string></field>
                         <field  name="isDeep"><boolean>false</boolean></field>
                         <field  name="actionClassName"><string>org.exoplatform.services.jcr.ext.metadata.SetDCMetadataAction</string></field>
                       </object>
