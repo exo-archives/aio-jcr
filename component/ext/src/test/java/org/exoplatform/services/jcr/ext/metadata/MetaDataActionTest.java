@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.metadata;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Calendar;
 
