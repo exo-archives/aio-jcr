@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.metadata;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Calendar;
 
@@ -84,7 +85,6 @@ public class MetaDataActionTest extends BaseStandaloneTest {
     assertTrue(testNode.hasProperty("dc:creator"));
     assertTrue(testNode.hasProperty("dc:date"));
     assertTrue(testNode.hasProperty("dc:contributor"));
-
   }
 
   /**
@@ -101,14 +101,43 @@ public class MetaDataActionTest extends BaseStandaloneTest {
    *
    * @throws Exception
    */
-  public void testAutoAddMetadata() throws Exception {
-    Node contentNode = rootNode.addNode("setmetadata");
+  public void testSetMetaData() throws Exception {
+    Node contentNode = rootNode.addNode("testSetMetaData");
     rootNode.save();
     assertTrue(contentNode.hasProperty("dc:creator"));
     assertTrue(contentNode.hasProperty("dc:date"));
     assertEquals(session.getUserID(), contentNode.getProperty("dc:creator").getValues()[0].getString());
-//    Calendar date = contentNode.getProperty("dc:date").getValues()[0].getDate();
-//    contentNode.setProperty("dc:subject", new String[]{"subject"});
-//    assertFalse(date.equals(contentNode.getProperty("dc:date").getValues()[0].getDate()));
+  }
+  
+  public void testDontSetMetaData() throws Exception {
+    Node contentNode = rootNode.addNode("testDontSetMetaData");
+    contentNode.setProperty("prop", "prop 1");
+    rootNode.save();
+    assertFalse(contentNode.hasProperty("dc:creator"));
+    assertFalse(contentNode.hasProperty("dc:date"));
+    assertFalse(contentNode.hasProperty("dc:creator"));
+  }
+  
+  public void testDontSetMetaDataNtFile() throws Exception {
+    Node node = rootNode.addNode("testDontSetMetaDataNtFile", "nt:file");
+    Node contentNode = node.addNode("jcr:content", "nt:unstructured");
+    contentNode.setProperty("jcr:data", MetaDataActionTest.class.getResourceAsStream("/test_index.xls"));
+    contentNode.setProperty("jcr:mimeType", "application/vnd.ms-excel");
+    contentNode.setProperty("jcr:lastModified", Calendar.getInstance());
+    // dc:elementset properties SHOULD NOT be setted automatically
+    rootNode.save();
+    
+    assertFalse(contentNode.hasProperty("dc:creator"));
+    assertFalse(contentNode.hasProperty("dc:date"));
+    assertFalse(contentNode.hasProperty("dc:creator"));
+  }
+  
+  public void testDontSetMetaDataAnywhere() throws Exception {
+    Node contentNode = session.getRootNode().addNode("testDontSetMetaDataAnywhere");
+    contentNode.setProperty("prop", "prop 1");
+    rootNode.save();
+    assertFalse(contentNode.hasProperty("dc:creator"));
+    assertFalse(contentNode.hasProperty("dc:date"));
+    assertFalse(contentNode.hasProperty("dc:creator"));
   }
 }
