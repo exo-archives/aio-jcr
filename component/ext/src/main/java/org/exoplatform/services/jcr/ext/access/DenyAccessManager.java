@@ -30,36 +30,39 @@ import org.exoplatform.services.organization.auth.AuthenticationService;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: $
+ * @version $Id$
  */
 public class DenyAccessManager extends AccessManager {
   private String denyName = "";
-  public DenyAccessManager(RepositoryEntry config, WorkspaceEntry wsConfig,
-      AuthenticationService authService) throws RepositoryException, RepositoryConfigurationException {
+
+  public DenyAccessManager(RepositoryEntry config, WorkspaceEntry wsConfig, AuthenticationService authService) throws RepositoryException,
+                                                                                                              RepositoryConfigurationException {
     super(config, wsConfig, authService);
     this.denyName = wsConfig.getAccessManager().getParameterValue("name");
-    log.info("DenyAccessManager created");
+
+    if (log.isDebugEnabled())
+      log.debug("DenyAccessManager created");
   }
+
   @Override
   public boolean hasPermission(AccessControlList acl, String[] permission, String userId) {
     if (super.hasPermission(acl, permission, userId)) {
-      if (userId != "admin" && userId != SystemIdentity.SYSTEM) {
-        if (context() != null) {
-          int ivent = ((Integer) context().get("event")).intValue();
-          if (ivent == ExtendedEvent.READ) {
-            ItemImpl curItem = (ItemImpl) context().get("currentItem");
+      if (userId.equals("root") || userId.equals(SystemIdentity.SYSTEM) || userId.equals("admin"))
+        return true;
 
-            // String name = path.getName().getAsString();
-            if (curItem != null && curItem.getInternalName().getAsString().indexOf(denyName)>-1) {
-              log.debug("DenyAccessManager permission deny by rool name='"+denyName+"'");
-              return false;
-            }
+      if (context() != null) {
+        int ivent = ((Integer) context().get("event")).intValue();
+        if (ivent == ExtendedEvent.READ) {
+          ItemImpl curItem = (ItemImpl) context().get("currentItem");
+
+          if (curItem != null && curItem.getInternalName().getAsString().indexOf(denyName) > -1) {
+            if (log.isDebugEnabled())
+              log.debug("DenyAccessManager permission deny by rool name='" + denyName + "'");
+            return false;
           }
-        } else {
-          log.warn("Context = null");
         }
-      }
-      return true;
+      } else
+        log.warn("Context = null");
     }
     return false;
   }

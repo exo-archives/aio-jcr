@@ -53,7 +53,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class AddMetadataAction implements Action {
   
-  private static Log log = ExoLogger.getLogger("jcr.ext.AddMetadataAction");
+  private static Log log = ExoLogger.getLogger("ext.AddMetadataAction");
 
   public boolean execute(Context ctx) throws Exception {
 
