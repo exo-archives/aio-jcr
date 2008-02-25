@@ -240,10 +240,8 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
                                                      "addNode,addProperty",
                                                      "/test,/exo:test1",
                                                      true,
-                                                     "nt:base,",
-                                                     "nt:base",
                                                      null,
-                                                     null);
+                                                     "nt:base");
     List actionsList = new ArrayList();
     ActionsConfig actions = new ActionsConfig();
     actions.setActions(actionsList);

@@ -34,7 +34,6 @@ import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.Membership;
-import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.auth.AuthenticationService;
 import org.exoplatform.services.organization.auth.Identity;
 
@@ -47,17 +46,15 @@ import org.exoplatform.services.organization.auth.Identity;
 
 public abstract class AccessManager {
 
-  protected static Log                          log           = ExoLogger
-                                                                  .getLogger("jcr.AccessManager");
+  protected static Log                          log           = ExoLogger.getLogger("jcr.AccessManager");
 
   protected final Map<String, String>           parameters;
 
-  private final AuthenticationService             authService;
+  private final AuthenticationService           authService;
 
   private static ThreadLocal<InvocationContext> contextHolder = new ThreadLocal<InvocationContext>();
 
-  protected AccessManager(RepositoryEntry config,
-      WorkspaceEntry wsConfig, AuthenticationService authService) throws RepositoryException {
+  protected AccessManager(RepositoryEntry config, WorkspaceEntry wsConfig, AuthenticationService authService) throws RepositoryException {
     this.parameters = new HashMap<String, String>();
     if (wsConfig != null && wsConfig.getAccessManager() != null) {
       List<SimpleParameterEntry> paramList = wsConfig.getAccessManager().getParameters();
@@ -100,15 +97,13 @@ public abstract class AccessManager {
     } else if (userId.equals(acl.getOwner())) {
       // Current user is owner of node so has all privileges
       return true;
-    } else if (userId.equals(SystemIdentity.ANONIM)
-        && (permission.length > 1 || !permission[0].equals(PermissionType.READ))) {
+    } else if (userId.equals(SystemIdentity.ANONIM) && (permission.length > 1 || !permission[0].equals(PermissionType.READ))) {
       // Anonim does not have WRITE permission even for ANY
       return false;
     } else {
       // Check Other with Org service
       for (AccessControlEntry ace : acl.getPermissionEntries()) {
-        if (isUserMatch(ace.getIdentity(), userId)
-            && isPermissionMatch(ace.getPermission(), permission))
+        if (isUserMatch(ace.getIdentity(), userId) && isPermissionMatch(ace.getPermission(), permission))
           return true;
       }
     }
@@ -119,18 +114,19 @@ public abstract class AccessManager {
 
     if (identity.equals(SystemIdentity.ANY)) // any
       return true;
-    if (identity.indexOf(":") == -1) 
+    if (identity.indexOf(":") == -1)
       // just user
       return identity.equals(userId);
 
     String membershipName = identity.substring(0, identity.indexOf(":"));
-    String groupName = identity.substring(identity.indexOf(":") + 1);        
+    String groupName = identity.substring(identity.indexOf(":") + 1);
     return checkMembershipInIdentity(userId, membershipName, groupName);
     //return checkMembershipInOrgService(userId, membershipName, groupName);    
   }
 
   /**
    * Check for a membership match in Identity object
+   * 
    * @param userId user id
    * @param membershipName membership type
    * @param groupName group Id
@@ -139,21 +135,20 @@ public abstract class AccessManager {
   private boolean checkMembershipInIdentity(String userId, String membershipName, String groupName) {
     if (log.isDebugEnabled())
       log.debug("Check of user " + userId + " " + membershipName + " membership in group " + groupName);
-    
+
     try {
       Identity ident = authService.getIdentityBySessionId(userId);
-      
-     if ("*".equals(membershipName)) {
-       if (log.isDebugEnabled())
-         log.debug("isInGroup " + groupName);
-       return ident.isInGroup(groupName);
-     } else {
-       if (log.isDebugEnabled())
-         log.debug("hasMembership " + membershipName + ":" + groupName);
-       return ident.hasMembership(membershipName, groupName);
-     }     
-    }
-    catch (Exception e){
+
+      if ("*".equals(membershipName)) {
+        if (log.isDebugEnabled())
+          log.debug("isInGroup " + groupName);
+        return ident.isInGroup(groupName);
+      } else {
+        if (log.isDebugEnabled())
+          log.debug("hasMembership " + membershipName + ":" + groupName);
+        return ident.hasMembership(membershipName, groupName);
+      }
+    } catch (Exception e) {
       log.error("AccessManager.checkMembershipInIdentity() failed " + e);
       return false;
     }
@@ -177,22 +172,22 @@ public abstract class AccessManager {
       log.error("AccessManager.checkMembershipInOrgService() failed " + e);
       return false;
     }
-    
+
     if ("*".equals(membershipName)) {
-      
+
       while (groups.hasNext()) {
         Group group = (Group) groups.next();
         if (log.isDebugEnabled())
-          log.debug("Check of user " + userId + " membership. Test if " + groupName + " == "
-              + group.getId() + " " + groupName.equals(group.getId()));
+          log.debug("Check of user " + userId + " membership. Test if " + groupName + " == " + group.getId() + " "
+              + groupName.equals(group.getId()));
         if (groupName.equals(group.getId()))
           return true;
       }
-      
+
     } else {
       try {
-        Collection memberships = authService.getOrganizationService().getMembershipHandler()
-            .findMembershipsByUserAndGroup(userId, groupName);
+        Collection memberships =
+            authService.getOrganizationService().getMembershipHandler().findMembershipsByUserAndGroup(userId, groupName);
         for (Object obj : memberships) {
           Membership membership = (Membership) obj;
           if (log.isDebugEnabled())
@@ -204,7 +199,7 @@ public abstract class AccessManager {
       } catch (Exception e) {
         log.error("AccessManager.isUserMatch() failed " + e);
         return false;
-      }            
+      }
     }
     return false;
   }
