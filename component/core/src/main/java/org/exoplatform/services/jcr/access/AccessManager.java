@@ -121,7 +121,6 @@ public abstract class AccessManager {
     String membershipName = identity.substring(0, identity.indexOf(":"));
     String groupName = identity.substring(identity.indexOf(":") + 1);
     return checkMembershipInIdentity(userId, membershipName, groupName);
-    //return checkMembershipInOrgService(userId, membershipName, groupName);    
   }
 
   /**
