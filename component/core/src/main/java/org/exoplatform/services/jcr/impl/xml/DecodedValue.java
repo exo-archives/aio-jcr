@@ -86,7 +86,6 @@ public class DecodedValue {
     }
   }
 
-  // TODO change name
   @Override
   public String toString() {
     if (decoder != null) {

@@ -339,7 +339,6 @@ public class StorageUpdateManager {
       update = conn.prepareStatement(SQL_UPDATE_JCRUUID);
       while (refs.next()) {
         try {
-          // TODO jcr:frozenUuid
           JcrIdentifier jcrIdentifier = new JcrIdentifier(refs.getString("PATH"), 
               refs.getString("NID"), 
               refs.getString("VID"), 

@@ -23,6 +23,7 @@ import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.Iterator;
 
 import javax.jcr.RepositoryException;
 
@@ -104,23 +105,19 @@ public class AccessControlList implements Externalizable {
   }
 
   public void removePermissions(String identity) {
-    List<AccessControlEntry> aces4Del = new ArrayList<AccessControlEntry>();
-    for (AccessControlEntry a : aces) {
+    for (Iterator<AccessControlEntry> iter = aces.iterator(); iter.hasNext();) {
+      AccessControlEntry a = iter.next();
       if (a.getIdentity().equals(identity))
-        aces4Del.add(a);
+        iter.remove();
     }
-    for (AccessControlEntry del : aces4Del)
-      aces.remove(del);
   }
 
   public void removePermissions(String identity, String permission) {
-    List<AccessControlEntry> aces4Del = new ArrayList<AccessControlEntry>();
-    for (AccessControlEntry a : aces) {
+    for (Iterator<AccessControlEntry> iter = aces.iterator(); iter.hasNext();) {
+      AccessControlEntry a = iter.next();
       if (a.getIdentity().equals(identity) && a.getPermission().equals(permission))
-        aces4Del.add(a);
+        iter.remove();
     }
-    for (AccessControlEntry del : aces4Del)
-      aces.remove(del);
   }
 
   /**

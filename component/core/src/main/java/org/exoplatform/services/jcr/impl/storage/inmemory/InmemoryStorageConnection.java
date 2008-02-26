@@ -60,7 +60,6 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
 
   public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException,
       IllegalStateException {
-    // TODO
     return getItemData(QPath.makeChildPath(parentData.getQPath(),new QPathEntry[]{name}));
   }
 
