@@ -42,28 +42,6 @@ public class SetDCMetadataAction implements Action{
         .getTransactManager().getStorageDataManager().getCurrentTime())});
     
     return false;
-
-//    //ItemImpl item = (ItemImpl) ctx.get("currentItem");
-//    NodeImpl node = null;
-//    if (item instanceof PropertyImpl ){
-//      PropertyImpl prop =(PropertyImpl) item;
-//      if(!prop.getName().equals("dc:creator") &&  !prop.getName().equals("dc:date"))
-//      node = (NodeImpl) prop.getParent();
-//    }else if (item instanceof NodeImpl){
-//      node = (NodeImpl) item;
-//    }
-//    
-//    if(node != null ){
-//      if (node.canAddMixin("dc:elementSet"))
-//      node.addMixin("dc:elementSet");
-//      node.setProperty("dc:creator", new String[] { node.getSession().getUserID() });
-//      ValueFactoryImpl vf = node.getSession().getValueFactory();
-//      
-//      node.setProperty("dc:date", new Value[] { vf.createValue(node.getSession().getTransientNodesManager()
-//          .getTransactManager().getStorageDataManager().getCurrentTime())});
-//
-//    }
-//    return false;
   }
 
 }

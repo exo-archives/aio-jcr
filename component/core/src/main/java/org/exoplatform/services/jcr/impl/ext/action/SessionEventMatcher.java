@@ -30,16 +30,30 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 
 public class SessionEventMatcher implements ActionMatcher {
 
+  /**
+   * Key describe an Event name to be listened to.
+   */
   public static final String    EVENTTYPE_KEY        = "types";
 
+  /**
+   * Key describe a workspace 
+   */
   public static final String    WORKSPACE_KEY        = "workspaces";
 
+  /**
+   * Key describe an Item absolute paths 
+   */
   public static final String    PATH_KEY             = "paths";
 
+  @Deprecated
   public static final String    NODETYPE_KEY         = "nodeType";
 
+  @Deprecated
   public static final String    PARENT_NODETYPES_KEY = "parentNodeTypes";
 
+  /**
+   * Key describe an InternalQName[] array of current node NodeType names.
+   */
   public static final String    NODETYPES_KEY        = "nodeTypes";
 
   private final int             eventTypes;

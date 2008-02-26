@@ -24,10 +24,10 @@ package org.exoplatform.services.jcr.access;
 
 public class SystemIdentity {
 
-  public static final String ANY = "any";
+  public static final String ANY = "any".intern();
 
-  public static final String SYSTEM = "__system";
+  public static final String SYSTEM = "__system".intern();
   
-  public static final String ANONIM = "__anonim";
+  public static final String ANONIM = "__anonim".intern();
 
 }

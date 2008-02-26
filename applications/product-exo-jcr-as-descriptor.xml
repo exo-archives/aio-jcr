@@ -103,7 +103,7 @@
 				<exclude>commons-logging:commons-logging</exclude>
 				<exclude>drools:drools-smftest</exclude>
 				<exclude>ehcache:ehcache</exclude>
-				<exclude>groovy:groovy-all</exclude>
+				<exclude>org.codehaus.groovy:groovy-all-minimal</exclude>
 				<exclude>jibx:jibx-bind</exclude>
 				<exclude>jmock:jmock</exclude>
 				<exclude>junit:junit</exclude>

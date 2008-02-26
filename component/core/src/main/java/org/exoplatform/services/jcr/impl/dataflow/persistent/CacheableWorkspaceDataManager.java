@@ -233,7 +233,6 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
 
     try {
       request.start();
-      // TODO make a timing here
       childNodes = super.getChildNodesData(nodeData);
       if (cache.isEnabled()) {
         NodeData parentData = (NodeData) cache.get(nodeData.getIdentifier());

@@ -29,12 +29,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
@@ -132,8 +134,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   }
 
   /**
-   * Return JDBC connection obtained from initialized data source. NOTE: Helper can obtain one new
-   * connection per each call of the method or return one obtained once.
+   * Return JDBC connection obtained from initialized data source. NOTE: Helper can obtain one new connection per each call of the method or return one obtained
+   * once.
    */
   public Connection getJdbcConnection() {
     return dbConnection;
@@ -668,7 +670,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
    * @throws IllegalNameException
    * @throws RepositoryException
    */
-  private Collection<String> traverseACLPermissions(String cpid) throws SQLException,
+  private List<AccessControlEntry> traverseACLPermissions(String cpid) throws SQLException,
                                                                 IllegalACLException,
                                                                 IllegalNameException,
                                                                 RepositoryException {
@@ -744,7 +746,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
                                                     IllegalNameException,
                                                     RepositoryException {
     String naOwner = null;
-    Collection<String> naPermissions = null;
+    List<AccessControlEntry> naPermissions = null;
 
     String caid = cpid;
 
@@ -779,12 +781,10 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   }
 
   /**
-   * [PN] Experimental. Use SP for traversing Qpath on the database server side. Hm, I haven't a
-   * good result for that yet. Few seconds only for TCK execution. PGSQL SP: CREATE OR REPLACE
-   * FUNCTION get_qpath(parentId VARCHAR) RETURNS SETOF record AS $$ DECLARE cur_item RECORD; cur_id
-   * varchar; BEGIN cur_id := parentId; WHILE NOT cur_id = ' ' LOOP SELECT id, name, parent_id,
-   * i_index INTO cur_item FROM JCR_SITEM WHERE ID=cur_id; IF NOT found THEN RETURN; END IF; RETURN
-   * NEXT cur_item; cur_id := cur_item.parent_id; END LOOP; RETURN; END; $$ LANGUAGE plpgsql;
+   * [PN] Experimental. Use SP for traversing Qpath on the database server side. Hm, I haven't a good result for that yet. Few seconds only for TCK execution.
+   * PGSQL SP: CREATE OR REPLACE FUNCTION get_qpath(parentId VARCHAR) RETURNS SETOF record AS $$ DECLARE cur_item RECORD; cur_id varchar; BEGIN cur_id :=
+   * parentId; WHILE NOT cur_id = ' ' LOOP SELECT id, name, parent_id, i_index INTO cur_item FROM JCR_SITEM WHERE ID=cur_id; IF NOT found THEN RETURN; END IF;
+   * RETURN NEXT cur_item; cur_id := cur_item.parent_id; END LOOP; RETURN; END; $$ LANGUAGE plpgsql;
    * 
    * @param cpid
    * @return
@@ -1019,8 +1019,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
 
     try {
       List<InternalQName> mts = null;
-      boolean             owneable = false;
-      boolean             privilegeable = false;
+      boolean owneable = false;
+      boolean privilegeable = false;
       if (mtrs.next()) {
         mts = new ArrayList<InternalQName>();
         do {
@@ -1051,13 +1051,14 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
    * @throws SQLException
    * @throws IllegalACLException
    */
-  protected Collection<String> readACLPermisions(String cid) throws SQLException, IllegalACLException {
-    List<String> naPermissions = new ArrayList<String>();
+  protected List<AccessControlEntry> readACLPermisions(String cid) throws SQLException, IllegalACLException {
+    List<AccessControlEntry> naPermissions = new ArrayList<AccessControlEntry>();
     ResultSet exoPerm = findPropertyByName(cid, Constants.EXO_PERMISSIONS.getAsString());
     try {
       if (exoPerm.next()) {
         do {
-          naPermissions.add(new String(exoPerm.getBytes(COLUMN_VDATA)));
+          StringTokenizer parser = new StringTokenizer(new String(exoPerm.getBytes(COLUMN_VDATA)), AccessControlEntry.DELIMITER);
+          naPermissions.add(new AccessControlEntry(parser.nextToken(), parser.nextToken()));
         } while (exoPerm.next());
 
         return naPermissions;
@@ -1146,7 +1147,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
           } else {
             // have to search nearest ancestor permissions in ACL manager
             // acl = new AccessControlList(readACLOwner(cid), traverseACLPermissions(cpid));
-            acl = new AccessControlList(readACLOwner(cid), (Collection<String>) null);
+            acl = new AccessControlList(readACLOwner(cid), null);
           }
         } else if (mixins.hasPrivilegeable()) {
           // has own permissions

@@ -594,6 +594,7 @@ public class TransientValueData extends AbstractValueData implements
   }
 
   public void setStream(InputStream in) {
+    this.spooled = false;
     this.tmpStream = in;
   }
 }

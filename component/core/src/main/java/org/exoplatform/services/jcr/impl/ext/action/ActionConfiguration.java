@@ -35,10 +35,6 @@ public class ActionConfiguration {
 
   private String       nodeTypes;
 
-  private final String parentNodeType;
-
-  private final String nodeType;
-
   private String       workspace;
 
   public ActionConfiguration() {
@@ -46,8 +42,6 @@ public class ActionConfiguration {
     this.eventTypes = null;
     this.path = null;
     this.isDeep = true;
-    this.parentNodeType = null;
-    this.nodeType = null;
     this.workspace = null;
     this.nodeTypes = null;
   }
@@ -56,16 +50,12 @@ public class ActionConfiguration {
                              String eventTypes,
                              String path,
                              boolean isDeep,
-                             String parentNodeType,
-                             String nodeType,
                              String workspace,
                              String nodeTypes) {
     this.actionClassName = actionClassName;
     this.eventTypes = eventTypes;
     this.path = path;
     this.isDeep = isDeep;
-    this.parentNodeType = parentNodeType;
-    this.nodeType = nodeType;
     this.workspace = workspace;
     this.nodeTypes = nodeTypes;
   }

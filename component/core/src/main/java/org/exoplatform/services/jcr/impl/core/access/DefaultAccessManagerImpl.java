@@ -21,7 +21,7 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
-import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.auth.AuthenticationService;
 
 /**
  * Created by The eXo Platform SAS.
@@ -32,13 +32,13 @@ import org.exoplatform.services.organization.OrganizationService;
 public class DefaultAccessManagerImpl extends AccessManager {
 
   public DefaultAccessManagerImpl(RepositoryEntry config, WorkspaceEntry wsConfig
-      ,OrganizationService orgService) throws RepositoryException {
-    super(config, wsConfig, orgService);
+      ,AuthenticationService authService) throws RepositoryException {
+    super(config, wsConfig, authService);
   }
   
   public DefaultAccessManagerImpl(RepositoryEntry config, 
-      OrganizationService orgService) throws RepositoryException {
-    super(config, null, orgService);
+      AuthenticationService authService) throws RepositoryException {
+    super(config, null, authService);
   }
 
 }

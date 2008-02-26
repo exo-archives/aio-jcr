@@ -49,30 +49,10 @@ public class AddNtFileWithMetadataTest extends JCRTestBase {
    * nt:file (including addNode(), setProperty(), addMixin(), save() methods).
    */
 
-  public static WorkspaceStorageConnection workspaceStorageConnection = null;
-
-  public static boolean                    dataBaseDropped            = false;
-
-  public static byte[]                     contentOfFile              = null;
-
   private Node                             rootNode                   = null;
 
   @Override
-  public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    if (contentOfFile == null) {
-      contentOfFile = new byte[(int) new File("../resources/benchmark.pdf").length()];
-      InputStream is = new FileInputStream("../resources/benchmark.pdf");
-      int offset = 0;
-      int numRead = 0;
-      while (offset < contentOfFile.length
-          && (numRead = is.read(contentOfFile, offset, contentOfFile.length - offset)) >= 0) {
-        offset += numRead;
-      }
-      if (offset < contentOfFile.length) {
-        throw new IOException("Could not completely read file ");
-      }
-      is.close();
-    }
+  public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {    
     rootNode = context.getSession().getRootNode().addNode(context.generateUniqueName("rootNode"),
         "nt:unstructured");
     context.getSession().save();
@@ -82,7 +62,7 @@ public class AddNtFileWithMetadataTest extends JCRTestBase {
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
     Node nodeToAdd = rootNode.addNode(context.generateUniqueName("node"), "nt:file");
     Node contentNodeOfNodeToAdd = nodeToAdd.addNode("jcr:content", "nt:resource");
-    contentNodeOfNodeToAdd.setProperty("jcr:data", new ByteArrayInputStream(contentOfFile));
+    contentNodeOfNodeToAdd.setProperty("jcr:data", new FileInputStream("../resources/benchmark.pdf"));
     contentNodeOfNodeToAdd.setProperty("jcr:mimeType", "application/pdf");
     contentNodeOfNodeToAdd.setProperty("jcr:lastModified", Calendar.getInstance());
     // dc:elementset property will be setted automatically
@@ -91,47 +71,8 @@ public class AddNtFileWithMetadataTest extends JCRTestBase {
 
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
-    cleanDB(context);
-  }
-
-  private synchronized void cleanDB(JCRTestContext context) {
-    /*try {
-      if (!dataBaseDropped) {
-        Connection dbConnection;
-        JDBCStorageConnection storageConnection;
-        JDBCWorkspaceDataContainer workspaceDataContainer = (JDBCWorkspaceDataContainer) ((SessionImpl) context
-            .getSession()).getContainer().getComponentInstanceOfType(
-            JDBCWorkspaceDataContainer.class);
-        if (workspaceStorageConnection == null) {
-          workspaceStorageConnection = workspaceDataContainer.openConnection();
-        } else {
-          workspaceStorageConnection = workspaceDataContainer
-              .reuseConnection(workspaceStorageConnection);
-        }
-        storageConnection = (JDBCStorageConnection) workspaceStorageConnection;
-        dbConnection = storageConnection.getJdbcConnection();
-        // =============ORACLE=============
-        List<String> oracleQueryList = new ArrayList<String>();
-        oracleQueryList.add("DROP TABLE jcr_config");
-        oracleQueryList.add("DROP TABLE jcr_scontainer");
-        oracleQueryList.add("DROP TABLE jcr_svalue");
-        oracleQueryList.add("DROP TABLE jcr_sref");
-        oracleQueryList.add("DROP TABLE jcr_sitem");
-        oracleQueryList.add("DROP SEQUENCE JCR_SVALUE_SEQ");
-        for (String query : oracleQueryList) {
-          try {
-            dbConnection.prepareStatement(query).execute();
-          } catch (Exception e) {
-          }
-        }
-        // ================================
-        dbConnection.commit();
-        dataBaseDropped = true;
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
-    }*/
+    rootNode.remove();
+    context.getSession().save();
   }
 
 }

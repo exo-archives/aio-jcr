@@ -21,9 +21,9 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.Iterator;
 
 import javax.jcr.RepositoryException;
 
@@ -46,14 +46,6 @@ public class AccessControlList implements Externalizable {
 
   private final List<AccessControlEntry> aces;
 
-  /**
-   * @deprecated use AccessControlList()
-   * @param initDefault
-   */
-  public AccessControlList(boolean initDefault) {
-    this();
-  }
-
   public AccessControlList() {
     this(SystemIdentity.SYSTEM);
   }
@@ -63,7 +55,7 @@ public class AccessControlList implements Externalizable {
    * 
    * @param ownerName
    */
-  public AccessControlList(String ownerName) {
+  AccessControlList(String ownerName) {
     this.owner = ownerName;
     this.aces = new ArrayList<AccessControlEntry>();
     for (String str : PermissionType.ALL) {
@@ -71,32 +63,15 @@ public class AccessControlList implements Externalizable {
     }
   }
 
-  public AccessControlList(String owner, List<AccessControlEntry> aces) throws RepositoryException {
-    this.owner = owner;
-    this.aces = aces;
-  }
-
   /**
-   * Create ACL from owner name and collection of permission strings
+   * Create ACL from owner name and collection of permission entries
    * 
    * @param owner
-   * @param permissions - strings with permissions
-   * @throws RepositoryException
+   * @param permissions - permission entries
    */
-  public AccessControlList(String owner, Collection<String> permissions) throws RepositoryException {
-      
-    if (permissions != null) {
-      List<AccessControlEntry> aces = new ArrayList<AccessControlEntry>();
-      for (String p: permissions) {
-        StringTokenizer parser = new StringTokenizer(p, AccessControlEntry.DELIMITER);
-        aces.add(new AccessControlEntry(parser.nextToken(), parser.nextToken()));
-      }
-      this.aces = aces;
-    } else
-      this.aces = null;
-
+  public AccessControlList(String owner, List<AccessControlEntry> aces) {
     this.owner = owner;
-    
+    this.aces = aces;
   }
   
   public boolean hasPermissions() {
@@ -130,23 +105,19 @@ public class AccessControlList implements Externalizable {
   }
 
   public void removePermissions(String identity) {
-    List<AccessControlEntry> aces4Del = new ArrayList<AccessControlEntry>();
-    for (AccessControlEntry a : aces) {
+    for (Iterator<AccessControlEntry> iter = aces.iterator(); iter.hasNext();) {
+      AccessControlEntry a = iter.next();
       if (a.getIdentity().equals(identity))
-        aces4Del.add(a);
+        iter.remove();
     }
-    for (AccessControlEntry del : aces4Del)
-      aces.remove(del);
   }
 
   public void removePermissions(String identity, String permission) {
-    List<AccessControlEntry> aces4Del = new ArrayList<AccessControlEntry>();
-    for (AccessControlEntry a : aces) {
+    for (Iterator<AccessControlEntry> iter = aces.iterator(); iter.hasNext();) {
+      AccessControlEntry a = iter.next();
       if (a.getIdentity().equals(identity) && a.getPermission().equals(permission))
-        aces4Del.add(a);
+        iter.remove();
     }
-    for (AccessControlEntry del : aces4Del)
-      aces.remove(del);
   }
 
   /**

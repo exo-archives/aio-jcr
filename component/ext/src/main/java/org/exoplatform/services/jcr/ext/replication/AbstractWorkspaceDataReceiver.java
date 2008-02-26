@@ -19,11 +19,14 @@ package org.exoplatform.services.jcr.ext.replication;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
+import java.util.Hashtable;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.ItemDataKeeper;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
@@ -43,11 +46,12 @@ public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {
 
   protected static Log                        log = ExoLogger.getLogger("ext.AbstractWorkspaceDataReceiver");
 
-  private String                        systemId;
+  private String                              systemId;
 
   private MessageDispatcher                   disp;
 
   private HashMap<String, PendingChangesLog>  mapPendingChangesLog;
+//  private Hashtable<String, PendingChangesLog>  mapPendingChangesLog;
 
   protected ItemDataKeeper                    dataKeeper;
 
@@ -56,6 +60,8 @@ public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {
   public AbstractWorkspaceDataReceiver() throws RepositoryConfigurationException {
     this.fileCleaner = new FileCleaner(30030);
     mapPendingChangesLog = new HashMap<String, PendingChangesLog>();
+//    mapPendingChangesLog = new Hashtable<String, PendingChangesLog>();
+    
   }
   
   public void init(MessageDispatcher messageDispatcher, String systemId) {
@@ -69,6 +75,16 @@ public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {
     if (changesLog.getSystemId() == null) {
       throw new Exception("Invalid or same systemId " + changesLog.getSystemId());
     } else if (!changesLog.getSystemId().equals(this.systemId)) {
+   
+      // dump log
+      if (log.isDebugEnabled()) {
+        ChangesLogIterator logIterator = changesLog.getLogIterator();
+        while ( logIterator.hasNextLog() ) {
+          PlainChangesLog pcl = logIterator.nextLog();
+          log.info(pcl.dump());
+        }
+      }
+      
       dataKeeper.save(changesLog);
     }
   }
@@ -114,7 +130,7 @@ public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {
           container.getListFile().add(f);
           container.getListRandomAccessFiles().add(new RandomAccessFile(f, "rw"));
           if (log.isDebugEnabled())
-            log.debug("First pocket of stream'");
+            log.debug("First pocket of stream");
         }
         break;
 
@@ -129,6 +145,9 @@ public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {
             randomAccessFile.seek(packet.getOffset());
             randomAccessFile.write(packet.getByteArray());
           }
+          
+          if (log.isDebugEnabled())
+            log.debug("Pocket of stream : " + packet.getByteArray().length + " bytes");
         }
         break;
 
@@ -145,7 +164,7 @@ public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {
             randomAccessFile.close();
           }
           if (log.isDebugEnabled())
-            log.debug("Last pocket of stream'");
+            log.debug("Last pocket of stream : " + packet.getByteArray().length + " bytes");
         }
         break;
 

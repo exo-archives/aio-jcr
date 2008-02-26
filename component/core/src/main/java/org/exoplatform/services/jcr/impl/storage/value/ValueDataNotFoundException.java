@@ -28,22 +28,18 @@ public class ValueDataNotFoundException extends RepositoryException {
 
   public ValueDataNotFoundException() {
     super();
-    // TODO Auto-generated constructor stub
   }
 
   public ValueDataNotFoundException(String message, Throwable rootCause) {
     super(message, rootCause);
-    // TODO Auto-generated constructor stub
   }
 
   public ValueDataNotFoundException(String message) {
     super(message);
-    // TODO Auto-generated constructor stub
   }
 
   public ValueDataNotFoundException(Throwable rootCause) {
     super(rootCause);
-    // TODO Auto-generated constructor stub
   }
 
 }

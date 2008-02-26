@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.jcr.benchmark.usecases;
+package org.exoplatform.jcr.benchmark.usecases.query;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -35,7 +35,7 @@ import com.sun.japex.TestCase;
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-public class SearchNodesByContentTest extends JCRTestBase {
+public class SearchNodesByPropertyTest extends JCRTestBase {
   /*
    * This test calculates the time of query execution, dedicated structure has
    * been created.
@@ -43,9 +43,9 @@ public class SearchNodesByContentTest extends JCRTestBase {
 
   public static Log log          = ExoLogger.getLogger("jcr.benchmark");
 
-  private int       RESULT_NODES = 5; //4 + /home/users/exoadmin/queries/fournodes 
+  private int       RESULT_NODES = 10; 
 
-  private String    sqlQuery     = "select * from nt:base where contains(*,'fournodes')";
+  private String    sqlQuery     = "select * from nt:base where dc:title = 'Exoplatform'";
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {

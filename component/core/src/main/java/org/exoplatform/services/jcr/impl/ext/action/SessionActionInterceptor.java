@@ -31,9 +31,11 @@ import org.exoplatform.services.ext.action.InvocationContext;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.core.ItemImpl;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -50,13 +52,13 @@ public class SessionActionInterceptor {
 
   private final ExoContainer  container;
 
-  private static Log          log = ExoLogger.getLogger(SessionActionInterceptor.class);
-  
+  private static Log          log        = ExoLogger.getLogger("jcr.SessionActionInterceptor");
+
   /**
-   * State flag, if true an action in progress and any other actions can't be intercepted.
-   * I.e. SessionActionInterceptor is per session, and only one action per session/time can be active.
+   * SessionActionInterceptor is per session, and only one action per
+   * session/time can be active.
    */
-  private ItemImpl activeItem = null;
+  private ItemImpl            activeItem = null;
 
   public SessionActionInterceptor(ActionCatalog catalog, ExoContainer container) {
     this.catalog = catalog;
@@ -78,22 +80,17 @@ public class SessionActionInterceptor {
       activeItem = node;
     else
       return;
-    
-    try {    
+
+    try {
       Condition conditions = new Condition();
       conditions.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.ADD_MIXIN);
-      conditions.put(SessionEventMatcher.NODETYPE_KEY, mixinType);
-
-      ExtendedNodeType[] nodeNTs = node.getAllNodeTypes();
-      conditions.put(SessionEventMatcher.NODETYPES_KEY, getInternalNames(nodeNTs));
-      conditions.put(SessionEventMatcher.PARENT_NODETYPES_KEY, nodeNTs);
-  
       conditions.put(SessionEventMatcher.PATH_KEY, node.getInternalPath());
-  
+      conditions.put(SessionEventMatcher.NODETYPES_KEY, new InternalQName[] { mixinType });
+
       InvocationContext ctx = new InvocationContext();
-      ctx.put("currentItem", node);
-      ctx.put("event", ExtendedEvent.ADD_MIXIN);
-      ctx.put("exocontainer", container);
+      ctx.put(InvocationContext.CURRENT_ITEM, node);
+      ctx.put(InvocationContext.EVENT, ExtendedEvent.ADD_MIXIN);
+      ctx.put(InvocationContext.EXO_CONTAINER, container);
       launch(conditions, ctx);
     } finally {
       activeItem = null;
@@ -103,28 +100,25 @@ public class SessionActionInterceptor {
   public void postAddNode(NodeImpl node) throws RepositoryException {
     if (catalog == null)
       return;
-    
+
     if (activeItem == null)
       activeItem = node;
     else
       return;
-    
-    try { 
+
+    try {
       Condition conditions = new Condition();
       conditions.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.NODE_ADDED);
       conditions.put(SessionEventMatcher.PATH_KEY, node.getInternalPath());
-  
-      conditions.put(SessionEventMatcher.NODETYPE_KEY, ((ExtendedNodeType) node.getPrimaryNodeType())
-          .getQName());
-  
-      conditions.put(SessionEventMatcher.NODETYPES_KEY, getInternalNames(node.getAllNodeTypes()));
+      conditions.put(SessionEventMatcher.NODETYPES_KEY, readNodeTypeNames((NodeData) node.getData()));
+      
       InvocationContext ctx = new InvocationContext();
-      ctx.put("currentItem", node);
-      ctx.put("exocontainer", container);
-      ctx.put("event", ExtendedEvent.NODE_ADDED);
+      ctx.put(InvocationContext.CURRENT_ITEM, node);
+      ctx.put(InvocationContext.EXO_CONTAINER, container);
+      ctx.put(InvocationContext.EVENT, ExtendedEvent.NODE_ADDED);
       launch(conditions, ctx);
     } finally {
-      activeItem = null;    
+      activeItem = null;
     }
   }
 
@@ -136,24 +130,20 @@ public class SessionActionInterceptor {
       activeItem = node;
     else
       return;
-    
-    try { 
+
+    try {
       Condition conditions = new Condition();
       conditions.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.CHECKIN);
-      conditions.put(SessionEventMatcher.NODETYPE_KEY, ((ExtendedNodeType) node.getPrimaryNodeType())
-          .getQName());
-      conditions.put(SessionEventMatcher.PARENT_NODETYPES_KEY, ((NodeImpl) node.getParent())
-          .getAllNodeTypes());
-      conditions.put(SessionEventMatcher.NODETYPES_KEY, getInternalNames(node.getAllNodeTypes()));
       conditions.put(SessionEventMatcher.PATH_KEY, node.getInternalPath());
-  
+      conditions.put(SessionEventMatcher.NODETYPES_KEY, readNodeTypeNames((NodeData) node.getData()));
+
       InvocationContext ctx = new InvocationContext();
-      ctx.put("currentItem", node);
-      ctx.put("event", ExtendedEvent.CHECKIN);
-      ctx.put("exocontainer", container);
+      ctx.put(InvocationContext.CURRENT_ITEM, node);
+      ctx.put(InvocationContext.EVENT, ExtendedEvent.CHECKIN);
+      ctx.put(InvocationContext.EXO_CONTAINER, container);
       launch(conditions, ctx);
     } finally {
-      activeItem = null;    
+      activeItem = null;
     }
   }
 
@@ -165,24 +155,20 @@ public class SessionActionInterceptor {
       activeItem = node;
     else
       return;
-    
+
     try {
       Condition conditions = new Condition();
       conditions.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.CHECKOUT);
-      conditions.put(SessionEventMatcher.NODETYPE_KEY, ((ExtendedNodeType) node.getPrimaryNodeType())
-          .getQName());
-      conditions.put(SessionEventMatcher.PARENT_NODETYPES_KEY, ((NodeImpl) node.getParent())
-          .getAllNodeTypes());
-      conditions.put(SessionEventMatcher.NODETYPES_KEY, getInternalNames(node.getAllNodeTypes()));
       conditions.put(SessionEventMatcher.PATH_KEY, node.getInternalPath());
-  
+      conditions.put(SessionEventMatcher.NODETYPES_KEY, readNodeTypeNames((NodeData) node.getData()));
+
       InvocationContext ctx = new InvocationContext();
-      ctx.put("currentItem", node);
-      ctx.put("event", ExtendedEvent.CHECKOUT);
-      ctx.put("exocontainer", container);
+      ctx.put(InvocationContext.CURRENT_ITEM, node);
+      ctx.put(InvocationContext.EVENT, ExtendedEvent.CHECKOUT);
+      ctx.put(InvocationContext.EXO_CONTAINER, container);
       launch(conditions, ctx);
     } finally {
-      activeItem = null;    
+      activeItem = null;
     }
   }
 
@@ -194,74 +180,62 @@ public class SessionActionInterceptor {
       activeItem = node;
     else
       return;
-    
+
     try {
       Condition conditions = new Condition();
       conditions.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.LOCK);
-      conditions.put(SessionEventMatcher.NODETYPE_KEY, ((ExtendedNodeType) node.getPrimaryNodeType())
-          .getQName());
-      conditions.put(SessionEventMatcher.PARENT_NODETYPES_KEY, ((NodeImpl) node.getParent())
-          .getAllNodeTypes());
-      conditions.put(SessionEventMatcher.NODETYPES_KEY, getInternalNames(node.getAllNodeTypes()));
       conditions.put(SessionEventMatcher.PATH_KEY, node.getInternalPath());
-  
-      InvocationContext ctx = new InvocationContext();
-      ctx.put("currentItem", node);
-      ctx.put("event", ExtendedEvent.LOCK);
-      ctx.put("exocontainer", container);
-      launch(conditions, ctx);
-    } finally {
-      activeItem = null;    
-    }
-  }
+      conditions.put(SessionEventMatcher.NODETYPES_KEY, readNodeTypeNames((NodeData) node.getData()));
 
-  public void postRead(ItemImpl item) throws RepositoryException {
-    if (catalog == null)
-      return;
-    
-    if (activeItem == null)
-      activeItem = item;
-    else
-      return;
-    
-    try {
-      Condition conditions = new Condition();
-      conditions.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.READ);
-      
-      if (item.isNode()) {
-        conditions.put(SessionEventMatcher.NODETYPE_KEY, ((ExtendedNodeType) ((NodeImpl) item).getPrimaryNodeType()).getQName());
-        conditions.put(SessionEventMatcher.NODETYPES_KEY, getInternalNames(((NodeImpl) item).getAllNodeTypes()));
-        if(!item.isRoot())
-          conditions.put(SessionEventMatcher.PARENT_NODETYPES_KEY, ((NodeImpl) item.getParent()).getAllNodeTypes());
-      } else {
-        NodeImpl parent = (NodeImpl) item.getParent();
-        ExtendedNodeType[] parentNTs = parent.getAllNodeTypes();
-        conditions.put(SessionEventMatcher.NODETYPE_KEY, ((ExtendedNodeType) parent.getPrimaryNodeType()).getQName());
-        conditions.put(SessionEventMatcher.NODETYPES_KEY, getInternalNames(parentNTs));
-        conditions.put(SessionEventMatcher.PARENT_NODETYPES_KEY, parentNTs);
-      }
-  
-      conditions.put(SessionEventMatcher.PATH_KEY, item.getInternalPath());
-  
       InvocationContext ctx = new InvocationContext();
-      ctx.put("currentItem", item);
-      ctx.put("event", ExtendedEvent.READ);
-      ctx.put("exocontainer", container);
+      ctx.put(InvocationContext.CURRENT_ITEM, node);
+      ctx.put(InvocationContext.EVENT, ExtendedEvent.LOCK);
+      ctx.put(InvocationContext.EXO_CONTAINER, container);
       launch(conditions, ctx);
     } finally {
       activeItem = null;
     }
   }
 
-  public void postSetProperty(NodeImpl parentNode, PropertyImpl property, int state) throws RepositoryException {
-    if (catalog == null || property == null)
+  public void postRead(ItemImpl item) throws RepositoryException {
+    if (catalog == null)
       return;
-    
+
+    if (activeItem == null)
+      activeItem = item;
+    else
+      return;
+
+    try {
+      Condition conditions = new Condition();
+      conditions.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.READ);
+      conditions.put(SessionEventMatcher.PATH_KEY, item.getInternalPath());
+      
+      if (item.isNode()) {
+        conditions.put(SessionEventMatcher.NODETYPES_KEY, readNodeTypeNames((NodeData) item.getData()));
+      } else {
+        conditions.put(SessionEventMatcher.NODETYPES_KEY, readNodeTypeNames(item.parentData()));
+      }
+
+      InvocationContext ctx = new InvocationContext();
+      ctx.put(InvocationContext.CURRENT_ITEM, item);
+      ctx.put(InvocationContext.EVENT, ExtendedEvent.READ);
+      ctx.put(InvocationContext.EXO_CONTAINER, container);
+      launch(conditions, ctx);
+    } finally {
+      activeItem = null;
+    }
+  }
+
+  public void postSetProperty(PropertyImpl property, int state) throws RepositoryException {
+    if (catalog == null)
+      return;
+
     if (activeItem == null)
       activeItem = property;
     else
       return;
-    
+
     try {
       int event = -1;
       switch (state) {
@@ -277,22 +251,16 @@ public class SessionActionInterceptor {
       default:
         return;
       }
-  
+
       Condition conditions = new Condition();
       conditions.put(SessionEventMatcher.EVENTTYPE_KEY, event);
-  
-      conditions.put(SessionEventMatcher.NODETYPE_KEY, ((ExtendedNodeType) parentNode
-          .getPrimaryNodeType()).getQName());
-      
-      ExtendedNodeType[] parentNTs = parentNode.getAllNodeTypes();
-      conditions.put(SessionEventMatcher.PARENT_NODETYPES_KEY, parentNTs);
-      conditions.put(SessionEventMatcher.NODETYPES_KEY, getInternalNames(parentNTs));
       conditions.put(SessionEventMatcher.PATH_KEY, property.getInternalPath());
-  
+      conditions.put(SessionEventMatcher.NODETYPES_KEY, readNodeTypeNames(property.parentData()));
+
       InvocationContext ctx = new InvocationContext();
-      ctx.put("currentItem", property);
-      ctx.put("exocontainer", container);
-      ctx.put("event", event);
+      ctx.put(InvocationContext.CURRENT_ITEM, property);
+      ctx.put(InvocationContext.EXO_CONTAINER, container);
+      ctx.put(InvocationContext.EVENT, event);
       launch(conditions, ctx);
     } finally {
       activeItem = null;
@@ -307,57 +275,47 @@ public class SessionActionInterceptor {
       activeItem = node;
     else
       return;
-    
+
     try {
       Condition conditions = new Condition();
       conditions.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.UNLOCK);
-      conditions.put(SessionEventMatcher.NODETYPE_KEY, ((ExtendedNodeType) node.getPrimaryNodeType())
-          .getQName());
-      conditions.put(SessionEventMatcher.PARENT_NODETYPES_KEY, ((NodeImpl) node.getParent())
-          .getAllNodeTypes());
-      conditions.put(SessionEventMatcher.NODETYPES_KEY, getInternalNames(node.getAllNodeTypes()));
       conditions.put(SessionEventMatcher.PATH_KEY, node.getInternalPath());
-  
+      conditions.put(SessionEventMatcher.NODETYPES_KEY, readNodeTypeNames((NodeData) node.getData()));
+
       InvocationContext ctx = new InvocationContext();
-      ctx.put("currentItem", node);
-      ctx.put("event", ExtendedEvent.UNLOCK);
-      ctx.put("exocontainer", container);
+      ctx.put(InvocationContext.CURRENT_ITEM, node);
+      ctx.put(InvocationContext.EVENT, ExtendedEvent.UNLOCK);
+      ctx.put(InvocationContext.EXO_CONTAINER, container);
       launch(conditions, ctx);
     } finally {
       activeItem = null;
     }
   }
 
-  public void preRemoveItem(NodeImpl parent, ItemImpl item) throws RepositoryException {
+  public void preRemoveItem(ItemImpl item) throws RepositoryException {
     if (catalog == null)
       return;
-    
+
     if (activeItem == null)
       activeItem = item;
     else
       return;
-    
+
     try {
       Condition conditions = new Condition();
       int event = item.isNode() ? ExtendedEvent.NODE_REMOVED : ExtendedEvent.PROPERTY_REMOVED;
       conditions.put(SessionEventMatcher.EVENTTYPE_KEY, event);
-  
-      conditions.put(SessionEventMatcher.NODETYPE_KEY, ((ExtendedNodeType) parent.getPrimaryNodeType()).getQName());
-      
-      ExtendedNodeType[] parentNTs = parent.getAllNodeTypes();
-      conditions.put(SessionEventMatcher.PARENT_NODETYPES_KEY, parentNTs);
-      
-      if (item.isNode()) {
-        conditions.put(SessionEventMatcher.NODETYPES_KEY, getInternalNames(((NodeImpl) item).getAllNodeTypes()));
-      } else {
-        conditions.put(SessionEventMatcher.NODETYPES_KEY, getInternalNames(parentNTs));
-      }
       conditions.put(SessionEventMatcher.PATH_KEY, item.getInternalPath());
-  
+      if (item.isNode()) {
+        conditions.put(SessionEventMatcher.NODETYPES_KEY, readNodeTypeNames((NodeData) item.getData()));
+      } else {
+        conditions.put(SessionEventMatcher.NODETYPES_KEY, readNodeTypeNames(item.parentData()));
+      }
+
       InvocationContext ctx = new InvocationContext();
-      ctx.put("currentItem", item);
-      ctx.put("exocontainer", container);
-      ctx.put("event", event);
+      ctx.put(InvocationContext.CURRENT_ITEM, item);
+      ctx.put(InvocationContext.EXO_CONTAINER, container);
+      ctx.put(InvocationContext.EVENT, event);
       launch(conditions, ctx);
     } finally {
       activeItem = null;
@@ -372,48 +330,45 @@ public class SessionActionInterceptor {
       activeItem = node;
     else
       return;
-    
+
     try {
       Condition conditions = new Condition();
       conditions.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.REMOVE_MIXIN);
-      conditions.put(SessionEventMatcher.NODETYPE_KEY, mixinType);
       conditions.put(SessionEventMatcher.PATH_KEY, node.getInternalPath());
-      
-      ExtendedNodeType[] nodeNTs = node.getAllNodeTypes();
-      
-      conditions.put(SessionEventMatcher.PARENT_NODETYPES_KEY, nodeNTs);
-  
-      conditions.put(SessionEventMatcher.NODETYPES_KEY, getInternalNames(nodeNTs));
-  
+      conditions.put(SessionEventMatcher.NODETYPES_KEY, new InternalQName[] { mixinType });
+
       InvocationContext ctx = new InvocationContext();
-      ctx.put("currentItem", node);
-      ctx.put("event", ExtendedEvent.REMOVE_MIXIN);
-      ctx.put("exocontainer", container);
+      ctx.put(InvocationContext.CURRENT_ITEM, node);
+      ctx.put(InvocationContext.EVENT, ExtendedEvent.REMOVE_MIXIN);
+      ctx.put(InvocationContext.EXO_CONTAINER, container);
       launch(conditions, ctx);
     } finally {
       activeItem = null;
     }
   }
 
-  private InternalQName[] getInternalNames(NodeType[] nodeTypes) {
-    InternalQName[] names = new InternalQName[nodeTypes.length];
-    for (int i = 0; i < nodeTypes.length; i++) {
-      names[i] = ((ExtendedNodeType) nodeTypes[i]).getQName();
+  private InternalQName[] readNodeTypeNames(NodeData node) {
+    InternalQName primaryTypeName = node.getPrimaryTypeName();
+    InternalQName[] mixinNames = node.getMixinTypeNames();
+    InternalQName[] nodeTypeNames = new InternalQName[mixinNames.length + 1];
+
+    nodeTypeNames[0] = primaryTypeName;
+    for (int i = 1; i <= mixinNames.length; i++) {
+      nodeTypeNames[i] = mixinNames[i - 1];
     }
-    return names;
+    
+    return nodeTypeNames; 
   }
 
   protected final void launch(Condition conditions, InvocationContext context) {
-    if (conditions != null && catalog != null) {
-      Set<Action> cond = catalog.getActions(conditions);
-      if (cond != null) {
-        Iterator<Action> i = cond.iterator();
-        while (i.hasNext()) {
-          try {
-            i.next().execute(context);
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
+    Set<Action> cond = catalog.getActions(conditions);
+    if (cond != null) {
+      Iterator<Action> i = cond.iterator();
+      while (i.hasNext()) {
+        try {
+          i.next().execute(context);
+        } catch (Exception e) {
+          e.printStackTrace();
         }
       }
     }

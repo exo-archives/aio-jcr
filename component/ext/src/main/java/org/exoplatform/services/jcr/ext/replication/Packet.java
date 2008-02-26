@@ -54,7 +54,7 @@ public class Packet implements Externalizable {
     public static final int ItemDataChangesLog_Last_Packet        = 9;
   }
   
-  public static final int MAX_PACKET_SIZE = 1024*16;        
+  public static final int MAX_PACKET_SIZE = 1024*16/*16381*/;        
 
   private byte[] buffer_;
 
@@ -124,15 +124,14 @@ public class Packet implements Externalizable {
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     int bufSize = in.readInt();
     buffer_ = new byte[bufSize];
-    for (int i = 0; i < bufSize; i++)
-      buffer_[i] = in.readByte();
+    in.readFully(buffer_);
 
     size_ = in.readLong();
     type_ = in.readInt();
     offset_ = in.readLong();
     
     byte[] buf = new byte[in.readInt()];
-    in.read(buf);
+    in.readFully(buf);
     identifier = new String(buf/*, "UTF-8"*/);
     
     int item = in.readInt();

@@ -54,6 +54,95 @@ public class TestLock extends JcrAPIBaseTest {
     }
   }
 
+  /**
+   * Check 
+   * 1. if locked node can't be changed.
+   * 2. if session with lock tocked able to change locked property
+   *  
+   * @throws RepositoryException
+   */
+  public void testLock() throws RepositoryException {
+    Session session1 = repository.login(new CredentialsImpl("root", "exo".toCharArray()), "ws");
+    Node nodeToLockSession1 = session1.getRootNode().addNode("testLockSesssionScoped");
+    nodeToLockSession1.addMixin("mix:lockable");
+    session1.save();
+    Lock lock = nodeToLockSession1.lock(true, false);// boolean isSessionScoped=false
+    assertTrue(nodeToLockSession1.isLocked());
+    nodeToLockSession1.setProperty("property #1", "1");
+    session1.save();
+    
+    // try change property from another session
+    Session session2 = repository.login(new CredentialsImpl("john", "exo".toCharArray()), "ws");
+    Node nodeToLockSession2 = session2.getRootNode().getNode("testLockSesssionScoped");
+    assertEquals(true, nodeToLockSession2.isLocked());
+    try {
+      try {
+        // trying...
+        nodeToLockSession2.setProperty("property #1", "2");
+        fail("Node locked. An exception should be thrown on set property but doesn't");
+      } catch (LockException e) {
+        // ok 
+      }
+      
+      // add lock tocken try again
+      session2.addLockToken(lock.getLockToken());
+      try {
+        nodeToLockSession2.setProperty("property #1", "2");
+        // ok
+      } catch (LockException e) {
+        e.printStackTrace();
+        fail("Session has lock tocken. But an exception was thrown on set property. " + e); 
+      }
+      // lock
+    } finally {
+      nodeToLockSession1.unlock();
+      session1.logout();
+    }
+  }
+  
+  /**
+   * Check if session scoped lock
+   * 1. Will disallow another session to change the node till the lock session live
+   * 2. Will allow the lock after the session will be logouted
+   *  
+   * @throws RepositoryException
+   */
+  public void testLockSesssionScoped() throws RepositoryException {
+    Session session1 = repository.login(new CredentialsImpl("root", "exo".toCharArray()), "ws");
+    Node nodeToLockSession1 = session1.getRootNode().addNode("testLockSesssionScoped");
+    nodeToLockSession1.addMixin("mix:lockable");
+    session1.save();
+    nodeToLockSession1.lock(true, true);// boolean isSessionScoped=true
+    assertTrue(nodeToLockSession1.isLocked());
+    nodeToLockSession1.setProperty("property #1", "1");
+    session1.save();
+    
+    // try change property from another session
+    Session session2 = repository.login(new CredentialsImpl("john", "exo".toCharArray()), "ws");
+    Node nodeToLockSession2 = session2.getRootNode().getNode("testLockSesssionScoped");
+    assertEquals(true, nodeToLockSession2.isLocked());
+    try {
+      // trying...
+      nodeToLockSession2.setProperty("property #1", "2");
+      fail("Node locked. An exception should be thrown on set property but doesn't");
+    } catch (LockException e) {
+      // ok 
+    } finally {
+      session1.logout();
+    }
+    
+    try {
+      // trying again...
+      // session was logouted and session scoped lock was released 
+      nodeToLockSession2.setProperty("property #1", "2");
+      // ok
+    } catch (LockException e) {
+      fail("There no lock should found. But an exception was thrown on set property. " + e); 
+    } finally {
+      session2.logout();
+    }
+  }
+  
   public void testLockByOwner() throws RepositoryException {
 
     try {
@@ -102,7 +191,7 @@ public class TestLock extends JcrAPIBaseTest {
     String lockToken = lock.getLockToken();
     session1.logout();
     //
-    Session session2 = repository.login(new CredentialsImpl("admin", "admin".toCharArray()), "ws");
+    Session session2 = repository.login(new CredentialsImpl("john", "exo".toCharArray()), "ws");
     Node nodeToLockSession2 = session2.getRootNode().getNode("nodeToLockSession1");
     assertEquals(true, nodeToLockSession2.isLocked());
     session2.addLockToken(lockToken);
@@ -114,7 +203,7 @@ public class TestLock extends JcrAPIBaseTest {
       fail("unlock() method should pass ok, as admin is lockOwner, but error occurs: " + e);
     }
   }
-
+  
   public void testCreateAfterLockWithFile() throws RepositoryException {
     String lockToken = "";
     String nodeName = "nodeToLockAndDelete" + System.currentTimeMillis();

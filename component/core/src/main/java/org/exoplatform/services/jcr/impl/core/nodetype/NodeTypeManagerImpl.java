@@ -521,27 +521,6 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     for (InternalQName tname : typeNames) {
       if (isNodeType(testTypeName, tname))
         return true;
-      // [PN] TODO 01.02.08
-      //      if (testTypeName.equals(typeNames[i])) {
-      //        return true;
-      //      }
-      //      
-      //      ExtendedNodeType subType;
-      //      ExtendedNodeType testType;
-      //      try {
-      //        subType = getNodeType(typeNames[i]);
-      //        testType = getNodeType(testTypeName);
-      //      } catch (RepositoryException e) {
-      //        log.error("Error obtaining node type " + e);
-      //        continue;
-      //      }
-      //
-      //      NodeType[] superTypes = subType.getSupertypes();
-      //      for (int j = 0; j < superTypes.length; j++) {
-      //        ExtendedNodeType testSuperType = (ExtendedNodeType) superTypes[j];
-      //        if (testSuperType.getQName().equals(testType.getQName()))
-      //          return true;
-      //      }
     }
     return false;
   }

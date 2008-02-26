@@ -157,7 +157,6 @@ public class TestAccess extends BaseStandaloneTest {
     node.addMixin("exo:owneable");
     node.addMixin("exo:privilegeable");
 
-
     session.save();
     System.out.println("NODE PERM 1 >>> "+node.getACL().dump());
     // change permission
@@ -172,14 +171,6 @@ public class TestAccess extends BaseStandaloneTest {
     session.save();
     
     System.out.println("NODE PERM 2 >>> "+node.getACL().dump());
-    
-    //session.getItem(node.getPath());
-//    System.out.println("TEST PERM >>> "+
-//        ((NodeImpl)session.getItem(node.getPath())).getACL().dump()+" "+
-//        ((PropertyImpl)session.getItem(node.getPath()+"/exo:permissions")).getValueArray()[0].getString()
-//        +" "+node+" "+session.getItem(node.getPath()));
-//
-//    System.out.println("NODE PERM 3 >>> "+node.getACL().dump());
 
     // get node in new session
     NodeImpl testNode = (NodeImpl)repository.getSystemSession().getRootNode().getNode("accessTestRoot/testIfPermissionSaved");
@@ -575,8 +566,6 @@ public class TestAccess extends BaseStandaloneTest {
     node.addMixin("exo:owneable");
     node.addMixin("exo:privilegeable");
 
-
-
     node.setPermission("exo1", PermissionType.ALL);
     assertEquals(PermissionType.ALL.length*2, node.getACL().getPermissionEntries().size());
 
@@ -587,7 +576,6 @@ public class TestAccess extends BaseStandaloneTest {
 
     node.removePermission("exo1");
     assertEquals(PermissionType.ALL.length, node.getACL().getPermissionEntries().size());
-    
   }
   
   /**
@@ -602,8 +590,6 @@ public class TestAccess extends BaseStandaloneTest {
     //node.addMixin("exo:accessControllable");
     node.addMixin("exo:owneable");
     node.addMixin("exo:privilegeable");
-
-
 
     node.setPermission("exo1", PermissionType.ALL);
     assertEquals(PermissionType.ALL.length * 2, node.getACL().getPermissionEntries().size());
@@ -649,7 +635,6 @@ public class TestAccess extends BaseStandaloneTest {
     session1.save();
     session1.logout();
     
-    
     accessTestRoot = (ExtendedNode) session.getRootNode().getNode("accessTestRoot");
     
     accessTestRoot.setPermission(accessTestRoot.getSession().getUserID(),PermissionType.ALL);
@@ -664,9 +649,7 @@ public class TestAccess extends BaseStandaloneTest {
     testByOwnerNodeSystem.setPermission("exo1",new String[] { PermissionType.READ});
     
     session.save();
-    
-    
-    
+
     session1 = repository.login(new CredentialsImpl("exo1", "exo1".toCharArray()));
     accessTestRoot1 = session1.getRootNode().getNode("accessTestRoot");
     testByOwnerNode = accessTestRoot1.getNode("testByOwnerNode");

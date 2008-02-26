@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.rmi.api.xml;
 
 import java.io.ByteArrayOutputStream;
 
-import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
@@ -31,6 +30,7 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
+import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.ErrorHandler;
@@ -222,13 +222,13 @@ public abstract class ImportContentHandler implements ContentHandler, ErrorHandl
 
   private void checkNodeImport(String absNodePath) throws VersionException,
       ConstraintViolationException, LockException, RepositoryException {
-    checkNodeImport((Node) session.getItem(absNodePath));
+    checkNodeImport((NodeImpl) session.getItem(absNodePath));
   }
 
-  private void checkNodeImport(Node node) throws VersionException, ConstraintViolationException,
+  private void checkNodeImport(NodeImpl node) throws VersionException, ConstraintViolationException,
       LockException, RepositoryException {
     // checked-in check
-    if (!node.isCheckedOut()) {
+    if (!node.checkedOut()) {
       throw new VersionException("Node " + node.getPath()
           + " or its nearest ancestor is checked-in");
     }

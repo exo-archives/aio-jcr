@@ -314,10 +314,8 @@ public class VersionHistoryDataHelper extends TransientNodeData {
                                                                                PropertyType.DATE,
                                                                                false);
 
-    // TODO Current time source
-    // rvCreated.setValue(new
-    // TransientValueData(dataManager.getTransactManager()
-    // .getStorageDataManager().getCurrentTime()));
+    // TODO Current time source was
+    // rvCreated.setValue(new TransientValueData(dataManager.getTransactManager().getStorageDataManager().getCurrentTime()));
     rvCreated.setValue(new TransientValueData(Calendar.getInstance()));
 
     // ----- VERSIONABLE properties -----

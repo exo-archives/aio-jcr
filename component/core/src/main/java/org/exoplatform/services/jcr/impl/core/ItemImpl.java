@@ -43,6 +43,7 @@ import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
+import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.value.ExtendedValue;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.Identifier;
@@ -266,7 +267,7 @@ public abstract class ItemImpl implements Item {
       throw new LockException("Node " + parent().getPath() + " is locked ");
     
     //launch event
-    session.getActionHandler().preRemoveItem(parentNode,this);
+    session.getActionHandler().preRemoveItem(this);
     
     removeVersionable();
     
@@ -447,7 +448,7 @@ public abstract class ItemImpl implements Item {
       ItemState itemState = new ItemState(newData, state, true, qpath,false);
       prop = (PropertyImpl) dataManager.update(itemState, true);
       // launch event
-      session.getActionHandler().postSetProperty(parentNode, prop, state);
+      session.getActionHandler().postSetProperty(prop, state);
 
     } else {
       if (def.isMandatory()) {
@@ -455,7 +456,7 @@ public abstract class ItemImpl implements Item {
             "Can not remove (by setting null value) mandatory property " + locationFactory.createJCRPath(qpath).getAsString(false));
       } 
       //launch event
-      session.getActionHandler().preRemoveItem(parentNode,oldProp);
+      session.getActionHandler().preRemoveItem(oldProp);
       dataManager.delete(newData);
       prop =  oldProp;
     }
@@ -573,18 +574,37 @@ public abstract class ItemImpl implements Item {
     NodeImpl parent = (NodeImpl) item(getParentIdentifier());
     if (parent == null)
       throw new ItemNotFoundException("FATAL: Parent is null for "
-          + getInternalPath().getAsString() + " parent UUID: " + getParentIdentifier());
+          + getPath() + " parent UUID: " + getParentIdentifier());
     return parent;
   }
   
-  protected NodeData parentData() throws RepositoryException {
+  public NodeData parentData() throws RepositoryException {
     NodeData parent = (NodeData) dataManager.getItemData(getData().getParentIdentifier());
     if (parent == null)
       throw new ItemNotFoundException("FATAL: Parent is null for "
-          + getInternalPath().getAsString() + " parent UUID: " + getData().getParentIdentifier());
+          + getPath() + " parent UUID: " + getData().getParentIdentifier());
     return parent;
   }
+  
+  protected ExtendedNodeType[] nodeTypes(NodeData node) throws RepositoryException {
+    
+    InternalQName primaryTypeName = node.getPrimaryTypeName();
+    InternalQName[] mixinNames = node.getMixinTypeNames();
+    ExtendedNodeType[] nodeTypes = new ExtendedNodeType[mixinNames.length + 1];
 
+    NodeTypeManagerImpl ntm = session.getWorkspace().getNodeTypeManager();
+    nodeTypes[0] = ntm.getNodeType(primaryTypeName);
+    for (int i = 1; i <= mixinNames.length; i++) {
+      nodeTypes[i] = ntm.getNodeType(mixinNames[i - 1]);
+    }
+    
+    return nodeTypes;
+  }
+
+  public ExtendedNodeType[] getParentNodeTypes() throws RepositoryException {
+    return nodeTypes(parentData());
+  }
+  
   public String getInternalIdentifier() {
     return data.getIdentifier();
   }

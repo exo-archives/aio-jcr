@@ -50,27 +50,27 @@
   </testCase-->
 
   <!--testCase name="LockUnlockCommonDeepNodeTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.LockUnlockCommonDeepNodeTest" />
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.lock.LockUnlockCommonDeepNodeTest" />
   </testCase-->
   
   <!--testCase name="LockUnlockCommonNodeTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.LockUnlockCommonNodeTest" />
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.lock.LockUnlockCommonNodeTest" />
   </testCase-->
   
   <!--testCase name="LockUnlockOwnNodeTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.LockUnlockOwnNodeTest" />
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.lock.LockUnlockOwnNodeTest" />
   </testCase-->
 
   <!--testCase name="SearchNodesByPropertyUsingLikeOperatorTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesByPropertyUsingLikeOperatorTest" />
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.query.SearchNodesByPropertyUsingLikeOperatorTest" />
   </testCase-->
 
   <!--testCase name="SearchNodesByPropertyTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesByPropertyTest" />
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.query.SearchNodesByPropertyTest" />
   </testCase-->
 
   <!--testCase name="SearchNodesByContentTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.SearchNodesByContentTest" />
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.query.SearchNodesByContentTest" />
   </testCase-->
 
   <!--testCase name="AddNtFileWithMetadataTest">

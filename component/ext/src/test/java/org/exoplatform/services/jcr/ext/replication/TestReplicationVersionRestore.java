@@ -16,6 +16,11 @@
  */
 package org.exoplatform.services.jcr.ext.replication;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Calendar;
+
 import javax.jcr.Node;
 import javax.jcr.version.Version;
 
@@ -28,6 +33,7 @@ import javax.jcr.version.Version;
  */
 
 public class TestReplicationVersionRestore extends BaseReplicationTest {
+  
   public void testRestore() throws Exception {
     Node srcVersionNode = root.addNode("Version node 1");
     srcVersionNode.setProperty("jcr:data", "Base version");
@@ -81,5 +87,100 @@ public class TestReplicationVersionRestore extends BaseReplicationTest {
     Thread.sleep(2 * 1000);
     
     assertEquals("Base version", destVersionNode.getProperty("jcr:data").getString());
+  }
+  
+  public void testBigFileRestore() throws Exception {
+    
+    File tempFile = File.createTempFile("tempFile", "doc");
+    File tempFile2 = File.createTempFile("tempFile", "doc");
+    File tempFile3 = File.createTempFile("tempFile", "doc");
+    tempFile.deleteOnExit();
+    tempFile2.deleteOnExit();
+    tempFile3.deleteOnExit();
+
+    FileOutputStream fos = new FileOutputStream(tempFile);
+    FileOutputStream fos2 = new FileOutputStream(tempFile2);
+    FileOutputStream fos3 = new FileOutputStream(tempFile3);
+
+    String content = "this is the content #1";
+    String content2 = "this is the content #2_";
+    String content3 = "this is the content #3__";
+
+    for (int i = 0; i < 15000; i++){
+      fos.write((i + " " + content).getBytes());
+      fos2.write((i + " " + content2).getBytes());
+      fos3.write((i + " " + content3).getBytes());
+    }
+
+    fos.close();
+    fos2.close();
+    fos3.close();
+
+    log.info("FILE for VERVION #1 : file size = " + tempFile.length() + " bytes");
+    log.info("FILE for VERVION #2 : file size = " + tempFile2.length() + " bytes");
+    log.info("FILE for VERVION #3 : file size = " + tempFile3.length() + " bytes");
+    
+    Node srcVersionNode = root.addNode("nt_file_node", "nt:file");
+    Node contentNode = srcVersionNode.addNode("jcr:content", "nt:resource");
+    contentNode.setProperty("jcr:data", new FileInputStream(tempFile));
+    contentNode.setProperty("jcr:mimeType", "text/plain");
+    contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(
+        Calendar.getInstance()));
+    srcVersionNode.addMixin("mix:versionable");
+
+    session.save();
+    
+    Node srcVersion = root.getNode("nt_file_node");
+
+    Thread.sleep(5 * 1000);
+
+    Node destVersionNode = root2.getNode("nt_file_node").getNode("jcr:content");
+    log.info("ADD VERVION #1 : file size = " + destVersionNode.getProperty("jcr:data").getStream().available() + " bytes");
+    compareStream(new FileInputStream(tempFile), destVersionNode.getProperty("jcr:data").getStream());
+
+    srcVersion.checkin();
+    session.save();
+
+    srcVersion.checkout();
+    srcVersionNode.getNode("jcr:content").setProperty("jcr:data", new FileInputStream(tempFile2));
+    session.save();
+
+    Thread.sleep(2 * 1000);
+
+    log.info("ADD VERVION #2 : file size = " + destVersionNode.getProperty("jcr:data").getStream().available() + " bytes");
+    compareStream(new FileInputStream(tempFile2), destVersionNode.getProperty("jcr:data").getStream());
+    
+    srcVersion.checkin();
+    session.save();
+    
+    Thread.sleep(2 * 1000);
+    
+    srcVersion.checkout();
+    srcVersionNode.getNode("jcr:content").setProperty("jcr:data", new FileInputStream(tempFile3));
+    session.save();
+    
+    Thread.sleep(2 * 1000);
+    
+    log.info("ADD VERVION #3 : file size = " + destVersionNode.getProperty("jcr:data").getStream().available() + " bytes");
+    compareStream(new FileInputStream(tempFile3), destVersionNode.getProperty("jcr:data").getStream());
+    
+    Version baseVersion = srcVersion.getBaseVersion();
+    srcVersion.restore(baseVersion, true);
+    session.save();
+    
+    Thread.sleep(2 * 1000);
+    
+    compareStream(new FileInputStream(tempFile2), destVersionNode.getProperty("jcr:data").getStream());
+    
+    Version baseVersion1 = srcVersion.getBaseVersion();
+    Version []predesessors = baseVersion1.getPredecessors();
+    Version restoreToBaseVersion = predesessors[0];
+
+    srcVersion.restore(restoreToBaseVersion, true);
+    session.save();
+    
+    Thread.sleep(2 * 1000);
+    
+    compareStream(new FileInputStream(tempFile), destVersionNode.getProperty("jcr:data").getStream());
   }
 }

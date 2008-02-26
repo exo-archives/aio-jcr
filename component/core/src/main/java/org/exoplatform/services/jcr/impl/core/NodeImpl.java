@@ -56,6 +56,7 @@ import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
+import javax.jcr.version.VersionHistory;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.access.AccessControlEntry;
@@ -559,8 +560,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       throw new RepositoryException("The relPath provided must not have an index on its final element. "
           + itemPath.getAsString(false));
 
-    ItemImpl parentItem = dataManager.getItem(nodeData(), itemPath.makeParentPath().getInternalPath().getEntries(), false); // TODO
-    // pool=false
+    ItemImpl parentItem = dataManager.getItem(nodeData(), itemPath.makeParentPath().getInternalPath().getEntries(), false);
 
     if (parentItem == null)
       throw new PathNotFoundException("Parent not found for " + itemPath.getAsString(true));
@@ -1036,22 +1036,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     return session.getWorkspace().getNodeTypeManager().isNodeType(qName,
                                                                   nodeData().getPrimaryTypeName(),
                                                                   nodeData().getMixinTypeNames());
-
-    // [PN] TODO 04.02.08
-    // NodeType testNodeType;
-    // try {
-    // testNodeType = nodeType(qName);
-    // } catch (NoSuchNodeTypeException e) {
-    // log.warn("Node.isNodeType() No such nodetype: " + qName.getAsString());
-    // return false;
-    // }
-    //
-    // NodeType[] nodetypes = getAllNodeTypes();
-    // for (int i = 0; i < nodetypes.length; i++) {
-    // if (NodeTypeImpl.isSameOrSubType(testNodeType, nodetypes[i]))
-    // return true;
-    // }
-    // return false;
   }
 
   /**
@@ -1120,7 +1104,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     throw new ItemNotFoundException("No corresponding path for " + getPath() + " in " + corrSession.getWorkspace().getName());
   }
 
-  public NodeImpl getCorrespondingNode(SessionImpl correspSession) throws ItemNotFoundException,
+  public Node getCorrespondingNode(SessionImpl correspSession) throws ItemNotFoundException,
                                                                   NoSuchWorkspaceException,
                                                                   AccessDeniedException,
                                                                   RepositoryException {
@@ -1394,8 +1378,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     }
 
     if (newMixin.size() > 0) {
-      dataManager.update(new ItemState(prop, ItemState.UPDATED, true, ancestorToSave), false); // TODO
-      // pool=false
+      dataManager.update(new ItemState(prop, ItemState.UPDATED, true, ancestorToSave), false);
     } else {
       dataManager.delete(prop, ancestorToSave);
     }
@@ -1405,8 +1388,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     InternalQName[] mixins = new InternalQName[newMixin.size()];
     newMixin.toArray(mixins);
     ((TransientNodeData) data).setMixinTypeNames(mixins);
-    dataManager.update(new ItemState(data, ItemState.MIXIN_CHANGED, false, null), false); // TODO
-    // pool=false
+    dataManager.update(new ItemState(data, ItemState.MIXIN_CHANGED, false, null), false);
   }
 
   /**
@@ -1756,7 +1738,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
    * 
    * @see javax.jcr.Node#getVersionHistory()
    */
-  public VersionHistoryImpl getVersionHistory() throws UnsupportedRepositoryOperationException, RepositoryException {
+  public VersionHistory getVersionHistory() throws UnsupportedRepositoryOperationException, RepositoryException {
 
     checkValid();
 
@@ -1869,8 +1851,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         throw new ConstraintViolationException("Parent item is not a node. Rel path " + relPath);
 
       NodeImpl destNode =
-          (NodeImpl) dataManager.getItem(destParent.nodeData(), new QPathEntry(destPath.getName(), destPath.getIndex()), false); // TODO
-      // pool=false
+          (NodeImpl) dataManager.getItem(destParent.nodeData(), new QPathEntry(destPath.getName(), destPath.getIndex()), false);
 
       if (destNode != null) {
         // Dest node exists
@@ -2343,11 +2324,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
                                                                                                    pdImpl.getQName(),
                                                                                                    pdImpl.getRequiredType(),
                                                                                                    pdImpl.isMultiple(),
-                                                                                                   listAutoCreateValue)), false); // TODO
-          // pool
-          // =
-          // false
-
+                                                                                                   listAutoCreateValue)), false);
         } else {
           if (log.isDebugEnabled()) {
             log.debug("Skipping existed property " + pdImpl.getName() + " in " + getPath()
@@ -2366,7 +2343,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
                                                                                        ndImpl.getQName(),
                                                                                        ((ExtendedNodeType) ndImpl.getDefaultPrimaryType()).getQName(),
                                                                                        IdGenerator.generate())),
-                           false); // TODO pool = false
+                           false);
       }
     }
 
@@ -2376,7 +2353,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       // using VH helper as for one new VH, all changes in changes log
       new VersionHistoryDataHelper(nodeData(), changes, dataManager, session.getWorkspace().getNodeTypeManager());
       for (ItemState istate : changes.getAllStates()) {
-        dataManager.update(istate, false); // TODO pool = false
+        dataManager.update(istate, false);
       }
     }
   }
@@ -2708,16 +2685,18 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   public ExtendedNodeType[] getAllNodeTypes() throws RepositoryException {
-    ExtendedNodeType primaryType = nodeType(nodeData().getPrimaryTypeName());
-
-    InternalQName[] mixinNames = nodeData().getMixinTypeNames();
-    ExtendedNodeType[] nodeTypes = new ExtendedNodeType[mixinNames.length + 1];
-    nodeTypes[0] = primaryType;
-    for (int i = 1; i <= mixinNames.length; i++) {
-      nodeTypes[i] = nodeType(mixinNames[i - 1]);
-    }
-
-    return nodeTypes;
+//    ExtendedNodeType primaryType = nodeType(nodeData().getPrimaryTypeName());
+//
+//    InternalQName[] mixinNames = nodeData().getMixinTypeNames();
+//    ExtendedNodeType[] nodeTypes = new ExtendedNodeType[mixinNames.length + 1];
+//    nodeTypes[0] = primaryType;
+//    for (int i = 1; i <= mixinNames.length; i++) {
+//      nodeTypes[i] = nodeType(mixinNames[i - 1]);
+//    }
+//
+//    return nodeTypes;
+    
+    return nodeTypes(nodeData());
   }
 
   protected NodeData nodeData() {

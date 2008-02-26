@@ -21,7 +21,9 @@ import java.util.HashMap;
 import javax.jcr.Item;
 
 import org.apache.commons.chain.Context;
+import org.apache.poi.hssf.record.formula.functions.T;
 import org.exoplatform.container.ExoContainer;
+import org.exoplatform.services.jcr.impl.core.ItemImpl;
 
 /**
  * Created by The eXo Platform SAS.
@@ -29,24 +31,35 @@ import org.exoplatform.container.ExoContainer;
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-
 public class InvocationContext extends HashMap implements Context {
   /**
    * Exo container.
    */
-  public static final String EXO_CONTAINER = "exocontainer";
+  public static final String EXO_CONTAINER = "exocontainer".intern();
 
   /**
    * Current item.
    */
-  public static final String CURRENT_ITEM  = "currentItem";
+  public static final String CURRENT_ITEM  = "currentItem".intern();
 
   /**
    * Context event.
    */
-  public static final String EVENT         = "event";
+  public static final String EVENT         = "event".intern();
 
-  public boolean getBoolean(String name) {
+  public Object put(String key, ItemImpl item) {
+    return super.put(key, item);
+  }
+  
+  public Object put(String key, ExoContainer container) {
+    return super.put(key, container);
+  }
+
+  public Object put(String key, int eventType) {
+    return super.put(key, eventType);
+  }
+
+  public boolean getBoolean(final String name) {
     if (!containsKey(name))
       return false;
     return (Boolean) (get(name));
@@ -72,8 +85,8 @@ public class InvocationContext extends HashMap implements Context {
   public final int getEventType() {
     return (Integer) get(EVENT);
   }
-
-  public String getString(String name) {
+  
+  public String getString(final String name) {
     if (!containsKey(name))
       return null;
     return (String) (get(name));

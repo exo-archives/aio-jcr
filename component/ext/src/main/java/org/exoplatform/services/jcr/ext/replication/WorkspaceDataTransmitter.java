@@ -17,49 +17,53 @@
 package org.exoplatform.services.jcr.ext.replication;
 
 import java.io.InputStream;
+import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
+import org.jgroups.MembershipListener;
 import org.jgroups.Message;
+import org.jgroups.View;
 import org.jgroups.blocks.GroupRequest;
 import org.jgroups.blocks.MessageDispatcher;
 
-
-
 /**
- * Created by The eXo Platform SAS
- * Author : Alex Reshetnyak
- *          alex.reshetnyak@exoplatform.com.ua
- * 01.02.2008  
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak
+ * alex.reshetnyak@exoplatform.com.ua 01.02.2008
  */
-public class WorkspaceDataTransmitter implements ItemsPersistenceListener {
+public class WorkspaceDataTransmitter implements ItemsPersistenceListener, MembershipListener {
 
-  protected static Log                        log  = ExoLogger.getLogger("ext.WorksapeDataTransmitter");
+  protected static Log      log = ExoLogger.getLogger("ext.WorksapeDataTransmitter");
 
-  private String                              systemId;
+  private String            systemId;
 
-  private MessageDispatcher                   disp;
+  private MessageDispatcher disp;
 
-  private FileCleaner                         fileCleaner;
+  private FileCleaner       fileCleaner;
 
-  public WorkspaceDataTransmitter(CacheableWorkspaceDataManager dataManager) throws RepositoryConfigurationException {
+  private Vector<Address>   members;
+
+  public WorkspaceDataTransmitter(CacheableWorkspaceDataManager dataManager)
+      throws RepositoryConfigurationException {
     dataManager.addItemPersistenceListener(this);
     this.fileCleaner = new FileCleaner(30030);
   }
-  
+
   public void init(MessageDispatcher messageDispatcher, String systemId) {
     this.systemId = systemId;
     this.disp = messageDispatcher;
-    
-    log.info("REPLICATION: WorkspaceDataTransmitter initialized, JGroup Channel name: '" + disp.getChannel().getClusterName() + "'");
+
+    log.info("REPLICATION: WorkspaceDataTransmitter initialized, JGroup Channel name: '"
+        + disp.getChannel().getClusterName() + "'");
   }
 
   public void onSaveItems(ItemStateChangesLog changesLog_) {
@@ -68,6 +72,15 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener {
       changesLog.setSystemId(systemId);
       // broadcast messages
       try {
+        // dump log
+        if (log.isDebugEnabled()) {
+          ChangesLogIterator logIterator = changesLog.getLogIterator();
+          while (logIterator.hasNextLog()) {
+            PlainChangesLog pcl = logIterator.nextLog();
+            log.info(pcl.dump());
+          }
+        }
+
         this.send(changesLog);
         if (log.isDebugEnabled())
           log.debug("After save message -->" + systemId);
@@ -139,40 +152,43 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener {
   }
 
   private void sendStream(InputStream in, FixupStream fixupStream, String identifier)
-      throws Exception {
+  throws Exception {
     Packet packet = new Packet(Packet.PacketType.First_Packet_of_Stream, fixupStream, identifier);
     sendPacket(packet);
-
+    
     byte[] buf = new byte[Packet.MAX_PACKET_SIZE];
     int len;
     long offset = 0;
-
+    
     try {
-      while ((len = in.read(buf)) > 0) {
-        if (len == buf.length) {
+      while ((len = in.read(buf)) > 0 && len == Packet.MAX_PACKET_SIZE) {
           packet = new Packet(Packet.PacketType.Packet_of_Stream, fixupStream, identifier, buf);
           packet.setOffset(offset);
           sendPacket(packet);
-        } else {
-          byte[] buffer = new byte[len];
-          for (int i = 0; i < len; i++)
-            buffer[i] = buf[i];
-
-          packet = new Packet(Packet.PacketType.Last_Packet_of_Stream, fixupStream, identifier,
-              buffer);
-          packet.setOffset(offset);
-          sendPacket(packet);
-        }
-        offset += len;
-        if (log.isDebugEnabled())
-          log.debug("Send  --> " + offset);
-
-        Thread.sleep(1);
-      }
+          
+          offset += len;
+          if (log.isDebugEnabled())
+            log.debug("Send  --> " + offset);
+      
+          Thread.sleep(1);
+     }
+      
+     if (len < Packet.MAX_PACKET_SIZE) {
+       //check if empty stream
+       len = (len == -1 ? 0 : len);
+       
+       byte[] buffer = new byte[len];
+       
+       for (int i = 0; i < len; i++)
+         buffer[i] = buf[i];
+       
+       packet = new Packet(Packet.PacketType.Last_Packet_of_Stream, fixupStream, identifier, buffer);
+       packet.setOffset(offset);
+       sendPacket(packet);
+     } 
     } catch (Exception e) {
       e.printStackTrace();
     }
-
   }
 
   private void sendBigItemDataChangesLog(byte[] data, String identifier) throws Exception {
@@ -248,5 +264,20 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener {
       }
 
     return isSessionNull;
+  }
+
+  public void viewAccepted(View views) {
+    Address localIpAddres = disp.getChannel().getLocalAddress();
+
+    members = new Vector();
+
+    for (int i = 0; i < views.getMembers().size(); i++) {
+      Address address = (Address) (views.getMembers().get(i));
+      if (address.compareTo(localIpAddres) != 0)
+        members.add(address);
+    }
+
+    if (log.isDebugEnabled())
+      log.debug(members.size());
   }
 }
