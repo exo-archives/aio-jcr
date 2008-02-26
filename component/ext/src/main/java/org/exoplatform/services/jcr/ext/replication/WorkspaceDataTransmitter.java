@@ -61,7 +61,6 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
   public void init(MessageDispatcher messageDispatcher, String systemId) {
     this.systemId = systemId;
     this.disp = messageDispatcher;
-    this.disp.setMembershipListener(this);
 
     log.info("REPLICATION: WorkspaceDataTransmitter initialized, JGroup Channel name: '"
         + disp.getChannel().getClusterName() + "'");
