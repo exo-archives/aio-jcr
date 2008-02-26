@@ -149,7 +149,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     byte[] buffer = Packet.getAsByteArray(packet);
 
     Message msg = new Message(null, null, buffer);
-    disp.castMessage(members, msg, GroupRequest.GET_NONE/* GET_ALL */, 0);
+    disp.castMessage(/*members*/null, msg, GroupRequest.GET_NONE/* GET_ALL */, 0);
   }
 
   private void sendStream(InputStream in, FixupStream fixupStream, String identifier)
