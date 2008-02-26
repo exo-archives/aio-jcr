@@ -184,19 +184,22 @@ public class FileSystemLockPersister implements LockPersister {
                                                                                   dataLockOwner.isMultiValued())));
         }
       }
-      dataManager.save(new TransactionChangesLog(changesLog));
-    } catch (RepositoryException e) {
-      log.error(e.getLocalizedMessage(), e);
-      throw new LockException(e);
-    }
-    for (int i = 0; i < list.length; i++) {
-      File lockFile = new File(rootDir, list[i]);
-      if (!lockFile.exists()) {
-        // throw new LockException("Persistent lock information not exists");
-        log.warn("Persistent lock information  for node " + list[i] + " doesn't exists");
+      
+      if (changesLog.getSize() > 0)
+        dataManager.save(new TransactionChangesLog(changesLog));
+      
+      // remove files
+      for (int i = 0; i < list.length; i++) {
+        File lockFile = new File(rootDir, list[i]);
+        if (!lockFile.exists()) {
+          log.warn("Persistent lock information for node id " + list[i] + " doesn't exists");
+        }
+        if (!lockFile.delete())
+          throw new LockException("Fail to remove lock information");
       }
-      if (!lockFile.delete())
-        throw new LockException("Fail to remove lock information");
+    } catch (RepositoryException e) {
+      log.error("Unable to remove lock files due to error " + e, e);
+      throw new LockException(e);
     }
   }
 
