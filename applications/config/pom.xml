@@ -87,6 +87,20 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<dependency>
+		  <groupId>org.exoplatform.jcr</groupId>
+		  <artifactId>exo.jcr.framework.webdavclient</artifactId>
+		  <version>${org.exoplatform.jcr.version}</version>
+		  <scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+		  <groupId>org.exoplatform.jcr</groupId>
+		  <artifactId>exo.jcr.framework.ftpclient</artifactId>
+		  <version>${org.exoplatform.jcr.version}</version>
+		  <scope>runtime</scope>
+		</dependency>
+
 	</dependencies>
 
 </project>
