@@ -82,14 +82,6 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
     }
   }
   
-  private void waitTime(Date time) throws InterruptedException {
-    while (Calendar.getInstance().getTime().before(time)) {
-      Thread.yield();
-      Thread.sleep(50);
-    }
-    Thread.sleep(250);
-  }
-  
   /**
    * 1. startTime only - run once forever
    */
