@@ -35,38 +35,44 @@ import java.io.ObjectOutputStream;
 
 public class Packet implements Externalizable {
   public class PacketType {
-    public static final int ItemDataChangesLog                    = 1;
+    public static final int ItemDataChangesLog                           = 1;
 
-    public static final int First_ItemDataChangesLog_with_Streams = 2;
+    public static final int First_ItemDataChangesLog_with_Streams        = 2;
 
-    public static final int First_Packet_of_Stream                = 3;
+    public static final int First_Packet_of_Stream                       = 3;
 
-    public static final int Packet_of_Stream                      = 4;
+    public static final int Packet_of_Stream                             = 4;
 
-    public static final int Last_Packet_of_Stream                 = 5;
+    public static final int Last_Packet_of_Stream                        = 5;
 
-    public static final int Last_ItemDataChangesLog_with_Streams  = 6;
-    
-    public static final int ItemDataChangesLog_First_Packet       = 7;
-    
-    public static final int ItemDataChangesLog_Middle_Packet      = 8;
-    
-    public static final int ItemDataChangesLog_Last_Packet        = 9;
+    public static final int Last_ItemDataChangesLog_with_Streams         = 6;
+
+    public static final int ItemDataChangesLog_First_Packet              = 7;
+
+    public static final int ItemDataChangesLog_Middle_Packet             = 8;
+
+    public static final int ItemDataChangesLog_Last_Packet               = 9;
+
+    public static final int ItemDataChangesLog_with_Stream_First_Packet  = 10;
+
+    public static final int ItemDataChangesLog_with_Stream_Middle_Packet = 11;
+
+    public static final int ItemDataChangesLog_with_Stream_Last_Packet   = 12;
   }
-  
-  public static final int MAX_PACKET_SIZE = 1024*16/*16381*/;        
 
-  private byte[] buffer_;
+  public static final int MAX_PACKET_SIZE = 1024 * 16/* 16381 */;
 
-  private long   size_;
+  private byte[]          buffer_;
 
-  private int    type_;
+  private long            size_;
 
-  private long   offset_;
-  
-  private String identifier;
-  
-  private FixupStream fixupStream;
+  private int             type_;
+
+  private long            offset_;
+
+  private String          identifier;
+
+  private FixupStream     fixupStream;
 
   public Packet() {
   }
@@ -79,7 +85,7 @@ public class Packet implements Externalizable {
 
     for (int i = 0; i < buffer.length; i++)
       buffer_[i] = buffer[i];
-    
+
     fixupStream = new FixupStream();
   }
 
@@ -89,19 +95,19 @@ public class Packet implements Externalizable {
     buffer_ = new byte[1];
     fixupStream = new FixupStream();
   }
-  
+
   public Packet(int type, FixupStream fs, String identifier_) {
     type_ = type;
     fixupStream = fs;
     identifier = identifier_;
     buffer_ = new byte[1];
   }
-  
+
   public Packet(int type, FixupStream fs, String identifier_, byte[] buf) {
     type_ = type;
     fixupStream = fs;
     identifier = identifier_;
-    
+
     buffer_ = new byte[buf.length];
     for (int i = 0; i < buf.length; i++)
       buffer_[i] = buf[i];
@@ -113,10 +119,10 @@ public class Packet implements Externalizable {
     out.writeLong(size_);
     out.writeInt(type_);
     out.writeLong(offset_);
-    
+
     out.writeInt(identifier.getBytes().length);
     out.write(identifier.getBytes());
-    
+
     out.writeInt(fixupStream.getItemSateId());
     out.writeInt(fixupStream.getValueDataId());
   }
@@ -129,16 +135,16 @@ public class Packet implements Externalizable {
     size_ = in.readLong();
     type_ = in.readInt();
     offset_ = in.readLong();
-    
+
     byte[] buf = new byte[in.readInt()];
     in.readFully(buf);
-    identifier = new String(buf/*, "UTF-8"*/);
-    
+    identifier = new String(buf/* , "UTF-8" */);
+
     int item = in.readInt();
     int value = in.readInt();
     fixupStream = new FixupStream(item, value);
   }
-  
+
   public String getIdentifier() {
     return identifier;
   }
@@ -162,15 +168,15 @@ public class Packet implements Externalizable {
   public void setOffset(long offset) {
     offset_ = offset;
   }
-  
-  public FixupStream getFixupStream(){
+
+  public FixupStream getFixupStream() {
     return fixupStream;
   }
-  
-  public void setFixupStream(FixupStream fs){
+
+  public void setFixupStream(FixupStream fs) {
     fixupStream = fs;
-  } 
-  
+  }
+
   public static byte[] getAsByteArray(Packet packet) throws IOException {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     ObjectOutputStream oos = new ObjectOutputStream(os);
@@ -179,12 +185,12 @@ public class Packet implements Externalizable {
     byte[] bArray = os.toByteArray();
     return bArray;
   }
-  
+
   public static Packet getAsPacket(byte[] byteArray) throws IOException, ClassNotFoundException {
     ByteArrayInputStream is = new ByteArrayInputStream(byteArray);
     ObjectInputStream ois = new ObjectInputStream(is);
     Packet objRead = (Packet) ois.readObject();
-  
+
     return objRead;
   }
 

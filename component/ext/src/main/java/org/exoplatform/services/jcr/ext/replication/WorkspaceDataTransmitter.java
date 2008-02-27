@@ -120,9 +120,13 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     case PendingChangesLog.Type.ItemDataChangesLog_with_Streams: {
       byte[] buf = PendingChangesLog.getAsByteArray(container.getItemDataChangesLog());
 
-      Packet packet = new Packet(Packet.PacketType.First_ItemDataChangesLog_with_Streams,
-          buf.length, buf, container.getIdentifier());
-      sendPacket(packet);
+      if ( buf.length < Packet.MAX_PACKET_SIZE) {
+        Packet packet = new Packet(Packet.PacketType.First_ItemDataChangesLog_with_Streams,
+            buf.length, buf, container.getIdentifier());
+        sendPacket(packet);
+      } else {
+        sendBigItemDataChangesLogWhithStream(buf, container.getIdentifier());
+      } 
 
       for (int i = 0; i < container.getInputStreams().size(); i++)
         sendStream(container.getInputStreams().get(i), container.getFixupStreams().get(i),
@@ -131,6 +135,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
       Packet lastPacket = new Packet(Packet.PacketType.Last_ItemDataChangesLog_with_Streams,
           container.getIdentifier());
       sendPacket(lastPacket);
+      
       if (log.isDebugEnabled()) {
         log.debug("Send-->ItemDataChangesLog_with_Streams-->");
         log.debug("---------------------");
@@ -201,7 +206,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
         tempBuffer, identifier);
     firsPacket.setOffset(offset);
     sendPacket(firsPacket);
-
+    
     if (log.isDebugEnabled())
       log.info("Send of damp --> " + firsPacket.getByteArray().length);
 
@@ -214,6 +219,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
           data.length, tempBuffer, identifier);
       middlePacket.setOffset(offset);
       sendPacket(middlePacket);
+      
       if (log.isDebugEnabled())
         log.info("Send of damp --> " + middlePacket.getByteArray().length);
 
@@ -227,7 +233,49 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
         lastBuffer, identifier);
     lastPacket.setOffset(offset);
     sendPacket(lastPacket);
+    
+    if (log.isDebugEnabled())
+      log.info("Send of damp --> " + lastPacket.getByteArray().length);
+  }
+  
+  private void sendBigItemDataChangesLogWhithStream(byte[] data, String identifier) throws Exception {
+    long offset = 0;
+    byte[] tempBuffer = new byte[Packet.MAX_PACKET_SIZE];
 
+    cutData(data, offset, tempBuffer);
+
+    Packet firsPacket = new Packet(Packet.PacketType.ItemDataChangesLog_with_Stream_First_Packet, data.length,
+        tempBuffer, identifier);
+    firsPacket.setOffset(offset);
+    sendPacket(firsPacket);
+    
+    if (log.isDebugEnabled())
+      log.info("Send of damp --> " + firsPacket.getByteArray().length);
+
+    offset += tempBuffer.length;
+
+    while ((data.length - offset) > Packet.MAX_PACKET_SIZE) {
+      cutData(data, offset, tempBuffer);
+
+      Packet middlePacket = new Packet(Packet.PacketType.ItemDataChangesLog_with_Stream_Middle_Packet,
+          data.length, tempBuffer, identifier);
+      middlePacket.setOffset(offset);
+      sendPacket(middlePacket);
+      
+      if (log.isDebugEnabled())
+        log.info("Send of damp --> " + middlePacket.getByteArray().length);
+
+      offset += tempBuffer.length;
+    }
+
+    byte[] lastBuffer = new byte[data.length - (int) offset];
+    cutData(data, offset, lastBuffer);
+
+    Packet lastPacket = new Packet(Packet.PacketType.ItemDataChangesLog_with_Stream_Last_Packet, data.length,
+        lastBuffer, identifier);
+    lastPacket.setOffset(offset);
+    sendPacket(lastPacket);
+    
     if (log.isDebugEnabled())
       log.info("Send of damp --> " + lastPacket.getByteArray().length);
   }
