@@ -19,6 +19,8 @@ package org.exoplatform.services.jcr.ext.backup;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 
 import javax.jcr.ItemExistsException;
@@ -180,6 +182,12 @@ public class AbstractBackupTestCase extends BaseStandaloneTest {
     node.save();
   }
 
-
+  protected void waitTime(Date time) throws InterruptedException {
+    while (Calendar.getInstance().getTime().before(time)) {
+      Thread.yield();
+      Thread.sleep(50);
+    }
+    Thread.sleep(250);
+  }
   
 }

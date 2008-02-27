@@ -117,7 +117,48 @@ public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {
         if (log.isDebugEnabled())
           log.debug("Item DataChangesLog of type 'ItemDataChangesLog first whith stream'");
         break;
+        
+        
+      case Packet.PacketType.ItemDataChangesLog_with_Stream_First_Packet:
+        PendingChangesLog bigChangesLogWhithStream = new PendingChangesLog(packet.getIdentifier(),
+            (int) packet.getSize());
+        bigChangesLogWhithStream.putData((int) packet.getOffset(), packet.getByteArray());
 
+        mapPendingChangesLog.put(packet.getIdentifier(), bigChangesLogWhithStream);
+        break;
+
+      case Packet.PacketType.ItemDataChangesLog_with_Stream_Middle_Packet:
+        if (mapPendingChangesLog.get(packet.getIdentifier()) != null) {
+          container = mapPendingChangesLog.get(packet.getIdentifier());
+          container.putData((int) packet.getOffset(), packet.getByteArray());
+        }
+        break;
+
+      case Packet.PacketType.ItemDataChangesLog_with_Stream_Last_Packet:
+        if (mapPendingChangesLog.get(packet.getIdentifier()) != null) {
+          container = mapPendingChangesLog.get(packet.getIdentifier());
+          container.putData((int) packet.getOffset(), packet.getByteArray());
+
+          TransactionChangesLog tempChangesLog = PendingChangesLog.getAsItemDataChangesLog(container
+              .getData());
+          if (log.isDebugEnabled()) {
+            log.debug("Recive-->Big ItemDataChangesLog_without_Streams-->");
+            log.debug("---------------------");
+            log.debug("Size of recive damp --> " + container.getData().length);
+            log.debug("ItemStates          --> " + tempChangesLog.getAllStates().size());
+            log.debug("---------------------");
+            log.debug("Item big DataChangesLog of type 'ItemDataChangesLog only'");
+          }
+          mapPendingChangesLog.remove(packet.getIdentifier());
+          
+          container = new PendingChangesLog(tempChangesLog, packet.getIdentifier(),
+              PendingChangesLog.Type.ItemDataChangesLog_with_Streams, fileCleaner);
+          
+          mapPendingChangesLog.put(packet.getIdentifier(), container);
+        }
+
+        break;
+       
       case Packet.PacketType.First_Packet_of_Stream:
         if (mapPendingChangesLog.containsKey(packet.getIdentifier())) {
           container = mapPendingChangesLog.get(packet.getIdentifier());

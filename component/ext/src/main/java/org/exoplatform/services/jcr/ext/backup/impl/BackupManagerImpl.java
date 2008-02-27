@@ -167,14 +167,14 @@ public class BackupManagerImpl implements BackupManager, Startable {
   class LogsFilter implements FileFilter {
 
     public boolean accept(File pathname) {
-      return pathname.getName().startsWith("log") && pathname.getName().endsWith(".xml");
+      return pathname.getName().endsWith(".xml");
     }
   }
 
   class TaskFilter implements FileFilter {
 
     public boolean accept(File pathname) {
-      return pathname.getName().startsWith("log") && pathname.getName().endsWith(".task");
+      return pathname.getName().endsWith(".task");
     }
   }
 

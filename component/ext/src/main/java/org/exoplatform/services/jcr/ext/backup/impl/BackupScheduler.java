@@ -249,6 +249,10 @@ public class BackupScheduler {
           writer.writeCharacters(config.getWorkspace());
           writer.writeEndElement();
         }
+        
+        writer.writeStartElement("incremental-job-period");
+        writer.writeCharacters(Long.toString(config.getIncrementalJobPeriod()));
+        writer.writeEndElement();
 
         writer.writeEndElement();
 
@@ -312,10 +316,8 @@ public class BackupScheduler {
       }
 
       void readLogFile() throws XMLStreamException, ParseException, IOException {
-        boolean endDocument = false;
-
         try {
-          while (!endDocument) {
+          while (true) {
             int eventCode = reader.next();
             switch (eventCode) {
 
@@ -366,7 +368,7 @@ public class BackupScheduler {
           case StartElement.END_ELEMENT:
             String tagName = reader.getLocalName();
 
-            if (tagName.equals("job-entry-info"))
+            if (tagName.equals("scheduler-config"))
               endJobEntryInfo = true;
             break;
           }
@@ -399,6 +401,9 @@ public class BackupScheduler {
 
             if (name.equals("workspace"))
               conf.setWorkspace(readContent());
+            
+            if (name.equals("incremental-job-period"))
+              conf.setIncrementalJobPeriod(Long.valueOf(readContent()));
 
             break;
 
@@ -580,7 +585,8 @@ public class BackupScheduler {
     protected void removeTaskConfig() {
       // remove task file config
       File taskFile =
-          new File(backup.getLogsDirectory().getAbsolutePath() + File.separator + config.getRepository() + "-" + config.getWorkspace() + ".task");
+          new File(backup.getLogsDirectory().getAbsolutePath() + File.separator + config.getRepository() + "-"
+              + config.getWorkspace() + ".task");
       if (taskFile.exists()) {
         taskFile.delete();
         if (log.isDebugEnabled())
@@ -735,13 +741,11 @@ public class BackupScheduler {
       // check if the task is not expired
       final Date now = new Date();
       // by start time and periodic parameters
-      if (tconf.startTime != null && (tconf.startTime.after(now) || tconf.chainPeriod > 0 || tconf.incrPeriod > 0)) {
+      if ((tconf.stopTime != null && tconf.stopTime.after(now)) || tconf.chainPeriod > 0 || tconf.incrPeriod > 0) {
 
         // by stop time
-        if (tconf.stopTime == null || tconf.stopTime.after(now)) {
-          // TODO restore without scheduler now. Add task search capabilities to the scheduler and add listener to a task
-          schedule(tconf.backupConfig, tconf.startTime, tconf.stopTime, tconf.chainPeriod, tconf.incrPeriod, null);
-        } // else - the stop time in past
+        // TODO restore without scheduler now. Add task search capabilities to the scheduler and add listener to a task
+        schedule(tconf.backupConfig, tconf.startTime, tconf.stopTime, tconf.chainPeriod, tconf.incrPeriod, null);
       } // else - the start time in past and no periodic configuration found
 
     } catch (IOException e) {
@@ -818,7 +822,7 @@ public class BackupScheduler {
       config.setIncrementalJobPeriod(incrementalPeriod); // override ones from config
 
     SchedulerTask ctask;
-    
+
     if (stopTime != null) {
       if (stopTime.after(startTime)) {
         if (chainPeriodMilliseconds > 0) {
@@ -844,7 +848,7 @@ public class BackupScheduler {
         timer.schedule(ctask, startTime);
       }
     }
-    
+
     synchronized (tasks) {
       tasks.add(new WeakReference<SchedulerTask>(ctask));
     }
@@ -853,7 +857,8 @@ public class BackupScheduler {
     try {
       // backup.getLogsDirectory().getAbsolutePath()
       File taskFile =
-          new File(backup.getLogsDirectory().getAbsolutePath() + File.separator + config.getRepository() + "-" + config.getWorkspace() + ".task");
+          new File(backup.getLogsDirectory().getAbsolutePath() + File.separator + config.getRepository() + "-"
+              + config.getWorkspace() + ".task");
       if (taskFile.exists())
         throw new BackupSchedulerException("Task for repository '" + config.getRepository() + "' workspace '"
             + config.getWorkspace() + "' already exists. File " + taskFile.getAbsolutePath());
@@ -875,24 +880,22 @@ public class BackupScheduler {
    * 
    * @return SchedulerTask
    */
-  protected SchedulerTask findTask(String repository, String workspace) {
+  public SchedulerTask findTask(String repository, String workspace) {
     synchronized (tasks) {
       for (Iterator<WeakReference<SchedulerTask>> ti = tasks.iterator(); ti.hasNext();) {
         WeakReference<SchedulerTask> tr = ti.next();
         SchedulerTask task = tr.get();
-        if (task != null && task.config.getRepository().equals(repository)
-            && task.config.getWorkspace().equals(workspace)) {
+        if (task != null && task.config.getRepository().equals(repository) && task.config.getWorkspace().equals(workspace)) {
           return task;
         }
       }
     }
-    
+
     return null;
   }
-  
+
   /**
-   * Unshedule the task scheduled before with the given configuration. 
-   * The method will waits till the task will be stopped.
+   * Unshedule the task scheduled before with the given configuration. The method will waits till the task will be stopped.
    * 
    * @param config - configuration used for a task search
    * @return - true if task was searched and stopped ok
