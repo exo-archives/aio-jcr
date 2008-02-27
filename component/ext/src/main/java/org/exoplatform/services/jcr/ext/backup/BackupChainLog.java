@@ -299,7 +299,7 @@ public class BackupChainLog {
           if (name.equals("workspace"))
             conf.setWorkspace(readContent());
           
-          if (name.equals("incremental-job-period")) {}
+          if (name.equals("incremental-job-period"))
             conf.setIncrementalJobPeriod(Long.valueOf(readContent()).longValue());  
           
           break;
