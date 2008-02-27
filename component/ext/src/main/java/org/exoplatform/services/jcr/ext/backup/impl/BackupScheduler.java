@@ -249,6 +249,10 @@ public class BackupScheduler {
           writer.writeCharacters(config.getWorkspace());
           writer.writeEndElement();
         }
+        
+        writer.writeStartElement("incremental-job-period");
+        writer.writeCharacters(Long.toString(config.getIncrementalJobPeriod()));
+        writer.writeEndElement();
 
         writer.writeEndElement();
 
@@ -399,6 +403,9 @@ public class BackupScheduler {
 
             if (name.equals("workspace"))
               conf.setWorkspace(readContent());
+            
+            if (name.equals("incremental-job-period")) {}
+              conf.setIncrementalJobPeriod(Long.valueOf(readContent()).longValue());
 
             break;
 
