@@ -411,49 +411,135 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <!--normal mode: mvn -Dexo.test.skip=false -Dexo.tck.skip=false clean install-->
+        <!--debug  mode: mvn -Dexo.test.skip=false -Dexo.tck.skip=false -Dexo.test.forkmode=never clean install-->
         <configuration>
-          <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
-          <forkMode>${exo.test.forkmode}</forkMode><!-- never by default -->
-          <includes>
-            <!-- TCK, init section is implemented below, need to uncomment antrun plugin -->
-            <!--include>**/api/*Test.java</include>
-            <include>**/api/observation/*Test.java</include>
-            <include>**/api/lock/*Test.java</include>
-            <include>**/api/nodetype/*Test.java</include>
-            <include>**/api/query/*Test.java</include>
-            <include>**/api/version/*Test.java</include-->
-
-            <!-- eXo tests, usecases -->
-            <include>**/api/**/Test*.java</include>
-            <include>**/usecases/**/Test*.java</include>
-            <include>**/usecases/**/*Test.java</include>
-            <include>**/impl/access/Test*.java</include>
-          </includes>
-          <excludes>
-            <exclude>**/*$*</exclude><!--nested classes prb, http://jira.codehaus.org/browse/SUREFIRE-288-->
-            <exclude>**/Base*Test.java</exclude>
-            <exclude>**/api/TestAll.java</exclude>
-
-            <exclude>**/api/**/Abstract*.java</exclude>
-            <exclude>**/api/**/PropertyDefTest.java</exclude>
-
-            <exclude>**/api/**/DocumentViewImportTest.java</exclude><!--TCK section-->
-            <exclude>**/usecases/**/TestDateBetween.java</exclude>
-            <exclude>**/usecases/**/RemoveSameNameSiblingTest.java</exclude>
-
-          </excludes>
-
-          <systemProperties>
-            <property>
-              <name>jcr.test.configuration.file</name>
-              <value>/conf/standalone/test-configuration.xml</value>
-            </property>
-            <property>
-              <name>emma.coverage.out.file</name>
-              <value>target/emma/coverage.ec</value>
-            </property>
-          </systemProperties>
+          <skip>true</skip>
         </configuration>
+        <executions>
+          <execution>
+            <id>execution1 - running exo tests</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>${exo.test.skip}</skip>
+              <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
+              <forkMode>${exo.test.forkMode}</forkMode>
+              <systemProperties>
+                <property>
+                  <name>jcr.test.configuration.file</name>
+                  <value>/conf/standalone/test-configuration.xml</value>
+                </property>
+                <property>
+                  <name>emma.coverage.out.file</name>
+                  <value>target/emma/coverage.ec</value>
+                </property>
+              </systemProperties>
+              <includes>
+                <include>**/api/**/Test*.java</include>
+                <include>**/usecases/**/Test*.java</include>
+                <include>**/usecases/**/*Test.java</include>
+                <include>**/impl/access/Test*.java</include>
+              </includes>
+              <excludes>
+                <include>**/api/TestAll.java</include>
+                <exclude>**/usecases/**/TestDateBetween.java</exclude>
+                <exclude>**/usecases/**/RemoveSameNameSiblingTest.java</exclude>
+                <exclude>**/usecases/BaseUsecasesTest.java</exclude>
+                <exclude>**/apache/**</exclude>
+              </excludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>execution2 - sleeping 10 seconds</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>${exo.tck.skip}</skip>
+              <includes>
+                <include>**/util/Sleeping10Seconds.java</include>
+              </includes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>execution3 - running TCK init section</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>${exo.tck.skip}</skip>
+              <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
+              <forkMode>${exo.test.forkMode}</forkMode>
+              <systemProperties>
+                <property>
+                  <name>jcr.test.configuration.file</name>
+                  <value>/conf/standalone/test-configuration.xml</value>
+                </property>
+              </systemProperties>
+              <includes>
+                <include>**/init/TestAll*</include>
+              </includes>
+              <excludes>
+                <exclude>**/exoplatform/**</exclude>
+              </excludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>execution4 - sleeping 10 seconds</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>${exo.tck.skip}</skip>
+              <includes>
+                <include>**/util/Sleeping10Seconds.java</include>
+              </includes>
+            </configuration>
+          </execution>          
+          <execution>
+            <id>execution5 - running TCK tests</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>${exo.test.tck.skip}</skip>
+              <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
+              <forkMode>${exo.test.forkMode}</forkMode>
+              <systemProperties>
+                <property>
+                  <name>jcr.test.configuration.file</name>
+                  <value>/conf/standalone/test-configuration.xml</value>
+                </property>
+                <property>
+                  <name>emma.coverage.out.file</name>
+                  <value>target/emma/coverage.ec</value>
+                </property>
+              </systemProperties>
+              <includes>
+                <include>**/api/*Test.java</include>
+                <include>**/api/observation/*Test.java</include>
+                <include>**/api/lock/*Test.java</include>
+                <include>**/api/nodetype/*Test.java</include>
+                <include>**/api/query/*Test.java</include>
+                <include>**/api/version/*Test.java</include>
+              </includes>
+              <excludes>
+                <exclude>**/api/TestAll.java</exclude>
+                <exclude>**/api/**/Abstract*.java</exclude>
+                <exclude>**/api/**/PropertyDefTest.java</exclude>
+                <exclude>**/api/**/DocumentViewImportTest.java</exclude>
+                <exclude>**/exoplatform/**</exclude>
+              </excludes>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
@@ -503,54 +589,6 @@
           </execution>
         </executions>
       </plugin>
-      <!--plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.2-SNAPSHOT</version>
-        <executions>
-          <execution>
-            <id>1</id>
-            <phase>test-compile</phase>
-            <configuration>
-              <tasks>
-                <echo message="[JUNIT] Setup TCK test data ..." />
-                <mkdir dir="${basedir}/target/surefire-reports" />
-                <junit printsummary="yes" fork="yes" haltonfailure="no" showoutput="yes">
-                  <sysproperty key="emma.coverage.out.file" value="target/emma/coverage.ec" />
-                  <sysproperty key="jcr.test.configuration.file" value="/conf/standalone/test-configuration.xml" />
-                  <classpath>
-                    <path refid="maven.test.classpath" />
-                  </classpath>
-                  <formatter type="plain" />
-                  <batchtest todir="${basedir}/target/surefire-reports">
-                    <fileset dir="${basedir}/target/test-classes">
-                      <include name="**/init/TestAll*" />
-                    </fileset>
-                  </batchtest>
-                </junit>
-                <echo message="[JUNIT] Slipping 10 secs (before starting TCK tests, to avoid problems with java processes)..." />
-                <sleep seconds="10" />
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>3.8.1</version>
-            <scope>test</scope>
-          </dependency>
-          <dependency>
-            <groupId>ant</groupId>
-            <artifactId>ant-junit</artifactId>
-            <version>1.6.5</version>
-            <scope>test</scope>
-          </dependency>
-        </dependencies>
-      </plugin-->
     </plugins>
   </build>
 </project>

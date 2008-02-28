@@ -111,11 +111,11 @@
           <useFile>${exo.test.use.file}</useFile>
           <testFailureIgnore>${exo.test.failure.ignore}</testFailureIgnore>
           <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
+          <forkMode>${exo.test.forkMode}</forkMode>
           <includes>
             <include>**/${exo.test.includes}.java</include>
           </includes>
           <excludes>
-            <exclude>**/*$*</exclude><!--nested classes prb, http://jira.codehaus.org/browse/SUREFIRE-288-->
             <exclude>**/ftpclient/**/${exo.test.includes}.java</exclude>
             <exclude>**/webdavclient/**/${exo.test.includes}.java</exclude>
             <exclude>**/cifs/**/${exo.test.includes}.java</exclude>
@@ -275,6 +275,8 @@
         <org.exoplatform.core.version>trunk</org.exoplatform.core.version>
         <org.exoplatform.jcr.version>trunk</org.exoplatform.jcr.version>
         <org.exoplatform.ws.version>trunk</org.exoplatform.ws.version>
+        <exo.tck.skip>true</exo.tck.skip>
+        <exo.test.forkMode>once</exo.test.forkMode>
       </properties>
     </profile>
   </profiles>
