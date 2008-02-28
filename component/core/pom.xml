@@ -509,7 +509,7 @@
               <goal>test</goal>
             </goals>
             <configuration>
-              <skip>${exo.test.tck.skip}</skip>
+              <skip>${exo.tck.skip}</skip>
               <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
               <forkMode>${exo.test.forkMode}</forkMode>
               <systemProperties>
