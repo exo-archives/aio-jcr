@@ -14,9 +14,7 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
- * 
- * @author <a href="mailto:vitaliy.obmanyuk@exoplatform.com.ua">Vitaliy Obmanyuk</a>
- * @version $Id: AddNodeTest.java 11463 2008-02-29 12:46:43Z vetalok $
+ * @author Vitaliy Obmanyuk
  */
 
 public class AddNodeTest extends JCRTestBase {

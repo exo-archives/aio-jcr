@@ -30,9 +30,7 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
- * 
- * @author <a href="mailto:vitaliy.obmanyuk@exoplatform.com.ua">Vitaliy Obmanyuk</a>
- * @version $Id: RestoreOwnNodeTest.java 111 2008-11-11 11:11:11Z vetalok $
+ * @author Vitaliy Obmanyuk
  */
 
 public class RestoreOwnNodeTest extends JCRTestBase {
