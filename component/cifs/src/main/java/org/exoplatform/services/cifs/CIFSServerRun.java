@@ -32,6 +32,9 @@ import org.exoplatform.container.StandaloneContainer;
 public class CIFSServerRun {
 
   /**
+   * This method used just for independent run server (without any applications server)
+   * Check the conf/cifs-configuration.xml, it may not exist.
+   * 
    * @param args
    */
   public static void main(String[] args) {
@@ -42,10 +45,10 @@ public class CIFSServerRun {
     try {
 
       URL configurationURL = Thread.currentThread().getContextClassLoader()
-          .getResource("conf/standalone/cifs-configuration.xml");
+          .getResource("conf/cifs-configuration.xml");
       if (configurationURL == null)
         throw new Exception(
-            "No configuration found. Check that \"conf/standalone/cifs-configuration.xml\" exists !");
+            "No configuration found. Check that \"conf/cifs-configuration.xml\" exists !");
 
       StandaloneContainer.addConfigurationURL(configurationURL.toString());
 
