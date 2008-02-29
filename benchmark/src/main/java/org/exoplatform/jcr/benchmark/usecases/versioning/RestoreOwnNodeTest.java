@@ -37,7 +37,7 @@ import com.sun.japex.TestCase;
 
 public class RestoreOwnNodeTest extends JCRTestBase {
   /*
-   * Each thread restores own node to some of few versions which has been
+   * Each thread restores own node to some of few versions which has been 
    * created before
    */
 
