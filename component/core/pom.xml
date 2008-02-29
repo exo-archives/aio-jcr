@@ -402,7 +402,6 @@
     </testResources>
 
     <testSourceDirectory>src/test/java</testSourceDirectory>
-    <!--testSourceDirectory>src/TCK/java</testSourceDirectory-->
     <!--testSourceDirectory>src/notest</testSourceDirectory-->
 
     <testOutputDirectory>target/test-classes</testOutputDirectory>
@@ -501,7 +500,7 @@
                 <include>**/util/Sleeping10Seconds.java</include>
               </includes>
             </configuration>
-          </execution>          
+          </execution>
           <execution>
             <id>execution5 - running TCK tests</id>
             <phase>test</phase>
