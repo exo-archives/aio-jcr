@@ -30,11 +30,12 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
- * Created by The eXo Platform SARL .
+ * Created by The eXo Platform SAS
  * 
- * @author Gennady Azarenkov
- * @version $Id: $
+ * @author <a href="mailto:vitaliy.obmanyuk@exoplatform.com.ua">Vitaliy Obmanyuk</a>
+ * @version $Id: AddNtFileWithMetadataNoJapex.java 111 2008-11-11 11:11:11Z vetalok $
  */
+
 public class AddNtFileWithMetadataNoJapex {
   /*
    * This test calculates the time (ms or tps) of adding of one nodes of type

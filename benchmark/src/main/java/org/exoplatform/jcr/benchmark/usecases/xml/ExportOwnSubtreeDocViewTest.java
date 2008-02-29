@@ -32,11 +32,12 @@ import org.exoplatform.services.log.ExoLogger;
 import com.sun.japex.TestCase;
 
 /**
- * Created by The eXo Platform SARL .
+ * Created by The eXo Platform SAS
  * 
- * @author Gennady Azarenkov
- * @version $Id: $
+ * @author <a href="mailto:vitaliy.obmanyuk@exoplatform.com.ua">Vitaliy Obmanyuk</a>
+ * @version $Id: ExportOwnSubtreeDocViewTest.java 111 2008-11-11 11:11:11Z vetalok $
  */
+
 public class ExportOwnSubtreeDocViewTest extends JCRTestBase {
   /*
    * This test measures performance of exporting mechanism using docview method,

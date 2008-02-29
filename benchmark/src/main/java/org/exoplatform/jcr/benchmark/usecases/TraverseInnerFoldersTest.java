@@ -29,11 +29,12 @@ import org.exoplatform.jcr.benchmark.JCRTestContext;
 import com.sun.japex.TestCase;
 
 /**
- * Created by The eXo Platform SAS .
+ * Created by The eXo Platform SAS
  * 
- * @author Gennady Azarenkov
- * @version $Id: $
+ * @author <a href="mailto:vitaliy.obmanyuk@exoplatform.com.ua">Vitaliy Obmanyuk</a>
+ * @version $Id: TraverseInnerFoldersTest.java 111 2008-11-11 11:11:11Z vetalok $
  */
+
 public class TraverseInnerFoldersTest extends JCRTestBase {
   /*
    * This test calculates the time (ms or tps) of random reading of node of type nt:folder 

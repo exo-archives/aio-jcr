@@ -41,7 +41,6 @@
         <exclude>xerces:xerces</exclude>
         <exclude>xerces:xercesImpl</exclude>
         <exclude>com.sun.xml.parsers:jaxp-ri</exclude>
-        <exclude>javax.activation:activation</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>

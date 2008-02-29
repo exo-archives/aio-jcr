@@ -30,11 +30,12 @@ import org.exoplatform.jcr.benchmark.JCRTestContext;
 import com.sun.japex.TestCase;
 
 /**
- * Created by The eXo Platform SARL .
+ * Created by The eXo Platform SAS
  * 
- * @author Gennady Azarenkov
- * @version $Id: $
+ * @author <a href="mailto:vitaliy.obmanyuk@exoplatform.com.ua">Vitaliy Obmanyuk</a>
+ * @version $Id: RandomReadNtFileWithMetadataTest.java 111 2008-11-11 11:11:11Z vetalok $
  */
+
 public class RandomReadNtFileWithMetadataTest extends JCRTestBase {
   /*
    * This test will read randomly one of 1 million nodes of type nt:file that

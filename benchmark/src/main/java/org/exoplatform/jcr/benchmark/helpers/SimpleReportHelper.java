@@ -26,9 +26,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Created by The eXo Platform SAS Author : Obmanyuk Vitaliy
- * obmanyuk.vitaliy@exoplatform.com.ua
+ * Created by The eXo Platform SAS
+ * 
+ * @author <a href="mailto:vitaliy.obmanyuk@exoplatform.com.ua">Vitaliy Obmanyuk</a>
+ * @version $Id: SimpleReportHelper.java 111 2008-11-11 11:11:11Z vetalok $
  */
+
 public class SimpleReportHelper {
 
   public static Date TODAY = new Date();

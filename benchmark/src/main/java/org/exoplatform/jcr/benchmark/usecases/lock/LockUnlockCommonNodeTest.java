@@ -30,11 +30,12 @@ import org.exoplatform.services.log.ExoLogger;
 import com.sun.japex.TestCase;
 
 /**
- * Created by The eXo Platform SARL .
+ * Created by The eXo Platform SAS
  * 
- * @author Gennady Azarenkov
- * @version $Id: $
+ * @author <a href="mailto:vitaliy.obmanyuk@exoplatform.com.ua">Vitaliy Obmanyuk</a>
+ * @version $Id: LockUnlockCommonNodeTest.java 111 2008-11-11 11:11:11Z vetalok $
  */
+
 public class LockUnlockCommonNodeTest extends JCRTestBase {
   /*
    * This test measures performance of lock mechanism, each thread has common

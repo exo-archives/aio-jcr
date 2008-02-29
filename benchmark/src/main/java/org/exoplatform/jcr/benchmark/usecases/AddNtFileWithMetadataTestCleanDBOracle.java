@@ -38,11 +38,12 @@ import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import com.sun.japex.TestCase;
 
 /**
- * Created by The eXo Platform SARL .
+ * Created by The eXo Platform SAS
  * 
- * @author Gennady Azarenkov
- * @version $Id: $
+ * @author <a href="mailto:vitaliy.obmanyuk@exoplatform.com.ua">Vitaliy Obmanyuk</a>
+ * @version $Id: AddNtFileWithMetadataTestCleanDBOracle.java 111 2008-11-11 11:11:11Z vetalok $
  */
+
 public class AddNtFileWithMetadataTestCleanDBOracle extends JCRTestBase {
   /*
    * This test calculates the time (ms or tps) of adding of one nodes of type
