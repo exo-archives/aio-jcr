@@ -443,7 +443,7 @@
                 <include>**/impl/access/Test*.java</include>
               </includes>
               <excludes>
-                <include>**/api/TestAll.java</include>
+                <exclude>**/api/TestAll.java</exclude>
                 <exclude>**/usecases/**/TestDateBetween.java</exclude>
                 <exclude>**/usecases/**/RemoveSameNameSiblingTest.java</exclude>
                 <exclude>**/usecases/BaseUsecasesTest.java</exclude>
