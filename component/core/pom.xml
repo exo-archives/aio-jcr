@@ -440,9 +440,16 @@
                 <include>**/api/**/Test*.java</include>
                 <include>**/usecases/**/Test*.java</include>
                 <include>**/usecases/**/*Test.java</include>
-                <include>**/impl/access/Test*.java</include>
+                <include>**/impl/**/*Test.java</include>
+                <include>**/impl/**/Test*.java</include>
               </includes>
               <excludes>
+              	<!--exclude>**/impl/**/TestWorkspaceManagement.java</exclude>
+			  	<exclude>**/impl/**/TestRepositoryManagement.java</exclude>
+			    <exclude>**/impl/**/TestSaveConfiguration.java</exclude>
+			    <exclude>**/impl/**/ValueStoragePluginTest.java</exclude>
+                <exclude>**/impl/**/TestWorkspaceRestore.java</exclude-->
+                <exclude>**/impl/**/Base*.java</exclude>
                 <exclude>**/api/TestAll.java</exclude>
                 <exclude>**/usecases/**/TestDateBetween.java</exclude>
                 <exclude>**/usecases/**/RemoveSameNameSiblingTest.java</exclude>
