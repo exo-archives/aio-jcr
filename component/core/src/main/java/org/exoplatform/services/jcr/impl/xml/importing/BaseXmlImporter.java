@@ -323,15 +323,19 @@ public abstract class BaseXmlImporter implements ContentImporter {
       for (int i = 0; i < nodeDefs.length; i++) {
         NodeDefinition nodeDef = nodeDefs[i];
         if (nodeDef.getName().equals(name)) {
-          return locationFactory.parseJCRName(nodeDef.getDefaultPrimaryType().getName()).getInternalName();
+          if (nodeDef.getDefaultPrimaryType() != null)
+            return locationFactory.parseJCRName(nodeDef.getDefaultPrimaryType().getName())
+                                  .getInternalName();
         } else if (nodeDef.getName().equals(ExtendedItemDefinition.RESIDUAL_SET)) {
-          residualNodeTypeName = nodeDef.getDefaultPrimaryType().getName();
+          if (nodeDef.getDefaultPrimaryType() != null)
+            residualNodeTypeName = nodeDef.getDefaultPrimaryType().getName();
         }
       }
     }
 
     if (residualNodeTypeName == null)
-      throw new ConstraintViolationException("Can not define node type for " + name);
+      throw new ConstraintViolationException("Can not define node-type for node " + name
+                                             +", parent node type "+parentNodeType.getAsString());
     return locationFactory.parseJCRName(residualNodeTypeName).getInternalName();
   }
 

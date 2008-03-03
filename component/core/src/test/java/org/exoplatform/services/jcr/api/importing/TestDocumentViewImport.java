@@ -657,5 +657,28 @@ public class TestDocumentViewImport extends BaseImportTest {
     } catch (SAXException e) {
     }
   }
+  public void testFindNodeType() throws Exception {
 
+    Node testRoot = root.addNode("testRoot", "nt:folder");
+    try {
+      deserialize(testRoot,
+                  XmlSaveType.SESSION,
+                  true,
+                  ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW,
+                  new ByteArrayInputStream(NAV_XML.getBytes()));
+      fail();
+    } catch (ConstraintViolationException e) {
+    }
+
+    try {
+      deserialize(testRoot,
+                  XmlSaveType.SESSION,
+                  false,
+                  ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW,
+                  new ByteArrayInputStream(NAV_XML.getBytes()));
+      fail();
+    } catch (SAXException e) {
+    }
+    
+  }
 }
