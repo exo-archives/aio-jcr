@@ -16,12 +16,7 @@
  */
 package org.exoplatform.services.jcr.impl.core.lock;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.impl.proccess.WorkerThread;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -35,7 +30,7 @@ public class LockRemover extends WorkerThread {
 
   private final Log             log                    = ExoLogger.getLogger("jcr.lock.LockRemover");
 
-  public static final long      DEFAULT_THREAD_TIMEOUT = 30000;                                      // 30sec
+  public static final long      DEFAULT_THREAD_TIMEOUT = 30000;                                       // 30sec
 
   private final LockManagerImpl lockManagerImpl;
 
@@ -43,7 +38,7 @@ public class LockRemover extends WorkerThread {
     this(lockManagerImpl, DEFAULT_THREAD_TIMEOUT);
   }
 
-  public LockRemover(LockManagerImpl lockManagerImpl, long timeout) {
+  private LockRemover(LockManagerImpl lockManagerImpl, long timeout) {
     super(timeout);
     this.lockManagerImpl = lockManagerImpl;
     setName("LockRemover " + getId());
@@ -55,12 +50,6 @@ public class LockRemover extends WorkerThread {
 
   @Override
   protected void callPeriodically() throws Exception {
-//   TODO List<LockData> lDatas = lockManagerImpl.getLockList();
-//    for (LockData lock : lDatas) {
-//      if (!lock.isSessionScoped() && lock.getTimeToDeath() < 0) {
-//        lockManagerImpl.removeLock(lock.getNodeIdentifier());
-//      }
-//    }
     lockManagerImpl.removeExpired();
   }
 }

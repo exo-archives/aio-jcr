@@ -57,7 +57,7 @@
           </container>
           <cache enabled="true">
             <properties>
-              <property name="maxSize" value="500" />
+              <property name="maxSize" value="10000" />
               <property name="liveTime" value="300" />
             </properties>
           </cache>
