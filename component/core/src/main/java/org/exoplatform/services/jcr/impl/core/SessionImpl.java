@@ -277,6 +277,8 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                                                                 PathNotFoundException,
                                                                                                 RepositoryException {
 
+    // TODO check pending changes from the Session.
+    // No reason of backup with pending changes.
     BaseXmlExporter exporter = new ExportImportFactory(this).getExportVisitor(XmlMapping.BACKUP, out, skipBinary, noRecurse);
 
     ItemData srcItemData = dataManager.getItemData(Constants.ROOT_UUID);
