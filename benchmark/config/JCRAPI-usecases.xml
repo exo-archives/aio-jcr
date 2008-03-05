@@ -5,8 +5,8 @@
   <param name="japex.plotGroupSize" value="5" />
   <param name="japex.resultUnit" value="tps" />
   <param name="japex.warmupIterations" value="0" />
-  <!--param name="japex.runIterations" value="1" /-->  
-  <param name="japex.runTime" value="02" />
+  <param name="japex.runIterations" value="100" />  
+  <!--param name="japex.runTime" value="03" /-->
   <!-- 10 for 10 sec -->
   <!-- 15:00 for 15min -->
 
@@ -21,13 +21,25 @@
     <param name="exo.jaasConf" value="login.conf" />
     <param name="exo.containerConf" value="../config/test-configuration-benchmark.xml" />
     <driver name="JCRdriver">
-      <param name="japex.numberOfThreads" value="2" />
+      <param name="japex.numberOfThreads" value="1" />
     </driver>
   </driverGroup>
 
-  <testCase name="AddNodeTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.AddNodeTest" />
+  <testCase name="NodeSaveTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.NodeSaveTest" />
   </testCase>
+
+  <!--testCase name="SetPropertyInputStreamTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.SetPropertyInputStreamTest" />
+  </testCase-->
+
+  <!--testCase name="SetPropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.SetPropertyTest" />
+  </testCase-->
+
+  <!--testCase name="AddNodeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.AddNodeTest" />
+  </testCase-->
 
   <!--testCase name="RestoreOwnNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.versioning.RestoreOwnNodeTest" />

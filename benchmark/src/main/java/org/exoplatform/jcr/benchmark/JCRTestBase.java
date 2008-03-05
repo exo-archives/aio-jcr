@@ -16,6 +16,9 @@
  */
 package org.exoplatform.jcr.benchmark;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
+
 import com.sun.japex.TestCase;
 
 /**
@@ -27,6 +30,8 @@ import com.sun.japex.TestCase;
 
 public abstract class JCRTestBase {
 
+  protected static Log log = ExoLogger.getLogger("jcr.benchmark");
+  
   /**
    * @param tc
    * @param context

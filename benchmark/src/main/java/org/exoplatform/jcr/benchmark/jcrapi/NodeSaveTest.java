@@ -4,6 +4,9 @@
  **************************************************************************/
 package org.exoplatform.jcr.benchmark.jcrapi;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.jcr.Node;
 import javax.jcr.Session;
 
@@ -14,24 +17,37 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
- * @author Vitaliy Obmanyuk
+ * 
+ * @author Vitaliy Obmanyuk <br>
+ *         The test measures performance of Session.save() method.
+ *         Session.save() method will save the items (items count is equals to
+ *         runIterations parameter) that have been created during prepare()
+ *         phase. Make sure runIterations parameter is set.
  */
 
-public class AddNodeTest extends JCRTestBase {
+public class NodeSaveTest extends JCRTestBase {
 
-  private Node rootNode = null;
-  
+  private List<Node> nodes        = new ArrayList<Node>();
+
+  private String     rootNodeName = null;
+
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     Session session = context.getSession();
-    rootNode = session.getRootNode().addNode(context.generateUniqueName("rootNode"));
-    session.save();
+    rootNodeName = context.generateUniqueName("rootNode");
+    Node rootNode = session.getRootNode().addNode(rootNodeName);
+    session.save();// parent node of this thread is saved
+    int runIterations = tc.getIntParam("japex.runIterations");
+    for (int i = 0; i < runIterations; i++) {
+      Node childNode = rootNode.addNode(context.generateUniqueName("childNode1"));
+      nodes.add(childNode);
+    }
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
     try {
-      rootNode.addNode(context.generateUniqueName("node"));
+      nodes.remove(0).getParent().save();// saving parent every time
     } catch (Throwable e) {
       e.printStackTrace();
     }
@@ -40,6 +56,7 @@ public class AddNodeTest extends JCRTestBase {
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
     Session session = context.getSession();
+    Node rootNode = session.getRootNode().getNode(rootNodeName);
     rootNode.remove();
     session.save();
   }
