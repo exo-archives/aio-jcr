@@ -36,18 +36,20 @@ public class NodeSaveTest extends JCRTestBase {
     Session session = context.getSession();
     rootNodeName = context.generateUniqueName("rootNode");
     Node rootNode = session.getRootNode().addNode(rootNodeName);
-    session.save();// parent node of this thread is saved
+    session.save();// root node of this thread is saved
     int runIterations = tc.getIntParam("japex.runIterations");
     for (int i = 0; i < runIterations; i++) {
-      Node childNode = rootNode.addNode(context.generateUniqueName("childNode1"));
-      nodes.add(childNode);
+      Node parentNode = rootNode.addNode(context.generateUniqueName("parentNode"));
+      session.save();
+      Node childNode = parentNode.addNode(context.generateUniqueName("childNode"));
+      nodes.add(parentNode);
     }
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
     try {
-      nodes.remove(0).getParent().save();// saving parent every time
+      nodes.remove(0).save();// saving parent every time
     } catch (Throwable e) {
       e.printStackTrace();
     }
