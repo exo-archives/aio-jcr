@@ -53,11 +53,7 @@ public class NodeSaveTest extends JCRTestBase {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    try {
       nodes.remove(0).save();// saving parent every time
-    } catch (Throwable e) {
-      e.printStackTrace();
-    }
   }
 
   @Override
