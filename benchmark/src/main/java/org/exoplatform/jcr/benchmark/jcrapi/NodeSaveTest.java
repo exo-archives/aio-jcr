@@ -31,19 +31,14 @@ public class NodeSaveTest extends JCRTestBase {
 
   private String           rootNodeName  = null;
 
-  private static final int RUNITERATIONS = 7222;
-
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    /*
-     * japex.runTime parameter should be 30 seconds
-     * 5555 iterations = 30seconds; 5555 + 30% = 7222 iterations
-     */
     Session session = context.getSession();
     rootNodeName = context.generateUniqueName("rootNode");
     Node rootNode = session.getRootNode().addNode(rootNodeName);
     session.save();// root node of this thread is saved
-    for (int i = 0; i < RUNITERATIONS; i++) {
+    int runIterations = tc.getIntParam("japex.runIterations");
+    for (int i = 0; i < runIterations; i++) {
       Node parentNode = rootNode.addNode(context.generateUniqueName("parentNode"));
       session.save();
       Node childNode = parentNode.addNode(context.generateUniqueName("childNode"));
