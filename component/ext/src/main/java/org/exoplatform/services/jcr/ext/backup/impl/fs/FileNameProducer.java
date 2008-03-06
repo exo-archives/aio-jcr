@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.ext.backup.impl.fs;
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  * Created by The eXo Platform SARL Author : Alex Reshetnyak
@@ -51,6 +50,8 @@ public class FileNameProducer {
     File nextFile = null;
 
     try {
+      // TODO use SimpleDateFormat
+      // String sTime = "-" + new SimpleDateFormat("yyyyMMdd_hhmmss").fprmat(timeStamp);
       String sTime = "-" + getStrDate(timeStamp) + "_" + getStrTime(timeStamp);
       
       backupSetDir = new File(serviceDir + File.separator + backupSetName + sTime);

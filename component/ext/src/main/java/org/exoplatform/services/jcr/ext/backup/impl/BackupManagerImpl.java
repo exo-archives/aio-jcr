@@ -250,6 +250,8 @@ public class BackupManagerImpl implements BackupManager, Startable {
             throw new BackupOperationException("Restore of full backup file I/O error " + e, e);
           }
         } else {
+          // TODO do we not restoring same content few times, i.e. on STARTING, WAITIG, FINISHED events
+          // which are logged in chan log one after another 
           try {
             incrementalRestore(list.get(i).getURL().getPath(), reposytoryName, workspaseName);
           } catch (FileNotFoundException e) {
