@@ -429,7 +429,7 @@
               <systemProperties>
                 <property>
                   <name>jcr.test.configuration.file</name>
-                  <value>/conf/standalone/test-configuration.xml</value>
+                  <value>${jcr.test.configuration.file}</value>
                 </property>
                 <property>
                   <name>emma.coverage.out.file</name>
@@ -484,7 +484,7 @@
               <systemProperties>
                 <property>
                   <name>jcr.test.configuration.file</name>
-                  <value>/conf/standalone/test-configuration.xml</value>
+                  <value>${jcr.test.configuration.file}</value>
                 </property>
               </systemProperties>
               <includes>
@@ -521,7 +521,7 @@
               <systemProperties>
                 <property>
                   <name>jcr.test.configuration.file</name>
-                  <value>/conf/standalone/test-configuration.xml</value>
+                  <value>${jcr.test.configuration.file}</value>
                 </property>
                 <property>
                   <name>emma.coverage.out.file</name>
@@ -597,4 +597,16 @@
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <property><name>default</name></property>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <jcr.test.configuration.file>/conf/standalone/test-configuration.xml</jcr.test.configuration.file>
+      </properties>
+    </profile>
+  </profiles>
 </project>
