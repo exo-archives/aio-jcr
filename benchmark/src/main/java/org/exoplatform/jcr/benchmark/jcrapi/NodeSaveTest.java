@@ -1,5 +1,5 @@
 /***************************************************************************
- * Copyright 2001-2008 The eXo Platform SARL         All rights reserved.  *
+ * Copyright 2001-2008 The eXo Platform SAS          All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
 package org.exoplatform.jcr.benchmark.jcrapi;
