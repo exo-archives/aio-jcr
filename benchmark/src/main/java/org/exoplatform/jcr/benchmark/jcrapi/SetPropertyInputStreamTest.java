@@ -44,11 +44,7 @@ public class SetPropertyInputStreamTest extends JCRTestBase {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    try {
       rootNode.setProperty(context.generateUniqueName("property"), new FileInputStream("../resources/benchmark.pdf"));
-    } catch (Throwable e) {
-      e.printStackTrace();
-    }
   }
 
   @Override

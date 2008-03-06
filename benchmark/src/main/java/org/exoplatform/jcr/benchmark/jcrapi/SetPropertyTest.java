@@ -42,11 +42,7 @@ public class SetPropertyTest extends JCRTestBase {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    try {
       rootNode.setProperty(context.generateUniqueName("property"), context.generateUniqueName("value"));
-    } catch (Throwable e) {
-      e.printStackTrace();
-    }
   }
 
   @Override
