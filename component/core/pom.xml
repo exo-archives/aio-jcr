@@ -454,6 +454,7 @@
                 <exclude>**/usecases/**/TestDateBetween.java</exclude>
                 <exclude>**/usecases/**/RemoveSameNameSiblingTest.java</exclude>
                 <exclude>**/usecases/BaseUsecasesTest.java</exclude>
+                <exclude>**/usecases/**/NodeIsModifiedTest.java</exclude>
                 <exclude>**/apache/**</exclude>
               </excludes>
             </configuration>
