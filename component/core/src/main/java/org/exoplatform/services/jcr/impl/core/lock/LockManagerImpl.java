@@ -217,8 +217,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
       if (lockData.isLive()) {
         if (lockData.isLockHolder(session.getId())) {
           if (lockData.isSessionScoped()) {
+              
             // if no session currently holds lock except this
-            if (lockData.getLockHolderSize() == 1) {
+//            if (lockData.getLockHolderSize() == 1) {  //removed   does not  match the specifications 
               try {
                 ((NodeImpl) session.getTransientNodesManager().getItemByIdentifier(lockData.getNodeIdentifier(), false)).unlock();
               } catch (UnsupportedRepositoryOperationException e) {
@@ -231,9 +232,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
                 log.error(e.getLocalizedMessage());
               }
 
-            } else {
-              lockData.removeLockHolder(session.getId());
-            }
+//            } else {
+//              lockData.removeLockHolder(session.getId());
+//            }
           } else {
             lockData.removeLockHolder(session.getId());
           }
