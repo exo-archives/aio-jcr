@@ -422,7 +422,7 @@ class DocOrderNodeDataIteratorImpl implements ScoreNodeIterator {
       while (inext == null && (ipos + 1) < identifiers.length) {
         try {
           //inext = getNode(identifiers[ipos + 1]);
-          inext = (NodeImpl) dataManager.getItemByIdentifier(identifiers[ipos + 1], false);
+          inext = (NodeImpl) dataManager.getItemByIdentifier(identifiers[ipos + 1], true);
         } catch (RepositoryException e) {
           log.warn("Exception retrieving Node with UUID: " + identifiers[ipos + 1] + ": " + e, e);
           invalid++;
