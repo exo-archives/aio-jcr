@@ -27,12 +27,15 @@ import com.sun.japex.TestCase;
 
 public class NodeSaveTest extends JCRTestBase {
 
-  private List<Node>       nodes         = new ArrayList<Node>();
+  private List<Node> parents      = new ArrayList<Node>();
 
-  private String           rootNodeName  = null;
+  private List<Node> parents2     = new ArrayList<Node>();
+
+  private String     rootNodeName = null;
 
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
+    long start = System.currentTimeMillis();
     Session session = context.getSession();
     rootNodeName = context.generateUniqueName("rootNode");
     Node rootNode = session.getRootNode().addNode(rootNodeName);
@@ -41,14 +44,20 @@ public class NodeSaveTest extends JCRTestBase {
     for (int i = 0; i < runIterations; i++) {
       Node parentNode = rootNode.addNode(context.generateUniqueName("parentNode"));
       session.save();
-      Node childNode = parentNode.addNode(context.generateUniqueName("childNode"));
-      nodes.add(parentNode);
+      parents.add(parentNode);
     }
+    for (int i = 0; i < runIterations; i++) {
+      Node parentNode = parents.remove(0);
+      parentNode.addNode(context.generateUniqueName("childNode"));
+      parents2.add(parentNode);
+    }
+    long end = System.currentTimeMillis();
+    log.info("prepare method took: " + (end - start) + " ms");
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-      nodes.remove(0).save();// saving parent every time
+    parents2.remove(0).save();
   }
 
   @Override

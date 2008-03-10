@@ -4,6 +4,9 @@
  **************************************************************************/
 package org.exoplatform.jcr.benchmark.jcrapi;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.jcr.Node;
 import javax.jcr.Session;
 
@@ -18,20 +21,32 @@ import com.sun.japex.TestCase;
  * @author Vitaliy Obmanyuk
  */
 
-public class AddNodeTest extends JCRTestBase {
+public class GetNodeTest extends JCRTestBase {
 
-  private Node rootNode = null;
+  private Node         rootNode      = null;
+
+  private int          RUNITERATIONS = 0;
+
+  private List<String> names         = new ArrayList<String>();
 
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
+    RUNITERATIONS = tc.getIntParam("japex.runIterations");
     Session session = context.getSession();
     rootNode = session.getRootNode().addNode(context.generateUniqueName("rootNode"));
+    session.save();
+    for (int i = 0; i < RUNITERATIONS; i++) {
+      String name = context.generateUniqueName("testNode");
+      rootNode.addNode(name);
+      names.add(name);
+    }
     session.save();
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    rootNode.addNode(context.generateUniqueName("node"));
+    String name = names.remove(0);
+    rootNode.getNode(name);
   }
 
   @Override

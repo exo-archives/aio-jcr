@@ -16,7 +16,8 @@
  */
 package org.exoplatform.jcr.benchmark.jcrapi;
 
-import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.Session;
@@ -28,23 +29,36 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
-public class SetPropertyInputStreamTest extends JCRTestBase {
+public class GetPropertyTest extends JCRTestBase {
 
-  private Node rootNode = null;
+  private Node         rootNode      = null;
+
+  private int          RUNITERATIONS = 0;
+
+  private List<String> names         = new ArrayList<String>();
 
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
+    RUNITERATIONS = tc.getIntParam("japex.runIterations");
     Session session = context.getSession();
     rootNode = session.getRootNode().addNode(context.generateUniqueName("rootNode"));
+    session.save();
+    for (int i = 0; i < RUNITERATIONS; i++) {
+      String name = context.generateUniqueName("property");
+      String value = context.generateUniqueName("value");
+      rootNode.setProperty(name, value);
+      names.add(name);
+    }
     session.save();
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-      rootNode.setProperty(context.generateUniqueName("property"), new FileInputStream("../resources/benchmark.pdf"));
+    rootNode.getProperty(names.remove(0)).getStream();
   }
 
   @Override
