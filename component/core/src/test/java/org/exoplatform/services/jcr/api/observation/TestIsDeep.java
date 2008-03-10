@@ -56,15 +56,8 @@ public class TestIsDeep extends JcrAPIBaseTest {
     Integer counter = 0;
     SimpleListener listener = new SimpleListener("IsDeepFalseNodeAdd", log, counter);
     
-//    workspace.getObservationManager().addEventListener(listener, 
-//        Event.NODE_ADDED, testObservation.getPath() + "/n1", false, null, null, false);
-    
-    //Hoa Pham comment: We need review logic here: I registered the event add testObservation node, so when I use 
-    //testObservationNode.addNode("n1"), the registered NODE_ADDED event will be triggered
-    //Because when user use this feature, the user want to observe node testObservationNode but is not "n1" Node
-        
     workspace.getObservationManager().addEventListener(listener, 
-        Event.NODE_ADDED, testObservation.getPath(), false, null, null, false);
+        Event.NODE_ADDED, testObservation.getPath() + "/n1", false, null, null, false);
     
     Node n1 = testObservation.addNode("n1"); // /testObservation/n1
     Node n1n2 = n1.addNode("n2"); // /testObservation/n1/n2
