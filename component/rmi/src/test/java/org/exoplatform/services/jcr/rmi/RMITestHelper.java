@@ -1,29 +1,20 @@
-/***************************************************************************
- * Copyright 2001-2007 The eXo Platform SAS         All rights reserved.  *
- * Please look at license.txt in info directory for more license detail.   *
- **************************************************************************/
-package org.exoplatform.services.jcr.rmi;
-
-import java.net.MalformedURLException;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-
-import javax.jcr.Credentials;
-import javax.jcr.LoginException;
-import javax.jcr.NoSuchWorkspaceException;
-import javax.jcr.Node;
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
-
-import org.exoplatform.services.jcr.rmi.api.client.ClientRepositoryFactory;
-
-/**
- * Created by The eXo Platform SAS
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  * 
- * @Author : Sergey Kabashnyuk
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 public class RMITestHelper {
   public static final String STUB_IMPL_PROPS = "repositoryStubImpl.properties";
 
