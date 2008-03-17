@@ -449,6 +449,7 @@
                 <exclude>**/impl/**/TestSaveConfiguration.java</exclude>
                 <exclude>**/impl/**/ValueStoragePluginTest.java</exclude>
                 <exclude>**/impl/**/TestWorkspaceRestore.java</exclude>
+                <exclude>**/impl/**/TestSessionCleaner.java</exclude>
                 <exclude>**/impl/**/Base*.java</exclude>
                 <exclude>**/api/TestAll.java</exclude>
                 <exclude>**/usecases/**/TestDateBetween.java</exclude>
