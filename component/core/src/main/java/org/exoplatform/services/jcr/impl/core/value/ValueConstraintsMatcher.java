@@ -374,7 +374,7 @@ public class ValueConstraintsMatcher {
         invalid = maxInvalid | minInvalid;
       }
     } else if (type == PropertyType.BOOLEAN) {
-      // JCR-283, 4.7.17.6 BOOLEAN has no Constraint
+      // JSR-283, 4.7.17.6 BOOLEAN has no Constraint
       invalid = false;
     }
     
