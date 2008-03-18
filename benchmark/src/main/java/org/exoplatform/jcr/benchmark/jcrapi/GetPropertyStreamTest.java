@@ -18,13 +18,9 @@ package org.exoplatform.jcr.benchmark.jcrapi;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.jcr.Node;
-import javax.jcr.Session;
 
-import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
 
 import com.sun.japex.TestCase;
@@ -33,41 +29,26 @@ import com.sun.japex.TestCase;
  * Created by The eXo Platform SAS
  * 
  * @author Vitaliy Obmanyuk
+ * 
+ * @version $Id: SetPropertyTest.java 11582 2008-03-04 16:49:40Z pnedonosko $
  */
 
-public class GetPropertyStreamTest extends JCRTestBase {
-
-  private Node         rootNode      = null;
-
-  private int          RUNITERATIONS = 0;
-
-  private List<String> names         = new ArrayList<String>();
+public class GetPropertyStreamTest extends AbstractGetItemTest {
 
   @Override
-  public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    RUNITERATIONS = tc.getIntParam("japex.runIterations");
-    Session session = context.getSession();
-    rootNode = session.getRootNode().addNode(context.generateUniqueName("rootNode"));
-    session.save();
-    for (int i = 0; i < RUNITERATIONS; i++) {
-      String name = context.generateUniqueName("property");
-      InputStream value = new FileInputStream("../resources/benchmark.pdf");
-      rootNode.setProperty(name, value);
-      names.add(name);
+  protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
+    String pname = context.generateUniqueName("property");
+    InputStream value = new FileInputStream("../resources/benchmark.pdf");
+    try {
+      parent.setProperty(pname, value);
+      names.add(parent.getName() + "/" + pname);
+    } finally {
+      value.close();
     }
-    session.save();
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    rootNode.getProperty(names.remove(0)).getStream();
+    rootNode.getProperty(names.poll()).getStream();
   }
-
-  @Override
-  public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
-    Session session = context.getSession();
-    rootNode.remove();
-    session.save();
-  }
-
 }

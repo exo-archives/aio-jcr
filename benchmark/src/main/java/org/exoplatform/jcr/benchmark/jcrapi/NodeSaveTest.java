@@ -4,8 +4,7 @@
  **************************************************************************/
 package org.exoplatform.jcr.benchmark.jcrapi;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.jcr.Node;
 import javax.jcr.Session;
@@ -18,18 +17,18 @@ import com.sun.japex.TestCase;
 /**
  * Created by The eXo Platform SAS
  * 
- * @author Vitaliy Obmanyuk <br>
- *         The test measures performance of Session.save() method.
+ * The test measures performance of Session.save() method.
  *         Session.save() method will save the items (items count is equals to
  *         runIterations parameter) that have been created during prepare()
  *         phase. Make sure runIterations parameter is set.
+ * 
+ * @author Vitaliy Obmanyuk <br>
+ * @version $Id: NodeSaveTest.java 11582 2008-03-04 16:49:40Z pnedonosko $
  */
 
 public class NodeSaveTest extends JCRTestBase {
 
-  private List<Node> parents      = new ArrayList<Node>();
-
-  private List<Node> parents2     = new ArrayList<Node>();
+  protected ConcurrentLinkedQueue<Node> parents = new ConcurrentLinkedQueue<Node>(); // Queue
 
   private String     rootNodeName = null;
 
@@ -40,16 +39,16 @@ public class NodeSaveTest extends JCRTestBase {
     rootNodeName = context.generateUniqueName("rootNode");
     Node rootNode = session.getRootNode().addNode(rootNodeName);
     session.save();// root node of this thread is saved
+    
     int runIterations = tc.getIntParam("japex.runIterations");
+    
     for (int i = 0; i < runIterations; i++) {
-      Node parentNode = rootNode.addNode(context.generateUniqueName("parentNode"));
-      session.save();
-      parents.add(parentNode);
-    }
-    for (int i = 0; i < runIterations; i++) {
-      Node parentNode = parents.remove(0);
-      parentNode.addNode(context.generateUniqueName("childNode"));
-      parents2.add(parentNode);
+      Node parent = rootNode.addNode(context.generateUniqueName("parentNode"));
+      rootNode.save();
+      
+      // add unsaved parent
+      parent.addNode(context.generateUniqueName("childNode"));
+      parents.add(parent);
     }
     long end = System.currentTimeMillis();
     log.info("prepare method took: " + (end - start) + " ms");
@@ -57,15 +56,18 @@ public class NodeSaveTest extends JCRTestBase {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    parents2.remove(0).save();
+    // save unsaved parent
+    parents.poll().save();
   }
 
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
     Session session = context.getSession();
+    session.refresh(false);
     Node rootNode = session.getRootNode().getNode(rootNodeName);
     rootNode.remove();
     session.save();
+    parents.clear();
   }
 
 }

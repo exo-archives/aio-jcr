@@ -17,11 +17,8 @@
 package org.exoplatform.jcr.benchmark.jcrapi;
 
 import java.io.FileInputStream;
+import java.io.InputStream;
 
-import javax.jcr.Node;
-import javax.jcr.Session;
-
-import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
 
 import com.sun.japex.TestCase;
@@ -29,29 +26,19 @@ import com.sun.japex.TestCase;
 /**
  * Created by The eXo Platform SAS
  * @author Vitaliy Obmanyuk
+ * 
+ * @version $Id: SetPropertyStreamTest.java 11582 2008-03-04 16:49:40Z pnedonosko $
  */
 
-public class SetPropertyStreamTest extends JCRTestBase {
-
-  private Node rootNode = null;
-
-  @Override
-  public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    Session session = context.getSession();
-    rootNode = session.getRootNode().addNode(context.generateUniqueName("rootNode"));
-    session.save();
-  }
+public class SetPropertyStreamTest extends AbstractAddItemTest {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-      rootNode.setProperty(context.generateUniqueName("property"), new FileInputStream("../resources/benchmark.pdf"));
+    InputStream is = new FileInputStream("../resources/benchmark.pdf");
+    try {
+      nextParent().setProperty(context.generateUniqueName("property"), is);
+    } finally {
+      is.close();
+    }
   }
-
-  @Override
-  public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
-    Session session = context.getSession();
-    rootNode.remove();
-    session.save();
-  }
-
 }
