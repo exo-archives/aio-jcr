@@ -16,9 +16,12 @@
  */
 package org.exoplatform.jcr.benchmark.jcrapi;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.Session;
 
 import org.exoplatform.jcr.benchmark.JCRTestBase;
@@ -37,13 +40,13 @@ public abstract class AbstractGetItemTest extends JCRTestBase {
 
   protected Node         rootNode      = null;
 
-  protected int          runIterations = 0;
-
-  protected ConcurrentLinkedQueue<String> names = new ConcurrentLinkedQueue<String>(); // Queue
+  private List<String> names = new ArrayList<String>();
+  
+  private volatile int iteration = 0;
 
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    runIterations = tc.getIntParam("japex.runIterations");
+    int runIterations = tc.getIntParam("japex.runIterations");
     
     if (runIterations <= 0)
       throw new Exception("japex.runIterations should be a positive number, but " + runIterations);
@@ -56,25 +59,40 @@ public abstract class AbstractGetItemTest extends JCRTestBase {
     rootNode.save();
     
     for (int i = 0; i < runIterations; i++) {
+      createContent(parent, tc, context);
+      
       if (i % 100 == 0) {
         // add 100 props and commit, 
         rootNode.save();
         // change the parent parent
         parent = rootNode.addNode(context.generateUniqueName("node"));
       }
-      
-      createContent(parent, tc, context);
     }
     session.save();
   }
 
+  protected String nextName() {
+    return names.get(iteration++);
+  }
+  
+  protected void addName(String name) {
+    names.add(name);
+  }
+  
   protected abstract void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception;
   
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
     rootNode.refresh(false);
+    
+    for (NodeIterator nodes = rootNode.getNodes(); nodes.hasNext();) {
+      nodes.nextNode().remove();
+      rootNode.save();
+    }
+    
     rootNode.remove();
     context.getSession().save();
+    
     names.clear();
   }
 

@@ -4,6 +4,8 @@
  **************************************************************************/
 package org.exoplatform.jcr.benchmark.jcrapi;
 
+import javax.jcr.Node;
+
 import org.exoplatform.jcr.benchmark.JCRTestContext;
 
 import com.sun.japex.TestCase;
@@ -17,6 +19,11 @@ import com.sun.japex.TestCase;
  */
 
 public class AddNodeTest extends AbstractAddItemTest {
+
+  @Override
+  protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
+    // do nothing
+  }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {

@@ -37,11 +37,11 @@ public class GetPropertyTest extends AbstractGetItemTest {
     String pname = context.generateUniqueName("property");
     String value = context.generateUniqueName("value");
     parent.setProperty(pname, value);
-    names.add(parent.getName() + "/" + pname);
+    addName(parent.getName() + "/" + pname);
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    rootNode.getProperty(names.poll()).getStream();
+    rootNode.getProperty(nextName()).getStream();
   }
 }

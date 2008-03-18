@@ -24,12 +24,12 @@ public class GetNodeTest extends AbstractGetItemTest {
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
     String nname = context.generateUniqueName("testNode");
     parent.addNode(nname);
-    names.add(parent.getName() + "/" + nname);
+    addName(parent.getName() + "/" + nname);
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    rootNode.getNode(names.poll());
+    rootNode.getNode(nextName());
   }
 
 }

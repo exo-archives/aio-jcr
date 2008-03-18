@@ -26,7 +26,7 @@ import com.sun.japex.TestCase;
 
 public abstract class AbstractAddItemTest extends JCRTestBase {
 
-  private List<Node> parents = new ArrayList<Node>(); // Queue
+  private List<Node> parents = new ArrayList<Node>();
   
   private volatile int iteration = 0; 
 
@@ -46,6 +46,9 @@ public abstract class AbstractAddItemTest extends JCRTestBase {
     for (int i = 0; i < runIterations; i++) {
       parents.add(parent);
       
+      // create additional content of the parent node
+      createContent(parent, tc, context);
+      
       if (i % 100 == 0) {
         // each parent will has no more 100 child nodes
         parent = rootNode.addNode(context.generateUniqueName("parentNode"));
@@ -56,6 +59,8 @@ public abstract class AbstractAddItemTest extends JCRTestBase {
     rootNode.save();
   }
 
+  protected abstract void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception;
+  
   protected Node nextParent() {
     return parents.get(iteration++);
   }

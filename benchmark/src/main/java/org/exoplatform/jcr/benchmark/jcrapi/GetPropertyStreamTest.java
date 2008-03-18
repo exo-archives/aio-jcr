@@ -41,7 +41,7 @@ public class GetPropertyStreamTest extends AbstractGetItemTest {
     InputStream value = new FileInputStream("../resources/benchmark.pdf");
     try {
       parent.setProperty(pname, value);
-      names.add(parent.getName() + "/" + pname);
+      addName(parent.getName() + "/" + pname);
     } finally {
       value.close();
     }
@@ -49,6 +49,6 @@ public class GetPropertyStreamTest extends AbstractGetItemTest {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    rootNode.getProperty(names.poll()).getStream();
+    rootNode.getProperty(nextName()).getStream();
   }
 }
