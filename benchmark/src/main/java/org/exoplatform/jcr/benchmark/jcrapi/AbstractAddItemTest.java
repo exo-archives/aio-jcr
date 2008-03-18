@@ -44,7 +44,7 @@ public abstract class AbstractAddItemTest extends JCRTestBase {
     rootNode.save();
     
     for (int i = 0; i < runIterations; i++) {
-      parents.add(parent);
+      addParent(parent);
       
       // create additional content of the parent node
       createContent(parent, tc, context);
@@ -63,6 +63,10 @@ public abstract class AbstractAddItemTest extends JCRTestBase {
   
   protected Node nextParent() {
     return parents.get(iteration++);
+  }
+  
+  protected void addParent(Node parent) {
+    parents.add(parent);
   }
   
   @Override

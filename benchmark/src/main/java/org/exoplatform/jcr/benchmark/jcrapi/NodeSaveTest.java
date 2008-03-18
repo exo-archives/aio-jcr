@@ -4,7 +4,11 @@
  **************************************************************************/
 package org.exoplatform.jcr.benchmark.jcrapi;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.jcr.Node;
+import javax.jcr.Session;
 
 import org.exoplatform.jcr.benchmark.JCRTestContext;
 
@@ -24,6 +28,31 @@ import com.sun.japex.TestCase;
 
 public class NodeSaveTest extends AbstractAddItemTest {
 
+  @Override
+  public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
+    Session session = context.getSession();
+    String rootNodeName = context.generateUniqueName("rootNode");
+    rootNode = session.getRootNode().addNode(rootNodeName);
+    session.save();
+    
+    int runIterations = tc.getIntParam("japex.runIterations");
+    
+    List<Node> parents = new ArrayList<Node>();
+    for (int i = 0; i < runIterations; i++) {
+      Node parent = rootNode.addNode(context.generateUniqueName("parentNode"));
+      rootNode.save();
+      parents.add(parent);
+    }
+    
+    for (Node parent: parents) {
+      // add unsaved parent childs
+      parent.addNode(context.generateUniqueName("childNode-1"));
+      parent.addNode(context.generateUniqueName("childNode-2"));
+      parent.setProperty(context.generateUniqueName("property"), context.generateUniqueName("value"));
+      addParent(parent);
+    }
+  }
+  
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
     // add unsaved child to the parent
