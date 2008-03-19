@@ -42,6 +42,11 @@
               <property name="indexDir" value="target/temp/index"/>
             </properties>
           </query-handler>
+          <access-manager class="org.exoplatform.services.jcr.ext.access.DenyAccessManager">
+          <properties>
+           <property name="name" value="deny"/>
+           </properties>
+          </access-manager>
         </workspace>
         <workspace name="ws1" auto-init-root-nodetype="nt:unstructured">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">

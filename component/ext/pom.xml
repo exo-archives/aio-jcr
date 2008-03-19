@@ -139,14 +139,14 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <testFailureIgnore>${exo.test.failure.ignore}</testFailureIgnore>
-          <forkMode>${exo.test.forkmode}</forkMode>
+          <forkMode>never</forkMode>
           <includes>
             <include>**/actions/*Test.java</include>
             <include>**/metadata/*Test.java</include>
             <include>**/owner/*Test.java</include>
             <include>**/audit/*Test.java</include>
             <include>**/registry/*Test.java</include>
-            <!--include>**/access/*.java</include-->
+            <include>**/access/*.java</include>
 	        <include>**/replication/Test*.java</include>
             <!--include>**/backup/TestBackupScheduler.java</include>
             <include>**/backup/TestBackupManager.java</include-->
@@ -156,7 +156,6 @@
             <exclude>**/BaseStandaloneTest.java</exclude>
             <exclude>**/replication/*.java</exclude>
             <exclude>**/backup/*.java</exclude>
-            <exclude>**/access/*.java</exclude>
           </excludes>
         </configuration>
       </plugin>

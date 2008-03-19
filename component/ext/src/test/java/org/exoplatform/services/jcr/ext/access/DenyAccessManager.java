@@ -35,8 +35,10 @@ import org.exoplatform.services.organization.auth.AuthenticationService;
 public class DenyAccessManager extends AccessManager {
   private String denyName = "";
 
-  public DenyAccessManager(RepositoryEntry config, WorkspaceEntry wsConfig, AuthenticationService authService) throws RepositoryException,
-                                                                                                              RepositoryConfigurationException {
+  public DenyAccessManager(RepositoryEntry config,
+                           WorkspaceEntry wsConfig,
+                           AuthenticationService authService) throws RepositoryException,
+      RepositoryConfigurationException {
     super(config, wsConfig, authService);
     this.denyName = wsConfig.getAccessManager().getParameterValue("name");
 
@@ -60,9 +62,13 @@ public class DenyAccessManager extends AccessManager {
               log.debug("DenyAccessManager permission deny by rool name='" + denyName + "'");
             return false;
           }
+          return true;
+
         }
-      } else
-        log.warn("Context = null");
+      } else {
+        log.debug("Context = null");
+        return true;
+      }
     }
     return false;
   }

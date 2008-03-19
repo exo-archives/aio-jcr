@@ -189,7 +189,7 @@ public class TestAccessContext extends BaseStandaloneTest {
         systemSession = repository.getSystemSession();
         adminSession = repository.getSystemSession();
         userSession = repository.login(credentials,"ws");
-        log.info("Thread created");
+        log.debug("Thread created");
       } catch (Exception e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
