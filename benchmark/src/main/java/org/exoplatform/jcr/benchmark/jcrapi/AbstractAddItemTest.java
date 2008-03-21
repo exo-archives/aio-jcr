@@ -40,23 +40,19 @@ public abstract class AbstractAddItemTest extends JCRTestBase {
     
     int runIterations = tc.getIntParam("japex.runIterations");
     
-    Node parent = rootNode.addNode(context.generateUniqueName("parentNode"));
-    rootNode.save();
+    Node parent = null;
     
-    for (int i = 0; i < runIterations; i++) {
-      addParent(parent);
-      
-      // create additional content of the parent node
-      createContent(parent, tc, context);
-      
+    for (int i = 0; i < runIterations; i++) {      
       if (i % 100 == 0) {
         // each parent will has no more 100 child nodes
         parent = rootNode.addNode(context.generateUniqueName("parentNode"));
         rootNode.save();
       }
+      addParent(parent);      
+      // create additional content of the parent node
+      createContent(parent, tc, context);
     }
     
-    rootNode.save();
   }
 
   protected abstract void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception;
