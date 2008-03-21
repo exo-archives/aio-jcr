@@ -139,7 +139,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <testFailureIgnore>${exo.test.failure.ignore}</testFailureIgnore>
-          <forkMode>never</forkMode>
+          <forkMode>${exo.test.forkmode}</forkMode>
           <includes>
             <include>**/actions/*Test.java</include>
             <include>**/metadata/*Test.java</include>
