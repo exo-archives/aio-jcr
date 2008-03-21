@@ -55,18 +55,16 @@ public abstract class AbstractGetItemTest extends JCRTestBase {
     rootNode = session.getRootNode().addNode(context.generateUniqueName("rootNode"));
     session.save();
     
-    Node parent = rootNode.addNode(context.generateUniqueName("node"));
-    rootNode.save();
+    Node parent = null;
     
     for (int i = 0; i < runIterations; i++) {
-      createContent(parent, tc, context);
-      
       if (i % 100 == 0) {
         // add 100 props and commit, 
         rootNode.save();
         // change the parent parent
         parent = rootNode.addNode(context.generateUniqueName("node"));
       }
+      createContent(parent, tc, context);
     }
     session.save();
   }
