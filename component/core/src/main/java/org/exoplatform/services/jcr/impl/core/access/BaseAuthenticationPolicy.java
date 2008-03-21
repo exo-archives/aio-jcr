@@ -83,8 +83,8 @@ abstract public class BaseAuthenticationPolicy implements AuthenticationPolicy {
   
   private void doAuthentication(CredentialsImpl credentials) throws LoginException {
 
-    // SYSTEM
-    if (credentials.getUserID().equals(SystemIdentity.SYSTEM))
+  // SYSTEM  AND ANONYM
+    if (credentials.getUserID().equals(SystemIdentity.SYSTEM) || credentials.getUserID().equals(SystemIdentity.ANONIM))
       return;
 
     // prepare to new login

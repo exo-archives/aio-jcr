@@ -62,7 +62,7 @@ public class TestLock extends JcrAPIBaseTest {
    * @throws RepositoryException
    */
   public void testLock() throws RepositoryException {
-    Session session1 = repository.login(new CredentialsImpl("root", "exo".toCharArray()), "ws");
+    Session session1 = repository.login(new CredentialsImpl("exo", "exo".toCharArray()), "ws");
     Node nodeToLockSession1 = session1.getRootNode().addNode("testLockSesssionScoped");
     nodeToLockSession1.addMixin("mix:lockable");
     session1.save();
@@ -72,7 +72,7 @@ public class TestLock extends JcrAPIBaseTest {
     session1.save();
     
     // try change property from another session
-    Session session2 = repository.login(new CredentialsImpl("john", "exo".toCharArray()), "ws");
+    Session session2 = repository.login(new CredentialsImpl("exo1", "exo1".toCharArray()), "ws");
     Node nodeToLockSession2 = session2.getRootNode().getNode("testLockSesssionScoped");
     assertEquals(true, nodeToLockSession2.isLocked());
     try {
@@ -108,7 +108,7 @@ public class TestLock extends JcrAPIBaseTest {
    * @throws RepositoryException
    */
   public void testLockSesssionScoped() throws RepositoryException {
-    Session session1 = repository.login(new CredentialsImpl("root", "exo".toCharArray()), "ws");
+    Session session1 = repository.login(new CredentialsImpl("exo", "exo".toCharArray()), "ws");
     Node nodeToLockSession1 = session1.getRootNode().addNode("testLockSesssionScoped");
     nodeToLockSession1.addMixin("mix:lockable");
     session1.save();
@@ -118,7 +118,7 @@ public class TestLock extends JcrAPIBaseTest {
     session1.save();
     
     // try change property from another session
-    Session session2 = repository.login(new CredentialsImpl("john", "exo".toCharArray()), "ws");
+    Session session2 = repository.login(new CredentialsImpl("exo1", "exo1".toCharArray()), "ws");
     Node nodeToLockSession2 = session2.getRootNode().getNode("testLockSesssionScoped");
     assertEquals(true, nodeToLockSession2.isLocked());
     try {
@@ -191,7 +191,7 @@ public class TestLock extends JcrAPIBaseTest {
     String lockToken = lock.getLockToken();
     session1.logout();
     //
-    Session session2 = repository.login(new CredentialsImpl("john", "exo".toCharArray()), "ws");
+    Session session2 = repository.login(new CredentialsImpl("exo", "exo".toCharArray()), "ws");
     Node nodeToLockSession2 = session2.getRootNode().getNode("nodeToLockSession1");
     assertEquals(true, nodeToLockSession2.isLocked());
     session2.addLockToken(lockToken);
@@ -336,3 +336,4 @@ public class TestLock extends JcrAPIBaseTest {
     }
   }
 }
+
