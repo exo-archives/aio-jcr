@@ -54,7 +54,9 @@ public abstract class AccessManager {
 
   private static ThreadLocal<InvocationContext> contextHolder = new ThreadLocal<InvocationContext>();
 
-  protected AccessManager(RepositoryEntry config, WorkspaceEntry wsConfig, AuthenticationService authService) throws RepositoryException {
+  protected AccessManager(RepositoryEntry config,
+                          WorkspaceEntry wsConfig,
+                          AuthenticationService authService) throws RepositoryException {
     this.parameters = new HashMap<String, String>();
     if (wsConfig != null && wsConfig.getAccessManager() != null) {
       List<SimpleParameterEntry> paramList = wsConfig.getAccessManager().getParameters();
@@ -97,13 +99,20 @@ public abstract class AccessManager {
     } else if (userId.equals(acl.getOwner())) {
       // Current user is owner of node so has all privileges
       return true;
-    } else if (userId.equals(SystemIdentity.ANONIM) && (permission.length > 1 || !permission[0].equals(PermissionType.READ))) {
-      // Anonim does not have WRITE permission even for ANY
+    } else if (userId.equals(SystemIdentity.ANONIM)) {
+      if (permission.length == 1 && permission[0].equals(PermissionType.READ)) {
+        List<String> anyPermissions = acl.getPermissions(SystemIdentity.ANY);
+        for (String anypermission : anyPermissions) {
+          if (PermissionType.READ.equals(anypermission))
+            return true;
+        }
+      }
       return false;
     } else {
       // Check Other with Org service
       for (AccessControlEntry ace : acl.getPermissionEntries()) {
-        if (isUserMatch(ace.getIdentity(), userId) && isPermissionMatch(ace.getPermission(), permission))
+        if (isUserMatch(ace.getIdentity(), userId)
+            && isPermissionMatch(ace.getPermission(), permission))
           return true;
       }
     }
@@ -133,7 +142,8 @@ public abstract class AccessManager {
    */
   private boolean checkMembershipInIdentity(String userId, String membershipName, String groupName) {
     if (log.isDebugEnabled())
-      log.debug("Check of user " + userId + " " + membershipName + " membership in group " + groupName);
+      log.debug("Check of user " + userId + " " + membershipName + " membership in group "
+          + groupName);
 
     try {
       Identity ident = authService.getIdentityBySessionId(userId);
@@ -166,7 +176,10 @@ public abstract class AccessManager {
     // group
     Iterator groups;
     try {
-      groups = authService.getOrganizationService().getGroupHandler().findGroupsOfUser(userId).iterator();
+      groups = authService.getOrganizationService()
+                          .getGroupHandler()
+                          .findGroupsOfUser(userId)
+                          .iterator();
     } catch (Exception e) {
       log.error("AccessManager.checkMembershipInOrgService() failed " + e);
       return false;
@@ -177,21 +190,23 @@ public abstract class AccessManager {
       while (groups.hasNext()) {
         Group group = (Group) groups.next();
         if (log.isDebugEnabled())
-          log.debug("Check of user " + userId + " membership. Test if " + groupName + " == " + group.getId() + " "
-              + groupName.equals(group.getId()));
+          log.debug("Check of user " + userId + " membership. Test if " + groupName + " == "
+              + group.getId() + " " + groupName.equals(group.getId()));
         if (groupName.equals(group.getId()))
           return true;
       }
 
     } else {
       try {
-        Collection memberships =
-            authService.getOrganizationService().getMembershipHandler().findMembershipsByUserAndGroup(userId, groupName);
+        Collection memberships = authService.getOrganizationService()
+                                            .getMembershipHandler()
+                                            .findMembershipsByUserAndGroup(userId, groupName);
         for (Object obj : memberships) {
           Membership membership = (Membership) obj;
           if (log.isDebugEnabled())
             log.debug("Check of user " + userId + " membership. Test if " + membershipName + " == "
-                + membership.getMembershipType() + " " + membership.getMembershipType().equals(membershipName));
+                + membership.getMembershipType() + " "
+                + membership.getMembershipType().equals(membershipName));
           if (membership.getMembershipType().equals(membershipName))
             return true;
         }
