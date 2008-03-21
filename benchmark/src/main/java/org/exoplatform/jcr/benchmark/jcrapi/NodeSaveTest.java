@@ -30,8 +30,9 @@ public class NodeSaveTest extends AbstractAddItemTest {
 
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
-    // add unsaved child to the parent
-    parent.addNode(context.generateUniqueName("childNode"));
+    // add unsaved child items to the parent
+    parent.addNode(context.generateUniqueName("childNode1"));
+    parent.addNode(context.generateUniqueName("childNode2"));
   }
   
   @Override
