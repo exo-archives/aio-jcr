@@ -15,7 +15,7 @@ import com.sun.japex.TestCase;
  * @author Vitaliy Obmanyuk
  */
 
-public class LockNodeTest extends AbstractGetItemTest {
+public class NodeLockTest extends AbstractGetItemTest {
 
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {

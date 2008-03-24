@@ -25,12 +25,12 @@
     </driver>
   </driverGroup>
 
-  <testCase name="UnlockNodeTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.UnlockNodeTest" />
+  <testCase name="NodeUnlockTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.NodeUnlockTest" />
   </testCase>
 
-  <!--testCase name="LockNodeTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.LockNodeTest" />
+  <!--testCase name="NodeLockTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.NodeLockTest" />
   </testCase>
 
   <testCase name="GetPropertyStreamTest">
