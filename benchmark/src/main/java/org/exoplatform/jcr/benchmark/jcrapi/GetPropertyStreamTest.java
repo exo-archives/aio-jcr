@@ -33,7 +33,7 @@ import com.sun.japex.TestCase;
  * @version $Id: SetPropertyTest.java 11582 2008-03-04 16:49:40Z pnedonosko $
  */
 
-public class GetPropertyStreamTest extends AbstractGetItemTest {
+public class GetPropertyStreamTest extends AbstractGetItemNameTest {
 
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {

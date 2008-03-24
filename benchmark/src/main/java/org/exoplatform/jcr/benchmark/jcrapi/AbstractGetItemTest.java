@@ -18,13 +18,9 @@ package org.exoplatform.jcr.benchmark.jcrapi;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.Session;
 
-import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
 
 import com.sun.japex.TestCase;
@@ -36,73 +32,25 @@ import com.sun.japex.TestCase;
  * @version $Id$
  */
 
-public abstract class AbstractGetItemTest extends JCRTestBase {
-
-  protected Node       rootNode  = null;
-
-  private List<String> names     = new ArrayList<String>();
+public abstract class AbstractGetItemTest extends AbstractItemsTest {
 
   private List<Node>   nodes     = new ArrayList<Node>();
 
   private volatile int iteration = 0;
 
-  @Override
-  public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    int runIterations = tc.getIntParam("japex.runIterations");
-
-    if (runIterations <= 0)
-      throw new Exception("japex.runIterations should be a positive number, but " + runIterations);
-
-    Session session = context.getSession();
-    rootNode = session.getRootNode().addNode(context.generateUniqueName("rootNode"));
-    session.save();
-
-    Node parent = null;
-
-    for (int i = 0; i < runIterations; i++) {
-      if (i % 100 == 0) {
-        // add 100 props and commit,
-        rootNode.save();
-        // change the parent parent
-        parent = rootNode.addNode(context.generateUniqueName("node"));
-      }
-      createContent(parent, tc, context);
-    }
-    session.save();
-  }
-
-  protected String nextName() {
-    return names.get(iteration++);
-  }
-
   protected Node nextNode() {
     return nodes.get(iteration++);
   }
 
-  protected void addName(String name) {
-    names.add(name);
-  }
-
-  protected void putNode(Node node) {
+  protected void addNode(Node node) {
     nodes.add(node);
   }
 
-  protected abstract void createContent(Node parent, TestCase tc, JCRTestContext context)
-      throws Exception;
-
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
-    rootNode.refresh(false);
+    super.doFinish(tc, context);
 
-    for (NodeIterator nodes = rootNode.getNodes(); nodes.hasNext();) {
-      nodes.nextNode().remove();
-      rootNode.save();
-    }
-
-    rootNode.remove();
-    context.getSession().save();
-
-    names.clear();
+    nodes.clear();
   }
 
 }

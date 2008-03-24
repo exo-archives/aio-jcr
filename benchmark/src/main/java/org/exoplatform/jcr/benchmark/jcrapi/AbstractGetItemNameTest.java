@@ -16,7 +16,8 @@
  */
 package org.exoplatform.jcr.benchmark.jcrapi;
 
-import javax.jcr.Node;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.exoplatform.jcr.benchmark.JCRTestContext;
 
@@ -25,23 +26,29 @@ import com.sun.japex.TestCase;
 /**
  * Created by The eXo Platform SAS
  * 
- * @author Vitaliy Obmanyuk
- * 
- * @version $Id: SetPropertyTest.java 11582 2008-03-04 16:49:40Z pnedonosko $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id$
  */
 
-public class GetPropertyTest extends AbstractGetItemNameTest {
+public abstract class AbstractGetItemNameTest extends AbstractItemsTest {
 
-  @Override
-  protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
-    String pname = context.generateUniqueName("property");
-    String value = context.generateUniqueName("value");
-    parent.setProperty(pname, value);
-    addName(parent.getName() + "/" + pname);
+  private List<String> names     = new ArrayList<String>();
+
+  private volatile int iteration = 0;
+
+  protected String nextName() {
+    return names.get(iteration++);
+  }
+
+  protected void addName(String name) {
+    names.add(name);
   }
 
   @Override
-  public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    rootNode.getProperty(nextName()).getStream();
+  public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
+    super.doFinish(tc, context);
+
+    names.clear();
   }
+
 }
