@@ -23,7 +23,7 @@ public class NodeLockTest extends AbstractGetItemTest {
     Node lockNode = parent.addNode(lockNodeName);
     lockNode.addMixin("mix:lockable");
     context.getSession().save();
-    putNode(lockNode);    
+    addNode(lockNode);    
   }
 
   @Override

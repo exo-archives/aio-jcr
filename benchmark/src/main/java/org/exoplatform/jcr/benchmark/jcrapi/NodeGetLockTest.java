@@ -24,7 +24,7 @@ public class NodeGetLockTest extends AbstractGetItemTest {
     lockNode.addMixin("mix:lockable");
     context.getSession().save();
     lockNode.lock(true, true);
-    putNode(lockNode);    
+    addNode(lockNode);    
   }
 
   @Override
