@@ -5,7 +5,7 @@
   <param name="japex.plotGroupSize" value="5" />
   <param name="japex.resultUnit" value="tps" />
   <param name="japex.warmupIterations" value="0" />
-  <param name="japex.runIterations" value="50" />  
+  <param name="japex.runIterations" value="1000" />  
   <!--param name="japex.runTime" value="03" /-->
   <!-- 10 for 10 sec -->
   <!-- 15:00 for 15min -->
@@ -25,7 +25,11 @@
     </driver>
   </driverGroup>
 
-  <testCase name="GetPropertyStreamTest">
+  <testCase name="LockNodeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.LockNodeTest" />
+  </testCase>
+
+  <!--testCase name="GetPropertyStreamTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.GetPropertyStreamTest" />
   </testCase>
 
@@ -51,7 +55,7 @@
 
   <testCase name="AddNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.AddNodeTest" />
-  </testCase>
+  </testCase-->
 
   <!--testCase name="RestoreOwnNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.versioning.RestoreOwnNodeTest" />
