@@ -38,7 +38,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: AbstrackBackupJob.java 760 2008-02-07 15:08:07Z pnedonosko $
  */
-public abstract class AbstrackBackupJob implements BackupJob {
+public abstract class AbstractBackupJob implements BackupJob {
 
   protected int                  state;
 
@@ -96,7 +96,7 @@ public abstract class AbstrackBackupJob implements BackupJob {
     }
   }
 
-  public AbstrackBackupJob() {
+  public AbstractBackupJob() {
     this.state = STARTING;
   }
 

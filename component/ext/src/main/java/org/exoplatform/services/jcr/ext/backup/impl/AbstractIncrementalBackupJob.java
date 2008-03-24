@@ -37,7 +37,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: $
  */
 
-public abstract class AbstractIncrementalBackupJob extends AbstrackBackupJob implements ItemsPersistenceListener {
+public abstract class AbstractIncrementalBackupJob extends AbstractBackupJob implements ItemsPersistenceListener {
 
   private static Log                        log = ExoLogger.getLogger("ext.IncrementalBackupJob");
 

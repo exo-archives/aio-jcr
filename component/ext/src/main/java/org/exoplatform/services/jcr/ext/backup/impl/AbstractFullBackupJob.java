@@ -24,7 +24,7 @@ package org.exoplatform.services.jcr.ext.backup.impl;
  * @version $Id: $
  */
 
-public abstract class AbstractFullBackupJob extends AbstrackBackupJob {
+public abstract class AbstractFullBackupJob extends AbstractBackupJob {
 
   public AbstractFullBackupJob() {
     this.id = 0;
