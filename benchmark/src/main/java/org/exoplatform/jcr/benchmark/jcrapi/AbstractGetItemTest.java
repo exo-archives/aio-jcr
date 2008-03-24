@@ -38,6 +38,10 @@ public abstract class AbstractGetItemTest extends AbstractItemsTest {
 
   private volatile int iteration = 0;
 
+  protected int getCurrentIteration() {
+    return iteration;
+  }
+  
   protected Node nextNode() {
     return nodes.get(iteration++);
   }
