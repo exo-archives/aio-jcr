@@ -12,9 +12,7 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
- * 
- * @author Vitaliy Obmanyuk <br>
- * @version $Id: NodeSaveTest.java 11582 2008-03-04 16:49:40Z pnedonosko $
+ * @author Vitaliy Obmanyuk
  */
 
 public class LockNodeTest extends AbstractGetItemTest {
