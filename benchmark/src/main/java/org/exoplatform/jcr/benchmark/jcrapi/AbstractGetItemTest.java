@@ -38,28 +38,30 @@ import com.sun.japex.TestCase;
 
 public abstract class AbstractGetItemTest extends JCRTestBase {
 
-  protected Node         rootNode      = null;
+  protected Node       rootNode  = null;
 
-  private List<String> names = new ArrayList<String>();
-  
+  private List<String> names     = new ArrayList<String>();
+
+  private List<Node>   nodes     = new ArrayList<Node>();
+
   private volatile int iteration = 0;
 
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     int runIterations = tc.getIntParam("japex.runIterations");
-    
+
     if (runIterations <= 0)
       throw new Exception("japex.runIterations should be a positive number, but " + runIterations);
-    
+
     Session session = context.getSession();
     rootNode = session.getRootNode().addNode(context.generateUniqueName("rootNode"));
     session.save();
-    
+
     Node parent = null;
-    
+
     for (int i = 0; i < runIterations; i++) {
       if (i % 100 == 0) {
-        // add 100 props and commit, 
+        // add 100 props and commit,
         rootNode.save();
         // change the parent parent
         parent = rootNode.addNode(context.generateUniqueName("node"));
@@ -72,25 +74,34 @@ public abstract class AbstractGetItemTest extends JCRTestBase {
   protected String nextName() {
     return names.get(iteration++);
   }
-  
+
+  protected Node nextNode() {
+    return nodes.get(iteration++);
+  }
+
   protected void addName(String name) {
     names.add(name);
   }
-  
-  protected abstract void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception;
-  
+
+  protected void putNode(Node node) {
+    nodes.add(node);
+  }
+
+  protected abstract void createContent(Node parent, TestCase tc, JCRTestContext context)
+      throws Exception;
+
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
     rootNode.refresh(false);
-    
+
     for (NodeIterator nodes = rootNode.getNodes(); nodes.hasNext();) {
       nodes.nextNode().remove();
       rootNode.save();
     }
-    
+
     rootNode.remove();
     context.getSession().save();
-    
+
     names.clear();
   }
 
