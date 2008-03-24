@@ -5,7 +5,7 @@
   <param name="japex.plotGroupSize" value="5" />
   <param name="japex.resultUnit" value="tps" />
   <param name="japex.warmupIterations" value="0" />
-  <param name="japex.runIterations" value="1000" />  
+  <param name="japex.runIterations" value="100" />  
   <!--param name="japex.runTime" value="03" /-->
   <!-- 10 for 10 sec -->
   <!-- 15:00 for 15min -->
@@ -25,11 +25,23 @@
     </driver>
   </driverGroup>
 
+  <testCase name="NodeIsLockedTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.NodeIsLockedTest" />
+  </testCase>
+
+  <testCase name="NodeHoldsLockTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.NodeHoldsLockTest" />
+  </testCase>
+
+  <!--testCase name="NodeGetLockTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.NodeGetLockTest" />
+  </testCase>
+
   <testCase name="NodeUnlockTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.NodeUnlockTest" />
   </testCase>
 
-  <!--testCase name="NodeLockTest">
+  <testCase name="NodeLockTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.NodeLockTest" />
   </testCase>
 
