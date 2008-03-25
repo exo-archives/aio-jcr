@@ -55,6 +55,7 @@ public abstract class AbstractItemsTest extends JCRTestBase {
         rootNode.save();
         // change the parent parent
         parent = rootNode.addNode(context.generateUniqueName("node"));
+        rootNode.save();
       }
       createContent(parent, tc, context);
     }

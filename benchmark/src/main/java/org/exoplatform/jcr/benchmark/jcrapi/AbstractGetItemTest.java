@@ -38,6 +38,11 @@ public abstract class AbstractGetItemTest extends AbstractItemsTest {
 
   private volatile int iteration = 0;
 
+  /**
+   * Should be used before nextNode() call.
+   * 
+   * @return
+   */
   protected int getCurrentIteration() {
     return iteration;
   }
