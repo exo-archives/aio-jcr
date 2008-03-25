@@ -121,12 +121,12 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.xml.ExportOwnSubtreeDocViewTest" />
   </testCase-->
 
-  <!--testCase name="LockUnlockCommonDeepNodeTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.lock.LockUnlockCommonDeepNodeTest" />
+  <!--testCase name="EditLockedCommonDeepNodeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.lock.EditLockedCommonDeepNodeTest" />
   </testCase-->
   
-  <!--testCase name="LockUnlockCommonNodeTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.lock.LockUnlockCommonNodeTest" />
+  <!--testCase name="EditLockedCommonNodeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.lock.EditLockedCommonNodeTest" />
   </testCase-->
   
   <!--testCase name="LockUnlockOwnNodeTest">
