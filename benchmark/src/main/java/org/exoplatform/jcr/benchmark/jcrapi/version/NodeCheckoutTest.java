@@ -15,10 +15,10 @@ import com.sun.japex.TestCase;
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: IsCheckedOutTest.java 12320 2008-03-24 16:32:41Z pnedonosko $
+ * @version $Id: CheckoutTest.java 12320 2008-03-24 16:32:41Z pnedonosko $
  */
 
-public class IsCheckedOutTest extends AbstractGetItemTest {
+public class NodeCheckoutTest extends AbstractGetItemTest {
 
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
@@ -29,13 +29,14 @@ public class IsCheckedOutTest extends AbstractGetItemTest {
     vnode.checkout();
     vnode.addNode("Subnode").setProperty("Property", "property of subnode");
     vnode.save();
+    vnode.checkin();
     
     addNode(vnode);    
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    nextNode().isCheckedOut();
+    nextNode().checkout();
   }
 
 }

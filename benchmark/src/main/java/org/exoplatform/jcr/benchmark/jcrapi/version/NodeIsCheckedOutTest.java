@@ -4,11 +4,7 @@
  **************************************************************************/
 package org.exoplatform.jcr.benchmark.jcrapi.version;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.jcr.Node;
-import javax.jcr.version.Version;
 
 import org.exoplatform.jcr.benchmark.JCRTestContext;
 import org.exoplatform.jcr.benchmark.jcrapi.AbstractGetItemTest;
@@ -19,36 +15,27 @@ import com.sun.japex.TestCase;
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: RestoreTest.java 12320 2008-03-24 16:32:41Z pnedonosko $
+ * @version $Id: IsCheckedOutTest.java 12320 2008-03-24 16:32:41Z pnedonosko $
  */
 
-public class RestoreTest extends AbstractGetItemTest {
+public class NodeIsCheckedOutTest extends AbstractGetItemTest {
 
-  private List<Version>   versions     = new ArrayList<Version>();
-  
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
     Node vnode = parent.addNode(context.generateUniqueName("versionableNode"));
     vnode.addMixin("mix:versionable");
     context.getSession().save();
-    vnode.checkin();//v.1
+    vnode.checkin();
     vnode.checkout();
     vnode.addNode("Subnode").setProperty("Property", "property of subnode");
     vnode.save();
-    
-    versions.add(vnode.checkin());//v.2
-    
-    vnode.addNode("Another subnode").setProperty("Property", "property of another subnode");
-    vnode.save();
-    vnode.checkin();//v.3
-    vnode.checkout();
     
     addNode(vnode);    
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    nextNode().restore(versions.get(getCurrentIteration()), true);// restore v.2
+    nextNode().isCheckedOut();
   }
 
 }

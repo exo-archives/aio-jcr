@@ -22,7 +22,7 @@ import com.sun.japex.TestCase;
  * @version $Id: RestoreTest.java 12320 2008-03-24 16:32:41Z pnedonosko $
  */
 
-public class RestoreToRelPathTest extends AbstractGetItemTest {
+public class NodeRestoreTest extends AbstractGetItemTest {
 
   private List<Version>   versions     = new ArrayList<Version>();
   
