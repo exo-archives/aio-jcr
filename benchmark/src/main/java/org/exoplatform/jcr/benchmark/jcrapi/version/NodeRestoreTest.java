@@ -38,6 +38,7 @@ public class NodeRestoreTest extends AbstractGetItemTest {
     
     versions.add(vnode.checkin());//v.2
     
+    vnode.checkout();
     vnode.addNode("Another subnode").setProperty("Property", "property of another subnode");
     vnode.save();
     vnode.checkin();//v.3
@@ -48,7 +49,10 @@ public class NodeRestoreTest extends AbstractGetItemTest {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    nextNode().restore(versions.get(getCurrentIteration()), true);// restore v.2
+    final Node n = nextNode();
+    final Version v = versions.get(getCurrentIteration());
+    System.out.println(n.getPath() + " " + n.getUUID() + " v: " + v.getPath());
+    n.restore(v, true);// restore v.2
   }
 
 }

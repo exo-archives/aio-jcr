@@ -41,6 +41,7 @@ public class NodeRestoreToRelPathTest extends AbstractGetItemTest {
     
     versions.add(vnode.checkin());//v.2
     
+    vnode.checkout();
     vnode.addNode("Another subnode").setProperty("Property", "property of another subnode");
     vnode.save();
     vnode.checkin();//v.3
