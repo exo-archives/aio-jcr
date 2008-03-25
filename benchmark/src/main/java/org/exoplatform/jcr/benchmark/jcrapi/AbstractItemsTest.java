@@ -34,7 +34,9 @@ import com.sun.japex.TestCase;
 
 public abstract class AbstractItemsTest extends JCRTestBase {
 
-  protected Node       rootNode  = null;
+  protected Node   rootNode     = null;
+
+  protected String rootNodeName = "";
 
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
@@ -44,7 +46,8 @@ public abstract class AbstractItemsTest extends JCRTestBase {
       throw new Exception("japex.runIterations should be a positive number, but " + runIterations);
 
     Session session = context.getSession();
-    rootNode = session.getRootNode().addNode(context.generateUniqueName("rootNode"));
+    rootNodeName = context.generateUniqueName("rootNode");
+    rootNode = session.getRootNode().addNode(rootNodeName);
     session.save();
 
     Node parent = null;

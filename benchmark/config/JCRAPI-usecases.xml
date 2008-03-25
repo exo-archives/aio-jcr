@@ -25,13 +25,13 @@
     </driver>
   </driverGroup>
 
-  <!--testCase name="NodeRestoreToRelPathTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeRestoreToRelPathTest" />
+  <testCase name="SessionGetItemTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetItemTest" />
   </testCase>
-  
-  <testCase name="WorkspaceRestoreTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.WorkspaceRestoreTest" />
-  </testCase-->
+
+  <testCase name="SessionGetRootNodeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetRootNodeTest" />
+  </testCase>
 
   <testCase name="NodeCheckinTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeCheckinTest" />
@@ -96,6 +96,14 @@
   <testCase name="AddNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.AddNodeTest" />
   </testCase>
+  
+  <!--testCase name="TEMPORARY EXCLUDED">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeRestoreToRelPathTest" />
+  </testCase>
+  
+  <testCase name="TEMPORARY EXCLUDED">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.WorkspaceRestoreTest" />
+  </testCase-->
 
   <!--testCase name="RestoreOwnNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.versioning.RestoreOwnNodeTest" />
