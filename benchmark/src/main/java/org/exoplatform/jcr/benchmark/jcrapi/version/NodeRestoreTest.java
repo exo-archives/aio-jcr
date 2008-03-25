@@ -30,7 +30,7 @@ public class NodeRestoreTest extends AbstractGetItemTest {
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
     Node vnode = parent.addNode(context.generateUniqueName("versionableNode"));
     vnode.addMixin("mix:versionable");
-    context.getSession().save();
+    parent.save();
     vnode.checkin();//v.1
     vnode.checkout();
     vnode.addNode("Subnode").setProperty("Property", "property of subnode");
@@ -44,15 +44,13 @@ public class NodeRestoreTest extends AbstractGetItemTest {
     vnode.checkin();//v.3
     vnode.checkout();
     
-    addNode(vnode);    
+    addNode(vnode);
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    final Node n = nextNode();
     final Version v = versions.get(getCurrentIteration());
-    System.out.println(n.getPath() + " " + n.getUUID() + " v: " + v.getPath());
-    n.restore(v, true);// restore v.2
+    nextNode().restore(v, true);// restore v.2
   }
 
 }

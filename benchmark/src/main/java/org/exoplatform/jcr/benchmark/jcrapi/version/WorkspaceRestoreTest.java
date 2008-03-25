@@ -73,7 +73,8 @@ public class WorkspaceRestoreTest extends AbstractGetItemTest {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    nextNode().getSession().getWorkspace().restore(versions.get(getCurrentIteration()), true);// restore A v.2, B v.2, C v.2
+    Version[] vs = versions.get(getCurrentIteration());
+    nextNode().getSession().getWorkspace().restore(vs, true);// restore A v.2, B v.2, C v.2
   }
 
 }

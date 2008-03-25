@@ -58,11 +58,10 @@ public class NodeRestoreToRelPathTest extends AbstractGetItemTest {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    final Node node = nextNode(); // should be firts
     final int iter = getCurrentIteration(); 
     final String relPath = names.get(iter);
     // restore v.2 to ../restoredNode-xxx/versionableNode-xxx_restored
-    node.restore(versions.get(iter), relPath, true);
+    nextNode().restore(versions.get(iter), relPath, true);
   }
 
 }
