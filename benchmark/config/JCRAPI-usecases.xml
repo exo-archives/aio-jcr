@@ -47,7 +47,11 @@
   
   <testCase name="NodeRestoreTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeRestoreTest" />
-  </testCase>  
+  </testCase> 
+  
+  <testCase name="NodeRestoreToRelPathTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeRestoreToRelPathTest" />
+  </testCase> 
   
   <testCase name="NodeIsLockedTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.lock.NodeIsLockedTest" />
@@ -98,10 +102,6 @@
   </testCase>
   
   <!--testCase name="TEMPORARY EXCLUDED">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeRestoreToRelPathTest" />
-  </testCase>
-  
-  <testCase name="TEMPORARY EXCLUDED">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.WorkspaceRestoreTest" />
   </testCase-->
 
