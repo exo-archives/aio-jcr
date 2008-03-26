@@ -33,15 +33,27 @@ import com.sun.japex.TestCase;
 public abstract class AbstractGetItemNameTest extends AbstractItemsTest {
 
   private List<String> names     = new ArrayList<String>();
+  
+  private List<String> uuids     = new ArrayList<String>();
 
   private volatile int iteration = 0;
+  
+  private volatile int iterationUUID = 0;
 
   protected String nextName() {
     return names.get(iteration++);
   }
+  
+  protected String nextUUID() {
+    return uuids.get(iterationUUID++);
+  }
 
   protected void addName(String name) {
     names.add(name);
+  }
+  
+  protected void addUUID(String uuid) {
+    uuids.add(uuid);
   }
 
   @Override
@@ -49,6 +61,7 @@ public abstract class AbstractGetItemNameTest extends AbstractItemsTest {
     super.doFinish(tc, context);
 
     names.clear();
+    uuids.clear();
   }
 
 }
