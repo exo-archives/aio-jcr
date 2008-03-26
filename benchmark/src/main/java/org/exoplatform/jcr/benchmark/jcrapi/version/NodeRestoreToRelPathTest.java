@@ -36,13 +36,13 @@ public class NodeRestoreToRelPathTest extends AbstractGetItemTest {
     
     vnode.checkin();//v.1
     vnode.checkout();
-    vnode.addNode("Subnode").setProperty("Property", "property of subnode");
+    vnode.setProperty("Property", "property of subnode");
     vnode.save();
     
     versions.add(vnode.checkin());//v.2
     
     vnode.checkout();
-    vnode.addNode("Another subnode").setProperty("Property", "property of another subnode");
+    vnode.setProperty("Property", "property of subnode, v.3");
     vnode.save();
     vnode.checkin();//v.3
     vnode.checkout();
@@ -60,8 +60,10 @@ public class NodeRestoreToRelPathTest extends AbstractGetItemTest {
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
     final int iter = getCurrentIteration(); 
     final String relPath = names.get(iter);
+    final Node n = nextNode();
+    //log.info(n.getPath() + " " + n.getUUID() + " vh:" + n.getVersionHistory().getPath() + " v:" + versions.get(iter).getPath() + " " + versions.get(iter).getContainingHistory().getVersionableUUID());
     // restore v.2 to ../restoredNode-xxx/versionableNode-xxx_restored
-    nextNode().restore(versions.get(iter), relPath, true);
+    n.restore(versions.get(iter), relPath, true);
   }
 
 }
