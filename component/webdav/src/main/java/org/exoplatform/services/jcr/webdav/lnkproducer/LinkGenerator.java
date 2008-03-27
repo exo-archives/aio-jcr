@@ -20,6 +20,8 @@ package org.exoplatform.services.jcr.webdav.lnkproducer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URLEncoder;
+
 
 /**
  * Created by The eXo Platform SAS
@@ -132,9 +134,9 @@ public class LinkGenerator {
       if ("".equals(pathes[i])) {
         continue;
       }
-      
       String curName = pathes[i];
-      curHref += "/" + curName;
+//      curHref += "/" + curName;
+      curHref += "/" + URLEncoder.encode(curName, "UTF-8");
       
       if (i < pathes.length - 1) {
         byte []linkItem = getHreffedFolder(curName, curHref);
@@ -277,7 +279,7 @@ public class LinkGenerator {
   
   private void simpleWriteString(String outString, OutputStream outStream) throws IOException {
     for (int i = 0; i < outString.length(); i++) {      
-      int charCode = outString.codePointAt(i);
+      int charCode = outString.charAt(i);
       outStream.write(charCode & 0xFF);
       outStream.write((charCode >> 8) & 0xFF);
     }
@@ -296,10 +298,8 @@ public class LinkGenerator {
   }
   
   private void writeInt(int intValue, OutputStream outStream) throws IOException {
-    int lowByte = intValue & 0xFF;
-    int highByte = (intValue & 0xFF00) >> 8;
-    outStream.write((byte)lowByte);
-    outStream.write((byte)highByte);    
+    outStream.write(intValue & 0xFF);
+    outStream.write((intValue >> 8) & 0xFF);
   }
   
   private void writeInts(int []bytes, OutputStream outStream) throws IOException {
