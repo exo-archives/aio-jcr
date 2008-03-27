@@ -14,31 +14,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.jcr.benchmark.jcrapi;
+package org.exoplatform.jcr.benchmark.jcrapi.node.read;
 
 import javax.jcr.Node;
 
 import org.exoplatform.jcr.benchmark.JCRTestContext;
+import org.exoplatform.jcr.benchmark.jcrapi.AbstractGetItemNameTest;
 
 import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
- * 
  * @author Vitaliy Obmanyuk
- * 
- * @version $Id: SetPropertyTest.java 11582 2008-03-04 16:49:40Z pnedonosko $
  */
 
-public class SetPropertyTest extends AbstractAddItemTest {
+public class NodeGetPropertyTest extends AbstractGetItemNameTest {
 
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
-    // do nothing
+    String pname = context.generateUniqueName("property");
+    String value = context.generateUniqueName("value");
+    parent.setProperty(pname, value);
+    addName(parent.getName() + "/" + pname);
   }
-  
+
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    nextParent().setProperty(context.generateUniqueName("property"), context.generateUniqueName("value"));
+    rootNode.getProperty(nextName());
   }
 }

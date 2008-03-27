@@ -14,34 +14,40 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.jcr.benchmark.jcrapi;
+package org.exoplatform.jcr.benchmark.jcrapi.node.read;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.util.Calendar;
 
 import javax.jcr.Node;
 
 import org.exoplatform.jcr.benchmark.JCRTestContext;
+import org.exoplatform.jcr.benchmark.jcrapi.AbstractGetItemTest;
 
 import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
- * 
  * @author Vitaliy Obmanyuk
- * 
- * @version $Id: SetPropertyTest.java 11582 2008-03-04 16:49:40Z pnedonosko $
  */
 
-public class GetPropertyTest extends AbstractGetItemNameTest {
+public class NodeGetPrimaryItemTest extends AbstractGetItemTest {
 
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
-    String pname = context.generateUniqueName("property");
-    String value = context.generateUniqueName("value");
-    parent.setProperty(pname, value);
-    addName(parent.getName() + "/" + pname);
+    //PrimaryItemName is present in nt:file nodetype
+    Node child = parent.addNode(context.generateUniqueName("childNode"), "nt:file");
+    Node content = child.addNode("jcr:content", "nt:resource");
+    content.setProperty("jcr:data", new ByteArrayInputStream(new byte[1]));
+    content.setProperty("jcr:mimeType", "application/octet-stream");
+    content.setProperty("jcr:lastModified", Calendar.getInstance());
+    addNode(child);
+    // save() is in super class
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    rootNode.getProperty(nextName()).getStream();
+    nextNode().getPrimaryItem().getPath();
   }
 }

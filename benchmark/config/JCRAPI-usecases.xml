@@ -21,101 +21,13 @@
     <param name="exo.jaasConf" value="login.conf" />
     <param name="exo.containerConf" value="../config/test-configuration-benchmark.xml" />
     <driver name="JCRdriver">
-      <param name="japex.numberOfThreads" value="1" />
+      <param name="japex.numberOfThreads" value="10" />
     </driver>
   </driverGroup>
 
-  <testCase name="SessionGetNodeByUUIDTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetNodeByUUIDTest" />
-  </testCase>
-
-  <!--testCase name="SessionItemExistsTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionItemExistsTest" />
-  </testCase>
-
-  <testCase name="SessionGetItemTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetItemTest" />
-  </testCase>
-
-  <testCase name="SessionGetRootNodeTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetRootNodeTest" />
-  </testCase>
-
-  <testCase name="NodeCheckinTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeCheckinTest" />
-  </testCase>
-  
-  <testCase name="NodeCheckoutTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeCheckoutTest" />
-  </testCase>
-  
-  <testCase name="NodeIsCheckedOutTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeIsCheckedOutTest" />
-  </testCase>
-  
-  <testCase name="NodeRestoreTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeRestoreTest" />
-  </testCase> 
-  
-  <testCase name="NodeRestoreToRelPathTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeRestoreToRelPathTest" />
-  </testCase> 
-  
-  <testCase name="NodeIsLockedTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.lock.NodeIsLockedTest" />
-  </testCase>
-
-  <testCase name="NodeHoldsLockTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.lock.NodeHoldsLockTest" />
-  </testCase>
-
-  <testCase name="NodeGetLockTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.lock.NodeGetLockTest" />
-  </testCase>
-
-  <testCase name="NodeUnlockTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.lock.NodeUnlockTest" />
-  </testCase>
-
-  <testCase name="NodeLockTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.lock.NodeLockTest" />
-  </testCase>
-
-  <testCase name="GetPropertyStreamTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.GetPropertyStreamTest" />
-  </testCase>
-
-  <testCase name="GetPropertyTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.GetPropertyTest" />
-  </testCase>
-
-  <testCase name="GetNodeTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.GetNodeTest" />
-  </testCase>
-
-  <testCase name="NodeSaveTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.NodeSaveTest" />
-  </testCase>
-
-  <testCase name="SetPropertyStreamTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.SetPropertyStreamTest" />
-  </testCase>
-
-  <testCase name="SetPropertyTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.SetPropertyTest" />
-  </testCase>
-
-  <testCase name="AddNodeTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.AddNodeTest" />
-  </testCase-->
-  
-  <!--testCase name="TEMPORARY EXCLUDED">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.WorkspaceRestoreTest" />
-  </testCase-->
-
-  <!--testCase name="RestoreOwnNodeTest">
+  <testCase name="RestoreOwnNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.versioning.RestoreOwnNodeTest" />
-  </testCase-->
+  </testCase>
 
   <!--testCase name="CheckinCheckoutOwnNodeCleanDBOracleTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.versioning.CheckinCheckoutOwnNodeCleanDBOracleTest" />

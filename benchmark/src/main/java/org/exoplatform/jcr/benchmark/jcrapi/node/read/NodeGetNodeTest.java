@@ -2,7 +2,7 @@
  * Copyright 2001-2008 The eXo Platform SAS          All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
-package org.exoplatform.jcr.benchmark.jcrapi.session;
+package org.exoplatform.jcr.benchmark.jcrapi.node.read;
 
 import javax.jcr.Node;
 
@@ -16,19 +16,18 @@ import com.sun.japex.TestCase;
  * @author Vitaliy Obmanyuk
  */
 
-public class SessionGetNodeByUUIDTest extends AbstractGetItemNameTest {
-  
+public class NodeGetNodeTest extends AbstractGetItemNameTest {
+
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
     String nname = context.generateUniqueName("testNode");
-    Node node = parent.addNode(nname);
-    node.addMixin("mix:referenceable");
-    addName(node.getUUID());
+    parent.addNode(nname);
+    addName(parent.getName() + "/" + nname);
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    context.getSession().getNodeByUUID(nextName());
+    rootNode.getNode(nextName());
   }
 
 }

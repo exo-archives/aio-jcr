@@ -14,41 +14,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.jcr.benchmark.jcrapi;
-
-import java.io.FileInputStream;
-import java.io.InputStream;
+package org.exoplatform.jcr.benchmark.jcrapi.node.read;
 
 import javax.jcr.Node;
 
 import org.exoplatform.jcr.benchmark.JCRTestContext;
+import org.exoplatform.jcr.benchmark.jcrapi.AbstractGetItemTest;
 
 import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
- * 
  * @author Vitaliy Obmanyuk
- * 
- * @version $Id: SetPropertyTest.java 11582 2008-03-04 16:49:40Z pnedonosko $
  */
 
-public class GetPropertyStreamTest extends AbstractGetItemNameTest {
+public class NodeGetPropertiesByPatternTest extends AbstractGetItemTest {
 
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
     String pname = context.generateUniqueName("property");
-    InputStream value = new FileInputStream("../resources/benchmark.pdf");
-    try {
-      parent.setProperty(pname, value);
-      addName(parent.getName() + "/" + pname);
-    } finally {
-      value.close();
-    }
+    String value = context.generateUniqueName("value");
+    parent.setProperty(pname, value);
+    parent.save();
+    addNode(parent);
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    rootNode.getProperty(nextName()).getStream();
+    nextNode().getProperties("property*");
   }
 }

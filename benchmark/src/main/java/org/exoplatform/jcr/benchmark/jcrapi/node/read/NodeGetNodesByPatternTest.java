@@ -2,34 +2,32 @@
  * Copyright 2001-2008 The eXo Platform SAS          All rights reserved.  *
  * Please look at license.txt in info directory for more license detail.   *
  **************************************************************************/
-package org.exoplatform.jcr.benchmark.jcrapi;
+package org.exoplatform.jcr.benchmark.jcrapi.node.read;
 
 import javax.jcr.Node;
 
 import org.exoplatform.jcr.benchmark.JCRTestContext;
+import org.exoplatform.jcr.benchmark.jcrapi.AbstractGetItemNameTest;
 
 import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
- * 
  * @author Vitaliy Obmanyuk
- * 
- * @version $Id: SetPropertyTest.java 11582 2008-03-04 16:49:40Z pnedonosko $
  */
 
-public class GetNodeTest extends AbstractGetItemNameTest {
+public class NodeGetNodesByPatternTest extends AbstractGetItemNameTest {
 
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
-    String nname = context.generateUniqueName("testNode");
+    /*String nname = context.generateUniqueName("testNode");
     parent.addNode(nname);
-    addName(parent.getName() + "/" + nname);
+    addName(parent.getName() + "/" + nname);*/
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    rootNode.getNode(nextName());
+    rootNode.getNodes("node*");
   }
 
 }
