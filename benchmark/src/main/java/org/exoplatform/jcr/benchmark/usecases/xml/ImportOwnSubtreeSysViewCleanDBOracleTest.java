@@ -113,7 +113,7 @@ public class ImportOwnSubtreeSysViewCleanDBOracleTest extends JCRTestBase {
         storageConnection = (JDBCStorageConnection) workspaceStorageConnection;
         dbConnection = storageConnection.getJdbcConnection();
         // =============CLEANING ORACLE DB=============
-        /*List<String> oracleQueryList = new ArrayList<String>();
+        List<String> oracleQueryList = new ArrayList<String>();
         oracleQueryList.add("DROP TABLE jcr_config");
         oracleQueryList.add("DROP TABLE jcr_scontainer");
         oracleQueryList.add("DROP TABLE jcr_svalue");
@@ -126,7 +126,7 @@ public class ImportOwnSubtreeSysViewCleanDBOracleTest extends JCRTestBase {
           } catch (Exception e) {
           }
         }
-        dbConnection.commit();*/
+        dbConnection.commit();
         dataBaseDropped = true;
         // ============DELETING TEMP FOLDER=============
         boolean successfullyDeleted = deleteDir(new File("../temp"));
