@@ -55,8 +55,6 @@ public abstract class AbstractItemsTest extends JCRTestBase {
     for (int i = 0; i < runIterations; i++) {
       if (i % 100 == 0) {
         // add 100 props and commit,
-        rootNode.save();
-        // change the parent parent
         parent = rootNode.addNode(context.generateUniqueName("node"));
         rootNode.save();
       }

@@ -41,7 +41,8 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetRootNodeTest" />
   </testCase-->
   
-  <testCase name="NodeGetNodeTest">
+  
+  <!-- testCase name="NodeGetNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeGetNodeTest" />
   </testCase>
   
@@ -67,8 +68,10 @@
   
   <testCase name="NodeGetPrimaryItemTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeGetPrimaryItemTest" />
-  </testCase>        
+  </testCase -->
 
+
+  <!-- Locking -->
   <!--testCase name="NodeLockTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.lock.NodeLockTest" />
   </testCase>
@@ -89,7 +92,8 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.lock.NodeIsLockedTest" />
   </testCase-->  
 
-  <!--testCase name="NodeCheckinTest">
+  <!-- Versioning -->
+  <!-- testCase name="NodeCheckinTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeCheckinTest" />
   </testCase>
   
@@ -107,8 +111,39 @@
   
   <testCase name="NodeRestoreToRelPathTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeRestoreToRelPathTest" />
-  </testCase-->   
+  </testCase -->   
   
+  <testCase name="VersionHistoryAddVersionLabelTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryAddVersionLabelTest" />
+  </testCase>
+  
+  <testCase name="VersionHistoryGetVersionByLabelTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryGetVersionByLabelTest" />
+  </testCase>
+  
+  <testCase name="VersionHistoryGetVersionTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryGetVersionTest" />
+  </testCase>
+  
+  <testCase name="VersionHistoryHasVersionLabelTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryHasVersionLabelTest" />
+  </testCase>
+  
+  <testCase name="VersionHistoryHasVersionVersionLabelTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryHasVersionVersionLabelTest" />
+  </testCase>
+  
+  <testCase name="VersionHistoryRemoveVersionLabelTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryRemoveVersionLabelTest" />
+  </testCase>
+  
+  <testCase name="VersionHistoryRemoveVersionTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryRemoveVersionTest" />
+  </testCase>
+  
+  
+  
+    
   <!--testCase name="TEMPORARY EXCLUDED">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.WorkspaceRestoreTest" />
   </testCase-->

@@ -60,6 +60,7 @@ public abstract class AbstractGetItemTest extends AbstractItemsTest {
     super.doFinish(tc, context);
 
     nodes.clear();
+    nodes = null;
   }
 
 }

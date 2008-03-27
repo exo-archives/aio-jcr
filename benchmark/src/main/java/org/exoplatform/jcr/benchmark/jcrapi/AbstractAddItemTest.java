@@ -82,6 +82,7 @@ public abstract class AbstractAddItemTest extends JCRTestBase {
     context.getSession().save();
     
     parents.clear();
+    parents = null;
   }
 
 }

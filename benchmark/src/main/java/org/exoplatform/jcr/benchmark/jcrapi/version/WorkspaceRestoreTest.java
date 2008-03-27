@@ -61,7 +61,9 @@ public class WorkspaceRestoreTest extends AbstractGetItemTest {
     nodeB.checkout();
 
     // add some stuff
-    nodeA.addNode("Another subnode").setProperty("Property", "property of another subnode");
+    nodeA.setProperty("Property", "property of subnode");
+    nodeB.remove();
+    nodeC.remove();
     nodeA.save();
     Version vA = nodeA.checkin();//v.3
     nodeA.checkout();

@@ -34,8 +34,6 @@ public abstract class AbstractGetItemNameTest extends AbstractItemsTest {
 
   private List<String> names     = new ArrayList<String>();
   
-  private List<String> uuids     = new ArrayList<String>();
-
   private volatile int iteration = 0;
   
   protected String nextName() {
@@ -51,6 +49,7 @@ public abstract class AbstractGetItemNameTest extends AbstractItemsTest {
     super.doFinish(tc, context);
 
     names.clear();
+    names = null;
   }
 
 }

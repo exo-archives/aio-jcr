@@ -40,7 +40,7 @@ public final class JCRTestContext extends HashMap<String, Object> {
   private String name;
   
   public JCRTestContext() {
-    this.name = sessionId+"-"+(threadCounter++);;
+    this.name = sessionId+"-"+(threadCounter++);
   }
 
   public void setSession(Session session) {
@@ -52,8 +52,7 @@ public final class JCRTestContext extends HashMap<String, Object> {
   }
 
   public String generateUniqueName(String prefix) {
-    String uname = prefix+"-"+name+"-"+(counter++);
-    return uname;
+    return prefix+"-"+name+"-"+(counter++);
   }
   
   
