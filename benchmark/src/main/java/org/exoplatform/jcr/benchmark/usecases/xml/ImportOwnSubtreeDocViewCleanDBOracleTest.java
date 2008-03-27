@@ -126,14 +126,33 @@ public class ImportOwnSubtreeDocViewCleanDBOracleTest extends JCRTestBase {
           } catch (Exception e) {
           }
         }
-        // ================================
         dbConnection.commit();
         dataBaseDropped = true;
+        // ============DELETING TEMP FOLDER=============
+        boolean successfullyDeleted = deleteDir(new File("../temp"));
+        if (successfullyDeleted){
+          log.info("Folder 'temp' successfully deleted");
+        }
       }
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
     }
   }
+  
+  private synchronized boolean deleteDir(File dir) {
+    if (dir.isDirectory()) {
+      String[] children = dir.list();
+      for (int i = 0; i < children.length; i++) {
+        boolean success = deleteDir(new File(dir, children[i]));
+        if (!success) {
+          log.warn("Can not delete: " + dir + ", " + children[i]);
+          return false;
+        }
+      }
+    }
+    // The directory is now empty so delete it
+    return dir.delete();
+  } 
 
 }

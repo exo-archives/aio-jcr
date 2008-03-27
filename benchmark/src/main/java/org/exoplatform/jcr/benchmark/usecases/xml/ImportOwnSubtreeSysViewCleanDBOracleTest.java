@@ -112,8 +112,8 @@ public class ImportOwnSubtreeSysViewCleanDBOracleTest extends JCRTestBase {
         }
         storageConnection = (JDBCStorageConnection) workspaceStorageConnection;
         dbConnection = storageConnection.getJdbcConnection();
-        // =============ORACLE=============
-        List<String> oracleQueryList = new ArrayList<String>();
+        // =============CLEANING ORACLE DB=============
+        /*List<String> oracleQueryList = new ArrayList<String>();
         oracleQueryList.add("DROP TABLE jcr_config");
         oracleQueryList.add("DROP TABLE jcr_scontainer");
         oracleQueryList.add("DROP TABLE jcr_svalue");
@@ -126,9 +126,13 @@ public class ImportOwnSubtreeSysViewCleanDBOracleTest extends JCRTestBase {
           } catch (Exception e) {
           }
         }
-        // ================================
-        dbConnection.commit();
+        dbConnection.commit();*/
         dataBaseDropped = true;
+        // ============DELETING TEMP FOLDER=============
+        boolean successfullyDeleted = deleteDir(new File("../temp"));
+        if (successfullyDeleted){
+          log.info("Folder 'temp' successfully deleted");
+        }
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -136,4 +140,18 @@ public class ImportOwnSubtreeSysViewCleanDBOracleTest extends JCRTestBase {
     }
   }
 
+  private synchronized boolean deleteDir(File dir) {
+    if (dir.isDirectory()) {
+      String[] children = dir.list();
+      for (int i = 0; i < children.length; i++) {
+        boolean success = deleteDir(new File(dir, children[i]));
+        if (!success) {
+          log.warn("Can not delete: " + dir + ", " + children[i]);
+          return false;
+        }
+      }
+    }
+    // The directory is now empty so delete it
+    return dir.delete();
+  } 
 }
