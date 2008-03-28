@@ -25,7 +25,8 @@
     </driver>
   </driverGroup>
 
-  <!--testCase name="SessionGetNodeByUUIDTest">
+  <!-- Session read methods -->
+  <testCase name="SessionGetNodeByUUIDTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetNodeByUUIDTest" />
   </testCase>
 
@@ -39,9 +40,9 @@
 
   <testCase name="SessionGetRootNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetRootNodeTest" />
-  </testCase-->
+  </testCase>
   
-  
+  <!-- Node read methods -->
   <!-- testCase name="NodeGetNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeGetNodeTest" />
   </testCase>
@@ -70,8 +71,7 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeGetPrimaryItemTest" />
   </testCase -->
 
-
-  <!-- Locking -->
+  <!-- Locking methods-->
   <!--testCase name="NodeLockTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.lock.NodeLockTest" />
   </testCase>
@@ -92,7 +92,7 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.lock.NodeIsLockedTest" />
   </testCase-->  
 
-  <!-- Versioning -->
+  <!-- Versioning methods -->
   <!-- testCase name="NodeCheckinTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeCheckinTest" />
   </testCase>
@@ -113,7 +113,7 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeRestoreToRelPathTest" />
   </testCase -->   
   
-  <testCase name="VersionHistoryAddVersionLabelTest">
+  <!--testCase name="VersionHistoryAddVersionLabelTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryAddVersionLabelTest" />
   </testCase>
   
@@ -139,11 +139,9 @@
   
   <testCase name="VersionHistoryRemoveVersionTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryRemoveVersionTest" />
-  </testCase>
+  </testCase-->
   
-  
-  
-    
+  <!-- Temporary excluded tests -->  
   <!--testCase name="TEMPORARY EXCLUDED">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.WorkspaceRestoreTest" />
   </testCase-->
