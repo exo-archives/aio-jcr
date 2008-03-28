@@ -17,13 +17,11 @@
 package org.exoplatform.jcr.benchmark.jcrapi.node.read;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.util.Calendar;
 
 import javax.jcr.Node;
 
 import org.exoplatform.jcr.benchmark.JCRTestContext;
-import org.exoplatform.jcr.benchmark.jcrapi.AbstractGetItemTest;
 
 import com.sun.japex.TestCase;
 
@@ -32,22 +30,24 @@ import com.sun.japex.TestCase;
  * @author Vitaliy Obmanyuk
  */
 
-public class NodeGetPrimaryItemTest extends AbstractGetItemTest {
+public class NodeGetPrimaryItemTest extends AbstractNodeTest {
 
+  private Node ntfile;
+  
   @Override
-  protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
-    //PrimaryItemName is present in nt:file nodetype
-    Node child = parent.addNode(context.generateUniqueName("childNode"), "nt:file");
-    Node content = child.addNode("jcr:content", "nt:resource");
+  public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
+    super.doPrepare(tc, context);
+    
+    ntfile = root.addNode(context.generateUniqueName("childNode"), "nt:file");
+    Node content = ntfile.addNode("jcr:content", "nt:resource");
     content.setProperty("jcr:data", new ByteArrayInputStream(new byte[1]));
     content.setProperty("jcr:mimeType", "application/octet-stream");
     content.setProperty("jcr:lastModified", Calendar.getInstance());
-    addNode(child);
-    // save() is in super class
+    root.save();
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    nextNode().getPrimaryItem().getPath();
+    ntfile.getPrimaryItem().getPath();
   }
 }
