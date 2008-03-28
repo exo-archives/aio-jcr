@@ -43,7 +43,7 @@
   </testCase-->
   
   <!-- Node read methods -->
-  <testCase name="NodeGetNodeTest">
+  <!--testCase name="NodeGetNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeGetNodeTest" />
   </testCase>
   
@@ -97,8 +97,13 @@
   
   <testCase name="NodeHasPropertiesTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeHasPropertiesTest" />
-  </testCase>          
+  </testCase-->          
 
+  <!-- Property read methods -->
+  <testCase name="PropertyGetValueTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.read.PropertyGetValueTest" />
+  </testCase>          
+  
   <!-- Locking methods-->
   <!--testCase name="NodeLockTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.lock.NodeLockTest" />
