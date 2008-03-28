@@ -4,11 +4,7 @@
  **************************************************************************/
 package org.exoplatform.jcr.benchmark.jcrapi.version;
 
-import javax.jcr.Node;
-import javax.jcr.version.VersionHistory;
-
 import org.exoplatform.jcr.benchmark.JCRTestContext;
-import org.exoplatform.jcr.benchmark.jcrapi.AbstractGetItemTest;
 
 import com.sun.japex.TestCase;
 
@@ -19,26 +15,11 @@ import com.sun.japex.TestCase;
  * @version $Id$
  */
 
-public class VersionHistoryGetVersionByLabelTest extends AbstractGetItemTest {
-
-  @Override
-  protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
-    Node vnode = parent.addNode(context.generateUniqueName("versionableNode"));
-    vnode.addMixin("mix:versionable");
-    context.getSession().save();
-    vnode.checkin(); // v.1
-    vnode.checkout();
-        
-    VersionHistory vh = vnode.getVersionHistory();
-    vh.addVersionLabel("1", "v.1", false);
-    
-    addNode(vnode.getVersionHistory());    
-  }
+public class VersionHistoryGetVersionByLabelTest extends AbstractGetVersionTest {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    final VersionHistory vh = (VersionHistory) nextNode();
-    vh.getVersionByLabel("v.1");
+    vhistory.getVersionByLabel("v.1");
   }
 
 }

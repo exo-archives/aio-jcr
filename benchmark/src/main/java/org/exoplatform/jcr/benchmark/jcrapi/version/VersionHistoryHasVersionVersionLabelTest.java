@@ -4,15 +4,7 @@
  **************************************************************************/
 package org.exoplatform.jcr.benchmark.jcrapi.version;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.jcr.Node;
-import javax.jcr.version.Version;
-import javax.jcr.version.VersionHistory;
-
 import org.exoplatform.jcr.benchmark.JCRTestContext;
-import org.exoplatform.jcr.benchmark.jcrapi.AbstractGetItemTest;
 
 import com.sun.japex.TestCase;
 
@@ -23,35 +15,26 @@ import com.sun.japex.TestCase;
  * @version $Id$
  */
 
-public class VersionHistoryHasVersionVersionLabelTest extends AbstractGetItemTest {
+public class VersionHistoryHasVersionVersionLabelTest extends AbstractGetVersionTest {
 
-  private List<Version>   versions     = new ArrayList<Version>();
-  
   @Override
-  protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
-    Node vnode = parent.addNode(context.generateUniqueName("versionableNode"));
-    vnode.addMixin("mix:versionable");
-    context.getSession().save();
-    vnode.checkin(); // v.1
+  public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
+    super.doPrepare(tc, context);
+    
     vnode.checkout();
     vnode.addNode("Subnode").setProperty("Property", "property of subnode");
     vnode.save();
-    versions.add(vnode.checkin()); // v.2
+    
+    version = vnode.checkin(); // v.2
     vnode.checkout();
     
-    VersionHistory vh = vnode.getVersionHistory();
-    vh.addVersionLabel("1", "v.1", false);
-    vh.addVersionLabel("2", "v.2", false);
-    vh.addVersionLabel("2", "ver.2", false);
-    
-    addNode(vnode.getVersionHistory());    
+    vhistory.addVersionLabel("2", "v.2", false);
+    vhistory.addVersionLabel("2", "ver.2", false);
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    final int iter = getCurrentIteration();
-    final VersionHistory vh = (VersionHistory) nextNode();
-    vh.hasVersionLabel(versions.get(iter), "ver.2");
+    vhistory.hasVersionLabel(version, "ver.2");
   }
 
 }
