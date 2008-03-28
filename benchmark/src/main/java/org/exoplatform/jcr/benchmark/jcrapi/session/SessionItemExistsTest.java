@@ -6,8 +6,8 @@ package org.exoplatform.jcr.benchmark.jcrapi.session;
 
 import javax.jcr.Node;
 
+import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
-import org.exoplatform.jcr.benchmark.jcrapi.AbstractGetItemNameTest;
 
 import com.sun.japex.TestCase;
 
@@ -16,18 +16,18 @@ import com.sun.japex.TestCase;
  * @author Vitaliy Obmanyuk
  */
 
-public class SessionItemExistsTest extends AbstractGetItemNameTest {
+public class SessionItemExistsTest extends JCRTestBase {
+  
+  private String absPath = "";
   
   @Override
-  protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
-    String nname = context.generateUniqueName("testNode");
-    parent.addNode(nname);
-    addName(parent.getName() + "/" + nname);
+  public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
+    absPath = context.getSession().getRootNode().addNode("testNode").getPath();
+    context.getSession().save();
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    String absPath = "/" + rootNodeName + "/" + nextName();
     context.getSession().itemExists(absPath);
   }
 

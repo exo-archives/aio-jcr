@@ -6,8 +6,8 @@ package org.exoplatform.jcr.benchmark.jcrapi.session;
 
 import javax.jcr.Node;
 
+import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
-import org.exoplatform.jcr.benchmark.jcrapi.AbstractGetItemNameTest;
 
 import com.sun.japex.TestCase;
 
@@ -16,19 +16,20 @@ import com.sun.japex.TestCase;
  * @author Vitaliy Obmanyuk
  */
 
-public class SessionGetNodeByUUIDTest extends AbstractGetItemNameTest {
+public class SessionGetNodeByUUIDTest extends JCRTestBase {
   
-  @Override
-  protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
-    String nname = context.generateUniqueName("testNode");
-    Node node = parent.addNode(nname);
+  private String uuid = "";
+  
+  public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
+    Node node = context.getSession().getRootNode().addNode(context.generateUniqueName("testNode"));
     node.addMixin("mix:referenceable");
-    addName(node.getUUID());
+    context.getSession().save();
+    uuid = node.getUUID();
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    context.getSession().getNodeByUUID(nextName());
+    context.getSession().getNodeByUUID(uuid);
   }
 
 }
