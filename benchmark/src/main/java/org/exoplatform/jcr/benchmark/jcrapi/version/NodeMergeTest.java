@@ -5,7 +5,6 @@
 package org.exoplatform.jcr.benchmark.jcrapi.version;
 
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
