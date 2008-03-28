@@ -52,7 +52,7 @@ public abstract class AbstractNodeTest extends JCRTestBase {
     }
     
     for (int i = 0; i<10; i++) {
-      node.setProperty(context.generateUniqueName("property"), "content");
+      node.setProperty(context.generateUniqueName("property"), node);
     }
     
     root.save();

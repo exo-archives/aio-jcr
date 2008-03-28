@@ -78,6 +78,26 @@
   <testCase name="NodeGetIndexTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeGetIndexTest" />
   </testCase>  
+  
+  <testCase name="NodeGetReferencesTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeGetReferencesTest" />
+  </testCase>  
+  
+  <testCase name="NodeHasNodeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeHasNodeTest" />
+  </testCase>  
+  
+  <testCase name="NodeHasNodesTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeHasNodesTest" />
+  </testCase>  
+  
+  <testCase name="NodeHasPropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeHasPropertyTest" />
+  </testCase>        
+  
+  <testCase name="NodeHasPropertiesTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeHasPropertiesTest" />
+  </testCase>          
 
   <!-- Locking methods-->
   <!--testCase name="NodeLockTest">
