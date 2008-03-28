@@ -24,6 +24,8 @@ public abstract class AbstractNodeTest extends JCRTestBase {
   
   protected String nodeName;
   
+  protected String propertyName;
+  
   protected Node node;
   
   @Override
@@ -42,6 +44,7 @@ public abstract class AbstractNodeTest extends JCRTestBase {
     
     node = root.addNode(nodeName = context.generateUniqueName("testNode"));
     node.addMixin("mix:referenceable");
+    node.setProperty(propertyName =  context.generateUniqueName("property"), "content");
     context.getSession().save();
     
     for (int i = 0; i<10; i++) {

@@ -16,10 +16,7 @@
  */
 package org.exoplatform.jcr.benchmark.jcrapi.node.read;
 
-import javax.jcr.Node;
-
 import org.exoplatform.jcr.benchmark.JCRTestContext;
-import org.exoplatform.jcr.benchmark.jcrapi.AbstractGetItemTest;
 
 import com.sun.japex.TestCase;
 
@@ -28,19 +25,10 @@ import com.sun.japex.TestCase;
  * @author Vitaliy Obmanyuk
  */
 
-public class NodeGetPropertiesByPatternTest extends AbstractGetItemTest {
+public class NodeGetPropertiesByPatternTest extends AbstractNodeTest {
 
-  @Override
-  protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
-    String pname = context.generateUniqueName("property");
-    String value = context.generateUniqueName("value");
-    parent.setProperty(pname, value);
-    parent.save();
-    addNode(parent);
-  }
-
-  @Override
+   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    nextNode().getProperties("property*");
+    node.getProperties("property*");
   }
 }

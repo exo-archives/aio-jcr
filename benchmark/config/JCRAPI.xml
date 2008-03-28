@@ -26,7 +26,7 @@
   </driverGroup>
 
   <!-- Session read methods -->
-  <testCase name="SessionGetNodeByUUIDTest">
+  <!--testCase name="SessionGetNodeByUUIDTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetNodeByUUIDTest" />
   </testCase>
 
@@ -40,10 +40,10 @@
 
   <testCase name="SessionGetRootNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetRootNodeTest" />
-  </testCase>
+  </testCase-->
   
   <!-- Node read methods -->
-  <!-- testCase name="NodeGetNodeTest">
+  <testCase name="NodeGetNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeGetNodeTest" />
   </testCase>
   
@@ -69,7 +69,15 @@
   
   <testCase name="NodeGetPrimaryItemTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeGetPrimaryItemTest" />
-  </testCase -->
+  </testCase>
+  
+  <testCase name="NodeGetUUIDTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeGetUUIDTest" />
+  </testCase>
+  
+  <testCase name="NodeGetIndexTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeGetIndexTest" />
+  </testCase>  
 
   <!-- Locking methods-->
   <!--testCase name="NodeLockTest">

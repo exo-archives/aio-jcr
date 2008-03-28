@@ -48,6 +48,6 @@ public class NodeGetPrimaryItemTest extends AbstractNodeTest {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    ntfile.getPrimaryItem().getPath();
+    ntfile.getPrimaryItem();
   }
 }
