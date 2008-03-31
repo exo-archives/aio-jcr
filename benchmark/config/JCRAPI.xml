@@ -100,7 +100,7 @@
   </testCase-->          
 
   <!-- Property read methods -->
-  <testCase name="PropertyGetValueTest">
+  <!--testCase name="PropertyGetValueTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.read.PropertyGetValueTest" />
   </testCase>          
   
@@ -146,7 +146,32 @@
   
   <testCase name="PropertyGetTypeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.read.PropertyGetTypeTest" />
-  </testCase>          
+  </testCase-->        
+  
+  <!-- Item read methods -->
+  <testCase name="ItemGetPathTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.read.ItemGetPathTest" />
+  </testCase>            
+  
+  <testCase name="ItemGetNameTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.read.ItemGetNameTest" />
+  </testCase>            
+  
+  <testCase name="ItemGetAncestorTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.read.ItemGetAncestorTest" />
+  </testCase>            
+  
+  <testCase name="ItemGetParentTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.read.ItemGetParentTest" />
+  </testCase>            
+  
+  <testCase name="ItemGetDepthTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.read.ItemGetDepthTest" />
+  </testCase>            
+
+  <testCase name="ItemIsSameTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.read.ItemIsSameTest" />
+  </testCase>                  
   
   <!-- Locking methods-->
   <!--testCase name="NodeLockTest">
