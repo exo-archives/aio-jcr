@@ -16,33 +16,34 @@
  */
 package org.exoplatform.services.jcr.ext.registry;
 
-import javax.jcr.ItemNotFoundException;
+
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.exoplatform.common.http.HTTPMethods;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.registry.Registry.RegistryNode;
 import org.exoplatform.services.jcr.ext.registry.transformer.RegistryEntryInputTransformer;
 import org.exoplatform.services.jcr.ext.registry.transformer.RegistryEntryOutputTransformer;
-import org.exoplatform.services.rest.transformer.StringOutputTransformer;
-import org.exoplatform.services.rest.transformer.XMLInputTransformer;
-import org.exoplatform.services.rest.transformer.XMLOutputTransformer;
 import org.exoplatform.services.rest.ContextParam;
+import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.InputTransformer;
 import org.exoplatform.services.rest.OutputTransformer;
-import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.ResourceDispatcher;
 import org.exoplatform.services.rest.Response;
 import org.exoplatform.services.rest.URIParam;
 import org.exoplatform.services.rest.URITemplate;
-import org.exoplatform.common.http.HTTPMethods;
 import org.exoplatform.services.rest.container.ResourceContainer;
 import org.exoplatform.services.rest.data.XlinkHref;
+import org.exoplatform.services.rest.transformer.StringOutputTransformer;
+import org.exoplatform.services.rest.transformer.XMLInputTransformer;
+import org.exoplatform.services.rest.transformer.XMLOutputTransformer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -123,7 +124,7 @@ public class RESTRegistryService implements ResourceContainer {
     try {
       RegistryEntry entry = regService.getEntry(sessionProvider, entryPath);
       response = Response.Builder.ok(entry, "text/xml").build();
-    } catch (ItemNotFoundException e) {
+    } catch (PathNotFoundException e) {
       response = Response.Builder.notFound().errorMessage(
           "Path not found: " + entryPath).build();
     } finally {
@@ -214,9 +215,8 @@ public class RESTRegistryService implements ResourceContainer {
     try {
       regService.removeEntry(sessionProvider, entryPath);
       response = Response.Builder.noContent().build();
-    } catch (ItemNotFoundException e) {
-      response = Response.Builder.notFound().entity("NOT_FOUND", "text/plain")
-          .build();
+    } catch (PathNotFoundException e) {
+      response = Response.Builder.notFound().entity("NOT_FOUND", "text/plain").build();
     } finally {
       sessionProvider.close();
     }

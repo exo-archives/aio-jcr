@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.jcr.ItemExistsException;
-import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
@@ -127,25 +126,22 @@ public class RegistryService extends Registry implements Startable {
    * @see org.exoplatform.services.jcr.ext.registry.Registry#getRegistryEntry( org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String,
    *      java.lang.String, org.exoplatform.services.jcr.core.ManageableRepository)
    */
-  public RegistryEntry getEntry(SessionProvider sessionProvider, String entryPath) throws ItemNotFoundException,
+  public RegistryEntry getEntry(final SessionProvider sessionProvider, final String entryPath) throws PathNotFoundException,
                                                                                   RepositoryException {
 
-    String relPath = EXO_REGISTRY + "/" + entryPath;
+    final String fullPath = "/" + EXO_REGISTRY + "/" + entryPath;
     Session session = session(sessionProvider, repositoryService.getCurrentRepository());
-    if (session.getRootNode().hasNode(relPath)) {
-      try {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        session.exportDocumentView("/" + relPath, out, true, false);
-        return RegistryEntry.parse(out.toByteArray());
-      } catch (IOException e) {
-        throw new RepositoryException("Can't export node to XML representation " + e);
-      } catch (ParserConfigurationException e) {
-        throw new RepositoryException("Can't export node to XML representation " + e);
-      } catch (SAXException e) {
-        throw new RepositoryException("Can't export node to XML representation " + e);
-      }
-    } else
-      throw new ItemNotFoundException("Entry not found " + relPath);
+    try {
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      session.exportDocumentView(fullPath, out, true, false);
+      return RegistryEntry.parse(out.toByteArray());
+    } catch (IOException e) {
+      throw new RepositoryException("Can't export node " + fullPath + " to XML representation " + e);
+    } catch (ParserConfigurationException e) {
+      throw new RepositoryException("Can't export node " + fullPath + " to XML representation " + e);
+    } catch (SAXException e) {
+      throw new RepositoryException("Can't export node " + fullPath + " to XML representation " + e);
+    }
   }
 
   /*
@@ -154,9 +150,9 @@ public class RegistryService extends Registry implements Startable {
    * @see org.exoplatform.services.jcr.ext.registry.Registry#createEntry( org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String,
    *      org.w3c.dom.Document)
    */
-  public void createEntry(SessionProvider sessionProvider, String groupPath, RegistryEntry entry) throws RepositoryException {
+  public void createEntry(final SessionProvider sessionProvider, final String groupPath, final RegistryEntry entry) throws RepositoryException {
 
-    String fullPath = "/" + EXO_REGISTRY + "/" + groupPath;
+    final String fullPath = "/" + EXO_REGISTRY + "/" + groupPath;
     try {
       checkGroup(sessionProvider, groupPath);
       session(sessionProvider, repositoryService.getCurrentRepository()).getWorkspace().importXML(fullPath,
@@ -177,13 +173,10 @@ public class RegistryService extends Registry implements Startable {
    * @see org.exoplatform.services.jcr.ext.registry.Registry#removeEntry( org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String,
    *      java.lang.String)
    */
-  public void removeEntry(SessionProvider sessionProvider, String entryPath) throws RepositoryException {
+  public void removeEntry(final SessionProvider sessionProvider, final String entryPath) throws RepositoryException {
 
-    String relPath = EXO_REGISTRY + "/" + entryPath;
     Node root = session(sessionProvider, repositoryService.getCurrentRepository()).getRootNode();
-    if (!root.hasNode(relPath))
-      throw new ItemNotFoundException("Item not found " + relPath);
-    Node node = root.getNode(relPath);
+    Node node = root.getNode(EXO_REGISTRY + "/" + entryPath);
     Node parent = node.getParent();
     node.remove();
     parent.save();
@@ -195,10 +188,30 @@ public class RegistryService extends Registry implements Startable {
    * @see org.exoplatform.services.jcr.ext.registry.Registry#recreateEntry(org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String,
    *      org.exoplatform.services.jcr.ext.registry.RegistryEntry)
    */
-  public void recreateEntry(SessionProvider sessionProvider, String groupPath, RegistryEntry entry) throws RepositoryException {
+  public void recreateEntry(final SessionProvider sessionProvider, final String groupPath, final RegistryEntry entry) throws RepositoryException {
 
-    removeEntry(sessionProvider, groupPath + "/" + entry.getName());
-    createEntry(sessionProvider, groupPath, entry);
+    final String entryRelPath = EXO_REGISTRY + "/" + groupPath + "/" + entry.getName();
+    final String parentFullPath = "/" + EXO_REGISTRY + "/" + groupPath;
+    
+    try {
+      Session session =session(sessionProvider, repositoryService.getCurrentRepository()); 
+      Node node = session.getRootNode().getNode(entryRelPath);
+  
+      // delete existing entry...
+      node.remove();
+  
+      // create same entry,
+      // [PN] no check we need here, as we have deleted this node before
+      //checkGroup(sessionProvider, fullParentPath);
+      session.importXML(parentFullPath, entry.getAsInputStream(), IMPORT_UUID_CREATE_NEW);
+      
+      // save recreated changes
+      session.save();
+    } catch (IOException ioe) {
+      throw new RepositoryException("Item " + parentFullPath + "can't be created " + ioe);
+    } catch (TransformerException te) {
+      throw new RepositoryException("Can't get XML representation from stream " + te);
+    }
   }
 
   /*
@@ -207,7 +220,7 @@ public class RegistryService extends Registry implements Startable {
    * @see org.exoplatform.services.jcr.ext.registry.Registry#getRegistry(org.exoplatform.services.jcr.ext.common.SessionProvider,
    *      org.exoplatform.services.jcr.core.ManageableRepository)
    */
-  public RegistryNode getRegistry(SessionProvider sessionProvider) throws RepositoryException {
+  public RegistryNode getRegistry(final SessionProvider sessionProvider) throws RepositoryException {
 
     return new RegistryNode(session(sessionProvider, repositoryService.getCurrentRepository()).getRootNode()
                                                                                               .getNode(EXO_REGISTRY));
@@ -219,10 +232,9 @@ public class RegistryService extends Registry implements Startable {
    * @return session
    * @throws RepositoryException
    */
-  private Session session(SessionProvider sessionProvider, ManageableRepository repo) throws RepositoryException {
+  private Session session(final SessionProvider sessionProvider, final ManageableRepository repo) throws RepositoryException {
 
-    String repName = repo.getConfiguration().getName();
-    return sessionProvider.getSession(regWorkspaces.get(repName), repo);
+    return sessionProvider.getSession(regWorkspaces.get(repo.getConfiguration().getName()), repo);
   }
 
   public boolean isStarted() {
@@ -246,7 +258,7 @@ public class RegistryService extends Registry implements Startable {
           xml.close();
         }
         initStorage(false);
-        
+
         started = true;
       } catch (RepositoryConfigurationException e) {
         log.error(e.getLocalizedMessage());
@@ -357,7 +369,7 @@ public class RegistryService extends Registry implements Startable {
    * @param groupPath
    * @throws RepositoryException
    */
-  private void checkGroup(SessionProvider sessionProvider, String groupPath) throws RepositoryException {
+  private void checkGroup(final SessionProvider sessionProvider, final String groupPath) throws RepositoryException {
     String[] groupNames = groupPath.split("/");
     String prefix = "/" + EXO_REGISTRY;
     Session session = session(sessionProvider, repositoryService.getCurrentRepository());

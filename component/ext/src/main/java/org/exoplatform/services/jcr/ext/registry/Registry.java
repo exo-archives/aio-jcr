@@ -16,8 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.registry;
 
-import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
@@ -57,11 +57,11 @@ public abstract class Registry {
    * @param sessionProvider
    * @param entryPath
    * @return existed RegistryEntry
-   * @throws ItemNotFoundException if entry not found
+   * @throws PathNotFoundException if entry not found
    * @throws RepositoryException
    */
   public abstract RegistryEntry getEntry(SessionProvider sessionProvider,
-      String entryPath) throws ItemNotFoundException, RepositoryException;
+      String entryPath) throws PathNotFoundException, RepositoryException;
 
   /**
    * creates an entry in  the group. In a case if the group does not exist it will be 
