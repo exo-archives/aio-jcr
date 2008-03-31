@@ -104,6 +104,50 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.read.PropertyGetValueTest" />
   </testCase>          
   
+  <testCase name="PropertyGetValuesTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.read.PropertyGetValuesTest" />
+  </testCase>          
+  
+  <testCase name="PropertyGetStringTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.read.PropertyGetStringTest" />
+  </testCase>          
+  
+  <testCase name="PropertyGetStreamTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.read.PropertyGetStreamTest" />
+  </testCase>          
+  
+  <testCase name="PropertyGetLongTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.read.PropertyGetLongTest" />
+  </testCase>          
+  
+  <testCase name="PropertyGetDoubleTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.read.PropertyGetDoubleTest" />
+  </testCase>          
+  
+  <testCase name="PropertyGetDateTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.read.PropertyGetDateTest" />
+  </testCase>          
+  
+  <testCase name="PropertyGetBooleanTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.read.PropertyGetBooleanTest" />
+  </testCase>          
+  
+  <testCase name="PropertyGetNodeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.read.PropertyGetNodeTest" />
+  </testCase>          
+  
+  <testCase name="PropertyGetLengthTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.read.PropertyGetLengthTest" />
+  </testCase>          
+  
+  <testCase name="PropertyGetLengthsTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.read.PropertyGetLengthsTest" />
+  </testCase>          
+  
+  <testCase name="PropertyGetTypeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.read.PropertyGetTypeTest" />
+  </testCase>          
+  
   <!-- Locking methods-->
   <!--testCase name="NodeLockTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.lock.NodeLockTest" />
