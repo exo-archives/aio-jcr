@@ -16,7 +16,6 @@
  */
 package org.exoplatform.jcr.benchmark.usecases.lock;
 
-import javax.jcr.Credentials;
 import javax.jcr.Node;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
@@ -24,7 +23,6 @@ import javax.jcr.lock.LockException;
 import org.apache.commons.logging.Log;
 import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
-import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 import com.sun.japex.TestCase;
@@ -99,8 +97,7 @@ public class EditLockedCommonNodeTest extends JCRTestBase {
   private synchronized void deleteRootNodeForAllThreads(JCRTestContext context) {
     try {
       if (!rootNodeDeleted) {
-        Credentials tmpCredentials = ((SessionImpl) context.getSession()).getCredentials();
-        Session tmpSession = context.getSession().getRepository().login(tmpCredentials);
+        Session tmpSession = context.getSession().getRepository().login();
         Node rootNode = tmpSession.getRootNode().getNode(rootNodeName);
         rootNode.remove();
         tmpSession.save();
