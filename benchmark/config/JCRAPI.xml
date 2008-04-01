@@ -149,7 +149,7 @@
   </testCase-->        
   
   <!-- Item read methods -->
-  <testCase name="ItemGetPathTest">
+  <!--testCase name="ItemGetPathTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.read.ItemGetPathTest" />
   </testCase>            
   
@@ -171,7 +171,68 @@
 
   <testCase name="ItemIsSameTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.read.ItemIsSameTest" />
-  </testCase>                  
+  </testCase-->                  
+  
+  <!-- Writing to transient storage -->
+  <testCase name="NodeAddNodeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeAddNodeTest" />
+  </testCase>             
+  
+  <testCase name="NodeSetBooleanPropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetBooleanPropertyTest" />
+  </testCase>             
+  
+  <testCase name="NodeSetDatePropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetDatePropertyTest" />
+  </testCase>             
+  
+  <testCase name="NodeSetDoublePropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetDoublePropertyTest" />
+  </testCase>             
+  
+  <testCase name="NodeSetLongPropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetLongPropertyTest" />
+  </testCase>             
+  
+  <testCase name="NodeSetNodePropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetNodePropertyTest" />
+  </testCase>             
+  
+  <testCase name="NodeSetStreamPropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetStreamPropertyTest" />
+  </testCase>             
+  
+  <testCase name="NodeSetStringArrayPropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetStringArrayPropertyTest" />
+  </testCase>             
+  
+  <testCase name="NodeSetStringPropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetStringPropertyTest" />
+  </testCase>             
+  
+  <testCase name="NodeSetStringTypedPropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetStringTypedPropertyTest" />
+  </testCase>             
+  
+  <testCase name="NodeSetValueArrayPropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetValueArrayPropertyTest" />
+  </testCase>             
+  
+  <testCase name="NodeSetValueArrayTypedPropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetValueArrayTypedPropertyTest" />
+  </testCase>             
+  
+  <testCase name="NodeSetValuePropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetValuePropertyTest" />
+  </testCase>             
+  
+  <testCase name="NodeSetValueTypedPropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetValueTypedPropertyTest" />
+  </testCase>             
+  
+  <testCase name="SetStringArrayTypedPropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.SetStringArrayTypedPropertyTest" />
+  </testCase>             
   
   <!-- Locking methods-->
   <!--testCase name="NodeLockTest">
