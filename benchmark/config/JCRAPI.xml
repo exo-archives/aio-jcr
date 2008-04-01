@@ -26,20 +26,20 @@
   </driverGroup>
 
   <!-- Session read methods -->
-  <!--testCase name="SessionGetNodeByUUIDTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetNodeByUUIDTest" />
+  <!--testCase name="SessionGetRootNodeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetRootNodeTest" />
   </testCase>
-
+  
+  <testCase name="SessionGetItemTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetItemTest" />
+  </testCase>  
+  
   <testCase name="SessionItemExistsTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionItemExistsTest" />
   </testCase>
-
-  <testCase name="SessionGetItemTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetItemTest" />
-  </testCase>
-
-  <testCase name="SessionGetRootNodeTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetRootNodeTest" />
+  
+  <testCase name="SessionGetNodeByUUIDTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetNodeByUUIDTest" />
   </testCase-->
   
   <!-- Node read methods -->
@@ -174,7 +174,7 @@
   </testCase-->                  
   
   <!-- Writing to transient storage -->
-  <testCase name="NodeAddNodeTest">
+  <!--testCase name="NodeAddNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeAddNodeTest" />
   </testCase>             
   
@@ -188,7 +188,11 @@
   
   <testCase name="NodeSetDoublePropertyTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetDoublePropertyTest" />
-  </testCase>             
+  </testCase> 
+  
+  <testCase name="NodeSetStreamPropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetStreamPropertyTest" />
+  </testCase>               
   
   <testCase name="NodeSetLongPropertyTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetLongPropertyTest" />
@@ -197,21 +201,25 @@
   <testCase name="NodeSetNodePropertyTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetNodePropertyTest" />
   </testCase>             
-  
-  <testCase name="NodeSetStreamPropertyTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetStreamPropertyTest" />
-  </testCase>             
+
+  <testCase name="NodeSetStringPropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetStringPropertyTest" />
+  </testCase>
   
   <testCase name="NodeSetStringArrayPropertyTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetStringArrayPropertyTest" />
   </testCase>             
   
-  <testCase name="NodeSetStringPropertyTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetStringPropertyTest" />
-  </testCase>             
+  <testCase name="SetStringArrayTypedPropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.SetStringArrayTypedPropertyTest" />
+  </testCase>               
   
   <testCase name="NodeSetStringTypedPropertyTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetStringTypedPropertyTest" />
+  </testCase>             
+
+  <testCase name="NodeSetValuePropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetValuePropertyTest" />
   </testCase>             
   
   <testCase name="NodeSetValueArrayPropertyTest">
@@ -222,17 +230,9 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetValueArrayTypedPropertyTest" />
   </testCase>             
   
-  <testCase name="NodeSetValuePropertyTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetValuePropertyTest" />
-  </testCase>             
-  
   <testCase name="NodeSetValueTypedPropertyTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetValueTypedPropertyTest" />
-  </testCase>             
-  
-  <testCase name="SetStringArrayTypedPropertyTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.SetStringArrayTypedPropertyTest" />
-  </testCase>             
+  </testCase-->             
   
   <!-- Locking methods-->
   <!--testCase name="NodeLockTest">
@@ -274,7 +274,7 @@
   
   <testCase name="NodeRestoreToRelPathTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeRestoreToRelPathTest" />
-  </testCase -->   
+  </testCase-->   
   
   <!--testCase name="VersionHistoryAddVersionLabelTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryAddVersionLabelTest" />
@@ -283,6 +283,14 @@
   <testCase name="VersionHistoryGetVersionByLabelTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryGetVersionByLabelTest" />
   </testCase>
+
+  <testCase name="VersionHistoryRemoveVersionLabelTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryRemoveVersionLabelTest" />
+  </testCase>
+  
+  <testCase name="VersionHistoryRemoveVersionTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryRemoveVersionTest" />
+  </testCase>  
   
   <testCase name="VersionHistoryGetVersionTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryGetVersionTest" />
@@ -294,14 +302,6 @@
   
   <testCase name="VersionHistoryHasVersionVersionLabelTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryHasVersionVersionLabelTest" />
-  </testCase>
-  
-  <testCase name="VersionHistoryRemoveVersionLabelTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryRemoveVersionLabelTest" />
-  </testCase>
-  
-  <testCase name="VersionHistoryRemoveVersionTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryRemoveVersionTest" />
   </testCase-->
   
   <!-- Temporary excluded tests -->  
