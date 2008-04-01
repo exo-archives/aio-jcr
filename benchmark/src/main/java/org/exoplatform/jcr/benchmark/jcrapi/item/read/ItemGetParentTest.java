@@ -4,10 +4,8 @@
  **************************************************************************/
 package org.exoplatform.jcr.benchmark.jcrapi.item.read;
 
-import javax.jcr.Item;
-
-import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
+import org.exoplatform.jcr.benchmark.jcrapi.AbstractRootNodeTest;
 
 import com.sun.japex.TestCase;
 
@@ -16,14 +14,11 @@ import com.sun.japex.TestCase;
  * @author Vitaliy Obmanyuk
  */
 
-public class ItemGetParentTest extends JCRTestBase {
+public class ItemGetParentTest extends AbstractRootNodeTest {
 
-  private Item item = null;
-  
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    item = context.getSession().getRootNode().addNode(context.generateUniqueName("testNode"));
-    context.getSession().save();
+    super.doPrepare(tc, context);
   }
   
   @Override

@@ -6,8 +6,8 @@ package org.exoplatform.jcr.benchmark.jcrapi.item.read;
 
 import javax.jcr.Item;
 
-import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
+import org.exoplatform.jcr.benchmark.jcrapi.AbstractRootNodeTest;
 
 import com.sun.japex.TestCase;
 
@@ -16,22 +16,19 @@ import com.sun.japex.TestCase;
  * @author Vitaliy Obmanyuk
  */
 
-public class ItemIsSameTest extends JCRTestBase {
+public class ItemIsSameTest extends AbstractRootNodeTest {
 
-  private Item item1 = null;
-  
   private Item item2 = null;
   
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    item1 = context.getSession().getRootNode().addNode(context.generateUniqueName("testNode"));
     item2 = context.getSession().getRootNode().addNode(context.generateUniqueName("testNode"));
     context.getSession().save();
   }
   
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    item1.isSame(item2);
+    item.isSame(item2);
   }
 
 }

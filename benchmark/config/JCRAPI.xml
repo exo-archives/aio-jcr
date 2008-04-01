@@ -5,7 +5,7 @@
   <param name="japex.plotGroupSize" value="5" />
   <param name="japex.resultUnit" value="tps" />
   <param name="japex.warmupIterations" value="0" />
-  <param name="japex.runIterations" value="10" />  
+  <param name="japex.runIterations" value="2" />  
   <!--param name="japex.runTime" value="03" /-->
   <!-- 10 for 10 sec -->
   <!-- 15:00 for 15min -->
@@ -232,7 +232,19 @@
   
   <testCase name="NodeSetValueTypedPropertyTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetValueTypedPropertyTest" />
-  </testCase-->             
+  </testCase-->  
+  
+  <testCase name="NodeOrderBeforeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeOrderBeforeTest" />
+  </testCase>   
+  
+  <testCase name="NodeAddMixinTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeAddMixinTest" />
+  </testCase>                 
+  
+  <testCase name="NodeRemoveMixinTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeAddMixinTest" />
+  </testCase>                   
   
   <!-- Locking methods-->
   <!--testCase name="NodeLockTest">

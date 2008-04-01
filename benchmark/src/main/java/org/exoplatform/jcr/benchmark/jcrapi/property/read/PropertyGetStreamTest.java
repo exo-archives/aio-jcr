@@ -6,11 +6,10 @@ package org.exoplatform.jcr.benchmark.jcrapi.property.read;
 
 import java.io.ByteArrayInputStream;
 
-import javax.jcr.Node;
 import javax.jcr.Property;
 
-import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
+import org.exoplatform.jcr.benchmark.jcrapi.AbstractRootNodeTest;
 
 import com.sun.japex.TestCase;
 
@@ -19,13 +18,13 @@ import com.sun.japex.TestCase;
  * @author Vitaliy Obmanyuk
  */
 
-public class PropertyGetStreamTest extends JCRTestBase {
+public class PropertyGetStreamTest extends AbstractRootNodeTest {
   
   private Property property = null;
   
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    Node node = context.getSession().getRootNode().addNode(context.generateUniqueName("testNode"));
+    super.doPrepare(tc,context);
     property = node.setProperty("testProperty", new ByteArrayInputStream(new byte[1024]));
     context.getSession().save();
   }

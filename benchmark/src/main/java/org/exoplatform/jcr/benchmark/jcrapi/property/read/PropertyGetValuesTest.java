@@ -4,13 +4,12 @@
  **************************************************************************/
 package org.exoplatform.jcr.benchmark.jcrapi.property.read;
 
-import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.Value;
 import javax.jcr.ValueFactory;
 
-import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
+import org.exoplatform.jcr.benchmark.jcrapi.AbstractRootNodeTest;
 
 import com.sun.japex.TestCase;
 
@@ -19,13 +18,13 @@ import com.sun.japex.TestCase;
  * @author Vitaliy Obmanyuk
  */
 
-public class PropertyGetValuesTest extends JCRTestBase {
+public class PropertyGetValuesTest extends AbstractRootNodeTest {
   
   private Property property = null;
   
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    Node node = context.getSession().getRootNode().addNode(context.generateUniqueName("testNode"));
+    super.doPrepare(tc,context);
     ValueFactory valueFactory = context.getSession().getValueFactory();
     Value[] values = {valueFactory.createValue("testValue")};
     property = node.setProperty("testProperty", values);
