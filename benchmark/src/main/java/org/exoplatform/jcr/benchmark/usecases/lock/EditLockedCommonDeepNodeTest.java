@@ -87,8 +87,7 @@ public class EditLockedCommonDeepNodeTest extends JCRTestBase {
   private synchronized void createRootNode(JCRTestContext context) {
     try {
       if (!rootNodeCreated) {
-        Credentials tmpCredentials = ((SessionImpl) context.getSession()).getCredentials();
-        Session tmpSession = context.getSession().getRepository().login(tmpCredentials);
+        Session tmpSession = context.getSession().getRepository().login();
         Node rootNode = tmpSession.getRootNode().addNode(rootNodeName);
         tmpSession.save();
         rootNode.addMixin("mix:lockable");
