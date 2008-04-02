@@ -4,41 +4,34 @@
  **************************************************************************/
 package org.exoplatform.jcr.benchmark.jcrapi.node.write;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.jcr.Node;
 
-import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
+import org.exoplatform.jcr.benchmark.jcrapi.AbstractGetItemTest;
 
 import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
-public class NodeOrderBeforeTest extends JCRTestBase {
-
-  private List <Node> nodes = new ArrayList <Node>();
+public class NodeOrderBeforeTest extends AbstractGetItemTest {
 
   @Override
-  public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    for (int i = 0; i < tc.getIntParam("japex.runIterations"); i++) {
-      Node parent = context.getSession().getRootNode().addNode(
-          context.generateUniqueName("testNode"));
-      parent.addNode("node1");
-      parent.addNode("node2");
-      parent.addNode("node3");
-      context.getSession().save();
-      nodes.add(parent);
-    }
+  protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
+    Node node = parent.addNode("testNode");
+    node.addNode("node1");
+    node.addNode("node2");
+    node.addNode("node3");
+    context.getSession().save();
+    addNode(node);
   }
-
+  
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    nodes.remove(0).orderBefore("node3", "node2");
+    nextNode().orderBefore("node3", "node2");
   }
 
 }

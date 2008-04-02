@@ -174,7 +174,7 @@
   </testCase-->                  
   
   <!-- Writing to transient storage -->
-  <!--testCase name="NodeAddNodeTest">
+  <testCase name="NodeAddNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeAddNodeTest" />
   </testCase>             
   
@@ -210,8 +210,8 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetStringArrayPropertyTest" />
   </testCase>             
   
-  <testCase name="SetStringArrayTypedPropertyTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.SetStringArrayTypedPropertyTest" />
+  <testCase name="NodeSetStringArrayTypedPropertyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetStringArrayTypedPropertyTest" />
   </testCase>               
   
   <testCase name="NodeSetStringTypedPropertyTest">
@@ -232,7 +232,7 @@
   
   <testCase name="NodeSetValueTypedPropertyTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeSetValueTypedPropertyTest" />
-  </testCase-->  
+  </testCase>  
   
   <testCase name="NodeOrderBeforeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeOrderBeforeTest" />
@@ -244,7 +244,7 @@
   
   <testCase name="NodeRemoveMixinTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeAddMixinTest" />
-  </testCase>                   
+  </testCase>
   
   <!-- Locking methods-->
   <!--testCase name="NodeLockTest">

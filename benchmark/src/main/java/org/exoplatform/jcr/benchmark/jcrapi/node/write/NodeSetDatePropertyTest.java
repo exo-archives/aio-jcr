@@ -6,31 +6,21 @@ package org.exoplatform.jcr.benchmark.jcrapi.node.write;
 
 import java.util.Calendar;
 
-import javax.jcr.Node;
-
-import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
 
 import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
-public class NodeSetDatePropertyTest extends JCRTestBase {
-  
-  private Node node = null;
-  
-  @Override
-  public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    node = context.getSession().getRootNode().addNode(context.generateUniqueName("testNode"));
-    context.getSession().save();
-  }
-  
+public class NodeSetDatePropertyTest extends AbstractAddItemEmptyContentTest {
+
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    node.setProperty("testProperty", Calendar.getInstance());
+    nextParent().setProperty(context.generateUniqueName("property"), Calendar.getInstance());
   }
 
 }

@@ -4,31 +4,22 @@
  **************************************************************************/
 package org.exoplatform.jcr.benchmark.jcrapi.node.write;
 
-import javax.jcr.Node;
-
-import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
 
 import com.sun.japex.TestCase;
 
+
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
-public class NodeSetBooleanPropertyTest extends JCRTestBase {
-  
-  private Node node = null;
-  
-  @Override
-  public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    node = context.getSession().getRootNode().addNode(context.generateUniqueName("testNode"));
-    context.getSession().save();
-  }
-  
+public class NodeSetBooleanPropertyTest extends AbstractAddItemEmptyContentTest {
+
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    node.setProperty("testProperty", true);
+    nextParent().setProperty(context.generateUniqueName("property"), true);
   }
-
+  
 }

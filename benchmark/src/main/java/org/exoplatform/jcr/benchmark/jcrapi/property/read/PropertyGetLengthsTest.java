@@ -24,7 +24,7 @@ public class PropertyGetLengthsTest extends AbstractRootNodeTest {
   
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    super.doPrepare(tc,context);
+    super.doPrepare(tc, context);
     ValueFactory valueFactory = context.getSession().getValueFactory();
     Value[] values = {valueFactory.createValue("testValue")};
     property = node.setProperty("testProperty", values);

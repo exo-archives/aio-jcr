@@ -8,32 +8,29 @@ import javax.jcr.Node;
 import javax.jcr.PropertyType;
 import javax.jcr.Value;
 
-import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
+import org.exoplatform.jcr.benchmark.jcrapi.AbstractAddItemTest;
 
 import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
-public class NodeSetValueTypedPropertyTest extends JCRTestBase {
-  
-  private Node node = null;
-  
-  private Value value =null;
-  
+public class NodeSetValueTypedPropertyTest extends AbstractAddItemTest {
+
+  private Value value = null;
+
   @Override
-  public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    node = context.getSession().getRootNode().addNode(context.generateUniqueName("testNode"));
-    context.getSession().save();
+  protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
     value = context.getSession().getValueFactory().createValue("testValue");
   }
-  
+
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    node.setProperty("testProperty", value, PropertyType.STRING);
+    nextParent().setProperty(context.generateUniqueName("property"), value, PropertyType.STRING);
   }
 
 }

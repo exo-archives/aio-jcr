@@ -4,34 +4,25 @@
  **************************************************************************/
 package org.exoplatform.jcr.benchmark.jcrapi.node.write;
 
-import javax.jcr.Node;
 import javax.jcr.PropertyType;
 
-import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
 
 import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
-public class SetStringArrayTypedPropertyTest extends JCRTestBase {
-  
-  private Node node = null;
-  
-  private String[] values = {"testValue"};
-  
-  @Override
-  public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
-    node = context.getSession().getRootNode().addNode(context.generateUniqueName("testNode"));
-    context.getSession().save();
-  }
-  
+public class NodeSetStringArrayTypedPropertyTest extends AbstractAddItemEmptyContentTest {
+
+  private String[] values = { "testValue" };
+
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    node.setProperty("testProperty", values, PropertyType.STRING);
+    nextParent().setProperty(context.generateUniqueName("property"), values, PropertyType.STRING);
   }
 
 }
