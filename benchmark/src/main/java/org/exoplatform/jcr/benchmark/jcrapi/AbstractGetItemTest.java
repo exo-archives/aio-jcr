@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.jcr.Node;
+import javax.jcr.Property;
 
 import org.exoplatform.jcr.benchmark.JCRTestContext;
 
@@ -35,6 +36,8 @@ import com.sun.japex.TestCase;
 public abstract class AbstractGetItemTest extends AbstractItemsTest {
 
   private List<Node>   nodes     = new ArrayList<Node>();
+  
+  private List<Property>   properties     = new ArrayList<Property>();
 
   private volatile int iteration = 0;
 
@@ -54,6 +57,14 @@ public abstract class AbstractGetItemTest extends AbstractItemsTest {
   protected void addNode(Node node) {
     nodes.add(node);
   }
+  
+  protected Property nextProperty() {
+    return properties.get(iteration++);
+  }
+
+  protected void addProperty(Property property) {
+    properties.add(property);
+  }
 
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
@@ -61,6 +72,8 @@ public abstract class AbstractGetItemTest extends AbstractItemsTest {
 
     nodes.clear();
     nodes = null;
+    properties.clear();
+    properties = null;
   }
 
 }

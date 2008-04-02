@@ -174,7 +174,7 @@
   </testCase-->                  
   
   <!-- Writing to transient storage -->
-  <testCase name="NodeAddNodeTest">
+  <!--testCase name="NodeAddNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeAddNodeTest" />
   </testCase>             
   
@@ -244,7 +244,35 @@
   
   <testCase name="NodeRemoveMixinTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeAddMixinTest" />
+  </testCase-->
+  
+  <testCase name="PropertySetValueBooleanTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.write.PropertySetValueBooleanTest" />
   </testCase>
+  
+  <testCase name="PropertySetValueCalendarTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.write.PropertySetValueCalendarTest" />
+  </testCase>
+  
+  <testCase name="PropertySetValueDoubleTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.write.PropertySetValueDoubleTest" />
+  </testCase>  
+  
+  <testCase name="PropertySetValueLongTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.write.PropertySetValueLongTest" />
+  </testCase>  
+  
+  <testCase name="PropertySetValueInputStreamTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.write.PropertySetValueInputStreamTest" />
+  </testCase>  
+  
+  <testCase name="PropertySetValueValueTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.write.PropertySetValueValueTest" />
+  </testCase>  
+  
+  <testCase name="PropertySetValueValueArrrayTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.write.PropertySetValueValueArrrayTest" />
+  </testCase>  
   
   <!-- Locking methods-->
   <!--testCase name="NodeLockTest">
