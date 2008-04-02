@@ -19,13 +19,13 @@ import com.sun.japex.TestCase;
 
 public class NodeSetNodePropertyTest extends AbstractAddItemTest {
 
-  public static boolean mixinAdded = false;
+  private Node parent2 = null;
 
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
-    if (!mixinAdded){
+    if (!(parent.isSame(parent2))) {
       parent.addMixin("mix:referenceable");
       context.getSession().save();
-      mixinAdded = true;
+      parent2 = parent;
     }
   }
 
