@@ -320,10 +320,6 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryAddVersionLabelTest" />
   </testCase>
   
-  <testCase name="VersionHistoryGetVersionByLabelTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryGetVersionByLabelTest" />
-  </testCase>
-
   <testCase name="VersionHistoryRemoveVersionLabelTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryRemoveVersionLabelTest" />
   </testCase>
@@ -334,6 +330,10 @@
   
   <testCase name="VersionHistoryGetVersionTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryGetVersionTest" />
+  </testCase>
+  
+  <testCase name="VersionHistoryGetVersionByLabelTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryGetVersionByLabelTest" />
   </testCase>
   
   <testCase name="VersionHistoryHasVersionLabelTest">
