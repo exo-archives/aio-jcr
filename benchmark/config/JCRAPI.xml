@@ -246,7 +246,7 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeAddMixinTest" />
   </testCase-->
 
-  <testCase name="PropertySetValueBooleanTest">
+  <!--testCase name="PropertySetValueBooleanTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.write.PropertySetValueBooleanTest" />
   </testCase>
 
@@ -276,7 +276,15 @@
 
   <testCase name="PropertySetValueValueArrrayTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.write.PropertySetValueValueArrrayTest" />
+  </testCase-->
+  
+  <testCase name="ItemRemoveTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.write.ItemRemoveTest" />
   </testCase>
+  
+  <testCase name="SessionMoveTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionMoveTest" />
+  </testCase>  
 
   <!-- Locking methods-->
   <!--testCase name="NodeLockTest">
