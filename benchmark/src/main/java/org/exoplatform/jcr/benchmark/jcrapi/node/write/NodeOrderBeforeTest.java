@@ -21,7 +21,7 @@ public class NodeOrderBeforeTest extends AbstractGetItemTest {
 
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
-    Node node = parent.addNode("testNode");
+    Node node = parent.addNode(context.generateUniqueName("testNode"));
     node.addNode("node1");
     node.addNode("node2");
     node.addNode("node3");

@@ -21,7 +21,7 @@ public class NodeAddMixinTest extends AbstractGetItemTest {
 
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
-    Node node = parent.addNode("testNode");
+    Node node = parent.addNode(context.generateUniqueName("testNode"));
     context.getSession().save();
     addNode(node);
   }
