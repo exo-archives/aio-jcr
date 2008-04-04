@@ -266,17 +266,17 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.write.PropertySetValueInputStreamTest" />
   </testCase>
 
+  <testCase name="PropertySetValueNodeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.write.PropertySetValueNodeTest" />
+  </testCase>
+
   <testCase name="PropertySetValueValueTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.write.PropertySetValueValueTest" />
   </testCase>
 
-  <testCase name="PropertySetValueNodeTest">
-      <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.write.PropertySetValueNodeTest" />
-  </testCase>
-
   <testCase name="PropertySetValueValueArrrayTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.write.PropertySetValueValueArrrayTest" />
-  </testCase-->
+  </testCase>
   
   <testCase name="ItemRemoveTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.write.ItemRemoveTest" />
@@ -284,7 +284,12 @@
   
   <testCase name="SessionMoveTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionMoveTest" />
-  </testCase>  
+  </testCase--> 
+  
+  <!-- Save methods-->
+  <!--testCase name="SessionRefreshFalseTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionRefreshFalseTest" />
+  </testCase-->    
 
   <!-- Locking methods-->
   <!--testCase name="NodeLockTest">
