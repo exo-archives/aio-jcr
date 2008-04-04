@@ -4,10 +4,7 @@
  **************************************************************************/
 package org.exoplatform.jcr.benchmark.jcrapi.item.write;
 
-import javax.jcr.Node;
-
 import org.exoplatform.jcr.benchmark.JCRTestContext;
-import org.exoplatform.jcr.benchmark.jcrapi.AbstractGetItemTest;
 
 import com.sun.japex.TestCase;
 
@@ -17,17 +14,11 @@ import com.sun.japex.TestCase;
  * @author Vitaliy Obmanyuk
  */
 
-public class ItemRemoveTest extends AbstractGetItemTest {
-
-  @Override
-  protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
-    Node node = parent.addNode(context.generateUniqueName("testNode"));
-    addNode(node);
-  }
+public class ItemRefreshFalseTest extends AbstractGetNoSavedItemsTest {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    nextNode().remove();
+    nextParent().refresh(false);
   }
 
 }

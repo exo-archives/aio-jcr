@@ -287,9 +287,25 @@
   </testCase--> 
   
   <!-- Save methods-->
-  <!--testCase name="SessionRefreshFalseTest">
+  <testCase name="SessionRefreshFalseTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionRefreshFalseTest" />
-  </testCase-->    
+  </testCase>    
+  
+  <testCase name="SessionSaveTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionSaveTest" />
+  </testCase>
+  
+  <testCase name="ItemRefreshFalseTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.write.ItemRefreshFalseTest" />
+  </testCase>
+  
+  <testCase name="ItemRefreshTrueTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.write.ItemRefreshTrueTest" />
+  </testCase>  
+  
+  <testCase name="ItemSaveTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.write.ItemSaveTest" />
+  </testCase>    
 
   <!-- Locking methods-->
   <!--testCase name="NodeLockTest">
