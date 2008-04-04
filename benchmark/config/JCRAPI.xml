@@ -287,7 +287,7 @@
   </testCase--> 
   
   <!-- Save methods-->
-  <testCase name="SessionRefreshFalseTest">
+  <!--testCase name="SessionRefreshFalseTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionRefreshFalseTest" />
   </testCase>    
   
@@ -305,7 +305,12 @@
   
   <testCase name="ItemSaveTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.write.ItemSaveTest" />
-  </testCase>    
+  </testCase-->
+  
+  <!--Direct writing to Persistent Storage (move, copy, clone) methods-->    
+  <testCase name="WorkspaceMoveTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.workspace.write.WorkspaceMoveTest" />
+  </testCase>
 
   <!-- Locking methods-->
   <!--testCase name="NodeLockTest">
