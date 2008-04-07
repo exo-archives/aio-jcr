@@ -558,17 +558,17 @@
             <phase>generate-sources</phase>
             <configuration>
 
-              <!-- sourceDirectory>${exo.directory.base}/projects/jcr/branches/1.8.2/component/core/src/java/org/exoplatform/services/jcr/impl/core/query/xpath/</sourceDirectory -->
+              <!-- sourceDirectory>${exo.directory.base}/projects/jcr/tags/1.8.2/component/core/src/java/org/exoplatform/services/jcr/impl/core/query/xpath/</sourceDirectory -->
 
-              <!-- sourceDirectory>${exo.directory.base}/projects/jcr/branches/1.8.2/component/core/src/java/org/exoplatform/services/jcr/impl/core/query/sql/</sourceDirectory -->
+              <!-- sourceDirectory>${exo.directory.base}/projects/jcr/tags/1.8.2/component/core/src/java/org/exoplatform/services/jcr/impl/core/query/sql/</sourceDirectory -->
 
-              <!-- sourceDirectory>${exo.directory.base}/projects/jcr/branches/1.8.2/component/core/src/grammar/sql/</sourceDirectory -->
+              <!-- sourceDirectory>${exo.directory.base}/projects/jcr/tags/1.8.2/component/core/src/grammar/sql/</sourceDirectory -->
 
-              <!-- sourceDirectory>${exo.directory.base}/projects/jcr/branches/1.8.2/component/core/src/grammar/xpath/</sourceDirectory -->
+              <!-- sourceDirectory>${exo.directory.base}/projects/jcr/tags/1.8.2/component/core/src/grammar/xpath/</sourceDirectory -->
 
-              <!-- outputDirectory>${exo.directory.base}/projects/jcr/branches/1.8.2/component/core/target/java/org/exoplatform/services/jcr/impl/core/query/xpath/</outputDirectory -->
+              <!-- outputDirectory>${exo.directory.base}/projects/jcr/tags/1.8.2/component/core/target/java/org/exoplatform/services/jcr/impl/core/query/xpath/</outputDirectory -->
 
-              <!-- outputDirectory>${exo.directory.base}/projects/jcr/branches/1.8.2/component/core/src/java/org/exoplatform/services/jcr/impl/core/query/sql/</outputDirectory -->
+              <!-- outputDirectory>${exo.directory.base}/projects/jcr/tags/1.8.2/component/core/src/java/org/exoplatform/services/jcr/impl/core/query/sql/</outputDirectory -->
             </configuration>
             <goals>
               <!-- goal>javacc</goal -->
