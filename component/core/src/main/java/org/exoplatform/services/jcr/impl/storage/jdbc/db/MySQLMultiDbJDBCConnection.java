@@ -45,7 +45,7 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
   }
 
   @Override
-  protected void addNodeRecord(NodeData data) throws SQLException {
+  protected int addNodeRecord(NodeData data) throws SQLException {
     // check if parent exists
     if (data.getParentIdentifier() != null) {
       ResultSet item = findItemByIdentifier(data.getParentIdentifier());
@@ -56,11 +56,11 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
         item.close();
       }
     }
-    super.addNodeRecord(data);
+    return super.addNodeRecord(data);
   }
 
   @Override
-  protected void addPropertyRecord(PropertyData data) throws SQLException {
+  protected int addPropertyRecord(PropertyData data) throws SQLException {
     // check if parent exists
     if (data.getParentIdentifier() != null) {
       ResultSet item = findItemByIdentifier(data.getParentIdentifier());
@@ -71,7 +71,7 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
         item.close();
       }
     }
-    super.addPropertyRecord(data);
+    return super.addPropertyRecord(data);
   }
 
   

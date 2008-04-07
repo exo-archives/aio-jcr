@@ -289,7 +289,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
 
     checkIfOpened();
     try {
-      renameNode(data);
+      if (renameNode(data) <= 0)
+        throw new JCRInvalidItemStateException("(rename) Node " + data.getQPath().getAsString() + " " + data.getIdentifier()
+            + " is not renamed. Probably was deleted by another session ", data.getIdentifier(), ItemState.RENAMED);
     } catch (IOException e) {
       if (log.isDebugEnabled())
         log.error("Property add. IO error: " + e, e);
@@ -379,7 +381,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     try {
       String cid = getInternalId(data.getIdentifier());
       // order numb update
-      updateNodeByIdentifier(data.getPersistedVersion(), data.getQPath().getIndex(), data.getOrderNumber(), cid);
+      if (updateNodeByIdentifier(data.getPersistedVersion(), data.getQPath().getIndex(), data.getOrderNumber(), cid) <= 0)
+        throw new JCRInvalidItemStateException("(update) Node " + data.getQPath().getAsString() + " " + data.getIdentifier()
+           + " is not updated. Probably was deleted by another session ", data.getIdentifier(), ItemState.UPDATED);
 
       if (log.isDebugEnabled())
         log.debug("Node updated " + data.getQPath().getAsString() + ", " + data.getIdentifier() + ", "
@@ -407,7 +411,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       String cid = getInternalId(data.getIdentifier());
 
       // update type
-      updatePropertyByIdentifier(data.getPersistedVersion(), data.getType(), cid);
+      if (updatePropertyByIdentifier(data.getPersistedVersion(), data.getType(), cid) <= 0)
+        throw new JCRInvalidItemStateException("(update) Property " + data.getQPath().getAsString() + " " + data.getIdentifier()
+          + " is not updated. Probably was deleted by another session ", data.getIdentifier(), ItemState.UPDATED);
 
       // update reference
       try {
@@ -1386,9 +1392,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   // ---- Data access methods (query wrappers) to override in concrete
   // connection ------
 
-  protected abstract void addNodeRecord(NodeData data) throws SQLException;
+  protected abstract int addNodeRecord(NodeData data) throws SQLException;
 
-  protected abstract void addPropertyRecord(PropertyData prop) throws SQLException;
+  protected abstract int addPropertyRecord(PropertyData prop) throws SQLException;
 
   protected abstract ResultSet findItemByIdentifier(String identifier) throws SQLException;
 
@@ -1400,11 +1406,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
 
   protected abstract ResultSet findChildPropertiesByParentIdentifier(String parentIdentifier) throws SQLException;
 
-  protected abstract void addReference(PropertyData data) throws SQLException, IOException;
+  protected abstract int addReference(PropertyData data) throws SQLException, IOException;
 
-  protected abstract void renameNode(NodeData data) throws SQLException, IOException;
+  protected abstract int renameNode(NodeData data) throws SQLException, IOException;
 
-  protected abstract void deleteReference(String propertyIdentifier) throws SQLException;
+  protected abstract int deleteReference(String propertyIdentifier) throws SQLException;
 
   protected abstract ResultSet findReferences(String nodeIdentifier) throws SQLException;
 
@@ -1415,15 +1421,12 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   protected abstract int updatePropertyByIdentifier(int version, int type, String identifier) throws SQLException;
 
   // -------- values processing ------------
-  protected abstract void addValueData(String cid, int orderNumber, InputStream stream, int streamLength, String storageId) throws SQLException,
+  protected abstract int addValueData(String cid, int orderNumber, InputStream stream, int streamLength, String storageId) throws SQLException,
                                                                                                                            IOException;
 
-  protected abstract void deleteValues(String cid) throws SQLException;
+  protected abstract int deleteValues(String cid) throws SQLException;
 
   protected abstract ResultSet findValuesByPropertyId(String cid) throws SQLException;
-
-  // protected abstract ResultSet findValuesDataByPropertyId(String cid) throws
-  // SQLException;
 
   protected abstract ResultSet findValueByPropertyIdOrderNumber(String cid, int orderNumb) throws SQLException;
 }

@@ -221,6 +221,20 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
   
 // ----------------------------------------------
   
+  private void checkSameNameSibling(NodeData node) throws RepositoryException {
+    if (node.getQPath().getIndex() > 1) {
+      // check if an older same-name sibling exists
+      // the check is actual for all operations including delete
+      NodeData parent = (NodeData) getItemData(node.getParentIdentifier());
+      QPathEntry myName = node.getQPath().getEntries() [node.getQPath().getEntries().length - 1];
+      ItemData sibling = getItemData(parent, new QPathEntry(myName.getNamespace(), myName.getName(), myName.getIndex() - 1));
+      if (sibling == null || !sibling.isNode()) {
+        throw new InvalidItemStateException("Node can't be saved " + node.getQPath().getAsString() +
+            ". No same-name sibling exists with index " + (myName.getIndex() - 1) + ".");
+      }
+    }
+  }
+  
   /**
    * Performs actual item data deleting
    * @param item to delete
@@ -266,15 +280,19 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
       throws RepositoryException, InvalidItemStateException {
 
     if (item.isNode()) {
-      con.add((NodeData) item);
+      final NodeData node = (NodeData) item;
+      checkSameNameSibling(node);
+      con.add(node);
     } else {
       con.add((PropertyData) item);
     }
   }
 
-  protected void doRename(TransientItemData data,
+  protected void doRename(TransientItemData item,
       WorkspaceStorageConnection con) throws RepositoryException, InvalidItemStateException {
-    con.rename((NodeData)data);
+    final NodeData node = (NodeData) item;
+    checkSameNameSibling(node);
+    con.rename(node);
   }
   /**
    * @return current time

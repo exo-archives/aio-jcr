@@ -25,6 +25,7 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -41,8 +42,8 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * <code>List&lt;ItemState&gt;</code> for copying new nodes and their
  * properties.
  * 
-* @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
-* @version $Id$
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id$
  */
 
 public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisitor {
@@ -50,7 +51,7 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
   /**
    * Destination node name
    */
-  private InternalQName         destNodeName;
+  protected InternalQName         destNodeName;
 
   /**
    * The stack. In the top it contains a parent node.
@@ -60,11 +61,11 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
   /**
    * The list of added item states
    */
-  protected List<ItemState>     itemAddStates = new ArrayList<ItemState>();
+  protected List<ItemState>     itemAddStates  = new ArrayList<ItemState>();
 
   /**
-   * The variable shows necessity of preservation <code>Identifier</code>, not
-   * generate new one, at transformation of <code>Item</code>.
+   * The variable shows necessity of preservation <code>Identifier</code>,
+   * not generate new one, at transformation of <code>Item</code>.
    */
   protected boolean             keepIdentifiers;
 
@@ -73,8 +74,8 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
    */
   protected NodeTypeManagerImpl ntManager;
 
-  protected QPath ancestorToSave = null;
-  
+  protected QPath               ancestorToSave = null;
+
   /**
    * Creates an instance of this class.
    * 
@@ -85,8 +86,11 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
    * @param keepIdentifiers - Is it necessity to keep <code>Identifier</code>
    */
 
-  public DefaultItemDataCopyVisitor(NodeData parent, InternalQName destNodeName,
-      NodeTypeManagerImpl nodeTypeManager, SessionDataManager dataManager, boolean keepIdentifiers) {
+  public DefaultItemDataCopyVisitor(NodeData parent,
+                                    InternalQName destNodeName,
+                                    NodeTypeManagerImpl nodeTypeManager,
+                                    SessionDataManager dataManager,
+                                    boolean keepIdentifiers) {
     super(dataManager);
 
     this.keepIdentifiers = keepIdentifiers;
@@ -109,10 +113,10 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
     InternalQName qname = property.getQPath().getName();
 
     List<ValueData> values;
-    
+
     if (ntManager.isNodeType(Constants.MIX_REFERENCEABLE,
-        curParent().getPrimaryTypeName(),
-        curParent().getMixinTypeNames())
+                             curParent().getPrimaryTypeName(),
+                             curParent().getMixinTypeNames())
         && qname.equals(Constants.JCR_UUID)) {
 
       values = new ArrayList<ValueData>(1);
@@ -120,18 +124,18 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
     } else {
       values = property.getValues();
     }
-    
-    TransientPropertyData newProperty = new TransientPropertyData(QPath
-        .makeChildPath(curParent().getQPath(), qname),
-        keepIdentifiers?property.getIdentifier():IdGenerator.generate(),
-        -1,
-        property.getType(),
-        curParent().getIdentifier(),
-        property.isMultiValued());
-    
+
+    TransientPropertyData newProperty = new TransientPropertyData(QPath.makeChildPath(curParent().getQPath(),
+                                                                                      qname),
+                                                                  keepIdentifiers ? property.getIdentifier()
+                                                                                 : IdGenerator.generate(),
+                                                                  -1,
+                                                                  property.getType(),
+                                                                  curParent().getIdentifier(),
+                                                                  property.isMultiValued());
+
     newProperty.setValues(values);
-    itemAddStates
-        .add(new ItemState(newProperty, ItemState.ADDED, true, ancestorToSave, level != 0));
+    itemAddStates.add(new ItemState(newProperty, ItemState.ADDED, true, ancestorToSave, level != 0));
   }
 
   /*
@@ -142,52 +146,38 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
    */
   @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
-    
-    if (ancestorToSave == null){
+
+    if (ancestorToSave == null) {
       ancestorToSave = curParent().getQPath();
     }
-
     NodeData parent = curParent();
-    
-    InternalQName qname = null;
-
-    List<NodeData> existedChilds = dataManager.getChildNodesData(parent);
-    int newIndex = 1;
-    if (level == 0) {
-      qname = destNodeName;
-      // [PN] 12.01.07 Calculate SNS index for dest root
-      for(NodeData child: existedChilds) {
-        if (child.getQPath().getName().equals(qname)) {
-          newIndex++; // next sibling index
-        }
-      }
-    } else {
-      qname = node.getQPath().getName();
-      newIndex = node.getQPath().getIndex();
-    }    
-    
+    QPath qpath = calculateNewNodePath(node,level);
     // [PN] 05.01.07 Calc order number if parent supports orderable nodes...
-    // If ordering is supported by the node type of the parent node of the new location, then the
+    // If ordering is supported by the node type of the parent node of the new
+    // location, then the
     // newly moved node is appended to the end of the child node list.
     int orderNum = 0;
-    if (ntManager.isOrderableChildNodesSupported(parent.getPrimaryTypeName(), parent.getMixinTypeNames())) {
-      if (existedChilds.size() > 0)
-        orderNum = existedChilds.get(existedChilds.size() - 1).getOrderNumber() + 1;  
-    } else 
-      orderNum = node.getOrderNumber(); // has no matter    
+    if (ntManager.isOrderableChildNodesSupported(parent.getPrimaryTypeName(),
+                                                 parent.getMixinTypeNames())) {
+      orderNum = calculateNewNodeOrderNumber();
+    } else
+      orderNum = node.getOrderNumber(); // has no matter
 
     String id = keepIdentifiers ? node.getIdentifier() : IdGenerator.generate();
-    
-    QPath qpath = QPath.makeChildPath(parent.getQPath(), qname, newIndex);
-    
-    TransientNodeData newNode = new TransientNodeData(
-        qpath, id, -1, node.getPrimaryTypeName(),
-        node.getMixinTypeNames(), orderNum, parent.getIdentifier(), node.getACL());
-        
+
+    TransientNodeData newNode = new TransientNodeData(qpath,
+                                                      id,
+                                                      -1,
+                                                      node.getPrimaryTypeName(),
+                                                      node.getMixinTypeNames(),
+                                                      orderNum,
+                                                      parent.getIdentifier(),
+                                                      node.getACL());
+
     parents.push(newNode);
-    
+
     // ancestorToSave is a parent node
-    //if level == 0 set internal createt as false for validating on save
+    // if level == 0 set internal createt as false for validating on save
     itemAddStates.add(new ItemState(newNode, ItemState.ADDED, true, ancestorToSave, level != 0));
   }
 
@@ -226,22 +216,53 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
   public List<ItemState> getItemAddStates() {
     return itemAddStates;
   }
-  
+
   protected List<ItemState> findItemStates(QPath itemPath) {
     List<ItemState> istates = new ArrayList<ItemState>();
-    for (ItemState istate: itemAddStates) {
-      if (istate.getData().getQPath().equals(itemPath)) 
+    for (ItemState istate : itemAddStates) {
+      if (istate.getData().getQPath().equals(itemPath))
         istates.add(istate);
     }
     return istates;
   }
-  
+
   protected ItemState findLastItemState(QPath itemPath) {
-    for (int i=itemAddStates.size()-1; i>=0; i--) {
-      ItemState istate = itemAddStates.get(i); 
-      if (istate.getData().getQPath().equals(itemPath)) 
+    for (int i = itemAddStates.size() - 1; i >= 0; i--) {
+      ItemState istate = itemAddStates.get(i);
+      if (istate.getData().getQPath().equals(itemPath))
         return istate;
     }
     return null;
+  }
+
+  protected QPath calculateNewNodePath(NodeData node, int level) throws RepositoryException {
+    NodeData parent = curParent();
+
+    InternalQName qname = null;
+
+    List<NodeData> existedChilds = dataManager.getChildNodesData(parent);
+    int newIndex = 1;
+    if (level == 0) {
+      qname = destNodeName;
+      // [PN] 12.01.07 Calculate SNS index for dest root
+      for (NodeData child : existedChilds) {
+        if (child.getQPath().getName().equals(qname)) {
+          newIndex++; // next sibling index
+        }
+      }
+    } else {
+      qname = node.getQPath().getName();
+      newIndex = node.getQPath().getIndex();
+    }
+    return QPath.makeChildPath(parent.getQPath(), qname, newIndex);
+  }
+
+  protected int calculateNewNodeOrderNumber() throws RepositoryException {
+    NodeData parent = curParent();
+    List<NodeData> existedChilds = dataManager.getChildNodesData(parent);
+    int orderNum = 0;
+    if (existedChilds.size() > 0)
+      orderNum = existedChilds.get(existedChilds.size() - 1).getOrderNumber() + 1;
+    return orderNum;
   }
 }

@@ -28,6 +28,7 @@ import java.util.WeakHashMap;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.InvalidItemStateException;
+import javax.jcr.ItemExistsException;
 import javax.jcr.ReferentialIntegrityException;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.ConstraintViolationException;
@@ -904,10 +905,38 @@ public class SessionDataManager implements ItemDataConsumer {
     if (log.isDebugEnabled())
       log.debug(" ----- commit -------- \n" + cLog.dump());
 
-    transactionableManager.save(cLog);
-
-    invalidated.clear();
+    try {
+      transactionableManager.save(cLog);
+      invalidated.clear();
+    } catch(AccessDeniedException e) {
+      remainChangesBack(cLog);
+      throw new AccessDeniedException(e);
+    } catch(InvalidItemStateException e) {
+      remainChangesBack(cLog);
+      throw new InvalidItemStateException(e);
+    } catch(ItemExistsException e) {
+      remainChangesBack(cLog);
+      throw new ItemExistsException(e);
+    } catch(ReferentialIntegrityException e) {
+      remainChangesBack(cLog);
+      throw new ReferentialIntegrityException(e);
+    } catch(RepositoryException e) {
+      remainChangesBack(cLog);
+      throw new RepositoryException(e);
+    }
   }
+  
+  /**
+   * Save changes log records back in the session changes log.
+   * <p>Case of Session.save error.
+   * 
+   * @param cLog
+   */
+  private void remainChangesBack(PlainChangesLog cLog) {
+    changesLog.addAll(cLog.getAllStates());
+    if (log.isDebugEnabled())
+      log.debug(" ----- rollback ----- \n" + cLog.dump());
+  }  
 
   /**
    * Returns all REFERENCE properties that refer to this node.

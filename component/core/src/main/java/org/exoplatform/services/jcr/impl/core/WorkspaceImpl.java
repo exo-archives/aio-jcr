@@ -202,7 +202,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
                                 destNodePath.getName().getInternalName(),
                                 getNodeTypeManager(),
                                 srcSession.getTransientNodesManager(),
-                                false);
+                                 false);
     srcNode.getData().accept(initializer);
 
     PlainChangesLogImpl changesLog = new PlainChangesLogImpl(initializer.getItemAddStates(), session.getId());

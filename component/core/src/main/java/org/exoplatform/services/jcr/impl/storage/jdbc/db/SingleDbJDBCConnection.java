@@ -160,7 +160,7 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
   }
 
   @Override
-  protected void addNodeRecord(NodeData data) throws SQLException {
+  protected int addNodeRecord(NodeData data) throws SQLException {
     if (insertNode == null)
       insertNode = dbConnection.prepareStatement(INSERT_NODE);
     else
@@ -174,11 +174,11 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     insertNode.setInt(5, data.getPersistedVersion());
     insertNode.setInt(6, data.getQPath().getIndex());
     insertNode.setInt(7, data.getOrderNumber());
-    insertNode.executeUpdate();    
+    return insertNode.executeUpdate();    
   }
 
   @Override
-  protected void addPropertyRecord(PropertyData data) throws SQLException {
+  protected int addPropertyRecord(PropertyData data) throws SQLException {
     if (insertProperty == null)
       insertProperty = dbConnection.prepareStatement(INSERT_PROPERTY);
     else
@@ -193,20 +193,21 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     insertProperty.setInt(7, data.getType());
     insertProperty.setBoolean(8, data.isMultiValued());
     
-    insertProperty.executeUpdate();
+    return insertProperty.executeUpdate();
   }
 
   /**
    * For REFERENCE properties only
    */
   @Override
-  protected void addReference(PropertyData data) throws SQLException, IOException {
+  protected int addReference(PropertyData data) throws SQLException, IOException {
     if (insertReference == null)
       insertReference = dbConnection.prepareStatement(INSERT_REF);
     else
       insertReference.clearParameters();
     
     List<ValueData> values = data.getValues();
+    int added = 0;
     for (int i=0; i<values.size(); i++) {
       ValueData vdata = values.get(i);
       String refNodeIdentifier = new String(vdata.getAsByteArray());
@@ -214,22 +215,23 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
       insertReference.setString(1, getInternalId(refNodeIdentifier));
       insertReference.setString(2, getInternalId(data.getIdentifier()));
       insertReference.setInt(3, i);
-      insertReference.executeUpdate();
+      added += insertReference.executeUpdate();
     }
+    return added;
   }  
   
   /**
    * For REFERENCE properties only
    */
   @Override
-  protected void deleteReference(String propertyCid) throws SQLException {
+  protected int deleteReference(String propertyCid) throws SQLException {
     if (deleteReference == null)
       deleteReference = dbConnection.prepareStatement(DELETE_REF);
     else
       deleteReference.clearParameters();
     
     deleteReference.setString(1, propertyCid);
-    deleteReference.executeUpdate();    
+    return deleteReference.executeUpdate();    
   }
 
   @Override
@@ -346,7 +348,7 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
   
   // -------- values processing ------------
 
-  protected void addValueData(String cid, int orderNumber, InputStream stream, int streamLength, String storageDesc) throws SQLException, IOException {
+  protected int addValueData(String cid, int orderNumber, InputStream stream, int streamLength, String storageDesc) throws SQLException, IOException {
 
     if (insertValue == null)
       insertValue = dbConnection.prepareStatement(INSERT_VALUE);
@@ -364,17 +366,17 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
 
     insertValue.setInt(2, orderNumber);
     insertValue.setString(3, cid);
-    insertValue.executeUpdate();
+    return insertValue.executeUpdate();
   }
   
-  protected void deleteValues(String cid) throws SQLException {
+  protected int deleteValues(String cid) throws SQLException {
     if (deleteValue == null)
       deleteValue = dbConnection.prepareStatement(DELETE_VALUE);
     else
       deleteValue.clearParameters();      
     
     deleteValue.setString(1, cid);
-    deleteValue.executeUpdate();
+    return deleteValue.executeUpdate();
   }
 
 //  protected ResultSet findValuesDataByPropertyId(String cid) throws SQLException {
@@ -409,7 +411,7 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
   }
 
   @Override
-  protected void renameNode(NodeData data) throws SQLException, IOException {
+  protected int renameNode(NodeData data) throws SQLException, IOException {
     if (renameNode == null)
       renameNode = dbConnection.prepareStatement(RENAME_NODE);
     else
@@ -422,6 +424,6 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     renameNode.setInt(4, data.getQPath().getIndex());
     renameNode.setInt(5, data.getOrderNumber());
     renameNode.setString(6, getInternalId(data.getIdentifier()));
-    renameNode.executeUpdate();
+    return renameNode.executeUpdate();
   }    
 }

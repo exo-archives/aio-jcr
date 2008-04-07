@@ -9,6 +9,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -133,5 +134,4 @@ public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
     itemAddStates
         .add(new ItemState(newProperty, ItemState.ADDED, true, ancestorToSave, level != 0));
   }
-
 }

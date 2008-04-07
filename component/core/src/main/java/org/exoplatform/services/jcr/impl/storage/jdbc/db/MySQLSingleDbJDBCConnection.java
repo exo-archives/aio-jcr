@@ -45,7 +45,7 @@ public class MySQLSingleDbJDBCConnection extends SingleDbJDBCConnection {
   }
 
   @Override
-  protected void addNodeRecord(NodeData data) throws SQLException {
+  protected int addNodeRecord(NodeData data) throws SQLException {
     // check if parent exists
     if (data.getParentIdentifier() != null) {
       ResultSet item = findItemByIdentifier(getInternalId(data.getParentIdentifier()));
@@ -56,11 +56,11 @@ public class MySQLSingleDbJDBCConnection extends SingleDbJDBCConnection {
         item.close();
       }
     }
-    super.addNodeRecord(data);
+    return super.addNodeRecord(data);
   }
 
   @Override
-  protected void addPropertyRecord(PropertyData data) throws SQLException {
+  protected int addPropertyRecord(PropertyData data) throws SQLException {
     // check if parent exists
     if (data.getParentIdentifier() != null) {
       ResultSet item = findItemByIdentifier(getInternalId(data.getParentIdentifier()));
@@ -71,7 +71,7 @@ public class MySQLSingleDbJDBCConnection extends SingleDbJDBCConnection {
         item.close();
       }
     }
-    super.addPropertyRecord(data);
+    return super.addPropertyRecord(data);
   }
 
   
