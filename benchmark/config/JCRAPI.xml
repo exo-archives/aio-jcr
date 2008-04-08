@@ -5,7 +5,7 @@
   <param name="japex.plotGroupSize" value="5" />
   <param name="japex.resultUnit" value="tps" />
   <param name="japex.warmupIterations" value="0" />
-  <param name="japex.runIterations" value="2" />
+  <param name="japex.runIterations" value="1" />
   <!--param name="japex.runTime" value="03" /-->
   <!-- 10 for 10 sec -->
   <!-- 15:00 for 15min -->
@@ -311,6 +311,18 @@
   <testCase name="WorkspaceMoveTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.workspace.write.WorkspaceMoveTest" />
   </testCase>
+  
+  <testCase name="WorkspaceCopyTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.workspace.write.WorkspaceCopyTest" />
+  </testCase>  
+  
+  <testCase name="WorkspaceCopyFromAnotherWorkspaceTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.workspace.write.WorkspaceCopyFromAnotherWorkspaceTest" />
+  </testCase>  
+  
+  <testCase name="WorkspaceCloneTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.workspace.write.WorkspaceCloneTest" />
+  </testCase>    
 
   <!-- Locking methods-->
   <!--testCase name="NodeLockTest">
