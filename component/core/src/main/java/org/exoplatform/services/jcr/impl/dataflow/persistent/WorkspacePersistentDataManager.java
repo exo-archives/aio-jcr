@@ -226,6 +226,9 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
       // check if an older same-name sibling exists
       // the check is actual for all operations including delete
       NodeData parent = (NodeData) getItemData(node.getParentIdentifier());
+      if (parent == null)
+        throw new RepositoryException("FATAL Parent not found. Node " + node.getQPath().getAsString() + ", id: " + node.getIdentifier() + ", pid: " + node.getParentIdentifier());
+      
       QPathEntry myName = node.getQPath().getEntries() [node.getQPath().getEntries().length - 1];
       ItemData sibling = getItemData(parent, new QPathEntry(myName.getNamespace(), myName.getName(), myName.getIndex() - 1));
       if (sibling == null || !sibling.isNode()) {
