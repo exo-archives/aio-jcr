@@ -222,7 +222,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
 // ----------------------------------------------
   
   private void checkSameNameSibling(NodeData node) throws RepositoryException {
-    if (node.getQPath().getIndex() > 1) {
+    if (!Constants.ROOT_UUID.equals(node.getIdentifier()) && node.getQPath().getIndex() > 1) {
       // check if an older same-name sibling exists
       // the check is actual for all operations including delete
       NodeData parent = (NodeData) getItemData(node.getParentIdentifier());
