@@ -308,7 +308,7 @@
   </testCase-->
   
   <!--Direct writing to Persistent Storage (move, copy, clone) methods-->    
-  <testCase name="WorkspaceMoveTest">
+  <!--testCase name="WorkspaceMoveTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.workspace.write.WorkspaceMoveTest" />
   </testCase>
   
@@ -322,7 +322,40 @@
   
   <testCase name="WorkspaceCloneTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.workspace.write.WorkspaceCloneTest" />
+  </testCase-->    
+
+  <!--Export/import methods-->    
+  <testCase name="SessionExportSystemViewContentHandlerTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.SessionExportSystemViewContentHandlerTest" />
+  </testCase>
+  
+  <testCase name="SessionExportSystemViewOutputStreamTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.SessionExportSystemViewOutputStreamTest" />
+  </testCase>
+  
+  <testCase name="SessionExportDocumentViewContentHandlerTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.SessionExportDocumentViewContentHandlerTest" />
+  </testCase>  
+  
+  <testCase name="SessionExportDocumentViewOutputStreamTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.SessionExportDocumentViewOutputStreamTest" />
   </testCase>    
+
+  <testCase name="SessionGetImportContentHandlerTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.SessionGetImportContentHandlerTest" />
+  </testCase>    
+  
+  <testCase name="SessionImportXMLTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.SessionImportXMLTest" />
+  </testCase>    
+  
+  <testCase name="WorkspaceGetImportContentHandlerTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.WorkspaceGetImportContentHandlerTest" />
+  </testCase>    
+  
+  <testCase name="WorkspaceImportXMLTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.WorkspaceImportXMLTest" />
+  </testCase>      
 
   <!-- Locking methods-->
   <!--testCase name="NodeLockTest">
