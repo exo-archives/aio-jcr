@@ -679,7 +679,9 @@ public class SessionDataManager implements ItemDataConsumer {
 
     changesLog.addAll(initializer.getAllStates());
 
-    reindexSameNameSiblings(itemDataFrom, this);
+    // in case of remane of same-name siblings there are a set of SNSes in changes log with broken index chain.
+    // to fix that we are making the reindex of SNSes
+    changesLog.addAll(reindexSameNameSiblings(itemDataFrom, this));
 
     reloadPool(itemDataFrom);
   }
@@ -833,10 +835,6 @@ public class SessionDataManager implements ItemDataConsumer {
         (TransientNodeData) dataManager.getItemData(parentNodeData, new QPathEntry(cause.getQPath().getName(),
                                                                                    cause.getQPath().getIndex() + 1));
     while (nextSibling != null) {
-      if (nextSibling.getIdentifier().equals(cause.getIdentifier())) {
-        // it's a case of reindex if we deleting few siblings
-        return changes;
-      }
       // update with new index
       NodeData reindexed = nextSibling.cloneAsSibling(nextSibling.getQPath().getIndex() - 1); // go up
 
