@@ -1149,7 +1149,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
             acl = new AccessControlList(readACLOwner(cid), readACLPermisions(cid));
           } else if (parentACL != null) {
             // use permissions from existed parent
-            acl = new AccessControlList(readACLOwner(cid), parentACL.getPermissionEntries());
+            acl = new AccessControlList(readACLOwner(cid), parentACL.hasPermissions() ? parentACL.getPermissionEntries() : null);
           } else {
             // have to search nearest ancestor permissions in ACL manager
             // acl = new AccessControlList(readACLOwner(cid), traverseACLPermissions(cpid));
@@ -1171,7 +1171,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         } else {
           if (parentACL != null)
             // construct ACL from existed parent ACL
-            acl = new AccessControlList(parentACL.getOwner(), parentACL.getPermissionEntries());
+            acl = new AccessControlList(parentACL.getOwner(), parentACL.hasPermissions() ? parentACL.getPermissionEntries() : null);
           else
             // have to search nearest ancestor owner and permissions in ACL manager
             // acl = traverseACL(cpid);
