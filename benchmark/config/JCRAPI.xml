@@ -25,6 +25,15 @@
     </driver>
   </driverGroup>
 
+  <!-- Accessing the Repository -->
+  <testCase name="RepositoryLoginTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.accessing.RepositoryLoginTest" />
+  </testCase>
+  
+  <testCase name="SessionLogoutTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.accessing.SessionLogoutTest" />
+  </testCase>
+  
   <!-- Session read methods -->
   <testCase name="SessionGetRootNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetRootNodeTest" />
