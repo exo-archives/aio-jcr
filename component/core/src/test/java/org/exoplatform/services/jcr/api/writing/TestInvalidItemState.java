@@ -25,6 +25,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
+import org.exoplatform.services.jcr.impl.core.NodeImpl;
 
 /**
  * Created by The eXo Platform SAS. 
@@ -126,6 +127,25 @@ public class TestInvalidItemState extends JcrAPIBaseTest {
       fail("InvalidItemStateException should have been thrown");
     } catch(InvalidItemStateException e) {
       // ok
+    }
+  }
+  
+  public void testAddSubtreeOfNodes() throws LoginException, NoSuchWorkspaceException, RepositoryException {
+    
+    final Node testRootS1 = testRoot;
+    
+    // test
+    
+    try {
+      Node nS1 = testRootS1.addNode("node1");
+      Node nS1_1 = nS1.addNode("childNode1");
+      Node nS1_2 = nS1.addNode("childNode1");
+      Node nS1_2_1 = nS1_2.addNode("childNode2");
+      Node nS1_2_2 = nS1_2.addNode("childNode2");
+      testRootS1.save();  
+    } catch(InvalidItemStateException e) {
+      e.printStackTrace();
+      fail("InvalidItemStateException should not have been thrown, but  " + e);
     }
   }
   
@@ -317,42 +337,5 @@ public class TestInvalidItemState extends JcrAPIBaseTest {
     testRootS2.refresh(false);
     // in persistent storage, node[1] it's a node[2] originally
     assertEquals("Wrong node UUID found ", s2_2_id, testRootS2.getNode("node[1]").getUUID());
-  }
-  
-  public void _testMoveSameNameSiblings() throws LoginException, NoSuchWorkspaceException, RepositoryException {
-    
-    final Node testRootS1 = testRoot;
-    
-    Node nS1_1 = testRootS1.addNode("node"); // node[1]
-    testRootS1.save();
-    nS1_1.addMixin("mix:referenceable");
-    String s1_1_id = nS1_1.getUUID();
-    testRootS1.save();
-    
-    Node nS1_2 = testRootS1.addNode("node"); // node[2]
-    testRootS1.save();
-    Node nS1_3 = testRootS1.addNode("node"); // node[3]
-      
-    // test
-    
-    try {
-      testRootS1.getSession().move(testRootS1.getPath() + "/node[3]", testRootS1.getPath() + "/node");
-      testRootS1.save(); // save
-      
-    } catch(RepositoryException e) {
-      e.printStackTrace();
-      fail("RepositoryException should have been thrown, but " + e);
-    }
-    
-    int index = 0;
-    for (NodeIterator iter = testRootS1.getNodes(); iter.hasNext();) {
-      index++;
-      Node n = iter.nextNode();
-      log.info("Node: " + n.getPath());
-      assertEquals("Wrong index found ", index, n.getIndex());
-    }
-    
-    // check reordering
-    assertEquals("Wrong node UUID found ", s1_1_id, testRootS1.getNode("node[2]").getUUID());
-  }
+  }  
 }
