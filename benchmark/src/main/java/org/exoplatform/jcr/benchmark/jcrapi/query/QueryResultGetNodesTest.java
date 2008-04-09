@@ -17,24 +17,31 @@
 package org.exoplatform.jcr.benchmark.jcrapi.query;
 
 import javax.jcr.query.Query;
+import javax.jcr.query.QueryResult;
 
 import org.exoplatform.jcr.benchmark.JCRTestContext;
 
 import com.sun.japex.TestCase;
 
 /**
- * Created by The eXo Platform SAS 
+ * Created by The eXo Platform SAS
  * 
- * Date: 28.03.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
- * @version $Id: QueryManagerCreateQueryTest.java 111 2008-11-11 11:11:11Z peterit $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  */
-public class QueryManagerCreateQueryTest extends AbstractQueryTest {
+public class QueryResultGetNodesTest extends AbstractQueryTest {
+
+  private QueryResult queryResult = null;
+  
+  @Override
+  public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
+    super.doPrepare(tc, context);
+    Query query = queryManager.createQuery(SQL_QUERY_STATEMENT, Query.SQL);
+    queryResult = query.execute();
+  }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    queryManager.createQuery(SQL_QUERY_STATEMENT, Query.SQL);
+    queryResult.getNodes();
   }
 
 }

@@ -118,6 +118,7 @@ public class JCRDriver extends JapexDriverBase {
   public void finish(final TestCase tc) {
     try {
       test.doFinish(tc, context);
+      context.getSession().logout();
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);

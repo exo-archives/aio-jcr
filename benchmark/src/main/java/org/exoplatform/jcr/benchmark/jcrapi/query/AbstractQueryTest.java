@@ -42,11 +42,13 @@ public abstract class AbstractQueryTest extends JCRTestBase {
   
   protected QueryManager queryManager;
   
+  protected final String SQL_QUERY_STATEMENT = "select * from nt:resource where jcr:data like '%merge%'";
+  
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
     super.doFinish(tc, context);
     
-    node.remove();
+    root.remove();
     context.getSession().save();
   }
 

@@ -5,7 +5,7 @@
   <param name="japex.plotGroupSize" value="5" />
   <param name="japex.resultUnit" value="tps" />
   <param name="japex.warmupIterations" value="0" />
-  <param name="japex.runIterations" value="2" />
+  <param name="japex.runIterations" value="1000" />
   <!--param name="japex.runTime" value="03" /-->
   <!-- 10 for 10 sec -->
   <!-- 15:00 for 15min -->
@@ -26,7 +26,7 @@
   </driverGroup>
 
   <!-- Session read methods -->
-  <!--testCase name="SessionGetRootNodeTest">
+  <testCase name="SessionGetRootNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetRootNodeTest" />
   </testCase>
 
@@ -40,10 +40,10 @@
 
   <testCase name="SessionGetNodeByUUIDTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetNodeByUUIDTest" />
-  </testCase-->
+  </testCase>
 
   <!-- Node read methods -->
-  <!--testCase name="NodeGetNodeTest">
+  <testCase name="NodeGetNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeGetNodeTest" />
   </testCase>
 
@@ -97,10 +97,10 @@
 
   <testCase name="NodeHasPropertiesTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.read.NodeHasPropertiesTest" />
-  </testCase-->
+  </testCase>
 
   <!-- Property read methods -->
-  <!--testCase name="PropertyGetValueTest">
+  <testCase name="PropertyGetValueTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.read.PropertyGetValueTest" />
   </testCase>
 
@@ -146,10 +146,10 @@
 
   <testCase name="PropertyGetTypeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.read.PropertyGetTypeTest" />
-  </testCase-->
+  </testCase>
 
   <!-- Item read methods -->
-  <!--testCase name="ItemGetPathTest">
+  <testCase name="ItemGetPathTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.read.ItemGetPathTest" />
   </testCase>
 
@@ -171,10 +171,10 @@
 
   <testCase name="ItemIsSameTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.read.ItemIsSameTest" />
-  </testCase-->
+  </testCase>
 
   <!-- Writing to transient storage -->
-  <!--testCase name="NodeAddNodeTest">
+  <testCase name="NodeAddNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeAddNodeTest" />
   </testCase>
 
@@ -244,9 +244,9 @@
 
   <testCase name="NodeRemoveMixinTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.node.write.NodeAddMixinTest" />
-  </testCase-->
+  </testCase>
 
-  <!--testCase name="PropertySetValueBooleanTest">
+  <testCase name="PropertySetValueBooleanTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.write.PropertySetValueBooleanTest" />
   </testCase>
 
@@ -284,10 +284,10 @@
   
   <testCase name="SessionMoveTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionMoveTest" />
-  </testCase--> 
+  </testCase> 
   
   <!-- Save methods-->
-  <!--testCase name="SessionRefreshFalseTest">
+  <testCase name="SessionRefreshFalseTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionRefreshFalseTest" />
   </testCase>    
   
@@ -305,10 +305,10 @@
   
   <testCase name="ItemSaveTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.write.ItemSaveTest" />
-  </testCase-->
+  </testCase>
   
   <!--Direct writing to Persistent Storage (move, copy, clone) methods-->    
-  <!--testCase name="WorkspaceMoveTest">
+  <testCase name="WorkspaceMoveTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.workspace.write.WorkspaceMoveTest" />
   </testCase>
   
@@ -322,10 +322,10 @@
   
   <testCase name="WorkspaceCloneTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.workspace.write.WorkspaceCloneTest" />
-  </testCase-->    
+  </testCase>    
 
   <!--Export/import methods-->    
-  <!--testCase name="SessionExportSystemViewContentHandlerTest">
+  <testCase name="SessionExportSystemViewContentHandlerTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.SessionExportSystemViewContentHandlerTest" />
   </testCase>
   
@@ -355,10 +355,10 @@
   
   <testCase name="WorkspaceImportXMLTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.WorkspaceImportXMLTest" />
-  </testCase-->      
+  </testCase>      
 
   <!-- Locking methods-->
-  <!--testCase name="NodeLockTest">
+  <testCase name="NodeLockTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.lock.NodeLockTest" />
   </testCase>
 
@@ -376,10 +376,10 @@
 
   <testCase name="NodeIsLockedTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.lock.NodeIsLockedTest" />
-  </testCase-->
+  </testCase>
 
   <!-- Versioning methods -->
-  <!--testCase name="NodeCheckinTest">
+  <testCase name="NodeCheckinTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeCheckinTest" />
   </testCase>
 
@@ -441,11 +441,31 @@
   
   <testCase name="VersionGetSuccessorsTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionGetSuccessorsTest" />
-  </testCase-->  
+  </testCase>  
   
   <!-- Query methods -->
   <testCase name="QueryManagerCreateQueryTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.query.QueryManagerCreateQueryTest" />
+  </testCase>      
+  
+  <testCase name="QueryManagerGetQueryTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.query.QueryManagerGetQueryTest" />
+  </testCase>
+  
+  <testCase name="QueryExecuteTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.query.QueryExecuteTest" />
+  </testCase>
+  
+  <testCase name="QueryStoreAsNodeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.query.QueryStoreAsNodeTest" />
+  </testCase>
+  
+  <testCase name="QueryResultGetNodesTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.query.QueryResultGetNodesTest" />
+  </testCase>
+  
+  <testCase name="QueryResultGetRowsTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.query.QueryResultGetRowsTest" />
   </testCase>      
 
   <!-- Temporary excluded tests -->
