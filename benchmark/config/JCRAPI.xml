@@ -5,7 +5,7 @@
   <param name="japex.plotGroupSize" value="5" />
   <param name="japex.resultUnit" value="tps" />
   <param name="japex.warmupIterations" value="0" />
-  <param name="japex.runIterations" value="1" />
+  <param name="japex.runIterations" value="2" />
   <!--param name="japex.runTime" value="03" /-->
   <!-- 10 for 10 sec -->
   <!-- 15:00 for 15min -->
@@ -325,7 +325,7 @@
   </testCase-->    
 
   <!--Export/import methods-->    
-  <testCase name="SessionExportSystemViewContentHandlerTest">
+  <!--testCase name="SessionExportSystemViewContentHandlerTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.SessionExportSystemViewContentHandlerTest" />
   </testCase>
   
@@ -355,7 +355,7 @@
   
   <testCase name="WorkspaceImportXMLTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.WorkspaceImportXMLTest" />
-  </testCase>      
+  </testCase-->      
 
   <!-- Locking methods-->
   <!--testCase name="NodeLockTest">
@@ -379,7 +379,7 @@
   </testCase-->
 
   <!-- Versioning methods -->
-  <!-- testCase name="NodeCheckinTest">
+  <!--testCase name="NodeCheckinTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeCheckinTest" />
   </testCase>
 
@@ -393,13 +393,17 @@
 
   <testCase name="NodeRestoreTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeRestoreTest" />
-  </testCase>
+  </testCase>  
 
   <testCase name="NodeRestoreToRelPathTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeRestoreToRelPathTest" />
-  </testCase-->
+  </testCase>
+  
+  <testCase name="NodeMergeTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeMergeTest" />
+  </testCase>  
 
-  <!--testCase name="VersionHistoryAddVersionLabelTest">
+  <testCase name="VersionHistoryAddVersionLabelTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryAddVersionLabelTest" />
   </testCase>
 
@@ -425,7 +429,24 @@
 
   <testCase name="VersionHistoryHasVersionVersionLabelTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryHasVersionVersionLabelTest" />
-  </testCase-->
+  </testCase>
+  
+  <testCase name="VersionGetContainingHistoryTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionGetContainingHistoryTest" />
+  </testCase>
+  
+  <testCase name="VersionGetPredecessorsTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionGetPredecessorsTest" />
+  </testCase>  
+  
+  <testCase name="VersionGetSuccessorsTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionGetSuccessorsTest" />
+  </testCase-->  
+  
+  <!-- Query methods -->
+  <testCase name="QueryManagerCreateQueryTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.query.QueryManagerCreateQueryTest" />
+  </testCase>      
 
   <!-- Temporary excluded tests -->
   <!--testCase name="TEMPORARY EXCLUDED">
