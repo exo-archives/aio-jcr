@@ -63,15 +63,21 @@ public class TestSameNameSiblingsMove extends JcrAPIBaseTest {
   public void testMoveFirst() throws LoginException, NoSuchWorkspaceException, RepositoryException {
     
     final Node testRootS1 = testRoot;
+    testRootS1.addMixin("exo:owneable");
+    testRootS1.addMixin("exo:privilegeable");
+    testRootS1.save();
     
     Node nS1_1 = testRootS1.addNode("node"); // node[1]
     testRootS1.save();
     nS1_1.addMixin("mix:referenceable");
+    nS1_1.addMixin("exo:owneable");
+    //nS1_1.setProperty("exo:owner", "root");
     String s1_1_id = nS1_1.getUUID();
     testRootS1.save();
     
     Node nS1_2 = testRootS1.addNode("node"); // node[2]
     Node nS1_3 = testRootS1.addNode("node"); // node[3]
+    
     testRootS1.save();
     
     // test
