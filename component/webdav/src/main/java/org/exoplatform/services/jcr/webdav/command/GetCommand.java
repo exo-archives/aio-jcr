@@ -19,6 +19,8 @@ package org.exoplatform.services.jcr.webdav.command;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,11 +89,18 @@ public class GetCommand {
     }
 
     try {
+      /*
+       * Path can be encoded in LinkGenerator.
+       * Problem with spaces, they can be encoded in two ways:
+       * 1. %20
+       * 2. +
+       */
+      path = URLDecoder.decode(path, "UTF-8");
       Node node = (Node) session.getItem(path);
 
       WebDavNamespaceContext nsContext = new WebDavNamespaceContext(session);
       URI uri = new URI(TextUtil.escape(baseURI + node.getPath(), '%', true));
-
+      
       Resource resource;
       InputStream istream;
 
