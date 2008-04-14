@@ -27,6 +27,7 @@ import java.util.StringTokenizer;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.ext.action.InvocationContext;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.SimpleParameterEntry;
@@ -109,14 +110,14 @@ public abstract class AccessManager {
       }
       return false;
     } else {
-      // Check Other with Org service
-      for (AccessControlEntry ace : acl.getPermissionEntries()) {
-        if (isUserMatch(ace.getIdentity(), userId)
-            && isPermissionMatch(ace.getPermission(), permission))
-          return true;
+      // check permission to perform all of the listed actions
+      for (int i = 0; i < permission.length; i++) {
+        // check specific actions
+        if (!isPermissionMatch(acl.getPermissionsList(), permission[i], userId))
+          return false;
       }
+      return true;
     }
-    return false;
   }
 
   protected boolean isUserMatch(String identity, String userId) {
@@ -162,7 +163,6 @@ public abstract class AccessManager {
       return false;
     }
   }
-
   /**
    * Check for a membership match in OrganizationService.
    * 
@@ -218,6 +218,7 @@ public abstract class AccessManager {
     return false;
   }
 
+  
   private static String[] parseStringPermissions(String str) {
     ArrayList permissions = new ArrayList();
     StringTokenizer parser = new StringTokenizer(str, ",");
@@ -231,14 +232,14 @@ public abstract class AccessManager {
     return perms;
   }
 
-  protected final boolean isPermissionMatch(String existedPermission, String[] testPermissions) {
-    try {
-      for (int i = 0; i < testPermissions.length; i++) {
-        if (existedPermission.equals(testPermissions[i]))
-          return true;
+  private boolean isPermissionMatch(List<AccessControlEntry> existedPermission,
+                                    String testPermission,
+                                    String userId) {
+    for (AccessControlEntry ace : existedPermission) {
+      // match action
+      if (isUserMatch(ace.getIdentity(), userId) && ace.getPermission().equals(testPermission)) {
+        return true;
       }
-    } catch (Exception e) {
-      log.error("AccessManager.isPermissionMatch() exception " + e);
     }
     return false;
   }

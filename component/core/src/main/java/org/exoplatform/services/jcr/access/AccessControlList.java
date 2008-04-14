@@ -216,4 +216,8 @@ public class AccessControlList implements Externalizable {
       out.write(entry.getPermission().getBytes());
     }
   }
+
+     List<AccessControlEntry> getPermissionsList() {
+    return aces;
+  }
 }

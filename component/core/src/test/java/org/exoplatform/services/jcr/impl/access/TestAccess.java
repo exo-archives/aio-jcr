@@ -782,4 +782,19 @@ public class TestAccess extends BaseStandaloneTest {
       
     }
   }
+  public void testDualCheckPermissions() throws Exception {
+    ExtendedNode testRoot = (ExtendedNode) accessTestRoot.addNode("DualCheckPermissions");
+    
+    testRoot.addMixin("exo:privilegeable");
+    testRoot.setPermission("exo1", new String[] { PermissionType.READ, PermissionType.ADD_NODE,
+        PermissionType.SET_PROPERTY });
+    testRoot.setPermission(accessTestRoot.getSession().getUserID(), PermissionType.ALL);
+    testRoot.removePermission(SystemIdentity.ANY);
+    accessTestRoot.save();
+    
+    AccessManager accessManager = ((SessionImpl) accessTestRoot.getSession()).getAccessManager();
+    
+    assertFalse(accessManager.hasPermission(testRoot.getACL(), new String[] { PermissionType.READ,
+        PermissionType.REMOVE }, "exo1"));
+  }
 }
