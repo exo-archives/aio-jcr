@@ -175,7 +175,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   }
 
   /**
-   * Will be used as implementation of
+   * Check if database connection is opened.
    * 
    * @see org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#isOpened()
    */
@@ -189,7 +189,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   }
 
   /**
-   * Will be used as implementation of
+   * Commit database connection and close it.
    * 
    * @see org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#rollback()
    */
@@ -204,7 +204,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   }
 
   /**
-   * Will be used as implementation of
+   * Roll back database connection and close it.
    * 
    * @see org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#commit()
    */
@@ -1216,17 +1216,6 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
     } catch (IllegalNameException e) {
       throw new RepositoryException(e);
     }
-  }
-
-  @Deprecated
-  private boolean isAccessControllable(InternalQName[] mixinNames) {
-    for (int i = 0; i < mixinNames.length; i++) {
-      if (mixinNames[i].getAsString().equals(Constants.ACCESS_TYPE_URI)
-          || mixinNames[i].getAsString().equals(Constants.PRIVILEGABLE_TYPE_URI)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private void deleteExternalValues(String cid, PropertyData pdata) throws IOException, ValueDataNotFoundException {

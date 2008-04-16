@@ -16,9 +16,14 @@
  */
 package org.exoplatform.services.jcr.impl.dataflow.persistent;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
@@ -56,17 +61,33 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
   protected WorkspaceDataContainer systemDataContainer;
   
   protected List<ItemsPersistenceListener> listeners;
+  
+//  private final PrintWriter logf;
 
   public WorkspacePersistentDataManager(WorkspaceDataContainer dataContainer,
       SystemDataContainerHolder systemDataContainerHolder) {
     this.dataContainer = dataContainer;
     this.listeners = new ArrayList<ItemsPersistenceListener>();
     this.systemDataContainer = systemDataContainerHolder.getContainer();
+    
+    // debug
+//    PrintWriter lf = null;
+//    try {
+//      lf = new PrintWriter(new FileOutputStream("./jcr_persistence.log"), true);
+//    } catch (FileNotFoundException e) {
+//      e.printStackTrace();
+//    }
+//    this.logf = lf;
   }
+  
+//  private void logf(String msg) {
+//    logf.println(msg);
+//  }
   
   public void save(final ItemStateChangesLog changesLog) throws RepositoryException {
 
     final List<ItemState> changes = changesLog.getAllStates();
+    final Set<QPath> addedNodes = new HashSet<QPath>();
     
     WorkspaceStorageConnection regularConnection = null;
     WorkspaceStorageConnection systemConnection = null;
@@ -108,13 +129,13 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
         data.increasePersistedVersion();
 
         if (itemState.isAdded()) {
-          doAdd(data, conn);
+          doAdd(data, conn, addedNodes);
         } else if (itemState.isUpdated()) {
           doUpdate(data, conn);
         } else if (itemState.isDeleted()) {
           doDelete(data, conn);
         } else if(itemState.isRenamed()){
-          doRename(data,conn);
+          doRename(data, conn, addedNodes);
         }
 
         if (log.isDebugEnabled())
@@ -131,6 +152,9 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
         regularConnection.rollback();
       if (systemConnection != null && !systemConnection.equals(regularConnection) && systemConnection.isOpened())
         systemConnection.rollback();
+      
+      // help to GC
+      addedNodes.clear();
     }
     
     notifySaveItems(changesLog);
@@ -221,16 +245,41 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
   
 // ----------------------------------------------
   
-  private void checkSameNameSibling(NodeData node, WorkspaceStorageConnection con) throws RepositoryException {
-    if (!Constants.ROOT_UUID.equals(node.getIdentifier()) && node.getQPath().getIndex() > 1) {
+  private void checkSameNameSibling(NodeData node, WorkspaceStorageConnection con, final Set<QPath> addedNodes) throws RepositoryException {
+    if (node.getQPath().getIndex() > 1) {
       // check if an older same-name sibling exists
       // the check is actual for all operations including delete
-      NodeData parent = (NodeData) con.getItemData(node.getParentIdentifier());
-      QPathEntry myName = node.getQPath().getEntries() [node.getQPath().getEntries().length - 1];
-      ItemData sibling = con.getItemData(parent, new QPathEntry(myName.getNamespace(), myName.getName(), myName.getIndex() - 1));
-      if (sibling == null || !sibling.isNode()) {
-        throw new InvalidItemStateException("Node can't be saved " + node.getQPath().getAsString() +
-            ". No same-name sibling exists with index " + (myName.getIndex() - 1) + ".");
+      
+      final QPathEntry[] path = node.getQPath().getEntries();
+      final QPathEntry[] siblingPath = new QPathEntry[path.length];
+      final int li =  path.length - 1;
+      System.arraycopy(path, 0, siblingPath, 0, li);
+      
+      siblingPath[li] = new QPathEntry(path[li], path[li].getIndex() - 1);
+            
+      if (addedNodes.contains(new QPath(siblingPath))) {
+        // this ch log has the node previous sibling
+        
+        //log.info("==== SNS in changes " + node.getQPath().getAsString());
+        
+        return;
+      } else {
+        // check in persistence
+        
+        //log.info("==== SNS in persistence " + node.getQPath().getAsString());
+          
+        final WorkspaceStorageConnection acon = dataContainer.openConnection();
+        try {
+          NodeData parent = (NodeData) acon.getItemData(node.getParentIdentifier());
+          QPathEntry myName = node.getQPath().getEntries() [node.getQPath().getEntries().length - 1];
+          ItemData sibling = acon.getItemData(parent, new QPathEntry(myName.getNamespace(), myName.getName(), myName.getIndex() - 1));
+          if (sibling == null || !sibling.isNode()) {
+            throw new InvalidItemStateException("Node can't be saved " + node.getQPath().getAsString() +
+                ". No same-name sibling exists with index " + (myName.getIndex() - 1) + ".");
+          }
+        } finally {
+          acon.rollback();
+        }
       }
     }
   }
@@ -276,22 +325,28 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
    * @throws RepositoryException
    * @throws InvalidItemStateException if the item is already added
    */  
-  protected void doAdd(TransientItemData item, WorkspaceStorageConnection con)
+  protected void doAdd(final TransientItemData item, final WorkspaceStorageConnection con, final Set<QPath> addedNodes)
       throws RepositoryException, InvalidItemStateException {
 
     if (item.isNode()) {
       final NodeData node = (NodeData) item;
-      checkSameNameSibling(node, con);
+      
+      checkSameNameSibling(node, con, addedNodes);
+      addedNodes.add(node.getQPath());
+      
       con.add(node);
     } else {
       con.add((PropertyData) item);
     }
   }
 
-  protected void doRename(TransientItemData item,
-      WorkspaceStorageConnection con) throws RepositoryException, InvalidItemStateException {
+  protected void doRename(final TransientItemData item,
+                          final WorkspaceStorageConnection con, final Set<QPath> addedNodes) throws RepositoryException, InvalidItemStateException {
     final NodeData node = (NodeData) item;
-    checkSameNameSibling(node, con);
+    
+    checkSameNameSibling(node, con, addedNodes);
+    addedNodes.add(node.getQPath());
+    
     con.rename(node);
   }
   /**

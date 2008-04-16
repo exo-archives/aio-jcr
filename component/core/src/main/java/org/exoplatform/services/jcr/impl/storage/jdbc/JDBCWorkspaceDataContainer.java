@@ -375,6 +375,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     DBInitializer dbInitilizer = null;
     String sqlPath = null;
     if (dbDialect == DBConstants.DB_DIALECT_ORACLEOCI) {
+      log.warn(DBConstants.DB_DIALECT_ORACLEOCI + " dialect is experimental!");
       // sample of connection factory customization
       if (dbSourceName != null)
         this.connFactory = defaultConnectionFactory();
