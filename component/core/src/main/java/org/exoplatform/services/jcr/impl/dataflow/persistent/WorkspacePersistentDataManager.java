@@ -58,28 +58,13 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
   protected WorkspaceDataContainer systemDataContainer;
   
   protected List<ItemsPersistenceListener> listeners;
-  
-//  private final PrintWriter logf;
 
   public WorkspacePersistentDataManager(WorkspaceDataContainer dataContainer,
       SystemDataContainerHolder systemDataContainerHolder) {
     this.dataContainer = dataContainer;
     this.listeners = new ArrayList<ItemsPersistenceListener>();
     this.systemDataContainer = systemDataContainerHolder.getContainer();
-    
-    // debug
-//    PrintWriter lf = null;
-//    try {
-//      lf = new PrintWriter(new FileOutputStream("./jcr_persistence.log"), true);
-//    } catch (FileNotFoundException e) {
-//      e.printStackTrace();
-//    }
-//    this.logf = lf;
   }
-  
-//  private void logf(String msg) {
-//    logf.println(msg);
-//  }
   
   public void save(final ItemStateChangesLog changesLog) throws RepositoryException {
 
@@ -241,7 +226,9 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
   }
   
 // ----------------------------------------------
-  
+  /**
+   * Check if given node path contains index higher 1 and if yes if same-name sibling exists in persistence or in current changes log. 
+   */
   private void checkSameNameSibling(NodeData node, WorkspaceStorageConnection con, final Set<QPath> addedNodes) throws RepositoryException {
     if (node.getQPath().getIndex() > 1) {
       // check if an older same-name sibling exists
@@ -282,7 +269,8 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
   }
   
   /**
-   * Performs actual item data deleting
+   * Performs actual item data deleting.
+   * 
    * @param item to delete
    * @param con 
    * @throws RepositoryException
@@ -298,7 +286,8 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
   }
 
   /**
-   * Performs actual item data updating
+   * Performs actual item data updating.
+   * 
    * @param item to update
    * @param con 
    * @throws RepositoryException
@@ -316,7 +305,8 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
   }
   
   /**
-   * Performs actual item data adding
+   * Performs actual item data adding.
+   * 
    * @param item to add
    * @param con 
    * @throws RepositoryException
@@ -337,6 +327,15 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     }
   }
 
+  /**
+   * Perform node rename.
+   * 
+   * @param item
+   * @param con
+   * @param addedNodes
+   * @throws RepositoryException
+   * @throws InvalidItemStateException
+   */
   protected void doRename(final TransientItemData item,
                           final WorkspaceStorageConnection con, final Set<QPath> addedNodes) throws RepositoryException, InvalidItemStateException {
     final NodeData node = (NodeData) item;
@@ -346,7 +345,11 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     
     con.rename(node);
   }
+  
   /**
+   * 
+   * Get current container time.
+   * 
    * @return current time
    */
   public Calendar getCurrentTime() {
@@ -356,7 +359,8 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
   // ---------------------------------------------
 
   /**
-   * Adds listener to the list
+   * Adds listener to the list.
+   * 
    * @param listener
    */
   public void addItemPersistenceListener(ItemsPersistenceListener listener) {
@@ -365,7 +369,11 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
         + "' registered listener: " + listener);
   }
   
-
+  /**
+   * Notify all listeners about current changes log persistent state.
+   * 
+   * @param changesLog
+   */
   protected void notifySaveItems(ItemStateChangesLog changesLog) {
     for (ItemsPersistenceListener listener : listeners) {
       listener.onSaveItems(changesLog);
@@ -373,7 +381,6 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
   }
   
   private boolean isSystemPath(QPath path) {
-    
     return path.equals(Constants.JCR_SYSTEM_PATH) || path.isDescendantOf(Constants.JCR_SYSTEM_PATH, false);
   }
 
