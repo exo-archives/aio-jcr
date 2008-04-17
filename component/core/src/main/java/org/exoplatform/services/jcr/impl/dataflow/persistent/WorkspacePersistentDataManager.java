@@ -16,9 +16,6 @@
  */
 package org.exoplatform.services.jcr.impl.dataflow.persistent;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -258,7 +255,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
       siblingPath[li] = new QPathEntry(path[li], path[li].getIndex() - 1);
             
       if (addedNodes.contains(new QPath(siblingPath))) {
-        // this ch log has the node previous sibling
+        // current changes log has the older same-name sibling
         
         //log.info("==== SNS in changes " + node.getQPath().getAsString());
         
