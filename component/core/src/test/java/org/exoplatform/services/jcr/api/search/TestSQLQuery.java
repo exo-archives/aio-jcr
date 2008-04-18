@@ -158,7 +158,7 @@ public class TestSQLQuery extends JcrAPIBaseTest {
    * 
    * @throws RepositoryException
    */
-  public void testJcrPathLike() throws RepositoryException {
+  public void testPathLike_Descendants() throws RepositoryException {
 
     try {
       Query q =
@@ -181,7 +181,7 @@ public class TestSQLQuery extends JcrAPIBaseTest {
    * 
    * @throws RepositoryException
    */
-  public void testJcrPathLike2() throws RepositoryException {
+  public void testPathLike_Descendants1() throws RepositoryException {
 
     try {
       Query q =
@@ -208,7 +208,7 @@ public class TestSQLQuery extends JcrAPIBaseTest {
    * @throws InvalidQueryException
    * @throws RepositoryException
    */
-  public void testJcrPathLike3() throws InvalidQueryException, RepositoryException {
+  public void testPathLike_FromDifferentLocations() throws InvalidQueryException, RepositoryException {
 
     Query q =
         session.getWorkspace()
@@ -234,7 +234,7 @@ public class TestSQLQuery extends JcrAPIBaseTest {
    * @throws InvalidQueryException
    * @throws RepositoryException
    */
-  public void testJcrPathLike4() throws InvalidQueryException, RepositoryException {
+  public void testPathLike_FromDifferentLocations1() throws InvalidQueryException, RepositoryException {
 
     Query q =
         session.getWorkspace()
@@ -256,7 +256,7 @@ public class TestSQLQuery extends JcrAPIBaseTest {
    *  
    * @throws RepositoryException
    */
-  public void testJcrPathLike_AND_NOT() throws RepositoryException {
+  public void testPathLike_ChildsOnly() throws RepositoryException {
 
     try {
       Query q =
@@ -281,7 +281,7 @@ public class TestSQLQuery extends JcrAPIBaseTest {
    *  
    * @throws RepositoryException
    */
-  public void testJcrPathLike_OR_Equals() throws RepositoryException {
+  public void testPathLike_DescendantsOrWithPath() throws RepositoryException {
 
     try {
       Query q =
