@@ -130,13 +130,13 @@ public class JCRSQLQueryBuilder implements JCRSQLParserVisitor {
          
           
         } catch (ParseException e) {
-            throw new InvalidQueryException(e.getMessage());
+            throw new InvalidQueryException(e.getMessage(), e);
         } catch (IllegalArgumentException e) {
-            throw new InvalidQueryException(e.getMessage());
+            throw new InvalidQueryException(e.getMessage(), e);
         } catch (Throwable t) {
           t.printStackTrace();
             // javacc parser may also throw an error in some cases
-            throw new InvalidQueryException(t.getMessage());
+            throw new InvalidQueryException(t.getMessage(), t);
         }
     }
 
@@ -210,7 +210,7 @@ public class JCRSQLQueryBuilder implements JCRSQLParserVisitor {
                     }
                 }
             } catch (NoSuchElementException e) {
-                throw new IllegalArgumentException("Invalid combination of jcr:path clauses");
+                throw new IllegalArgumentException("Invalid combination of jcr:path clauses", e);
             }
             MergingPathQueryNode path = (MergingPathQueryNode) pathConstraints.get(0);
             LocationStepQueryNode[] steps = path.getPathSteps();
