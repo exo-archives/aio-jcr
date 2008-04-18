@@ -209,7 +209,7 @@ public class TestSQLQuery extends JcrAPIBaseTest {
    * /testSqlQuery/data/draft
    * 
    * <p>
-   * select * from nt:unstructured where jcr:path like '%/draft/%'
+   * select * from nt:unstructured where jcr:path like '/testSqlQuery/%/draft/%'
    * 
    * @throws InvalidQueryException
    * @throws RepositoryException
