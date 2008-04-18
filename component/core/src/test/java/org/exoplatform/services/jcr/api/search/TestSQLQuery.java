@@ -82,16 +82,6 @@ public class TestSQLQuery extends JcrAPIBaseTest {
    * <p>
    * /testSqlQuery/data/myFile2/jcr:content
    * 
-//   * <p>
-//   * /testSqlQuery/nodata
-//   * <p>
-//   * /testSqlQuery/nodata/noData1
-//   * <p>
-//   * /testSqlQuery/nodata/noData1/jcr:content
-//   * <p>
-//   * /testSqlQuery/nodata/noData2
-//   * <p>
-//   * /testSqlQuery/nodata/noData2/jcr:content
    */
   @Override
   public void setUp() throws Exception {
@@ -128,18 +118,8 @@ public class TestSQLQuery extends JcrAPIBaseTest {
 
     data = subnode.addNode("myData2", "nt:file");
     data.addNode("jcr:content", "nt:unstructured");
-
-    // nodata
-//    subnode = testRoot.addNode("nodata");
-//
-//    Node nodata = subnode.addNode("noData1", "nt:file");
-//    nodata.addNode("jcr:content", "nt:unstructured");
-//
-//    nodata = subnode.addNode("noData2", "nt:file");
-//    nodata.addNode("jcr:content", "nt:unstructured");
-
+    
     testRoot.save();
-
   }
 
   @Override
