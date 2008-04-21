@@ -38,7 +38,7 @@ public class SessionProviderServiceTest extends BaseStandaloneTest {
     super.setUp();
     
     provider = new ThreadLocalSessionProviderService();
-    provider.setSessionProvider(null, SessionProvider.createAnonimProvider());
+    //provider.setSessionProvider(null, SessionProvider.createAnonimProvider());
   }
 
   @Override
@@ -57,15 +57,14 @@ public class SessionProviderServiceTest extends BaseStandaloneTest {
     assertEquals("Same system session provider should be returned to this thread ", ssp, provider.getSystemSessionProvider(null));
   }
   
-  // TODO
-//  public void testGetSystemSesssionWithSet() {
-//    
-//    SessionProvider ssp = provider.getSystemSessionProvider(null);
-//    
-//    provider.setSessionProvider(null, SessionProvider.createAnonimProvider());
-//    
-//    assertEquals("Same system session provider should be returned to this thread ", ssp, provider.getSystemSessionProvider(null));
-//  }
+  public void testGetSystemSesssionWithSet() {
+    
+    SessionProvider ssp = provider.getSystemSessionProvider(null);
+    
+    provider.setSessionProvider(null, SessionProvider.createAnonimProvider());
+    
+    assertEquals("Same system session provider should be returned to this thread ", ssp, provider.getSystemSessionProvider(null));
+  }
   
   public void testGetSystemSesssionAnotherTrhead() throws InterruptedException {
     
@@ -91,7 +90,7 @@ public class SessionProviderServiceTest extends BaseStandaloneTest {
     
     testerLatch.await();
     
-    assertNull("Another thread should null from the service", atSSP[0]);
+    assertNotSame("Another thread should obtain another system session provider from the service", ssp, atSSP[0]);
   }
   
 }

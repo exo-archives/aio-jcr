@@ -55,8 +55,11 @@ public class ThreadLocalSessionProviderService implements SessionProviderService
   public SessionProvider getSystemSessionProvider(Object key) {
     if(systemSessionProviderKeeper.get() != null) {
       return systemSessionProviderKeeper.get();
-    } 
-    return null;
+    } else {
+      final SessionProvider ssp = SessionProvider.createSystemProvider();
+      systemSessionProviderKeeper.set(ssp);
+      return ssp;
+    }
   }
 
   /* (non-Javadoc)
@@ -64,7 +67,7 @@ public class ThreadLocalSessionProviderService implements SessionProviderService
    */
   public void setSessionProvider(Object key, SessionProvider sessionProvider) {
     sessionProviderKeeper.set(sessionProvider);
-    systemSessionProviderKeeper.set(SessionProvider.createSystemProvider());
+    
   }
 
   /* (non-Javadoc)
@@ -74,8 +77,10 @@ public class ThreadLocalSessionProviderService implements SessionProviderService
     getSessionProvider(key).close();
     sessionProviderKeeper.set(null);
     
-    getSystemSessionProvider(key).close();
-    systemSessionProviderKeeper.set(null);
+    if (systemSessionProviderKeeper.get() != null) {
+      systemSessionProviderKeeper.get().close();
+      systemSessionProviderKeeper.set(null);
+    }
   }
 
 }
