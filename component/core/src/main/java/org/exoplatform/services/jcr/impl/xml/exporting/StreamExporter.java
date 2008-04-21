@@ -35,10 +35,10 @@ public abstract class StreamExporter extends BaseXmlExporter {
   protected final XMLStreamWriter writer;
 
   public StreamExporter(XMLStreamWriter writer,
-      SessionImpl session,
-      ItemDataConsumer dataManager,
-      boolean skipBinary,
-      boolean noRecurse) throws NamespaceException, RepositoryException {
+                        SessionImpl session,
+                        ItemDataConsumer dataManager,
+                        boolean skipBinary,
+                        boolean noRecurse) throws NamespaceException, RepositoryException {
 
     super(session, dataManager, skipBinary, noRecurse ? 1 : -1);
     this.writer = writer;
@@ -54,8 +54,9 @@ public abstract class StreamExporter extends BaseXmlExporter {
       writer.writeEndDocument();
       writer.close();
     }
+    close();
   }
-  
+
   protected void startPrefixMapping() throws RepositoryException, XMLStreamException {
     String[] prefixes = namespaceRegistry.getPrefixes();
     for (String prefix : prefixes) {

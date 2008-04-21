@@ -54,6 +54,7 @@ public abstract class HandlingContentExporter extends BaseXmlExporter {
       endPrefixMapping();
       contentHandler.endDocument();
     }
+    close();
   }
 
   protected void endPrefixMapping() throws RepositoryException, SAXException {

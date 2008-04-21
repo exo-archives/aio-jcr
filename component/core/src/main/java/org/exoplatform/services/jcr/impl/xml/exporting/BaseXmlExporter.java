@@ -56,10 +56,6 @@ public abstract class BaseXmlExporter extends ItemDataTraversingVisitor {
 
   protected static final String     JCR_ROOT                       = "jcr:root";
 
-  // private int binaryConduct = BINARY_PROCESS;
-
-  // protected LocationFactory locationFactory;
-
   protected boolean                 noRecurse;
 
   protected final SessionImpl       session;
@@ -70,17 +66,19 @@ public abstract class BaseXmlExporter extends ItemDataTraversingVisitor {
 
   protected final NamespaceRegistry namespaceRegistry;
 
-  
+  private SessionImpl               systemSession;
 
   public BaseXmlExporter(SessionImpl session,
-      ItemDataConsumer dataManager,
-      boolean skipBinary,
-      int maxLevel) throws NamespaceException, RepositoryException {
+                         ItemDataConsumer dataManager,
+                         boolean skipBinary,
+                         int maxLevel) throws NamespaceException, RepositoryException {
     super(dataManager, maxLevel);
     this.session = session;
     this.skipBinary = skipBinary;
     this.namespaceRegistry = session.getWorkspace().getNamespaceRegistry();
     this.SV_NAMESPACE_URI = session.getNamespaceURI("sv");
+    this.systemSession = session.getRepository().getSystemSession();
+
   }
 
   public abstract void export(NodeData node) throws Exception;
@@ -145,8 +143,8 @@ public abstract class BaseXmlExporter extends ItemDataTraversingVisitor {
    * @throws RepositoryException
    */
   protected String getValueAsStringForExport(ValueData data, int type) throws IllegalStateException,
-      IOException,
-      RepositoryException {
+                                                                      IOException,
+                                                                      RepositoryException {
     String charValue = null;
 
     switch (type) {
@@ -162,8 +160,10 @@ public abstract class BaseXmlExporter extends ItemDataTraversingVisitor {
     case PropertyType.PATH:
       // TODO namespace mapping for values
       try {
-        charValue = session.getRepository().getSystemSession().getValueFactory()
-            .loadValue((TransientValueData) data, type).getString();
+
+        charValue = systemSession.getValueFactory()
+                                 .loadValue((TransientValueData) data, type)
+                                 .getString();
       } catch (ValueFormatException e) {
         throw new RepositoryException(e);
       } catch (UnsupportedRepositoryOperationException e) {
@@ -204,4 +204,9 @@ public abstract class BaseXmlExporter extends ItemDataTraversingVisitor {
   public boolean isSkipBinary() {
     return skipBinary;
   }
+
+  public void close() {
+    systemSession.logout();
+  }
+
 }
