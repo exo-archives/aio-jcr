@@ -16,9 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.app;
 
-import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
-import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SAS        .<br/>
