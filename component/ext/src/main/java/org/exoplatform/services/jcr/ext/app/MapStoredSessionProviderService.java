@@ -25,15 +25,18 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
  * SessionProviderService implementation where SessionProviders are stored as key-value pairs.
  * where key is any object, for instance user's credentials   
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class MapStoredSessionProviderService implements SessionProviderService{
 
   private HashMap <Object, SessionProvider> providers;
+  
+  private HashMap <Object, SessionProvider> systemProviders;
 
   public MapStoredSessionProviderService() {
     providers = new HashMap<Object, SessionProvider>();
+    systemProviders = new HashMap<Object, SessionProvider>();
   }
 
   /* (non-Javadoc)
@@ -44,6 +47,19 @@ public class MapStoredSessionProviderService implements SessionProviderService{
       return providers.get(key);
     else
       throw new NullPointerException("SessionProvider is not initialized");
+  }
+  
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.ext.app.SessionProviderService#getSystemSessionProvider(java.lang.Object)
+   */
+  public SessionProvider getSystemSessionProvider(Object key) {
+    if(systemProviders.containsKey(key)) {
+      return systemProviders.get(key);
+    } else {
+      final SessionProvider ssp = SessionProvider.createSystemProvider();
+      systemProviders.put(key, ssp);
+      return ssp;
+    }
   }
 
   /* (non-Javadoc)
@@ -60,6 +76,11 @@ public class MapStoredSessionProviderService implements SessionProviderService{
     if(providers.containsKey(key)) {
       getSessionProvider(key).close();
       providers.remove(key); 
+    }    
+    
+    if(systemProviders.containsKey(key)) {
+      systemProviders.get(key).close();
+      systemProviders.remove(key); 
     }    
   }
 
