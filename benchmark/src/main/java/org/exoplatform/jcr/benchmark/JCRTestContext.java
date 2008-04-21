@@ -18,6 +18,7 @@ package org.exoplatform.jcr.benchmark;
 
 import java.util.HashMap;
 
+import javax.jcr.Credentials;
 import javax.jcr.Session;
 
 /**
@@ -34,6 +35,8 @@ public final class JCRTestContext extends HashMap<String, Object> {
   private static final String sessionId = ""+System.currentTimeMillis();
   
   public static final String SESSION  = "session";
+  
+  public static final String CREDENTIALS  = "credentials";
 
   private int counter = 0;
   
@@ -49,6 +52,14 @@ public final class JCRTestContext extends HashMap<String, Object> {
 
   public Session getSession() {
     return (Session) get(SESSION);
+  }
+  
+  public void setCredentials(Credentials credentials) {
+    put(CREDENTIALS, credentials);
+  }
+
+  public Credentials getCredentials() {
+    return (Credentials) get(CREDENTIALS);
   }
 
   public String generateUniqueName(String prefix) {

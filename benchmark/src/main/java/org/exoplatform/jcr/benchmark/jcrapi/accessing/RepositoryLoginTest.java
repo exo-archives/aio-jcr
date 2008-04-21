@@ -28,7 +28,7 @@ public class RepositoryLoginTest extends JCRTestBase {
   
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    repository.login();
+    repository.login(context.getCredentials());
   }
 
 }

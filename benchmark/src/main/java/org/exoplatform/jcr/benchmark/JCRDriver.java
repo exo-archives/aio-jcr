@@ -146,11 +146,14 @@ public class JCRDriver extends JapexDriverBase {
     if (!hasParam("jcr.sessionPolicy"))
       throw new RuntimeException("<jcr.sessionPolicy> parameter required");
     String sessionPolicy = getParam("jcr.sessionPolicy");
-    if (sessionPolicy.equalsIgnoreCase("single"))
+    if (sessionPolicy.equalsIgnoreCase("single")){
       context.setSession(oneSession);
+      context.setCredentials(credentials);
+    }
     else if (sessionPolicy.equalsIgnoreCase("multiple"))
       try {
         context.setSession(repository.login(credentials, workspace));
+        context.setCredentials(credentials);
       } catch (LoginException e) {
         throw new RuntimeException(e);
       } catch (RepositoryException e) {
