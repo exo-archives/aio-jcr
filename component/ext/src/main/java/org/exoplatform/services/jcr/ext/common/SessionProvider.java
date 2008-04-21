@@ -58,6 +58,7 @@ public class SessionProvider {
    * Helper for creating System session provider
    * @return System session
    */
+  @Deprecated
   public static SessionProvider createSystemProvider() {
     return new SessionProvider(new CredentialsImpl(SystemIdentity.SYSTEM, "".toCharArray()));
   }
