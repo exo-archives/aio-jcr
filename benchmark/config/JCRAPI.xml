@@ -17,7 +17,7 @@
     <param name="jcr.user" value="admin" />
     <param name="jcr.password" value="admin" />
     <param name="jcr.workspace" value="collaboration" />
-    <param name="jcr.sessionPolicy" value="single" />
+    <param name="jcr.sessionPolicy" value="multiple" />
     <param name="exo.jaasConf" value="login.conf" />
     <param name="exo.containerConf" value="../config/test-configuration-benchmark.xml" />
     <driver name="JCRdriver">
@@ -29,11 +29,11 @@
   <testCase name="RepositoryLoginTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.accessing.RepositoryLoginTest" />
   </testCase>
-  
+
   <testCase name="SessionLogoutTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.accessing.SessionLogoutTest" />
   </testCase>
-  
+
   <!-- Session read methods -->
   <testCase name="SessionGetRootNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionGetRootNodeTest" />
@@ -286,85 +286,85 @@
   <testCase name="PropertySetValueValueArrrayTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.property.write.PropertySetValueValueArrrayTest" />
   </testCase>
-  
+
   <testCase name="ItemRemoveTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.write.ItemRemoveTest" />
   </testCase>
-  
+
   <testCase name="SessionMoveTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionMoveTest" />
-  </testCase> 
-  
+  </testCase>
+
   <!-- Save methods-->
   <testCase name="SessionRefreshFalseTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionRefreshFalseTest" />
-  </testCase>    
-  
+  </testCase>
+
   <testCase name="SessionSaveTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.session.SessionSaveTest" />
   </testCase>
-  
+
   <testCase name="ItemRefreshFalseTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.write.ItemRefreshFalseTest" />
   </testCase>
-  
+
   <testCase name="ItemRefreshTrueTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.write.ItemRefreshTrueTest" />
-  </testCase>  
-  
+  </testCase>
+
   <testCase name="ItemSaveTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.item.write.ItemSaveTest" />
   </testCase>
-  
-  <!--Direct writing to Persistent Storage (move, copy, clone) methods-->    
+
+  <!--Direct writing to Persistent Storage (move, copy, clone) methods-->
   <testCase name="WorkspaceMoveTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.workspace.write.WorkspaceMoveTest" />
   </testCase>
-  
+
   <testCase name="WorkspaceCopyTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.workspace.write.WorkspaceCopyTest" />
-  </testCase>  
-  
+  </testCase>
+
   <testCase name="WorkspaceCopyFromAnotherWorkspaceTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.workspace.write.WorkspaceCopyFromAnotherWorkspaceTest" />
-  </testCase>  
-  
+  </testCase>
+
   <testCase name="WorkspaceCloneTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.workspace.write.WorkspaceCloneTest" />
-  </testCase>    
+  </testCase>
 
-  <!--Export/import methods-->    
+  <!--Export/import methods-->
   <testCase name="SessionExportSystemViewContentHandlerTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.SessionExportSystemViewContentHandlerTest" />
   </testCase>
-  
+
   <testCase name="SessionExportSystemViewOutputStreamTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.SessionExportSystemViewOutputStreamTest" />
   </testCase>
-  
+
   <testCase name="SessionExportDocumentViewContentHandlerTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.SessionExportDocumentViewContentHandlerTest" />
-  </testCase>  
-  
+  </testCase>
+
   <testCase name="SessionExportDocumentViewOutputStreamTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.SessionExportDocumentViewOutputStreamTest" />
-  </testCase>    
+  </testCase>
 
   <testCase name="SessionGetImportContentHandlerTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.SessionGetImportContentHandlerTest" />
-  </testCase>    
-  
+  </testCase>
+
   <testCase name="SessionImportXMLTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.SessionImportXMLTest" />
-  </testCase>    
-  
+  </testCase>
+
   <testCase name="WorkspaceGetImportContentHandlerTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.WorkspaceGetImportContentHandlerTest" />
-  </testCase>    
-  
+  </testCase>
+
   <testCase name="WorkspaceImportXMLTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.xml.WorkspaceImportXMLTest" />
-  </testCase>      
+  </testCase>
 
   <!-- Locking methods-->
   <testCase name="NodeLockTest">
@@ -402,15 +402,15 @@
 
   <testCase name="NodeRestoreTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeRestoreTest" />
-  </testCase>  
+  </testCase>
 
   <testCase name="NodeRestoreToRelPathTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeRestoreToRelPathTest" />
   </testCase>
-  
+
   <testCase name="NodeMergeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.NodeMergeTest" />
-  </testCase>  
+  </testCase>
 
   <testCase name="VersionHistoryAddVersionLabelTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryAddVersionLabelTest" />
@@ -439,43 +439,43 @@
   <testCase name="VersionHistoryHasVersionVersionLabelTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionHistoryHasVersionVersionLabelTest" />
   </testCase>
-  
+
   <testCase name="VersionGetContainingHistoryTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionGetContainingHistoryTest" />
   </testCase>
-  
+
   <testCase name="VersionGetPredecessorsTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionGetPredecessorsTest" />
-  </testCase>  
-  
+  </testCase>
+
   <testCase name="VersionGetSuccessorsTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.version.VersionGetSuccessorsTest" />
-  </testCase>  
-  
+  </testCase>
+
   <!-- Query methods -->
   <testCase name="QueryManagerCreateQueryTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.query.QueryManagerCreateQueryTest" />
-  </testCase>      
-  
+  </testCase>
+
   <testCase name="QueryManagerGetQueryTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.query.QueryManagerGetQueryTest" />
   </testCase>
-  
+
   <testCase name="QueryExecuteTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.query.QueryExecuteTest" />
   </testCase>
-  
+
   <testCase name="QueryStoreAsNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.query.QueryStoreAsNodeTest" />
   </testCase>
-  
+
   <testCase name="QueryResultGetNodesTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.query.QueryResultGetNodesTest" />
   </testCase>
-  
+
   <testCase name="QueryResultGetRowsTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.jcrapi.query.QueryResultGetRowsTest" />
-  </testCase>      
+  </testCase>
 
   <!-- Temporary excluded tests -->
   <!--testCase name="TEMPORARY EXCLUDED">
