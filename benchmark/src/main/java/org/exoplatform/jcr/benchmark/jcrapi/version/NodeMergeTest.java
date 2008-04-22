@@ -11,7 +11,6 @@ import javax.jcr.Session;
 
 import org.exoplatform.jcr.benchmark.JCRTestContext;
 import org.exoplatform.jcr.benchmark.jcrapi.AbstractGetItemTest;
-import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 import com.sun.japex.TestCase;
 
@@ -37,7 +36,7 @@ public class NodeMergeTest extends AbstractGetItemTest {
     vnode.checkout();
 
     // create corr node in system ws with own content
-    sysSession = context.getSession().getRepository().login(((SessionImpl) context.getSession()).getCredentials(), workspaceName);
+    sysSession = context.getSession().getRepository().login(context.getCredentials(), workspaceName);
     
     if (!sysSession.itemExists(vnode.getParent().getPath())) {
       // create parent, no support for SNS!!!

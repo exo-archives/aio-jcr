@@ -23,11 +23,11 @@ import javax.jcr.Credentials;
 import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
 
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.security.impl.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SAS
@@ -53,7 +53,7 @@ public class AddNtFileWithMetadataNoJapex {
       RepositoryService repositoryService = (RepositoryService) container
           .getComponentInstanceOfType(RepositoryService.class);
       repository = repositoryService.getCurrentRepository();
-      Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+      Credentials credentials = new SimpleCredentials("admin", "admin".toCharArray());
       Session session = (SessionImpl) repository.login(credentials, "collaboration");
       Node rootNode = session.getRootNode().addNode("rootNode", "nt:unstructured");
       session.save();
