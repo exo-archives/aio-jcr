@@ -67,8 +67,6 @@ public class AuditServiceImpl implements AuditService {
 
   private final ManageableRepository repository;
 
-  private final String               workspaceName;
-
   public AuditServiceImpl(InitParams params, RepositoryService repService) throws RepositoryException,
       RepositoryConfigurationException {
     ValueParam valParam = null;
@@ -77,8 +75,7 @@ public class AuditServiceImpl implements AuditService {
     if (valParam != null)
       repository = repService.getRepository(valParam.getValue());
     else
-      repository = repService.getRepository();
-    workspaceName = repository.getConfiguration().getSystemWorkspaceName();
+      repository = repService.getDefaultRepository();
   }
 
   public void addRecord(Item item, int eventType) throws RepositoryException {
@@ -90,10 +87,7 @@ public class AuditServiceImpl implements AuditService {
     SessionDataManager dm = auditSession.getDataManager();
     SessionImpl session = (SessionImpl) item.getSession();
 
-    // LocationFactory locationFactory = session.getLocationFactory();
-    // add /jcr:system/exo:auditStorage/itemID/recordId (exo:auditRecord)
-
-    // here should be added to SessionDataManager:
+     // here should be added to SessionDataManager:
     // nodeData: /exo:audit/itemUUID/<get lastRecord + 1>
     // its primaryType exo:auditRecord
     // exo:user = session.getUserId()
