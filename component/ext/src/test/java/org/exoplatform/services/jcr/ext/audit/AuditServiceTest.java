@@ -25,6 +25,7 @@ import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
+import org.exoplatform.services.jcr.observation.ExtendedEventType;
 
 /**
  * Created by The eXo Platform SAS        .
@@ -239,9 +240,13 @@ public class AuditServiceTest extends BaseStandaloneTest {
     assertEquals(3, history.getAuditRecords().size());
     // records are ordered
     assertEquals(ExtendedEvent.ADD_MIXIN, history.getAuditRecords().get(0).getEventType());
+    assertEquals(ExtendedEventType.ADD_MIXIN, history.getAuditRecords().get(0).getEventTypeName());
+    log.info(history.getAuditRecords().get(0).getEventTypeName());
     assertEquals(ExtendedEvent.PROPERTY_ADDED, history.getAuditRecords().get(1).getEventType());
+    assertEquals(ExtendedEventType.PROPERTY_ADDED, history.getAuditRecords().get(1).getEventTypeName());
     assertEquals(new InternalQName(null, "test"), history.getAuditRecords().get(1).getPropertyName());
     assertEquals(ExtendedEvent.PROPERTY_REMOVED, history.getAuditRecords().get(2).getEventType());
+    assertEquals(ExtendedEventType.PROPERTY_REMOVED, history.getAuditRecords().get(2).getEventTypeName());
 
   }
 

@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.ext.audit;
 import java.util.Calendar;
 
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.observation.ExtendedEventType;
 
 /**
  * Created by The eXo Platform SAS        .
@@ -26,7 +27,7 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
  * @version $Id: $
  */
 
-public class AuditRecord implements Comparable {
+public class AuditRecord implements Comparable<AuditRecord> {
   
   private final String userId;
   private final int eventType;
@@ -54,22 +55,16 @@ public class AuditRecord implements Comparable {
   }
   
   public String getEventTypeName() {
-    return "TODO "+eventType;
+    return ExtendedEventType.nameFromValue(eventType);
   }
 
   public InternalQName getPropertyName() {
     return propertyName;
   }
 
-  public int compareTo(Object o) {
-    AuditRecord rec = (AuditRecord)o;
-    return date.compareTo(rec.getDate());
+  public int compareTo(AuditRecord otherRecord) {
+    return date.compareTo(otherRecord.getDate());
   }
-
-//  public static class RecordsComparator implements Comparable {
-//
-//    
-//  }
 
 
 }
