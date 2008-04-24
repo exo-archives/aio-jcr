@@ -87,7 +87,7 @@ public class AuditServiceImpl implements AuditService {
     SessionDataManager dm = auditSession.getDataManager();
     SessionImpl session = (SessionImpl) item.getSession();
 
-     // here should be added to SessionDataManager:
+    // here should be added to SessionDataManager:
     // nodeData: /exo:audit/itemUUID/<get lastRecord + 1>
     // its primaryType exo:auditRecord
     // exo:user = session.getUserId()
@@ -405,8 +405,12 @@ public class AuditServiceImpl implements AuditService {
     NodeData storage = auditSession.getAuditHistoryNodeData();
     // remove /jcr:system/exo:auditStorage/itemID
     // (delete in SessionDataManager)
-    SessionImpl session = (SessionImpl) node.getSession();
-    session.getTransientNodesManager().delete(storage);
+    if (storage != null) {
+      SessionImpl session = (SessionImpl) node.getSession();
+      session.getTransientNodesManager().delete(storage);
+
+    } else
+      throw new RepositoryException("Audit history for node " + node.getPath() + " not found");
   }
 
   private void checkIfAuditable(Item item) throws RepositoryException,
