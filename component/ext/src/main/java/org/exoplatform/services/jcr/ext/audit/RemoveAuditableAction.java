@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.ext.audit;
 
 import org.apache.commons.chain.Context;
+
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.command.action.Action;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -41,8 +42,12 @@ public class RemoveAuditableAction implements Action {
           ((NodeData) node.getData()).getMixinTypeNames())) {
         AuditService auditService = (AuditService) ((ExoContainer) context.get("exocontainer"))
         .getComponentInstanceOfType(AuditService.class);
-        auditService.removeHistory(node);
-        return true;
+        
+        if(auditService.hasHistory(node)){
+          auditService.removeHistory(node);
+          return true;
+        }
+        
       }
     }
     return false;
