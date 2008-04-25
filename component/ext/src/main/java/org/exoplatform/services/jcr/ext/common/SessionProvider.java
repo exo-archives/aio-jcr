@@ -37,7 +37,7 @@ import org.exoplatform.services.security.impl.CredentialsImpl;
  * Session creates with Repository.login(..) method and then can be stored in some 
  * cache if neccessary. 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: SingleRepositorySessionFactory.java 9129 2006-09-26 12:34:00Z gavrikvetal $
+ * @version $Id$
  */
 
 public class SessionProvider {
@@ -58,6 +58,7 @@ public class SessionProvider {
    * Helper for creating System session provider
    * @return System session
    */
+  @Deprecated
   public static SessionProvider createSystemProvider() {
     return new SessionProvider(new CredentialsImpl(SystemIdentity.SYSTEM, "".toCharArray()));
   }

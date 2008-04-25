@@ -23,16 +23,18 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
  * SessionProviderService implementation where SessionProviders are stored in Thread Local.
  * In this implementation the KEY make no sense, null value can be passed as a key.   
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class ThreadLocalSessionProviderService implements SessionProviderService {
 
 
   private static ThreadLocal <SessionProvider> sessionProviderKeeper;
+  private static ThreadLocal <SessionProvider> systemSessionProviderKeeper;
   
   public ThreadLocalSessionProviderService() {
     sessionProviderKeeper = new ThreadLocal <SessionProvider>();
+    systemSessionProviderKeeper = new ThreadLocal <SessionProvider>();
   }
   
   /* (non-Javadoc)
@@ -42,7 +44,20 @@ public class ThreadLocalSessionProviderService implements SessionProviderService
     if(sessionProviderKeeper.get() != null)
       return sessionProviderKeeper.get();
     return null;
-//      throw new NullPointerException("SessionProvider is not initialized");
+    //  throw new NullPointerException("SessionProvider is not initialized");
+  }
+  
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.ext.app.SessionProviderService#getSystemSessionProvider(java.lang.Object)
+   */
+  public SessionProvider getSystemSessionProvider(Object key) {
+    if(systemSessionProviderKeeper.get() != null) {
+      return systemSessionProviderKeeper.get();
+    } else {
+      final SessionProvider ssp = SessionProvider.createSystemProvider();
+      systemSessionProviderKeeper.set(ssp);
+      return ssp;
+    }
   }
 
   /* (non-Javadoc)
@@ -50,6 +65,7 @@ public class ThreadLocalSessionProviderService implements SessionProviderService
    */
   public void setSessionProvider(Object key, SessionProvider sessionProvider) {
     sessionProviderKeeper.set(sessionProvider);
+    
   }
 
   /* (non-Javadoc)
@@ -58,6 +74,11 @@ public class ThreadLocalSessionProviderService implements SessionProviderService
   public void removeSessionProvider(Object key) {
     getSessionProvider(key).close();
     sessionProviderKeeper.set(null);
+    
+    if (systemSessionProviderKeeper.get() != null) {
+      systemSessionProviderKeeper.get().close();
+      systemSessionProviderKeeper.set(null);
+    }
   }
 
 }
