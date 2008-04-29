@@ -19,25 +19,45 @@ package org.exoplatform.services.jcr.ext.audit;
 import javax.jcr.Node;
 
 import org.apache.commons.chain.Context;
+import org.apache.commons.logging.Log;
+
+import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.command.action.Action;
-import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.core.ItemImpl;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
 public class AddAuditableAction implements Action {
+  
+  private final Log log = ExoLogger.getLogger("jcr.AddAuditableAction");
 
   public boolean execute(Context ctx) throws Exception {
-    
-    NodeImpl item = (NodeImpl) ctx.get("currentItem");
-    //Create history
-    //AuditService auditService = (AuditService) ((ExoContainer) ctx.get("exocontainer"))
-    //.getComponentInstanceOfType(AuditService.class);
-    if (item.canAddMixin("exo:auditable")) {
-      ((Node) item).addMixin("exo:auditable");
+
+    ItemImpl item = (ItemImpl) ctx.get("currentItem");
+    int event = (Integer) ctx.get("event");
+
+    Node node;
+    if (item.isNode())
+      node = (Node) item;
+    else
+      node = item.getParent();
+
+    AuditService auditService = (AuditService) ((ExoContainer) ctx.get("exocontainer")).getComponentInstanceOfType(AuditService.class);
+    if (node.canAddMixin("exo:auditable")) {
+      node.addMixin("exo:auditable");
+      log.info("exo:auditable adedd for "+node.getPath());
+      // Create history
+      if (!auditService.hasHistory(node)) {
+        
+        auditService.createHistory(node);
+        log.info("Audit history created for "+node.getPath());
+        return true;
+      }
+
     }
-    
     return false;
   }
 
