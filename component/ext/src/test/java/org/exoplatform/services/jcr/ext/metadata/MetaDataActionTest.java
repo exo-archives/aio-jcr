@@ -25,18 +25,6 @@ import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 
 public class MetaDataActionTest extends BaseStandaloneTest {
 
-  private Node rootNode = null;
-
-  public void setUp() throws Exception {
-    super.setUp();
-
-    if(session.getRootNode().hasNode("MetaDataActionTest"))
-      rootNode = session.getRootNode().getNode("MetaDataActionTest");
-    else
-      rootNode = session.getRootNode().addNode("MetaDataActionTest");
-  }
-
-
   /**
                  <value>
                     <object type="org.exoplatform.services.jcr.impl.ext.action.ActionConfiguration">
@@ -51,28 +39,11 @@ public class MetaDataActionTest extends BaseStandaloneTest {
    * @throws Exception
    */
   public void testAddContent() throws Exception {
-//    ActionConfiguration ac = new ActionConfiguration(
-//        "org.exoplatform.services.jcr.ext.metadata.AddMetadataAction",
-//        "addProperty,changeProperty", "/test,/exo:test1", true,
-//        null, "nt:resource", null);
-//    List actionsList = new ArrayList();
-//    ActionsConfig actions = new ActionsConfig();
-//    actions.setActions(actionsList);
-//    actionsList.add(ac);
-//    InitParams params = new InitParams();
-//    ObjectParameter op = new ObjectParameter();
-//    op.setObject(actions);
-//    op.setName("actions");
-//    params.addParameter(op);
-//
-//    AddActionsPlugin aap = new AddActionsPlugin(params);
-//    SessionActionCatalog catalog = (SessionActionCatalog)
-//      container.getComponentInstanceOfType(SessionActionCatalog.class);
-//    catalog.clear();
-//    catalog.addPlugin(aap);
+
     
     InputStream is = MetaDataActionTest.class.getResourceAsStream("/test_index.xls");
-
+    Node rootNode = session.getRootNode().addNode("MetaDataActionTest");
+    session.save();
     Node contentNode = rootNode.addNode("testAddContent", "nt:resource");
     //contentNode.setProperty("jcr:encoding", "UTF-8");
     contentNode.setProperty("jcr:data", is);
@@ -101,6 +72,8 @@ public class MetaDataActionTest extends BaseStandaloneTest {
    * @throws Exception
    */
   public void testSetMetaData() throws Exception {
+    Node rootNode = session.getRootNode().addNode("MetaDataActionTest");
+    session.save();
     Node contentNode = rootNode.addNode("testSetMetaData");
     rootNode.save();
     assertTrue(contentNode.hasProperty("dc:creator"));
@@ -109,6 +82,8 @@ public class MetaDataActionTest extends BaseStandaloneTest {
   }
   
   public void testDontSetMetaData() throws Exception {
+    Node rootNode = session.getRootNode().addNode("MetaDataActionTest");
+    session.save();
     Node contentNode = rootNode.addNode("testDontSetMetaData");
     contentNode.setProperty("prop", "prop 1");
     rootNode.save();
@@ -118,6 +93,8 @@ public class MetaDataActionTest extends BaseStandaloneTest {
   }
   
   public void testDontSetMetaDataNtFile() throws Exception {
+    Node rootNode = session.getRootNode().addNode("MetaDataActionTest");
+    session.save();
     Node node = rootNode.addNode("testDontSetMetaDataNtFile", "nt:file");
     Node contentNode = node.addNode("jcr:content", "nt:unstructured");
     contentNode.setProperty("jcr:data", MetaDataActionTest.class.getResourceAsStream("/test_index.xls"));
@@ -132,6 +109,8 @@ public class MetaDataActionTest extends BaseStandaloneTest {
   }
   
   public void testDontSetMetaDataAnywhere() throws Exception {
+    Node rootNode = session.getRootNode().addNode("MetaDataActionTest");
+    session.save();
     Node contentNode = session.getRootNode().addNode("testDontSetMetaDataAnywhere");
     contentNode.setProperty("prop", "prop 1");
     rootNode.save();
