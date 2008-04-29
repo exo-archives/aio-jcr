@@ -16,40 +16,38 @@
  */
 package org.exoplatform.services.jcr.ext.audit;
 
+import javax.jcr.Node;
+
 import org.apache.commons.chain.Context;
+import org.apache.commons.logging.Log;
 
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.command.action.Action;
-import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.core.ItemImpl;
-import org.exoplatform.services.jcr.impl.core.NodeImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
 public class RemoveAuditableAction implements Action {
+  private final Log log = ExoLogger.getLogger("jcr.RemoveAuditableAction");
 
   public boolean execute(Context context) throws Exception {
     ItemImpl item = (ItemImpl) context.get("currentItem");
-    if (item.isNode()) {
-      NodeImpl node = (NodeImpl) item;
-      NodeTypeManagerImpl ntManager = node.getSession().getWorkspace().getNodeTypeManager();
-      // NodeData node = (NodeData) data;
-      if (ntManager.isNodeType(AuditService.EXO_AUDITABLE,
-          ((NodeData) node.getData()).getPrimaryTypeName(),
-          ((NodeData) node.getData()).getMixinTypeNames())) {
-        AuditService auditService = (AuditService) ((ExoContainer) context.get("exocontainer"))
-        .getComponentInstanceOfType(AuditService.class);
-        
-        if(auditService.hasHistory(node)){
-          auditService.removeHistory(node);
-          return true;
-        }
-        
-      }
-    }
+    int event = (Integer) context.get("event");
+
+    Node node;
+    if (item.isNode())
+      node = (Node) item;
+    else
+      node = item.getParent();
+    
+    AuditService auditService = (AuditService) ((ExoContainer) context.get("exocontainer")).getComponentInstanceOfType(AuditService.class);
+    RemoveAuditableVisitor removeVisitor = new RemoveAuditableVisitor(auditService);
+    
+    node.accept(removeVisitor);
+    
     return false;
   }
 
