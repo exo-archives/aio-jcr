@@ -29,6 +29,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.ConstraintViolationException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.jcr.RepositoryService;
@@ -87,15 +88,7 @@ public class AuditServiceImpl implements AuditService {
     SessionDataManager dm = auditSession.getDataManager();
     SessionImpl session = (SessionImpl) item.getSession();
 
-    // here should be added to SessionDataManager:
-    // nodeData: /exo:audit/itemUUID/<get lastRecord + 1>
-    // its primaryType exo:auditRecord
-    // exo:user = session.getUserId()
-    // exo:created = current date
-    // exo:event = eventType
-    // exo:propertyName - name of changed property if any
-
-    NodeData auditHistory = auditSession.getAuditHistoryNodeData();
+   NodeData auditHistory = auditSession.getAuditHistoryNodeData();
 
     // make path to the AUDITHISTORY_LASTRECORD property
     QPath path = QPath.makeChildPath(auditHistory.getQPath(),
@@ -220,7 +213,6 @@ public class AuditServiceImpl implements AuditService {
 
     AuditSession auditSession = new AuditSession(node);
     NodeImpl storage = auditSession.getAuditStorage();
-    // add /jcr:system/exo:auditStorage/itemID (exo:auditHistory)
 
     // here should be added to SessionDataManager:
     // nodeData: /exo:audit/itemUUID
@@ -303,9 +295,6 @@ public class AuditServiceImpl implements AuditService {
                                                             ((ItemImpl) node).getInternalPath()),
                                               true);
 
-    // session.getTransientNodesManager().update(new ItemState(ahCreated,
-    // ItemState.ADDED,
-    // true, ((ItemImpl) item).getInternalPath()), true);
 
     session.getTransientNodesManager().update(new ItemState(ahTargetNode,
                                                             ItemState.ADDED,
@@ -330,12 +319,6 @@ public class AuditServiceImpl implements AuditService {
   public AuditHistory getHistory(Node node) throws RepositoryException,
                                            UnsupportedOperationException {
 
-    // check: if item (if node) or parent (if property) is exo:auditable
-    // NodeImpl node =
-    // (item.isNode())?(NodeImpl)item:(NodeImpl)item.getParent();
-    // if(!node.isNodeType(EXO_AUDITABLE))
-    // throw new UnsupportedOperationException("Node is not auditable
-    // "+node.getPath());
 
     // get history for this item and create AuditHistory object
     AuditSession auditSession = new AuditSession(node);
@@ -377,10 +360,6 @@ public class AuditServiceImpl implements AuditService {
           } catch (IllegalNameException e) {
             throw new RepositoryException(e);
           }
-          // ((TransientValueData)
-          // propertyData.getValues().get(0),PropertyType.NAME)
-          // propertyName = ((BaseValue)vf.loadValue((TransientValueData)
-          // propertyData.getValues().get(0),PropertyType.NAME));
         }
       }
       // add audit record
@@ -464,7 +443,7 @@ public class AuditServiceImpl implements AuditService {
         SessionChangesLog changesLog = new SessionChangesLog(session.getId());
 
         // here should be added to TransactionalDataManager (i.e. saved
-        // immediatelly!):
+        // immediatelly!
         // nodeData: /exo:audit with UUID = AUDIT_STORAGE_ID
         // its primaryType exo:auditStorage
         TransientNodeData exoAuditNode = TransientNodeData.createNodeData((NodeData) (session.getRootNode()).getData(),
