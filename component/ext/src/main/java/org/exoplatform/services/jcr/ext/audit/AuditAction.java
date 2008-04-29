@@ -16,56 +16,51 @@
  */
 package org.exoplatform.services.jcr.ext.audit;
 
-import javax.jcr.Node;
-
 import org.apache.commons.chain.Context;
+import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.command.action.Action;
+import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.core.ItemImpl;
+import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
+import org.exoplatform.services.jcr.observation.ExtendedEventType;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
 public class AuditAction implements Action {
+  private final Log log = ExoLogger.getLogger("jcr.AuditAction");
 
   public boolean execute(Context ctx) throws Exception {
 
     ItemImpl item = (ItemImpl) ctx.get("currentItem");
     int event = (Integer) ctx.get("event");
-    
-    Node node;
-    if(item.isNode())
-      node = (Node)item;
+
+    NodeImpl node;
+    if (item.isNode())
+      node = (NodeImpl) item;
     else
       node = item.getParent();
 
-    AuditService auditService = (AuditService) ((ExoContainer) ctx.get("exocontainer"))
-    .getComponentInstanceOfType(AuditService.class);
-    if(!auditService.hasHistory(node))
-      auditService.createHistory(node);
-    auditService.addRecord(item, event);
-    
-    return false;
 
-//    ItemImpl item = (ItemImpl) ctx.get("currentItem");
-//    
-//    int event = (Integer) ctx.get("event");
-//    if (item != null) {
-//      //Node Add. Creating history
-//      AuditService auditService = (AuditService) ((ExoContainer) ctx.get("exocontainer"))
-//      .getComponentInstanceOfType(AuditService.class);
-//
-//      if (event == ExtendedEvent.NODE_ADDED ) {
-//        // NodeImpl node = (NodeImpl) ;
-//        if (item instanceof Node && ((Node) item).canAddMixin("exo:auditable")) {
-//          ((Node) item).addMixin("exo:auditable");
-//          auditService.createHistory(item);
-//        }
-//      } 
-//      auditService.addRecord(item, event);
-//    }
-//    return false;
+    if (node.isNodeType(AuditService.EXO_AUDITABLE)) {
+      AuditService auditService = (AuditService) ((ExoContainer) ctx.get("exocontainer")).getComponentInstanceOfType(AuditService.class);
+
+      if (!auditService.hasHistory(node))
+        auditService.createHistory(node);
+
+      auditService.addRecord(item, event);
+      if (log.isDebugEnabled()) {
+        log.debug("Record '" + ExtendedEventType.nameFromValue(event) + "' added for "
+            + item.getPath());
+      }
+      return true;
+    }
+    return false;
   }
 
 }
