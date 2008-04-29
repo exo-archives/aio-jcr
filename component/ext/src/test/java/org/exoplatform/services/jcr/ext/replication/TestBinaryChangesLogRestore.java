@@ -89,7 +89,7 @@ public class TestBinaryChangesLogRestore extends BaseStandaloneTest {
       log.info("Save ChangesLog # 3 :");
       dump(changesLog_3);
       workspacePersistentDataManager.save(changesLog_3);
-      log.info("After # 2 :");
+      log.info("After # 3 :");
       printRootNode();
     } catch (Exception e) {
       log.info("Exeption :");
