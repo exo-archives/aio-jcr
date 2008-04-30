@@ -115,12 +115,18 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     return true;
   }
 
+  /**
+   * Create repository.
+   * <br>Init worksapces for initial start or them load from persistence.
+   * <br>Add namespaces and nodetypes from service plugins.
+   * 
+   */
   public void createRepository(RepositoryEntry rEntry) throws RepositoryConfigurationException,
                                                       RepositoryException {
     if (repositoryContainers.containsKey(rEntry.getName()))
       throw new RepositoryConfigurationException("Repository container " + rEntry.getName()
           + " already started");
-
+    
     RepositoryContainer repositoryContainer = new RepositoryContainer(parentContainer, rEntry);
     // Storing and starting the repository container under
     // key=repository_name

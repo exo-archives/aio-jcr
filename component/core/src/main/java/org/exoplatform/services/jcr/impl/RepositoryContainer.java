@@ -243,7 +243,7 @@ public class RepositoryContainer extends ExoContainer {
   public void start() {
 
     try {
-
+     
       init();
 
       load();
@@ -275,7 +275,16 @@ public class RepositoryContainer extends ExoContainer {
     }
     super.stop();
   }
-
+  
+  /**
+   * Start workspaces.
+   * Start internal processes like search index etc.
+   * 
+   * <p>Runs on container start.
+   * 
+   * @throws RepositoryException
+   * @throws RepositoryConfigurationException
+   */
   private void doStart() throws RepositoryException, RepositoryConfigurationException {
     List<WorkspaceEntry> wsEntries = config.getWorkspaceEntries();
     for (WorkspaceEntry ws : wsEntries) {
@@ -283,13 +292,32 @@ public class RepositoryContainer extends ExoContainer {
     }
   }
 
+  /**
+   * Initialize worspaces (root node and jcr:system for system workspace).
+   * 
+   * <p>Runs on container start.
+   * 
+   * @throws RepositoryException
+   * @throws RepositoryConfigurationException
+   */
   private void init() throws RepositoryException, RepositoryConfigurationException {
     List<WorkspaceEntry> wsEntries = config.getWorkspaceEntries();
     for (WorkspaceEntry ws : wsEntries) {
+//    if (ws.getRootImage() != null) {
+//      // restore from backup image
+//      restoreWorkspace(ws);
+//    } else
       initWorkspace(ws);
     }
   }
 
+  /**
+   * Init workspace root node.
+   * If it's the system workspace init jcr:system too.
+   * 
+   * @param wsConfig
+   * @throws RepositoryException
+   */
   private void initWorkspace(WorkspaceEntry wsConfig) throws RepositoryException {
 
     WorkspaceContainer workspaceContainer = getWorkspaceContainer(wsConfig.getName());
@@ -297,15 +325,14 @@ public class RepositoryContainer extends ExoContainer {
     // touch independent components
     workspaceContainer.getComponentInstanceOfType(IdGenerator.class);
 
-    WorkspaceInitializer wsInitializer = (WorkspaceInitializer) workspaceContainer.getComponentInstanceOfType(WorkspaceInitializer.class);
-
     // Init Root and jcr:system if workspace is system workspace
     if (wsConfig.getAutoInitializedRootNt() != null) {
+      WorkspaceInitializer wsInitializer = (WorkspaceInitializer) workspaceContainer.getComponentInstanceOfType(WorkspaceInitializer.class);
+
       InternalQName rootNodeTypeName = getLocationFactory().parseJCRName(wsConfig.getAutoInitializedRootNt())
                                                            .getInternalName();
       wsInitializer.initWorkspace(rootNodeTypeName);
     }
-
   }
 
   // ////// initialize --------------
@@ -358,6 +385,12 @@ public class RepositoryContainer extends ExoContainer {
     }
   }
 
+  /**
+   * Do actual start of the workspace.
+   * 
+   * @param wsConfig
+   * @throws RepositoryException
+   */
   private void startWorkspace(WorkspaceEntry wsConfig) throws RepositoryException {
 
     WorkspaceContainer workspaceContainer = getWorkspaceContainer(wsConfig.getName());
@@ -368,7 +401,14 @@ public class RepositoryContainer extends ExoContainer {
     wsInitializer.startWorkspace();
   }
 
-  void load() throws RepositoryException {
+  /**
+   * Load namespaces and nodetypes from persistent repository.
+   * 
+   * <p>Runs on container start.
+   * 
+   * @throws RepositoryException
+   */
+  private void load() throws RepositoryException {
     NamespaceRegistryImpl nsRegistry = (NamespaceRegistryImpl) getNamespaceRegistry();
     NodeTypeManagerImpl ntManager = (NodeTypeManagerImpl) getNodeTypeManager();
 
