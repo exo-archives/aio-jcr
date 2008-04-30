@@ -60,10 +60,10 @@ public class TestNodeNameDuplicated extends BaseStandaloneTest {
     session.save();
     
     PlainChangesLogImpl plainChangesLog1 = new PlainChangesLogImpl(session.getId());
-    addNode("exo:registry", 1, session.getRootNode(), plainChangesLog1);
+    addNode("exo:registry", 1, repository.getSystemSession().getRootNode(), plainChangesLog1);
     
     PlainChangesLogImpl plainChangesLog2 = new PlainChangesLogImpl(session.getId());
-    addNode("exo:registry", 1, session.getRootNode(), plainChangesLog2);
+    addNode("exo:registry", 1, repository.getSystemSession().getRootNode(), plainChangesLog2);
     
     //save to JCR
     try {
