@@ -17,12 +17,12 @@
 package org.exoplatform.services.jcr.ext.audit;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import javax.jcr.Item;
-import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
@@ -33,16 +33,23 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.access.AccessControlEntry;
+import org.exoplatform.services.jcr.access.AccessControlList;
+import org.exoplatform.services.jcr.access.PermissionType;
+import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ExtendedNode;
-import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.ItemImpl;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
@@ -64,19 +71,19 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class AuditServiceImpl implements AuditService {
 
-  private static Log                 log = ExoLogger.getLogger("jcr.AuditService");
+  private static Log log           = ExoLogger.getLogger("jcr.AuditService");
 
-  private final ManageableRepository repository;
+  private String     adminIdentity = null;
 
-  public AuditServiceImpl(InitParams params, RepositoryService repService) throws RepositoryException,
-      RepositoryConfigurationException {
+  public AuditServiceImpl(InitParams params, RepositoryService repService) throws RepositoryConfigurationException {
     ValueParam valParam = null;
-    if (params != null)
-      valParam = params.getValueParam("repository");
-    if (valParam != null)
-      repository = repService.getRepository(valParam.getValue());
-    else
-      repository = repService.getDefaultRepository();
+    if (params != null) {
+      valParam = params.getValueParam("adminIdentity");
+      if (valParam != null)
+        adminIdentity = valParam.getValue();
+    }
+    if (adminIdentity == null)
+      throw new RepositoryConfigurationException("Admin identity is not configured");
   }
 
   public void addRecord(Item item, int eventType) throws RepositoryException {
@@ -84,11 +91,15 @@ public class AuditServiceImpl implements AuditService {
     checkIfAuditable(item);
 
     AuditSession auditSession = new AuditSession(item);
-    NodeImpl storage = auditSession.getAuditStorage();
+    // NodeData storage = auditSession.getAuditStorage();
     SessionDataManager dm = auditSession.getDataManager();
     SessionImpl session = (SessionImpl) item.getSession();
 
-   NodeData auditHistory = auditSession.getAuditHistoryNodeData();
+    NodeData auditHistory = auditSession.getAuditHistoryNodeData();
+
+    if (auditHistory == null) {
+      throw new RepositoryException("Audit history for  " + item.getPath() + "not found");
+    }
 
     // make path to the AUDITHISTORY_LASTRECORD property
     QPath path = QPath.makeChildPath(auditHistory.getQPath(),
@@ -111,6 +122,16 @@ public class AuditServiceImpl implements AuditService {
                                                                 new InternalQName(null,
                                                                                   auditRecordName),
                                                                 AuditService.EXO_AUDITRECORD);
+    List<AccessControlEntry> access = new ArrayList<AccessControlEntry>();
+    access.add(new AccessControlEntry(SystemIdentity.ANY, PermissionType.SET_PROPERTY));
+    access.add(new AccessControlEntry(SystemIdentity.ANY, PermissionType.READ));
+    access.add(new AccessControlEntry(adminIdentity, PermissionType.REMOVE));
+
+    AccessControlList exoAuditRecordAccessControlList = new AccessControlList(session.getUserID(),
+                                                                              access);
+
+    arNode.setACL(exoAuditRecordAccessControlList);
+
     arNode.setOrderNumber(Integer.parseInt(auditRecordName));
     // exo:auditRecord
     session.getTransientNodesManager().update(new ItemState(arNode,
@@ -212,7 +233,7 @@ public class AuditServiceImpl implements AuditService {
     checkIfAuditable(node);
 
     AuditSession auditSession = new AuditSession(node);
-    NodeImpl storage = auditSession.getAuditStorage();
+    NodeData storage = auditSession.getAuditStorage();
 
     // here should be added to SessionDataManager:
     // nodeData: /exo:audit/itemUUID
@@ -225,9 +246,22 @@ public class AuditServiceImpl implements AuditService {
 
     InternalQName aiName = new InternalQName(null, ((ItemImpl) node).getData().getIdentifier());
     // exo:auditHistory
-    TransientNodeData ahNode = TransientNodeData.createNodeData((NodeData) storage.getData(),
+    TransientNodeData ahNode = TransientNodeData.createNodeData(storage,
                                                                 aiName,
                                                                 AuditService.EXO_AUDITHISTORY);
+
+    List<AccessControlEntry> access = new ArrayList<AccessControlEntry>();
+    access.add(new AccessControlEntry(SystemIdentity.ANY, PermissionType.ADD_NODE));
+    access.add(new AccessControlEntry(SystemIdentity.ANY, PermissionType.READ));
+    access.add(new AccessControlEntry(SystemIdentity.ANY, PermissionType.SET_PROPERTY));
+    access.add(new AccessControlEntry(adminIdentity, PermissionType.REMOVE));
+
+    AccessControlList exoAuditHistoryAccessControlList = new AccessControlList(session.getUserID(),
+                                                                               access);
+
+    ahNode.setACL(exoAuditHistoryAccessControlList);
+    ahNode.setMixinTypeNames(new InternalQName[] { Constants.MIX_REFERENCEABLE,
+        Constants.EXO_PRIVILEGEABLE });
 
     // jcr:primaryType
     TransientPropertyData aPrType = TransientPropertyData.createPropertyData(ahNode,
@@ -248,7 +282,24 @@ public class AuditServiceImpl implements AuditService {
                                                                                   Constants.JCR_MIXINTYPES,
                                                                                   PropertyType.NAME,
                                                                                   false);
-    ahMixinTypes.setValue(new TransientValueData(Constants.MIX_REFERENCEABLE));
+
+    List<ValueData> mixValues = new ArrayList<ValueData>();
+    mixValues.add(new TransientValueData(Constants.MIX_REFERENCEABLE));
+    mixValues.add(new TransientValueData(Constants.EXO_PRIVILEGEABLE));
+    ahMixinTypes.setValues(mixValues);
+
+    // EXO_PERMISSIONS
+
+    List<ValueData> permsValues = new ArrayList<ValueData>();
+    for (int i = 0; i < ahNode.getACL().getPermissionEntries().size(); i++) {
+      AccessControlEntry entry = ahNode.getACL().getPermissionEntries().get(i);
+      permsValues.add(new TransientValueData(entry));
+    }
+    TransientPropertyData exoAuditPerms = TransientPropertyData.createPropertyData(ahNode,
+                                                                                   Constants.EXO_PERMISSIONS,
+                                                                                   ExtendedPropertyType.PERMISSION,
+                                                                                   true,
+                                                                                   permsValues);
 
     // exo:targetNode
     TransientPropertyData ahTargetNode = TransientPropertyData.createPropertyData(ahNode,
@@ -295,6 +346,11 @@ public class AuditServiceImpl implements AuditService {
                                                             ((ItemImpl) node).getInternalPath()),
                                               true);
 
+    session.getTransientNodesManager().update(new ItemState(exoAuditPerms,
+                                                            ItemState.ADDED,
+                                                            true,
+                                                            ((ItemImpl) node).getInternalPath()),
+                                              true);
 
     session.getTransientNodesManager().update(new ItemState(ahTargetNode,
                                                             ItemState.ADDED,
@@ -319,11 +375,13 @@ public class AuditServiceImpl implements AuditService {
   public AuditHistory getHistory(Node node) throws RepositoryException,
                                            UnsupportedOperationException {
 
-
     // get history for this item and create AuditHistory object
     AuditSession auditSession = new AuditSession(node);
     SessionDataManager dm = auditSession.getDataManager();
     NodeData storage = auditSession.getAuditHistoryNodeData();
+    if (storage == null) {
+      throw new RepositoryException("Audit history for node " + node.getPath() + "not found");
+    }
     List<AuditRecord> auditRecords = new ArrayList<AuditRecord>();
     // AuditRecord aRecord = null;
     ValueFactoryImpl vf = (ValueFactoryImpl) node.getSession().getValueFactory();
@@ -420,26 +478,30 @@ public class AuditServiceImpl implements AuditService {
     }
 
     private NodeData getAuditHistoryNodeData() throws RepositoryException {
-      QPath path = null;
-      // make path to the audithistory property
       // searching uuid of corresponding EXO_AUDITHISTORY node
-      path = QPath.makeChildPath(((NodeImpl) node).getData().getQPath(),
-                                 AuditService.EXO_AUDITHISTORY);
-      PropertyData pData = (PropertyData) dm.getItemData(path);
-      String ahUuid;
-      try {
-        ahUuid = new String(pData.getValues().get(0).getAsByteArray(), Constants.DEFAULT_ENCODING);
-      } catch (Exception e) {
-        throw new RepositoryException("Error getAuditHistory converting to string");
-      }
-      return (NodeData) dm.getItemData(ahUuid);
+      PropertyData pData = (PropertyData) dm.getItemData((NodeData) ((NodeImpl) node).getData(),
+                                                         new QPathEntry(AuditService.EXO_AUDITHISTORY,
+                                                                        0));
+      if (pData != null)
+        try {
+          String ahUuid = new String(pData.getValues().get(0).getAsByteArray(),
+                                     Constants.DEFAULT_ENCODING);
+          return (NodeData) dm.getItemData(ahUuid);
+        } catch (UnsupportedEncodingException e) {
+          throw new RepositoryException("Error getAuditHistory converting to string");
+        } catch (IllegalStateException e) {
+          throw new RepositoryException("Error getAuditHistory converting to string");
+        } catch (IOException e) {
+          throw new RepositoryException("Error getAuditHistory converting to string");
+        }
+      return null;
     }
 
-    private NodeImpl getAuditStorage() throws RepositoryException {
-      NodeImpl storage;
-      try {
-        storage = session.getNodeByUUID(AUDIT_STORAGE_ID);
-      } catch (ItemNotFoundException e) {
+    private NodeData getAuditStorage() throws RepositoryException {
+
+      ItemData storage = session.getTransientNodesManager().getItemData(AUDIT_STORAGE_ID);
+
+      if (storage == null) {
         SessionChangesLog changesLog = new SessionChangesLog(session.getId());
 
         // here should be added to TransactionalDataManager (i.e. saved
@@ -450,6 +512,20 @@ public class AuditServiceImpl implements AuditService {
                                                                           AuditService.EXO_AUDIT,
                                                                           AuditService.EXO_AUDITSTORAGE,
                                                                           AuditService.AUDIT_STORAGE_ID);
+
+        List<AccessControlEntry> access = new ArrayList<AccessControlEntry>();
+        access.add(new AccessControlEntry(SystemIdentity.ANY, PermissionType.ADD_NODE));
+        access.add(new AccessControlEntry(adminIdentity, PermissionType.READ));
+        access.add(new AccessControlEntry(adminIdentity, PermissionType.REMOVE));
+
+        AccessControlList exoAuditAccessControlList = new AccessControlList(SystemIdentity.SYSTEM,
+                                                                            access);
+
+        exoAuditNode.setACL(exoAuditAccessControlList);
+
+        InternalQName[] mixins = new InternalQName[] { Constants.EXO_PRIVILEGEABLE,
+            Constants.MIX_REFERENCEABLE };
+        exoAuditNode.setMixinTypeNames(mixins);
 
         // jcr:primaryType
         TransientPropertyData exoAuditPrType = TransientPropertyData.createPropertyData(exoAuditNode,
@@ -470,17 +546,36 @@ public class AuditServiceImpl implements AuditService {
                                                                                             Constants.JCR_MIXINTYPES,
                                                                                             PropertyType.NAME,
                                                                                             true);
-        exoAuditMixinTypes.setValue(new TransientValueData(Constants.MIX_REFERENCEABLE));
+        List<ValueData> mixValues = new ArrayList<ValueData>();
+        mixValues.add(new TransientValueData(Constants.MIX_REFERENCEABLE));
+        mixValues.add(new TransientValueData(Constants.EXO_PRIVILEGEABLE));
+        exoAuditMixinTypes.setValues(mixValues);
+
+        // EXO_PERMISSIONS
+
+        List<ValueData> permsValues = new ArrayList<ValueData>();
+        for (int i = 0; i < exoAuditNode.getACL().getPermissionEntries().size(); i++) {
+          AccessControlEntry entry = exoAuditNode.getACL().getPermissionEntries().get(i);
+          permsValues.add(new TransientValueData(entry));
+        }
+        TransientPropertyData exoAuditPerms = TransientPropertyData.createPropertyData(exoAuditNode,
+                                                                                       Constants.EXO_PERMISSIONS,
+                                                                                       ExtendedPropertyType.PERMISSION,
+                                                                                       true,
+                                                                                       permsValues);
 
         changesLog.add(ItemState.createAddedState(exoAuditNode));
         changesLog.add(ItemState.createAddedState(exoAuditPrType));
         changesLog.add(ItemState.createAddedState(exoAuditUuid));
         changesLog.add(ItemState.createAddedState(exoAuditMixinTypes));
+        changesLog.add(ItemState.createAddedState(exoAuditPerms));
 
         session.getTransientNodesManager().getTransactManager().save(changesLog);
-        storage = session.getNodeByUUID(AUDIT_STORAGE_ID);
+        storage = session.getTransientNodesManager().getItemData(AUDIT_STORAGE_ID);
       }
-      return storage;
+      if (!storage.isNode())
+        throw new RepositoryException("Item with uuid " + AUDIT_STORAGE_ID + " should be node  ");
+      return (NodeData) storage;
     }
 
     private SessionDataManager getDataManager() {

@@ -23,10 +23,7 @@ import javax.jcr.util.TraversingItemVisitor;
 
 import org.apache.commons.logging.Log;
 
-import org.exoplatform.container.ExoContainer;
-import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**

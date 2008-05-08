@@ -54,8 +54,8 @@ public class AuditAction implements Action {
         auditService.createHistory(node);
 
       auditService.addRecord(item, event);
-      if (log.isDebugEnabled()) {
-        log.debug("Record '" + ExtendedEventType.nameFromValue(event) + "' added for "
+      if (true) {
+        log.info("Record '" + ExtendedEventType.nameFromValue(event) + "' added for "
             + item.getPath());
       }
       return true;

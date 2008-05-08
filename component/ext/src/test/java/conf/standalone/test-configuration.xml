@@ -134,7 +134,9 @@
                         <field  name="actionClassName"><string>org.exoplatform.services.jcr.ext.owner.AddOwneableAction</string></field>
                       </object>
                     </value>
-                    <value>
+                    
+                    
+                    <!--value>
                       <object type="org.exoplatform.services.jcr.impl.ext.action.ActionConfiguration">
                         <field  name="eventTypes"><string>addNode</string></field>
                         <field  name="path"><string>/AuditServiceTest/autoAdd</string></field>
@@ -142,6 +144,7 @@
                         <field  name="actionClassName"><string>org.exoplatform.services.jcr.ext.audit.AddAuditableAction</string></field>
                       </object>
                     </value>
+                    
                     <value>
                       <object type="org.exoplatform.services.jcr.impl.ext.action.ActionConfiguration">
                         <field  name="eventTypes"><string>addProperty,changeProperty,removeProperty</string></field>
@@ -151,6 +154,7 @@
                         <field  name="actionClassName"><string>org.exoplatform.services.jcr.ext.audit.AuditAction</string></field>
                       </object>
                     </value>
+                    
                     <value>
                       <object type="org.exoplatform.services.jcr.impl.ext.action.ActionConfiguration">
                         <field  name="eventTypes"><string>addMixin</string></field>
@@ -167,7 +171,7 @@
                         <field  name="isDeep"><boolean>false</boolean></field>
                         <field  name="actionClassName"><string>org.exoplatform.services.jcr.ext.audit.RemoveAuditableAction</string></field>
                       </object>
-                    </value>
+                    </value-->
                   </collection>
                 </field>
               </object>
@@ -182,6 +186,12 @@
     <component>
       <key>org.exoplatform.services.jcr.ext.audit.AuditService</key>
       <type>org.exoplatform.services.jcr.ext.audit.AuditServiceImpl</type>
+      <init-params>
+           <value-param>
+              <name>adminIdentity</name>
+              <value>*:/admin</value>
+           </value-param>
+ 		  </init-params>
     </component>
 
     <component>
