@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.ext.audit;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -69,33 +68,6 @@ public class TestAuditService extends BaseStandaloneTest {
   private Map<ActionMatcher, Action> oldActions;
 
   @Override
-  protected void tearDown() throws Exception {
-    exo1Session.logout();
-    exo1Session = null;
-
-    ((NodeImpl) adminSession.getRootNode()).setPermission(SystemIdentity.ANY, PermissionType.ALL); // exo
-    try {
-      Node auditStorage = adminSession.getNodeByUUID(AuditService.AUDIT_STORAGE_ID);
-      adminSession.save();
-      auditStorage.remove();
-    } catch (ItemNotFoundException e) {
-    }
-    adminSession.save();
-    adminSession.getRootNode().getNode(ROOT_PATH).remove();
-    adminSession.save();
-    adminSession.logout();
-    adminSession = null;
-
-    catalog.clear();
-    // restore old actions
-    for (Entry<ActionMatcher, Action> entry : oldActions.entrySet()) {
-      catalog.addAction(entry.getKey(), entry.getValue());
-    }
-
-    super.tearDown();
-
-  }
-
   public void setUp() throws Exception {
     super.setUp();
     service = (AuditService) container.getComponentInstanceOfType(AuditService.class);
@@ -125,85 +97,11 @@ public class TestAuditService extends BaseStandaloneTest {
 
   }
 
-  // +
-  public void testIfAuditServiceConfigured() throws Exception {
-
-    assertNotNull(container.getComponentInstanceOfType(AuditService.class));
-    assertNotNull(repository.getNodeTypeManager().getNodeType("exo:auditable"));
-    assertNotNull(repository.getNodeTypeManager().getNodeType("exo:auditRecord"));
-    assertNotNull(repository.getNodeTypeManager().getNodeType("exo:auditHistory"));
-    assertNotNull(repository.getNodeTypeManager().getNodeType("exo:auditStorage"));
-  }
-
-  // +
-  public void testAddInfoToAuditStorage() throws RepositoryException {
-
-    ExtendedNode node = null;
-    try {
-      node = (ExtendedNode) session.getRootNode().getNode(ROOT_PATH).addNode("testaudit");
-      node.addMixin("exo:auditable");
-      if (!service.hasHistory(node))
-        service.createHistory(node);
-      session.save();
-    } catch (RepositoryException e) {
-      e.printStackTrace();
-      fail("Fail to init AuditStorage" + e.getLocalizedMessage());
-    }
-    Property property1 = node.setProperty("property1", "value1");
-    service.addRecord(node, ExtendedEvent.NODE_ADDED);
-    service.addRecord(property1, ExtendedEvent.PROPERTY_ADDED);
-
-    Node auditHistory = session.getNodeByUUID(node.getProperty("exo:auditHistory").getString());
-    assertNotNull(auditHistory);
-    assertEquals(2, auditHistory.getNodes().getSize());
-
-    assertTrue(service.hasHistory(node));
-    assertNotNull(service.getHistory(node));
-  }
-
-  public void testCreateAndRemoveStorage() throws RepositoryException {
-
-    ExtendedNode node = null;
-    try {
-      node = (ExtendedNode) session.getRootNode().getNode(ROOT_PATH).addNode("teststotage");
-      node.addMixin("exo:auditable");
-      if (!service.hasHistory(node))
-        service.createHistory(node);
-      session.save();
-    } catch (RepositoryException e) {
-      e.printStackTrace();
-      fail("Fail to init AuditStorage" + e.getLocalizedMessage());
-    }
-    Node auditHistory = session.getNodeByUUID(node.getProperty("exo:auditHistory").getString());
-    assertNotNull("Audit history does'n created correctly", auditHistory);
-  }
-
-  public void testIfAuditStorageCreated() {
-
-    AuditService service = (AuditService) container.getComponentInstanceOfType(AuditService.class);
-    ExtendedNode node = null;
-    try {
-      node = (ExtendedNode) adminSession.getRootNode().getNode(ROOT_PATH).addNode("auditablenode");
-      node.addMixin("exo:auditable");
-    } catch (RepositoryException e) {
-      fail("Fail to add node or add mixin");
-    }
-    try {
-      service.createHistory(node);
-      adminSession.save();
-      assertNotNull(adminSession.getNodeByUUID(AuditService.AUDIT_STORAGE_ID));
-    } catch (RepositoryException e) {
-      e.printStackTrace();
-      fail("Fail to create AUDIT_STORAGE " + e.getLocalizedMessage());
-    }
-
-    try {
-      assertNotNull(adminSession.getNodeByUUID(node.getProperty("exo:auditHistory").getString()));
-    } catch (RepositoryException e) {
-      fail("Fail to create AUDITHISTORY");
-    }
-  }
-
+  /**
+   * Test automatically make node exo:auditable
+   * 
+   * @throws Exception
+   */
   public void testAddAuditHistoryAction() throws Exception {
     // Should not be autocreated
 
@@ -227,7 +125,7 @@ public class TestAuditService extends BaseStandaloneTest {
                                                                 null);
 
     catalog.addAction(addAuditableHandler, new AddAuditableAction());
-    // catalog.addAction(removeHandler, new RemoveAuditableAction());
+    catalog.addAction(removeHandler, new RemoveAuditableAction());
 
     ExtendedNode node = (ExtendedNode) rootNode.addNode("testAddAuditHistoryAction");
     // node.addMixin("exo:auditable");
@@ -245,18 +143,23 @@ public class TestAuditService extends BaseStandaloneTest {
     assertEquals(1, auditHistory.getNodes().getSize());
 
     session.save();
-    // service.removeHistory(node);
-    // node.remove();
+    service.removeHistory(node);
+    node.remove();
     session.save();
 
     try {
       session.getNodeByUUID(auditHistoryUUID);
+      fail("History should be removed");
     } catch (ItemNotFoundException e) {
-      fail("History is not removed");
-    }
 
+    }
   }
 
+  /**
+   * Test automatically create audit history after add exo:auditable mixin
+   * 
+   * @throws Exception
+   */
   public void testAddAuditHistoryMixinAction() throws Exception {
     NodeImpl rootNode = (NodeImpl) session.getRootNode().getNode(ROOT_PATH);
     SessionEventMatcher addAuditableHandler = new SessionEventMatcher(ExtendedEvent.ADD_MIXIN,
@@ -291,7 +194,7 @@ public class TestAuditService extends BaseStandaloneTest {
     );
     catalog.addAction(addAuditableHandler, new AddAuditableAction());
     catalog.addAction(propertiesHandler, new AuditAction());
-    // catalog.addAction(removeHandler, new RemoveAuditableAction());
+    catalog.addAction(removeHandler, new RemoveAuditableAction());
     // Should not be autocreated
     ExtendedNode node = (ExtendedNode) rootNode.addNode("testAddAuditHistoryMixinAction",
                                                         "nt:unstructured");
@@ -312,94 +215,46 @@ public class TestAuditService extends BaseStandaloneTest {
     assertEquals(2, auditHistory.getNodes().getSize());
 
     session.save();
-    // service.removeHistory(node);
-    // node.remove();
+    service.removeHistory(node);
+    node.remove();
     session.save();
 
     try {
       session.getNodeByUUID(auditHistoryUUID);
+      fail("History should be removed");
     } catch (ItemNotFoundException e) {
-      fail("History is not removed");
+
     }
   }
 
-  public void testRemovePropertyAudit() throws Exception {
+  /**
+   * Test add informations to audit storage
+   * 
+   * @throws RepositoryException
+   */
+  public void testAddInfoToAuditStorage() throws RepositoryException {
 
-    NodeImpl rootNode = (NodeImpl) session.getRootNode().getNode(ROOT_PATH);
-
-    SessionEventMatcher addAuditableHandler = new SessionEventMatcher(Event.NODE_ADDED,
-                                                                      new QPath[] { QPath.makeChildPath(rootNode.getInternalPath(),
-                                                                                                        new InternalQName("",
-                                                                                                                          "testRemovePropertyAudit")) },
-                                                                      true,
-                                                                      new String[] { session.getWorkspace()
-                                                                                            .getName() },
-                                                                      null);
-
-    SessionEventMatcher propertiesHandler = new SessionEventMatcher(Event.PROPERTY_ADDED
-                                                                        | Event.PROPERTY_CHANGED
-                                                                        | Event.PROPERTY_REMOVED
-                                                                        | Event.NODE_ADDED,
-                                                                    new QPath[] { QPath.makeChildPath(rootNode.getInternalPath(),
-                                                                                                      new InternalQName("",
-                                                                                                                        "testRemovePropertyAudit")) },
-                                                                    true,
-                                                                    new String[] { session.getWorkspace()
-                                                                                          .getName() },
-
-                                                                    new InternalQName[] { AuditService.EXO_AUDITABLE });
-
-    SessionEventMatcher removeHandler = new SessionEventMatcher(Event.NODE_REMOVED,
-                                                                new QPath[] { QPath.makeChildPath(rootNode.getInternalPath(),
-                                                                                                  new InternalQName("",
-                                                                                                                    "testRemovePropertyAudit")) },
-                                                                true,
-                                                                new String[] { session.getWorkspace()
-                                                                                      .getName() },
-                                                                null
-
-    );
-
-    catalog.addAction(addAuditableHandler, new AddAuditableAction());
-    catalog.addAction(propertiesHandler, new AuditAction());
-    // catalog.addAction(removeHandler, new RemoveAuditableAction());
-
-    // Should not be autocreated
-    ExtendedNode node = (ExtendedNode) rootNode.addNode("testRemovePropertyAudit",
-                                                        "nt:unstructured");
-    String auditHistoryUUID = node.getProperty("exo:auditHistory").getString();
-    Node auditHistory = session.getNodeByUUID(auditHistoryUUID);
-
-    // under audit
-    node.setProperty("test", "testValue");
-
-    assertTrue(auditHistory.isNodeType("exo:auditHistory"));
-
-    node.getProperty("test").remove();
-
-    // pointed to target node
-    assertEquals(auditHistory.getProperty("exo:targetNode").getString(), node.getUUID());
-    // PROPERTY_ADDED
-    // PROPERTY_REMOVED
-    // NODE_ADDED
-
-    assertEquals("3", auditHistory.getProperty("exo:lastRecord").getString());
-
-    assertEquals(3, auditHistory.getNodes().getSize());
-
-    session.save();
-    // service.removeHistory(node);
-    // node.remove();
-    session.save();
-
+    ExtendedNode node = null;
     try {
-      session.getNodeByUUID(auditHistoryUUID);
-
-    } catch (ItemNotFoundException e) {
-      // ok
-      fail("History is not removed");
+      node = (ExtendedNode) session.getRootNode().getNode(ROOT_PATH).addNode("testaudit");
+      node.addMixin("exo:auditable");
+      if (!service.hasHistory(node))
+        service.createHistory(node);
+      session.save();
+    } catch (RepositoryException e) {
+      e.printStackTrace();
+      fail("Fail to init AuditStorage" + e.getLocalizedMessage());
     }
+    Property property1 = node.setProperty("property1", "value1");
+    service.addRecord(node, Event.NODE_ADDED);
+    service.addRecord(property1, Event.PROPERTY_ADDED);
 
+    Node auditHistory = session.getNodeByUUID(node.getProperty("exo:auditHistory").getString());
+    assertNotNull(auditHistory);
+    assertEquals(2, auditHistory.getNodes().getSize());
+
+    assertTrue(service.hasHistory(node));
+    assertNotNull(service.getHistory(node));
   }
 
   public void testAuditHistory() throws Exception {
@@ -439,7 +294,7 @@ public class TestAuditService extends BaseStandaloneTest {
 
     catalog.addAction(addAuditableHandler, new AddAuditableAction());
     catalog.addAction(propertiesHandler, new AuditAction());
-    // catalog.addAction(removeHandler, new RemoveAuditableAction());
+    catalog.addAction(removeHandler, new RemoveAuditableAction());
     // Should not be autocreated
     ExtendedNode node = (ExtendedNode) rootNode.addNode("testAuditHistory", "nt:unstructured");
     // node.addMixin("exo:auditable");
@@ -459,14 +314,14 @@ public class TestAuditService extends BaseStandaloneTest {
     assertTrue(node.isSame(history.getAuditableNode()));
     assertEquals(3, history.getAuditRecords().size());
 
-    assertEquals(ExtendedEvent.PROPERTY_ADDED, history.getAuditRecords().get(1).getEventType());
+    assertEquals(Event.PROPERTY_ADDED, history.getAuditRecords().get(1).getEventType());
     assertEquals(ExtendedEventType.PROPERTY_ADDED, history.getAuditRecords()
                                                           .get(1)
                                                           .getEventTypeName());
     assertEquals(new InternalQName(null, "test"), history.getAuditRecords()
                                                          .get(1)
                                                          .getPropertyName());
-    assertEquals(ExtendedEvent.PROPERTY_REMOVED, history.getAuditRecords().get(2).getEventType());
+    assertEquals(Event.PROPERTY_REMOVED, history.getAuditRecords().get(2).getEventType());
     assertEquals(ExtendedEventType.PROPERTY_REMOVED, history.getAuditRecords()
                                                             .get(2)
                                                             .getEventTypeName());
@@ -474,6 +329,145 @@ public class TestAuditService extends BaseStandaloneTest {
 
   }
 
+  /**
+   * Test check permissions ion audit storage
+   * 
+   * @throws Exception
+   */
+  public void testCheckPermissions() throws Exception {
+    // user
+    NodeImpl rootNode = (NodeImpl) session.getRootNode().getNode(ROOT_PATH);
+    ExtendedNode node = (ExtendedNode) rootNode.addNode("testAuditHistory", "nt:unstructured");
+    node.addMixin("exo:auditable");
+    if (!service.hasHistory(node))
+      service.createHistory(node);
+    session.save();
+    service.addRecord(node, Event.NODE_ADDED);
+    session.save();
+
+    // user
+    NodeImpl rootNode1 = (NodeImpl) exo1Session.getRootNode().getNode(ROOT_PATH);
+    // Should not be autocreated
+    ExtendedNode node1 = (ExtendedNode) rootNode1.addNode("testAuditHistory", "nt:unstructured");
+    node1.addMixin("exo:auditable");
+    if (!service.hasHistory(node1))
+      service.createHistory(node1);
+    exo1Session.save();
+    service.addRecord(node1, Event.NODE_ADDED);
+    exo1Session.save();
+
+    try {
+      service.removeHistory(node1);
+      exo1Session.save();
+    } catch (AccessDeniedException e) {
+      fail();
+    }
+
+    // admin
+    Node auditStorage = adminSession.getNodeByUUID(AuditService.AUDIT_STORAGE_ID);
+    for (NodeIterator nIterator = auditStorage.getNodes(); nIterator.hasNext();) {
+      nIterator.nextNode();
+
+    }
+    Node adminTestAuditHistoryNode = adminSession.getRootNode()
+                                                 .getNode(ROOT_PATH)
+                                                 .getNode("testAuditHistory");
+    assertTrue(service.hasHistory(adminTestAuditHistoryNode));
+    service.removeHistory(adminTestAuditHistoryNode);
+    adminSession.save();
+  }
+
+  /**
+   * Test creating and removing item from storage
+   * 
+   * @throws RepositoryException
+   */
+  public void testCreateAndRemoveStorage() throws RepositoryException {
+
+    ExtendedNode node = null;
+    try {
+      node = (ExtendedNode) session.getRootNode().getNode(ROOT_PATH).addNode("teststotage");
+      node.addMixin("exo:auditable");
+      if (!service.hasHistory(node))
+        service.createHistory(node);
+      session.save();
+    } catch (RepositoryException e) {
+      e.printStackTrace();
+      fail("Fail to init AuditStorage" + e.getLocalizedMessage());
+    }
+    Node auditHistory = session.getNodeByUUID(node.getProperty("exo:auditHistory").getString());
+    assertNotNull("Audit history does'n created correctly", auditHistory);
+  }
+
+  /**
+   * Test repository configuration
+   * 
+   * @throws Exception
+   */
+  public void testIfAuditServiceConfigured() throws Exception {
+
+    assertNotNull(container.getComponentInstanceOfType(AuditService.class));
+    assertNotNull(repository.getNodeTypeManager().getNodeType("exo:auditable"));
+    assertNotNull(repository.getNodeTypeManager().getNodeType("exo:auditRecord"));
+    assertNotNull(repository.getNodeTypeManager().getNodeType("exo:auditHistory"));
+    assertNotNull(repository.getNodeTypeManager().getNodeType("exo:auditStorage"));
+  }
+
+  /**
+   * Test creating audit storage
+   */
+  public void testIfAuditStorageCreated() {
+
+    AuditService service = (AuditService) container.getComponentInstanceOfType(AuditService.class);
+    ExtendedNode node = null;
+    try {
+      node = (ExtendedNode) adminSession.getRootNode().getNode(ROOT_PATH).addNode("auditablenode");
+      node.addMixin("exo:auditable");
+    } catch (RepositoryException e) {
+      fail("Fail to add node or add mixin");
+    }
+    try {
+      service.createHistory(node);
+      adminSession.save();
+      assertNotNull(adminSession.getNodeByUUID(AuditService.AUDIT_STORAGE_ID));
+    } catch (RepositoryException e) {
+      e.printStackTrace();
+      fail("Fail to create AUDIT_STORAGE " + e.getLocalizedMessage());
+    }
+
+    try {
+      assertNotNull(adminSession.getNodeByUUID(node.getProperty("exo:auditHistory").getString()));
+    } catch (RepositoryException e) {
+      fail("Fail to create AUDITHISTORY");
+    }
+  }
+
+  /**
+   * Test reading information from audit storage.
+   * 
+   * @throws Exception
+   */
+  public void testReadHistory() throws Exception {
+    NodeImpl rootNode = (NodeImpl) session.getRootNode().getNode(ROOT_PATH);
+    ExtendedNode node = (ExtendedNode) rootNode.addNode("testReadHistory", "nt:unstructured");
+    node.addMixin("exo:auditable");
+    if (!service.hasHistory(node))
+      service.createHistory(node);
+    session.save();
+    service.addRecord(node, Event.NODE_ADDED);
+    session.save();
+
+    service.getHistory(node).getAuditRecords();
+    Node node2 = exo1Session.getRootNode().getNode(ROOT_PATH).getNode("testReadHistory");
+    service.getHistory(node2).getAuditRecords();
+
+  }
+
+  /**
+   * Tests remove auditable action
+   * 
+   * @throws Exception
+   */
   public void testRemoveAuditable() throws Exception {
     NodeImpl rootNode = (NodeImpl) adminSession.getRootNode().getNode(ROOT_PATH);
     SessionEventMatcher addAuditableHandler = new SessionEventMatcher(Event.NODE_ADDED,
@@ -504,6 +498,7 @@ public class TestAuditService extends BaseStandaloneTest {
     assertNotNull(session.getNodeByUUID(history));
     node.remove();
     adminSession.save();
+
     try {
       adminSession.getNodeByUUID(history);
       fail("History doesn't removed");
@@ -512,20 +507,41 @@ public class TestAuditService extends BaseStandaloneTest {
     }
   }
 
-  public void testRuntimeAddAuditable() throws Exception {
-    QPath testRootPath = session.getLocationFactory().parseJCRPath("/testRoot").getInternalPath();
+  /**
+   * Test check correct add audit information after changing property
+   * 
+   * @throws Exception
+   */
+  public void testRemovePropertyAudit() throws Exception {
+
+    NodeImpl rootNode = (NodeImpl) session.getRootNode().getNode(ROOT_PATH);
+
+    SessionEventMatcher addAuditableHandler = new SessionEventMatcher(Event.NODE_ADDED,
+                                                                      new QPath[] { QPath.makeChildPath(rootNode.getInternalPath(),
+                                                                                                        new InternalQName("",
+                                                                                                                          "testRemovePropertyAudit")) },
+                                                                      true,
+                                                                      new String[] { session.getWorkspace()
+                                                                                            .getName() },
+                                                                      null);
 
     SessionEventMatcher propertiesHandler = new SessionEventMatcher(Event.PROPERTY_ADDED
                                                                         | Event.PROPERTY_CHANGED
                                                                         | Event.PROPERTY_REMOVED
                                                                         | Event.NODE_ADDED,
-                                                                    new QPath[] { testRootPath },
+                                                                    new QPath[] { QPath.makeChildPath(rootNode.getInternalPath(),
+                                                                                                      new InternalQName("",
+                                                                                                                        "testRemovePropertyAudit")) },
                                                                     true,
                                                                     new String[] { session.getWorkspace()
                                                                                           .getName() },
+
                                                                     new InternalQName[] { AuditService.EXO_AUDITABLE });
+
     SessionEventMatcher removeHandler = new SessionEventMatcher(Event.NODE_REMOVED,
-                                                                new QPath[] { testRootPath },
+                                                                new QPath[] { QPath.makeChildPath(rootNode.getInternalPath(),
+                                                                                                  new InternalQName("",
+                                                                                                                    "testRemovePropertyAudit")) },
                                                                 true,
                                                                 new String[] { session.getWorkspace()
                                                                                       .getName() },
@@ -533,90 +549,73 @@ public class TestAuditService extends BaseStandaloneTest {
 
     );
 
-    SessionEventMatcher addAuditableHandler = new SessionEventMatcher(Event.NODE_ADDED,
-                                                                      new QPath[] { testRootPath },
-                                                                      true,
-                                                                      new String[] { session.getWorkspace()
-                                                                                            .getName() },
-                                                                      null);
     catalog.addAction(addAuditableHandler, new AddAuditableAction());
     catalog.addAction(propertiesHandler, new AuditAction());
-    // catalog.addAction(mixinHandler,new AuditAction());
-    // catalog.addAction(removeHandler, new RemoveAuditableAction());
+    catalog.addAction(removeHandler, new RemoveAuditableAction());
 
-    NodeImpl testRoot = (NodeImpl) root.getNode(ROOT_PATH).addNode("testRoot");
-    session.save();
-
-    Node t2 = testRoot.addNode("testNode");
-    session.save();
-    t2.setProperty("t2", "ss");
-    session.save();
-    t2.remove();
-    session.save();
-    t2 = testRoot.addNode("testNode");
-    t2.setProperty("t2", "ss");
-    Node t3 = t2.addNode("t3");
-    session.save();
-  }
-
-  public void testReadHistory() throws Exception {
-    NodeImpl rootNode = (NodeImpl) session.getRootNode().getNode(ROOT_PATH);
-    ExtendedNode node = (ExtendedNode) rootNode.addNode("testReadHistory", "nt:unstructured");
-    node.addMixin("exo:auditable");
-    if (!service.hasHistory(node))
-      service.createHistory(node);
-    session.save();
-    service.addRecord(node, Event.NODE_ADDED);
-    session.save();
-
-    service.getHistory(node).getAuditRecords();
-    Node node2 = exo1Session.getRootNode().getNode(ROOT_PATH).getNode("testReadHistory");
-    service.getHistory(node2).getAuditRecords();
-
-  }
-
-  public void testCheckPermissions() throws Exception {
-    // user
-    NodeImpl rootNode = (NodeImpl) session.getRootNode().getNode(ROOT_PATH);
-    ExtendedNode node = (ExtendedNode) rootNode.addNode("testAuditHistory", "nt:unstructured");
-    node.addMixin("exo:auditable");
-    if (!service.hasHistory(node))
-      service.createHistory(node);
-    session.save();
-    service.addRecord(node, Event.NODE_ADDED);
-    session.save();
-
-    // user
-    NodeImpl rootNode1 = (NodeImpl) exo1Session.getRootNode().getNode(ROOT_PATH);
     // Should not be autocreated
-    ExtendedNode node1 = (ExtendedNode) rootNode1.addNode("testAuditHistory", "nt:unstructured");
-    node1.addMixin("exo:auditable");
-    if (!service.hasHistory(node1))
-      service.createHistory(node1);
-    exo1Session.save();
-    service.addRecord(node1, Event.NODE_ADDED);
-    exo1Session.save();
+    ExtendedNode node = (ExtendedNode) rootNode.addNode("testRemovePropertyAudit",
+                                                        "nt:unstructured");
+    String auditHistoryUUID = node.getProperty("exo:auditHistory").getString();
+    Node auditHistory = session.getNodeByUUID(auditHistoryUUID);
+
+    // under audit
+    node.setProperty("test", "testValue");
+
+    assertTrue(auditHistory.isNodeType("exo:auditHistory"));
+
+    node.getProperty("test").remove();
+
+    // pointed to target node
+    assertEquals(auditHistory.getProperty("exo:targetNode").getString(), node.getUUID());
+    // PROPERTY_ADDED
+    // PROPERTY_REMOVED
+    // NODE_ADDED
+
+    assertEquals("3", auditHistory.getProperty("exo:lastRecord").getString());
+
+    assertEquals(3, auditHistory.getNodes().getSize());
+
+    session.save();
+    service.removeHistory(node);
+    node.remove();
+    session.save();
 
     try {
-      service.removeHistory(node1);
-      exo1Session.save();
-      fail();
-    } catch (AccessDeniedException e) {
+      session.getNodeByUUID(auditHistoryUUID);
+      fail("History should be removed");
+    } catch (ItemNotFoundException e) {
       // ok
-    }
-
-    // admin
-    Node auditStorage = adminSession.getNodeByUUID(AuditService.AUDIT_STORAGE_ID);
-    for (NodeIterator nIterator = auditStorage.getNodes(); nIterator.hasNext();) {
-      nIterator.nextNode();
 
     }
-    Node adminTestAuditHistoryNode = adminSession.getRootNode()
-                                                 .getNode(ROOT_PATH)
-                                                 .getNode("testAuditHistory");
-    assertTrue(service.hasHistory(adminTestAuditHistoryNode));
-    service.removeHistory(adminTestAuditHistoryNode);
+
+  }
+
+  @Override
+  protected void tearDown() throws Exception {
+    exo1Session.logout();
+    exo1Session = null;
+
+    ((NodeImpl) adminSession.getRootNode()).setPermission(SystemIdentity.ANY, PermissionType.ALL); // exo
+    try {
+      Node auditStorage = adminSession.getNodeByUUID(AuditService.AUDIT_STORAGE_ID);
+      adminSession.save();
+      auditStorage.remove();
+    } catch (ItemNotFoundException e) {
+    }
     adminSession.save();
+    adminSession.getRootNode().getNode(ROOT_PATH).remove();
+    adminSession.save();
+    adminSession.logout();
+    adminSession = null;
+
+    catalog.clear();
+    // restore old actions
+    for (Entry<ActionMatcher, Action> entry : oldActions.entrySet()) {
+      catalog.addAction(entry.getKey(), entry.getValue());
+    }
+
+    super.tearDown();
 
   }
 }

@@ -235,7 +235,6 @@ public class AuditServiceImpl implements AuditService {
     AuditSession auditSession = new AuditSession(node);
     NodeData storage = auditSession.getAuditStorage();
 
-    // here should be added to SessionDataManager:
     // nodeData: /exo:audit/itemUUID
     // its primaryType exo:auditHistory
     // exo:targetNode (ref to item)
@@ -516,7 +515,7 @@ public class AuditServiceImpl implements AuditService {
         List<AccessControlEntry> access = new ArrayList<AccessControlEntry>();
         access.add(new AccessControlEntry(SystemIdentity.ANY, PermissionType.ADD_NODE));
         access.add(new AccessControlEntry(adminIdentity, PermissionType.READ));
-        access.add(new AccessControlEntry(adminIdentity, PermissionType.REMOVE));
+        access.add(new AccessControlEntry(SystemIdentity.ANY, PermissionType.REMOVE));
 
         AccessControlList exoAuditAccessControlList = new AccessControlList(SystemIdentity.SYSTEM,
                                                                             access);
