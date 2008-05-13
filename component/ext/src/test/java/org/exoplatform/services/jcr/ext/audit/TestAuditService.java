@@ -53,19 +53,19 @@ import org.exoplatform.services.jcr.observation.ExtendedEventType;
 
 public class TestAuditService extends BaseStandaloneTest {
 
-  private static final String        ROOT_PATH = "AuditServiceTest";
+  protected static final String        ROOT_PATH = "AuditServiceTest";
 
-  private AuditService               service;
+  protected AuditService               service;
 
-  private SessionActionCatalog       catalog;
+  protected SessionActionCatalog       catalog;
 
-  private Session                    exo1Session;
+  protected Session                    exo1Session;
 
-  private Session                    adminSession;
+  protected Session                    adminSession;
 
-  private NodeImpl                   auditServiceTestRoot;
+  protected NodeImpl                   auditServiceTestRoot;
 
-  private Map<ActionMatcher, Action> oldActions;
+  protected Map<ActionMatcher, Action> oldActions;
 
   @Override
   public void setUp() throws Exception {

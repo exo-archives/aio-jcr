@@ -23,6 +23,7 @@ import org.exoplatform.services.jcr.observation.ExtendedEventType;
 
 /**
  * Created by The eXo Platform SAS        .
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -34,12 +35,22 @@ public class AuditRecord implements Comparable<AuditRecord> {
   private final Calendar date;
   private final InternalQName propertyName;
   
-  public AuditRecord(final String userId, final int eventType, final Calendar date
-      ,InternalQName propertyName) {
+  private final String        version;
+
+  private final String        versionName;
+
+  public AuditRecord(String userId,
+                     int eventType,
+                     Calendar date,
+                     InternalQName propertyName,
+                     String version,
+                     String versionName) {
     this.userId = userId;
     this.eventType = eventType;
     this.date = date;
     this.propertyName = propertyName;
+    this.version = version;
+    this.versionName = versionName;
   }
 
   public Calendar getDate() {
@@ -66,5 +77,30 @@ public class AuditRecord implements Comparable<AuditRecord> {
     return date.compareTo(otherRecord.getDate());
   }
 
+  /**
+   * Returns version UUID related to this audit record. <br/>
+   * 
+   * Use Session.getNodeByUUID(String) to obtain the version Node instance. <br/>
+   * 
+   * NOTE: Version UUID will has no sense if version will be removed. 
+   * 
+   * @return String with version UUID or null if auditable node was not mix:referenceable at the audit record time
+   */
+  public String getVersion() {
+    return version;
+  }
+
+  /**
+   * Returns version name related to this audit record.
+   * Version name for information purpose only. <br/>
+   * 
+   * NOTE: Version name can be helpful after the version will be removed.
+   * 
+   * @return String in format VERSION_NAME 'VERSION_LABEL_1' 'VERSION_LABEL_2' ... 'VERSION_LABEL_N' 
+   * or null if auditable node was not mix:referenceable at the audit record time
+   */
+  public String getVersionName() {
+    return versionName;
+  }
 
 }

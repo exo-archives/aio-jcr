@@ -24,9 +24,11 @@ import java.util.List;
 
 import javax.jcr.Item;
 import javax.jcr.Node;
+import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.version.Version;
 
 import org.apache.commons.logging.Log;
 
@@ -59,6 +61,7 @@ import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.dataflow.ValueDataConvert;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -165,6 +168,7 @@ public class AuditServiceImpl implements AuditService {
                                                                                  AuditService.EXO_AUDITRECORD_EVENTTYPE,
                                                                                  PropertyType.LONG,
                                                                                  false);
+
     arEventType.setValue(new TransientValueData(eventType));
 
     // jcr:primaryType
@@ -192,7 +196,42 @@ public class AuditServiceImpl implements AuditService {
                                                             ((ItemImpl) item).getInternalPath()),
                                               true);
     // exo:propertyName
-    if (!item.isNode()) {
+    // if (!item.isNode()) {
+    // TransientPropertyData propertyNameData =
+    // TransientPropertyData.createPropertyData(arNode,
+    // EXO_AUDITRECORD_PROPERTYNAME,
+    // PropertyType.STRING,
+    // false);
+    // propertyNameData.setValue(new TransientValueData(((ItemImpl)
+    // item).getInternalName()));
+    // session.getTransientNodesManager().update(new ItemState(propertyNameData,
+    // ItemState.ADDED,
+    // true,
+    // ((ItemImpl) item).getInternalPath()),
+    // true);
+    //
+    // }
+
+    Node versionable;
+    if (item.isNode()) {
+      Node anode = (Node) item;
+      if (anode.isNodeType("mix:versionable"))
+        versionable = anode; // node
+      else {
+        Node aparent = anode.getParent();
+        if (aparent.isNodeType("mix:versionable"))
+          versionable = aparent; // parent
+        else
+          versionable = null;
+      }
+    } else {
+      Node aparent = ((Property) item).getParent();
+      if (aparent.isNodeType("mix:versionable"))
+        versionable = aparent; // parent
+      else
+        versionable = null;
+
+      // exo:propertyName
       TransientPropertyData propertyNameData = TransientPropertyData.createPropertyData(arNode,
                                                                                         EXO_AUDITRECORD_PROPERTYNAME,
                                                                                         PropertyType.STRING,
@@ -203,7 +242,43 @@ public class AuditServiceImpl implements AuditService {
                                                               true,
                                                               ((ItemImpl) item).getInternalPath()),
                                                 true);
+    }
 
+    if (versionable != null) {
+      Version version = versionable.getBaseVersion();
+      String versionName = version.getName();
+      String[] labels = versionable.getVersionHistory().getVersionLabels(version);
+      for (int i = 0; i < labels.length; i++) {
+        String vl = labels[i];
+        if (i == 0)
+          versionName += " ";
+
+        versionName += "'" + vl + "' ";
+      }
+
+      TransientPropertyData auditVersion = TransientPropertyData.createPropertyData(arNode,
+                                                                                    EXO_AUDITRECORD_AUDITVERSION,
+                                                                                    PropertyType.STRING,
+                                                                                    false,
+                                                                                    new TransientValueData(version.getUUID()));
+
+      TransientPropertyData auditVersionName = TransientPropertyData.createPropertyData(arNode,
+                                                                                        EXO_AUDITRECORD_AUDITVERSIONNAME,
+                                                                                        PropertyType.STRING,
+                                                                                        false,
+                                                                                        new TransientValueData(versionName));
+
+      session.getTransientNodesManager().update(new ItemState(auditVersion,
+                                                              ItemState.ADDED,
+                                                              true,
+                                                              ((ItemImpl) item).getInternalPath()),
+                                                true);
+
+      session.getTransientNodesManager().update(new ItemState(auditVersionName,
+                                                              ItemState.ADDED,
+                                                              true,
+                                                              ((ItemImpl) item).getInternalPath()),
+                                                true);
     }
 
     // Update lastRecord
@@ -394,33 +469,45 @@ public class AuditServiceImpl implements AuditService {
       InternalQName propertyName = null;
       int eventType = -1;
       Calendar date = null;
+      String version = null;
+      String versionName = null;
       // loading data
-      for (PropertyData propertyData : auditRecordNodeData) {
-        if (propertyData.getQPath().getName().equals(AuditService.EXO_AUDITRECORD_USER)) {
-          user = vf.loadValue((TransientValueData) propertyData.getValues().get(0),
-                              PropertyType.STRING).getString();
-        } else if (propertyData.getQPath().getName().equals(AuditService.EXO_AUDITRECORD_EVENTTYPE)) {
-          eventType = (int) vf.loadValue((TransientValueData) propertyData.getValues().get(0),
-                                         PropertyType.LONG).getLong();
-        } else if (propertyData.getQPath().getName().equals(AuditService.EXO_AUDITRECORD_CREATED)) {
-          date = vf.loadValue((TransientValueData) propertyData.getValues().get(0),
-                              PropertyType.DATE).getDate();
-        } else if (propertyData.getQPath()
-                               .getName()
-                               .equals(AuditService.EXO_AUDITRECORD_PROPERTYNAME)) {
-          try {
-            propertyName = InternalQName.parse(new String(propertyData.getValues()
-                                                                      .get(0)
-                                                                      .getAsByteArray()));
-          } catch (IOException e) {
-            throw new RepositoryException(e);
-          } catch (IllegalNameException e) {
-            throw new RepositoryException(e);
+      try {
+        for (PropertyData propertyData : auditRecordNodeData) {
+          ValueData value = propertyData.getValues().get(0);
+          if (propertyData.getQPath().getName().equals(AuditService.EXO_AUDITRECORD_USER)) {
+            user = ValueDataConvert.readString(value);
+          } else if (propertyData.getQPath()
+                                 .getName()
+                                 .equals(AuditService.EXO_AUDITRECORD_EVENTTYPE)) {
+            eventType = (int) ValueDataConvert.readLong(value);
+          } else if (propertyData.getQPath().getName().equals(AuditService.EXO_AUDITRECORD_CREATED)) {
+            date = ValueDataConvert.readDate(value);
+          } else if (propertyData.getQPath()
+                                 .getName()
+                                 .equals(AuditService.EXO_AUDITRECORD_PROPERTYNAME)) {
+            propertyName = InternalQName.parse(ValueDataConvert.readString(value));
+          } else if (propertyData.getQPath()
+                                 .getName()
+                                 .equals(AuditService.EXO_AUDITRECORD_AUDITVERSION)) {
+            version = ValueDataConvert.readString(value);
+          } else if (propertyData.getQPath()
+                                 .getName()
+                                 .equals(AuditService.EXO_AUDITRECORD_AUDITVERSIONNAME)) {
+            versionName = ValueDataConvert.readString(value);
           }
         }
+      } catch (UnsupportedEncodingException e) {
+        throw new RepositoryException(e);
+      } catch (IllegalStateException e) {
+        throw new RepositoryException(e);
+      } catch (IOException e) {
+        throw new RepositoryException(e);
+      } catch (IllegalNameException e) {
+        throw new RepositoryException(e);
       }
       // add audit record
-      auditRecords.add(new AuditRecord(user, eventType, date, propertyName));
+      auditRecords.add(new AuditRecord(user, eventType, date, propertyName, version, versionName));
     }
     return new AuditHistory(node, auditRecords);
   }

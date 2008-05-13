@@ -40,6 +40,8 @@ public interface AuditService {
   public static final InternalQName EXO_AUDITRECORD_CREATED = new InternalQName(Constants.NS_EXO_URI, "created");
   public static final InternalQName EXO_AUDITRECORD_EVENTTYPE = new InternalQName(Constants.NS_EXO_URI, "eventType");
   public static final InternalQName EXO_AUDITRECORD_PROPERTYNAME = new InternalQName(Constants.NS_EXO_URI, "propertyName");
+  public static final InternalQName EXO_AUDITRECORD_AUDITVERSION = new InternalQName(Constants.NS_EXO_URI, "auditVersion");
+  public static final InternalQName EXO_AUDITRECORD_AUDITVERSIONNAME = new InternalQName(Constants.NS_EXO_URI, "auditVersionName");
   public static final InternalQName EXO_AUDITHISTORY = new InternalQName(Constants.NS_EXO_URI, "auditHistory");
   public static final InternalQName EXO_AUDITHISTORY_TARGETNODE = new InternalQName(Constants.NS_EXO_URI, "targetNode");
   public static final InternalQName EXO_AUDITHISTORY_LASTRECORD = new InternalQName(Constants.NS_EXO_URI, "lastRecord");

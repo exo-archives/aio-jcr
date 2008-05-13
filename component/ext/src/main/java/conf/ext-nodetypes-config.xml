@@ -142,6 +142,16 @@
 				protected="true" multiple="false">
 				<valueConstraints/>
 			</propertyDefinition>
+      <propertyDefinition name="exo:auditVersion" requiredType="String"
+        autoCreated="false" mandatory="false" onParentVersion="IGNORE"
+        protected="true" multiple="false">
+        <valueConstraints/>
+      </propertyDefinition>
+      <propertyDefinition name="exo:auditVersionName" requiredType="String"
+        autoCreated="false" mandatory="false" onParentVersion="IGNORE"
+				protected="true" multiple="false">
+				<valueConstraints/>
+			</propertyDefinition>
 		</propertyDefinitions>
 	</nodeType>
 	
