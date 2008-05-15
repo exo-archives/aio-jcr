@@ -27,7 +27,7 @@ import org.exoplatform.services.jcr.impl.Constants;
 /**
  * Created by The eXo Platform SAS        .
  * @author Gennady Azarenkov
- * @version $Id: AuditService.java 12164 2007-01-22 08:39:22Z geaz $
+ * @version $Id$
  */
 
 public interface AuditService {
@@ -46,23 +46,25 @@ public interface AuditService {
   public static final InternalQName EXO_AUDITHISTORY_TARGETNODE = new InternalQName(Constants.NS_EXO_URI, "targetNode");
   public static final InternalQName EXO_AUDITHISTORY_LASTRECORD = new InternalQName(Constants.NS_EXO_URI, "lastRecord");
   
-  
   /**
-   * creates audit history
+   * Ccreates audit history.
+   * 
    * @param item
    * @throws RepositoryException
    */
   void createHistory(Node node) throws RepositoryException;
 
   /**
-   * deletes audit history
+   * Deletes audit history.
+   * 
    * @param item
    * @throws RepositoryException
    */
   void removeHistory(Node node) throws RepositoryException;
 
   /**
-   * adds new audit record
+   * Adds new audit record.
+   * 
    * @param item
    * @param eventType
    * @throws RepositoryException
@@ -71,6 +73,8 @@ public interface AuditService {
   
   
   /**
+   * Get node audit history.
+   * 
    * @param item
    * @return audit history of this item
    * @throws RepositoryException
@@ -79,6 +83,8 @@ public interface AuditService {
   AuditHistory getHistory(Node node) throws RepositoryException, UnsupportedOperationException;
   
   /**
+   * Check if node has audit history.
+   * 
    * @param item
    * @return true if audit history for this item exists
    */

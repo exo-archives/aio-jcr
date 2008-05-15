@@ -24,6 +24,7 @@ import java.util.List;
 
 import javax.jcr.Item;
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
@@ -69,7 +70,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
- * @version $Id: AuditServiceImpl.java 12164 2007-01-22 08:39:22Z geaz $
+ * @version $Id$
  */
 
 public class AuditServiceImpl implements AuditService {
@@ -94,13 +95,13 @@ public class AuditServiceImpl implements AuditService {
     checkIfAuditable(item);
 
     AuditSession auditSession = new AuditSession(item);
-    // NodeData storage = auditSession.getAuditStorage();
-    SessionDataManager dm = auditSession.getDataManager();
     SessionImpl session = (SessionImpl) item.getSession();
 
-    SessionDataManager dataManager = session.getTransientNodesManager();
+    SessionDataManager dataManager = auditSession.getDataManager();
 
     NodeData auditHistory = auditSession.getAuditHistoryNodeData();
+    if (auditHistory == null)
+      throw new PathNotFoundException("Audit history not found for " + item.getPath());
 
     if (auditHistory == null) {
       throw new RepositoryException("Audit history for  " + item.getPath() + "not found");
@@ -109,7 +110,7 @@ public class AuditServiceImpl implements AuditService {
     // make path to the AUDITHISTORY_LASTRECORD property
     QPath path = QPath.makeChildPath(auditHistory.getQPath(), AuditService.EXO_AUDITHISTORY_LASTRECORD);
     // searching last name of node
-    PropertyData pData = (PropertyData) dm.getItemData(path);
+    PropertyData pData = (PropertyData) dataManager.getItemData(path);
     String auditRecordName = "";
     try {
       auditRecordName =
@@ -146,7 +147,7 @@ public class AuditServiceImpl implements AuditService {
     // exo:created
     TransientPropertyData arCreated =
         TransientPropertyData.createPropertyData(arNode, AuditService.EXO_AUDITRECORD_CREATED, PropertyType.DATE, false);
-    arCreated.setValue(new TransientValueData(dm.getTransactManager().getStorageDataManager().getCurrentTime()));
+    arCreated.setValue(new TransientValueData(dataManager.getTransactManager().getStorageDataManager().getCurrentTime()));
     // exo:eventType
     TransientPropertyData arEventType =
         TransientPropertyData.createPropertyData(arNode, AuditService.EXO_AUDITRECORD_EVENTTYPE, PropertyType.LONG, false);
@@ -187,7 +188,7 @@ public class AuditServiceImpl implements AuditService {
       try {
         versionUUID = ValueDataConvert.readString(bvProp.getValues().get(0));
 
-        // using JCR API
+        // using JCR API objects
         Version version = (Version) dataManager.getItemByIdentifier(versionUUID, false);
         versionName = version.getName();
 
@@ -365,56 +366,59 @@ public class AuditServiceImpl implements AuditService {
     // get history for this item and create AuditHistory object
     AuditSession auditSession = new AuditSession(node);
     SessionDataManager dm = auditSession.getDataManager();
-    NodeData storage = auditSession.getAuditHistoryNodeData();
-    if (storage == null) {
-      throw new RepositoryException("Audit history for node " + node.getPath() + "not found");
-    }
-    List<AuditRecord> auditRecords = new ArrayList<AuditRecord>();
-    // AuditRecord aRecord = null;
-    ValueFactoryImpl vf = (ValueFactoryImpl) node.getSession().getValueFactory();
-    // Search all auditRecords
-    List<NodeData> auditRecordsNodeData = dm.getChildNodesData(storage);
-    for (NodeData nodeData : auditRecordsNodeData) {
-      // Serching properties
-      List<PropertyData> auditRecordNodeData = dm.getChildPropertiesData(nodeData);
-      // define variables
-      String user = null;
-      InternalQName propertyName = null;
-      int eventType = -1;
-      Calendar date = null;
-      String version = null;
-      String versionName = null;
-      // loading data
-      try {
-        for (PropertyData propertyData : auditRecordNodeData) {
-          ValueData value = propertyData.getValues().get(0);
-          if (propertyData.getQPath().getName().equals(AuditService.EXO_AUDITRECORD_USER)) {
-            user = ValueDataConvert.readString(value);
-          } else if (propertyData.getQPath().getName().equals(AuditService.EXO_AUDITRECORD_EVENTTYPE)) {
-            eventType = (int) ValueDataConvert.readLong(value);
-          } else if (propertyData.getQPath().getName().equals(AuditService.EXO_AUDITRECORD_CREATED)) {
-            date = ValueDataConvert.readDate(value);
-          } else if (propertyData.getQPath().getName().equals(AuditService.EXO_AUDITRECORD_PROPERTYNAME)) {
-            propertyName = InternalQName.parse(ValueDataConvert.readString(value));
-          } else if (propertyData.getQPath().getName().equals(AuditService.EXO_AUDITRECORD_AUDITVERSION)) {
-            version = ValueDataConvert.readString(value);
-          } else if (propertyData.getQPath().getName().equals(AuditService.EXO_AUDITRECORD_AUDITVERSIONNAME)) {
-            versionName = ValueDataConvert.readString(value);
+    NodeData auditHistory = auditSession.getAuditHistoryNodeData();
+    if (auditHistory != null) {
+
+      List<AuditRecord> auditRecords = new ArrayList<AuditRecord>();
+      // AuditRecord aRecord = null;
+      ValueFactoryImpl vf = (ValueFactoryImpl) node.getSession().getValueFactory();
+      // Search all auditRecords
+      List<NodeData> auditRecordsNodeData = dm.getChildNodesData(auditHistory);
+      for (NodeData nodeData : auditRecordsNodeData) {
+        // Serching properties
+        List<PropertyData> auditRecordNodeData = dm.getChildPropertiesData(nodeData);
+        // define variables
+        String user = null;
+        InternalQName propertyName = null;
+        int eventType = -1;
+        Calendar date = null;
+        // version stuff
+        String version = null;
+        String versionName = null;
+        // loading data
+        try {
+          for (PropertyData propertyData : auditRecordNodeData) {
+            ValueData value = propertyData.getValues().get(0);
+            if (propertyData.getQPath().getName().equals(AuditService.EXO_AUDITRECORD_USER)) {
+              user = ValueDataConvert.readString(value);
+            } else if (propertyData.getQPath().getName().equals(AuditService.EXO_AUDITRECORD_EVENTTYPE)) {
+              eventType = (int) ValueDataConvert.readLong(value);
+            } else if (propertyData.getQPath().getName().equals(AuditService.EXO_AUDITRECORD_CREATED)) {
+              date = ValueDataConvert.readDate(value);
+            } else if (propertyData.getQPath().getName().equals(AuditService.EXO_AUDITRECORD_PROPERTYNAME)) {
+              propertyName = InternalQName.parse(ValueDataConvert.readString(value));
+            } else if (propertyData.getQPath().getName().equals(AuditService.EXO_AUDITRECORD_AUDITVERSION)) {
+              version = ValueDataConvert.readString(value);
+            } else if (propertyData.getQPath().getName().equals(AuditService.EXO_AUDITRECORD_AUDITVERSIONNAME)) {
+              versionName = ValueDataConvert.readString(value);
+            }
           }
+        } catch (UnsupportedEncodingException e) {
+          throw new RepositoryException(e);
+        } catch (IllegalStateException e) {
+          throw new RepositoryException(e);
+        } catch (IOException e) {
+          throw new RepositoryException(e);
+        } catch (IllegalNameException e) {
+          throw new RepositoryException(e);
         }
-      } catch (UnsupportedEncodingException e) {
-        throw new RepositoryException(e);
-      } catch (IllegalStateException e) {
-        throw new RepositoryException(e);
-      } catch (IOException e) {
-        throw new RepositoryException(e);
-      } catch (IllegalNameException e) {
-        throw new RepositoryException(e);
+        // add audit record
+        auditRecords.add(new AuditRecord(user, eventType, date, propertyName, version, versionName));
       }
-      // add audit record
-      auditRecords.add(new AuditRecord(user, eventType, date, propertyName, version, versionName));
-    }
-    return new AuditHistory(node, auditRecords);
+      return new AuditHistory(node, auditRecords);
+
+    } else
+      throw new PathNotFoundException("Audit history not found for " + node.getPath());
   }
 
   public boolean hasHistory(Node node) {
@@ -423,6 +427,12 @@ public class AuditServiceImpl implements AuditService {
       AuditSession auditSession = new AuditSession(node);
       data = auditSession.getAuditHistoryNodeData();
     } catch (RepositoryException e) {
+      try {
+        if (log.isDebugEnabled())
+          log.debug("Audit history for " + node.getPath() + " not accessible due to error " + e, e);
+      } catch (RepositoryException e1) {
+        log.error("Can't read node path for " + node, e1);
+      }
       return false;
     }
     return (data == null) ? false : true;
@@ -430,15 +440,14 @@ public class AuditServiceImpl implements AuditService {
 
   public void removeHistory(Node node) throws RepositoryException {
     AuditSession auditSession = new AuditSession(node);
-    NodeData storage = auditSession.getAuditHistoryNodeData();
+    NodeData auditHistory = auditSession.getAuditHistoryNodeData();
     // remove /jcr:system/exo:auditStorage/itemID
     // (delete in SessionDataManager)
-    if (storage != null) {
+    if (auditHistory != null) {
       SessionImpl session = (SessionImpl) node.getSession();
-      session.getTransientNodesManager().delete(storage);
-
+      session.getTransientNodesManager().delete(auditHistory);
     } else
-      throw new RepositoryException("Audit history for node " + node.getPath() + " not found");
+      throw new PathNotFoundException("Audit history not found for " + node.getPath());
   }
 
   private void checkIfAuditable(Item item) throws RepositoryException, UnsupportedOperationException {
@@ -451,7 +460,7 @@ public class AuditServiceImpl implements AuditService {
 
     private final SessionImpl        session;
 
-    private final SessionDataManager dm;
+    private final SessionDataManager dataManager;
 
     private ExtendedNode             node;
 
@@ -464,24 +473,25 @@ public class AuditServiceImpl implements AuditService {
       if (!node.isNodeType(AuditService.EXO_AUDITABLE))
         throw new RepositoryException("Node is not exo:auditable " + node.getPath());
 
-      dm = session.getTransientNodesManager();
+      dataManager = session.getTransientNodesManager();
     }
 
     private NodeData getAuditHistoryNodeData() throws RepositoryException {
       // searching uuid of corresponding EXO_AUDITHISTORY node
       PropertyData pData =
-          (PropertyData) dm.getItemData((NodeData) ((NodeImpl) node).getData(), new QPathEntry(AuditService.EXO_AUDITHISTORY, 0));
+          (PropertyData) dataManager.getItemData((NodeData) ((NodeImpl) node).getData(), new QPathEntry(AuditService.EXO_AUDITHISTORY, 0));
       if (pData != null)
         try {
-          String ahUuid = new String(pData.getValues().get(0).getAsByteArray(), Constants.DEFAULT_ENCODING);
-          return (NodeData) dm.getItemData(ahUuid);
+          String ahUuid = ValueDataConvert.readString(pData.getValues().get(0));
+          return (NodeData) dataManager.getItemData(ahUuid);
         } catch (UnsupportedEncodingException e) {
-          throw new RepositoryException("Error getAuditHistory converting to string");
+          throw new RepositoryException("Error of exo:auditHistory read", e);
         } catch (IllegalStateException e) {
-          throw new RepositoryException("Error getAuditHistory converting to string");
+          throw new RepositoryException("Error of exo:auditHistory read", e);
         } catch (IOException e) {
-          throw new RepositoryException("Error getAuditHistory converting to string");
+          throw new RepositoryException("Error of exo:auditHistory read", e);
         }
+
       return null;
     }
 
@@ -561,7 +571,7 @@ public class AuditServiceImpl implements AuditService {
     }
 
     private SessionDataManager getDataManager() {
-      return dm;
+      return dataManager;
     }
   }
 

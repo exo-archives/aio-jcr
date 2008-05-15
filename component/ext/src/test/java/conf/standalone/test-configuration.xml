@@ -160,7 +160,7 @@
                         <field  name="eventTypes"><string>addMixin</string></field>
                         <field  name="path"><string>/AuditServiceTest</string></field>
                         <field  name="nodeTypes"><string>exo:auditable</string></field>
-                        <field  name="isDeep"><boolean>false</boolean></field>
+                        <field  name="isDeep"><boolean>true</boolean></field>
                         <field  name="actionClassName"><string>org.exoplatform.services.jcr.ext.audit.AuditAction</string></field>
                       </object>
                     </value>
