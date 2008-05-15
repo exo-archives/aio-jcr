@@ -53,6 +53,7 @@ import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.dataflow.ValueDataConvert;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
@@ -219,7 +220,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     
     try {
       for (PropertyData prop: labelsList) {
-        String versionUuid = new String(prop.getValues().get(0).getAsByteArray());
+        String versionUuid = ValueDataConvert.readString(prop.getValues().get(0));
         if (versionUuid.equals(((VersionImpl) version).getInternalIdentifier())) {
           vlabels.add(locationFactory.createJCRName(prop.getQPath().getName()).getAsString());
         }

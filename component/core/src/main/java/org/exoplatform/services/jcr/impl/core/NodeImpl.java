@@ -94,6 +94,7 @@ import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.dataflow.ValueDataConvert;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableDataManager;
 import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
@@ -1702,23 +1703,47 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     return checkedOut();
   }
 
+  /**
+   * Tell if this node or its nearest versionable ancestor is checked-out.
+   * 
+   * @return
+   * @throws UnsupportedRepositoryOperationException
+   * @throws RepositoryException
+   */
   public boolean checkedOut() throws UnsupportedRepositoryOperationException, RepositoryException {
 
-    if (isRoot())
-      return true;
+//    if (isRoot())
+//      return true;
 
+    NodeData vancestor = getVersionableAncestor();
+    if (vancestor != null) {
+      PropertyData isCheckedOut = (PropertyData) dataManager.getItemData(vancestor, new QPathEntry(Constants.JCR_ISCHECKEDOUT, 1));
+      try {
+        return ValueDataConvert.readBoolean(isCheckedOut.getValues().get(0));
+      } catch (IOException e) {
+        throw new RepositoryException("Can't read property "
+            + locationFactory.createJCRPath(vancestor.getQPath()).getAsString(false) + "/jcr:isCheckedOut. " + e, e);
+      }
+    }
+    
+    return true;
+  }
+  
+  /**
+   * Get nearest versionable ancestor NodeData.
+   * If the node is mix:versionable this NodeData will be returned.
+   *  
+   * @return NodeData of versionable ancestor or null if no versionable ancestor exists. 
+   * @throws RepositoryException
+   */
+  public NodeData getVersionableAncestor() throws RepositoryException {
     NodeData node = nodeData();
     NodeTypeManagerImpl ntman = session.getWorkspace().getNodeTypeManager();
-    do {
+    
+    while (node.getParentIdentifier() != null) {
       if (ntman.isNodeType(Constants.MIX_VERSIONABLE, node.getPrimaryTypeName(), node.getMixinTypeNames())) {
         // mix:versionable has own jcr:isCheckedOut state
-        PropertyData isCheckedOut = (PropertyData) dataManager.getItemData(node, new QPathEntry(Constants.JCR_ISCHECKEDOUT, 1));
-        try {
-          return Boolean.valueOf(new String(isCheckedOut.getValues().get(0).getAsByteArray())).booleanValue();
-        } catch (IOException e) {
-          throw new RepositoryException("Can't read property "
-              + locationFactory.createJCRPath(node.getQPath()).getAsString(false) + "/jcr:isCheckedOut. " + e, e);
-        }
+        return node;
       } else {
         // check on deeper ancestor
         NodeData ancestor = (NodeData) dataManager.getItemData(node.getParentIdentifier());
@@ -1728,9 +1753,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         else
           node = ancestor;
       }
-    } while (node.getParentIdentifier() != null);
-
-    return true;
+    } 
+    
+    return null;
   }
 
   /*
@@ -1773,7 +1798,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     PropertyData bvProp = (PropertyData) dataManager.getItemData(nodeData(), new QPathEntry(Constants.JCR_BASEVERSION, 1));
     try {
-      return (Version) session.getNodeByUUID(new String(bvProp.getValues().get(0).getAsByteArray()));
+      return (Version) session.getNodeByUUID(ValueDataConvert.readString(bvProp.getValues().get(0)));
     } catch (IOException e) {
       throw new RepositoryException("jcr:baseVersion property error " + e, e);
     }
