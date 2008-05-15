@@ -17,8 +17,10 @@
 package org.exoplatform.services.jcr.ext.access;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Map.Entry;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Node;
@@ -29,8 +31,11 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
+import org.exoplatform.services.command.action.Action;
+import org.exoplatform.services.command.action.ActionMatcher;
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -45,23 +50,26 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: $
  */
 public class TestAccessContext extends BaseStandaloneTest {
-  private final static int MULTI_THIARD_OPERATIONS = 100;
+  private final static int               MULTI_THIARD_OPERATIONS = 100;
 
-  private final static int THREAD_COUNT            = 300;
+  private final static int               THREAD_COUNT            = 300;
+
+  private SessionActionCatalog           catalog;
+
+  private HashMap<ActionMatcher, Action> oldActions;
 
   @Override
   public void setUp() throws Exception {
 
     super.setUp();
-    setContextAction();
-  }
 
-  private void setContextAction() {
-    SessionActionCatalog catalog = (SessionActionCatalog) container
-        .getComponentInstanceOfType(SessionActionCatalog.class);
-    ActionConfiguration ac = new ActionConfiguration(
-        "org.exoplatform.services.jcr.ext.access.SetAccessControlContextAction",
-        "addProperty,changeProperty,removeProperty,read", null, true, null,null);
+    catalog = (SessionActionCatalog) container.getComponentInstanceOfType(SessionActionCatalog.class);
+    ActionConfiguration ac = new ActionConfiguration("org.exoplatform.services.jcr.ext.access.SetAccessControlContextAction",
+                                                     "addProperty,changeProperty,removeProperty,read",
+                                                     null,
+                                                     true,
+                                                     null,
+                                                     null);
     List actionsList = new ArrayList();
     ActionsConfig actions = new ActionsConfig();
     actions.setActions(actionsList);
@@ -73,52 +81,17 @@ public class TestAccessContext extends BaseStandaloneTest {
     params.addParameter(op);
 
     AddActionsPlugin aap = new AddActionsPlugin(params);
+    oldActions = new HashMap<ActionMatcher, Action>();
+
+    for (Entry<ActionMatcher, Action> entry : catalog.getAllEntries().entrySet()) {
+      oldActions.put(entry.getKey(), entry.getValue());
+    }
     catalog.clear();
     catalog.addPlugin(aap);
-  };
-
-  public void testSetAccessContext() throws RepositoryException {
-    setContextAction();
-    Node testNode = root.addNode("test");
-    session.save();
-    testNode.setProperty("p1", 9);
-    assertEquals(9, testNode.getProperty("p1").getValue().getLong());
-
-    testNode.setProperty("p1", 10);
-    session.save();
-    testNode.setProperty("p1", (Value) null);
-    session.save();
-    SessionImpl s2 = repository.login(session.getCredentials(), "ws2");
-    AccessManager am = s2.getAccessManager();
-//    assertNotNull(am.context());
-  }
-
-  public void testWorkspaceAccessMenager() throws RepositoryException {
-    SessionImpl s2 = repository.login(session.getCredentials(), "ws2");
-    AccessManager am = s2.getAccessManager();
-//    assertFalse(am instanceof DummyAccessManager);
-  }
-
-  public void testDenyAccessMenager() throws RepositoryException {
-    Node tNode = root.addNode("testNode");
-    tNode.setProperty("deny", "value");
-    session.save();
-    try {
-      tNode.getProperty("deny");
-      fail("AccessDeniedException scheduled to be");
-    } catch (AccessDeniedException e) {
-      // Ok
-    }
-    SessionImpl sysSession = repository.getSystemSession();
-    try {
-      sysSession.getRootNode().getNode("testNode").getProperty("deny");
-    } catch (AccessDeniedException e) {
-      fail("AccessDeniedException ");
-    }
   }
 
   public void testAccessMenedgerContextMultiThread() throws RepositoryException,
-      InterruptedException {
+                                                    InterruptedException {
 
     Node multiACTNode = root.addNode("testMultiACT");
 
@@ -135,10 +108,11 @@ public class TestAccessContext extends BaseStandaloneTest {
     session.save();
     // Run each thread
     ArrayList<JCRClient4AccessContext> clients = new ArrayList<JCRClient4AccessContext>();
-    //SessionImpl sysSession = repository.getSystemSession();
+    // SessionImpl sysSession = repository.getSystemSession();
     for (int i = 0; i < THREAD_COUNT; i++) {
-//      JCRClient4AccessContextTest jcrClient = new JCRClient4AccessContextTest(sysSession,
-//          sysSession, session);
+      // JCRClient4AccessContextTest jcrClient = new
+      // JCRClient4AccessContextTest(sysSession,
+      // sysSession, session);
       JCRClient4AccessContext jcrClient = new JCRClient4AccessContext();
       jcrClient.start();
       clients.add(jcrClient);
@@ -164,66 +138,126 @@ public class TestAccessContext extends BaseStandaloneTest {
     }
     log.info("Total rezult try=" + MULTI_THIARD_OPERATIONS * THREAD_COUNT + " errors="
         + totalErrors);
+  };
+
+  public void testDenyAccessMenager() throws RepositoryException {
+    Node tNode = root.addNode("testNode");
+    tNode.setProperty("deny", "value");
+    session.save();
+    try {
+      tNode.getProperty("deny");
+      fail("AccessDeniedException scheduled to be");
+    } catch (AccessDeniedException e) {
+      // Ok
+    }
+    SessionImpl sysSession = repository.getSystemSession();
+    try {
+      sysSession.getRootNode().getNode("testNode").getProperty("deny");
+    } catch (AccessDeniedException e) {
+      fail("AccessDeniedException ");
+    }
+  }
+
+  public void testSetAccessContext() throws RepositoryException {
+
+    Node testNode = root.addNode("test");
+    session.save();
+    testNode.setProperty("p1", 9);
+    assertEquals(9, testNode.getProperty("p1").getValue().getLong());
+
+    testNode.setProperty("p1", 10);
+    session.save();
+    testNode.setProperty("p1", (Value) null);
+    session.save();
+    SessionImpl s2 = repository.login(session.getCredentials(), "ws2");
+    AccessManager am = s2.getAccessManager();
+    // assertNotNull(am.context());
+  }
+
+  public void testWorkspaceAccessMenager() throws RepositoryException {
+    SessionImpl s2 = repository.login(session.getCredentials(), "ws2");
+    AccessManager am = s2.getAccessManager();
+    // assertFalse(am instanceof DummyAccessManager);
+  }
+
+  @Override
+  protected void tearDown() throws Exception {
+    catalog.clear();
+    // restore old actions
+    for (Entry<ActionMatcher, Action> entry : oldActions.entrySet()) {
+      catalog.addAction(entry.getKey(), entry.getValue());
+    }
+    AccessManager accessManager = (AccessManager) session.getContainer()
+                                                         .getComponentInstanceOfType(AccessManager.class);
+    accessManager.setContext(null);
+    super.tearDown();
   }
 
   protected class JCRClient4AccessContext extends Thread {
-    private SessionImpl systemSession;
-
     private SessionImpl adminSession;
-
-    private SessionImpl userSession;
 
     private int         errorsCount;
 
     private Log         log = ExoLogger.getLogger("jcr.JCRClient4AccessContextTest");
-    
+
+    private SessionImpl systemSession;
+
+    private SessionImpl userSession;
+
     public JCRClient4AccessContext() {
       try {
-//        StandaloneContainer container = StandaloneContainer.getInstance();
-//        CredentialsImpl credentials = new CredentialsImpl("exo", "exo".toCharArray());
-//
-//        RepositoryService repositoryService = (RepositoryService) container
-//            .getComponentInstanceOfType(RepositoryService.class);
+        // StandaloneContainer container = StandaloneContainer.getInstance();
+        // CredentialsImpl credentials = new CredentialsImpl("exo",
+        // "exo".toCharArray());
+        //
+        // RepositoryService repositoryService = (RepositoryService) container
+        // .getComponentInstanceOfType(RepositoryService.class);
 
-        ///repository = (RepositoryImpl) repositoryService.getRepository();
+        // /repository = (RepositoryImpl) repositoryService.getRepository();
         systemSession = repository.getSystemSession();
         adminSession = repository.getSystemSession();
-        userSession = repository.login(credentials,"ws");
+        userSession = repository.login(credentials, "ws");
         log.debug("Thread created");
       } catch (Exception e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }
-//    public JCRClient4AccessContextTest(SessionImpl systemSession, SessionImpl adminSession,
-//        
-//        SessionImpl userSession) {
-//
-//      this.systemSession = systemSession;
-//      this.adminSession = adminSession;
-//      this.userSession = userSession;
-//      this.errorsCount = 0;
-//      log.info("Thread created");
-//    }
 
-    private void SequentialReadProperty() throws RepositoryException {
-      Node sysNode = systemSession.getRootNode().getNode("testMultiACT");
-      Node adminNode = adminSession.getRootNode().getNode("testMultiACT");
-      Node userNode = userSession.getRootNode().getNode("testMultiACT");
+    // public JCRClient4AccessContextTest(SessionImpl systemSession, SessionImpl
+    // adminSession,
+    //        
+    // SessionImpl userSession) {
+    //
+    // this.systemSession = systemSession;
+    // this.adminSession = adminSession;
+    // this.userSession = userSession;
+    // this.errorsCount = 0;
+    // log.info("Thread created");
+    // }
 
-      if (sysNode.getProperties().getSize() != MULTI_THIARD_OPERATIONS+1) {
-        errorsCount++;
+    @Override
+    public void run() {
+      try {
+        SequentialReadProperty();
+        // SequentialReadNode();
+        ParalelRead();
+
+      } catch (RepositoryException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+        log.error("Error");
       }
-      if (adminNode.getProperties().getSize() != MULTI_THIARD_OPERATIONS+1) {
-        errorsCount++;
+      if (errorsCount > 0) {
+        log.info("errorsCount = " + errorsCount);
+      }
+    }
+
+    private void ParalelRead() {
+      for (int i = 0; i < MULTI_THIARD_OPERATIONS; i++) {
+
       }
 
-      for (PropertyIterator i = userNode.getProperties(); i.hasNext();) {
-        Property prop = i.nextProperty();
-        if (prop.getName().indexOf("deny") > -1) {
-          errorsCount++;
-        }
-      }
     }
 
     private void SequentialReadNode() throws RepositoryException {
@@ -266,27 +300,23 @@ public class TestAccessContext extends BaseStandaloneTest {
       }
     }
 
-    private void ParalelRead() {
-      for (int i = 0; i < MULTI_THIARD_OPERATIONS; i++) {
+    private void SequentialReadProperty() throws RepositoryException {
+      Node sysNode = systemSession.getRootNode().getNode("testMultiACT");
+      Node adminNode = adminSession.getRootNode().getNode("testMultiACT");
+      Node userNode = userSession.getRootNode().getNode("testMultiACT");
 
+      if (sysNode.getProperties().getSize() != MULTI_THIARD_OPERATIONS + 1) {
+        errorsCount++;
+      }
+      if (adminNode.getProperties().getSize() != MULTI_THIARD_OPERATIONS + 1) {
+        errorsCount++;
       }
 
-    }
-
-    @Override
-    public void run() {
-      try {
-        SequentialReadProperty();
-        // SequentialReadNode();
-        ParalelRead();
-
-      } catch (RepositoryException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-        log.error("Error");
-      }
-      if(errorsCount>0){
-        log.info("errorsCount = " + errorsCount);
+      for (PropertyIterator i = userNode.getProperties(); i.hasNext();) {
+        Property prop = i.nextProperty();
+        if (prop.getName().indexOf("deny") > -1) {
+          errorsCount++;
+        }
       }
     }
 

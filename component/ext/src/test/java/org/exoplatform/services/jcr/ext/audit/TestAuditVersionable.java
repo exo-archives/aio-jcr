@@ -22,18 +22,17 @@ import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
 import javax.jcr.ReferentialIntegrityException;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
-import javax.jcr.observation.Event;
 import javax.jcr.version.VersionException;
 
 import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
-import org.exoplatform.services.jcr.impl.core.NodeImpl;
-import org.exoplatform.services.jcr.impl.ext.action.SessionEventMatcher;
+import org.exoplatform.services.jcr.impl.ext.action.SessionActionCatalog;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 
 /**
@@ -43,7 +42,30 @@ import org.exoplatform.services.jcr.observation.ExtendedEvent;
  * @version $Id: TestAuditVersionable.java 14164 2008-05-13 10:45:27Z pnedonosko $
  */
 
-public class TestAuditVersionable extends TestAuditService {
+public class TestAuditVersionable extends BaseStandaloneTest {
+  private Node                 testRoot;
+
+  private AuditService         service;
+
+  private SessionActionCatalog catalog;
+
+  private Session              adminSession;
+
+  public void setUp() throws Exception {
+    super.setUp();
+    service = (AuditService) container.getComponentInstanceOfType(AuditService.class);
+    catalog = (SessionActionCatalog) session.getContainer()
+                                            .getComponentInstanceOfType(SessionActionCatalog.class);
+    testRoot = root.addNode(TestAuditService.ROOT_PATH);
+    root.save();
+  }
+
+  @Override
+  protected void tearDown() throws Exception {
+    testRoot.remove();
+    root.save();
+    super.tearDown();
+  }
 
   /**
    * Test if adding of mix:versionable to node doesn't add version information
@@ -68,29 +90,8 @@ public class TestAuditVersionable extends TestAuditService {
                                      LockException,
                                      NoSuchNodeTypeException,
                                      RepositoryException {
-    NodeImpl rootNode = (NodeImpl) session.getRootNode().getNode(ROOT_PATH);
 
-    SessionEventMatcher addAuditableHandler = new SessionEventMatcher(Event.NODE_ADDED,
-                                                                      new QPath[] { QPath.makeChildPath(rootNode.getInternalPath(),
-                                                                                                        new InternalQName("",
-                                                                                                                          "testAddMixVersionable")) },
-                                                                      true,
-                                                                      new String[] { session.getWorkspace()
-                                                                                            .getName() },
-                                                                      null);
-    SessionEventMatcher removeHandler = new SessionEventMatcher(Event.NODE_REMOVED,
-                                                                new QPath[] { QPath.makeChildPath(rootNode.getInternalPath(),
-                                                                                                  new InternalQName("",
-                                                                                                                    "testAddMixVersionable")) },
-                                                                true,
-                                                                new String[] { session.getWorkspace()
-                                                                                      .getName() },
-                                                                null);
-
-    catalog.addAction(addAuditableHandler, new AddAuditableAction());
-    catalog.addAction(removeHandler, new RemoveAuditableAction());
-
-    ExtendedNode node = (ExtendedNode) rootNode.addNode("testAddMixVersionable");
+    ExtendedNode node = (ExtendedNode) testRoot.addNode("deep");
     session.save();
     node.addMixin("mix:versionable");
     root.save();
@@ -101,6 +102,9 @@ public class TestAuditVersionable extends TestAuditService {
       String vuuid = ar.getVersion();
       assertNull("Version UUIDs should be null", vuuid);
     }
+
+    service.removeHistory(node);
+    session.save();
   }
 
   /**
@@ -128,42 +132,8 @@ public class TestAuditVersionable extends TestAuditService {
                                LockException,
                                NoSuchNodeTypeException,
                                RepositoryException {
-    NodeImpl rootNode = (NodeImpl) session.getRootNode().getNode(ROOT_PATH);
 
-    SessionEventMatcher addAuditableHandler = new SessionEventMatcher(Event.NODE_ADDED,
-                                                                      new QPath[] { QPath.makeChildPath(rootNode.getInternalPath(),
-                                                                                                        new InternalQName("",
-                                                                                                                          "testAddProperty")) },
-                                                                      true,
-                                                                      new String[] { session.getWorkspace()
-                                                                                            .getName() },
-                                                                      null);
-
-    SessionEventMatcher propertiesHandler = new SessionEventMatcher(Event.PROPERTY_ADDED
-                                                                        | Event.PROPERTY_CHANGED
-                                                                        | Event.PROPERTY_REMOVED
-                                                                        | Event.NODE_ADDED,
-                                                                    new QPath[] { QPath.makeChildPath(rootNode.getInternalPath(),
-                                                                                                      new InternalQName("",
-                                                                                                                        "testAddProperty")) },
-                                                                    true,
-                                                                    new String[] { session.getWorkspace()
-                                                                                          .getName() },
-                                                                    new InternalQName[] { AuditService.EXO_AUDITABLE });
-    SessionEventMatcher removeHandler = new SessionEventMatcher(Event.NODE_REMOVED,
-                                                                new QPath[] { QPath.makeChildPath(rootNode.getInternalPath(),
-                                                                                                  new InternalQName("",
-                                                                                                                    "testAddProperty")) },
-                                                                true,
-                                                                new String[] { session.getWorkspace()
-                                                                                      .getName() },
-                                                                null);
-
-    catalog.addAction(addAuditableHandler, new AddAuditableAction());
-    catalog.addAction(propertiesHandler, new AuditAction());
-    catalog.addAction(removeHandler, new RemoveAuditableAction());
-
-    ExtendedNode node = (ExtendedNode) rootNode.addNode("testAddProperty");
+    ExtendedNode node = (ExtendedNode) testRoot.addNode("deep");
     session.save();
     node.addMixin("mix:versionable");
     root.save();
@@ -209,5 +179,8 @@ public class TestAuditVersionable extends TestAuditService {
     }
 
     root.save();
+    service.removeHistory(node);
+    session.save();
+
   }
 }
