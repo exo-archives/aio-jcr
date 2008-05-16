@@ -111,12 +111,15 @@ public abstract class AccessManager {
       return false;
     } else {
       // check permission to perform all of the listed actions
-      for (int i = 0; i < permission.length; i++) {
-        // check specific actions
-        if (!isPermissionMatch(acl.getPermissionsList(), permission[i], userId))
-          return false;
+      if (permission.length > 0) {
+        for (int i = 0; i < permission.length; i++) {
+          // check specific actions
+          if (!isPermissionMatch(acl.getPermissionsList(), permission[i], userId))
+            return false;
+        }
+        return true;
       }
-      return true;
+      return false;
     }
   }
 
@@ -163,6 +166,7 @@ public abstract class AccessManager {
       return false;
     }
   }
+
   /**
    * Check for a membership match in OrganizationService.
    * 
@@ -218,7 +222,6 @@ public abstract class AccessManager {
     return false;
   }
 
-  
   private static String[] parseStringPermissions(String str) {
     ArrayList permissions = new ArrayList();
     StringTokenizer parser = new StringTokenizer(str, ",");
