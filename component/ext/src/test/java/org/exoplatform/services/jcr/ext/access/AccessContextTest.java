@@ -49,7 +49,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class TestAccessContext extends BaseStandaloneTest {
+public class AccessContextTest extends BaseStandaloneTest {
   private final static int               MULTI_THIARD_OPERATIONS = 100;
 
   private final static int               THREAD_COUNT            = 300;

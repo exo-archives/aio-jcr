@@ -42,7 +42,7 @@ import org.exoplatform.services.jcr.observation.ExtendedEvent;
  * @version $Id: TestAuditVersionable.java 14164 2008-05-13 10:45:27Z pnedonosko $
  */
 
-public class TestAuditVersionable extends BaseStandaloneTest {
+public class AuditVersionableTest extends BaseStandaloneTest {
   private Node                 testRoot;
 
   private AuditService         service;
@@ -56,7 +56,7 @@ public class TestAuditVersionable extends BaseStandaloneTest {
     service = (AuditService) container.getComponentInstanceOfType(AuditService.class);
     catalog = (SessionActionCatalog) session.getContainer()
                                             .getComponentInstanceOfType(SessionActionCatalog.class);
-    testRoot = root.addNode(TestAuditService.ROOT_PATH);
+    testRoot = root.addNode(AuditServiceTest.ROOT_PATH);
     root.save();
   }
 

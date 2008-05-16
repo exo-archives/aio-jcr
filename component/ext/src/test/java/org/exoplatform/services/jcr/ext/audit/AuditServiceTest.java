@@ -46,7 +46,7 @@ import org.exoplatform.services.jcr.observation.ExtendedEventType;
  * @version $Id: AuditServiceTest.java 12164 2007-01-22 08:39:22Z geaz $
  */
 
-public class TestAuditService extends BaseStandaloneTest {
+public class AuditServiceTest extends BaseStandaloneTest {
 
   public static final String        ROOT_PATH = "AuditServiceTest";
 

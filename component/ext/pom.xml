@@ -141,13 +141,13 @@
           <testFailureIgnore>${exo.test.failure.ignore}</testFailureIgnore>
           <forkMode>${exo.test.forkmode}</forkMode>
           <includes>
-            <include>**/audit/Test*.java</include>
-            <include>**/actions/Test*.java</include>
+            <include>**/audit/*Test.java</include>
+            <include>**/actions/*Test.java</include>
             <include>**/metadata/*Test.java</include>
             <include>**/owner/*Test.java</include>
 
             <include>**/registry/*Test.java</include>
-            <include>**/access/*.java</include>
+            <include>**/access/*Test.java</include>
 	          <include>**/replication/Test*.java</include>
             <include>**/app/*Test.java</include>
           </includes>
