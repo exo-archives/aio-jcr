@@ -20,6 +20,7 @@ package org.exoplatform.services.jcr.webdav.lnkproducer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URLEncoder;
 
 
 /**
@@ -32,7 +33,7 @@ public class LinkGenerator {
   
   // MICROSOFT *.LNK FILE HEADER
   public static int []linkHeader = {
-    // 0h 1 dword Always 0000004Ch 'L'
+    // 0h 1 dword Always 0000004Ch �L�
       0x4C, 0x00, 0x00, 0x00,
     
     // 4h 16 bytes GUID of shortcut files    
@@ -94,6 +95,7 @@ public class LinkGenerator {
       byte curByteValue = (byte)linkHeader[i];
       outStream.write(curByteValue);
     }
+    
     // LINK BODY
     byte []linkContent = getLinkContent();    
     writeInt(linkContent.length + 2, outStream);
@@ -103,7 +105,7 @@ public class LinkGenerator {
     for (int i = 0; i < 6; i++) {
       outStream.write(0);
     }
-
+    
     return outStream.toByteArray();
   }
   
@@ -133,7 +135,8 @@ public class LinkGenerator {
         continue;
       }
       String curName = pathes[i];
-      curHref += "/" + curName;
+//      curHref += "/" + curName;
+      curHref += "/" + URLEncoder.encode(curName, "UTF-8");
       
       if (i < pathes.length - 1) {
         byte []linkItem = getHreffedFolder(curName, curHref);
