@@ -220,14 +220,14 @@ public abstract class BaseStandaloneTest extends TestCase {
         }
         
         if (dread == -1)
-          throw new CompareStreamException("Streams is not equals by length. Data end-of-stream reached at position " + dindex);
+          throw new CompareStreamException("Streams is not equals by length. Data end-of-stream reached at position " + (dindex + dataPos));
         
         for (int i=0; i<dread; i++) {
           byte eb = ebuff[i];
           byte db = dbuff[i];
           if (eb != db)
             throw new CompareStreamException (
-                "Streams is not equals. Wrong byte stored at position " + dindex + " of data stream. Expected 0x" + 
+                "Streams is not equals. Wrong byte stored at position " + (dindex + dataPos) + " of data stream. Expected 0x" + 
                 Integer.toHexString(eb) + " '" + new String(new byte[] {eb}) + 
                 "' but found 0x" + Integer.toHexString(db) + " '" + new String(new byte[] {db}) + "'");
           
@@ -243,7 +243,7 @@ public abstract class BaseStandaloneTest extends TestCase {
     }
 
     if (data.available() > 0)
-      throw new CompareStreamException("Streams is not equals by length. Data stream contains more data. Were read " + dindex);
+      throw new CompareStreamException("Streams is not equals by length. Data stream contains more data. Were read " + dindex + " bytes.");
   }  
   
   protected void skipStream(InputStream stream, long pos) throws IOException {

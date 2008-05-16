@@ -46,9 +46,9 @@ import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
  * Date: 13.05.2008 <br/>
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
- * @version $Id: ValueDataConvert.java 14164 2008-05-13 10:45:27Z pnedonosko $
+ * @version $Id: ValueDataConvertor.java 14164 2008-05-13 10:45:27Z pnedonosko $
  */
-public class ValueDataConvert {
+public class ValueDataConvertor {
 
   public static String readString(ValueData value) throws UnsupportedEncodingException, IllegalStateException, IOException {
     return new String(value.getAsByteArray(), Constants.DEFAULT_ENCODING);

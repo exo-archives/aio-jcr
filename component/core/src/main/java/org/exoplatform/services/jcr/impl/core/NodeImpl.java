@@ -94,7 +94,7 @@ import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
-import org.exoplatform.services.jcr.impl.dataflow.ValueDataConvert;
+import org.exoplatform.services.jcr.impl.dataflow.ValueDataConvertor;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableDataManager;
 import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
@@ -1719,7 +1719,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     if (vancestor != null) {
       PropertyData isCheckedOut = (PropertyData) dataManager.getItemData(vancestor, new QPathEntry(Constants.JCR_ISCHECKEDOUT, 1));
       try {
-        return ValueDataConvert.readBoolean(isCheckedOut.getValues().get(0));
+        return ValueDataConvertor.readBoolean(isCheckedOut.getValues().get(0));
       } catch (IOException e) {
         throw new RepositoryException("Can't read property "
             + locationFactory.createJCRPath(vancestor.getQPath()).getAsString(false) + "/jcr:isCheckedOut. " + e, e);
@@ -1798,7 +1798,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     PropertyData bvProp = (PropertyData) dataManager.getItemData(nodeData(), new QPathEntry(Constants.JCR_BASEVERSION, 1));
     try {
-      return (Version) session.getNodeByUUID(ValueDataConvert.readString(bvProp.getValues().get(0)));
+      return (Version) session.getNodeByUUID(ValueDataConvertor.readString(bvProp.getValues().get(0)));
     } catch (IOException e) {
       throw new RepositoryException("jcr:baseVersion property error " + e, e);
     }

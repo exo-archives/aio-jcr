@@ -200,8 +200,9 @@
                     <value>
                       <object type="org.exoplatform.services.jcr.impl.ext.action.ActionConfiguration">
                         <field  name="eventTypes"><string>removeNode</string></field>
-                        <field  name="nodeTypes"><string>exo:auditable</string></field>
-                        <field  name="isDeep"><boolean>false</boolean></field>
+                        <field  name="path"><string>/AuditServiceTest</string></field>
+                        <!-- field  name="nodeTypes"><string>exo:auditable</string></field -->
+                        <field  name="isDeep"><boolean>true</boolean></field>
                         <field  name="actionClassName"><string>org.exoplatform.services.jcr.ext.audit.RemoveAuditableAction</string></field>
                       </object>
                     </value>
