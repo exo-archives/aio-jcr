@@ -55,4 +55,9 @@ public class AccessControlEntry {
     return false;
   }
 
+  @Override
+  public String toString() {
+    return super.toString() + " (" + getAsString() + ")";
+  }
+  
 }

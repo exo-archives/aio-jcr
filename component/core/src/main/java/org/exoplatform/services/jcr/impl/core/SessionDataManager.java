@@ -997,9 +997,7 @@ public class SessionDataManager implements ItemDataConsumer {
         throw new ConstraintViolationException(path.getAsString()
             + " is the same or descendant of either Session.move()'s destination or source node only " + path.getAsString());
       }
-
     }
-
   }
 
   /**
@@ -1030,10 +1028,8 @@ public class SessionDataManager implements ItemDataConsumer {
         if (!accessManager.hasPermission(parent.getACL(), PermissionType.REMOVE, session.getUserID()))
           throw new AccessDeniedException("Access denied: REMOVE " + changedItem.getData().getQPath().getAsString() + " for: "
               + session.getUserID() + " item owner " + parent.getACL().getOwner());
-
       }
     }
-
   }
 
   /**
