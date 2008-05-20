@@ -111,7 +111,7 @@ public abstract class AccessManager {
       return false;
     } else {
       // check permission to perform all of the listed actions
-      if (acl.size() > 0 && permission.length > 0) {
+      if (acl.getPermissionsSize() > 0 && permission.length > 0) {
         for (int i = 0; i < permission.length; i++) {
           // check specific actions
           if (!isPermissionMatch(acl.getPermissionsList(), permission[i], userId))
@@ -236,10 +236,7 @@ public abstract class AccessManager {
 
       }
     }
-    String[] perms = new String[permissions.size()];
-    for (int i = 0; i < perms.length; i++)
-      perms[i] = permissions.get(i);
-    return perms;
+    return permissions.toArray(new String[permissions.size()]);
   }
 
   private boolean isPermissionMatch(List<AccessControlEntry> existedPermission,

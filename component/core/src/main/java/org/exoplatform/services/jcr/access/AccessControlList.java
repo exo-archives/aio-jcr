@@ -21,13 +21,14 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.Iterator;
 
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -220,10 +221,11 @@ public class AccessControlList implements Externalizable {
   /**
    * @return size of access list
    */
-  public int size() {
-    return accessList != null ? accessList.size() : 0;
+  public int getPermissionsSize() {
+    return accessList.size();
   }
 
+  // Special method for internal JCR use
   List<AccessControlEntry> getPermissionsList() {
     return accessList;
   }

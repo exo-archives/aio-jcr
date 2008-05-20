@@ -1021,7 +1021,7 @@ public class SessionDataManager implements ItemDataConsumer {
       node = (NodeData) getItemData(itemState.getData().getParentIdentifier());
     }
     
-    if (node != null && node.getACL().size() < 1) {
+    if (node != null && node.getACL().getPermissionsSize() < 1) {
       throw new RepositoryException("Node " + node.getQPath().getAsString()
           + " has wrong formed ACL.");
     }
