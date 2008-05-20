@@ -17,20 +17,15 @@
 package org.exoplatform.services.jcr.impl.access;
 
 import java.security.AccessControlException;
-import java.security.acl.Permission;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.jcr.AccessDeniedException;
-import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.lock.LockException;
-import javax.jcr.nodetype.ConstraintViolationException;
-import javax.jcr.version.VersionException;
 
 import org.exoplatform.services.jcr.BaseStandaloneTest;
 import org.exoplatform.services.jcr.access.AccessControlEntry;
@@ -753,48 +748,146 @@ public class TestAccess extends BaseStandaloneTest {
                                                                  "".toCharArray()));
     try {
       anonimSession.checkPermission(testNode.getPath(), PermissionType.READ);
-      anonimSession.getRootNode().getNode("."+testNode.getPath());
+      anonimSession.getRootNode().getNode("." + testNode.getPath());
       anonimSession.checkPermission(testNode.getPath(), PermissionType.REMOVE);
       fail();
     } catch (AccessControlException e) {
-      //ok
+      // ok
     }
 
     testNode.setPermission(testNode.getSession().getUserID(), PermissionType.ALL);
     testNode.removePermission(SystemIdentity.ANY);
     session.save();
     try {
-      anonimSession.checkPermission("."+testNode.getPath(), PermissionType.READ);
+      anonimSession.checkPermission("." + testNode.getPath(), PermissionType.READ);
       fail();
     } catch (AccessControlException e) {
 
     }
-    
+
     testNode.setPermission(SystemIdentity.ANY, new String[] { PermissionType.READ });
     session.save();
 
     try {
       anonimSession.checkPermission(testNode.getPath(), PermissionType.READ);
-      anonimSession.getRootNode().getNode("."+testNode.getPath());
+      anonimSession.getRootNode().getNode("." + testNode.getPath());
       anonimSession.checkPermission(testNode.getPath(), PermissionType.REMOVE);
       fail();
     } catch (AccessControlException e) {
-      
+
     }
   }
+
   public void testDualCheckPermissions() throws Exception {
     ExtendedNode testRoot = (ExtendedNode) accessTestRoot.addNode("DualCheckPermissions");
-    
+
     testRoot.addMixin("exo:privilegeable");
     testRoot.setPermission("exo1", new String[] { PermissionType.READ, PermissionType.ADD_NODE,
         PermissionType.SET_PROPERTY });
     testRoot.setPermission(accessTestRoot.getSession().getUserID(), PermissionType.ALL);
     testRoot.removePermission(SystemIdentity.ANY);
     accessTestRoot.save();
-    
+
     AccessManager accessManager = ((SessionImpl) accessTestRoot.getSession()).getAccessManager();
-    
+
+    assertTrue(accessManager.hasPermission(testRoot.getACL(), new String[] { PermissionType.READ,
+        PermissionType.ADD_NODE }, "exo1"));
+
+    assertTrue(accessManager.hasPermission(testRoot.getACL(), new String[] { PermissionType.READ,
+        PermissionType.SET_PROPERTY }, "exo1"));
+
+    assertTrue(accessManager.hasPermission(testRoot.getACL(), new String[] {
+        PermissionType.ADD_NODE, PermissionType.SET_PROPERTY }, "exo1"));
+
     assertFalse(accessManager.hasPermission(testRoot.getACL(), new String[] { PermissionType.READ,
         PermissionType.REMOVE }, "exo1"));
+
+  }
+
+  public void testEmptyPermissions() throws Exception {
+    ExtendedNode testRoot = (ExtendedNode) accessTestRoot.addNode("testEmptyPermissions");
+    testRoot.addMixin("exo:privilegeable");
+    session.save();
+
+    testRoot.removePermission(SystemIdentity.ANY);
+
+    try {
+      session.checkPermission(testRoot.getPath(), PermissionType.READ);
+    } catch (AccessControlException e1) {
+      // ok
+    }
+
+    try {
+      session.save();
+    } catch (RepositoryException e) {
+      // ok
+    }
+
+    session.refresh(false);
+
+    ExtendedNode testRoot2 = (ExtendedNode) accessTestRoot.addNode("testEmptyPermissions2");
+    testRoot2.addMixin("exo:privilegeable");
+    session.save();
+
+    testRoot2.setPermission(SystemIdentity.ANY, new String[] {});
+    try {
+      session.save();
+    } catch (RepositoryException e) {
+      // ok
+    }
+  }
+
+  public void testPerseEntries() throws Exception {
+    ExtendedNode testRoot = (ExtendedNode) accessTestRoot.addNode("testPerseEntries");
+    testRoot.addMixin("exo:privilegeable");
+    session.save();
+
+    testRoot.setPermission(SystemIdentity.ANY, PermissionType.ALL);
+    session.save();
+
+    session.checkPermission(testRoot.getPath(), PermissionType.ADD_NODE);
+    session.checkPermission(testRoot.getPath(), PermissionType.SET_PROPERTY);
+    session.checkPermission(testRoot.getPath(), PermissionType.READ);
+    session.checkPermission(testRoot.getPath(), PermissionType.REMOVE);
+
+    try {
+      session.checkPermission(testRoot.getPath(), "bla-bla");
+    } catch (AccessControlException e) {
+
+    }
+    try {
+      session.checkPermission(testRoot.getPath(), "");
+    } catch (AccessControlException e) {
+
+    }
+  }
+
+  public void testRemoveAllPermissions() throws Exception {
+    Session session1 = repository.login(new CredentialsImpl("exo1", "exo1".toCharArray()));
+    ExtendedNode testNode = (ExtendedNode) session1.getRootNode().addNode("testNode");
+    testNode.addMixin("exo:privilegeable");
+    session1.save();
+    Map<String, String[]> permissions = new HashMap<String, String[]>();
+    permissions.put("admin", PermissionType.ALL);
+    
+    testNode.setPermissions(permissions);
+
+    try {
+      testNode.addNode("d");
+      fail();
+    } catch (AccessDeniedException e) {
+      //ok
+    }
+    session1.save();
+    try {
+      testNode.addNode("d");
+      fail();
+    } catch (AccessDeniedException e) {
+      //ok
+    }
+    
+    Node testNodeAdmin = session.getRootNode().getNode("testNode");
+    testNodeAdmin.remove();
+    
   }
 }

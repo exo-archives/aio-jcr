@@ -22,11 +22,11 @@ package org.exoplatform.services.jcr.access;
  * @version $Id: PermissionType.java 12843 2007-02-16 09:11:18Z peterit $
  */
 public interface PermissionType {
-    public static String READ = "read";
-    public static String ADD_NODE = "add_node";
-    public static String SET_PROPERTY = "set_property";
-    public static String REMOVE = "remove";
-    public static String[] ALL = new String[] {READ, ADD_NODE, SET_PROPERTY, REMOVE};
-    public static String[] DEFAULT_AC = new String[] {READ};
-    public static String CHANGE_PERMISSION = ADD_NODE+","+SET_PROPERTY+","+REMOVE;
+    public final static String READ = "read";
+    public final static String ADD_NODE = "add_node";
+    public final static String SET_PROPERTY = "set_property";
+    public final static String REMOVE = "remove";
+    public final static String[] ALL = new String[] {READ, ADD_NODE, SET_PROPERTY, REMOVE};
+    public final static String[] DEFAULT_AC = new String[] {READ};
+    public final static String CHANGE_PERMISSION = ADD_NODE+","+SET_PROPERTY+","+REMOVE;
 }

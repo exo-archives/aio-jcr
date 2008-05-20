@@ -38,13 +38,13 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class AccessControlList implements Externalizable {
-  private Log                      log       = ExoLogger.getLogger("jcr.AccessControlList");
+  private Log                            log       = ExoLogger.getLogger("jcr.AccessControlList");
 
-  public static final String       DELIMITER = ";";
+  public static final String             DELIMITER = ";";
 
-  private String                   owner;
+  private String                         owner;
 
-  private final List<AccessControlEntry> aces;
+  private final List<AccessControlEntry> accessList;
 
   public AccessControlList() {
     this(SystemIdentity.SYSTEM);
@@ -57,9 +57,9 @@ public class AccessControlList implements Externalizable {
    */
   AccessControlList(String ownerName) {
     this.owner = ownerName;
-    this.aces = new ArrayList<AccessControlEntry>();
+    this.accessList = new ArrayList<AccessControlEntry>();
     for (String str : PermissionType.ALL) {
-      aces.add(new AccessControlEntry(SystemIdentity.ANY, str));
+      accessList.add(new AccessControlEntry(SystemIdentity.ANY, str));
     }
   }
 
@@ -69,15 +69,15 @@ public class AccessControlList implements Externalizable {
    * @param owner
    * @param permissions - permission entries
    */
-  public AccessControlList(String owner, List<AccessControlEntry> aces) {
+  public AccessControlList(String owner, List<AccessControlEntry> accessList) {
     this.owner = owner;
-    this.aces = aces;
+    this.accessList = accessList;
   }
-  
+
   public boolean hasPermissions() {
-    return aces != null;
+    return accessList != null;
   }
-  
+
   public boolean hasOwner() {
     return owner != null;
   }
@@ -94,18 +94,18 @@ public class AccessControlList implements Externalizable {
       if (entryTokenizer.countTokens() != 2)
         throw new RepositoryException("AccessControlEntry " + entry
             + " is empty or have a bad format");
-      aces.add(new AccessControlEntry(entryTokenizer.nextToken(), entryTokenizer.nextToken()));
+      accessList.add(new AccessControlEntry(entryTokenizer.nextToken(), entryTokenizer.nextToken()));
     }
   }
 
   public void addPermissions(String identity, String[] perm) {
     for (String p : perm) {
-      aces.add(new AccessControlEntry(identity, p));
+      accessList.add(new AccessControlEntry(identity, p));
     }
   }
 
   public void removePermissions(String identity) {
-    for (Iterator<AccessControlEntry> iter = aces.iterator(); iter.hasNext();) {
+    for (Iterator<AccessControlEntry> iter = accessList.iterator(); iter.hasNext();) {
       AccessControlEntry a = iter.next();
       if (a.getIdentity().equals(identity))
         iter.remove();
@@ -113,7 +113,7 @@ public class AccessControlList implements Externalizable {
   }
 
   public void removePermissions(String identity, String permission) {
-    for (Iterator<AccessControlEntry> iter = aces.iterator(); iter.hasNext();) {
+    for (Iterator<AccessControlEntry> iter = accessList.iterator(); iter.hasNext();) {
       AccessControlEntry a = iter.next();
       if (a.getIdentity().equals(identity) && a.getPermission().equals(permission))
         iter.remove();
@@ -134,7 +134,7 @@ public class AccessControlList implements Externalizable {
   // Create safe copy of list <AccessControlEntry>
   public List<AccessControlEntry> getPermissionEntries() {
     List<AccessControlEntry> list = new ArrayList<AccessControlEntry>();
-    for (AccessControlEntry entry : aces) {
+    for (AccessControlEntry entry : accessList) {
       list.add(new AccessControlEntry(entry.getIdentity(), entry.getPermission()));
     }
     return list;
@@ -142,7 +142,7 @@ public class AccessControlList implements Externalizable {
 
   public List<String> getPermissions(String identity) {
     List<String> permissions = new ArrayList<String>();
-    for (AccessControlEntry entry : aces) {
+    for (AccessControlEntry entry : accessList) {
       if (entry.getIdentity().equals(identity))
         permissions.add(entry.getPermission());
     }
@@ -161,7 +161,7 @@ public class AccessControlList implements Externalizable {
 
   public String dump() {
     String res = "OWNER: " + owner + "\n";
-    for (AccessControlEntry a : aces) {
+    for (AccessControlEntry a : accessList) {
       res += a.getAsString() + "\n";
     }
     return res;
@@ -178,7 +178,7 @@ public class AccessControlList implements Externalizable {
     } else {
       this.owner = null;
     }
-    aces.clear();
+    accessList.clear();
     // reading access control entrys size
     int listSize = in.readInt();
     for (int i = 0; i < listSize; i++) {
@@ -191,7 +191,7 @@ public class AccessControlList implements Externalizable {
       in.read(buf);
       String perm = new String(buf, "UTF-8");
 
-      aces.add(new AccessControlEntry(ident, perm));
+      accessList.add(new AccessControlEntry(ident, perm));
     }
   }
 
@@ -205,9 +205,9 @@ public class AccessControlList implements Externalizable {
     }
 
     // writing access control entrys size
-    out.writeInt(aces.size());
+    out.writeInt(accessList.size());
 
-    for (AccessControlEntry entry : aces) {
+    for (AccessControlEntry entry : accessList) {
       // writing access control entrys identity
       out.writeInt(entry.getIdentity().getBytes().length);
       out.write(entry.getIdentity().getBytes());
@@ -217,7 +217,14 @@ public class AccessControlList implements Externalizable {
     }
   }
 
-     List<AccessControlEntry> getPermissionsList() {
-    return aces;
+  /**
+   * @return size of access list
+   */
+  public int size() {
+    return accessList != null ? accessList.size() : 0;
+  }
+
+  List<AccessControlEntry> getPermissionsList() {
+    return accessList;
   }
 }

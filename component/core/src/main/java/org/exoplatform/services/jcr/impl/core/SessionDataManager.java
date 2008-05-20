@@ -986,10 +986,18 @@ public class SessionDataManager implements ItemDataConsumer {
 
     List<ItemState> changes = changesLog.getAllStates();
     for (ItemState itemState : changes) {
+      
+      boolean isDescendant = itemState.isDescendant(path);
+      
+      if(isDescendant){
+        validateAclSize(itemState);
+      }
+      
       if (itemState.isInternallyCreated()) {
         continue;
       }
-      if (itemState.isDescendant(path)) {
+      
+      if (isDescendant) {
         validateAccessPermissions(itemState);
         validateMandatoryItem(itemState);
       }
@@ -997,6 +1005,25 @@ public class SessionDataManager implements ItemDataConsumer {
         throw new ConstraintViolationException(path.getAsString()
             + " is the same or descendant of either Session.move()'s destination or source node only " + path.getAsString());
       }
+    }
+  }
+  /**
+   * Validate size of access control list.
+   * @param itemState
+   * @throws RepositoryException
+   */
+  private void validateAclSize(ItemState itemState) throws RepositoryException {
+    NodeData node = null;
+    
+    if (itemState.getData().isNode()) {
+      node = ((NodeData) itemState.getData());
+    } else {
+      node = (NodeData) getItemData(itemState.getData().getParentIdentifier());
+    }
+    
+    if (node != null && node.getACL().size() < 1) {
+      throw new RepositoryException("Node " + node.getQPath().getAsString()
+          + " has wrong formed ACL.");
     }
   }
 
@@ -1007,27 +1034,41 @@ public class SessionDataManager implements ItemDataConsumer {
    * @throws RepositoryException
    * @throws AccessDeniedException
    */
-  private void validateAccessPermissions(ItemState changedItem) throws RepositoryException, AccessDeniedException {
+  private void validateAccessPermissions(ItemState changedItem) throws RepositoryException,
+                                                               AccessDeniedException {
     NodeData parent = (NodeData) getItemData(changedItem.getData().getParentIdentifier());
     // Add node
     if (parent != null) {
-      if (changedItem.getData().isNode() && changedItem.isAdded()) {
-        if (!accessManager.hasPermission(parent.getACL(), PermissionType.ADD_NODE, session.getUserID())) {
-          throw new AccessDeniedException("Access denied: ADD_NODE " + changedItem.getData().getQPath().getAsString() + " for: "
-              + session.getUserID() + " item owner " + parent.getACL().getOwner());
-        }
-      }
-      // Add and update property
-      if (!changedItem.getData().isNode() && (changedItem.isAdded() || changedItem.isUpdated())) {
-        if (!accessManager.hasPermission(parent.getACL(), PermissionType.SET_PROPERTY, session.getUserID()))
-          throw new AccessDeniedException("Access denied: SET_PROPERTY " + changedItem.getData().getQPath().getAsString()
-              + " for: " + session.getUserID() + " item owner " + parent.getACL().getOwner());
-      }
+      
       // Remove propery or node
       if (changedItem.isDeleted()) {
-        if (!accessManager.hasPermission(parent.getACL(), PermissionType.REMOVE, session.getUserID()))
-          throw new AccessDeniedException("Access denied: REMOVE " + changedItem.getData().getQPath().getAsString() + " for: "
-              + session.getUserID() + " item owner " + parent.getACL().getOwner());
+        if (!accessManager.hasPermission(parent.getACL(),
+                                         PermissionType.REMOVE,
+                                         session.getUserID()))
+          throw new AccessDeniedException("Access denied: REMOVE "
+              + changedItem.getData().getQPath().getAsString() + " for: " + session.getUserID()
+              + " item owner " + parent.getACL().getOwner());
+      } else if (changedItem.getData().isNode()) { // add node
+        if (changedItem.isAdded()) {
+          if (!accessManager.hasPermission(parent.getACL(),
+                                           PermissionType.ADD_NODE,
+                                           session.getUserID())) {
+            throw new AccessDeniedException("Access denied: ADD_NODE "
+                + changedItem.getData().getQPath().getAsString() + " for: " + session.getUserID()
+                + " item owner " + parent.getACL().getOwner());
+          }
+        }
+      } else {
+        if (changedItem.isAdded() || changedItem.isUpdated()) { // Add and
+                                                                // update
+                                                                // property
+          if (!accessManager.hasPermission(parent.getACL(),
+                                           PermissionType.SET_PROPERTY,
+                                           session.getUserID()))
+            throw new AccessDeniedException("Access denied: SET_PROPERTY "
+                + changedItem.getData().getQPath().getAsString() + " for: " + session.getUserID()
+                + " item owner " + parent.getACL().getOwner());
+        }
       }
     }
   }

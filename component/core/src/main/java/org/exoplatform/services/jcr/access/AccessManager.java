@@ -111,7 +111,7 @@ public abstract class AccessManager {
       return false;
     } else {
       // check permission to perform all of the listed actions
-      if (permission.length > 0) {
+      if (acl.size() > 0 && permission.length > 0) {
         for (int i = 0; i < permission.length; i++) {
           // check specific actions
           if (!isPermissionMatch(acl.getPermissionsList(), permission[i], userId))
@@ -222,16 +222,23 @@ public abstract class AccessManager {
     return false;
   }
 
-  private static String[] parseStringPermissions(String str) {
-    ArrayList permissions = new ArrayList();
+  private String[] parseStringPermissions(String str) throws RepositoryException {
+    List<String> permissions = new ArrayList<String>();
     StringTokenizer parser = new StringTokenizer(str, ",");
     while (parser.hasMoreTokens()) {
       String token = parser.nextToken();
-      permissions.add(token);
+      if (PermissionType.READ.equals(token) || PermissionType.ADD_NODE.equals(token)
+          || PermissionType.REMOVE.equals(token) || PermissionType.SET_PROPERTY.equals(token)) {
+
+        permissions.add(token);
+      } else {
+        throw new RepositoryException("Unknown permission entry " + token);
+
+      }
     }
     String[] perms = new String[permissions.size()];
     for (int i = 0; i < perms.length; i++)
-      perms[i] = (String) permissions.get(i);
+      perms[i] = permissions.get(i);
     return perms;
   }
 
