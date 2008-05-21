@@ -29,6 +29,7 @@ import java.util.WeakHashMap;
 import javax.jcr.AccessDeniedException;
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.ItemExistsException;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.ReferentialIntegrityException;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.ConstraintViolationException;
@@ -1001,6 +1002,7 @@ public class SessionDataManager implements ItemDataConsumer {
         validateAccessPermissions(itemState);
         validateMandatoryItem(itemState);
       }
+      
       if (path.isDescendantOf(itemState.getAncestorToSave(), false)) {
         throw new ConstraintViolationException(path.getAsString()
             + " is the same or descendant of either Session.move()'s destination or source node only " + path.getAsString());
@@ -1013,15 +1015,16 @@ public class SessionDataManager implements ItemDataConsumer {
    * @throws RepositoryException
    */
   private void validateAclSize(ItemState itemState) throws RepositoryException {
-    NodeData node = null;
-    
+    NodeData node;
     if (itemState.getData().isNode()) {
       node = ((NodeData) itemState.getData());
     } else {
       node = (NodeData) getItemData(itemState.getData().getParentIdentifier());
+      if (node == null) 
+        throw new PathNotFoundException("Parent not found for " + itemState.getData().getQPath().getAsString());
     }
     
-    if (node != null && node.getACL().getPermissionsSize() < 1) {
+    if (node.getACL().getPermissionsSize() < 1) {
       throw new RepositoryException("Node " + node.getQPath().getAsString()
           + " has wrong formed ACL.");
     }
@@ -1048,7 +1051,8 @@ public class SessionDataManager implements ItemDataConsumer {
           throw new AccessDeniedException("Access denied: REMOVE "
               + changedItem.getData().getQPath().getAsString() + " for: " + session.getUserID()
               + " item owner " + parent.getACL().getOwner());
-      } else if (changedItem.getData().isNode()) { // add node
+      } else if (changedItem.getData().isNode()) { 
+        // add node
         if (changedItem.isAdded()) {
           if (!accessManager.hasPermission(parent.getACL(),
                                            PermissionType.ADD_NODE,
@@ -1058,19 +1062,17 @@ public class SessionDataManager implements ItemDataConsumer {
                 + " item owner " + parent.getACL().getOwner());
           }
         }
-      } else {
-        if (changedItem.isAdded() || changedItem.isUpdated()) { // Add and
-                                                                // update
-                                                                // property
+      } else if (changedItem.isAdded() || changedItem.isUpdated()) { 
+          // add or update property
           if (!accessManager.hasPermission(parent.getACL(),
                                            PermissionType.SET_PROPERTY,
                                            session.getUserID()))
             throw new AccessDeniedException("Access denied: SET_PROPERTY "
                 + changedItem.getData().getQPath().getAsString() + " for: " + session.getUserID()
                 + " item owner " + parent.getACL().getOwner());
-        }
       }
-    }
+    } else if (!changedItem.getData().getIdentifier().equals(Constants.ROOT_UUID)) 
+      throw new PathNotFoundException("Parent not found for " + changedItem.getData().getQPath().getAsString());
   }
 
   /**
@@ -1087,8 +1089,10 @@ public class SessionDataManager implements ItemDataConsumer {
       if (!changesLog.getItemState(changedItem.getData().getIdentifier()).isDeleted()) {
         NodeData nData = (NodeData) changedItem.getData();
         try {
+          // TODO do not use JCR API NodeImpl, we just need Nodes/Properties definition of all NTs here
           NodeImpl node = itemFactory.createNode(nData);
-          node.validateMandatoryChildren();
+          // TODO move code from validateMandatoryChildren() to SessionDataManager.validateMandatoryChildren(NodeData, ChangesLog)
+          node.validateMandatoryChildren();  
         } catch (ConstraintViolationException e) {
           throw e;
         } catch (AccessDeniedException e) {
