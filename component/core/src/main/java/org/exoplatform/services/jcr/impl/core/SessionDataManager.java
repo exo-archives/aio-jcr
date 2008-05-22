@@ -1020,18 +1020,8 @@ public class SessionDataManager implements ItemDataConsumer {
       node = ((NodeData) changedItem.getData());
     } else {
       node = (NodeData) getItemData(changedItem.getData().getParentIdentifier());
-      if (node == null) { 
-        if (changedItem.isDeleted() || changedItem.getData().getIdentifier().equals(Constants.ROOT_UUID))
-          return; // skip validation if parent was deleted or it's a root node property
-          
-        // if no parent found and not deleted, it's error 
-        // TODO we may meet child item which has parent deleted but itself is added
-        // org.apache.jackrabbit.test.api.SerializationTest
-        // org.apache.jackrabbit.test.api.observation.NodeAddedTest... 
-        // just uncomment the line below
-        //throw new PathNotFoundException("Parent not found for " + changedItem.getData().getQPath().getAsString());
-        return;
-      }
+      if (node == null)
+        return; // parent was deleted  
     }
     
     if (node.getACL().getPermissionsSize() < 1) {
@@ -1080,10 +1070,7 @@ public class SessionDataManager implements ItemDataConsumer {
                 + changedItem.getData().getQPath().getAsString() + " for: " + session.getUserID()
                 + " item owner " + parent.getACL().getOwner());
       }
-    } 
-    // TODO check if item with deleted parent was deleted itself (see TODO above)
-    //else if (!changedItem.isDeleted() && !changedItem.getData().getIdentifier().equals(Constants.ROOT_UUID)) 
-    //  throw new PathNotFoundException("Parent not found for " + changedItem.getData().getQPath().getAsString());
+    } // else - parent not found, deleted in this session or from another
   }
 
   /**

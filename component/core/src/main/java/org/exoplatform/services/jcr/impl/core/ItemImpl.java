@@ -255,8 +255,7 @@ public abstract class ItemImpl implements Item {
       def = ((PropertyImpl) this).getDefinition();
 
     if (def.isMandatory() || def.isProtected())
-      throw new ConstraintViolationException("Can't remove mandatory or protected item "
-          + getPath());
+      throw new ConstraintViolationException("Can't remove mandatory or protected item " + getPath());
     NodeImpl parentNode = parent();
     // Check if versionable ancestor is not checked-in
     if (!parentNode.checkedOut())
