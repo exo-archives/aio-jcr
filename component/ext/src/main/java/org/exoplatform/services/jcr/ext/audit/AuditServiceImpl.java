@@ -21,6 +21,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import javax.jcr.Item;
 import javax.jcr.Node;
@@ -77,10 +78,11 @@ public class AuditServiceImpl implements AuditService {
 
   private static Log log           = ExoLogger.getLogger("jcr.AuditService");
 
-  private String     adminIdentity = null;
+  private List<String>     adminIdentitys = null;
 
   public AuditServiceImpl(InitParams params, RepositoryService repService) throws RepositoryConfigurationException {
     ValueParam valParam = null;
+    String adminIdentity = null;
     if (params != null) {
       valParam = params.getValueParam("adminIdentity");
       if (valParam != null)
@@ -88,6 +90,20 @@ public class AuditServiceImpl implements AuditService {
     }
     if (adminIdentity == null)
       throw new RepositoryConfigurationException("Admin identity is not configured");
+
+
+
+    StringTokenizer listTokenizer = new StringTokenizer(adminIdentity, AccessControlList.DELIMITER);
+
+    if (listTokenizer.countTokens() < 1)
+      throw new RepositoryConfigurationException("AccessControlList " + adminIdentity
+          + " is empty or have a bad format");
+    
+    adminIdentitys = new ArrayList<String>(listTokenizer.countTokens());
+    
+    while (listTokenizer.hasMoreTokens()) {
+      adminIdentitys.add(listTokenizer.nextToken());
+    }
   }
 
   public void addRecord(Item item, int eventType) throws RepositoryException {
@@ -125,7 +141,11 @@ public class AuditServiceImpl implements AuditService {
     List<AccessControlEntry> access = new ArrayList<AccessControlEntry>();
     access.add(new AccessControlEntry(SystemIdentity.ANY, PermissionType.SET_PROPERTY));
     access.add(new AccessControlEntry(SystemIdentity.ANY, PermissionType.READ));
-    access.add(new AccessControlEntry(adminIdentity, PermissionType.REMOVE));
+
+    for (String identity : adminIdentitys) {
+      access.add(new AccessControlEntry(identity, PermissionType.REMOVE));
+    }
+   
 
     AccessControlList exoAuditRecordAccessControlList = new AccessControlList(session.getUserID(), access);
 
@@ -262,7 +282,11 @@ public class AuditServiceImpl implements AuditService {
     access.add(new AccessControlEntry(SystemIdentity.ANY, PermissionType.ADD_NODE));
     access.add(new AccessControlEntry(SystemIdentity.ANY, PermissionType.READ));
     access.add(new AccessControlEntry(SystemIdentity.ANY, PermissionType.SET_PROPERTY));
-    access.add(new AccessControlEntry(adminIdentity, PermissionType.REMOVE));
+
+
+    for (String identity : adminIdentitys) {
+      access.add(new AccessControlEntry(identity, PermissionType.REMOVE));
+    }
 
     AccessControlList exoAuditHistoryAccessControlList = new AccessControlList(session.getUserID(), access);
 
@@ -514,7 +538,11 @@ public class AuditServiceImpl implements AuditService {
 
         List<AccessControlEntry> access = new ArrayList<AccessControlEntry>();
         access.add(new AccessControlEntry(SystemIdentity.ANY, PermissionType.ADD_NODE));
-        access.add(new AccessControlEntry(adminIdentity, PermissionType.READ));
+
+        for (String identity : adminIdentitys) {
+          access.add(new AccessControlEntry(identity, PermissionType.READ));
+        }
+
         access.add(new AccessControlEntry(SystemIdentity.ANY, PermissionType.REMOVE));
 
         AccessControlList exoAuditAccessControlList = new AccessControlList(SystemIdentity.SYSTEM, access);

@@ -224,7 +224,7 @@
       <init-params>
            <value-param>
               <name>adminIdentity</name>
-              <value>*:/admin</value>
+              <value>*:/admin;exo2</value>
            </value-param>
  		  </init-params>
     </component>
