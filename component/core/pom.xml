@@ -19,7 +19,7 @@
     <url>https://maven-repository.dev.java.net/nonav/repository</url>
     <layout>legacy</layout>
     </repository>
-    </repositories-->
+  </repositories-->
 
   <pluginRepositories>
     <pluginRepository>
@@ -163,14 +163,16 @@
     <dependency>
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
-      <version>1.2.1</version>
+      <version>1.2.2</version>
       <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>xml-apis</groupId>
-          <artifactId>xml-apis</artifactId>
-        </exclusion>
-      </exclusions>
+    </dependency>
+    
+    <!-- for TCK -->
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xerces</artifactId>
+      <version>2.0.2</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -192,13 +194,6 @@
       <version>1.5</version>
       <scope>compile</scope>
     </dependency>
-
-    <!-- dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.8</version>
-      <scope>compile</scope>
-      </dependency -->
 
     <dependency>
       <groupId>javax.transaction</groupId>
@@ -281,9 +276,9 @@
       <artifactId>ojdbc</artifactId>
       <version>14</version>
       <scope>compile</scope>
-      </dependency>
+    </dependency -->
 
-      <dependency>
+      <!-- dependency>
       <groupId>ojdbc</groupId>
       <artifactId>orai18n</artifactId>
       <version>14</version>
@@ -336,7 +331,6 @@
       <version>10.2.2.0</version>
       <scope>compile</scope>
       </dependency -->
-
     <!-- ======================================================================= -->
 
   </dependencies>
@@ -411,7 +405,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <!--normal mode: mvn -Dexo.test.skip=false -Dexo.tck.skip=false clean install-->
-        <!--debug  mode: mvn -Dexo.test.skip=false -Dexo.tck.skip=false -Dexo.test.forkmode=never clean install-->
+        <!--debug  mode: mvn -Dexo.test.skip=false -Dexo.tck.skip=false -Dexo.test.forkMode=never clean install-->
         <configuration>
           <skip>true</skip>
         </configuration>
