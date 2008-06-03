@@ -1,0 +1,137 @@
+<project>
+	<parent>
+		<groupId>org.exoplatform.jcr</groupId>
+		<artifactId>exo.jcr.applications.config</artifactId>
+		<version>trunk</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>exo.product.jcr</artifactId>
+	<packaging>jar</packaging>
+	<version>${org.exoplatform.jcr.version}</version>
+	<name>eXo JCR Product</name>
+	<url>http://www.exoplatform.org</url>
+	<description>eXo JCR Product</description>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.exoplatform.jcr</groupId>
+			<artifactId>exo.jcr.ear</artifactId>
+			<version>${org.exoplatform.jcr.version}</version>
+			<type>ear</type>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<!-- version>1.7.3.3</version -->
+			<version>1.8.0.7</version>
+			<scope>compile</scope>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.1</version>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<goals>
+							<goal>assembly</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<descriptors>
+						<descriptor>product-exo-jcr-as-descriptor.xml</descriptor>
+					</descriptors>
+					<finalName>lib</finalName>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.2-SNAPSHOT</version>
+				<configuration>
+					<tasks>
+						<!--copying the AS-->
+						<delete
+							dir="${exo.projects.directory.working}/exo-jonas"
+							includeEmptyDirs="true" quiet="yes" />
+						<copy
+							todir="${exo.projects.directory.working}/exo-jonas"
+							verbose="false" overwrite="true">
+							<fileset
+								dir="${exo.projects.directory.dependencies}/${exo.projects.app.jonas.version}" />
+						</copy>
+						<!--renaming ear-->
+						<move
+							todir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+							<fileset
+								dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+								<include name="**/*.ear" />
+							</fileset>
+							<mapper>
+								<chainedmapper>
+									<flattenmapper />
+									<globmapper
+										from="*-${org.exoplatform.jcr.version}.ear" to="*.ear"
+										casesensitive="no" />
+								</chainedmapper>
+							</mapper>
+						</move>
+						<!--copying the ear-->
+						<copy
+							todir="${exo.projects.directory.working}/exo-jonas/apps/autoload/"
+							verbose="true" overwrite="true">
+							<fileset
+								dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/"
+								includes="**/*.ear" />
+						</copy>
+						<!--copying exo-configuration.xml-->
+						<copy
+							todir="${exo.projects.directory.working}/exo-jonas/"
+							verbose="true" overwrite="true">
+							<fileset
+								dir="${basedir}/product-patches/as/jonas/" includes="*.xml" />
+						</copy>
+						<!--copying jaas.config etc.-->
+						<copy
+							todir="${exo.projects.directory.working}/exo-jonas/conf/"
+							verbose="true" overwrite="true">
+							<fileset
+								dir="${basedir}/product-patches/as/jonas/conf/" includes="*.*" />
+						</copy>
+						<copy
+							todir="${exo.projects.directory.working}/exo-jonas/bin/"
+							verbose="true" overwrite="true">
+							<fileset
+								dir="${basedir}/product-patches/as/jonas/bin/" />
+						</copy>
+						<delete
+							file="${exo.projects.directory.working}/exo-jonas/lib/commons/jonas/hsqldb.jar" />
+						<copy
+							todir="${exo.projects.directory.working}/exo-jonas/lib/commons/jonas/">
+							<fileset
+								dir="${basedir}/target/lib-${org.exoplatform.jcr.version}.dir/">
+								<include name="**/hsqldb*.jar" />
+							</fileset>
+						</copy>
+						<copy
+							todir="${exo.projects.directory.working}/exo-jonas/bin/">
+							<fileset
+								dir="${basedir}/product-patches/as/">
+								<include name="*.dll" />
+							</fileset>
+						</copy>
+					</tasks>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

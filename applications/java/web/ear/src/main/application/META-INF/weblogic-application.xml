@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE weblogic-application PUBLIC '-//BEA Systems, Inc.//DTD WebLogic Application 8.1.0//EN' 'http://www.bea.com/servers/wls810/dtd/weblogic-application_2_0.dtd'>
+<weblogic-application>
+  <classloader-structure>
+  <classloader-structure>
+    <module-ref>
+        <module-uri>exo-jcr.rar</module-uri>
+    </module-ref>
+    <module-ref>
+        <module-uri>browser.war</module-uri>
+    </module-ref>
+    <module-ref>
+        <module-uri>rest.war</module-uri>
+    </module-ref>
+    <module-ref>
+        <module-uri>fckeditor.war</module-uri>
+    </module-ref>
+  </classloader-structure>
+  </classloader-structure>
+</weblogic-application>

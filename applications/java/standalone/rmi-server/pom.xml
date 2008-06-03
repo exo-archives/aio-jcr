@@ -1,0 +1,88 @@
+<project>
+  <parent>
+    <groupId>org.exoplatform.jcr</groupId>
+    <artifactId>config</artifactId>
+    <version>trunk</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>exo.jcr.applications.rmi-server</artifactId>
+  <version>${org.exoplatform.jcr.version}</version>
+  <packaging>jar</packaging>
+  <name>eXo JCR RMI server</name>
+  <url>http://www.exoplatform.org</url>
+  <description>eXo JCR RMI server</description>
+
+  <dependencies>
+
+    <!-- JCR API -->
+    <dependency>
+      <groupId>jcr</groupId>
+      <artifactId>jcr</artifactId>
+      <version>1.0</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.core</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.rmi</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+            <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <configuration>
+                      <archive>
+                        <manifest>
+                          <addClasspath>true</addClasspath>
+                          <!-- classpathPrefix>lib</classpathPrefix -->
+                          <mainClass>org/exoplatform/connectors/jcr/RMIStarter</mainClass>
+                        </manifest>
+                      </archive>
+                    </configuration>
+                  </plugin>
+			 <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/Jackrabbit*.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.1</version>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <descriptors>
+                      <descriptor>
+                        assembly-descriptor.xml
+                      </descriptor>
+                    </descriptors>
+                    <finalName>rmi-server</finalName>
+               </configuration>
+            </plugin>
+        </plugins>
+ </build>
+</project>

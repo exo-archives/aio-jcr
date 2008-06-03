@@ -1,0 +1,237 @@
+<repository-service default-repository="db1">
+  <repositories>
+    <repository name="db1" system-workspace="ws" default-workspace="ws">
+      <security-domain>exo-domain</security-domain>
+      <access-control>optional</access-control>
+      <authentication-policy>org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy</authentication-policy>
+      <workspaces>
+        <workspace name="ws">
+          <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
+            <properties>
+              <property name="sourceName" value="jdbcjcr" />
+              <property name="dialect" value="hsqldb" />
+              <property name="multi-db" value="false" />
+              <property name="update-storage" value="false" />
+              <property name="max-buffer-size" value="204800" />
+              <property name="swap-directory" value="target/temp/swap/ws" />
+            </properties>
+            <value-storages>
+              <value-storage id="Storage #1"
+                class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+                <properties>
+                  <property name="path" value="target/temp/values/ws/files10m" />
+                </properties>
+                <filters>
+                  <filter property-type="Binary" min-value-size="10240000" />
+                </filters>
+              </value-storage>
+              <value-storage id="Storage #2"
+                class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+                <properties>
+                  <property name="path" value="target/temp/values/ws" />
+                </properties>
+                <filters>
+                  <filter property-type="Binary" min-value-size="204800" />
+                </filters>
+              </value-storage>
+            </value-storages>
+          </container>
+          <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
+            <properties>
+              <property name="root-nodetype" value="nt:unstructured"/>
+              <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
+            </properties>
+          </initializer>
+          <cache enabled="true">
+            <properties>
+              <property name="maxSize" value="2000" />
+              <property name="liveTime" value="600" />
+            </properties>
+          </cache>
+          <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
+            <properties>
+              <property name="indexDir" value="target/temp/index/db1/ws" />
+              <property name="synonymProviderClass" value="org.exoplatform.services.jcr.impl.core.query.lucene.PropertiesSynonymProvider" />
+              <property name="synonymProviderConfigPath" value="/synonyms.properties" />
+              <property name="indexingConfigPath" value="/indexing-configuration.xml" />
+              <property name="queryClass" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
+            </properties>
+          </query-handler>
+        </workspace>
+        <workspace name="ws1">
+          <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
+            <properties>
+              <property name="sourceName" value="jdbcjcr" />
+              <property name="dialect" value="hsqldb" />
+              <property name="multi-db" value="false" />
+              <property name="update-storage" value="false" />
+              <property name="max-buffer-size" value="204800" />
+              <property name="swap-directory" value="target/temp/swap/ws1" />
+            </properties>
+          </container>
+          <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
+            <properties>
+              <property name="root-nodetype" value="nt:unstructured"/>
+              <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
+            </properties>
+          </initializer>
+          <cache enabled="true">
+            <properties>
+              <property name="maxSize" value="2000" />
+              <property name="liveTime" value="600" />
+            </properties>
+          </cache>
+          <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
+            <properties>
+              <property name="indexDir" value="target/temp/index/db1/ws1" />
+              <property name="synonymProviderClass" value="org.exoplatform.services.jcr.impl.core.query.lucene.PropertiesSynonymProvider" />
+              <property name="synonymProviderConfigPath" value="/synonyms.properties" />
+              <property name="indexingConfigPath" value="/indexing-configuration.xml" />
+              <property name="queryClass" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
+            </properties>
+          </query-handler>
+        </workspace>
+        <workspace name="ws2">
+          <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
+            <properties>
+              <property name="sourceName" value="jdbcjcr" />
+              <property name="dialect" value="hsqldb" />
+              <property name="multi-db" value="false" />
+              <property name="update-storage" value="false" />
+              <property name="max-buffer-size" value="204800" />
+              <property name="swap-directory" value="target/temp/swap/ws2" />
+            </properties>
+          </container>
+          <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
+            <properties>
+              <property name="root-nodetype" value="nt:unstructured"/>
+              <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
+            </properties>
+          </initializer>
+          <cache enabled="true">
+            <properties>
+              <property name="maxSize" value="2000" />
+              <property name="liveTime" value="600" />
+            </properties>
+          </cache>
+          <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
+            <properties>
+              <property name="indexDir" value="target/temp/index/db1/ws2" />
+              <property name="synonymProviderClass" value="org.exoplatform.services.jcr.impl.core.query.lucene.PropertiesSynonymProvider" />
+              <property name="synonymProviderConfigPath" value="/synonyms.properties" />
+              <property name="indexingConfigPath" value="/indexing-configuration.xml" />
+              <property name="queryClass" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
+            </properties>
+          </query-handler>
+        </workspace>
+      </workspaces>
+    </repository>
+    
+    <repository name="db1tck" system-workspace="ws" default-workspace="ws">
+      <security-domain>exo-domain</security-domain>
+      <access-control>optional</access-control>
+      <authentication-policy>org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy</authentication-policy>
+      <workspaces>
+        <workspace name="ws">
+          <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
+            <properties>
+              <property name="sourceName" value="jdbcjcrtck" />
+              <property name="dialect" value="hsqldb" />
+              <property name="multi-db" value="false" />
+              <property name="update-storage" value="false" />
+              <property name="max-buffer-size" value="204800" />
+              <property name="swap-directory" value="target/temp/swap/wstck" />
+            </properties>
+          </container>
+          <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
+            <properties>
+              <property name="root-nodetype" value="nt:unstructured"/>
+              <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
+            </properties>
+          </initializer>
+          <cache enabled="true">
+            <properties>
+              <property name="maxSize" value="2000" />
+              <property name="liveTime" value="600" />
+            </properties>
+          </cache>
+          <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
+            <properties>
+              <property name="indexDir" value="target/temp/index/db1tck/ws" />
+              <property name="synonymProviderClass" value="org.exoplatform.services.jcr.impl.core.query.lucene.PropertiesSynonymProvider" />
+              <property name="synonymProviderConfigPath" value="/synonyms.properties" />
+              <property name="indexingConfigPath" value="/indexing-configuration.xml" />
+              <property name="queryClass" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
+            </properties>
+          </query-handler>
+        </workspace>
+        <workspace name="ws1">
+          <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
+            <properties>
+              <property name="sourceName" value="jdbcjcrtck" />
+              <property name="dialect" value="hsqldb" />
+              <property name="multi-db" value="false" />
+              <property name="update-storage" value="false" />
+              <property name="max-buffer-size" value="204800" />
+              <property name="swap-directory" value="target/temp/swap/ws1tck" />
+            </properties>
+          </container>
+          <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
+            <properties>
+              <property name="root-nodetype" value="nt:unstructured"/>
+              <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
+            </properties>
+          </initializer>
+          <cache enabled="true">
+            <properties>
+              <property name="maxSize" value="2000" />
+              <property name="liveTime" value="600" />
+            </properties>
+          </cache>
+          <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
+            <properties>
+              <property name="indexDir" value="target/temp/index/db1tck/ws1" />
+              <property name="synonymProviderClass" value="org.exoplatform.services.jcr.impl.core.query.lucene.PropertiesSynonymProvider" />
+              <property name="synonymProviderConfigPath" value="/synonyms.properties" />
+              <property name="indexingConfigPath" value="/indexing-configuration.xml" />
+              <property name="queryClass" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
+            </properties>
+          </query-handler>
+        </workspace>
+        <workspace name="ws2">
+          <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
+            <properties>
+              <property name="sourceName" value="jdbcjcrtck" />
+              <property name="dialect" value="hsqldb" />
+              <property name="multi-db" value="false" />
+              <property name="update-storage" value="false" />
+              <property name="max-buffer-size" value="204800" />
+              <property name="swap-directory" value="target/temp/swap/ws2tck" />
+            </properties>
+          </container>
+          <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
+            <properties>
+              <property name="root-nodetype" value="nt:unstructured"/>
+              <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
+            </properties>
+          </initializer>
+          <cache enabled="true">
+            <properties>
+              <property name="maxSize" value="2000" />
+              <property name="liveTime" value="600" />
+            </properties>
+          </cache>
+          <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
+            <properties>
+              <property name="indexDir" value="target/temp/index/db1/ws2tck" />
+              <property name="synonymProviderClass" value="org.exoplatform.services.jcr.impl.core.query.lucene.PropertiesSynonymProvider" />
+              <property name="synonymProviderConfigPath" value="/synonyms.properties" />
+              <property name="indexingConfigPath" value="/indexing-configuration.xml" />
+              <property name="queryClass" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
+            </properties>
+          </query-handler>
+        </workspace>
+      </workspaces>
+    </repository>    
+  </repositories>
+</repository-service>

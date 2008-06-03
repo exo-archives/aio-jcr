@@ -1,0 +1,80 @@
+<project>
+  <parent>
+    <groupId>org.exoplatform.jcr</groupId>
+    <artifactId>config</artifactId>
+    <version>trunk</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>exo.jcr.applications.browser</artifactId>
+  <version>${org.exoplatform.jcr.version}</version>
+  <packaging>war</packaging>
+  <url>http://www.exoplatform.org</url>
+  <name>eXo JCR Browser (JNDI/RMI) demo</name>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.core</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>provided</scope>
+    </dependency>
+		
+		<dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.ext</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.framework.web</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.rmi</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>exo-weblogic</groupId>
+      <artifactId>exo-weblogic-authproviders</artifactId>
+      <version>1.0</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>exo-weblogic</groupId>
+      <artifactId>exo-weblogic-loginmodule</artifactId>
+      <version>1.0</version>
+      <scope>provided</scope>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <finalName>browser</finalName>
+    <plugins>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.0.2</version>
+        <configuration>
+            <!-- This is broken in maven-war-plugin 2.0, works in 2.0.1 -->
+            <!-- warSourceExcludes>WEB-INF/lib/*.jar</warSourceExcludes -->
+            <archive>
+                <manifest>
+                    <addClasspath>false</addClasspath>
+                </manifest>
+            </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

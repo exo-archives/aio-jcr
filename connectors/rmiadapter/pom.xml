@@ -1,0 +1,66 @@
+<project>
+  <parent>
+    <groupId>org.exoplatform.jcr</groupId>
+    <artifactId>config</artifactId>
+    <version>trunk</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>exo.jcr.connectors.rmiadapter</artifactId>
+  <packaging>rar</packaging>
+  <version>${org.exoplatform.jcr.version}</version>
+  <name>eXo JCR RMI resource adapter</name>
+  <url>http://www.exoplatform.org</url>
+  <description>eXo JCR RMI resource adapter</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.core</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.rmi</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.0</version>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <goals><goal>jar</goal></goals>
+          </execution>
+        </executions>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+            <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-rar-plugin</artifactId>
+                 <configuration>
+                     <archive>
+                         <manifest>
+                             <addClasspath>true</addClasspath>
+                         </manifest>
+                     </archive>
+                 </configuration>
+            </plugin>
+    </plugins>
+  </build>
+
+</project>

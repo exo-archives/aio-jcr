@@ -1,0 +1,87 @@
+<repository-service default-repository="repository">
+  <repositories>
+    <repository name="repository" system-workspace="system" default-workspace="collaboration">
+      <security-domain>exo-domain</security-domain>
+      <access-control>optional</access-control>
+      <authentication-policy>org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy</authentication-policy>
+      <workspaces>
+        <workspace name="system" auto-init-root-nodetype="nt:unstructured" auto-init-permissions="*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove">
+          <!-- for system storage -->
+          <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
+            <properties>
+              <!--property name="dialect" value="oracle"/-->
+              <property name="dialect" value="generic" />
+              <property name="sourceName" value="jdbcexo" />
+              <property name="multi-db" value="false" />
+              <property name="update-storage" value="true" />
+              <property name="max-buffer-size" value="204800" />
+              <property name="swap-directory" value="../temp/swap/ws" />
+            </properties>
+          </container>
+          <cache enabled="true">
+            <properties>
+              <property name="maxSize" value="1000000" />
+              <property name="liveTime" value="1800" /><!-- 30 min -->
+            </properties>
+          </cache>
+          <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
+            <properties>
+              <property name="indexDir" value="../temp/index/db/system" />
+            </properties>
+          </query-handler>
+          <lock-manager>
+            <time-out>1800000</time-out><!-- 30min -->
+            <persister class="org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister">
+              <properties>
+                <property name="path" value="../temp/lock" />
+              </properties>
+            </persister>
+          </lock-manager>
+        </workspace>
+        <workspace name="collaboration" auto-init-root-nodetype="nt:unstructured" auto-init-permissions="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove">
+          <!-- for system storage -->
+          <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
+            <properties>
+              <!-- property name="dialect" value="oracle"/ -->
+              <property name="dialect" value="generic" />
+              <property name="sourceName" value="jdbcexo" />
+              <property name="multi-db" value="false" />
+              <property name="update-storage" value="true" />
+              <property name="max-buffer-size" value="204800" />
+              <property name="swap-directory" value="../temp/swap/ws" />
+            </properties>
+            <!--value-storages>
+              <value-storage id="1" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+                <properties>
+                  <property name="path" value="/var/projects/SW/dmimport-binary-15.10.07/db/values/production" />
+                </properties>
+                <filters>
+                  <filter property-type="Binary" />
+                </filters>
+              </value-storage>
+            </value-storages-->
+          </container>
+          <cache enabled="true">
+            <properties>
+              <property name="maxSize" value="1000000" />
+              <property name="liveTime" value="1800" /><!-- 30 min -->
+            </properties>
+          </cache>
+          <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
+            <properties>
+              <property name="indexDir" value="../temp/index/db/collaboration" />
+            </properties>
+          </query-handler>
+          <lock-manager>
+            <time-out>1800000</time-out><!-- 30min -->
+            <persister class="org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister">
+              <properties>
+                <property name="path" value="../temp/lock" />
+              </properties>
+            </persister>
+          </lock-manager>
+        </workspace>
+      </workspaces>
+    </repository>
+  </repositories>
+</repository-service>

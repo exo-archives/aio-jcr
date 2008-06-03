@@ -1,0 +1,19 @@
+<catalog>
+  <!-- Core JCR commands -->
+  <command   name="addNode"
+        className="org.exoplatform.frameworks.jcr.command.core.AddNodeCommand"/>
+  <command   name="save"
+        className="org.exoplatform.frameworks.jcr.command.core.SaveCommand"/>
+  <command   name="setProperty"
+        className="org.exoplatform.frameworks.jcr.command.core.SetPropertyCommand"/>
+  <command   name="remove"
+        className="org.exoplatform.frameworks.jcr.command.core.RemoveItemCommand"/>
+  <command   name="getProperty"
+        className="org.exoplatform.frameworks.jcr.command.core.GetPropertyCommand"/>
+  <command   name="getNode"
+        className="org.exoplatform.frameworks.jcr.command.core.GetNodeCommand"/>
+  <command   name="getNodes"
+        className="org.exoplatform.frameworks.jcr.command.core.GetChildNodesCommand"/>
+  <command   name="getProperties"
+        className="org.exoplatform.frameworks.jcr.command.core.GetChildPropertiesCommand"/>
+</catalog>
