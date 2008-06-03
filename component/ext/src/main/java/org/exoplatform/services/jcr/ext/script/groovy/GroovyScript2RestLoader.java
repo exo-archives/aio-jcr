@@ -37,8 +37,6 @@ import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
-import org.exoplatform.services.jcr.ext.resource.NodeRepresentation;
-import org.exoplatform.services.jcr.ext.resource.NodeRepresentationService;
 import org.exoplatform.services.jcr.ext.resource.UnifiedNodeReference;
 import org.exoplatform.services.jcr.ext.resource.jcr.Handler;
 import org.exoplatform.services.log.ExoLogger;
@@ -54,14 +52,14 @@ import org.picocontainer.Startable;
  */
 public class GroovyScript2RestLoader implements Startable {
 
-  public static final String DEFAULT_NODETYPE = "exo:groovy2rest";
+  public static final String DEFAULT_NODETYPE = "exo:groovyResourceContainer";
 
   private static final Log Log = ExoLogger
       .getLogger("jcr.script.GroovyScript2RestLoader");
 
   private ResourceBinder binder;
   private GroovyScriptInstantiator groovyScriptInstantiator;
-  private NodeRepresentationService nodeRepresentationService;
+
   // used for processing URL : jcr://repository/workspace#/root/node1/....
   private Handler handler;
   private RepositoryService repositoryService;
@@ -72,15 +70,13 @@ public class GroovyScript2RestLoader implements Startable {
   private Map<String, String> scriptsURL2ClassName = new HashMap<String, String>();
 
   public GroovyScript2RestLoader(ResourceBinder binder,
-      GroovyScriptInstantiator groovyScriptInstantiator,
-      NodeRepresentationService nodeRepresentationService, Handler handler,
+      GroovyScriptInstantiator groovyScriptInstantiator, Handler handler,
       RepositoryService repositoryService, InitParams params) {
 
     this.binder = binder;
     this.groovyScriptInstantiator = groovyScriptInstantiator;
     this.repositoryService = repositoryService;
     this.handler = handler;
-    this.nodeRepresentationService = nodeRepresentationService;
 
     if (params != null) {
       nodeType = params.getValuesParam("nodetype") != null ? params
@@ -97,11 +93,21 @@ public class GroovyScript2RestLoader implements Startable {
    * Remove script with specified URL from ResourceBinder.
    * @param url the URL. The <code>url.toString()</code> must be corresponded to script class name,
    *            otherwise IllegalArgumentException will be thrown.
-   * @see GroovyScriptRestLoader#loadScript(String).
+   * @see GroovyScriptRestLoader#loadScript(URL).
    * @see GroovyScript2RestLoader#loadScript(String, InputStream)
    */
   public void unloadScript(URL url) {
-    String key = url.toString();
+    unloadScript(url.toString());
+  }
+  
+  /**
+   * Remove script by specified key from ResourceBinder.
+   * @param key the key with which script was created.
+   * 
+   * @see GroovyScriptRestLoader#loadScript(URL).
+   * @see GroovyScript2RestLoader#loadScript(String, InputStream)
+   */
+  public void unloadScript(String key) {
     if (scriptsURL2ClassName.containsKey(key)) {
       binder.unbind(scriptsURL2ClassName.get(key));
       scriptsURL2ClassName.remove(key);
@@ -110,6 +116,7 @@ public class GroovyScript2RestLoader implements Startable {
           "' does not corresponds to any class name.");
     }
   }
+  
 
   /**
    * @param url the RUL for loading script.
@@ -168,10 +175,12 @@ public class GroovyScript2RestLoader implements Startable {
 
       ManageableRepository repository = repositoryService
           .getRepository(repositoryName);
-      SessionProvider sessionProvider = SessionProvider.createSystemProvider();
+      
+//      SessionProvider sessionProvider = SessionProvider.createSystemProvider();
 
       for (String workspaceName : workspaceNames) {
-        Session session = sessionProvider.getSession(workspaceName, repository);
+//        Session session = sessionProvider.getSession(workspaceName, repository);
+        Session session = repository.getSystemSession(workspaceName);
 
         // add observation listeners
         session.getWorkspace().getObservationManager().addEventListener(
@@ -196,12 +205,10 @@ public class GroovyScript2RestLoader implements Startable {
           
           UnifiedNodeReference unifiedNodeReference = new UnifiedNodeReference(
               repositoryName, workspaceName, node.getPath());
-          NodeRepresentation nodeRepresentation = nodeRepresentationService
-              .getNodeRepresentation(node, "text/groovy");
 
           // use URL as key
           loadScript(unifiedNodeReference.getURL().toString(),
-              nodeRepresentation.getInputStream());
+              node.getProperty("jcr:data").getStream());
         }
       }
     } catch (Exception e) {

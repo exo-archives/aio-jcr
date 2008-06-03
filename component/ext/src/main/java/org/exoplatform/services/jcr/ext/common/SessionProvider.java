@@ -110,8 +110,6 @@ public class SessionProvider implements SessionLifecycleListener {
       
       cache.put(key(repository, workspaceName), session);
     }
-    currentRepository = repository;
-    currentWorkspace = workspaceName;
     return session;
   }
 
@@ -141,12 +139,20 @@ public class SessionProvider implements SessionLifecycleListener {
     return repositoryName+workspaceName;
   }
   
-  public ManageableRepository getLastUsedRepository() {
+  public ManageableRepository getCurrentRepository() {
     return currentRepository;
   }
   
-  public String getLastUsedWorkspace() {
+  public String getCurrentWorkspace() {
     return currentWorkspace;
+  }
+
+  public void setCurrentRepository(ManageableRepository currentRepository) {
+    this.currentRepository = currentRepository;
+  }
+
+  public void setCurrentWorkspace(String currentWorkspace) {
+    this.currentWorkspace = currentWorkspace;
   }
   
 }

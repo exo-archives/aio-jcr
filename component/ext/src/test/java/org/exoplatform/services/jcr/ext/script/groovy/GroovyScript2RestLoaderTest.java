@@ -56,7 +56,7 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
 
     testRoot = root.addNode("testRoot", "nt:unstructured");
     scriptFile = testRoot.addNode("script", "nt:file");
-    script = scriptFile.addNode("jcr:content", "exo:groovy2rest");
+    script = scriptFile.addNode("jcr:content", GroovyScript2RestLoader.DEFAULT_NODETYPE);
     script.setProperty("exo:autoload", true);
     script.setProperty("jcr:mimeType", "text/groovy");
     script.setProperty("jcr:lastModified", Calendar.getInstance());

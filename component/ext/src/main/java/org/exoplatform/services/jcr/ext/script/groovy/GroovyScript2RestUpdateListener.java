@@ -17,6 +17,7 @@
 
 package org.exoplatform.services.jcr.ext.script.groovy;
 
+import javax.jcr.Node;
 import javax.jcr.Session;
 import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
@@ -57,19 +58,20 @@ public class GroovyScript2RestUpdateListener implements EventListener {
 
         // interesting about change script source code
         if (path.endsWith("/jcr:data")) {
-          String nodePath = path.substring(0, path.lastIndexOf("/jcr:data"));
-
+          
+          Node node = session.getItem(path).getParent(); 
           // check is script should be automatically loaded
-          if (session.getRootNode().getNode(nodePath.substring(1)).getProperty(
-              "exo:autoload").getBoolean()) {
-            UnifiedNodeReference unifiedNodeReference = new UnifiedNodeReference(
-                repository, workspace, nodePath);
+          if (node.getProperty("exo:autoload").getBoolean()) {
+            String unifiedNodePath = new UnifiedNodeReference(
+                repository, workspace, node.getPath()).getURL().toString();
             if (event.getType() == Event.PROPERTY_CHANGED) {
-              groovyScript2RestLoader.unloadScript(unifiedNodeReference.getURL());
-              groovyScript2RestLoader.loadScript(unifiedNodeReference.getURL());
+              groovyScript2RestLoader.unloadScript(unifiedNodePath);
+              groovyScript2RestLoader.loadScript(unifiedNodePath,
+                  node.getProperty("jcr:data").getStream());
             } else {
               // if Event.PROPERTY_ADDED 
-              groovyScript2RestLoader.loadScript(unifiedNodeReference.getURL());
+              groovyScript2RestLoader.loadScript(unifiedNodePath,
+                  node.getProperty("jcr:data").getStream());
             }
           }
         }
@@ -77,14 +79,14 @@ public class GroovyScript2RestUpdateListener implements EventListener {
         // from ResourceBinder. Not care about Event.ADDED_NODE it will be catched 
         // by path.endsWith("/jcr:data").
         if (path.endsWith("/exo:autoload") && event.getType() == Event.PROPERTY_CHANGED) {
-          String nodePath = path.substring(0, path.lastIndexOf("/exo:autoload"));
-          UnifiedNodeReference unifiedNodeReference = new UnifiedNodeReference(
-              repository, workspace, nodePath);
-          if (session.getRootNode().getNode(nodePath.substring(1)).getProperty(
-          "exo:autoload").getBoolean()) {
-            groovyScript2RestLoader.loadScript(unifiedNodeReference.getURL());
+          Node node = session.getItem(path).getParent(); 
+          String unifiedNodePath = new UnifiedNodeReference(
+              repository, workspace, node.getPath()).getURL().toString();
+          if (node.getProperty("exo:autoload").getBoolean()) {
+            groovyScript2RestLoader.loadScript(unifiedNodePath,
+                node.getProperty("jcr:data").getStream());
           } else {
-            groovyScript2RestLoader.unloadScript(unifiedNodeReference.getURL());
+            groovyScript2RestLoader.unloadScript(unifiedNodePath);
           }
         }
       }

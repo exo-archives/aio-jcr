@@ -291,7 +291,6 @@
           <properties-param>
             <name>node-representation-factories</name>
             <property name="nt:file" value="org.exoplatform.services.jcr.ext.resource.representation.NtFileNodeRepresentationFactory"/>
-            <property name="exo:groovy2rest" value="org.exoplatform.services.jcr.ext.resource.representation.Groovy2RestNodeRepresentationFactory"/>
           </properties-param>
         </init-params>
       </component-plugin>

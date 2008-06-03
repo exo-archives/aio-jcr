@@ -101,11 +101,11 @@ public class Handler extends URLStreamHandler implements Startable {
       if (repositoryName != null || repositoryName.length() > 0)
         repository = repositoryService_.getRepository(repositoryName);
       else 
-        repository = sp.getLastUsedRepository();
+        repository = sp.getCurrentRepository();
 
       String workspaceName = nodeReference.getWorkspace();
       if (workspaceName == null || workspaceName.length() == 0)
-        workspaceName = sp.getLastUsedWorkspace();
+        workspaceName = sp.getCurrentWorkspace();
       
       Session ses = sp.getSession(workspaceName, repository);
       JcrURLConnection conn = new JcrURLConnection(nodeReference, ses, nodeRepresentationService_);

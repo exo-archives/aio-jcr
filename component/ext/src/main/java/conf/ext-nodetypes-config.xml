@@ -233,7 +233,7 @@
 		</propertyDefinitions>
 	</nodeType>
 
-	<nodeType name="exo:groovy2rest" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+	<nodeType name="exo:groovyResourceContainer" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
     <supertypes>
       <supertype>nt:resource</supertype>
     </supertypes>
