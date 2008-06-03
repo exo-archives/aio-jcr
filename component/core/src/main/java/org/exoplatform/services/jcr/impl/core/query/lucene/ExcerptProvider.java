@@ -29,7 +29,7 @@ import org.exoplatform.services.jcr.impl.Constants;
 public interface ExcerptProvider {
 
     /**
-     * Name of the rep:excerpt function.
+     * Name of the exo:excerpt function.
      */
     public final InternalQName REP_EXCERPT = new InternalQName(Constants.NS_EXO_URI, "excerpt(.)");
 

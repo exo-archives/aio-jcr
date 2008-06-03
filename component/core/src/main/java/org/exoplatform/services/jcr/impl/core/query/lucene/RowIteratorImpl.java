@@ -64,9 +64,9 @@ class RowIteratorImpl implements RowIterator {
     private static final String SPELLCHECK_FUNC_LPAR = "spellcheck(";
 
     /**
-     * The start Name for the rep:excerpt function: rep:excerpt(
+     * The start Name for the exo:excerpt function: exo:excerpt(
      */
-    private static final InternalQName REP_EXCERPT_LPAR = new InternalQName(Constants.NS_EXO_URI, EXCERPT_FUNC_LPAR);
+    private static final InternalQName REP_EXCERPT_LPAR = new InternalQName(Constants.NS_REP_URI, EXCERPT_FUNC_LPAR);
 
     /**
      * Iterator over nodes, that constitute the result set.
@@ -334,8 +334,8 @@ class RowIteratorImpl implements RowIterator {
                         return p.getValue();
                     }
                 } else {
-                    // either jcr:score, jcr:path, rep:excerpt,
-                    // rep:spellcheck or not set
+                    // either jcr:score, jcr:path, exo:excerpt,
+                    // exo:spellcheck or not set
                     if (Constants.JCR_PATH.equals(prop)) {
                         return vfactory.createValue(node.getPath(), PropertyType.PATH);
                     } else if (Constants.JCR_SCORE.equals(prop)) {
@@ -360,17 +360,17 @@ class RowIteratorImpl implements RowIterator {
 
         /**
          * @param name a Name.
-         * @return <code>true</code> if <code>name</code> is the rep:excerpt
+         * @return <code>true</code> if <code>name</code> is the exo:excerpt
          *         function, <code>false</code> otherwise.
          */
         private boolean isExcerptFunction(InternalQName name) {
-            return name.getNamespace().equals(Constants.NS_EXO_URI) &&
+            return name.getNamespace().equals(Constants.NS_REP_URI) &&
                     name.getName().startsWith(EXCERPT_FUNC_LPAR);
         }
 
         /**
          * @param name a String.
-         * @return <code>true</code> if <code>name</code> is the rep:excerpt
+         * @return <code>true</code> if <code>name</code> is the exo:excerpt
          *         function, <code>false</code> otherwise.
          */
         private boolean isExcerptFunction(String name) {
@@ -395,10 +395,10 @@ class RowIteratorImpl implements RowIterator {
 
         /**
          * Returns an excerpt for the node indicated by the relative path
-         * parameter of the rep:excerpt function. The relative path is resolved
+         * parameter of the exo:excerpt function. The relative path is resolved
          * against the node associated with this row.
          *
-         * @param excerptCall the rep:excerpt function with the parameter as
+         * @param excerptCall the exo:excerpt function with the parameter as
          *                    string.
          * @return a StringValue or <code>null</code> if the excerpt cannot be
          *         created or an error occurs.
@@ -477,11 +477,11 @@ class RowIteratorImpl implements RowIterator {
 
         /**
          * @param name a Name.
-         * @return <code>true</code> if <code>name</code> is the rep:spellcheck
+         * @return <code>true</code> if <code>name</code> is the exo:spellcheck
          *         function, <code>false</code> otherwise.
          */
         private boolean isSpellCheckFunction(InternalQName name) {
-            return name.getNamespace().equals(Constants.NS_EXO_URI) &&
+            return name.getNamespace().equals(Constants.NS_REP_URI) &&
                     name.getName().startsWith(SPELLCHECK_FUNC_LPAR);
         }
 

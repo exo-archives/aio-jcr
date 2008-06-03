@@ -60,6 +60,7 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
     DEF_NAMESPACES.put("xs", "http://www.w3.org/2001/XMLSchema");
     DEF_NAMESPACES.put("fn", "http://www.w3.org/2005/xpath-functions");
     DEF_NAMESPACES.put("fn_old", "http://www.w3.org/2004/10/xpath-functions");
+    DEF_NAMESPACES.put("rep", "internal");
     
 
     DEF_PREFIXES.put("", "");
@@ -72,6 +73,7 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
     DEF_PREFIXES.put("http://www.w3.org/2001/XMLSchema", "xs");
     DEF_PREFIXES.put("http://www.w3.org/2005/xpath-functions", "fn");
     DEF_PREFIXES.put("http://www.w3.org/2004/10/xpath-functions", "fn_old");
+    DEF_PREFIXES.put("internal", "rep");
     
 
     PROTECTED_NAMESPACES.add("jcr");

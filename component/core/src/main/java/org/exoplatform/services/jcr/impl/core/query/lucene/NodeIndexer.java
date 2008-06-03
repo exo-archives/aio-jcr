@@ -136,7 +136,7 @@ public class NodeIndexer {
 
     /**
      * If set to <code>true</code> additional information is stored in the index
-     * to support highlighting using the rep:excerpt pseudo property.
+     * to support highlighting using the exo:excerpt pseudo property.
      *
      * @param b <code>true</code> to enable highlighting support.
      */

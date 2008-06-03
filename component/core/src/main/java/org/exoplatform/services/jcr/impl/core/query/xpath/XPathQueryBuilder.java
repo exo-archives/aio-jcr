@@ -170,14 +170,14 @@ public class XPathQueryBuilder implements XPathVisitor, XPathTreeConstants {
     static final InternalQName JCR_SCORE = new InternalQName(Constants.NS_JCR_URI, "score");
 
     /**
-     * Name for rep:similar
+     * Name for exo:similar
      */
-    static final InternalQName REP_SIMILAR = new InternalQName(Constants.NS_JCR_URI, "similar");
+    static final InternalQName REP_SIMILAR = new InternalQName(Constants.NS_REP_URI, "similar");
 
     /**
-     * Name for rep:spellcheck
+     * Name for exo:spellcheck
      */
-    static final InternalQName REP_SPELLCHECK = new InternalQName(Constants.NS_JCR_URI, "spellcheck");
+    static final InternalQName REP_SPELLCHECK = new InternalQName(Constants.NS_REP_URI, "spellcheck");
 
     /**
      * String constant for operator 'eq'
@@ -1034,15 +1034,15 @@ public class XPathQueryBuilder implements XPathVisitor, XPathTreeConstants {
                         // check if string is set
                         if (rel.getStringValue() == null) {
                             exceptions.add(new InvalidQueryException(
-                                    "Second argument for rep:similar() must be of type string"));
+                                    "Second argument for exo:similar() must be of type string"));
                         }
                     } else {
                         exceptions.add(new InvalidQueryException(
-                                "Unsupported location for rep:similar()"));
+                                "Unsupported location for exo:similar()"));
                     }
                 } else {
                     exceptions.add(new InvalidQueryException(
-                            "Wrong number of arguments for rep:similar()"));
+                            "Wrong number of arguments for exo:similar()"));
                 }
             } else if (REP_SPELLCHECK.equals(funName)
                     && queryNode.getType() != QueryNode.TYPE_PATH) {
@@ -1058,18 +1058,18 @@ public class XPathQueryBuilder implements XPathVisitor, XPathTreeConstants {
                         // check if string is set
                         if (rel.getStringValue() == null) {
                             exceptions.add(new InvalidQueryException(
-                                    "Argument for rep:spellcheck() must be of type string"));
+                                    "Argument for exo:spellcheck() must be of type string"));
                         }
 
                         // set a dummy property name
                         rel.addPathElement(new QPathEntry(Constants.JCR_PRIMARYTYPE,0));
                     } else {
                         exceptions.add(new InvalidQueryException(
-                                "Unsupported location for rep:spellcheck()"));
+                                "Unsupported location for exo:spellcheck()"));
                     }
                 } else {
                     exceptions.add(new InvalidQueryException(
-                            "Wrong number of arguments for rep:spellcheck()"));
+                            "Wrong number of arguments for exo:spellcheck()"));
                 }
             } else if (queryNode.getType() == QueryNode.TYPE_RELATION) {
                 // use function name as name of a pseudo property in a relation

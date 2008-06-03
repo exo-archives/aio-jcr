@@ -32,6 +32,11 @@ import org.apache.lucene.search.TermQuery;
 public class SimilarityQuery extends Query {
 
     /**
+   * 
+   */
+  private static final long serialVersionUID = 3336035430784964269L;
+
+    /**
      * The UUID of the node for which to find similar nodes.
      */
     private final String uuid;
@@ -75,6 +80,6 @@ public class SimilarityQuery extends Query {
      * {@inheritDoc}
      */
     public String toString(String field) {
-        return "rep:similar(" + uuid + ")";
+        return "exo:similar(" + uuid + ")";
     }
 }

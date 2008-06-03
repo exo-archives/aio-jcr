@@ -61,8 +61,11 @@
               <property name="indexDir" value="target/temp/index/db1/ws" />
               <property name="synonymProviderClass" value="org.exoplatform.services.jcr.impl.core.query.lucene.PropertiesSynonymProvider" />
               <property name="synonymProviderConfigPath" value="/synonyms.properties" />
+              <property name="supportHighlighting" value="true" />
               <property name="indexingConfigPath" value="/indexing-configuration.xml" />
               <property name="queryClass" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
+              <property name="spellCheckerClass" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval"/>
+              
             </properties>
           </query-handler>
           <lock-manager>
@@ -99,6 +102,7 @@
               <property name="synonymProviderConfigPath" value="/synonyms.properties" />
               <property name="indexingConfigPath" value="/indexing-configuration.xml" />
               <property name="queryClass" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
+              <property name="spellCheckerClass" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval"/>
             </properties>
           </query-handler>
         </workspace>
@@ -127,6 +131,7 @@
               <property name="synonymProviderConfigPath" value="/synonyms.properties" />
               <property name="indexingConfigPath" value="/indexing-configuration.xml" />
               <property name="queryClass" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
+              <property name="spellCheckerClass" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval"/>
             </properties>
           </query-handler>
         </workspace>
@@ -177,6 +182,7 @@
               <property name="synonymProviderConfigPath" value="/synonyms.properties" />
               <property name="indexingConfigPath" value="/indexing-configuration.xml" />
               <property name="queryClass" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
+              <property name="spellCheckerClass" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval"/>
             </properties>
           </query-handler>
           <lock-manager>
@@ -218,6 +224,7 @@
               <property name="synonymProviderConfigPath" value="/synonyms.properties" />
               <property name="indexingConfigPath" value="/indexing-configuration.xml" />
               <property name="queryClass" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
+              <property name="spellCheckerClass" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval"/>
             </properties>
           </query-handler>
         </workspace>
@@ -251,6 +258,7 @@
               <property name="synonymProviderConfigPath" value="/synonyms.properties" />
               <property name="indexingConfigPath" value="/indexing-configuration.xml" />
               <property name="queryClass" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
+              <property name="spellCheckerClass" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval"/>
             </properties>
           </query-handler>
         </workspace>

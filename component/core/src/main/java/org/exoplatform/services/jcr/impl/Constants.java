@@ -78,6 +78,11 @@ public class Constants {
    * The special wildcard name used as the name of residual item definitions.
    */
   public static final InternalQName JCR_ANY_NAME = new InternalQName("", "*");
+  
+  // reserved namespace for exo node types
+  public static final String NS_REP_PREFIX = "rep";
+
+  public static final String NS_REP_URI = "internal";
 
   
   public static final InternalQName JCR_PRIMARYTYPE = new InternalQName(NS_JCR_URI, "primaryType");

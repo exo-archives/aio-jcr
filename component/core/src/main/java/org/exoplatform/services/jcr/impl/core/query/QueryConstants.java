@@ -147,7 +147,7 @@ public interface QueryConstants {
 
     /**
      * similar operation:
-     * XPath: rep:similar(path_string)
+     * XPath: exo:similar(path_string)
      * SQL: SIMILAR(path_string)
      */
     int OPERATION_SIMILAR = OPERATION_NOT_NULL + 1;
