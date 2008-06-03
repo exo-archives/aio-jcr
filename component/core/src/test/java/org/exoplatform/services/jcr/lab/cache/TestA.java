@@ -19,10 +19,8 @@ package org.exoplatform.services.jcr.lab.cache;
 import java.util.Properties;
 
 import junit.framework.TestCase;
-import net.sf.ehcache.Element;
 
 import org.apache.jcs.JCS;
-import org.apache.jcs.engine.control.CompositeCache;
 import org.apache.jcs.engine.control.CompositeCacheManager;
 
 /**
