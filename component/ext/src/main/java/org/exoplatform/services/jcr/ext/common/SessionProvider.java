@@ -52,6 +52,8 @@ public class SessionProvider implements SessionLifecycleListener {
   
   private boolean isSystem;
   
+  private ManageableRepository currentRepository;                                                                                                                           
+  private String currentWorkspace;   
 
   //private final ConversationState userState; 
   
@@ -149,6 +151,22 @@ public class SessionProvider implements SessionLifecycleListener {
   private String key(ManageableRepository repository, String workspaceName) {
     String repositoryName = repository.getConfiguration().getName();
     return repositoryName+workspaceName;
+  }
+  
+  public ManageableRepository getCurrentRepository() {                                                                                                                      
+    return currentRepository;                                                                                                                                               
+  }                                                                                                                                                                         
+                                                                                                                                                                            
+  public String getCurrentWorkspace() {                                                                                                                                     
+    return currentWorkspace;                                                                                                                                                
+  }                                                                                                                                                                         
+                                                                                                                                                                            
+  public void setCurrentRepository(ManageableRepository currentRepository) {                                                                                                
+    this.currentRepository = currentRepository;                                                                                                                             
+  }                                                                                                                                                                         
+                                                                                                                                                                            
+  public void setCurrentWorkspace(String currentWorkspace) {                                                                                                                
+    this.currentWorkspace = currentWorkspace;
   }
   
 }
