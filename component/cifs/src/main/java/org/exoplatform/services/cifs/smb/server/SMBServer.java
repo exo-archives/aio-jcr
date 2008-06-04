@@ -437,6 +437,7 @@ public class SMBServer extends NetworkServer implements Runnable {
     // Indicate that the server is not active
 
     setActive(false);
+    logger.info("SMB Server shutted down.");
   }
 
   /**

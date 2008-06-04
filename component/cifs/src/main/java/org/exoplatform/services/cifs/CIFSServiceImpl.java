@@ -96,7 +96,7 @@ public class CIFSServiceImpl implements CIFSService, Startable {
       if (server != null)
         server.shutdownServer(false);
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Error occured, when server stops :",e);
     }
   }
 
