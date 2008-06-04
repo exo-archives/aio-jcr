@@ -41,37 +41,45 @@ import org.exoplatform.services.security.MembershipEntry;
  * Session creates with Repository.login(..) method and then can be stored in some 
  * cache if neccessary. 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: SessionProvider.java 14444 2008-05-19 07:53:07Z andrew00x $
+ * @version $Id$
  */
 
 public class SessionProvider implements SessionLifecycleListener {
   
-  public static final String SESSION_PROVIDER = "JCRsessionProvider";
+  public final static String SESSION_PROVIDER = "JCRsessionProvider";
 
   private final Map <String, ExtendedSession> cache;
+  
+  private boolean isSystem;
+  
 
   //private final ConversationState userState; 
-  
-  private ManageableRepository currentRepository;
-  private String currentWorkspace;
   
   /**
    * Creates SessionProvider for certain identity
    * @param cred
    */
   public SessionProvider(ConversationState userState) {
-    this.cache = new HashMap<String, ExtendedSession>();
+    this(false);
+    //this.cache = new HashMap<String, ExtendedSession>();
+    //this.userState = userState;
     if(userState.getAttribute(SESSION_PROVIDER) == null)
       userState.setAttribute(SESSION_PROVIDER, this);
   }  
   
+  private SessionProvider(boolean isSystem) {
+    this.isSystem = isSystem;
+    this.cache = new HashMap<String, ExtendedSession>();
+  }
+  
+
   /**
    * Helper for creating System session provider
    * @return System session
    */
   public static SessionProvider createSystemProvider() {
-    Identity id = new Identity(SystemIdentity.SYSTEM, new HashSet<MembershipEntry>());
-    return new SessionProvider(new ConversationState(id));
+    //Identity id = new Identity(SystemIdentity.SYSTEM, new HashSet<MembershipEntry>());
+    return new SessionProvider(true);
   }
 
   /**
@@ -104,12 +112,16 @@ public class SessionProvider implements SessionLifecycleListener {
     
     if (session == null) {
       
-      session = (ExtendedSession)repository.login(workspaceName);
+      if(!isSystem)
+        session = (ExtendedSession)repository.login(workspaceName);
+      else
+        session = (ExtendedSession)repository.getSystemSession(workspaceName);
       
       session.registerLifecycleListener(this);
       
       cache.put(key(repository, workspaceName), session);
     }
+    
     return session;
   }
 
@@ -137,22 +149,6 @@ public class SessionProvider implements SessionLifecycleListener {
   private String key(ManageableRepository repository, String workspaceName) {
     String repositoryName = repository.getConfiguration().getName();
     return repositoryName+workspaceName;
-  }
-  
-  public ManageableRepository getCurrentRepository() {
-    return currentRepository;
-  }
-  
-  public String getCurrentWorkspace() {
-    return currentWorkspace;
-  }
-
-  public void setCurrentRepository(ManageableRepository currentRepository) {
-    this.currentRepository = currentRepository;
-  }
-
-  public void setCurrentWorkspace(String currentWorkspace) {
-    this.currentWorkspace = currentWorkspace;
   }
   
 }
