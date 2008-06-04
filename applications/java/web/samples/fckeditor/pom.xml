@@ -35,33 +35,31 @@
     <finalName>fckeditor</finalName>
     <plugins>
       <plugin>
-         <artifactId>maven-war-plugin</artifactId>
-         <configuration>
-           <!-- This is broken in maven-war-plugin 2.0, works in 2.0.1 -->
-           <warSourceExcludes>WEB-INF/*.jar</warSourceExcludes>
-            <archive>
-                <manifest>
-                    <addClasspath>false</addClasspath>
-                </manifest>
-            </archive>
-         </configuration>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <!-- This is broken in maven-war-plugin 2.0, works in 2.0.1 -->
+          <warSourceExcludes>WEB-INF/*.jar</warSourceExcludes>
+          <archive>
+            <manifest>
+              <addClasspath>false</addClasspath>
+            </manifest>
+          </archive>
+        </configuration>
       </plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-eclipse-plugin</artifactId>
-					<version>2.5.1</version>
-					<configuration>
-						<projectNameTemplate>
-							[artifactId]
-						</projectNameTemplate>
-						<wtpmanifest>true</wtpmanifest>
-						<wtpapplicationxml>true</wtpapplicationxml>
-						<wtpversion>2.0</wtpversion>
-						<manifest>
-							${basedir}/src/main/resources/META-INF/MANIFEST.MF
-						</manifest>
-					</configuration>
-				</plugin>
+      
+      <!-- plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <version>2.5.1</version>
+        <configuration>
+          <projectNameTemplate>[artifactId]</projectNameTemplate>
+          <wtpmanifest>true</wtpmanifest>
+          <wtpapplicationxml>true</wtpapplicationxml>
+          <wtpversion>2.0</wtpversion>
+          <manifest>${basedir}/src/main/resources/META-INF/MANIFEST.MF</manifest>
+        </configuration>
+      </plugin -->
+      
     </plugins>
   </build>
 

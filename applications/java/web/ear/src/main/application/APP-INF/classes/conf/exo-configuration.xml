@@ -35,6 +35,17 @@
           </component-plugin>
         </component-plugins>
   </component>
+  <component>
+    <key>org.exoplatform.services.security.RolesExtractor</key>
+    <type>org.exoplatform.services.security.impl.DefaultRolesExtractorImpl</type>
+    <init-params>      
+      <value-param>
+        <name>user.role.parent.group</name>
+        <description>empty string to read groups like /admin, /exo</description>
+        <value></value>     
+      </value-param>
+    </init-params> 
+  </component>
     <external-component-plugins>
     	<target-component>org.exoplatform.services.listener.ListenerService</target-component> 	
     	<component-plugin>
