@@ -499,18 +499,11 @@
                   <value>target/emma/coverage.ec</value>
                 </property>
               </systemProperties>
-              <includes>
-              	<!--include>**/api/core/query/**/SpellCheckerTest*.java</include-->
-              	<!--include>**/api/core/query/**/*Test.java</include-->
-              	
-                <!--include>**/api/importing/**/Test*.java</include>
-                <include>**/api/exporting/**/Test*.java</include-->
-                <include>**/api/**/query/**/Test*.java</include>
+             <includes>
                 <include>**/api/**/Test*.java</include>
                 <include>**/usecases/**/Test*.java</include>
                 <include>**/usecases/**/*Test.java</include>
                 <include>**/impl/**/Test*.java</include>
-                <include>**/impl/**/*Test.java</include>
               </includes>
               <excludes>
                 <exclude>**/api/**/TestSameNameItems.java</exclude>
