@@ -139,5 +139,5 @@ public interface QueryHandler {
      * @param added map of added node states and uuids
      * @throws IOException 
      */
-    void logUnindexedChanges(Set<String> removed, Set<String> added) throws IOException;
+    void logErrorChanges(Set<String> removed, Set<String> added) throws IOException;
 }

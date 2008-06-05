@@ -99,8 +99,7 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
   protected final QueryHandlerEntry     config;
 
   /**
-   * ID of the node that should be excluded from indexing or <code>null</code>
-   * if no node should be excluded.
+   * ID of the node that should be excluded from indexing or <code>null</code> if no node should be excluded.
    */
   // protected final String excludedNodeIdentifer;
   /**
@@ -129,8 +128,7 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
   protected final NodeTypeManagerImpl   ntReg;
 
   /**
-   * QueryHandler of the parent search manager or <code>null</code> if there
-   * is none.
+   * QueryHandler of the parent search manager or <code>null</code> if there is none.
    */
   protected final SearchManager         parentSearchManager;
 
@@ -146,10 +144,8 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
    * @param ntReg the node type registry.
    * @param itemMgr the shared item state manager.
    * @param rootNodeId the id of the root node.
-   * @param parentMgr the parent search manager or <code>null</code> if there
-   *          is no parent search manager.
-   * @param excludedNodeId id of the node that should be excluded from indexing.
-   *          Any descendant of that node will also be excluded from indexing.
+   * @param parentMgr the parent search manager or <code>null</code> if there is no parent search manager.
+   * @param excludedNodeId id of the node that should be excluded from indexing. Any descendant of that node will also be excluded from indexing.
    * @throws RepositoryException if the search manager cannot be initialized
    * @throws RepositoryConfigurationException
    */
@@ -160,8 +156,7 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
                        SystemSearchManager parentSearchManager,
                        // String rootNodeIdentifer,
                        // String excludedNodeIdentifer,
-                       DocumentReaderService extractor) throws RepositoryException,
-      RepositoryConfigurationException {
+                       DocumentReaderService extractor) throws RepositoryException, RepositoryConfigurationException {
 
     this.extractor = extractor;
 
@@ -182,12 +177,10 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
    * Creates a query object from a node that can be executed on the workspace.
    * 
    * @param session the session of the user executing the query.
-   * @param itemMgr the item manager of the user executing the query. Needed to
-   *          return <code>Node</code> instances in the result set.
+   * @param itemMgr the item manager of the user executing the query. Needed to return <code>Node</code> instances in the result set.
    * @param node a node of type nt:query.
    * @return a <code>Query</code> instance to execute.
-   * @throws InvalidQueryException if <code>absPath</code> is not a valid
-   *           persisted query (that is, a node of type nt:query)
+   * @throws InvalidQueryException if <code>absPath</code> is not a valid persisted query (that is, a node of type nt:query)
    * @throws RepositoryException if any other error occurs.
    */
   public Query createQuery(SessionImpl session, SessionDataManager sessionDataManager, Node node) throws InvalidQueryException,
@@ -201,19 +194,15 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
    * Creates a query object that can be executed on the workspace.
    * 
    * @param session the session of the user executing the query.
-   * @param itemMgr the item manager of the user executing the query. Needed to
-   *          return <code>Node</code> instances in the result set.
+   * @param itemMgr the item manager of the user executing the query. Needed to return <code>Node</code> instances in the result set.
    * @param statement the actual query statement.
    * @param language the syntax of the query statement.
    * @return a <code>Query</code> instance to execute.
-   * @throws InvalidQueryException if the query is malformed or the
-   *           <code>language</code> is unknown.
+   * @throws InvalidQueryException if the query is malformed or the <code>language</code> is unknown.
    * @throws RepositoryException if any other error occurs.
    */
-  public Query createQuery(SessionImpl session,
-                           SessionDataManager sessionDataManager,
-                           String statement,
-                           String language) throws InvalidQueryException, RepositoryException {
+  public Query createQuery(SessionImpl session, SessionDataManager sessionDataManager, String statement, String language) throws InvalidQueryException,
+                                                                                                                         RepositoryException {
     AbstractQueryImpl query = handler.createQueryInstance();
     query.init(session, sessionDataManager, handler, statement, language);
     return query;
@@ -257,18 +246,18 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
         }
       }
     }
-    
+
     // sort out property events
     for (int i = 0; i < propEvents.size(); i++) {
       ItemState event = propEvents.get(i);
       String nodeId = event.getData().getParentIdentifier();
       if (event.isAdded()) {
-        if(!addedNodes.contains(nodeId)){
+        if (!addedNodes.contains(nodeId)) {
           // only property added
           // need to re-index
           addedNodes.add(nodeId);
           removedNodes.add(nodeId);
-        }else {
+        } else {
           // the node where this prop belongs to is also new
         }
       } else if (event.isRenamed() || event.isUpdated()) {
@@ -291,7 +280,7 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
       }
 
       public NodeData next() {
-        
+
         // cycle till find a next or meet the end of set
         do {
           String id = iter.next();
@@ -304,12 +293,12 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
                 log.warn("Node not found, but property " + id + ", " + item.getQPath().getAsString() + " found. ");
             } else
               log.warn("Unable to index node with id " + id + ", node does not exist.");
-            
+
           } catch (RepositoryException e) {
             log.error("Can't read next node data " + id, e);
           }
         } while (iter.hasNext()); // get next if error or node not found
-        
+
         return null; // we met the end of iterator set
       }
 
@@ -317,7 +306,7 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
         throw new UnsupportedOperationException();
       }
     };
-    
+
     Iterator<String> removedIds = new Iterator<String>() {
       private final Iterator<String> iter = removedNodes.iterator();
 
@@ -343,28 +332,23 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
       try {
         handler.updateNodes(removedIds, addedStates);
       } catch (RepositoryException e) {
-        log.error("Error indexing node.", e);
+        log.error("Error indexing changes " + e, e);
       } catch (IOException e) {
-        log.error("Error indexing node.", e);
-        try{
-          handler.logUnindexedChanges(removedNodes, addedNodes);
-          
-          Object obj = new Object(); 
-          synchronized(obj){
-            try{
-            obj.wait(1000);
-            }catch(Exception esdsd){}
-          }
-       
-        }catch(IOException ioe){
-          log.warn("Exception occure when errorLog writed. Error log is not complete", ioe);
+        log.error("Error indexing changes " + e, e);
+        try {
+          handler.logErrorChanges(removedNodes, addedNodes);
+
+          Thread.sleep(1000); // wait a bit
+        } catch (IOException ioe) {
+          log.warn("Exception occure when errorLog writed. Error log is not complete. " + ioe, ioe);
+        } catch (InterruptedException ie) {
+          log.warn("Exception occure when wait for errorLog" + ie, ie);
         }
       }
     }
 
     if (log.isDebugEnabled()) {
-      log.debug("onEvent: indexing finished in "
-          + String.valueOf(System.currentTimeMillis() - time) + " ms.");
+      log.debug("onEvent: indexing finished in " + String.valueOf(System.currentTimeMillis() - time) + " ms.");
     }
   }
 
@@ -421,35 +405,26 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
   }
 
   /**
-   * Checks if the given event should be excluded based on the
-   * {@link #excludePath} setting.
+   * Checks if the given event should be excluded based on the {@link #excludePath} setting.
    * 
    * @param event observation event
-   * @return <code>true</code> if the event should be excluded,
-   *         <code>false</code> otherwise
+   * @return <code>true</code> if the event should be excluded, <code>false</code> otherwise
    */
   protected boolean isExcluded(ItemState event) {
 
     for (QPath excludedPath : excludedPaths) {
-      if (event.getData().getQPath().isDescendantOf(excludedPath, false)
-          || event.getData().getQPath().equals(excludedPath))
+      if (event.getData().getQPath().isDescendantOf(excludedPath, false) || event.getData().getQPath().equals(excludedPath))
         return true;
     }
 
-    return !event.getData().getQPath().isDescendantOf(indexingRoot, false)
-        && !event.getData().getQPath().equals(indexingRoot);
+    return !event.getData().getQPath().isDescendantOf(indexingRoot, false) && !event.getData().getQPath().equals(indexingRoot);
   }
 
   protected QueryHandlerContext createQueryHandlerContext(QueryHandler parentHandler) throws RepositoryConfigurationException {
 
-    QueryHandlerContext context = new QueryHandlerContext(itemMgr,
-                                                          config.getRootNodeIdentifer() != null ? config.getRootNodeIdentifer()
-                                                                                               : Constants.ROOT_UUID,
-                                                          ntReg,
-                                                          nsReg,
-                                                          parentHandler,
-                                                          config.getIndexDir(),
-                                                          extractor);
+    QueryHandlerContext context =
+        new QueryHandlerContext(itemMgr, config.getRootNodeIdentifer() != null ? config.getRootNodeIdentifer()
+            : Constants.ROOT_UUID, ntReg, nsReg, parentHandler, config.getIndexDir(), extractor);
     return context;
   }
 
@@ -460,8 +435,7 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
    * @throws RepositoryConfigurationException
    * @throws ClassNotFoundException
    */
-  private void initializeQueryHandler() throws RepositoryException,
-                                       RepositoryConfigurationException {
+  private void initializeQueryHandler() throws RepositoryException, RepositoryConfigurationException {
     // initialize query handler
     String className = config.getType();
     if (className == null)
@@ -472,8 +446,7 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
       Constructor constuctor = qHandlerClass.getConstructor(QueryHandlerEntry.class);
       handler = (QueryHandler) constuctor.newInstance(config);
 
-      QueryHandler parentHandler = (this.parentSearchManager != null) ? parentSearchManager.getHandler()
-                                                                     : null;
+      QueryHandler parentHandler = (this.parentSearchManager != null) ? parentSearchManager.getHandler() : null;
       QueryHandlerContext context = createQueryHandlerContext(parentHandler);
       handler.setContext(context);
     } catch (SecurityException e) {

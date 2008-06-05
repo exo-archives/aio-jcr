@@ -138,12 +138,12 @@ public class TestErrorLog extends BaseQueryTest {
       removed.add("uuidrem"+i);
     }
     
-    log.logNotifyList(removed, added);
+    log.writeChanges(removed, added);
       
     Set<String> rem = new HashSet<String>();
     Set<String> add = new HashSet<String>();
     
-    log.exctractNotifyList(rem, add);
+    log.readChanges(rem, add);
     
     assertTrue(rem.containsAll(removed));
     assertTrue(add.containsAll(added));

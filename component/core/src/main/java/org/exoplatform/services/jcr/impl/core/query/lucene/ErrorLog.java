@@ -29,11 +29,9 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -164,7 +162,7 @@ public class ErrorLog {
     }
   }
 
-  public void exctractNotifyList(Set<String> rem, Set<String> add) throws IOException {
+  public void readChanges(Set<String> rem, Set<String> add) throws IOException {
     List<String> list = readList();
 
     Iterator<String> it = list.iterator();
@@ -180,7 +178,7 @@ public class ErrorLog {
     }
   }
 
-  public void logNotifyList(Set<String> removed, Set<String> added) throws IOException {
+  public void writeChanges(Set<String> removed, Set<String> added) throws IOException {
     try {
       if (!removed.isEmpty()) {
         Iterator<String> rem = removed.iterator();

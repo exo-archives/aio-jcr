@@ -484,7 +484,7 @@ public class SearchIndex implements QueryHandler {
     final Set<String> rem = new HashSet<String>();
     final Set<String> add = new HashSet<String>();
 
-    errlog.exctractNotifyList(rem, add);
+    errlog.readChanges(rem, add);
 
     // check is any notifies in log
     if (rem.isEmpty() && add.isEmpty()) {
@@ -978,9 +978,9 @@ public class SearchIndex implements QueryHandler {
    * @param added map of added node states and uuids
    * @throws IOException
    */
-  public void logUnindexedChanges(Set<String> removed, Set<String> added) throws IOException {
+  public void logErrorChanges(Set<String> removed, Set<String> added) throws IOException {
     // backup the remove and add iterators
-    errorLog.logNotifyList(removed, added);
+    errorLog.writeChanges(removed, added);
   }
 
 }

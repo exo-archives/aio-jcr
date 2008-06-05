@@ -62,6 +62,8 @@ import org.exoplatform.services.jcr.observation.ExtendedEvent;
 /**
  * Created by The eXo Platform SAS Author : Alex Reshetnyak
  * alex.reshetnyak@exoplatform.com.ua 22.05.2008
+ * 
+ * @version $Id$
  */
 public class BackupWorkspaceInitializer extends RestoreWorkspaceInitializer {
   private final String restoreDir;
