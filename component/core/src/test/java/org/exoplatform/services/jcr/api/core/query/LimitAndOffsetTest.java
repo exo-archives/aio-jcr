@@ -50,6 +50,7 @@ public class LimitAndOffsetTest extends AbstractQueryTest {
         testRootNode.save();
 
         query = createXPathQuery("/jcr:root" + testRoot + "/* order by @name");
+        
     }
 
     protected void tearDown() throws Exception {
@@ -148,5 +149,28 @@ public class LimitAndOffsetTest extends AbstractQueryTest {
         assertEquals(1, nodes.getSize());
         assertEquals(3, ((QueryResultImpl) result).getTotalSize());
     }
+    
+    public void testLimitWithGetSize() throws Exception {
+      query.setLimit(2);
+      QueryResult result = query.execute();
+      NodeIterator nodes = result.getNodes();
+      assertEquals(2, nodes.getSize());
+      assertTrue(nodes.nextNode() == node1);
+      assertTrue(nodes.nextNode() == node2);
+      assertEquals(3, ((QueryResultImpl) result).getTotalSize());
+
+      
+      query.setOffset(2);
+      query.setLimit(0);//no limit
+      result = query.execute();
+      nodes = result.getNodes();
+      assertEquals(1, nodes.getSize());
+      assertTrue(nodes.nextNode() == node3);
+      assertEquals(3, ((QueryResultImpl) result).getTotalSize());
+
+
+    }
+    
+    
 
 }
