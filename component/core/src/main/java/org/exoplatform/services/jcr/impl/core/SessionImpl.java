@@ -739,7 +739,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     //ConversationRegistry registry = (ConversationRegistry) container.getComponentInstanceOfType(ConversationRegistry.class);
     SessionFactory sessionFactory = (SessionFactory) container.getComponentInstanceOfType(SessionFactory.class);
 
-    ConversationState newState = new ConversationState(new Identity(name, userState.getIdentity().getMemberships()));
+    ConversationState newState = new ConversationState(new Identity(name, userState.getIdentity().getMemberships(), userState.getIdentity().getRoles()));
     return (Session)sessionFactory.createSession(newState);
   
   }
