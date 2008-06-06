@@ -60,10 +60,6 @@ public class QueryHandlerContext {
   private final QueryHandler          parentHandler;
 
   /**
-   * id of the node that should be excluded from indexing.
-   */
-  // private final String excludedNodeIdentifer;
-  /**
    * Text extractor for extracting text content of binary properties.
    */
   private final DocumentReaderService extractor;
@@ -90,11 +86,8 @@ public class QueryHandlerContext {
                              NodeTypeManagerImpl ntRegistry,
                              NamespaceRegistryImpl nsRegistry,
                              QueryHandler parentHandler,
-                             // String excludedNodeId,
                              String indexDirectory,
                              DocumentReaderService extractor) {
-    // this.fs = fs;
-    System.out.println(indexDirectory);
     this.stateMgr = stateMgr;
     this.rootIdentifer = rootIdentifer;
     this.ntRegistry = ntRegistry;
@@ -103,8 +96,7 @@ public class QueryHandlerContext {
     this.extractor = extractor;
     this.propRegistry = new PropertyTypeRegistry(ntRegistry);
     this.parentHandler = parentHandler;
-    // this.excludedNodeIdentifer = excludedNodeId;
-    ntRegistry.addListener(propRegistry);
+    this.ntRegistry.addListener(propRegistry);
   }
 
   /**

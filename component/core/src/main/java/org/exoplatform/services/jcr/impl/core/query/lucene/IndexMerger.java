@@ -225,13 +225,11 @@ class IndexMerger extends Thread implements IndexListener {
    * terminated.
    */
   void dispose() {
-    log.info("dispose " + getName() + ", " + Thread.currentThread()); // TODO
     if (log.isDebugEnabled())
-      log.debug("dispose IndexMerger");
+      log.info("dispose " + getName() + ", " + Thread.currentThread());
     // get mutex for index replacements
     try {
       indexReplacement.acquire();
-      log.info(indexReplacement + " acquired on dispose"); // TODO
     } catch (InterruptedException e) {
       log.warn("Interrupted while acquiring index replacement sync: " + e);
       // try to stop IndexMerger without the sync
@@ -328,9 +326,8 @@ class IndexMerger extends Thread implements IndexListener {
           // inform multi index
           // if we cannot get the sync immediately we have to quit
           if (!indexReplacement.tryAcquire()) {
-          //if (!indexReplacement.attempt(0)) {
             if (log.isDebugEnabled())
-              log.debug("index merging canceled");
+              log.debug("index merging canceled " + getName());
             break;
           }
           try {
@@ -352,10 +349,10 @@ class IndexMerger extends Thread implements IndexListener {
           }
         }
       } catch (Throwable e) {
-        log.error("Error while merging indexes: " + e);
+        log.error("Error while merging indexes in " + getName() + ": " + e);
       }
     }
-    log.info("IndexMerger terminated");
+    log.info(getName() + " terminated");
   }
 
   // -----------------------< merge properties >-------------------------------

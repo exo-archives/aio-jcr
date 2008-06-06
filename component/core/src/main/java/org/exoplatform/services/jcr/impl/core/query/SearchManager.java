@@ -99,10 +99,6 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
   protected final QueryHandlerEntry     config;
 
   /**
-   * ID of the node that should be excluded from indexing or <code>null</code> if no node should be excluded.
-   */
-  // protected final String excludedNodeIdentifer;
-  /**
    * Text extractor for extracting text content of binary properties.
    */
   protected final DocumentReaderService extractor;
@@ -150,12 +146,10 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
    * @throws RepositoryConfigurationException
    */
   public SearchManager(QueryHandlerEntry config,
-                       final NamespaceRegistryImpl nsReg,
+                       NamespaceRegistryImpl nsReg,
                        NodeTypeManagerImpl ntReg,
                        WorkspacePersistentDataManager itemMgr,
-                       SystemSearchManager parentSearchManager,
-                       // String rootNodeIdentifer,
-                       // String excludedNodeIdentifer,
+                       SystemSearchManagerHolder parentSearchManager,
                        DocumentReaderService extractor) throws RepositoryException, RepositoryConfigurationException {
 
     this.extractor = extractor;
@@ -165,12 +159,9 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
     this.nsReg = nsReg;
     this.itemMgr = itemMgr;
     log.info(config.getIndexDir() + "  !" + config);
-    // this.excludedNodeIdentifer = excludedNodeIdentifer;
-    this.parentSearchManager = parentSearchManager;
-    // this.rootNodeIdentifer = rootNodeIdentifer;
+    this.parentSearchManager = parentSearchManager != null ? parentSearchManager.get() : null;
     itemMgr.addItemPersistenceListener(this);
     initializeQueryHandler();
-
   }
 
   /**
@@ -266,7 +257,7 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
         removedNodes.add(nodeId);
       } else if (event.isDeleted()) {
         // property removed event is only generated when node still exists
-        // addedNodes.put(nodeId, event);
+        // addedNodes.put(nodeId, event); // TODO
         addedNodes.remove(nodeId);
         removedNodes.add(nodeId);
       }
@@ -352,20 +343,6 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
     }
   }
 
-  // /**
-  // * Shuts down the query handler. If the query handler is already shut down
-  // * this method does nothing.
-  // *
-  // * @throws IOException if an error occurs while shutting down the query
-  // * handler.
-  // */
-  // private void shutdownQueryHandler() throws IOException {
-  // if (handler != null) {
-  // handler.close();
-  // handler = null;
-  // }
-  // }
-
   public void start() {
     log.info("start");
     // Calculating excluded node identifiers
@@ -423,8 +400,13 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
   protected QueryHandlerContext createQueryHandlerContext(QueryHandler parentHandler) throws RepositoryConfigurationException {
 
     QueryHandlerContext context =
-        new QueryHandlerContext(itemMgr, config.getRootNodeIdentifer() != null ? config.getRootNodeIdentifer()
-            : Constants.ROOT_UUID, ntReg, nsReg, parentHandler, config.getIndexDir(), extractor);
+        new QueryHandlerContext(itemMgr, 
+            config.getRootNodeIdentifer() != null ? config.getRootNodeIdentifer() : Constants.ROOT_UUID, 
+            ntReg, 
+            nsReg, 
+            parentHandler, 
+            config.getIndexDir(), 
+            extractor);
     return context;
   }
 

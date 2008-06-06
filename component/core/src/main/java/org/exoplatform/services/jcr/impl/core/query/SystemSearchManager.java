@@ -58,7 +58,6 @@ public class SystemSearchManager extends SearchManager {
                              DocumentReaderService service) throws RepositoryException,
       RepositoryConfigurationException {
     super(config, nsReg, ntReg, itemMgr, null, service);
-
   }
 
   @Override
@@ -76,16 +75,13 @@ public class SystemSearchManager extends SearchManager {
     // 1. From system WorkspaceContainer
     // 2. From RepositoryContainer
     // to avoid double initialization
-    if (!isStarted) {
-      indexingRoot = Constants.JCR_SYSTEM_PATH;
-      excludedPaths.remove(Constants.JCR_SYSTEM_PATH);
-      isStarted = true;
-      handler.init();
-      for (ItemStateChangesLog bufferedChangesLog : changesLogBuffer) {
-        onSaveItems(bufferedChangesLog);
-      }
+    indexingRoot = Constants.JCR_SYSTEM_PATH;
+    excludedPaths.remove(Constants.JCR_SYSTEM_PATH);
+    isStarted = true;
+    handler.init();
+    for (ItemStateChangesLog bufferedChangesLog : changesLogBuffer) {
+      super.onSaveItems(bufferedChangesLog);
     }
-
   }
 
   @Override
@@ -95,10 +91,8 @@ public class SystemSearchManager extends SearchManager {
                                                           ntReg,
                                                           nsReg,
                                                           parentHandler,
-                                                          config.getIndexDir() + "_"
-                                                              + INDEX_DIR_SUFFIX,
+                                                          config.getIndexDir() + "_" + INDEX_DIR_SUFFIX,
                                                           extractor);
     return context;
   }
-
 }

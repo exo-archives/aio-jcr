@@ -35,7 +35,6 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
-import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.NamespaceDataPersister;
 import org.exoplatform.services.jcr.impl.core.NamespaceRegistryImpl;
@@ -48,11 +47,11 @@ import org.exoplatform.services.jcr.impl.core.access.DefaultAccessManagerImpl;
 import org.exoplatform.services.jcr.impl.core.lock.LockManagerImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataPersister;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
-import org.exoplatform.services.jcr.impl.core.observation.ObservationManagerRegistry; // import
-// org.exoplatform.services.jcr.impl.core.query.QueryManagerFactory;
+import org.exoplatform.services.jcr.impl.core.observation.ObservationManagerRegistry;
 import org.exoplatform.services.jcr.impl.core.query.QueryManagerFactory;
 import org.exoplatform.services.jcr.impl.core.query.SearchManager;
 import org.exoplatform.services.jcr.impl.core.query.SystemSearchManager;
+import org.exoplatform.services.jcr.impl.core.query.SystemSearchManagerHolder;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.LocalWorkspaceDataManagerStub;
@@ -187,10 +186,8 @@ public class RepositoryContainer extends ExoContainer {
         workspaceContainer.registerComponentImplementation(QueryManagerFactory.class);
         workspaceContainer.registerComponentInstance(wsConfig.getQueryHandler());
         if (isSystem) {
-          //registerComponentInstance(wsConfig.getQueryHandlerEntry());
           workspaceContainer.registerComponentImplementation(SystemSearchManager.class);
         }
-
       }
 
       // access manager
@@ -219,8 +216,6 @@ public class RepositoryContainer extends ExoContainer {
         initilizerType = ScratchWorkspaceInitializer.class;
       }
       workspaceContainer.registerComponentImplementation(initilizerType);      
-      //workspaceContainer.registerComponentImplementation(WorkspaceInitializer.class); // TODO
-      
       workspaceContainer.registerComponentImplementation(SessionFactory.class);
       workspaceContainer.registerComponentImplementation(WorkspaceFileCleanerHolder.class);
 
@@ -266,6 +261,7 @@ public class RepositoryContainer extends ExoContainer {
 
     try {
 
+      // TODO http://jira.exoplatform.org/browse/JCR-350
       init();
 
       load();
@@ -386,7 +382,7 @@ public class RepositoryContainer extends ExoContainer {
       //registerComponentImplementation(SystemSearchManager.class);
       SystemSearchManager systemSearchManager =
           (SystemSearchManager) getWorkspaceContainer(systemWsname).getComponentInstanceOfType(SystemSearchManager.class);
-      registerComponentInstance(systemSearchManager);
+      registerComponentInstance(new SystemSearchManagerHolder(systemSearchManager));
     }
 
     try {
