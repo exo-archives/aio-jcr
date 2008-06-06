@@ -101,13 +101,4 @@ public class SystemSearchManager extends SearchManager {
     return context;
   }
 
-  // @Override
-  // protected boolean isExcluded(ItemState event) {
-  // if (excludedIDs.contains(event.getData().getIdentifier()))
-  // return false;
-  // return
-  // !event.getData().getQPath().isDescendantOf(Constants.JCR_SYSTEM_PATH,
-  // false);
-  //
-  // }
 }

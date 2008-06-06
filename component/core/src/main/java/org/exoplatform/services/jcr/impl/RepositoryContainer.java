@@ -179,18 +179,6 @@ public class RepositoryContainer extends ExoContainer {
       }
       workspaceContainer.registerComponentImplementation(LockManagerImpl.class);
 
-      // TODO
-      // if (wsConfig.getSearchManager() != null) {
-      // workspaceContainer.registerComponentImplementation(SearchManager.class);
-      //
-      // workspaceContainer.registerComponentInstance(wsConfig.getSearchManager());
-      // workspaceContainer.registerComponentInstance(wsConfig.getSearchManager().getQueryHandler());
-      // if (isSystem) {
-      // registerComponentInstance(wsConfig);
-      // workspaceContainer.registerComponentImplementation(SystemSearchManager.class);
-      // }
-      // workspaceContainer.registerComponentImplementation(QueryManagerFactory.class);
-      // }
 
       // Query handler
       if (wsConfig.getQueryHandler() != null) {
@@ -202,15 +190,6 @@ public class RepositoryContainer extends ExoContainer {
           //registerComponentInstance(wsConfig.getQueryHandlerEntry());
           workspaceContainer.registerComponentImplementation(SystemSearchManager.class);
         }
-
-        // TODO
-        //        try {
-        //          Class qh = Class.forName(wsConfig.getQueryHandlerEntry().getQueryHandlerClass());
-        //          workspaceContainer.registerComponentImplementation(qh);
-        //        } catch (ClassNotFoundException e) {
-        //          throw new RepositoryConfigurationException("Class not found for        workspace query handler, container "
-        //              + wsConfig.getUniqueName() + ": " + e);
-        //        }
 
       }
 
