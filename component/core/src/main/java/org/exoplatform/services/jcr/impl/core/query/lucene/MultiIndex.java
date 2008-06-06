@@ -1894,4 +1894,8 @@ public class MultiIndex {
       return logLine.toString();
     }
   }
+
+  File getIndexDir() {
+    return indexDir;
+  }
 }

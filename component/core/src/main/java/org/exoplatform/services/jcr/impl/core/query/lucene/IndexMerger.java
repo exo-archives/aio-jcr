@@ -29,7 +29,6 @@ import org.apache.commons.collections.buffer.UnboundedFifoBuffer;
 import org.apache.commons.logging.Log;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
-
 import org.exoplatform.services.jcr.config.QueryHandlerEntry;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -93,11 +92,22 @@ class IndexMerger extends Thread implements IndexListener {
    * Mutex that is acquired when replacing indexes on MultiIndex.
    */
   private final Semaphore         indexReplacement = new Semaphore(1);
-
+  
   /**
    * When released, indicates that this index merger is idle.
    */
   private final Semaphore         mergerIdle       = new Semaphore(1);
+
+  //TODO OSWEGO
+//  /**
+//   * Mutex that is acquired when replacing indexes on MultiIndex.
+//   */
+//  private final Sync indexReplacement = new Mutex();
+//
+//  /**
+//   * When released, indicates that this index merger is idle.
+//   */
+//  private final Sync mergerIdle = new Mutex();
 
   /**
    * Creates an <code>IndexMerger</code>.
@@ -106,7 +116,7 @@ class IndexMerger extends Thread implements IndexListener {
    */
   IndexMerger(MultiIndex multiIndex) {
     this.multiIndex = multiIndex;
-    setName("IndexMerger");
+    setName("IndexMerger " + this.multiIndex.getIndexDir().getPath());
     setDaemon(true);
     try {
       mergerIdle.acquire();
@@ -215,10 +225,13 @@ class IndexMerger extends Thread implements IndexListener {
    * terminated.
    */
   void dispose() {
-    log.debug("dispose IndexMerger");
+    log.info("dispose " + getName() + ", " + Thread.currentThread()); // TODO
+    if (log.isDebugEnabled())
+      log.debug("dispose IndexMerger");
     // get mutex for index replacements
     try {
       indexReplacement.acquire();
+      log.info(indexReplacement + " acquired on dispose"); // TODO
     } catch (InterruptedException e) {
       log.warn("Interrupted while acquiring index replacement sync: " + e);
       // try to stop IndexMerger without the sync
@@ -315,11 +328,15 @@ class IndexMerger extends Thread implements IndexListener {
           // inform multi index
           // if we cannot get the sync immediately we have to quit
           if (!indexReplacement.tryAcquire()) {
-            log.debug("index merging canceled");
+          //if (!indexReplacement.attempt(0)) {
+            if (log.isDebugEnabled())
+              log.debug("index merging canceled");
             break;
           }
           try {
-            log.debug("replace indexes");
+            if (log.isDebugEnabled())
+              log.debug("replace indexes");
+            
             multiIndex.replaceIndexes(names, index, deletedDocuments);
           } finally {
             indexReplacement.release();

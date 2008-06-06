@@ -359,28 +359,6 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
     return restoreVisitor.getRestoreChanges();
   }
   
-//  @Deprecated
-//  public void restore(NodeImpl node, boolean removeExisting) throws RepositoryException {
-//
-//    // use restored node session
-//    SessionImpl restoreSession = node.getSession();
-//    NodeData nodeData = (NodeData) node.getData();
-//    
-//    PropertyData vhProp = (PropertyData) dataManager.getItemData(nodeData(), new QPathEntry(Constants.JCR_VERSIONHISTORY, 1));
-//    
-//    try {
-//      NodeData vh = (NodeData) dataManager.getItemData(new String(vhProp.getValues().get(0).getAsByteArray()));
-//      VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper((NodeData) vh, 
-//          dataManager.getTransactManager(),
-//          session.getWorkspace().getNodeTypeManager());
-//      
-//      SessionChangesLog changesLog = restoreLog(nodeData, historyHelper, restoreSession, removeExisting, null);
-//      restoreSession.getTransientNodesManager().getTransactManager().save(changesLog);
-//    } catch(IOException e) {
-//      throw new RepositoryException("Restore error " + e, e);
-//    }
-//  }
-  
   public void restore(SessionImpl restoreSession, NodeData destParent, InternalQName name, boolean removeExisting) throws RepositoryException {
 
     DataManager dmanager = restoreSession.getTransientNodesManager().getTransactManager();

@@ -486,7 +486,7 @@ public class NodeTypeDataPersister {
                   // here is this type and we try register
                   throw new ConstraintViolationException("Supertype " + superTypeName
                       + " is not registered in repository (but need to be registered before nodetype " + type.getName()
-                      + "). Node type resistration aborted.");
+                      + "). Node type registration aborted.");
                 log.info("Supertype " + superTypeName + " is not registered. " + type.getName()
                     + " node type will be registered in a next cycle.");
                 continue nextNodeType;
@@ -575,7 +575,6 @@ public class NodeTypeDataPersister {
   
               NodeDefinitionImpl nDef = null;
               try {
-  
                 NameValue nameValue = (NameValue) cdr.getPropertyValue(Constants.JCR_NAME);
                 nDef = new NodeDefinitionImpl(nameValue.getString(), nameValue.getQName());
               } catch (PathNotFoundException e) { // Mandatory false
@@ -587,6 +586,15 @@ public class NodeTypeDataPersister {
                   nDef.setDefaultNodeType(defaultNodeType);
                 else if (defaultNodeType == null && defaultNodeTypeName.equals(type.getName()))
                   nDef.setDefaultNodeType(type);
+                else {
+                  if (nextCycle && findType(defaultNodeTypeName, registeringTypes) == null)
+                    throw new ConstraintViolationException("Default primary node type of NodeDefinition " + nDef.getName()
+                        + " is not registered in repository. Default primary node type " + defaultNodeTypeName
+                        + " must be registered before " + type.getName() + ". Node types registration aborted.");
+                  log.info("Default primary node type of NodeDefinition " + nDef.getName() + " is not registered." + type.getName()
+                      + " node type will be registered in a next cycle.");
+                  continue nextNodeType;
+                }
               } catch (PathNotFoundException e) { // Mandatory false
               }
               try {
