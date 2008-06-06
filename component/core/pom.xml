@@ -504,8 +504,10 @@
                 <include>**/usecases/**/Test*.java</include>
                 <include>**/usecases/**/*Test.java</include>
                 <include>**/impl/**/Test*.java</include>
+                <!--include>**/TestErrorMultithreading.java</include-->
               </includes>
               <excludes>
+                <exclude>**/TestErrorMultithreading.java</exclude>
                 <exclude>**/api/**/TestSameNameItems.java</exclude>
                 <exclude>**/api/**/TestVersionRestore.java</exclude>
                 <exclude>**/impl/**/TestWorkspaceManagement.java</exclude>
