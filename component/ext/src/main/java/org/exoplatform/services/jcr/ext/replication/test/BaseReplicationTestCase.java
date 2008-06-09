@@ -56,7 +56,6 @@ public abstract class BaseReplicationTestCase {
 
       rootNode = session.getRootNode();
 
-      log.info("BaseReplicationTestCase inited");
     } catch (RepositoryException e) {
       log.error("Can't start BaseReplicationTestCase", e);
     } catch (RepositoryConfigurationException e) {

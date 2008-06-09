@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.ext.replication.test;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.ext.backup.BackupConfig;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
@@ -41,166 +40,216 @@ import org.exoplatform.services.rest.transformer.StringOutputTransformer;
 @URITemplate("/replication-test/")
 @OutputTransformer(StringOutputTransformer.class)
 public class ReplicationTestService implements ResourceContainer {
-  private static Log        log                 = ExoLogger.getLogger("ext.ReplicationTestService");
+  public class Constants {
+    public final static String BASE_URL         = "/rest/replication-test";
 
-  private final String      TEST_PROPERTYS      = "test-propertys";
+    public final static String OPERATION_PREFIX = "?operation=";
 
-  private final String      REPOSITORY_PROPERTY = "repository";
+    public class OperationType {
+      public final static String ADD_NT_FILE              = "addNTFile";
 
-  private final String      WORKSPACE_PROPERTY  = "workspace";
+      public final static String CHECK_NT_FILE            = "checkNTFile";
 
-  private final String      USER_PROPERTY       = "user";
+      public final static String START_BACKUP             = "startBackup";
 
-  private final String      PASSWORD_PROPERTY   = "password";
+      public final static String SET_LOCK                 = "lock";
 
-  private final String      reposytoryName;
+      public final static String CECK_LOCK                = "checkLock";
 
-  private final String      workspaceName;
+      public final static String ADD_VERSIONODE           = "addVersionNode";
 
-  private final String      userName;
+      public final static String CHECK_VERSION_NODE       = "checkVersionNode";
 
-  private final String      password;
+      public final static String ADD_NEW_VERSION          = "addNewVersion";
+
+      public final static String RESTORE_RPEVIOUS_VERSION = "restorePreviousVersion";
+
+      public final static String RESTORE_BASE_VERSION     = "restoreBaseVersion";
+    }
+  }
+
+  private static Log        log = ExoLogger.getLogger("ext.ReplicationTestService");
 
   private RepositoryService repositoryService;
 
   private BackupManager     backupManager;
-
 
   public ReplicationTestService(RepositoryService repoService,
       ReplicationService replicationService, BackupManager backupManager, InitParams params) {
     repositoryService = repoService;
     this.backupManager = backupManager;
 
-    PropertiesParam pps = params.getPropertiesParam(TEST_PROPERTYS);
-
-    reposytoryName = pps.getProperty(REPOSITORY_PROPERTY);
-    workspaceName = pps.getProperty(WORKSPACE_PROPERTY);
-    userName = pps.getProperty(USER_PROPERTY);
-    password = pps.getProperty(PASSWORD_PROPERTY);
-
     log.info("ReplicationTestService inited");
   }
 
   @QueryTemplate("operation=addNTFile")
   @HTTPMethod("GET")
-  @URITemplate("/{repoPath}/{fileName}/{fileSize}/")
-  public Response addNTFile(@URIParam("repoPath") String repoPath,
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{fileName}/{fileSize}/")
+  public Response addNTFile(@URIParam("repositoryName") String repositoryName, 
+                            @URIParam("workspaceName") String workspaceName, 
+                            @URIParam("userName") String userName,
+                            @URIParam("password") String password,
+                            @URIParam("repoPath") String repoPath, 
                             @URIParam("fileName") String fileName, 
                             @URIParam("fileSize") Long fileSize) {
-    NtFileTestCase ntFileTestCase = new NtFileTestCase(repositoryService, reposytoryName, workspaceName, userName, password);
+    NtFileTestCase ntFileTestCase = new NtFileTestCase(repositoryService, repositoryName,
+        workspaceName, userName, password);
     StringBuffer sb = ntFileTestCase.addNtFile(repoPath, fileName, fileSize);
-    
+
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
   @QueryTemplate("operation=checkNTFile")
   @HTTPMethod("GET")
-  @URITemplate("/{repoPath}/{fileName}/{fileSize}/")
-  public Response checkNTFile(@URIParam("repoPath") String repoPath,
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{fileName}/{fileSize}/")
+  public Response checkNTFile(@URIParam("repositoryName") String repositoryName, 
+                              @URIParam("workspaceName") String workspaceName, 
+                              @URIParam("userName") String userName,
+                              @URIParam("password") String password, 
+                              @URIParam("repoPath") String repoPath, 
                               @URIParam("fileName") String fileName, 
                               @URIParam("fileSize") Long fileSize) {
-    NtFileTestCase ntFileTestCase = new NtFileTestCase(repositoryService, reposytoryName, workspaceName, userName, password);
-    StringBuffer sb = ntFileTestCase.checkNtFile(repoPath, fileName, fileSize); 
-    
+    NtFileTestCase ntFileTestCase = new NtFileTestCase(repositoryService, repositoryName,
+        workspaceName, userName, password);
+    StringBuffer sb = ntFileTestCase.checkNtFile(repoPath, fileName, fileSize);
+
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
-  
+
   @QueryTemplate("operation=startBackup")
   @HTTPMethod("GET")
-  @URITemplate("/{repositoryName}/{workspaceName}/{incementalPeriod}/")
-  public Response startBackup(@URIParam("repositoryName") String repositoryName,
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{incementalPeriod}/")
+  public Response startBackup(@URIParam("repositoryName") String repositoryName, 
                               @URIParam("workspaceName") String workspaceName, 
+                              @URIParam("userName") String userName,
+                              @URIParam("password") String password, 
                               @URIParam("incementalPeriod") Long incementalPeriod) {
     BackupConfig config = new BackupConfig();
     config.setRepository(repositoryName);
     config.setWorkspace(workspaceName);
     config.setFullBackupType("org.exoplatform.services.jcr.ext.backup.impl.fs.FullBackupJob");
-    config.setIncrementalBackupType("org.exoplatform.services.jcr.ext.backup.impl.fs.IncrementalBackupJob");
+    config
+        .setIncrementalBackupType("org.exoplatform.services.jcr.ext.backup.impl.fs.IncrementalBackupJob");
 
     config.setBackupDir(backupManager.getBackupDirectory());
 
     String result = "ok";
-    
+
     try {
       backupManager.startBackup(config);
     } catch (Exception e) {
       result = "fail";
       log.error("Can't start backup", e);
     }
-    
+
     return Response.Builder.ok(result, "text/plain").build();
   }
-  
+
   @QueryTemplate("operation=lock")
   @HTTPMethod("GET")
-  @URITemplate("/{repoPath}/")
-  public Response lock(@URIParam("repoPath") String repoPath) {
-    LockTestCase lockTestCase = new LockTestCase(repositoryService, reposytoryName, workspaceName, userName, password);
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/")
+  public Response lock(@URIParam("repositoryName") String repositoryName, 
+                       @URIParam("workspaceName") String workspaceName, 
+                       @URIParam("userName") String userName,
+                       @URIParam("password") String password, 
+                       @URIParam("repoPath") String repoPath) {
+    LockTestCase lockTestCase = new LockTestCase(repositoryService, repositoryName, workspaceName,
+        userName, password);
     StringBuffer sb = lockTestCase.lock(repoPath);
-    
+
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
-  
+
   @QueryTemplate("operation=checkLock")
   @HTTPMethod("GET")
-  @URITemplate("/{repoPath}/")
-  public Response checkLock(@URIParam("repoPath") String repoPath) {
-    LockTestCase lockTestCase = new LockTestCase(repositoryService, reposytoryName, workspaceName, userName, password);
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/")
+  public Response checkLock(@URIParam("repositoryName") String repositoryName, 
+                            @URIParam("workspaceName") String workspaceName, 
+                            @URIParam("userName") String userName,
+                            @URIParam("password") String password, 
+                            @URIParam("repoPath") String repoPath) {
+    LockTestCase lockTestCase = new LockTestCase(repositoryService, repositoryName, workspaceName,
+        userName, password);
     StringBuffer sb = lockTestCase.isLocked(repoPath);
-    
+
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
-  
+
   @QueryTemplate("operation=addVersionNode")
   @HTTPMethod("GET")
-  @URITemplate("/{repoPath}/{value}/")
-  public Response addVersionNode(@URIParam("repoPath") String repoPath,
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{value}/")
+  public Response addVersionNode(@URIParam("repositoryName") String repositoryName, 
+                                 @URIParam("workspaceName") String workspaceName, 
+                                 @URIParam("userName") String userName,
+                                 @URIParam("password") String password, 
+                                 @URIParam("repoPath") String repoPath, 
                                  @URIParam("value") String value) {
-    VersionTestCase versionTestCase = new VersionTestCase(repositoryService, reposytoryName, workspaceName, userName, password);
+    VersionTestCase versionTestCase = new VersionTestCase(repositoryService, repositoryName,
+        workspaceName, userName, password);
     StringBuffer sb = versionTestCase.addVersionNode(repoPath, value);
-    
+
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
-  
+
   @QueryTemplate("operation=checkVersionNode")
   @HTTPMethod("GET")
-  @URITemplate("/{repoPath}/{checkedValue}/")
-  public Response checkVersionNode(@URIParam("repoPath") String repoPath,
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{checkedValue}/")
+  public Response checkVersionNode(@URIParam("repositoryName") String repositoryName, 
+                                   @URIParam("workspaceName") String workspaceName, 
+                                   @URIParam("userName") String userName,
+                                   @URIParam("password") String password, 
+                                   @URIParam("repoPath") String repoPath, 
                                    @URIParam("checkedValue") String checkedValue) {
-    VersionTestCase versionTestCase = new VersionTestCase(repositoryService, reposytoryName, workspaceName, userName, password);
-    StringBuffer sb =  versionTestCase.checkVersionNode(repoPath, checkedValue);
-    
+    VersionTestCase versionTestCase = new VersionTestCase(repositoryService, repositoryName,
+        workspaceName, userName, password);
+    StringBuffer sb = versionTestCase.checkVersionNode(repoPath, checkedValue);
+
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
-  
+
   @QueryTemplate("operation=addNewVersion")
   @HTTPMethod("GET")
-  @URITemplate("/{repoPath}/{newValue}/")
-  public Response addNewVersion(@URIParam("repoPath") String repoPath,
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{newValue}/")
+  public Response addNewVersion(@URIParam("repositoryName") String repositoryName, 
+                                @URIParam("workspaceName") String workspaceName, 
+                                @URIParam("userName") String userName,
+                                @URIParam("password") String password, 
+                                @URIParam("repoPath") String repoPath, 
                                 @URIParam("newValue") String newValue) {
-    VersionTestCase versionTestCase = new VersionTestCase(repositoryService, reposytoryName, workspaceName, userName, password);
-    StringBuffer sb =  versionTestCase.addNewVersion(repoPath, newValue);
-    
+    VersionTestCase versionTestCase = new VersionTestCase(repositoryService, repositoryName,
+        workspaceName, userName, password);
+    StringBuffer sb = versionTestCase.addNewVersion(repoPath, newValue);
+
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
-  
+
   @QueryTemplate("operation=restorePreviousVersion")
   @HTTPMethod("GET")
-  @URITemplate("/{repoPath}/")
-  public Response restorePreviousVersion(@URIParam("repoPath") String repoPath) {
-    VersionTestCase versionTestCase = new VersionTestCase(repositoryService, reposytoryName, workspaceName, userName, password);
-    StringBuffer sb =  versionTestCase.restorePreviousVersion(repoPath);
-    
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/")
+  public Response restorePreviousVersion(@URIParam("repositoryName") String repositoryName, 
+                                         @URIParam("workspaceName") String workspaceName, 
+                                         @URIParam("userName") String userName,
+                                         @URIParam("password") String password, 
+                                         @URIParam("repoPath") String repoPath) {
+    VersionTestCase versionTestCase = new VersionTestCase(repositoryService, repositoryName,
+        workspaceName, userName, password);
+    StringBuffer sb = versionTestCase.restorePreviousVersion(repoPath);
+
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
-  
+
   @QueryTemplate("operation=restoreBaseVersion")
   @HTTPMethod("GET")
-  @URITemplate("/{repoPath}/")
-  public Response restoreBaseVersion(@URIParam("repoPath") String repoPath) {
-    VersionTestCase versionTestCase = new VersionTestCase(repositoryService, reposytoryName, workspaceName, userName, password);
-    StringBuffer sb =  versionTestCase.restoreBaseVersion(repoPath);
-    
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/")
+  public Response restoreBaseVersion(@URIParam("repositoryName") String repositoryName, 
+                                     @URIParam("workspaceName") String workspaceName, 
+                                     @URIParam("userName") String userName,
+                                     @URIParam("password") String password, 
+                                     @URIParam("repoPath") String repoPath) {
+    VersionTestCase versionTestCase = new VersionTestCase(repositoryService, repositoryName,
+        workspaceName, userName, password);
+    StringBuffer sb = versionTestCase.restoreBaseVersion(repoPath);
+
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 }

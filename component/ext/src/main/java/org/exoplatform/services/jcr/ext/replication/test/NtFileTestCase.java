@@ -25,7 +25,6 @@ import java.util.Calendar;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
-import javax.print.DocFlavor.BYTE_ARRAY;
 
 import org.exoplatform.services.jcr.RepositoryService;
 
@@ -42,8 +41,6 @@ public class NtFileTestCase extends BaseReplicationTestCase {
 
   public StringBuffer addNtFile(String repoPath, String fileName, Long fileSize) {
     StringBuffer sb = new StringBuffer();
-    sb.append("addNTFile(" + fileName + ", " + fileSize + ") \n");
-    sb.append("Result :");
 
     log.info("ReplicationTestService.addNTFile run");
     long start, end;
@@ -77,11 +74,10 @@ public class NtFileTestCase extends BaseReplicationTestCase {
       end = System.currentTimeMillis();
 
       log.info("The time of the adding of nt:file : " + ((end - start) / 1000) + " sec");
-      sb.append(" OK\n");
-      sb.append(cool.getPath() + "\n");
+      sb.append("ok");
     } catch (Exception e) {
       log.error("Can't save nt:file : ", e);
-      sb.append("Fail \n");
+      sb.append("fail");
     } finally {
       tempFile.delete();
     }
