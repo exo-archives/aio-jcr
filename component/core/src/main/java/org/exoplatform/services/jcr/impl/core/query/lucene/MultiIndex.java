@@ -1105,13 +1105,13 @@ public class MultiIndex {
           }
         }
       } catch (IOException e) {
-        log.error("Unable to commit volatile index" + e);
+        log.error("Unable to commit volatile index" + e, e);
       }
     }
   }
 
   /**
-   * Checks the indexing queue for finished text extrator jobs and updates the
+   * Checks the indexing queue for finished text extractor jobs and updates the
    * index accordingly if there are any new ones.
    */
   private synchronized void checkIndexingQueue() {

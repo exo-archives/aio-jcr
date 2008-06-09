@@ -23,7 +23,11 @@ import java.util.Set;
 
 import javax.jcr.Credentials;
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.Session;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryManager;
+import javax.jcr.query.QueryResult;
 
 import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -36,21 +40,22 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  */
 
 public class TestErrorMultithreading extends BaseQueryTest {
-  public static final int    COUNT         = 10;
+  public static final int    COUNT         = 5;
 
-  public static final int    NODE_COUNT    = 100;
+  public static final int    NODE_COUNT    = 10;
 
   public static final int    THREADS_COUNT = 10;
 
   public static final String THREAD_NAME   = "name";
 
   public void tearDown() {
-    // do nothing
+   
   }
 
   public void testRunActions() throws Exception {
-    fillRepo();
-    // checkRepo();
+   // fillRepo();
+    //checkRepo();
+    checkRepoByContent();
   }
 
   private void fillRepo() throws Exception {
@@ -113,5 +118,56 @@ public class TestErrorMultithreading extends BaseQueryTest {
     }
 
     System.out.println("FINISH!");
+    Object obj = new Object();
+    synchronized(obj){
+      try{
+      obj.wait(10000);
+      }catch(Exception e){
+        
+      }
+    }
+  }
+  
+  private void  checkRepo() throws Exception{
+    QueryManager qman = this.workspace.getQueryManager();
+    
+    for(int t = 0; t < THREADS_COUNT; t++){
+      String name = THREAD_NAME + t;
+      
+      for (int i = 0; i < COUNT; i++) {
+        for (int j = 0; j < NODE_COUNT; j++) {
+          int num = i * NODE_COUNT*10 + j;
+          String n = name +"_" + num;
+          Query q = qman.createQuery("SELECT * FROM nt:unstructured WHERE jcr:path LIKE '/"+n+"'",
+              Query.SQL);
+          QueryResult res = q.execute();
+          
+          if(res.getNodes().getSize()!=1){
+            System.out.println("Thread "+t+"  "+n+" NO");
+          }
+        }
+      }
+    }
+  }
+  
+  private void checkRepoByContent() throws Exception{
+    QueryManager qman = this.workspace.getQueryManager();
+    Node root = session.getRootNode();
+    NodeIterator it = root.getNodes();
+    System.out.append("SEARCH START");
+    System.out.println("Nodes: " + it.getSize());
+    while(it.hasNext()){
+      Node node = it.nextNode();      
+      String name = node.getName();
+      Query q = qman.createQuery("SELECT * FROM nt:unstructured WHERE jcr:path LIKE '/"+name+"'",
+          Query.SQL);
+      QueryResult res = q.execute();
+      
+      if(res.getNodes().getSize()!=1){
+        System.out.println(name+" NO");
+      }
+    }
+    System.out.append("SEARCH STOP");
+   
   }
 }
