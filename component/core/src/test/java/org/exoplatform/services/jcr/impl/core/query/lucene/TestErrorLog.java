@@ -49,14 +49,7 @@ public class TestErrorLog extends BaseQueryTest {
     log.clear();
     file.delete();
   }
-  
-  public void testCreate() throws Exception{
-    log = new ErrorLog(file);
-    
-    assertEquals(1024*10,file.length());
-    
-  }
-  
+
   public void testConcurrentWrite() throws Exception {
 
     class Loader extends Thread {

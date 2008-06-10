@@ -25,18 +25,15 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
-
 import org.apache.commons.logging.Log;
 import org.apache.lucene.search.Query;
-
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
 import org.exoplatform.services.jcr.impl.core.query.QueryHandlerContext;
 import org.exoplatform.services.jcr.impl.core.query.QueryImpl;
 import org.exoplatform.services.jcr.impl.core.query.lucene.DefaultHTMLExcerpt;
+import org.exoplatform.services.jcr.impl.core.query.lucene.ErrorLog;
 import org.exoplatform.services.jcr.impl.core.query.lucene.ExcerptProvider;
 import org.exoplatform.services.jcr.impl.core.query.lucene.IndexingConfiguration;
 import org.exoplatform.services.jcr.impl.core.query.lucene.IndexingConfigurationEntityResolver;
@@ -47,6 +44,8 @@ import org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex;
 import org.exoplatform.services.jcr.impl.core.query.lucene.SpellChecker;
 import org.exoplatform.services.jcr.impl.core.query.lucene.SynonymProvider;
 import org.exoplatform.services.log.ExoLogger;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 /**
  * Created by The eXo Platform SAS.
@@ -162,6 +161,9 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   private final static String PARAM_EXTRACTOR_TIMEOUT            = "extractorTimeout";
 
   private final static String PARAM_FORCECONSISTENCYCHECK        = "forceConsistencyCheck";
+  
+  //ErrorLog file size in Kb
+  private final static String PARAM_ERRORLOG_SIZE                = "defaultErrorLogSize";
 
   /**
    * The location of the search index. <p/> Note: This is a <b>mandatory</b>
@@ -596,10 +598,22 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
       } catch (SAXException e) {
         throw new RepositoryConfigurationException(e.getLocalizedMessage(), e);
       }
-
     }
 
     return indexingConfiguration;
+  }
+
+  /**
+   * Return ErrorLog file size in Kb. String representation
+   * @throws RepositoryConfigurationException
+   */
+  public int getErrorLogSize(){
+    String size = getParameterValue(PARAM_ERRORLOG_SIZE, null);
+    if((size==null)||(size.equals(""))){
+      return ErrorLog.DEFAULT_FILE_SIZE;
+    }else{
+      return new Integer(size);
+    }
   }
 
 

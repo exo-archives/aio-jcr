@@ -43,7 +43,7 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class ErrorLog {
-  public static final int    FILE_SIZE = 10;                                // Kb
+  public static final int    DEFAULT_FILE_SIZE = 50;             // Kb
 
   /**
    * Logger instance for this class
@@ -62,26 +62,45 @@ public class ErrorLog {
   /**
    * Writer to the log file
    */
-  // private Writer out;
   private FileChannel        out;
+  
+  /**
+   * File size in Kb. Used on create and clear(truncate) methods.
+   */
+  private int fileSize = DEFAULT_FILE_SIZE; // Kb
+  
+  /**
+   * 
+   * @param log
+   * @throws IOException
+   */
+  public ErrorLog(File file) throws IOException {
+    logFile = file;
+    openFile(file);
+  }
 
-  public ErrorLog(File log) throws IOException {
+  public ErrorLog(File file, int errorLogSize) throws IOException {
+    fileSize = errorLogSize;
+    logFile = file;
+    openFile(file);
+  }
+
+  private void openFile(File log) throws IOException{
     // set file size;
     if (!log.exists()) {
       log.getParentFile().mkdirs();
       log.createNewFile();
 
       out = new FileOutputStream(log).getChannel();
-      out.position(1024 * FILE_SIZE - 1);
+      out.position(1024 * fileSize- 1);
       out.write(ByteBuffer.wrap(new byte[] { 0 }));
       out.position(0);
       out.force(false);
     } else {
       out = new FileOutputStream(log, true).getChannel();
     }
-    logFile = log;
   }
-
+  
   /**
    * Appends an action to the log.
    * 
@@ -114,7 +133,7 @@ public class ErrorLog {
       out.truncate(0);
       out.close();
       out = new FileOutputStream(logFile).getChannel();
-      out.position(1024 * FILE_SIZE - 1);
+      out.position(1024 * fileSize - 1);
       out.write(ByteBuffer.wrap(new byte[] { 0 }));
       out.position(0);
       out.force(false);

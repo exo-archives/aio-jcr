@@ -464,7 +464,7 @@ public class SearchIndex implements QueryHandler {
           + index.getIndexFormatVersion() + "");
 
       File file = new File(indexDir, ERROR_LOG);
-      errorLog = new ErrorLog(file);
+      errorLog = new ErrorLog(file,queryHandlerConfig.getErrorLogSize());
       // reprocess any notfinished notifies;
       recoverErrorLog(errorLog);
 
