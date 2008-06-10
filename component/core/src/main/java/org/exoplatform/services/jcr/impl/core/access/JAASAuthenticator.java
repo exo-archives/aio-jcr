@@ -28,9 +28,9 @@ import javax.security.auth.login.LoginContext;
 import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
-import org.exoplatform.services.security.ConversationRegistry;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
+import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.services.security.jaas.BasicCallbackHandler;
 
@@ -45,8 +45,8 @@ import org.exoplatform.services.security.jaas.BasicCallbackHandler;
 
 public class JAASAuthenticator extends BaseAuthenticator {
  
-  public JAASAuthenticator(RepositoryEntry config, ConversationRegistry registry) {
-    super(config, registry);
+  public JAASAuthenticator(RepositoryEntry config, IdentityRegistry identityRegistry) {
+    super(config, identityRegistry);
   }
 
   /* (non-Javadoc)
@@ -71,8 +71,6 @@ public class JAASAuthenticator extends BaseAuthenticator {
       Identity sid = new Identity(SystemIdentity.SYSTEM, new HashSet<MembershipEntry>());
       return new ConversationState(sid);
     }
-      //return new Identity(SystemIdentity.SYSTEM, new HashSet<MembershipEntry>());
-    
     
     // prepare to new login
     // uses BasicCallbackHandler
@@ -93,19 +91,21 @@ public class JAASAuthenticator extends BaseAuthenticator {
     
     
     if(log.isDebugEnabled())
-      log.debug("Logged "+thisCredentials.getUserID());
+      log.debug("Logged " + thisCredentials.getUserID());
     
     // supposed to be set
-    ConversationState state = this.registry.getState(thisCredentials.getUserID());
-    ConversationState.setCurrent(state);
-    if(state == null)
-      throw new LoginException("ConversationState not found, check Loginmodule");
-    //.getIdentity(thisCredentials.getUserID());
+    Identity identity = identityRegistry.getIdentity(thisCredentials.getUserID());
+    if(identity == null) {
+      throw new LoginException("Identity not found, check Loginmodule, userId "
+          + thisCredentials.getUserID());
+    }
+    ConversationState state = new ConversationState(identity);
     String[] aNames = thisCredentials.getAttributeNames();
     for(String name : aNames) {
       state.setAttribute(name, thisCredentials.getAttribute(name));
     }
-    
+
+    ConversationState.setCurrent(state);
     return state;
 
   }

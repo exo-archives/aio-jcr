@@ -17,7 +17,7 @@
 package org.exoplatform.services.jcr.impl.core.access;
 
 import org.exoplatform.services.jcr.config.RepositoryEntry;
-import org.exoplatform.services.security.ConversationRegistry;
+import org.exoplatform.services.security.IdentityRegistry;
 
 /**
  * Created by The eXo Platform SAS.<br/>
@@ -28,7 +28,7 @@ import org.exoplatform.services.security.ConversationRegistry;
  * @version $Id: PortalAuthenticationPolicy.java 14100 2008-05-12 10:53:47Z gazarenkov $
  */
 public class PortalAuthenticationPolicy extends JAASAuthenticator {  
-  public PortalAuthenticationPolicy(RepositoryEntry config, ConversationRegistry registry) {
-    super(config, registry);
+  public PortalAuthenticationPolicy(RepositoryEntry config, IdentityRegistry identityRegistry) {
+    super(config, identityRegistry);
   }
 }

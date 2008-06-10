@@ -20,8 +20,8 @@ import javax.jcr.Credentials;
 import javax.jcr.LoginException;
 
 import org.exoplatform.services.jcr.config.RepositoryEntry;
-import org.exoplatform.services.security.ConversationRegistry;
 import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.security.IdentityRegistry;
 
 /**
  * Created by The eXo Platform SAS.
@@ -34,8 +34,8 @@ import org.exoplatform.services.security.ConversationState;
 
 public class RemoteAuthenticationPolicy extends BaseAuthenticator {
   
-  public RemoteAuthenticationPolicy(RepositoryEntry config, ConversationRegistry registry) {
-    super(config, registry); 
+  public RemoteAuthenticationPolicy(RepositoryEntry config, IdentityRegistry identityRegistry) {
+    super(config, identityRegistry); 
   }
 
   public ConversationState authenticate(Credentials credentials) throws LoginException {

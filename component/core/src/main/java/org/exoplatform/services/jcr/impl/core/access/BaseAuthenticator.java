@@ -28,6 +28,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.ConversationRegistry;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
+import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.services.security.MembershipEntry;
 
 /**
@@ -42,12 +43,12 @@ abstract public class BaseAuthenticator implements AuthenticationPolicy {
   protected static Log log = ExoLogger.getLogger("jcr.BaseAuthenticator");
   protected RepositoryEntry config;
   
-  protected ConversationRegistry registry;
+  protected IdentityRegistry identityRegistry;
  
 
-  public BaseAuthenticator(RepositoryEntry config, ConversationRegistry registry) {
+  public BaseAuthenticator(RepositoryEntry config, IdentityRegistry identityRegistry) {
     this.config = config;
-    this.registry = registry;
+    this.identityRegistry = identityRegistry;
   }
 
 
@@ -63,6 +64,7 @@ abstract public class BaseAuthenticator implements AuthenticationPolicy {
        return new ConversationState(new Identity(SystemIdentity.ANONIM, new HashSet<MembershipEntry>()));
      }
      
+     ConversationState.setCurrent(state);
      return state;
      
    }
