@@ -25,6 +25,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
@@ -36,62 +37,72 @@ import org.exoplatform.services.security.ConversationRegistry;
 import org.exoplatform.services.security.ConversationState;
 
 /**
- * Created by The eXo Platform SAS . <br/>
- * Checks out if there are SessionProvider istance in current thread
- * using ThreadLocalSessionProviderService, if no, initializes it getting
- * current credentials from AuthenticationService and initializing 
- * ThreadLocalSessionProviderService with  newly created SessionProvider  
+ * Created by The eXo Platform SAS . <br/> Checks out if there are
+ * SessionProvider istance in current thread using
+ * ThreadLocalSessionProviderService, if no, initializes it getting current
+ * credentials from AuthenticationService and initializing
+ * ThreadLocalSessionProviderService with newly created SessionProvider
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public class ThreadLocalSessionProviderInitializedFilter implements Filter {
 
-  private ConversationRegistry                  stateRegistry;
+  private ConversationRegistry stateRegistry;
 
   private SessionProviderService providerService;
 
-  private static final Log                  LOG = ExoLogger.getLogger("jcr.ThreadLocalSessionProviderInitializedFilter");
+  private static final Log log = ExoLogger
+      .getLogger("jcr.ThreadLocalSessionProviderInitializedFilter");
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
    */
   public void init(FilterConfig config) throws ServletException {
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest,
-   * javax.servlet.ServletResponse, javax.servlet.FilterChain)
+   *      javax.servlet.ServletResponse, javax.servlet.FilterChain)
    */
-  public void doFilter(ServletRequest request,
-                       ServletResponse response,
-                       FilterChain chain) throws IOException,
-                                         ServletException {
+  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+      throws IOException, ServletException {
 
     ExoContainer container = ExoContainerContext.getCurrentContainer();
 
-    providerService = (SessionProviderService) container.getComponentInstanceOfType(SessionProviderService.class);
-    stateRegistry = (ConversationRegistry) container.getComponentInstanceOfType(ConversationRegistry.class);
+    providerService = (SessionProviderService) container
+        .getComponentInstanceOfType(SessionProviderService.class);
+    stateRegistry = (ConversationRegistry) container
+        .getComponentInstanceOfType(ConversationRegistry.class);
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
-    
-    String user = httpRequest.getRemoteUser();
-    //LOG.debug("Current user : " + user); // TODO debug
 
+    ConversationState state = ConversationState.getCurrent();
     SessionProvider provider = null;
 
-    // initialize thread local SessionProvider
-    if (user != null) {
-      ConversationState state = stateRegistry.getState(user);
-      ConversationState.setCurrent(state);
-      if (state != null)
-        provider = new SessionProvider(state);
-      else
-        LOG.warn("Identity is null from Authentication Service for " + user + ".");
+    // NOTE not create new HTTP session, if session is not created yet
+    // this means some settings is incorrect, see web.xml for filter
+    // org.exoplatform.services.security.web.SetCurrentIdentityFilter
+    HttpSession httpsession = httpRequest.getSession(false); 
+    if (state == null) {
+      log.warn("...... current conversation state is not set");
+      if (httpsession != null) { 
+        String httpsessionId = httpsession.getId();
+        // initialize thread local SessionProvider
+        state = stateRegistry.getState(httpsessionId);
+        if (state != null)
+          provider = new SessionProvider(state);
+        else
+          log.warn("Conversation State is null, id  " + httpsessionId);
+      }
+    } else {
+      provider = new SessionProvider(state);
     }
 
     if (provider == null) {
-      LOG.warn("Create SessionProvider for anonymous.");
+      log.warn("Create SessionProvider for anonymous.");
       provider = SessionProvider.createAnonimProvider();
     }
     providerService.setSessionProvider(null, provider);
@@ -100,7 +111,8 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
     providerService.removeSessionProvider(null);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see javax.servlet.Filter#destroy()
    */
   public void destroy() {
