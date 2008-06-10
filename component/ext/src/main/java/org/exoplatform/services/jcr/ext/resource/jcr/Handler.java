@@ -92,8 +92,10 @@ public class Handler extends URLStreamHandler implements Startable {
           else 
             sp = new SessionProvider(conversationState);
         }
-        else
-          sp = new SessionProvider(new ConversationState(authenticator_.authenticate(cred)));
+        else {
+          String userId = authenticator_.validateUser(cred);
+          sp = new SessionProvider(new ConversationState(authenticator_.createIdentity(userId)));
+        }
       }
       
       ManageableRepository repository;
