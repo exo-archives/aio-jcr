@@ -28,13 +28,11 @@ import java.util.Calendar;
 import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.InvalidSerializedDataException;
 import javax.jcr.ItemExistsException;
-import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
-import javax.jcr.Value;
 import javax.jcr.nodetype.ConstraintViolationException;
 
 import org.xml.sax.InputSource;
@@ -46,16 +44,6 @@ import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.ext.action.InvocationContext;
 import org.exoplatform.services.jcr.core.ExtendedSession;
-import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
-import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
-import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.NodeImpl;
-import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.xml.importing.ContentImporter;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -165,7 +153,7 @@ public class TestSystemViewImport extends AbstractImportTest {
                                                          + "<sv:property sv:name=\"jcr:mimeType\" sv:type=\"String\"><sv:value>text/text</sv:value></sv:property>"
                                                          + "<sv:property sv:name=\"jcr:lastModified\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
                                                          // Special unexisting
-                                                          // property
+                                                         // property
                                                          + "<sv:property sv:name=\"jcr:lastModified2\" sv:type=\"Date\"><sv:value>2004-08-18T15:17:00.856+01:00</sv:value></sv:property>"
                                                          + "</sv:node>" + "</sv:node>";
 
@@ -509,6 +497,32 @@ public class TestSystemViewImport extends AbstractImportTest {
       // e.printStackTrace();
       fail();
     }
+
+  }
+
+  public void testImportReferenceable() throws Exception {
+    Node testRoot = root.addNode("testImportReferenceable");
+    root.save();
+    testRoot.addMixin("mix:referenceable");
+    root.save();
+    String uuid = testRoot.getUUID();
+
+    byte[] buf = serialize(testRoot, true, true);
+
+    testRoot.remove();
+    root.save();
+
+    deserialize(root,
+                XmlSaveType.SESSION,
+                true,
+                ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW,
+                new ByteArrayInputStream(buf));
+
+    root.save();
+
+    testRoot = root.getNode("testImportReferenceable");
+    assertTrue(testRoot.isNodeType("mix:referenceable"));
+    assertEquals(uuid, testRoot.getUUID());
 
   }
 

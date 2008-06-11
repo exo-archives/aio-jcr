@@ -41,6 +41,7 @@ import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemDataKeeper;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
+import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.log.ExoLogger;
@@ -76,7 +77,9 @@ public class StreamImporter implements RawDataImporter {
                         NamespaceRegistry namespaceRegistry,
                         AccessManager accessManager,
                         ConversationState userState,
-                        Map<String, Object> context) {
+                        Map<String, Object> context,
+                        RepositoryImpl repository,
+                        String currentWorkspaceName) {
     super();
     this.dataKeeper = dataKeeper;
     this.importer = createContentImporter(parent,
@@ -88,7 +91,9 @@ public class StreamImporter implements RawDataImporter {
                                           namespaceRegistry,
                                           accessManager,
                                           userState,
-                                          context);
+                                          context,
+                                          repository,
+                                          currentWorkspaceName);
   }
 
   /*
@@ -107,7 +112,9 @@ public class StreamImporter implements RawDataImporter {
                                                NamespaceRegistry namespaceRegistry,
                                                AccessManager accessManager,
                                                ConversationState userState,
-                                               Map<String, Object> context) {
+                                               Map<String, Object> context,
+                                               RepositoryImpl repository,
+                                               String currentWorkspaceName) {
     return new NeutralImporter(parent,
                                parent.getQPath(),
                                uuidBehavior,
@@ -118,7 +125,9 @@ public class StreamImporter implements RawDataImporter {
                                namespaceRegistry,
                                accessManager,
                                userState,
-                               context);
+                               context,
+                               repository,
+                               currentWorkspaceName);
   }
 
   /**

@@ -31,6 +31,7 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
+import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.xml.importing.dataflow.ImportNodeData;
@@ -41,7 +42,8 @@ import org.exoplatform.services.security.ConversationState;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: WorkspaceContentImporter.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @version $Id: WorkspaceContentImporter.java 14100 2008-05-12 10:53:47Z
+ *          gazarenkov $
  */
 public class WorkspaceContentImporter extends SystemViewImporter {
   /**
@@ -55,10 +57,11 @@ public class WorkspaceContentImporter extends SystemViewImporter {
   protected boolean   isFirstElementChecked = false;
 
   /**
-   * Class used to import content of workspace, using "System View XML Mapping", e.g. for restore data during backup. <br/>
-   * 
-   * Assumes that root node of the workspace was already created, initialized and given as parent. <br/> If <b>system</b>
-   * workspace initialized from a scratch it will already contains root (/) and /jcr:system nodes, namespaces and nodetypes were
+   * Class used to import content of workspace, using "System View XML Mapping",
+   * e.g. for restore data during backup. <br/> Assumes that root node of the
+   * workspace was already created, initialized and given as parent. <br/> If
+   * <b>system</b> workspace initialized from a scratch it will already
+   * contains root (/) and /jcr:system nodes, namespaces and nodetypes were
    * registered.
    * 
    * @param parent, should not be null
@@ -76,7 +79,9 @@ public class WorkspaceContentImporter extends SystemViewImporter {
                                   NamespaceRegistry namespaceRegistry,
                                   AccessManager accessManager,
                                   ConversationState userState,
-                                  Map<String, Object> context) {
+                                  Map<String, Object> context,
+                                  RepositoryImpl repository,
+                                  String currentWorkspaceName) {
     super(parent,
           ancestorToSave,
           uuidBehavior,
@@ -87,17 +92,22 @@ public class WorkspaceContentImporter extends SystemViewImporter {
           namespaceRegistry,
           accessManager,
           userState,
-          context);
+          context,
+          repository,
+          currentWorkspaceName);
   }
 
   /*
    * (non-Javadoc)
    * 
-   * @see org.exoplatform.services.jcr.impl.xml.importing.SystemViewImporter#startElement(java.lang.String, java.lang.String,
-   *      java.lang.String, java.util.Map)
+   * @see org.exoplatform.services.jcr.impl.xml.importing.SystemViewImporter#startElement(java.lang.String,
+   *      java.lang.String, java.lang.String, java.util.Map)
    */
   @Override
-  public void startElement(String namespaceURI, String localName, String name, Map<String, String> atts) throws RepositoryException {
+  public void startElement(String namespaceURI,
+                           String localName,
+                           String name,
+                           Map<String, String> atts) throws RepositoryException {
     InternalQName elementName = locationFactory.parseJCRName(name).getInternalName();
 
     if (Constants.SV_NODE_NAME.equals(elementName)) {
@@ -119,7 +129,8 @@ public class WorkspaceContentImporter extends SystemViewImporter {
       NodeData parentData = getParent();
       if (!isFirstElementChecked) {
         if (!ROOT_NODE_NAME.equals(svName))
-          throw new RepositoryException("The first element must be root. But found '" + svName + "'");
+          throw new RepositoryException("The first element must be root. But found '" + svName
+              + "'");
         isFirstElementChecked = true;
       }
 
@@ -154,14 +165,14 @@ public class WorkspaceContentImporter extends SystemViewImporter {
     tree.pop();
 
     ImportNodeData newNodeData = new ImportNodeData(Constants.ROOT_PATH,
-                           Constants.ROOT_UUID,
-                           -1,
-                           Constants.NT_UNSTRUCTURED,
-                           new InternalQName[0],
-                           0,
-                           null,
-                           new AccessControlList());
-    
+                                                    Constants.ROOT_UUID,
+                                                    -1,
+                                                    Constants.NT_UNSTRUCTURED,
+                                                    new InternalQName[0],
+                                                    0,
+                                                    null,
+                                                    new AccessControlList());
+
     // Not persistent state. Root created during the creation workspace.
     changesLog.add(new ItemState(newNodeData, ItemState.ADDED, true, parentPath, false, false));
 

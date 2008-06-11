@@ -245,15 +245,19 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     context.put(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS, true);
     return new ExportImportFactory().getImportHandler(((NodeData) node.getData()),
                                                       uuidBehavior,
-                                                      session.getTransientNodesManager().getTransactManager(),
-                                                      session.getTransientNodesManager().getTransactManager(),
+                                                      session.getTransientNodesManager()
+                                                             .getTransactManager(),
+                                                      session.getTransientNodesManager()
+                                                             .getTransactManager(),
                                                       getNodeTypeManager(),
                                                       session.getLocationFactory(),
                                                       session.getValueFactory(),
                                                       getNamespaceRegistry(),
                                                       session.getAccessManager(),
                                                       session.getUserState(),
-                                                      context);
+                                                      context,
+                                                      (RepositoryImpl) session.getRepository(),
+                                                      name);
   }
 
   /**
@@ -362,18 +366,21 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     }
 
 
-    StreamImporter importer =
-        new ExportImportFactory().getStreamImporter(((NodeData) node.getData()),
-                                                    uuidBehavior,
-                                                    session.getTransientNodesManager().getTransactManager(),
-                                                    session.getTransientNodesManager().getTransactManager(),
-                                                    getNodeTypeManager(),
-                                                    session.getLocationFactory(),
-                                                    session.getValueFactory(),
-                                                    getNamespaceRegistry(),
-                                                    session.getAccessManager(),
-                                                    session.getUserState(),
-                                                    context);
+    StreamImporter importer = new ExportImportFactory().getStreamImporter(((NodeData) node.getData()),
+                                                                          uuidBehavior,
+                                                                          session.getTransientNodesManager()
+                                                                                 .getTransactManager(),
+                                                                          session.getTransientNodesManager()
+                                                                                 .getTransactManager(),
+                                                                          getNodeTypeManager(),
+                                                                          session.getLocationFactory(),
+                                                                          session.getValueFactory(),
+                                                                          getNamespaceRegistry(),
+                                                                          session.getAccessManager(),
+                                                                          session.getUserState(),
+                                                                          context,
+                                                                          (RepositoryImpl) session.getRepository(),
+                                                                          name);
     importer.importStream(in);
 
   }

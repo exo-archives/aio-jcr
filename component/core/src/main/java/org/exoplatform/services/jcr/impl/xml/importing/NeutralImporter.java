@@ -27,6 +27,7 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
+import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.util.NodeTypeRecognizer;
@@ -42,7 +43,7 @@ public class NeutralImporter extends BaseXmlImporter {
 
   private ContentImporter contentImporter = null;
 
-  //private final NodeData  parent;
+  // private final NodeData parent;
 
   public NeutralImporter(NodeData parent,
                          QPath ancestorToSave,
@@ -54,7 +55,9 @@ public class NeutralImporter extends BaseXmlImporter {
                          NamespaceRegistry namespaceRegistry,
                          AccessManager accessManager,
                          ConversationState userState,
-                         Map<String, Object> context) {
+                         Map<String, Object> context,
+                         RepositoryImpl repository,
+                         String currentWorkspaceName) {
     super(parent,
           ancestorToSave,
           uuidBehavior,
@@ -65,8 +68,9 @@ public class NeutralImporter extends BaseXmlImporter {
           namespaceRegistry,
           accessManager,
           userState,
-          context);
-    //this.parent = parent;
+          context,
+          repository,
+          currentWorkspaceName);
   }
 
   /*
@@ -125,7 +129,9 @@ public class NeutralImporter extends BaseXmlImporter {
                                                    namespaceRegistry,
                                                    accessManager,
                                                    userState,
-                                                   context);
+                                                   context,
+                                                   repository,
+                                                   currentWorkspaceName);
         break;
       case SYSVIEW:
         contentImporter = new SystemViewImporter(getParent(),
@@ -138,7 +144,9 @@ public class NeutralImporter extends BaseXmlImporter {
                                                  namespaceRegistry,
                                                  accessManager,
                                                  userState,
-                                                 context);
+                                                 context,
+                                                 repository,
+                                                 currentWorkspaceName);
         break;
       default:
         throw new IllegalStateException("There was an error during ascertaining the "

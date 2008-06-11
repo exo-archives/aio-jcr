@@ -35,6 +35,7 @@ import org.exoplatform.services.jcr.dataflow.ItemDataKeeper;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
+import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.xml.exporting.BaseXmlExporter;
@@ -46,7 +47,6 @@ import org.exoplatform.services.jcr.impl.xml.exporting.WorkspaceSystemViewStream
 import org.exoplatform.services.jcr.impl.xml.importing.ContentHandlerImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.WorkspaceDataImporter;
-import org.exoplatform.services.jcr.impl.xml.importing.WorkspaceRestoreDataImporter;
 import org.exoplatform.services.security.ConversationState;
 
 /**
@@ -168,7 +168,9 @@ public class ExportImportFactory {
                                          NamespaceRegistry namespaceRegistry,
                                          AccessManager accessManager,
                                          ConversationState userState,
-                                         Map<String, Object> context) {
+                                         Map<String, Object> context,
+                                         RepositoryImpl repository,
+                                         String currentWorkspaceName) {
 
     return new ContentHandlerImporter(parent,
                                       uuidBehavior,
@@ -180,7 +182,9 @@ public class ExportImportFactory {
                                       namespaceRegistry,
                                       accessManager,
                                       userState,
-                                      context);
+                                      context,
+                                      repository,
+                                      currentWorkspaceName);
   }
 
   /**
@@ -200,7 +204,9 @@ public class ExportImportFactory {
                                           NamespaceRegistry namespaceRegistry,
                                           AccessManager accessManager,
                                           ConversationState userState,
-                                          Map<String, Object> context) {
+                                          Map<String, Object> context,
+                                          RepositoryImpl repository,
+                                          String currentWorkspaceName) {
 
     return new StreamImporter(parent,
                               uuidBehavior,
@@ -212,7 +218,9 @@ public class ExportImportFactory {
                               namespaceRegistry,
                               accessManager,
                               userState,
-                              context);
+                              context,
+                              repository,
+                              currentWorkspaceName);
   }
 
   public StreamImporter getWorkspaceImporter(NodeData parent,
@@ -225,7 +233,9 @@ public class ExportImportFactory {
                                              NamespaceRegistry namespaceRegistry,
                                              AccessManager accessManager,
                                              ConversationState userState,
-                                             Map<String, Object> context) {
+                                             Map<String, Object> context,
+                                             RepositoryImpl repository,
+                                             String currentWorkspaceName) {
     return new WorkspaceDataImporter(parent,
                                      uuidBehavior,
                                      dataKeeper,
@@ -236,26 +246,8 @@ public class ExportImportFactory {
                                      namespaceRegistry,
                                      accessManager,
                                      userState,
-                                     context);
-  }
-
-  public StreamImporter getWorkspaceRestoreImporter(ItemDataKeeper dataKeeper,
-                                                    ItemDataConsumer dataConsumer,
-                                                    NodeTypeManagerImpl ntManager,
-                                                    LocationFactory locationFactory,
-                                                    ValueFactoryImpl valueFactory,
-                                                    NamespaceRegistry namespaceRegistry,
-                                                    AccessManager accessManager,
-                                                    ConversationState userState,
-                                                    Map<String, Object> context) {
-    return new WorkspaceRestoreDataImporter(dataKeeper,
-                                            dataConsumer,
-                                            ntManager,
-                                            locationFactory,
-                                            valueFactory,
-                                            namespaceRegistry,
-                                            accessManager,
-                                            userState,
-                                            context);
+                                     context,
+                                     repository,
+                                     currentWorkspaceName);
   }
 }

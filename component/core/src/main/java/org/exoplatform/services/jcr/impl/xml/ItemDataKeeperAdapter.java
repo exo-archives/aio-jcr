@@ -42,7 +42,7 @@ public class ItemDataKeeperAdapter implements ItemDataKeeper {
   /**
    * Class logger.
    */
-  private final Log                log = ExoLogger.getLogger("jcr.ItemDataKiperAdapter");
+  private final Log                log = ExoLogger.getLogger("jcr.ItemDataKeeperAdapter");
 
   /**
    * Adapter from SessionDataManager to ItemDataKeeper.
@@ -62,7 +62,6 @@ public class ItemDataKeeperAdapter implements ItemDataKeeper {
   public void save(ItemStateChangesLog changes) throws InvalidItemStateException,
                                                UnsupportedOperationException,
                                                RepositoryException {
-
     for (ItemState itemState : changes.getAllStates()) {
       if (itemState.isAdded())
         sessionDataManager.update(itemState, false);

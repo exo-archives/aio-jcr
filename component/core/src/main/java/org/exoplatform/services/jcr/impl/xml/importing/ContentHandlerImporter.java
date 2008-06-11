@@ -34,13 +34,15 @@ import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemDataKeeper;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
+import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.security.ConversationState;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: ContentHandlerImporter.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @version $Id: ContentHandlerImporter.java 14100 2008-05-12 10:53:47Z
+ *          gazarenkov $
  */
 public class ContentHandlerImporter implements ContentHandler, ErrorHandler, RawDataImporter {
 
@@ -58,7 +60,9 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
                                 NamespaceRegistry namespaceRegistry,
                                 AccessManager accessManager,
                                 ConversationState userState,
-                                Map<String, Object> context) {
+                                Map<String, Object> context,
+                                RepositoryImpl repository,
+                                String currentWorkspaceName) {
     this.dataKeeper = dataKeeper;
     this.importer = createContentImporter(parent,
                                           uuidBehavior,
@@ -69,7 +73,9 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
                                           namespaceRegistry,
                                           accessManager,
                                           userState,
-                                          context);
+                                          context,
+                                          repository,
+                                          currentWorkspaceName);
 
   }
 
@@ -103,7 +109,9 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
                                                NamespaceRegistry namespaceRegistry,
                                                AccessManager accessManager,
                                                ConversationState userState,
-                                               Map<String, Object> context) {
+                                               Map<String, Object> context,
+                                               RepositoryImpl repository,
+                                               String currentWorkspaceName) {
     return new NeutralImporter(parent,
                                parent.getQPath(),
                                uuidBehavior,
@@ -114,7 +122,9 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
                                namespaceRegistry,
                                accessManager,
                                userState,
-                               context);
+                               context,
+                               repository,
+                               currentWorkspaceName);
 
   }
 

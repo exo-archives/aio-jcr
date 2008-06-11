@@ -47,6 +47,7 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.JCRName;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
+import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.BaseValue;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
@@ -95,7 +96,8 @@ public class SystemViewImporter extends BaseXmlImporter {
                             NamespaceRegistry namespaceRegistry,
                             AccessManager accessManager,
                             ConversationState userState,
-                            Map<String, Object> context) {
+                            Map<String, Object> context, RepositoryImpl repository,
+                            String currentWorkspaceName) {
     super(parent,
           ancestorToSave,
           uuidBehavior,
@@ -106,7 +108,7 @@ public class SystemViewImporter extends BaseXmlImporter {
           namespaceRegistry,
           accessManager,
           userState,
-          context);
+          context, repository, currentWorkspaceName);
   }
 
   /*
@@ -276,21 +278,10 @@ public class SystemViewImporter extends BaseXmlImporter {
 
     currentNodeInfo.setMixinTypeNames(currentNodeInfo.getMixinTypeNames());
 
-    if (currentNodeInfo.isMixVersionable() && !currentNodeInfo.isContainsVersionhistory()) {
-      PlainChangesLogImpl changes = new PlainChangesLogImpl();
-      // using VH helper as for one new VH, all changes in changes log
-      new VersionHistoryDataHelper(currentNodeInfo,
-                                   changes,
-                                   dataConsumer,
-                                   ntManager,
-                                   currentNodeInfo.getVersionHistoryIdentifier(),
-                                   currentNodeInfo.getBaseVersionIdentifier());
-      for (ItemState state : changes.getAllStates()) {
-        if (state.getData().getQPath().isDescendantOf(Constants.JCR_SYSTEM_PATH, false)) {
-          changesLog.add(state);
-        }
-      }
+    if (currentNodeInfo.isMixVersionable()) {
+      createVersionHistory(currentNodeInfo);
     }
+
   }
 
   /**
@@ -358,18 +349,19 @@ public class SystemViewImporter extends BaseXmlImporter {
 
     } else if (Constants.JCR_UUID.equals(propertyInfo.getName())) {
       propertyData = endUuid();
-      
-      // skip verionable properties
-//    } else if (Constants.JCR_VERSIONHISTORY.equals(propertyInfo.getName())
-//        || Constants.JCR_BASEVERSION.equals(propertyInfo.getName())
-//        || Constants.JCR_PREDECESSORS.equals(propertyInfo.getName())) {
-//
-//      propertyData = null;
 
+      // skip verionable properties
+    } else if (Constants.JCR_VERSIONHISTORY.equals(propertyInfo.getName())
+        || Constants.JCR_BASEVERSION.equals(propertyInfo.getName())
+        || Constants.JCR_PREDECESSORS.equals(propertyInfo.getName())) {
+
+      propertyData = null;
+
+      endVersionable((ImportNodeData) getParent(), parseValues());
     } else {
 
       ImportNodeData currentNodeInfo = (ImportNodeData) getParent();
-      List<ValueData> values = parseValues();
+      List<ValueData> values = parseValues(); 
 
       // determinating is property multivalue;
       boolean isMultivalue = true;
@@ -410,8 +402,7 @@ public class SystemViewImporter extends BaseXmlImporter {
                                             isMultivalue);
       propertyData.setValues(values);
 
-      if (currentNodeInfo.isMixVersionable())
-        endVersionable(currentNodeInfo, values);
+
 
     }
     return propertyData;
@@ -431,16 +422,11 @@ public class SystemViewImporter extends BaseXmlImporter {
 
     currentNodeInfo.setMixReferenceable(isNodeType(Constants.MIX_REFERENCEABLE,
                                                    currentNodeInfo.getCurrentNodeTypes()));
-    String identifier = null;
+
     if (currentNodeInfo.isMixReferenceable()) {
       currentNodeInfo.setMixVersionable(isNodeType(Constants.MIX_VERSIONABLE,
                                                    currentNodeInfo.getCurrentNodeTypes()));
-      identifier = validateUuidCollision(propertyInfo.getValues().get(0).toString());
-      if (identifier != null) {
-        reloadChangesInfoAfterUC(currentNodeInfo, identifier);
-      }
-      if (uuidBehavior == ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING)
-        currentNodeInfo.setParentIdentifer(getParent().getIdentifier());
+      checkReferenceable(currentNodeInfo, propertyInfo.getValues().get(0).toString());
     }
 
     propertyData = new ImportPropertyData(QPath.makeChildPath(currentNodeInfo.getQPath(),
@@ -469,8 +455,7 @@ public class SystemViewImporter extends BaseXmlImporter {
         versionHistoryIdentifier = ((TransientValueData) values.get(0)).getString();
 
         currentNodeInfo.setVersionHistoryIdentifier(versionHistoryIdentifier);
-        currentNodeInfo.setContainsVersionhistory(dataConsumer
-                                                         .getItemData(versionHistoryIdentifier) != null);
+        currentNodeInfo.setContainsVersionhistory(dataConsumer.getItemData(versionHistoryIdentifier) != null);
 
       } else if (propertyInfo.getName().equals(Constants.JCR_BASEVERSION)) {
         currentNodeInfo.setBaseVersionIdentifier(((TransientValueData) values.get(0)).getString());

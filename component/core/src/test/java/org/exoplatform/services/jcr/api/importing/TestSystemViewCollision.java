@@ -17,11 +17,8 @@
 package org.exoplatform.services.jcr.api.importing;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.InputStream;
 
 import javax.jcr.ImportUUIDBehavior;
-import javax.jcr.ItemExistsException;
 import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.PropertyType;

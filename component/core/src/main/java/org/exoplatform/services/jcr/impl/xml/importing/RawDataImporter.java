@@ -24,6 +24,7 @@ import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
+import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.security.ConversationState;
@@ -45,6 +46,8 @@ public interface RawDataImporter {
                                                         NamespaceRegistry namespaceRegistry,
                                                         AccessManager accessManager,
                                                         ConversationState userState,
-                                                        Map<String, Object> context);
+                                                        Map<String, Object> context,
+                                                        RepositoryImpl repository,
+                                                        String currentWorkspaceName);
 
 }

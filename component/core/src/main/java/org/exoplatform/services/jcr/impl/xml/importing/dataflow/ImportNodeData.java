@@ -43,17 +43,7 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
   /**
    * 
    */
-  private boolean                      isMixReferenceable;
-
-  /**
-   * 
-   */
-  private boolean                      isMixVersionable;
-
-  /**
-   * 
-   */
-  private String                       versionHistoryIdentifier;
+  private String                       baseVersionIdentifier;
 
   /**
    * 
@@ -63,12 +53,26 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
   /**
    * 
    */
-  private String                       baseVersionIdentifier;
+  private boolean                      isMixReferenceable;
+
+  /**
+   * 
+   */
+  private boolean                      isMixVersionable;
+
+  private boolean                      newIdentifer;
 
   /**
    * 
    */
   private final List<ExtendedNodeType> nodeTypes = new ArrayList<ExtendedNodeType>();
+
+  private String                       predecessorsIdentifier;
+
+  /**
+   * 
+   */
+  private String                       versionHistoryIdentifier;
 
   /**
    * @param parent
@@ -80,8 +84,8 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
     this.qpath = QPath.makeChildPath(parent.getQPath(), name, index);
     this.parentIdentifier = parent.getIdentifier();
   }
+
   /**
-   * 
    * @param path
    * @param identifier
    * @param version
@@ -92,13 +96,13 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
    * @param acl
    */
   public ImportNodeData(QPath path,
-                          String identifier,
-                          int version,
-                          InternalQName primaryTypeName,
-                          InternalQName[] mixinTypeNames,
-                          int orderNum,
-                          String parentIdentifier,
-                          AccessControlList acl) {
+                        String identifier,
+                        int version,
+                        InternalQName primaryTypeName,
+                        InternalQName[] mixinTypeNames,
+                        int orderNum,
+                        String parentIdentifier,
+                        AccessControlList acl) {
     super(path,
           identifier,
           version,
@@ -150,6 +154,10 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
     return nodeTypes;
   }
 
+  public String getPredecessorsIdentifier() {
+    return predecessorsIdentifier;
+  }
+
   /**
    * @return the versionHistoryIdentifier
    */
@@ -178,6 +186,10 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
     return isMixVersionable;
   }
 
+  public boolean isNewIdentifer() {
+    return newIdentifer;
+  }
+
   /**
    * @param baseVersionIdentifier the baseVersionIdentifier to set
    */
@@ -190,6 +202,10 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
    */
   public void setContainsVersionhistory(boolean isContainsVersionhistory) {
     this.isContainsVersionhistory = isContainsVersionhistory;
+  }
+
+  public void setIsNewIdentifer(boolean newIdentifer) {
+    this.newIdentifer = newIdentifer;
   }
 
   /**
@@ -215,6 +231,10 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
     this.parentIdentifier = identifer;
   }
 
+  public void setPredecessorsIdentifier(String predecessorsIdentifier) {
+    this.predecessorsIdentifier = predecessorsIdentifier;
+  }
+
   public void setPrimaryTypeName(InternalQName name) {
     primaryTypeName = name;
   }
@@ -237,13 +257,13 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
 
   public static ImportNodeData createCopy(TransientNodeData source) {
     return new ImportNodeData(source.getQPath(),
-                                source.getIdentifier(),
-                                source.getPersistedVersion(),
-                                source.getPrimaryTypeName(),
-                                source.getMixinTypeNames(),
-                                source.getOrderNumber(),
-                                source.getParentIdentifier(),
-                                source.getACL());
+                              source.getIdentifier(),
+                              source.getPersistedVersion(),
+                              source.getPrimaryTypeName(),
+                              source.getMixinTypeNames(),
+                              source.getOrderNumber(),
+                              source.getParentIdentifier(),
+                              source.getACL());
 
   }
 }

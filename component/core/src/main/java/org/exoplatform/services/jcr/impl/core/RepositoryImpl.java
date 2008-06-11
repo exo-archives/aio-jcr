@@ -50,6 +50,7 @@ import org.exoplatform.services.jcr.impl.RepositoryContainer;
 import org.exoplatform.services.jcr.impl.WorkspaceContainer;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
+import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableDataManager;
 import org.exoplatform.services.jcr.impl.xml.ExportImportFactory;
 import org.exoplatform.services.jcr.impl.xml.importing.ContentImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
@@ -337,18 +338,24 @@ public class RepositoryImpl implements ManageableRepository {
       Map<String, Object> context = new HashMap<String, Object>();
       context.put(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS, true);
 
-      StreamImporter importer =
-          new ExportImportFactory().getWorkspaceImporter(((NodeData) ((NodeImpl) sysSession.getRootNode()).getData()),
-                                                         ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW,
-                                                         sysSession.getTransientNodesManager().getTransactManager(),
-                                                         sysSession.getTransientNodesManager().getTransactManager(),
-                                                         (NodeTypeManagerImpl) getNodeTypeManager(),
-                                                         sysSession.getLocationFactory(),
-                                                         sysSession.getValueFactory(),
-                                                         getNamespaceRegistry(),
-                                                         sysSession.getAccessManager(),
-                                                         sysSession.getUserState(),
-                                                         context);
+      NodeData rootData = ((NodeData) ((NodeImpl) sysSession.getRootNode()).getData());
+      TransactionableDataManager dataManager = sysSession.getTransientNodesManager()
+                                                         .getTransactManager();
+      ExportImportFactory eiFactory = new ExportImportFactory();
+
+      StreamImporter importer = eiFactory.getWorkspaceImporter(rootData,
+                                                               ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW,
+                                                               dataManager,
+                                                               dataManager,
+                                                               (NodeTypeManagerImpl) getNodeTypeManager(),
+                                                               sysSession.getLocationFactory(),
+                                                               sysSession.getValueFactory(),
+                                                               getNamespaceRegistry(),
+                                                               sysSession.getAccessManager(),
+                                                               sysSession.getUserState(),
+                                                               context,
+                                                               this,
+                                                               wsName);
       importer.importStream(xmlStream);
     } finally {
       sysSession.logout();

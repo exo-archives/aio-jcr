@@ -18,10 +18,6 @@ package org.exoplatform.services.jcr.api.importing;
 
 import javax.jcr.ImportUUIDBehavior;
 
-import org.apache.commons.logging.Log;
-
-import org.exoplatform.services.log.ExoLogger;
-
 /**
  * Created by The eXo Platform SAS.
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>

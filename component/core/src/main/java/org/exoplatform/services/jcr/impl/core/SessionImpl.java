@@ -518,16 +518,18 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     context.put(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS, true);
 
     return new ExportImportFactory().getImportHandler(((NodeData) node.getData()),
-                                                          uuidBehavior,
-                                                          new ItemDataKeeperAdapter(getTransientNodesManager()),
-                                                          getTransientNodesManager(),
-                                                          getWorkspace().getNodeTypeManager(),
-                                                          getLocationFactory(),
-                                                          getValueFactory(),
-                                                          getWorkspace().getNamespaceRegistry(),
-                                                          getAccessManager(),
-                                                          userState,
-                                                          context);
+                                                      uuidBehavior,
+                                                      new ItemDataKeeperAdapter(getTransientNodesManager()),
+                                                      getTransientNodesManager(),
+                                                      getWorkspace().getNodeTypeManager(),
+                                                      getLocationFactory(),
+                                                      getValueFactory(),
+                                                      getWorkspace().getNamespaceRegistry(),
+                                                      getAccessManager(),
+                                                      userState,
+                                                      context,
+                                                      (RepositoryImpl) getRepository(),
+                                                      getWorkspace().getName());
   }
 
   /*
@@ -822,7 +824,9 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                                           getWorkspace().getNamespaceRegistry(),
                                                                           getAccessManager(),
                                                                           userState,
-                                                                          context);
+                                                                          context,
+                                                                          (RepositoryImpl) getRepository(),
+                                                                          getWorkspace().getName());
     importer.importStream(in);
   }
 

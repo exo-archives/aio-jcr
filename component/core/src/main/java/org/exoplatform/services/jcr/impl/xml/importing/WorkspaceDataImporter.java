@@ -28,6 +28,7 @@ import org.exoplatform.services.jcr.dataflow.ItemDataKeeper;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
+import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.log.ExoLogger;
@@ -37,7 +38,8 @@ import org.exoplatform.services.security.ConversationState;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: WorkspaceDataImporter.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @version $Id: WorkspaceDataImporter.java 14100 2008-05-12 10:53:47Z
+ *          gazarenkov $
  */
 public class WorkspaceDataImporter extends StreamImporter {
   private final Log log = ExoLogger.getLogger("jcr.WorkspaceDataImporter");
@@ -52,7 +54,9 @@ public class WorkspaceDataImporter extends StreamImporter {
                                NamespaceRegistry namespaceRegistry,
                                AccessManager accessManager,
                                ConversationState userState,
-                               Map<String, Object> context) {
+                               Map<String, Object> context,
+                               RepositoryImpl repository,
+                               String currentWorkspaceName) {
     super(parent,
           uuidBehavior,
           dataKeeper,
@@ -63,7 +67,9 @@ public class WorkspaceDataImporter extends StreamImporter {
           namespaceRegistry,
           accessManager,
           userState,
-          context);
+          context,
+          repository,
+          currentWorkspaceName);
     if (!Constants.ROOT_PATH.equals(parent.getQPath())) {
       throw new IllegalArgumentException("Current element should be root");
     }
@@ -86,7 +92,9 @@ public class WorkspaceDataImporter extends StreamImporter {
                                                NamespaceRegistry namespaceRegistry,
                                                AccessManager accessManager,
                                                ConversationState userState,
-                                               Map<String, Object> context) {
+                                               Map<String, Object> context,
+                                               RepositoryImpl repository,
+                                               String currentWorkspaceName) {
 
     return new WorkspaceContentImporter(parent,
                                         parent.getQPath(),
@@ -98,7 +106,9 @@ public class WorkspaceDataImporter extends StreamImporter {
                                         namespaceRegistry,
                                         accessManager,
                                         userState,
-                                        context);
+                                        context,
+                                        repository,
+                                        currentWorkspaceName);
   }
 
 }

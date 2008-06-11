@@ -54,6 +54,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
+import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.BaseValue;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
@@ -109,7 +110,8 @@ public class DocumentViewImporter extends BaseXmlImporter {
                               NamespaceRegistry namespaceRegistry,
                               AccessManager accessManager,
                               ConversationState userState,
-                              Map<String, Object> context) {
+                              Map<String, Object> context, RepositoryImpl repository,
+                              String currentWorkspaceName) {
     super(parent,
           ancestorToSave,
           uuidBehavior,
@@ -120,7 +122,9 @@ public class DocumentViewImporter extends BaseXmlImporter {
           namespaceRegistry,
           accessManager,
           userState,
-          context);
+          context,
+          repository,
+          currentWorkspaceName);
     xmlCharactersProperty = null;
     xmlCharactersPropertyValue = null;
   }
@@ -216,6 +220,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
     InternalQName jcrName = locationFactory.parseJCRName(nodeName).getInternalName();
 
     ImportNodeData nodeData = createNode(nodeTypes, propertiesMap, mixinNodeTypes, jcrName);
+
     NodeData parentNodeData = getParent();
     changesLog.add(new ItemState(nodeData, ItemState.ADDED, true, getAncestorToSave()));
 
@@ -339,29 +344,21 @@ public class DocumentViewImporter extends BaseXmlImporter {
                                                                  pType,
                                                                  isMultivalue,
                                                                  values);
+
           if (nodeData.isMixVersionable()) {
             endVersionable(nodeData, values, propName);
           }
         }
       }
-
-      changesLog.add(new ItemState(newProperty, ItemState.ADDED, true, getAncestorToSave()));
-    }
-    if (nodeData.isMixVersionable() && !nodeData.isContainsVersionhistory()) {
-      PlainChangesLogImpl changes = new PlainChangesLogImpl();
-      // using VH helper as for one new VH, all changes in changes log
-      new VersionHistoryDataHelper(nodeData,
-                                   changes,
-                                   dataConsumer,
-                                   ntManager,
-                                   nodeData.getVersionHistoryIdentifier(),
-                                   nodeData.getBaseVersionIdentifier());
-      for (ItemState state : changes.getAllStates()) {
-        if (state.getData().getQPath().isDescendantOf(Constants.JCR_SYSTEM_PATH, false)) {
-          changesLog.add(state);
-        }
+      // skip versionable
+      if (!Constants.JCR_VERSIONHISTORY.equals(propName)
+          && !Constants.JCR_BASEVERSION.equals(propName)
+          && !Constants.JCR_PREDECESSORS.equals(propName)) {
+        changesLog.add(new ItemState(newProperty, ItemState.ADDED, true, getAncestorToSave()));
       }
-
+    }
+    if (nodeData.isMixVersionable()) {
+      createVersionHistory(nodeData);
     }
   }
 
@@ -395,14 +392,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
 
     if (nodeData.isMixReferenceable()) {
       nodeData.setMixVersionable(isNodeType(Constants.MIX_VERSIONABLE, nodeTypes));
-      String identifier = validateUuidCollision(propertiesMap.get(Constants.JCR_UUID));
-      if (identifier != null) {
-        reloadChangesInfoAfterUC(nodeData, identifier);
-      }
-
-      if (uuidBehavior == ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING) {
-        nodeData.setParentIdentifer(tree.peek().getIdentifier());
-      }
+      checkReferenceable(nodeData, propertiesMap.get(Constants.JCR_UUID));
     }
     return nodeData;
   }
