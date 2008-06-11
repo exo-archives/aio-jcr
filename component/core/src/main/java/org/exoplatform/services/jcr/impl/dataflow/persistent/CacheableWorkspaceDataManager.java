@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.impl.dataflow.persistent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import javax.jcr.RepositoryException;
 
@@ -59,7 +60,9 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     
     protected final int hcode;
     
-    protected boolean stared;
+    //protected boolean stared;
+    
+    protected CountDownLatch ready = new CountDownLatch(1); 
     
     DataRequest(String parentId, int type) {
       this.parentId = parentId;
@@ -106,13 +109,14 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
         prev = requestCache.get(this.hashCode());
       } 
       if (prev != null)
-        while (prev.isStarted()) {
-          // wait for prev request will be finished 
-          try {
-            Thread.yield();
-            Thread.sleep(20); // TODO make more efficient, use flexible timing here
-          } catch (InterruptedException e) {}
-        }
+        prev.await();
+//        while (prev.isStarted()) {
+//          // wait for prev request will be finished 
+//          try {
+//            Thread.yield();
+//            Thread.sleep(20); // TODO make more efficient, use flexible timing here
+//          } catch (InterruptedException e) {}
+//        }
       return this;
     }
 
@@ -120,7 +124,7 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
      * Start the request, each same will wait till this will be finished
      */
     void start() {
-      this.stared = true;
+      //this.stared = true;
       synchronized (requestCache) {
         requestCache.put(this.hashCode(), this);
       }
@@ -131,14 +135,25 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
      * This call allow another same requests to be performed.
      */
     void done() {
-      this.stared = false;
+      this.ready.countDown();
+      //this.stared = false;
       synchronized (requestCache) {
         requestCache.remove(this.hashCode());
       }
     }
     
+    @Deprecated
     boolean isStarted() {
-      return this.stared;
+      return this.ready.getCount() > 0;
+      //return this.stared;
+    }
+    
+    void await() {
+      try {
+        this.ready.await();
+      } catch (InterruptedException e) {
+        log.warn("Can't wait for same request process. " + e, e);
+      }
     }
     
     @Override
@@ -156,7 +171,7 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
    * @param dataContainer
    * @param cache
    */
-  public CacheableWorkspaceDataManager(WorkspaceDataContainer dataContainer, WorkspaceStorageCacheImpl cache,
+  public CacheableWorkspaceDataManager(WorkspaceDataContainer dataContainer, WorkspaceStorageCache cache,
        SystemDataContainerHolder systemDataContainerHolder) {
     super(dataContainer, systemDataContainerHolder);
     this.cache = cache;

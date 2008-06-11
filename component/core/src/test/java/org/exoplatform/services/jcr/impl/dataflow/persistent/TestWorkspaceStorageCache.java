@@ -22,7 +22,6 @@ import java.util.List;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
-import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
@@ -36,6 +35,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 public class TestWorkspaceStorageCache extends JcrImplBaseTest {
@@ -84,7 +84,7 @@ public class TestWorkspaceStorageCache extends JcrImplBaseTest {
   private PropertyData propertyData311;
   private PropertyData propertyData312;
   
-  private WorkspaceStorageCacheImpl cache;
+  private WorkspaceStorageCache cache;
   
   public void setUp() throws Exception {
     super.setUp();
@@ -105,15 +105,17 @@ public class TestWorkspaceStorageCache extends JcrImplBaseTest {
     propertyUuid311 = IdGenerator.generate();
     propertyUuid312 = IdGenerator.generate();
     
-    WorkspaceStorageCache cacheProbe = (WorkspaceStorageCacheImpl) session.getContainer().getComponentInstanceOfType(WorkspaceStorageCacheImpl.class);
+    WorkspaceStorageCache cacheProbe = (WorkspaceStorageCache) session.getContainer().getComponentInstanceOfType(WorkspaceStorageCache.class);
     assertNotNull("Cache is unaccessible (check access denied or configuration)", cacheProbe);
     assertTrue("Cache is disabled", cacheProbe.isEnabled());
     
     // new instance
-    cache = new WorkspaceStorageCacheImpl(
-        (CacheService) session.getContainer().getComponentInstanceOfType(CacheService.class),
-        (WorkspaceEntry) session.getContainer().getComponentInstanceOfType(WorkspaceEntry.class)
-        );
+//    cache = new WorkspaceStorageCacheImpl(
+//        (CacheService) session.getContainer().getComponentInstanceOfType(CacheService.class),
+//        (WorkspaceEntry) session.getContainer().getComponentInstanceOfType(WorkspaceEntry.class)
+//        );
+    
+    cache = new LRUWorkspaceStorageCacheImpl((WorkspaceEntry) session.getContainer().getComponentInstanceOfType(WorkspaceEntry.class));
     assertNotNull("Cache is disabled (test cache)", cache);
   }
   
@@ -446,4 +448,114 @@ public class TestWorkspaceStorageCache extends JcrImplBaseTest {
     assertNull("Child node " + nodeData32.getQPath().getAsString() + " in the cache", cache.get(nodeUuid32));    
   }
   
+  /**
+   * Test size limit.
+   * @throws Exception
+   */
+  public void testSize() throws Exception {
+    final int cacheSize = 500; 
+    WorkspaceStorageCache cache = new LRUWorkspaceStorageCacheImpl("testSize_cache", true, cacheSize, 120, 60 * 1000);
+    
+    NodeData parent = new TransientNodeData(QPath.parse("[]:1[]parent:1"), 
+                                            IdGenerator.generate(), 1, Constants.NT_UNSTRUCTURED, new InternalQName[0], 1, 
+                                            IdGenerator.generate(), new AccessControlList());
+    cache.put(parent);
+    
+    List<NodeData> childs = new ArrayList<NodeData>();
+    for (int i=0; i<200; i++) {
+      NodeData child = TransientNodeData.createNodeData(parent, InternalQName.parse("[]node "+i+" :1"), Constants.NT_UNSTRUCTURED);
+      cache.put(child);
+      childs.add(child);
+    }
+    
+    assertEquals("Wrong size", 201 * 2, cache.getSize());
+    
+    childs.remove(0);
+    childs.remove(1);
+    childs.remove(2);
+    childs.remove(3);
+    for (int i=0; i<200; i++) {
+      NodeData child = TransientNodeData.createNodeData(parent, InternalQName.parse("[]node A "+i+" :1"), Constants.NT_UNSTRUCTURED);
+      childs.add(child);
+    }
+    
+    cache.addChildNodes(parent, childs);
+    
+    // nodes cached (201 + 200 - 4) * 2, but limit is cacheSize 
+    assertEquals("Wrong size", cacheSize, cache.getSize());
+    
+    //assertNull("Shoudkl be uncached (eldest removed)", cache.get(parent.getIdentifier()));
+    
+  }
+  
+  /**
+   * Test live time.
+   * @throws Exception
+   */
+  public void testLiveTime() throws Exception {
+    final int cacheSize = 500; 
+    final int liveTime = 10; // sec 
+    WorkspaceStorageCache cache = new LRUWorkspaceStorageCacheImpl("testLiveTime_cache", true, cacheSize, liveTime, 60 * 1000);
+    
+    NodeData parent = new TransientNodeData(QPath.parse("[]:1[]parent:1"), 
+                                            IdGenerator.generate(), 1, Constants.NT_UNSTRUCTURED, new InternalQName[0], 1, 
+                                            IdGenerator.generate(), new AccessControlList());
+    cache.put(parent);
+    
+    List<NodeData> childs = new ArrayList<NodeData>();
+    for (int i=0; i<200; i++) {
+      NodeData child = TransientNodeData.createNodeData(parent, InternalQName.parse("[]node "+i+" :1"), Constants.NT_UNSTRUCTURED);
+      cache.put(child);
+      childs.add(child);
+    }
+
+    Thread.sleep(liveTime * 1000);
+    
+    assertEquals("Wrong size", 201 * 2, cache.getSize());
+    
+    // but nothing can be getted
+    assertNull("Should be uncached (time expired)", cache.get(parent.getIdentifier()));
+    assertNull("Should be uncached (time expired)", cache.get(childs.get(10).getIdentifier()));
+    
+    // items were removed on get
+    assertEquals("Wrong size", (201 -2) * 2, cache.getSize());
+  }
+  
+  /**
+   * Test if expired scheduler works.
+   * 
+   * Test instance runs after 5 second. (*) <br/>
+   * 
+   * @throws Exception
+   */
+  public void testExpiredScheduler() throws Exception {
+    final int cacheSize = 500; 
+    final int liveTime = 10; // sec 
+    WorkspaceStorageCache cache = new LRUWorkspaceStorageCacheImpl("testExpiredScheduler_cache", true, cacheSize, liveTime, liveTime * 1000 * 2); // (*)
+    
+    NodeData parent = new TransientNodeData(QPath.parse("[]:1[]parent:1"), 
+                                            IdGenerator.generate(), 1, Constants.NT_UNSTRUCTURED, new InternalQName[0], 1, 
+                                            IdGenerator.generate(), new AccessControlList());
+    cache.put(parent);
+    
+    List<NodeData> childs = new ArrayList<NodeData>();
+    for (int i=0; i<200; i++) {
+      NodeData child = TransientNodeData.createNodeData(parent, InternalQName.parse("[]node "+i+" :1"), Constants.NT_UNSTRUCTURED);
+      cache.put(child);
+      childs.add(child);
+    }
+
+    assertEquals("Wrong size", 201 * 2, cache.getSize());
+    
+    Thread.sleep(liveTime * 1000); // wait items expired
+    
+    // but nothing can be getted
+    assertNull("Should be uncached (time expired)", cache.get(parent.getIdentifier()));
+    assertNull("Should be uncached (time expired)", cache.get(childs.get(10).getIdentifier()));
+    
+    Thread.sleep((liveTime + 10) * 1000); // wait expired items will be removed by scheduler (*)
+    
+    // items were removed on get
+    assertEquals("Wrong size", 0, cache.getSize());
+  }
 }

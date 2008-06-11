@@ -138,6 +138,10 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     }
   }
 
+  public long getSize() {
+    return cache.getCacheSize();
+  }
+
   /**
    * @param identifier a Identifier of item cached
    */
@@ -164,7 +168,7 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     try {
       return getItem(parentId, name);
     } catch (Exception e) {
-      log.error("GET operation fails. Parent ID=" + parentId + " name " + name.getAsString() + ". Error " + e
+      log.error("GET operation fails. Parent ID=" + parentId + " name " + (name != null ? name.getAsString() : name) + ". Error " + e
           + ". NULL returned.", e);
       return null;
     }
@@ -766,15 +770,15 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     }
   }
 
-  @Deprecated
-  protected void removeSuccessors(final String parentPath) {
-    final ByPathRemoveSelector remover = new ByPathRemoveSelector(parentPath);
-    try {
-      cache.select(remover);
-    } catch (Exception e) {
-      log.error(name + ", removeSuccessors() " + parentPath, e);
-    }
-  }
+//  @Deprecated
+//  protected void removeSuccessors(final String parentPath) {
+//    final ByPathRemoveSelector remover = new ByPathRemoveSelector(parentPath);
+//    try {
+//      cache.select(remover);
+//    } catch (Exception e) {
+//      log.error(name + ", removeSuccessors() " + parentPath, e);
+//    }
+//  }
 
   /**
    * Remove successors by parent path. Path is a string, if an item's path starts with it then the item will be removed

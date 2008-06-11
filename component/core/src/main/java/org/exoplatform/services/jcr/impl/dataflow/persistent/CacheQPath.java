@@ -16,20 +16,21 @@
  */
 package org.exoplatform.services.jcr.impl.dataflow.persistent;
 
-import java.io.Serializable;
-
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS. <br/>
+ * 
+ * Store QPath as key in cache.
+ * 
  * 15.06.07
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: CacheQPath.java 13869 2008-05-05 08:40:10Z pnedonosko $
  */
-class CacheQPath implements Serializable {
+class CacheQPath extends CacheKey {
 
   //private static final String BASE = String.valueOf(UUID.randomUUID().hashCode()) + "-";
   
@@ -111,11 +112,16 @@ class CacheQPath implements Serializable {
       key;
   }
 
-  protected String getParentId() {
-    return parentId;
+//  protected String getParentId() {
+//    return parentId;
+//  }
+
+  QPath getQPath() {
+    return path;
   }
 
-  protected QPath getQPath() {
-    return path;
+  @Override
+  boolean isDescendantOf(QPath path) {
+    return this.path.isDescendantOf(path, false);
   }
 }

@@ -95,5 +95,13 @@ public interface WorkspaceStorageCache extends ItemsPersistenceListener {
    * @return enabled status flag, if true then cache is enabled
    */
   boolean isEnabled();
-    
+ 
+  /**
+   * Cache size.
+   * 
+   * @return long value
+   */
+  long getSize();
+  
+  
 }

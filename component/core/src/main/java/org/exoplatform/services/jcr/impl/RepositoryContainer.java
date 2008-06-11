@@ -54,6 +54,7 @@ import org.exoplatform.services.jcr.impl.core.query.SystemSearchManager;
 import org.exoplatform.services.jcr.impl.core.query.SystemSearchManagerHolder;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
+import org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.LocalWorkspaceDataManagerStub;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspaceStorageCacheImpl;
 import org.exoplatform.services.jcr.impl.storage.SystemDataContainerHolder;
@@ -161,7 +162,8 @@ public class RepositoryContainer extends ExoContainer {
             + wsConfig.getUniqueName() + " : " + e);
       }
 
-      workspaceContainer.registerComponentImplementation(WorkspaceStorageCacheImpl.class);
+      workspaceContainer.registerComponentImplementation(LRUWorkspaceStorageCacheImpl.class);
+      //workspaceContainer.registerComponentImplementation(WorkspaceStorageCacheImpl.class);
       workspaceContainer.registerComponentImplementation(CacheableWorkspaceDataManager.class);
       workspaceContainer.registerComponentImplementation(LocalWorkspaceDataManagerStub.class);
       workspaceContainer.registerComponentImplementation(ObservationManagerRegistry.class);
