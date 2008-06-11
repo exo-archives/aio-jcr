@@ -647,8 +647,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
                                                                          parentNode.nodeData().getMixinTypeNames());
     } finally {
       if (def == null) {
-        throw new ConstraintViolationException("Can't add node " + name.getAsString() + " to " + getPath() + " node type "
-            + primaryTypeName.getAsString() + " is not allowed as child's node name" + ptStr + " for parent node type ");
+        throw new ConstraintViolationException("Can't add node " + name.getAsString() + " to " + getPath() + ". Node type "
+            + primaryTypeName.getAsString() + " is not allowed as child's node  " + ptStr + " for parent node type ");
       }
     }
 
