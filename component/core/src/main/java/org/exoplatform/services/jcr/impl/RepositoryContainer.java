@@ -180,7 +180,6 @@ public class RepositoryContainer extends ExoContainer {
       }
       workspaceContainer.registerComponentImplementation(LockManagerImpl.class);
 
-
       // Query handler
       if (wsConfig.getQueryHandler() != null) {
         workspaceContainer.registerComponentImplementation(SearchManager.class);

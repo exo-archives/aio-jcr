@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.impl.dataflow.persistent;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -27,7 +28,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.WeakHashMap;
 import java.util.Map.Entry;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.logging.Log;
@@ -65,11 +65,11 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   protected static Log                                  log                = ExoLogger.getLogger("jcr.LRUWorkspaceStorageCacheImpl");
 
-  protected Log                                         info               = ExoLogger.getLogger("jcr.LRUWorkspaceStorageCacheImplINFO");
+  //protected Log                                         info               = ExoLogger.getLogger("jcr.LRUWorkspaceStorageCacheImplINFO");
 
   private final LRUCache<CacheKey, CacheValue>         cache;
   
-  private final Lock writeLock = new ReentrantLock();
+  private final CacheLock writeLock = new CacheLock();
 
   private final WeakHashMap<String, List<NodeData>>     nodesCache;
 
@@ -84,6 +84,17 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   private final long liveTime;
   
   private final int maxSize;
+  
+  class CacheLock extends ReentrantLock {
+    
+    Collection<Thread> getLockThreads() {
+      return getQueuedThreads();
+    }
+    
+    Thread getLockOwner() {
+      return getOwner();
+    }
+  }
   
   class LRUCache<K extends CacheKey, V extends CacheValue> extends LinkedHashMap<K, V> {
 
@@ -243,38 +254,65 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   private void scheduleCleaner(int start, long period) {
     TimerTask cleanerTask = new TimerTask() {
       
+      private Log log               = ExoLogger.getLogger("jcr.LRUWorkspaceStorageCacheImpl_Cleaner");
+      
       private volatile boolean inProgress = false;
       
       public void run() {
         
         if (!inProgress) {
-          if (writeLock.tryLock()) {
+          if (writeLock.tryLock()) { // lock writers (putItem())
+            String lockOwnerId = "";
             try {
               inProgress = true;
+              lockOwnerId = String.valueOf(writeLock.getLockOwner());
               int sizeBefore = cache.size();
-              List<ItemData> expired = new ArrayList<ItemData>(); 
-              for (Map.Entry<CacheKey, CacheValue> ce : cache.entrySet()) {
-                if (ce.getValue().getExpiredTime() <= System.currentTimeMillis()) {
-                  ItemData item = ce.getValue().getItem();
-                  if (item != null)
-                    expired.add(item);
+              List<ItemData> expired = new ArrayList<ItemData>();
+              
+              long start = System.currentTimeMillis();
+              //log.info("Start cleaner in thread [" + Thread.currentThread() + "], lock owner " + lockOwnerId + ". Task " + this);
+              
+              // We have to synchronize cache C to use iterator here due to LinkedhashMap LRU logic
+              // which causes ConcurrentModificationException on access operations too.
+              synchronized (cache) { // lock readers (geItem())
+                for (Map.Entry<CacheKey, CacheValue> ce : cache.entrySet()) {
+                //for (cache.entrySet().toArray(a)) {
+                  if (ce.getValue().getExpiredTime() <= System.currentTimeMillis()) {
+                    ItemData item = ce.getValue().getItem();
+                    if (item != null)
+                      expired.add(item);
+                  }
                 }
               }
-              
               for (ItemData ex: expired)
                 removeExpired(ex); // expired
               
               if (log.isDebugEnabled())
-                log.debug("Cleaner task done. Was " + sizeBefore + " now " + cache.size() + " items. " + expired.size() + " processed.");
+                log.debug("Cleaner task done in " + (System.currentTimeMillis() - start) + "ms. Size " + 
+                       sizeBefore + " -> " + cache.size() + ", " + expired.size() + " processed.");
+            } catch(ConcurrentModificationException e) {
+              if (log.isDebugEnabled()) {
+                StringBuilder lockUsers = new StringBuilder();
+                for (Thread user: writeLock.getLockThreads()) {
+                  lockUsers.append(user.toString());
+                  lockUsers.append(',');
+                }
+                log.error("Cleaner task error, cache in use. On-write owner [" + 
+                          lockOwnerId + "], users [" + lockUsers.toString() + "], error " + e, e);
+              } // else it's not matter for work, the task will try next time
             } catch (Throwable e) {
-              log.error("Cleaner task error " + e, e);
+              if (log.isDebugEnabled())
+                log.error("Cleaner task error " + e, e);
+              else
+                log.error("Cleaner task error " + e + ". Will try next time.");
             } finally {
               inProgress = false;
               writeLock.unlock();
             }
           } else // skip if lock is used by another process
             if (log.isDebugEnabled())
-              log.debug("Cleaner task skipped. On-write lock in use by another process. Will try next time.");
+              log.debug("Cleaner task skipped. Ceche in use by another process [" + 
+                       String.valueOf(writeLock.getLockOwner()) + "]. Will try next time.");
         } else // skip if previous in progress
           if (log.isDebugEnabled())
             log.debug("Cleaner task skipped. Previous one still runs. Will try next time.");
@@ -858,8 +896,9 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
 
   /**
-   * Remove item relations in the cache(C,CN,CP) by Identifier in case of item remove from persisten storage. Relations for a node it's a child nodes,
-   * properties and item in node's parent childs list. Relations for a property it's a item in node's parent childs list.
+   * Remove item relations in the cache(C,CN,CP) by Identifier in case of item remove from persisten storage. 
+   * <br/>Relations for a node it's a child nodes, properties and item in node's parent childs list. 
+   * <br/>Relations for a property it's a item in node's parent childs list.
    */
   protected void removeRelations(final ItemData item) {
     // removing child item data from list of childs of the parent
