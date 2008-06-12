@@ -463,10 +463,10 @@ public class SearchIndex implements QueryHandler {
       log.info("Index initialized: " + queryHandlerConfig.getIndexDir() + " Version: "
           + index.getIndexFormatVersion() + "");
 
-      File file = new File(indexDir, ERROR_LOG);
-      errorLog = new ErrorLog(file,queryHandlerConfig.getErrorLogSize());
+    //  File file = new File(indexDir, ERROR_LOG);
+    //  errorLog = new ErrorLog(file,queryHandlerConfig.getErrorLogSize());
       // reprocess any notfinished notifies;
-      recoverErrorLog(errorLog);
+     // recoverErrorLog(errorLog);
 
     } catch (IOException e) {
       log.error(e.getLocalizedMessage());

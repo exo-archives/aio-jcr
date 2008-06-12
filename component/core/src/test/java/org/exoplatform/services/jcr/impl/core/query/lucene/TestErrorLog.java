@@ -60,7 +60,7 @@ public class TestErrorLog extends BaseQueryTest {
       }
 
       public void run() {
-        try {
+/*        try {
           for (int i = 0; i < SIZE; i++) {
             log.append(ErrorLog.ADD,name + i);
             //System.out.println(name + i);
@@ -69,6 +69,24 @@ public class TestErrorLog extends BaseQueryTest {
         } catch (Exception e) {
           System.out.println(e);
         }
+        */
+        
+          try {
+            HashSet<String> add = new HashSet<String>();
+            HashSet<String> rem = new HashSet<String>();
+            
+            for(int j=0; j<10; j++){
+              add.clear();
+              for (int i = 0; i <10; i++) {
+                int el= j*10+i;
+                add.add(name+el);
+              }
+              log.writeChanges(rem, add);
+            }
+            
+          } catch (Exception e) {
+            System.out.println(e);
+          }
       }
     }
 

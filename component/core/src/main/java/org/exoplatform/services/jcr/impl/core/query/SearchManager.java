@@ -326,7 +326,7 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
         log.error("Error indexing changes " + e, e);
       } catch (IOException e) {
         log.error("Error indexing changes " + e, e);
-        try {
+       /* try {
           handler.logErrorChanges(removedNodes, addedNodes);
 
           Thread.sleep(1000); // wait a bit
@@ -334,7 +334,7 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
           log.warn("Exception occure when errorLog writed. Error log is not complete. " + ioe, ioe);
         } catch (InterruptedException ie) {
           log.warn("Exception occure when wait for errorLog" + ie, ie);
-        }
+        }*/
       }
     }
 
