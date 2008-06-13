@@ -556,15 +556,18 @@ public class MultiIndex {
    * @throws IOException if a new index cannot be created.
    */
   synchronized PersistentIndex getOrCreateIndex(String indexName) throws IOException {
+   
     // check existing
     for (Iterator<PersistentIndex> it = indexes.iterator(); it.hasNext();) {
       PersistentIndex idx = it.next();
       if (idx.getName().equals(indexName)) {
+        log.info("  GET INDEX "+ indexName);
         return idx;
       }
     }
 
     // otherwise open / create it
+    log.info("  CREATE INDEX "+ indexName);
     File sub;
     if (indexName == null) {
       sub = newIndexFolder();
@@ -835,6 +838,7 @@ public class MultiIndex {
    * @param index the index to delete.
    */
   synchronized void deleteIndex(PersistentIndex index) {
+    log.info(" DELETE INDEX " + index.getName());
     // remove it from the lists if index is registered
     indexes.remove(index);
     indexNames.removeName(index.getName());
@@ -845,6 +849,7 @@ public class MultiIndex {
         deletable.addName(index.getName());
       }
     }
+    
   }
 
   /**
@@ -1041,6 +1046,7 @@ public class MultiIndex {
    *         <code>false</code> otherwise.
    */
   private boolean deleteIndex(File directory) {
+    log.info(" DELETE INDEX DIRECTORY " + directory.getName());
     // trivial if it does not exist anymore
     if (!directory.exists()) {
       return true;
