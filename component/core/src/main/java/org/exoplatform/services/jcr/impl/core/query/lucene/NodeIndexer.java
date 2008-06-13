@@ -32,6 +32,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.exoplatform.services.document.DocumentReader;
 import org.exoplatform.services.document.DocumentReaderService;
+import org.exoplatform.services.document.HandlerNotFoundException;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.core.value.ExtendedValue;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
@@ -374,8 +375,16 @@ public class NodeIndexer {
               is.close();
             } catch (Throwable e) {}  
           }
-        } catch (Exception e) {
+        } catch(HandlerNotFoundException e) {
+          // no handler - no index
+          log.warn("This content is not readable " + e);
+        } catch(IOException e) {
+          // no data - no index
+          log.error("Binary value indexer IO error " + e, e);
+        } catch(Exception e) {
+          log.error("Binary value indexer error " + e, e);
         }
+        
       }
       
       if (text != null) {
