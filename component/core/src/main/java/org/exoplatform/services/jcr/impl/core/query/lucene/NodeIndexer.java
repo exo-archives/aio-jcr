@@ -377,10 +377,12 @@ public class NodeIndexer {
           }
         } catch(HandlerNotFoundException e) {
           // no handler - no index
-          log.warn("This content is not readable " + e);
+          if(log.isDebugEnabled())
+            log.warn("This content is not readable " + e);
         } catch(IOException e) {
           // no data - no index
-          log.error("Binary value indexer IO error " + e, e);
+          if(log.isDebugEnabled())
+            log.warn("Binary value indexer IO error " + e, e);
         } catch(Exception e) {
           log.error("Binary value indexer error " + e, e);
         }
