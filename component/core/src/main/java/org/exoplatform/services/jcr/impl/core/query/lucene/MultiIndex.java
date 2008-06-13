@@ -1047,6 +1047,8 @@ public class MultiIndex {
    */
   private boolean deleteIndex(File directory) {
     log.info(" DELETE INDEX DIRECTORY " + directory.getName());
+    (new Exception()).printStackTrace();
+    
     // trivial if it does not exist anymore
     if (!directory.exists()) {
       return true;
