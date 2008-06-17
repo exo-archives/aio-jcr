@@ -81,9 +81,9 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   private final Timer                                         expiredCleaner;
 
-  private final long liveTime;
+  private long liveTime;
   
-  private final int maxSize;
+  private int maxSize;
   
   class CacheLock extends ReentrantLock {
     
@@ -181,7 +181,12 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     CacheEntry cacheConfig = wsConfig.getCache();
     if (cacheConfig != null) {
       enabled = cacheConfig.isEnabled();
-      maxSize = Integer.parseInt(cacheConfig.getParameterValue("maxSize"));
+      
+      try {
+        maxSize = Integer.parseInt(cacheConfig.getParameterValue("maxSize"));
+      } catch(NumberFormatException e) {
+        throw new RepositoryConfigurationException("Can't parse cache maxSize value " + cacheConfig.getParameterValue("maxSize"), e);
+      }
       
       int initialSize = maxSize > MAX_CACHE_SIZE ? maxSize / 4 : maxSize;  
       this.nodesCache = new WeakHashMap<String, List<NodeData>>(initialSize, LOAD_FACTOR);
@@ -190,7 +195,7 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       try {
         liveTime = Long.parseLong(cacheConfig.getParameterValue("liveTime")) * 1000; // seconds
       } catch(NumberFormatException e) {
-        throw new RepositoryConfigurationException("Can't parse liveTime value " + cacheConfig.getParameterValue("liveTime"), e);
+        throw new RepositoryConfigurationException("Can't parse cache liveTime value " + cacheConfig.getParameterValue("liveTime"), e);
       }
     } else {
       maxSize = MAX_CACHE_SIZE;
@@ -634,20 +639,6 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     return null;
   }
 
-  // TODO do we need this method?
-//  protected void putItems(final List<? extends ItemData> itemsList) {
-//    final Map<CacheKey, ItemData> subMap = new LinkedHashMap<CacheKey, ItemData>();
-//    for (ItemData item : itemsList) {
-//      if (log.isDebugEnabled())
-//        log.debug(name + ", putItems()    " + item.getQPath().getAsString() + "    " + item.getIdentifier() + "  --  " + item);
-//
-//      subMap.put(new CacheId(item.getIdentifier()), item);
-//      subMap.put(new CacheQPath(item.getParentIdentifier(), item.getQPath()), item);
-//    }
-//
-//    cache.putAll(subMap);
-//  }
-
   public List<NodeData> getChildNodes(final NodeData parentData) {
     if (enabled && parentData != null) {
       try {
@@ -711,13 +702,20 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
 
   public void setMaxSize(int maxSize) {
-    // TODO not supported
+    // TODO not supported now, but it's possible as an option
+    // e.g. we will create new cache instance with new size and fill it with current cache size.
+    // it's fully synchronized operation, i.e. method
     log.warn("setMaxSize not supported now");
   }
 
   public void setLiveTime(long liveTime) {
-    // TODO not supported
-    log.warn("setLiveTime not supported now");
+    writeLock.lock();
+    try {
+      this.liveTime = liveTime;
+    } finally {
+      writeLock.unlock();
+    }
+    log.info(name + " : set liveTime=" + liveTime + "ms. New value will be applied to items cached from this moment.");    
   }
 
   /**
@@ -727,7 +725,6 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     writeLock.lock();
     try {
       try {
-        //final ItemData parent = (ItemData) cache.get(property.getParentIdentifier());
         final ItemData parent = getItem(property.getParentIdentifier());
         if (parent != null) {
           // remove parent only (property like mixins lives inside the node data)
@@ -736,7 +733,6 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       } catch(Exception e) {
         log.error("unloadProperty operation (remove of parent) fails. Parent ID=" + property.getParentIdentifier() + ". Error " + e, e);
       } finally {
-        //remove(property); // TODO remove property
         synchronized (propertiesCache) {
           removeDeep(property, true);
         }
@@ -1022,18 +1018,6 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     return null;
   }
 
-//  /**
-//   * TODO Remove item by path. Path is a string, if an item's path equals given the item will be removed
-//   */
-//  protected void removeItem(final String itemPath) {
-//    final ItemRemoveSelector remover = new ItemRemoveSelector(itemPath);
-//    try {
-//      cache.select(remover);
-//    } catch (Exception e) {
-//      log.error(name + ", removeSuccessors() " + itemPath, e);
-//    }
-//  }
-
   /**
    * Remove successors by parent path from C. <br/>
    * Used to remove successors which are not cached in CN, CP.<br/>
@@ -1103,44 +1087,5 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       return value.getItem();
     else
       return null;  
-  }
-  
-  // ------ internal selectors ------
-
-//  protected class ByParentRemoveSelector implements CachedObjectSelector {
-//
-//    private final NodeData parent;
-//
-//    protected ByParentRemoveSelector(NodeData parent) {
-//      this.parent = parent;
-//    }
-//
-//    public void onSelect(ExoCache exoCache, Serializable key, ObjectCacheInfo value) throws Exception {
-//      try {
-//        ItemData removed = (ItemData) exoCache.remove(key);
-//        if (removed != null && key instanceof CacheQPath)
-//          exoCache.remove(removed.getIdentifier());
-//      } catch (Exception e) {
-//        log.error(name + ", ByParentRemoveSelector.onSelect() " + parent.getIdentifier() + ": " + parent.getQPath().getAsString()
-//            + " key: " + key, e);
-//      }
-//    }
-//
-//    public boolean select(Serializable key, ObjectCacheInfo value) {
-//      if (key instanceof CacheQPath) {
-//        // path
-//        CacheQPath path = (CacheQPath) key;
-//        if (path.getQPath().isDescendantOf(parent.getQPath(), false))
-//          return true;
-//      } else {
-//        // id
-//        String id = (String) key;
-//        if (id.equals(parent.getIdentifier()))
-//          return true;
-//      }
-//
-//      return false;
-//    }
-//  }
-
+  }  
 }
