@@ -17,12 +17,12 @@
               <property name="swap-directory" value="../temp/swap/production" />
             </properties>
             <value-storages>
-              <value-storage id="Storage #1" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+              <value-storage id="production" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="../temp/values/production" />
                 </properties>
                 <filters>
-                  <filter property-type="Binary" min-value-size="204800" />
+                  <filter property-type="Binary"/>
                 </filters>
               </value-storage>
             </value-storages>
@@ -32,7 +32,7 @@
               <property name="root-nodetype" value="nt:unstructured" />
             </properties>
           </initializer>
-          <cache enabled="true">
+          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
               <property name="maxSize" value="10000" />
               <property name="liveTime" value="3600" />
@@ -54,13 +54,23 @@
               <property name="max-buffer-size" value="204800" />
               <property name="swap-directory" value="../temp/swap/draft" />
             </properties>
+						<value-storages>
+              <value-storage id="draft" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+                <properties>
+                  <property name="path" value="../temp/values/draft" />
+                </properties>
+                <filters>
+                  <filter property-type="Binary"/>
+                </filters>
+              </value-storage>
+            </value-storages>
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
               <property name="root-nodetype" value="nt:unstructured" />
             </properties>
           </initializer>
-          <cache enabled="true">
+          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
               <property name="maxSize" value="10000" />
               <property name="liveTime" value="3600" />
@@ -82,13 +92,23 @@
               <property name="max-buffer-size" value="204800" />
               <property name="swap-directory" value="../temp/swap/backup" />
             </properties>
+						<value-storages>
+              <value-storage id="backup" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+                <properties>
+                  <property name="path" value="../temp/values/backup" />
+                </properties>
+                <filters>
+                  <filter property-type="Binary"/>
+                </filters>
+              </value-storage>
+            </value-storages>
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
               <property name="root-nodetype" value="nt:unstructured" />
             </properties>
           </initializer>
-          <cache enabled="true">
+          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
               <property name="maxSize" value="5000" />
               <property name="liveTime" value="900" />
@@ -110,13 +130,23 @@
               <property name="max-buffer-size" value="204800" />
               <property name="swap-directory" value="../temp/swap/digital-assets" />
             </properties>
+						<value-storages>
+              <value-storage id="digital-assets" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+                <properties>
+                  <property name="path" value="../temp/values/digital-assets" />
+                </properties>
+                <filters>
+                  <filter property-type="Binary"/>
+                </filters>
+              </value-storage>
+            </value-storages>
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
               <property name="root-nodetype" value="nt:folder" />
             </properties>
           </initializer>
-          <cache enabled="true">
+          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
               <property name="maxSize" value="5000" />
               <property name="liveTime" value="900" />
@@ -124,7 +154,7 @@
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
             <properties>
-              <property name="indexDir" value="../temp/jcrlucenedb/digital_assets" />
+              <property name="indexDir" value="../temp/jcrlucenedb/digital-assets" />
             </properties>
           </query-handler>
         </workspace>

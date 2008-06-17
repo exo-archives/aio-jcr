@@ -16,22 +16,13 @@
               <property name="swap-directory" value="target/temp/swap/ws" />
             </properties>
             <value-storages>
-              <value-storage id="Storage #1"
-                class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
-                <properties>
-                  <property name="path" value="target/temp/values/ws/files10m" />
-                </properties>
-                <filters>
-                  <filter property-type="Binary" min-value-size="10240000" />
-                </filters>
-              </value-storage>
-              <value-storage id="Storage #2"
+              <value-storage id="ws"
                 class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws" />
                 </properties>
                 <filters>
-                  <filter property-type="Binary" min-value-size="204800" />
+                  <filter property-type="Binary" />
                 </filters>
               </value-storage>
             </value-storages>
@@ -42,10 +33,10 @@
               <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
             </properties>
           </initializer>
-          <cache enabled="true">
+          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
               <property name="maxSize" value="2000" />
-              <property name="liveTime" value="600" />
+              <property name="liveTime" value="1200" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -68,6 +59,17 @@
               <property name="max-buffer-size" value="204800" />
               <property name="swap-directory" value="target/temp/swap/ws1" />
             </properties>
+						<value-storages>
+              <value-storage id="ws1"
+                class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+                <properties>
+                  <property name="path" value="target/temp/values/ws1" />
+                </properties>
+                <filters>
+                  <filter property-type="Binary" />
+                </filters>
+              </value-storage>
+            </value-storages>
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
@@ -75,10 +77,10 @@
               <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
             </properties>
           </initializer>
-          <cache enabled="true">
+          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
               <property name="maxSize" value="2000" />
-              <property name="liveTime" value="600" />
+              <property name="liveTime" value="1200" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -101,6 +103,17 @@
               <property name="max-buffer-size" value="204800" />
               <property name="swap-directory" value="target/temp/swap/ws2" />
             </properties>
+						<value-storages>
+              <value-storage id="ws2"
+                class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+                <properties>
+                  <property name="path" value="target/temp/values/ws2" />
+                </properties>
+                <filters>
+                  <filter property-type="Binary" />
+                </filters>
+              </value-storage>
+            </value-storages>
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
@@ -108,10 +121,10 @@
               <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
             </properties>
           </initializer>
-          <cache enabled="true">
+          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
               <property name="maxSize" value="2000" />
-              <property name="liveTime" value="600" />
+              <property name="liveTime" value="1200" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -142,6 +155,17 @@
               <property name="max-buffer-size" value="204800" />
               <property name="swap-directory" value="target/temp/swap/wstck" />
             </properties>
+						<value-storages>
+              <value-storage id="ws"
+                class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+                <properties>
+                  <property name="path" value="target/temp/values/wstck" />
+                </properties>
+                <filters>
+                  <filter property-type="Binary" />
+                </filters>
+              </value-storage>
+            </value-storages>
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
@@ -149,10 +173,10 @@
               <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
             </properties>
           </initializer>
-          <cache enabled="true">
+          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
               <property name="maxSize" value="2000" />
-              <property name="liveTime" value="600" />
+              <property name="liveTime" value="1200" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -175,6 +199,17 @@
               <property name="max-buffer-size" value="204800" />
               <property name="swap-directory" value="target/temp/swap/ws1tck" />
             </properties>
+						<value-storages>
+              <value-storage id="ws1"
+                class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+                <properties>
+                  <property name="path" value="target/temp/values/ws1tck" />
+                </properties>
+                <filters>
+                  <filter property-type="Binary" />
+                </filters>
+              </value-storage>
+            </value-storages>
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
@@ -182,10 +217,10 @@
               <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
             </properties>
           </initializer>
-          <cache enabled="true">
+          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
               <property name="maxSize" value="2000" />
-              <property name="liveTime" value="600" />
+              <property name="liveTime" value="1200" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -208,6 +243,17 @@
               <property name="max-buffer-size" value="204800" />
               <property name="swap-directory" value="target/temp/swap/ws2tck" />
             </properties>
+						<value-storages>
+              <value-storage id="ws2"
+                class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+                <properties>
+                  <property name="path" value="target/temp/values/ws2tck" />
+                </properties>
+                <filters>
+                  <filter property-type="Binary" />
+                </filters>
+              </value-storage>
+            </value-storages>
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
@@ -215,10 +261,10 @@
               <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
             </properties>
           </initializer>
-          <cache enabled="true">
+          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
               <property name="maxSize" value="2000" />
-              <property name="liveTime" value="600" />
+              <property name="liveTime" value="1200" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">

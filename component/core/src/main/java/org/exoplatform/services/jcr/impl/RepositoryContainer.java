@@ -56,7 +56,6 @@ import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.LocalWorkspaceDataManagerStub;
-import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspaceStorageCacheImpl;
 import org.exoplatform.services.jcr.impl.storage.SystemDataContainerHolder;
 import org.exoplatform.services.jcr.impl.storage.value.StandaloneStoragePluginProvider;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
@@ -152,7 +151,7 @@ public class RepositoryContainer extends ExoContainer {
       workspaceContainer.registerComponentImplementation(StandaloneStoragePluginProvider.class);
 
       try {
-        Class containerType = Class.forName(wsConfig.getContainer().getType());
+        Class<?> containerType = Class.forName(wsConfig.getContainer().getType());
         workspaceContainer.registerComponentImplementation(containerType);
         if (isSystem) {
           registerComponentInstance(new SystemDataContainerHolder((WorkspaceDataContainer) workspaceContainer.getComponentInstanceOfType(WorkspaceDataContainer.class)));
@@ -162,8 +161,18 @@ public class RepositoryContainer extends ExoContainer {
             + wsConfig.getUniqueName() + " : " + e);
       }
 
-      workspaceContainer.registerComponentImplementation(LRUWorkspaceStorageCacheImpl.class);
-      //workspaceContainer.registerComponentImplementation(WorkspaceStorageCacheImpl.class);
+      // cache type
+      try {
+        String className = wsConfig.getCache().getType();
+        if (className != null && className.length()>0) {
+          workspaceContainer.registerComponentImplementation(Class.forName(className));
+        } else
+          workspaceContainer.registerComponentImplementation(LRUWorkspaceStorageCacheImpl.class); // TODO
+      } catch (ClassNotFoundException e) {
+        log.warn("Workspace cache class not found " + wsConfig.getCache().getType() + ", will use default. Error : " + e);
+        workspaceContainer.registerComponentImplementation(LRUWorkspaceStorageCacheImpl.class); // TODO use LRUWorkspaceStorageCacheImpl.class 
+      }
+      
       workspaceContainer.registerComponentImplementation(CacheableWorkspaceDataManager.class);
       workspaceContainer.registerComponentImplementation(LocalWorkspaceDataManagerStub.class);
       workspaceContainer.registerComponentImplementation(ObservationManagerRegistry.class);
@@ -171,7 +180,7 @@ public class RepositoryContainer extends ExoContainer {
       // Lock manager and Lock persister is a optional parameters
       if (wsConfig.getLockManager() != null && wsConfig.getLockManager().getPersister() != null) {
         try {
-          Class lockPersister = Class.forName(wsConfig.getLockManager().getPersister().getType());
+          Class<?> lockPersister = Class.forName(wsConfig.getLockManager().getPersister().getType());
           workspaceContainer.registerComponentImplementation(lockPersister);
         } catch (ClassNotFoundException e) {
           throw new RepositoryConfigurationException("Class not found for workspace lock persister "
@@ -194,7 +203,7 @@ public class RepositoryContainer extends ExoContainer {
       // access manager
       if (wsConfig.getAccessManager() != null && wsConfig.getAccessManager().getType() != null) {
         try {
-          Class am = Class.forName(wsConfig.getAccessManager().getType());
+          Class<?> am = Class.forName(wsConfig.getAccessManager().getType());
           workspaceContainer.registerComponentImplementation(am);
         } catch (ClassNotFoundException e) {
           throw new RepositoryConfigurationException("Class not found for workspace access manager "
@@ -203,7 +212,7 @@ public class RepositoryContainer extends ExoContainer {
       }
 
       // initializer
-      Class initilizerType;
+      Class<?> initilizerType;
       if (wsConfig.getInitializer() != null && wsConfig.getInitializer().getType() != null) {
         // use user defined
         try {

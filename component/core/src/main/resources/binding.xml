@@ -46,6 +46,7 @@
 
     <structure name="cache" field="cache" usage="optional">
       <value name="enabled" field="enabled" style="attribute" />
+			<value name="class" field="type" style="attribute" usage="optional" />
       <collection name="properties" field="parameters" usage="optional"
         item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"
         factory="org.jibx.runtime.Utility.arrayListFactory" />
