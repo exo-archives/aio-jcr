@@ -1042,25 +1042,23 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    */
   protected void removeSuccessors(final NodeData parent) {
     final QPath path = parent.getQPath();
-    final List<String> idsRemove = new ArrayList<String>();
+    final List<CacheKey> toRemove = new ArrayList<CacheKey>();
     
     // 1. find and remove by path
-    for (Iterator<Map.Entry<CacheKey, CacheValue>> iter = cache.entrySet().iterator(); iter.hasNext();) {
-      Map.Entry<CacheKey, CacheValue> ce = iter.next();
+    for (Map.Entry<CacheKey, CacheValue> ce : cache.entrySet()) {
       CacheKey key = ce.getKey();
       if (key.isDescendantOf(path)) {
+        toRemove.add(key);
+        //iter.remove(); // remove by path... we can't remove in iterator, LRU behaviour
         CacheValue v = ce.getValue();
         if (v != null)
-          idsRemove.add(v.getItem().getIdentifier());  
-        
-        iter.remove(); // remove by path
+          toRemove.add(new CacheId(v.getItem().getIdentifier()));  
       }
     }
     
-    // 2. remove by id
-    for (String id: idsRemove) {
-      cache.remove(new CacheId(id));
-    }
+    // 2. remove
+    for (CacheKey key: toRemove)
+      cache.remove(key);
   }
 
   /**

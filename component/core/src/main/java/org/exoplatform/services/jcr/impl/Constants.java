@@ -121,6 +121,8 @@ public class Constants {
   
   public static final InternalQName JCR_MIMETYPE = new InternalQName(NS_JCR_URI, "mimeType");
   
+  public static final InternalQName JCR_ENCODING = new InternalQName(NS_JCR_URI, "encoding");
+  
   public static final InternalQName JCR_CONTENT = new InternalQName(NS_JCR_URI, "content");
 
   public static final InternalQName JCR_XMLTEXT = new InternalQName(NS_JCR_URI, "xmltext");

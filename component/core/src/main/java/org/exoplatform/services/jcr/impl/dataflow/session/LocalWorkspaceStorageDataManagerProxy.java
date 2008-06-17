@@ -139,7 +139,7 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
     return storageDataManager.getCurrentTime();
   }
   
-  private TransientItemData copyItemData(ItemData item) throws RepositoryException {
+  private TransientItemData copyItemData(final ItemData item) throws RepositoryException {
     
     if(item == null)
       return null;
@@ -147,10 +147,10 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
     // make a copy
     if (item.isNode()) {
 
-      NodeData node = (NodeData)item;
+      final NodeData node = (NodeData)item;
       
       // the node ACL can't be are null as ACL manager does care about this
-      AccessControlList acl = node.getACL();
+      final AccessControlList acl = node.getACL();
       if(acl == null) {
         throw new RepositoryException("Node ACL is null. " + node.getQPath().getAsString() + " " + node.getIdentifier());
       }
@@ -160,7 +160,7 @@ public class LocalWorkspaceStorageDataManagerProxy implements WorkspaceStorageDa
     }
 
     // else - property
-    PropertyData prop = (PropertyData)item;
+    final PropertyData prop = (PropertyData)item;
     // make a copy
     TransientPropertyData newData = new TransientPropertyData(
         prop.getQPath(), prop.getIdentifier(), prop.getPersistedVersion(),
