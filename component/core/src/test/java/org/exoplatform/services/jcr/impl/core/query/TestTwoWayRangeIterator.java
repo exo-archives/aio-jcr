@@ -37,7 +37,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class TestTwoWayScoreNodeIterator extends JcrImplBaseTest {
+public class TestTwoWayRangeIterator extends JcrImplBaseTest {
   /**
    * Class logger.
    */
