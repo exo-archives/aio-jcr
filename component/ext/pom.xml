@@ -56,9 +56,9 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
-      <version>3.0.1</version>
+      <groupId>org.exoplatform.ws</groupId>
+      <artifactId>exo.ws.commons</artifactId>
+      <version>${org.exoplatform.ws.version}</version>
     </dependency>
     
     <dependency>
@@ -176,6 +176,7 @@
             <exclude>**/*$*</exclude><!--nested classes prb, http://jira.codehaus.org/browse/SUREFIRE-288-->
             <exclude>**/BaseStandaloneTest.java</exclude>
             <exclude>**/replication/*.java</exclude>
+            <exclude>**/replication/external/*.java</exclude>
             <exclude>**/backup/*.java</exclude>
             <exclude>**/access/*.java</exclude>
           </excludes>
