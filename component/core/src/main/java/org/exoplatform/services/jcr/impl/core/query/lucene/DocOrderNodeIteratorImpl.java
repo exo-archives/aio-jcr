@@ -41,7 +41,7 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Implements a NodeIterator that returns the nodes in document order.
  */
-class DocOrderNodeIteratorImpl implements TwoWayScoreNodeIterator,ScoreNodeIterator {
+class DocOrderNodeIteratorImpl implements TwoWayRangeIterator,ScoreNodeIterator {
 
   /** Logger instance for this class */
   private static final Log           log = ExoLogger.getLogger(DocOrderNodeIteratorImpl.class);

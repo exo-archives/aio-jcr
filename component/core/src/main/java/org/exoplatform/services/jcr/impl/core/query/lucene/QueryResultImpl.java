@@ -336,7 +336,7 @@ public class QueryResultImpl implements QueryResult {
         return numResults - invalid;
     }
 
-    private final class LazyScoreNodeIterator implements TwoWayScoreNodeIterator,ScoreNodeIterator {
+    private final class LazyScoreNodeIterator implements TwoWayRangeIterator,ScoreNodeIterator {
 
         private int position = -1;
 

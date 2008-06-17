@@ -28,7 +28,7 @@ import javax.jcr.query.QueryResult;
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.JcrImplBaseTest;
-import org.exoplatform.services.jcr.impl.core.query.lucene.TwoWayScoreNodeIterator;
+import org.exoplatform.services.jcr.impl.core.query.lucene.TwoWayRangeIterator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -76,9 +76,9 @@ public class TestTwoWayScoreNodeIterator extends JcrImplBaseTest {
       log.info("Test skip " + skip);
       ScoreNodeTester tester = new ScoreNodeTester() {
 
-        public TwoWayScoreNodeIterator execute(Query query) throws RepositoryException {
+        public TwoWayRangeIterator execute(Query query) throws RepositoryException {
           QueryResult result = query.execute();
-          TwoWayScoreNodeIterator iterator = (TwoWayScoreNodeIterator) result.getNodes();
+          TwoWayRangeIterator iterator = (TwoWayRangeIterator) result.getNodes();
           iterator.skip(skip);
           return iterator;
         }
@@ -92,9 +92,9 @@ public class TestTwoWayScoreNodeIterator extends JcrImplBaseTest {
   public void testSkipZero() throws RepositoryException {
     ScoreNodeTester tester = new ScoreNodeTester() {
 
-      public TwoWayScoreNodeIterator execute(Query query) throws RepositoryException {
+      public TwoWayRangeIterator execute(Query query) throws RepositoryException {
         QueryResult result = query.execute();
-        TwoWayScoreNodeIterator iterator = (TwoWayScoreNodeIterator) result.getNodes();
+        TwoWayRangeIterator iterator = (TwoWayRangeIterator) result.getNodes();
         iterator.skip(0);
         return iterator;
       }
@@ -116,9 +116,9 @@ public class TestTwoWayScoreNodeIterator extends JcrImplBaseTest {
 
       ScoreNodeTester tester = new ScoreNodeTester() {
 
-        public TwoWayScoreNodeIterator execute(Query query) throws RepositoryException {
+        public TwoWayRangeIterator execute(Query query) throws RepositoryException {
           QueryResult result = query.execute();
-          TwoWayScoreNodeIterator iterator = (TwoWayScoreNodeIterator) result.getNodes();
+          TwoWayRangeIterator iterator = (TwoWayRangeIterator) result.getNodes();
           log.info("testSkipBeforeFirst" + skip);
           iterator.skip(skip);
           assertEquals(skip, iterator.getPosition());
@@ -152,9 +152,9 @@ public class TestTwoWayScoreNodeIterator extends JcrImplBaseTest {
 
       ScoreNodeTester tester = new ScoreNodeTester() {
 
-        public TwoWayScoreNodeIterator execute(Query query) throws RepositoryException {
+        public TwoWayRangeIterator execute(Query query) throws RepositoryException {
           QueryResult result = query.execute();
-          TwoWayScoreNodeIterator iterator = (TwoWayScoreNodeIterator) result.getNodes();
+          TwoWayRangeIterator iterator = (TwoWayRangeIterator) result.getNodes();
           iterator.skip(skip);
           assertEquals(skip, iterator.getPosition());
           try {
@@ -185,9 +185,9 @@ public class TestTwoWayScoreNodeIterator extends JcrImplBaseTest {
 
       ScoreNodeTester tester = new ScoreNodeTester() {
 
-        public TwoWayScoreNodeIterator execute(Query query) throws RepositoryException {
+        public TwoWayRangeIterator execute(Query query) throws RepositoryException {
           QueryResult result = query.execute();
-          TwoWayScoreNodeIterator iterator = (TwoWayScoreNodeIterator) result.getNodes();
+          TwoWayRangeIterator iterator = (TwoWayRangeIterator) result.getNodes();
           iterator.skip(skip);
           assertEquals(skip, iterator.getPosition());
           iterator.skipBack(skip);
@@ -210,9 +210,9 @@ public class TestTwoWayScoreNodeIterator extends JcrImplBaseTest {
       log.info("Test skip " + skip);
       ScoreNodeTester tester = new ScoreNodeTester() {
 
-        public TwoWayScoreNodeIterator execute(Query query) throws RepositoryException {
+        public TwoWayRangeIterator execute(Query query) throws RepositoryException {
           QueryResult result = query.execute();
-          TwoWayScoreNodeIterator iterator = (TwoWayScoreNodeIterator) result.getNodes();
+          TwoWayRangeIterator iterator = (TwoWayRangeIterator) result.getNodes();
           iterator.skip(5);
           iterator.skip(skip);
           iterator.skipBack(skip);
@@ -233,7 +233,7 @@ public class TestTwoWayScoreNodeIterator extends JcrImplBaseTest {
         + "/%'";
 
     Query selectChildQuery = qm.createQuery(strDocOrder, Query.SQL);
-    TwoWayScoreNodeIterator iterator = testAction.execute(selectChildQuery);
+    TwoWayRangeIterator iterator = testAction.execute(selectChildQuery);
     assertTrue(iterator.hasNext());
     assertEquals(expectedPosition, iterator.getPosition());
     assertEquals(expectedPosition, ((Node) iterator.next()).getProperty("val").getLong());
@@ -243,7 +243,7 @@ public class TestTwoWayScoreNodeIterator extends JcrImplBaseTest {
         + "/%' order by val";
 
     Query selectOrderChildQuery = qm.createQuery(strOrder, Query.SQL);
-    TwoWayScoreNodeIterator orderIterator = testAction.execute(selectOrderChildQuery);
+    TwoWayRangeIterator orderIterator = testAction.execute(selectOrderChildQuery);
     assertTrue(orderIterator.hasNext());
     assertEquals(expectedPosition, orderIterator.getPosition());
     Node nextNode = (Node) orderIterator.next();
@@ -262,7 +262,7 @@ public class TestTwoWayScoreNodeIterator extends JcrImplBaseTest {
   }
 
   private interface ScoreNodeTester {
-    public TwoWayScoreNodeIterator execute(Query query) throws RepositoryException;
+    public TwoWayRangeIterator execute(Query query) throws RepositoryException;
   }
 
 }

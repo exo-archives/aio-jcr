@@ -30,7 +30,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Implements a {@link javax.jcr.NodeIterator} returned by
  * {@link javax.jcr.query.QueryResult#getNodes()}.
  */
-class NodeIteratorImpl implements TwoWayScoreNodeIterator,ScoreNodeIterator {
+class NodeIteratorImpl implements TwoWayRangeIterator,ScoreNodeIterator {
 
     /** Logger instance for this class */
     private static final Log log = ExoLogger.getLogger(NodeIteratorImpl.class);
