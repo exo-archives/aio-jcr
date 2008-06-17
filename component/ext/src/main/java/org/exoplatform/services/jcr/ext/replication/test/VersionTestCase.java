@@ -31,6 +31,7 @@ public class VersionTestCase extends BaseReplicationTestCase {
   public VersionTestCase(RepositoryService repositoryService, String reposytoryName,
       String workspaceName, String userName, String password) {
     super(repositoryService, reposytoryName, workspaceName, userName, password);
+    log.info("NtFileTestCase inited");
   }
 
   public StringBuffer addVersionNode(String repoPath, String value) {

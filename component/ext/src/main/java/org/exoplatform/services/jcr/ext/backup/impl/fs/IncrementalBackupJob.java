@@ -96,8 +96,7 @@ public class IncrementalBackupJob extends AbstractIncrementalBackupJob {
 
     TransactionChangesLog changesLog = (TransactionChangesLog) persistentLog;
 
-    if (changesLog != null && changesLog.getSystemId() == null && !isSessionNull(changesLog)) {
-      changesLog.setSystemId(IdGenerator.generate());
+    if (changesLog != null && !isSessionNull(changesLog)) {
       long start = System.currentTimeMillis();
 
       writeExternal(oosFileData, changesLog, fileCleaner);
@@ -125,7 +124,6 @@ public class IncrementalBackupJob extends AbstractIncrementalBackupJob {
       out.writeInt(listfs.size());
 
       for (int i = 0; i < listfs.size(); i++) {
-//        out.writeObject(listfs.get(i));
         listfs.get(i).writeExternal(out);
       }
 

@@ -16,50 +16,66 @@
  */
 package org.exoplatform.services.jcr.ext.replication.external;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
+import java.net.URL;
+
+import org.exoplatform.common.http.client.AuthorizationInfo;
+import org.exoplatform.common.http.client.HTTPConnection;
+import org.exoplatform.common.http.client.HTTPResponse;
+
+
+
 
 /**
  * Created by The eXo Platform SAS
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: BaseAutintificationHttpClient.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id: OAuthenticationHttpClient.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class BasicAuthenticationHttpClient {
-  private HttpClient client;
-
+  private HTTPConnection connection;
+  private long waitTime = 0;
+  
+  private final String ipAdress;
+  private final int port;
+  private final String login;
+  private final String password;
+  
   public BasicAuthenticationHttpClient(String ipAdress, int port, String login, String password) {
-    client = new HttpClient();
-    client.getState().setCredentials(new AuthScope(ipAdress, port),
-        new UsernamePasswordCredentials(login, password));
+    this.ipAdress = ipAdress;
+    this.port = port;
+    this.login = login;
+    this.password = password;
   }
   
   public BasicAuthenticationHttpClient(MemberInfo info) {
-    client = new HttpClient();
-    client.getState().setCredentials(new AuthScope(info.getIpAddress(), info.getPort()),
-        new UsernamePasswordCredentials(info.getLogin(), info.getPassword()));
+    this(info.getIpAddress(), info.getPort(), info.getLogin(), info.getPassword());
   }
-
-  public String execute(String uri) {
+  
+  public BasicAuthenticationHttpClient(MemberInfo info, long waitTime) {
+    this(info.getIpAddress(), info.getPort(), info.getLogin(), info.getPassword());
+    this.waitTime = waitTime;
+  }
+  
+  public String execute(String sURL) {
     String result = "fail";
-    GetMethod get = new GetMethod(uri);
-    get.setDoAuthentication(true);
 
     try {
+      Thread.sleep(waitTime);
+      
       // execute the GET
-      int status = client.executeMethod(get);
-
+      URL url = new URL(sURL);
+      connection = new HTTPConnection(url);
+      connection.addBasicAuthorization("eXo REST services", login, password);
+      
+      HTTPResponse resp = connection.Get(url.getFile());
+      
       // print the status and response
-      System.out.println(status + "\n" + get.getResponseBodyAsString());
+      if (resp.getStatusCode() != 200)
+        System.out.println(resp.getStatusCode() + "\n" + resp.getText());
 
-      result = get.getResponseBodyAsString();
+      result = resp.getText();
     } catch (Exception e) {
       e.printStackTrace();
-    } finally {
-      // release any connection resources used by the method
-      get.releaseConnection();
-    }
+    } 
 
     return result;
   }

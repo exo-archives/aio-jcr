@@ -154,25 +154,28 @@ public class ReplicationService implements Startable {
 
     PropertiesParam backuParams = params.getPropertiesParam("replication-snapshot-properties");
 
-    String sBackupEnabled = backuParams.getProperty("snapshot-enabled");
-    backupEnabled = (sBackupEnabled == null ? false : Boolean.valueOf(sBackupEnabled));
-
-    String sBackupDir = backuParams.getProperty("snapshot-dir");
-    if (sBackupDir == null && backupEnabled)
-      throw new RepositoryConfigurationException("Backup dir not specified");
-    else if (backupEnabled) {
-      backupDir = new File(sBackupDir);
-      if (!backupDir.exists())
-        backupDir.mkdirs();
-    }
-
-    String sDelayTime = backuParams.getProperty("delay-time");
-    if (sDelayTime == null && backupEnabled)
-      throw new RepositoryConfigurationException("Backup dir not specified");
-    else if (backupEnabled)
-      backupDelayTime = Long.parseLong(sDelayTime);
-
-    backupCreatorList = new ArrayList<BackupCreator>();
+    if (backuParams != null) {
+      String sBackupEnabled = backuParams.getProperty("snapshot-enabled");
+      backupEnabled = (sBackupEnabled == null ? false : Boolean.valueOf(sBackupEnabled));
+  
+      String sBackupDir = backuParams.getProperty("snapshot-dir");
+      if (sBackupDir == null && backupEnabled)
+        throw new RepositoryConfigurationException("Backup dir not specified");
+      else if (backupEnabled) {
+        backupDir = new File(sBackupDir);
+        if (!backupDir.exists())
+          backupDir.mkdirs();
+      }
+  
+      String sDelayTime = backuParams.getProperty("delay-time");
+      if (sDelayTime == null && backupEnabled)
+        throw new RepositoryConfigurationException("Backup dir not specified");
+      else if (backupEnabled)
+        backupDelayTime = Long.parseLong(sDelayTime);
+  
+      backupCreatorList = new ArrayList<BackupCreator>();
+    } else
+      backupEnabled = false;
   }
 
   public void start() {

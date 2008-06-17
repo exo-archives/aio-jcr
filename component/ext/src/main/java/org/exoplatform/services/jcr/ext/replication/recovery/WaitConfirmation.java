@@ -43,12 +43,14 @@ public class WaitConfirmation extends Thread {
     this.recoveryManager = recoveryManager;
     this.identifier = identifier;
 
-    log.info("init : " + identifier);
+    if (log.isDebugEnabled())
+      log.debug("init : " + identifier);
   }
 
   public void run() {
     try {
-      log.info("Before : getParticipantsClusterList().size():" + recoveryManager
+      if (log.isDebugEnabled())
+        log.debug("Before : getParticipantsClusterList().size():" + recoveryManager
           .getPendingConfirmationChengesLogById(identifier).getConfirmationList().size());
       
       Thread.sleep(timeOut);
@@ -62,12 +64,18 @@ public class WaitConfirmation extends Thread {
       if (notConfirmationList.size() > 0) {
         confirmationChengesLog.setNotConfirmationList(notConfirmationList);
         recoveryManager.save(identifier);
-        log.info("save : " + identifier);
+        
+        if (log.isDebugEnabled())
+          log.debug("save : " + identifier);
       }
 
-      log.info("After : getParticipantsClusterList().size():" + confirmationChengesLog.getConfirmationList().size());
+      if (log.isDebugEnabled())
+        log.debug("After : getParticipantsClusterList().size():" + confirmationChengesLog.getConfirmationList().size());
+      
       recoveryManager.remove(identifier);
-      log.info("remove : " + identifier);
+      
+      if (log.isDebugEnabled())
+        log.debug("remove : " + identifier);
     } catch (InterruptedException e) {
       log.error("Can't save ChangesLog", e);
     } catch (FileNotFoundException e) {

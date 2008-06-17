@@ -164,7 +164,8 @@ public class RecoverySynchronizer {
           randomAccessFile.write(packet.getByteArray());
           randomAccessFile.close();
 
-          log.info("Last packet of file has been received : " + packet.getFileName());
+          if (log.isDebugEnabled())
+            log.debug("Last packet of file has been received : " + packet.getFileName());
         } else
           log.warn("Can't find the RandomAccessFile : \n" + "owner - \t" + packet.getOwnerName()
               + "\nfile name - \t" + packet.getFileName());
@@ -177,7 +178,9 @@ public class RecoverySynchronizer {
         pbf.addToSuccessfulTransferCounter(packet.getSize());
 
         if (pbf.isSuccessfulTransfer()) {
-          log.info("The signal ALL_BinaryFile_transferred_OK has been received  from "
+          
+          if (log.isDebugEnabled())
+            log.debug("The signal ALL_BinaryFile_transferred_OK has been received  from "
               + packet.getOwnerName());
 
           List<FileDescriptor> fileDescriptorList = pbf.getSortedFilesDescriptorList();
@@ -190,25 +193,27 @@ public class RecoverySynchronizer {
 
                 transactionChangesLog.setSystemId(fileDescriptor.getSystemId());
 
-                log.info("Save to JCR : " + fileDescriptor.getFile().getAbsolutePath());
-                log.info("SystemID : " + transactionChangesLog.getSystemId());
-                log.info("list size : " + fileDescriptorList.size());
+                if (log.isDebugEnabled()) {
+                  log.debug("Save to JCR : " + fileDescriptor.getFile().getAbsolutePath());
+                  log.debug("SystemID : " + transactionChangesLog.getSystemId());
+                  log.debug("list size : " + fileDescriptorList.size());
+                }
 
                 // dump log
-                if (log.isDebugEnabled()) {
+                /*if (log.isDebugEnabled()) {
                   ChangesLogIterator logIterator = transactionChangesLog.getLogIterator();
                   while (logIterator.hasNextLog()) {
                     PlainChangesLog pcl = logIterator.nextLog();
-                    log.info(pcl.dump());
+                    log.debug(pcl.dump());
                   }
-                }
+                }*/
 
                 saveChangesLog(dataKeeper, transactionChangesLog);
 
                 if (log.isDebugEnabled()) {
-                  log.info("After save message: the owner systemId --> "
+                  log.debug("After save message: the owner systemId --> "
                       + transactionChangesLog.getSystemId());
-                  log.info("After save message: --> " + systemId);
+                  log.debug("After save message: --> " + systemId);
                 }
 
               } catch (Exception e) {
@@ -223,8 +228,8 @@ public class RecoverySynchronizer {
             Packet packetFileNameList = new Packet(Packet.PacketType.ALL_ChangesLog_saved_OK,
                 packet.getIdentifier(), ownName, fileNameList);
             sendPacket(packetFileNameList);
-          } else
-            log.info("Do not start save : " + fileDescriptorList.size() + " of "
+          } else if (log.isDebugEnabled())
+              log.debug("Do not start save : " + fileDescriptorList.size() + " of "
                 + pbf.getNeedTransferCounter());
         }
       }
@@ -234,7 +239,8 @@ public class RecoverySynchronizer {
       long removeCounter = recoveryWriter.removeChangesLog(packet.getFileNameList(), packet
           .getOwnerName());
 
-      log.info("Remove from file system : " + removeCounter);
+      if (log.isDebugEnabled())
+        log.debug("Remove from file system : " + removeCounter);
 
       Packet removedOldChangesLogPacket = new Packet(
           Packet.PacketType.REMOVED_OLD_CHANGESLOG_COUNTER, packet.getIdentifier(), ownName);
@@ -256,7 +262,9 @@ public class RecoverySynchronizer {
           mapPendingBinaryFile.remove(packet.getIdentifier());
 
           // next iteration
-          log.info("Next iteration of recovery ...");
+          if (log.isDebugEnabled())
+            log.debug("Next iteration of recovery ...");
+          
           synchronizRepository();
         }
       } else
@@ -270,7 +278,9 @@ public class RecoverySynchronizer {
       PendingBinaryFile pbf = mapPendingBinaryFile.get(packet.getIdentifier());
       pbf.setNeedTransferCounter(pbf.getNeedTransferCounter() + packet.getSize());
 
-      log.info("NeedTransferCounter : " + pbf.getNeedTransferCounter());
+      if (log.isDebugEnabled())
+        log.debug("NeedTransferCounter : " + pbf.getNeedTransferCounter());
+      
       break;
 
     case Packet.PacketType.SYNCHRONIZED_OK:
@@ -288,8 +298,8 @@ public class RecoverySynchronizer {
 
   private void sendChangesLogUpDate(Calendar timeStamp, String ownerName, String identifier) {
     try {
-      log
-          .info("+++ sendChangesLogUpDate() +++ : "
+      if (log.isDebugEnabled())
+        log.debug("+++ sendChangesLogUpDate() +++ : "
               + Calendar.getInstance().getTime().toGMTString());
 
       List<String> filePathList = recoveryReader.getFilePathList(timeStamp, ownerName);
@@ -322,7 +332,8 @@ public class RecoverySynchronizer {
 
   private void sendBinaryFile(String filePath, String ownerName, String identifier, String systemId)
       throws Exception {
-    log.info("Begin send : " + filePath);
+    if (log.isDebugEnabled())
+      log.debug("Begin send : " + filePath);
 
     File f = new File(filePath);
     InputStream in = new FileInputStream(f);
@@ -369,7 +380,8 @@ public class RecoverySynchronizer {
       sendPacket(packet);
     }
 
-    log.info("End send : " + filePath);
+    if (log.isDebugEnabled())
+      log.debug("End send : " + filePath);
   }
 
   public void setDataKeeper(ItemDataKeeper dataKeeper) {
@@ -493,15 +505,18 @@ class PendingBinaryFile {
       fileDescriptorhList.addAll(fileMap.values());
     }
 
-    log.info("getSortedFilePath() : " + fileDescriptorhList.size());
+    if (log.isDebugEnabled())
+      log.debug("getSortedFilePath() : " + fileDescriptorhList.size());
 
     Collections.sort(fileDescriptorhList);
 
-    //
-    System.out.println("\n\nList has been sorted :\n");
-    for (FileDescriptor fd : fileDescriptorhList)
-      System.out.println(fd.getFile().getAbsolutePath());
-    //
+    
+    if (log.isDebugEnabled()) {
+      log.debug("\n\nList has been sorted :\n");
+    
+      for (FileDescriptor fd : fileDescriptorhList)
+       log.debug(fd.getFile().getAbsolutePath());
+    }
 
     return fileDescriptorhList;
   }

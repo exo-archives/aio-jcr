@@ -94,7 +94,9 @@ public class RecoveryWriter extends AbstractFSAccess {
       objectOutputStream.close();
 
       // save info
-      log.info("Write info : " + f.getAbsolutePath());
+      if (log.isDebugEnabled())
+        log.debug("Write info : " + f.getAbsolutePath());
+      
       writeNotConfirmationInfo(f, confirmationChengesLog.getNotConfirmationList());
     }
   }
@@ -177,7 +179,9 @@ public class RecoveryWriter extends AbstractFSAccess {
   }
 
   synchronized public void removeChangesLog(String identifier, String ownerName) throws IOException {
-    log.info("remove changes log form fs : " + identifier);
+    if (log.isDebugEnabled())
+      log.debug("remove changes log form fs : " + identifier);
+    
     File metaDataFile = new File(recoveryDir.getAbsolutePath() + File.separator + ownerName);
 
     RandomAccessFile raf = new RandomAccessFile(metaDataFile, "rw");
@@ -191,7 +195,9 @@ public class RecoveryWriter extends AbstractFSAccess {
         s = s.replaceAll(".", PREFIX_CHAR);
 
         raf.writeBytes(s);
-        log.info("remove metadata : " + fileName);
+        
+        if (log.isDebugEnabled())
+          log.debug("remove metadata : " + fileName);
         break;
       }
 
@@ -211,7 +217,8 @@ public class RecoveryWriter extends AbstractFSAccess {
   }
 
   public long removeChangesLog(List<String> fileNameList, String ownerName) throws IOException {
-    log.info("remove changeslogs form fs : " + fileNameList.size());
+    if (log.isDebugEnabled())
+      log.debug("remove changeslogs form fs : " + fileNameList.size());
 
     long removeCounter = 0;
 
@@ -238,7 +245,9 @@ public class RecoveryWriter extends AbstractFSAccess {
           raf.writeBytes(s);
 
           removeCounter++;
-          log.info("remove metadata : " + fName);
+          
+          if (log.isDebugEnabled())
+            log.debug("remove metadata : " + fName);
         }
       }
     raf.close();
@@ -263,7 +272,8 @@ class FileRemover extends Thread {
     this.recoveryDir = recoveryDir;
     this.filecCleaner = fileCleaner;
 
-    log.info(getName() + " has been inited");
+    if (log.isDebugEnabled())
+      log.debug(getName() + " has been inited");
   }
 
   @Override
@@ -280,7 +290,8 @@ class FileRemover extends Thread {
 
         for (File f : getAllSavedBinaryFile(recoveryDataDir))
           if (!map.containsKey(f.getCanonicalPath())) {
-            log.info("Remove file :" + f.getCanonicalPath());
+            if (log.isDebugEnabled())
+              log.debug("Remove file :" + f.getCanonicalPath());
             filecCleaner.addFile(f);
           }
 

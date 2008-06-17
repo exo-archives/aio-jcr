@@ -132,6 +132,7 @@ public class ReplicationTestService implements ResourceContainer {
         .setIncrementalBackupType("org.exoplatform.services.jcr.ext.backup.impl.fs.IncrementalBackupJob");
 
     config.setBackupDir(backupManager.getBackupDirectory());
+    config.setIncrementalJobPeriod(incementalPeriod);
 
     String result = "ok";
 

@@ -113,13 +113,6 @@ public class RecoveryReader extends AbstractFSAccess {
   public List<String> getFilePathList(Calendar timeStamp, String ownName) throws IOException {
     File dataInfo = new File(recoveryDir.getAbsolutePath() + File.separator + ownName);
 
-    // for debug
-    if (ownName.equals("cluster_node2") && dataInfo.exists()) {
-      System.out.println("+ " + dataInfo.getAbsolutePath());
-    } else
-      System.out.println("- " + dataInfo.getAbsolutePath());
-    //
-
     List<String> list = new ArrayList<String>();
 
     if (dataInfo.exists()) {

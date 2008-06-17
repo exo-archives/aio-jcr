@@ -32,6 +32,7 @@ public class LockTestCase extends BaseReplicationTestCase {
   public LockTestCase(RepositoryService repositoryService, String reposytoryName,
       String workspaceName, String userName, String password) {
     super(repositoryService, reposytoryName, workspaceName, userName, password);
+    log.info("LockTestCase inited");
   }
 
   public StringBuffer lock(String repoPath) {

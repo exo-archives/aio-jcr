@@ -24,19 +24,23 @@ import org.exoplatform.services.jcr.ext.replication.test.ReplicationTestService;
  * @version $Id: VersionCheckerTest.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class VersionCheckerTest extends BaseTestCaseChecker {
-  private static String relPathArray[] = new String[5];
-  private static String baseVersionValue[] = new String[5];
-  private static String versionValue_1[] = new String[5];
-  private static String versionValue_2[] = new String[5];
+  private static int MANY_TEST = 5;
+  private static String relPathArray[] = new String[MANY_TEST];
+  private static String baseVersionValue[] = new String[MANY_TEST];
+  private static String versionValue_1[] = new String[MANY_TEST];
+  private static String versionValue_2[] = new String[MANY_TEST];
   
   public void testCreateVersionNode() throws Exception {
+    randomizeMembers();
+    MemberInfo masterMember = getCurrentMasterMember();
+    
     //create version node  in masterMember
     
     for (int i = 0; i < relPathArray.length; i++) {
-      int rendomValue = (int)(Math.random() * 1000);
+      int rendomValue = (int)(Math.random() * MAX_RANDOM_VALUE);
       String relPath = createRelPath(rendomValue) + "::" + "version_node"+ rendomValue;
       relPathArray[i] = relPath;
-      baseVersionValue[i] = "base_version_value" + (int)(Math.random() * 1000); 
+      baseVersionValue[i] = "base_version_value" + (int)(Math.random() * MAX_RANDOM_VALUE); 
       
       String url = "http://" + masterMember.getIpAddress() + ":" 
                              + masterMember.getPort()  
@@ -64,20 +68,20 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
     for (int i = 0; i < relPathArray.length; i++) {
       String relPath = relPathArray[i];
       
-      for (MemberInfo slaveMember : slaveMembers) {
-        String checkUrl = "http://" + masterMember.getIpAddress() + ":" 
-                                    + masterMember.getPort()  
+      for (MemberInfo slaveMember : getCurrentSlaveMembers()) {
+        String checkUrl = "http://" + slaveMember.getIpAddress() + ":" 
+                                    + slaveMember.getPort()  
                                     + ReplicationTestService.Constants.BASE_URL
                                     + "/" + workingRepository
                                     + "/" + workingWorkspace
-                                    + "/" + masterMember.getLogin()
-                                    + "/" + masterMember.getPassword() 
+                                    + "/" + slaveMember.getLogin()
+                                    + "/" + slaveMember.getPassword() 
                                     + "/" + relPath 
                                     + "/" + baseVersionValue[i] + "/"
                                     + ReplicationTestService.Constants.OPERATION_PREFIX
                                     + ReplicationTestService.Constants.OperationType.CHECK_VERSION_NODE;
         
-        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember);
+        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember, 500);
         String result = client.execute(checkUrl);
         System.out.println(checkUrl);
         System.out.println(result);
@@ -88,10 +92,12 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
   }
   
   public void testAddNewVersionValue() throws Exception {
+    randomizeMembers();
+    MemberInfo masterMember = getCurrentMasterMember();
     //create version node  in masterMember
     
     for (int i = 0; i < relPathArray.length; i++) {
-      versionValue_1[i] = "version_value_1_" + (int)(Math.random() * 1000); 
+      versionValue_1[i] = "version_value_1_" + (int)(Math.random() * MAX_RANDOM_VALUE); 
       
       String url = "http://" + masterMember.getIpAddress() + ":" 
                              + masterMember.getPort()  
@@ -119,20 +125,20 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
     for (int i = 0; i < relPathArray.length; i++) {
       String relPath = relPathArray[i];
       
-      for (MemberInfo slaveMember : slaveMembers) {
-        String checkUrl = "http://" + masterMember.getIpAddress() + ":" 
-                                    + masterMember.getPort()  
+      for (MemberInfo slaveMember : getCurrentSlaveMembers()) {
+        String checkUrl = "http://" + slaveMember.getIpAddress() + ":" 
+                                    + slaveMember.getPort()  
                                     + ReplicationTestService.Constants.BASE_URL
                                     + "/" + workingRepository
                                     + "/" + workingWorkspace
-                                    + "/" + masterMember.getLogin()
-                                    + "/" + masterMember.getPassword() 
+                                    + "/" + slaveMember.getLogin()
+                                    + "/" + slaveMember.getPassword() 
                                     + "/" + relPath 
                                     + "/" + versionValue_1[i] + "/"
                                     + ReplicationTestService.Constants.OPERATION_PREFIX
                                     + ReplicationTestService.Constants.OperationType.CHECK_VERSION_NODE;
         
-        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember);
+        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember, 500);
         String result = client.execute(checkUrl);
         System.out.println(checkUrl);
         System.out.println(result);
@@ -143,10 +149,13 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
   }
   
   public void testAddNewVersionValue2() throws Exception {
+    randomizeMembers();
+    MemberInfo masterMember = getCurrentMasterMember();
+    
     //create version node  in masterMember
     
     for (int i = 0; i < relPathArray.length; i++) {
-      versionValue_2[i] = "version_value_2_" + (int)(Math.random() * 1000); 
+      versionValue_2[i] = "version_value_2_" + (int)(Math.random() * MAX_RANDOM_VALUE); 
       
       String url = "http://" + masterMember.getIpAddress() + ":" 
                              + masterMember.getPort()  
@@ -174,20 +183,20 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
     for (int i = 0; i < relPathArray.length; i++) {
       String relPath = relPathArray[i];
       
-      for (MemberInfo slaveMember : slaveMembers) {
-        String checkUrl = "http://" + masterMember.getIpAddress() + ":" 
-                                    + masterMember.getPort()  
+      for (MemberInfo slaveMember : getCurrentSlaveMembers()) {
+        String checkUrl = "http://" + slaveMember.getIpAddress() + ":" 
+                                    + slaveMember.getPort()  
                                     + ReplicationTestService.Constants.BASE_URL
                                     + "/" + workingRepository
                                     + "/" + workingWorkspace
-                                    + "/" + masterMember.getLogin()
-                                    + "/" + masterMember.getPassword() 
+                                    + "/" + slaveMember.getLogin()
+                                    + "/" + slaveMember.getPassword() 
                                     + "/" + relPath 
                                     + "/" + versionValue_2[i] + "/"
                                     + ReplicationTestService.Constants.OPERATION_PREFIX
                                     + ReplicationTestService.Constants.OperationType.CHECK_VERSION_NODE;
         
-        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember);
+        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember, 500);
         String result = client.execute(checkUrl);
         System.out.println(checkUrl);
         System.out.println(result);
@@ -198,6 +207,9 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
   }
   
   public void testRestorePreviousVersion() throws Exception {
+    randomizeMembers();
+    MemberInfo masterMember = getCurrentMasterMember();
+    
     //create version node  in masterMember
     
     for (int i = 0; i < relPathArray.length; i++) {
@@ -226,20 +238,20 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
     for (int i = 0; i < relPathArray.length; i++) {
       String relPath = relPathArray[i];
       
-      for (MemberInfo slaveMember : slaveMembers) {
-        String checkUrl = "http://" + masterMember.getIpAddress() + ":" 
-                                    + masterMember.getPort()  
+      for (MemberInfo slaveMember : getCurrentSlaveMembers()) {
+        String checkUrl = "http://" + slaveMember.getIpAddress() + ":" 
+                                    + slaveMember.getPort()  
                                     + ReplicationTestService.Constants.BASE_URL
                                     + "/" + workingRepository
                                     + "/" + workingWorkspace
-                                    + "/" + masterMember.getLogin()
-                                    + "/" + masterMember.getPassword() 
+                                    + "/" + slaveMember.getLogin()
+                                    + "/" + slaveMember.getPassword() 
                                     + "/" + relPath 
                                     + "/" + versionValue_1[i] + "/"
                                     + ReplicationTestService.Constants.OPERATION_PREFIX
                                     + ReplicationTestService.Constants.OperationType.CHECK_VERSION_NODE;
         
-        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember);
+        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember, 500);
         String result = client.execute(checkUrl);
         System.out.println(checkUrl);
         System.out.println(result);
@@ -250,6 +262,9 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
   }
   
   public void testRestoreBaseVersion() throws Exception {
+    randomizeMembers();
+    MemberInfo masterMember = getCurrentMasterMember();
+    
     //create version node  in masterMember
     
     for (int i = 0; i < relPathArray.length; i++) {
@@ -278,20 +293,20 @@ public class VersionCheckerTest extends BaseTestCaseChecker {
     for (int i = 0; i < relPathArray.length; i++) {
       String relPath = relPathArray[i];
       
-      for (MemberInfo slaveMember : slaveMembers) {
-        String checkUrl = "http://" + masterMember.getIpAddress() + ":" 
-                                    + masterMember.getPort()  
+      for (MemberInfo slaveMember : getCurrentSlaveMembers()) {
+        String checkUrl = "http://" + slaveMember.getIpAddress() + ":" 
+                                    + slaveMember.getPort()  
                                     + ReplicationTestService.Constants.BASE_URL
                                     + "/" + workingRepository
                                     + "/" + workingWorkspace
-                                    + "/" + masterMember.getLogin()
-                                    + "/" + masterMember.getPassword() 
+                                    + "/" + slaveMember.getLogin()
+                                    + "/" + slaveMember.getPassword() 
                                     + "/" + relPath 
                                     + "/" + baseVersionValue[i] + "/"
                                     + ReplicationTestService.Constants.OPERATION_PREFIX
                                     + ReplicationTestService.Constants.OperationType.CHECK_VERSION_NODE;
         
-        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember);
+        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember, 500);
         String result = client.execute(checkUrl);
         System.out.println(checkUrl);
         System.out.println(result);

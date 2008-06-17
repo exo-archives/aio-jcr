@@ -85,7 +85,9 @@ public class RecoveryManager {
 
     this.ownName = ownName;
     this.participantsClusterList = new ArrayList<String>(participantsClusterList);
-    log.info("init : participantsClusterList.size() : " + participantsClusterList.size());
+
+    if (log.isDebugEnabled())
+      log.debug("init : participantsClusterList.size() : " + participantsClusterList.size());
 
     this.repoName = repoName;
     this.wsName = wsName;
@@ -123,11 +125,17 @@ public class RecoveryManager {
 
     if (confirmationChengesLog != null) {
       if (confirmationChengesLog.getConfirmationList().contains(packet.getOwnerName()) != true) {
-        log.info(ownName + ": Confirmation ChangesLog form : " + packet.getOwnerName());
-        log.info("Beefor: Confirmation list size : "
-            + confirmationChengesLog.getConfirmationList().size());
+        
+        if (log.isDebugEnabled()) {
+          log.debug(ownName + ": Confirmation ChangesLog form : " + packet.getOwnerName());
+          log.debug("Beefor: Confirmation list size : "
+              + confirmationChengesLog.getConfirmationList().size());
+        }
+        
         confirmationChengesLog.getConfirmationList().add(packet.getOwnerName());
-        log.info("After: Confirmation list size : "
+        
+        if (log.isDebugEnabled())
+          log.debug("After: Confirmation list size : "
             + confirmationChengesLog.getConfirmationList().size());
       }
     } else {
@@ -166,7 +174,9 @@ public class RecoveryManager {
     case Packet.PacketType.ADD_OK:
       if (ownName.equals(packet.getOwnerName()) == false) {
         confirmationChengesLogSave(packet);
-        log.info(ownName + " : ADD_OK : " + packet.getOwnerName());
+        
+        if (log.isDebugEnabled())
+          log.debug(ownName + " : ADD_OK : " + packet.getOwnerName());
       }
       break;
 
@@ -230,7 +240,9 @@ public class RecoveryManager {
         if (state != AbstractWorkspaceDataReceiver.RECOVERY_MODE) {
           stat = AbstractWorkspaceDataReceiver.RECOVERY_MODE;
 
-          log.info("ALL_INITED : start recovery");
+          if (log.isDebugEnabled())
+            log.debug("ALL_INITED : start recovery");
+          
           isAllInited = true;
           startRecovery();
         }

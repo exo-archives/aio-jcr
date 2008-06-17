@@ -37,6 +37,7 @@ public class NtFileTestCase extends BaseReplicationTestCase {
   public NtFileTestCase(RepositoryService repositoryService, String reposytoryName,
       String workspaceName, String userName, String password) {
     super(repositoryService, reposytoryName, workspaceName, userName, password);
+    log.info("NtFileTestCase inited");
   }
 
   public StringBuffer addNtFile(String repoPath, String fileName, Long fileSize) {
