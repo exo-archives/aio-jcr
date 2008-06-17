@@ -56,7 +56,8 @@ public class NodeIndexer {
   /**
    * The logger instance for this class.
    */
-  private static final Log              log                 = ExoLogger.getLogger(NodeIndexer.class);
+  private static final Log              log                 = ExoLogger
+                                                                .getLogger(NodeIndexer.class);
 
   /**
    * The default boost for a lucene field: 1.0f.
@@ -74,7 +75,8 @@ public class NodeIndexer {
   protected final ItemDataConsumer      stateProvider;
 
   /**
-   * Namespace mappings to use for indexing. This is the internal namespace mapping.
+   * Namespace mappings to use for indexing. This is the internal namespace
+   * mapping.
    */
   protected final NamespaceMappings     mappings;
 
@@ -94,7 +96,8 @@ public class NodeIndexer {
   protected IndexingConfiguration       indexingConfig;
 
   /**
-   * If set to <code>true</code> the fulltext field is stored and and a term vector is created with offset information.
+   * If set to <code>true</code> the fulltext field is stored and and a term
+   * vector is created with offset information.
    */
   protected boolean                     supportHighlighting = false;
 
@@ -109,11 +112,13 @@ public class NodeIndexer {
    * Creates a new node indexer.
    * 
    * @param node the node state to index.
-   * @param stateProvider the persistent item state manager to retrieve properties. //StateManager
+   * @param stateProvider the persistent item state manager to retrieve
+   *          properties. //StateManager
    * @param mappings internal namespace mappings.
    * @param extractor content extractor
    */
-  public NodeIndexer(NodeData node, ItemDataConsumer stateProvider, NamespaceMappings mappings, DocumentReaderService extractor) {
+  public NodeIndexer(NodeData node, ItemDataConsumer stateProvider, NamespaceMappings mappings,
+      DocumentReaderService extractor) {
     this.node = node;
     this.stateProvider = stateProvider;
     this.mappings = mappings;
@@ -132,7 +137,8 @@ public class NodeIndexer {
   }
 
   /**
-   * If set to <code>true</code> additional information is stored in the index to support highlighting using the exo:excerpt pseudo property.
+   * If set to <code>true</code> additional information is stored in the index
+   * to support highlighting using the exo:excerpt pseudo property.
    * 
    * @param b <code>true</code> to enable highlighting support.
    */
@@ -162,7 +168,8 @@ public class NodeIndexer {
    * Creates a lucene Document.
    * 
    * @return the lucene Document with the index layout.
-   * @throws RepositoryException if an error occurs while reading property values from the <code>ItemStateProvider</code>.
+   * @throws RepositoryException if an error occurs while reading property
+   *           values from the <code>ItemStateProvider</code>.
    */
   protected Document createDoc() throws RepositoryException {
     Document doc = new Document();
@@ -170,58 +177,252 @@ public class NodeIndexer {
     doc.setBoost(getNodeBoost());
 
     // special fields UUID
-    doc.add(new Field(FieldNames.UUID, node.getIdentifier(), Field.Store.YES, Field.Index.NO_NORMS, Field.TermVector.NO));
+    doc.add(new Field(FieldNames.UUID, node.getIdentifier(), Field.Store.YES, Field.Index.NO_NORMS,
+        Field.TermVector.NO));
     try {
       // parent UUID
       if (node.getParentIdentifier() == null) {
         // root node
-        doc.add(new Field(FieldNames.PARENT, "", Field.Store.YES, Field.Index.NO_NORMS, Field.TermVector.NO));
-        doc.add(new Field(FieldNames.LABEL, "", Field.Store.YES, Field.Index.NO_NORMS, Field.TermVector.NO));
+        doc.add(new Field(FieldNames.PARENT, "", Field.Store.YES, Field.Index.NO_NORMS,
+            Field.TermVector.NO));
+        doc.add(new Field(FieldNames.LABEL, "", Field.Store.YES, Field.Index.NO_NORMS,
+            Field.TermVector.NO));
       } else {
-        doc.add(new Field(FieldNames.PARENT,
-                          node.getParentIdentifier(),
-                          Field.Store.YES,
-                          Field.Index.NO_NORMS,
-                          Field.TermVector.NO));
+        doc.add(new Field(FieldNames.PARENT, node.getParentIdentifier(), Field.Store.YES,
+            Field.Index.NO_NORMS, Field.TermVector.NO));
 
         String name = resolver.createJCRName(node.getQPath().getName()).getAsString();
-        doc.add(new Field(FieldNames.LABEL, name, Field.Store.YES, Field.Index.NO_NORMS, Field.TermVector.NO));
+        doc.add(new Field(FieldNames.LABEL, name, Field.Store.YES, Field.Index.NO_NORMS,
+            Field.TermVector.NO));
       }
     } catch (NamespaceException e) {
       // will never happen, because this.mappings will dynamically add
       // unknown uri<->prefix mappings
     }
 
-    List<PropertyData> props = this.stateProvider.getChildPropertiesData(node);
+    // List<PropertyData> props =
+    // this.stateProvider.getChildPropertiesData(node);
 
-    for (Iterator<PropertyData> it = props.iterator(); it.hasNext();) {
-      PropertyData propState = (PropertyData) it.next();
-      // add each property to the _PROPERTIES_SET for searching beginning with V2
+    // for (Iterator<PropertyData> it = props.iterator(); it.hasNext();) {
+    // PropertyData propState = (PropertyData) it.next();
+    // // add each property to the _PROPERTIES_SET for searching beginning with
+    // V2
+    // if (indexFormatVersion.getVersion() >=
+    // IndexFormatVersion.V2.getVersion()) {
+    // addPropertyName(doc, propState.getQPath().getName());
+    // }
+
+    // List<ValueData> values = propState.getValues();
+    // for (int i = 0; i < values.size(); i++) {
+    // addValue(doc, values.get(i), propState.getQPath().getName(),
+    // propState.getType());
+    // }
+    // if (values.size() > 1) {
+    // // real multi-valued
+    // addMVPName(doc, propState.getQPath().getName());
+    // }
+    // }
+
+    for (PropertyData prop : stateProvider.listChildPropertiesData(node)) {
+      // test the case and switch to
+
+      // add each property to the _PROPERTIES_SET for searching beginning with
+      // V2
       if (indexFormatVersion.getVersion() >= IndexFormatVersion.V2.getVersion()) {
-        addPropertyName(doc, propState.getQPath().getName());
+        addPropertyName(doc, prop.getQPath().getName());
       }
 
-      List<ValueData> values = propState.getValues();
-      for (int i = 0; i < values.size(); i++) {
-        addValue(doc, values.get(i), propState.getQPath().getName(), propState.getType());
-      }
-      if (values.size() > 1) {
-        // real multi-valued
-        addMVPName(doc, propState.getQPath().getName());
-      }
+      addValues(doc, prop);
     }
     return doc;
   }
 
   /**
-   * Adds a {@link FieldNames#MVP} field to <code>doc</code> with the resolved <code>name</code> using the internal search index namespace mapping.
+   * Adds a {@link FieldNames#MVP} field to <code>doc</code> with the resolved
+   * <code>name</code> using the internal search index namespace mapping.
    * 
    * @param doc the lucene document.
    * @param name the name of the multi-value property.
    */
   private void addMVPName(Document doc, InternalQName name) throws RepositoryException {
     String propName = resolver.createJCRName(name).getAsString();
-    doc.add(new Field(FieldNames.MVP, propName, Field.Store.NO, Field.Index.UN_TOKENIZED, Field.TermVector.NO));
+    doc.add(new Field(FieldNames.MVP, propName, Field.Store.NO, Field.Index.UN_TOKENIZED,
+        Field.TermVector.NO));
+  }
+
+  /**
+   * For concurrency usage case all internal vars were made a final. Need to be
+   * rechecked.
+   */
+  private void addValues(final Document doc, final PropertyData prop) throws RepositoryException {
+
+    int propType = prop.getType();
+    String fieldName = resolver.createJCRName(prop.getQPath().getName()).getAsString();
+
+    if (propType == PropertyType.BINARY) {
+
+      List<ValueData> data = null;
+      if (node.getQPath().getName().equals(Constants.JCR_CONTENT)) {
+        String text = null;
+        // seems nt:file found, try for nt:resource props
+        PropertyData pmime = (PropertyData) stateProvider.getItemData(node, new QPathEntry(
+            Constants.JCR_MIMETYPE, 0));
+        if (pmime != null) {
+          // index if have jcr:mimeType sibling for this binary property only
+          try {
+            DocumentReader dreader = extractor.getDocumentReader(new String(pmime.getValues()
+                .get(0).getAsByteArray()));
+
+            // ok, have a reader
+            // if the prop obtainer from cache it will contains a values,
+            // otherwise read prop with values from DM
+            data = prop.getValues().size() > 0 ? prop.getValues() : ((PropertyData) stateProvider
+                .getItemData(node, new QPathEntry(Constants.JCR_DATA, 0))).getValues();
+            if (data == null)
+              log.warn("null value found at property " + prop.getQPath().getAsString());
+
+            // check the jcr:encoding property
+            PropertyData encProp = (PropertyData) stateProvider.getItemData(node, new QPathEntry(
+                Constants.JCR_ENCODING, 0));
+
+            if (encProp != null) {
+              ValueData encValue = encProp.getValues().get(0);
+              for (ValueData pvd : data) {
+                InputStream is = pvd.getAsStream();
+                try {
+                  text = dreader.getContentAsText(is, new String(encValue.getAsByteArray()));
+                } finally {
+                  try {
+                    is.close();
+                  } catch (Throwable e) {
+                  }
+                }
+              }
+            } else {
+              for (ValueData pvd : data) {
+                InputStream is = pvd.getAsStream();
+                try {
+                  text = dreader.getContentAsText(is);
+                } finally {
+                  try {
+                    is.close();
+                  } catch (Throwable e) {
+                  }
+                }
+              }
+            }
+
+          } catch (HandlerNotFoundException e) {
+            // no handler - no index
+            if (log.isDebugEnabled())
+              log.warn("This content is not readable " + e);
+          } catch (IOException e) {
+            // no data - no index
+            if (log.isDebugEnabled())
+              log.warn("Binary value indexer IO error " + e, e);
+          } catch (Exception e) {
+            log.error("Binary value indexer error " + e, e);
+          }
+        } else {
+          // non mimetype - no index, jcr:mimeType is mandatory for nt:resource,
+          // but jcr:content type is nt:base, i.e. any nodetype can be there
+          text = null;
+        }
+
+        if (text != null) {
+          doc.add(createFulltextField(text));
+        } // else log.warn("Properties binary value is not extracted");
+      }
+
+      if (data == null) {
+        // do nothing
+      } else if (data.size() > 1) {
+        // real multi-valued
+        addMVPName(doc, prop.getQPath().getName());
+      }
+
+    } else {
+      try {
+        // if the prop obtainer from cache it will contains a values, otherwise
+        // read prop with values from DM
+        // WARN. DON'T USE access item BY PATH - it's may be a node in case of
+        // residual definitions in NT
+        List<ValueData> data = prop.getValues().size() > 0 ? prop.getValues()
+            : ((PropertyData) stateProvider.getItemData(prop.getIdentifier())).getValues();
+
+        if (data == null)
+          log.warn("null value found at property " + prop.getQPath().getAsString());
+
+        ExtendedValue val = null;
+        InternalQName name = prop.getQPath().getName();
+        for (ValueData value : data) {
+          val = (ExtendedValue) vFactory.loadValue(((AbstractValueData) value)
+              .createTransientCopy(), propType);
+
+          switch (propType) {
+          case PropertyType.BOOLEAN:
+            if (isIndexed(name)) {
+              addBooleanValue(doc, fieldName, Boolean.valueOf(val.getBoolean()));
+            }
+            break;
+          case PropertyType.DATE:
+            if (isIndexed(name)) {
+              addCalendarValue(doc, fieldName, val.getDate());
+            }
+            break;
+          case PropertyType.DOUBLE:
+            if (isIndexed(name)) {
+              addDoubleValue(doc, fieldName, new Double(val.getDouble()));
+            }
+            break;
+          case PropertyType.LONG:
+            if (isIndexed(name)) {
+              addLongValue(doc, fieldName, new Long(val.getLong()));
+            }
+            break;
+          case PropertyType.REFERENCE:
+            if (isIndexed(name)) {
+              addReferenceValue(doc, fieldName, val.getString());
+            }
+            break;
+          case PropertyType.PATH:
+            if (isIndexed(name)) {
+              addPathValue(doc, fieldName, val.getString());
+            }
+            break;
+          case PropertyType.STRING:
+            if (isIndexed(name)) {
+              // never fulltext index jcr:uuid String
+              if (name.equals(Constants.JCR_UUID)) {
+                addStringValue(doc, fieldName, val.getString(), false, false, DEFAULT_BOOST);
+              } else {
+                addStringValue(doc, fieldName, val.getString(), true, isIncludedInNodeIndex(name),
+                    getPropertyBoost(name));
+              }
+            }
+            break;
+          case PropertyType.NAME:
+            // jcr:primaryType and jcr:mixinTypes are required for correct
+            // node type resolution in queries
+            if (isIndexed(name) || name.equals(Constants.JCR_PRIMARYTYPE)
+                || name.equals(Constants.JCR_MIXINTYPES)) {
+              addNameValue(doc, fieldName, val.getString());
+            }
+            break;
+          case ExtendedPropertyType.PERMISSION:
+            break;
+          default:
+            throw new IllegalArgumentException("illegal internal value type " + propType);
+          }
+        }
+        if (data.size() > 1)
+          // real multi-valued
+          addMVPName(doc, prop.getQPath().getName());
+      } catch (RepositoryException e) {
+        throw new RepositoryException("Index of property value error. "
+            + prop.getQPath().getAsString() + ". " + e, e);
+      }
+    }
   }
 
   /**
@@ -235,13 +436,14 @@ public class NodeIndexer {
    * @throws IllegalStateException
    * @throws ValueFormatException
    */
-  private void addValue(Document doc, ValueData value, InternalQName name, int propertyType) throws ValueFormatException,
-                                                                                            IllegalStateException,
-                                                                                            RepositoryException {
+  @Deprecated
+  private void addValue(Document doc, ValueData value, InternalQName name, int propertyType)
+      throws ValueFormatException, IllegalStateException, RepositoryException {
     String fieldName = resolver.createJCRName(name).getAsString();
     ExtendedValue val = null;
     if (PropertyType.BINARY != propertyType)
-      val = (ExtendedValue) vFactory.loadValue(((AbstractValueData) value).createTransientCopy(), propertyType);
+      val = (ExtendedValue) vFactory.loadValue(((AbstractValueData) value).createTransientCopy(),
+          propertyType);
     switch (propertyType) {
     case PropertyType.BINARY:
       if (isIndexed(name)) {
@@ -285,21 +487,24 @@ public class NodeIndexer {
         if (name.equals(Constants.JCR_UUID)) {
           addStringValue(doc, fieldName, val.getString(), false, false, DEFAULT_BOOST);
         } else {
-          addStringValue(doc, fieldName, val.getString(), true, isIncludedInNodeIndex(name), getPropertyBoost(name));
+          addStringValue(doc, fieldName, val.getString(), true, isIncludedInNodeIndex(name),
+              getPropertyBoost(name));
         }
       }
       break;
     case PropertyType.NAME:
       // jcr:primaryType and jcr:mixinTypes are required for correct
       // node type resolution in queries
-      if (isIndexed(name) || name.equals(Constants.JCR_PRIMARYTYPE) || name.equals(Constants.JCR_MIXINTYPES)) {
+      if (isIndexed(name) || name.equals(Constants.JCR_PRIMARYTYPE)
+          || name.equals(Constants.JCR_MIXINTYPES)) {
         addNameValue(doc, fieldName, val.getString());
       }
       break;
     case ExtendedPropertyType.PERMISSION:
       break;
     default:
-      throw new IllegalArgumentException("illegal internal value type:" + ExtendedPropertyType.nameFromValue(propertyType));
+      throw new IllegalArgumentException("illegal internal value type:"
+          + ExtendedPropertyType.nameFromValue(propertyType));
     }
   }
 
@@ -315,33 +520,39 @@ public class NodeIndexer {
   }
 
   /**
-   * Adds the binary value to the document as the named field. <p/> This implementation checks if this {@link #node} is of type nt:resource and if that is the
-   * case, tries to extract text from the binary property using the {@link #extractor}.
+   * Adds the binary value to the document as the named field. <p/> This
+   * implementation checks if this {@link #node} is of type nt:resource and if
+   * that is the case, tries to extract text from the binary property using the
+   * {@link #extractor}.
    * 
    * @param doc The document to which to add the field
    * @param fieldName The name of the field to add
    * @param internalValue The value for the field to add to the document.
    * @throws RepositoryException
    */
-  protected void addBinaryValue(Document doc, String fieldName, ValueData internalValue) throws RepositoryException {
+  @Deprecated
+  protected void addBinaryValue(Document doc, String fieldName, ValueData internalValue)
+      throws RepositoryException {
 
     if (node.getQPath().getName().equals(Constants.JCR_CONTENT)) {
       String text;
       try {
-        PropertyData prop = (PropertyData) stateProvider.getItemData(node, new QPathEntry(Constants.JCR_MIMETYPE, 0));
+        PropertyData prop = (PropertyData) stateProvider.getItemData(node, new QPathEntry(
+            Constants.JCR_MIMETYPE, 0));
         if (prop != null) {
           List<ValueData> values = prop.getValues();
           ValueData mimeValue = values.get(0);
           String mime = new String(mimeValue.getAsByteArray());
-  
+
           DocumentReader dreader = extractor.getDocumentReader(mime);
-  
+
           InputStream is = null;
           try {
             is = internalValue.getAsStream();
-  
-            //check the jcr:encoding property
-            PropertyData encProp = (PropertyData) stateProvider.getItemData(node, new QPathEntry(Constants.JCR_ENCODING, 0));
+
+            // check the jcr:encoding property
+            PropertyData encProp = (PropertyData) stateProvider.getItemData(node, new QPathEntry(
+                Constants.JCR_ENCODING, 0));
             if (encProp != null) {
               ValueData encValue = encProp.getValues().get(0);
               text = dreader.getContentAsText(is, new String(encValue.getAsByteArray()));
@@ -354,8 +565,9 @@ public class NodeIndexer {
             } catch (Throwable e) {
             }
           }
-        } else 
-          // non mimetype - no index, jcr:mimeType is mandatory for nt:resource, but jcr:content type is nt:base, i.e. any nodetype can be there
+        } else
+          // non mimetype - no index, jcr:mimeType is mandatory for nt:resource,
+          // but jcr:content type is nt:base, i.e. any nodetype can be there
           text = null;
       } catch (HandlerNotFoundException e) {
         // no handler - no index
@@ -371,7 +583,7 @@ public class NodeIndexer {
         log.error("Binary value indexer error " + e, e);
         text = null;
       }
-      
+
       if (text != null) {
         doc.add(createFulltextField(text));
       } // else log.warn("Properties binary value is not extracted");
@@ -379,7 +591,8 @@ public class NodeIndexer {
   }
 
   /**
-   * Adds the string representation of the boolean value to the document as the named field.
+   * Adds the string representation of the boolean value to the document as the
+   * named field.
    * 
    * @param doc The document to which to add the field
    * @param fieldName The name of the field to add
@@ -391,21 +604,25 @@ public class NodeIndexer {
 
   /**
    * Creates a field of name <code>fieldName</code> with the value of <code>
-   * internalValue</code>. The created field is indexed without norms.
+   * internalValue</code>.
+   * The created field is indexed without norms.
    * 
    * @param fieldName The name of the field to add
    * @param internalValue The value for the field to add to the document.
-   * @param store <code>true</code> if the value should be stored, <code>false</code> otherwise
+   * @param store <code>true</code> if the value should be stored,
+   *          <code>false</code> otherwise
    */
   protected Field createFieldWithoutNorms(String fieldName, String internalValue, boolean store) {
-    Field field =
-        new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(fieldName, internalValue), true ? Field.Store.YES
-            : Field.Store.NO, Field.Index.NO_NORMS, Field.TermVector.NO);
+    Field field = new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(fieldName,
+        internalValue), true ? Field.Store.YES : Field.Store.NO, Field.Index.NO_NORMS,
+        Field.TermVector.NO);
     return field;
   }
 
   /**
-   * Adds the calendar value to the document as the named field. The calendar value is converted to an indexable string value using the {@link DateField} class.
+   * Adds the calendar value to the document as the named field. The calendar
+   * value is converted to an indexable string value using the {@link DateField}
+   * class.
    * 
    * @param doc The document to which to add the field
    * @param fieldName The name of the field to add
@@ -418,7 +635,9 @@ public class NodeIndexer {
   }
 
   /**
-   * Adds the double value to the document as the named field. The double value is converted to an indexable string value using the {@link DoubleField} class.
+   * Adds the double value to the document as the named field. The double value
+   * is converted to an indexable string value using the {@link DoubleField}
+   * class.
    * 
    * @param doc The document to which to add the field
    * @param fieldName The name of the field to add
@@ -430,7 +649,8 @@ public class NodeIndexer {
   }
 
   /**
-   * Adds the long value to the document as the named field. The long value is converted to an indexable string value using the {@link LongField} class.
+   * Adds the long value to the document as the named field. The long value is
+   * converted to an indexable string value using the {@link LongField} class.
    * 
    * @param doc The document to which to add the field
    * @param fieldName The name of the field to add
@@ -442,8 +662,9 @@ public class NodeIndexer {
   }
 
   /**
-   * Adds the reference value to the document as the named field. The value's string representation is added as the reference data. Additionally the reference
-   * data is stored in the index.
+   * Adds the reference value to the document as the named field. The value's
+   * string representation is added as the reference data. Additionally the
+   * reference data is stored in the index.
    * 
    * @param doc The document to which to add the field
    * @param fieldName The name of the field to add
@@ -454,8 +675,9 @@ public class NodeIndexer {
   }
 
   /**
-   * Adds the path value to the document as the named field. The path value is converted to an indexable string value using the name space mappings with which
-   * this class has been created.
+   * Adds the path value to the document as the named field. The path value is
+   * converted to an indexable string value using the name space mappings with
+   * which this class has been created.
    * 
    * @param doc The document to which to add the field
    * @param fieldName The name of the field to add
@@ -466,33 +688,37 @@ public class NodeIndexer {
   }
 
   /**
-   * Adds the string value to the document both as the named field and optionally for full text indexing if <code>tokenized</code> is <code>true</code>.
+   * Adds the string value to the document both as the named field and
+   * optionally for full text indexing if <code>tokenized</code> is
+   * <code>true</code>.
    * 
    * @param doc The document to which to add the field
    * @param fieldName The name of the field to add
    * @param internalValue The value for the field to add to the document.
-   * @param tokenized If <code>true</code> the string is also tokenized and fulltext indexed.
+   * @param tokenized If <code>true</code> the string is also tokenized and
+   *          fulltext indexed.
    */
-  protected void addStringValue(Document doc, String fieldName, Object internalValue, boolean tokenized) {
+  protected void addStringValue(Document doc, String fieldName, Object internalValue,
+      boolean tokenized) {
     addStringValue(doc, fieldName, internalValue, tokenized, true, DEFAULT_BOOST);
   }
 
   /**
-   * Adds the string value to the document both as the named field and optionally for full text indexing if <code>tokenized</code> is <code>true</code>.
+   * Adds the string value to the document both as the named field and
+   * optionally for full text indexing if <code>tokenized</code> is
+   * <code>true</code>.
    * 
    * @param doc The document to which to add the field
    * @param fieldName The name of the field to add
    * @param internalValue The value for the field to add to the document.
-   * @param tokenized If <code>true</code> the string is also tokenized and fulltext indexed.
-   * @param includeInNodeIndex If <code>true</code> the string is also tokenized and added to the node scope fulltext index.
+   * @param tokenized If <code>true</code> the string is also tokenized and
+   *          fulltext indexed.
+   * @param includeInNodeIndex If <code>true</code> the string is also
+   *          tokenized and added to the node scope fulltext index.
    * @param boost the boost value for this string field.
    */
-  protected void addStringValue(Document doc,
-                                String fieldName,
-                                Object internalValue,
-                                boolean tokenized,
-                                boolean includeInNodeIndex,
-                                float boost) {
+  protected void addStringValue(Document doc, String fieldName, Object internalValue,
+      boolean tokenized, boolean includeInNodeIndex, float boost) {
     // simple String
     String stringValue = (String) internalValue;
     doc.add(createFieldWithoutNorms(fieldName, stringValue, false));
@@ -501,12 +727,8 @@ public class NodeIndexer {
         return;
       }
       // create fulltext index on property
-      Field f =
-          new Field(FieldNames.createFullTextFieldName(fieldName),
-                    stringValue,
-                    Field.Store.NO,
-                    Field.Index.TOKENIZED,
-                    Field.TermVector.NO);
+      Field f = new Field(FieldNames.createFullTextFieldName(fieldName), stringValue,
+          Field.Store.NO, Field.Index.TOKENIZED, Field.TermVector.NO);
       f.setBoost(boost);
       doc.add(f);
 
@@ -518,8 +740,10 @@ public class NodeIndexer {
   }
 
   /**
-   * Adds the name value to the document as the named field. The name value is converted to an indexable string treating the internal value as a qualified name
-   * and mapping the name space using the name space mappings with which this class has been created.
+   * Adds the name value to the document as the named field. The name value is
+   * converted to an indexable string treating the internal value as a qualified
+   * name and mapping the name space using the name space mappings with which
+   * this class has been created.
    * 
    * @param doc The document to which to add the field
    * @param fieldName The name of the field to add
@@ -545,7 +769,8 @@ public class NodeIndexer {
         stored = Field.Store.YES;
       }
 
-      return new Field(FieldNames.FULLTEXT, value, stored, Field.Index.TOKENIZED, Field.TermVector.WITH_OFFSETS);
+      return new Field(FieldNames.FULLTEXT, value, stored, Field.Index.TOKENIZED,
+          Field.TermVector.WITH_OFFSETS);
     } else {
 
       return new Field(FieldNames.FULLTEXT, value, Field.Store.NO, Field.Index.TOKENIZED);
@@ -585,10 +810,12 @@ public class NodeIndexer {
   }
 
   /**
-   * Returns <code>true</code> if the property with the given name should be indexed.
+   * Returns <code>true</code> if the property with the given name should be
+   * indexed.
    * 
    * @param propertyName name of a property.
-   * @return <code>true</code> if the property should be fulltext indexed; <code>false</code> otherwise.
+   * @return <code>true</code> if the property should be fulltext indexed;
+   *         <code>false</code> otherwise.
    */
   protected boolean isIndexed(InternalQName propertyName) {
     if (indexingConfig == null) {
@@ -599,10 +826,12 @@ public class NodeIndexer {
   }
 
   /**
-   * Returns <code>true</code> if the property with the given name should also be added to the node scope index.
+   * Returns <code>true</code> if the property with the given name should also
+   * be added to the node scope index.
    * 
    * @param propertyName the name of a property.
-   * @return <code>true</code> if it should be added to the node scope index; <code>false</code> otherwise.
+   * @return <code>true</code> if it should be added to the node scope index;
+   *         <code>false</code> otherwise.
    */
   protected boolean isIncludedInNodeIndex(InternalQName propertyName) {
     if (indexingConfig == null) {
