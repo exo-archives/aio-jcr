@@ -341,10 +341,16 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
    * Remove expired locks. Used from LockRemover.
    */
   synchronized void removeExpired() {
+    final List<String> removeLockList = new ArrayList<String>();
+
     for (LockData lock : locks.values()) {
       if (!lock.isSessionScoped() && lock.getTimeToDeath() < 0) {
-        removeLock(lock.getNodeIdentifier());
+        removeLockList.add(lock.getNodeIdentifier());
       }
+    }
+    
+    for (String rLock : removeLockList) {
+      removeLock(rLock);
     }
   }
 
