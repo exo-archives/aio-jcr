@@ -16,8 +16,7 @@
               <property name="swap-directory" value="target/temp/swap/ws" />
             </properties>
             <value-storages>
-              <value-storage id="ws"
-                class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+              <value-storage id="ws" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws" />
                 </properties>
@@ -60,8 +59,7 @@
               <property name="swap-directory" value="target/temp/swap/ws1" />
             </properties>
 						<value-storages>
-              <value-storage id="ws1"
-                class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+              <value-storage id="ws1" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws1" />
                 </properties>
@@ -104,8 +102,7 @@
               <property name="swap-directory" value="target/temp/swap/ws2" />
             </properties>
 						<value-storages>
-              <value-storage id="ws2"
-                class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+              <value-storage id="ws2" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws2" />
                 </properties>
@@ -156,8 +153,7 @@
               <property name="swap-directory" value="target/temp/swap/wstck" />
             </properties>
 						<value-storages>
-              <value-storage id="ws"
-                class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+              <value-storage id="ws" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/wstck" />
                 </properties>
@@ -200,8 +196,7 @@
               <property name="swap-directory" value="target/temp/swap/ws1tck" />
             </properties>
 						<value-storages>
-              <value-storage id="ws1"
-                class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+              <value-storage id="ws1" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws1tck" />
                 </properties>
