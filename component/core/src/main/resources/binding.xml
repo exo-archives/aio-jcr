@@ -15,11 +15,6 @@
     <value name="access-control" field="accessControl" usage="optional" />
     <value name="session-max-age" field="sessionTimeOut" usage="optional" />
     <value name="authentication-policy" field="authenticationPolicy" />
-    <structure name="binary-temp" field="binaryTemp" usage="optional">
-      <value name="directory-path" field="directoryPath" style="attribute" usage="optional" />
-      <value name="max-buffer-size" field="maxBufferSize" style="attribute" usage="optional" />
-      <!-- value name="copy-local-files" field="copyLocalFiles" style="attribute" usage="optional"/ -->
-    </structure>
     <collection name="workspaces" field="workspaces" item-type="org.exoplatform.services.jcr.config.WorkspaceEntry" />
   </mapping>
 
@@ -51,12 +46,6 @@
         item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"
         factory="org.jibx.runtime.Utility.arrayListFactory" />
     </structure>
-
-    <!-- TODO cleanup 
-      structure name="search-manager" field="searchManager" usage="optional">
-      <structure  field="queryHandler"/>
-      <value name="queryClass" field="queryClass" usage="optional"/>
-      </structure-->
 
     <structure name="query-handler" field="queryHandler" usage="optional">
       <value name="class" field="type" style="attribute" />
@@ -112,7 +101,6 @@
     <value name="synonymProvider" field="synonymProvider"  usage="optional"  set-method="setSynonymProvider"/>
     <value name="synonymProviderConfigPath" field="synonymProviderConfigPath"  usage="optional"/>
     </mapping>
-    
   -->
 
   <mapping name="value-storage" class="org.exoplatform.services.jcr.config.ValueStorageEntry">
