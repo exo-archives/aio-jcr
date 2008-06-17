@@ -30,7 +30,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Implements a {@link javax.jcr.NodeIterator} returned by
  * {@link javax.jcr.query.QueryResult#getNodes()}.
  */
-class NodeIteratorImpl implements ScoreNodeIterator {
+class NodeIteratorImpl implements TwoWayScoreNodeIterator,ScoreNodeIterator {
 
     /** Logger instance for this class */
     private static final Log log = ExoLogger.getLogger(NodeIteratorImpl.class);
@@ -117,6 +117,20 @@ class NodeIteratorImpl implements ScoreNodeIterator {
             pos += skipNum - 1;
             fetchNext();
         }
+    }
+
+    public void skipBack(long skipNum) {
+
+      if (skipNum < 0) {
+        throw new IllegalArgumentException("skipNum must not be negative");
+      }
+      if ((pos - skipNum) < 0) {
+          throw new NoSuchElementException();
+      }
+      if (skipNum > 0) {
+          pos -= skipNum + 1;
+          fetchNext();
+      }
     }
 
     /**

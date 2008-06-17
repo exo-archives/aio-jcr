@@ -303,28 +303,7 @@ public class QueryResultImpl implements QueryResult {
             if (numResults == -1) {
                 numResults = result.length();
             }
-
-
-//            int start = resultNodes.size() + invalid + (int)offset;
-//            int max = Math.min(result.length(), numResults);
-//            for (int i = start; i < max && resultNodes.size() < maxResultSize; i++) {
-//                String id = result.doc(i).get(FieldNames.UUID);//NodeId.valueOf(
-//                // check access
-//                try {
-//                    NodeData nodeData = (NodeData) itemMgr.getItemData(id);
-//                    
-//                    if (nodeData != null && accessMgr.hasPermission(nodeData.getACL(),PermissionType.READ,userId)) {
-//                        resultNodes.add(new ScoreNode(id, result.score(i)));
-//                    } else {
-//                        log.info("Item not found "+id);
-//                        invalid++;
-//                    }
-//                } catch (ItemNotFoundException e) {
-//                    // has been deleted meanwhile
-//                    invalid++;
-//                }
-//            }
-            
+           
           int start = resultNodes.size() + invalid + (int)offset;
           int max = Math.min(result.length(), numResults);
           for (int i = start; i < max && resultNodes.size() < maxResultSize; i++) {
@@ -357,7 +336,7 @@ public class QueryResultImpl implements QueryResult {
         return numResults - invalid;
     }
 
-    private final class LazyScoreNodeIterator implements ScoreNodeIterator {
+    private final class LazyScoreNodeIterator implements TwoWayScoreNodeIterator,ScoreNodeIterator {
 
         private int position = -1;
 
@@ -425,6 +404,22 @@ public class QueryResultImpl implements QueryResult {
                     throw new NoSuchElementException(e.getMessage());
                 }
             }
+        }
+
+        public void skipBack(long skipNum) {
+          initialize();
+          if (skipNum < 0) {
+            throw new IllegalArgumentException("skipNum must not be negative");
+          }
+          if ((position - skipNum) < 0) {
+            throw new NoSuchElementException();
+          }
+          if (skipNum == 0) {
+            // do nothing
+          } else {
+            position -= skipNum +1;
+            fetchNext();
+          }
         }
 
         /**

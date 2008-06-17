@@ -25,14 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jcr.AccessDeniedException;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.access.AccessManager;
-import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
@@ -43,7 +41,7 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Implements a NodeIterator that returns the nodes in document order.
  */
-class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
+class DocOrderNodeIteratorImpl implements TwoWayScoreNodeIterator,ScoreNodeIterator {
 
   /** Logger instance for this class */
   private static final Log           log = ExoLogger.getLogger(DocOrderNodeIteratorImpl.class);
@@ -114,6 +112,11 @@ class DocOrderNodeIteratorImpl implements ScoreNodeIterator {
     initOrderedIterator();
     orderedNodes.skip(skipNum);
   }
+
+  public void skipBack(long skipNum) {
+    initOrderedIterator();
+    orderedNodes.skipBack(skipNum);
+   }
 
   /**
    * Returns the number of nodes in this iterator.
