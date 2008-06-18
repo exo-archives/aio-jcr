@@ -96,9 +96,15 @@ class Recovery {
     private void run() throws IOException {
         List actions = redoLog.getActions();
 
+        
+        
         // find loser transactions
         for (Iterator it = actions.iterator(); it.hasNext();) {
             MultiIndex.Action a = (MultiIndex.Action) it.next();
+            
+            System.out.println("extracted REDO.log"); //TODO Delete this
+            System.out.println(a.toString()); //TODO Delete this
+            
             if (a.getType() == MultiIndex.Action.TYPE_START) {
                 losers.add(new Long(a.getTransactionId()));
             } else if (a.getType() == MultiIndex.Action.TYPE_COMMIT) {
