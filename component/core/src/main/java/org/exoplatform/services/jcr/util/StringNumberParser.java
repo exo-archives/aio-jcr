@@ -106,23 +106,23 @@ public class StringNumberParser {
   static public Number parseNumber(final String numberText) throws NumberFormatException {
     final String text = numberText.toLowerCase().toUpperCase();
     if (text.endsWith("K")) {
-      return new Double(text.substring(0, text.length() - 1)) * 1024d;
+      return Double.valueOf(text.substring(0, text.length() - 1)) * 1024d;
     } else if (text.endsWith("KB")) {
-      return new Double(text.substring(0, text.length() - 2)) * 1024d;  
+      return Double.valueOf(text.substring(0, text.length() - 2)) * 1024d;  
     } else if (text.endsWith("M")) {
-      return new Double(text.substring(0, text.length() - 1)) * 1048576d; // 1024 * 1024
+      return Double.valueOf(text.substring(0, text.length() - 1)) * 1048576d; // 1024 * 1024
     } else if (text.endsWith("MB")) {
-      return new Double(text.substring(0, text.length() - 2)) * 1048576d; // 1024 * 1024
+      return Double.valueOf(text.substring(0, text.length() - 2)) * 1048576d; // 1024 * 1024
     } else if (text.endsWith("G")) {
-      return new Double(text.substring(0, text.length() - 1)) * 1073741824d; // 1024 * 1024 * 1024
+      return Double.valueOf(text.substring(0, text.length() - 1)) * 1073741824d; // 1024 * 1024 * 1024
     } else if (text.endsWith("GB")) {
-      return new Double(text.substring(0, text.length() - 2)) * 1073741824d; // 1024 * 1024 * 1024
+      return Double.valueOf(text.substring(0, text.length() - 2)) * 1073741824d; // 1024 * 1024 * 1024
     } else if (text.endsWith("T")) {  
-      return new Double(text.substring(0, text.length() - 1)) * 1125899906842624d; // 1024 * 1024 * 1024 * 1024
+      return Double.valueOf(text.substring(0, text.length() - 1)) * 1099511627776d; // 1024 * 1024 * 1024 * 1024
     } else if (text.endsWith("TB")) {  
-      return new Double(text.substring(0, text.length() - 2)) * 1125899906842624d; // 1024 * 1024 * 1024 * 1024
+      return Double.valueOf(text.substring(0, text.length() - 2)) * 1099511627776d; // 1024 * 1024 * 1024 * 1024
     } else {
-      return new Double(text);
+      return Double.valueOf(text);
     }
   }
   
@@ -144,17 +144,17 @@ public class StringNumberParser {
    */
   static public long parseTime(final String text) throws NumberFormatException {
     if (text.endsWith("ms")) {
-      return new Long(text.substring(0, text.length() - 2)); 
+      return Long.valueOf(text.substring(0, text.length() - 2)); 
     } else if (text.endsWith("m")) {
-      return new Long(text.substring(0, text.length() - 1)) * 60000;  // 1000 * 60
+      return Long.valueOf(text.substring(0, text.length() - 1)) * 60000;  // 1000 * 60
     } else if (text.endsWith("h")) {
-      return new Long(text.substring(0, text.length() - 1)) * 3600000; // 1000 * 60 * 60
+      return Long.valueOf(text.substring(0, text.length() - 1)) * 3600000; // 1000 * 60 * 60
     } else if (text.endsWith("d")) {
-      return new Long(text.substring(0, text.length() - 1)) * 86400000; // 1000 * 60 * 60 * 24
+      return Long.valueOf(text.substring(0, text.length() - 1)) * 86400000; // 1000 * 60 * 60 * 24
     } else if (text.endsWith("w")) {
-      return new Long(text.substring(0, text.length() - 1)) * 604800000; // 1000 * 60 * 60 * 24 * 7
+      return Long.valueOf(text.substring(0, text.length() - 1)) * 604800000; // 1000 * 60 * 60 * 24 * 7
     } else { // seconds by default
-      return new Long(text) * 1000;
+      return Long.valueOf(text) * 1000;
     }
   }
 }
