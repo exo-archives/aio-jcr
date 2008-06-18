@@ -54,7 +54,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.AccessManager;
-import org.exoplatform.services.jcr.config.RepositoryEntry;
+import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.core.ExtendedSession;
 import org.exoplatform.services.jcr.core.NamespaceAccessor;
@@ -81,7 +81,6 @@ import org.exoplatform.services.jcr.impl.xml.importing.ContentImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.security.ConversationRegistry;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.xml.sax.ContentHandler;
@@ -151,14 +150,11 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
     this.accessManager = (AccessManager) container.getComponentInstanceOfType(AccessManager.class);
     this.lockManager = (LockManagerImpl) container.getComponentInstanceOfType(LockManagerImpl.class);
-    // this.sessionFactory = (SessionFactory)
-    // container.getComponentInstanceOfType(SessionFactory.class);
-    RepositoryEntry repositoryConfig = (RepositoryEntry) container.getComponentInstanceOfType(RepositoryEntry.class);
+    WorkspaceEntry wsConfig = (WorkspaceEntry) container.getComponentInstanceOfType(WorkspaceEntry.class);
     WorkspaceFileCleanerHolder cleanerHolder = (WorkspaceFileCleanerHolder) container.getComponentInstanceOfType(WorkspaceFileCleanerHolder.class);
 
-    // this.credentials = (CredentialsImpl) credentials;
     this.locationFactory = new LocationFactory(this);
-    this.valueFactory = new ValueFactoryImpl(locationFactory, repositoryConfig, cleanerHolder);
+    this.valueFactory = new ValueFactoryImpl(locationFactory, wsConfig, cleanerHolder);
 
     this.namespaces = new LinkedHashMap<String, String>();
     this.prefixes = new LinkedHashMap<String, String>();

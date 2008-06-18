@@ -56,14 +56,6 @@ import org.picocontainer.Startable;
  */
 public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase implements Startable {
   
-  public final static String CONTAINER_NAME = "containerName";
-  public final static String SOURCE_NAME = "sourceName";
-  public final static String MULTIDB = "multi-db";
-  public final static String SINGLEDB = "single-db";
-
-  public final static String MAXBUFFERSIZE = "max-buffer-size";
-  public final static String SWAPDIR = "swap-directory";
-  
   /**
    * Describe which type of RDBMS will be used (DB creation metadata etc.)
    */
@@ -72,14 +64,6 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
   public final static String DB_URL = "url";
   public final static String DB_USERNAME = "username";
   public final static String DB_PASSWORD = "password";
-
-  /**
-   * Describe which type of JDBC dialect will be used to iteract with RDBMS.
-   * Used for type of ConnectionFactory decision.
-   */
-  public final static int                    DEF_MAXBUFFERSIZE = 1024 * 200;                                    // 200k
-
-  public final static String                 DEF_SWAPDIR  = System.getProperty("java.io.tmpdir");
 
   protected static Log                       log = ExoLogger.getLogger("jcr.JDBCWorkspaceDataContainer");
 

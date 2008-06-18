@@ -42,8 +42,6 @@ public class RepositoryEntry {
 
   private String                    authenticationPolicy;
 
-  private BinarySwapEntry           binaryTemp;
-
   private long                    sessionTimeOut;
 
   public RepositoryEntry() {
@@ -137,14 +135,6 @@ public class RepositoryEntry {
    */
   public void setDefaultWorkspaceName(String defaultWorkspaceName) {
     this.defaultWorkspaceName = defaultWorkspaceName;
-  }
-
-  public BinarySwapEntry getBinaryTemp() {
-    return binaryTemp;
-  }
-
-  public void setBinaryTemp(BinarySwapEntry binaryTemp) {
-    this.binaryTemp = binaryTemp;
   }
 
   public long getSessionTimeOut() {

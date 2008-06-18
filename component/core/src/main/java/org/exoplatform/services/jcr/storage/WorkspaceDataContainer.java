@@ -25,32 +25,49 @@ import org.exoplatform.services.jcr.impl.storage.jdbc.JDBCStorageConnection;
 /**
  * Created by The eXo Platform SAS.<br>
  * 
- * Serves repository workspace persistent storage.
- * Acts as factory for WorkspaceStorageConnection objects, the implementation should support thread safety for openConnection() method;  
+ * Serves repository workspace persistent storage. Acts as factory for WorkspaceStorageConnection objects, the implementation should support thread safety for
+ * openConnection() method;
  * 
  * @author Gennady Azarenkov
  * @version $Id: WorkspaceDataContainer.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public interface WorkspaceDataContainer extends DataContainer {
- 
+
+  // configuration params
+  
+  public final static String CONTAINER_NAME    = "containerName";
+
+  public final static String SOURCE_NAME       = "sourceName";
+
+  public final static String MULTIDB           = "multi-db";
+
+  public final static String SINGLEDB          = "single-db";
+
+  public final static String MAXBUFFERSIZE     = "max-buffer-size";
+
+  public final static String SWAPDIR           = "swap-directory";
+
+  public final static int    DEF_MAXBUFFERSIZE = 1024 * 200;                          // 200k
+
+  public final static String DEF_SWAPDIR       = System.getProperty("java.io.tmpdir");
+
   /**
    * [G.A] do we need it here or in WorkspaceDataManager better??
+   * 
    * @return current time as for this container env
    */
   Calendar getCurrentTime();
-  
+
   /**
-   * @return the new connection to workspace storage
-   * normally implementation of this method should be synchronized
+   * @return the new connection to workspace storage normally implementation of this method should be synchronized
    */
-  WorkspaceStorageConnection openConnection() throws RepositoryException ;
-  
+  WorkspaceStorageConnection openConnection() throws RepositoryException;
+
   /**
-   * @return the connection to workspace storage, 
-   *         if it possible the connection will use same physical resource (already obtained)
-   *         as original connection, otherwise same behaviour will be used as for openConnection(). 
-   *           
+   * @return the connection to workspace storage, if it possible the connection will use same physical resource (already obtained) as original connection,
+   *         otherwise same behaviour will be used as for openConnection().
+   * 
    * normally implementation of this method should be synchronized
    */
   WorkspaceStorageConnection reuseConnection(WorkspaceStorageConnection original) throws RepositoryException;

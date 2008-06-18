@@ -30,7 +30,7 @@ import javax.jcr.Value;
 import javax.jcr.ValueFactory;
 import javax.jcr.ValueFormatException;
 
-import org.exoplatform.services.jcr.config.RepositoryEntry;
+import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -42,6 +42,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.WorkspaceFileCleanerHolder;
+import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
 /**
  * Created by The eXo Platform SAS.<br/> ValueFactory implementation
@@ -61,28 +62,25 @@ public class ValueFactoryImpl implements ValueFactory {
   private int             maxBufferSize;
 
   public ValueFactoryImpl(LocationFactory locationFactory,
-                          RepositoryEntry repositoryConfig,
+                          WorkspaceEntry workspaceConfig,
                           WorkspaceFileCleanerHolder cleanerHolder) {
 
     this.locationFactory = locationFactory;
     this.fileCleaner = cleanerHolder.getFileCleaner();
 
-    if (repositoryConfig.getBinaryTemp() == null) {
-      this.tempDirectory = new File(System.getProperty("java.io.tmpdir"));
-      this.maxBufferSize = 200 * 1024;
-    } else {
-      this.tempDirectory = new File(repositoryConfig.getBinaryTemp().getDirectoryPath());
-      this.maxBufferSize = new Integer(repositoryConfig.getBinaryTemp().getMaxBufferSize()).intValue();
-    }
+    this.tempDirectory = new File(System.getProperty("java.io.tmpdir"));
+
+    // TODO we use WorkspaceDataContainer constants but is it ok?  
+    this.maxBufferSize =
+        workspaceConfig.getContainer().getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
+                                                           WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
   }
 
   public ValueFactoryImpl(LocationFactory locationFactory) {
 
     this.locationFactory = locationFactory;
-    //this.fileCleaner = new FileCleaner();
-
     this.tempDirectory = new File(System.getProperty("java.io.tmpdir"));
-    this.maxBufferSize = 200 * 1024;
+    this.maxBufferSize = WorkspaceDataContainer.DEF_MAXBUFFERSIZE;
   }
 
   /*
@@ -100,8 +98,7 @@ public class ValueFactoryImpl implements ValueFactory {
         try {
           return createValue(new ByteArrayInputStream(value.getBytes(Constants.DEFAULT_ENCODING)));
         } catch (UnsupportedEncodingException e) {
-          throw new RuntimeException("FATAL ERROR Charset " + Constants.DEFAULT_ENCODING
-              + " is not supported!");
+          throw new RuntimeException("FATAL ERROR Charset " + Constants.DEFAULT_ENCODING + " is not supported!");
         }
       case PropertyType.BOOLEAN:
         return createValue(Boolean.parseBoolean(value));
@@ -142,8 +139,7 @@ public class ValueFactoryImpl implements ValueFactory {
         throw new ValueFormatException("unknown type " + type);
       }
     } catch (IllegalArgumentException e) { // NumberFormatException
-      throw new ValueFormatException("Cant create value from string '" + value + "' for type "
-          + PropertyType.nameFromValue(type));
+      throw new ValueFormatException("Cant create value from string '" + value + "' for type " + PropertyType.nameFromValue(type));
     }
   }
 
