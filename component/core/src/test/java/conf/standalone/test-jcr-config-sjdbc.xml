@@ -12,7 +12,7 @@
               <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="false" />
               <property name="update-storage" value="false" />
-              <property name="max-buffer-size" value="204800" />
+              <property name="max-buffer-size" value="200k" />
               <property name="swap-directory" value="target/temp/swap/ws" />
             </properties>
             <value-storages>
@@ -35,7 +35,7 @@
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
               <property name="maxSize" value="2000" />
-              <property name="liveTime" value="1200" />
+              <property name="liveTime" value="20m" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -55,7 +55,7 @@
               <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="false" />
               <property name="update-storage" value="false" />
-              <property name="max-buffer-size" value="204800" />
+              <property name="max-buffer-size" value="200k" />
               <property name="swap-directory" value="target/temp/swap/ws1" />
             </properties>
 						<value-storages>
@@ -78,7 +78,7 @@
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
               <property name="maxSize" value="2000" />
-              <property name="liveTime" value="1200" />
+              <property name="liveTime" value="20m" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -98,7 +98,7 @@
               <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="false" />
               <property name="update-storage" value="false" />
-              <property name="max-buffer-size" value="204800" />
+              <property name="max-buffer-size" value="200k" />
               <property name="swap-directory" value="target/temp/swap/ws2" />
             </properties>
 						<value-storages>
@@ -121,7 +121,7 @@
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
               <property name="maxSize" value="2000" />
-              <property name="liveTime" value="1200" />
+              <property name="liveTime" value="20m" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -149,7 +149,7 @@
               <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="false" />
               <property name="update-storage" value="false" />
-              <property name="max-buffer-size" value="204800" />
+              <property name="max-buffer-size" value="200k" />
               <property name="swap-directory" value="target/temp/swap/wstck" />
             </properties>
 						<value-storages>
@@ -172,7 +172,7 @@
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
               <property name="maxSize" value="2000" />
-              <property name="liveTime" value="1200" />
+              <property name="liveTime" value="20m" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -192,7 +192,7 @@
               <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="false" />
               <property name="update-storage" value="false" />
-              <property name="max-buffer-size" value="204800" />
+              <property name="max-buffer-size" value="200k" />
               <property name="swap-directory" value="target/temp/swap/ws1tck" />
             </properties>
 						<value-storages>
@@ -215,7 +215,7 @@
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
               <property name="maxSize" value="2000" />
-              <property name="liveTime" value="1200" />
+              <property name="liveTime" value="20m" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -235,7 +235,7 @@
               <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="false" />
               <property name="update-storage" value="false" />
-              <property name="max-buffer-size" value="204800" />
+              <property name="max-buffer-size" value="200k" />
               <property name="swap-directory" value="target/temp/swap/ws2tck" />
             </properties>
 						<value-storages>
@@ -259,7 +259,7 @@
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
               <property name="maxSize" value="2000" />
-              <property name="liveTime" value="1200" />
+              <property name="liveTime" value="20m" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">

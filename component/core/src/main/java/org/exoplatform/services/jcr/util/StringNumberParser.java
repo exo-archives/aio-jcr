@@ -22,32 +22,139 @@ package org.exoplatform.services.jcr.util;
  * 31.08.2006
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: StringNumberParser.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class StringNumberParser {
   
-  static public Number parseNumber(String integerText) throws NumberFormatException {
-    String text = integerText.toLowerCase().toUpperCase();
-    Number numb = null;
+  /**
+   * Parse given text as long. <br/>
+   * 
+   * <br/>E.g. '2k' will be returned as 2048 number.
+   * 
+   * <br/>Next formats are supported (case insensitive):
+   * <br/>kilobytes - k,kb 
+   * <br/>megabytes - m,mb
+   * <br/>gigabytes - g,gb
+   * <br/>terabytes - t,tb
+   * 
+   * @param numberText
+   * @return
+   * @throws NumberFormatException
+   */
+  static public long parseLong(final String longText) throws NumberFormatException {
+    return parseNumber(longText).longValue();
+  }
+  
+  /**
+   * Parse given text as int. <br/>
+   * 
+   * <br/>E.g. '2k' will be returned as 2048 number.
+   * 
+   * <br/>Next formats are supported (case insensitive):
+   * <br/>kilobytes - k,kb 
+   * <br/>megabytes - m,mb
+   * <br/>gigabytes - g,gb
+   * <br/>terabytes - t,tb
+   * 
+   * @param numberText
+   * @return
+   * @throws NumberFormatException
+   */
+  static public int parseInt(final String integerText) throws NumberFormatException {
+    return parseNumber(integerText).intValue();
+  }
+
+  /**
+   * Parse given text as double. <br/>
+   * 
+   * <br/>E.g. '2k' will be returned as 2048 number.
+   * 
+   * <br/>Next formats are supported (case insensitive):
+   * <br/>kilobytes - k,kb 
+   * <br/>megabytes - m,mb
+   * <br/>gigabytes - g,gb
+   * <br/>terabytes - t,tb
+   * 
+   * <br/>NOTE: floating point supported, e.g. 1.5m = 1.5 * 1024 * 1024
+   * 
+   * @param doubleText
+   * @return
+   * @throws NumberFormatException
+   */
+  static public double parseDouble(final String doubleText) throws NumberFormatException {
+    return parseNumber(doubleText).doubleValue();
+  }
+  
+  /**
+   * Parse given text as number representation. <br/>
+   * 
+   * <br/>E.g. '2k' will be returned as 2048 number.
+   * 
+   * <br/>Next formats are supported (case insensitive):
+   * <br/>kilobytes - k,kb 
+   * <br/>megabytes - m,mb
+   * <br/>gigabytes - g,gb
+   * <br/>terabytes - t,tb
+   * 
+   * <br/>NOTE: floating point supported, e.g. 1.5m = 1.5 * 1024 * 1024,
+   * <br/>WARN: floating point delimiter depends on OS settings
+   * 
+   * @param numberText
+   * @return
+   * @throws NumberFormatException
+   */
+  static public Number parseNumber(final String numberText) throws NumberFormatException {
+    final String text = numberText.toLowerCase().toUpperCase();
     if (text.endsWith("K")) {
-      numb = new Double(text.substring(0, text.length() - 1)) * 1024;
+      return new Double(text.substring(0, text.length() - 1)) * 1024d;
     } else if (text.endsWith("KB")) {
-      numb = new Double(text.substring(0, text.length() - 2)) * 1024;  
+      return new Double(text.substring(0, text.length() - 2)) * 1024d;  
     } else if (text.endsWith("M")) {
-      numb = new Double(text.substring(0, text.length() - 1)) * 1024 * 1024;
+      return new Double(text.substring(0, text.length() - 1)) * 1048576d; // 1024 * 1024
     } else if (text.endsWith("MB")) {
-      numb = new Double(text.substring(0, text.length() - 2)) * 1024 * 1024;
+      return new Double(text.substring(0, text.length() - 2)) * 1048576d; // 1024 * 1024
     } else if (text.endsWith("G")) {
-      numb = new Double(text.substring(0, text.length() - 1)) * 1024 * 1024 * 1024;
+      return new Double(text.substring(0, text.length() - 1)) * 1073741824d; // 1024 * 1024 * 1024
     } else if (text.endsWith("GB")) {
-      numb = new Double(text.substring(0, text.length() - 2)) * 1024 * 1024 * 1024;
+      return new Double(text.substring(0, text.length() - 2)) * 1073741824d; // 1024 * 1024 * 1024
     } else if (text.endsWith("T")) {  
-      numb = new Double(text.substring(0, text.length() - 1)) * 1024 * 1024 * 1024 * 1024;
+      return new Double(text.substring(0, text.length() - 1)) * 1125899906842624d; // 1024 * 1024 * 1024 * 1024
     } else if (text.endsWith("TB")) {  
-      numb = new Double(text.substring(0, text.length() - 2)) * 1024 * 1024 * 1024 * 1024;
+      return new Double(text.substring(0, text.length() - 2)) * 1125899906842624d; // 1024 * 1024 * 1024 * 1024
     } else {
-      numb = new Double(text);
+      return new Double(text);
     }
-    return numb;
+  }
+  
+  /**
+   * Parse given text as formated time and return a time in milliseconds. <br/>
+   * <br/>Formats supported:
+   * <br/>milliseconds - ms 
+   * <br/>seconds - without sufix
+   * <br/>minutes - m
+   * <br/>hours - h
+   * <br/>days - d
+   * <br/>weeks - w
+   * 
+   * <br/>TODO handle strings like 2d+4h, 2h+30m+15s+500 etc.
+   * 
+   * @param timeText - String 
+   * @return time in milliseconds
+   * @throws NumberFormatException
+   */
+  static public long parseTime(final String text) throws NumberFormatException {
+    if (text.endsWith("ms")) {
+      return new Long(text.substring(0, text.length() - 2)); 
+    } else if (text.endsWith("m")) {
+      return new Long(text.substring(0, text.length() - 1)) * 60000;  // 1000 * 60
+    } else if (text.endsWith("h")) {
+      return new Long(text.substring(0, text.length() - 1)) * 3600000; // 1000 * 60 * 60
+    } else if (text.endsWith("d")) {
+      return new Long(text.substring(0, text.length() - 1)) * 86400000; // 1000 * 60 * 60 * 24
+    } else if (text.endsWith("w")) {
+      return new Long(text.substring(0, text.length() - 1)) * 604800000; // 1000 * 60 * 60 * 24 * 7
+    } else { // seconds by default
+      return new Long(text) * 1000;
+    }
   }
 }

@@ -16,18 +16,13 @@
  */
 package org.exoplatform.services.jcr.impl.core;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-
-import javax.jcr.Session;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.impl.proccess.WorkerThread;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.security.Identity;
 import org.picocontainer.Startable;
 
 /**
@@ -50,7 +45,7 @@ public final class SessionRegistry implements Startable {
   public SessionRegistry(RepositoryEntry entry) {
     sessionsMap = new WeakHashMap<String, SessionImpl>();
     if (entry != null) {
-      this.timeOut = entry.getSessionTimeOut() > 0 ? entry.getSessionTimeOut() : 0;
+      this.timeOut = entry.getSessionTimeOut()>0 ? entry.getSessionTimeOut() : 0;
     }
   }
 

@@ -19,6 +19,10 @@ package org.exoplatform.services.jcr.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.util.StringNumberParser;
+import org.exoplatform.services.log.ExoLogger;
+
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -29,6 +33,8 @@ import java.util.List;
 
 public abstract class MappedParametrizedObjectEntry {
 
+  protected static final Log    LOG                                = ExoLogger.getLogger("jcr.MappedParametrizedObjectEntry");
+  
   protected String type;
 
   protected List   parameters;
@@ -74,7 +80,135 @@ public abstract class MappedParametrizedObjectEntry {
     }
     return value;
   }
+  
+  /**
+   * @param name
+   * @param defaultValue
+   * @return
+   */
+  public Integer getParameterInteger(String name, Integer defaultValue) {
+    for (int i = 0; i < parameters.size(); i++) {
+      SimpleParameterEntry p = (SimpleParameterEntry) parameters.get(i);
+      if (p.getName().equals(name)) {
+        try {
+          return StringNumberParser.parseInt(p.getValue());
+        } catch (NumberFormatException e) {
+          LOG.warn(name + ": unparseable Integer. " + e);    
+        }
+      }
+    }
+    return defaultValue;
+  }
 
+  /**
+   * Parse named parameter as Integer.
+   * 
+   * @param name
+   * @return Integer value
+   * @throws RepositoryConfigurationException
+   */
+  public Integer getParameterInteger(String name) throws RepositoryConfigurationException {
+    try {
+      return StringNumberParser.parseInt(getParameterValue(name));
+    } catch (NumberFormatException e) {
+      throw new RepositoryConfigurationException(name + ": unparseable Integer. " + e, e);
+    }
+  }
+  
+  /**
+   * @param name
+   * @param defaultValue
+   * @return
+   */
+  public Long getParameterLong(String name, Long defaultValue) {
+    for (int i = 0; i < parameters.size(); i++) {
+      SimpleParameterEntry p = (SimpleParameterEntry) parameters.get(i);
+      if (p.getName().equals(name)) {
+        try {
+          return StringNumberParser.parseLong(p.getValue());
+        } catch (NumberFormatException e) {
+          LOG.warn(name + ": unparseable Long. " + e);    
+        }
+      }
+    }
+    return defaultValue;
+  }
+  
+  /**
+   * Parse named parameter as Long.
+   * 
+   * @param name
+   * @return Long value
+   * @throws RepositoryConfigurationException
+   */
+  public Long getParameterLong(String name) throws RepositoryConfigurationException {
+    try {
+      return StringNumberParser.parseLong(getParameterValue(name));
+    } catch (NumberFormatException e) {
+      throw new RepositoryConfigurationException(name + ": unparseable Long. " + e, e);
+    }
+  }
+  
+  /**
+   * @param name
+   * @param defaultValue
+   * @return
+   */
+  public Long getParameterTime(String name, Long defaultValue) {
+    for (int i = 0; i < parameters.size(); i++) {
+      SimpleParameterEntry p = (SimpleParameterEntry) parameters.get(i);
+      if (p.getName().equals(name)) {
+        try {
+          return StringNumberParser.parseTime(p.getValue());
+        } catch (NumberFormatException e) {
+          LOG.warn(name + ": unparseable time (as Long). " + e);
+        }
+      }
+    }
+    return defaultValue;
+  }
+  
+  /**
+   * Parse named parameter using {@link StringNumberParser.parseTime} and return time in milliseconds (Long value).
+   * 
+   * @param name
+   * @return Long value
+   * @throws RepositoryConfigurationException
+   */
+  public Long getParameterTime(String name) throws RepositoryConfigurationException {
+    try {
+      return StringNumberParser.parseTime(getParameterValue(name));
+    } catch (NumberFormatException e) {
+      throw new RepositoryConfigurationException(name + ": unparseable time (as Long). " + e, e);
+    }
+  }
+  
+  /**
+   * @param name
+   * @param defaultValue
+   * @return
+   */
+  public Boolean getParameterBoolean(String name, Boolean defaultValue) {
+    for (int i = 0; i < parameters.size(); i++) {
+      SimpleParameterEntry p = (SimpleParameterEntry) parameters.get(i);
+      if (p.getName().equals(name)) {
+        return new Boolean(p.getValue());
+      }
+    }
+    return defaultValue;
+  }
+
+  /**
+   * Parse named parameter as Boolean.
+   * 
+   * @param name
+   * @return Boolean value
+   * @throws RepositoryConfigurationException
+   */
+  public Boolean getParameterBoolean(String name) throws RepositoryConfigurationException {
+    return new Boolean(getParameterValue(name));
+  }
+  
   public String getType() {
     return type;
   }

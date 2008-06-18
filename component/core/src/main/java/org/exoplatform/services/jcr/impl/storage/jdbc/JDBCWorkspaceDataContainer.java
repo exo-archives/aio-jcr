@@ -211,8 +211,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
 
     // ------------- Values swap config ------------------
     try {
-      String bsParam = wsConfig.getContainer().getParameterValue(MAXBUFFERSIZE);
-      this.maxBufferSize = Integer.parseInt(bsParam);
+      this.maxBufferSize = wsConfig.getContainer().getParameterInteger(MAXBUFFERSIZE);
     } catch (RepositoryConfigurationException e) {
       this.maxBufferSize = DEF_MAXBUFFERSIZE;
     }

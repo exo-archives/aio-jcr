@@ -46,12 +46,6 @@ public abstract class AccessManager {
 
   protected final Map<String, String>           parameters;
 
-
- // private final ConversationRegistry           identityRegistry;
-
-//  private final IdentityRegistry                identityRegistry;
-
-
   private static ThreadLocal<InvocationContext> contextHolder = new ThreadLocal<InvocationContext>();
 
 
@@ -64,7 +58,6 @@ public abstract class AccessManager {
       for (SimpleParameterEntry param : paramList)
         parameters.put(param.getName(), param.getValue());
     }
-    //this.identityRegistry = identityRegistry;
   }
 
   protected final InvocationContext context() {

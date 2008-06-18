@@ -13,7 +13,7 @@
               <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="false" />
               <property name="update-storage" value="false" />
-              <property name="max-buffer-size" value="204800" />
+              <property name="max-buffer-size" value="200k" />
               <property name="swap-directory" value="../temp/swap/production" />
             </properties>
             <value-storages>
@@ -34,8 +34,8 @@
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="10000" />
-              <property name="liveTime" value="3600" />
+              <property name="maxSize" value="10k" />
+              <property name="liveTime" value="1h" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -51,7 +51,7 @@
               <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="false" />
               <property name="update-storage" value="false" />
-              <property name="max-buffer-size" value="204800" />
+              <property name="max-buffer-size" value="200k" />
               <property name="swap-directory" value="../temp/swap/draft" />
             </properties>
 						<value-storages>
@@ -72,8 +72,8 @@
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="10000" />
-              <property name="liveTime" value="3600" />
+              <property name="maxSize" value="10k" />
+              <property name="liveTime" value="1h" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -89,7 +89,7 @@
               <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="false" />
               <property name="update-storage" value="false" />
-              <property name="max-buffer-size" value="204800" />
+              <property name="max-buffer-size" value="200k" />
               <property name="swap-directory" value="../temp/swap/backup" />
             </properties>
 						<value-storages>
@@ -110,8 +110,8 @@
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="5000" />
-              <property name="liveTime" value="900" />
+              <property name="maxSize" value="5k" />
+              <property name="liveTime" value="15m" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -127,7 +127,7 @@
               <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="false" />
               <property name="update-storage" value="false" />
-              <property name="max-buffer-size" value="204800" />
+              <property name="max-buffer-size" value="200k" />
               <property name="swap-directory" value="../temp/swap/digital-assets" />
             </properties>
 						<value-storages>
@@ -148,8 +148,8 @@
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="5000" />
-              <property name="liveTime" value="900" />
+              <property name="maxSize" value="5k" />
+              <property name="liveTime" value="15m" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">

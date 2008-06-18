@@ -87,11 +87,11 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     CacheEntry cacheConfig = wsConfig.getCache();
     if (cacheConfig != null) {
       enabled = cacheConfig.isEnabled();
-      int maxSize = Integer.parseInt(cacheConfig.getParameterValue("maxSize"));
+      int maxSize = cacheConfig.getParameterInteger("maxSize");
       cache.setMaxSize(maxSize);
       nodesCache = new WeakHashMap<String, List<NodeData>>(maxSize);
       propertiesCache = new WeakHashMap<String, List<PropertyData>>(maxSize);
-      long liveTime = Long.parseLong(cacheConfig.getParameterValue("liveTime"));
+      long liveTime = cacheConfig.getParameterLong("liveTime");
       cache.setLiveTime(liveTime);
     } else {
       cache.setMaxSize(MAX_CACHE_SIZE);

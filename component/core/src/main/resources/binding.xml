@@ -13,7 +13,8 @@
     <value name="default-workspace" field="defaultWorkspaceName" style="attribute" />
     <value name="security-domain" field="securityDomain" />
     <value name="access-control" field="accessControl" usage="optional" />
-    <value name="session-max-age" field="sessionTimeOut" usage="optional" />
+    <value name="session-max-age" field="sessionTimeOut" 
+		  deserializer="org.exoplatform.services.jcr.util.ConfigurationFormat.parseTime" usage="optional" />
     <value name="authentication-policy" field="authenticationPolicy" />
     <collection name="workspaces" field="workspaces" item-type="org.exoplatform.services.jcr.config.WorkspaceEntry" />
   </mapping>
@@ -62,7 +63,8 @@
     </structure>
 
     <structure name="lock-manager" field="lockManager" usage="optional">
-      <value name="time-out" field="timeout" usage="optional" />
+      <value name="time-out" field="timeout" usage="optional" 
+			  deserializer="org.exoplatform.services.jcr.util.ConfigurationFormat.parseLong" />
       <structure name="persister" field="persister" usage="optional">
         <value name="class" field="type" style="attribute" />
         <collection name="properties" field="parameters" usage="optional"
@@ -113,7 +115,8 @@
   </mapping>
   <mapping name="filter" class="org.exoplatform.services.jcr.config.ValueStorageFilterEntry">
     <value name="property-type" field="propertyType" style="attribute" usage="optional" />
-    <value name="min-value-size" field="minValueSize" style="attribute" usage="optional" />
+    <value name="min-value-size" field="minValueSize" style="attribute" 
+		  deserializer="org.exoplatform.services.jcr.util.ConfigurationFormat.parseLong" usage="optional" />
     <value name="ancestor-path" field="ancestorPath" style="attribute" usage="optional" />
     <value name="property-name" field="propertyName" style="attribute" usage="optional" />
   </mapping>

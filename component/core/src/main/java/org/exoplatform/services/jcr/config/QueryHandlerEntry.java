@@ -58,38 +58,38 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   /**
    * The default value for property {@link #extractorBackLog}.
    */
-  public static final String  DEFAULT_EXTRACTOR_BACKLOG          = "100";
+  public static final int  DEFAULT_EXTRACTOR_BACKLOG          = 100;
 
   /**
    * The default value for property {@link #extractorPoolSize}.
    */
-  public static final String  DEFAULT_EXTRACTOR_POOLSIZE         = "0";
+  public static final int  DEFAULT_EXTRACTOR_POOLSIZE         = 0;
 
   /**
    * The default timeout in milliseconds which is granted to the text extraction
    * process until fulltext indexing is deferred to a background thread.
    */
-  public static final String  DEFAULT_EXTRACTOR_TIMEOUT          = "100";
+  public static final long  DEFAULT_EXTRACTOR_TIMEOUT          = 100;
 
   /**
    * the default value for property {@link #maxFieldLength}.
    */
-  public static final String  DEFAULT_MAX_FIELD_LENGTH           = "10000";
+  public static final int  DEFAULT_MAX_FIELD_LENGTH           = 10000;
 
   /**
    * The default value for property {@link #maxMergeDocs}.
    */
-  public static final String  DEFAULT_MAX_MERGE_DOCS             = String.valueOf(Integer.MAX_VALUE);
+  public static final int  DEFAULT_MAX_MERGE_DOCS             = Integer.MAX_VALUE;
 
   /**
    * the default value for property {@link #mergeFactor}.
    */
-  public static final String  DEFAULT_MERGE_FACTOR               = "10";
+  public static final int  DEFAULT_MERGE_FACTOR               = 10;
 
   /**
    * The default value for property {@link #minMergeDocs}.
    */
-  public static final String  DEFAULT_MIN_MERGE_DOCS             = "100";
+  public static final int  DEFAULT_MIN_MERGE_DOCS             = 100;
 
   /**
    * Name of the file to persist search internal namespace mappings.
@@ -103,17 +103,17 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
 
   private static final String DEDAULT_INDEXINGCONFIGURATIONCLASS = IndexingConfigurationImpl.class.getName();
 
-  private static final String DEFAULT_AUTOREPAIR                 = "true";
+  private static final boolean DEFAULT_AUTOREPAIR                 = true;
 
-  private static final String DEFAULT_BUFFER_SIZE                = "10";
+  private static final int DEFAULT_BUFFER_SIZE                = 10;
 
-  private static final String DEFAULT_CACHE_SIZE                 = "1000";
+  private static final int DEFAULT_CACHE_SIZE                 = 1000;
 
-  private final static String DEFAULT_CONSISTENCYCHECKENABLED    = "false";
+  private final static boolean DEFAULT_CONSISTENCYCHECKENABLED    = false;
 
-  private final static String DEFAULT_DOCUMENTORDER              = "true";
+  private final static boolean DEFAULT_DOCUMENTORDER              = true;
 
-  private final static String DEFAULT_FORCECONSISTENCYCHECK      = "false";
+  private final static boolean DEFAULT_FORCECONSISTENCYCHECK      = false;
 
   /**
    * Name of the default query implementation class.
@@ -129,13 +129,13 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
    * The number of documents that are pre fetched when a query is executed. <p/>
    * Default value is: {@link Integer#MAX_VALUE}.
    */
-  private final static String DEFAULT_RESULTFETCHSIZE            = String.valueOf(Integer.MAX_VALUE);
+  private final static int DEFAULT_RESULTFETCHSIZE            = Integer.MAX_VALUE;
 
-  private final static String DEFAULT_SUPPORTHIGHLIGHTING        = "false";
+  private final static boolean DEFAULT_SUPPORTHIGHLIGHTING        = false;
 
-  private final static String DEFAULT_USECOMPOUNDFILE            = "false";
+  private final static boolean DEFAULT_USECOMPOUNDFILE            = false;
 
-  private final static String DEFAULT_VOLATILEIDLETIME           = "3";
+  private final static int DEFAULT_VOLATILEIDLETIME           = 3;
 
   /** The logger instance for this class */
   private static final Log    log                                = ExoLogger.getLogger(QueryHandlerEntry.class);
@@ -339,18 +339,18 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
    * <p/> Default value is: <code>true</code>.
    */
   public boolean getAutoRepair() {
-    return new Boolean(getParameterValue(PARAM_AUTOREPAIR, DEFAULT_AUTOREPAIR));
+    return getParameterBoolean(PARAM_AUTOREPAIR, DEFAULT_AUTOREPAIR);
   }
 
   /**
    * Number of documents that are buffered before they are added to the index.
    */
   public int getBufferSize() {
-    return new Integer(getParameterValue(PARAM_BUFFER_SIZE, DEFAULT_BUFFER_SIZE));
+    return getParameterInteger(PARAM_BUFFER_SIZE, DEFAULT_BUFFER_SIZE);
   }
 
   public int getCacheSize() {
-    return new Integer(getParameterValue(PARAM_CACHE_SIZE, DEFAULT_CACHE_SIZE));
+    return getParameterInteger(PARAM_CACHE_SIZE, DEFAULT_CACHE_SIZE);
   }
 
   /**
@@ -358,9 +358,8 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
    */
 
   public boolean getDocumentOrder() {
-    return new Boolean(getParameterValue(PARAM_DOCUMENTORDER, DEFAULT_DOCUMENTORDER));
+    return getParameterBoolean(PARAM_DOCUMENTORDER, DEFAULT_DOCUMENTORDER);
   }
-
 
   /**
    * @return the class name of the excerpt provider implementation.
@@ -377,7 +376,7 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
    * @return the size of the extractor queue back log.
    */
   public int getExtractorBackLogSize() {
-    return new Integer(getParameterValue(PARAM_EXTRACTOR_BACKLOG, DEFAULT_EXTRACTOR_BACKLOG));
+    return getParameterInteger(PARAM_EXTRACTOR_BACKLOG, DEFAULT_EXTRACTOR_BACKLOG);
   }
 
   /**
@@ -385,7 +384,7 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
    *         extractors when binary content is indexed.
    */
   public int getExtractorPoolSize() {
-    return new Integer(getParameterValue(PARAM_EXTRACTOR_POOLSIZE, DEFAULT_EXTRACTOR_POOLSIZE));
+    return getParameterInteger(PARAM_EXTRACTOR_POOLSIZE, DEFAULT_EXTRACTOR_POOLSIZE);
 
   }
 
@@ -393,7 +392,7 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
    * @return the extractor timeout in milliseconds.
    */
   public long getExtractorTimeout() {
-    return new Integer(getParameterValue(PARAM_EXTRACTOR_TIMEOUT, DEFAULT_EXTRACTOR_TIMEOUT));
+    return getParameterTime(PARAM_EXTRACTOR_TIMEOUT, DEFAULT_EXTRACTOR_TIMEOUT);
   }
 
   /**
@@ -423,7 +422,7 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   }
 
   public int getMaxFieldLength() {
-    return new Integer(getParameterValue(PARAM_MAXFIELDLENGTH, DEFAULT_MAX_FIELD_LENGTH));
+    return getParameterInteger(PARAM_MAXFIELDLENGTH, DEFAULT_MAX_FIELD_LENGTH);
   }
 
   /**
@@ -432,7 +431,7 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
    * @return the current value for maxMergeDocs.
    */
   public int getMaxMergeDocs() {
-    return new Integer(getParameterValue(PARAM_MAXMERGEDOCS, DEFAULT_MAX_MERGE_DOCS));
+    return getParameterInteger(PARAM_MAXMERGEDOCS, DEFAULT_MAX_MERGE_DOCS);
   }
 
   /**
@@ -441,7 +440,7 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
    * @return the current value for the merge factor.
    */
   public int getMergeFactor() {
-    return new Integer(getParameterValue(PARAM_MERGEFACTOR, DEFAULT_MERGE_FACTOR));
+    return getParameterInteger(PARAM_MERGEFACTOR, DEFAULT_MERGE_FACTOR);
   }
 
   /**
@@ -450,7 +449,7 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
    * @return the current value for minMergeDocs.
    */
   public int getMinMergeDocs() {
-    return new Integer(getParameterValue(PARAM_MINMERGEDOCS, DEFAULT_MIN_MERGE_DOCS));
+    return getParameterInteger(PARAM_MINMERGEDOCS, DEFAULT_MIN_MERGE_DOCS);
   }
 
   public String getQueryClass() {
@@ -461,17 +460,12 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
     return queryHandler;
   }
 
-  // TODO
-//  public String getQueryHandlerClass() {
-//    return queryHandlerClass;
-//  }
-
   /**
    * @return the number of results the query handler will fetch initially when a
    *         query is executed.
    */
   public int getResultFetchSize() {
-    return new Integer(getParameterValue(PARAM_RESULTFETCHSIZE, DEFAULT_RESULTFETCHSIZE));
+    return getParameterInteger(PARAM_RESULTFETCHSIZE, DEFAULT_RESULTFETCHSIZE);
   }
 
   public String getRootNodeIdentifer() {
@@ -492,7 +486,7 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
    * @return <code>true</code> if highlighting support is enabled.
    */
   public boolean getSupportHighlighting() {
-    return new Boolean(getParameterValue(PARAM_SUPPORTHIGHLIGHTING, DEFAULT_SUPPORTHIGHLIGHTING));
+    return getParameterBoolean(PARAM_SUPPORTHIGHLIGHTING, DEFAULT_SUPPORTHIGHLIGHTING);
   }
 
   /**
@@ -517,7 +511,7 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
    * @return the current value for useCompoundFile.
    */
   public boolean getUseCompoundFile() {
-    return new Boolean(getParameterValue(PARAM_USECOMPOUNDFILE, DEFAULT_USECOMPOUNDFILE));
+    return getParameterBoolean(PARAM_USECOMPOUNDFILE, DEFAULT_USECOMPOUNDFILE);
   }
 
   /**
@@ -527,7 +521,8 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
    */
   public int getVolatileIdleTime() {
     if(volatileIdleTime == null)
-      volatileIdleTime = new Integer(getParameterValue(PARAM_VOLATILEIDLETIME, DEFAULT_VOLATILEIDLETIME)); 
+      volatileIdleTime = getParameterInteger(PARAM_VOLATILEIDLETIME, DEFAULT_VOLATILEIDLETIME);
+    
     return volatileIdleTime;
   }
 
@@ -538,19 +533,14 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
    * log had been applied on startup. <p/> Default value is: <code>false</code>.
    */
   public boolean isConsistencyCheckEnabled() {
-    return new Boolean(getParameterValue(PARAM_CONSISTENCYCHECKENABLED,
-                                         DEFAULT_CONSISTENCYCHECKENABLED));
+    return getParameterBoolean(PARAM_CONSISTENCYCHECKENABLED,
+                                         DEFAULT_CONSISTENCYCHECKENABLED);
   }
 
 
   public boolean isForceConsistencyCheck() {
-    return new Boolean(getParameterValue(PARAM_FORCECONSISTENCYCHECK, DEFAULT_FORCECONSISTENCYCHECK));
+    return getParameterBoolean(PARAM_FORCECONSISTENCYCHECK, DEFAULT_FORCECONSISTENCYCHECK);
   }
-
-  // TODO
-//  public void setQueryHandlerClass(String queryHandlerClass) {
-//    this.queryHandlerClass = queryHandlerClass;
-//  }
 
   /**
    * Creates a file system resource to the synonym provider configuration.

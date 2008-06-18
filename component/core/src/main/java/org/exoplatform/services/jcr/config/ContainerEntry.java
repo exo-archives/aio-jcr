@@ -30,8 +30,6 @@ public class ContainerEntry extends MappedParametrizedObjectEntry {
   
   private ArrayList valueStorages;
   
-//  private BinarySwapEntry binarySwap;
-
 	public ContainerEntry() {
 		super();
 	}

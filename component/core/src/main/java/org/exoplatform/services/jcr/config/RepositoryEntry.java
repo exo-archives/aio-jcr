@@ -44,7 +44,7 @@ public class RepositoryEntry {
 
   private BinarySwapEntry           binaryTemp;
 
-  private long                      sessionTimeOut = -1;
+  private long                    sessionTimeOut;
 
   public RepositoryEntry() {
     workspaces = new ArrayList<WorkspaceEntry>();

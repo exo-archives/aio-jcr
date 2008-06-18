@@ -30,13 +30,13 @@ public class ValueStorageFilterEntry {
 
   private String propertyName;
 
-  private String minValueSize;
+  private long minValueSize;
 
-  public String getMinValueSize() {
+  public long getMinValueSize() {
     return minValueSize;
   }
 
-  public void setMinValueSize(String minValueSize) {
+  public void setMinValueSize(long minValueSize) {
     this.minValueSize = minValueSize;
   }
 

@@ -27,7 +27,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: ValuePluginFilter.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public final class ValuePluginFilter {
@@ -46,7 +46,7 @@ public final class ValuePluginFilter {
    * @throws RepositoryConfigurationException
    */
   public ValuePluginFilter() throws RepositoryConfigurationException {
-    this(PropertyType.BINARY, null, null, null);
+    this(PropertyType.BINARY, null, null, 0);
   }
 
   /**
@@ -60,17 +60,13 @@ public final class ValuePluginFilter {
   public ValuePluginFilter(int propertyType,
       QPath ancestorPath,
       InternalQName propertyName,
-      String minValueSize) throws RepositoryConfigurationException {
-    // propertyType, null, null
-    // propertyType, ancestorPath, null
-    // propertyType, null, propertyName
-    // propertyType, ancestorPath, propertyName
+      long minValueSize) throws RepositoryConfigurationException {
     if (propertyType == PropertyType.UNDEFINED)
       throw new RepositoryConfigurationException("Property type is obligatory");
     this.propertyType = propertyType;
     this.ancestorPath = ancestorPath;
     this.propertyName = propertyName;
-    this.minValueSize = minValueSize != null ? Long.parseLong(minValueSize) : -1;
+    this.minValueSize = minValueSize > 0 ? minValueSize : -1;
   }
 
   public QPath getAncestorPath() {

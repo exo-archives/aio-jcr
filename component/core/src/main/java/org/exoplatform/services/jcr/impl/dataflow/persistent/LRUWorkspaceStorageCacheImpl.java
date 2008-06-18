@@ -182,21 +182,13 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     if (cacheConfig != null) {
       enabled = cacheConfig.isEnabled();
       
-      try {
-        maxSize = Integer.parseInt(cacheConfig.getParameterValue("maxSize"));
-      } catch(NumberFormatException e) {
-        throw new RepositoryConfigurationException("Can't parse cache maxSize value " + cacheConfig.getParameterValue("maxSize"), e);
-      }
+      maxSize = cacheConfig.getParameterInteger("maxSize");
       
       int initialSize = maxSize > MAX_CACHE_SIZE ? maxSize / 4 : maxSize;  
       this.nodesCache = new WeakHashMap<String, List<NodeData>>(initialSize, LOAD_FACTOR);
       this.propertiesCache = new WeakHashMap<String, List<PropertyData>>(initialSize, LOAD_FACTOR);
       
-      try {
-        liveTime = Long.parseLong(cacheConfig.getParameterValue("liveTime")) * 1000; // seconds
-      } catch(NumberFormatException e) {
-        throw new RepositoryConfigurationException("Can't parse cache liveTime value " + cacheConfig.getParameterValue("liveTime"), e);
-      }
+      liveTime = cacheConfig.getParameterTime("liveTime"); // apply in milliseconds
     } else {
       maxSize = MAX_CACHE_SIZE;
       liveTime = MAX_CACHE_LIVETIME;
