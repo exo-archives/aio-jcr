@@ -2,7 +2,9 @@
   <repositories>
     <repository name="db1" system-workspace="ws" default-workspace="ws">
       <security-domain>exo-domain</security-domain>
-      <access-control>optional</access-control>
+      <!-- access-control>optional</access-control -->
+      <!-- access-control>disable</access-control -->
+      <session-max-age>1h</session-max-age>
       <authentication-policy>org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy</authentication-policy>
       <workspaces>
         <workspace name="ws">
@@ -29,12 +31,11 @@
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
               <property name="root-nodetype" value="nt:unstructured"/>
-              <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
             </properties>
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="2000" />
+              <property name="maxSize" value="2k" />
               <property name="liveTime" value="20m" />
             </properties>
           </cache>
@@ -47,7 +48,16 @@
               <property name="queryClass" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
             </properties>
           </query-handler>
+          <lock-manager>
+            <time-out>15m</time-out>
+            <persister class="org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister">
+              <properties>
+                <property name="path" value="target/temp/lock" />
+              </properties>
+            </persister>
+          </lock-manager>
         </workspace>
+				
         <workspace name="ws1">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
@@ -58,7 +68,7 @@
               <property name="max-buffer-size" value="200k" />
               <property name="swap-directory" value="target/temp/swap/ws1" />
             </properties>
-						<value-storages>
+            <value-storages>
               <value-storage id="ws1" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws1" />
@@ -72,12 +82,11 @@
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
               <property name="root-nodetype" value="nt:unstructured"/>
-              <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
             </properties>
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="2000" />
+              <property name="maxSize" value="2k" />
               <property name="liveTime" value="20m" />
             </properties>
           </cache>
@@ -91,6 +100,7 @@
             </properties>
           </query-handler>
         </workspace>
+				
         <workspace name="ws2">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
@@ -101,7 +111,7 @@
               <property name="max-buffer-size" value="200k" />
               <property name="swap-directory" value="target/temp/swap/ws2" />
             </properties>
-						<value-storages>
+            <value-storages>
               <value-storage id="ws2" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws2" />
@@ -115,12 +125,11 @@
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
               <property name="root-nodetype" value="nt:unstructured"/>
-              <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
             </properties>
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="2000" />
+              <property name="maxSize" value="2k" />
               <property name="liveTime" value="20m" />
             </properties>
           </cache>
@@ -139,7 +148,9 @@
     
     <repository name="db1tck" system-workspace="ws" default-workspace="ws">
       <security-domain>exo-domain</security-domain>
-      <access-control>optional</access-control>
+      <!-- access-control>optional</access-control -->
+      <!-- access-control>disable</access-control -->
+      <session-max-age>1h</session-max-age>
       <authentication-policy>org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy</authentication-policy>
       <workspaces>
         <workspace name="ws">
@@ -152,7 +163,7 @@
               <property name="max-buffer-size" value="200k" />
               <property name="swap-directory" value="target/temp/swap/wstck" />
             </properties>
-						<value-storages>
+            <value-storages>
               <value-storage id="ws" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/wstck" />
@@ -171,7 +182,7 @@
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="2000" />
+              <property name="maxSize" value="2k" />
               <property name="liveTime" value="20m" />
             </properties>
           </cache>
@@ -184,7 +195,16 @@
               <property name="queryClass" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl" />
             </properties>
           </query-handler>
+          <lock-manager>
+            <time-out>15m</time-out>
+            <persister class="org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister">
+              <properties>
+                <property name="path" value="target/temp/lock" />
+              </properties>
+            </persister>
+          </lock-manager>
         </workspace>
+				
         <workspace name="ws1">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
@@ -195,7 +215,7 @@
               <property name="max-buffer-size" value="200k" />
               <property name="swap-directory" value="target/temp/swap/ws1tck" />
             </properties>
-						<value-storages>
+            <value-storages>
               <value-storage id="ws1" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws1tck" />
@@ -214,7 +234,7 @@
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="2000" />
+              <property name="maxSize" value="2k" />
               <property name="liveTime" value="20m" />
             </properties>
           </cache>
@@ -228,6 +248,7 @@
             </properties>
           </query-handler>
         </workspace>
+				
         <workspace name="ws2">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
@@ -238,7 +259,7 @@
               <property name="max-buffer-size" value="200k" />
               <property name="swap-directory" value="target/temp/swap/ws2tck" />
             </properties>
-						<value-storages>
+            <value-storages>
               <value-storage id="ws2"
                 class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
@@ -258,7 +279,7 @@
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="2000" />
+              <property name="maxSize" value="2k" />
               <property name="liveTime" value="20m" />
             </properties>
           </cache>

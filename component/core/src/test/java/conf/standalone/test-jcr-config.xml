@@ -4,7 +4,7 @@
       <security-domain>exo-domain</security-domain>
       <!-- access-control>optional</access-control -->
       <!-- access-control>disable</access-control -->
-      <session-max-age>60m</session-max-age><!-- 60min -->
+      <session-max-age>1h</session-max-age>
       <authentication-policy>org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy</authentication-policy>
       <workspaces>
         <workspace name="ws">
@@ -42,7 +42,7 @@
           </initializer -->
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="2000" />
+              <property name="maxSize" value="2k" />
               <property name="liveTime" value="20m" />
             </properties>
           </cache>
@@ -58,7 +58,7 @@
             </properties>
           </query-handler>
           <lock-manager>
-            <time-out>900000</time-out><!-- 15min -->
+            <time-out>15m</time-out>
             <persister class="org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister">
               <properties>
                 <property name="path" value="target/temp/lock" />
@@ -90,7 +90,7 @@
           </container>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="2000" />
+              <property name="maxSize" value="2k" />
               <property name="liveTime" value="20m" />
             </properties>
           </cache>
@@ -129,7 +129,7 @@
           </container>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="2000" />
+              <property name="maxSize" value="2k" />
               <property name="liveTime" value="20m" />
             </properties>
           </cache>
@@ -151,7 +151,7 @@
       <security-domain>exo-domain</security-domain>
       <!-- access-control>optional</access-control -->
       <!-- access-control>disable</access-control -->
-      <session-max-age>3600000</session-max-age><!-- 60min -->
+      <session-max-age>1h</session-max-age>
       <authentication-policy>org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy</authentication-policy>
       <workspaces>
         <workspace name="ws">
@@ -181,16 +181,10 @@
               <property name="root-nodetype" value="nt:unstructured"/>
               <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
             </properties>
-          </initializer>
-          <!-- initializer class="org.exoplatform.services.jcr.impl.core.RestoreWorkspaceInitializer">
-            <properties>
-              <property name="restore-path" value="D:/Projects/eXo/tmp/ws_restore/restore_db1_ws1.xml"/>
-              <property name="restore-path" value="./src/test/resources/import-export/restore_db1_ws1.xml"/>
-            </properties>
-          </initializer -->
+          </initializer>                        
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl1">
             <properties>
-              <property name="maxSize" value="2000" />
+              <property name="maxSize" value="2k" />
               <property name="liveTime" value="20m" />
             </properties>
           </cache>
@@ -205,7 +199,7 @@
             </properties>
           </query-handler>
           <lock-manager>
-            <time-out>900000</time-out><!-- 15min -->
+            <time-out>15m</time-out>
             <persister class="org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister">
               <properties>
                 <property name="path" value="target/temp/locktck" />
@@ -213,6 +207,7 @@
             </persister>
           </lock-manager>
         </workspace>
+				
         <workspace name="ws1">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
@@ -242,7 +237,7 @@
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="2000" />
+              <property name="maxSize" value="2k" />
               <property name="liveTime" value="20m" />
             </properties>
           </cache>
@@ -257,6 +252,7 @@
             </properties>
           </query-handler>
         </workspace>
+				
         <workspace name="ws2">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
@@ -286,7 +282,7 @@
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="2000" />
+              <property name="maxSize" value="2k" />
               <property name="liveTime" value="20m" />
             </properties>
           </cache>
