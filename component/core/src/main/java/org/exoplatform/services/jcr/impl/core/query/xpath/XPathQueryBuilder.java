@@ -16,15 +16,26 @@
  */
 package org.exoplatform.services.jcr.impl.core.query.xpath;
 
-//import org.apache.jackrabbit.spi.commons.conversion.IllegalNameException;
-//import org.apache.jackrabbit.spi.commons.conversion.MalformedPathException;
-//import org.apache.jackrabbit.spi.commons.conversion.NameResolver;
+
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+
+import javax.jcr.NamespaceException;
+import javax.jcr.RepositoryException;
+import javax.jcr.query.InvalidQueryException;
+
+import org.apache.commons.collections.map.ReferenceMap;
+
 import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
+import org.exoplatform.services.jcr.impl.core.query.DefaultQueryNodeVisitor;
 import org.exoplatform.services.jcr.impl.core.query.DerefQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.LocationStepQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.NAryQueryNode;
@@ -32,47 +43,19 @@ import org.exoplatform.services.jcr.impl.core.query.NodeTypeQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.NotQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.OrderQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.PathQueryNode;
+import org.exoplatform.services.jcr.impl.core.query.PropertyFunctionQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.QueryConstants;
 import org.exoplatform.services.jcr.impl.core.query.QueryNode;
+import org.exoplatform.services.jcr.impl.core.query.QueryNodeFactory;
 import org.exoplatform.services.jcr.impl.core.query.QueryRootNode;
 import org.exoplatform.services.jcr.impl.core.query.RelationQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.TextsearchQueryNode;
-import org.exoplatform.services.jcr.impl.core.query.PropertyFunctionQueryNode;
-import org.exoplatform.services.jcr.impl.core.query.DefaultQueryNodeVisitor;
-import org.exoplatform.services.jcr.impl.core.query.QueryNodeFactory;
 import org.exoplatform.services.jcr.impl.util.ISO9075;
-//import org.exoplatform.services.jcr.impl.util.ISO9075;
-//import org.apache.jackrabbit.spi.commons.conversion.NameException;
-//import org.apache.jackrabbit.spi.commons.name.NameFactoryImpl;
-//import org.apache.jackrabbit.spi.commons.name.PathBuilder;
-//import org.apache.jackrabbit.spi.commons.name.PathFactoryImpl;
-//import org.apache.jackrabbit.spi.commons.name.NameConstants;
-//import org.apache.jackrabbit.spi.Name;
-//import org.apache.jackrabbit.spi.Path;
-//import org.apache.jackrabbit.spi.NameFactory;
-//import org.apache.jackrabbit.spi.PathFactory;
-//import org.apache.jackrabbit.util.ISO8601;
-//import org.apache.jackrabbit.util.ISO9075;
-import org.apache.commons.collections.map.ReferenceMap;
-
-import javax.jcr.query.InvalidQueryException;
-//import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.RepositoryException;
-import javax.jcr.NamespaceException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Query builder that translates a XPath statement into a query tree structure.
  */
 public class XPathQueryBuilder implements XPathVisitor, XPathTreeConstants {
-
-//    private static final NameFactory NAME_FACTORY = NameFactoryImpl.getInstance();
-//    private static final PathFactory PATH_FACTORY = PathFactoryImpl.getInstance();
 
     /**
      * Namespace uri for xpath functions. See also class SearchManager
@@ -482,9 +465,6 @@ public class XPathQueryBuilder implements XPathVisitor, XPathTreeConstants {
                         loc.addPredicate(nodeType);
                     } catch (RepositoryException e) {
                         exceptions.add(new InvalidQueryException("Not a valid name: " + ntName));
-//                    } catch (PathNotFoundException e) {
-//                        exceptions.add(new InvalidQueryException("Not a valid name: " + ntName));
-//                    }
                     }
                 }
                 break;
@@ -586,9 +566,6 @@ public class XPathQueryBuilder implements XPathVisitor, XPathTreeConstants {
                 for (int i = 0; i < relPath.getEntries().length; i++) {
                     node.addPathElement(relPath.getEntries()[i]);
                 }
-//            } catch (MalformedPathException e) {
-//                // should never happen
-//            }
             tmpRelPath = null;
         }
     }
@@ -645,8 +622,7 @@ public class XPathQueryBuilder implements XPathVisitor, XPathTreeConstants {
                     } else if (queryNode.getType() == QueryNode.TYPE_DEREF) {
                         ((DerefQueryNode) queryNode).setRefProperty(name);
                     } else if (queryNode.getType() == QueryNode.TYPE_RELATION) {
-                        //QPath.Element element = PATH_FACTORY.createElement(name);
-                        ((RelationQueryNode) queryNode).addPathElement(new QPathEntry(name,0));
+                         ((RelationQueryNode) queryNode).addPathElement(new QPathEntry(name,0));
                     } else if (queryNode.getType() == QueryNode.TYPE_PATH) {
                         root.addSelectProperty(name);
                     } else if (queryNode.getType() == QueryNode.TYPE_ORDER) {
@@ -798,7 +774,7 @@ public class XPathQueryBuilder implements XPathVisitor, XPathTreeConstants {
                 if (queryNode instanceof NAryQueryNode) {
                     QueryNode not = factory.createNotQueryNode(queryNode);
                     ((NAryQueryNode) queryNode).addOperand(not);
-                    // @todo is this needed?
+                    
                     queryNode = not;
                     // traverse
                     if (node.jjtGetNumChildren() == 2) {
