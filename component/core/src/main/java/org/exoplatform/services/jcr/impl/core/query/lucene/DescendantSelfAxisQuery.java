@@ -243,7 +243,6 @@ class DescendantSelfAxisQuery extends Query {
                                            HierarchyResolver hResolver) {
             super(similarity);
             this.hResolver = hResolver;
-            //TODO reuse BitSets?
             this.contextHits = new BitSet(reader.maxDoc());
         }
 

@@ -195,7 +195,6 @@ abstract class CaseTermQuery extends MultiTermQuery implements TransformConstant
         }
 
         protected boolean endEnum() {
-            //TODO correct?
             return false;
         }
     }

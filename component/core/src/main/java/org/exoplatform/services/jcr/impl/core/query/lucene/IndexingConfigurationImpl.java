@@ -791,11 +791,11 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
               }
             }
           } catch (IOException e) {
-            // TODO move on to next one
+            log.error(e.getLocalizedMessage());
           }
 
         } catch (RepositoryException e) {
-          // TODO move on to next one
+          log.error(e.getLocalizedMessage());
         }
       }
       return false;

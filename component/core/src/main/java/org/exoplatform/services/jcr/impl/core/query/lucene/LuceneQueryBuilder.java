@@ -881,7 +881,7 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
                         and.add(svp, Occur.MUST);
                         notQuery.add(and, Occur.MUST_NOT);
                     }
-                    //TODO above also excludes multi-valued properties that contain
+                    //above also excludes multi-valued properties that contain
                     //      multiple instances of only stringValues. e.g. text={foo, foo}
                     query = notQuery;
                     break;
