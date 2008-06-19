@@ -53,15 +53,15 @@ public class TestImport extends AbstractImportTest {
    */
   public void testImportVersionable() throws Exception {
     // Create versionable node make some checkin and checkouts
-    BeforeExportAction beforeExportAction = new BeforeExportAction() {
+    BeforeExportAction beforeExportAction = new BeforeExportAction(null, null) {
 
       private Node testRoot;
 
       public void execute() throws RepositoryException {
-        testRoot = root.addNode("testImportVersionable");
-        root.save();
+        testRoot = testRootNode.addNode("testImportVersionable");
+        testSession.save();
         testRoot.addMixin("mix:versionable");
-        root.save();
+        testSession.save();
 
         testRoot.checkin();
         testRoot.checkout();
@@ -82,28 +82,28 @@ public class TestImport extends AbstractImportTest {
       }
     };
     // Before import remove versionable node
-    BeforeImportAction beforeImportAction = new BeforeImportAction() {
+    BeforeImportAction beforeImportAction = new BeforeImportAction(null, null) {
 
       public void execute() throws RepositoryException {
-        Node testRoot2 = root.getNode("testImportVersionable");
+        Node testRoot2 = testRootNode.getNode("testImportVersionable");
         testRoot2.remove();
-        root.save();
+        testRootNode.save();
       }
 
       public Node getImportRoot() {
-        return root;
+        return testRootNode;
       }
 
     };
 
     // check correct work of imported node
-    AfterImportAction afterImportAction = new AfterImportAction() {
+    AfterImportAction afterImportAction = new AfterImportAction(null, null) {
 
       private Node testRoot2;
 
       public void execute() throws RepositoryException {
-        root.save();
-        testRoot2 = root.getNode("testImportVersionable");
+        testRootNode.save();
+        testRoot2 = testRootNode.getNode("testImportVersionable");
         assertTrue(testRoot2.isNodeType("mix:versionable"));
 
         testRoot2.checkin();
@@ -122,20 +122,27 @@ public class TestImport extends AbstractImportTest {
 
     };
 
-    executeDocumentViewImportTests(beforeExportAction, beforeImportAction, afterImportAction);
-    executeSystemViewImportTests(beforeExportAction, beforeImportAction, afterImportAction);
+    executeSingeleThreadImportTests(1,beforeExportAction.getClass(),
+                                    beforeImportAction.getClass(),
+                                    afterImportAction.getClass());
+
+    executeMultiThreadImportTests(2,5,
+                                  beforeExportAction.getClass(),
+                                  beforeImportAction.getClass(),
+                                  afterImportAction.getClass());
   }
+
   /**
    * Test re import of versionable file node. With removing source node
    * 
    * @throws Exception
    */
   public void testImportVersionableFile() throws Exception {
-    BeforeExportAction beforeExportAction = new BeforeExportAction() {
+    BeforeExportAction beforeExportAction = new BeforeExportAction(null, null) {
 
       @Override
       public Node getExportRoot() throws RepositoryException {
-        Node testPdf = root.addNode("testPdf", "nt:file");
+        Node testPdf = testRootNode.addNode("testPdf", "nt:file");
         Node contentTestPdfNode = testPdf.addNode("jcr:content", "nt:resource");
 
         byte[] buff = new byte[1024];
@@ -146,38 +153,38 @@ public class TestImport extends AbstractImportTest {
         contentTestPdfNode.setProperty("jcr:lastModified",
                                        session.getValueFactory()
                                               .createValue(Calendar.getInstance()));
-        session.save();
+        testSession.save();
         testPdf.addMixin("mix:versionable");
-        session.save();
+        testSession.save();
         testPdf.checkin();
         testPdf.checkout();
         testPdf.checkin();
         return testPdf;
       }
     };
-    BeforeImportAction beforeImportAction = new BeforeImportAction() {
+    BeforeImportAction beforeImportAction = new BeforeImportAction(null, null) {
 
       @Override
       public Node getImportRoot() throws RepositoryException {
-        Node importRoot = root.addNode("ImportRoot");
+        Node importRoot = testRootNode.addNode("ImportRoot");
         importRoot.addMixin("mix:versionable");
-        root.save();
+        testRootNode.save();
         return importRoot;
       }
     };
 
     // check correct work of imported node
-    AfterImportAction afterImportAction = new AfterImportAction() {
+    AfterImportAction afterImportAction = new AfterImportAction(null, null) {
 
       private Node testRoot2;
 
       public void execute() throws RepositoryException {
-        root.save();
+        testRootNode.save();
 
-        if (root.getNode("ImportRoot").hasNode("testPdf"))
-          testRoot2 = root.getNode("ImportRoot").getNode("testPdf");
+        if (testRootNode.getNode("ImportRoot").hasNode("testPdf"))
+          testRoot2 = testRootNode.getNode("ImportRoot").getNode("testPdf");
         else
-          testRoot2 = root.getNode("testPdf");
+          testRoot2 = testRootNode.getNode("testPdf");
 
         assertTrue(testRoot2.isNodeType("mix:versionable"));
 
@@ -198,8 +205,15 @@ public class TestImport extends AbstractImportTest {
         testRoot2.save();
       }
     };
-    executeDocumentViewImportTests(beforeExportAction, beforeImportAction, afterImportAction);
-    executeSystemViewImportTests(beforeExportAction, beforeImportAction, afterImportAction);
+    executeSingeleThreadImportTests(1,beforeExportAction.getClass(),
+                                    beforeImportAction.getClass(),
+                                    afterImportAction.getClass());
+
+    executeMultiThreadImportTests(2,5,
+                                  beforeExportAction.getClass(),
+                                  beforeImportAction.getClass(),
+                                  afterImportAction.getClass());
+
   }
 
   /**
@@ -210,15 +224,15 @@ public class TestImport extends AbstractImportTest {
   public void testImportVersionableNewNode() throws Exception {
 
     // Create versionable node make some checkin and checkouts
-    BeforeExportAction beforeExportAction = new BeforeExportAction() {
+    BeforeExportAction beforeExportAction = new BeforeExportAction(null, null) {
 
       private Node testRoot;
 
       public void execute() throws RepositoryException {
-        testRoot = root.addNode("testImportVersionable");
-        root.save();
+        testRoot = testRootNode.addNode("testImportVersionable");
+        testRootNode.save();
         testRoot.addMixin("mix:versionable");
-        root.save();
+        testRootNode.save();
 
         testRoot.checkin();
         testRoot.checkout();
@@ -239,29 +253,29 @@ public class TestImport extends AbstractImportTest {
       }
     };
     // Before import remove versionable node
-    BeforeImportAction beforeImportAction = new BeforeImportAction() {
+    BeforeImportAction beforeImportAction = new BeforeImportAction(null, null) {
 
       public Node getImportRoot() throws RepositoryException {
-        Node importRoot = root.addNode("ImportRoot");
+        Node importRoot = testRootNode.addNode("ImportRoot");
         importRoot.addMixin("mix:versionable");
-        root.save();
+        testRootNode.save();
         return importRoot;
       }
 
     };
 
     // check correct work of imported node
-    AfterImportAction afterImportAction = new AfterImportAction() {
+    AfterImportAction afterImportAction = new AfterImportAction(null, null) {
 
       private Node testRoot2;
 
       public void execute() throws RepositoryException {
-        root.save();
+        testRootNode.save();
 
-        if (root.getNode("ImportRoot").hasNode("testImportVersionable"))
-          testRoot2 = root.getNode("ImportRoot").getNode("testImportVersionable");
+        if (testRootNode.getNode("ImportRoot").hasNode("testImportVersionable"))
+          testRoot2 = testRootNode.getNode("ImportRoot").getNode("testImportVersionable");
         else
-          testRoot2 = root.getNode("testImportVersionable");
+          testRoot2 = testRootNode.getNode("testImportVersionable");
 
         assertTrue(testRoot2.isNodeType("mix:versionable"));
 
@@ -281,8 +295,15 @@ public class TestImport extends AbstractImportTest {
 
     };
 
-    executeDocumentViewImportTests(beforeExportAction, beforeImportAction, afterImportAction);
-    executeSystemViewImportTests(beforeExportAction, beforeImportAction, afterImportAction);
+    executeSingeleThreadImportTests(1,beforeExportAction.getClass(),
+                                    beforeImportAction.getClass(),
+                                    afterImportAction.getClass());
+
+    executeMultiThreadImportTests(2,5,
+                                  beforeExportAction.getClass(),
+                                  beforeImportAction.getClass(),
+                                  afterImportAction.getClass());
+
   }
 
 }

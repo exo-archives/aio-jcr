@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.api.importing;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -24,11 +23,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
@@ -45,8 +53,8 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.core.ExtendedSession;
 import org.exoplatform.services.jcr.core.ExtendedWorkspace;
-import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -65,6 +73,8 @@ public abstract class AbstractImportTest extends JcrAPIBaseTest {
    * Logger.
    */
   private Log            log           = ExoLogger.getLogger("jcr.BaseImportTest");
+
+  private final Random   random        = new Random();
 
   @Override
   public void initRepository() throws RepositoryException {
@@ -125,24 +135,128 @@ public abstract class AbstractImportTest extends JcrAPIBaseTest {
     }
   }
 
-  protected void executeDocumentViewImportTests(BeforeExportAction firstAction,
-                                                BeforeImportAction secondAction,
-                                                AfterImportAction thirdAction) throws TransformerConfigurationException,
-                                                                              IOException,
-                                                                              RepositoryException,
-                                                                              SAXException {
-    XmlTestExecutor testExecutor = new XmlTestExecutor(firstAction, secondAction, thirdAction);
-    executeImportTests(testExecutor, false);
+  protected void executeSingeleThreadImportTests(int attempts,
+                                                 Class<? extends BeforeExportAction> firstAction,
+                                                 Class<? extends BeforeImportAction> secondAction,
+                                                 Class<? extends AfterImportAction> thirdAction) throws TransformerConfigurationException,
+                                                                                                IOException,
+                                                                                                RepositoryException,
+                                                                                                SAXException,
+                                                                                                InterruptedException {
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    executeImportTests(executor, attempts, firstAction, secondAction, thirdAction);
+    executor.shutdown();
   }
 
-  protected void executeSystemViewImportTests(BeforeExportAction firstAction,
-                                              BeforeImportAction secondAction,
-                                              AfterImportAction thirdAction) throws TransformerConfigurationException,
-                                                                            IOException,
-                                                                            RepositoryException,
-                                                                            SAXException {
-    XmlTestExecutor testExecutor = new XmlTestExecutor(firstAction, secondAction, thirdAction);
-    executeImportTests(testExecutor, true);
+  protected void executeMultiThreadImportTests(int threadCount,
+                                               int attempts,
+                                               Class<? extends BeforeExportAction> firstAction,
+                                               Class<? extends BeforeImportAction> secondAction,
+                                               Class<? extends AfterImportAction> thirdAction) throws TransformerConfigurationException,
+                                                                                              IOException,
+                                                                                              RepositoryException,
+                                                                                              SAXException,
+                                                                                              InterruptedException {
+    ExecutorService executor = Executors.newCachedThreadPool();
+    executeImportTests(executor, attempts, firstAction, secondAction, thirdAction);
+    executor.shutdown();
+  }
+
+  /**
+   * boolean isExportedByStream, boolean isImportedByStream, boolean
+   * isSystemViewExport
+   * 
+   * @param firstAction
+   * @param secondAction
+   * @param thirdAction
+   * @throws TransformerConfigurationException
+   * @throws IOException
+   * @throws RepositoryException
+   * @throws SAXException
+   * @throws InterruptedException
+   */
+  private void executeImportTests(ExecutorService executor,
+                                  int attempts,
+                                  Class<? extends BeforeExportAction> firstAction,
+                                  Class<? extends BeforeImportAction> secondAction,
+                                  Class<? extends AfterImportAction> thirdAction) throws TransformerConfigurationException,
+                                                                                 IOException,
+                                                                                 RepositoryException,
+
+                                                                                 SAXException,
+                                                                                 InterruptedException {
+    XmlSaveType[] posibleSaveTypes = new XmlSaveType[] { XmlSaveType.SESSION, XmlSaveType.WORKSPACE };
+
+    int[] posibleImportUUIDBehaviors = new int[] {
+        ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING,
+        ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING,
+        ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW, ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW };
+
+    boolean[] posibleExportedByStream = new boolean[] { true, false };
+    boolean[] posibleImportedByStream = new boolean[] { true, false };
+    boolean[] posibleSystemViewExport = new boolean[] { true, false };
+
+    Collection<Callable<XmlTestResult>> tasks = new ArrayList<Callable<XmlTestResult>>();
+    for (int z = 0; z < attempts; z++) {
+
+      for (int i = 0; i < posibleSaveTypes.length; i++) {
+        for (int j = 0; j < posibleImportUUIDBehaviors.length; j++) {
+          for (int j2 = 0; j2 < posibleExportedByStream.length; j2++) {
+            for (int k = 0; k < posibleImportedByStream.length; k++) {
+              for (int k2 = 0; k2 < posibleSystemViewExport.length; k2++) {
+                BeforeExportAction be;
+                BeforeImportAction bi;
+                AfterImportAction ai;
+                try {
+
+                  Session testSession = repository.login(credentials);
+                  String testRootName = IdGenerator.generate();
+                  Node testRoot = testSession.getRootNode().addNode(testRootName);
+                  testSession.save();
+
+                  be = ((BeforeExportAction) initImportExportAction(firstAction,
+                                                                    testSession,
+                                                                    testRoot));
+                  bi = ((BeforeImportAction) initImportExportAction(secondAction,
+                                                                    testSession,
+                                                                    testRoot));
+                  ai = ((AfterImportAction) initImportExportAction(thirdAction,
+                                                                   testSession,
+                                                                   testRoot));
+
+                  if (testSession.getRootNode().hasNode(testRootName)) {
+                    testSession.getRootNode().getNode(testRootName).remove();
+                    testSession.save();
+
+                  }
+                } catch (IllegalArgumentException e) {
+                  throw new RepositoryException(e);
+                } catch (InstantiationException e) {
+                  throw new RepositoryException(e);
+                } catch (IllegalAccessException e) {
+                  throw new RepositoryException(e);
+                } catch (InvocationTargetException e) {
+                  throw new RepositoryException(e);
+                }
+
+                tasks.add(new XmlTestTask<XmlTestResult>(be,
+                                                         bi,
+                                                         ai,
+                                                         posibleSaveTypes[i],
+                                                         posibleImportUUIDBehaviors[j],
+                                                         posibleExportedByStream[j2],
+                                                         posibleImportedByStream[k],
+                                                         posibleSystemViewExport[k2]));
+
+              }
+            }
+          }
+
+        }
+      }
+    }
+    executor.invokeAll(tasks);
+
   }
 
   /**
@@ -221,180 +335,30 @@ public abstract class AbstractImportTest extends JcrAPIBaseTest {
 
   }
 
-  private void executeImportTests(XmlTestExecutor testExecutor, boolean isSystemView) throws TransformerConfigurationException,
-                                                                                     IOException,
-                                                                                     RepositoryException,
-                                                                                     SAXException {
-    testExecutor.executeTest(isSystemView,
-                             true,
-                             XmlSaveType.SESSION,
-                             true,
-                             ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
-    testExecutor.executeTest(isSystemView,
-                             true,
-                             XmlSaveType.SESSION,
-                             true,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
-    testExecutor.executeTest(isSystemView,
-                             true,
-                             XmlSaveType.SESSION,
-                             true,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING);
-    testExecutor.executeTest(isSystemView,
-                             true,
-                             XmlSaveType.SESSION,
-                             true,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
+  private ImportExportAction initImportExportAction(final Class<? extends ImportExportAction> importExportAction,
+                                                    final Session initSession,
+                                                    final Node testRoot) throws IllegalArgumentException,
+                                                                        InstantiationException,
+                                                                        IllegalAccessException,
+                                                                        InvocationTargetException {
 
-    testExecutor.executeTest(isSystemView,
-                             true,
-                             XmlSaveType.SESSION,
-                             false,
-                             ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
-    testExecutor.executeTest(isSystemView,
-                             true,
-                             XmlSaveType.SESSION,
-                             false,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
-    testExecutor.executeTest(isSystemView,
-                             true,
-                             XmlSaveType.SESSION,
-                             false,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING);
-    testExecutor.executeTest(isSystemView,
-                             true,
-                             XmlSaveType.SESSION,
-                             false,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
+    Constructor<? extends ImportExportAction>[] constructors = importExportAction.getDeclaredConstructors();
 
-    testExecutor.executeTest(isSystemView,
-                             true,
-                             XmlSaveType.WORKSPACE,
-                             true,
-                             ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
-    testExecutor.executeTest(isSystemView,
-                             true,
-                             XmlSaveType.WORKSPACE,
-                             true,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
-    testExecutor.executeTest(isSystemView,
-                             true,
-                             XmlSaveType.WORKSPACE,
-                             true,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING);
-    testExecutor.executeTest(isSystemView,
-                             true,
-                             XmlSaveType.WORKSPACE,
-                             true,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
+    Constructor<? extends ImportExportAction> constructor = null;
+    for (int i = 0; i < constructors.length; i++) {
+      if (constructors[i].getParameterTypes().length > 1)
+        constructor = constructors[i];
+    }
 
-    testExecutor.executeTest(isSystemView,
-                             true,
-                             XmlSaveType.WORKSPACE,
-                             false,
-                             ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
-    testExecutor.executeTest(isSystemView,
-                             true,
-                             XmlSaveType.WORKSPACE,
-                             false,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
-    testExecutor.executeTest(isSystemView,
-                             true,
-                             XmlSaveType.WORKSPACE,
-                             false,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING);
-    testExecutor.executeTest(isSystemView,
-                             true,
-                             XmlSaveType.WORKSPACE,
-                             false,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
-
-    testExecutor.executeTest(isSystemView,
-                             false,
-                             XmlSaveType.SESSION,
-                             true,
-                             ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
-    testExecutor.executeTest(isSystemView,
-                             false,
-                             XmlSaveType.SESSION,
-                             true,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
-    testExecutor.executeTest(isSystemView,
-                             false,
-                             XmlSaveType.SESSION,
-                             true,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING);
-    testExecutor.executeTest(isSystemView,
-                             false,
-                             XmlSaveType.SESSION,
-                             true,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
-
-    testExecutor.executeTest(isSystemView,
-                             false,
-                             XmlSaveType.SESSION,
-                             false,
-                             ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
-    testExecutor.executeTest(isSystemView,
-                             false,
-                             XmlSaveType.SESSION,
-                             false,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
-    testExecutor.executeTest(isSystemView,
-                             false,
-                             XmlSaveType.SESSION,
-                             false,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING);
-    testExecutor.executeTest(isSystemView,
-                             true,
-                             XmlSaveType.SESSION,
-                             false,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
-
-    testExecutor.executeTest(isSystemView,
-                             false,
-                             XmlSaveType.WORKSPACE,
-                             true,
-                             ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
-    testExecutor.executeTest(isSystemView,
-                             false,
-                             XmlSaveType.WORKSPACE,
-                             true,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
-    testExecutor.executeTest(isSystemView,
-                             true,
-                             XmlSaveType.WORKSPACE,
-                             true,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING);
-    testExecutor.executeTest(isSystemView,
-                             false,
-                             XmlSaveType.WORKSPACE,
-                             true,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
-
-    testExecutor.executeTest(isSystemView,
-                             false,
-                             XmlSaveType.WORKSPACE,
-                             false,
-                             ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
-    testExecutor.executeTest(isSystemView,
-                             false,
-                             XmlSaveType.WORKSPACE,
-                             false,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
-    testExecutor.executeTest(isSystemView,
-                             false,
-                             XmlSaveType.WORKSPACE,
-                             false,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING);
-    testExecutor.executeTest(isSystemView,
-                             false,
-                             XmlSaveType.WORKSPACE,
-                             false,
-                             ImportUUIDBehavior.IMPORT_UUID_COLLISION_THROW);
+    ImportExportAction action = constructor.newInstance(new Object[] { this, initSession, testRoot });
+    return action;
   }
 
   protected abstract class AfterImportAction extends ImportExportAction {
+
+    public AfterImportAction(Session session, Node testRootNode) throws RepositoryException {
+      super(session, testRootNode);
+    }
 
     @Override
     public void cleanUp() throws RepositoryException {
@@ -416,54 +380,85 @@ public abstract class AbstractImportTest extends JcrAPIBaseTest {
   }
 
   protected abstract class BeforeExportAction extends ImportExportAction {
+
+    public BeforeExportAction(Session session, Node testRootNode) throws RepositoryException {
+      super(session, testRootNode);
+    }
+
     public abstract Node getExportRoot() throws RepositoryException;
   }
 
   protected abstract class BeforeImportAction extends ImportExportAction {
+
+    public BeforeImportAction(Session session, Node testRootNode) throws RepositoryException {
+      super(session, testRootNode);
+    }
+
     public abstract Node getImportRoot() throws RepositoryException;
   }
 
   protected abstract class ImportExportAction {
+
+    protected final Node    testRootNode;
+
+    protected final Session testSession;
+
+    public ImportExportAction(Session testSession, Node testRootNode) throws RepositoryException {
+      super();
+      this.testSession = testSession;
+      this.testRootNode = testRootNode;
+    }
 
     public void cleanUp() throws RepositoryException {
 
     };
 
     public void execute() throws RepositoryException {
-    };
+    }
+
   }
 
-  private class XmlTestExecutor {
+  private class XmlTestTask<XmlTestResult> implements Callable<XmlTestResult> {
+
     private final BeforeExportAction firstAction;
 
-    /**
-     * Logger.
-     */
-    private Log                      log = ExoLogger.getLogger("jcr.XmlTestExecutor");
+    private final XmlSaveType        importSaveType;
+
+    private final int                importUUIDBehavior;
+
+    private final boolean            isExportedByStream;
+
+    private final boolean            isImportedByStream;
+
+    private final boolean            isSystemViewExport;
 
     private final BeforeImportAction secondAction;
 
     private final AfterImportAction  thirdAction;
 
-    public XmlTestExecutor(BeforeExportAction firstAction,
-                           BeforeImportAction secondAction,
-                           AfterImportAction thirdAction) {
+    public XmlTestTask(BeforeExportAction firstAction,
+                       BeforeImportAction secondAction,
+                       AfterImportAction thirdAction,
+                       XmlSaveType importSaveType,
+                       int importUUIDBehavior,
+                       boolean isExportedByStream,
+                       boolean isImportedByStream,
+                       boolean isSystemViewExport) {
       super();
       this.firstAction = firstAction;
       this.secondAction = secondAction;
       this.thirdAction = thirdAction;
+      this.importSaveType = importSaveType;
+      this.importUUIDBehavior = importUUIDBehavior;
+      this.isExportedByStream = isExportedByStream;
+      this.isImportedByStream = isImportedByStream;
+      this.isSystemViewExport = isSystemViewExport;
+
     }
 
-    public void executeTest(boolean isSystemViewExport,
-                            boolean isExportedByStream,
-                            XmlSaveType importSaveType,
-                            boolean isImportedByStream,
-                            int importUUIDBehavior) throws TransformerConfigurationException,
-                                                   IOException,
-                                                   RepositoryException,
-                                                   SAXException {
-      if (log.isDebugEnabled())
-        log.debug("isSys=" + isSystemViewExport + "\t" + "isES=" + isExportedByStream + "\t"
+    public XmlTestResult call() throws Exception {
+      if (true)
+        log.info("isSys=" + isSystemViewExport + "\t" + "isES=" + isExportedByStream + "\t"
             + "importST=" + importSaveType.toString() + "\t" + "isIS=" + isImportedByStream + "\t"
             + "importBehavior=" + importUUIDBehavior + "\t");
       firstAction.execute();
@@ -502,6 +497,12 @@ public abstract class AbstractImportTest extends JcrAPIBaseTest {
       thirdAction.execute();
       thirdAction.cleanUp();
 
+      return null;
     }
+
+  }
+
+  public class XmlTestResult {
+
   }
 }
