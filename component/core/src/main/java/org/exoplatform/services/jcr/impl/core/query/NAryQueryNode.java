@@ -140,6 +140,7 @@ public abstract class NAryQueryNode extends QueryNode {
     /**
      * @inheritDoc
      */
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof NAryQueryNode) {
             NAryQueryNode other = (NAryQueryNode) obj;
@@ -151,6 +152,7 @@ public abstract class NAryQueryNode extends QueryNode {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean needsSystemTree() {
         if (operands == null) {
             return false;

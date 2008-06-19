@@ -35,6 +35,7 @@ public class OrQueryNode extends NAryQueryNode {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Object accept(QueryNodeVisitor visitor, Object data) {
         return visitor.visit(this, data);
     }
@@ -44,6 +45,7 @@ public class OrQueryNode extends NAryQueryNode {
      *
      * @return the type of this node.
      */
+    @Override
     public int getType() {
         return QueryNode.TYPE_OR;
     }
@@ -51,6 +53,7 @@ public class OrQueryNode extends NAryQueryNode {
     /**
      * @inheritDoc
      */
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof OrQueryNode) {
             return super.equals(obj);

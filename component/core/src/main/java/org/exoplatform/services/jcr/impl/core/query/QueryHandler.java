@@ -18,13 +18,11 @@ package org.exoplatform.services.jcr.impl.core.query;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.query.InvalidQueryException;
 
-import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -83,12 +81,6 @@ public interface QueryHandler {
     void updateNodes(Iterator<String> remove, Iterator<NodeData> add)
             throws RepositoryException, IOException;
     
-    /**
-     * 
-     * @param event
-     * @return
-     */
-    //boolean isExcluded(ItemState event); 
     /**
      * Closes this <code>QueryHandler</code> and frees resources attached
      * to this handler.

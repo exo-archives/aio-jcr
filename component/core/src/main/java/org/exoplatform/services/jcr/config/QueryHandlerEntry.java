@@ -38,7 +38,7 @@ import org.exoplatform.services.jcr.impl.core.query.lucene.ExcerptProvider;
 import org.exoplatform.services.jcr.impl.core.query.lucene.IndexingConfiguration;
 import org.exoplatform.services.jcr.impl.core.query.lucene.IndexingConfigurationEntityResolver;
 import org.exoplatform.services.jcr.impl.core.query.lucene.IndexingConfigurationImpl;
-import org.exoplatform.services.jcr.impl.core.query.lucene.JackrabbitAnalyzer;
+import org.exoplatform.services.jcr.impl.core.query.lucene.JcrStandartAnalyzer;
 import org.exoplatform.services.jcr.impl.core.query.lucene.NamespaceMappings;
 import org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex;
 import org.exoplatform.services.jcr.impl.core.query.lucene.SpellChecker;
@@ -210,7 +210,7 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   /**
    * The analyzer we use for indexing.
    */
-  private JackrabbitAnalyzer  analyzer;
+  private JcrStandartAnalyzer  analyzer;
 
 
   private String              queryHandlerClass                  = DEFAULT_QUERY_HANDLER_CLASS;
@@ -218,12 +218,12 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
                                                                                                                  
   public QueryHandlerEntry() {
     super();
-    this.analyzer = new JackrabbitAnalyzer();
+    this.analyzer = new JcrStandartAnalyzer();
   }
 
   public QueryHandlerEntry(String type, List params) {
     super(type, params);
-    this.analyzer = new JackrabbitAnalyzer();
+    this.analyzer = new JcrStandartAnalyzer();
   }
 
   /**
@@ -329,7 +329,7 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
     return sp;
   }
 
-  public JackrabbitAnalyzer getAnalyzer() {
+  public JcrStandartAnalyzer getAnalyzer() {
     return analyzer;
   }
 

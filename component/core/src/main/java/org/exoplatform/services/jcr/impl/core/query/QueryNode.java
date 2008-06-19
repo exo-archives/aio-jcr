@@ -124,6 +124,7 @@ public abstract class QueryNode {
      * @return <code>true</code> if <code>obj</code> is equal to
      *   <code>this</code>; <code>false</code> otherwise.
      */
+    @Override
     public abstract boolean equals(Object obj);
     
     /**

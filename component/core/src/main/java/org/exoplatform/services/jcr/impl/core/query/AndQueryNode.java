@@ -37,6 +37,7 @@ public class AndQueryNode extends NAryQueryNode {
      * <code>AndQueryNode</code> does not contain any operands.
      * {@inheritDoc}
      */
+    @Override
     public Object accept(QueryNodeVisitor visitor, Object data) {
         return visitor.visit(this, data);
     }
@@ -45,6 +46,7 @@ public class AndQueryNode extends NAryQueryNode {
      * Returns the type of this node.
      * @return the type of this node.
      */
+    @Override
     public int getType() {
         return QueryNode.TYPE_AND;
     }
@@ -52,6 +54,7 @@ public class AndQueryNode extends NAryQueryNode {
     /**
      * @inheritDoc
      */
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof AndQueryNode) {
             return super.equals(obj);

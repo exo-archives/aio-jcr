@@ -62,6 +62,7 @@ public class TextsearchQueryNode extends QueryNode {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Object accept(QueryNodeVisitor visitor, Object data) {
         return visitor.visit(this, data);
     }
@@ -71,6 +72,7 @@ public class TextsearchQueryNode extends QueryNode {
      *
      * @return the type of this node.
      */
+    @Override
     public int getType() {
         return QueryNode.TYPE_TEXTSEARCH;
     }
@@ -94,6 +96,7 @@ public class TextsearchQueryNode extends QueryNode {
      * @return property name or <code>null</code>.
      * @deprecated Use {@link #getRelativePath()} instead.
      */
+    @Deprecated
     public InternalQName getPropertyName() {
         return relPath == null ? null : relPath.getName();
     }
@@ -104,6 +107,7 @@ public class TextsearchQueryNode extends QueryNode {
      * @param property the name of the property.
      * @deprecated Use {@link #setRelativePath(Path)} instead.
      */
+    @Deprecated
     public void setPropertyName(InternalQName property) {
         this.relPath = QPath.makeChildPath(relPath,property);
         this.propertyRef = true;
@@ -173,6 +177,7 @@ public class TextsearchQueryNode extends QueryNode {
     /**
      * @inheritDoc
      */
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof TextsearchQueryNode) {
             TextsearchQueryNode other = (TextsearchQueryNode) obj;
@@ -186,6 +191,7 @@ public class TextsearchQueryNode extends QueryNode {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean needsSystemTree() {
         return false;
     }

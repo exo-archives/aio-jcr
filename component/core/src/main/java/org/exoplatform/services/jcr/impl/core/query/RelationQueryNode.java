@@ -101,6 +101,7 @@ public class RelationQueryNode extends NAryQueryNode implements QueryConstants {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Object accept(QueryNodeVisitor visitor, Object data) {
         return visitor.visit(this, data);
     }
@@ -110,6 +111,7 @@ public class RelationQueryNode extends NAryQueryNode implements QueryConstants {
      *
      * @return the type of this node.
      */
+    @Override
     public int getType() {
         return QueryNode.TYPE_RELATION;
     }
@@ -142,6 +144,7 @@ public class RelationQueryNode extends NAryQueryNode implements QueryConstants {
      * @return the name of the property in this relation query node.
      * @deprecated Use {@link #getRelativePath()} instead.
      */
+    @Deprecated
     public InternalQName getProperty() {
         return relPath == null ? null : relPath.getName();
     }
@@ -152,6 +155,7 @@ public class RelationQueryNode extends NAryQueryNode implements QueryConstants {
      * @param name the new property name.
      * @deprecated Use {@link #setRelativePath(Path)} instead.
      */
+    @Deprecated
     public void setProperty(InternalQName name) {
       this.relPath = new QPath(new QPathEntry[]{ new QPathEntry(name,0)});
     }
@@ -300,6 +304,7 @@ public class RelationQueryNode extends NAryQueryNode implements QueryConstants {
     /**
      * @inheritDoc
      */
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof RelationQueryNode) {
             RelationQueryNode other = (RelationQueryNode) obj;

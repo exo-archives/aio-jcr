@@ -22,14 +22,17 @@ package org.exoplatform.services.jcr.impl.core.query;
  */
 public class TraversingQueryNodeVisitor extends DefaultQueryNodeVisitor {
 
+    @Override
     public Object visit(OrQueryNode node, Object data) {
         return node.acceptOperands(this, data);
     }
 
+    @Override
     public Object visit(AndQueryNode node, Object data) {
         return node.acceptOperands(this, data);
     }
 
+    @Override
     public Object visit(QueryRootNode node, Object data) {
         PathQueryNode pathNode = node.getLocationNode();
         if (pathNode != null) {
@@ -42,18 +45,22 @@ public class TraversingQueryNodeVisitor extends DefaultQueryNodeVisitor {
         return data;
     }
 
+    @Override
     public Object visit(NotQueryNode node, Object data) {
         return node.acceptOperands(this, data);
     }
 
+    @Override
     public Object visit(PathQueryNode node, Object data) {
         return node.acceptOperands(this, data);
     }
 
+    @Override
     public Object visit(LocationStepQueryNode node, Object data) {
         return node.acceptOperands(this, data);
     }
 
+    @Override
     public Object visit(DerefQueryNode node, Object data) {
         return node.acceptOperands(this, data);
     }

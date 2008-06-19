@@ -33,6 +33,7 @@ public class NotQueryNode extends NAryQueryNode {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Object accept(QueryNodeVisitor visitor, Object data) {
         return visitor.visit(this, data);
     }
@@ -42,6 +43,7 @@ public class NotQueryNode extends NAryQueryNode {
      *
      * @return the type of this node.
      */
+    @Override
     public int getType() {
         return QueryNode.TYPE_NOT;
     }
@@ -49,6 +51,7 @@ public class NotQueryNode extends NAryQueryNode {
     /**
      * @inheritDoc
      */
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof NotQueryNode) {
             return super.equals(obj);

@@ -66,6 +66,7 @@ public class DerefQueryNode extends LocationStepQueryNode {
   /**
    * {@inheritDoc}
    */
+  @Override
   public int getType() {
     return TYPE_DEREF;
   }
@@ -73,6 +74,7 @@ public class DerefQueryNode extends LocationStepQueryNode {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Object accept(QueryNodeVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }
@@ -80,6 +82,7 @@ public class DerefQueryNode extends LocationStepQueryNode {
   /**
    * @inheritDoc
    */
+  @Override
   public boolean equals(Object obj) {
     if (obj instanceof DerefQueryNode) {
       DerefQueryNode other = (DerefQueryNode) obj;
@@ -92,6 +95,7 @@ public class DerefQueryNode extends LocationStepQueryNode {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean needsSystemTree() {
     // Always return true since we don't know if the referenced nodes path
     // is a child of /jcr:system

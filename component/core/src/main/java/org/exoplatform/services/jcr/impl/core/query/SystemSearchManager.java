@@ -91,7 +91,8 @@ public class SystemSearchManager extends SearchManager {
                                                           ntReg,
                                                           nsReg,
                                                           parentHandler,
-                                                          config.getIndexDir() + "_" + INDEX_DIR_SUFFIX,
+                                                          config.getIndexDir() + "_"
+                                                              + INDEX_DIR_SUFFIX,
                                                           extractor);
     return context;
   }

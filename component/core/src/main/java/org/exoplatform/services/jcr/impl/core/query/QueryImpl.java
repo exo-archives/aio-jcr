@@ -123,6 +123,7 @@ public class QueryImpl extends AbstractQueryImpl {
     /**
      * @inheritDoc
      */
+    @Override
     public void init(SessionImpl session,
                      SessionDataManager itemMgr,
                      QueryHandler handler,
@@ -141,6 +142,7 @@ public class QueryImpl extends AbstractQueryImpl {
     /**
      * @inheritDoc
      */
+    @Override
     public void init(SessionImpl session,
                      SessionDataManager itemMgr,
                      QueryHandler handler,

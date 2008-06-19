@@ -47,6 +47,7 @@ public class OrderQueryNode extends QueryNode {
      *
      * @return the type of this node.
      */
+    @Override
     public int getType() {
         return QueryNode.TYPE_ORDER;
     }
@@ -74,6 +75,7 @@ public class OrderQueryNode extends QueryNode {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Object accept(QueryNodeVisitor visitor, Object data) {
         return visitor.visit(this, data);
     }
@@ -104,6 +106,7 @@ public class OrderQueryNode extends QueryNode {
     /**
      * @inheritDoc
      */
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof OrderQueryNode) {
             OrderQueryNode other = (OrderQueryNode) obj;
@@ -179,6 +182,7 @@ public class OrderQueryNode extends QueryNode {
          * @return <code>true</code> if <code>this</code> order spec is equal
          *   to <code>obj</code>; <code>false</code> otherwise.
          */
+        @Override
         public boolean equals(Object obj) {
             if (obj instanceof OrderSpec) {
                 OrderSpec other = (OrderSpec) obj;
@@ -192,6 +196,7 @@ public class OrderQueryNode extends QueryNode {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean needsSystemTree() {
         return false;
     }

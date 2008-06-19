@@ -53,6 +53,7 @@ public class ExactQueryNode extends QueryNode {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Object accept(QueryNodeVisitor visitor, Object data) {
         return visitor.visit(this, data);
     }
@@ -60,6 +61,7 @@ public class ExactQueryNode extends QueryNode {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getType() {
         return QueryNode.TYPE_EXACT;
     }
@@ -85,6 +87,7 @@ public class ExactQueryNode extends QueryNode {
     /**
      * @inheritDoc
      */
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof ExactQueryNode) {
             ExactQueryNode other = (ExactQueryNode) obj;
@@ -97,6 +100,7 @@ public class ExactQueryNode extends QueryNode {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean needsSystemTree() {
         return false;
     }

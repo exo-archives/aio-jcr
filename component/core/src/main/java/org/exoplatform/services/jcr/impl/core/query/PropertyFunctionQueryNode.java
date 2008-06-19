@@ -82,6 +82,7 @@ public class PropertyFunctionQueryNode extends QueryNode {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Object accept(QueryNodeVisitor visitor, Object data) {
         return visitor.visit(this, data);
     }
@@ -91,6 +92,7 @@ public class PropertyFunctionQueryNode extends QueryNode {
      *
      * @return the type of this node.
      */
+    @Override
     public int getType() {
         return QueryNode.TYPE_PROP_FUNCTION;
     }
@@ -98,6 +100,7 @@ public class PropertyFunctionQueryNode extends QueryNode {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof PropertyFunctionQueryNode) {
             PropertyFunctionQueryNode other = (PropertyFunctionQueryNode) obj;
@@ -116,6 +119,7 @@ public class PropertyFunctionQueryNode extends QueryNode {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean needsSystemTree() {
         return false;
     }

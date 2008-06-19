@@ -20,11 +20,9 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -65,36 +63,6 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
    * Logger instance for this class
    */
   private static final Log              log           = ExoLogger.getLogger(SearchManager.class);
-
-  //
-  //  
-  // /**
-  // * Namespace URI for xpath functions
-  // */
-  // private static final String NS_FN_PREFIX = "fn";
-  //  
-  // public static final String NS_FN_URI =
-  // "http://www.w3.org/2005/xpath-functions";
-  //  
-  // /**
-  // * Deprecated namespace URI for xpath functions
-  // */
-  // private static final String NS_FN_OLD_PREFIX = "fn_old";
-  //  
-  // public static final String NS_FN_OLD_URI =
-  // "http://www.w3.org/2004/10/xpath-functions";
-  //  
-  // /**
-  // * Namespace URI for XML schema
-  // */
-  // private static final String NS_XS_PREFIX = "xs";
-  //  
-  // public static final String NS_XS_URI = "http://www.w3.org/2001/XMLSchema";
-  //  
-  // /**
-  // * Name of the parameter that specifies the idle time for a query handler.
-  // */
-  // private static final String PARAM_IDLE_TIME = "idleTime";
 
   protected final QueryHandlerEntry     config;
 
@@ -257,7 +225,6 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
         removedNodes.add(nodeId);
       } else if (event.isDeleted()) {
         // property removed event is only generated when node still exists
-        // addedNodes.put(nodeId, event); // TODO
         addedNodes.remove(nodeId);
         removedNodes.add(nodeId);
       }

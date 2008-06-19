@@ -51,19 +51,6 @@ public class QueryTreeBuilderRegistry {
   static {
     Set<String> languages = new HashSet<String>();
     try {
-      // TODO Fix me
-      // //QueryTreeBuilderRegistry.class.getClassLoader().
-      //          
-      // QueryBuilder builder = new QueryBuilder();
-      // Iterator<QueryTreeBuilder> it =
-      // ServiceRegistry.lookupProviders(QueryTreeBuilder.class,
-      // QueryTreeBuilderRegistry.class.getClassLoader());
-      // while (it.hasNext()) {
-      // QueryTreeBuilder qtb = it.next();
-      // BUILDERS.add(qtb);
-      // languages.addAll(Arrays.asList(qtb.getSupportedLanguages()));
-      // }
-
       BUILDERS.add(new org.exoplatform.services.jcr.impl.core.query.sql.QueryBuilder());
       BUILDERS.add(new org.exoplatform.services.jcr.impl.core.query.xpath.QueryBuilder());
 

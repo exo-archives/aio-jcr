@@ -64,6 +64,7 @@ public class PathQueryNode extends NAryQueryNode {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Object accept(QueryNodeVisitor visitor, Object data) {
         return visitor.visit(this, data);
     }
@@ -73,6 +74,7 @@ public class PathQueryNode extends NAryQueryNode {
      *
      * @return the type of this node.
      */
+    @Override
     public int getType() {
         return QueryNode.TYPE_PATH;
     }
@@ -124,6 +126,7 @@ public class PathQueryNode extends NAryQueryNode {
     /**
      * @inheritDoc
      */
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof PathQueryNode) {
             PathQueryNode other = (PathQueryNode) obj;
@@ -136,6 +139,7 @@ public class PathQueryNode extends NAryQueryNode {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean needsSystemTree() {
         
         LocationStepQueryNode[] pathSteps = getPathSteps();

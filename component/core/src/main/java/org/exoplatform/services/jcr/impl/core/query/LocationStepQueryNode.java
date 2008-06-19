@@ -156,6 +156,7 @@ public class LocationStepQueryNode extends NAryQueryNode {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Object accept(QueryNodeVisitor visitor, Object data) {
         return visitor.visit(this, data);
     }
@@ -163,6 +164,7 @@ public class LocationStepQueryNode extends NAryQueryNode {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getType() {
         return QueryNode.TYPE_LOCATION;
     }
@@ -170,6 +172,7 @@ public class LocationStepQueryNode extends NAryQueryNode {
     /**
      * @inheritDoc
      */
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof LocationStepQueryNode) {
             LocationStepQueryNode other = (LocationStepQueryNode) obj;

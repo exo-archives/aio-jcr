@@ -108,6 +108,7 @@ public class QueryRootNode extends QueryNode {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Object accept(QueryNodeVisitor visitor, Object data) {
         return visitor.visit(this, data);
     }
@@ -117,6 +118,7 @@ public class QueryRootNode extends QueryNode {
      *
      * @return the type of this node.
      */
+    @Override
     public int getType() {
         return QueryNode.TYPE_ROOT;
     }
@@ -124,6 +126,7 @@ public class QueryRootNode extends QueryNode {
     /**
      * @inheritDoc
      */
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof QueryRootNode) {
             QueryRootNode other = (QueryRootNode) obj;
@@ -137,6 +140,7 @@ public class QueryRootNode extends QueryNode {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean needsSystemTree() {
         return (locationNode != null && locationNode.needsSystemTree()) || (orderNode != null && orderNode.needsSystemTree());
     }
