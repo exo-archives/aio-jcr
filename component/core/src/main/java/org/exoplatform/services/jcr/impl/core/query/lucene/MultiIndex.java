@@ -246,7 +246,7 @@ public class MultiIndex {
 
     // initialize indexing queue
     this.indexingQueue = new IndexingQueue(new IndexingQueueStore(indexDir, INDEXING_QUEUE_FILE),
-                                           this);
+        this);
 
     // open persistent indexes
     for (int i = 0; i < indexNames.size(); i++) {
@@ -260,11 +260,8 @@ public class MultiIndex {
         // move on to next index
         continue;
       }
-      PersistentIndex index = new PersistentIndex(indexNames.getName(i),
-                                                  sub,
-                                                  handler.getTextAnalyzer(),
-                                                  cache,
-                                                  indexingQueue);
+      PersistentIndex index = new PersistentIndex(indexNames.getName(i), sub, handler
+          .getTextAnalyzer(), cache, indexingQueue);
       index.setMaxMergeDocs(handler.getQueryHandlerConfig().getMaxMergeDocs());
       index.setMergeFactor(handler.getQueryHandlerConfig().getMergeFactor());
       index.setMinMergeDocs(handler.getQueryHandlerConfig().getMinMergeDocs());
@@ -277,15 +274,13 @@ public class MultiIndex {
     // init volatile index
     resetVolatileIndex();
 
-
-
     // set index format version
     IndexReader reader = getIndexReader();
     try {
-        version = IndexFormatVersion.getVersion(reader);
-     
+      version = IndexFormatVersion.getVersion(reader);
+
     } finally {
-        reader.close();
+      reader.close();
     }
 
     redoLogApplied = redoLog.hasEntries();
@@ -301,7 +296,7 @@ public class MultiIndex {
         merger.waitUntilIdle();
       } catch (InterruptedException e) {
         // move on
-      }finally{
+      } finally {
         synchronized (updateMonitor) {
           updateInProgress = false;
           updateMonitor.notifyAll();
@@ -517,7 +512,8 @@ public class MultiIndex {
    * @return the <code>IndexReaders</code>.
    * @throws IOException if an error occurs acquiring the index readers.
    */
-  synchronized IndexReader[] getIndexReaders(String[] indexNames, IndexListener listener) throws IOException {
+  synchronized IndexReader[] getIndexReaders(String[] indexNames, IndexListener listener)
+      throws IOException {
     Set<String> names = new HashSet<String>(Arrays.asList(indexNames));
 
     Map<ReadOnlyIndexReader, PersistentIndex> indexReaders = new HashMap<ReadOnlyIndexReader, PersistentIndex>();
@@ -556,18 +552,15 @@ public class MultiIndex {
    * @throws IOException if a new index cannot be created.
    */
   synchronized PersistentIndex getOrCreateIndex(String indexName) throws IOException {
-   
     // check existing
     for (Iterator<PersistentIndex> it = indexes.iterator(); it.hasNext();) {
       PersistentIndex idx = it.next();
       if (idx.getName().equals(indexName)) {
-        log.info("  GET INDEX "+ indexName); //TODO delete this
         return idx;
       }
     }
 
     // otherwise open / create it
-    log.info("  CREATE INDEX "+ indexName); //TODO delete this
     File sub;
     if (indexName == null) {
       sub = newIndexFolder();
@@ -575,11 +568,8 @@ public class MultiIndex {
     } else {
       sub = new File(indexDir, indexName);
     }
-    PersistentIndex index = new PersistentIndex(indexName,
-                                                sub,
-                                                handler.getTextAnalyzer(),
-                                                cache,
-                                                indexingQueue);
+    PersistentIndex index = new PersistentIndex(indexName, sub, handler.getTextAnalyzer(), cache,
+        indexingQueue);
     index.setMaxMergeDocs(handler.getQueryHandlerConfig().getMaxMergeDocs());
     index.setMergeFactor(handler.getQueryHandlerConfig().getMergeFactor());
     index.setMinMergeDocs(handler.getQueryHandlerConfig().getMinMergeDocs());
@@ -623,7 +613,8 @@ public class MultiIndex {
    *          deleted in <code>index</code>.
    * @throws IOException if an exception occurs while replacing the indexes.
    */
-  void replaceIndexes(String[] obsoleteIndexes, PersistentIndex index, Collection<Term> deleted) throws IOException {
+  void replaceIndexes(String[] obsoleteIndexes, PersistentIndex index, Collection<Term> deleted)
+      throws IOException {
 
     synchronized (this) {
       synchronized (updateMonitor) {
@@ -713,7 +704,8 @@ public class MultiIndex {
           }
         }
         readerList.add(volatileIndex.getReadOnlyIndexReader());
-        ReadOnlyIndexReader[] readers = readerList.toArray(new ReadOnlyIndexReader[readerList.size()]);
+        ReadOnlyIndexReader[] readers = readerList.toArray(new ReadOnlyIndexReader[readerList
+            .size()]);
         multiReader = new CachingMultiIndexReader(readers, cache);
       }
       multiReader.incrementRefCount();
@@ -838,7 +830,6 @@ public class MultiIndex {
    * @param index the index to delete.
    */
   synchronized void deleteIndex(PersistentIndex index) {
-    log.info(" DELETE INDEX " + index.getName()); //TODO delete this
     // remove it from the lists if index is registered
     indexes.remove(index);
     indexNames.removeName(index.getName());
@@ -849,7 +840,6 @@ public class MultiIndex {
         deletable.addName(index.getName());
       }
     }
-    
   }
 
   /**
@@ -1001,7 +991,7 @@ public class MultiIndex {
    * @throws RepositoryException if any other error occurs
    */
   private void createIndex(NodeData node, ItemDataConsumer stateMgr) throws IOException,
-                                                                    RepositoryException {
+      RepositoryException {
     String id = node.getIdentifier();
 
     // if (excludedIDs.contains(id)) {
@@ -1046,8 +1036,6 @@ public class MultiIndex {
    *         <code>false</code> otherwise.
    */
   private boolean deleteIndex(File directory) {
-    log.info(" DELETE INDEX DIRECTORY " + directory.getName()); //TODO delete this
-    
     // trivial if it does not exist anymore
     if (!directory.exists()) {
       return true;
