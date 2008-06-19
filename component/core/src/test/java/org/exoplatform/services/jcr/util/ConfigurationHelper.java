@@ -33,9 +33,11 @@ import org.apache.commons.logging.Log;
 
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.config.CacheEntry;
 import org.exoplatform.services.jcr.config.ContainerEntry;
 import org.exoplatform.services.jcr.config.LockManagerEntry;
 import org.exoplatform.services.jcr.config.LockPersisterEntry;
+import org.exoplatform.services.jcr.config.QueryHandlerEntry;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.SimpleParameterEntry;
 import org.exoplatform.services.jcr.config.ValueStorageEntry;
@@ -153,15 +155,25 @@ public class ConfigurationHelper {
 
     // Indexer
     ArrayList qParams = new ArrayList();
-    qParams.add(new SimpleParameterEntry("indexDir", "../temp/index"));
-//    QueryHandlerEntry qEntry = new QueryHandlerEntry("org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex",
-//                                                     qParams);
+    qParams.add(new SimpleParameterEntry("indexDir", "../temp/index/" + IdGenerator.generate()));
+    QueryHandlerEntry qEntry = new QueryHandlerEntry("org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex",
+                                                     qParams);
 
     WorkspaceEntry workspaceEntry = new WorkspaceEntry(wsName != null ? wsName
                                                                      : IdGenerator.generate(),
                                                        "nt:unstructured");
     workspaceEntry.setContainer(containerEntry);
-    //workspaceEntry.setQueryHandler(qEntry);
+
+    ArrayList cacheParams = new ArrayList();
+
+    cacheParams.add(new SimpleParameterEntry("maxSize", "2000"));
+    cacheParams.add(new SimpleParameterEntry("liveTime", "20m"));
+    CacheEntry cacheEntry = new CacheEntry(cacheParams);
+    cacheEntry.setType("org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl");
+
+    workspaceEntry.setCache(cacheEntry);
+
+    workspaceEntry.setQueryHandler(qEntry);
 
     LockManagerEntry lockManagerEntry = new LockManagerEntry();
     lockManagerEntry.setTimeout(900000);
