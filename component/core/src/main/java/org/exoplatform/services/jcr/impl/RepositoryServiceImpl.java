@@ -28,7 +28,10 @@ import javax.jcr.NamespaceRegistry;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 
+import org.picocontainer.Startable;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
@@ -44,7 +47,6 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionRegistry;
 import org.exoplatform.services.log.ExoLogger;
-import org.picocontainer.Startable;
 
 /**
  * Created by The eXo Platform SAS.
