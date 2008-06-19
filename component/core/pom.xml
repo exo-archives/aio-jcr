@@ -506,7 +506,6 @@
                 <include>**/usecases/**/*Test.java</include>
                 <!-- include>**/impl/access/**/Test*.java</include -->
                 <include>**/impl/**/Test*.java</include>
-                <!--include>**/TestErrorMultithreading.java</include-->
               </includes>
               <excludes>
                 <exclude>**/TestErrorMultithreading.java</exclude>
