@@ -562,9 +562,6 @@ public class JCRSQLQueryBuilder implements JCRSQLParserVisitor {
         NAryQueryNode parent = (NAryQueryNode) data;
         QPath relPath = null;
         if (node.getPropertyName() != null) {
-//                PathBuilder builder = new PathBuilder();
-//                builder.addLast(node.getPropertyName());
-//                relPath = builder.getPath();
             relPath = new QPath(new QPathEntry[]{new QPathEntry(node.getPropertyName(),0)});
         }
         TextsearchQueryNode tsNode = factory.createTextsearchQueryNode(parent, node.getQuery());
@@ -624,9 +621,6 @@ public class JCRSQLQueryBuilder implements JCRSQLParserVisitor {
         try {
             QPath relPath = null;
             if (propertyName != null) {
-//                PathBuilder builder = new PathBuilder();
-//                builder.addLast(propertyName);
-//                relPath = builder.getPath();
                 relPath = new QPath(new QPathEntry[]{new QPathEntry(propertyName,0)});
             }
             if (literal.getType() == QueryConstants.TYPE_DATE) {
@@ -659,9 +653,6 @@ public class JCRSQLQueryBuilder implements JCRSQLParserVisitor {
             throw new IllegalArgumentException(e.toString());
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException(e.toString());
-//        } catch (MalformedPathException e) {
-//            // path is always valid, but throw anyway
-//            throw new IllegalArgumentException(e.getMessage());
         }
 
         if (node == null) {

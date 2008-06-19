@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.impl.core.query.sql;
 
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 
-//import org.apache.jackrabbit.spi.Name;
 
 public class ASTContainsExpression extends SimpleNode {
 
