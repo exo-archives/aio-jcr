@@ -15,7 +15,7 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.services.jcr.impl.core.query.lucene;
+package org.exoplatform.services.jcr.impl.core.query;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,16 +43,16 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class ErrorLog {
-  public static final int    DEFAULT_FILE_SIZE = 50;             // Kb
+  public static final int    DEFAULT_FILE_SIZE = 50;                                 // Kb
 
   /**
    * Logger instance for this class
    */
-  private static final Log   log       = ExoLogger.getLogger(RedoLog.class);
+  private static final Log   log               = ExoLogger.getLogger(ErrorLog.class);
 
-  public static final String REMOVE    = "rem";
+  public static final String REMOVE            = "rem";
 
-  public static final String ADD       = "add";
+  public static final String ADD               = "add";
 
   /**
    * The log file
@@ -63,14 +63,13 @@ public class ErrorLog {
    * Writer to the log file
    */
   private FileChannel        out;
-  
+
   /**
    * File size in Kb. Used on create and clear(truncate) methods.
    */
-  private int fileSize = DEFAULT_FILE_SIZE; // Kb
-  
+  private int                fileSize          = DEFAULT_FILE_SIZE;                  // Kb
+
   /**
-   * 
    * @param log
    * @throws IOException
    */
@@ -85,14 +84,14 @@ public class ErrorLog {
     openFile(file);
   }
 
-  private void openFile(File log) throws IOException{
+  private void openFile(File log) throws IOException {
     // set file size;
     if (!log.exists()) {
       log.getParentFile().mkdirs();
       log.createNewFile();
 
       out = new FileOutputStream(log).getChannel();
-      out.position(1024 * fileSize- 1);
+      out.position(1024 * fileSize - 1);
       out.write(ByteBuffer.wrap(new byte[] { 0 }));
       out.position(0);
       out.force(false);
@@ -100,14 +99,14 @@ public class ErrorLog {
       out = new FileOutputStream(log, true).getChannel();
     }
   }
-  
+
   /**
    * Appends an action to the log.
    * 
    * @param action the action to append.
    * @throws IOException if the node cannot be written to the redo log.
    */
-  void append(String action, String uuid) throws IOException {
+  public void append(String action, String uuid) throws IOException {
     initOut();
     out.write(ByteBuffer.wrap((action + " " + uuid + "\n").getBytes()));
   }
@@ -117,7 +116,7 @@ public class ErrorLog {
    * 
    * @throws IOException if an error occurs while writing.
    */
-  void flush() throws IOException {
+  public void flush() throws IOException {
     if (out != null) {
       out.force(false);
     }
@@ -128,7 +127,7 @@ public class ErrorLog {
    * 
    * @throws IOException if the redo log cannot be cleared.
    */
-  void clear() throws IOException {
+  public void clear() throws IOException {
     if (out != null) {
       out.truncate(0);
       out.close();

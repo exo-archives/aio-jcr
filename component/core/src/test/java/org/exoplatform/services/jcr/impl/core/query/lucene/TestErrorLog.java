@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.exoplatform.services.jcr.impl.core.query.BaseQueryTest;
+import org.exoplatform.services.jcr.impl.core.query.ErrorLog;
 
 /**
  * Created by The eXo Platform SAS Author : Sergey Karpenko

@@ -56,6 +56,7 @@ import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.query.DefaultQueryNodeFactory;
+import org.exoplatform.services.jcr.impl.core.query.ErrorLog;
 import org.exoplatform.services.jcr.impl.core.query.ExecutableQuery;
 import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
 import org.exoplatform.services.jcr.impl.core.query.QueryHandlerContext;
