@@ -51,10 +51,11 @@ public class RemoveAuditableVisitor extends TraversingItemVisitor {
     if (((NodeImpl) node).isNodeType(AuditService.EXO_AUDITABLE)) {
       if (auditService.hasHistory(node)) {
         auditService.removeHistory(node);
-        log.info("History removed for " + node.getPath());
+        if (log.isDebugEnabled()) {
+          log.debug("History removed for " + node.getPath());
+        }
       }
     }
-
   }
 
   @Override

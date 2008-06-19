@@ -32,7 +32,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: $
  */
 public class AddAuditableAction implements Action {
-  
+
   private final Log log = ExoLogger.getLogger("jcr.AddAuditableAction");
 
   public boolean execute(Context ctx) throws Exception {
@@ -49,19 +49,23 @@ public class AddAuditableAction implements Action {
     AuditService auditService = (AuditService) ((ExoContainer) ctx.get("exocontainer")).getComponentInstanceOfType(AuditService.class);
     if (node.canAddMixin("exo:auditable")) {
       node.addMixin("exo:auditable");
-      log.info("exo:auditable adedd for "+node.getPath());
+      if (log.isDebugEnabled()) {
+        log.debug("exo:auditable adedd for " + node.getPath());
+      }
     }
     if (node.isNodeType("exo:auditable")) {
       if (!auditService.hasHistory(node)) {
-        
+
         auditService.createHistory(node);
-        log.info("Audit history created for "+node.getPath());
+        if (log.isDebugEnabled()) {
+          log.debug("Audit history created for " + node.getPath());
+        }
 
       }
 
       auditService.addRecord(item, event);
-      if (true) {
-        log.info("Record '" + ExtendedEventType.nameFromValue(event) + "' added for "
+      if (log.isDebugEnabled()) {
+        log.debug("Record '" + ExtendedEventType.nameFromValue(event) + "' added for "
             + item.getPath());
       }
       return true;
