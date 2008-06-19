@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.NamespaceException;
@@ -31,6 +30,7 @@ import javax.jcr.ValueFormatException;
 import org.apache.commons.logging.Log;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+
 import org.exoplatform.services.document.DocumentReader;
 import org.exoplatform.services.document.DocumentReaderService;
 import org.exoplatform.services.document.HandlerNotFoundException;
@@ -199,29 +199,6 @@ public class NodeIndexer {
       // will never happen, because this.mappings will dynamically add
       // unknown uri<->prefix mappings
     }
-
-    // List<PropertyData> props =
-    // this.stateProvider.getChildPropertiesData(node);
-
-    // for (Iterator<PropertyData> it = props.iterator(); it.hasNext();) {
-    // PropertyData propState = (PropertyData) it.next();
-    // // add each property to the _PROPERTIES_SET for searching beginning with
-    // V2
-    // if (indexFormatVersion.getVersion() >=
-    // IndexFormatVersion.V2.getVersion()) {
-    // addPropertyName(doc, propState.getQPath().getName());
-    // }
-
-    // List<ValueData> values = propState.getValues();
-    // for (int i = 0; i < values.size(); i++) {
-    // addValue(doc, values.get(i), propState.getQPath().getName(),
-    // propState.getType());
-    // }
-    // if (values.size() > 1) {
-    // // real multi-valued
-    // addMVPName(doc, propState.getQPath().getName());
-    // }
-    // }
 
     for (PropertyData prop : stateProvider.listChildPropertiesData(node)) {
       // test the case and switch to

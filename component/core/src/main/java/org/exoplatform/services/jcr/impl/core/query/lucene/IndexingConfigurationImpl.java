@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.impl.core.query.lucene;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,8 +29,15 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeTypeIterator;
 
+import org.w3c.dom.CharacterData;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import org.apache.commons.logging.Log;
 import org.apache.lucene.analysis.Analyzer;
+
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
@@ -45,11 +51,6 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.query.QueryHandlerContext;
 import org.exoplatform.services.jcr.impl.util.ISO9075;
 import org.exoplatform.services.log.ExoLogger;
-import org.w3c.dom.CharacterData;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * <code>IndexingConfigurationImpl</code> implements a concrete indexing
@@ -240,8 +241,8 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
                                                    .getNodeValue();
             try {
               Class clazz = Class.forName(analyzerClassName);
-              if (clazz == JackrabbitAnalyzer.class) {
-                log.warn("Not allowed to configure " + JackrabbitAnalyzer.class.getName()
+              if (clazz == JcrStandartAnalyzer.class) {
+                log.warn("Not allowed to configure " + JcrStandartAnalyzer.class.getName()
                     + " for a property. " + "Using default analyzer for that property.");
               } else if (Analyzer.class.isAssignableFrom(clazz)) {
                 Analyzer analyzer;

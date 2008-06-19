@@ -307,14 +307,13 @@ public class QueryResultImpl implements QueryResult {
           int start = resultNodes.size() + invalid + (int)offset;
           int max = Math.min(result.length(), numResults);
           for (int i = start; i < max && resultNodes.size() < maxResultSize; i++) {
-              String id = result.getFieldContent(i,FieldNames.UUID);//doc(i).get(FieldNames.UUID);//NodeId.valueOf(
+              String id = result.getFieldContent(i,FieldNames.UUID);
               // check access
               resultNodes.add(new ScoreNode(id, result.score(i)));
           }
             
         } catch (IOException e) {
             log.error("Exception while executing query: ", e);
-            //TODO throw?
         } finally {
             if (result != null) {
                 try {

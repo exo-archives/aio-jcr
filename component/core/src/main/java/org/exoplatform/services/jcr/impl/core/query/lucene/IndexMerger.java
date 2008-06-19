@@ -98,17 +98,6 @@ class IndexMerger extends Thread implements IndexListener {
    */
   private final Semaphore         mergerIdle       = new Semaphore(1);
 
-  //TODO OSWEGO
-//  /**
-//   * Mutex that is acquired when replacing indexes on MultiIndex.
-//   */
-//  private final Sync indexReplacement = new Mutex();
-//
-//  /**
-//   * When released, indicates that this index merger is idle.
-//   */
-//  private final Sync mergerIdle = new Mutex();
-
   /**
    * Creates an <code>IndexMerger</code>.
    * 

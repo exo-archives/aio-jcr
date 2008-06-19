@@ -200,7 +200,6 @@ class NodeIteratorImpl implements TwoWayRangeIterator,ScoreNodeIterator {
             try {
                 next = (NodeImpl) itemMgr.getItemByIdentifier(scoreNodes[pos + 1].getNodeId(),true);
                 if(next==null){
-                  //log.warn("Item is null "+scoreNodes[pos + 1].getNodeId());
                   invalid++;
                   pos++;
                 }

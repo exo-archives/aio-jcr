@@ -172,7 +172,6 @@ public class FileBasedNamespaceMappings implements NamespaceMappings {
     }
 
     public String[] getAllNamespacePrefixes() throws RepositoryException {
-      // TODO is it correct?
       return (String[])prefixToURI.keySet().toArray(new String[prefixToURI.keySet().size()]);
     }
     

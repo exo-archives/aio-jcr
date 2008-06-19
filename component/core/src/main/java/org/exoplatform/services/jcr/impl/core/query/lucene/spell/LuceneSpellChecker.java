@@ -229,17 +229,17 @@ public class LuceneSpellChecker implements
      */
     String suggest(String statement) throws IOException {
       // tokenize the statement (field name doesn't matter actually...)
-      List words = new ArrayList();
-      List tokens = new ArrayList();
+      List<String> words = new ArrayList<String>();
+      List<Token> tokens = new ArrayList<Token>();
       tokenize(statement, words, tokens);
 
-      String[] suggestions = check((String[]) words.toArray(new String[words.size()]));
+      String[] suggestions = check(words.toArray(new String[words.size()]));
       if (suggestions != null) {
         // replace words in statement in reverse order because length
         // of statement will change
         StringBuffer sb = new StringBuffer(statement);
         for (int i = suggestions.length - 1; i >= 0; i--) {
-          Token t = (Token) tokens.get(i);
+          Token t = tokens.get(i);
           // only replace if word acutally changed
           if (!t.termText().equalsIgnoreCase(suggestions[i])) {
             sb.replace(t.startOffset(), t.endOffset(), suggestions[i]);
@@ -272,7 +272,7 @@ public class LuceneSpellChecker implements
      *          statement.
      * @throws IOException if an error occurs while parsing the statement.
      */
-    private void tokenize(String statement, List words, List tokens) throws IOException {
+    private void tokenize(String statement, List<String> words, List<Token> tokens) throws IOException {
       TokenStream ts = handler.getTextAnalyzer().tokenStream(FieldNames.FULLTEXT,
                                                              new StringReader(statement));
       try {
@@ -285,7 +285,7 @@ public class LuceneSpellChecker implements
           } else {
             // very simple implementation: use termText with length
             // closer to original word
-            Token current = (Token) tokens.get(tokens.size() - 1);
+            Token current = tokens.get(tokens.size() - 1);
             if (Math.abs(origWord.length() - current.termText().length()) > Math.abs(origWord.length()
                 - t.termText().length())) {
               // replace current token and word

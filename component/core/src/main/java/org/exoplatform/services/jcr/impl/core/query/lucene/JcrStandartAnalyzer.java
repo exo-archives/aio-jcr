@@ -32,10 +32,10 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
  * index the text of the property and to parse searchtext for this property. 
  */
 
-public class JackrabbitAnalyzer  extends Analyzer {
+public class JcrStandartAnalyzer  extends Analyzer {
     
     /**
-     * The default Jackrabbit analyzer if none is configured in <code><SearchIndex></code>
+     * The default JcrStandartAnalyzer analyzer if none is configured in <code><SearchIndex></code>
      * configuration.  
      */
     private Analyzer defaultAnalyzer =  new StandardAnalyzer(new String[]{});

@@ -41,7 +41,7 @@ public final class CachingMultiIndexReader
     /**
      * Map of {@link OffsetReader}s, identified by creation tick.
      */
-    private final Map readersByCreationTick = new HashMap();
+    private final Map<Long, OffsetReader> readersByCreationTick = new HashMap<Long, OffsetReader>();
 
     /**
      * Document number cache if available. May be <code>null</code>.
@@ -123,7 +123,7 @@ public final class CachingMultiIndexReader
                 // check if valid:
                 // 1) reader must be in the set of readers
                 // 2) doc must not be deleted
-                OffsetReader offsetReader = (OffsetReader) readersByCreationTick.get(
+                OffsetReader offsetReader = readersByCreationTick.get(
                         new Long(e.creationTick));
                 if (offsetReader != null && !offsetReader.reader.isDeleted(e.doc)) {
                     return new SingleTermDocs(e.doc + offsetReader.offset);
@@ -203,7 +203,7 @@ public final class CachingMultiIndexReader
      * {@inheritDoc}
      */
     public int getDocumentNumber(ForeignSegmentDocId docId) {
-        OffsetReader r = (OffsetReader) readersByCreationTick.get(
+        OffsetReader r = readersByCreationTick.get(
                 new Long(docId.getCreationTick()));
         if (r != null && !r.reader.isDeleted(docId.getDocNumber())) {
             return r.offset + docId.getDocNumber();

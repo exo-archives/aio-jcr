@@ -36,6 +36,7 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.BooleanClause.Occur;
+
 import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
@@ -67,7 +68,6 @@ import org.exoplatform.services.jcr.impl.core.query.QueryNode;
 import org.exoplatform.services.jcr.impl.core.query.QueryNodeVisitor;
 import org.exoplatform.services.jcr.impl.core.query.QueryRootNode;
 import org.exoplatform.services.jcr.impl.core.query.RelationQueryNode;
-import org.exoplatform.services.jcr.impl.core.query.SearchManager;
 import org.exoplatform.services.jcr.impl.core.query.TextsearchQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.lucene.fulltext.ParseException;
 import org.exoplatform.services.jcr.impl.core.query.lucene.fulltext.QueryParser;

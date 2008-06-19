@@ -994,9 +994,6 @@ public class MultiIndex {
       RepositoryException {
     String id = node.getIdentifier();
 
-    // if (excludedIDs.contains(id)) {
-    // return;
-    // }
     executeAndLog(new AddNode(getTransactionId(), id));
     checkVolatileCommit();
 

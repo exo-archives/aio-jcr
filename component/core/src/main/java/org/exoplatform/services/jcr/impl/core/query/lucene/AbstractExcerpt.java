@@ -179,13 +179,13 @@ public abstract class AbstractExcerpt implements HighlightingExcerptProvider {
     /**
      * @return the extracted terms from the query.
      */
-    protected final Set getQueryTerms() {
-        Set extractedTerms = new HashSet();
-        Set relevantTerms = new HashSet();
+    protected final Set<Term> getQueryTerms() {
+        Set<Term> extractedTerms = new HashSet<Term>();
+        Set<Term> relevantTerms = new HashSet<Term>();
         query.extractTerms(extractedTerms);
         // only keep terms for fulltext fields
-        for (Iterator it = extractedTerms.iterator(); it.hasNext(); ) {
-            Term t = (Term) it.next();
+        for (Iterator<Term> it = extractedTerms.iterator(); it.hasNext(); ) {
+            Term t = it.next();
             if (t.field().equals(FieldNames.FULLTEXT)) {
                 relevantTerms.add(t);
             } else {
@@ -231,14 +231,14 @@ public abstract class AbstractExcerpt implements HighlightingExcerptProvider {
      */
     private TermPositionVector createTermPositionVector(String text) {
         // term -> TermVectorOffsetInfo[]
-        final SortedMap termMap = new TreeMap();
+        final SortedMap<String, TermVectorOffsetInfo[]> termMap = new TreeMap<String, TermVectorOffsetInfo[]>();
         Reader r = new StringReader(text);
         TokenStream ts = index.getTextAnalyzer().tokenStream("", r);
         Token t;
         try {
             while ((t = ts.next()) != null) {
                 TermVectorOffsetInfo[] info =
-                        (TermVectorOffsetInfo[]) termMap.get(t.termText());
+                        termMap.get(t.termText());
                 if (info == null) {
                     info = new TermVectorOffsetInfo[1];
                 } else {
@@ -257,7 +257,7 @@ public abstract class AbstractExcerpt implements HighlightingExcerptProvider {
         return new TermPositionVector() {
 
             private String[] terms =
-                    (String[]) termMap.keySet().toArray(new String[termMap.size()]);
+                    termMap.keySet().toArray(new String[termMap.size()]);
 
             public int[] getTermPositions(int index) {
                 return null;
@@ -266,7 +266,7 @@ public abstract class AbstractExcerpt implements HighlightingExcerptProvider {
             public TermVectorOffsetInfo[] getOffsets(int index) {
                 TermVectorOffsetInfo[] info = TermVectorOffsetInfo.EMPTY_OFFSET_INFO;
                 if (index >= 0 && index < terms.length) {
-                    info = (TermVectorOffsetInfo[]) termMap.get(terms[index]);
+                    info = termMap.get(terms[index]);
                 }
                 return info;
             }
@@ -286,7 +286,7 @@ public abstract class AbstractExcerpt implements HighlightingExcerptProvider {
             public int[] getTermFrequencies() {
                 int[] freqs = new int[terms.length];
                 for (int i = 0; i < terms.length; i++) {
-                    freqs[i] = ((TermVectorOffsetInfo[]) termMap.get(terms[i])).length;
+                    freqs[i] = termMap.get(terms[i]).length;
                 }
                 return freqs;
             }

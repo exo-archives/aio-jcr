@@ -19,10 +19,8 @@ package org.exoplatform.services.jcr.impl.core.query.lucene;
 import java.io.IOException;
 
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.document.FieldSelectorResult;
-import org.apache.lucene.document.MapFieldSelector;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.Hits;
 
