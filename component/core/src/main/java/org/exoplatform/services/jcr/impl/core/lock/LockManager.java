@@ -36,8 +36,9 @@ public interface LockManager {
    */
   public void addLockToken(String sessionId, String lt);
 
-  public Lock addPendingLock(NodeImpl node, boolean isDeep, boolean isSessionScoped, long timeOut)
-      throws LockException, RepositoryException;
+  public Lock addPendingLock(NodeImpl node, boolean isDeep, boolean isSessionScoped, long timeOut) throws LockException,
+                                                                                                  RepositoryException;
+
   /**
    * Returns the Lock object that applies to a node. This may be either a lock
    * on this node itself or a deep lock on a node above this node.
@@ -49,6 +50,12 @@ public interface LockManager {
    */
   public LockImpl getLock(NodeImpl node) throws LockException, RepositoryException;
 
+  /**
+   * Return lock tokens enshrined by session
+   * 
+   * @param sessionID - Id of session.
+   * @return array of lock tokens.
+   */
   public String[] getLockTokens(String sessionID);
 
   /**
@@ -62,7 +69,6 @@ public interface LockManager {
    */
   public boolean holdsLock(NodeData node) throws RepositoryException;
 
-
   /**
    * Returns <code>true</code> if this node is locked either as a result of a
    * lock held by this node or by a deep lock on a node above this node;
@@ -74,9 +80,8 @@ public interface LockManager {
    *         otherwise returns <code>false</code>
    * @see javax.jcr.Node#isLocked
    */
-  public boolean isLocked(NodeData node) ;
+  public boolean isLocked(NodeData node);
 
-  
   /**
    * Returns <code>true</code> if the specified session holds a lock on the
    * given node; otherwise returns <code>false</code>. <p/> Note that
@@ -90,7 +95,6 @@ public interface LockManager {
    */
   public boolean isLockHolder(NodeImpl node) throws RepositoryException;
 
-
   /**
    * Invoked by a session to inform that a lock token has been removed.
    * 
@@ -98,6 +102,5 @@ public interface LockManager {
    * @param lt removed lock token
    */
   public void removeLockToken(String sessionId, String lt);
-
 
 }
