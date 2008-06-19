@@ -31,6 +31,7 @@ import javax.jcr.query.QueryResult;
 import javax.jcr.query.RowIterator;
 
 import org.apache.commons.collections.iterators.IteratorChain;
+
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;

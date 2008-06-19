@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.usecases.query;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.Iterator;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;

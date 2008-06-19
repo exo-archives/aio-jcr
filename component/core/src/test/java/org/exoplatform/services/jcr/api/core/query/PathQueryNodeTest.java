@@ -22,19 +22,11 @@ import org.apache.jackrabbit.test.AbstractJCRTest;
 
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.Constants;
-
-import junit.framework.TestCase;
-
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.query.DefaultQueryNodeFactory;
 import org.exoplatform.services.jcr.impl.core.query.QueryRootNode;
 import org.exoplatform.services.jcr.impl.core.query.xpath.XPathQueryBuilder;
-//import org.apache.jackrabbit.spi.commons.namespace.NamespaceResolver;
-//import org.apache.jackrabbit.spi.commons.name.NameConstants;
-//import org.apache.jackrabbit.spi.Name;
-//import org.apache.jackrabbit.spi.commons.conversion.NameResolver;
-//import org.apache.jackrabbit.spi.commons.conversion.DefaultNamePathResolver;
 
 public class PathQueryNodeTest extends AbstractJCRTest {
 

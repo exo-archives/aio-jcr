@@ -32,6 +32,7 @@ import javax.jcr.NamespaceException;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;

@@ -19,11 +19,13 @@ package org.exoplatform.services.jcr.impl.core;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.picocontainer.Startable;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.impl.proccess.WorkerThread;
 import org.exoplatform.services.log.ExoLogger;
-import org.picocontainer.Startable;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>

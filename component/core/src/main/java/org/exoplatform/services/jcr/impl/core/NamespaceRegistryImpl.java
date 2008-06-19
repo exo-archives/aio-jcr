@@ -27,6 +27,7 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.core.NamespaceAccessor;
 import org.exoplatform.services.log.ExoLogger;
 

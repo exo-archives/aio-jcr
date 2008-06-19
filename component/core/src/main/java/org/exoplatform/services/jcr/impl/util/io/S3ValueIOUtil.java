@@ -16,31 +16,31 @@
  */
 package org.exoplatform.services.jcr.impl.util.io;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
+import java.util.List;
 
-import org.exoplatform.services.log.ExoLogger;
+import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CleanableFileStreamValueData;
-import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
 
 import com.amazon.s3.AWSAuthConnection;
 import com.amazon.s3.GetResponse;
-import com.amazon.s3.Response;
-import com.amazon.s3.S3Object;
 import com.amazon.s3.ListBucketResponse;
 import com.amazon.s3.ListEntry;
+import com.amazon.s3.Response;
+import com.amazon.s3.S3Object;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>

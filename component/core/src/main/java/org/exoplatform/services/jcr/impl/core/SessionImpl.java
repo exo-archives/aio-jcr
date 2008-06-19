@@ -50,7 +50,11 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.observation.ObservationManager;
 import javax.jcr.version.VersionException;
 
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.AccessManager;
@@ -83,8 +87,6 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
 /**
  * Created by The eXo Platform SAS.

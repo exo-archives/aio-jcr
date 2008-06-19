@@ -16,8 +16,8 @@
  */
 package org.exoplatform.services.jcr.dataflow.persistent;
 
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 
 /**
  * Created by The eXo Platform SAS. </br>

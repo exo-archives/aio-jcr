@@ -6,6 +6,7 @@ import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.log.ExoLogger;
 
 /**

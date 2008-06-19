@@ -16,17 +16,23 @@
  */
 package org.exoplatform.services.jcr.impl.core.query.lucene.spell;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
+import org.apache.lucene.analysis.Token;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.spell.Dictionary;
 import org.apache.lucene.search.spell.LuceneDictionary;
 import org.apache.lucene.search.spell.SpellChecker;
+import org.apache.lucene.store.AlreadyClosedException;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.NativeFSLockFactory;
-import org.apache.lucene.store.AlreadyClosedException;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.Token;
 
 import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
 import org.exoplatform.services.jcr.impl.core.query.QueryRootNode;
@@ -35,12 +41,6 @@ import org.exoplatform.services.jcr.impl.core.query.TraversingQueryNodeVisitor;
 import org.exoplatform.services.jcr.impl.core.query.lucene.FieldNames;
 import org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex;
 import org.exoplatform.services.log.ExoLogger;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * <code>LuceneSpellChecker</code> implements a spell checker based on the

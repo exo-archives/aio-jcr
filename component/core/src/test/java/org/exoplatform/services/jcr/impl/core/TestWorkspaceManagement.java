@@ -17,8 +17,6 @@
 package org.exoplatform.services.jcr.impl.core;
 
 import java.io.File;
-import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.jcr.Node;

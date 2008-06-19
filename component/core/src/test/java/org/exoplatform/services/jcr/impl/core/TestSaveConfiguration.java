@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.impl.core;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryEntry;

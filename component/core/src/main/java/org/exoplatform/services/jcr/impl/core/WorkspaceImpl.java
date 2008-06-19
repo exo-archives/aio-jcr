@@ -43,7 +43,10 @@ import javax.jcr.query.QueryManager;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
 
+import org.xml.sax.ContentHandler;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.core.ExtendedWorkspace;
@@ -67,7 +70,6 @@ import org.exoplatform.services.jcr.impl.xml.ExportImportFactory;
 import org.exoplatform.services.jcr.impl.xml.importing.ContentImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
 import org.exoplatform.services.log.ExoLogger;
-import org.xml.sax.ContentHandler;
 
 /**
  * Created by The eXo Platform SAS.

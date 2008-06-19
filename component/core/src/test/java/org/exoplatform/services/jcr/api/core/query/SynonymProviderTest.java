@@ -16,8 +16,8 @@
  */
 package org.exoplatform.services.jcr.api.core.query;
 
-import javax.jcr.RepositoryException;
 import javax.jcr.Node;
+import javax.jcr.RepositoryException;
 
 /**
  * <code>SynonymProviderTest</code> contains test cases for the

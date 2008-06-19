@@ -18,9 +18,10 @@ package org.exoplatform.services.jcr.impl.core;
 
 import javax.jcr.RepositoryException;
 
+import org.picocontainer.Startable;
+
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.picocontainer.Startable;
 
 /**
  * Created by The eXo Platform SAS. 

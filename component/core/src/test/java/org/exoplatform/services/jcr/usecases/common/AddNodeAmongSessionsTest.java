@@ -8,6 +8,7 @@ import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 import org.exoplatform.services.log.ExoLogger;

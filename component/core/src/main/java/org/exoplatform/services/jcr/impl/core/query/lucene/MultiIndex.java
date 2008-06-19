@@ -35,7 +35,6 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.collections.iterators.EmptyIterator;
 import org.apache.commons.logging.Log;
-
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;

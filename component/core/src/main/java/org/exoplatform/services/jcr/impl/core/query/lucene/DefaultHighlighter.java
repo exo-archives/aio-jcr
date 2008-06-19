@@ -23,9 +23,9 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.lucene.document.Field;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermPositionVector;
 import org.apache.lucene.index.TermVectorOffsetInfo;
-import org.apache.lucene.index.Term;
 
 import org.exoplatform.services.jcr.impl.util.ISO9075;
 

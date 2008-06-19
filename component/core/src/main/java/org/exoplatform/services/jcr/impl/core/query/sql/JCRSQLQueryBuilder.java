@@ -16,6 +16,22 @@
  */
 package org.exoplatform.services.jcr.impl.core.query.sql;
 
+import java.io.StringReader;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
+import javax.jcr.NamespaceException;
+import javax.jcr.RepositoryException;
+import javax.jcr.query.InvalidQueryException;
+
+import org.apache.commons.collections.map.ReferenceMap;
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.commons.utils.ISO8601;
@@ -32,42 +48,14 @@ import org.exoplatform.services.jcr.impl.core.query.NotQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.OrQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.OrderQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.PathQueryNode;
+import org.exoplatform.services.jcr.impl.core.query.PropertyFunctionQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.QueryConstants;
 import org.exoplatform.services.jcr.impl.core.query.QueryNode;
+import org.exoplatform.services.jcr.impl.core.query.QueryNodeFactory;
 import org.exoplatform.services.jcr.impl.core.query.QueryRootNode;
 import org.exoplatform.services.jcr.impl.core.query.RelationQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.TextsearchQueryNode;
-import org.exoplatform.services.jcr.impl.core.query.PropertyFunctionQueryNode;
-import org.exoplatform.services.jcr.impl.core.query.QueryNodeFactory;
 import org.exoplatform.services.log.ExoLogger;
-//import org.apache.jackrabbit.spi.commons.conversion.NameException;
-//import org.apache.jackrabbit.spi.commons.name.NameConstants;
-//import org.apache.jackrabbit.spi.commons.name.NameFactoryImpl;
-//import org.apache.jackrabbit.spi.commons.name.PathBuilder;
-//import org.apache.jackrabbit.spi.Name;
-//import org.apache.jackrabbit.spi.Path;
-//import org.apache.jackrabbit.spi.commons.conversion.MalformedPathException;
-//import org.apache.jackrabbit.spi.commons.conversion.NameResolver;
-//import org.apache.jackrabbit.util.ISO8601;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-import org.apache.commons.collections.map.ReferenceMap;
-
-import javax.jcr.query.InvalidQueryException;
-import javax.jcr.NamespaceException;
-//import javax.jcr.Node;
-import javax.jcr.RepositoryException;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Map;
-import java.io.StringReader;
 
 /**
  * Implements the query builder for the JCR SQL syntax.

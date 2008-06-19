@@ -18,13 +18,14 @@ package org.exoplatform.services.jcr.impl.core.query.lucene;
 
 import javax.jcr.RepositoryException;
 
+import org.w3c.dom.Element;
+
 import org.apache.lucene.analysis.Analyzer;
 
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.core.query.QueryHandlerContext;
-import org.w3c.dom.Element;
 
 /**
  * <code>IndexingConfiguration</code> defines the interface to check whether a

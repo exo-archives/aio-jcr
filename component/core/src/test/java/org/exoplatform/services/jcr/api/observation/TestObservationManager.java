@@ -30,8 +30,8 @@ import javax.jcr.observation.EventListenerIterator;
 import javax.jcr.observation.ObservationManager;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
-import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 
 /**
  * Created by The eXo Platform SAS.

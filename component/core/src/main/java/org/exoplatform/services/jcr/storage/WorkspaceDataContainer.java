@@ -20,8 +20,6 @@ import java.util.Calendar;
 
 import javax.jcr.RepositoryException;
 
-import org.exoplatform.services.jcr.impl.storage.jdbc.JDBCStorageConnection;
-
 /**
  * Created by The eXo Platform SAS.<br>
  * 

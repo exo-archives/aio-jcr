@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.api.writing;
 
 import java.util.Calendar;
 
-import javax.jcr.InvalidItemStateException;
 import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;

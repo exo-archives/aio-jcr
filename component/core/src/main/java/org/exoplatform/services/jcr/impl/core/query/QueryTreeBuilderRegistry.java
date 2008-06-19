@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.jcr.query.InvalidQueryException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.log.ExoLogger;
 
 /**

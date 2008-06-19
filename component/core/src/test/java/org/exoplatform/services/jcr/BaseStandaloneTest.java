@@ -16,6 +16,7 @@ import javax.jcr.Workspace;
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;

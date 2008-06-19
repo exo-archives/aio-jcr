@@ -22,8 +22,9 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.datamodel.QPath;
+
 import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.log.ExoLogger;
 
 /**

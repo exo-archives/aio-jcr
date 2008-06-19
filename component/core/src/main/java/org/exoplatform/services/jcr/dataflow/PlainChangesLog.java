@@ -18,6 +18,8 @@ package org.exoplatform.services.jcr.dataflow;
 
 import java.util.List;
 
+import org.exoplatform.services.jcr.observation.ExtendedEventType;
+
 /**
  * Created by The eXo Platform SAS.<br/>
  * Plain changes log implementation (i.e. no nested logs inside)

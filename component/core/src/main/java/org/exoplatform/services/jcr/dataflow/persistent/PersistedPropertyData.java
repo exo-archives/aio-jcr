@@ -21,8 +21,8 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.ItemDataVisitor;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 
 /**

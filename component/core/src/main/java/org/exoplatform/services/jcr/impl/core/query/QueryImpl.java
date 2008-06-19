@@ -32,6 +32,7 @@ import javax.jcr.query.QueryResult;
 import javax.jcr.version.VersionException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;

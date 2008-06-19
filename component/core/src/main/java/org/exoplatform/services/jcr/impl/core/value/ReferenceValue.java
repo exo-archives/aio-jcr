@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.impl.core.value;
 import java.io.IOException;
 import java.util.Calendar;
 
-import javax.jcr.Node;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;

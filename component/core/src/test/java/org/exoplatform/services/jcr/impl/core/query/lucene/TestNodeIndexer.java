@@ -28,6 +28,7 @@ import javax.jcr.PropertyType;
 import org.apache.commons.logging.Log;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.services.document.DocumentReaderService;
 import org.exoplatform.services.document.impl.DocumentReaderServiceImpl;

@@ -16,13 +16,14 @@
  */
 package org.exoplatform.services.jcr.impl.core.query.lucene;
 
-import java.util.Set;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.io.IOException;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.log.ExoLogger;
 
 /**

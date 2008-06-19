@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.usecases.common;
 
 import javax.jcr.Node;
-import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.nodetype.NodeType;
 

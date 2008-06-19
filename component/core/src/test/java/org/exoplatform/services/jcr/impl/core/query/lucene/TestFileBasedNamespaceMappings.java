@@ -20,6 +20,7 @@ package org.exoplatform.services.jcr.impl.core.query.lucene;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Properties;
+
 import junit.framework.TestCase;
 
 /**

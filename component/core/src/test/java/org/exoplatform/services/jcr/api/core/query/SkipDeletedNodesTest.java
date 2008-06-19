@@ -16,14 +16,14 @@
  */
 package org.exoplatform.services.jcr.api.core.query;
 
-import javax.jcr.Session;
-import javax.jcr.RepositoryException;
+import javax.jcr.InvalidItemStateException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
-import javax.jcr.InvalidItemStateException;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.jcr.query.Query;
-import javax.jcr.query.QueryResult;
 import javax.jcr.query.QueryManager;
+import javax.jcr.query.QueryResult;
 
 /**
  * Tests if the NodeIterator returned by {@link javax.jcr.query.QueryResult#getNodes()}

@@ -20,12 +20,10 @@ import javax.jcr.InvalidItemStateException;
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
-import org.exoplatform.services.jcr.impl.core.NodeImpl;
 
 /**
  * Created by The eXo Platform SAS. 

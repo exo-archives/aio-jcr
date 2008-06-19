@@ -16,12 +16,12 @@
  */
 package org.exoplatform.services.jcr.impl.core.query.lucene;
 
-import org.apache.lucene.search.Scorer;
-import org.apache.lucene.search.Weight;
-import org.apache.lucene.search.Searcher;
-import org.apache.lucene.index.IndexReader;
-
 import java.io.IOException;
+
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.search.Scorer;
+import org.apache.lucene.search.Searcher;
+import org.apache.lucene.search.Weight;
 
 /**
  * <code>AbstractWeight</code> implements base functionality for custom lucene

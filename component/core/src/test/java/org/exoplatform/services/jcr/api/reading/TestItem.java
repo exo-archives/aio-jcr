@@ -28,8 +28,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
-import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
-import org.exoplatform.services.jcr.impl.core.value.StringValue;
 
 /**
  * Created by The eXo Platform SAS.

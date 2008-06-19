@@ -1,8 +1,8 @@
 package org.exoplatform.services.jcr.api.core.query.lucene.hits;
 
-import org.exoplatform.services.jcr.impl.core.query.lucene.hits.ArrayHits;
-
 import junit.framework.TestCase;
+
+import org.exoplatform.services.jcr.impl.core.query.lucene.hits.ArrayHits;
 
 public class ArrayHitsTest extends TestCase {
 

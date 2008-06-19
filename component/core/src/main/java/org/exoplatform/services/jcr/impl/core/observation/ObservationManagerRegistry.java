@@ -25,6 +25,7 @@ import javax.jcr.observation.EventListener;
 import javax.jcr.observation.EventListenerIterator;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.SessionRegistry;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;

@@ -1,16 +1,7 @@
 package org.exoplatform.services.jcr.usecases.version;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.Property;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Value;
 import javax.jcr.version.Version;
-import javax.jcr.version.VersionHistory;
 
 import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 

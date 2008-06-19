@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.api.reading;
 
 import java.util.Calendar;
 
-import javax.jcr.Credentials;
 import javax.jcr.LoginException;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;

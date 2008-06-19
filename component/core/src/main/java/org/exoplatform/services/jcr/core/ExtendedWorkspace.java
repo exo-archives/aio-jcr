@@ -27,8 +27,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Workspace;
 import javax.jcr.nodetype.ConstraintViolationException;
 
-import org.exoplatform.services.ext.action.InvocationContext;
-
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: ExtendedWorkspace.java 12649 2008-04-02 12:46:37Z ksm $

@@ -19,14 +19,13 @@ package org.exoplatform.services.jcr.impl.core.query.xpath;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.exoplatform.services.jcr.impl.core.LocationFactory;
-import org.exoplatform.services.jcr.impl.core.query.QueryTreeBuilder;
-import org.exoplatform.services.jcr.impl.core.query.QueryRootNode;
-import org.exoplatform.services.jcr.impl.core.query.QueryNodeFactory;
-//import org.apache.jackrabbit.spi.commons.conversion.NameResolver;
-
 import javax.jcr.query.InvalidQueryException;
 import javax.jcr.query.Query;
+
+import org.exoplatform.services.jcr.impl.core.LocationFactory;
+import org.exoplatform.services.jcr.impl.core.query.QueryNodeFactory;
+import org.exoplatform.services.jcr.impl.core.query.QueryRootNode;
+import org.exoplatform.services.jcr.impl.core.query.QueryTreeBuilder;
 
 /**
  * Implements the XPath query tree builder.

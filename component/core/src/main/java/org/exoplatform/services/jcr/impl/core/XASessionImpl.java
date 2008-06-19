@@ -26,17 +26,18 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
+import org.objectweb.transaction.jta.ResourceManagerEvent;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.core.XASession;
 import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableResourceManager;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.ConversationState;
-import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.transaction.TransactionException;
 import org.exoplatform.services.transaction.TransactionService;
 import org.exoplatform.services.transaction.impl.jotm.TransactionServiceJotmImpl;
-import org.objectweb.transaction.jta.ResourceManagerEvent;
 
 /**
  * Created by The eXo Platform SAS.

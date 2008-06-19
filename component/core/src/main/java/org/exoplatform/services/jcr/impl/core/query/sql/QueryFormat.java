@@ -16,6 +16,16 @@
  */
 package org.exoplatform.services.jcr.impl.core.query.sql;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
+
+import javax.jcr.NamespaceException;
+import javax.jcr.RepositoryException;
+import javax.jcr.query.InvalidQueryException;
+
 import org.exoplatform.commons.utils.ISO8601;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -30,28 +40,13 @@ import org.exoplatform.services.jcr.impl.core.query.NotQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.OrQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.OrderQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.PathQueryNode;
+import org.exoplatform.services.jcr.impl.core.query.PropertyFunctionQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.QueryConstants;
 import org.exoplatform.services.jcr.impl.core.query.QueryNode;
 import org.exoplatform.services.jcr.impl.core.query.QueryNodeVisitor;
 import org.exoplatform.services.jcr.impl.core.query.QueryRootNode;
 import org.exoplatform.services.jcr.impl.core.query.RelationQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.TextsearchQueryNode;
-import org.exoplatform.services.jcr.impl.core.query.PropertyFunctionQueryNode;
-//import org.apache.jackrabbit.spi.commons.name.NameConstants;
-//import org.apache.jackrabbit.spi.Name;
-//import org.apache.jackrabbit.spi.Path;
-//import org.apache.jackrabbit.util.ISO8601;
-//import org.apache.jackrabbit.spi.commons.conversion.NameResolver;
-
-import javax.jcr.query.InvalidQueryException;
-import javax.jcr.NamespaceException;
-import javax.jcr.RepositoryException;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TimeZone;
 
 /**
  * Implements the query node tree serialization into a String.

@@ -22,6 +22,7 @@ import java.util.Enumeration;
 import org.apache.commons.logging.Log;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+
 import org.exoplatform.services.log.ExoLogger;
 
 /**

@@ -23,6 +23,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.lock.LockException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.config.LockPersisterEntry;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;

@@ -42,7 +42,6 @@ public class DefaultQueryNodeFactory implements QueryNodeFactory {
 
   public DefaultQueryNodeFactory() {
     this(VALID_SYSTEM_INDEX_NODE_TYPE_NAMES);
-    // this.validJcrSystemNodeTypeNames = validJcrSystemNodeTypeNames;
   }
 
   /**

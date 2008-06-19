@@ -16,11 +16,21 @@
  */
 package org.exoplatform.services.jcr.impl.core.query.xpath;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
+
+import javax.jcr.NamespaceException;
+import javax.jcr.RepositoryException;
+import javax.jcr.query.InvalidQueryException;
+
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.query.AndQueryNode;
+import org.exoplatform.services.jcr.impl.core.query.DefaultQueryNodeVisitor;
 import org.exoplatform.services.jcr.impl.core.query.DerefQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.ExactQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.LocationStepQueryNode;
@@ -29,31 +39,15 @@ import org.exoplatform.services.jcr.impl.core.query.NotQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.OrQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.OrderQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.PathQueryNode;
+import org.exoplatform.services.jcr.impl.core.query.PropertyFunctionQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.QueryConstants;
 import org.exoplatform.services.jcr.impl.core.query.QueryNode;
 import org.exoplatform.services.jcr.impl.core.query.QueryNodeVisitor;
 import org.exoplatform.services.jcr.impl.core.query.QueryRootNode;
 import org.exoplatform.services.jcr.impl.core.query.RelationQueryNode;
 import org.exoplatform.services.jcr.impl.core.query.TextsearchQueryNode;
-import org.exoplatform.services.jcr.impl.core.query.PropertyFunctionQueryNode;
-import org.exoplatform.services.jcr.impl.core.query.DefaultQueryNodeVisitor;
 import org.exoplatform.services.jcr.impl.util.ISO9075;
 import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
-//import org.apache.jackrabbit.spi.Name;
-//import org.apache.jackrabbit.spi.Path;
-//import org.apache.jackrabbit.util.ISO8601;
-//import org.apache.jackrabbit.util.ISO9075;
-//import org.apache.jackrabbit.spi.commons.conversion.NameResolver;
-//import org.apache.jackrabbit.spi.commons.name.NameFactoryImpl;
-
-import javax.jcr.query.InvalidQueryException;
-import javax.jcr.NamespaceException;
-import javax.jcr.RepositoryException;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.TimeZone;
 
 /**
  * Implements the query node tree serialization into a String.

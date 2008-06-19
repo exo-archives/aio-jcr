@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.impl.core.query.lucene;
 import java.io.IOException;
 
 import org.apache.lucene.search.Query;
+
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.Constants;
 

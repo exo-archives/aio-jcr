@@ -16,10 +16,10 @@
  */
 package org.exoplatform.services.jcr.api.core.query;
 
-import javax.jcr.RepositoryException;
 import javax.jcr.Node;
-import javax.jcr.query.QueryManager;
+import javax.jcr.RepositoryException;
 import javax.jcr.query.Query;
+import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 
 /**

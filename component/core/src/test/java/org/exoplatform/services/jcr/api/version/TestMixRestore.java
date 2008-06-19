@@ -2,8 +2,6 @@ package org.exoplatform.services.jcr.api.version;
 
 import javax.jcr.Node;
 import javax.jcr.version.Version;
-import javax.jcr.version.VersionHistory;
-import javax.jcr.Item;
 
 /**
  * Created by The eXo Platform SAS

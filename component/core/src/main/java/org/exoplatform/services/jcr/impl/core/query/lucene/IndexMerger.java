@@ -29,6 +29,7 @@ import org.apache.commons.collections.buffer.UnboundedFifoBuffer;
 import org.apache.commons.logging.Log;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
+
 import org.exoplatform.services.jcr.config.QueryHandlerEntry;
 import org.exoplatform.services.log.ExoLogger;
 

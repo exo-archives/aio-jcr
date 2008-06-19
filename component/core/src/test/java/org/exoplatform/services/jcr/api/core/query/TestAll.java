@@ -18,11 +18,11 @@ package org.exoplatform.services.jcr.api.core.query;
 
 //import org.apache.jackrabbit.core.query.lucene.hits.ArrayHitsTest;
 
-import org.exoplatform.services.jcr.api.core.query.lucene.hits.ArrayHitsTest;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import org.exoplatform.services.jcr.api.core.query.lucene.hits.ArrayHitsTest;
 
 /**
  * Test suite that includes all testcases for the Search module.

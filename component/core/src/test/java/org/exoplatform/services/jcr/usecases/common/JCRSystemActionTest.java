@@ -4,7 +4,6 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
 import javax.jcr.Workspace;
 
 import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;

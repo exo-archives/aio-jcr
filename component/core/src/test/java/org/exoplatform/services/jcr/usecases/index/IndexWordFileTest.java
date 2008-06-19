@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.usecases.index;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Calendar;
 

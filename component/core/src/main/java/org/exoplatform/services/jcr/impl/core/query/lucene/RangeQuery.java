@@ -37,6 +37,7 @@ import org.apache.lucene.search.Scorer;
 import org.apache.lucene.search.Searcher;
 import org.apache.lucene.search.Similarity;
 import org.apache.lucene.search.Weight;
+
 import org.exoplatform.services.log.ExoLogger;
 
 /**

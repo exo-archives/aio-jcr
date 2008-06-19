@@ -16,8 +16,6 @@
  */
 package org.exoplatform.services.jcr.usecases.index;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Calendar;
 
@@ -26,7 +24,6 @@ import javax.jcr.NodeIterator;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 
-import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 
 /**

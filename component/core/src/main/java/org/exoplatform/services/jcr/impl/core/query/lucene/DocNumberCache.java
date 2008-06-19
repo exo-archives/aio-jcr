@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.impl.core.query.lucene;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.log.ExoLogger;
 
 /**

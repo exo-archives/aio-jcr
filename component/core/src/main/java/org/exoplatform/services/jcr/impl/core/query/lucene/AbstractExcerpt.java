@@ -38,6 +38,7 @@ import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.index.TermPositionVector;
 import org.apache.lucene.index.TermVectorOffsetInfo;
 import org.apache.lucene.search.Query;
+
 import org.exoplatform.services.log.ExoLogger;
 
 /**

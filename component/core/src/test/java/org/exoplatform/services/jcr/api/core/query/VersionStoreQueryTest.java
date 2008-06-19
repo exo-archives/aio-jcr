@@ -16,9 +16,10 @@
  */
 package org.exoplatform.services.jcr.api.core.query;
 
-import javax.jcr.RepositoryException;
-import javax.jcr.Node;
 import java.util.Calendar;
+
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
 
 /**
  * <code>VersionStoreQueryTest</code> tests queries against the version store.

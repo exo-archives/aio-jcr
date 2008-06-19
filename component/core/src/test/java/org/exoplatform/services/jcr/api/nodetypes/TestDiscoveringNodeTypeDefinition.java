@@ -6,7 +6,6 @@ import javax.jcr.nodetype.NodeType;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
-import org.exoplatform.services.jcr.impl.core.value.StringValue;
 
 /**
  * Created by The eXo Platform SAS.

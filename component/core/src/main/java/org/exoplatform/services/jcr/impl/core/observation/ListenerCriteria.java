@@ -18,8 +18,6 @@ package org.exoplatform.services.jcr.impl.core.observation;
 
 import javax.jcr.RepositoryException;
 
-import org.exoplatform.services.jcr.impl.core.SessionImpl;
-
 
 /**
  * Created by The eXo Platform SAS.

@@ -31,9 +31,11 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.ValueFactory;
 
-import org.apache.jackrabbit.test.AbstractJCRTest;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.hsqldb.DatabaseManager;
+
+import org.apache.jackrabbit.test.AbstractJCRTest;
+
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 
 /**
  * "Test case" that makes sure that the test repository is properly

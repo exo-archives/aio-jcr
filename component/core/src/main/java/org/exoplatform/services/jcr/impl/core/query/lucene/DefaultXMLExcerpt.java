@@ -16,9 +16,9 @@
  */
 package org.exoplatform.services.jcr.impl.core.query.lucene;
 
-import org.apache.lucene.index.TermPositionVector;
-
 import java.io.IOException;
+
+import org.apache.lucene.index.TermPositionVector;
 
 /**
  * <code>DefaultXMLExcerpt</code> creates an XML excerpt of a matching node.

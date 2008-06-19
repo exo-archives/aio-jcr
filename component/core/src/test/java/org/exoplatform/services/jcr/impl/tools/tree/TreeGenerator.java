@@ -20,9 +20,8 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.impl.tools.tree.generator.NodeGenerator;
-import org.exoplatform.services.jcr.impl.tools.tree.generator.PropertyGenerator;
-import org.exoplatform.services.jcr.impl.tools.tree.generator.ValueGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**

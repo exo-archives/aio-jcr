@@ -16,13 +16,14 @@
  */
 package org.exoplatform.services.jcr.api.core.query;
 
-import javax.jcr.Node;
-import java.io.File;
-import java.io.InputStream;
-import java.io.FileInputStream;
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.Calendar;
+
+import javax.jcr.Node;
 
 /**
  * <code>TextExtractorTest</code> implements a file / folder import from the

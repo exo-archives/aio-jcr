@@ -20,6 +20,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.chain.Context;
+
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 
 /**

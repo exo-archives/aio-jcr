@@ -23,8 +23,8 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.commons.utils.QName;
-import org.exoplatform.services.jcr.impl.core.JCRPath;
 import org.exoplatform.services.log.ExoLogger;
 
 /**

@@ -26,6 +26,7 @@ import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
 
 import org.apache.commons.collections.map.ReferenceMap;
+
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.StandaloneContainer;

@@ -27,7 +27,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.util.TraversingItemVisitor;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
-import org.exoplatform.services.jcr.impl.core.value.StringValue;
 
 /**
  * Created by The eXo Platform SAS.

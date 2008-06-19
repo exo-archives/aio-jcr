@@ -25,6 +25,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.ScoreDocComparator;
 import org.apache.lucene.search.SortComparator;
 import org.apache.lucene.search.SortField;
+
 import org.exoplatform.services.jcr.impl.core.query.lucene.SharedFieldCache.StringIndex;
 
 /**

@@ -16,12 +16,13 @@
  */
 package org.exoplatform.services.jcr.api.core.query;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.query.InvalidQueryException;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * <code>UpperLowerCaseQueryTest</code> tests the functions fn:lower-case() and

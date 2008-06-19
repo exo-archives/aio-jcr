@@ -23,6 +23,7 @@ import javax.jcr.Node;
 
 import org.apache.commons.logging.Log;
 import org.apache.lucene.index.IndexReader;
+
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.impl.core.query.SearchManager;

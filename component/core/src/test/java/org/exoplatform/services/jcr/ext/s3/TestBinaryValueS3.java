@@ -16,13 +16,14 @@
  */
 package org.exoplatform.services.jcr.ext.s3;
 
-import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.Calendar;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
+
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 
 

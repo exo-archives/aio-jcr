@@ -21,7 +21,7 @@ import java.util.HashMap;
 import javax.jcr.Item;
 
 import org.apache.commons.chain.Context;
-import org.apache.poi.hssf.record.formula.functions.T;
+
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.impl.core.ItemImpl;
 

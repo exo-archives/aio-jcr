@@ -30,6 +30,7 @@ import javax.sql.DataSource;
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.database.jdbc.DBSchemaCreator;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.config.ContainerEntry;

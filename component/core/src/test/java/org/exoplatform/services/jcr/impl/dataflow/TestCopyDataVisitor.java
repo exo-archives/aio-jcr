@@ -21,7 +21,6 @@ import java.util.Calendar;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;

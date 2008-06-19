@@ -16,10 +16,12 @@
  */
 package org.exoplatform.services.jcr.api.core.query;
 
-import javax.jcr.*;
+import java.util.Calendar;
+
+import javax.jcr.Node;
+import javax.jcr.Value;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
-import java.util.Calendar;
 
 /**
  * Performs various query test cases.

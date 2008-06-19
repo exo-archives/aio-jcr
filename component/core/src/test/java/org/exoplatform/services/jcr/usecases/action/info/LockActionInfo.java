@@ -16,17 +16,11 @@
  */
 package org.exoplatform.services.jcr.usecases.action.info;
 
-import javax.jcr.AccessDeniedException;
-import javax.jcr.InvalidItemStateException;
-import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
-import javax.jcr.lock.LockException;
-import javax.jcr.nodetype.ConstraintViolationException;
-import javax.jcr.nodetype.NoSuchNodeTypeException;
-import javax.jcr.version.VersionException;
 
 import org.apache.commons.chain.Context;
+
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 
 /**

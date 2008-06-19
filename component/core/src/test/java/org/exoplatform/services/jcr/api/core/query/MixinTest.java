@@ -16,18 +16,13 @@
  */
 package org.exoplatform.services.jcr.api.core.query;
 
-import javax.jcr.RepositoryException;
-import javax.jcr.Node;
-
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
-import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
-
-// import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
-
 import java.io.ByteArrayInputStream;
 import java.util.Calendar;
+
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
+
+import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 
 /**
  * Tests if mixin types are queried correctly when using element test: element()

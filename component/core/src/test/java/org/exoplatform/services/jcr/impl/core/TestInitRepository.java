@@ -23,6 +23,7 @@ import javax.jcr.Session;
 import javax.jcr.nodetype.NodeTypeManager;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.access.AccessControlList;

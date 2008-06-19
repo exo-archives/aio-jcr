@@ -25,8 +25,12 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
+
 import org.apache.commons.logging.Log;
 import org.apache.lucene.search.Query;
+
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.query.ErrorLog;
@@ -44,8 +48,6 @@ import org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex;
 import org.exoplatform.services.jcr.impl.core.query.lucene.SpellChecker;
 import org.exoplatform.services.jcr.impl.core.query.lucene.SynonymProvider;
 import org.exoplatform.services.log.ExoLogger;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 /**
  * Created by The eXo Platform SAS.

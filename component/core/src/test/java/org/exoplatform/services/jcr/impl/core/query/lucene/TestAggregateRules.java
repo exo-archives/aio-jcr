@@ -29,9 +29,10 @@ import javax.jcr.query.QueryResult;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.exoplatform.services.jcr.impl.core.query.BaseQueryTest;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
+import org.exoplatform.services.jcr.impl.core.query.BaseQueryTest;
 
 /**
  * Created by The eXo Platform SAS

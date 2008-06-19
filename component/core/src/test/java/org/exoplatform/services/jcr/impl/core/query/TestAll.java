@@ -20,14 +20,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.exoplatform.services.jcr.impl.core.query.lucene.TestAggregateRules;
-import org.exoplatform.services.jcr.impl.core.query.lucene.TestFileBasedNamespaceMappings;
-import org.exoplatform.services.jcr.impl.core.query.lucene.TestIndexRules;
-import org.exoplatform.services.jcr.impl.core.query.lucene.TestNodeIndexer;
-import org.exoplatform.services.jcr.impl.core.query.lucene.TestRemapping;
-import org.exoplatform.services.jcr.impl.core.query.lucene.TestSearchManagerIndexing;
-import org.exoplatform.services.jcr.impl.core.query.lucene.TestSystemSearchManager;
-
 /**
  * Created by The eXo Platform SAS.
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>

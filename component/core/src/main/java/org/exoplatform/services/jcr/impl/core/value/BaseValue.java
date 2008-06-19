@@ -27,6 +27,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.core.value.ExtendedValue;
 import org.exoplatform.services.jcr.core.value.ReadableBinaryValue;
 import org.exoplatform.services.jcr.impl.Constants;
