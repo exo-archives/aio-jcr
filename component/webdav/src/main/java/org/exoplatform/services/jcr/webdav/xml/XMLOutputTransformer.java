@@ -20,7 +20,7 @@ package org.exoplatform.services.jcr.webdav.xml;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.exoplatform.services.jcr.webdav.resource.HierarchicalProperty;
+import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.rest.transformer.OutputEntityTransformer;
 
 /**

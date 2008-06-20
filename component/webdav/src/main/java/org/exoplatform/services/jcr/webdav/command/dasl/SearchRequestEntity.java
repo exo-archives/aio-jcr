@@ -17,7 +17,7 @@
 
 package org.exoplatform.services.jcr.webdav.command.dasl;
 
-import org.exoplatform.services.jcr.webdav.resource.HierarchicalProperty;
+import org.exoplatform.common.util.HierarchicalProperty;
 
 /**
  * Created by The eXo Platform SAS.

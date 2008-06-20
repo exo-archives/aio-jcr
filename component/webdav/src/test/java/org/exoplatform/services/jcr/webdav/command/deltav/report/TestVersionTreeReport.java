@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.jcr.Node;
 import javax.xml.namespace.QName;
 
+import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneWebDavTest;
 import org.exoplatform.services.jcr.webdav.Depth;
 import org.exoplatform.services.jcr.webdav.WebDavStatus;
@@ -33,7 +34,6 @@ import org.exoplatform.services.jcr.webdav.command.deltav.CheckInCommand;
 import org.exoplatform.services.jcr.webdav.command.deltav.ReportCommand;
 import org.exoplatform.services.jcr.webdav.command.deltav.VersionControlCommand;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
-import org.exoplatform.services.jcr.webdav.resource.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.util.DeltaVConstants;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.utils.WebDavProperty;

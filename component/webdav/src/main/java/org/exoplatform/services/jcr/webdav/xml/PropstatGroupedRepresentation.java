@@ -29,8 +29,8 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.xml.namespace.QName;
 
+import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.WebDavStatus;
-import org.exoplatform.services.jcr.webdav.resource.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.resource.Resource;
 
 /**

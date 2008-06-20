@@ -20,7 +20,7 @@ package org.exoplatform.services.jcr.webdav.command.lock;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.webdav.resource.HierarchicalProperty;
+import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.util.PropertyConstants;
 import org.exoplatform.services.log.ExoLogger;
 

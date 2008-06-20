@@ -23,9 +23,9 @@ import java.io.ByteArrayOutputStream;
 import javax.jcr.Node;
 import javax.xml.namespace.QName;
 
+import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.command.OrderPatchCommand;
-import org.exoplatform.services.jcr.webdav.resource.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.XMLInputTransformer;
 import org.exoplatform.services.rest.Response;

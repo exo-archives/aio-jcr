@@ -25,7 +25,7 @@ import java.util.Set;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.exoplatform.services.jcr.webdav.resource.HierarchicalProperty;
+import org.exoplatform.common.util.HierarchicalProperty;
 
 /**
  * Created by The eXo Platform SAS.

@@ -22,11 +22,11 @@ import javax.jcr.Session;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 
+import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.command.dasl.SearchRequestEntity;
 import org.exoplatform.services.jcr.webdav.command.dasl.SearchResultResponseEntity;
 import org.exoplatform.services.jcr.webdav.command.dasl.UnsupportedQueryException;
-import org.exoplatform.services.jcr.webdav.resource.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.rest.Response;
 

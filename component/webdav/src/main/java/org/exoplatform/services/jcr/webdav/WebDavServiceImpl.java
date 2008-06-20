@@ -27,6 +27,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
@@ -53,7 +54,6 @@ import org.exoplatform.services.jcr.webdav.command.deltav.ReportCommand;
 import org.exoplatform.services.jcr.webdav.command.deltav.UnCheckOutCommand;
 import org.exoplatform.services.jcr.webdav.command.deltav.VersionControlCommand;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
-import org.exoplatform.services.jcr.webdav.resource.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.util.NodeTypeUtil;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.XMLInputTransformer;

@@ -24,10 +24,10 @@ import java.util.Map;
 import javax.jcr.Node;
 import javax.xml.namespace.QName;
 
+import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneWebDavTest;
 import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
-import org.exoplatform.services.jcr.webdav.resource.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.util.PropertyConstants;
 import org.exoplatform.services.jcr.webdav.utils.WebDavProperty;
 import org.exoplatform.services.jcr.webdav.utils.XmlUtils;

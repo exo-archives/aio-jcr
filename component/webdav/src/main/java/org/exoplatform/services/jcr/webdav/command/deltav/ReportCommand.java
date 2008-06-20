@@ -27,10 +27,10 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.xml.namespace.QName;
 
+import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.Depth;
 import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.command.deltav.report.VersionTreeResponseEntity;
-import org.exoplatform.services.jcr.webdav.resource.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.resource.ResourceUtil;
 import org.exoplatform.services.jcr.webdav.resource.VersionedCollectionResource;
 import org.exoplatform.services.jcr.webdav.resource.VersionedFileResource;

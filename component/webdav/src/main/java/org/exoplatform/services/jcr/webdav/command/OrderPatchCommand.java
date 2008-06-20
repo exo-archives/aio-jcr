@@ -30,10 +30,10 @@ import javax.jcr.Session;
 import javax.jcr.lock.LockException;
 import javax.xml.namespace.QName;
 
+import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.command.order.OrderMember;
 import org.exoplatform.services.jcr.webdav.command.order.OrderPatchResponseEntity;
-import org.exoplatform.services.jcr.webdav.resource.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.rest.Response;

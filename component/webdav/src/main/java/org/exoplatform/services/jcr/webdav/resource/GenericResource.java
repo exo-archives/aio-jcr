@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.jcr.RepositoryException;
 import javax.xml.namespace.QName;
 
+import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 
 /**

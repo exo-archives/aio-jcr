@@ -19,7 +19,7 @@ package org.exoplatform.services.jcr.webdav;
 
 import java.io.InputStream;
 
-import org.exoplatform.services.jcr.webdav.resource.HierarchicalProperty;
+import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.rest.Response;
 
 /**

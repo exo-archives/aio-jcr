@@ -19,7 +19,7 @@ package org.exoplatform.services.jcr.webdav.command.propfind;
 
 import javax.xml.namespace.QName;
 
-import org.exoplatform.services.jcr.webdav.resource.HierarchicalProperty;
+import org.exoplatform.common.util.HierarchicalProperty;
 
 /**
  * Created by The eXo Platform SARL .<br/> 

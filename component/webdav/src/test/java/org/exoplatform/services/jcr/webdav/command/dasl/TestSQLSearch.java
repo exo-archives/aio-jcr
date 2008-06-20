@@ -23,11 +23,11 @@ import java.io.InputStream;
 
 import javax.jcr.Node;
 
+import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.command.PutCommand;
 import org.exoplatform.services.jcr.webdav.command.SearchCommand;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
-import org.exoplatform.services.jcr.webdav.resource.HierarchicalProperty;
 import org.exoplatform.services.rest.Response;
 import org.exoplatform.services.rest.transformer.SerializableEntity;
 
