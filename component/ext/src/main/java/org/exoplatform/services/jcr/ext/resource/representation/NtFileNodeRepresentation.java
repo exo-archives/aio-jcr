@@ -26,6 +26,7 @@ import javax.jcr.Node;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.ext.resource.NodeRepresentation;
 
 /**
@@ -35,11 +36,12 @@ import org.exoplatform.services.jcr.ext.resource.NodeRepresentation;
 public class NtFileNodeRepresentation implements NodeRepresentation {
 
   private Node node;
-  private Node content;
+  private NodeRepresentation content;
   
-  public NtFileNodeRepresentation(Node node) throws RepositoryException {
+  public NtFileNodeRepresentation(Node node, NodeRepresentation content) throws RepositoryException {
     this.node = node;
-    content = node.getNode("jcr:content");
+    this.content = content;
+    //content = node.getNode("jcr:content");
   }
 
   /* (non-Javadoc)
@@ -53,21 +55,21 @@ public class NtFileNodeRepresentation implements NodeRepresentation {
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getContentLenght()
    */
   public long getContentLenght() throws RepositoryException {
-    return content.getProperty("jcr:data").getLength();
+    return content.getContentLenght();
   }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getMediaType()
    */
   public String getMediaType() throws RepositoryException {
-    return content.getProperty("jcr:mimeType").getString();
+    return content.getMediaType();
   }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getLastModified()
    */
   public long getLastModified() throws RepositoryException {
-    return content.getProperty("jcr:lastModified").getLong();
+    return content.getLastModified();
   }
 
   /* (non-Javadoc)
@@ -80,15 +82,20 @@ public class NtFileNodeRepresentation implements NodeRepresentation {
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperty(java.lang.String)
    */
-  public String getProperty(String name) throws RepositoryException {
+  public HierarchicalProperty getProperty(String name) throws RepositoryException {
     if ("jcr:primaryType".equals(name) || "jcr:mixinTypes".equals(name))
       return null;
 
     if (content == null)
       return null;
     
-    if (content.getProperty(name) != null)
-      return content.getProperty(name).getString();
+    if (content.getProperty(name) != null) {
+      return content.getProperty(name);
+//      String value = content.getProperty(name).getString();
+//      HierarchicalProperty p = new HierarchicalProperty(name, value);
+     
+    }
+//      return content.getProperty(name).getString();
     if (node.getProperty(name) != null)
       node.getProperty(name).getString();
     
@@ -99,13 +106,15 @@ public class NtFileNodeRepresentation implements NodeRepresentation {
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getPropertyNames()
    */
   public Collection<String> getPropertyNames() throws RepositoryException {
-    PropertyIterator iter = content.getProperties();
+    //List <String> propnames = new ArrayList<String>();
+    PropertyIterator iter = node.getProperties();
     ArrayList<String> props = new ArrayList<String>();
     while (iter.hasNext()) {
       String name = iter.nextProperty().getName();
       if (!"jcr:primaryType".equals(name) && !"jcr:mixinTypes".equals(name))
         props.add(name);
     }
+    props.addAll(content.getPropertyNames());
     return props;
   }
 
@@ -113,7 +122,7 @@ public class NtFileNodeRepresentation implements NodeRepresentation {
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getInputStream()
    */
   public InputStream getInputStream() throws IOException, RepositoryException {
-    return content.getProperty("jcr:data").getStream();
+    return content.getInputStream();
   }
 
 }

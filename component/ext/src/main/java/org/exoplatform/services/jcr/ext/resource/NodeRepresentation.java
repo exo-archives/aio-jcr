@@ -24,6 +24,8 @@ import java.util.Collection;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.common.util.HierarchicalProperty;
+
 /**
  * Created by The eXo Platform SAS        .
  * @author Gennady Azarenkov
@@ -64,7 +66,7 @@ public interface NodeRepresentation {
    * @param name the name of properties.
    * @return the properties with specified name.
    */
-  String getProperty(String name) throws RepositoryException;
+  HierarchicalProperty getProperty(String name) throws RepositoryException;
   
   /**
    * Get date of last modified, it useful for nt:file.

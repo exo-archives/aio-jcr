@@ -24,6 +24,7 @@ import java.io.PipedOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.jcr.Node;
@@ -31,9 +32,12 @@ import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.container.component.ComponentPlugin;
+import org.exoplatform.common.util.HierarchicalProperty;
+import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
+import org.picocontainer.Startable;
 
 /**
  * Created by The eXo Platform SAS .
@@ -44,31 +48,39 @@ import org.exoplatform.services.log.ExoLogger;
  * @since 1.9
  */
 
-public class NodeRepresentationService {
+public class NodeRepresentationService implements Startable {
 
   private Map<String, NodeRepresentationFactory> factories;
-  
-  private static final Log Log = ExoLogger.getLogger("jcr.ext.resource.NodeRepresentationService");
 
-  public NodeRepresentationService() {
+  ExoContainerContext containerContext;
+
+  private static final Log log = ExoLogger
+      .getLogger("jcr.ext.resource.NodeRepresentationService");
+
+  public NodeRepresentationService(ExoContainerContext containerContext) {
     this.factories = new HashMap<String, NodeRepresentationFactory>();
+    this.containerContext = containerContext;
   }
+
+  // /**
+  // * Add new NodeRepresentationFactory for node type.
+  // * @param nodeType the node type.
+  // * @param representationFactoryType the class of NodeRepresentationFactory.
+  // * @throws Exception if NodeRepresentationFactory can't be instantiated.
+  // */
+  // public void addNodeRepresentationFactory(String nodeType,
+  // Class<? extends NodeRepresentationFactory> representationFactoryType)
+  // throws Exception {
+  // factories.put(nodeType, representationFactoryType.newInstance());
+  // }
 
   /**
    * Add new NodeRepresentationFactory for node type.
-   * @param nodeType the node type.
-   * @param representationFactoryType the class of NodeRepresentationFactory.
-   * @throws Exception if NodeRepresentationFactory can't be instantiated.
-   */
-  public void addNodeRepresentationFactory(String nodeType, 
-      Class<? extends NodeRepresentationFactory> representationFactoryType) throws Exception {
-    factories.put(nodeType, representationFactoryType.newInstance());
-  }
-  
-  /**
-   * Add new NodeRepresentationFactory for node type.
-   * @param nodeType the node type.
-   * @param representationFactory the NodeRepresentationFactory.
+   * 
+   * @param nodeType
+   *          the node type.
+   * @param representationFactory
+   *          the NodeRepresentationFactory.
    */
   public void addNodeRepresentationFactory(String nodeType,
       NodeRepresentationFactory representationFactory) {
@@ -76,68 +88,110 @@ public class NodeRepresentationService {
   }
 
   /**
-   * Get NodeRepresentation for given node. String mediaTypeHint can be used as external
-   * information for representation. By default node will be represented as doc-view.
-   * @param node the jcr node.
-   * @param mediaTypeHint the mimetype.
+   * Get NodeRepresentation for given node. String mediaTypeHint can be used as
+   * external information for representation. By default node will be
+   * represented as doc-view.
+   * 
+   * @param node
+   *          the jcr node.
+   * @param mediaTypeHint
+   *          the mimetype.
    * @return the NodeRepresentation.
    * @throws RepositoryException
    */
-  public NodeRepresentation getNodeRepresentation(Node node, String mediaTypeHint)
-      throws RepositoryException {
-    
+  public NodeRepresentation getNodeRepresentation(Node node,
+      String mediaTypeHint) throws RepositoryException {
+
     NodeRepresentationFactory factory = factory(node);
-    if(factory != null)
+    if (factory != null)
       return factory.createNodeRepresentation(node, mediaTypeHint);
     else
       return new DocViewNodeRepresentation(node);
   }
   
-  public void addPlugin(ComponentPlugin plugin) {
-    if (plugin instanceof NodeRepresentationFactoryLoaderPlugin) {
-      Map<String, String> factories =
-        ((NodeRepresentationFactoryLoaderPlugin)plugin).getFactories();
-      for (String key : factories.keySet()) {
-        try {
-          Class<? extends NodeRepresentationFactory> factoryType =
-            (Class<? extends NodeRepresentationFactory>) Class.forName(factories.get(key));
-          addNodeRepresentationFactory(key, factoryType);
-          Log.info("Add new NodeRepresentationFactory " + factories.get(key));
-        } catch (Exception e) {
-          Log.error("Failed add NodeRepresentationFactory " + factories.get(key));
-          e.printStackTrace();
-        }
-      }
+  public Collection <String> getNodeTypes() {
+    return factories.keySet();
+  }
+  
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.picocontainer.Startable#start()
+   */
+  public void start() {
+    ExoContainer container = containerContext.getContainer();
+    List<NodeRepresentationFactory> list = container
+        .getComponentInstancesOfType(NodeRepresentationFactory.class);
+    for (NodeRepresentationFactory f : list) {
+      // try {
+
+      addNodeRepresentationFactory(f.getNodeType(), f);
+
+      // } catch (InvalidResourceDescriptorException irde) {
+      // log.error("Can't add ResourceContainer Component: " +
+      // c.getClass().getName() + ".\nException : " + irde);
+      // }
     }
   }
 
-  private NodeRepresentationFactory factory(Node node) throws RepositoryException {
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.picocontainer.Startable#stop()
+   */
+  public void stop() {
 
-    NodeRepresentationFactory f = factories.get(node.getPrimaryNodeType().getName());
-    
-    if(f == null) {
-      for(String nt : factories.keySet()  ) {
-        if(node.isNodeType(nt)) {
+  }
+
+  // public void addPlugin(ComponentPlugin plugin) {
+  // if (plugin instanceof NodeRepresentationFactoryLoaderPlugin) {
+  // Map<String, String> factories =
+  // ((NodeRepresentationFactoryLoaderPlugin)plugin).getFactories();
+  // for (String key : factories.keySet()) {
+  // try {
+  // Class<? extends NodeRepresentationFactory> factoryType =
+  // (Class<? extends NodeRepresentationFactory>)
+  // Class.forName(factories.get(key));
+  // NodeRepresentationFactory factory = factoryType.newInstance();
+  // addNodeRepresentationFactory(key, factory);
+  // Log.info("Add new NodeRepresentationFactory " + factories.get(key));
+  // } catch (Exception e) {
+  // Log.error("Failed add NodeRepresentationFactory " + factories.get(key));
+  // e.printStackTrace();
+  // }
+  // }
+  // }
+  // }
+
+  private NodeRepresentationFactory factory(Node node)
+      throws RepositoryException {
+
+    NodeRepresentationFactory f = factories.get(node.getPrimaryNodeType()
+        .getName());
+
+    if (f == null) {
+      for (String nt : factories.keySet()) {
+        if (node.isNodeType(nt)) {
           f = factories.get(nt);
           break;
         }
       }
     }
 
-    if(f == null) {
+    if (f == null) {
       for (NodeType mixin : node.getMixinNodeTypes()) {
         f = factories.get(mixin.getName());
-        if(f != null)
+        if (f != null)
           return f;
       }
-    } 
-    
+    }
+
     return f;
-    
+
   }
 
   private class DocViewNodeRepresentation implements NodeRepresentation {
-    
+
     private Node node;
 
     public DocViewNodeRepresentation(Node node) {
@@ -152,28 +206,37 @@ public class NodeRepresentationService {
       return -1;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getMediaType()
      */
     public String getMediaType() throws RepositoryException {
       return "text/xml";
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getLastModified()
      */
     public long getLastModified() throws RepositoryException {
       return 0;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperty(java.lang.String)
      */
-    public String getProperty(String name) throws RepositoryException {
+    public HierarchicalProperty getProperty(String name)
+        throws RepositoryException {
       return null;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getPropertyNames()
      */
     public Collection<String> getPropertyNames() throws RepositoryException {
@@ -188,16 +251,20 @@ public class NodeRepresentationService {
 
         new Thread() {
 
-          /* (non-Javadoc)
+          /*
+           * (non-Javadoc)
+           * 
            * @see java.lang.Thread#run()
            */
           public void run() {
             try {
-              node.getSession().exportDocumentView(node.getPath(), pout, false, false);
+              node.getSession().exportDocumentView(node.getPath(), pout, false,
+                  false);
             } catch (Exception e) {
-              /* Nothing to do.
-               * Can give exception if nothing read from stream,
-               * this exception generated by XMLStreamWriterImpl#writeStartDocument.
+              /*
+               * Nothing to do. Can give exception if nothing read from stream,
+               * this exception generated by
+               * XMLStreamWriterImpl#writeStartDocument.
                */
             } finally {
               try {
@@ -215,10 +282,12 @@ public class NodeRepresentationService {
         e.printStackTrace();
         throw new IOException("can't get input stream");
       }
-      
+
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getNode()
      */
     public Node getNode() {
@@ -226,5 +295,5 @@ public class NodeRepresentationService {
     }
 
   }
-  
+
 }

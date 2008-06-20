@@ -25,9 +25,22 @@ import javax.jcr.Node;
  * @version $Id: $
  */
 
+
 public interface NodeRepresentationFactory {
   
+  /**
+   * creates new NodeRepresentation instance
+   * @param node
+   * @param mediaTypeHint
+   * @return
+   */
   NodeRepresentation createNodeRepresentation(Node node, String mediaTypeHint);
+  
+
+  /**
+   * @return node type name
+   */
+  String getNodeType();
 
 }
 

@@ -58,7 +58,7 @@ public class Handler extends URLStreamHandler implements Startable {
     new ThreadLocal<SessionProvider>();
   
   public Handler(Authenticator authenticator,
-      RepositoryService repositoryService, NodeRepresentationService nodeRepresentationService) {
+      RepositoryService repositoryService , NodeRepresentationService nodeRepresentationService) {
     authenticator_ = authenticator;
     repositoryService_ = repositoryService;
     nodeRepresentationService_ = nodeRepresentationService;

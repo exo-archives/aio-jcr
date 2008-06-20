@@ -111,7 +111,7 @@
 
   <component>
     <type>org.exoplatform.services.jcr.ext.resource.NodeRepresentationService</type>
-    <component-plugins>
+    <!--  component-plugins>
       <component-plugin>
         <name>noderepresentation</name>
         <set-method>addPlugin</set-method>
@@ -123,11 +123,19 @@
           </properties-param>
         </init-params>
       </component-plugin>
-    </component-plugins>
+    </component-plugins -->
   </component>
   
   <component>
     <type>org.exoplatform.services.jcr.ext.resource.jcr.Handler</type>
+  </component>
+  
+  <component>
+    <type>org.exoplatform.services.jcr.ext.resource.representation.NtFileNodeRepresentationFactory</type>
+  </component>
+  
+    <component>
+    <type>org.exoplatform.services.jcr.ext.resource.representation.NtResourceNodeRepresentationFactory</type>
   </component>
 <!-- 
   <component>

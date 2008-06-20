@@ -39,6 +39,8 @@ public class JcrURLConnectionTest extends BaseStandaloneTest {
   public void setUp() throws Exception {
     super.setUp();
     
+    assertNotNull(System.getProperty("java.protocol.handler.pkgs"));
+    
     fname = "" + System.currentTimeMillis();
     data = "Test JCR urls " + fname; 
     testRoot = root.addNode("testRoot", "nt:unstructured");

@@ -18,10 +18,12 @@
 package org.exoplatform.services.jcr.ext.resource.representation;
 
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.ext.resource.NodeRepresentation;
 import org.exoplatform.services.jcr.ext.resource.NodeRepresentationFactory;
+import org.exoplatform.services.jcr.ext.resource.NodeRepresentationService;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -29,6 +31,12 @@ import org.exoplatform.services.jcr.ext.resource.NodeRepresentationFactory;
  */
 public class NtFileNodeRepresentationFactory implements
     NodeRepresentationFactory {
+  
+  protected NodeRepresentationService nodeRepresentationService;
+  
+  public NtFileNodeRepresentationFactory(NodeRepresentationService nodeRepresentationService) {
+    this.nodeRepresentationService = nodeRepresentationService;
+  }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentationFactory#createNodeRepresentation(
@@ -36,9 +44,11 @@ public class NtFileNodeRepresentationFactory implements
    */
   public NodeRepresentation createNodeRepresentation(Node node,
       String mediaTypeHint) {
+
     try {
-      
-      return new NtFileNodeRepresentation(node);
+
+      NodeRepresentation content = nodeRepresentationService.getNodeRepresentation(node.getNode("jcr:content"), mediaTypeHint);
+      return new NtFileNodeRepresentation(node, content);
       
     } catch (RepositoryException e) {
       e.printStackTrace();
@@ -46,4 +56,12 @@ public class NtFileNodeRepresentationFactory implements
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentationFactory#getNodeType()
+   */
+  public String getNodeType() {
+    return "nt:file";
+  }
+
+  
 }
