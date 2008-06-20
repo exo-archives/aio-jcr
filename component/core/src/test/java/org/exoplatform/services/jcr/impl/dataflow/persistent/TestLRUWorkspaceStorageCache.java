@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.impl.dataflow.persistent;
 
-import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache;
 
@@ -26,11 +25,10 @@ import org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public class TestWorkspaceStorageCache extends WorkspaceStorageCacheBaseCase {
+public class TestLRUWorkspaceStorageCache extends WorkspaceStorageCacheBaseCase {
 
   @Override
   public WorkspaceStorageCache getCacheImpl() throws Exception {
-    return new WorkspaceStorageCacheImpl((CacheService) session.getContainer().getComponentInstanceOfType(CacheService.class),
-                                         (WorkspaceEntry) session.getContainer().getComponentInstanceOfType(WorkspaceEntry.class));
+    return new LRUWorkspaceStorageCacheImpl((WorkspaceEntry) session.getContainer().getComponentInstanceOfType(WorkspaceEntry.class));
   }
 }

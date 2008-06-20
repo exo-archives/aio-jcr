@@ -33,7 +33,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  * A cache work in shadow, but we try to do usecases of possible wrong cache work.
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TestCachedMixins.java 11962 2008-03-16 16:31:14Z gazarenkov $
+ * @version $Id$
  */
 public class TestCachedMixins extends JcrImplBaseTest {
 
