@@ -326,6 +326,22 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 //    }
   }
 
+  /**
+   * Return cache misses counter.
+   * @return
+   */
+  public long getMisses() {
+    return miss;
+  }
+
+  /**
+   * Return cache hits counter.
+   * @return
+   */
+  public long getHits() {
+    return hits;
+  }  
+  
   @Override
   protected void finalize() throws Throwable {
     try {
@@ -815,7 +831,8 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
 
   /**
-   * Unload given property (outdated) from cache to be cached again. Add/update/remove mixins usecase.
+   * Unload (delete) given property (outdated) from cache to be cached again.<br/>
+   * For add/update/remove mixins usecase.<br/>
    */
   private void unloadProperty(PropertyData property) {
     writeLock.lock();
@@ -886,9 +903,10 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
 
   /**
-   * Mark the item to be reloaded from the persistence.<br/>
+   * Unload (delete) given node (outdated) from cache to be cached again.<br/>
+   * For rename/update/remove usecase.<br/>
    * 
-   * The work is removing all descendants of the item parent. I.e. the node and its siblings (for SNS case).<br/> 
+   * The work does remove of all descendants of the item parent. I.e. the node and its siblings (for SNS case).<br/> 
    */
   private void unloadNode(final NodeData node) {
     final ItemData parent = getItem(node.getParentIdentifier());
@@ -964,16 +982,14 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     if (log.isDebugEnabled())
       log.debug(name + ", removeDeep(" + forceDeep + ") >>> item " + item.getQPath().getAsString() + " " + item.getIdentifier());
 
-    if (forceDeep) {
+    if (forceDeep)
       removeRelations(item);
-    }
 
     cache.remove(new CacheId(item.getIdentifier()));
-    final CacheValue v = cache.remove(new CacheQPath(item.getParentIdentifier(), item.getQPath()));
-    if (v != null && !v.getItem().getIdentifier().equals(item.getIdentifier())) {
+    final CacheValue v2 = cache.remove(new CacheQPath(item.getParentIdentifier(), item.getQPath()));
+    if (v2 != null && !v2.getItem().getIdentifier().equals(item.getIdentifier()))
       // same path but diff identifier node... phantom
-      removeDeep(v.getItem(), forceDeep);
-    }
+      removeDeep(v2.getItem(), forceDeep);
     
     if (log.isDebugEnabled())
       log.debug(name + ", removeDeep(" + forceDeep + ") <<< item " + item.getQPath().getAsString() + " " + item.getIdentifier());
@@ -1170,5 +1186,5 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       return value.getItem();
     else
       return null;  
-  }  
+  }
 }

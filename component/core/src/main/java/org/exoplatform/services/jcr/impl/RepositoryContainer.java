@@ -171,7 +171,7 @@ public class RepositoryContainer extends ExoContainer {
           workspaceContainer.registerComponentImplementation(LRUWorkspaceStorageCacheImpl.class); // TODO
       } catch (ClassNotFoundException e) {
         log.warn("Workspace cache class not found " + wsConfig.getCache().getType() + ", will use default. Error : " + e);
-        workspaceContainer.registerComponentImplementation(LRUWorkspaceStorageCacheImpl.class); // TODO use LRUWorkspaceStorageCacheImpl.class 
+        workspaceContainer.registerComponentImplementation(LRUWorkspaceStorageCacheImpl.class); // TODO
       }
       
       workspaceContainer.registerComponentImplementation(CacheableWorkspaceDataManager.class);
