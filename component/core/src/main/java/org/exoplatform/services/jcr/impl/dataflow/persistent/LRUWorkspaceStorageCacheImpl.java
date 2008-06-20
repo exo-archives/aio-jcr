@@ -22,8 +22,10 @@ import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.WeakHashMap;
@@ -55,12 +57,11 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id: LRUWorkspaceStorageCacheImpl.java 15127 2008-06-03 08:39:27Z pnedonosko $
  */
-
 public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
-  static public final int                                     MAX_CACHE_SIZE     = 2000;
+  static public final int                                     MAX_CACHE_SIZE     = 2048; // 2k
 
-  static public final long                                    MAX_CACHE_LIVETIME = 600; // in sec
+  static public final long                                    MAX_CACHE_LIVETIME = 600 * 1000; // 10min, in ms
   
   static public final float LOAD_FACTOR = 0.7f;
 
@@ -71,7 +72,7 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   private final LRUCache<CacheKey, CacheValue>         cache;
   
   private final CacheLock writeLock = new CacheLock();
-
+  
   private final WeakHashMap<String, List<NodeData>>     nodesCache;
 
   private final WeakHashMap<String, List<PropertyData>> propertiesCache;
@@ -81,10 +82,20 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   private boolean                                       enabled;
 
   private final Timer                                         expiredCleaner;
+  
+  /**
+   * Tell if we haveto remove whole node subtree (true), or just remove cached childs lists (false). <br/>
+   * If true - it's more expensive operation.
+   */
+  private final boolean deepDelete;
 
   private long liveTime;
   
   private int maxSize;
+  
+  private long miss;
+  
+  private long hits;
   
   class CacheLock extends ReentrantLock {
     
@@ -99,6 +110,8 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   
   class LRUCache<K extends CacheKey, V extends CacheValue> extends LinkedHashMap<K, V> {
 
+    private final CacheLock lruLock = new CacheLock();
+    
     LRUCache(long maxSize, float loadFactor) {
       super(Math.round(maxSize / loadFactor) + 100, loadFactor, true);
     }
@@ -126,14 +139,15 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     private void removeEldest(ItemData item) {
       synchronized (propertiesCache) {
         if (item.isNode()) {
-          // TODO do we need remove child nodes too here
-//          synchronized (nodesCache) {
-//            // removing childs of the node
-//            if (removeChildNodes(item.getIdentifier(), false) != null) {
-//              if (log.isDebugEnabled())
-//                log.debug(name + ", onExpire() removeChildNodes() " + item.getIdentifier());
-//            }
-//          }
+          // TODO do we need remove child nodes too here - YES WE DO
+          // we have to remove all childs stored in CN, CP
+          synchronized (nodesCache) {
+            // removing childs of the node
+            if (removeChildNodes(item.getIdentifier(), false) != null) {
+              if (log.isDebugEnabled())
+                log.debug(name + ", onExpire() removeChildNodes() " + item.getIdentifier());
+            }
+          }
           if (removeChildProperties(item.getIdentifier()) != null) {
             if (log.isDebugEnabled())
               log.debug(name + ", removeEldest() removeChildProperties() " + item.getIdentifier());
@@ -147,6 +161,66 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
         }
       }
     }
+
+    /**
+     * Check item is cached respecting LRU modifications.
+     */
+    @Override
+    public boolean containsValue(Object value) {
+      lruLock.lock();
+      try {
+        return super.containsValue(value);
+      } finally {
+        lruLock.unlock();
+      }
+    }
+
+    /**
+     * Get item respecting LRU modifications. 
+     */
+    @Override
+    public V get(Object key) {
+      lruLock.lock();
+      try {
+        return super.get(key);
+      } finally {
+        lruLock.unlock();
+      }
+    }
+
+    /**
+     * Return a copy of cache entries.
+     * Copy made on read-locked cache.
+     */
+    public Set<Entry<K, V>> entriesCopy() {
+      // make a copy on locked to read cache
+      lruLock.lock();
+      try {
+        Set<Entry<K, V>> copy = new LinkedHashSet<Entry<K, V>>();
+        
+        for (Entry<K, V> e: super.entrySet())
+          copy.add(e);
+        
+        return copy;
+      } finally {
+        lruLock.unlock();
+      }
+    }
+    
+    @Override
+    public Set<Entry<K, V>> entrySet() {
+      throw new UnsupportedOperationException("entrySet() not supported");
+    }
+
+    @Override
+    public Set<K> keySet() {
+      throw new UnsupportedOperationException("keySet() not supported");
+    }
+
+    @Override
+    public Collection<V> values() {
+      throw new UnsupportedOperationException("values() not supported");
+    }
   }
   
   /**
@@ -158,7 +232,7 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * @param liveTime
    * @throws RepositoryConfigurationException
    */
-  LRUWorkspaceStorageCacheImpl(String name, boolean enabled, int maxSize, long liveTime, long cleanerPeriod) throws RepositoryConfigurationException {
+  LRUWorkspaceStorageCacheImpl(String name, boolean enabled, int maxSize, long liveTime, long cleanerPeriod, boolean deepDelete) throws RepositoryConfigurationException {
     this.name = name;
     
     this.maxSize = maxSize;
@@ -166,6 +240,7 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     this.nodesCache = new WeakHashMap<String, List<NodeData>>();
     this.propertiesCache = new WeakHashMap<String, List<PropertyData>>();
     this.enabled = enabled;
+    this.deepDelete = deepDelete;
     
     // LRU with no rehash feature
     this.cache = new LRUCache<CacheKey, CacheValue>(maxSize, LOAD_FACTOR);
@@ -181,21 +256,32 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     
     CacheEntry cacheConfig = wsConfig.getCache();
     if (cacheConfig != null) {
-      enabled = cacheConfig.isEnabled();
+      this.enabled = cacheConfig.isEnabled();
       
-      maxSize = cacheConfig.getParameterInteger("maxSize");
+      try {
+        this.maxSize = cacheConfig.getParameterInteger("max-size");
+      } catch(RepositoryConfigurationException e) {
+        this.maxSize = cacheConfig.getParameterInteger("maxSize");
+      }
       
       int initialSize = maxSize > MAX_CACHE_SIZE ? maxSize / 4 : maxSize;  
       this.nodesCache = new WeakHashMap<String, List<NodeData>>(initialSize, LOAD_FACTOR);
       this.propertiesCache = new WeakHashMap<String, List<PropertyData>>(initialSize, LOAD_FACTOR);
       
-      liveTime = cacheConfig.getParameterTime("liveTime"); // apply in milliseconds
+      try {
+        this.liveTime = cacheConfig.getParameterTime("live-time");  // apply in milliseconds
+      } catch(RepositoryConfigurationException e) {
+        this.liveTime = cacheConfig.getParameterTime("liveTime");
+      }
+      
+      this.deepDelete = cacheConfig.getParameterBoolean("deep-delete", false);
     } else {
-      maxSize = MAX_CACHE_SIZE;
-      liveTime = MAX_CACHE_LIVETIME;
-      nodesCache = new WeakHashMap<String, List<NodeData>>();
-      propertiesCache = new WeakHashMap<String, List<PropertyData>>();
-      enabled = true;
+      this.maxSize = MAX_CACHE_SIZE;
+      this.liveTime = MAX_CACHE_LIVETIME;
+      this.nodesCache = new WeakHashMap<String, List<NodeData>>();
+      this.propertiesCache = new WeakHashMap<String, List<PropertyData>>();
+      this.enabled = true;
+      this.deepDelete = false;
     }
 
     // LRU with no rehash feature
@@ -205,6 +291,7 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     
     scheduleCleaner(60, 20 * 60 * 1000); // start after minute, run every 20 minutes 
     
+    // TODO check how to monitor the cache
 //    if (info.isDebugEnabled()) {
 //      debugInformer = new Timer(this.name);
 //      TimerTask informerTask = new TimerTask() {
@@ -265,29 +352,23 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
               inProgress = true;
               lockOwnerId = String.valueOf(writeLock.getLockOwner());
               int sizeBefore = cache.size();
-              List<ItemData> expired = new ArrayList<ItemData>();
+              int expiredCount = 0;
               
               long start = System.currentTimeMillis();
               //log.info("Start cleaner in thread [" + Thread.currentThread() + "], lock owner " + lockOwnerId + ". Task " + this);
               
-              // We have to synchronize cache C to use iterator here due to LinkedhashMap LRU logic
-              // which causes ConcurrentModificationException on access operations too.
-              synchronized (cache) { // lock readers (geItem())
-                for (Map.Entry<CacheKey, CacheValue> ce : cache.entrySet()) {
-                //for (cache.entrySet().toArray(a)) {
-                  if (ce.getValue().getExpiredTime() <= System.currentTimeMillis()) {
-                    ItemData item = ce.getValue().getItem();
-                    if (item != null)
-                      expired.add(item);
-                  }
+              for (Map.Entry<CacheKey, CacheValue> ce : cache.entriesCopy()) {
+                if (ce.getValue().getExpiredTime() <= System.currentTimeMillis()) {
+                  ItemData item = ce.getValue().getItem();
+                  if (item != null)
+                    removeExpired(item);
+                  expiredCount++;
                 }
               }
-              for (ItemData ex: expired)
-                removeExpired(ex); // expired
               
               if (log.isDebugEnabled())
                 log.debug("Cleaner task done in " + (System.currentTimeMillis() - start) + "ms. Size " + 
-                       sizeBefore + " -> " + cache.size() + ", " + expired.size() + " processed.");
+                       sizeBefore + " -> " + cache.size() + ", " + expiredCount + " processed.");
             } catch(ConcurrentModificationException e) {
               if (log.isDebugEnabled()) {
                 StringBuilder lockUsers = new StringBuilder();
@@ -302,7 +383,7 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
               if (log.isDebugEnabled())
                 log.error("Cleaner task error " + e, e);
               else
-                log.error("Cleaner task error " + e + ". Will try next time.");
+                log.error("Cleaner task error " + e + ". Will try next time.", e);// TODO don't print stacktrace in normal work
             } finally {
               inProgress = false;
               writeLock.unlock();
@@ -602,14 +683,18 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     if (v != null) {
       if (v.getExpiredTime() > System.currentTimeMillis()) {
         final ItemData c = v.getItem();
+        
         if (log.isDebugEnabled())
           log.debug(name + ", getItem() " + identifier + " --> "
               + (c != null ? c.getQPath().getAsString() + " parent:" + c.getParentIdentifier() : "[null]"));
+        
+        hits++;
         return c;
-      } else
+      } else 
         removeExpired(v.getItem());
     } 
 
+    miss++;
     return null;
   }
 
@@ -621,21 +706,27 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     if (v != null) {
       if (v.getExpiredTime() > System.currentTimeMillis()) {
         final ItemData c = v.getItem();
+        
         if (log.isDebugEnabled())
           log.debug(name + ", getItem() " + (c != null ? c.getQPath().getAsString() : "[null]") + " --> "
               + (c != null ? c.getIdentifier() + " parent:" + c.getParentIdentifier() : "[null]"));
+        
+        hits++;
         return c;
       } else
         removeExpired(v.getItem());
     }
 
+    miss++;
     return null;
   }
 
   public List<NodeData> getChildNodes(final NodeData parentData) {
     if (enabled && parentData != null) {
       try {
+        // we assume that parent cached too
         final List<NodeData> cn = nodesCache.get(parentData.getIdentifier());
+        
         if (log.isDebugEnabled()) {
           log.debug(name + ", getChildNodes() " + parentData.getQPath().getAsString() + " " + parentData.getIdentifier());
           final StringBuffer blog = new StringBuffer();
@@ -649,6 +740,11 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
             log.debug("\t--> null");
           }
         }
+        
+        if (cn != null)
+          hits++;
+        else
+          miss++;
         return cn;
       } catch (Exception e) {
         log.error(name + ", Error in getChildNodes() parentData: "
@@ -662,7 +758,9 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   public List<PropertyData> getChildProperties(final NodeData parentData) {
     if (enabled && parentData != null) {
       try {
+        // we assume that parent cached too
         final List<PropertyData> cp = propertiesCache.get(parentData.getIdentifier());
+        
         if (log.isDebugEnabled()) {
           log.debug(name + ", getChildProperties() " + parentData.getQPath().getAsString() + " " + parentData.getIdentifier());
           final StringBuffer blog = new StringBuffer();
@@ -676,6 +774,11 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
             log.debug("\t--> null");
           }
         }
+        
+        if (cp != null)
+          hits++;
+        else
+          miss++;
         return cp;
       } catch (Exception e) {
         log.error(name + ", Error in getChildNodes() parentData: "
@@ -720,7 +823,7 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       try {
         final ItemData parent = getItem(property.getParentIdentifier());
         if (parent != null) {
-          // remove parent only (property like mixins lives inside the node data)
+          // remove parent only (e.g. mixins lives inside the node data)
           removeDeep(parent, false);
         }
       } catch(Exception e) {
@@ -762,16 +865,9 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
           if (!data.isNode() && needReload(data))
             unloadProperty((PropertyData) data);
           put(data);
-//        } else if (state.isUpdated()) { // TODO check and clean it
-//          if (data.isNode())
-//            // orderable nodes will be removed, to be loaded back from the persistence
-//            unloadNode((NodeData) data);
-//          else if (needReload(data))
-//            unloadProperty((PropertyData) data); // remove mixins
-//          put(data);
         } else if (state.isDeleted()) {
           if (!data.isNode() && needReload(data))
-            unloadProperty((PropertyData) data);
+            unloadProperty((PropertyData) data);  
           else
             remove(data);
         } else if (state.isRenamed() || state.isUpdated()) {
@@ -790,17 +886,15 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
 
   /**
-   * Mark the item to be reloaded from the persistence.
+   * Mark the item to be reloaded from the persistence.<br/>
    * 
-   * The case made by removing all descendats of the item parent. Same as remove(item) but not delete.
+   * The work is removing all descendants of the item parent. I.e. the node and its siblings (for SNS case).<br/> 
    */
   private void unloadNode(final NodeData node) {
-    //final ItemData parent = (ItemData) cache.get(item.getParentIdentifier());
     final ItemData parent = getItem(node.getParentIdentifier());
     // NOTE. it's possible that we have to not use the fact of caching and remove anyway by data.getParentIdentifier()  
     if (parent != null) {
       // remove child nodes of the item parent recursive
-      
       writeLock.lock();
       try {
         synchronized (nodesCache) {
@@ -842,7 +936,8 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
             }
           }
           
-          removeSuccessors((NodeData) data);
+          if (deepDelete) // TODO deepDelete
+            removeSuccessors((NodeData) data);
         } else {
           // [PN] 03.12.06 Fixed to forceDeep=true and synchronized block
           synchronized (propertiesCache) {
@@ -894,7 +989,7 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     try {
       if (item.isNode()) {
         // removing childs of the node
-        if (removeChildNodes(item.getIdentifier(), true) != null) {
+        if (removeChildNodes(item.getIdentifier(), deepDelete) != null) { // TODO deepDelete, was true
           if (log.isDebugEnabled())
             log.debug(name + ", removeRelations() removeChildNodes() " + item.getIdentifier());
         }
@@ -1019,23 +1114,18 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    */
   protected void removeSuccessors(final NodeData parent) {
     final QPath path = parent.getQPath();
-    final List<CacheKey> toRemove = new ArrayList<CacheKey>();
     
-    // 1. find and remove by path
-    for (Map.Entry<CacheKey, CacheValue> ce : cache.entrySet()) {
+    // find and remove by path
+    for (Map.Entry<CacheKey, CacheValue> ce : cache.entriesCopy()) {
       CacheKey key = ce.getKey();
       if (key.isDescendantOf(path)) {
-        toRemove.add(key);
-        //iter.remove(); // remove by path... we can't remove in iterator, LRU behaviour
+        cache.remove(key);
         CacheValue v = ce.getValue();
         if (v != null)
-          toRemove.add(new CacheId(v.getItem().getIdentifier()));  
+          // remove by id
+          cache.remove(new CacheId(v.getItem().getIdentifier()));  
       }
     }
-    
-    // 2. remove
-    for (CacheKey key: toRemove)
-      cache.remove(key);
   }
 
   /**
@@ -1068,7 +1158,7 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
           }
         }
       }
-    } catch (Exception e) {
+    } catch (Throwable e) {
       log.error(name + ", Error remove expired item data from cache: " + item.getQPath().getAsString(), e);
     } finally {
       writeLock.unlock();

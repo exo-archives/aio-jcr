@@ -36,6 +36,7 @@ import org.exoplatform.services.cache.CachedObjectSelector;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.cache.ObjectCacheInfo;
 import org.exoplatform.services.jcr.config.CacheEntry;
+import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
@@ -88,11 +89,24 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     CacheEntry cacheConfig = wsConfig.getCache();
     if (cacheConfig != null) {
       enabled = cacheConfig.isEnabled();
-      int maxSize = cacheConfig.getParameterInteger("maxSize");
+      
+      int maxSize;
+      try {
+        maxSize = cacheConfig.getParameterInteger("max-size");
+      } catch(RepositoryConfigurationException e) {
+        maxSize = cacheConfig.getParameterInteger("maxSize");
+      }
       cache.setMaxSize(maxSize);
+      
       nodesCache = new WeakHashMap<String, List<NodeData>>(maxSize);
       propertiesCache = new WeakHashMap<String, List<PropertyData>>(maxSize);
-      long liveTime = cacheConfig.getParameterLong("liveTime");
+      
+      long liveTime;
+      try {
+        liveTime = cacheConfig.getParameterTime("live-time");  // apply in milliseconds
+      } catch(RepositoryConfigurationException e) {
+        liveTime = cacheConfig.getParameterTime("liveTime");
+      }
       cache.setLiveTime(liveTime);
     } else {
       cache.setMaxSize(MAX_CACHE_SIZE);
