@@ -66,10 +66,12 @@ public class RepositoryServiceConfigurationImpl extends RepositoryServiceConfigu
     param = params.getValueParam("conf-path");
 
     if (params.getPropertiesParam("working-conf") != null) {
-      if (params.getPropertiesParam("working-conf").getProperty("persisterClassName") != null) {
+      String cn = params.getPropertiesParam("working-conf").getProperty("persister-class-name");
+      if (cn == null)
+        cn = params.getPropertiesParam("working-conf").getProperty("persisterClassName"); // try old name, pre 1.9
+      if (cn != null) {
         try {
-          Class<ConfigurationPersister> configurationPersisterClass = (Class<ConfigurationPersister>) Class
-              .forName(params.getPropertiesParam("working-conf").getProperty("persisterClassName"));
+          Class<ConfigurationPersister> configurationPersisterClass = (Class<ConfigurationPersister>) Class.forName(cn);
           configurationPersister = configurationPersisterClass.newInstance();
           configurationPersister.init(params.getPropertiesParam("working-conf"));
         } catch (InstantiationException e) {
@@ -99,7 +101,6 @@ public class RepositoryServiceConfigurationImpl extends RepositoryServiceConfigu
       throw new RepositoryConfigurationException("Fail to init from xml! Reason: " + e, e); 
     }
   }
-
 
   public RepositoryServiceConfigurationImpl(InputStream is) throws RepositoryConfigurationException {
     init(is);

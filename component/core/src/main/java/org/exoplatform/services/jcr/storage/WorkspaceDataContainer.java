@@ -36,8 +36,8 @@ public interface WorkspaceDataContainer extends DataContainer {
   
   public final static String CONTAINER_NAME    = "containerName";
 
-  public final static String SOURCE_NAME       = "sourceName";
-
+  public final static String SOURCE_NAME       = "source-name";
+  
   public final static String MULTIDB           = "multi-db";
 
   public final static String SINGLEDB          = "single-db";

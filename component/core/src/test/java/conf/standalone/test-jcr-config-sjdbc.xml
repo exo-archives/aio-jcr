@@ -10,7 +10,7 @@
         <workspace name="ws">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
-              <property name="sourceName" value="jdbcjcr" />
+              <property name="source-name" value="jdbcjcr" />
               <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="false" />
               <property name="update-storage" value="false" />
@@ -35,8 +35,8 @@
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="2k" />
-              <property name="liveTime" value="20m" />
+              <property name="max-size" value="2k" />
+              <property name="live-time" value="20m" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -61,7 +61,7 @@
         <workspace name="ws1">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
-              <property name="sourceName" value="jdbcjcr" />
+              <property name="source-name" value="jdbcjcr" />
               <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="false" />
               <property name="update-storage" value="false" />
@@ -86,8 +86,8 @@
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="2k" />
-              <property name="liveTime" value="20m" />
+              <property name="max-size" value="2k" />
+              <property name="live-time" value="20m" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -104,7 +104,7 @@
         <workspace name="ws2">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
-              <property name="sourceName" value="jdbcjcr" />
+              <property name="source-name" value="jdbcjcr" />
               <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="false" />
               <property name="update-storage" value="false" />
@@ -129,8 +129,8 @@
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="2k" />
-              <property name="liveTime" value="20m" />
+              <property name="max-size" value="2k" />
+              <property name="live-time" value="20m" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -156,7 +156,7 @@
         <workspace name="ws">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
-              <property name="sourceName" value="jdbcjcrtck" />
+              <property name="source-name" value="jdbcjcrtck" />
               <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="false" />
               <property name="update-storage" value="false" />
@@ -182,8 +182,8 @@
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="2k" />
-              <property name="liveTime" value="20m" />
+              <property name="max-size" value="2k" />
+              <property name="live-time" value="20m" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -208,7 +208,7 @@
         <workspace name="ws1">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
-              <property name="sourceName" value="jdbcjcrtck" />
+              <property name="source-name" value="jdbcjcrtck" />
               <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="false" />
               <property name="update-storage" value="false" />
@@ -234,8 +234,8 @@
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="2k" />
-              <property name="liveTime" value="20m" />
+              <property name="max-size" value="2k" />
+              <property name="live-time" value="20m" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -252,7 +252,7 @@
         <workspace name="ws2">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
-              <property name="sourceName" value="jdbcjcrtck" />
+              <property name="source-name" value="jdbcjcrtck" />
               <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="false" />
               <property name="update-storage" value="false" />
@@ -279,8 +279,8 @@
           </initializer>
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
             <properties>
-              <property name="maxSize" value="2k" />
-              <property name="liveTime" value="20m" />
+              <property name="max-size" value="2k" />
+              <property name="live-time" value="20m" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">

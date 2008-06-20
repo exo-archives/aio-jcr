@@ -42,7 +42,7 @@ import org.exoplatform.services.jcr.impl.storage.jdbc.DBConstants;
  */
 public class JDBCConfigurationPersister implements ConfigurationPersister {
 
-  public final static String    PARAM_SOURCE_NAME = "sourceName";
+  public final static String    PARAM_SOURCE_NAME = "source-name";
 
   public final static String    PARAM_DIALECT     = "dialect";
 
@@ -99,10 +99,14 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
 
   public void init(PropertiesParam params) throws RepositoryConfigurationException {
     String sourceNameParam = params.getProperty(PARAM_SOURCE_NAME);
+    if (sourceNameParam == null) {
+      sourceNameParam = params.getProperty("sourceName"); // try old, pre 1.9 name
+      if (sourceNameParam == null)
+        throw new RepositoryConfigurationException("Repository service configuration. Source name (" + PARAM_SOURCE_NAME + ") is expected");
+    }
+    
     String dialectParam = params.getProperty(PARAM_DIALECT);
-    if (sourceNameParam == null)
-      throw new RepositoryConfigurationException("Repository service configuration. Source name (sourceName) is expected");
-
+    
     this.sourceName = sourceNameParam;
 
     String binType = "BLOB";

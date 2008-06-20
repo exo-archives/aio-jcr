@@ -249,7 +249,7 @@ public class FileSystemLockPersister implements LockPersister {
 
     if (root == null)
       throw new RepositoryConfigurationException("Repository service configuration."
-          + " Source name (sourceName) is expected");
+          + " Source name (" + PARAM_ROOT_DIR + ") is expected");
     rootDir = new File(root);
     if (rootDir.exists()) {
       if (!rootDir.isDirectory()) {

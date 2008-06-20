@@ -192,7 +192,14 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
       this.dbUrl = null;
       this.dbUserName = null;
       this.dbPassword = null;
-      this.dbSourceName = wsConfig.getContainer().getParameterValue(SOURCE_NAME);
+      
+      String sn;
+      try {
+        sn = wsConfig.getContainer().getParameterValue(SOURCE_NAME);
+      } catch(RepositoryConfigurationException e) {
+        sn = wsConfig.getContainer().getParameterValue("sourceName"); // TODO for backward comp, remove in rel.2.0
+      }
+      this.dbSourceName = sn;
     }
 
     // ------------- Values swap config ------------------
