@@ -79,31 +79,6 @@
     <value name="value" field="value" style="attribute" />
   </mapping>
 
-  <!-- TODO cleanup
-    <mapping  class="org.exoplatform.services.jcr.config.QueryHandlerEntry" name="queryHandler" ordered="false">
-    <value name="indexDir"  field="indexDir"/>
-    <value name="systemIndexDir" field="systemIndexDir" usage="optional"/>
-    <value name="volatileIdleTime" field="volatileIdleTime" usage="optional" default="3"/>
-    
-    <value name="minMergeDocs" field="minMergeDocs"  usage="optional"  default="100"/>
-    <value name="maxMergeDocs" field="maxMergeDocs"  usage="optional" default="2147483647"/>
-    <value name="mergeFactor" field="mergeFactor"  usage="optional" default="10"/>
-    <value name="maxFieldLength" field="maxFieldLength"  usage="optional" default="10000"/>
-    <value name="bufferSize" field="bufferSize"  usage="optional" default="10"/>
-    
-    <value name="documentOrder" field="documentOrder"  usage="optional" default="true"/>
-    <value name="useCompoundFile" field="useCompoundFile"  usage="optional" default="true"/>
-    
-    <value name="forceConsistencyCheck" field="forceConsistencyCheck"  usage="optional" default="false"/>
-    <value name="consistencyCheckEnabled" field="consistencyCheckEnabled"  usage="optional" default="false"/>
-    <value name="autoRepair" field="autoRepair"  usage="optional" default="true"/>
-    <value name="cacheSize" field="cacheSize"  usage="optional" default="1000"/>
-    <value name="supportHighlighting" field="supportHighlighting"  usage="optional" default="false"/>
-    <value name="indexingConfigPath" field="indexingConfigPath"  usage="optional"/>
-    <value name="synonymProvider" field="synonymProvider"  usage="optional"  set-method="setSynonymProvider"/>
-    <value name="synonymProviderConfigPath" field="synonymProviderConfigPath"  usage="optional"/>
-    </mapping>
-  -->
 
   <mapping name="value-storage" class="org.exoplatform.services.jcr.config.ValueStorageEntry">
     <value name="class" field="type" style="attribute" />
