@@ -38,7 +38,7 @@
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
             <properties>
-              <property name="indexDir" value="target/temp1/index"/>
+              <property name="index-dir" value="target/temp1/index"/>
             </properties>
           </query-handler>
         </workspace>
@@ -80,7 +80,7 @@
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
             <properties>
-              <property name="indexDir" value="target/temp2/index"/>
+              <property name="index-dir" value="target/temp2/index"/>
             </properties>
           </query-handler>
         </workspace>
@@ -130,7 +130,7 @@
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
             <properties>
-              <property name="indexDir" value="target/temp1/index"/>
+              <property name="index-dir" value="target/temp1/index"/>
             </properties>
           </query-handler>
         </workspace>
@@ -172,7 +172,7 @@
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
             <properties>
-              <property name="indexDir" value="target/temp2/index"/>
+              <property name="index-dir" value="target/temp2/index"/>
             </properties>
           </query-handler>
         </workspace>
