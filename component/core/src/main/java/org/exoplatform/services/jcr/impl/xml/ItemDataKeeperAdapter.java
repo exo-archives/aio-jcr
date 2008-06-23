@@ -28,7 +28,8 @@ import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS. ItemDataKeeper for SessionDataManager. Used
+ * by XML import.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $

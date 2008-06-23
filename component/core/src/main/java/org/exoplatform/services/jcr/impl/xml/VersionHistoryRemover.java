@@ -40,7 +40,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.ConversationState;
 
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS. Helper class for removing version history.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
@@ -94,6 +94,11 @@ public class VersionHistoryRemover {
     this.userState = userState;
   }
 
+  /**
+   * Remove history.
+   * 
+   * @throws RepositoryException
+   */
   public void remove() throws RepositoryException {
     NodeData vhnode = (NodeData) dataManager.getItemData(vhID);
 
