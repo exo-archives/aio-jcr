@@ -88,16 +88,8 @@ public class AccessContextTest extends BaseStandaloneTest {
     session.save();
     testNode.setProperty("p1", (Value) null);
     session.save();
-//    SessionImpl s2 = repository.login(session.getCredentials(), "ws2");
-//    AccessManager am = s2.getAccessManager();
-//    assertNotNull(am.context());
   }
 
-  public void testWorkspaceAccessMenager() throws RepositoryException {
-//    SessionImpl s2 = repository.login(session.getCredentials(), "ws2");
-//    AccessManager am = s2.getAccessManager();
-//    assertFalse(am instanceof DummyAccessManager);
-  }
 
   public void testDenyAccessMenager() throws RepositoryException {
     Node tNode = root.addNode("testNode");
@@ -135,10 +127,8 @@ public class AccessContextTest extends BaseStandaloneTest {
     session.save();
     // Run each thread
     ArrayList<JCRClient4AccessContext> clients = new ArrayList<JCRClient4AccessContext>();
-    //SessionImpl sysSession = repository.getSystemSession();
+
     for (int i = 0; i < THREAD_COUNT; i++) {
-//      JCRClient4AccessContextTest jcrClient = new JCRClient4AccessContextTest(sysSession,
-//          sysSession, session);
       JCRClient4AccessContext jcrClient = new JCRClient4AccessContext();
       jcrClient.start();
       clients.add(jcrClient);
@@ -179,32 +169,15 @@ public class AccessContextTest extends BaseStandaloneTest {
     
     public JCRClient4AccessContext() {
       try {
-//        StandaloneContainer container = StandaloneContainer.getInstance();
-//        CredentialsImpl credentials = new CredentialsImpl("exo", "exo".toCharArray());
-//
-//        RepositoryService repositoryService = (RepositoryService) container
-//            .getComponentInstanceOfType(RepositoryService.class);
 
-        ///repository = (RepositoryImpl) repositoryService.getRepository();
         systemSession = repository.getSystemSession();
         adminSession = repository.getSystemSession();
         userSession = (SessionImpl)repository.login(credentials,"ws");
         log.debug("Thread created");
       } catch (Exception e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }
-//    public JCRClient4AccessContextTest(SessionImpl systemSession, SessionImpl adminSession,
-//        
-//        SessionImpl userSession) {
-//
-//      this.systemSession = systemSession;
-//      this.adminSession = adminSession;
-//      this.userSession = userSession;
-//      this.errorsCount = 0;
-//      log.info("Thread created");
-//    }
 
     private void SequentialReadProperty() throws RepositoryException {
       Node sysNode = systemSession.getRootNode().getNode("testMultiACT");
@@ -234,21 +207,12 @@ public class AccessContextTest extends BaseStandaloneTest {
       for (NodeIterator i = sysNode.getNodes(); i.hasNext();) {
         Node prop = i.nextNode();
 
-        // try {
-        //          
-        //          
-        // } catch (RepositoryException e) {
-        // // TODO Auto-generated catch block
-        // errorsCount++;
-        // log.error("Exception must not to throw");
-        // }
       }
       for (PropertyIterator i = adminNode.getProperties(); i.hasNext();) {
         Property prop = i.nextProperty();
         try {
           log.info(prop.getValue().getString());
         } catch (RepositoryException e) {
-          // TODO Auto-generated catch block
           errorsCount++;
           log.error("Exception must not to throw");
         }
@@ -281,7 +245,6 @@ public class AccessContextTest extends BaseStandaloneTest {
         ParalelRead();
 
       } catch (RepositoryException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
         log.error("Error");
       }
