@@ -31,7 +31,6 @@ public class CheckoutActionInfo extends ActionInfo {
 
   @Override
   public void execute(Context ctx) throws RepositoryException {
-    // TODO Auto-generated method stub
     Node node = (Node) ctx.get("node");
     if (node.canAddMixin("mix:versionable"))
       node.addMixin("mix:versionable");
@@ -43,14 +42,12 @@ public class CheckoutActionInfo extends ActionInfo {
 
   @Override
   public int getEventType() {
-    // TODO Auto-generated method stub
     return ExtendedEvent.CHECKOUT;
   }
 
   @Override
   public void tearDown(Context ctx) throws RepositoryException {
-    // TODO Auto-generated method stub
-    
+   
     Node node = (Node) ctx.get("node");
     if(node.isCheckedOut()){
       node.checkin();

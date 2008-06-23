@@ -49,7 +49,6 @@ public class TestLoadRepo extends BaseStandaloneTest {
 
   @Override
   protected String getRepositoryName() {
-    // TODO Auto-generated method stub
     return null;
   }
 

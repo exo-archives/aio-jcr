@@ -74,7 +74,6 @@ public class ExportBase extends JcrAPIBaseTest {
 
   @Override
   public void setUp() throws Exception {
-    // TODO Auto-generated method stub
     super.setUp();
     xpath.setNamespaceContext(new JcrNamespaceContext(session));
   }

@@ -90,19 +90,17 @@ public class ValueSsh1Comparator extends ItemDataTraversingVisitor {
 
   @Override
   protected void entering(NodeData arg0, int arg1) throws RepositoryException {
-    // TODO Auto-generated method stub
 
   }
 
   @Override
   protected void leaving(PropertyData arg0, int arg1) throws RepositoryException {
-    // TODO Auto-generated method stub
+   
 
   }
 
   @Override
   protected void leaving(NodeData arg0, int arg1) throws RepositoryException {
-    // TODO Auto-generated method stub
 
   }
 

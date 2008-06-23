@@ -31,7 +31,6 @@ public class UnLockActionInfo extends ActionInfo {
 
   @Override
   public void execute(Context ctx) throws RepositoryException {
-    // TODO Auto-generated method stub
     Node node = (Node) ctx.get("node");
     if (node.canAddMixin("mix:lockable")) {
       node.addMixin("mix:lockable");
@@ -46,7 +45,6 @@ public class UnLockActionInfo extends ActionInfo {
 
   @Override
   public int getEventType() {
-    // TODO Auto-generated method stub
     return ExtendedEvent.UNLOCK;
   }
   public void tearDown(Context ctx) throws RepositoryException{

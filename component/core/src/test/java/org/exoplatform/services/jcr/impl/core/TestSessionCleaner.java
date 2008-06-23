@@ -41,7 +41,6 @@ public class TestSessionCleaner extends JcrImplBaseTest {
   private final static long TEST_SESSION_TIMEOUT  = 20000;
   @Override
   public void setUp() throws Exception {
-    // TODO Auto-generated method stub
     super.setUp();
     sessionRegistry = (SessionRegistry) session.getContainer().getComponentInstanceOfType(SessionRegistry.class);
     oldTimeOut = sessionRegistry.timeOut;

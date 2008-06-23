@@ -31,7 +31,6 @@ public class CheckinActionInfo extends ActionInfo {
 
   @Override
   public void execute(Context ctx) throws RepositoryException {
-    // TODO Auto-generated method stub
     Node node = (Node) ctx.get("node");
     if (node.canAddMixin("mix:versionable"))
       node.addMixin("mix:versionable");
@@ -41,7 +40,6 @@ public class CheckinActionInfo extends ActionInfo {
 
   @Override
   public int getEventType() {
-    // TODO Auto-generated method stub
     return ExtendedEvent.CHECKIN;
   }
 

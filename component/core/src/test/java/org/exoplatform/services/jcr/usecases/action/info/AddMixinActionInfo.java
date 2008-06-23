@@ -39,7 +39,6 @@ public class AddMixinActionInfo extends ActionInfo {
 
   @Override
   public int getEventType() {
-    // TODO Auto-generated method stub
     return ExtendedEvent.ADD_MIXIN;
   }
 

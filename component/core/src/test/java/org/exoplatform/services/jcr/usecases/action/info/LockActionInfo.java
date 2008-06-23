@@ -32,7 +32,6 @@ public class LockActionInfo extends ActionInfo {
 
   @Override
   public int getEventType() {
-    // TODO Auto-generated method stub
     return ExtendedEvent.LOCK;
   }
 

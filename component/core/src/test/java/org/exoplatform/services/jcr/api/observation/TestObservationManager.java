@@ -282,7 +282,6 @@ public class TestObservationManager extends JcrAPIBaseTest {
           try {
             System.out.println("EVENT fired by SimpleListener "+event.getPath() + " " + event.getType());
           } catch (RepositoryException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
           }
         }

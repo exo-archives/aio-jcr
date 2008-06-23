@@ -75,14 +75,11 @@ public class NameTraversingVisitor extends ItemDataTraversingVisitor {
 
   @Override
   protected void leaving(PropertyData property, int level) throws RepositoryException {
-    // TODO Auto-generated method stub
 
   }
 
   @Override
   protected void leaving(NodeData node, int level) throws RepositoryException {
-    // TODO Auto-generated method stub
-
   }
 
   public static QPath[] getValidNames(Node rootNode, int scope) throws RepositoryException {

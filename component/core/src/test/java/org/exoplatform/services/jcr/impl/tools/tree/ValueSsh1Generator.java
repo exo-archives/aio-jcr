@@ -45,7 +45,6 @@ public class ValueSsh1Generator extends ItemDataTraversingVisitor {
   
   public ValueSsh1Generator(ItemDataConsumer dataManager,OutputStream  ssh1ChecksumStream) throws NoSuchAlgorithmException {
     super(dataManager);
-    // TODO Auto-generated constructor stub
     this.ssh1ChecksumStream = ssh1ChecksumStream;
     this.md = MessageDigest.getInstance("SHA");
   }
@@ -79,19 +78,16 @@ public class ValueSsh1Generator extends ItemDataTraversingVisitor {
 
   @Override
   protected void entering(NodeData arg0, int arg1) throws RepositoryException {
-    // TODO Auto-generated method stub
 
   }
 
   @Override
   protected void leaving(PropertyData arg0, int arg1) throws RepositoryException {
-    // TODO Auto-generated method stub
 
   }
 
   @Override
   protected void leaving(NodeData arg0, int arg1) throws RepositoryException {
-    // TODO Auto-generated method stub
 
   }
 
