@@ -268,8 +268,7 @@ public class NodeIndexer {
               for (ValueData pvd : data) {
                 InputStream is = null;
                 try {
-                  doc.add(createFulltextField(dreader.getContentAsText(is = pvd.getAsStream(),
-                      encoding)));
+                  doc.add(createFulltextField(dreader.getContentAsText(is = pvd.getAsStream(), encoding)));
                 } finally {
                   try {
                     is.close();
@@ -501,7 +500,7 @@ public class NodeIndexer {
    * @throws RepositoryException
    */
   @Deprecated
-  protected void addBinaryValue(Document doc, String fieldName, ValueData internalValue)
+  private void addBinaryValue(Document doc, String fieldName, ValueData internalValue)
       throws RepositoryException {
 
     if (node.getQPath().getName().equals(Constants.JCR_CONTENT)) {

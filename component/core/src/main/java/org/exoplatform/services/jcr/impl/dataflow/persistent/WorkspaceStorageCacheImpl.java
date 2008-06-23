@@ -326,6 +326,12 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
         log.debug(name + ", addChildProperties() <<< " + logInfo);
     }
   }
+  
+  /**
+   * Empty method for this cache impl.
+   */
+  public void addChildPropertiesList(NodeData parentData, List <PropertyData> childItems) {
+  }
 
   public void addChildNodes(final NodeData parentData, final List<NodeData> childItems) {
     if (enabled && parentData != null && childItems != null) {
@@ -468,32 +474,40 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
 
   public List<PropertyData> getChildProperties(final NodeData parentData) {
-
-    if (!enabled)
-      return null;
-
-    try {
-
-      final List<PropertyData> cp = propertiesCache.get(parentData.getIdentifier());
-      if (log.isDebugEnabled()) {
-        log.debug(name + ", getChildProperties() " + parentData.getQPath().getAsString() + " " + parentData.getIdentifier());
-        final StringBuffer blog = new StringBuffer();
-        if (cp != null) {
-          blog.append("\n");
-          for (PropertyData pd : cp) {
-            blog.append("\t\t" + pd.getQPath().getAsString() + " " + pd.getIdentifier() + "\n");
+    if (enabled && parentData != null) {
+      try {
+        // we assume that parent cached too
+        final List<PropertyData> cp = propertiesCache.get(parentData.getIdentifier());
+        
+        if (log.isDebugEnabled()) {
+          log.debug(name + ", getChildProperties() " + parentData.getQPath().getAsString() + " " + parentData.getIdentifier());
+          final StringBuffer blog = new StringBuffer();
+          if (cp != null) {
+            blog.append("\n");
+            for (PropertyData pd : cp) {
+              blog.append("\t\t" + pd.getQPath().getAsString() + " " + pd.getIdentifier() + "\n");
+            }
+            log.debug("\t--> " + blog.toString());
+          } else {
+            log.debug("\t--> null");
           }
-          log.debug("\t--> " + blog.toString());
-        } else {
-          log.debug("\t--> null");
         }
+        
+        return cp;
+      } catch (Exception e) {
+        log.error(name + ", Error in getChildProperties() parentData: "
+            + (parentData != null ? parentData.getQPath().getAsString() : "[null]"), e);
       }
-      return cp;
-    } catch (Exception e) {
-      log.error(name + ", Error in getChildNodes() parentData: "
-          + (parentData != null ? parentData.getQPath().getAsString() : "[null]"), e);
     }
+    
     return null; // nothing cached
+  }
+  
+  /** 
+   * Wrapps {@link getChildProperties} in this cache impl. 
+   */
+  public List<PropertyData> listChildProperties(final NodeData parentData) {
+    return getChildProperties(parentData);
   }
 
   public boolean isEnabled() {

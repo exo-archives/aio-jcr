@@ -59,10 +59,23 @@ public interface WorkspaceStorageCache extends ItemsPersistenceListener {
   List <NodeData> getChildNodes(NodeData parent);
   
   /**
+   * Get node child properties.<br/>
+   * 
    * @param parent
    * @return child properties for parent if found; empty list if no items found; null if no items initialized
    */
   List <PropertyData> getChildProperties(NodeData parent);
+  
+  /**
+   * List node child properties.<br/>
+   * A difference from {@link getChildProperties()} it's that the method may return list of node properties (PropertyData)
+   * which contains no data (ValueData).<br/>
+   * Used for Node.hasProperties(), NodeIndexer.createDoc(). 
+   * 
+   * @param parent
+   * @return child properties for parent if found; null if no items initialized
+   */
+  List<PropertyData> listChildProperties(final NodeData parentData);
   
   /**
    * Adds (or updates if found) ItemData.  
@@ -83,6 +96,13 @@ public interface WorkspaceStorageCache extends ItemsPersistenceListener {
    * @param childNodes
    */
   void addChildProperties(NodeData parent, List <PropertyData> childProperties);
+  
+  /**
+   * Adds (update should not be the case!) list of child properties with empty values. The list can be empty. If list is null the operation is ignored.  
+   * @param parent
+   * @param childNodes
+   */
+  void addChildPropertiesList(NodeData parent, List <PropertyData> childProperties);
   
   /**
    * Removes data and its children from cache 

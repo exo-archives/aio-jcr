@@ -60,8 +60,6 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     
     protected final int hcode;
     
-    //protected boolean stared;
-    
     protected CountDownLatch ready = new CountDownLatch(1); 
     
     DataRequest(String parentId, int type) {
@@ -110,13 +108,6 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
       } 
       if (prev != null)
         prev.await();
-//        while (prev.isStarted()) {
-//          // wait for prev request will be finished 
-//          try {
-//            Thread.yield();
-//            Thread.sleep(20); // TODO make more efficient, use flexible timing here
-//          } catch (InterruptedException e) {}
-//        }
       return this;
     }
 
@@ -124,7 +115,6 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
      * Start the request, each same will wait till this will be finished
      */
     void start() {
-      //this.stared = true;
       synchronized (requestCache) {
         requestCache.put(this.hashCode(), this);
       }
@@ -136,16 +126,9 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
      */
     void done() {
       this.ready.countDown();
-      //this.stared = false;
       synchronized (requestCache) {
         requestCache.remove(this.hashCode());
       }
-    }
-    
-    @Deprecated
-    boolean isStarted() {
-      return this.ready.getCount() > 0;
-      //return this.stared;
     }
     
     void await() {
@@ -241,9 +224,8 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     if (!forcePersistentRead && cache.isEnabled()) {
       request.waitSame();
       childNodes = cache.getChildNodes(nodeData);
-      if (childNodes != null) {
+      if (childNodes != null)
         return childNodes;
-      }
     }
 
     try {
@@ -251,9 +233,8 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
       childNodes = super.getChildNodesData(nodeData);
       if (cache.isEnabled()) {
         NodeData parentData = (NodeData) cache.get(nodeData.getIdentifier());
-        if (parentData == null) {
+        if (parentData == null)
           parentData = (NodeData) super.getItemData(nodeData.getIdentifier());
-        }
         cache.addChildNodes(parentData, childNodes);
       }
       return childNodes;
@@ -277,9 +258,8 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     if (!forcePersistentRead && cache.isEnabled()) {
       request.waitSame();
       childProperties = cache.getChildProperties(nodeData);
-      if (childProperties != null) {
+      if (childProperties != null)
         return childProperties;
-      }
     }
 
     try {
@@ -288,9 +268,8 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
       childProperties = super.getChildPropertiesData(nodeData);
       if (cache.isEnabled()) {
         NodeData parentData = (NodeData) cache.get(nodeData.getIdentifier());
-        if (parentData == null) {
+        if (parentData == null)
           parentData = (NodeData) super.getItemData(nodeData.getIdentifier());
-        }
         cache.addChildProperties(parentData, childProperties);
       }
       return childProperties;
@@ -303,17 +282,31 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     
     final DataRequest request = new DataRequest(nodeData.getIdentifier(), DataRequest.GET_PROPERTIES);
     
-    List<PropertyData> childProperties = null;
+    List<PropertyData> propertiesList;
     if (!forcePersistentRead && cache.isEnabled()) {
-      request.waitSame();
-      childProperties = cache.getChildProperties(nodeData);
-      if (childProperties != null) {
-        return childProperties;
-      }
+      request.waitSame(); // wait if getChildProp... working somewhere
+      propertiesList = cache.listChildProperties(nodeData);
+      if (propertiesList != null)
+        return propertiesList;
     }
 
-    // get the list from data container, do no caching for this list
-    return super.listChildPropertiesData(nodeData);
+//    try {
+      //request.start(); // don't start marker with listChildProp...
+      
+    propertiesList = super.listChildPropertiesData(nodeData);
+    if (cache.isEnabled()) {
+      NodeData parentData = (NodeData) cache.get(nodeData.getIdentifier());
+      if (parentData == null)
+        parentData = (NodeData) super.getItemData(nodeData.getIdentifier());
+      cache.addChildPropertiesList(parentData, propertiesList); 
+    }
+    return propertiesList;
+//    } finally {
+//      //request.done();
+//    }
+    
+    // TODO old code. get the list from data container, do no caching for this list
+    //return super.listChildPropertiesData(nodeData);
   }
   
   /* (non-Javadoc)

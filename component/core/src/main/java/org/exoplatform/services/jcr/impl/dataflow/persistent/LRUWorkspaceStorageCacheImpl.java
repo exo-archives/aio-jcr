@@ -505,7 +505,7 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
               } else {
 
-                // add to the end
+                // add new to the end
                 List<NodeData> newChilds = new ArrayList<NodeData>(cachedParentChilds.size() + 1);
                 for (int ci = 0; ci < cachedParentChilds.size(); ci++)
                   newChilds.add(cachedParentChilds.get(ci));
@@ -522,27 +522,33 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
           // add child property
           final List<PropertyData> cachedParentChilds = propertiesCache.get(data.getParentIdentifier());
           if (cachedParentChilds != null) {
-            synchronized (cachedParentChilds) {
-              int index = cachedParentChilds.indexOf(data);
-              if (index >= 0) {
-
-                cachedParentChilds.set(index, (PropertyData) data); // replace at current position
-                if (log.isDebugEnabled())
-                  log.debug(name + ", put()    update child property  " + data.getIdentifier() + "  at index #" + index);
-
-              } else {
-
-                List<PropertyData> newChilds = new ArrayList<PropertyData>(cachedParentChilds.size() + 1);
-                for (int ci = 0; ci < cachedParentChilds.size(); ci++)
-                  newChilds.add(cachedParentChilds.get(ci));
-
-                newChilds.add((PropertyData) data);
-
-                propertiesCache.put(data.getParentIdentifier(), newChilds); // cache new list
-                if (log.isDebugEnabled())
-                  log.debug(name + ", put()    add child property  " + data.getIdentifier());
+            if (cachedParentChilds.get(0).getValues().size() > 0) {
+              // if it's a props list with values, update it
+              
+              synchronized (cachedParentChilds) {
+                int index = cachedParentChilds.indexOf(data);
+                if (index >= 0) {
+                  // update already cached in list
+                  cachedParentChilds.set(index, (PropertyData) data); // replace at current position
+                  if (log.isDebugEnabled())
+                    log.debug(name + ", put()    update child property  " + data.getIdentifier() + "  at index #" + index);
+                  
+                } else if (index == -1) {
+                  // add new
+                  List<PropertyData> newChilds = new ArrayList<PropertyData>(cachedParentChilds.size() + 1);
+                  for (int ci = 0; ci < cachedParentChilds.size(); ci++)
+                    newChilds.add(cachedParentChilds.get(ci));
+  
+                  newChilds.add((PropertyData) data);
+                  propertiesCache.put(data.getParentIdentifier(), newChilds); // cache new list
+                  if (log.isDebugEnabled())
+                    log.debug(name + ", put()    add child property  " + data.getIdentifier());
+                } 
               }
-            }
+              
+            } else
+              // if it's a props list with empty values, remove cached list
+              propertiesCache.remove(data.getParentIdentifier());
           }
         }
       } catch (Exception e) {
@@ -609,6 +615,48 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     }
   }
 
+  public void addChildPropertiesList(final NodeData parentData, final List<PropertyData> childItems) {
+    if (enabled && parentData != null && childItems != null) {
+
+      String logInfo = null;
+      if (log.isDebugEnabled()) {
+        logInfo =
+            "parent:   " + parentData.getQPath().getAsString() + "    " + parentData.getIdentifier() + " " + childItems.size();
+        log.debug(name + ", addChildPropertiesList() >>> " + logInfo);
+      }
+
+      final String parentIdentifier = parentData.getIdentifier();
+      String operName = ""; // for debug/trace only
+      
+      writeLock.lock();
+      try {
+        // remove parent (no childs)
+        operName = "removing parent";
+        removeDeep(parentData, false);
+
+        operName = "caching parent";
+        putItem(parentData); // put parent in cache
+
+        // [PN] 17.01.07 need to sync as the list can be accessed concurrently till the end of addChildProperties()
+        List<PropertyData> cp = childItems;
+        synchronized (cp) {
+          synchronized (propertiesCache) {
+            operName = "caching child properties list";
+            propertiesCache.put(parentIdentifier, cp); // put childs in cache CP
+          }
+        }
+      } catch (Exception e) {
+        log.error(name + ", Error in addChildPropertiesList() " + operName + ": parent "
+            + (parentData != null ? parentData.getQPath().getAsString() : "[null]"), e);
+      } finally {
+        writeLock.unlock();
+      }
+      
+      if (log.isDebugEnabled())
+        log.debug(name + ", addChildPropertiesList() <<< " + logInfo);
+    }
+  }
+  
   public void addChildNodes(final NodeData parentData, final List<NodeData> childItems) {
     if (enabled && parentData != null && childItems != null) {
 
@@ -791,13 +839,49 @@ public class LRUWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
           }
         }
         
+        if (cp != null && cp.get(0).getValues().size() > 0) {
+          // don't return list of empty-valued props (but listChildProperties() can)
+          hits++;
+          return cp;
+        } else
+          miss++;
+      } catch (Exception e) {
+        log.error(name + ", Error in getChildProperties() parentData: "
+            + (parentData != null ? parentData.getQPath().getAsString() : "[null]"), e);
+      }
+    }
+    
+    return null; // nothing cached
+  }
+  
+  /* may return list with properties contains empty values list */
+  public List<PropertyData> listChildProperties(final NodeData parentData) {
+    if (enabled && parentData != null) {
+      try {
+        // we assume that parent cached too
+        final List<PropertyData> cp = propertiesCache.get(parentData.getIdentifier());
+        
+        if (log.isDebugEnabled()) {
+          log.debug(name + ", listChildProperties() " + parentData.getQPath().getAsString() + " " + parentData.getIdentifier());
+          final StringBuffer blog = new StringBuffer();
+          if (cp != null) {
+            blog.append("\n");
+            for (PropertyData pd : cp) {
+              blog.append("\t\t" + pd.getQPath().getAsString() + " " + pd.getIdentifier() + "\n");
+            }
+            log.debug("\t--> " + blog.toString());
+          } else {
+            log.debug("\t--> null");
+          }
+        }
+        
         if (cp != null)
           hits++;
         else
           miss++;
         return cp;
       } catch (Exception e) {
-        log.error(name + ", Error in getChildNodes() parentData: "
+        log.error(name + ", Error in listChildProperties() parentData: "
             + (parentData != null ? parentData.getQPath().getAsString() : "[null]"), e);
       }
     }
