@@ -39,6 +39,7 @@ import org.exoplatform.services.jcr.config.ValueStorageEntry;
 import org.exoplatform.services.jcr.config.ValueStorageFilterEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
+import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.jcr.util.ConfigurationHelper;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
@@ -202,7 +203,7 @@ public class ValueStoragePluginTest extends BaseStandaloneTest {
     WorkspaceEntry workspaceEntry = helper.getNewWs(IdGenerator.generate(),
                                                     isDefaultWsMultiDb,
                                                     wsEntry.getContainer()
-                                                           .getParameterValue("sourceName"),
+                                                           .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                                     "target/temp/values/" + IdGenerator.generate(),
                                                     wsEntry.getContainer());
 

@@ -34,6 +34,7 @@ import org.exoplatform.services.jcr.JcrImplBaseTest;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
+import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.jcr.util.ConfigurationHelper;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -72,7 +73,8 @@ public class TestWorkspaceRestore extends JcrImplBaseTest {
     WorkspaceEntry workspaceEntry = null;
     workspaceEntry = helper.getNewWs("testRestore",
                                      isDefaultWsMultiDb,
-                                     wsEntry.getContainer().getParameterValue("sourceName"),
+                                     wsEntry.getContainer()
+                                            .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                      null,
                                      wsEntry.getContainer());
     assertNotNull(workspaceEntry);
@@ -102,7 +104,7 @@ public class TestWorkspaceRestore extends JcrImplBaseTest {
       WorkspaceEntry workspaceEntry = null;
       workspaceEntry = helper.getNewWs("defWs",
                                        isDefaultWsMultiDb,
-                                       wsEntry.getContainer().getParameterValue("sourceName"),
+                                       wsEntry.getContainer().getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                        null,
                                        wsEntry.getContainer());
       helper.createWorkspace(workspaceEntry, container);
@@ -113,8 +115,7 @@ public class TestWorkspaceRestore extends JcrImplBaseTest {
   public void testRestore() throws RepositoryConfigurationException, Exception {
     WorkspaceEntry workspaceEntry = helper.getNewWs("testResotore",
                                                     isDefaultWsMultiDb,
-                                                    wsEntry.getContainer()
-                                                           .getParameterValue("sourceName"),
+                                                    wsEntry.getContainer().getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                                     null,
                                                     wsEntry.getContainer());
 
@@ -144,7 +145,7 @@ public class TestWorkspaceRestore extends JcrImplBaseTest {
     WorkspaceEntry workspaceEntry = null;
     workspaceEntry = helper.getNewWs("testRestoreBadXml",
                                      isDefaultWsMultiDb,
-                                     wsEntry.getContainer().getParameterValue("sourceName"),
+                                     wsEntry.getContainer().getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                      null,
                                      wsEntry.getContainer());
     assertNotNull(workspaceEntry);
