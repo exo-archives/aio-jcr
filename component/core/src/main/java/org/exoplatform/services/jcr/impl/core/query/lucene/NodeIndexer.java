@@ -240,7 +240,7 @@ public class NodeIndexer {
 
       List<ValueData> data = null;
       if (node.getQPath().getName().equals(Constants.JCR_CONTENT)) {
-        String text = null;
+
         // seems nt:file found, try for nt:resource props
         PropertyData pmime = (PropertyData) stateProvider.getItemData(node, new QPathEntry(
             Constants.JCR_MIMETYPE, 0));
@@ -263,11 +263,13 @@ public class NodeIndexer {
                 Constants.JCR_ENCODING, 0));
 
             if (encProp != null) {
-              ValueData encValue = encProp.getValues().get(0);
+              // encoding parameter used
+              String encoding = new String(encProp.getValues().get(0).getAsByteArray());
               for (ValueData pvd : data) {
-                InputStream is = pvd.getAsStream();
+                InputStream is = null;
                 try {
-                  text = dreader.getContentAsText(is, new String(encValue.getAsByteArray()));
+                  doc.add(createFulltextField(dreader.getContentAsText(is = pvd.getAsStream(),
+                      encoding)));
                 } finally {
                   try {
                     is.close();
@@ -276,10 +278,11 @@ public class NodeIndexer {
                 }
               }
             } else {
+              // no encoding parameter
               for (ValueData pvd : data) {
-                InputStream is = pvd.getAsStream();
+                InputStream is = null;
                 try {
-                  text = dreader.getContentAsText(is);
+                  doc.add(createFulltextField(dreader.getContentAsText(is = pvd.getAsStream())));
                 } finally {
                   try {
                     is.close();
@@ -289,6 +292,11 @@ public class NodeIndexer {
               }
             }
 
+            if (data.size() > 1) {
+              // real multi-valued
+              addMVPName(doc, prop.getQPath().getName());
+            }
+            
           } catch (HandlerNotFoundException e) {
             // no handler - no index
             if (log.isDebugEnabled())
@@ -300,24 +308,9 @@ public class NodeIndexer {
           } catch (Exception e) {
             log.error("Binary value indexer error " + e, e);
           }
-        } else {
-          // non mimetype - no index, jcr:mimeType is mandatory for nt:resource,
-          // but jcr:content type is nt:base, i.e. any nodetype can be there
-          text = null;
         }
-
-        if (text != null) {
-          doc.add(createFulltextField(text));
-        } // else log.warn("Properties binary value is not extracted");
       }
-
-      if (data == null) {
-        // do nothing
-      } else if (data.size() > 1) {
-        // real multi-valued
-        addMVPName(doc, prop.getQPath().getName());
-      }
-
+     
     } else {
       try {
         // if the prop obtainer from cache it will contains a values, otherwise

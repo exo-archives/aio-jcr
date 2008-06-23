@@ -47,7 +47,7 @@ public class TestDateSearch extends BaseQueryTest {
  
   public void testSearchDate()throws Exception {
     File file = new File("src/test/resources/test.xls");
-    assertTrue("/test/resources/ArabicUTF8.txt not found",file.exists());
+    assertTrue("/test/resources/test.xls not found",file.exists());
     
     FileInputStream fis = new FileInputStream(file);
     
