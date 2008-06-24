@@ -32,9 +32,10 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  */
 public interface WorkspaceStorageCache extends ItemsPersistenceListener {
   
-  //public static final int PUT_ON_RO_POLICY = 1;
-  //public static final int PUT_ON_RW_POLICY = 2;
-
+  public static final String MAX_SIZE_PARAMETER_NAME = "max-size";
+  
+  public static final String LIVE_TIME_PARAMETER_NAME = "live-time";
+  
   /**
    * Get item by parent identifier and name +index.
    * 

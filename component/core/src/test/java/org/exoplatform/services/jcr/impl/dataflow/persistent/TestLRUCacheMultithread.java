@@ -36,6 +36,7 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -51,7 +52,7 @@ public class TestLRUCacheMultithread extends JcrImplBaseTest {
 
   protected static Log log = ExoLogger.getLogger("jcr.TestLRUCacheMultithread");
   
-  private WorkspaceStorageCache cache;
+  private LRUWorkspaceStorageCacheImpl cache;
   
   private NodeData rootData;
   
@@ -137,9 +138,10 @@ public class TestLRUCacheMultithread extends JcrImplBaseTest {
                                                     IdGenerator.generate(), 1, Constants.NT_UNSTRUCTURED, new InternalQName[0], 1, 
                                                     IdGenerator.generate(), rndNode.getACL()));
             } else {
-              // property w/o value
-              cache.put(new TransientPropertyData(QPath.makeChildPath(rndNode.getQPath(), InternalQName.parse("[]property-" + next)), 
-                                              IdGenerator.generate(), 1, PropertyType.STRING, rndNode.getIdentifier(), false));
+              TransientPropertyData pd = new TransientPropertyData(QPath.makeChildPath(rndNode.getQPath(), InternalQName.parse("[]property-" + next)), 
+                                        IdGenerator.generate(), 1, PropertyType.STRING, rndNode.getIdentifier(), false);
+              pd.setValue(new TransientValueData("prop data"));
+              cache.put(pd);
             }
             itemsProcessed++;
           } else {
@@ -157,6 +159,58 @@ public class TestLRUCacheMultithread extends JcrImplBaseTest {
             }
           }
             
+          Thread.sleep(putTimeout);
+        }
+      } catch (Exception e) {
+        log.error(getName() + " " + e, e);
+      }
+      //log.info("FINISH");
+    }
+    
+    public void cancel() {
+      this.execute = false;
+    }
+  }
+  
+  class Remover extends Thread {
+    final NodeData[] nodes;
+    
+    final int nodesMaxIndex;
+    
+    final Random random;
+    
+    final long putTimeout;
+    
+    int itemsProcessed = 0;
+    
+    volatile boolean execute = true;
+
+    Remover(NodeData[] nodes, String name, long putTimeout) {
+      this.nodes = nodes;
+      this.random = new Random();
+      this.nodesMaxIndex = nodes.length - 1;
+      this.putTimeout = putTimeout;
+      super.setName(name); 
+    }
+
+    public void run() {
+      //log.info("START");
+      try {
+        while (execute) {
+          NodeData rndNode = nodes[random.nextInt(nodesMaxIndex)];
+          if (random.nextBoolean()) {
+            // remove child node
+            List <NodeData> cns = cache.getChildNodes(rndNode);
+            if (cns != null)
+              cache.remove(cns.get(0));
+          } else {
+            // remove child property
+            List <PropertyData> cps = cache.getChildProperties(rndNode);
+            if (cps != null)
+              cache.remove(cps.get(0));
+          }
+          itemsProcessed++;  
+          
           Thread.sleep(putTimeout);
         }
       } catch (Exception e) {
@@ -192,12 +246,40 @@ public class TestLRUCacheMultithread extends JcrImplBaseTest {
     }
   }
   
+  class StatisticReader extends Thread {
+    
+    private boolean execute = true;
+    
+    public void run() {
+      while (execute) {
+        CacheStatistic st = cache.getStatistic();
+        log.info("Cache relevancy " + (Math.round((10000d * st.getHits()) / st.getMiss()))/10000d + 
+                 " (hits:" + st.getHits() + 
+                 ", miss:" + st.getMiss() +
+                 "), size:" + st.getSize() +
+                 " (max " + st.getMaxSize() + ")" +
+                 ", childs(nodes:" + st.getNodesSize() + 
+                 ", properties:" + st.getPropertiesSize() + ")");
+        
+        try {
+          Thread.sleep(30000);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+    
+    public void cancel() {
+      this.execute = false;
+    }
+  }
+  
   @Override
   public void setUp() throws Exception {
     super.setUp();
     
-    cache = new LRUWorkspaceStorageCacheImpl((WorkspaceEntry) session.getContainer().getComponentInstanceOfType(WorkspaceEntry.class));
-    assertNotNull("Cache is disabled ", cache);
+    //cache = new LRUWorkspaceStorageCacheImpl((WorkspaceEntry) session.getContainer().getComponentInstanceOfType(WorkspaceEntry.class));
+    cache = new LRUWorkspaceStorageCacheImpl("testLoad_cache", true, 2 * 1024, 120, 5 * 60000, 20000, false);
     
     rootData = (NodeData) ((NodeImpl) root).getData();
   }
@@ -228,8 +310,10 @@ public class TestLRUCacheMultithread extends JcrImplBaseTest {
     List<PropertyData> props = new ArrayList<PropertyData>();
     
     for (int i=1; i<=count; i++) {
-      props.add(new TransientPropertyData(QPath.makeChildPath(parent.getQPath(), InternalQName.parse("[]property-" + i)), 
-                                          IdGenerator.generate(), 1, PropertyType.STRING, parent.getIdentifier(), false));
+      TransientPropertyData pd = new TransientPropertyData(QPath.makeChildPath(parent.getQPath(), InternalQName.parse("[]property-" + i)), 
+                                                           IdGenerator.generate(), 1, PropertyType.STRING, parent.getIdentifier(), false);
+      pd.setValue(new TransientValueData("prop data"));
+      props.add(pd);
     }
     
     return props;
@@ -293,15 +377,17 @@ public class TestLRUCacheMultithread extends JcrImplBaseTest {
     }
   }
   
-  public void _testGetAndPut() throws Exception {
+  public void _testGetPut() throws Exception {
     
     List<NodeData> nodes = prepare();
     
     Set<Reader> readers = new HashSet<Reader>();
     Set<Writer> writers = new HashSet<Writer>();
+    Set<Remover> removers = new HashSet<Remover>();
+    StatisticReader statReader = new StatisticReader();
     try {
       // create readers
-      for (int t = 1; t <= 2000; t++) {
+      for (int t = 1; t <= 10; t++) {
         NodeData[] ns = new NodeData[nodes.size()];
         nodes.toArray(ns);
         Reader r = new Reader(ns, "reader #" + t);
@@ -310,17 +396,33 @@ public class TestLRUCacheMultithread extends JcrImplBaseTest {
       }
       
       // create writers
-      for (int t = 1; t <= 100; t++) {
+      for (int t = 1; t <= 5; t++) {
         NodeData[] ns = new NodeData[nodes.size()];
         nodes.toArray(ns);
-        Writer w = new Writer(ns, "writer #" + t, 200);
+        Writer w = new Writer(ns, "writer #" + t, 20000);
         writers.add(w);
         w.start();
       }
       
-      Thread.sleep(300 * 1000);
+      // create removers
+//      for (int t = 1; t <= 1; t++) {
+//        NodeData[] ns = new NodeData[nodes.size()];
+//        nodes.toArray(ns);
+//        Remover r = new Remover(ns, "remover #" + t, 18000);
+//        removers.add(r);
+//        r.start();
+//      }
+      
+      statReader.start();
+      
+      Thread.sleep(50400 * 1000); // 50400sec = 14h
     } finally {
       // join
+      for (Remover r: removers) {
+        r.cancel();
+        r.join();
+      }
+      
       for (Writer w: writers) {
         w.cancel();
         w.join();
@@ -331,6 +433,9 @@ public class TestLRUCacheMultithread extends JcrImplBaseTest {
         r.join();
       }
       
+      statReader.cancel();
+      statReader.join();
+      
       // debug result
       for (Reader r: readers) {
         log.info(r.getName() + " " + (r.itemsProcessed));
@@ -338,6 +443,10 @@ public class TestLRUCacheMultithread extends JcrImplBaseTest {
       
       for (Writer w: writers) {
         log.info(w.getName() + " " + (w.itemsProcessed));
+      }
+      
+      for (Remover r: removers) {
+        log.info(r.getName() + " " + (r.itemsProcessed));
       }
     }
   }

@@ -81,11 +81,11 @@ class CacheQPath extends CacheKey {
     this.key = key(this.parentId, name);
   }
     
-  protected String key(String parentId, QPathEntry[] pathEntries) {
+  protected String key(final String parentId, final QPathEntry[] pathEntries) {
     return key(parentId, pathEntries[pathEntries.length - 1]);
   }
   
-  protected String key(String parentId, QPathEntry name) {
+  protected String key(final String parentId, final QPathEntry name) {
     StringBuilder sk = new StringBuilder();
     //sk.append(BASE); for strong hash code, skip it when equals uses String.equals 
     sk.append(parentId != null ? parentId : Constants.ROOT_PARENT_UUID);
@@ -107,14 +107,13 @@ class CacheQPath extends CacheKey {
 
   @Override
   public String toString() {
-    return (this.parentId != null ? this.parentId : Constants.ROOT_PARENT_UUID) + 
-      (path != null ? path.getEntries()[path.getEntries().length - 1] : "null") + ", " +
-      key;
+    final StringBuilder s = new StringBuilder();
+    s.append((this.parentId != null ? this.parentId : Constants.ROOT_PARENT_UUID));
+    s.append((path != null ? path.getEntries()[path.getEntries().length - 1] : "null"));
+    s.append(", ");
+    s.append(key);
+    return s.toString();
   }
-
-//  protected String getParentId() {
-//    return parentId;
-//  }
 
   QPath getQPath() {
     return path;

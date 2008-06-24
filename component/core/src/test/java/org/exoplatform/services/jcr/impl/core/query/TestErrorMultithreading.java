@@ -38,8 +38,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
- * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
  * @version $Id: $
  */
@@ -139,6 +138,8 @@ public class TestErrorMultithreading extends BaseQueryTest {
       Writer(String name, Session s) {
         this.name = name;
         this.sess = s;
+        
+        super.setName(this.name); // super.getName() + ", " + 
       }
 
       public void run() {

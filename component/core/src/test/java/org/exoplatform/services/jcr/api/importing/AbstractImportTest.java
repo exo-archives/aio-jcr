@@ -342,12 +342,12 @@ public abstract class AbstractImportTest extends JcrAPIBaseTest {
                                                                         IllegalAccessException,
                                                                         InvocationTargetException {
 
-    Constructor<? extends ImportExportAction>[] constructors = importExportAction.getDeclaredConstructors();
+    Constructor<?>[] constructors = importExportAction.getDeclaredConstructors();
 
     Constructor<? extends ImportExportAction> constructor = null;
     for (int i = 0; i < constructors.length; i++) {
       if (constructors[i].getParameterTypes().length > 1)
-        constructor = constructors[i];
+        constructor = (Constructor<? extends ImportExportAction>) constructors[i];
     }
 
     ImportExportAction action = constructor.newInstance(new Object[] { this, initSession, testRoot });
