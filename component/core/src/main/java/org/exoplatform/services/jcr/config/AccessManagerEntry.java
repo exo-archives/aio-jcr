@@ -25,15 +25,4 @@ package org.exoplatform.services.jcr.config;
 
 public class AccessManagerEntry extends MappedParametrizedObjectEntry {
 
-  // TODO
-//  private boolean disabled;
-//  
-//  public boolean isDisabled() {
-//    return disabled;
-//  }
-//
-//  public void setDisabled(boolean disabled) {
-//    this.disabled = disabled;
-//  }
-
 }
