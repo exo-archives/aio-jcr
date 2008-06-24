@@ -16,7 +16,7 @@
 		  <!-- for system storage -->
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
-              <property name="sourceName" value="jdbcjcr"/>
+              <property name="source-name" value="jdbcjcr"/>
               <property name="dialect" value="generic"/>
               <!-- example of direct jdbc connection usage (without JNDI), see docs for details -->
               <!-- property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
@@ -41,13 +41,13 @@
           </container>
           <cache enabled="true">
             <properties>
-              <property name="maxSize" value="1000"/>
-              <property name="liveTime" value="1800"/><!-- 30 min -->
+              <property name="max-size" value="1000"/>
+              <property name="live-time" value="1800"/><!-- 30 min -->
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
             <properties>
-              <property name="indexDir" value="target/temp/index"/>
+              <property name="index-dir" value="target/temp/index"/>
             </properties>
           </query-handler>
           <!--lock-time-out>900000</lock-time-out--><!-- 15min -->
@@ -55,7 +55,7 @@
         <workspace name="ws1" auto-init-root-nodetype="nt:unstructured">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
-              <property name="sourceName" value="jdbcjcr1"/>
+              <property name="source-name" value="jdbcjcr1"/>
               <property name="dialect" value="generic"/>
               <property name="multi-db" value="true"/>
               <property name="update-storage" value="true"/>
@@ -76,13 +76,13 @@
           </container>
           <cache enabled="true">
             <properties>
-              <property name="maxSize" value="1000"/>
-              <property name="liveTime" value="10000"/>
+              <property name="max-size" value="1000"/>
+              <property name="live-time" value="10000"/>
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
             <properties>
-              <property name="indexDir" value="target/temp/index"/>
+              <property name="index-dir" value="target/temp/index"/>
             </properties>
           </query-handler>
         </workspace>
