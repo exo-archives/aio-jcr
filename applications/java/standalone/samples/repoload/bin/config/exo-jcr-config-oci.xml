@@ -34,13 +34,13 @@
           </container>
           <cache enabled="true">
             <properties>
-              <property name="maxSize" value="100000"/>
-              <property name="liveTime" value="6000"/>
+              <property name="max-size" value="100000"/>
+              <property name="live-time" value="6000"/>
             </properties>
           </cache>
           <!--query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
             <properties>
-              <property name="indexDir" value="temp/index"/>
+              <property name="index-dir" value="temp/index"/>
             </properties>
           </query-handler-->
         </workspace>

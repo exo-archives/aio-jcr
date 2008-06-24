@@ -16,7 +16,7 @@
           <!-- for system storage -->
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
-              <property name="sourceName" value="jdbcjcr"/>
+              <property name="source-name" value="jdbcjcr"/>
               <property name="dialect" value="oracle"/>
               <property name="multi-db" value="false"/>
               <property name="update-storage" value="true"/>
@@ -46,13 +46,13 @@
           </container>
           <cache enabled="true">
             <properties>
-              <property name="maxSize" value="1000"/>
-              <property name="liveTime" value="1800"/><!-- 30 min -->
+              <property name="max-size" value="1000"/>
+              <property name="live-time" value="1800"/><!-- 30 min -->
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
             <properties>
-              <property name="indexDir" value="db/index/ws"/>
+              <property name="index-dir" value="db/index/ws"/>
             </properties>
           </query-handler>
           <lock-manager>
