@@ -143,19 +143,19 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   private static final Log     log                                = ExoLogger.getLogger(QueryHandlerEntry.class);
 
   // after JCR-445
-  private final static String  PARAM_AUTO_REPAIR                   = "auto-repair";
+  private final static String  PARAM_AUTO_REPAIR                  = "auto-repair";
 
   private final static String  PARAM_BUFFER_SIZE                  = "buffer-size";
 
   private final static String  PARAM_CACHE_SIZE                   = "cache-size";
 
-  private final static String  PARAM_CONSISTENCY_CHECK_ENABLED      = "consistency-check-enabled";
+  private final static String  PARAM_CONSISTENCY_CHECK_ENABLED    = "consistency-check-enabled";
 
-  private final static String  PARAM_DOCUMENT_ORDER                = "document-order";
+  private final static String  PARAM_DOCUMENT_ORDER               = "document-order";
 
   private final static String  PARAM_EXCERPTPROVIDER_CLASS        = "excerptprovider-class";
 
-  private final static String  PARAM_EXCLUDED_NODE_IDENTIFERS       = "excluded-node-identifers";
+  private final static String  PARAM_EXCLUDED_NODE_IDENTIFERS     = "excluded-node-identifers";
 
   private final static String  PARAM_EXTRACTOR_BACKLOG            = "extractor-backlog";
 
@@ -163,7 +163,7 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
 
   private final static String  PARAM_EXTRACTOR_TIMEOUT            = "extractor-timeout";
 
-  private final static String  PARAM_FORCE_CONSISTENCYCHECK        = "force-consistencycheck";
+  private final static String  PARAM_FORCE_CONSISTENCYCHECK       = "force-consistencycheck";
 
   // ErrorLog file size in Kb
   private final static String  PARAM_ERRORLOG_SIZE                = "errorlog-size";
@@ -172,39 +172,39 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
    * The location of the search index. <p/> Note: This is a <b>mandatory</b>
    * parameter!
    */
-  private final static String  PARAM_INDEX_DIR                     = "index-dir";
+  private final static String  PARAM_INDEX_DIR                    = "index-dir";
 
-  private final static String  OLD_PARAM_INDEX_DIR                 = "indexDir";
+  private final static String  OLD_PARAM_INDEX_DIR                = "indexDir";
 
-  private final static String  PARAM_INDEXING_CONFIG_PATH           = "indexing-config-path";
+  private final static String  PARAM_INDEXING_CONFIG_PATH         = "indexing-config-path";
 
-  private final static String  PARAM_INDEXING_CONFIGURATION_CLASS   = "indexing-configuration-class";
+  private final static String  PARAM_INDEXING_CONFIGURATION_CLASS = "indexing-configuration-class";
 
-  private final static String  PARAM_MAX_FIELD_LENGTH               = "max-field-length";
+  private final static String  PARAM_MAX_FIELD_LENGTH             = "max-field-length";
 
-  private final static String  PARAM_MAX_MERGE_DOCS                 = "max-merge-docs";
+  private final static String  PARAM_MAX_MERGE_DOCS               = "max-merge-docs";
 
-  private final static String  PARAM_MERGE_FACTOR                  = "merge-factor";
+  private final static String  PARAM_MERGE_FACTOR                 = "merge-factor";
 
-  private final static String  PARAM_MIN_MERGE_DOCS                 = "min-merge-docs";
+  private final static String  PARAM_MIN_MERGE_DOCS               = "min-merge-docs";
 
-  private final static String  PARAM_QUERY_CLASS                   = "query-class";
+  private final static String  PARAM_QUERY_CLASS                  = "query-class";
 
-  private final static String  PARAM_RESULT_FETCH_SIZE              = "result-fetch-size";
+  private final static String  PARAM_RESULT_FETCH_SIZE            = "result-fetch-size";
 
   private final static String  PARAM_ROOT_NODE_ID                 = "root-node-id";
 
-  private final static String  PARAM_SPELLCHECKER_CLASS            = "spellchecker-class";
+  private final static String  PARAM_SPELLCHECKER_CLASS           = "spellchecker-class";
 
-  private final static String  PARAM_SUPPORT_HIGHLIGHTING          = "support-highlighting";
+  private final static String  PARAM_SUPPORT_HIGHLIGHTING         = "support-highlighting";
 
-  private final static String  PARAM_SYNONYMPROVIDER_CLASS         = "synonymprovider-class";
+  private final static String  PARAM_SYNONYMPROVIDER_CLASS        = "synonymprovider-class";
 
-  private final static String  PARAM_SYNONYMPROVIDER_CONFIG_PATH    = "synonymprovider-config-path";
+  private final static String  PARAM_SYNONYMPROVIDER_CONFIG_PATH  = "synonymprovider-config-path";
 
-  private final static String  PARAM_USE_COMPOUNDFILE              = "use-compoundfile";
+  private final static String  PARAM_USE_COMPOUNDFILE             = "use-compoundfile";
 
-  private final static String  PARAM_VOLATILE_IDLE_TIME             = "volatile-idle-time";
+  private final static String  PARAM_VOLATILE_IDLE_TIME           = "volatile-idle-time";
 
   public QueryHandlerEntry     queryHandler;
 
