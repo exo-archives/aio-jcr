@@ -174,9 +174,12 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
       currLock.addLockHolder(sessionId);
     }
   }
+
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.core.lock.LockManager#addPendingLock(org.exoplatform.services.jcr.impl.core.NodeImpl, boolean, boolean, long)
+   * 
+   * @see org.exoplatform.services.jcr.impl.core.lock.LockManager#addPendingLock(org.exoplatform.services.jcr.impl.core.NodeImpl,
+   *      boolean, boolean, long)
    */
   public synchronized Lock addPendingLock(NodeImpl node,
                                           boolean isDeep,
@@ -335,7 +338,13 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
       try {
         switch (currChangesLog.getEventType()) {
         case ExtendedEvent.LOCK:
+          if (currChangesLog.getSize() < 2) {
+            log.error("Incorrect changes log  of type ExtendedEvent.LOCK size="
+                + currChangesLog.getSize() + "<2 \n" + currChangesLog.dump());
+            break;
+          }
           nodeIdentifier = currChangesLog.getAllStates().get(0).getData().getParentIdentifier();
+
           if (pendingLocks.containsKey(nodeIdentifier)) {
             internalLock(nodeIdentifier);
           } else {
@@ -364,6 +373,11 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
           }
           break;
         case ExtendedEvent.UNLOCK:
+          if (currChangesLog.getSize() < 2) {
+            log.error("Incorrect changes log  of type ExtendedEvent.UNLOCK size="
+                + currChangesLog.getSize() + "<2 \n" + currChangesLog.dump());
+            break;
+          }
 
           internalUnLock(currChangesLog.getSessionId(), currChangesLog.getAllStates()
                                                                       .get(0)
@@ -458,6 +472,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     pendingLocks.clear();
     tokensMap.clear();
   }
+
   /**
    * Copy <code>PropertyData prop<code> to new TransientItemData
    * @param prop
@@ -490,7 +505,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
   }
 
   /**
-   * Search item with name  <code>itemName<code> in changesLog
+   * Search item with name <code>itemName<code> in changesLog
    * @param changesLog
    * @param itemName
    * @return Item
@@ -507,6 +522,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /**
    * Search lock in maps.
+   * 
    * @param data
    * @param searchType
    * @return
@@ -556,6 +572,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /**
    * Internal lock
+   * 
    * @param nodeIdentifier
    * @throws LockException
    */
@@ -575,6 +592,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /**
    * Internal unlock.
+   * 
    * @param sessionId
    * @param nodeIdentifier
    * @throws LockException
@@ -638,6 +656,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /**
    * Remove lock, used by Lock remover.
+   * 
    * @param nodeIdentifier
    */
   protected void removeLock(String nodeIdentifier) {
