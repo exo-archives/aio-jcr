@@ -730,13 +730,14 @@ public class NodeIndexer {
    */
   protected Field createFulltextField(String value) {
     if (supportHighlighting) {
-      // store field compressed if greater than 16kR
-      Field.Store stored;
-      if (value.length() > 0x4000) {
-        stored = Field.Store.COMPRESS;
-      } else {
-        stored = Field.Store.YES;
-      }
+      // store field compressed if greater than 16k
+      Field.Store stored = Field.Store.YES;
+      //TODO make the stored parameter be configurable. COMPRESS or only Store.YES
+      //if (value.length() > 0x4000) {
+      //  stored = Field.Store.COMPRESS;
+      //} else {
+      //  stored = Field.Store.YES;
+      //}
 
       return new Field(FieldNames.FULLTEXT, value, stored, Field.Index.TOKENIZED,
           Field.TermVector.WITH_OFFSETS);
