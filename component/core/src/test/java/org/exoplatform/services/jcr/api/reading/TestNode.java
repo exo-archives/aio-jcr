@@ -450,7 +450,6 @@ public class TestNode extends JcrAPIBaseTest{
 //  pattern (by making namePattern just a name, without wildcards,
 //  we can get all the nodes with that exact name, see section
 
-      //fail("testGetNodesWithNamePatternAndSameNameSibs() TODO!");
     Node root = session.getRootNode();
     Node node = root.addNode("snTestNode");
     node.addNode("sn");
