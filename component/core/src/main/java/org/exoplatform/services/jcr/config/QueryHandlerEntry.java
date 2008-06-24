@@ -176,7 +176,7 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
 
   private final static String  OLD_PARAM_INDEX_DIR                = "indexDir";
 
-  private final static String  PARAM_INDEXING_CONFIG_PATH         = "indexing-config-path";
+  private final static String  PARAM_INDEXING_CONFIGURATION_PATH  = "indexing-configuration-path";
 
   private final static String  PARAM_INDEXING_CONFIGURATION_CLASS = "indexing-configuration-class";
 
@@ -429,7 +429,7 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
    * @throws RepositoryConfigurationException
    */
   public String getIndexingConfigurationPath() {
-    return getParameterValue(PARAM_INDEXING_CONFIG_PATH, null);
+    return getParameterValue(PARAM_INDEXING_CONFIGURATION_PATH, null);
   }
 
   public int getMaxFieldLength() {
