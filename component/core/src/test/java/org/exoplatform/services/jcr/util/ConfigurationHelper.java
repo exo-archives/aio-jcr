@@ -169,7 +169,7 @@ public class ConfigurationHelper {
     cacheParams.add(new SimpleParameterEntry("maxSize", "2000"));
     cacheParams.add(new SimpleParameterEntry("liveTime", "20m"));
     CacheEntry cacheEntry = new CacheEntry(cacheParams);
-    cacheEntry.setType("org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl");
+    cacheEntry.setType("org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl");
 
     workspaceEntry.setCache(cacheEntry);
 

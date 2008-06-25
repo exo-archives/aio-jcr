@@ -48,11 +48,11 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public class TestLRUCacheMultithread extends JcrImplBaseTest {
+public class TestLinkedCacheMultithread extends JcrImplBaseTest {
 
-  protected static Log log = ExoLogger.getLogger("jcr.TestLRUCacheMultithread");
+  protected static Log log = ExoLogger.getLogger("jcr.TestLinkedCacheMultithread");
   
-  private LRUWorkspaceStorageCacheImpl cache;
+  private LinkedWorkspaceStorageCacheImpl cache;
   
   private NodeData rootData;
   
@@ -278,8 +278,8 @@ public class TestLRUCacheMultithread extends JcrImplBaseTest {
   public void setUp() throws Exception {
     super.setUp();
     
-    //cache = new LRUWorkspaceStorageCacheImpl((WorkspaceEntry) session.getContainer().getComponentInstanceOfType(WorkspaceEntry.class));
-    cache = new LRUWorkspaceStorageCacheImpl("testLoad_cache", true, 2 * 1024, 120, 5 * 60000, 20000, false);
+    //cache = new LinkedWorkspaceStorageCacheImpl((WorkspaceEntry) session.getContainer().getComponentInstanceOfType(WorkspaceEntry.class));
+    cache = new LinkedWorkspaceStorageCacheImpl("testLoad_cache", true, 100 * 1024, 120, 5 * 60000, 30000, false);
     
     rootData = (NodeData) ((NodeImpl) root).getData();
   }
@@ -351,10 +351,10 @@ public class TestLRUCacheMultithread extends JcrImplBaseTest {
     List<NodeData> nodes = prepare();
     
     Set<Reader> readers = new HashSet<Reader>();
-    
+    StatisticReader statReader = new StatisticReader();
     try {
       // create readers
-      for (int t = 1; t <= 100; t++) {
+      for (int t = 1; t <= 200; t++) {
         NodeData[] ns = new NodeData[nodes.size()];
         nodes.toArray(ns);
         Reader r = new Reader(ns, "reader #" + t);
@@ -362,7 +362,9 @@ public class TestLRUCacheMultithread extends JcrImplBaseTest {
         r.start();
       }
       
-      Thread.sleep(5 * 1000);
+      statReader.start();
+      
+      Thread.sleep(30 * 1000);
     } finally {
       // join
       for (Reader r: readers) {
@@ -370,9 +372,49 @@ public class TestLRUCacheMultithread extends JcrImplBaseTest {
         r.join();
       }
       
+      statReader.cancel();
+      statReader.join();
+      
       // debug result
       for (Reader r: readers) {
         log.info(r.getName() + " " + (r.itemsProcessed));
+      }
+    }
+  }
+  
+  public void _testPut() throws Exception {
+    
+    // put any stuff
+    List<NodeData> nodes = prepare();
+    
+    Set<Writer> writers = new HashSet<Writer>();
+    StatisticReader statReader = new StatisticReader();
+    try {
+      // create readers
+      for (int t = 1; t <= 100; t++) {
+        NodeData[] ns = new NodeData[nodes.size()];
+        nodes.toArray(ns);
+        Writer r = new Writer(ns, "writer #" + t, 50);
+        writers.add(r);
+        r.start();
+      }
+      
+      statReader.start();
+      
+      Thread.sleep(5 * 60 * 1000);
+    } finally {
+      // join
+      statReader.cancel();
+      statReader.join();
+      
+      for (Writer w: writers) {
+        w.cancel();
+        w.join();
+      }
+      
+      // debug result
+      for (Writer w: writers) {
+        log.info(w.getName() + " " + (w.itemsProcessed));
       }
     }
   }
@@ -383,7 +425,6 @@ public class TestLRUCacheMultithread extends JcrImplBaseTest {
     
     Set<Reader> readers = new HashSet<Reader>();
     Set<Writer> writers = new HashSet<Writer>();
-    Set<Remover> removers = new HashSet<Remover>();
     StatisticReader statReader = new StatisticReader();
     try {
       // create readers
@@ -396,26 +437,84 @@ public class TestLRUCacheMultithread extends JcrImplBaseTest {
       }
       
       // create writers
-      for (int t = 1; t <= 5; t++) {
+      for (int t = 1; t <= 10; t++) {
         NodeData[] ns = new NodeData[nodes.size()];
         nodes.toArray(ns);
-        Writer w = new Writer(ns, "writer #" + t, 20000);
+        Writer w = new Writer(ns, "writer #" + t, 250);
+        writers.add(w);
+        w.start();
+      }
+      
+      statReader.start();
+      
+      Thread.sleep(5 * 60 * 1000);
+    } finally {
+      // join
+      
+      for (Writer w: writers) {
+        w.cancel();
+        w.join();
+      }
+      
+      for (Reader r: readers) {
+        r.cancel();
+        r.join();
+      }
+      
+      statReader.cancel();
+      statReader.join();
+      
+      // debug result
+      for (Reader r: readers) {//cache.getSize()
+        log.info(r.getName() + " " + (r.itemsProcessed));
+      }
+      
+      for (Writer w: writers) {
+        log.info(w.getName() + " " + (w.itemsProcessed));
+      }
+    }
+  }
+  
+  public void testGetPutRemove() throws Exception {
+    
+    List<NodeData> nodes = prepare();
+    
+    Set<Reader> readers = new HashSet<Reader>();
+    Set<Writer> writers = new HashSet<Writer>();
+    Set<Remover> removers = new HashSet<Remover>();
+    StatisticReader statReader = new StatisticReader();
+    try {
+      // create readers
+      for (int t = 1; t <= 2000; t++) {
+        NodeData[] ns = new NodeData[nodes.size()];
+        nodes.toArray(ns);
+        Reader r = new Reader(ns, "reader #" + t);
+        readers.add(r);
+        r.start();
+      }
+      
+      // create writers
+      for (int t = 1; t <= 200; t++) {
+        NodeData[] ns = new NodeData[nodes.size()];
+        nodes.toArray(ns);
+        Writer w = new Writer(ns, "writer #" + t, 1000);
         writers.add(w);
         w.start();
       }
       
       // create removers
-//      for (int t = 1; t <= 1; t++) {
-//        NodeData[] ns = new NodeData[nodes.size()];
-//        nodes.toArray(ns);
-//        Remover r = new Remover(ns, "remover #" + t, 18000);
-//        removers.add(r);
-//        r.start();
-//      }
+      for (int t = 1; t <= 200; t++) {
+        NodeData[] ns = new NodeData[nodes.size()];
+        nodes.toArray(ns);
+        Remover r = new Remover(ns, "remover #" + t, 1000);
+        removers.add(r);
+        r.start();
+      }
       
       statReader.start();
       
       Thread.sleep(50400 * 1000); // 50400sec = 14h
+      //Thread.sleep(5 * 60 * 1000); 
     } finally {
       // join
       for (Remover r: removers) {
@@ -433,9 +532,6 @@ public class TestLRUCacheMultithread extends JcrImplBaseTest {
         r.join();
       }
       
-      statReader.cancel();
-      statReader.join();
-      
       // debug result
       for (Reader r: readers) {
         log.info(r.getName() + " " + (r.itemsProcessed));
@@ -448,6 +544,9 @@ public class TestLRUCacheMultithread extends JcrImplBaseTest {
       for (Remover r: removers) {
         log.info(r.getName() + " " + (r.itemsProcessed));
       }
+      
+      statReader.cancel();//cache.getSize()
+      statReader.join();
     }
   }
   

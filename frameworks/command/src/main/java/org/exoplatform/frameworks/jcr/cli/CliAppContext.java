@@ -18,9 +18,9 @@ package org.exoplatform.frameworks.jcr.cli;
 
 import java.util.List;
 
+import javax.jcr.Credentials;
 import javax.jcr.Item;
 import javax.naming.NamingException;
-import javax.jcr.Credentials;
 
 import org.exoplatform.frameworks.jcr.command.BasicAppContext;
 import org.exoplatform.services.jcr.core.ManageableRepository;
@@ -42,14 +42,12 @@ public class CliAppContext extends BasicAppContext {
       throws NamingException {
     super(rep, null);
     this.parametersKey = parametersKey;
-    // put(currentItemKey, getSession().getRootNode());
   }
 
   public CliAppContext(ManageableRepository rep, String parametersKey,
       Credentials cred) throws NamingException {
     super(rep, cred);
     this.parametersKey = parametersKey;
-    // put(currentItemKey, getSession().getRootNode());
   }
 
   public String getUserName() {

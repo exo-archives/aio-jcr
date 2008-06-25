@@ -33,11 +33,15 @@ import org.apache.commons.chain.Context;
 public interface JCRAppContext extends Context {
 
   /**
+   * Change current workspace name.
+   * 
    * @param workspaceName
    */
   void setCurrentWorkspace(String workspaceName);
 
   /**
+   * Return Session of the context.
+   * 
    * @return the session
    * @throws LoginException
    * @throws NoSuchWorkspaceException

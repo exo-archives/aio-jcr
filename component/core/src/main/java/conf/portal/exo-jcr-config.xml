@@ -32,7 +32,7 @@
               <property name="root-nodetype" value="nt:unstructured" />
             </properties>
           </initializer>
-          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
+          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
             <properties>
               <property name="max-size" value="10k" />
               <property name="live-time" value="1h" />
@@ -79,7 +79,7 @@
               <property name="root-nodetype" value="nt:unstructured" />
             </properties>
           </initializer>
-          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
+          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
             <properties>
               <property name="max-size" value="10k" />
               <property name="live-time" value="1h" />
@@ -118,7 +118,7 @@
               <property name="root-nodetype" value="nt:folder" />
             </properties>
           </initializer>
-          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
+          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
             <properties>
               <property name="max-size" value="5k" />
               <property name="live-time" value="15m" />

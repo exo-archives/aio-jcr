@@ -55,7 +55,7 @@ import org.exoplatform.services.jcr.impl.core.query.SystemSearchManager;
 import org.exoplatform.services.jcr.impl.core.query.SystemSearchManagerHolder;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
-import org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl;
+import org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.LocalWorkspaceDataManagerStub;
 import org.exoplatform.services.jcr.impl.storage.SystemDataContainerHolder;
 import org.exoplatform.services.jcr.impl.storage.value.StandaloneStoragePluginProvider;
@@ -168,10 +168,10 @@ public class RepositoryContainer extends ExoContainer {
         if (className != null && className.length()>0) {
           workspaceContainer.registerComponentImplementation(Class.forName(className));
         } else
-          workspaceContainer.registerComponentImplementation(LRUWorkspaceStorageCacheImpl.class); // TODO
+          workspaceContainer.registerComponentImplementation(LinkedWorkspaceStorageCacheImpl.class); // TODO
       } catch (ClassNotFoundException e) {
         log.warn("Workspace cache class not found " + wsConfig.getCache().getType() + ", will use default. Error : " + e);
-        workspaceContainer.registerComponentImplementation(LRUWorkspaceStorageCacheImpl.class); // TODO
+        workspaceContainer.registerComponentImplementation(LinkedWorkspaceStorageCacheImpl.class); // TODO
       }
       
       workspaceContainer.registerComponentImplementation(CacheableWorkspaceDataManager.class);

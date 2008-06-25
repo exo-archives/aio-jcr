@@ -25,10 +25,10 @@ import javax.naming.NamingException;
 
 import org.apache.commons.chain.impl.ContextBase;
 import org.apache.commons.logging.Log;
-import org.exoplatform.frameworks.jcr.JCRAppSessionFactory;
-import org.exoplatform.frameworks.jcr.SingleRepositorySessionFactory;
 import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.security.ConversationState;
 
 /**
  * Created by The eXo Platform SAS .
@@ -42,13 +42,15 @@ public class BasicAppContext extends ContextBase implements JCRAppContext {
   // private static final long serialVersionUID = 12L;
   protected static Log log = ExoLogger.getLogger("jcr.BasicAppContext");
 
-  protected JCRAppSessionFactory sessionFactory;
+  protected final SessionProvider  sessionProvider;
+  protected final ManageableRepository repository;
   protected String currentWorkspace;
 
   public BasicAppContext(ManageableRepository rep, Credentials cred)
       throws NamingException {
-    sessionFactory = new SingleRepositorySessionFactory(rep, cred);
-    currentWorkspace = rep.getConfiguration().getDefaultWorkspaceName();
+    this.sessionProvider = new SessionProvider(ConversationState.getCurrent());
+    this.repository = rep;
+    this.currentWorkspace = rep.getConfiguration().getDefaultWorkspaceName();
   }
 
   /*
@@ -58,8 +60,7 @@ public class BasicAppContext extends ContextBase implements JCRAppContext {
    */
   public Session getSession() throws LoginException, NoSuchWorkspaceException,
       RepositoryException {
-    Session sess = sessionFactory.getSession(currentWorkspace);
-    return sess;
+    return sessionProvider.getSession(currentWorkspace, repository);
   }
 
   /*

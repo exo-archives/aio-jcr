@@ -40,7 +40,7 @@
               <property name="restore-path" value="./src/test/resources/import-export/restore_db1_ws1.xml"/>
             </properties>
           </initializer -->
-          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
+          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
             <properties>
               <property name="max-size" value="2k" />
               <property name="liveTime" value="20m" />
@@ -88,7 +88,7 @@
               </value-storage>
             </value-storages>
           </container>
-          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
+          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
             <properties>
               <property name="max-size" value="2k" />
               <property name="liveTime" value="20m" />
@@ -128,7 +128,7 @@
               </value-storage>
             </value-storages>
           </container>
-          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
+          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
             <properties>
               <property name="max-size" value="2k" />
               <property name="liveTime" value="20m" />
@@ -184,7 +184,7 @@
               <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
             </properties>
           </initializer>                        
-          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
+          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
             <properties>
               <property name="max-size" value="2k" />
               <property name="liveTime" value="20m" />
@@ -237,7 +237,7 @@
               <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
             </properties>
           </initializer>
-          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
+          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
             <properties>
               <property name="max-size" value="2k" />
               <property name="live-time" value="20m" />
@@ -283,7 +283,7 @@
               <property name="root-permissions" value="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
             </properties>
           </initializer>
-          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LRUWorkspaceStorageCacheImpl">
+          <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
             <properties>
               <property name="max-size" value="2k" />
               <property name="live-time" value="20m" />
