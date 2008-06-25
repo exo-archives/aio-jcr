@@ -26,8 +26,6 @@ import javax.jcr.PropertyType;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.JcrImplBaseTest;
-import org.exoplatform.services.jcr.config.WorkspaceEntry;
-import org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -53,6 +51,7 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
   protected static Log log = ExoLogger.getLogger("jcr.TestLinkedCacheMultithread");
   
   private LinkedWorkspaceStorageCacheImpl cache;
+  //private LRUWorkspaceStorageCacheImpl cache;
   
   private NodeData rootData;
   
@@ -279,6 +278,7 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
     super.setUp();
     
     //cache = new LinkedWorkspaceStorageCacheImpl((WorkspaceEntry) session.getContainer().getComponentInstanceOfType(WorkspaceEntry.class));
+    //cache = new LRUWorkspaceStorageCacheImpl("testLoad_cache", true, 100 * 1024, 120, 5 * 60000, 30000, false);
     cache = new LinkedWorkspaceStorageCacheImpl("testLoad_cache", true, 100 * 1024, 120, 5 * 60000, 30000, false);
     
     rootData = (NodeData) ((NodeImpl) root).getData();
@@ -352,6 +352,7 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
     
     Set<Reader> readers = new HashSet<Reader>();
     StatisticReader statReader = new StatisticReader();
+    long start = System.currentTimeMillis();
     try {
       // create readers
       for (int t = 1; t <= 200; t++) {
@@ -361,10 +362,10 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
         readers.add(r);
         r.start();
       }
-      
+      log.info("Started");
       statReader.start();
-      
       Thread.sleep(30 * 1000);
+      log.info("Done");
     } finally {
       // join
       for (Reader r: readers) {
@@ -376,9 +377,15 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
       statReader.join();
       
       // debug result
+      long totalRead = 0;
       for (Reader r: readers) {
-        log.info(r.getName() + " " + (r.itemsProcessed));
+        totalRead += r.itemsProcessed;
+        //log.info(r.getName() + " " + (r.itemsProcessed));
       }
+      
+      long time = System.currentTimeMillis() - start;
+      double speed = totalRead * 1d/ time;
+      log.info("Total read " + totalRead + ", speed " + speed + "read/sec., time " + (time/1000d) + "sec");
     }
   }
   
@@ -475,7 +482,7 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
     }
   }
   
-  public void testGetPutRemove() throws Exception {
+  public void _testGetPutRemove() throws Exception {
     
     List<NodeData> nodes = prepare();
     
@@ -483,6 +490,7 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
     Set<Writer> writers = new HashSet<Writer>();
     Set<Remover> removers = new HashSet<Remover>();
     StatisticReader statReader = new StatisticReader();
+    long start = System.currentTimeMillis();
     try {
       // create readers
       for (int t = 1; t <= 2000; t++) {
@@ -513,7 +521,13 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
       
       statReader.start();
       
-      Thread.sleep(50400 * 1000); // 50400sec = 14h
+      //Thread.sleep(50400 * 1000); // 50400sec = 14h
+      
+      log.info("Wait 20sec");
+      
+      Thread.sleep(20 * 1000); // 20min
+      
+      log.info("Stopping");
       //Thread.sleep(5 * 60 * 1000); 
     } finally {
       // join
@@ -532,21 +546,29 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
         r.join();
       }
       
+      statReader.cancel();//cache.getSize()
+      statReader.join();
+      
       // debug result
+      long stop = System.currentTimeMillis() - start;
+      long totalRead = 0;
       for (Reader r: readers) {
-        log.info(r.getName() + " " + (r.itemsProcessed));
+        totalRead += r.itemsProcessed;
+        //log.info(r.getName() + " " + (r.itemsProcessed));
       }
       
       for (Writer w: writers) {
-        log.info(w.getName() + " " + (w.itemsProcessed));
+        totalRead += w.itemsProcessed;
+        //log.info(w.getName() + " " + (w.itemsProcessed));
       }
       
       for (Remover r: removers) {
-        log.info(r.getName() + " " + (r.itemsProcessed));
+        totalRead += r.itemsProcessed;
+        //log.info(r.getName() + " " + (r.itemsProcessed));
       }
       
-      statReader.cancel();//cache.getSize()
-      statReader.join();
+      double speed = totalRead * 1d/ stop;
+      log.info("Total accessed " + totalRead + ", speed " + speed + " oper/sec., time " + (stop/1000d) + "sec");
     }
   }
   
