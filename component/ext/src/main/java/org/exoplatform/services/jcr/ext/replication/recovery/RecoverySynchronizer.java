@@ -28,8 +28,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.jcr.RepositoryException;
-
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.ItemDataKeeper;
@@ -38,12 +36,11 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.ItemData;
-import org.exoplatform.services.jcr.ext.backup.BackupOperationException;
 import org.exoplatform.services.jcr.ext.replication.AbstractWorkspaceDataReceiver;
 import org.exoplatform.services.jcr.ext.replication.FixupStream;
 import org.exoplatform.services.jcr.ext.replication.Packet;
+import org.exoplatform.services.jcr.ext.replication.ReplicationException;
 import org.exoplatform.services.jcr.ext.replication.recovery.PendingBinaryFile.FileDescriptor;
-import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 import org.exoplatform.services.jcr.impl.storage.JCRInvalidItemStateException;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
@@ -53,8 +50,9 @@ import org.jgroups.blocks.GroupRequest;
 import org.jgroups.blocks.MessageDispatcher;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 15.03.2008
+ * Created by The eXo Platform SAS
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * @version $Id: RecoverySynchronizer.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class RecoverySynchronizer {
   protected static Log                       log = ExoLogger.getLogger("ext.RecoverySynchronizer");
@@ -111,11 +109,74 @@ public class RecoverySynchronizer {
     }
   }
 
-  private void sendPacket(Packet packet) throws Exception {
+  private void send(Packet packet) throws Exception {
     byte[] buffer = Packet.getAsByteArray(packet);
 
+    if (buffer.length <= Packet.MAX_PACKET_SIZE) {
+      send(buffer);
+    } else
+      sendBigPacket(buffer, packet);
+  }
+
+  private void send(byte[] buffer) {
     Message msg = new Message(null, null, buffer);
     disp.castMessage(null, msg, GroupRequest.GET_NONE, 0);
+  }
+
+  private void sendPacket(Packet packet) throws IOException {
+    byte[] buffer = Packet.getAsByteArray(packet);
+    send(buffer);
+  }
+
+  private void sendBigPacket(byte[] data, Packet packet) throws Exception {
+    long offset = 0;
+    byte[] tempBuffer = new byte[Packet.MAX_PACKET_SIZE];
+
+    cutData(data, offset, tempBuffer);
+
+    Packet firsPacket = new Packet(Packet.PacketType.BIG_PACKET_FIRST, data.length, tempBuffer,
+        packet.getIdentifier());
+    firsPacket.setOwnName(packet.getOwnerName());
+    firsPacket.setOffset(offset);
+    sendPacket(firsPacket);
+
+    if (log.isDebugEnabled())
+      log.debug("Send of damp --> " + firsPacket.getByteArray().length);
+
+    offset += tempBuffer.length;
+
+    while ((data.length - offset) > Packet.MAX_PACKET_SIZE) {
+      cutData(data, offset, tempBuffer);
+
+      Packet middlePacket = new Packet(Packet.PacketType.BIG_PACKET_MIDDLE, data.length,
+          tempBuffer, packet.getIdentifier());
+      middlePacket.setOwnName(packet.getOwnerName());
+      middlePacket.setOffset(offset);
+      Thread.sleep(1);
+      sendPacket(middlePacket);
+
+      if (log.isDebugEnabled())
+        log.debug("Send of damp --> " + middlePacket.getByteArray().length);
+
+      offset += tempBuffer.length;
+    }
+
+    byte[] lastBuffer = new byte[data.length - (int) offset];
+    cutData(data, offset, lastBuffer);
+
+    Packet lastPacket = new Packet(Packet.PacketType.BIG_PACKET_LAST, data.length, lastBuffer,
+        packet.getIdentifier());
+    lastPacket.setOwnName(packet.getOwnerName());
+    lastPacket.setOffset(offset);
+    sendPacket(lastPacket);
+
+    if (log.isDebugEnabled())
+      log.debug("Send of damp --> " + lastPacket.getByteArray().length);
+  }
+
+  private void cutData(byte[] sourceData, long startPos, byte[] destination) {
+    for (int i = 0; i < destination.length; i++)
+      destination[i] = sourceData[i + (int) startPos];
   }
 
   public int processingPacket(Packet packet, int status) throws Exception {
@@ -178,10 +239,9 @@ public class RecoverySynchronizer {
         pbf.addToSuccessfulTransferCounter(packet.getSize());
 
         if (pbf.isSuccessfulTransfer()) {
-          
           if (log.isDebugEnabled())
             log.debug("The signal ALL_BinaryFile_transferred_OK has been received  from "
-              + packet.getOwnerName());
+                + packet.getOwnerName());
 
           List<FileDescriptor> fileDescriptorList = pbf.getSortedFilesDescriptorList();
 
@@ -193,6 +253,9 @@ public class RecoverySynchronizer {
 
                 transactionChangesLog.setSystemId(fileDescriptor.getSystemId());
 
+                Calendar cLogTime = fileNameFactory.getDateFromFileName(fileDescriptor.getFile()
+                    .getName());
+
                 if (log.isDebugEnabled()) {
                   log.debug("Save to JCR : " + fileDescriptor.getFile().getAbsolutePath());
                   log.debug("SystemID : " + transactionChangesLog.getSystemId());
@@ -200,15 +263,15 @@ public class RecoverySynchronizer {
                 }
 
                 // dump log
-                /*if (log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                   ChangesLogIterator logIterator = transactionChangesLog.getLogIterator();
                   while (logIterator.hasNextLog()) {
                     PlainChangesLog pcl = logIterator.nextLog();
                     log.debug(pcl.dump());
                   }
-                }*/
+                }
 
-                saveChangesLog(dataKeeper, transactionChangesLog);
+                saveChangesLog(dataKeeper, transactionChangesLog, cLogTime);
 
                 if (log.isDebugEnabled()) {
                   log.debug("After save message: the owner systemId --> "
@@ -227,10 +290,21 @@ public class RecoverySynchronizer {
 
             Packet packetFileNameList = new Packet(Packet.PacketType.ALL_ChangesLog_saved_OK,
                 packet.getIdentifier(), ownName, fileNameList);
-            sendPacket(packetFileNameList);
-          } else if (log.isDebugEnabled())
-              log.debug("Do not start save : " + fileDescriptorList.size() + " of "
+            send(packetFileNameList);
+
+            // remove temporary files
+            for (FileDescriptor fd : fileDescriptorList)
+              fileCleaner.addFile(fd.getFile());
+
+            // remove PendingBinaryFile
+            mapPendingBinaryFile.remove(packet.getIdentifier());
+
+            log.info("The " + fileDescriptorList.size() + " changeslogs were received and saved");
+
+          } else if (log.isDebugEnabled()) {
+            log.debug("Do not start save : " + fileDescriptorList.size() + " of "
                 + pbf.getNeedTransferCounter());
+          }
         }
       }
       break;
@@ -264,7 +338,7 @@ public class RecoverySynchronizer {
           // next iteration
           if (log.isDebugEnabled())
             log.debug("Next iteration of recovery ...");
-          
+
           synchronizRepository();
         }
       } else
@@ -280,7 +354,6 @@ public class RecoverySynchronizer {
 
       if (log.isDebugEnabled())
         log.debug("NeedTransferCounter : " + pbf.getNeedTransferCounter());
-      
       break;
 
     case Packet.PacketType.SYNCHRONIZED_OK:
@@ -300,7 +373,7 @@ public class RecoverySynchronizer {
     try {
       if (log.isDebugEnabled())
         log.debug("+++ sendChangesLogUpDate() +++ : "
-              + Calendar.getInstance().getTime().toGMTString());
+            + Calendar.getInstance().getTime().toGMTString());
 
       List<String> filePathList = recoveryReader.getFilePathList(timeStamp, ownerName);
 
@@ -392,15 +465,19 @@ public class RecoverySynchronizer {
     initedParticipantsClusterList = new ArrayList<String>(list);
   }
 
-  private void saveChangesLog(ItemDataKeeper dataManager,
-      TransactionChangesLog changesLog) throws RepositoryException {
+  private void saveChangesLog(ItemDataKeeper dataManager, TransactionChangesLog changesLog,
+      Calendar cLogTime) throws ReplicationException {
     try {
-      dataManager.save(changesLog);
-    } catch (JCRInvalidItemStateException e) {
-      TransactionChangesLog normalizeChangesLog = getNormalizedChangesLog(e.getIdentifier(), e
-          .getState(), changesLog);
-      if (normalizeChangesLog != null)
-        saveChangesLog(dataManager, normalizeChangesLog);
+      try {
+        dataManager.save(changesLog);
+      } catch (JCRInvalidItemStateException e) {
+        TransactionChangesLog normalizeChangesLog = getNormalizedChangesLog(e.getIdentifier(), e
+            .getState(), changesLog);
+        if (normalizeChangesLog != null)
+          saveChangesLog(dataManager, normalizeChangesLog, cLogTime);
+      }
+    } catch (Throwable t) {
+      throw new ReplicationException("Save error. Log time " + cLogTime.getTime(), t);
     }
   }
 
@@ -510,12 +587,10 @@ class PendingBinaryFile {
 
     Collections.sort(fileDescriptorhList);
 
-    
     if (log.isDebugEnabled()) {
       log.debug("\n\nList has been sorted :\n");
-    
       for (FileDescriptor fd : fileDescriptorhList)
-       log.debug(fd.getFile().getAbsolutePath());
+        log.debug(fd.getFile().getAbsolutePath());
     }
 
     return fileDescriptorhList;

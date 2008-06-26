@@ -40,8 +40,9 @@ import org.jgroups.blocks.GroupRequest;
 import org.jgroups.blocks.MessageDispatcher;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 01.02.2008
+ * Created by The eXo Platform SAS
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * @version $Id: WorkspaceDataTransmitter.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class WorkspaceDataTransmitter implements ItemsPersistenceListener, MembershipListener {
 

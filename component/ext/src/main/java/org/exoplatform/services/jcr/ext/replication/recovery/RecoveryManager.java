@@ -37,8 +37,9 @@ import org.jgroups.blocks.GroupRequest;
 import org.jgroups.blocks.MessageDispatcher;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 04.03.2008
+ * Created by The eXo Platform SAS
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * @version $Id: RecoveryManager.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class RecoveryManager {
 
@@ -86,8 +87,7 @@ public class RecoveryManager {
     this.ownName = ownName;
     this.participantsClusterList = new ArrayList<String>(participantsClusterList);
 
-    if (log.isDebugEnabled())
-      log.debug("init : participantsClusterList.size() : " + participantsClusterList.size());
+    log.info("init : other participants = " + participantsClusterList.size());
 
     this.repoName = repoName;
     this.wsName = wsName;
@@ -125,18 +125,18 @@ public class RecoveryManager {
 
     if (confirmationChengesLog != null) {
       if (confirmationChengesLog.getConfirmationList().contains(packet.getOwnerName()) != true) {
-        
+
         if (log.isDebugEnabled()) {
           log.debug(ownName + ": Confirmation ChangesLog form : " + packet.getOwnerName());
           log.debug("Beefor: Confirmation list size : "
               + confirmationChengesLog.getConfirmationList().size());
         }
-        
+
         confirmationChengesLog.getConfirmationList().add(packet.getOwnerName());
-        
+
         if (log.isDebugEnabled())
           log.debug("After: Confirmation list size : "
-            + confirmationChengesLog.getConfirmationList().size());
+              + confirmationChengesLog.getConfirmationList().size());
       }
     } else {
       try {
@@ -147,10 +147,20 @@ public class RecoveryManager {
     }
   }
 
-  public void save(String identifier) throws FileNotFoundException, IOException {
+  public void removeChangesLog(String identifier, String ownerName) throws IOException {
+    recoveryWriter.removeChangesLog(identifier, ownerName);
+  }
+
+  public String save(String identifier) throws FileNotFoundException, IOException {
     PendingConfirmationChengesLog confirmationChengesLog = mapPendingConfirmation.get(identifier);
 
-    recoveryWriter.save(confirmationChengesLog);
+    String fileName = recoveryWriter.save(confirmationChengesLog);
+
+    return fileName;
+  }
+
+  public void saveRemovableChangesLog(String fileName) throws IOException {
+    recoveryWriter.saveRemoveChangesLog(fileName);
   }
 
   public void remove(String identifier) {
@@ -174,7 +184,7 @@ public class RecoveryManager {
     case Packet.PacketType.ADD_OK:
       if (ownName.equals(packet.getOwnerName()) == false) {
         confirmationChengesLogSave(packet);
-        
+
         if (log.isDebugEnabled())
           log.debug(ownName + " : ADD_OK : " + packet.getOwnerName());
       }
@@ -242,7 +252,7 @@ public class RecoveryManager {
 
           if (log.isDebugEnabled())
             log.debug("ALL_INITED : start recovery");
-          
+
           isAllInited = true;
           startRecovery();
         }

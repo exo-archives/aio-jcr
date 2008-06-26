@@ -25,8 +25,9 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 24.03.2008
+ * Created by The eXo Platform SAS
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * @version $Id: WaitConfirmation.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class WaitConfirmation extends Thread {
   protected static Log log = ExoLogger.getLogger("ext.WaitConfirmation");
@@ -50,30 +51,36 @@ public class WaitConfirmation extends Thread {
   public void run() {
     try {
       if (log.isDebugEnabled())
-        log.debug("Before : getParticipantsClusterList().size():" + recoveryManager
-          .getPendingConfirmationChengesLogById(identifier).getConfirmationList().size());
-      
+        log.debug("Before : getParticipantsClusterList().size():"
+            + recoveryManager.getPendingConfirmationChengesLogById(identifier)
+                .getConfirmationList().size());
+
       Thread.sleep(timeOut);
 
       PendingConfirmationChengesLog confirmationChengesLog = recoveryManager
           .getPendingConfirmationChengesLogById(identifier);
-      
-      List<String> notConfirmationList = new ArrayList<String>(recoveryManager.getParticipantsClusterList());
+
+      List<String> notConfirmationList = new ArrayList<String>(recoveryManager
+          .getParticipantsClusterList());
       notConfirmationList.removeAll(confirmationChengesLog.getConfirmationList());
-      
+
       if (notConfirmationList.size() > 0) {
         confirmationChengesLog.setNotConfirmationList(notConfirmationList);
-        recoveryManager.save(identifier);
-        
+        String fileName = recoveryManager.save(identifier);
+
         if (log.isDebugEnabled())
           log.debug("save : " + identifier);
+
+        for (String ownerName : confirmationChengesLog.getConfirmationList())
+          recoveryManager.removeChangesLog(identifier, ownerName);
       }
 
       if (log.isDebugEnabled())
-        log.debug("After : getParticipantsClusterList().size():" + confirmationChengesLog.getConfirmationList().size());
-      
+        log.debug("After : getParticipantsClusterList().size():"
+            + confirmationChengesLog.getConfirmationList().size());
+
       recoveryManager.remove(identifier);
-      
+
       if (log.isDebugEnabled())
         log.debug("remove : " + identifier);
     } catch (InterruptedException e) {

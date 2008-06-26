@@ -17,18 +17,22 @@
 package org.exoplatform.services.jcr.ext.replication.recovery;
 
 import java.io.File;
-import java.lang.annotation.Retention;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by The eXo Platform SAS
- * Author : Alex Reshetnyak
- *          alex.reshetnyak@exoplatform.com.ua
- * 17.03.2008  
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * @version $Id: FileNameFactory.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class FileNameFactory {
-  private final int subPathLengh = 7; 
-  
+  DateFormat           datefName        = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS");
+
+  private final int    subPathLengh     = 7;
+
   private final String pathCharSequence = "0123456789abcdef";
 
   public String getStrDate(Calendar c) {
@@ -37,34 +41,45 @@ public class FileNameFactory {
     int d = c.get(Calendar.DATE);
     return "" + c.get(Calendar.YEAR) + (m < 10 ? "0" + m : m) + (d < 10 ? "0" + d : d);
   }
-  
+
   public String getStrTime(Calendar c) {
     // Returns as a String (YYYYMMDD_MS) a Calendar date
     int h = c.get(Calendar.HOUR_OF_DAY);
     int m = c.get(Calendar.MINUTE);
     int s = c.get(Calendar.SECOND);
     int ms = c.get(Calendar.MILLISECOND);
-    
-    return "" + (h < 10 ? "0" + h : h) + (m < 10 ? "0" + m : m) + (s < 10 ? "0" + s : s) + "_" + (ms < 100 ? (ms < 10 ? "00" + ms : "0" + ms) : ms);
+
+    return "" + (h < 10 ? "0" + h : h) + (m < 10 ? "0" + m : m) + (s < 10 ? "0" + s : s) + "_"
+        + (ms < 100 ? (ms < 10 ? "00" + ms : "0" + ms) : ms);
   }
-  
+
   public String getTimeStampName(Calendar c) {
     return (getStrDate(c) + "_" + getStrTime(c));
   }
-  
-  
+
   public String getRandomSubPath() {
     String subPath = new String();
-    
+
     for (int i = 0; i < subPathLengh; i++) {
-      int index = (int)(Math.random()*1000) % pathCharSequence.length();
-      
-      if (i != subPathLengh-1)
-        subPath+=(pathCharSequence.charAt(index) + File.separator);
+      int index = (int) (Math.random() * 1000) % pathCharSequence.length();
+
+      if (i != subPathLengh - 1)
+        subPath += (pathCharSequence.charAt(index) + File.separator);
       else
-        subPath+=pathCharSequence.charAt(index);
+        subPath += pathCharSequence.charAt(index);
     }
-    
+
     return subPath;
+  }
+
+  public Calendar getDateFromFileName(String fName) throws ParseException {
+    Calendar c = Calendar.getInstance();
+
+    String[] sArray = fName.split("_");
+
+    Date d = datefName.parse(sArray[0] + "_" + sArray[1] + "_" + sArray[2]);
+    c.setTime(d);
+
+    return c;
   }
 }

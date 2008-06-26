@@ -91,5 +91,58 @@ public class AddNTFileCheckerTest extends BaseTestCaseChecker {
       }
     }
     
+    // delete nt:file from masterMember
+    
+    for (int i = 0; i < filesSize.length; i++) {
+      String relPath = relPathArray[i];
+      
+      String url = "http://" + masterMember.getIpAddress() + ":" 
+                             + masterMember.getPort()  
+                             + ReplicationTestService.Constants.BASE_URL
+                             + "/" + workingRepository
+                             + "/" + workingWorkspace
+                             + "/" + masterMember.getLogin()
+                             + "/" + masterMember.getPassword() 
+                             + "/" + relPath
+                             + "/" + fileNameArray[i] + "/" 
+                             + ReplicationTestService.Constants.OPERATION_PREFIX
+                             + ReplicationTestService.Constants.OperationType.DELETE;
+      
+      BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember);
+      String result = client.execute(url);
+      System.out.println(url);
+      System.out.println(result);
+      
+      assertEquals(result, "ok");
+    }
+    
+    // check deleted node in slaveMember
+    
+    for (int i = 0; i < filesSize.length; i++) {
+      long fSize = filesSize[i];
+      String relPath = relPathArray[i];
+      
+      for (MemberInfo slaveMember : getCurrentSlaveMembers()) {
+        String checkUrl = "http://" + slaveMember.getIpAddress() + ":" 
+                                    + slaveMember.getPort()  
+                                    + ReplicationTestService.Constants.BASE_URL
+                                    + "/" + workingRepository
+                                    + "/" + workingWorkspace 
+                                    + "/" + slaveMember.getLogin()
+                                    + "/" + slaveMember.getPassword()
+                                    + "/" + relPath 
+                                    + "/" + fileNameArray[i] + "/" 
+                                    + ReplicationTestService.Constants.OPERATION_PREFIX
+                                    + ReplicationTestService.Constants.OperationType.CHECK_DELETE;
+        
+        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember, 4000);
+        String result = client.execute(checkUrl);
+        System.out.println(checkUrl);
+        System.out.println(result);
+        
+        assertEquals(result, "ok");
+      }
+    }
+    
   }
 }

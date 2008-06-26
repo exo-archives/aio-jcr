@@ -23,17 +23,20 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 26.03.2008
+ * Created by The eXo Platform SAS
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * @version $Id: AbstractFSAccess.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class AbstractFSAccess {
-  public final static String DATA_DIR_NAME = "data";
-  
-  public final static String PREFIX_REMOVED_DATA = "---";
-  
-  public final static String PREFIX_CHAR = "-";
+  public final static String DATA_DIR_NAME       = "data";
 
-  protected int          BUFFER_1KB    = 1024;
+  public final static String PREFIX_REMOVED_DATA = "---";
+
+  public final static String PREFIX_CHAR         = "-";
+
+  public final static String REMOVED_SUFFIX      = ".remove";
+
+  protected int              BUFFER_1KB          = 1024;
 
   protected File getAsFile(InputStream is) throws IOException {
     byte[] buf = new byte[BUFFER_1KB * 20];

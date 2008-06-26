@@ -56,34 +56,6 @@ public class LockCheckerTest extends BaseTestCaseChecker {
       assertEquals(result, "ok");
     }
     
-    
-    // check relock in slaveMember
-    
-    for (int i = 0; i < relPathArray.length; i++) {
-      String relPath = relPathArray[i];
-      
-      for (MemberInfo slaveMember : getCurrentSlaveMembers()) {
-        String checkUrl = "http://" + slaveMember.getIpAddress() + ":" 
-                                    + slaveMember.getPort()  
-                                    + ReplicationTestService.Constants.BASE_URL
-                                    + "/" + workingRepository
-                                    + "/" + workingWorkspace
-                                    + "/" + slaveMember.getLogin()
-                                    + "/" + slaveMember.getPassword() 
-                                    + "/" + relPath + "/"
-                                    + ReplicationTestService.Constants.OPERATION_PREFIX
-                                    + ReplicationTestService.Constants.OperationType.SET_LOCK;
-        
-        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember);
-        String result = client.execute(checkUrl);
-        System.out.println(checkUrl);
-        System.out.println((result.equals("fail") ? "ok" : result));
-        
-        assertEquals(result, "fail");
-      }
-    }
-    
-    
     // check lock in slaveMember
     
     for (int i = 0; i < relPathArray.length; i++) {

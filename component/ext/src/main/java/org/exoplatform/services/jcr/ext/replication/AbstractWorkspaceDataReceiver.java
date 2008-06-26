@@ -18,9 +18,7 @@ package org.exoplatform.services.jcr.ext.replication;
 
 import java.io.File;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
@@ -30,7 +28,6 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.recovery.RecoveryManager;
-import org.exoplatform.services.jcr.ext.replication.recovery.RecoverySynchronizer;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
@@ -41,9 +38,11 @@ import org.jgroups.blocks.MessageDispatcher;
 import org.jgroups.blocks.RequestHandler;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 01.02.2008
+ * Created by The eXo Platform SAS
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * @version $Id: AbstractWorkspaceDataReceiver.java 111 2008-11-11 11:11:11Z rainf0x $
  */
+
 public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {
 
   public final static int                   INIT_MODE     = -1;
@@ -137,6 +136,8 @@ public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {
   public Object handle(Message msg) {
     try {
       Packet packet = Packet.getAsPacket(msg.getBuffer());
+      
+      Packet bigPacket = null;
 
       switch (packet.getPacketType()) {
       case Packet.PacketType.ItemDataChangesLog:
@@ -310,9 +311,47 @@ public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {
         }
 
         break;
+      
+      case Packet.PacketType.BIG_PACKET_FIRST:
+        PendingChangesLog bigLog = new PendingChangesLog(packet.getIdentifier(),
+            (int) packet.getSize());
+        bigLog.putData((int) packet.getOffset(), packet.getByteArray());
+
+        mapPendingChangesLog.put(packet.getIdentifier(), bigLog);
+        break;
+
+      case Packet.PacketType.BIG_PACKET_MIDDLE:
+        if (mapPendingChangesLog.get(packet.getIdentifier()) != null) {
+          container = mapPendingChangesLog.get(packet.getIdentifier());
+          container.putData((int) packet.getOffset(), packet.getByteArray());
+        }
+        break;
+
+      case Packet.PacketType.BIG_PACKET_LAST:
+        if (mapPendingChangesLog.get(packet.getIdentifier()) != null) {
+          container = mapPendingChangesLog.get(packet.getIdentifier());
+          container.putData((int) packet.getOffset(), packet.getByteArray());
+
+          bigPacket = Packet.getAsPacket(container.getData());
+
+          if (log.isDebugEnabled()) {
+            log.debug("Recive-->Big packet-->");
+            log.debug("---------------------");
+            log.debug("Size of recive damp --> " + container.getData().length);
+            log.debug("---------------------");
+          }
+          mapPendingChangesLog.remove(packet.getIdentifier());
+        }
+
+        break;
       }
       
-      state = recoveryManager.processing(packet, state);
+      if (bigPacket != null) {
+        state = recoveryManager.processing(bigPacket, state);
+        bigPacket = null;
+      } else
+        state = recoveryManager.processing(packet, state);
+      
     } catch (Exception e) {
       log.error("An error in processing packet : ", e);
     }

@@ -43,8 +43,9 @@ import org.jgroups.blocks.MessageDispatcher;
 import org.picocontainer.Startable;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 31.01.2008
+ * Created by The eXo Platform SAS
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * @version $Id: ReplicationService.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class ReplicationService implements Startable {
 

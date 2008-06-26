@@ -20,8 +20,9 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 01.02.2008
+ * Created by The eXo Platform SAS
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * @version $Id: PersistentWorkspaceDataReceiver.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class PersistentWorkspaceDataReceiver extends AbstractWorkspaceDataReceiver {
 

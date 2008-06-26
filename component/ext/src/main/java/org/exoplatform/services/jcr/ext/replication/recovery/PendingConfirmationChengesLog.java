@@ -24,18 +24,22 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 
 /**
  * Created by The eXo Platform SAS
- * Author : Alex Reshetnyak
- *          alex.reshetnyak@exoplatform.com.ua
- * 26.03.2008  
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * @version $Id: PendingConfirmationChengesLog.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class PendingConfirmationChengesLog {
-  private List<String> confirmationList;
-  private List<String> notConfirmationList;
+  private List<String>        confirmationList;
+
+  private List<String>        notConfirmationList;
+
   private ItemStateChangesLog changesLog;
-  private Calendar timeStamp;
-  private String identifier;
-  
-  public PendingConfirmationChengesLog(ItemStateChangesLog changesLog, Calendar timeStamp, String identifier) {
+
+  private Calendar            timeStamp;
+
+  private String              identifier;
+
+  public PendingConfirmationChengesLog(ItemStateChangesLog changesLog, Calendar timeStamp,
+      String identifier) {
     this.confirmationList = new ArrayList<String>();
     this.changesLog = changesLog;
     this.timeStamp = timeStamp;
@@ -81,5 +85,5 @@ public class PendingConfirmationChengesLog {
   public void setNotConfirmationList(List<String> notConfirmationList) {
     this.notConfirmationList = notConfirmationList;
   }
-  
+
 }

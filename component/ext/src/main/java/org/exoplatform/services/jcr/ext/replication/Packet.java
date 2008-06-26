@@ -89,6 +89,12 @@ public class Packet implements Externalizable {
     public static final int REMOVED_OLD_CHANGESLOG_COUNTER               = 25;
     
     public static final int MEMBER_STARTED                               = 26;
+    
+    public static final int BIG_PACKET_FIRST                             = 27;
+    
+    public static final int BIG_PACKET_MIDDLE                            = 28;
+    
+    public static final int BIG_PACKET_LAST                              = 29;
   }
 
   public static final int MAX_PACKET_SIZE = 1024 * 16;

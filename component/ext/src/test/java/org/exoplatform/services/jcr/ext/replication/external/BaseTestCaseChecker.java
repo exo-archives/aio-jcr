@@ -20,19 +20,17 @@ import junit.framework.TestCase;
 
 /**
  * Created by The eXo Platform SAS
- * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: ReplicationTestCaseChecker.java 111 2008-11-11 11:11:11Z
- *          rainf0x $
+ * @version $Id: BaseTestCaseChecker.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class BaseTestCaseChecker extends TestCase {
   protected static int MAX_RANDOM_VALUE = 1000000;
   protected final String workingRepository = "repository";
 
-  protected final String workingWorkspace  = "draft";
+  protected final String workingWorkspace  = "production";
 
   private MemberInfo[]   members           = new MemberInfo[] {
-      new MemberInfo("192.168.0.5", 8080, "root", "exo"),
+      new MemberInfo("192.168.0.5", 8100, "root", "exo"),
       new MemberInfo("192.168.0.5", 8090, "root", "exo"),
       new MemberInfo("192.168.0.15", 8080, "root", "exo"),
       new MemberInfo("192.168.0.135", 8080, "root", "exo")};

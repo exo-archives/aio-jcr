@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.Calendar;
 
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 
 /**
  * Created by The eXo Platform SAS Author : Alex Reshetnyak
@@ -88,6 +89,23 @@ public class ReplicationStreamTest extends BaseReplicationTest {
 
     assertEquals(sourceNode.getProperty("jcr:lastModified").getString(), desinationNode
         .getProperty("jcr:lastModified").getString());
+    
+    
+    // delete
+    
+    Node srcParent = sourceNode.getParent();
+    srcParent.remove();
+    session.save();
+    
+    Thread.sleep(5 * 1000);
+    
+    try {
+      Node destinationRemovablesNode = (Node) session2.getItem("/cms2/test/nnn");
+      fail("The node " +  destinationRemovablesNode.getPath() + "must be removed");
+    } catch (PathNotFoundException pe) {
+      //ok
+    }
+    
   }
 
   public void tearDown() throws Exception {

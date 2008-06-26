@@ -38,8 +38,9 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 26.03.2008
+ * Created by The eXo Platform SAS
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * @version $Id: RecoveryReader.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class RecoveryReader extends AbstractFSAccess {
   private static Log  log = ExoLogger.getLogger("ext.RecoveryReader");
@@ -128,7 +129,8 @@ public class RecoveryReader extends AbstractFSAccess {
           if (timeStamp.after(time)) {
             list.add(sPath);
 
-            System.out.println(sPath);
+            if (log.isDebugEnabled())
+              log.debug(sPath);
           } else
             break;
         }

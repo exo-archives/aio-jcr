@@ -17,17 +17,19 @@
 package org.exoplatform.services.jcr.ext.replication.recovery;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -36,11 +38,13 @@ import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.FixupStream;
 import org.exoplatform.services.jcr.ext.replication.PendingChangesLog;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 26.03.2008
+ * Created by The eXo Platform SAS
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * @version $Id: RecoveryWriter.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class RecoveryWriter extends AbstractFSAccess {
 
@@ -66,11 +70,11 @@ public class RecoveryWriter extends AbstractFSAccess {
     if (!recoveryDirDate.exists())
       recoveryDirDate.mkdirs();
 
-    fileRemover = new FileRemover(10 * 60 * 1000, recoveryDir, fileCleaner, ownName);
+    fileRemover = new FileRemover(1 * 60 * 1000, recoveryDir, fileCleaner, ownName);
     fileRemover.start();
   }
 
-  public void save(PendingConfirmationChengesLog confirmationChengesLog)
+  public String save(PendingConfirmationChengesLog confirmationChengesLog)
       throws FileNotFoundException, IOException {
 
     if (confirmationChengesLog.getNotConfirmationList().size() > 0) {
@@ -96,9 +100,12 @@ public class RecoveryWriter extends AbstractFSAccess {
       // save info
       if (log.isDebugEnabled())
         log.debug("Write info : " + f.getAbsolutePath());
-      
+
       writeNotConfirmationInfo(f, confirmationChengesLog.getNotConfirmationList());
+
+      return f.getName();
     }
+    return null;
   }
 
   synchronized private void writeNotConfirmationInfo(File dataFile,
@@ -179,14 +186,12 @@ public class RecoveryWriter extends AbstractFSAccess {
   }
 
   synchronized public void removeChangesLog(String identifier, String ownerName) throws IOException {
-    if (log.isDebugEnabled())
-      log.debug("remove changes log form fs : " + identifier);
-    
     File metaDataFile = new File(recoveryDir.getAbsolutePath() + File.separator + ownerName);
 
     RandomAccessFile raf = new RandomAccessFile(metaDataFile, "rw");
 
     String fileName;
+
     while ((fileName = raf.readLine()) != null)
       if (fileName.indexOf(identifier) != -1) {
         raf.seek(raf.getFilePointer() - (fileName.length() + 1));
@@ -195,31 +200,20 @@ public class RecoveryWriter extends AbstractFSAccess {
         s = s.replaceAll(".", PREFIX_CHAR);
 
         raf.writeBytes(s);
-        
-        if (log.isDebugEnabled())
+
+        if (log.isDebugEnabled()) {
           log.debug("remove metadata : " + fileName);
+          log.debug("remove changes log form fs : " + identifier);
+        }
+
+        saveRemoveChangesLog((new File(fileName)).getName());
         break;
       }
 
     raf.close();
-
-    // TODO
-    // if (fileName != null) {
-    // File contentFiel = new File(fileName);
-    //      
-    // if (contentFiel.exists()) {
-    // fileCleaner.addFile(contentFiel);
-    // log.info("remove : " + fileName);
-    // } else {
-    // throw new FileNotFoundException("Can't find : " + fileName);
-    // }
-    // }
   }
 
   public long removeChangesLog(List<String> fileNameList, String ownerName) throws IOException {
-    if (log.isDebugEnabled())
-      log.debug("remove changeslogs form fs : " + fileNameList.size());
-
     long removeCounter = 0;
 
     File metaDataFile = new File(recoveryDir.getAbsolutePath() + File.separator + ownerName);
@@ -245,14 +239,59 @@ public class RecoveryWriter extends AbstractFSAccess {
           raf.writeBytes(s);
 
           removeCounter++;
-          
-          if (log.isDebugEnabled())
+
+          if (log.isDebugEnabled()) {
             log.debug("remove metadata : " + fName);
+            log.debug("remove changeslogs form fs : " + fileNameList.size());
+          }
         }
       }
     raf.close();
 
+    saveRemoveChangesLog(fileNameList, ownerName);
+
     return removeCounter;
+  }
+
+  public void saveRemoveChangesLog(String fileName) throws IOException {
+    if (log.isDebugEnabled())
+      log.debug("Seve removable changeslogs form fs : " + fileName);
+
+    File removeDataFile = new File(recoveryDir.getAbsolutePath() + File.separator + DATA_DIR_NAME
+        + File.separator + IdGenerator.generate() + REMOVED_SUFFIX);
+
+    removeDataFile.createNewFile();
+
+    BufferedWriter bw = new BufferedWriter(new FileWriter(removeDataFile));
+
+    if (log.isDebugEnabled())
+      log.debug("remove  : " + fileName);
+
+    bw.write(fileName + "\n");
+    bw.flush();
+    bw.close();
+  }
+
+  private void saveRemoveChangesLog(List<String> fileNameList, String ownerName) throws IOException {
+    if (log.isDebugEnabled())
+      log.debug("Seve removable changeslogs form fs : " + fileNameList.size());
+
+    File removeDataFile = new File(recoveryDir.getAbsolutePath() + File.separator + DATA_DIR_NAME
+        + File.separator + IdGenerator.generate() + REMOVED_SUFFIX);
+
+    removeDataFile.createNewFile();
+
+    BufferedWriter bw = new BufferedWriter(new FileWriter(removeDataFile));
+
+    for (String fileName : fileNameList) {
+      if (log.isDebugEnabled())
+        log.debug("remove  : " + fileName);
+
+      bw.write(fileName + "\n");
+    }
+
+    bw.flush();
+    bw.close();
   }
 }
 
@@ -264,16 +303,21 @@ class FileRemover extends Thread {
 
   private File         recoveryDir;
 
-  private FileCleaner  filecCleaner;
+  private FileCleaner  fileCleaner;
+
+  class RemoveFilesFilter implements FileFilter {
+    public boolean accept(File pathname) {
+      return pathname.getName().endsWith(AbstractFSAccess.REMOVED_SUFFIX);
+    }
+  }
 
   public FileRemover(long period, File recoveryDir, FileCleaner fileCleaner, String ownName) {
     super("FileRemover@" + ownName);
     this.period = period;
     this.recoveryDir = recoveryDir;
-    this.filecCleaner = fileCleaner;
+    this.fileCleaner = fileCleaner;
 
-    if (log.isDebugEnabled())
-      log.debug(getName() + " has been inited");
+    log.info(getName() + " has been inited");
   }
 
   @Override
@@ -283,18 +327,36 @@ class FileRemover extends Thread {
         Thread.yield();
         Thread.sleep(period);
 
-        HashMap<String, String> map = getAllPendingBinaryFilePath();
-
         File recoveryDataDir = new File(recoveryDir.getCanonicalPath() + File.separator
             + RecoveryWriter.DATA_DIR_NAME);
 
-        for (File f : getAllSavedBinaryFile(recoveryDataDir))
-          if (!map.containsKey(f.getCanonicalPath())) {
-            if (log.isDebugEnabled())
-              log.debug("Remove file :" + f.getCanonicalPath());
-            filecCleaner.addFile(f);
-          }
+        File[] fArray = recoveryDataDir.listFiles(new RemoveFilesFilter());
 
+        if (fArray.length > 0) {
+          ArrayList<String> needRemoveFilesName = getAllRemoveFileName(fArray);
+
+          HashMap<String, String> map = getAllPendingBinaryFilePath();
+
+          List<File> savedBinaryFileList = getAllSavedBinaryFile(recoveryDataDir);
+          
+          for (File f : savedBinaryFileList)
+            if (needRemoveFilesName.contains(f.getName()) && !map.containsKey(f.getName())) {
+              fileCleaner.addFile(f);
+              
+              if (log.isDebugEnabled())
+                log.debug("Remove file :" + f.getCanonicalPath());
+            }
+          
+          // remove *.remove files  
+          if (savedBinaryFileList.size() == 0) 
+            for (File f : fArray) {
+              fileCleaner.addFile(f);
+              
+              if (log.isDebugEnabled())
+                log.debug("Remove file :" + f.getCanonicalPath());
+            }
+          
+        }
       } catch (IOException e) {
         log.error("FileRemover error :", e);
       } catch (InterruptedException e) {
@@ -303,14 +365,32 @@ class FileRemover extends Thread {
     }
   }
 
+  private ArrayList<String> getAllRemoveFileName(File[] array) throws IOException {
+    ArrayList<String> fileNameList = new ArrayList<String>();
+
+    for (File file : array)
+      if (file.isFile()) {
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        String sFileName;
+
+        while ((sFileName = br.readLine()) != null) {
+          fileNameList.add(sFileName);
+
+          if (log.isDebugEnabled())
+            log.debug("Need remove file : " + sFileName);
+        }
+      }
+
+    return fileNameList;
+  }
+
   private HashMap<String, String> getAllPendingBinaryFilePath() throws IOException {
     HashMap<String, String> map = new HashMap<String, String>();
 
     for (File f : recoveryDir.listFiles())
       if (f.isFile())
         for (String filePath : getFilePathList(f))
-          map.put(filePath, filePath);
-
+          map.put(new File(filePath).getName(), filePath);
     return map;
   }
 
@@ -332,10 +412,11 @@ class FileRemover extends Thread {
     ArrayList<File> list = new ArrayList<File>();
 
     long startTime = System.currentTimeMillis();
-    
+
     getFiles(recoveryDataDir, list);
-    
-    System.out.println("The total time of parced : " + (System.currentTimeMillis() - startTime) / 1000.0);
+
+    if (log.isDebugEnabled())
+      log.debug("The total time of parced : " + (System.currentTimeMillis() - startTime) / 1000.0);
     return list;
   }
 
@@ -343,7 +424,7 @@ class FileRemover extends Thread {
     if (f.isDirectory())
       for (File subFile : f.listFiles())
         getFiles(subFile, list);
-    else if (f.isFile())
+    else if (f.isFile() && !(f.getName().endsWith(AbstractFSAccess.REMOVED_SUFFIX)))
       list.add(f);
   }
 }
