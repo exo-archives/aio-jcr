@@ -40,7 +40,7 @@ import org.jgroups.blocks.RequestHandler;
 /**
  * Created by The eXo Platform SAS
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: AbstractWorkspaceDataReceiver.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 
 public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {

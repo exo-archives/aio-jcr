@@ -20,7 +20,7 @@ package org.exoplatform.services.jcr.ext.replication.external;
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: MemberInfo.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 public class MemberInfo {
   private final String ipAddress;

@@ -26,7 +26,7 @@ import java.util.Date;
 /**
  * Created by The eXo Platform SAS
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: FileNameFactory.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 public class FileNameFactory {
   DateFormat           datefName        = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS");

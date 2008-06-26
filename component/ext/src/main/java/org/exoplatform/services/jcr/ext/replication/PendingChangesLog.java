@@ -43,7 +43,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * alex.reshetnyak@exoplatform.com.ua 24.11.2006
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: PendingChangesLog.java 9255 2007-12-21 15:20:30Z peterit $
+ * @version $Id$
  */
 
 public class PendingChangesLog {

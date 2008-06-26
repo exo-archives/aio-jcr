@@ -24,7 +24,7 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceD
 /**
  * Created by The eXo Platform SAS
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: ProxyWorkspaceDataReceiver.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 public class ProxyWorkspaceDataReceiver extends AbstractWorkspaceDataReceiver {
 

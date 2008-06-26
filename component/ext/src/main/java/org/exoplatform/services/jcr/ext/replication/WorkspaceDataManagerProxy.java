@@ -38,7 +38,7 @@ import org.exoplatform.services.log.ExoLogger;
  * cache, indexes etc instead. This is the case if persistent replication
  * is done with some external way (by repliucation enabled RDB or AS etc)    
  * @author Gennady Azarenkov
- * @version $Id: WorkspaceDataManagerProxy.java 8440 2007-11-30 15:52:29Z svm $
+ * @version $Id$
  */
 
 public class WorkspaceDataManagerProxy implements ItemDataKeeper {

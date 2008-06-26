@@ -25,7 +25,7 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 /**
  * Created by The eXo Platform SAS
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: PendingConfirmationChengesLog.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 public class PendingConfirmationChengesLog {
   private List<String>        confirmationList;

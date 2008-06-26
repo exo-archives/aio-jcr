@@ -40,7 +40,7 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: RecoveryReader.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 public class RecoveryReader extends AbstractFSAccess {
   private static Log  log = ExoLogger.getLogger("ext.RecoveryReader");

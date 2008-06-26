@@ -52,7 +52,7 @@ import org.jgroups.blocks.MessageDispatcher;
 /**
  * Created by The eXo Platform SAS
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: RecoverySynchronizer.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 public class RecoverySynchronizer {
   protected static Log                       log = ExoLogger.getLogger("ext.RecoverySynchronizer");

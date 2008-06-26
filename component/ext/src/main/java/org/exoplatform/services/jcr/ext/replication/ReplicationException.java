@@ -19,7 +19,7 @@ package org.exoplatform.services.jcr.ext.replication;
 /**
  * Created by The eXo Platform SAS
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: ReplicationException.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 public class ReplicationException extends Exception {
   public ReplicationException(String message) {

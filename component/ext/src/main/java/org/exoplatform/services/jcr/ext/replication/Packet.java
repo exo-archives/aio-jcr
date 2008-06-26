@@ -33,7 +33,7 @@ import java.util.List;
  * alex.reshetnyak@exoplatform.com.ua 24.11.2006
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: Packet.java 8440 2007-11-30 15:52:29Z svm $
+ * @version $Id$
  */
 
 public class Packet implements Externalizable {

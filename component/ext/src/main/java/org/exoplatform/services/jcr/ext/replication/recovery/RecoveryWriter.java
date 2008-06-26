@@ -44,11 +44,13 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: RecoveryWriter.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 public class RecoveryWriter extends AbstractFSAccess {
 
   protected static Log      log = ExoLogger.getLogger("ext.RecoveryWriter");
+  
+  private final long        REMOVER_TIMEOUT = 2* 60 * 60 * 1000; // 2 hours
 
   private final FileCleaner fileCleaner;
 
@@ -70,7 +72,7 @@ public class RecoveryWriter extends AbstractFSAccess {
     if (!recoveryDirDate.exists())
       recoveryDirDate.mkdirs();
 
-    fileRemover = new FileRemover(1 * 60 * 1000, recoveryDir, fileCleaner, ownName);
+    fileRemover = new FileRemover(REMOVER_TIMEOUT, recoveryDir, fileCleaner, ownName);
     fileRemover.start();
   }
 

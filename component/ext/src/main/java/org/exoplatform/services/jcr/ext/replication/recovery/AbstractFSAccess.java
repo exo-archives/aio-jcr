@@ -25,7 +25,7 @@ import java.io.ObjectInputStream;
 /**
  * Created by The eXo Platform SAS
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: AbstractFSAccess.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 public class AbstractFSAccess {
   public final static String DATA_DIR_NAME       = "data";
