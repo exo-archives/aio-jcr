@@ -31,6 +31,7 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
@@ -41,18 +42,24 @@ public class RandomReadNtFileWithMetadataTest extends JCRTestBase {
    * /download/node0..8/node0..49/node0..49/0..7-0..49-0..49-0..49.txt. Digits
    * are genereted randomly using levelXNodesCount parameters.
    */
-  private Random rand   = new Random();
+  private Random rand       = new Random();
 
-  private int    level1 = 0;
+  private int    level1     = 0;
 
-  private int    level2 = 0;
+  private int    level2     = 0;
 
-  private int    level3 = 0;
+  private int    level3     = 0;
 
-  private int    level4 = 0;
+  private int    level4     = 0;
+
+  private int    startIndex = 0;
+
+  private String rootPath   = "download";
 
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
+    rootPath = tc.getParam("jcr.rootPath");
+    startIndex = tc.getIntParam("jcr.startIndex");
     level1 = tc.getIntParam("jcr.level1NodesCount");
     level2 = tc.getIntParam("jcr.level2NodesCount");
     level3 = tc.getIntParam("jcr.level3NodesCount");
@@ -61,11 +68,11 @@ public class RandomReadNtFileWithMetadataTest extends JCRTestBase {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    int level1Index = rand.nextInt(level1);
+    int level1Index =  rand.nextInt(level1);
     int level2Index = rand.nextInt(level2);
     int level3Index = rand.nextInt(level3);
     int level4Index = rand.nextInt(level4);
-    String path = "download/node" + level1Index + "/node" + level2Index + "/node" + level3Index
+    String path = rootPath + "/node" + (startIndex +level1Index) + "/node" + level2Index + "/node" + level3Index
         + "/" + level1Index + "-" + level2Index + "-" + level3Index + "-" + level4Index + ".txt";
     Node node = context.getSession().getRootNode().getNode(path);
     try {
