@@ -192,9 +192,7 @@ public class CopyMoveTestCase extends BaseReplicationTestCase {
 
     String normalizePath = getNormalizePath(srcRepoPath) + "/" + destNodeName;
     try {
-      Node checkNode = (Node)session.getItem(normalizePath);
-      
-      Node ntFile = checkNode.getNode(nodeName);
+      Node ntFile = (Node)session.getItem(normalizePath);
       
       InputStream stream = ntFile.getNode("jcr:content").getProperty("jcr:data").getStream();
       
