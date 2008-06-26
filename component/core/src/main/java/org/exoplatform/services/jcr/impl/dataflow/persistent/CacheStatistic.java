@@ -36,6 +36,8 @@ public class CacheStatistic {
   
   protected final long propertiesSize;
   
+  protected final long totalGetTime;
+  
   
   // configuration
   
@@ -43,9 +45,10 @@ public class CacheStatistic {
   
   protected final long liveTime;
   
-  CacheStatistic(long miss, long hits, long size, long nodesSize, long propertiesSize, long maxSize, long liveTime) {
+  CacheStatistic(long miss, long hits, long size, long nodesSize, long propertiesSize, long maxSize, long liveTime, long totalGetTime) {
     this.maxSize = maxSize;
     this.liveTime  = liveTime;
+    this.totalGetTime = totalGetTime;
     
     this.miss = miss;
     this.hits = hits;
@@ -80,6 +83,10 @@ public class CacheStatistic {
 
   public long getLiveTime() {
     return liveTime;
+  }
+
+  public long getTotalGetTime() {
+    return totalGetTime;
   }
   
 }

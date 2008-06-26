@@ -44,7 +44,7 @@ public class TestLinkedWorkspaceStorageCacheMetrics extends JcrImplBaseTest {
   public void testLiveTime() throws Exception {
     final int cacheSize = 500; 
     final int liveTime = 10; // sec 
-    WorkspaceStorageCache cache = new LinkedWorkspaceStorageCacheImpl("testLiveTime_cache", true, cacheSize, liveTime, 60 * 1000, 20 * 1000, false);
+    WorkspaceStorageCache cache = new LinkedWorkspaceStorageCacheImpl("testLiveTime_cache", true, cacheSize, liveTime, 60 * 1000, 20 * 1000, false, true, 0);
     
     NodeData parent = new TransientNodeData(QPath.parse("[]:1[]parent:1"), 
                                             IdGenerator.generate(), 1, Constants.NT_UNSTRUCTURED, new InternalQName[0], 1, 
@@ -80,7 +80,7 @@ public class TestLinkedWorkspaceStorageCacheMetrics extends JcrImplBaseTest {
   public void testExpiredScheduler() throws Exception {
     final int cacheSize = 500; 
     final int liveTime = 30; // sec 
-    WorkspaceStorageCache cache = new LinkedWorkspaceStorageCacheImpl("testExpiredScheduler_cache", true, cacheSize, liveTime, liveTime * 1000 + 10000, 10 * 1000, false); // (*)
+    WorkspaceStorageCache cache = new LinkedWorkspaceStorageCacheImpl("testExpiredScheduler_cache", true, cacheSize, liveTime, liveTime * 1000 + 10000, 10 * 1000, false, true, 0); // (*)
     
     NodeData parent = new TransientNodeData(QPath.parse("[]:1[]parent:1"), 
                                             IdGenerator.generate(), 1, Constants.NT_UNSTRUCTURED, new InternalQName[0], 1, 
@@ -114,7 +114,7 @@ public class TestLinkedWorkspaceStorageCacheMetrics extends JcrImplBaseTest {
    */
   public void testSize() throws Exception {
     final int cacheSize = 500; 
-    WorkspaceStorageCache cache = new LinkedWorkspaceStorageCacheImpl("testSize_cache", true, cacheSize, 120, 60 * 1000, 20 * 1000, false);
+    WorkspaceStorageCache cache = new LinkedWorkspaceStorageCacheImpl("testSize_cache", true, cacheSize, 120, 60 * 1000, 20 * 1000, false, true, 0);
     
     NodeData parent = new TransientNodeData(QPath.parse("[]:1[]parent:1"), 
                                             IdGenerator.generate(), 1, Constants.NT_UNSTRUCTURED, new InternalQName[0], 1, 

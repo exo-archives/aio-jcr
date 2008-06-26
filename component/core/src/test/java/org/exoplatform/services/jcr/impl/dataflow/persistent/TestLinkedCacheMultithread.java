@@ -279,7 +279,7 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
     
     //cache = new LinkedWorkspaceStorageCacheImpl((WorkspaceEntry) session.getContainer().getComponentInstanceOfType(WorkspaceEntry.class));
     //cache = new LRUWorkspaceStorageCacheImpl("testLoad_cache", true, 100 * 1024, 120, 5 * 60000, 30000, false);
-    cache = new LinkedWorkspaceStorageCacheImpl("testLoad_cache", true, 100 * 1024, 120, 5 * 60000, 30000, false);
+    cache = new LinkedWorkspaceStorageCacheImpl("testLoad_cache", true, 100 * 1024, 120, 5 * 60000, 30000, false, true, 0);
     
     rootData = (NodeData) ((NodeImpl) root).getData();
   }
@@ -493,7 +493,7 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
     long start = System.currentTimeMillis();
     try {
       // create readers
-      for (int t = 1; t <= 2000; t++) {
+      for (int t = 1; t <= 100; t++) {
         NodeData[] ns = new NodeData[nodes.size()];
         nodes.toArray(ns);
         Reader r = new Reader(ns, "reader #" + t);
@@ -502,7 +502,7 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
       }
       
       // create writers
-      for (int t = 1; t <= 200; t++) {
+      for (int t = 1; t <= 5; t++) {
         NodeData[] ns = new NodeData[nodes.size()];
         nodes.toArray(ns);
         Writer w = new Writer(ns, "writer #" + t, 1000);
@@ -511,7 +511,7 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
       }
       
       // create removers
-      for (int t = 1; t <= 200; t++) {
+      for (int t = 1; t <= 5; t++) {
         NodeData[] ns = new NodeData[nodes.size()];
         nodes.toArray(ns);
         Remover r = new Remover(ns, "remover #" + t, 1000);
@@ -521,14 +521,12 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
       
       statReader.start();
       
+      log.info("Wait....");
+      
       //Thread.sleep(50400 * 1000); // 50400sec = 14h
+      Thread.sleep(20 * 1000); // 20sec.
       
-      log.info("Wait 20sec");
-      
-      Thread.sleep(20 * 1000); // 20min
-      
-      log.info("Stopping");
-      //Thread.sleep(5 * 60 * 1000); 
+      log.info("Stopping"); 
     } finally {
       // join
       for (Remover r: removers) {

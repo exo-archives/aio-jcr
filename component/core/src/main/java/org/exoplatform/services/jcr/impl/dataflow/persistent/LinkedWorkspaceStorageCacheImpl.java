@@ -17,8 +17,10 @@
 package org.exoplatform.services.jcr.impl.dataflow.persistent;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -30,6 +32,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.WeakHashMap;
 import java.util.Map.Entry;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.logging.Log;
@@ -55,7 +58,7 @@ import org.exoplatform.services.log.ExoLogger;
  * cached before. Same item data or list of childs will be returned from getXXX() calls. 
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
- * @version $Id: LinkedWorkspaceStorageCacheImpl.java 15127 2008-06-03 08:39:27Z pnedonosko $
+ * @version $Id$
  */
 public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
@@ -67,9 +70,15 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   
   static public final int                                     DEF_CLEANER_PERIOD     = 20 * 60000 ; // 20min
   
+  static public final int                                     DEF_BLOCKING_USERS_COUNT     = 0 ;
+  
   static public final String DEEP_DELETE_PARAMETER_NAME = "deep-delete";
   
   static public final String STATISTIC_PERIOD_PARAMETER_NAME = "statistic-period";
+  
+  static public final String STATISTIC_CLEAN_PARAMETER_NAME = "statistic-clean";
+  
+  static public final String BLOCKING_USERS_COUNT_PARAMETER_NAME = "blocking-users-count";
   
   static public final String CLEANER_PERIOD_PARAMETER_NAME = "cleaner-period";
 
@@ -78,7 +87,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   protected static Log                                  log                = ExoLogger.getLogger("jcr.LinkedWorkspaceStorageCacheImpl");
 
-  private final CacheMap<CacheKey, CacheValue>         cache;
+  private final Map<CacheKey, CacheValue>         cache;
   
   private final CacheLock writeLock = new CacheLock();
   
@@ -104,11 +113,39 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   
   private final int maxSize;
   
-  private volatile long miss;
+  // ============ statistics ===========
+  private volatile long miss = 0;
   
-  private volatile long hits;
+  private volatile long hits = 0;
+  
+  private volatile long totalGetTime = 0;
+  
+  private final boolean cleanStatistics;
   
   class CacheLock extends ReentrantLock {
+    
+    //private final Thread[] users;
+    
+//    CacheLock() {
+//      this.users = new Thread[1];
+//    }
+    
+//    CacheLock(int threshould) {
+//      this.users = new Thread[threshould];
+//    }
+    
+//    private void lock() {
+//      Thread current = Thread.currentThread();
+//      int free = -1;
+//      for (int i=0; i<users.length; i++) {
+//        Thread th = users[i];
+//        if (th != null) {
+//          if(current.equals(th))
+//            return;
+//        } else if (free < 0)
+//          free = i;
+//      }
+//    }
     
     Collection<Thread> getLockThreads() {
       return getQueuedThreads();
@@ -121,8 +158,6 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   
   class CacheMap<K extends CacheKey, V extends CacheValue> extends LinkedHashMap<K, V> {
 
-    //private final CacheLock lruLock = new CacheLock();
-    
     CacheMap(long maxSize, float loadFactor) {
       super(Math.round(maxSize / loadFactor) + 100, loadFactor);
     }
@@ -171,66 +206,108 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
         }
       //}
     }
+  }
+  
+  /**
+   * Cache map uses blocking on get operation.
+   */
+  class BlockingCacheMap<K extends CacheKey, V extends CacheValue> extends CacheMap<K, V> {
 
-//    /**
-//     * Check item is cached respecting LRU modifications.
-//     */
-//    @Override
-//    public boolean containsValue(Object value) {
-//      lruLock.lock();
-//      try {
-//        return super.containsValue(value);
-//      } finally {
-//        lruLock.unlock();
-//      }
-//    }
-//
-//    /**
-//     * Get item respecting LRU modifications. 
-//     */
-//    @Override
-//    public V get(Object key) {
-//      lruLock.lock();
-//      try {
-//        return super.get(key);
-//      } finally {
-//        lruLock.unlock();
-//      }
-//    }
+    private final CacheLock userLock = new CacheLock();
+    
+    /**
+     * Single user cache map.
+     * 
+     * @param maxSize
+     * @param loadFactor
+     */
+    BlockingCacheMap(long maxSize, float loadFactor) {
+      super(maxSize, loadFactor);
+    }
+    
+    /**
+     * Check item is cached.
+     */
+    @Override
+    public boolean containsValue(Object value) {
+      userLock.lock();
+      try {
+        return super.containsValue(value);
+      } finally {
+        userLock.unlock();
+      }
+    }
 
-//    /**
-//     * Return a copy of cache entries.
-//     * Copy made on read-locked cache.
-//     */
-//    public Set<Entry<K, V>> entriesCopy() {
-//      // make a copy on locked to read cache
-//      lruLock.lock();
-//      try {
-//        Set<Entry<K, V>> copy = new LinkedHashSet<Entry<K, V>>();
-//        
-//        for (Entry<K, V> e: super.entrySet())//super.entrySet().iterator().next()
-//          copy.add(e);
-//        
-//        return copy;
-//      } finally {
-//        lruLock.unlock();
-//      }
-//    }
-//    
-//    @Override
-//    public Set<Entry<K, V>> entrySet() {
-//      throw new UnsupportedOperationException("entrySet() not supported");
-//    }
-//
-//    @Override
-//    public Set<K> keySet() {
-//      throw new UnsupportedOperationException("keySet() not supported");
-//    }
-//
-//    @Override
-//    public Collection<V> values() {
-//      throw new UnsupportedOperationException("values() not supported");
-//    }
+    /**
+     * Get item. 
+     */
+    @Override
+    public V get(Object key) {
+      userLock.lock();
+      try {
+        return super.get(key);
+      } finally {
+        userLock.unlock();
+      }
+    }
+  }
+  
+  /**
+   * Cache map uses blocking on get operation.
+   */
+  class GroupBlockingCacheMap<K extends CacheKey, V extends CacheValue> extends CacheMap<K, V> {
+
+    private final Semaphore usersLock;
+    
+    /**
+     * Cache map allowes a limited set of concurrent users.
+     * 
+     * @param maxSize
+     * @param loadFactor
+     * @param threshould
+     */
+    GroupBlockingCacheMap(long maxSize, float loadFactor, int limit) {
+      super(maxSize, loadFactor);
+      this.usersLock = new Semaphore(limit);
+    }
+
+    /**
+     * Check item is cached.
+     */
+    @Override
+    public boolean containsValue(Object value) {
+      try {
+        usersLock.acquire();
+      } catch (InterruptedException e) {
+        log.warn("Error in cache.containsValue, current thread is interrupted.", e);
+        return false;
+      }
+      
+      try {
+        return super.containsValue(value);
+      } finally {
+        usersLock.release();
+      }
+    }
+
+    /**
+     * Get item. 
+     */
+    @Override
+    public V get(Object key) {
+      try {
+        usersLock.acquire();
+      } catch (InterruptedException e) {
+        log.warn("Error in cache.get, return null, current thread is interrupted.", e);
+        return null;
+      }
+      
+      try {
+        return super.get(key);
+      } finally {
+        usersLock.release();
+      }
+    }
   }
   
   abstract class Worker extends Thread {
@@ -364,10 +441,12 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * @param name
    * @param enabled
    * @param maxSize
+   * @param cleanStatistics TODO
+   * @param blockingUsers TODO
    * @param liveTime
    * @throws RepositoryConfigurationException
    */
-  LinkedWorkspaceStorageCacheImpl(String name, boolean enabled, int maxSize, long liveTimeSec, long cleanerPeriodMillis, long statisticPeriodMillis, boolean deepDelete) throws RepositoryConfigurationException {
+  public LinkedWorkspaceStorageCacheImpl(String name, boolean enabled, int maxSize, long liveTimeSec, long cleanerPeriodMillis, long statisticPeriodMillis, boolean deepDelete, boolean cleanStatistics, int blockingUsers) throws RepositoryConfigurationException {
     this.name = name;
     
     this.maxSize = maxSize;
@@ -376,8 +455,19 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     this.propertiesCache = new WeakHashMap<String, List<PropertyData>>();
     this.enabled = enabled;
     this.deepDelete = deepDelete;
+    this.cleanStatistics = cleanStatistics;
     
-    this.cache = new CacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR);
+    if (blockingUsers <= 0) {
+      // full access cache
+      this.cache = new CacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR); // TODO usesynchro map
+      //this.cache = Collections.synchronizedMap(new CacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR));
+    } else if (blockingUsers == 1) {
+      // per user locked cache (get-lock)
+      this.cache = new BlockingCacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR);
+    } else {
+      // per users (count) locked cache (get-locks)
+      this.cache = new GroupBlockingCacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR, blockingUsers);
+    }
     
     this.workerTimer = new Timer(this.name + "_CacheWorker");
     
@@ -395,6 +485,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     
     int statisticPeriod;
     int cleanerPeriod;
+    boolean cleanStats;
+    int blockingUsers;
     
     if (cacheConfig != null) {
       this.enabled = cacheConfig.isEnabled();
@@ -419,8 +511,11 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       
       this.deepDelete = cacheConfig.getParameterBoolean(DEEP_DELETE_PARAMETER_NAME, false);
       
+      blockingUsers = cacheConfig.getParameterInteger(BLOCKING_USERS_COUNT_PARAMETER_NAME, DEF_BLOCKING_USERS_COUNT);
+      
       statisticPeriod = cacheConfig.getParameterInteger(STATISTIC_PERIOD_PARAMETER_NAME, DEF_STATISTIC_PERIOD);
       cleanerPeriod = cacheConfig.getParameterInteger(STATISTIC_PERIOD_PARAMETER_NAME, DEF_CLEANER_PERIOD);
+      cleanStats = cacheConfig.getParameterBoolean(STATISTIC_CLEAN_PARAMETER_NAME, true);
       
     } else {
       this.maxSize = MAX_CACHE_SIZE;
@@ -429,11 +524,36 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       this.propertiesCache = new WeakHashMap<String, List<PropertyData>>();
       this.enabled = true;
       this.deepDelete = false;
+      
+      blockingUsers = DEF_BLOCKING_USERS_COUNT;
+      
       statisticPeriod = DEF_STATISTIC_PERIOD;
       cleanerPeriod = DEF_CLEANER_PERIOD;
+      cleanStats = true;
     }
 
-    this.cache = new CacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR);
+    this.cleanStatistics = cleanStats;
+    
+    if (blockingUsers > 2048) {
+      // limit it with 2k
+      blockingUsers = 2048;
+      log.warn(BLOCKING_USERS_COUNT_PARAMETER_NAME + " maximum is limited to 2k. Using " + blockingUsers);
+    }
+    
+    if (blockingUsers <= 0) {
+      // full access cache
+      this.cache = new CacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR);
+      
+      // TODO try to use synchro-map
+      //this.cache = Collections.synchronizedMap(new CacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR));
+      
+    } else if (blockingUsers == 1) {
+      // per user locked cache (get-lock)
+      this.cache = new BlockingCacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR);
+    } else {
+      // per users (count) locked cache (get-locks)
+      this.cache = new GroupBlockingCacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR, blockingUsers);
+    }
     
     this.workerTimer = new Timer(this.name + "_CacheWorker");
     
@@ -473,7 +593,13 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
   
   private void gatherStatistic() {
-    statistic = new CacheStatistic(miss, hits, cache.size(), nodesCache.size(), propertiesCache.size(), maxSize, liveTime);
+    statistic = new CacheStatistic(miss, hits, cache.size(), nodesCache.size(), propertiesCache.size(), maxSize, liveTime, totalGetTime);
+    
+    if (cleanStatistics) {
+      miss = 0;
+      hits = 0;
+      totalGetTime = 0;
+    }
   }
   
   public long getSize() {
@@ -798,50 +924,61 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
  
   protected ItemData getItem(final String identifier) {
-    final CacheValue v = cache.get(new CacheId(identifier));
-    if (v != null) {
-      if (v.getExpiredTime() > System.currentTimeMillis()) {
-        final ItemData c = v.getItem();
-        
-        if (log.isDebugEnabled())
-          log.debug(name + ", getItem() " + identifier + " --> "
-              + (c != null ? c.getQPath().getAsString() + " parent:" + c.getParentIdentifier() : "[null]"));
-        
-        hits++;
-        return c;
-      } else 
-        removeExpired(v.getItem());
-    } 
-
-    miss++;
-    return null;
+    long start = System.currentTimeMillis();
+    try {
+      final CacheValue v = cache.get(new CacheId(identifier));
+      if (v != null) {
+        if (v.getExpiredTime() > System.currentTimeMillis()) {
+          final ItemData c = v.getItem();
+          
+          if (log.isDebugEnabled())
+            log.debug(name + ", getItem() " + identifier + " --> "
+                + (c != null ? c.getQPath().getAsString() + " parent:" + c.getParentIdentifier() : "[null]"));
+          
+          hits++;
+          return c;
+        } else 
+          removeExpired(v.getItem());
+      } 
+  
+      miss++;
+      return null;
+    } finally {
+      totalGetTime += System.currentTimeMillis() - start;
+    }
   }
 
   /**
    * @param key a InternalQPath path of item cached
    */
   protected ItemData getItem(final String parentUuid, final QPathEntry qname) {
-    final CacheValue v = cache.get(new CacheQPath(parentUuid, qname));
-    if (v != null) {
-      if (v.getExpiredTime() > System.currentTimeMillis()) {
-        final ItemData c = v.getItem();
-        
-        if (log.isDebugEnabled())
-          log.debug(name + ", getItem() " + (c != null ? c.getQPath().getAsString() : "[null]") + " --> "
-              + (c != null ? c.getIdentifier() + " parent:" + c.getParentIdentifier() : "[null]"));
-        
-        hits++;
-        return c;
-      } else
-        removeExpired(v.getItem());
-    }
-
-    miss++;
-    return null;
+    long start = System.currentTimeMillis();
+    try {
+      final CacheValue v = cache.get(new CacheQPath(parentUuid, qname));
+      if (v != null) {
+        if (v.getExpiredTime() > System.currentTimeMillis()) {
+          final ItemData c = v.getItem();
+          
+          if (log.isDebugEnabled())
+            log.debug(name + ", getItem() " + (c != null ? c.getQPath().getAsString() : "[null]") + " --> "
+                + (c != null ? c.getIdentifier() + " parent:" + c.getParentIdentifier() : "[null]"));
+          
+          hits++;
+          return c;
+        } else
+          removeExpired(v.getItem());
+      }
+  
+      miss++;
+      return null;
+    } finally {
+      totalGetTime += System.currentTimeMillis() - start;
+    }  
   }
 
   public List<NodeData> getChildNodes(final NodeData parentData) {
     if (enabled && parentData != null) {
+      long start = System.currentTimeMillis();
       try {
         // we assume that parent cached too
         final List<NodeData> cn = nodesCache.get(parentData.getIdentifier());
@@ -868,6 +1005,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       } catch (Exception e) {
         log.error(name + ", Error in getChildNodes() parentData: "
             + (parentData != null ? parentData.getQPath().getAsString() : "[null]"), e);
+      } finally {
+        totalGetTime += System.currentTimeMillis() - start;
       }
     }
     
@@ -876,6 +1015,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   public List<PropertyData> getChildProperties(final NodeData parentData) {
     if (enabled && parentData != null) {
+      long start = System.currentTimeMillis();
       try {
         // we assume that parent cached too
         final List<PropertyData> cp = propertiesCache.get(parentData.getIdentifier());
@@ -903,6 +1043,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       } catch (Exception e) {
         log.error(name + ", Error in getChildProperties() parentData: "
             + (parentData != null ? parentData.getQPath().getAsString() : "[null]"), e);
+      } finally {
+        totalGetTime += System.currentTimeMillis() - start;
       }
     }
     
