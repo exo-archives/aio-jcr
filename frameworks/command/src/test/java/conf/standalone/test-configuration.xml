@@ -51,10 +51,12 @@
   <component>
     <type>org.exoplatform.services.organization.impl.mock.DummyOrganizationService</type>
   </component>
+	
   <component>                                                                                                                                         
       <key>org.exoplatform.services.security.Authenticator</key>                                                                                        
       <type>org.exoplatform.services.organization.auth.OrganizationAuthenticatorImpl</type>                                                             
-  </component>     
+  </component>
+	     
   <external-component-plugins>
   <target-component>org.exoplatform.services.command.impl.CommandService</target-component>
         <component-plugin>

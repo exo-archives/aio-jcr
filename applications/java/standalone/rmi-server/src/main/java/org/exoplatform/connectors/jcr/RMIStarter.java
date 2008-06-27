@@ -52,7 +52,7 @@ public class RMIStarter {
     }
     try {
       StandaloneContainer sc = StandaloneContainer.getInstance();
-      JCRServerImpl binder = (JCRServerImpl)sc.getComponentInstanceOfType(JCRServerImpl.class);
+      JCRServerImpl binder = (JCRServerImpl) sc.getComponentInstanceOfType(JCRServerImpl.class);
       if (bindOper == DO_BIND) {
         binder.bind();
         System.out.println("JCR RMI service registered (bind) and started successfully");
