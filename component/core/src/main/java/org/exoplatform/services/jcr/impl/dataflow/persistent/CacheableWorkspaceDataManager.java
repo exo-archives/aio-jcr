@@ -290,9 +290,6 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
         return propertiesList;
     }
 
-//    try {
-      //request.start(); // don't start marker with listChildProp...
-      
     propertiesList = super.listChildPropertiesData(nodeData);
     if (cache.isEnabled()) {
       NodeData parentData = (NodeData) cache.get(nodeData.getIdentifier());
@@ -301,12 +298,6 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
       cache.addChildPropertiesList(parentData, propertiesList); 
     }
     return propertiesList;
-//    } finally {
-//      //request.done();
-//    }
-    
-    // TODO old code. get the list from data container, do no caching for this list
-    //return super.listChildPropertiesData(nodeData);
   }
   
   /* (non-Javadoc)

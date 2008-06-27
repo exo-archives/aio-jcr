@@ -576,7 +576,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     this.swapCleaner.halt();
     this.swapCleaner.interrupt();
 
-    //TODO HSQLDB Stop
+    //TODO HSQLDB Stop (debug)
     // if (dbDialect.equals(DB_DIALECT_GENERIC) ||
     // dbDialect.equals(DB_DIALECT_HSQLDB)) {
     // // shutdown in-process HSQLDB database

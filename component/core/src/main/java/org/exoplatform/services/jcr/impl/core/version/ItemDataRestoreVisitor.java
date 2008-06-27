@@ -670,11 +670,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
                                                                                        restored.getQPath()
                                                                                                .getName(),
                                                                                        ntManager,
-                                                                                       userSession.getTransientNodesManager(), // TODO
-                                                                                                                                // to
-                                                                                                                                // use
-                                                                                                                                // transact
-                                                                                                                                // manager
+                                                                                       userSession.getTransientNodesManager(),
                                                                                        changes);
 
         existing.accept(copyIgnoredVisitor);

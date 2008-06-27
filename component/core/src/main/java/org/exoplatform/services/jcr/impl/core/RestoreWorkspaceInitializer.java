@@ -361,7 +361,6 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
                 SVNodeData parent = parents.peek();
 
                 // check NodeData specific properties
-                // TODO reuse parsed Names in value event here to have performance good
                 if (currentProperty.getQPath().getName().equals(Constants.JCR_PRIMARYTYPE)) {
                   parent.setPrimartTypeName(InternalQName.parse(new String(currentProperty.getValues().get(0).getAsByteArray())));
                 } else if (currentProperty.getQPath().getName().equals(Constants.JCR_MIXINTYPES)) {
@@ -371,25 +370,6 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
                   }
                   parent.setMixinTypeNames(mixins);
                 }
-
-                // TODO multivalued option, handled by exo:multivalued attr in SV file
-//                PropertyDefinitions pdefs;
-//                try {
-//                  pdefs =
-//                      nodeTypeManager.findPropertyDefinitions(currentProperty.getQPath().getName(),
-//                                                              parent.getPrimaryTypeName(),
-//                                                              parent.getMixinTypeNames());
-//                } catch (RepositoryException e) {
-//                  log.warn(e.getMessage() + ". Target property " + currentProperty.getQPath().getAsString());
-//                  pdefs = null;
-//                }
-//                if (pdefs != null) {
-//                  PropertyDefinition pdef = pdefs.getAnyDefinition();
-//                  if (pdef != null)
-//                    currentProperty.setMultiValued(pdef.isMultiple());
-//                  else
-//                    log.warn("There is no definition for property " + currentProperty.getQPath().getAsString());  
-//                }
 
                 // add property, no event fire, persisted, internally created, root is ancestor to save
                 changes.add(new ItemState(currentProperty, ItemState.ADDED, false, Constants.ROOT_PATH, true, true));

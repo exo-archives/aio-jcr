@@ -943,29 +943,6 @@ public class SessionDataManager implements ItemDataConsumer {
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getReferencesData(java.lang.String)
    */
   public List<PropertyData> getReferencesData(String identifier, boolean skipVersionStorage) throws RepositoryException {
-
-    // TODO check with tests, for some internal used cases it should be
-    // persisted state only (see versions)
-    // * eXo JCR implementation also return properties that have been added
-    // within the current Session
-    // * but are not yet saved.
-    // * A Properties which have been removed within the current Session will be
-    // excluded from the list.
-
-    // List<PropertyData> persisted =
-    // transactionableManager.getReferencesData(identifier, skipVersionStorage);
-    // List<PropertyData> sessionTransient = new ArrayList<PropertyData>();
-    // for (PropertyData p : persisted) {
-    // ItemState pstate = changesLog.getItemState(p.getIdentifier());
-    // if (pstate != null) {
-    // if (pstate.isDeleted())
-    // continue;
-    //
-    // sessionTransient.add((PropertyData) pstate.getData());
-    // } else
-    // sessionTransient.add((PropertyData) locate(p));
-    // }
-
     // simple locate now
     List<PropertyData> persisted = transactionableManager.getReferencesData(identifier, skipVersionStorage);
     List<PropertyData> sessionTransient = new ArrayList<PropertyData>();

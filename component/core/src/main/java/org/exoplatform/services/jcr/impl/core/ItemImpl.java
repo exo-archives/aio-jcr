@@ -126,13 +126,8 @@ public abstract class ItemImpl implements Item {
     if (data == null) 
       throw new InvalidItemStateException("Invalid item state. Item was removed or discarded.");
     
-    // TODO check if TCK is ok
-    //if (session.isLive()) {
-     
     session.updateLastAccessTime();
       return true;
-    //} else 
-    //  throw new InvalidItemStateException("Invalid item state. Session is expired.");
   } 
 
   public String getPath() {

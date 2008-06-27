@@ -140,8 +140,6 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     }
     addNamespaces(rEntry.getName());
     registerNodeTypes(rEntry.getName());
-    
-    // repositoryContainer.start(); //  TODO Experimental. For Restoreinitializer 
   }
 
   public RepositoryServiceConfiguration getConfig() {

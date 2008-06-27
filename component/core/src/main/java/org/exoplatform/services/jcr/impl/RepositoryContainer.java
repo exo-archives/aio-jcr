@@ -168,10 +168,10 @@ public class RepositoryContainer extends ExoContainer {
         if (className != null && className.length()>0) {
           workspaceContainer.registerComponentImplementation(Class.forName(className));
         } else
-          workspaceContainer.registerComponentImplementation(LinkedWorkspaceStorageCacheImpl.class); // TODO
+          workspaceContainer.registerComponentImplementation(LinkedWorkspaceStorageCacheImpl.class);
       } catch (ClassNotFoundException e) {
         log.warn("Workspace cache class not found " + wsConfig.getCache().getType() + ", will use default. Error : " + e);
-        workspaceContainer.registerComponentImplementation(LinkedWorkspaceStorageCacheImpl.class); // TODO
+        workspaceContainer.registerComponentImplementation(LinkedWorkspaceStorageCacheImpl.class);
       }
       
       workspaceContainer.registerComponentImplementation(CacheableWorkspaceDataManager.class);

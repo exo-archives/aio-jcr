@@ -185,15 +185,8 @@ public class RepositoryImpl implements ManageableRepository {
       throw new RepositoryException("Workspace " + workspaceName
           + " is not configured. Use RepositoryImpl.configWorkspace() method");
 
-    // Second step
-    //WorkspaceEntry wsConfig = repositoryContainer.getWorkspaceEntry(workspaceName);
-    //initWorkspace(wsConfig.getName(), wsConfig.getAutoInitializedRootNt());    
     repositoryContainer.getWorkspaceContainer(workspaceName).getWorkspaceInitializer().initWorkspace();
 
-    // TODO Third step
-    //wsContainer.getWorkspaceInitializer().start();
-
-    // Fourth step
     wsContainer.start();
 
     log.info("Workspace " + workspaceName + "@" + this.name + " is initialized");
