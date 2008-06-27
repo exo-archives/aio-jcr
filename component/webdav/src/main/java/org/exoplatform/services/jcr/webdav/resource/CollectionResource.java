@@ -272,7 +272,7 @@ public class CollectionResource extends GenericResource {
       public void run() {
         try {
           XMLOutputFactory factory = XMLOutputFactory.newInstance();
-          XMLStreamWriter writer = factory.createXMLStreamWriter(po);
+          XMLStreamWriter writer = factory.createXMLStreamWriter(po, Constants.DEFAULT_ENCODING);
 
           writer.writeStartDocument(Constants.DEFAULT_ENCODING, "1.0");
           writer.writeStartElement(XML_NODE);
