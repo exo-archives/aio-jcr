@@ -37,9 +37,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.exoplatform.core</groupId>
-      <artifactId>exo.core.component.common</artifactId>
-      <version>${org.exoplatform.core.version}</version>
+      <groupId>org.exoplatform.kernel</groupId>
+      <artifactId>exo.kernel.component.common</artifactId>
+      <version>${org.exoplatform.kernel.version}</version>
       <scope>provided</scope>
     </dependency>
 

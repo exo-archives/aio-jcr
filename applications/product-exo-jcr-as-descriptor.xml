@@ -72,7 +72,6 @@
 				<exclude>javax.xml.bind:jaxb-api</exclude>
 				<exclude>javax.servlet:jsp-api</exclude>
 				<exclude>javax.ejb:ejb</exclude>
-				<exclude>org.exoplatform.core:exo.core.component.common</exclude>
 				<exclude>org.exoplatform.jcr:exo.jcr.applications.webdavclient</exclude>
 				<exclude>javax.activation:activation</exclude>
 				<exclude>xalan:xalan</exclude>

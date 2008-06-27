@@ -91,9 +91,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.exoplatform.core</groupId>
-      <artifactId>exo.core.component.common</artifactId>
-      <version>${org.exoplatform.core.version}</version>
+      <groupId>org.exoplatform.kernel</groupId>
+      <artifactId>exo.kernel.component.common</artifactId>
+      <version>${org.exoplatform.kernel.version}</version>
       <scope>compile</scope>
     </dependency>
 
@@ -102,12 +102,18 @@
       <artifactId>exo.kernel.container</artifactId>
       <version>${org.exoplatform.kernel.version}</version>
       <exclusions>
-	  	              <exclusion>
-	  				      <groupId>javax.servlet</groupId>
-	  				      <artifactId>servlet-api</artifactId>
-	  	              </exclusion>
+        <exclusion>
+	  <groupId>javax.servlet</groupId>
+	  <artifactId>servlet-api</artifactId>
+        </exclusion>
       </exclusions>
       <scope>compile</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>javax.resource</groupId>
+      <artifactId>connector</artifactId>
+      <version>1.5</version>
     </dependency>
 
     <!-- ************************ jakarta commons ************************ -->
