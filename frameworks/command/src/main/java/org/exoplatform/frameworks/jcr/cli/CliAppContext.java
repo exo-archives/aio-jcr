@@ -40,13 +40,14 @@ public class CliAppContext extends BasicAppContext {
 
   public CliAppContext(ManageableRepository rep, String parametersKey)
       throws NamingException {
-    super(rep, null);
+    super(rep);
     this.parametersKey = parametersKey;
   }
 
+  @Deprecated
   public CliAppContext(ManageableRepository rep, String parametersKey,
       Credentials cred) throws NamingException {
-    super(rep, cred);
+    super(rep);
     this.parametersKey = parametersKey;
   }
 

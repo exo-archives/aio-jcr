@@ -16,7 +16,6 @@
  */
 package org.exoplatform.frameworks.jcr.command;
 
-import javax.jcr.Credentials;
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.RepositoryException;
@@ -39,20 +38,19 @@ import org.exoplatform.services.security.ConversationState;
 
 public class BasicAppContext extends ContextBase implements JCRAppContext {
 
-  // private static final long serialVersionUID = 12L;
   protected static Log log = ExoLogger.getLogger("jcr.BasicAppContext");
 
   protected final SessionProvider  sessionProvider;
   protected final ManageableRepository repository;
   protected String currentWorkspace;
 
-  public BasicAppContext(ManageableRepository rep, Credentials cred)
+  public BasicAppContext(ManageableRepository rep)
       throws NamingException {
     this.sessionProvider = new SessionProvider(ConversationState.getCurrent());
     this.repository = rep;
     this.currentWorkspace = rep.getConfiguration().getDefaultWorkspaceName();
   }
-
+  
   /*
    * (non-Javadoc)
    * 

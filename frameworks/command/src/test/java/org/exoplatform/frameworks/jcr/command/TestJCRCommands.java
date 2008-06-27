@@ -20,26 +20,31 @@ import org.exoplatform.frameworks.jcr.command.core.AddNodeCommand;
 import org.exoplatform.frameworks.jcr.command.core.SaveCommand;
 import org.exoplatform.services.command.impl.CommandService;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.security.Authenticator;
+import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.security.Credential;
+import org.exoplatform.services.security.Identity;
+import org.exoplatform.services.security.PasswordCredential;
+import org.exoplatform.services.security.UsernameCredential;
 
 /**
  * Created by The eXo Platform SARL .
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: JCRCommandsTest.java 9797 2006-10-26 12:00:12Z geaz $
+ * @version $Id$
  */
 public class TestJCRCommands extends TestCase {
 
   private StandaloneContainer container;
-  private CommandService cservice;
-  private BasicAppContext ctx;
 
-  //
+  private CommandService      cservice;
+
+  private BasicAppContext     ctx;
+
   public void setUp() throws Exception {
 
-    String containerConf = getClass().getResource(
-        "/conf/standalone/test-configuration.xml").toString();
-    String loginConf = Thread.currentThread().getContextClassLoader()
-        .getResource("login.conf").toString();
+    String containerConf = getClass().getResource("/conf/standalone/test-configuration.xml").toString();
+    String loginConf = Thread.currentThread().getContextClassLoader().getResource("login.conf").toString();
 
     if (System.getProperty("java.security.auth.login.config") == null)
       System.setProperty("java.security.auth.login.config", loginConf);
@@ -47,15 +52,18 @@ public class TestJCRCommands extends TestCase {
     StandaloneContainer.addConfigurationURL(containerConf);
     container = StandaloneContainer.getInstance();
 
-    RepositoryService repService = (RepositoryService) container
-        .getComponentInstanceOfType(RepositoryService.class);
+    RepositoryService repService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
 
-    cservice = (CommandService) container
-        .getComponentInstanceOfType(CommandService.class);
+    cservice = (CommandService) container.getComponentInstanceOfType(CommandService.class);
 
-    Credentials cred = new SimpleCredentials("admin", "admin".toCharArray());
+    // login via Authenticator
+    Authenticator authr = (Authenticator) container.getComponentInstanceOfType(Authenticator.class);
+    String validUser = authr.validateUser(new Credential[] { new UsernameCredential("root"), new PasswordCredential("exo") });
+    Identity id = authr.createIdentity(validUser);
+    ConversationState s = new ConversationState(id);
+    ConversationState.setCurrent(s);
 
-    ctx = new BasicAppContext(repService.getDefaultRepository(), cred);
+    ctx = new BasicAppContext(repService.getDefaultRepository());
 
     // System.out.println("CTX "+ctx);
   }
@@ -70,8 +78,7 @@ public class TestJCRCommands extends TestCase {
 
   public void testAddNode() throws Exception {
 
-    AddNodeCommand addNode = (AddNodeCommand) cservice.getCatalog().getCommand(
-        "addNode");
+    AddNodeCommand addNode = (AddNodeCommand) cservice.getCatalog().getCommand("addNode");
     System.out.println(" " + addNode);
     ctx.put("currentNode", "/");
     ctx.put(addNode.getPathKey(), "test");
