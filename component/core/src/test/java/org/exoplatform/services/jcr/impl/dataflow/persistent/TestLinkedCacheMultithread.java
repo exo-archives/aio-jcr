@@ -279,7 +279,7 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
     
     //cache = new LinkedWorkspaceStorageCacheImpl((WorkspaceEntry) session.getContainer().getComponentInstanceOfType(WorkspaceEntry.class));
     //cache = new LRUWorkspaceStorageCacheImpl("testLoad_cache", true, 100 * 1024, 120, 5 * 60000, 30000, false);
-    cache = new LinkedWorkspaceStorageCacheImpl("testLoad_cache", true, 100 * 1024, 120, 5 * 60000, 30000, false, true, 0);
+    cache = new LinkedWorkspaceStorageCacheImpl("testLoad_cache", true, 100 * 1024, 120, 5 * 60000, 30000, false, true, 0, true);
     
     rootData = (NodeData) ((NodeImpl) root).getData();
   }

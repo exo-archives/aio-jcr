@@ -43,7 +43,7 @@
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
             <properties>
               <property name="max-size" value="2k" />
-              <property name="liveTime" value="20m" />
+              <property name="live-time" value="20m" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -91,7 +91,7 @@
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
             <properties>
               <property name="max-size" value="2k" />
-              <property name="liveTime" value="20m" />
+              <property name="live-time" value="20m" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -131,7 +131,7 @@
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
             <properties>
               <property name="max-size" value="2k" />
-              <property name="liveTime" value="20m" />
+              <property name="live-time" value="20m" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -187,7 +187,9 @@
           <cache enabled="true" class="org.exoplatform.services.jcr.impl.dataflow.persistent.LinkedWorkspaceStorageCacheImpl">
             <properties>
               <property name="max-size" value="2k" />
-              <property name="liveTime" value="20m" />
+              <property name="live-time" value="20m" />
+              <property name="statistic-period" value="30" />
+              <property name="statistic-show" value="true" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -210,6 +212,7 @@
             </persister>
           </lock-manager>
         </workspace>
+				
         <workspace name="ws1">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
@@ -241,6 +244,8 @@
             <properties>
               <property name="max-size" value="2k" />
               <property name="live-time" value="20m" />
+              <property name="statistic-period" value="30" />
+              <property name="statistic-show" value="true" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -287,6 +292,8 @@
             <properties>
               <property name="max-size" value="2k" />
               <property name="live-time" value="20m" />
+              <property name="statistic-period" value="30" />
+              <property name="statistic-show" value="true" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">

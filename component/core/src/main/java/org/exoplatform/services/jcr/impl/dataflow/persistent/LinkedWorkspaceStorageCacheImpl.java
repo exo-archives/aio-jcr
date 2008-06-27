@@ -17,17 +17,13 @@
 package org.exoplatform.services.jcr.impl.dataflow.persistent;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.WeakHashMap;
@@ -66,9 +62,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   static public final long                                    MAX_CACHE_LIVETIME = 600 * 1000; // 10min, in ms
   
-  static public final int                                     DEF_STATISTIC_PERIOD     = 5 * 60000 ; // 5min
+  static public final long                                     DEF_STATISTIC_PERIOD     = 5 * 60000 ; // 5min
   
-  static public final int                                     DEF_CLEANER_PERIOD     = 20 * 60000 ; // 20min
+  static public final long                                     DEF_CLEANER_PERIOD     = 20 * 60000 ; // 20min
   
   static public final int                                     DEF_BLOCKING_USERS_COUNT     = 0 ;
   
@@ -77,6 +73,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   static public final String STATISTIC_PERIOD_PARAMETER_NAME = "statistic-period";
   
   static public final String STATISTIC_CLEAN_PARAMETER_NAME = "statistic-clean";
+  
+  static public final String STATISTIC_SHOW_PARAMETER_NAME = "statistic-show";
   
   static public final String BLOCKING_USERS_COUNT_PARAMETER_NAME = "blocking-users-count";
   
@@ -100,7 +98,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   private boolean                                       enabled;
 
   private final Timer                                         workerTimer;
-  
+    
   private CacheStatistic statistic;
   
   /**
@@ -122,30 +120,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   
   private final boolean cleanStatistics;
   
+  private final boolean showStatistic;
+  
   class CacheLock extends ReentrantLock {
-    
-    //private final Thread[] users;
-    
-//    CacheLock() {
-//      this.users = new Thread[1];
-//    }
-    
-//    CacheLock(int threshould) {
-//      this.users = new Thread[threshould];
-//    }
-    
-//    private void lock() {
-//      Thread current = Thread.currentThread();
-//      int free = -1;
-//      for (int i=0; i<users.length; i++) {
-//        Thread th = users[i];
-//        if (th != null) {
-//          if(current.equals(th))
-//            return;
-//        } else if (free < 0)
-//          free = i;
-//      }
-//    }
     
     Collection<Thread> getLockThreads() {
       return getQueuedThreads();
@@ -183,28 +160,24 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
      * @param item
      */
     private void removeEldest(final ItemData item) {
-      //synchronized (propertiesCache) {//TODO
-        if (item.isNode()) {
-          // we have to remove all childs stored in CN, CP
-          //synchronized (nodesCache) {//TODO
-            // removing childs of the node
-            if (removeChildNodes(item.getIdentifier(), false) != null) {
-              if (log.isDebugEnabled())
-                log.debug(name + ", removeEldest() removeChildNodes() " + item.getIdentifier());
-            }
-          //}
-          if (removeChildProperties(item.getIdentifier()) != null) {
-            if (log.isDebugEnabled())
-              log.debug(name + ", removeEldest() removeChildProperties() " + item.getIdentifier());
-          }
-        } else {
-          // removing child properties of the item parent
-          if (removeChildProperties(item.getParentIdentifier()) != null) {
-            if (log.isDebugEnabled())
-              log.debug(name + ", removeEldest() parent.removeChildProperties() " + item.getParentIdentifier());
-          }
+      if (item.isNode()) {
+        // we have to remove all childs stored in CN, CP
+        // removing childs of the node
+        if (removeChildNodes(item.getIdentifier(), false) != null) {
+          if (log.isDebugEnabled())
+            log.debug(name + ", removeEldest() removeChildNodes() " + item.getIdentifier());
         }
-      //}
+        if (removeChildProperties(item.getIdentifier()) != null) {
+          if (log.isDebugEnabled())
+            log.debug(name + ", removeEldest() removeChildProperties() " + item.getIdentifier());
+        }
+      } else {
+        // removing child properties of the item parent
+        if (removeChildProperties(item.getParentIdentifier()) != null) {
+          if (log.isDebugEnabled())
+            log.debug(name + ", removeEldest() parent.removeChildProperties() " + item.getParentIdentifier());
+        }
+      }
     }
   }
   
@@ -369,7 +342,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
           if (log.isDebugEnabled())
             log.error("Cleaner task error " + e, e);
           else
-            log.error("Cleaner task error " + e + ". Will try next time.", e);// TODO don't print stacktrace in normal work
+            log.error("Cleaner task error " + e + ". Will try next time.");
         } finally {
           writeLock.unlock();
         }
@@ -441,12 +414,13 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * @param name
    * @param enabled
    * @param maxSize
-   * @param cleanStatistics TODO
-   * @param blockingUsers TODO
+   * @param cleanStatistics
+   * @param blockingUsers
+   * @param showStatistic
    * @param liveTime
    * @throws RepositoryConfigurationException
    */
-  public LinkedWorkspaceStorageCacheImpl(String name, boolean enabled, int maxSize, long liveTimeSec, long cleanerPeriodMillis, long statisticPeriodMillis, boolean deepDelete, boolean cleanStatistics, int blockingUsers) throws RepositoryConfigurationException {
+  public LinkedWorkspaceStorageCacheImpl(String name, boolean enabled, int maxSize, long liveTimeSec, long cleanerPeriodMillis, long statisticPeriodMillis, boolean deepDelete, boolean cleanStatistics, int blockingUsers, boolean showStatistic) throws RepositoryConfigurationException {
     this.name = name;
     
     this.maxSize = maxSize;
@@ -457,21 +431,13 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     this.deepDelete = deepDelete;
     this.cleanStatistics = cleanStatistics;
     
-    if (blockingUsers <= 0) {
-      // full access cache
-      this.cache = new CacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR); // TODO usesynchro map
-      //this.cache = Collections.synchronizedMap(new CacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR));
-    } else if (blockingUsers == 1) {
-      // per user locked cache (get-lock)
-      this.cache = new BlockingCacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR);
-    } else {
-      // per users (count) locked cache (get-locks)
-      this.cache = new GroupBlockingCacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR, blockingUsers);
-    }
+    this.cache = createCacheMap(blockingUsers);
     
     this.workerTimer = new Timer(this.name + "_CacheWorker");
     
     scheduleTask(new CleanerTask(), 5, cleanerPeriodMillis); // start after 5 sec
+    
+    this.showStatistic = showStatistic;
     
     gatherStatistic();
     scheduleTask(new StatisticTask(), 5, statisticPeriodMillis); // start after 5 sec
@@ -483,10 +449,11 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     
     CacheEntry cacheConfig = wsConfig.getCache();
     
-    int statisticPeriod;
-    int cleanerPeriod;
+    long statisticPeriod;
+    long cleanerPeriod;
     boolean cleanStats;
     int blockingUsers;
+    boolean showStatistic;
     
     if (cacheConfig != null) {
       this.enabled = cacheConfig.isEnabled();
@@ -513,9 +480,11 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       
       blockingUsers = cacheConfig.getParameterInteger(BLOCKING_USERS_COUNT_PARAMETER_NAME, DEF_BLOCKING_USERS_COUNT);
       
-      statisticPeriod = cacheConfig.getParameterInteger(STATISTIC_PERIOD_PARAMETER_NAME, DEF_STATISTIC_PERIOD);
-      cleanerPeriod = cacheConfig.getParameterInteger(STATISTIC_PERIOD_PARAMETER_NAME, DEF_CLEANER_PERIOD);
+      cleanerPeriod = cacheConfig.getParameterTime(CLEANER_PERIOD_PARAMETER_NAME, DEF_CLEANER_PERIOD);
+      
       cleanStats = cacheConfig.getParameterBoolean(STATISTIC_CLEAN_PARAMETER_NAME, true);
+      statisticPeriod = cacheConfig.getParameterTime(STATISTIC_PERIOD_PARAMETER_NAME, DEF_STATISTIC_PERIOD);
+      showStatistic = cacheConfig.getParameterBoolean(STATISTIC_SHOW_PARAMETER_NAME, false);
       
     } else {
       this.maxSize = MAX_CACHE_SIZE;
@@ -530,9 +499,11 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       statisticPeriod = DEF_STATISTIC_PERIOD;
       cleanerPeriod = DEF_CLEANER_PERIOD;
       cleanStats = true;
+      showStatistic = false;
     }
 
     this.cleanStatistics = cleanStats;
+    this.showStatistic = showStatistic;
     
     if (blockingUsers > 2048) {
       // limit it with 2k
@@ -540,33 +511,40 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       log.warn(BLOCKING_USERS_COUNT_PARAMETER_NAME + " maximum is limited to 2k. Using " + blockingUsers);
     }
     
+    this.cache = createCacheMap(blockingUsers);
+    
+    this.workerTimer = new Timer(this.name + "_CacheWorker");
+    
+    // cleaner
+    int start = ((int) cleanerPeriod) / 2; // half or period
+    start = start > 60000 ? start : 60000; // don't start now
+    scheduleTask(new CleanerTask(), start, cleanerPeriod); 
+    
+    // statistic collector
+    gatherStatistic();
+    start = ((int) statisticPeriod) / 2; // half or period
+    start = start > 15000 ? start : 15000; // don't start now
+    scheduleTask(new StatisticTask(), start, statisticPeriod);    
+  }
+  
+  private Map<CacheKey, CacheValue> createCacheMap(int blockingUsers) {
     if (blockingUsers <= 0) {
       // full access cache
-      this.cache = new CacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR);
+      log.info(this.name + " Create unblocking cache map.");
+      return new CacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR);
       
       // TODO try to use synchro-map
       //this.cache = Collections.synchronizedMap(new CacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR));
       
     } else if (blockingUsers == 1) {
       // per user locked cache (get-lock)
-      this.cache = new BlockingCacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR);
+      log.info(this.name + " Create per-user blocking cache map.");
+      return new BlockingCacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR);
     } else {
       // per users (count) locked cache (get-locks)
-      this.cache = new GroupBlockingCacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR, blockingUsers);
+      log.info(this.name + " Create per-users-group blocking cache map.");
+      return new GroupBlockingCacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR, blockingUsers);
     }
-    
-    this.workerTimer = new Timer(this.name + "_CacheWorker");
-    
-    // cleaner
-    int start = cleanerPeriod >>> 1; // half or period
-    start = start > 60000 ? start : 60000; // don't start now
-    scheduleTask(new CleanerTask(), start, cleanerPeriod); 
-    
-    // statistic collector
-    gatherStatistic();
-    start = statisticPeriod >>> 1; // half or period
-    start = start > 15000 ? start : 15000; // don't start now
-    scheduleTask(new StatisticTask(), start, statisticPeriod);    
   }
   
   @Override
@@ -593,7 +571,19 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
   
   private void gatherStatistic() {
-    statistic = new CacheStatistic(miss, hits, cache.size(), nodesCache.size(), propertiesCache.size(), maxSize, liveTime, totalGetTime);
+    CacheStatistic st = new CacheStatistic(miss, hits, cache.size(), nodesCache.size(), propertiesCache.size(), maxSize, liveTime, totalGetTime);
+    
+    if (showStatistic && st.getMiss() > 0 && st.getHits() > 0)
+      try {
+        log.info("Cache " + cache + " relevancy " + (Math.round((10000d * st.getHits()) / st.getMiss())) / 10000d + " (hits:" + st.getHits()
+               + ", miss:" + st.getMiss() + "), get:" + ((st.getHits() + st.getMiss()) / ((st.getTotalGetTime() + 1) / 1000))
+               + "oper/sec (" + (st.getTotalGetTime() / 1000d) + "sec)" + ", size:" + st.getSize() + " (max " + st.getMaxSize()
+               + ")" + ", childs(nodes:" + st.getNodesSize() + ", properties:" + st.getPropertiesSize() + ")");
+      } catch(Throwable e) {
+        log.warn("Show statistic log.info error " + e);
+      }
+    
+    this.statistic = st;
     
     if (cleanStatistics) {
       miss = 0;
@@ -604,6 +594,10 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   
   public long getSize() {
     return cache.size();
+  }
+  
+  public String getName() {
+    return name;
   }
 
   /**
@@ -766,14 +760,12 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
         List<PropertyData> cp = childItems;
         synchronized (cp) {
 
-          //synchronized (propertiesCache) {//TODO
-            // removing prev list of child properties from cache C
-            operName = "removing child properties";
-            removeChildProperties(parentIdentifier);
+          // removing prev list of child properties from cache C
+          operName = "removing child properties";
+          removeChildProperties(parentIdentifier);
 
-            operName = "caching child properties list";
-            propertiesCache.put(parentIdentifier, cp); // put childs in cache CP
-          //}
+          operName = "caching child properties list";
+          propertiesCache.put(parentIdentifier, cp); // put childs in cache CP
 
           operName = "caching child properties";
           // put childs in cache C
@@ -821,10 +813,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
         // [PN] 17.01.07 need to sync as the list can be accessed concurrently till the end of addChildProperties()
         List<PropertyData> cp = childItems;
         synchronized (cp) {
-          //synchronized (propertiesCache) {//TODO
-            operName = "caching child properties list";
-            propertiesCache.put(parentIdentifier, cp); // put childs in cache CP
-          //}
+          operName = "caching child properties list";
+          propertiesCache.put(parentIdentifier, cp); // put childs in cache CP
         }
       } catch (Exception e) {
         log.error(name + ", Error in addChildPropertiesList() " + operName + ": parent "
@@ -864,38 +854,34 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
         List<NodeData> cn = childItems;
         synchronized (cn) {
 
-          //synchronized (nodesCache) {//TODO
-            // removing prev list of child nodes from cache C
-            operName = "removing child nodes";
-            final List<NodeData> removedChildNodes = removeChildNodes(parentIdentifier, false);
+          // removing prev list of child nodes from cache C
+          operName = "removing child nodes";
+          final List<NodeData> removedChildNodes = removeChildNodes(parentIdentifier, false);
 
-            if (removedChildNodes != null && removedChildNodes.size() > 0) {
-              operName = "search for stale child nodes not contains in the new list of childs";
-              final List<NodeData> forRemove = new ArrayList<NodeData>();
-              for (NodeData removedChildNode : removedChildNodes) {
-                // used Object.equals(Object o), e.g. by UUID of nodes
-                if (!cn.contains(removedChildNode)) {
-                  // this child node has been removed from the list
-                  // we should remve it recursive in C, CN, CP
-                  forRemove.add(removedChildNode);
-                }
-              }
-
-              if (forRemove.size() > 0) {
-                operName = "removing stale child nodes not contains in the new list of childs";
-                // do remove of removed child nodes recursive in C, CN, CP
-                // we need here locks on cache, nodesCache, propertiesCache 
-                //synchronized (propertiesCache) { //TODO
-                  for (NodeData removedChildNode : forRemove) {
-                    removeDeep(removedChildNode, true);
-                  }
-                //}
+          if (removedChildNodes != null && removedChildNodes.size() > 0) {
+            operName = "search for stale child nodes not contains in the new list of childs";
+            final List<NodeData> forRemove = new ArrayList<NodeData>();
+            for (NodeData removedChildNode : removedChildNodes) {
+              // used Object.equals(Object o), e.g. by UUID of nodes
+              if (!cn.contains(removedChildNode)) {
+                // this child node has been removed from the list
+                // we should remve it recursive in C, CN, CP
+                forRemove.add(removedChildNode);
               }
             }
 
-            operName = "caching child nodes list";
-            nodesCache.put(parentIdentifier, cn); // put childs in cache CN
-          //}
+            if (forRemove.size() > 0) {
+              operName = "removing stale child nodes not contains in the new list of childs";
+              // do remove of removed child nodes recursive in C, CN, CP
+              // we need here locks on cache, nodesCache, propertiesCache 
+              for (NodeData removedChildNode : forRemove) {
+                removeDeep(removedChildNode, true);
+              }
+            }
+          }
+
+          operName = "caching child nodes list";
+          nodesCache.put(parentIdentifier, cn); // put childs in cache CN
 
           operName = "caching child nodes";
           // put childs in cache C
@@ -1127,9 +1113,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       } catch(Exception e) {
         log.error("unloadProperty operation (remove of parent) fails. Parent ID=" + property.getParentIdentifier() + ". Error " + e, e);
       } finally {
-        //synchronized (propertiesCache) { //TODO
-          removeDeep(property, true);
-        //}
+        removeDeep(property, true);
       }
     } finally {
       writeLock.unlock();      
@@ -1196,14 +1180,10 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       // remove child nodes of the item parent recursive
       writeLock.lock();
       try {
-        //synchronized (nodesCache) {//TODO
-        //  synchronized (propertiesCache) {
-            if (removeChildNodes(parent.getIdentifier(), true) == null) {
-              // if no childs of the item (node) parent were cached - remove renamed node directly 
-              removeDeep(node, true);
-            }
-        //  }
-        //}
+        if (removeChildNodes(parent.getIdentifier(), true) == null) {
+          // if no childs of the item (node) parent were cached - remove renamed node directly 
+          removeDeep(node, true);
+        }
 
         // Traverse whole cache (C), select each descendant of the item and remove it from C.
         removeSuccessors((NodeData) node);
@@ -1229,19 +1209,13 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   
         // do actual deep remove
         if (data.isNode()) {
-          //synchronized (propertiesCache) {//TODO
-          //  synchronized (nodesCache) {
-              removeDeep(data, true);
-          //  }
-          //}
+          removeDeep(data, true);
           
           if (deepDelete)
             removeSuccessors((NodeData) data);
         } else {
           // [PN] 03.12.06 Fixed to forceDeep=true and synchronized block
-          //synchronized (propertiesCache) {//TODO
-            removeDeep(data, true);
-          //}
+          removeDeep(data, true);
         }
       } catch (Exception e) {
         log.error(name + ", Error remove item data from cache: " + (data != null ? data.getQPath().getAsString() : "[null]"), e);
@@ -1286,7 +1260,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     try {
       if (item.isNode()) {
         // removing childs of the node
-        if (removeChildNodes(item.getIdentifier(), deepDelete) != null) { // TODO deepDelete, was true
+        if (removeChildNodes(item.getIdentifier(), deepDelete) != null) { // XXX deepDelete, was true
           if (log.isDebugEnabled())
             log.debug(name + ", removeRelations() removeChildNodes() " + item.getIdentifier());
         }
