@@ -50,7 +50,7 @@
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
             <properties>
-              <property name="index-dir" value="${java.io.tmpdir}/temp/index/db1/ws" />
+              <property name="index-dir" value="target/temp/index/db1/ws" />
               <property name="synonymprovider-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.PropertiesSynonymProvider" />
               <property name="synonymprovider-config-path" value="/synonyms.properties" />
               <property name="support-highlighting" value="true" />
@@ -194,8 +194,6 @@
             <properties>
               <property name="max-size" value="2k" />
               <property name="live-time" value="20m" />
-              <property name="statistic-period" value="30" />
-              <property name="statistic-log" value="true" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -250,8 +248,6 @@
             <properties>
               <property name="max-size" value="2k" />
               <property name="live-time" value="20m" />
-              <property name="statistic-period" value="30" />
-              <property name="statistic-log" value="true" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -298,8 +294,6 @@
             <properties>
               <property name="max-size" value="2k" />
               <property name="live-time" value="20m" />
-              <property name="statistic-period" value="30" />
-              <property name="statistic-log" value="true" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">

@@ -245,34 +245,6 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
     }
   }
   
-  class StatisticReader extends Thread {
-    
-    private boolean execute = true;
-    
-    public void run() {
-      while (execute) {
-        CacheStatistic st = cache.getStatistic();
-        log.info("Cache relevancy " + (Math.round((10000d * st.getHits()) / st.getMiss()))/10000d + 
-                 " (hits:" + st.getHits() + 
-                 ", miss:" + st.getMiss() +
-                 "), size:" + st.getSize() +
-                 " (max " + st.getMaxSize() + ")" +
-                 ", childs(nodes:" + st.getNodesSize() + 
-                 ", properties:" + st.getPropertiesSize() + ")");
-        
-        try {
-          Thread.sleep(30000);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-      }
-    }
-    
-    public void cancel() {
-      this.execute = false;
-    }
-  }
-  
   @Override
   public void setUp() throws Exception {
     super.setUp();
@@ -351,7 +323,6 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
     List<NodeData> nodes = prepare();
     
     Set<Reader> readers = new HashSet<Reader>();
-    StatisticReader statReader = new StatisticReader();
     long start = System.currentTimeMillis();
     try {
       // create readers
@@ -363,7 +334,6 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
         r.start();
       }
       log.info("Started");
-      statReader.start();
       Thread.sleep(30 * 1000);
       log.info("Done");
     } finally {
@@ -372,9 +342,6 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
         r.cancel();
         r.join();
       }
-      
-      statReader.cancel();
-      statReader.join();
       
       // debug result
       long totalRead = 0;
@@ -395,7 +362,6 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
     List<NodeData> nodes = prepare();
     
     Set<Writer> writers = new HashSet<Writer>();
-    StatisticReader statReader = new StatisticReader();
     try {
       // create readers
       for (int t = 1; t <= 100; t++) {
@@ -406,13 +372,10 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
         r.start();
       }
       
-      statReader.start();
       
       Thread.sleep(5 * 60 * 1000);
     } finally {
       // join
-      statReader.cancel();
-      statReader.join();
       
       for (Writer w: writers) {
         w.cancel();
@@ -432,7 +395,6 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
     
     Set<Reader> readers = new HashSet<Reader>();
     Set<Writer> writers = new HashSet<Writer>();
-    StatisticReader statReader = new StatisticReader();
     try {
       // create readers
       for (int t = 1; t <= 10; t++) {
@@ -452,8 +414,6 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
         w.start();
       }
       
-      statReader.start();
-      
       Thread.sleep(5 * 60 * 1000);
     } finally {
       // join
@@ -467,9 +427,6 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
         r.cancel();
         r.join();
       }
-      
-      statReader.cancel();
-      statReader.join();
       
       // debug result
       for (Reader r: readers) {//cache.getSize()
@@ -489,7 +446,6 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
     Set<Reader> readers = new HashSet<Reader>();
     Set<Writer> writers = new HashSet<Writer>();
     Set<Remover> removers = new HashSet<Remover>();
-    StatisticReader statReader = new StatisticReader();
     long start = System.currentTimeMillis();
     try {
       // create readers
@@ -519,8 +475,6 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
         r.start();
       }
       
-      statReader.start();
-      
       log.info("Wait....");
       
       //Thread.sleep(50400 * 1000); // 50400sec = 14h
@@ -543,9 +497,6 @@ public class TestLinkedCacheMultithread extends JcrImplBaseTest {
         r.cancel();
         r.join();
       }
-      
-      statReader.cancel();//cache.getSize()
-      statReader.join();
       
       // debug result
       long stop = System.currentTimeMillis() - start;

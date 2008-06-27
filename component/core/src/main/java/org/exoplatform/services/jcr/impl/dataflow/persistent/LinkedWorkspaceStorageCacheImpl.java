@@ -285,6 +285,10 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   
   abstract class Worker extends Thread {
     protected volatile boolean done = false;
+    
+    Worker() {
+      setDaemon(true);
+    }
   }
   
   class Cleaner extends Worker {
@@ -433,7 +437,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     
     this.cache = createCacheMap(blockingUsers);
     
-    this.workerTimer = new Timer(this.name + "_CacheWorker");
+    this.workerTimer = new Timer(this.name + "_CacheWorker", true);
     
     scheduleTask(new CleanerTask(), 5, cleanerPeriodMillis); // start after 5 sec
     
@@ -503,7 +507,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     }
 
     this.cleanStatistics = cleanStats;
-    this.showStatistic = showStatistic;
+    this.showStatistic = showStatistic;//name
     
     if (blockingUsers > 2048) {
       // limit it with 2k
@@ -513,7 +517,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     
     this.cache = createCacheMap(blockingUsers);
     
-    this.workerTimer = new Timer(this.name + "_CacheWorker");
+    this.workerTimer = new Timer(this.name + "_CacheWorker", true);
     
     // cleaner
     int start = ((int) cleanerPeriod) / 2; // half or period
@@ -554,12 +558,17 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     } catch(Throwable e) {
       System.err.println(this.name + " cache, finalyze error " + e);
     }
+    
+    nodesCache.clear();
+    propertiesCache.clear();
+    cache.clear();
+    
     super.finalize();
   }
 
   private void scheduleTask(TimerTask task, int start, long period) {
     Calendar firstTime = Calendar.getInstance();
-    firstTime.add(Calendar.SECOND, start);
+    firstTime.add(Calendar.MILLISECOND, start);
     
     if (period < 30000) {
       // warn and use 30sec.
@@ -571,12 +580,13 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
   
   private void gatherStatistic() {
-    CacheStatistic st = new CacheStatistic(miss, hits, cache.size(), nodesCache.size(), propertiesCache.size(), maxSize, liveTime, totalGetTime);
+    final  CacheStatistic st = new CacheStatistic(miss, hits, cache.size(), nodesCache.size(), propertiesCache.size(), maxSize, liveTime, totalGetTime);
     
-    if (showStatistic && st.getMiss() > 0 && st.getHits() > 0)
+    if (showStatistic)
       try {
-        log.info("Cache " + cache + " relevancy " + (Math.round((10000d * st.getHits()) / st.getMiss())) / 10000d + " (hits:" + st.getHits()
-               + ", miss:" + st.getMiss() + "), get:" + ((st.getHits() + st.getMiss()) / ((st.getTotalGetTime() + 1) / 1000))
+        double rel =  st.getMiss() > 0 && st.getHits() > 0 ? (Math.round((10000d * st.getHits()) / st.getMiss())) / 10000d : 0;
+        log.info("Cache " + name + ": relevancy " + rel + " (hits:" + st.getHits()
+               + ", miss:" + st.getMiss() + "), get:" + Math.round((st.getHits() + st.getMiss()) / (st.getTotalGetTime() > 0 ? st.getTotalGetTime() / 1000d : 1))
                + "oper/sec (" + (st.getTotalGetTime() / 1000d) + "sec)" + ", size:" + st.getSize() + " (max " + st.getMaxSize()
                + ")" + ", childs(nodes:" + st.getNodesSize() + ", properties:" + st.getPropertiesSize() + ")");
       } catch(Throwable e) {
