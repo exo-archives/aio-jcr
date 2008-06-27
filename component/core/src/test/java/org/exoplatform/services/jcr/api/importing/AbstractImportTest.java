@@ -457,8 +457,8 @@ public abstract class AbstractImportTest extends JcrAPIBaseTest {
     }
 
     public XmlTestResult call() throws Exception {
-      if (true)
-        log.info("isSys=" + isSystemViewExport + "\t" + "isES=" + isExportedByStream + "\t"
+      if (log.isDebugEnabled())
+        log.debug("isSys=" + isSystemViewExport + "\t" + "isES=" + isExportedByStream + "\t"
             + "importST=" + importSaveType.toString() + "\t" + "isIS=" + isImportedByStream + "\t"
             + "importBehavior=" + importUUIDBehavior + "\t");
       firstAction.execute();
