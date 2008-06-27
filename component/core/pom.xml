@@ -154,8 +154,6 @@
       <scope>compile</scope>
     </dependency>
     
-    
-    
     <dependency>
       <groupId>javax.xml.stream</groupId>
       <artifactId>stax-api</artifactId>
@@ -364,10 +362,10 @@
     
     <!-- H2 Database -->
     <!-- dependency>
-    <groupId>com.h2database</groupId>
-    <artifactId>h2</artifactId>
-    <version>1.0.69</version>
-    <scope>compile</scope>
+	    <groupId>com.h2database</groupId>
+	    <artifactId>h2</artifactId>
+	    <version>1.0.74</version>
+			<scope>compile</scope>
     </dependency -->
     <!-- ======================================================================= -->
     
@@ -471,11 +469,10 @@
                 </property>
               </systemProperties>
               <includes>
-                <include>**/**/TestVersionRestore.java</include>
-                <include>**/**/TestInvalidItemState.java</include>
-                <include>**/**/TestSameNameSiblingsM*.java</include>
-                <include>**/**/lab/cache/Test*.java</include>
-                <include>**/**/TestRestoreWorkspaceInitializer.java</include>
+                <include>**/**/TestErrorMultithreading1.java</include>
+                <include>**/**/TestLinkedCacheMultithread1.java</include>
+                <include>**/**/Test*Cache1.java</include>
+                <include>**/**/Test*CacheMetrics1.java</include>
               </includes>
             </configuration>
           </execution>
