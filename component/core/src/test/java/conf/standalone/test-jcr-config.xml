@@ -44,6 +44,8 @@
             <properties>
               <property name="max-size" value="2k" />
               <property name="live-time" value="20m" />
+							<property name="statistic-period" value="30" />
+              <property name="statistic-log" value="true" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -92,6 +94,8 @@
             <properties>
               <property name="max-size" value="2k" />
               <property name="live-time" value="20m" />
+							<property name="statistic-period" value="30" />
+              <property name="statistic-log" value="true" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -132,6 +136,8 @@
             <properties>
               <property name="max-size" value="2k" />
               <property name="live-time" value="20m" />
+							<property name="statistic-period" value="30" />
+              <property name="statistic-log" value="true" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -189,7 +195,7 @@
               <property name="max-size" value="2k" />
               <property name="live-time" value="20m" />
               <property name="statistic-period" value="30" />
-              <property name="statistic-show" value="true" />
+              <property name="statistic-log" value="true" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -245,7 +251,7 @@
               <property name="max-size" value="2k" />
               <property name="live-time" value="20m" />
               <property name="statistic-period" value="30" />
-              <property name="statistic-show" value="true" />
+              <property name="statistic-log" value="true" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -293,7 +299,7 @@
               <property name="max-size" value="2k" />
               <property name="live-time" value="20m" />
               <property name="statistic-period" value="30" />
-              <property name="statistic-show" value="true" />
+              <property name="statistic-log" value="true" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">

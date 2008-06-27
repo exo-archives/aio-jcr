@@ -74,7 +74,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   
   static public final String STATISTIC_CLEAN_PARAMETER_NAME = "statistic-clean";
   
-  static public final String STATISTIC_SHOW_PARAMETER_NAME = "statistic-show";
+  static public final String STATISTIC_LOG_PARAMETER_NAME = "statistic-log";
   
   static public final String BLOCKING_USERS_COUNT_PARAMETER_NAME = "blocking-users-count";
   
@@ -484,7 +484,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       
       cleanStats = cacheConfig.getParameterBoolean(STATISTIC_CLEAN_PARAMETER_NAME, true);
       statisticPeriod = cacheConfig.getParameterTime(STATISTIC_PERIOD_PARAMETER_NAME, DEF_STATISTIC_PERIOD);
-      showStatistic = cacheConfig.getParameterBoolean(STATISTIC_SHOW_PARAMETER_NAME, false);
+      showStatistic = cacheConfig.getParameterBoolean(STATISTIC_LOG_PARAMETER_NAME, false);
       
     } else {
       this.maxSize = MAX_CACHE_SIZE;
