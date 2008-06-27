@@ -259,12 +259,12 @@
       <scope>compile</scope>
     </dependency>
     
-    <!-- dependency>
+    <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-jcr-tests</artifactId>
       <version>1.4</version>
       <scope>test</scope>
-    </dependency -->
+    </dependency>
     
     <!-- dependency>
       <groupId>net.sf.ehcache</groupId>
