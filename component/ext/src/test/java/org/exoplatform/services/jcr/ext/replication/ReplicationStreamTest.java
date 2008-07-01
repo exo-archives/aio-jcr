@@ -76,7 +76,7 @@ public class ReplicationStreamTest extends BaseReplicationTest {
     Node sourceNode = root.getNode("cms2").getNode("test").getNode("nnn").getNode("jcr:content");
     InputStream fis = sourceNode.getProperty("jcr:data").getStream();
 
-    Thread.sleep(15 * 1000);
+    Thread.sleep(20 * 1000);
 
     Node desinationNode = root2.getNode("cms2").getNode("test").getNode("nnn").getNode(
         "jcr:content");
@@ -97,7 +97,7 @@ public class ReplicationStreamTest extends BaseReplicationTest {
     srcParent.remove();
     session.save();
     
-    Thread.sleep(5 * 1000);
+    Thread.sleep(20 * 1000);
     
     try {
       Node destinationRemovablesNode = (Node) session2.getItem("/cms2/test/nnn");

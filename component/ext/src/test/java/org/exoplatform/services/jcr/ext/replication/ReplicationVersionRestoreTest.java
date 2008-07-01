@@ -132,7 +132,7 @@ public class ReplicationVersionRestoreTest extends BaseReplicationTest {
     
     Node srcVersion = root.getNode("nt_file_node");
 
-    Thread.sleep(5 * 1000);
+    Thread.sleep(10 * 1000);
 
     Node destVersionNode = root2.getNode("nt_file_node").getNode("jcr:content");
     log.info("ADD VERVION #1 : file size = " + destVersionNode.getProperty("jcr:data").getStream().available() + " bytes");
@@ -145,7 +145,7 @@ public class ReplicationVersionRestoreTest extends BaseReplicationTest {
     srcVersionNode.getNode("jcr:content").setProperty("jcr:data", new FileInputStream(tempFile2));
     session.save();
 
-    Thread.sleep(2 * 1000);
+    Thread.sleep(10 * 1000);
 
     log.info("ADD VERVION #2 : file size = " + destVersionNode.getProperty("jcr:data").getStream().available() + " bytes");
     compareStream(new FileInputStream(tempFile2), destVersionNode.getProperty("jcr:data").getStream());
@@ -153,13 +153,13 @@ public class ReplicationVersionRestoreTest extends BaseReplicationTest {
     srcVersion.checkin();
     session.save();
     
-    Thread.sleep(2 * 1000);
+    Thread.sleep(10 * 1000);
     
     srcVersion.checkout();
     srcVersionNode.getNode("jcr:content").setProperty("jcr:data", new FileInputStream(tempFile3));
     session.save();
     
-    Thread.sleep(2 * 1000);
+    Thread.sleep(10 * 1000);
     
     log.info("ADD VERVION #3 : file size = " + destVersionNode.getProperty("jcr:data").getStream().available() + " bytes");
     compareStream(new FileInputStream(tempFile3), destVersionNode.getProperty("jcr:data").getStream());
@@ -168,7 +168,7 @@ public class ReplicationVersionRestoreTest extends BaseReplicationTest {
     srcVersion.restore(baseVersion, true);
     session.save();
     
-    Thread.sleep(2 * 1000);
+    Thread.sleep(10 * 1000);
     
     compareStream(new FileInputStream(tempFile2), destVersionNode.getProperty("jcr:data").getStream());
     
@@ -179,7 +179,7 @@ public class ReplicationVersionRestoreTest extends BaseReplicationTest {
     srcVersion.restore(restoreToBaseVersion, true);
     session.save();
     
-    Thread.sleep(2 * 1000);
+    Thread.sleep(10 * 1000);
     
     compareStream(new FileInputStream(tempFile), destVersionNode.getProperty("jcr:data").getStream());
     
@@ -194,7 +194,7 @@ public class ReplicationVersionRestoreTest extends BaseReplicationTest {
     destVersion.restore(restoreToBaseVersion_2, true);
     session.save();
     
-    Thread.sleep(2*1000);
+    Thread.sleep(10*1000);
     
     compareStream(new FileInputStream(tempFile2), srcVersionNode.getNode("jcr:content").getProperty("jcr:data").getStream());
   }

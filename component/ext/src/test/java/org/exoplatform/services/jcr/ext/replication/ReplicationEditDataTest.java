@@ -51,7 +51,7 @@ public class ReplicationEditDataTest extends BaseReplicationTest {
     // COMPARE REPLICATION DATA
     String sourceData = root.getNode("cms3").getNode("test").getNode("nnn").getNode("jcr:content")
         .getProperty("jcr:data").getString();
-    Thread.sleep(3 * 1000);
+    Thread.sleep(5 * 1000);
     String desinationData = root2.getNode("cms3").getNode("test").getNode("nnn").getNode(
         "jcr:content").getProperty("jcr:data").getString();
 
@@ -64,7 +64,7 @@ public class ReplicationEditDataTest extends BaseReplicationTest {
         "jcr:data", newData);
     session2.save();
 
-    Thread.sleep(3 * 1000);
+    Thread.sleep(5 * 1000);
 
     sourceData = root.getNode("cms3").getNode("test").getNode("nnn").getNode("jcr:content")
         .getProperty("jcr:data").getString();

@@ -50,7 +50,7 @@ public class ReplicationCopyMoveNodeTest extends BaseReplicationTest {
     assertNotNull(session.getItem("/testSessionMove1"));
     assertNotNull(session.getItem("/testSessionMove1/childNode2/jcr:content"));
 
-    Thread.sleep(5 * 1000);
+    Thread.sleep(7 * 1000);
 
     // COMPARE REPLICATION DATA
     assertNotNull(session2.getItem("/testSessionMove1"));
@@ -80,7 +80,7 @@ public class ReplicationCopyMoveNodeTest extends BaseReplicationTest {
 
     workspace.copy("/testCopy", "/testCopy1");
 
-    Thread.sleep(5 * 1000);
+    Thread.sleep(7 * 1000);
 
     // COMPARE REPLICATION DATA
     assertNotNull(session2.getItem("/testCopy1"));
@@ -112,7 +112,7 @@ public class ReplicationCopyMoveNodeTest extends BaseReplicationTest {
 
     workspace.move("/testMove", "/testMove1");
 
-    Thread.sleep(5 * 1000);
+    Thread.sleep(7 * 1000);
 
     // COMPARE REPLICATION DATA
     assertNotNull(session2.getItem("/testMove1"));
@@ -159,9 +159,9 @@ public class ReplicationCopyMoveNodeTest extends BaseReplicationTest {
     
     session.save();
 
-    log.info("Sleep 10 secands");
+    log.info("Sleep 15 secands");
     Thread.yield();
-    Thread.sleep(10 * 1000);
+    Thread.sleep(15 * 1000);
 
     // COMPARE REPLICATION DATA
     assertNotNull(session2.getItem("/testMove_dest"));
