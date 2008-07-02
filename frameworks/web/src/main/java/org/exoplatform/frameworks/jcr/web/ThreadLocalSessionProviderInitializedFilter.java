@@ -87,22 +87,25 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
     // org.exoplatform.services.security.web.SetCurrentIdentityFilter
     HttpSession httpsession = httpRequest.getSession(false); 
     if (state == null) {
-      log.warn("...... current conversation state is not set");
+      if (log.isDebugEnabled())
+        log.debug("Current conversation state is not set");
+      
       if (httpsession != null) { 
         String httpsessionId = httpsession.getId();
         // initialize thread local SessionProvider
         state = stateRegistry.getState(httpsessionId);
         if (state != null)
           provider = new SessionProvider(state);
-        else
-          log.warn("Conversation State is null, id  " + httpsessionId);
+        else if (log.isDebugEnabled())
+          log.debug("WARN: Conversation State is null, id  " + httpsessionId);
       }
     } else {
       provider = new SessionProvider(state);
     }
 
     if (provider == null) {
-      log.warn("Create SessionProvider for anonymous.");
+      if (log.isDebugEnabled())
+        log.debug("Create SessionProvider for anonymous.");
       provider = SessionProvider.createAnonimProvider();
     }
     providerService.setSessionProvider(null, provider);
