@@ -59,7 +59,7 @@ public class BasicAuthenticationHttpClient {
       // execute the GET
       URL url = new URL(sURL);
       connection = new HTTPConnection(url);
-      connection.addBasicAuthorization("eXo REST services", login, password);
+      connection.addBasicAuthorization("exo-domain", login, password);
       
       HTTPResponse resp = connection.Get(url.getFile());
       

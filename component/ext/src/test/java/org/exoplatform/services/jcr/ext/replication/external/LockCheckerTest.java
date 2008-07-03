@@ -25,7 +25,7 @@ import org.exoplatform.services.jcr.ext.replication.test.ReplicationTestService;
  */
 public class LockCheckerTest extends BaseTestCaseChecker {
   public void testLock() throws Exception {
-    int MANY_TEST = 5;
+    int MANY_TEST = 2;
     String relPathArray[] = new String[MANY_TEST];
     
     //set lock to masterMember
@@ -48,7 +48,7 @@ public class LockCheckerTest extends BaseTestCaseChecker {
                              + ReplicationTestService.Constants.OPERATION_PREFIX
                              + ReplicationTestService.Constants.OperationType.SET_LOCK;
       
-      BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember);
+      BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember, 500);
       String result = client.execute(url);
       System.out.println(url);
       System.out.println(result);
@@ -73,7 +73,7 @@ public class LockCheckerTest extends BaseTestCaseChecker {
                                     + ReplicationTestService.Constants.OPERATION_PREFIX
                                     + ReplicationTestService.Constants.OperationType.CECK_LOCK;
         
-        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember);
+        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember, 500);
         String result = client.execute(checkUrl);
         System.out.println(checkUrl);
         System.out.println(result);
