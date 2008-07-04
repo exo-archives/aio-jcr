@@ -171,12 +171,15 @@
             <include>**/app/*Test.java</include>
             <include>**/resource/*Test.java</include>
             <include>**/groovy/*Test.java</include>
+	    <exclude>**/replication/*.java</exclude>
+            <exclude>**/replication/external/*.java</exclude>
           </includes>
           <excludes>
             <exclude>**/*$*</exclude><!--nested classes prb, http://jira.codehaus.org/browse/SUREFIRE-288-->
             <exclude>**/BaseStandaloneTest.java</exclude>
             <exclude>**/replication/*.java</exclude>
             <exclude>**/replication/external/*.java</exclude>
+	    <exclude>**/replication/external/BaseTestCaseChecker.java</exclude>
             <exclude>**/backup/*.java</exclude>
             <exclude>**/access/*.java</exclude>
           </excludes>
