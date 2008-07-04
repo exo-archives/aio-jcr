@@ -24,6 +24,7 @@ import java.util.Collection;
 import javax.jcr.Node;
 
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.jcr.ext.resource.representation.NtFileNodeRepresentation;
 import org.exoplatform.services.jcr.ext.resource.representation.NtFileNodeRepresentationFactory;
 
 /**
@@ -84,6 +85,12 @@ public class NodeRepresentationTest extends BaseStandaloneTest {
     NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(file, "text/plain");
 
     assertNotNull(nodeRepresentation);
+    
+    assertTrue(nodeRepresentation instanceof NtFileNodeRepresentation);
+    
+//    for(String n : nodeRepresentation.getPropertyNames()) {
+//      System.out.println(">>>>>>>>>>>>>>>>>>> "+n+" "+nodeRepresentation);
+//    }
     
     assertEquals(3, nodeRepresentation.getPropertyNames().size());
     

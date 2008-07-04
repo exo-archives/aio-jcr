@@ -23,8 +23,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
+import javax.jcr.ValueFormatException;
 
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.ext.resource.NodeRepresentation;
@@ -84,7 +86,13 @@ public class NtResourceNodeRepresentation implements NodeRepresentation {
         "jcr:data".equals(name) || "jcr:uuid".equals(name))
       return null;
 
-    String value = node.getProperty(name).getString();
+    String value;
+    try {
+      value = node.getProperty(name).getString();
+    } catch (PathNotFoundException e) {
+      return null;
+    } 
+    
     return new HierarchicalProperty(name, value);
   }
 

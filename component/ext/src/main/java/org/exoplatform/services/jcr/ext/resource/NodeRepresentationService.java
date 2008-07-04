@@ -123,14 +123,9 @@ public class NodeRepresentationService implements Startable {
     List<NodeRepresentationFactory> list = container
         .getComponentInstancesOfType(NodeRepresentationFactory.class);
     for (NodeRepresentationFactory f : list) {
-      // try {
-
+      
       addNodeRepresentationFactory(f.getNodeType(), f);
-
-      // } catch (InvalidResourceDescriptorException irde) {
-      // log.error("Can't add ResourceContainer Component: " +
-      // c.getClass().getName() + ".\nException : " + irde);
-      // }
+      log.info("NodeRepresentationFactory added "+f.getNodeType()+" "+f.getClass().getName());
     }
   }
 

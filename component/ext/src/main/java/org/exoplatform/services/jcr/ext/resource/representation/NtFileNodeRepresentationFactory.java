@@ -18,7 +18,6 @@
 package org.exoplatform.services.jcr.ext.resource.representation;
 
 import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.ext.resource.NodeRepresentation;
@@ -48,6 +47,8 @@ public class NtFileNodeRepresentationFactory implements
     try {
 
       NodeRepresentation content = nodeRepresentationService.getNodeRepresentation(node.getNode("jcr:content"), mediaTypeHint);
+      
+      //return nodeRepresentationService.getNodeRepresentation(node.getNode("jcr:content"), mediaTypeHint);
       return new NtFileNodeRepresentation(node, content);
       
     } catch (RepositoryException e) {
