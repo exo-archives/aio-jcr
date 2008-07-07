@@ -5,8 +5,8 @@
   <param name="japex.plotGroupSize" value="5" />
   <param name="japex.resultUnit" value="tps" />
   <param name="japex.warmupIterations" value="0" />
-  <param name="japex.runIterations" value="10" />  
-  <!--param name="japex.runTime" value="03" /-->
+  <!--param name="japex.runIterations" value="10" /-->  
+  <param name="japex.runTime" value="01:00" />
   <!-- 10 for 10 sec -->
   <!-- 15:00 for 15min -->
 
@@ -21,13 +21,13 @@
     <param name="exo.jaasConf" value="login.conf" />
     <param name="exo.containerConf" value="../config/test-configuration-benchmark.xml" />
     <driver name="JCRdriver">
-      <param name="japex.numberOfThreads" value="10" />
+      <param name="japex.numberOfThreads" value="1000" />
     </driver>
   </driverGroup>
 
-  <testCase name="RestoreOwnNodeTest">
+  <!--testCase name="RestoreOwnNodeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.versioning.RestoreOwnNodeTest" />
-  </testCase>
+  </testCase-->
 
   <!--testCase name="CheckinCheckoutOwnNodeCleanDBOracleTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.versioning.CheckinCheckoutOwnNodeCleanDBOracleTest" />
@@ -82,14 +82,16 @@
     <param name="japex.runIterationDelay" value="0" />
     </testCase-->
 
-  <!--testCase name="RandomReadNtFileWithMetadataTest">
+  <testCase name="RandomReadNtFileWithMetadataTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.RandomReadNtFileWithMetadataTest" />
+    <param name="jcr.rootPath" value="teststorage/root2" />
+    <param name="jcr.startIndex" value="8" />
     <param name="jcr.level1NodesCount" value="1" />
     <param name="jcr.level2NodesCount" value="2" />
     <param name="jcr.level3NodesCount" value="10" />
     <param name="jcr.level4NodesCount" value="50" />
     <param name="japex.runIterationDelay" value="0" />
-    </testCase-->
+    </testCase>
 
   <!--testCase name="TraverseInnerFoldersTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.usecases.TraverseInnerFoldersTest" />
