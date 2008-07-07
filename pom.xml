@@ -59,6 +59,8 @@
           <include>**/*.xsl</include>
           <include>**/*.properties</include>
           <include>**/*.ion</include>
+          <include>**/*.conf</include>
+          <include>**/*.config</include>
         </includes>
       </resource>
       <resource>
@@ -69,6 +71,8 @@
           <include>**/*.properties</include>
           <include>**/login.conf</include>
           <include>**/*.ion</include>
+          <include>**/*.conf</include>
+          <include>**/*.config</include>
         </includes>
       </resource>
     </resources>
@@ -79,6 +83,8 @@
           <include>**/*.properties</include>
           <include>**/*.xml</include>
           <include>**/*.txt</include>
+          <include>**/*.conf</include>
+          <include>**/*.config</include>
         </includes>
       </testResource>
       <testResource>
@@ -87,6 +93,8 @@
           <include>**/*.properties</include>
           <include>**/*.xml</include>
           <include>**/*.txt</include>
+          <include>**/*.conf</include>
+          <include>**/*.config</include>
         </includes>
       </testResource>
     </testResources>
