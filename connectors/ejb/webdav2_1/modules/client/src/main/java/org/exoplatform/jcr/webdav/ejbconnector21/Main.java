@@ -15,7 +15,7 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.jcr.wedav.ejbconnector21;
+package org.exoplatform.jcr.webdav.ejbconnector21;
 
 import java.io.IOException;
 import java.io.InputStream;
