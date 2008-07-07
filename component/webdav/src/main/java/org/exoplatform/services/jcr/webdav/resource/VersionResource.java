@@ -94,7 +94,8 @@ public class VersionResource extends GenericResource {
 	  } else if (DeltaVConstants.RESOURCETYPE.equals(name)) {
 	    HierarchicalProperty resourceType = new HierarchicalProperty(name);
 	    if (versionedResource.isCollection()) {
-	      resourceType.addChild(new HierarchicalProperty("DAV:", "collection"));
+	      //new HierarchicalProperty("DAV:", "collection")
+	      resourceType.addChild(new HierarchicalProperty(new QName("DAV:", "collection")));
 	    }
 	    return resourceType;
 	    
