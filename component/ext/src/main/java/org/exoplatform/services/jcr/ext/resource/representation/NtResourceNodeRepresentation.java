@@ -29,6 +29,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
 
 import org.exoplatform.common.util.HierarchicalProperty;
+import org.exoplatform.services.jcr.core.ExtendedSession;
 import org.exoplatform.services.jcr.ext.resource.NodeRepresentation;
 
 /**
@@ -92,8 +93,9 @@ public class NtResourceNodeRepresentation implements NodeRepresentation {
     } catch (PathNotFoundException e) {
       return null;
     } 
-    
-    return new HierarchicalProperty(name, value);
+    String ns = ((ExtendedSession)node.getSession()).getLocationFactory().parseJCRName(name).getNamespace();
+    return new HierarchicalProperty(name, value, ns);
+    //return new HierarchicalProperty(name, value);
   }
 
   /* (non-Javadoc)

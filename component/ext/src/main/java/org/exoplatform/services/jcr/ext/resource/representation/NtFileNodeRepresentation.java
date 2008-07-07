@@ -26,9 +26,9 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
-import javax.jcr.ValueFormatException;
 
 import org.exoplatform.common.util.HierarchicalProperty;
+import org.exoplatform.services.jcr.core.ExtendedSession;
 import org.exoplatform.services.jcr.ext.resource.NodeRepresentation;
 
 /**
@@ -97,7 +97,8 @@ public class NtFileNodeRepresentation implements NodeRepresentation {
     
     try {
       String value = node.getProperty(name).getString();
-      return new HierarchicalProperty(name, value);
+      String ns = ((ExtendedSession)node.getSession()).getLocationFactory().parseJCRName(name).getNamespace();
+      return new HierarchicalProperty(name, value, ns);
     } catch (PathNotFoundException e) {
       return null;
     }
