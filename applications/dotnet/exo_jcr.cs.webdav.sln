@@ -1,0 +1,47 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "exo_jcr.msofficeplugin.word", "exo_jcr.msofficeplugin.word\exo_jcr.msofficeplugin.word.csproj", "{A8145AAB-EFCA-4525-8610-9721647C3785}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "eXo plugin.setup", "exo_jcr.msofficeplugin.setup\exo_jcr.msofficeplugin.setup.vdproj", "{DCA9DA57-021D-4D28-ABCE-099728053E34}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "exo_jcr.webdav.csclient", "exo_jcr.webdav.csclient\exo_jcr.webdav.csclient.csproj", "{34CA8A92-58A6-4A68-A01B-C9E798A86B03}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "exo_jcr.msofficeplugin.excel", "exo_jcr.msofficeplugin.excel\exo_jcr.msofficeplugin.excel.csproj", "{91E0638C-CD98-47F0-83E6-70D8E857B7F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "exo_jcr.msofficeplugin.ppoint", "exo_jcr.msofficeplugin.ppoint\exo_jcr.msofficeplugin.ppoint.csproj", "{D77CF5B5-C6B8-4469-89A1-67CA5589AE09}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "exo_jcr.msofficeplugin.common", "exo_jcr.msofficeplugin.common\exo_jcr.msofficeplugin.common.csproj", "{3FA733BC-BBAB-4B6D-91B6-012D75E9D22A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A8145AAB-EFCA-4525-8610-9721647C3785}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8145AAB-EFCA-4525-8610-9721647C3785}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8145AAB-EFCA-4525-8610-9721647C3785}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8145AAB-EFCA-4525-8610-9721647C3785}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCA9DA57-021D-4D28-ABCE-099728053E34}.Debug|Any CPU.ActiveCfg = Debug
+		{DCA9DA57-021D-4D28-ABCE-099728053E34}.Release|Any CPU.ActiveCfg = Release
+		{34CA8A92-58A6-4A68-A01B-C9E798A86B03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34CA8A92-58A6-4A68-A01B-C9E798A86B03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34CA8A92-58A6-4A68-A01B-C9E798A86B03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34CA8A92-58A6-4A68-A01B-C9E798A86B03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91E0638C-CD98-47F0-83E6-70D8E857B7F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91E0638C-CD98-47F0-83E6-70D8E857B7F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91E0638C-CD98-47F0-83E6-70D8E857B7F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91E0638C-CD98-47F0-83E6-70D8E857B7F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D77CF5B5-C6B8-4469-89A1-67CA5589AE09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D77CF5B5-C6B8-4469-89A1-67CA5589AE09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D77CF5B5-C6B8-4469-89A1-67CA5589AE09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D77CF5B5-C6B8-4469-89A1-67CA5589AE09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FA733BC-BBAB-4B6D-91B6-012D75E9D22A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FA733BC-BBAB-4B6D-91B6-012D75E9D22A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FA733BC-BBAB-4B6D-91B6-012D75E9D22A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FA733BC-BBAB-4B6D-91B6-012D75E9D22A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
