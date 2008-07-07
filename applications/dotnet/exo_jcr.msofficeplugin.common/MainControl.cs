@@ -454,18 +454,8 @@ namespace exo_jcr.msofficeplugin.common
                                 TreeNode addedNode = node.Nodes.Add(displayName.getDisplayName());
                                 addedNode.ImageIndex = 1;
                                 addedNode.SelectedImageIndex = 1;
-                                //ClearNodes(addedNode.Parent);
-                                ClearNodes(addedNode);
-//_
-                                //String currentServerPrefix = application.getContext().getContextHref();
-                                //String currentNodePath = addedNode.FullPath.Substring(currentServerPrefix.Length);
-                                //currentNodePath = currentNodePath.Replace("\\", "/");
-                                //getFileList(currentNodePath);
 
-                                //if(currentStatus != DavStatus.MULTISTATUS){
-                                //    addedNode.Remove();
-                                //}
-//_
+                                ClearNodes(addedNode);
                             }
                         }
                     }
@@ -610,8 +600,6 @@ namespace exo_jcr.msofficeplugin.common
 
                         if (getContentLengthProp != null)
                         {
-                            //size = getContentLengthProp.getContentLenght();
-
                             long fileSize = System.Convert.ToInt64(getContentLengthProp.getContentLenght());
 
                             if (fileSize < 1024)

@@ -67,17 +67,6 @@ namespace exo_jcr.webdav.csclient
 
         private static char[] enabledChars = {'-', '_', '.', '!', '~', '*', '\\', '(', ')', '/'};
 
-        //public static String convert(string sourceValue, Encoding source, Encoding target)
-        //{
-        //    Decoder decoder = source.GetDecoder();
-        //    byte[] bytes = target.GetBytes(sourceValue);
-        //    int length = decoder.GetCharCount(bytes, 0, bytes.Length);
-        //    char[] chars = new char[length];
-        //    decoder.GetChars(bytes, 0, bytes.Length, chars, 0);
-
-        //    return new String(chars);
-        //}
-
         public static String convert(string sourceValue, Encoding source, Encoding target){
         
             Encoder encoder = source.GetEncoder();

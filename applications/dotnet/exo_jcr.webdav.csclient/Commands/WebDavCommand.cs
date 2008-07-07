@@ -188,7 +188,6 @@ namespace exo_jcr.webdav.csclient.Commands
             String main = "";
             String convertedPath;
 
-//            convertedPath = resourcePath;
             convertedPath = TextUtils.convert(resourcePath, Encoding.Default, Encoding.UTF8);
 
             resourcePath = TextUtils.escape(convertedPath);
