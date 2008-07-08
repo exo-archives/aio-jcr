@@ -19,23 +19,35 @@ package org.exoplatform.services.cifs.server.filesys;
 import java.io.ByteArrayOutputStream;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
- * @version $Id: $
+ * Extended implementation of ByteArrayOutputStream.
+ * <p> 
+ * Created by The eXo Platform SAS Author : Sergey Karpenko
  */
 
 public class ExtByteArrayOutputStream extends ByteArrayOutputStream {
-  
-  ExtByteArrayOutputStream(){
+
+  /**
+   * Constructor.
+   */
+  ExtByteArrayOutputStream() {
     super();
   }
-  
-  ExtByteArrayOutputStream(int size){
+
+  /**
+   * Constructor.
+   * 
+   * @param size
+   */
+  ExtByteArrayOutputStream(int size) {
     super(size);
   }
-  
-  
-  public byte[] getBuf(){
+
+  /**
+   * Get byte buffer.
+   * 
+   * @return byte[]
+   */
+  public byte[] getBuf() {
     return this.buf;
   }
 }

@@ -30,26 +30,36 @@ import org.exoplatform.services.organization.OrganizationService;
 import org.picocontainer.Startable;
 
 /**
+ * CIFS service implementation.
+ * <p>
  * Created by The eXo Platform SAS Author : Karpenko Sergey
- * 
  */
-
 public class CIFSServiceImpl implements CIFSService, Startable {
 
-  private Log log = ExoLogger
-      .getLogger("org.exoplatform.services.cifs.CIFSServiceImpl");
+  private Log                 log    = ExoLogger
+                                         .getLogger("org.exoplatform.services.cifs.CIFSServiceImpl");
 
-  // Server configuration
+  /**
+   * Server (service) configuration.
+   */
   private ServerConfiguration config = null;
 
-  private RepositoryService repositoryService;
+  /**
+   * Repository service - jcr repository access.
+   */
+  private RepositoryService   repositoryService;
 
+  /**
+   * OrganizationService - security.
+   */
   private OrganizationService organizationService;
 
-  private NetworkServer server;
+  /**
+   * CIFS server.
+   */
+  private NetworkServer       server;
 
-  public CIFSServiceImpl(InitParams params,
-      RepositoryService repositoryService,
+  public CIFSServiceImpl(InitParams params, RepositoryService repositoryService,
       OrganizationService organizationService) throws RepositoryException,
       RepositoryConfigurationException, NamingException {
 
@@ -58,6 +68,11 @@ public class CIFSServiceImpl implements CIFSService, Startable {
     config = new ServerConfiguration(params);
   }
 
+  /**
+   * Is server active.
+   * 
+   * @return boolean
+   */
   public boolean isServerActive() {
     if (server == null)
       return false;
@@ -68,19 +83,19 @@ public class CIFSServiceImpl implements CIFSService, Startable {
     return true;
   }
 
-  public void start() {
+  /**
+   * Start service.
+   */
+  public final void start() {
 
     try {
       if (config.isSMBServerEnabled()) {
         log.info("Starting CIFS service");
         server = new SMBServer(config, repositoryService, organizationService);
         server.startServer();
-        log
-            .info("CIFS service is started server name: " +
-                config.getServerName() +
-                " on repository: " +
-                ((config.getRepoName() == null) ? "default" : config
-                    .getRepoName()));
+        log.info("CIFS service is started server name: " + config.getServerName()
+            + " on repository: "
+            + ((config.getRepoName() == null) ? "default" : config.getRepoName()));
       } else {
         log.error("Starting CIFS service error: server not initalized");
         return;
@@ -90,18 +105,25 @@ public class CIFSServiceImpl implements CIFSService, Startable {
     }
   }
 
-  public void stop() {
+  /**
+   * Stop service.
+   */
+  public final void stop() {
     log.info("Stoping...");
     try {
       if (server != null)
         server.shutdownServer(false);
     } catch (Exception e) {
-      log.error("Error occured, when server stops :",e);
+      log.error("Error occured, when server stops :", e);
     }
   }
 
-  public ServerConfiguration getConfiguration() {
+  /**
+   * Get service configuration.
+   * 
+   * @return ServerConfiguration
+   */
+  public final ServerConfiguration getConfiguration() {
     return config;
   }
-
 }

@@ -22,30 +22,26 @@ import java.net.URL;
 import org.exoplatform.container.StandaloneContainer;
 
 /**
- * Created by The eXo Platform SAS Author : Karpenko Sergey
- * <p>
  * Its standalone server run implementation. Server run as a part of complete
  * standalone container, so other component runs too.
- * 
+ * <p>
+ * Created by The eXo Platform SAS Author : Karpenko Sergey
  */
-
 public class CIFSServerRun {
 
   /**
-   * This method used just for independent run server (without any applications server)
-   * Check the conf/cifs-configuration.xml, it may not exist.
-   * 
-   * @param args
+   * This method used just for independent run server (without any applications
+   * server) Check the conf/cifs-configuration.xml, it may not exist.
+   * @param args 
    */
-  public static void main(String[] args) {
+  public static void main(final String[] args) {
     System.out.println("CIFS Server Test by Exo Platform");
     System.out.println("--------------------------------");
 
-    // TODO There is a reason get path to configuratiuon file from args
     try {
 
-      URL configurationURL = Thread.currentThread().getContextClassLoader()
-          .getResource("conf/cifs-configuration.xml");
+      URL configurationURL = Thread.currentThread().getContextClassLoader().getResource(
+          "conf/cifs-configuration.xml");
       if (configurationURL == null)
         throw new Exception(
             "No configuration found. Check that \"conf/cifs-configuration.xml\" exists !");
@@ -55,29 +51,22 @@ public class CIFSServerRun {
       // obtain standalone container
       StandaloneContainer container = StandaloneContainer.getInstance();
 
-     
-      
-      // set JAAS auth config
+      // set JAAS authentication configuration
 
-      URL loginURL = Thread.currentThread().getContextClassLoader()
-          .getResource("login.conf");
+      URL loginURL = Thread.currentThread().getContextClassLoader().getResource("login.conf");
 
       if (loginURL == null)
-        throw new Exception(
-            "No login config found. Check that resource login.conf exists !");
+        throw new Exception("No login config found. Check that resource login.conf exists !");
 
       if (System.getProperty("java.security.auth.login.config") == null)
-        System.setProperty("java.security.auth.login.config", loginURL
-            .toString());
+        System.setProperty("java.security.auth.login.config", loginURL.toString());
 
       System.out.println("Enter 'x' to shutdown ...");
       boolean shutdown = false;
-      while (shutdown == false) {
+      while (!shutdown) {
 
         // Wait for the user to enter the shutdown key
-
         int ch = System.in.read();
-
         if (ch == 'x' || ch == 'X') {
           shutdown = true;
         }
@@ -86,15 +75,11 @@ public class CIFSServerRun {
           container.wait(20);
         }
       }
-
       container.stop();
-
     } catch (Exception ex) {
-
-ex.printStackTrace();
+      ex.printStackTrace();
     }
 
     System.exit(1);
   }
-
 }

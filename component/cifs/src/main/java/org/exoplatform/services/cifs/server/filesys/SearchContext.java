@@ -30,8 +30,6 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
-import org.exoplatform.services.cifs.server.filesys.JCRDriver;
-
 /**
  * <p>
  * The search context represents the state of an active search by a disk
@@ -42,15 +40,15 @@ public class SearchContext {
 
   // Maximum number of files to return per search request.
 
-  private int m_maxFiles;
+  private int        m_maxFiles;
 
   // Tree identifier that this search is associated with
 
-  private int m_treeId;
+  private int        m_treeId;
 
   // Search string
 
-  private String m_searchStr;
+  private String     m_searchStr;
 
   // Flags
   // Bit 0 - close search after this request
@@ -58,14 +56,14 @@ public class SearchContext {
   // Bit 2 - return resume keys for each entry found
   // Bit 3 - continue search from previous ending place
   // Bit 4 - find with backup intent
- 
-  private int m_flags;
+
+  private int        m_flags;
 
   // requesteed nodes
   private List<Node> m_nodes;
 
-  //work as resume Id, and indexes used node if -1 no nodes read.
-  private int index = -1;
+  // work as resume Id, and indexes used node if -1 no nodes read.
+  private int        index = -1;
 
   /**
    * Default constructor.
@@ -119,8 +117,7 @@ public class SearchContext {
   /**
    * Set the search context flags.
    * 
-   * @param flg
-   *          int
+   * @param flg int
    */
   public final void setFlags(int flg) {
     m_flags = flg;
@@ -129,8 +126,7 @@ public class SearchContext {
   /**
    * Set the maximum files to return per request packet.
    * 
-   * @param maxFiles
-   *          int
+   * @param maxFiles int
    */
   public final void setMaximumFiles(int maxFiles) {
     m_maxFiles = maxFiles;
@@ -139,8 +135,7 @@ public class SearchContext {
   /**
    * Set the search string.
    * 
-   * @param str
-   *          java.lang.String
+   * @param str java.lang.String
    */
   public final void setSearchString(String str) {
     m_searchStr = str;
@@ -149,8 +144,7 @@ public class SearchContext {
   /**
    * Set the tree connection id that the search is associated with.
    * 
-   * @param id
-   *          int
+   * @param id int
    */
   public final void setTreeId(int id) {
     m_treeId = id;
@@ -169,12 +163,10 @@ public class SearchContext {
    * Return file information for the next file in the active search. Returns
    * false if the search is complete.
    * 
-   * @param info
-   *          FileInfo to return the file information.
+   * @param info FileInfo to return the file information.
    * @return true if the file information is valid, else false
    */
-  public boolean nextFileInfo(FileInfo info) throws PathNotFoundException,
-      RepositoryException {
+  public boolean nextFileInfo(FileInfo info) throws PathNotFoundException, RepositoryException {
     // Check if there is anything else to return
 
     if (!hasMoreFiles())
@@ -222,10 +214,11 @@ public class SearchContext {
   }
 
   /**
-   * Rollback index in node list at one position.<p>
-   * Its used whan file info cant fit into packet size, and will be send in next packet. 
-   * 
-   */ 
+   * Rollback index in node list at one position.
+   * <p>
+   * Its used whan file info cant fit into packet size, and will be send in next
+   * packet.
+   */
   public void rollbackAtOnePosition() {
     index--;
   }

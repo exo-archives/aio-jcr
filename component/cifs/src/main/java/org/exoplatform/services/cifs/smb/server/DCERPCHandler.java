@@ -26,7 +26,6 @@ package org.exoplatform.services.cifs.smb.server;
 
 import java.io.IOException;
 
-import org.exoplatform.services.cifs.smb.server.VirtualCircuit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.exoplatform.services.cifs.netbios.RFCNetBIOSProtocol;
@@ -50,24 +49,19 @@ import org.exoplatform.services.cifs.util.DataPacker;
  * DCE/RPC Protocol Handler Class
  */
 public class DCERPCHandler {
-  private static final Log logger = LogFactory
-      .getLog("org.alfresco.smb.protocol");
+  private static final Log logger = LogFactory.getLog("org.alfresco.smb.protocol");
 
   /**
    * Process a DCE/RPC request
    * 
-   * @param sess
-   *          SMBSrvSession
-   * @param srvTrans
-   *          SMBSrvTransPacket
-   * @param outPkt
-   *          SMBSrvPacket
+   * @param sess SMBSrvSession
+   * @param srvTrans SMBSrvTransPacket
+   * @param outPkt SMBSrvPacket
    * @exception IOException
    * @exception SMBSrvException
    */
-  public static final void processDCERPCRequest(SMBSrvSession sess,
-      SMBSrvTransPacket srvTrans, SMBSrvPacket outPkt) throws IOException,
-      SMBSrvException {
+  public static final void processDCERPCRequest(SMBSrvSession sess, SMBSrvTransPacket srvTrans,
+      SMBSrvPacket outPkt) throws IOException, SMBSrvException {
 
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
@@ -94,15 +88,13 @@ public class DCERPCHandler {
 
     // Create a DCE/RPC buffer from the received data
 
-    DCEBuffer dceBuf = new DCEBuffer(srvTrans.getBuffer(), srvTrans
-        .getParameter(10)
+    DCEBuffer dceBuf = new DCEBuffer(srvTrans.getBuffer(), srvTrans.getParameter(10)
         + RFCNetBIOSProtocol.HEADER_LEN);
 
     // Debug
 
     if (logger.isDebugEnabled() && sess.hasDebug(SMBSrvSession.DBG_DCERPC))
-      logger.debug("TransactNmPipe pipeFile=" + pipeFile.getName() + ", fid="
-          + fid + ", dceCmd=0x"
+      logger.debug("TransactNmPipe pipeFile=" + pipeFile.getName() + ", fid=" + fid + ", dceCmd=0x"
           + Integer.toHexString(dceBuf.getHeaderValue(DCEBuffer.HDR_PDUTYPE)));
 
     // Process the received DCE buffer
@@ -166,8 +158,8 @@ public class DCERPCHandler {
     // Debug
 
     if (logger.isDebugEnabled() && sess.hasDebug(SMBSrvSession.DBG_DCERPC))
-      logger.debug("Reply DCEbuf flags=0x" + Integer.toHexString(flags)
-          + ", len=" + len + ", status=0x" + Integer.toHexString(sts));
+      logger.debug("Reply DCEbuf flags=0x" + Integer.toHexString(flags) + ", len=" + len
+          + ", status=0x" + Integer.toHexString(sts));
 
     // Copy the reply data to the reply packet
 
@@ -193,26 +185,20 @@ public class DCERPCHandler {
   /**
    * Process a DCE/RPC request
    * 
-   * @param sess
-   *          SMBSrvSession
-   * @param vc
-   *          VirtualCircuit
-   * @param tbuf
-   *          TransactBuffer
-   * @param outPkt
-   *          SMBSrvPacket
+   * @param sess SMBSrvSession
+   * @param vc VirtualCircuit
+   * @param tbuf TransactBuffer
+   * @param outPkt SMBSrvPacket
    * @exception IOException
    * @exception SMBSrvException
    */
-  public static final void processDCERPCRequest(SMBSrvSession sess,VirtualCircuit vc, 
-      TransactBuffer tbuf, SMBSrvPacket outPkt)
-      throws IOException, SMBSrvException {
+  public static final void processDCERPCRequest(SMBSrvSession sess, VirtualCircuit vc,
+      TransactBuffer tbuf, SMBSrvPacket outPkt) throws IOException, SMBSrvException {
 
     // Check if the transaction buffer has setup and data buffers
 
     if (tbuf.hasSetupBuffer() == false || tbuf.hasDataBuffer() == false) {
-      sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -249,8 +235,7 @@ public class DCERPCHandler {
     // Debug
 
     if (logger.isDebugEnabled() && sess.hasDebug(SMBSrvSession.DBG_DCERPC))
-      logger.debug("TransactNmPipe pipeFile=" + pipeFile.getName() + ", fid="
-          + fid + ", dceCmd=0x"
+      logger.debug("TransactNmPipe pipeFile=" + pipeFile.getName() + ", fid=" + fid + ", dceCmd=0x"
           + Integer.toHexString(dceBuf.getHeaderValue(DCEBuffer.HDR_PDUTYPE)));
 
     // Process the received DCE buffer
@@ -314,8 +299,8 @@ public class DCERPCHandler {
     // Debug
 
     if (logger.isDebugEnabled() && sess.hasDebug(SMBSrvSession.DBG_DCERPC))
-      logger.debug("Reply DCEbuf flags=0x" + Integer.toHexString(flags)
-          + ", len=" + len + ", status=0x" + Integer.toHexString(sts));
+      logger.debug("Reply DCEbuf flags=0x" + Integer.toHexString(flags) + ", len=" + len
+          + ", status=0x" + Integer.toHexString(sts));
 
     // Copy the reply data to the reply packet
 
@@ -341,18 +326,14 @@ public class DCERPCHandler {
   /**
    * Process a DCE/RPC write request to the named pipe file
    * 
-   * @param sess
-   *          SMBSrvSession
-   * @param inPkt
-   *          SMBSrvPacket
-   * @param outPkt
-   *          SMBSrvPacket
+   * @param sess SMBSrvSession
+   * @param inPkt SMBSrvPacket
+   * @param outPkt SMBSrvPacket
    * @exception IOException
    * @exception SMBSrvException
    */
-  public static final void processDCERPCRequest(SMBSrvSession sess,
-      SMBSrvPacket inPkt, SMBSrvPacket outPkt) throws IOException,
-      SMBSrvException {
+  public static final void processDCERPCRequest(SMBSrvSession sess, SMBSrvPacket inPkt,
+      SMBSrvPacket outPkt) throws IOException, SMBSrvException {
 
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
@@ -422,8 +403,7 @@ public class DCERPCHandler {
     // Debug
 
     if (logger.isDebugEnabled() && sess.hasDebug(SMBSrvSession.DBG_IPC))
-      logger.debug("Write pipeFile=" + pipeFile.getName() + ", fid=" + fid
-          + ", dceCmd=0x"
+      logger.debug("Write pipeFile=" + pipeFile.getName() + ", fid=" + fid + ", dceCmd=0x"
           + Integer.toHexString(dceBuf.getHeaderValue(DCEBuffer.HDR_PDUTYPE)));
 
     // Process the DCE buffer
@@ -469,18 +449,14 @@ public class DCERPCHandler {
   /**
    * Process a DCE/RPC pipe read request
    * 
-   * @param sess
-   *          SMBSrvSession
-   * @param inPkt
-   *          SMBSrvPacket
-   * @param outPkt
-   *          SMBSrvPacket
+   * @param sess SMBSrvSession
+   * @param inPkt SMBSrvPacket
+   * @param outPkt SMBSrvPacket
    * @exception IOException
    * @exception SMBSrvException
    */
-  public static final void processDCERPCRead(SMBSrvSession sess,
-      SMBSrvPacket inPkt, SMBSrvPacket outPkt) throws IOException,
-      SMBSrvException {
+  public static final void processDCERPCRead(SMBSrvSession sess, SMBSrvPacket inPkt,
+      SMBSrvPacket outPkt) throws IOException, SMBSrvException {
 
     // Get the tree id from the received packet and validate that it is a valid
     // connection id.
@@ -520,8 +496,7 @@ public class DCERPCHandler {
     // Debug
 
     if (logger.isDebugEnabled() && sess.hasDebug(SMBSrvSession.DBG_IPC))
-      logger.debug("Read pipeFile=" + pipeFile.getName() + ", fid=" + fid
-          + ", rdLen=" + rdLen);
+      logger.debug("Read pipeFile=" + pipeFile.getName() + ", fid=" + fid + ", rdLen=" + rdLen);
 
     // Check if there is a valid reply buffered
 
@@ -635,18 +610,14 @@ public class DCERPCHandler {
   /**
    * Process the DCE/RPC request buffer
    * 
-   * @param sess
-   *          SMBSrvSession
-   * @param buf
-   *          DCEBuffer
-   * @param pipeFile
-   *          DCEPipeFile
+   * @param sess SMBSrvSession
+   * @param buf DCEBuffer
+   * @param pipeFile DCEPipeFile
    * @exception IOException
    * @exception SMBSrvException
    */
-  public static final void processDCEBuffer(SMBSrvSession sess,
-      DCEBuffer dceBuf, DCEPipeFile pipeFile) throws IOException,
-      SMBSrvException {
+  public static final void processDCEBuffer(SMBSrvSession sess, DCEBuffer dceBuf,
+      DCEPipeFile pipeFile) throws IOException, SMBSrvException {
 
     // Process the DCE/RPC request
 
@@ -673,17 +644,14 @@ public class DCERPCHandler {
   /**
    * Process a DCE bind request
    * 
-   * @param sess
-   *          SMBSrvSession
-   * @param dceBuf
-   *          DCEBuffer
-   * @param pipeFile
-   *          DCEPipeFile
+   * @param sess SMBSrvSession
+   * @param dceBuf DCEBuffer
+   * @param pipeFile DCEPipeFile
    * @exception IOException
    * @exception SMBSrvException
    */
-  public static final void procDCEBind(SMBSrvSession sess, DCEBuffer dceBuf,
-      DCEPipeFile pipeFile) throws IOException, SMBSrvException {
+  public static final void procDCEBind(SMBSrvSession sess, DCEBuffer dceBuf, DCEPipeFile pipeFile)
+      throws IOException, SMBSrvException {
 
     try {
 
@@ -712,9 +680,8 @@ public class DCERPCHandler {
       // Debug
 
       if (logger.isDebugEnabled() && sess.hasDebug(SMBSrvSession.DBG_DCERPC)) {
-        logger.debug("Bind: maxTx=" + maxTxSize + ", maxRx=" + maxRxSize
-            + ", groupId=" + groupId + ", ctxElems=" + ctxElems
-            + ", presCtxId=" + presCtxId + ", trfSyntax=" + trfSyntax);
+        logger.debug("Bind: maxTx=" + maxTxSize + ", maxRx=" + maxRxSize + ", groupId=" + groupId
+            + ", ctxElems=" + ctxElems + ", presCtxId=" + presCtxId + ", trfSyntax=" + trfSyntax);
         logger.debug("      uuid1=" + uuid1.toString());
         logger.debug("      uuid2=" + uuid2.toString());
       }
@@ -759,17 +726,14 @@ public class DCERPCHandler {
   /**
    * Process a DCE request
    * 
-   * @param sess
-   *          SMBSrvSession
-   * @param dceBuf
-   *          DCEBuffer
-   * @param pipeFile
-   *          DCEPipeFile
+   * @param sess SMBSrvSession
+   * @param dceBuf DCEBuffer
+   * @param pipeFile DCEPipeFile
    * @exception IOException
    * @exception SMBSrvException
    */
-  public static final void procDCERequest(SMBSrvSession sess, DCEBuffer inBuf,
-      DCEPipeFile pipeFile) throws IOException, SMBSrvException {
+  public static final void procDCERequest(SMBSrvSession sess, DCEBuffer inBuf, DCEPipeFile pipeFile)
+      throws IOException, SMBSrvException {
 
     // Debug
 

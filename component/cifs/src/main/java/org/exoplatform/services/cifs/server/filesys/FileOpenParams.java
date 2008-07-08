@@ -34,102 +34,94 @@ import org.exoplatform.services.cifs.smb.WinNT;
  */
 public class FileOpenParams {
   // Constants
- //TODO stream field has no sense
-  
   public final static String StreamSeparator = ":";
 
   // Conversion array for Core/LanMan open actions to NT open action codes
 
-  private static int[] _NTToLMOpenCode = {
-      FileAction.TruncateExisting + FileAction.CreateNotExist,
-      FileAction.OpenIfExists, FileAction.CreateNotExist,
-      FileAction.OpenIfExists + FileAction.CreateNotExist,
-      FileAction.TruncateExisting,
-      FileAction.TruncateExisting + FileAction.CreateNotExist };
+  private static int[]       _NTToLMOpenCode = {
+      FileAction.TruncateExisting + FileAction.CreateNotExist, FileAction.OpenIfExists,
+      FileAction.CreateNotExist, FileAction.OpenIfExists + FileAction.CreateNotExist,
+      FileAction.TruncateExisting, FileAction.TruncateExisting + FileAction.CreateNotExist };
 
   // File open mode strings
 
-  private static String[] _openMode = { "Supersede", "Open", "Create",
-      "OpenIf", "Overwrite", "OverwriteIf" };
+  private static String[]    _openMode       = { "Supersede", "Open", "Create", "OpenIf",
+      "Overwrite", "OverwriteIf"            };
 
   // File/directory to be opened
 
-  private String m_path;
+  private String             m_path;
 
   // Stream name
 
-  private String m_stream;
+  private String             m_stream;
 
   // File open action
 
-  private int m_openAction;
+  private int                m_openAction;
 
   // Desired access mode
 
-  private int m_accessMode;
+  private int                m_accessMode;
 
   // File attributes
 
-  private int m_attr;
+  private int                m_attr;
 
   // Allocation size
 
-  private long m_allocSize;
+  private long               m_allocSize;
 
   // Shared access flags
 
-  private int m_sharedAccess = SharingMode.READWRITE;
+  private int                m_sharedAccess  = SharingMode.READWRITE;
 
   // Creation date/time
 
-  private long m_createDate;
+  private long               m_createDate;
 
   // Root directory file id, zero if not specified
 
-  private int m_rootFID;
+  private int                m_rootFID;
 
   // Create options
 
-  private int m_createOptions;
+  private int                m_createOptions;
 
   // Security impersonation level, -1 if not set
 
-  private int m_secLevel;
+  private int                m_secLevel;
 
   // Security flags
 
-  private int m_secFlags;
+  private int                m_secFlags;
 
   // Owner group and user id
 
-  private int m_gid = -1;
+  private int                m_gid           = -1;
 
-  private int m_uid = -1;
+  private int                m_uid           = -1;
 
   // Unix mode
 
-  private int m_mode = -1;
+  private int                m_mode          = -1;
 
   // File type and symbolic name
 
-  private int m_fileType;
+  private int                m_fileType;
 
-  private String m_symName;
+  private String             m_symName;
 
   /**
    * Class constructor for Core SMB dialect Open SMB requests
    * 
-   * @param path
-   *          String
-   * @param openAction
-   *          int
-   * @param accessMode
-   *          int
-   * @param fileAttr
-   *          int
+   * @param path String
+   * @param openAction int
+   * @param accessMode int
+   * @param fileAttr int
    */
-  public @Deprecated FileOpenParams(String path, int openAction, int accessMode,
-      int fileAttr) {
+  public @Deprecated
+  FileOpenParams(String path, int openAction, int accessMode, int fileAttr) {
 
     m_openAction = convertToNTOpenAction(openAction);
     m_accessMode = convertToNTAccessMode(accessMode);
@@ -145,31 +137,21 @@ public class FileOpenParams {
     m_secLevel = -1;
   }
 
-
   /**
-   * Class constructor for LanMan SMB dialect OpenAndX requests
-   * Responsibility for correct stream and path separate laying on caller.
+   * Class constructor for LanMan SMB dialect OpenAndX requests Responsibility
+   * for correct stream and path separate laying on caller.
    * 
-   * @param path
-   *          String
-   * @param stream
-   *          String
-   * @param openAction
-   *          int
-   * @param accessMode
-   *          int
-   * @param searchAttr
-   *          int
-   * @param fileAttr
-   *          int
-   * @param allocSize
-   *          int
-   * @param createDate
-   *          long
+   * @param path String
+   * @param stream String
+   * @param openAction int
+   * @param accessMode int
+   * @param searchAttr int
+   * @param fileAttr int
+   * @param allocSize int
+   * @param createDate long
    */
-  public FileOpenParams(String path, String stream, int openAction,
-      int accessMode, int searchAttr, int fileAttr, int allocSize,
-      long createDate) {
+  public FileOpenParams(String path, String stream, int openAction, int accessMode, int searchAttr,
+      int fileAttr, int allocSize, long createDate) {
 
     // Parse the file path, split into file name and stream if specified
 
@@ -193,35 +175,23 @@ public class FileOpenParams {
   }
 
   /**
-   * Class constructor for NT SMB dialect NTCreateAndX requests.
-   * Responsibility for correct stream and path separate laying on caller.
+   * Class constructor for NT SMB dialect NTCreateAndX requests. Responsibility
+   * for correct stream and path separate laying on caller.
    * 
-   * @param path
-   *          String
-   * @param stream
-   *          String
-   * @param openAction
-   *          int
-   * @param accessMode
-   *          int
-   * @param attr
-   *          int
-   * @param sharedAccess
-   *          int
-   * @param allocSize
-   *          long
-   * @param createOption
-   *          int
-   * @param rootFID
-   *          int
-   * @param secLevel
-   *          int
-   * @param secFlags
-   *          int
+   * @param path String
+   * @param stream String
+   * @param openAction int
+   * @param accessMode int
+   * @param attr int
+   * @param sharedAccess int
+   * @param allocSize long
+   * @param createOption int
+   * @param rootFID int
+   * @param secLevel int
+   * @param secFlags int
    */
   public FileOpenParams(String path, String stream, int openAction, int accessMode, int attr,
-      int sharedAccess, long allocSize, int createOption, int rootFID,
-      int secLevel, int secFlags) {
+      int sharedAccess, long allocSize, int createOption, int rootFID, int secLevel, int secFlags) {
 
     m_path = path;
     m_stream = stream;
@@ -238,8 +208,7 @@ public class FileOpenParams {
     // Make sure the directory attribute is set if the create directory
     // option is set
 
-    if ((createOption & WinNT.CreateDirectory) != 0
-        && (m_attr & FileAttribute.Directory) == 0)
+    if ((createOption & WinNT.CreateDirectory) != 0 && (m_attr & FileAttribute.Directory) == 0)
       m_attr += FileAttribute.Directory;
   }
 
@@ -332,8 +301,7 @@ public class FileOpenParams {
    * Check if the specified create option is enabled, specified in the WinNT
    * class.
    * 
-   * @param flag
-   *          int
+   * @param flag int
    * @return boolean
    */
   public final boolean hasCreateOption(int flag) {
@@ -369,8 +337,7 @@ public class FileOpenParams {
    * @return boolean
    */
   public final boolean isWriteOnlyAccess() {
-    return (m_accessMode & AccessMode.NTReadWrite) == AccessMode.NTWrite ? true
-        : false;
+    return (m_accessMode & AccessMode.NTReadWrite) == AccessMode.NTWrite ? true : false;
   }
 
   /**
@@ -379,15 +346,13 @@ public class FileOpenParams {
    * @return boolean
    */
   public final boolean isReadWriteAccess() {
-    return (m_accessMode & AccessMode.NTReadWrite) == AccessMode.NTReadWrite ? true
-        : false;
+    return (m_accessMode & AccessMode.NTReadWrite) == AccessMode.NTReadWrite ? true : false;
   }
 
   /**
    * Check for a particular access mode
    * 
-   * @param mode
-   *          int
+   * @param mode int
    * @return boolean
    */
   public final boolean hasAccessMode(int mode) {
@@ -437,8 +402,7 @@ public class FileOpenParams {
    * @return boolean
    */
   public final boolean isOverwrite() {
-    if (getOpenAction() == FileAction.NTSupersede
-        || getOpenAction() == FileAction.NTOverwrite
+    if (getOpenAction() == FileAction.NTSupersede || getOpenAction() == FileAction.NTOverwrite
         || getOpenAction() == FileAction.NTOverwriteIf)
       return true;
     return false;
@@ -565,8 +529,7 @@ public class FileOpenParams {
   /**
    * Set the Unix mode
    * 
-   * @param mode
-   *          int
+   * @param mode int
    */
   public final void setMode(int mode) {
     m_mode = mode;
@@ -575,8 +538,7 @@ public class FileOpenParams {
   /**
    * Set a create option flag
    * 
-   * @param flag
-   *          int
+   * @param flag int
    */
   public final void setCreateOption(int flag) {
     m_createOptions = m_createOptions | flag;
@@ -585,8 +547,7 @@ public class FileOpenParams {
   /**
    * Set the file type
    * 
-   * @param typ
-   *          int
+   * @param typ int
    */
   public final void setFileType(int typ) {
     m_fileType = typ;
@@ -595,8 +556,7 @@ public class FileOpenParams {
   /**
    * Convert a Core/LanMan access mode to an NT access mode
    * 
-   * @param accessMode
-   *          int
+   * @param accessMode int
    * @return int
    */
   private final int convertToNTAccessMode(int accessMode) {
@@ -623,8 +583,7 @@ public class FileOpenParams {
   /**
    * Convert a Core/LanMan open action to an NT open action
    * 
-   * @param openAction
-   *          int
+   * @param openAction int
    * @return int
    */
   private final int convertToNTOpenAction(int openAction) {
@@ -643,8 +602,7 @@ public class FileOpenParams {
   /**
    * Convert a Core/LanMan shared access to NT sharing flags
    * 
-   * @param sharedAccess
-   *          int
+   * @param sharedAccess int
    * @return int
    */
   private final int convertToNTSharedMode(int sharedAccess) {
@@ -671,8 +629,7 @@ public class FileOpenParams {
   /**
    * Parse a file name to split the main file name/path and stream name
    * 
-   * @param fileName
-   *          String
+   * @param fileName String
    */
   private final void parseFileName(String fileName) {
 

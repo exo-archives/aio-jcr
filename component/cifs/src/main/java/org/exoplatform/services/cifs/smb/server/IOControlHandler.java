@@ -5,8 +5,6 @@
 
 package org.exoplatform.services.cifs.smb.server;
 
-import java.io.FileNotFoundException;
-
 import javax.jcr.Node;
 import javax.jcr.Property;
 
@@ -22,34 +20,32 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS Author : Sergiy Karpenko
- * 
  */
 
 public class IOControlHandler {
-  private static Log logger = ExoLogger
-      .getLogger("org.exoplatform.services.cifs.smb.server.IOControlHandler");
+  private static Log         logger           = ExoLogger
+                                                  .getLogger("org.exoplatform.services.cifs.smb.server.IOControlHandler");
 
   // Custom I/O control codes
 
-  public static final int CmdProbe = NTIOCtl.FsCtlCustom;
+  public static final int    CmdProbe         = NTIOCtl.FsCtlCustom;
 
-  public static final int CmdFileStatus = NTIOCtl.FsCtlCustom + 1;
+  public static final int    CmdFileStatus    = NTIOCtl.FsCtlCustom + 1;
 
   // Version 1 CmdCheckOut = NTIOCtl.FsCtlCustom + 2
   // Version 1 CmdCheckIn = NTIOCtl.FsCtlCustom + 3
-  public static final int CmdGetActionInfo = NTIOCtl.FsCtlCustom + 4;
+  public static final int    CmdGetActionInfo = NTIOCtl.FsCtlCustom + 4;
 
-  public static final int CmdRunAction = NTIOCtl.FsCtlCustom + 5;
+  public static final int    CmdRunAction     = NTIOCtl.FsCtlCustom + 5;
 
-  public static final int CmdGetAuthTicket = NTIOCtl.FsCtlCustom + 6;
+  public static final int    CmdGetAuthTicket = NTIOCtl.FsCtlCustom + 6;
 
   // I/O control request/response signature
 
-  public static final String Signature = "EXOPLATFORM";
+  public static final String Signature        = "EXOPLATFORM";
 
-  public static DataBuffer processIOControl(SrvSession sess,
-      TreeConnection conn, int ctrlCode, int fid, DataBuffer dataBuf,
-      boolean isFSCtrl, int filter) throws SMBException,
+  public static DataBuffer processIOControl(SrvSession sess, TreeConnection conn, int ctrlCode,
+      int fid, DataBuffer dataBuf, boolean isFSCtrl, int filter) throws SMBException,
       IOControlNotImplementedException {
     // Validate the file id
 
@@ -103,8 +99,8 @@ public class IOControlHandler {
 
     // Debug
     if (logger.isDebugEnabled()) {
-      logger.debug("IO control func=0x" + Integer.toHexString(ioFunc)
-          + ", fid=" + fid + ", buffer=" + dataBuf);
+      logger.debug("IO control func=0x" + Integer.toHexString(ioFunc) + ", fid=" + fid
+          + ", buffer=" + dataBuf);
     }
 
     // Check if the I/O control code is one of our custom codes
@@ -155,11 +151,8 @@ public class IOControlHandler {
     // Return the authentication ticket
 
     /*
-     * case CmdGetAuthTicket:
-     *  // Process the get auth ticket request
-     * 
-     * retBuffer = procGetAuthTicket(sess, conn, dataBuf, rootNode, netFile);
-     * break;
+     * case CmdGetAuthTicket: // Process the get auth ticket request retBuffer =
+     * procGetAuthTicket(sess, conn, dataBuf, rootNode, netFile); break;
      */
     // Unknown I/O control code
     default:
@@ -174,20 +167,15 @@ public class IOControlHandler {
   /**
    * Process the file status I/O request
    * 
-   * @param sess
-   *          Server session
-   * @param tree
-   *          Tree connection
-   * @param reqBuf
-   *          Request buffer
-   * @param folderNode
-   *          NodeRef of parent folder
+   * @param sess Server session
+   * @param tree Tree connection
+   * @param reqBuf Request buffer
+   * @param folderNode NodeRef of parent folder
    * @return DataBuffer
    * @throws SMBException
    */
-  private final static DataBuffer procIOFileStatus(SrvSession sess,
-      TreeConnection tree, DataBuffer reqBuf, Node folderNode)
-      throws SMBException {
+  private final static DataBuffer procIOFileStatus(SrvSession sess, TreeConnection tree,
+      DataBuffer reqBuf, Node folderNode) throws SMBException {
     // Get the file name from the request
 
     String fName = reqBuf.getString(true);
@@ -285,21 +273,15 @@ public class IOControlHandler {
   /**
    * Process the get action information request
    * 
-   * @param sess
-   *          Server session
-   * @param tree
-   *          Tree connection
-   * @param reqBuf
-   *          Request buffer
-   * @param folderNode
-   *          NodeRef of parent folder
-   * @param netFile
-   *          NetworkFile for the folder
+   * @param sess Server session
+   * @param tree Tree connection
+   * @param reqBuf Request buffer
+   * @param folderNode NodeRef of parent folder
+   * @param netFile NetworkFile for the folder
    * @return DataBuffer
    */
-  private final static DataBuffer procGetActionInfo(SrvSession sess,
-      TreeConnection tree, DataBuffer reqBuf, Node folderNode,
-      NetworkFile netFile) {
+  private final static DataBuffer procGetActionInfo(SrvSession sess, TreeConnection tree,
+      DataBuffer reqBuf, Node folderNode, NetworkFile netFile) {
     // Get the executable file name from the request
 
     String exeName = reqBuf.getString(true);
@@ -325,10 +307,9 @@ public class IOControlHandler {
      * respBuf.putInt(DesktopAction.StsSuccess);
      * respBuf.putString(deskAction.getName(), true);
      * respBuf.putInt(deskAction.getAttributes());
-     * respBuf.putInt(deskAction.getPreProcessActions());
-     * 
-     * String confirmStr = deskAction.getConfirmationString();
-     * respBuf.putString(confirmStr != null ? confirmStr : "", true);
+     * respBuf.putInt(deskAction.getPreProcessActions()); String confirmStr =
+     * deskAction.getConfirmationString(); respBuf.putString(confirmStr != null ?
+     * confirmStr : "", true);
      */
 
     // Return the response
@@ -338,21 +319,15 @@ public class IOControlHandler {
   /**
    * Process the run action request
    * 
-   * @param sess
-   *          Server session
-   * @param tree
-   *          Tree connection
-   * @param reqBuf
-   *          Request buffer
-   * @param folderNode
-   *          NodeRef of parent folder
-   * @param netFile
-   *          NetworkFile for the folder
+   * @param sess Server session
+   * @param tree Tree connection
+   * @param reqBuf Request buffer
+   * @param folderNode NodeRef of parent folder
+   * @param netFile NetworkFile for the folder
    * @return DataBuffer
    */
-  private final static DataBuffer procRunAction(SrvSession sess,
-      TreeConnection tree, DataBuffer reqBuf, Node folderNode,
-      NetworkFile netFile) {
+  private final static DataBuffer procRunAction(SrvSession sess, TreeConnection tree,
+      DataBuffer reqBuf, Node folderNode, NetworkFile netFile) {
     // Get the name of the action to run
 
     String actionName = reqBuf.getString(true);
@@ -381,21 +356,15 @@ public class IOControlHandler {
   /**
    * Process the get authentication ticket request
    * 
-   * @param sess
-   *          Server session
-   * @param tree
-   *          Tree connection
-   * @param reqBuf
-   *          Request buffer
-   * @param folderNode
-   *          NodeRef of parent folder
-   * @param netFile
-   *          NetworkFile for the folder
+   * @param sess Server session
+   * @param tree Tree connection
+   * @param reqBuf Request buffer
+   * @param folderNode NodeRef of parent folder
+   * @param netFile NetworkFile for the folder
    * @return DataBuffer
    */
-  private final static DataBuffer procGetAuthTicket(SrvSession sess,
-      TreeConnection tree, DataBuffer reqBuf, Node folderNode,
-      NetworkFile netFile) {
+  private final static DataBuffer procGetAuthTicket(SrvSession sess, TreeConnection tree,
+      DataBuffer reqBuf, Node folderNode, NetworkFile netFile) {
     // DEBUG
 
     if (logger.isDebugEnabled())
@@ -411,11 +380,9 @@ public class IOControlHandler {
     // generating URLs for the client-side application so that the user does not
     // have to re-authenticate
     /*
-     * getTicketForClient(sess); // Pack the response
-     * 
-     * ClientInfo cInfo = sess.getClientInformation();
-     * 
-     * if (cInfo != null && cInfo.getAuthenticationTicket() != null) {
+     * getTicketForClient(sess); // Pack the response ClientInfo cInfo =
+     * sess.getClientInformation(); if (cInfo != null &&
+     * cInfo.getAuthenticationTicket() != null) {
      * respBuf.putInt(DesktopAction.StsAuthTicket);
      * respBuf.putString(cInfo.getAuthenticationTicket(), true); } else {
      * respBuf.putInt(DesktopAction.StsError); respBuf.putString("Client

@@ -42,8 +42,7 @@ public class TooManyConnectionsException extends Exception {
   /**
    * TooManyConnectionsException constructor.
    * 
-   * @param s
-   *          java.lang.String
+   * @param s java.lang.String
    */
   public TooManyConnectionsException(String s) {
     super(s);

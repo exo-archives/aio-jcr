@@ -16,12 +16,28 @@
  */
 package org.exoplatform.services.cifs;
 
+/**
+ * CIFS service.
+ * 
+ * @author Karpenko Sergey
+ */
 public interface CIFSService {
 
+  /**
+   * Start service.
+   */
   public void start();
 
+  /**
+   * Stop service.
+   */
   public void stop();
 
+  /**
+   * Return service configuration.
+   * 
+   * @return
+   */
   public ServerConfiguration getConfiguration();
 
 }

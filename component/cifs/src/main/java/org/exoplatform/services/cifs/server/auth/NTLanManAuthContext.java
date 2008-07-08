@@ -31,7 +31,6 @@ import org.exoplatform.services.cifs.util.HexDump;
 
 /**
  * NTLM1/LanMan CIFS Authentication Context Class
- * 
  * <p>
  * Holds the challenge sent to the client during the negotiate phase that is
  * used to verify the hashed password in the session setup phase.
@@ -45,7 +44,7 @@ public class NTLanManAuthContext extends AuthContext {
 
   // Challenge sent to client
 
-  private byte[] m_challenge;
+  private byte[]        m_challenge;
 
   /**
    * Class constructor
@@ -60,17 +59,14 @@ public class NTLanManAuthContext extends AuthContext {
   /**
    * Class constructor
    * 
-   * @param challenge
-   *          byte[]
+   * @param challenge byte[]
    */
   public NTLanManAuthContext(byte[] challenge) {
     m_challenge = challenge;
   }
 
   /**
-   * Get the challenge
-   * 
-   * return byte[]
+   * Get the challenge return byte[]
    */
   public final byte[] getChallenge() {
     return m_challenge;

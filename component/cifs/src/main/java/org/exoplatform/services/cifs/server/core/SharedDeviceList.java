@@ -50,8 +50,7 @@ public class SharedDeviceList {
   /**
    * Copy constructor
    * 
-   * @param shrList
-   *          SharedDeviceList
+   * @param shrList SharedDeviceList
    */
   public SharedDeviceList(SharedDeviceList shrList) {
 
@@ -67,8 +66,7 @@ public class SharedDeviceList {
   /**
    * Add a shared device to the list.
    * 
-   * @param shr
-   *          Shared device to be added to the list.
+   * @param shr Shared device to be added to the list.
    * @return True if the share was added successfully, else false.
    */
   public final boolean addShare(SharedDevice shr) {
@@ -87,8 +85,7 @@ public class SharedDeviceList {
   /**
    * Add shares from the specified list to this list, using a shallow copy
    * 
-   * @param shrList
-   *          SharedDeviceList
+   * @param shrList SharedDeviceList
    */
   public final void addShares(SharedDeviceList shrList) {
 
@@ -103,8 +100,7 @@ public class SharedDeviceList {
   /**
    * Delete the specified shared device from the list.
    * 
-   * @param name
-   *          String Name of the shared resource to remove from the list.
+   * @param name String Name of the shared resource to remove from the list.
    * @return SharedDevice that has been removed from the list, else null.
    */
   public final SharedDevice deleteShare(String name) {
@@ -126,8 +122,7 @@ public class SharedDeviceList {
   /**
    * Find the shared device with the specified name.
    * 
-   * @param name
-   *          Name of the shared device to find.
+   * @param name Name of the shared device to find.
    * @return SharedDevice with the specified name, else null.
    */
   public final SharedDevice findShare(String name) {
@@ -137,12 +132,9 @@ public class SharedDeviceList {
   /**
    * Find the shared device with the specified name and type
    * 
-   * @param name
-   *          Name of shared device to find
-   * @param typ
-   *          Type of shared device (see ShareType)
-   * @param nocase
-   *          Case sensitive search if false, else case insensitive search
+   * @param name Name of shared device to find
+   * @param typ Type of shared device (see ShareType)
+   * @param nocase Case sensitive search if false, else case insensitive search
    * @return SharedDevice with the specified name and type, else null
    */
   public final SharedDevice findShare(String name, int typ, boolean nocase) {

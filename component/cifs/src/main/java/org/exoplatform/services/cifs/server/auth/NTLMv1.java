@@ -1,15 +1,3 @@
-package org.exoplatform.services.cifs.server.auth;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
-
-
-
 /*
  * Copyright (C) 2003-2007 eXo Platform SAS.
  *
@@ -27,11 +15,20 @@ import javax.crypto.spec.SecretKeySpec;
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
+package org.exoplatform.services.cifs.server.auth;
+
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
+
 /**
  * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
- * 
- * This class handle all computation
+ * <sergey.karpenko@exoplatform.com.ua> This class handle all computation
  * 
  * @version $Id: $
  */
@@ -41,18 +38,15 @@ public class NTLMv1 {
   /**
    * NTLM1 encryption of the DES hashed password a.k.a LanMan hash
    * 
-   * @param password
-   *          plain text password
-   * @param chellenge
-   *          8 byte random number
+   * @param password plain text password
+   * @param chellenge 8 byte random number
    * @return 24byte LM hash of password
    */
-  public byte[] computeLMHash(String password, byte[] challenge)
-      throws NoSuchAlgorithmException {
+  public byte[] computeLMHash(String password, byte[] challenge) throws NoSuchAlgorithmException {
 
     // KGS!@#$%
-    byte[] S8 = { (byte) 0x4b, (byte) 0x47, (byte) 0x53, (byte) 0x21,
-        (byte) 0x40, (byte) 0x23, (byte) 0x24, (byte) 0x25 };
+    byte[] S8 = { (byte) 0x4b, (byte) 0x47, (byte) 0x53, (byte) 0x21, (byte) 0x40, (byte) 0x23,
+        (byte) 0x24, (byte) 0x25 };
 
     byte[] p14 = new byte[14];
     byte[] passwordBytes;
@@ -77,14 +71,11 @@ public class NTLMv1 {
   /**
    * NTLM1 encryption of the MD4 hashed password
    * 
-   * @param password
-   *          plain text password
-   * @param chellenge
-   *          8 byte random number
+   * @param password plain text password
+   * @param chellenge 8 byte random number
    * @return 24byte MD4 hash of password
    */
-  public byte[] computeMD4Hash(String password, byte[] challenge)
-      throws NoSuchAlgorithmException {
+  public byte[] computeMD4Hash(String password, byte[] challenge) throws NoSuchAlgorithmException {
 
     byte[] uni = null;
     byte[] p21 = new byte[21];
@@ -108,16 +99,13 @@ public class NTLMv1 {
   /**
    * P24 DES encryption
    * 
-   * @param p21
-   *          Plain password or hashed password bytes
-   * @param ch
-   *          Challenge bytes
+   * @param p21 Plain password or hashed password bytes
+   * @param ch Challenge bytes
    * @return Encrypted password
-   * @exception NoSuchAlgorithmException
-   *              If a required encryption algorithm is not available
+   * @exception NoSuchAlgorithmException If a required encryption algorithm is
+   *              not available
    */
-  private final byte[] DESEnc(byte[] key, byte[] data)
-      throws NoSuchAlgorithmException {
+  private final byte[] DESEnc(byte[] key, byte[] data) throws NoSuchAlgorithmException {
 
     byte[] enc = new byte[24];
     try {
@@ -161,8 +149,7 @@ public class NTLMv1 {
   /**
    * Make a 7-byte string into a 64 bit/8 byte/longword key.
    * 
-   * @param key7
-   *          byte[] 7-byte key
+   * @param key7 byte[] 7-byte key
    * @return byte[] 8-byte key
    */
   private byte[] generateKey(byte[] key7) {

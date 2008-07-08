@@ -327,7 +327,7 @@ public class SMBServer extends NetworkServer implements Runnable {
 
       SharedDevice adminpipe = new SharedDevice("IPC$", ShareType.ADMINPIPE);
       // Set the device attributes
-      adminpipe.setAttributes(SharedDevice.Admin + SharedDevice.Hidden);
+      adminpipe.setAttributes(SharedDevice.ADMIN + SharedDevice.HIDDEN);
 
       getShares().addShare(adminpipe);
 

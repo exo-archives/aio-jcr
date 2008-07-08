@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.exoplatform.services.cifs.server.core;
 
 import org.exoplatform.services.cifs.server.filesys.DiskInfo;
@@ -8,84 +5,99 @@ import org.exoplatform.services.cifs.server.filesys.VolumeInfo;
 
 /**
  * This class is a wrapper of share device abstraction (in JCR it means
- * workspaces)
+ * workspace).
  * 
- * @author Karpenko
- * 
+ * @author Karpenko Sergey
  */
 public class SharedDevice {
   // Share attribute types
+  public static final int ADMIN     = 0x0001;
 
-  public static final int Admin = 0x0001;
+  public static final int HIDDEN    = 0x0002;
 
-  public static final int Hidden = 0x0002;
+  public static final int READONLY  = 0x0004;
 
-  public static final int ReadOnly = 0x0004;
+  public static final int TEMPORARY = 0x0008;
 
-  public static final int Temporary = 0x0008;
+  /**
+   * Shared device name.
+   */
+  private String          name;
 
-  // Shared device name
-  private String m_name;
+  /**
+   * Shared device type look ShareType.
+   */
+  private int             type;
 
-  // Shared device type look ShareType
-  private int m_type;
+  /**
+   * Shared device comments.
+   */
+  private String          comments;
 
-  // Shared device comments
-  private String m_comments;
+  /**
+   * Shared device attributes.
+   */
+  private int             attrib;
 
-  // Shared device attributes
-  private int m_attrib;
+  /**
+   * Current and maximum connections to this shared device.
+   */
+  private int             maxUses   = -1;    // unlimited
 
-  // Current and maximum connections to this shared device
+  private int             curUses   = 0;
 
-  private int m_maxUses = -1; // unlimited
+  private DiskInfo        diskinfo;
 
-  private int m_curUses = 0;
+  private VolumeInfo      volinfo;
 
-  private DiskInfo m_diskinfo;
-
-  private VolumeInfo m_volinfo;
-
-  // Empty class constructor
+  /**
+   * Empty class constructor.
+   */
   public SharedDevice() {
 
   }
 
+  /**
+   * Class constructor.
+   * 
+   * @param name
+   * @param type
+   */
   public SharedDevice(String name, int type) {
-    m_name = name;
-    m_type = type;
+    this.name = name;
+    this.type = type;
   }
 
   public void setName(String s) {
-    m_name = s;
+    name = s;
   }
 
   public void setType(int type) {
-    m_type = type;
+    this.type = type;
   }
 
   public void setComments(String com) {
-    m_comments = com;
+    comments = com;
   }
 
   public void setAttributes(int i) {
-    m_attrib = i;
+    attrib = i;
   }
 
   public String getName() {
-    return m_name;
+    return name;
   }
 
   public int getType() {
-    return m_type;
+    return type;
   }
 
   public String getComments() {
-    return m_comments;
+    return comments;
   }
 
   public int getAttributes() {
-    return m_attrib;
+    return attrib;
   }
 
   /**
@@ -94,7 +106,7 @@ public class SharedDevice {
    * @return boolean
    */
   public final boolean isAdmin() {
-    return (m_attrib & Admin) == 0 ? false : true;
+    return (attrib & ADMIN) == 0 ? false : true;
   }
 
   /**
@@ -103,7 +115,7 @@ public class SharedDevice {
    * @return boolean
    */
   public final boolean isHidden() {
-    return (m_attrib & Hidden) == 0 ? false : true;
+    return (attrib & HIDDEN) == 0 ? false : true;
   }
 
   /**
@@ -112,7 +124,7 @@ public class SharedDevice {
    * @return boolean
    */
   public final boolean isReadOnly() {
-    return (m_attrib & ReadOnly) == 0 ? false : true;
+    return (attrib & READONLY) == 0 ? false : true;
   }
 
   /**
@@ -121,21 +133,21 @@ public class SharedDevice {
    * @return boolean
    */
   public final boolean isTemporary() {
-    return (m_attrib & Temporary) == 0 ? false : true;
+    return (attrib & TEMPORARY) == 0 ? false : true;
   }
 
   /**
    * Increment the connection count for the share
    */
   public synchronized void incrementConnectionCount() {
-    m_curUses++;
+    curUses++;
   }
 
   /**
    * Decrement the connection count for the share
    */
   public synchronized void decrementConnectionCount() {
-    m_curUses--;
+    curUses--;
   }
 
   /**
@@ -173,19 +185,19 @@ public class SharedDevice {
 
   public DiskInfo getDiskInformation() {
 
-    return m_diskinfo;
+    return diskinfo;
   }
 
   public VolumeInfo getVolumeInformation() {
 
-    return m_volinfo;
+    return volinfo;
   }
 
   public void setDiskInfo(DiskInfo di) {
-    m_diskinfo = di;
+    diskinfo = di;
   }
 
   public void setVolumeInfo(VolumeInfo vi) {
-    m_volinfo = vi;
+    volinfo = vi;
   }
 }

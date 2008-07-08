@@ -24,9 +24,6 @@
  */
 package org.exoplatform.services.cifs.server.filesys;
 
-import java.io.IOException;
-import java.nio.channels.FileLock;
-
 /**
  * <p>
  * The network file represents a file or directory on a filesystem. The server
@@ -38,75 +35,74 @@ public abstract class NetworkFile {
 
   // Granted file access types
 
-  public static final int READONLY = 0;
+  public static final int READONLY      = 0;
 
-  public static final int WRITEONLY = 1;
+  public static final int WRITEONLY     = 1;
 
-  public static final int READWRITE = 2;
+  public static final int READWRITE     = 2;
 
   // File status flags
 
-  public static final int IOPending = 0x0001;
+  public static final int IOPending     = 0x0001;
 
   public static final int DeleteOnClose = 0x0002;
 
   // File identifier and parent directory identifier
 
-  protected int m_fid;
+  protected int           m_fid;
 
-  protected int m_dirId;
+  protected int           m_dirId;
 
   // Unique file identifier
 
-  protected long m_uniqueId;
+  protected long          m_uniqueId;
 
   // File/directory name
 
-  protected String m_name;
+  protected String        m_name;
 
   // Stream name and id
 
-  protected String m_streamName;
+  protected String        m_streamName;
 
-  protected int m_streamId;
+  protected int           m_streamId;
 
   // Full name, relative to the share
 
-  protected String m_fullName;
+  protected String        m_fullName;
 
   // File attributes
 
-  protected int m_attrib;
+  protected int           m_attrib;
 
   // File size
 
-  protected long m_fileSize = 0;
+  protected long          m_fileSize    = 0;
 
   // File creation/modify/last access date/time
 
-  protected long m_createDate;
+  protected long          m_createDate;
 
-  protected long m_modifyDate;
+  protected long          m_modifyDate;
 
-  protected long m_accessDate;
+  protected long          m_accessDate;
 
   // Granted file access type
 
-  protected int m_grantedAccess;
+  protected int           m_grantedAccess;
 
   // Flag to indicate that the file has been closed
 
-  protected boolean m_closed = true;
+  protected boolean       m_closed      = true;
 
   // File status flags
 
-  private int m_flags;
+  private int             m_flags;
 
   /**
    * Create a network file object with the specified file identifier.
    * 
-   * @param fid
-   *          int
+   * @param fid int
    */
   public NetworkFile(int fid) {
     m_fid = fid;
@@ -115,10 +111,8 @@ public abstract class NetworkFile {
   /**
    * Create a network file with the specified file and parent directory ids
    * 
-   * @param fid
-   *          int
-   * @param did
-   *          int
+   * @param fid int
+   * @param did int
    */
   public NetworkFile(int fid, int did) {
     m_fid = fid;
@@ -129,12 +123,9 @@ public abstract class NetworkFile {
    * Create a network file with the specified file id, stream id and parent
    * directory id
    * 
-   * @param fid
-   *          int
-   * @param stid
-   *          int
-   * @param did
-   *          int
+   * @param fid int
+   * @param stid int
+   * @param did int
    */
   public NetworkFile(int fid, int stid, int did) {
     m_fid = fid;
@@ -145,8 +136,7 @@ public abstract class NetworkFile {
   /**
    * Create a network file object with the specified file/directory name.
    * 
-   * @param name
-   *          File name string.
+   * @param name File name string.
    */
   public NetworkFile(String name) {
     m_name = name;
@@ -201,7 +191,7 @@ public abstract class NetworkFile {
     return (int) (m_fileSize & 0x0FFFFFFFFL);
   }
 
- /**
+  /**
    * Return the full name, relative to the share.
    * 
    * @return java.lang.String
@@ -335,8 +325,7 @@ public abstract class NetworkFile {
   /**
    * Check for NT attributes
    * 
-   * @param attr
-   *          int
+   * @param attr int
    * @return boolean
    */
   public final boolean hasNTAttribute(int attr) {
@@ -418,8 +407,7 @@ public abstract class NetworkFile {
   /**
    * Set the file attributes, as specified by the SMBFileAttribute class.
    * 
-   * @param attrib
-   *          int
+   * @param attrib int
    */
   public final void setAttributes(int attrib) {
     m_attrib = attrib;
@@ -428,8 +416,7 @@ public abstract class NetworkFile {
   /**
    * Set, or clear, the delete on close flag
    * 
-   * @param del
-   *          boolean
+   * @param del boolean
    */
   public final void setDeleteOnClose(boolean del) {
     setStatusFlag(DeleteOnClose, del);
@@ -438,8 +425,7 @@ public abstract class NetworkFile {
   /**
    * Set the parent directory identifier
    * 
-   * @param dirId
-   *          int
+   * @param dirId int
    */
   public final void setDirectoryId(int dirId) {
     m_dirId = dirId;
@@ -448,8 +434,7 @@ public abstract class NetworkFile {
   /**
    * Set the file identifier.
    * 
-   * @param fid
-   *          int
+   * @param fid int
    */
   public final void setFileId(int fid) {
     m_fid = fid;
@@ -458,8 +443,7 @@ public abstract class NetworkFile {
   /**
    * Set the file size.
    * 
-   * @param siz
-   *          long
+   * @param siz long
    */
   public final void setFileSize(long siz) {
     m_fileSize = siz;
@@ -468,8 +452,7 @@ public abstract class NetworkFile {
   /**
    * Set the file size.
    * 
-   * @param siz
-   *          int
+   * @param siz int
    */
   public final void setFileSize(int siz) {
     m_fileSize = (long) siz;
@@ -478,8 +461,7 @@ public abstract class NetworkFile {
   /**
    * Set the full file name, relative to the share.
    * 
-   * @param name
-   *          java.lang.String
+   * @param name java.lang.String
    */
   public final void setFullName(String name) {
     m_fullName = name;
@@ -488,8 +470,7 @@ public abstract class NetworkFile {
   /**
    * Set the granted file access mode.
    * 
-   * @param mode
-   *          int
+   * @param mode int
    */
   public final void setGrantedAccess(int mode) {
     m_grantedAccess = mode;
@@ -498,8 +479,7 @@ public abstract class NetworkFile {
   /**
    * Set the file name.
    * 
-   * @param name
-   *          String
+   * @param name String
    */
   public final void setName(String name) {
     m_name = name;
@@ -508,8 +488,7 @@ public abstract class NetworkFile {
   /**
    * set/clear the I/O pending flag
    * 
-   * @param pending
-   *          boolean
+   * @param pending boolean
    */
   public final void setIOPending(boolean pending) {
     setStatusFlag(IOPending, pending);
@@ -518,8 +497,7 @@ public abstract class NetworkFile {
   /**
    * Set the stream id
    * 
-   * @param id
-   *          int
+   * @param id int
    */
   public final void setStreamId(int id) {
     m_streamId = id;
@@ -528,8 +506,7 @@ public abstract class NetworkFile {
   /**
    * Set the stream name
    * 
-   * @param name
-   *          String
+   * @param name String
    */
   public final void setStreamName(String name) {
     m_streamName = name;
@@ -538,8 +515,7 @@ public abstract class NetworkFile {
   /**
    * Set the file closed state.
    * 
-   * @param b
-   *          boolean
+   * @param b boolean
    */
   public final synchronized void setClosed(boolean b) {
     m_closed = b;
@@ -548,8 +524,7 @@ public abstract class NetworkFile {
   /**
    * Set the file access date/time
    * 
-   * @param dattim
-   *          long
+   * @param dattim long
    */
   public final void setAccessDate(long dattim) {
     m_accessDate = dattim;
@@ -558,8 +533,7 @@ public abstract class NetworkFile {
   /**
    * Set the file creation date/time
    * 
-   * @param dattim
-   *          long
+   * @param dattim long
    */
   public final void setCreationDate(long dattim) {
     m_createDate = dattim;
@@ -568,8 +542,7 @@ public abstract class NetworkFile {
   /**
    * Set the file modification date/time
    * 
-   * @param dattim
-   *          long
+   * @param dattim long
    */
   public final void setModifyDate(long dattim) {
     m_modifyDate = dattim;
@@ -578,10 +551,8 @@ public abstract class NetworkFile {
   /**
    * Set/clear a file status flag
    * 
-   * @param flag
-   *          int
-   * @param sts
-   *          boolean
+   * @param flag int
+   * @param sts boolean
    */
   protected final synchronized void setStatusFlag(int flag, boolean sts) {
     boolean state = (m_flags & flag) != 0;
@@ -594,8 +565,7 @@ public abstract class NetworkFile {
   /**
    * Set the unique file identifier
    * 
-   * @param id
-   *          long
+   * @param id long
    */
   protected final void setUniqueId(long id) {
     m_uniqueId = id;
@@ -604,10 +574,8 @@ public abstract class NetworkFile {
   /**
    * Set the unique id using the file and directory id
    * 
-   * @param fid
-   *          int
-   * @param did
-   *          int
+   * @param fid int
+   * @param did int
    */
   protected final void setUniqueId(int fid, int did) {
     long ldid = (long) did;
@@ -618,13 +586,10 @@ public abstract class NetworkFile {
   /**
    * Set the unique id using the full path string
    * 
-   * @param path
-   *          String
+   * @param path String
    */
   protected final void setUniqueId(String path) {
     m_uniqueId = (long) path.toUpperCase().hashCode();
   }
-
- 
 
 }

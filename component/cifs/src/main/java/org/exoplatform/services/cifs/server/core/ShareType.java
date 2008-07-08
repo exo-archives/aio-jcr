@@ -31,11 +31,11 @@ package org.exoplatform.services.cifs.server.core;
 public class ShareType {
   // Disk share resource type.
 
-  public static final int DISK = 0;
+  public static final int DISK      = 0;
 
   // Printer share resource type.
 
-  public static final int PRINTER = 1;
+  public static final int PRINTER   = 1;
 
   // Named pipe/IPC share resource type.
 
@@ -47,14 +47,13 @@ public class ShareType {
 
   // Unknown share type
 
-  public static final int UNKNOWN = -1;
+  public static final int UNKNOWN   = -1;
 
   /**
    * Return the share type as a share information type.
    * 
    * @return int
-   * @param typ
-   *          int
+   * @param typ int
    */
   public final static int asShareInfoType(int typ) {
 
@@ -83,8 +82,7 @@ public class ShareType {
    * Return the SMB service name as a shared device type.
    * 
    * @return int
-   * @param srvName
-   *          java.lang.String
+   * @param srvName java.lang.String
    */
   public final static int ServiceAsType(String srvName) {
 
@@ -106,8 +104,7 @@ public class ShareType {
    * Return the share type as a service string.
    * 
    * @return java.lang.String
-   * @param typ
-   *          int
+   * @param typ int
    */
   public final static String TypeAsService(int typ) {
 
@@ -124,8 +121,7 @@ public class ShareType {
    * Return the share type as a string.
    * 
    * @return java.lang.String
-   * @param typ
-   *          int
+   * @param typ int
    */
   public final static String TypeAsString(int typ) {
 

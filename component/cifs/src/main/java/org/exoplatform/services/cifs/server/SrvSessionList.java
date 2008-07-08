@@ -28,45 +28,44 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 /**
- * Server Session List Class
+ * Server Session List Class.
  */
 public class SrvSessionList {
 
-  // Session list
-
-  private Hashtable<Integer, SrvSession> m_sessions;
+  /**
+   * Session list.
+   */
+  private Hashtable<Integer, SrvSession> sessions;
 
   /**
-   * Class constructor
+   * Class constructor.
    */
   public SrvSessionList() {
-    m_sessions = new Hashtable<Integer, SrvSession>();
+    sessions = new Hashtable<Integer, SrvSession>();
   }
 
   /**
-   * Return the number of sessions in the list
+   * Return the number of sessions in the list.
    * 
    * @return int
    */
   public final int numberOfSessions() {
-    return m_sessions.size();
+    return sessions.size();
   }
 
   /**
-   * Add a session to the list
+   * Add a session to the list.
    * 
-   * @param sess
-   *          SrvSession
+   * @param sess SrvSession
    */
   public final void addSession(SrvSession sess) {
-    m_sessions.put(sess.getSessionId(), sess);
+    sessions.put(sess.getSessionId(), sess);
   }
 
   /**
-   * Find the session using the unique session id
+   * Find the session using the unique session id.
    * 
-   * @param id
-   *          int
+   * @param id int
    * @return SrvSession
    */
   public final SrvSession findSession(int id) {
@@ -74,21 +73,19 @@ public class SrvSessionList {
   }
 
   /**
-   * Find the session using the unique session id
+   * Find the session using the unique session id.
    * 
-   * @param id
-   *          Integer
+   * @param id Integer
    * @return SrvSession
    */
   public final SrvSession findSession(Integer id) {
-    return m_sessions.get(id);
+    return sessions.get(id);
   }
 
   /**
-   * Remove a session from the list
+   * Remove a session from the list.
    * 
-   * @param id
-   *          int
+   * @param id int
    * @return SrvSession
    */
   public final SrvSession removeSession(int id) {
@@ -96,10 +93,9 @@ public class SrvSessionList {
   }
 
   /**
-   * Remove a session from the list
+   * Remove a session from the list.
    * 
-   * @param sess
-   *          SrvSession
+   * @param sess SrvSession
    * @return SrvSession
    */
   public final SrvSession removeSession(SrvSession sess) {
@@ -107,10 +103,9 @@ public class SrvSessionList {
   }
 
   /**
-   * Remove a session from the list
+   * Remove a session from the list.
    * 
-   * @param id
-   *          Integer
+   * @param id Integer
    * @return SrvSession
    */
   public final SrvSession removeSession(Integer id) {
@@ -121,16 +116,16 @@ public class SrvSessionList {
 
     // Remove the session and return the removed session
 
-    m_sessions.remove(id);
+    sessions.remove(id);
     return sess;
   }
 
   /**
-   * Enumerate the session ids
+   * Enumerate the session ids.
    * 
-   * @return Enumeration<Integer>
+   * @return Enumeration
    */
   public final Enumeration<Integer> enumerate() {
-    return m_sessions.keys();
+    return sessions.keys();
   }
 }

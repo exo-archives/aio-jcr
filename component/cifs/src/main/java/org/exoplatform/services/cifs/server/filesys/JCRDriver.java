@@ -40,16 +40,6 @@ import javax.jcr.version.VersionException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.commons.utils.MimeTypeResolver;
-import org.exoplatform.services.cifs.server.filesys.AccessMode;
-import org.exoplatform.services.cifs.server.filesys.FileAttribute;
-import org.exoplatform.services.cifs.server.filesys.FileExistsException;
-import org.exoplatform.services.cifs.server.filesys.FileInfo;
-import org.exoplatform.services.cifs.server.filesys.FileOpenParams;
-import org.exoplatform.services.cifs.server.filesys.NameCoder;
-import org.exoplatform.services.cifs.server.filesys.NetworkFile;
-import org.exoplatform.services.cifs.server.filesys.SearchContext;
-import org.exoplatform.services.cifs.server.filesys.TreeConnection;
-import org.exoplatform.services.cifs.server.filesys.JCRNetworkFile;
 import org.exoplatform.services.cifs.smb.server.SMBSrvSession;
 import org.exoplatform.services.cifs.util.WildCard;
 import org.exoplatform.services.jcr.impl.core.JCRPath;
@@ -58,31 +48,27 @@ import org.exoplatform.services.jcr.impl.core.JCRPath.PathElement;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * This class consist basic and almoust used operation with JCR
+ * This class consist basic and almost used operation with JCR.
  * 
  * @author Karpenko
- * 
  */
 public class JCRDriver {
   // Debug logging
 
-  private static final Log logger = ExoLogger
-      .getLogger("org.exoplatform.services.cifs.JCRDriver");
+  private static final Log logger = ExoLogger.getLogger("org.exoplatform.services.cifs.JCRDriver");
 
   /**
    * Create file or directory by recieved params
    * 
    * @param conn
-   * @param params
-   *          FileOpenParams
+   * @param params FileOpenParams
    * @return
    * @throws FileExistsException
    * @throws LockException
    * @throws RepositoryException
    */
-  public static NetworkFile createFile(TreeConnection conn,
-      FileOpenParams params) throws FileExistsException, LockException,
-      AccessDeniedException, RepositoryException {
+  public static NetworkFile createFile(TreeConnection conn, FileOpenParams params)
+      throws FileExistsException, LockException, AccessDeniedException, RepositoryException {
 
     String path = params.getPath();
 
@@ -104,18 +90,27 @@ public class JCRDriver {
 
     // done
     if (logger.isDebugEnabled()) {
-      logger.debug("Created file: \n" + "   path: " + path + "\n" +
-          "   file open parameters: " + params + "\n" + "   node: " + nodeRef +
-          "\n" + "   network file: " + netFile);
+      logger.debug("Created file: \n" + "   path: " + path + "\n" + "   file open parameters: "
+          + params + "\n" + "   node: " + nodeRef + "\n" + "   network file: " + netFile);
     }
 
     return netFile;
   }
 
+  /**
+   * Open file.
+   * 
+   * @param conn TreeConnection
+   * @param params File open params
+   * @return JCRNetworkFile
+   * @throws PathNotFoundException
+   * @throws AccessDeniedException
+   * @throws RepositoryException
+   */
   public static NetworkFile openFile(TreeConnection conn, FileOpenParams params)
       throws PathNotFoundException, AccessDeniedException, RepositoryException {
     try {
-      logger.debug("openFile");
+      // logger.debug("openFile");
 
       String path = params.getPath();
       Session session = conn.getSession();
@@ -128,8 +123,7 @@ public class JCRDriver {
         try {
           session.checkPermission(path, "read");
         } catch (java.security.AccessControlException e) {
-          throw new AccessDeniedException("No read access to " +
-              params.getFullPath());
+          throw new AccessDeniedException("No read access to " + params.getFullPath());
         }
 
       // Check for write access
@@ -139,8 +133,7 @@ public class JCRDriver {
           session.checkPermission(path, "add_node");
           session.checkPermission(path, "set_property");
         } catch (java.security.AccessControlException e) {
-          throw new AccessDeniedException("No write access to " +
-              params.getFullPath());
+          throw new AccessDeniedException("No write access to " + params.getFullPath());
         }
 
       // Check for delete access
@@ -149,14 +142,13 @@ public class JCRDriver {
         try {
           session.checkPermission(path, "remove");
         } catch (java.security.AccessControlException e) {
-          throw new AccessDeniedException("No delete access to " +
-              params.getFullPath());
+          throw new AccessDeniedException("No delete access to " + params.getFullPath());
         }
 
       // Check if the file has a lock
       if ((params.hasAccessMode(AccessMode.NTWrite)) && (nodeRef.isLocked()))
-        throw new AccessDeniedException("File is locked, no write access to " +
-            params.getFullPath());
+        throw new AccessDeniedException("File is locked, no write access to "
+            + params.getFullPath());
 
       // TODO: Check access writes and compare to write requirements
 
@@ -218,9 +210,8 @@ public class JCRDriver {
       // Debug
 
       if (logger.isDebugEnabled()) {
-        logger.debug("Opened network file: \n" + "   path: " +
-            params.getPath() + "\n" + "   file open parameters: " + params +
-            "\n" + "   network file: " + netFile);
+        logger.debug("Opened network file: \n" + "   path: " + params.getPath() + "\n"
+            + "   file open parameters: " + params + "\n" + "   network file: " + netFile);
       }
 
       // Return the network file
@@ -236,18 +227,14 @@ public class JCRDriver {
   /**
    * Helper method to extract file info from a received node.
    * <p>
-   * This method goes direct to the repo for all information and no data is
-   * cached here.
+   * This method goes direct to the repository for all information and no data
+   * is cached here.
    * 
-   * @param nodeRef
-   *          the node which file information we looking for
+   * @param nodeRef the node which file information we looking for
    * @return Returns the file information pertinent to the node
    * @throws RepositoryException
-   * 
    */
-
-  public static FileInfo getFileInformation(Node nodeRef)
-      throws RepositoryException {
+  public static FileInfo getFileInformation(Node nodeRef) throws RepositoryException {
     try {
       // retrieve required properties and create file info
       FileInfo fileInfo = new FileInfo();
@@ -348,8 +335,7 @@ public class JCRDriver {
       // Set the normal file attribute if no other attributes are set
 
       if (fileInfo.getFileAttributes() == 0)
-        fileInfo.setFileAttributes(FileAttribute.NTSequentialScan +
-            FileAttribute.NTNormal);
+        fileInfo.setFileAttributes(FileAttribute.NTSequentialScan + FileAttribute.NTNormal);
 
       // Debug
 
@@ -371,16 +357,11 @@ public class JCRDriver {
    * <p>
    * Method used for getting info about non saved to persistent area file.
    * 
-   * @param JCRNetworkFile
-   *          file file's info we looking for
-   * 
+   * @param JCRNetworkFile file file's info we looking for
    * @return Returns the file information pertinent to the node
    * @throws RepositoryException
-   * 
    */
-
-  public static FileInfo getFileInformation(JCRNetworkFile file)
-      throws RepositoryException {
+  public static FileInfo getFileInformation(JCRNetworkFile file) throws RepositoryException {
     try {
 
       // retrieve required properties and create file info
@@ -482,8 +463,7 @@ public class JCRDriver {
       // Set the normal file attribute if no other attributes are set
 
       if (fileInfo.getFileAttributes() == 0)
-        fileInfo.setFileAttributes(FileAttribute.NTSequentialScan +
-            FileAttribute.NTNormal);
+        fileInfo.setFileAttributes(FileAttribute.NTSequentialScan + FileAttribute.NTNormal);
 
       // Debug
 
@@ -501,18 +481,18 @@ public class JCRDriver {
   }
 
   /**
-   * Start search fill the search context by founded an valid nodes
+   * Start search fill the search context by founded an valid nodes.
    * 
    * @param conn
    * @param srchPath
    * @param srchAttr
-   * @return
+   * @return SearchContext
    * @throws FileNotFoundException
    * @throws RepositoryException
    */
 
-  public static SearchContext startSearch(TreeConnection conn, String srchPath,
-      int srchAttr) throws FileNotFoundException, RepositoryException {
+  public static SearchContext startSearch(TreeConnection conn, String srchPath, int srchAttr)
+      throws FileNotFoundException, RepositoryException {
 
     logger.debug("startSearch path [" + srchPath + "]");
     try {
@@ -570,22 +550,19 @@ public class JCRDriver {
   /**
    * Create node and not existed directories
    * 
-   * @param sess
-   *          jcr-session
-   * @param path
-   *          full path including directory and filename
+   * @param sess jcr-session
+   * @param path full path including directory and filename
    * @param isFile
    * @return Node created node
    * @throws LockException
    * @throws RepositoryException
    */
-  public static Node createNode(Session sess, String path, boolean isFile)
-      throws LockException, AccessDeniedException, RepositoryException {
+  public static Node createNode(Session sess, String path, boolean isFile) throws LockException,
+      AccessDeniedException, RepositoryException {
     try {
 
       // split the path up into its constituents
-      JCRPath jcrPath = ((SessionImpl) sess).getLocationFactory().parseJCRPath(
-          path);
+      JCRPath jcrPath = ((SessionImpl) sess).getLocationFactory().parseJCRPath(path);
       PathElement[] pathEl = jcrPath.getRelPath(jcrPath.getDepth());
 
       Node parentFolderNodeRef = sess.getRootNode();
@@ -618,16 +595,14 @@ public class JCRDriver {
 
         dataNode.setProperty("jcr:mimeType", mimeType);
         dataNode.setProperty("jcr:lastModified", Calendar.getInstance());
-        dataNode.setProperty("jcr:data",
-            new ByteArrayInputStream(new byte[] {}));
+        dataNode.setProperty("jcr:data", new ByteArrayInputStream(new byte[] {}));
       }
 
       // done
       sess.save();
       if (logger.isDebugEnabled()) {
-        logger.debug("Created node: path [" + path + "] " +
-            (isFile ? "file" : "folder") + "   new node: [" +
-            createdNodeRef.getPath() + "]");
+        logger.debug("Created node: path [" + path + "] " + (isFile ? "file" : "folder")
+            + "   new node: [" + createdNodeRef.getPath() + "]");
       }
       return createdNodeRef;
 
@@ -645,29 +620,21 @@ public class JCRDriver {
   /**
    * Read a block of data from the specified file.
    * 
-   * @param sess
-   *          Session details
-   * @param tree
-   *          Tree connection
-   * @param file
-   *          Network file
-   * @param buf
-   *          Buffer to return data to
-   * @param dataPos
-   *          Starting position in the return buffer
-   * @param MaxCount
-   *          Maximum size of data to return
-   * @param offset
-   *          File offset to read data
-   * 
+   * @param sess Session details
+   * @param tree Tree connection
+   * @param file Network file
+   * @param buf Buffer to return data to
+   * @param dataPos Starting position in the return buffer
+   * @param MaxCount Maximum size of data to return
+   * @param offset File offset to read data
    * @throws AcccessDeniedException
    * @throws RepositoryException
    * @throws IOException
-   * 
    */
-public @Deprecated static int readFile(SMBSrvSession m_sess, TreeConnection conn,
-      NetworkFile netFile, byte[] buf, int dataPos, int maxCount, long offset)
-      throws AccessDeniedException, RepositoryException, IOException {
+  public @Deprecated
+  static int readFile(SMBSrvSession m_sess, TreeConnection conn, NetworkFile netFile, byte[] buf,
+      int dataPos, int maxCount, long offset) throws AccessDeniedException, RepositoryException,
+      IOException {
     // Check if the file is a directory
 
     if (netFile.isDirectory())
@@ -676,8 +643,7 @@ public @Deprecated static int readFile(SMBSrvSession m_sess, TreeConnection conn
     // Read a block of data from the file
 
     Node n = ((JCRNetworkFile) netFile).getNodeRef();
-    InputStream is = n.getNode("jcr:content").getProperty("jcr:data")
-        .getStream();
+    InputStream is = n.getNode("jcr:content").getProperty("jcr:data").getStream();
 
     int count;
     long skip_count = is.skip(offset);
@@ -698,22 +664,22 @@ public @Deprecated static int readFile(SMBSrvSession m_sess, TreeConnection conn
 
     // done
     if (logger.isDebugEnabled()) {
-      logger.debug("Read bytes from file: \n" + "   network file: " + netFile +
-          "\n" + "   buffer size: " + buf.length + "\n" + "   buffer pos: " +
-          dataPos + "\n" + "   size: " + maxCount + "\n" + "   file offset: " +
-          offset + "\n" + "   bytes read: " + count);
+      logger.debug("Read bytes from file: \n" + "   network file: " + netFile + "\n"
+          + "   buffer size: " + buf.length + "\n" + "   buffer pos: " + dataPos + "\n"
+          + "   size: " + maxCount + "\n" + "   file offset: " + offset + "\n" + "   bytes read: "
+          + count);
     }
     return count;
   }
 
   /**
-   * This method is called by setFileAttributes command
-   * 
+   * Set File Information.
+   * <p>
+   * This method is called by setFileAttributes command.
    */
-  public static void setFileInformation(SMBSrvSession m_sess,
-      TreeConnection conn, String fileName, FileInfo finfo) throws Exception {
-    // TODO impllementation is important
-
+  public static void setFileInformation(SMBSrvSession m_sess, TreeConnection conn, String fileName,
+      FileInfo finfo) throws Exception {
+    // TODO implement it
   }
 
 }

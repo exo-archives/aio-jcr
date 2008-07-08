@@ -24,7 +24,6 @@
  */
 package org.exoplatform.services.cifs.server.filesys;
 
-import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.exoplatform.services.cifs.server.SrvSession;
@@ -38,7 +37,7 @@ public class TreeConnection {
 
   // Maximum number of open files allowed per connection.
 
-  public static final int MAXFILES = 8192;
+  public static final int MAXFILES     = 8192;
 
   // Number of initial file slots to allocate. Number of allocated slots will be
   // doubled
@@ -48,26 +47,25 @@ public class TreeConnection {
 
   // Shared device that the connection is associated with
 
-  private SharedDevice m_shareDev;
+  private SharedDevice    m_shareDev;
 
   // session to jcr repository workspace, may be null for not disk shares
-  private Session m_jcr_sess;
+  private Session         m_jcr_sess;
 
   // List of open files on this connection. Count of open file slots used.
 
-  private NetworkFile[] m_files;
+  private NetworkFile[]   m_files;
 
-  private int m_fileCount;
+  private int             m_fileCount;
 
   // Access permission that the user has been granted
 
-  private int m_permission;
+  private int             m_permission;
 
   /**
    * Construct a tree connection using the specified shared device.
    * 
-   * @param shrDev
-   *          SharedDevice
+   * @param shrDev SharedDevice
    */
   public TreeConnection(SharedDevice shrDev) {
     m_shareDev = shrDev;
@@ -78,8 +76,7 @@ public class TreeConnection {
    * Set jcr-session opened for shared device disk type (which represent
    * workspace).
    * 
-   * @param javax.jcr.Session
-   *          sess
+   * @param javax.jcr.Session sess
    */
   public void setSession(Session sess) {
     m_jcr_sess = sess;
@@ -107,14 +104,11 @@ public class TreeConnection {
   /**
    * Add a network file to the list of open files for this connection.
    * 
-   * @param file
-   *          NetworkFile
-   * @param sess
-   *          SrvSession
+   * @param file NetworkFile
+   * @param sess SrvSession
    * @return int
    */
-  public final int addFile(NetworkFile file, SrvSession sess)
-      throws TooManyFilesException {
+  public final int addFile(NetworkFile file, SrvSession sess) throws TooManyFilesException {
 
     // Check if the file array has been allocated
 
@@ -151,18 +145,14 @@ public class TreeConnection {
     return idx;
   }
 
-  public final boolean isMaxFilesAchieved(){
+  public final boolean isMaxFilesAchieved() {
     return m_files.length >= MAXFILES;
   }
-  
-  
-  
-  
+
   /**
    * Close the tree connection, release resources.
    * 
-   * @param sess
-   *          SrvSession
+   * @param sess SrvSession
    */
   public final void closeConnection(SrvSession sess) {
 
@@ -230,8 +220,7 @@ public class TreeConnection {
    * @return boolean
    */
   public final boolean hasReadAccess() {
-    if (m_permission == FileAccess.ReadOnly
-        || m_permission == FileAccess.Writeable)
+    if (m_permission == FileAccess.ReadOnly || m_permission == FileAccess.Writeable)
       return true;
     return false;
   }
@@ -261,8 +250,7 @@ public class TreeConnection {
    * Check if the user has been granted the required access permission for this
    * share.
    * 
-   * @param perm
-   *          int
+   * @param perm int
    * @return boolean
    */
   public final boolean hasPermission(int perm) {
@@ -300,10 +288,8 @@ public class TreeConnection {
   /**
    * Remove a network file from the list of open files for this connection.
    * 
-   * @param idx
-   *          int
-   * @param sess
-   *          SrvSession
+   * @param idx int
+   * @param sess SrvSession
    */
   public final void removeFile(int idx, SrvSession sess) {
 
@@ -321,8 +307,7 @@ public class TreeConnection {
   /**
    * Set the access permission for this share that the user has been granted.
    * 
-   * @param perm
-   *          int
+   * @param perm int
    */
   public final void setPermission(int perm) {
     m_permission = perm;

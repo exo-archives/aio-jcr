@@ -25,27 +25,26 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.cifs.server.filesys.NetworkFile;
 import org.exoplatform.services.jcr.core.value.EditableBinaryValue;
-
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Karpenko
+ * JCR representation of network file.
+ * <p>
+ * Created by The eXo Platform SAS Author : Karpenko Sergey
  */
-
 public class JCRNetworkFile extends NetworkFile {
-  private static final Log logger = ExoLogger
-      .getLogger("org.exoplatform.services.cifs.smb.server.JCRNetworkFile");
+  private static final Log    logger       = ExoLogger
+                                               .getLogger("org.exoplatform.services.cifs.smb.server.JCRNetworkFile");
 
   // Reference to node representing the file
-  private Node node;
+  private Node                node;
 
   // BinareValue that used for random write in file;
   private EditableBinaryValue exv;
 
   // Flag that shows is value was edited
-  private boolean isAnyChanges = false;
+  private boolean             isAnyChanges = false;
 
   public JCRNetworkFile(Node n) {
     super();
@@ -64,21 +63,20 @@ public class JCRNetworkFile extends NetworkFile {
     return node;
   }
 
-  protected void assignExtendedBinaryValue() throws IOException,
-      RepositoryException {
+  protected void assignExtendedBinaryValue() throws IOException, RepositoryException {
     if (!node.isNodeType("nt:file"))
       throw new AccessDeniedException();
 
-    exv = (EditableBinaryValue) getNodeRef().getNode("jcr:content")
-        .getProperty("jcr:data").getValue();
+    exv = (EditableBinaryValue) getNodeRef().getNode("jcr:content").getProperty("jcr:data")
+        .getValue();
   }
 
   public boolean isExtendedBinaryValueAssigned() {
     return (exv != null) ? true : false;
   }
 
-  public void updateFile(InputStream is, int datalength, long position)
-      throws IOException, RepositoryException {
+  public void updateFile(InputStream is, int datalength, long position) throws IOException,
+      RepositoryException {
 
     if (!isExtendedBinaryValueAssigned())
       assignExtendedBinaryValue();
@@ -101,21 +99,17 @@ public class JCRNetworkFile extends NetworkFile {
    * Read <code>length</code> data from file at <code>position</code> to
    * <code>buffer</code> form <code>offset</code>
    * 
-   * @param buffer
-   *          Buffer to return data to
-   * @param offset
-   *          Starting position in the return buffer
-   * @param length
-   *          Maximum size of data to return
-   * @param position
-   *          File position to read data
+   * @param buffer Buffer to return data to
+   * @param offset Starting position in the return buffer
+   * @param length Maximum size of data to return
+   * @param position File position to read data
    * @return Size of read data
    * @throws IOException
    * @throws RepositoryException
    */
 
-  public int read(byte[] buffer, int offset, int length, long position)
-      throws IOException, RepositoryException {
+  public int read(byte[] buffer, int offset, int length, long position) throws IOException,
+      RepositoryException {
 
     int readed = 0;
     if (!isExtendedBinaryValueAssigned()) {
@@ -126,8 +120,7 @@ public class JCRNetworkFile extends NetworkFile {
 
       // Read a block of data from the file
 
-      InputStream is = node.getNode("jcr:content").getProperty("jcr:data")
-          .getStream();
+      InputStream is = node.getNode("jcr:content").getProperty("jcr:data").getStream();
 
       long skip_count = is.skip(position);
       if ((skip_count < position) || (skip_count == -1)) {
@@ -151,10 +144,10 @@ public class JCRNetworkFile extends NetworkFile {
       ExtByteArrayOutputStream bout = new ExtByteArrayOutputStream(length);
 
       // read data to output stream
-      
-      if(exv.getLength()<position){
+
+      if (exv.getLength() < position) {
         readed = (int) exv.read(bout, length, position);
-      }else{
+      } else {
         // End file
         readed = -1;
       }
@@ -180,7 +173,6 @@ public class JCRNetworkFile extends NetworkFile {
 
   /**
    * Put changes to property, but not save to persistent area.
-   * 
    */
   public void flush() throws RepositoryException {
     if (isExtendedBinaryValueAssigned()) {
@@ -194,7 +186,6 @@ public class JCRNetworkFile extends NetworkFile {
 
   /**
    * Save any changes to persistent area. If file havn't changed - do nothing.
-   * 
    */
   public void saveChanges() throws RepositoryException {
     if (isChanged()) {
@@ -213,8 +204,7 @@ public class JCRNetworkFile extends NetworkFile {
       return exv.getLength();
     }
 
-    return getNodeRef().getNode("jcr:content").getProperty("jcr:data")
-        .getLength();
+    return getNodeRef().getNode("jcr:content").getProperty("jcr:data").getLength();
   }
 
   public boolean isChanged() {

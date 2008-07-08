@@ -30,7 +30,6 @@ import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
-import org.exoplatform.container.client.ClientInfo;
 import org.exoplatform.services.cifs.server.auth.AuthContext;
 import org.exoplatform.services.cifs.server.core.SharedDevice;
 import org.exoplatform.services.cifs.server.core.SharedDeviceList;
@@ -43,81 +42,95 @@ import org.exoplatform.services.transaction.TransactionService;
  */
 public abstract class SrvSession {
 
-  // Network server this session is associated with
-
-  private NetworkServer m_server;
-
-  // Session id/slot number
-
-  private int m_sessId;
-
-  // Unique session id string
-
-  private String m_uniqueId;
-
-  // Process id
-
-  private int m_processId = -1;
-
-  // Session/user is logged on/validated
-
-  private boolean m_loggedOn;
-
-  // Debug flags for this session
-
-  private int m_debug;
-
-  // Session shutdown flag
-
-  private boolean m_shutdown;
-
-  // Protocol type
-
-  private String m_protocol;
-
-  // Remote client/host name
-
-  private String m_remoteName;
-
-  // Authentication token, used during logon
-
-  private Object m_authToken;
-
-  // Authentication context, used during the initial session setup phase
-
-  private AuthContext m_authContext;
-
-  // List of dynamic/temporary shares created for this session
-
-  private SharedDeviceList m_dynamicShares;
-
-  // Active transaction and read/write flag
-
-  private UserTransaction m_transaction;
-
-  // UserTransaction m_transaction;
-
-  private boolean m_readOnlyTrans;
-
-  // Request and transaction counts
-
-  protected int m_reqCount;
-
-  protected int m_transCount;
-
-  protected int m_transConvCount;
+  /**
+   * Network server this session is associated with.
+   */
+  private NetworkServer    m_server;
 
   /**
-   * Class constructor
+   * Session id/slot number.
+   */
+  private int              m_sessId;
+
+  /**
+   * Unique session id string.
+   */
+  private String           m_uniqueId;
+
+  /**
+   * Process id.
+   */
+  private int              m_processId = -1;
+
+  /**
+   * Session/user is logged on/validated.
+   */
+  private boolean          m_loggedOn;
+
+  /**
+   * Debug flags for this session.
+   */
+  private int              m_debug;
+
+  /**
+   * Session shutdown flag.
+   */
+  private boolean          m_shutdown;
+
+  /**
+   * Protocol type.
+   */
+  private String           m_protocol;
+
+  /**
+   * Remote client/host name.
+   */
+  private String           m_remoteName;
+
+  /**
+   * Authentication token, used during login.
+   */
+  private Object           m_authToken;
+
+  /**
+   * Authentication context, used during the initial session setup phase.
+   */
+  private AuthContext      m_authContext;
+
+  /**
+   * List of dynamic/temporary shares created for this session.
+   */
+  private SharedDeviceList m_dynamicShares;
+
+  /**
+   * Active transaction.
+   */
+  private UserTransaction  m_transaction;
+
+  /**
+   * Read/write flag.
+   */
+  private boolean          m_readOnlyTrans;
+
+  /**
+   * Request count.
+   */
+  protected int            m_reqCount;
+
+  /**
+   * Transaction count.
+   */
+  protected int            m_transCount;
+
+  // protected int m_transConvCount;
+
+  /**
+   * Class constructor.
    * 
-   * @param sessId
-   *          int
-   * @param srv
-   *          NetworkServer
-   * @param proto
-   *          String
-   * @param remName
-   *          String
+   * @param sessId int
+   * @param srv NetworkServer
+   * @param proto String
+   * @param remName String
    */
   public SrvSession(int sessId, NetworkServer srv, String proto, String remName) {
     m_sessId = sessId;
@@ -128,10 +141,9 @@ public abstract class SrvSession {
   }
 
   /**
-   * Add a dynamic share to the list of shares created for this session
+   * Add a dynamic share to the list of shares created for this session.
    * 
-   * @param shrDev
-   *          SharedDevice
+   * @param shrDev SharedDevice
    */
   public final void addDynamicShare(SharedDevice shrDev) {
 
@@ -146,7 +158,7 @@ public abstract class SrvSession {
   }
 
   /**
-   * Return the authentication token
+   * Return the authentication token.
    * 
    * @return Object
    */
@@ -155,7 +167,7 @@ public abstract class SrvSession {
   }
 
   /**
-   * Determine if the authentication token is set
+   * Determine if the authentication token is set.
    * 
    * @return boolean
    */
@@ -164,7 +176,7 @@ public abstract class SrvSession {
   }
 
   /**
-   * Return the process id
+   * Return the process id.
    * 
    * @return int
    */
@@ -173,7 +185,7 @@ public abstract class SrvSession {
   }
 
   /**
-   * Return the remote client network address
+   * Return the remote client network address.
    * 
    * @return InetAddress
    */
@@ -189,7 +201,7 @@ public abstract class SrvSession {
   }
 
   /**
-   * Return the server this session is associated with
+   * Return the server this session is associated with.
    * 
    * @return NetworkServer
    */
@@ -198,7 +210,7 @@ public abstract class SrvSession {
   }
 
   /**
-   * Check if the session has an authentication context
+   * Check if the session has an authentication context.
    * 
    * @return boolean
    */
@@ -207,7 +219,7 @@ public abstract class SrvSession {
   }
 
   /**
-   * Return the authentication context for this sesion
+   * Return the authentication context for this session.
    * 
    * @return AuthContext
    */
@@ -216,7 +228,7 @@ public abstract class SrvSession {
   }
 
   /**
-   * Determine if the session has any dynamic shares
+   * Determine if the session has any dynamic shares.
    * 
    * @return boolean
    */
@@ -225,7 +237,7 @@ public abstract class SrvSession {
   }
 
   /**
-   * Return the list of dynamic shares created for this session
+   * Return the list of dynamic shares created for this session.
    * 
    * @return SharedDeviceList
    */
@@ -234,7 +246,7 @@ public abstract class SrvSession {
   }
 
   /**
-   * Determine if the protocol type has been set
+   * Determine if the protocol type has been set.
    * 
    * @return boolean
    */
@@ -243,7 +255,7 @@ public abstract class SrvSession {
   }
 
   /**
-   * Return the protocol name
+   * Return the protocol name.
    * 
    * @return String
    */
@@ -252,7 +264,7 @@ public abstract class SrvSession {
   }
 
   /**
-   * Determine if the remote client name has been set
+   * Determine if the remote client name has been set.
    * 
    * @return boolean
    */
@@ -261,7 +273,7 @@ public abstract class SrvSession {
   }
 
   /**
-   * Return the remote client name
+   * Return the remote client name.
    * 
    * @return String
    */
@@ -270,7 +282,7 @@ public abstract class SrvSession {
   }
 
   /**
-   * Determine if the session is logged on/validated
+   * Determine if the session is logged on/validated.
    * 
    * @return boolean
    */
@@ -279,7 +291,7 @@ public abstract class SrvSession {
   }
 
   /**
-   * Determine if the session has been shut down
+   * Determine if the session has been shut down.
    * 
    * @return boolean
    */
@@ -288,7 +300,7 @@ public abstract class SrvSession {
   }
 
   /**
-   * Return the unique session id
+   * Return the unique session id.
    * 
    * @return String
    */
@@ -299,9 +311,8 @@ public abstract class SrvSession {
   /**
    * Determine if the specified debug flag is enabled.
    * 
+   * @param dbgFlag int
    * @return boolean
-   * @param dbg
-   *          int
    */
   public final boolean hasDebug(int dbgFlag) {
     if ((m_debug & dbgFlag) != 0)
@@ -310,20 +321,19 @@ public abstract class SrvSession {
   }
 
   /**
-   * Set the authentication token
+   * Set the authentication token.
    * 
-   * @param authToken
-   *          Object
+   * @param authToken Object
    */
   public final void setAuthenticationToken(Object authToken) {
     m_authToken = authToken;
   }
 
   /**
-   * Set the authentication context, used during the initial session setup phase
+   * Set the authentication context, used during the initial session setup
+   * phase.
    * 
-   * @param ctx
-   *          AuthContext
+   * @param ctx AuthContext
    */
   public final void setAuthenticationContext(AuthContext ctx) {
     m_authContext = ctx;
@@ -332,48 +342,43 @@ public abstract class SrvSession {
   /**
    * Set the debug output interface.
    * 
-   * @param flgs
-   *          int
+   * @param flgs int
    */
   public final void setDebug(int flgs) {
     m_debug = flgs;
   }
 
   /**
-   * Set the logged on/validated status for the session
+   * Set the logged on/validated status for the session.
    * 
-   * @param loggedOn
-   *          boolean
+   * @param loggedOn boolean
    */
   public final void setLoggedOn(boolean loggedOn) {
     m_loggedOn = loggedOn;
   }
 
   /**
-   * Set the process id
+   * Set the process id.
    * 
-   * @param id
-   *          int
+   * @param id int
    */
   public final void setProcessId(int id) {
     m_processId = id;
   }
 
   /**
-   * Set the protocol name
+   * Set the protocol name.
    * 
-   * @param name
-   *          String
+   * @param name String
    */
   public final void setProtocolName(String name) {
     m_protocol = name;
   }
 
   /**
-   * Set the remote client name
+   * Set the remote client name.
    * 
-   * @param name
-   *          String
+   * @param name String
    */
   public final void setRemoteName(String name) {
     m_remoteName = name;
@@ -382,35 +387,32 @@ public abstract class SrvSession {
   /**
    * Set the session id for this session.
    * 
-   * @param id
-   *          int
+   * @param id int
    */
   public final void setSessionId(int id) {
     m_sessId = id;
   }
 
   /**
-   * Set the unique session id
+   * Set the unique session id.
    * 
-   * @param unid
-   *          String
+   * @param unid String
    */
   public final void setUniqueId(String unid) {
     m_uniqueId = unid;
   }
 
   /**
-   * Set the shutdown flag
+   * Set the shutdown flag.
    * 
-   * @param flg
-   *          boolean
+   * @param flag boolean
    */
-  protected final void setShutdown(boolean flg) {
-    m_shutdown = flg;
+  protected final void setShutdown(boolean flag) {
+    m_shutdown = flag;
   }
 
   /**
-   * Close the network session
+   * Close the network session.
    */
   public void closeSession() {
     // Release any dynamic shares owned by this session
@@ -424,17 +426,13 @@ public abstract class SrvSession {
   }
 
   /**
-   * Create and start a transaction, if not already active
+   * Create and start a transaction, if not already active.
    * 
-   * @param transService
-   *          TransactionService
-   * @param readOnly
-   *          boolean
+   * @param transService TransactionService
+   * @param readOnly boolean
    * @return boolean
-   * @exception AlfrescoRuntimeException
    */
-  private final boolean beginTransaction(TransactionService transService,
-      boolean readOnly) {
+  private final boolean beginTransaction(TransactionService transService, boolean readOnly) {
     boolean created = false;
 
     // If there is an active transaction check that it is the required type
@@ -457,12 +455,12 @@ public abstract class SrvSession {
       // Check if the transaction is a write transaction, if write has
       // been requested
 
-      if (readOnly == false && m_readOnlyTrans == true) {
+      if (!readOnly && m_readOnlyTrans) {
         // Commit the read-only transaction
 
         try {
           m_transaction.commit();
-          m_transConvCount++;
+          // m_transConvCount++;
         } catch (Exception ex) {
           // throw new AlfrescoRuntimeException(
           // "Failed to commit read-only transaction, "
@@ -495,8 +493,7 @@ public abstract class SrvSession {
   }
 
   /**
-   * End a transaction by either committing or rolling back
-   * 
+   * End a transaction by either committing or rolling back.
    */
   public final void endTransaction() {
     // Check if there is an active transaction
@@ -525,7 +522,7 @@ public abstract class SrvSession {
   }
 
   /**
-   * Determine if the session has an active transaction
+   * Determine if the session has an active transaction.
    * 
    * @return boolean
    */
@@ -534,7 +531,7 @@ public abstract class SrvSession {
   }
 
   /**
-   * Get the active transaction and clear the stored transaction
+   * Get the active transaction and clear the stored transaction.
    * 
    * @return UserTransaction
    */

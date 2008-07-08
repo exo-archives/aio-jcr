@@ -25,67 +25,77 @@
 package org.exoplatform.services.cifs.server;
 
 import java.net.InetAddress;
-import java.util.Vector;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.exoplatform.services.cifs.ServerConfiguration;
 import org.exoplatform.services.cifs.server.core.SharedDevice;
 import org.exoplatform.services.cifs.server.core.SharedDeviceList;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Network Server Base Class
+ * Network Server Base Class.
  * <p>
  * Base class for server implementations for different protocols. Class extended
  * by SMBServer and probably NetBIOSNameServer
  */
 public abstract class NetworkServer {
-  private static final Log logger = ExoLogger
-      .getLogger("org.exoplatform.services.cifs.server");
-
-  // Server version
-
-  private String m_version;
-
-  // Server configuration
-  private ServerConfiguration m_config;
-
-  // Debug enabled flag and debug flags
-
-  private boolean m_debug;
-
-  private int m_debugFlags;
-
-  // List of addresses that the server is bound to
-
-  private InetAddress[] m_ipAddr;
-
-  // Server shutdown flag and server active flag
-
-  private volatile boolean m_shutdown = false;
-
-  private volatile boolean m_active = false;
-
-  // Server error exception details
-
-  private Exception m_exception;
-
-  // Shared devices which server consists opened sessions has own dynamic shares
-
-  private SharedDeviceList k_shares;
+  private static final Log    logger   = ExoLogger
+                                           .getLogger("org.exoplatform.services.cifs.server");
 
   /**
-   * Class constructor
+   * Server version.
+   */
+  private String              version;
+
+  /**
+   * Server configuration.
+   */
+  private ServerConfiguration config;
+
+  /**
+   * Debug enabled flag.
+   */
+  private boolean             debug;
+
+  /**
+   * Debug flags.
+   */
+  private int                 debugFlags;
+
+  /**
+   * List of addresses that the server is bound to.
+   */
+  private InetAddress[]       ipAddr;
+
+  /**
+   * Server shutdown flag.
+   */
+  private volatile boolean    shutdown = false;
+
+  /**
+   * Server active flag.
+   */
+  private volatile boolean    active   = false;
+
+  /**
+   * Server error exception details.
+   */
+  private Exception           exception;
+
+  /**
+   * Shared devices which server consists opened sessions has own dynamic
+   * shares.
+   */
+  private SharedDeviceList    shares;
+
+  /**
+   * Class constructor.
    * 
-   * @param proto
-   *          String
-   * @param config
-   *          ServerConfiguration
+   * @param config ServerConfiguration
    */
   public NetworkServer(ServerConfiguration config) {
-    m_config = config;
-    k_shares = new SharedDeviceList();
+    this.config = config;
+    shares = new SharedDeviceList();
   }
 
   /**
@@ -94,16 +104,16 @@ public abstract class NetworkServer {
    * @return ServerConfiguration
    */
   public final ServerConfiguration getConfiguration() {
-    return m_config;
+    return config;
   }
 
   /**
-   * Return the main server name
+   * Return the main server name.
    * 
    * @return String
    */
   public final String getServerName() {
-    return m_config.getServerName();
+    return config.getServerName();
   }
 
   /**
@@ -112,21 +122,22 @@ public abstract class NetworkServer {
    * @return java.net.InetAddress[]
    */
   public final InetAddress[] getServerAddresses() {
-    return m_ipAddr;
+    return ipAddr;
   }
 
   /**
-   * Return SharedDeviceList which server consist
+   * Return SharedDeviceList which server consist.
+   * 
+   * @return SharedDeviceList
    */
   public SharedDeviceList getShares() {
-    return k_shares;
+    return shares;
   }
 
   /**
    * Return the list of available shares for opened session.
    * 
-   * @param sess
-   *          SrvSession
+   * @param sess SrvSession
    * @return SharedDeviceList
    */
   public SharedDeviceList getAllShares(SrvSession sess) {
@@ -149,16 +160,11 @@ public abstract class NetworkServer {
   /**
    * Find the shared device with the specified name.
    * 
-   * @param name
-   *          Name of the shared device to find.
-   * @param typ
-   *          Shared device type
-   * @param sess
-   *          Session details
-   * @param create
-   *          Create share flag, false indicates lookup only
+   * @param name Name of the shared device to find.
+   * @param typ Shared device type
+   * @param sess Session details
    * @return SharedDevice with the specified name and type, else null.
-   * @exception Exception
+   * @throws Exception
    */
   public final SharedDevice findShare(String name, int typ, SrvSession sess) throws Exception {
 
@@ -191,8 +197,7 @@ public abstract class NetworkServer {
       }
     }
 
-    // Check if the share is available
-    // TODO how to check is workspace is available?
+    // TODO Check if the share is available
     // Return the shared device, or null if no matching device was found
 
     return share;
@@ -204,152 +209,145 @@ public abstract class NetworkServer {
    * @return boolean
    */
   public final boolean isActive() {
-    return m_active;
+    return active;
   }
 
   /**
-   * Return the server version string, in 'n.n.n' format
+   * Return the server version string, in 'n.n.n' format.
    * 
    * @return String
    */
 
   public final String isVersion() {
-    return m_version;
+    return version;
   }
 
   /**
-   * Check if there is a stored server exception
+   * Check if there is a stored server exception.
    * 
    * @return boolean
    */
   public final boolean hasException() {
-    return m_exception != null ? true : false;
+    return exception != null ? true : false;
   }
 
   /**
-   * Return the stored exception
+   * Return the stored exception.
    * 
    * @return Exception
    */
   public final Exception getException() {
-    return m_exception;
+    return exception;
   }
 
   /**
-   * Clear the stored server exception
+   * Clear the stored server exception.
    */
   public final void clearException() {
-    m_exception = null;
+    exception = null;
   }
 
   /**
-   * Determine if debug output is enabled
+   * Determine if debug output is enabled.
    * 
    * @return boolean
    */
   public final boolean hasDebug() {
-    return m_debug;
+    return debug;
   }
 
   /**
-   * Determine if the specified debug flag is enabled
+   * Determine if the specified debug flag is enabled.
    * 
+   * @param flag debug flag
    * @return boolean
    */
-  public final boolean hasDebugFlag(int flg) {
-    return (m_debugFlags & flg) != 0 ? true : false;
+  public final boolean hasDebugFlag(int flag) {
+    return (debugFlags & flag) != 0 ? true : false;
   }
 
   /**
-   * Check if the shutdown flag is set
+   * Check if the shutdown flag is set.
    * 
    * @return boolean
    */
   public final boolean hasShutdown() {
-    return m_shutdown;
+    return shutdown;
   }
 
   /**
-   * Set/clear the server active flag
+   * Set/clear the server active flag.
    * 
-   * @param active
-   *          boolean
+   * @param active boolean
    */
   protected void setActive(boolean active) {
-    m_active = active;
+    this.active = active;
   }
 
   /**
-   * Set the stored server exception
+   * Set the stored server exception.
    * 
-   * @param ex
-   *          Exception
+   * @param ex Exception
    */
   protected final void setException(Exception ex) {
-    m_exception = ex;
+    exception = ex;
   }
 
   /**
-   * Set the addresses that the server is bound to
+   * Set the addresses that the server is bound to.
    * 
-   * @param adds
-   *          InetAddress[]
+   * @param addrs InetAddress[]
    */
   protected final void setServerAddresses(InetAddress[] addrs) {
-    m_ipAddr = addrs;
+    ipAddr = addrs;
   }
 
   /**
-   * Set the server version
+   * Set the server version.
    * 
-   * @param ver
-   *          String
+   * @param ver String
    */
   protected final void setVersion(String ver) {
-    m_version = ver;
+    version = ver;
   }
 
   /**
-   * Enable/disable debug output for the server
+   * Enable/disable debug output for the server.
    * 
-   * @param dbg
-   *          boolean
+   * @param dbg boolean
    */
   protected final void setDebug(boolean dbg) {
-    m_debug = dbg;
+    debug = dbg;
   }
 
   /**
-   * Set the debug flags
+   * Set the debug flags.
    * 
-   * @param flags
-   *          int
+   * @param flags int
    */
   protected final void setDebugFlags(int flags) {
-    m_debugFlags = flags;
+    debugFlags = flags;
     setDebug(flags == 0 ? false : true);
   }
 
   /**
-   * Set/clear the shutdown flag
+   * Set/clear the shutdown flag.
    * 
-   * @param ena
-   *          boolean
+   * @param value boolean
    */
-  protected final void setShutdown(boolean ena) {
-    m_shutdown = ena;
+  protected final void setShutdown(final boolean value) {
+    shutdown = value;
   }
 
   /**
-   * Start the network server
+   * Start the network server.
    */
   public abstract void startServer();
 
   /**
-   * Shutdown the network server
+   * Shutdown the network server.
    * 
-   * @param immediate
-   *          boolean
+   * @param immediate boolean
    */
   public abstract void shutdownServer(boolean immediate);
 }

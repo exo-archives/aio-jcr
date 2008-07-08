@@ -42,8 +42,7 @@ public class UnsupportedInfoLevelException extends Exception {
   /**
    * Class constructor.
    * 
-   * @param str
-   *          java.lang.String
+   * @param str java.lang.String
    */
   public UnsupportedInfoLevelException(String str) {
     super(str);

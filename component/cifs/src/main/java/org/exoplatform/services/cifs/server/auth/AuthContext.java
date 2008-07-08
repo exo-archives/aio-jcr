@@ -25,13 +25,12 @@
 package org.exoplatform.services.cifs.server.auth;
 
 /**
- * CIFS Authentication Context Class
+ * CIFS Authentication Context Class.
  *
  * <p>Holds authentication specific information for the negotiate/session setup phase of a new CIFS session.
  * 
  * @author gkspencer
  */
-public class AuthContext
-{
+public class AuthContext{
 
 }

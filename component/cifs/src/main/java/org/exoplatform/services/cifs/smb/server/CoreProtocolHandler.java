@@ -26,7 +26,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
 
-import org.exoplatform.services.cifs.smb.server.VirtualCircuit;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.cifs.server.filesys.AccessMode;
 import org.exoplatform.services.cifs.server.filesys.FileAction;
@@ -47,8 +46,6 @@ import org.exoplatform.services.cifs.smb.PacketType;
 import org.exoplatform.services.cifs.smb.SMBDate;
 import org.exoplatform.services.cifs.smb.SMBStatus;
 import org.exoplatform.services.cifs.util.DataPacker;
-import org.exoplatform.services.jcr.core.ExtendedProperty;
-import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -58,20 +55,20 @@ class CoreProtocolHandler extends ProtocolHandler {
 
   // Debug logging
 
-  private static final Log logger = ExoLogger
-      .getLogger("org.exoplatform.services.cifs.smb.server.CoreProtocolHandler");
+  private static final Log    logger                     = ExoLogger
+                                                             .getLogger("org.exoplatform.services.cifs.smb.server.CoreProtocolHandler");
 
   // Special resume ids for '.' and '..' pseudo directories
 
-  private static final int RESUME_START = 0x00008003;
+  private static final int    RESUME_START               = 0x00008003;
 
-  private static final int RESUME_DOT = 0x00008002;
+  private static final int    RESUME_DOT                 = 0x00008002;
 
-  private static final int RESUME_DOTDOT = 0x00008001;
+  private static final int    RESUME_DOTDOT              = 0x00008001;
 
   // Maximum value that can be stored in a parameter word
 
-  private static final int MaxWordValue = 0x0000FFFF;
+  private static final int    MaxWordValue               = 0x0000FFFF;
 
   // Invalid file name characters
 
@@ -79,13 +76,13 @@ class CoreProtocolHandler extends ProtocolHandler {
 
   // private static final String InvalidFileNameCharsSearch = "[]:+|<>=;,";
   // //\"/
-  private static final String InvalidFileNameChars = ":|<>*?"; // \"/
+  private static final String InvalidFileNameChars       = ":|<>*?";                                                                    // \"/
 
-  private static final String InvalidFileNameCharsSearch = ":|<>"; // \"/
+  private static final String InvalidFileNameCharsSearch = ":|<>";                                                                      // \"/
 
   // SMB packet class
 
-  protected SMBSrvPacket m_smbPkt;
+  protected SMBSrvPacket      m_smbPkt;
 
   /**
    * Create a new core SMB protocol handler.
@@ -96,8 +93,7 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Class constructor
    * 
-   * @param sess
-   *          SMBSrvSession
+   * @param sess SMBSrvSession
    */
   protected CoreProtocolHandler(SMBSrvSession sess) {
     super(sess);
@@ -115,15 +111,12 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Check if the specified path exists, and is a directory.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              if an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException if an SMB protocol error occurs
    */
-  protected void procCheckDirectory(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected void procCheckDirectory(SMBSrvPacket outPkt) throws java.io.IOException,
+      SMBSrvException {
 
     logger.debug(":procCheckDirectory");
 
@@ -131,8 +124,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // request
 
     if (m_smbPkt.checkPacketIsValid(0, 2) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -165,8 +157,8 @@ class CoreProtocolHandler extends ProtocolHandler {
 
     // Extract the directory name
 
-    String dirName = DataPacker.getDataString(DataType.ASCII, buf, dataPos,
-        dataLen, m_smbPkt.isUnicode());
+    String dirName = DataPacker.getDataString(DataType.ASCII, buf, dataPos, dataLen, m_smbPkt
+        .isUnicode());
     if (dirName == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
@@ -203,13 +195,11 @@ class CoreProtocolHandler extends ProtocolHandler {
 
       if (node.isNodeType("nt:file")) {
         // path is file
-        m_sess.sendErrorResponseSMB(SMBStatus.DOSDirectoryInvalid,
-            SMBStatus.ErrDos);
+        m_sess.sendErrorResponseSMB(SMBStatus.DOSDirectoryInvalid, SMBStatus.ErrDos);
       }
 
     } catch (PathNotFoundException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.DOSDirectoryInvalid,
-          SMBStatus.ErrDos);
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSDirectoryInvalid, SMBStatus.ErrDos);
       return;
     } catch (RepositoryException e) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
@@ -229,22 +219,17 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Close a file that has been opened on the server. And release all locks.
    * 
-   * @param outPkt
-   *          Response SMB packet.
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt Response SMB packet.
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procCloseFile(SMBSrvPacket outPkt) throws java.io.IOException,
-      SMBSrvException {
+  protected void procCloseFile(SMBSrvPacket outPkt) throws java.io.IOException, SMBSrvException {
 
     logger.debug(":procCloseFile");
     // Check that the received packet looks like a valid file close request
 
     if (m_smbPkt.checkPacketIsValid(3, 0) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -285,8 +270,7 @@ class CoreProtocolHandler extends ProtocolHandler {
       ((JCRNetworkFile) netFile).saveChanges();
 
     } catch (Exception e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
       return;
     }
 
@@ -322,23 +306,19 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Create a new directory.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procCreateDirectory(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected void procCreateDirectory(SMBSrvPacket outPkt) throws java.io.IOException,
+      SMBSrvException {
     logger.debug(":procCreateDirectory");
 
     // Check that the received packet looks like a valid create directory
     // request
 
     if (m_smbPkt.checkPacketIsValid(0, 2) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -371,8 +351,8 @@ class CoreProtocolHandler extends ProtocolHandler {
 
     // Extract the directory name
 
-    String dirName = DataPacker.getDataString(DataType.ASCII, buf, dataPos,
-        dataLen, m_smbPkt.isUnicode());
+    String dirName = DataPacker.getDataString(DataType.ASCII, buf, dataPos, dataLen, m_smbPkt
+        .isUnicode());
     if (dirName == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
@@ -417,18 +397,16 @@ class CoreProtocolHandler extends ProtocolHandler {
       JCRDriver.createNode(conn.getSession(), dirName, false);
 
     } catch (AccessDeniedException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied,
-          SMBStatus.DOSInvalidDrive, SMBStatus.ErrDos);
+      m_sess.sendErrorResponseSMB(SMBStatus.NTAccessDenied, SMBStatus.DOSInvalidDrive,
+          SMBStatus.ErrDos);
       return;
     } catch (LockException e) {
       // it probably never thrown
       e.printStackTrace();
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
       return;
     } catch (RepositoryException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
       return;
     }
 
@@ -445,21 +423,16 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Create a new file on the server.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procCreateFile(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected void procCreateFile(SMBSrvPacket outPkt) throws java.io.IOException, SMBSrvException {
     logger.debug(":procCreateFile");
     // Check that the received packet looks like a valid file create request
 
     if (m_smbPkt.checkPacketIsValid(3, 2) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -492,8 +465,8 @@ class CoreProtocolHandler extends ProtocolHandler {
 
     // Extract the file name
 
-    String fileName = DataPacker.getDataString(DataType.ASCII, buf, dataPos,
-        dataLen, m_smbPkt.isUnicode());
+    String fileName = DataPacker.getDataString(DataType.ASCII, buf, dataPos, dataLen, m_smbPkt
+        .isUnicode());
     if (fileName == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
@@ -528,8 +501,8 @@ class CoreProtocolHandler extends ProtocolHandler {
 
     // Create the file parameters to be passed to the disk interface
 
-    FileOpenParams params = new FileOpenParams(fileName,
-        FileAction.CreateNotExist, AccessMode.ReadWrite, attr);
+    FileOpenParams params = new FileOpenParams(fileName, FileAction.CreateNotExist,
+        AccessMode.ReadWrite, attr);
 
     // Debug
 
@@ -558,21 +531,18 @@ class CoreProtocolHandler extends ProtocolHandler {
 
       // Too many files are open on this connection, cannot open any more files.
 
-      m_sess.sendErrorResponseSMB(SMBStatus.DOSTooManyOpenFiles,
-          SMBStatus.ErrDos);
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSTooManyOpenFiles, SMBStatus.ErrDos);
       return;
 
     } catch (FileExistsException ex) {
 
       // File with the requested name already exists
 
-      m_sess.sendErrorResponseSMB(SMBStatus.DOSFileAlreadyExists,
-          SMBStatus.ErrDos);
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSFileAlreadyExists, SMBStatus.ErrDos);
       return;
 
     } catch (RepositoryException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
       return;
     }
 
@@ -591,15 +561,12 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Create a temporary file.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procCreateTemporaryFile(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected void procCreateTemporaryFile(SMBSrvPacket outPkt) throws java.io.IOException,
+      SMBSrvException {
     logger.debug(":procCreateTemporaryFile EMPTY");
     m_sess.sendErrorResponseSMB(SMBStatus.SRVNotSupported, SMBStatus.ErrSrv);
   }
@@ -607,23 +574,19 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Delete a directory.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procDeleteDirectory(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected void procDeleteDirectory(SMBSrvPacket outPkt) throws java.io.IOException,
+      SMBSrvException {
     logger.debug(":procDeleteDirectory");
 
     // Check that the received packet looks like a valid delete directory
     // request
 
     if (m_smbPkt.checkPacketIsValid(0, 2) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -656,8 +619,8 @@ class CoreProtocolHandler extends ProtocolHandler {
 
     // Extract the directory name
 
-    String dirName = DataPacker.getDataString(DataType.ASCII, buf, dataPos,
-        dataLen, m_smbPkt.isUnicode());
+    String dirName = DataPacker.getDataString(DataType.ASCII, buf, dataPos, dataLen, m_smbPkt
+        .isUnicode());
 
     if (dirName == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
@@ -722,21 +685,16 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Delete a file.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procDeleteFile(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected void procDeleteFile(SMBSrvPacket outPkt) throws java.io.IOException, SMBSrvException {
     logger.debug(":procDeleteFile");
     // Check that the received packet looks like a valid file delete request
 
     if (m_smbPkt.checkPacketIsValid(1, 2) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -769,8 +727,8 @@ class CoreProtocolHandler extends ProtocolHandler {
 
     // Extract the file name
 
-    String fileName = DataPacker.getDataString(DataType.ASCII, buf, dataPos,
-        dataLen, m_smbPkt.isUnicode());
+    String fileName = DataPacker.getDataString(DataType.ASCII, buf, dataPos, dataLen, m_smbPkt
+        .isUnicode());
     if (fileName == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
@@ -834,15 +792,12 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Get disk attributes processing.
    * 
-   * @param outPkt
-   *          Response SMB packet.
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt Response SMB packet.
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procDiskAttributes(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected void procDiskAttributes(SMBSrvPacket outPkt) throws java.io.IOException,
+      SMBSrvException {
     logger.debug(":procDiskAttributes EMPTY");
     m_sess.sendErrorResponseSMB(SMBStatus.SRVNotSupported, SMBStatus.ErrSrv);
   }
@@ -850,23 +805,18 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Echo packet request.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procEcho(SMBSrvPacket outPkt) throws java.io.IOException,
-      SMBSrvException {
+  protected void procEcho(SMBSrvPacket outPkt) throws java.io.IOException, SMBSrvException {
 
     logger.debug("\nCoreProtocolHandler::procEcho");
 
     // Check that the received packet looks like a valid echo request
 
     if (m_smbPkt.checkPacketIsValid(1, 0) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -904,21 +854,16 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Flush the specified file.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procFlushFile(SMBSrvPacket outPkt) throws java.io.IOException,
-      SMBSrvException {
+  protected void procFlushFile(SMBSrvPacket outPkt) throws java.io.IOException, SMBSrvException {
     logger.debug(":procFlushFile");
     // Check that the received packet looks like a valid file flush request
 
     if (m_smbPkt.checkPacketIsValid(1, 0) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -968,8 +913,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     } catch (java.io.IOException ex) {
       // Debug
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
-        logger.debug("File Flush Error [" + netFile.getFileId() + "] : " +
-            ex.toString());
+        logger.debug("File Flush Error [" + netFile.getFileId() + "] : " + ex.toString());
 
       // Failed to read the file
 
@@ -979,8 +923,7 @@ class CoreProtocolHandler extends ProtocolHandler {
 
       e.printStackTrace();
 
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
       return;
 
     }
@@ -997,23 +940,19 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Get the file attributes for the specified file.
    * 
-   * @param outPkt
-   *          Response SMB packet.
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt Response SMB packet.
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procGetFileAttributes(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected void procGetFileAttributes(SMBSrvPacket outPkt) throws java.io.IOException,
+      SMBSrvException {
     logger.debug(":procGetFileAttributes");
 
     // Check that the received packet looks like a valid query file information
     // request
 
     if (m_smbPkt.checkPacketIsValid(0, 2) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -1046,8 +985,8 @@ class CoreProtocolHandler extends ProtocolHandler {
 
     // Extract the file name
 
-    String fileName = DataPacker.getDataString(DataType.ASCII, buf, dataPos,
-        dataLen, m_smbPkt.isUnicode());
+    String fileName = DataPacker.getDataString(DataType.ASCII, buf, dataPos, dataLen, m_smbPkt
+        .isUnicode());
     if (fileName == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
@@ -1056,8 +995,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
-      logger.debug("Get File Information tid[" + treeId + "] name= [" +
-          fileName + "]");
+      logger.debug("Get File Information tid[" + treeId + "] name= [" + fileName + "]");
 
     // Access the disk interface and get the file information
 
@@ -1093,8 +1031,7 @@ class CoreProtocolHandler extends ProtocolHandler {
 
           // Make sure the read-only attribute is set
 
-          finfo.setFileAttributes(finfo.getFileAttributes() +
-              FileAttribute.ReadOnly);
+          finfo.setFileAttributes(finfo.getFileAttributes() + FileAttribute.ReadOnly);
         }
 
         // Return the file information
@@ -1126,8 +1063,7 @@ class CoreProtocolHandler extends ProtocolHandler {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSFileNotFound, SMBStatus.ErrDos);
       return;
     } catch (RepositoryException e) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVInternalServerError, SMBStatus.ErrSrv);
       return;
     }
     // Failed to get the file information
@@ -1138,22 +1074,18 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Get file information.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procGetFileInformation(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected void procGetFileInformation(SMBSrvPacket outPkt) throws java.io.IOException,
+      SMBSrvException {
     logger.debug(":procGetFileInformation");
     // Check that the received packet looks like a valid query file information2
     // request
 
     if (m_smbPkt.checkPacketIsValid(1, 0) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -1198,8 +1130,7 @@ class CoreProtocolHandler extends ProtocolHandler {
 
       // Get the file information for the specified file/directory
 
-      FileInfo finfo = JCRDriver.getFileInformation(((JCRNetworkFile) netFile)
-          .getNodeRef());
+      FileInfo finfo = JCRDriver.getFileInformation(((JCRNetworkFile) netFile).getNodeRef());
       if (finfo != null) {
 
         // Check if the share is read-only, if so then force the read-only flag
@@ -1209,8 +1140,7 @@ class CoreProtocolHandler extends ProtocolHandler {
 
           // Make sure the read-only attribute is set
 
-          finfo.setFileAttributes(finfo.getFileAttributes() +
-              FileAttribute.ReadOnly);
+          finfo.setFileAttributes(finfo.getFileAttributes() + FileAttribute.ReadOnly);
         }
 
         // Initialize the return packet, no data bytes
@@ -1289,15 +1219,11 @@ class CoreProtocolHandler extends ProtocolHandler {
   }
 
   /**
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procLockFile(SMBSrvPacket outPkt) throws java.io.IOException,
-      SMBSrvException {
+  protected void procLockFile(SMBSrvPacket outPkt) throws java.io.IOException, SMBSrvException {
     logger.debug(":procLockFile EMPTY");
     m_sess.sendErrorResponseSMB(SMBStatus.SRVNotSupported, SMBStatus.ErrSrv);
   }
@@ -1305,21 +1231,16 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Open a file on the server.
    * 
-   * @param outPkt
-   *          Response SMB packet.
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt Response SMB packet.
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procOpenFile(SMBSrvPacket outPkt) throws IOException,
-      SMBSrvException {
+  protected void procOpenFile(SMBSrvPacket outPkt) throws IOException, SMBSrvException {
     logger.debug(":procOpenFile");
     // Check that the received packet looks like a valid file open request
 
     if (m_smbPkt.checkPacketIsValid(2, 2) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -1352,8 +1273,8 @@ class CoreProtocolHandler extends ProtocolHandler {
 
     // Extract the file name
 
-    String fileName = DataPacker.getDataString(DataType.ASCII, buf, dataPos,
-        dataLen, m_smbPkt.isUnicode());
+    String fileName = DataPacker.getDataString(DataType.ASCII, buf, dataPos, dataLen, m_smbPkt
+        .isUnicode());
     if (fileName == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
@@ -1385,8 +1306,7 @@ class CoreProtocolHandler extends ProtocolHandler {
 
     // Create the file open parameters to be passed to the disk interface
 
-    FileOpenParams params = new FileOpenParams(fileName, mode,
-        AccessMode.ReadWrite, attr);
+    FileOpenParams params = new FileOpenParams(fileName, mode, AccessMode.ReadWrite, attr);
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
@@ -1413,8 +1333,7 @@ class CoreProtocolHandler extends ProtocolHandler {
 
       // Too many files are open on this connection, cannot open any more files.
 
-      m_sess.sendErrorResponseSMB(SMBStatus.DOSTooManyOpenFiles,
-          SMBStatus.ErrDos);
+      m_sess.sendErrorResponseSMB(SMBStatus.DOSTooManyOpenFiles, SMBStatus.ErrDos);
       return;
     } catch (Exception e) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
@@ -1451,21 +1370,16 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Process exit, close all open files.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procProcessExit(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected void procProcessExit(SMBSrvPacket outPkt) throws java.io.IOException, SMBSrvException {
     logger.debug(":procExit");
     // Check that the received packet looks like a valid process exit request
 
     if (m_smbPkt.checkPacketIsValid(0, 0) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -1507,22 +1421,17 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Read from a file that has been opened on the server.
    * 
-   * @param outPkt
-   *          Response SMB packet.
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt Response SMB packet.
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procReadFile(SMBSrvPacket outPkt) throws java.io.IOException,
-      SMBSrvException {
+  protected void procReadFile(SMBSrvPacket outPkt) throws java.io.IOException, SMBSrvException {
     logger.debug(":procReadFile");
 
     // Check that the received packet looks like a valid file read request
 
     if (m_smbPkt.checkPacketIsValid(5, 0) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -1562,8 +1471,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILEIO))
-      logger.debug("File Read [" + netFile.getFileId() + "] : Size=" + reqcnt +
-          " ,Pos=" + reqoff);
+      logger.debug("File Read [" + netFile.getFileId() + "] : Size=" + reqcnt + " ,Pos=" + reqoff);
 
     // Read data from the file
 
@@ -1586,15 +1494,12 @@ class CoreProtocolHandler extends ProtocolHandler {
 
         // Debug
 
-        if (logger.isDebugEnabled() &&
-            m_sess.hasDebug(SMBSrvSession.DBG_FILEIO))
-          logger.debug("File Read [" + netFile.getFileId() + "] Limited to " +
-              availCnt);
+        if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILEIO))
+          logger.debug("File Read [" + netFile.getFileId() + "] Limited to " + availCnt);
       }
 
       // Read from the file
-      rdlen = ((JCRNetworkFile) netFile).read(buf, outPkt.getByteOffset() + 3,
-          reqcnt, reqoff);
+      rdlen = ((JCRNetworkFile) netFile).read(buf, outPkt.getByteOffset() + 3, reqcnt, reqoff);
 
     } catch (java.io.IOException ex) {
       m_sess.sendErrorResponseSMB(SMBStatus.HRDReadFault, SMBStatus.ErrHrd);
@@ -1626,15 +1531,11 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Rename a file.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procRenameFile(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected void procRenameFile(SMBSrvPacket outPkt) throws java.io.IOException, SMBSrvException {
     logger.debug(":procRenameFile EMPTY");
     m_sess.sendErrorResponseSMB(SMBStatus.SRVNotSupported, SMBStatus.ErrSrv);
   }
@@ -1642,15 +1543,11 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Start/continue a directory search operation.
    * 
-   * @param outPkt
-   *          Response SMB packet.
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt Response SMB packet.
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected final void procSearch(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected final void procSearch(SMBSrvPacket outPkt) throws java.io.IOException, SMBSrvException {
     logger.debug(":procSearch EMPTY");
     m_sess.sendErrorResponseSMB(SMBStatus.SRVNotSupported, SMBStatus.ErrSrv);
   }
@@ -1658,11 +1555,10 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Process a search request that is for the volume label.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
+   * @param outPkt SMBSrvPacket
    */
-  protected final void procSearchVolumeLabel(SMBSrvPacket outPkt)
-      throws IOException, SMBSrvException {
+  protected final void procSearchVolumeLabel(SMBSrvPacket outPkt) throws IOException,
+      SMBSrvException {
     logger.debug(":procSearchVolumeLabel EMPTY");
     m_sess.sendErrorResponseSMB(SMBStatus.SRVNotSupported, SMBStatus.ErrSrv);
   }
@@ -1670,11 +1566,10 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Seek to the specified file position within the open file.
    * 
-   * @param pkt
-   *          SMBSrvPacket
+   * @param pkt SMBSrvPacket
    */
-  protected final void procSeekFile(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected final void procSeekFile(SMBSrvPacket outPkt) throws java.io.IOException,
+      SMBSrvException {
     logger.debug(":procSeekFile EMPTY");
     m_sess.sendErrorResponseSMB(SMBStatus.SRVNotSupported, SMBStatus.ErrSrv);
   }
@@ -1682,12 +1577,11 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Process the SMB session setup request.
    * 
-   * @param outPkt
-   *          Response SMB packet.
+   * @param outPkt Response SMB packet.
    */
 
-  protected void procSessionSetup(SMBSrvPacket outPkt) throws SMBSrvException,
-      IOException, TooManyConnectionsException {
+  protected void procSessionSetup(SMBSrvPacket outPkt) throws SMBSrvException, IOException,
+      TooManyConnectionsException {
     logger.debug("\nCoreProtocolHandler::procSessionSetup");
 
     // Build the session setup response SMB
@@ -1707,10 +1601,9 @@ class CoreProtocolHandler extends ProtocolHandler {
     byte[] buf = outPkt.getBuffer();
 
     pos = DataPacker.putString("Java", buf, pos, true);
-    pos = DataPacker.putString("JLAN Server " + m_sess.getServer().isVersion(),
-        buf, pos, true);
-    pos = DataPacker.putString(m_sess.getServer().getConfiguration()
-        .getDomainName(), buf, pos, true);
+    pos = DataPacker.putString("JLAN Server " + m_sess.getServer().isVersion(), buf, pos, true);
+    pos = DataPacker.putString(m_sess.getServer().getConfiguration().getDomainName(), buf, pos,
+        true);
 
     outPkt.setByteCount(pos - outPkt.getByteOffset());
 
@@ -1726,22 +1619,18 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Set the file attributes for a file.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procSetFileAttributes(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected void procSetFileAttributes(SMBSrvPacket outPkt) throws java.io.IOException,
+      SMBSrvException {
     logger.debug(":procSetFileAttributes");
     // Check that the received packet looks like a valid set file attributes
     // request
 
     if (m_smbPkt.checkPacketIsValid(8, 0) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -1774,8 +1663,8 @@ class CoreProtocolHandler extends ProtocolHandler {
 
     // Extract the file name
 
-    String fileName = DataPacker.getDataString(DataType.ASCII, buf, dataPos,
-        dataLen, m_smbPkt.isUnicode());
+    String fileName = DataPacker.getDataString(DataType.ASCII, buf, dataPos, dataLen, m_smbPkt
+        .isUnicode());
     if (fileName == null) {
       m_sess.sendErrorResponseSMB(SMBStatus.DOSInvalidData, SMBStatus.ErrDos);
       return;
@@ -1818,9 +1707,8 @@ class CoreProtocolHandler extends ProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
-      logger.debug("Set File Attributes [" + treeId + "] name=" + fileName +
-          ", attr=0x" + Integer.toHexString(fattr) + ", fdate=" + fdate +
-          ", ftime=" + ftime);
+      logger.debug("Set File Attributes [" + treeId + "] name=" + fileName + ", attr=0x"
+          + Integer.toHexString(fattr) + ", fdate=" + fdate + ", ftime=" + ftime);
 
     // Access the disk interface and set the file attributes
 
@@ -1851,22 +1739,18 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Set file information.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procSetFileInformation(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected void procSetFileInformation(SMBSrvPacket outPkt) throws java.io.IOException,
+      SMBSrvException {
 
     logger.debug(":procSetFileInformation");
     // Check that the received packet looks like a valid set file information2
     // request
     if (m_smbPkt.checkPacketIsValid(7, 0) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -1936,8 +1820,7 @@ class CoreProtocolHandler extends ProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILE))
-      logger.debug("Set File Information 2 [" + netFile.getFileId() + "] " +
-          finfo.toString());
+      logger.debug("Set File Information 2 [" + netFile.getFileId() + "] " + finfo.toString());
 
     // Access the disk interface and set the file information
 
@@ -1951,8 +1834,7 @@ class CoreProtocolHandler extends ProtocolHandler {
       // Check if the file is being marked for deletion, if so then check if the
       // file is locked
 
-      if (finfo.hasSetFlag(FileInfo.SetDeleteOnClose) &&
-          finfo.hasDeleteOnClose()) {
+      if (finfo.hasSetFlag(FileInfo.SetDeleteOnClose) && finfo.hasDeleteOnClose()) {
         // Check if the node is locked
       }
 
@@ -1976,14 +1858,11 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Process the SMB tree connect request.
    * 
-   * @param outPkt
-   *          Response SMB packet.
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
-   * @exception TooManyConnectionsException
-   *              Too many concurrent connections on this session.
+   * @param outPkt Response SMB packet.
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
+   * @exception TooManyConnectionsException Too many concurrent connections on
+   *              this session.
    */
 
   protected void procTreeConnect(SMBSrvPacket outPkt) throws SMBSrvException,
@@ -1995,21 +1874,17 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Process the SMB tree disconnect request.
    * 
-   * @param outPkt
-   *          Response SMB packet.
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt Response SMB packet.
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procTreeDisconnect(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected void procTreeDisconnect(SMBSrvPacket outPkt) throws java.io.IOException,
+      SMBSrvException {
     logger.debug("procTreeDisconnect");
     // Check that the received packet looks like a valid tree disconnect request
 
     if (m_smbPkt.checkPacketIsValid(0, 0) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -2017,8 +1892,8 @@ class CoreProtocolHandler extends ProtocolHandler {
 
     VirtualCircuit vc = m_sess.findVirtualCircuit(m_smbPkt.getUserId());
     if (vc == null) {
-      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter,
-          SMBStatus.SRVNonSpecificError, SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.NTInvalidParameter, SMBStatus.SRVNonSpecificError,
+          SMBStatus.ErrSrv);
       return;
     }
 
@@ -2054,15 +1929,11 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Unlock a byte range in the specified file.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procUnLockFile(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected void procUnLockFile(SMBSrvPacket outPkt) throws java.io.IOException, SMBSrvException {
     logger.debug("\nCoreProtocolHandler::procUnLockDirectory");
     m_sess.sendErrorResponseSMB(SMBStatus.SRVNotSupported, SMBStatus.ErrSrv);
   }
@@ -2070,15 +1941,12 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Unsupported SMB procesing.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected final void procUnsupported(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected final void procUnsupported(SMBSrvPacket outPkt) throws java.io.IOException,
+      SMBSrvException {
 
     // Send an unsupported error response
 
@@ -2088,21 +1956,16 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Write to a file.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procWriteFile(SMBSrvPacket outPkt) throws java.io.IOException,
-      SMBSrvException {
+  protected void procWriteFile(SMBSrvPacket outPkt) throws java.io.IOException, SMBSrvException {
     logger.debug(":procWriteFile");
     // Check that the received packet looks like a valid file write request
 
     if (m_smbPkt.checkPacketIsValid(5, 0) == false) {
-      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand,
-          SMBStatus.ErrSrv);
+      m_sess.sendErrorResponseSMB(SMBStatus.SRVUnrecognizedCommand, SMBStatus.ErrSrv);
       return;
     }
 
@@ -2143,8 +2006,8 @@ class CoreProtocolHandler extends ProtocolHandler {
     // Debug
 
     if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILEIO))
-      logger.debug("File Write [" + netFile.getFileId() + "] : Size=" + wrtcnt +
-          " ,Pos=" + wrtoff + " , CountLeft=" + cleft);
+      logger.debug("File Write [" + netFile.getFileId() + "] : Size=" + wrtcnt + " ,Pos=" + wrtoff
+          + " , CountLeft=" + cleft);
 
     // Write data to the file
 
@@ -2175,17 +2038,16 @@ class CoreProtocolHandler extends ProtocolHandler {
       } else {
 
         // Write to the file
-        ((JCRNetworkFile) netFile).updateFile(new ByteArrayInputStream(buf,
-            pos, wrtcnt), wrtcnt, wrtoff);
-        wrtlen=wrtcnt;
-        
+        ((JCRNetworkFile) netFile).updateFile(new ByteArrayInputStream(buf, pos, wrtcnt), wrtcnt,
+            wrtoff);
+        wrtlen = wrtcnt;
+
       }
     } catch (java.io.IOException ex) {
 
       // Debug
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_FILEIO))
-        logger.debug("File Write Error [" + netFile.getFileId() + "] : " +
-            ex.toString());
+        logger.debug("File Write Error [" + netFile.getFileId() + "] : " + ex.toString());
       // Failed to read the file
       m_sess.sendErrorResponseSMB(SMBStatus.HRDWriteFault, SMBStatus.ErrHrd);
       return;
@@ -2212,15 +2074,12 @@ class CoreProtocolHandler extends ProtocolHandler {
   /**
    * Write to a file then close the file.
    * 
-   * @param outPkt
-   *          SMBSrvPacket
-   * @exception java.io.IOException
-   *              If an I/O error occurs
-   * @exception SMBSrvException
-   *              If an SMB protocol error occurs
+   * @param outPkt SMBSrvPacket
+   * @exception java.io.IOException If an I/O error occurs
+   * @exception SMBSrvException If an SMB protocol error occurs
    */
-  protected void procWriteAndCloseFile(SMBSrvPacket outPkt)
-      throws java.io.IOException, SMBSrvException {
+  protected void procWriteAndCloseFile(SMBSrvPacket outPkt) throws java.io.IOException,
+      SMBSrvException {
     logger.debug("\nCoreProtocolHandler::procWriteAndCloseFile");
     m_sess.sendErrorResponseSMB(SMBStatus.SRVNotSupported, SMBStatus.ErrSrv);
   }
@@ -2434,8 +2293,7 @@ class CoreProtocolHandler extends ProtocolHandler {
    * Check if a path contains any illegal characters, for file/create
    * open/create/rename/get info
    * 
-   * @param path
-   *          String
+   * @param path String
    * @return boolean
    */
   protected boolean isValidPath(String path) {
@@ -2492,6 +2350,4 @@ class CoreProtocolHandler extends ProtocolHandler {
 
   }
 
-  
-  
 }
