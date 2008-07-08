@@ -105,7 +105,7 @@ public class TestVersionable extends BaseVersionTest {
     assertFalse(root.hasNode("testRoot"));
     ItemData vhdata = session.getTransientNodesManager().getItemData(vhId);
     //!!!!
-    //assertNull(vhdata);
+    assertNull(vhdata);
   }
 
   public void testRemoveMixVersionableTwice() throws Exception {
