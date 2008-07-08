@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.impl.core;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,6 +51,7 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.version.ChildVersionRemoveVisitor;
 import org.exoplatform.services.jcr.impl.core.version.VersionHistoryImpl;
 import org.exoplatform.services.jcr.impl.core.version.VersionImpl;
@@ -705,13 +707,39 @@ public class SessionDataManager implements ItemDataConsumer {
     List<ItemState> deletes = new ArrayList<ItemState>();
 
     boolean fireEvent = !isNew(itemData.getIdentifier());
+    
+    NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
+   
+    //if node mix:versionable vs will be removed from Item.remove method.
+    boolean checkRemoveChildVersionStorages = false;
+    if (itemData.isNode()) {
+      checkRemoveChildVersionStorages = !ntManager.isNodeType(Constants.MIX_VERSIONABLE,
+                                                              ((NodeData) itemData).getPrimaryTypeName(),
+                                                              ((NodeData) itemData).getMixinTypeNames())
+          && !itemData.getQPath().isDescendantOf(Constants.JCR_SYSTEM_PATH, false);
 
+    }
+    
     boolean rootAdded = false;
     for (ItemData data : list) {
       if (data.equals(itemData))
         rootAdded = true;
       deletes.add(new ItemState(data, ItemState.DELETED, fireEvent, ancestorToSave, false));
-
+      //if subnode contains JCR_VERSIONHISTORY property
+      //we should remove version storage manually
+      if (checkRemoveChildVersionStorages && !data.isNode()
+          && Constants.JCR_VERSIONHISTORY.equals(data.getQPath().getName())) {
+        try {
+          PropertyData vhPropertyData = (PropertyData) getItemData(data.getIdentifier());
+          removeVersionHistory(new String(vhPropertyData.getValues().get(0).getAsByteArray()),
+                               null,
+                               ancestorToSave);
+        } catch (IllegalStateException e) {
+          throw new RepositoryException(e.getLocalizedMessage(), e);
+        } catch (IOException e) {
+          throw new RepositoryException(e.getLocalizedMessage(), e);
+        }
+      }
       ItemImpl pooled = itemsPool.remove(data.getIdentifier());
 
       if (pooled != null) {
