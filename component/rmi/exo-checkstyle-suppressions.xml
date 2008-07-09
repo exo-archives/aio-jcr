@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC "-//Puppy Crawl//DTD Suppressions 1.0//EN" "http://www.puppycrawl.com/dtds/suppressions_1_0.dtd">
+<suppressions>
+  <suppress checks="PackageHtmlCheck" files=".+[\\\/]*"/>
+  
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]iterator[\\\/]"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]api[\\\/]"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]RemoteAdapterFactoryImpl.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerEventCollection.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerItem.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerItemDefinition.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerLock.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerNamespaceRegistry.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerNode.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerNodeDefinition.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerNodeType.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerNodeTypeManager.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerObject.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerObservationManager.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerProperty.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerPropertyDefinition.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerQuery.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerQueryManager.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerQueryResult.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerRepository.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerRow.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerSession.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerVersion.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerVersionHistory.java"/>
+  <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerWorkspace.java"/>
+    
+</suppressions>
