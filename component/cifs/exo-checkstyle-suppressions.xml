@@ -4,7 +4,7 @@
   <suppress checks="PackageHtmlCheck" files=".+[\\\/]*"/>
   <!--suppress checks=".*" files="DummyResponse.java"/-->
   <!--suppress checks=".*" files=".+[\\\/]query[\\\/]"/-->
-  <suppress checks="NewlineAtEndOfFile" files=".+[\\\/]*"/>
+  <!--suppress checks="NewlineAtEndOfFile" files=".+[\\\/]*"/-->
   <suppress checks="FinalParameters" files=".+[\\\/]*"/>
   <suppress checks=".*" files=".+[\\\/]netbios[\\\/]"/>
   <suppress checks=".*" files=".+[\\\/]smb[\\\/]server[\\\/]win32[\\\/]"/>
@@ -50,7 +50,7 @@
   <suppress checks=".*" files="[\\\/]SharingMode.java"/>
   <suppress checks=".*" files="[\\\/]SMBDate.java"/>
   <suppress checks=".*" files="[\\\/]SMBDeviceType.java"/>
-  <suppress checks=".*" files="[\\\/]SMBErrorType.java"/>
+  <suppress checks=".*" files="[\\\/]SMBErrorText.java"/>
   <suppress checks=".*" files="[\\\/]SMBException.java"/>
   <suppress checks=".*" files="[\\\/]SMBStatus.java"/>
   <suppress checks=".*" files="[\\\/]TcpipSMB.java"/>
@@ -84,8 +84,10 @@
   <suppress checks=".*" files="[\\\/]SMBSrvSession.java"/>
   <suppress checks=".*" files="[\\\/]SMBSrvSessionState.java"/>
   <suppress checks=".*" files="[\\\/]SMBSrvTransPacket.java"/>
+  <suppress checks=".*" files="[\\\/]SMBTransPacket.java"/>
   <suppress checks=".*" files="[\\\/]SrvTransactBuffer.java"/>
   <suppress checks=".*" files="[\\\/]TcpipSMBPacketHandler.java"/>
   <suppress checks=".*" files="[\\\/]TcpipSMBSessionSocketHandler.java"/>
+  
   
 </suppressions>

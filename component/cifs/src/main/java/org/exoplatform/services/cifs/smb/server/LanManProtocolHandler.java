@@ -1352,7 +1352,7 @@ public class LanManProtocolHandler extends CoreProtocolHandler {
     VirtualCircuit vc = new VirtualCircuit(vcNum, client);
     int uid = m_sess.addVirtualCircuit(vc);
 
-    if (uid == VirtualCircuit.InvalidUID) {
+    if (uid == VirtualCircuit.INVALID_UID) {
       // DEBUG
 
       if (logger.isDebugEnabled() && m_sess.hasDebug(SMBSrvSession.DBG_NEGOTIATE))

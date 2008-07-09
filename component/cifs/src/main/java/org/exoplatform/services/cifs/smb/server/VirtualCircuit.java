@@ -33,77 +33,96 @@ import org.exoplatform.services.cifs.server.filesys.TreeConnection;
  * server. There are may by many circuits on transport session.
  * <p>
  * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
- * 
- * @version $Id: $
- * 
- * 
  */
-
 public class VirtualCircuit {
 
   // Default maximum of tree connection and Searches on circuit
-  private static final int DefaultTreeConnections = 4;
+  private static final int                   DEFAULT_TREE_CONNECTIONS = 4;
 
-  private static final int MaxTreeConnections = 16;
+  private static final int                   MAX_TREE_CONNECTIONS     = 16;
 
-  private static final int DefaultSearches = 4;
+  private static final int                   DEAFAULT_SEARCHES        = 4;
 
-  private static final int MaxSearches = 256;
+  private static final int                   MAX_SEARCHES            = 256;
 
   // Tree ids are 16bit values
+  private static final int                   TREE_ID_MASK             = 0x0000FFFF;
 
-  private static final int TreeIdMask = 0x0000FFFF;
 
-  // Invalid UID value
+  /**
+   * Invalid UID value.
+   */
+  public static final int                    INVALID_UID             = -1;
 
-  public static final int InvalidUID = -1;
+  /**
+   * ID sent the client and allocated the server for identify VC.
+   */
+  private int                                uId                    = -1;
 
-  // id sent the client and allocated the server for identify VC
+  /**
+   * Number of VirtualsCircuit for internal purposes.
+   */
+  private int                                vcNum                  = -1;
 
-  private int UId = -1;
-
-  // num of vc for internal puproses
-  private int vcNum = -1;
-
-  // Active tree connections
+  /**
+   * Active tree connections.
+   */
   private Hashtable<Integer, TreeConnection> connections;
 
-  private int lasttreeId;
+  /**
+   * Last tree ID.
+   */
+  private int                                lasttreeId;
 
-  // List of opened searches
-  private SearchContext[] searches;
+  /**
+   * List of opened searches.
+   */
+  private SearchContext[]                    searches;
 
-  private int srchCount;
+  /**
+   * Opened searches count.
+   */
+  private int                                srchCount;
 
-  //holds info about owner of this circuit
-  private Client client;
+  /**
+   * Holds info about owner of this circuit.
+   */
+  private Client                             client;
 
-  public VirtualCircuit(int vcNum,Client client) {
+  /**
+   * Constructor.
+   * 
+   * @param vcNum VirtualCircuit number
+   * @param client Client
+   */
+  public VirtualCircuit(int vcNum, Client client) {
     this.vcNum = vcNum;
     this.client = client;
   }
 
+  /**
+   * Set UUID.
+   * 
+   * @param uid UUID
+   */
   public void setUID(int uid) {
-    UId = uid;
-
+    uId = uid;
   }
 
   /**
    * Add a new connection to this virtual circuit. Return the allocated tree id
    * for the new connection.
    * 
-   * @param shrDev
-   *          SharedDevice
-   * @return int Allocated tree id (connection id).
+   * @param shrDev SharedDevice
+   * @return int Allocated tree id (connection id)
+   * @throws TooManyConnectionsException
    */
-  public int addTreeConnection(SharedDevice shrDev)
-      throws TooManyConnectionsException {
+  public int addTreeConnection(SharedDevice shrDev) throws TooManyConnectionsException {
 
     // Check if the connection array has been allocated
 
     if (connections == null)
-      connections = new Hashtable<Integer, TreeConnection>(DefaultTreeConnections);
+      connections = new Hashtable<Integer, TreeConnection>(DEFAULT_TREE_CONNECTIONS);
 
     // Allocate an id for the tree connection
 
@@ -113,19 +132,19 @@ public class VirtualCircuit {
 
       // Check if the tree connection table is full
 
-      if (connections.size() == MaxTreeConnections)
+      if (connections.size() == MAX_TREE_CONNECTIONS)
         throw new TooManyConnectionsException();
 
       // Find a free slot in the connection array
 
-      treeId = (lasttreeId++ & TreeIdMask);
+      treeId = (lasttreeId++ & TREE_ID_MASK);
       Integer key = new Integer(treeId);
 
       while (connections.contains(key)) {
 
         // Try another tree id for the new connection
 
-        treeId = (lasttreeId++ & TreeIdMask);
+        treeId = (lasttreeId++ & TREE_ID_MASK);
         key = new Integer(treeId);
       }
 
@@ -139,6 +158,11 @@ public class VirtualCircuit {
     return treeId;
   }
 
+  /**
+   * Find tree connection.
+   * @param treeId  tree connection ID
+   * @return TreeConnection
+   */
   public TreeConnection findTreeConnection(int treeId) {
     // Check if the tree id and connection array are valid
 
@@ -149,25 +173,21 @@ public class VirtualCircuit {
 
     return connections.get(new Integer(treeId));
   }
-  
-  
+
   /**
-   * Return the active tree connection count
+   * Return the active tree connection count.
    * 
    * @return int
    */
   public final int getConnectionCount() {
     return connections != null ? connections.size() : 0;
   }
-  
 
   /**
    * Remove the specified tree connection from the active connection list.
    * 
-   * @param treeId
-   *          int
-   * @param srvSession
-   *          SrvSession
+   * @param treeId int
+   * @param sess SrvSession
    */
   protected void removeConnection(int treeId, SrvSession sess) {
 
@@ -200,17 +220,11 @@ public class VirtualCircuit {
     }
   }
 
-
- 
-
-
   /**
    * Store the seach context in the specified slot.
    * 
-   * @param slot
-   *          Slot to store the search context.
-   * @param srch
-   *          com.starla.smbsrv.SearchContext
+   * @param slot Slot to store the search context.
+   * @param srch com.starla.smbsrv.SearchContext
    */
   public final void setSearchContext(int slot, SearchContext srch) {
 
@@ -227,9 +241,8 @@ public class VirtualCircuit {
   /**
    * Return the search context for the specified search id.
    * 
-   * @return com.starla.smbsrv.SearchContext
-   * @param srchId
-   *          int
+   * @return SearchContext
+   * @param srchId int
    */
   public final SearchContext getSearchContext(int srchId) {
 
@@ -254,7 +267,7 @@ public class VirtualCircuit {
     // Check if the search array has been allocated
 
     if (searches == null)
-      searches = new SearchContext[DefaultSearches];
+      searches = new SearchContext[DEAFAULT_SEARCHES];
 
     // Find a free slot for the new search
 
@@ -270,7 +283,7 @@ public class VirtualCircuit {
       // The search array needs to be extended, check if we reached the
       // limit.
 
-      if (searches.length >= MaxSearches)
+      if (searches.length >= MAX_SEARCHES)
         return -1;
 
       // Extend the search array
@@ -285,12 +298,11 @@ public class VirtualCircuit {
     srchCount++;
     return idx;
   }
-  
+
   /**
    * Deallocate the specified search context/slot.
    * 
-   * @param ctxId
-   *          int
+   * @param ctxId int
    */
   public final void deallocateSearchSlot(int ctxId) {
 
@@ -309,12 +321,10 @@ public class VirtualCircuit {
     searches[ctxId] = null;
   }
 
-
   /**
-   * Close the virtual circuit, close active tree connections
+   * Close the virtual circuit, close active tree connections.
    * 
-   * @param sess
-   *          SrvSession
+   * @param sess SrvSession
    */
   public final void closeCircuit(SrvSession sess) {
 
@@ -369,8 +379,8 @@ public class VirtualCircuit {
 
                 try {
 
-                 // ((JCRNetworkFile) curFile).flush();
-                 // ((JCRNetworkFile) curFile).saveChanges();
+                  // ((JCRNetworkFile) curFile).flush();
+                  // ((JCRNetworkFile) curFile).saveChanges();
 
                 } catch (Exception ex) {
                   ex.printStackTrace();
@@ -391,8 +401,13 @@ public class VirtualCircuit {
     }
   }
 
-  public Client getClientInfo(){
+  /**
+   * Get client info.
+   * 
+   * @return Client
+   */
+  public Client getClientInfo() {
     return client;
   }
-  
+
 }

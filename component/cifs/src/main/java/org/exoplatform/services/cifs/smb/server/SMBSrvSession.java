@@ -1912,7 +1912,7 @@ public class SMBSrvSession extends SrvSession implements Runnable {
       // Check if the virtual circuit table is full
 
       if (vcircuits.size() == MaxCircuits)
-        return VirtualCircuit.InvalidUID;
+        return VirtualCircuit.INVALID_UID;
 
       // Find a free slot in the circuit table
 
