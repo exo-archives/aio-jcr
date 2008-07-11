@@ -37,7 +37,6 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
 
 public class TransactionChangesLog implements CompositeChangesLog, Externalizable {
   
-
   protected String systemId;
   
   protected List <PlainChangesLog> changesLogs;
@@ -209,9 +208,16 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
   // ------------------ [ BEGIN ] ------------------
 
   public void writeExternal(ObjectOutput out) throws IOException {
-        
-    out.writeInt(systemId.getBytes().length);
-    out.write(systemId.getBytes());
+    //write -1 if systemId == null 
+    //write 1 if systemId != null
+    
+    if (systemId != null) {
+      out.writeInt(1);
+      out.writeInt(systemId.getBytes().length);
+      out.write(systemId.getBytes());
+    } else {
+      out.writeInt(-1);
+    }
     
         
     int listSize = changesLogs.size();
@@ -221,12 +227,14 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
   }
 
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        
-    String DEFAULT_ENCODING = "UTF-8"; 
-    byte[] buf = new byte[in.readInt()];
-    in.read(buf);
     
-    systemId = new String(buf, DEFAULT_ENCODING);
+    if (in.readInt() == 1) {    
+      String DEFAULT_ENCODING = "UTF-8"; 
+      byte[] buf = new byte[in.readInt()];
+      in.read(buf);
+      
+      systemId = new String(buf, DEFAULT_ENCODING);
+    }
     
     int listSize = in.readInt();
     for (int i = 0; i < listSize; i++) 
