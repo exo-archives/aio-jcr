@@ -54,17 +54,16 @@ public final class WorkspaceContainerFacade {
    * @return the component
    */
   public Object getComponent(Object key) {
-    if(key instanceof Class)
+    if (key instanceof Class)
       return container.getComponentInstanceOfType((Class)key);
-    else
+    else 
       return container.getComponentInstance(key);
   }  
-
   
   public void addComponent(Object component) {
-    if(component instanceof Class)
+    if (component instanceof Class)
       container.registerComponentImplementation((Class)component);
-    else
+    else 
       container.registerComponentInstance(component);
   }  
   
@@ -72,4 +71,3 @@ public final class WorkspaceContainerFacade {
     container.registerComponentInstance(key, component);
   }  
 }
-

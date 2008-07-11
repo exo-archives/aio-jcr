@@ -43,15 +43,15 @@ import org.exoplatform.services.security.MembershipEntry;
 
 public abstract class AccessManager {
 
-  protected static Log                          log           = ExoLogger.getLogger("jcr.AccessManager");
+  protected static Log                          log           = ExoLogger
+                                                                  .getLogger("jcr.AccessManager");
 
   protected final Map<String, String>           parameters;
 
   private static ThreadLocal<InvocationContext> contextHolder = new ThreadLocal<InvocationContext>();
 
-
-  protected AccessManager(RepositoryEntry config, WorkspaceEntry wsConfig
-      ) throws RepositoryException {
+  protected AccessManager(RepositoryEntry config, WorkspaceEntry wsConfig)
+      throws RepositoryException {
 
     this.parameters = new HashMap<String, String>();
     if (wsConfig != null && wsConfig.getAccessManager() != null) {
@@ -70,24 +70,29 @@ public abstract class AccessManager {
   }
 
   /**
-   * @param acl
-   * @param permission
-   * @param userId
-   * @return
+   * Has permission.
+   * 
+   * @param acl access control list
+   * @param permission permission
+   * @param user user Identity
+   * @return boolean
    * @throws RepositoryException
    */
-  public final boolean hasPermission(AccessControlList acl, String permission, Identity user) throws RepositoryException {
+  public final boolean hasPermission(AccessControlList acl, String permission, Identity user)
+      throws RepositoryException {
     return hasPermission(acl, parseStringPermissions(permission), user);
   }
 
   /**
-   * @param acl
-   * @param permission
-   * @param userId
-   * @return
+   * Has permission.
+   * 
+   * @param acl access control list
+   * @param permission permissions array
+   * @param user user Identity
+   * @return boolean
    */
   public boolean hasPermission(AccessControlList acl, String[] permission, Identity user) {
-    
+
     String userId = user.getUserId();
 
     if (userId.equals(SystemIdentity.SYSTEM)) {
@@ -101,7 +106,7 @@ public abstract class AccessManager {
 
       if (anyPermissions.size() < permission.length)
         return false;
-      
+
       for (int i = 0; i < permission.length; i++) {
         if (!anyPermissions.contains(permission[i]))
           return false;
@@ -124,7 +129,6 @@ public abstract class AccessManager {
     }
   }
 
-
   private String[] parseStringPermissions(String str) throws RepositoryException {
     List<String> permissions = new ArrayList<String>();
     StringTokenizer parser = new StringTokenizer(str, ",");
@@ -142,10 +146,9 @@ public abstract class AccessManager {
     }
     return permissions.toArray(new String[permissions.size()]);
   }
- 
+
   private boolean isPermissionMatch(List<AccessControlEntry> existedPermission,
-                                    String testPermission,
-                                    Identity user) {
+      String testPermission, Identity user) {
     for (AccessControlEntry ace : existedPermission) {
       // match action
       if (ace.getPermission().equals(testPermission)) {

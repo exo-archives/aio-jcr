@@ -24,7 +24,7 @@ package org.exoplatform.services.jcr.config;
  */
 
 /**
- * This exception is thrown when condition occurred
+ * This exception is thrown when condition occurred.
  */
 public class RepositoryConfigurationException extends Exception {
   /**

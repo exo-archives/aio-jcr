@@ -37,6 +37,7 @@ import org.exoplatform.services.jcr.impl.core.LocationFactory;
  */
 
 public interface ExtendedSession extends Session {
+  
   /**
    * @return
    */
@@ -48,7 +49,7 @@ public interface ExtendedSession extends Session {
   LocationFactory getLocationFactory();
 
   /**
-   * Deserializes an XML document and adds the resulting item subtree as a child
+   * Deserialize an XML document and adds the resulting item subtree as a child
    * of the node at parentAbsPath.
    * 
    * @param parentAbsPath the absolute path of the node below which the
@@ -73,7 +74,7 @@ public interface ExtendedSession extends Session {
                                                                                                      RepositoryException;
 
   /**
-   * Registers session listener
+   * Registers session listener.
    * 
    * @param listener
    */

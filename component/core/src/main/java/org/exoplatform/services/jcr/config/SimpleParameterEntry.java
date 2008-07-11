@@ -24,42 +24,52 @@ package org.exoplatform.services.jcr.config;
 
 public class SimpleParameterEntry {
 
-	private String name;
-	private String value;
+  private String name;
+  private String value;
+
+  public SimpleParameterEntry() {
+  }
 	
-	public SimpleParameterEntry() {
-	}
-	
-	public SimpleParameterEntry(String name, String value) {
-		this.name = name;
-		this.value = value;
-	}
+  public SimpleParameterEntry(String name, String value) {
+    this.name = name;
+    this.value = value;
+  }
 
 
-	/**
-	 * @return Returns the name.
-	 */
-	public String getName() {
-		return name;
-	}
-	
-	/**
-	 * @param name The name to set.
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-	/**
-	 * @return Returns the value.
-	 */
-	public String getValue() {
-		return value;
-	}
-	/**
-	 * @param value The value to set.
-	 */
-	public void setValue(String value) {
-		this.value = value;
-	}
+  /**
+   * Returns name.
+   * 
+   * @return Returns the name.
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * Sets name.
+   * 
+   * @param name The name to set.
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
+  
+  /**
+   * Returns value.
+   * 
+   * @return Returns the value.
+   */
+  public String getValue() {
+    return value;
+  }
+  
+  /**
+   * Sets value.
+   * 
+   * @param value The value to set.
+   */
+  public void setValue(String value) {
+    this.value = value;
+  }
 
 }

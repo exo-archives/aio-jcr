@@ -81,7 +81,7 @@ public class RepositoryServiceConfiguration {
   }
   
   /**
-   * checks if current configuration can be saved
+   * Checks if current configuration can be saved.
    * @return
    */
   public boolean isRetainable() {
@@ -89,7 +89,7 @@ public class RepositoryServiceConfiguration {
   }
   
   /**
-   * Saves current configuration to persistent
+   * Saves current configuration to persistent.
    * @throws RepositoryException
    */
   public void retain() throws RepositoryException {

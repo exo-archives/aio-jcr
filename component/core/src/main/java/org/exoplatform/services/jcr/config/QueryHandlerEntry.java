@@ -165,7 +165,9 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
 
   private final static String  PARAM_FORCE_CONSISTENCYCHECK       = "force-consistencycheck";
 
-  // ErrorLog file size in Kb
+  /**
+   *  ErrorLog file size in Kb.
+   */
   private final static String  PARAM_ERRORLOG_SIZE                = "errorlog-size";
 
   /**
@@ -426,7 +428,6 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
 
   /**
    * @return the path to the indexing configuration file.
-   * @throws RepositoryConfigurationException
    */
   public String getIndexingConfigurationPath() {
     return getParameterValue(PARAM_INDEXING_CONFIGURATION_PATH, null);
@@ -484,6 +485,8 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   }
 
   /**
+   * Get spell checker class.
+   * 
    * @return the class name of the spell checker implementation or
    *         <code>null</code> if none is set.
    */
@@ -492,6 +495,8 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   }
 
   /**
+   * Get support highlighting.
+   * 
    * @return <code>true</code> if highlighting support is enabled.
    */
   public boolean getSupportHighlighting() {
@@ -499,6 +504,8 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   }
 
   /**
+   * Get synonym provider class.
+   * 
    * @return the class name of the synonym provider implementation or
    *         <code>null</code> if none is set.
    */
@@ -507,6 +514,8 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   }
 
   /**
+   * Get synonym provider configuration path.
+   * 
    * @return the configuration path for the synonym provider. If none is set
    *         this method returns <code>null</code>.
    */
@@ -540,6 +549,8 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
    * on the {@link #forceConsistencyCheck} parameter. If set to
    * <code>false</code>, no consistency check is performed, even if the redo
    * log had been applied on startup. <p/> Default value is: <code>false</code>.
+   * 
+   * @return boolean
    */
   public boolean isConsistencyCheckEnabled() {
     return getParameterBoolean(PARAM_CONSISTENCY_CHECK_ENABLED, DEFAULT_CONSISTENCYCHECKENABLED);
@@ -554,8 +565,6 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
    * 
    * @return a file system resource or <code>null</code> if no path was
    *         configured.
-   * @throws FileSystemException if an exception occurs accessing the file
-   *           system.
    */
   protected InputStream createSynonymProviderConfigResource() {
     if (getSynonymProviderConfigPath() != null) {
@@ -569,10 +578,8 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
    * <code>null</code> if there is no indexing configuration.
    * 
    * @return the indexing configuration or <code>null</code> if there is none.
+   * @throws IOException
    * @throws RepositoryConfigurationException
-   * @throws RepositoryConfigurationException
-   * @throws ParserConfigurationException
-   * @throws SAXException
    */
   protected Element getIndexingConfigurationDOM() throws IOException,
                                                  RepositoryConfigurationException {
@@ -601,9 +608,9 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   }
 
   /**
-   * Return ErrorLog file size in Kb. String representation
+   * Return ErrorLog file size in Kb String representation.
    * 
-   * @throws RepositoryConfigurationException
+   * @return int size in Kb
    */
   public int getErrorLogSize() {
     String size = getParameterValue(PARAM_ERRORLOG_SIZE, null);

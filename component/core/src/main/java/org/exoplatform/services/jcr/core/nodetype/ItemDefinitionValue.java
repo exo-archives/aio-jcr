@@ -18,80 +18,89 @@ package org.exoplatform.services.jcr.core.nodetype;
 
 /**
  * Created by The eXo Platform SAS.<br/>
- * ItemDefinition value object
+ * ItemDefinition value object.
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: ItemDefinitionValue.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public abstract class ItemDefinitionValue {
-	
-	protected String name;
 
-	protected boolean autoCreate;
+  protected String name;
 
-	protected int onVersion;
+  protected boolean autoCreate;
 
-	protected boolean readOnly;
+  protected int onVersion;
 
-	protected boolean mandatory;
+  protected boolean readOnly;
 
-	public ItemDefinitionValue() {
-	}
+  protected boolean mandatory;
 
-	/**
-	 * @return Returns the autoCreate.
-	 */
-	public boolean isAutoCreate() {
-		return autoCreate;
-	}
-	/**
-	 * @param autoCreate The autoCreate to set.
-	 */
-	public void setAutoCreate(boolean autoCreate) {
-		this.autoCreate = autoCreate;
-	}
-	/**
-	 * @return Returns the mandatory.
-	 */
-	public boolean isMandatory() {
-		return mandatory;
-	}
-	/**
-	 * @param mandatory The mandatory to set.
-	 */
-	public void setMandatory(boolean mandatory) {
-		this.mandatory = mandatory;
-	}
-	/**
-	 * @return Returns the name.
-	 */
-	public String getName() {
-		return name;
-	}
-	/**
-	 * @param name The name to set.
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-	/**
-	 * @return Returns the onVersion.
-	 */
-	public int getOnVersion() {
-		return onVersion;
-	}
-	/**
+  public ItemDefinitionValue() {
+  }
+
+  /**
+   * @return Returns the autoCreate.
+   */
+  public boolean isAutoCreate() {
+    return autoCreate;
+  }
+  
+  /**
+   * @param autoCreate The autoCreate to set.
+   */
+  public void setAutoCreate(boolean autoCreate) {
+    this.autoCreate = autoCreate;
+  }
+  
+  /**
+   * @return Returns the mandatory.
+   */
+  public boolean isMandatory() {
+    return mandatory;
+  }
+
+  /**
+   * @param mandatory The mandatory to set.
+   */
+  public void setMandatory(boolean mandatory) {
+    this.mandatory = mandatory;
+  }
+
+  /**
+   * @return Returns the name.
+   */
+  public String getName() {
+    return name;
+  }
+  
+  /**
+   * @param name The name to set.
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
+ 
+  /**
+   * @return Returns the onVersion.
+   */
+  public int getOnVersion() {
+    return onVersion;
+  }
+  
+  /**
 	 * @param onVersion The onVersion to set.
 	 */
 	public void setOnVersion(int onVersion) {
 		this.onVersion = onVersion;
 	}
+	
 	/**
 	 * @return Returns the readOnly.
 	 */
 	public boolean isReadOnly() {
 		return readOnly;
 	}
+	
 	/**
 	 * @param readOnly The readOnly to set.
 	 */

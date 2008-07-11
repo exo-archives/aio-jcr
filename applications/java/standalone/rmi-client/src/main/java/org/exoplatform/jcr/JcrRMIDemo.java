@@ -18,6 +18,7 @@ package org.exoplatform.jcr;
 
 import javax.jcr.*;
 import org.exoplatform.services.jcr.rmi.api.client.ClientRepositoryFactory;
+import org.exoplatform.services.jcr.core.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SAS .
@@ -33,7 +34,7 @@ public class JcrRMIDemo {
     try {
       ClientRepositoryFactory factory = new ClientRepositoryFactory();
       Repository repository = factory.getRepository("//localhost:9999/repository");
-      Credentials credentials = new SimpleCredentials("admin", "admin".toCharArray());
+      Credentials credentials = new CredentialsImpl("root", "exo".toCharArray());
       Session session = repository.login(credentials, "production");
       Node node = session.getRootNode();
       System.out.println("root node path: " + node.getPath());

@@ -136,7 +136,7 @@ public class TestSearchManagerIndexing extends JcrImplBaseTest {
   }
 
   /**
-   * Here is test of correct indexing changes in repository
+   * Here is test of correct indexing changes in repository.
    * 
    * @throws Exception
    */

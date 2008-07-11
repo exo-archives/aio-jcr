@@ -30,13 +30,13 @@ public class ContainerEntry extends MappedParametrizedObjectEntry {
   
   private ArrayList valueStorages;
   
-	public ContainerEntry() {
-		super();
-	}
+  public ContainerEntry() {
+    super();
+  }
 
-	public ContainerEntry(String type, ArrayList params) {
-		super(type, params);
-	}
+  public ContainerEntry(String type, ArrayList params) {
+    super(type, params);
+  }
 
   public ArrayList getValueStorages() {
     return valueStorages;

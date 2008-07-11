@@ -28,63 +28,67 @@ import javax.jcr.SimpleCredentials;
  */
 
 public class CredentialsImpl implements Credentials {
-	
-	private SimpleCredentials simpleCredentials;
+
+  private SimpleCredentials simpleCredentials;
 
     public CredentialsImpl(String userID, char[] password) {
-    	this.simpleCredentials = new SimpleCredentials(userID, password);
+      this.simpleCredentials = new SimpleCredentials(userID, password);
     }	
 
-	/**
-	 * @param name
-	 * @return
-	 */
-	public Object getAttribute(String name) {
-		return simpleCredentials.getAttribute(name);
-	}
-	/**
-	 * @return
-	 */
-	public String[] getAttributeNames() {
-		return simpleCredentials.getAttributeNames();
-	}
-	/**
-	 * @return
-	 */
-	public char[] getPassword() {
-		return simpleCredentials.getPassword();
-	}
-	/**
-	 * @return
-	 */
-	public String getUserID() {
-		return simpleCredentials.getUserID();
-	}
+  /**
+   * @param name
+   * @return
+   */
+  public Object getAttribute(String name) {
+    return simpleCredentials.getAttribute(name);
+  }
+  
+  /**
+   * @return
+   */
+  public String[] getAttributeNames() {
+    return simpleCredentials.getAttributeNames();
+  }
 
-	/**
-	 * @param name
-	 */
-	public void removeAttribute(String name) {
-		simpleCredentials.removeAttribute(name);
-	}
-	/**
-	 * @param name
-	 * @param value
-	 */
-	public void setAttribute(String name, Object value) {
-		simpleCredentials.setAttribute(name, value);
-	}
+  /**
+   * @return
+   */
+  public char[] getPassword() {
+    return simpleCredentials.getPassword();
+  }
 
-	public String toString() {
-		return simpleCredentials.toString();
-	}
-	
-	public int hashCode() {
-		return simpleCredentials.hashCode();
-	}
+  /**
+   * @return
+   */
+  public String getUserID() {
+    return simpleCredentials.getUserID();
+  }
 
-	public boolean equals(Object arg0) {
-		return simpleCredentials.equals(arg0);
-	}
+  /**
+   * @param name
+   */
+  public void removeAttribute(String name) {
+    simpleCredentials.removeAttribute(name);
+  }
+  
+  /**
+   * @param name
+   * @param value
+   */
+  public void setAttribute(String name, Object value) {
+    simpleCredentials.setAttribute(name, value);
+  }
+
+  public String toString() {
+    return simpleCredentials.toString();
+  }
+
+  public int hashCode() {
+    return simpleCredentials.hashCode();
+  }
+
+  public boolean equals(Object arg0) {
+    return simpleCredentials.equals(arg0);
+  }
 
 }

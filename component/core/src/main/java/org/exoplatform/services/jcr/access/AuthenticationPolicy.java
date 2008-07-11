@@ -33,15 +33,15 @@ import org.exoplatform.services.security.ConversationState;
 public interface AuthenticationPolicy {
   
   /**
-   * authenticates getting credentials 
-   * @param credentials
+   * Authenticates getting credentials. 
+   * @param credentials credentials
    * @return credentials took part in authentication (could be not the same a incoming one)
    * @throws LoginException
    */
   ConversationState authenticate(Credentials credentials) throws LoginException;
   
   /**
-   * authenticates using some external mechanisp 
+   * Authenticates using some external mechanism. 
    * @return credentials took part in authentication
    * @throws LoginException
    */

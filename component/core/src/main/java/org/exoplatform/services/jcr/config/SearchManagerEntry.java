@@ -97,7 +97,12 @@ public class SearchManagerEntry {
     this.preparedQueryClass = preparedQueryClass;
   }*/
 
-  public static String getDEFAULT_QUERY_HANDLER_CLASS() {
+  /**
+   * Returns name of default query handler class.
+   * 
+   * @return String - Default query handler class name.
+   */
+  public static String getDefaultQueryHandlerClass() {
     return DEFAULT_QUERY_HANDLER_CLASS;
   }
 

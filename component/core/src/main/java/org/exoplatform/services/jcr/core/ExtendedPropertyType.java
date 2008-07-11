@@ -29,7 +29,7 @@ import javax.jcr.PropertyType;
 public class ExtendedPropertyType {
   
   /**
-   * Additional property type for exo permission properties
+   * Additional property type for exo permission properties.
    */
   public static final int PERMISSION = 100;
 

@@ -14,21 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.access;
+package org.exoplatform.services.jcr.rmi.impl.server;
 
-/**
- * Created by The eXo Platform SAS.
- * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: SystemIdentity.java 11907 2008-03-13 15:36:21Z ksm $
- */
+public interface JCRServer {
 
-public class SystemIdentity {
+  public void bind();
 
-  public static final String ANY    = "any".intern();
-
-  public static final String SYSTEM = "__system".intern();
-
-  public static final String ANONIM = "__anonim".intern();
+  public void unbind();
 
 }

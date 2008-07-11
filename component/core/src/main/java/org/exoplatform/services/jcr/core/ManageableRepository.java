@@ -144,7 +144,8 @@ public interface ManageableRepository extends Repository {
   void removeWorkspace(String workspaceName) throws RepositoryException;
   
   /**
-   * Returns an entry point of workspace managing objects
+   * Returns an entry point of workspace managing objects.
+   * 
    * @return workspace serving container
    */
   WorkspaceContainerFacade getWorkspaceContainer(String workspaceName);

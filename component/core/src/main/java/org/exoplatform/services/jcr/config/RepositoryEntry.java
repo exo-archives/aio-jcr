@@ -57,6 +57,8 @@ public class RepositoryEntry {
   }
 
   /**
+   * Get system workspace name.
+   * 
    * @return Returns the systemWorkspace.
    */
   public String getSystemWorkspaceName() {
@@ -64,6 +66,8 @@ public class RepositoryEntry {
   }
 
   /**
+   * Set system workspace name.
+   * 
    * @param systemWorkspace The systemWorkspace to set.
    */
   public void setSystemWorkspaceName(String systemWorkspace) {
@@ -71,6 +75,8 @@ public class RepositoryEntry {
   }
 
   /**
+   * Get workspaces.
+   * 
    * @return Returns the workspaces.
    */
   public List<WorkspaceEntry> getWorkspaceEntries() {
@@ -82,6 +88,8 @@ public class RepositoryEntry {
   }
 
   /**
+   * Get Access control.
+   * 
    * @return Returns the accessControl.
    */
   public String getAccessControl() {
@@ -89,6 +97,8 @@ public class RepositoryEntry {
   }
 
   /**
+   * Set access control.
+   * 
    * @param accessControl The accessControl to set.
    */
   public void setAccessControl(String accessControl) {
@@ -96,6 +106,8 @@ public class RepositoryEntry {
   }
 
   /**
+   * Get security domain.
+   * 
    * @return Returns the securityDomain.
    */
   public String getSecurityDomain() {
@@ -103,6 +115,8 @@ public class RepositoryEntry {
   }
 
   /**
+   * Set security domain.
+   * 
    * @param securityDomain The securityDomain to set.
    */
   public void setSecurityDomain(String securityDomain) {
@@ -110,6 +124,8 @@ public class RepositoryEntry {
   }
 
   /**
+   * Get authentication policy.
+   * 
    * @return Returns the authenticationPolicy.
    */
   public String getAuthenticationPolicy() {
@@ -117,6 +133,8 @@ public class RepositoryEntry {
   }
 
   /**
+   * Set authentication policy.
+   * 
    * @param authenticationPolicy The authenticationPolicy to set.
    */
   public void setAuthenticationPolicy(String authenticationPolicy) {
@@ -124,6 +142,8 @@ public class RepositoryEntry {
   }
 
   /**
+   * Get default workspace name.
+   * 
    * @return Returns the defaultWorkspaceName.
    */
   public String getDefaultWorkspaceName() {
@@ -131,6 +151,8 @@ public class RepositoryEntry {
   }
 
   /**
+   * Set default workspace name.
+   * 
    * @param defaultWorkspaceName The defaultWorkspaceName to set.
    */
   public void setDefaultWorkspaceName(String defaultWorkspaceName) {

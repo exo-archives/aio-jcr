@@ -20,12 +20,13 @@ import java.util.ArrayList;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: CacheEntry.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class CacheEntry extends MappedParametrizedObjectEntry {
-  
+
   private boolean enabled;
 
   public CacheEntry() {
@@ -42,6 +43,7 @@ public class CacheEntry extends MappedParametrizedObjectEntry {
   public boolean isEnabled() {
     return enabled;
   }
+
   /**
    * @param enabled The enabled to set.
    */

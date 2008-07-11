@@ -27,7 +27,7 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
  * Created by The eXo Platform SAS. <br/>
- * Node Type manager
+ * Node Type manager.
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: ExtendedNodeTypeManager.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -42,14 +42,14 @@ public interface ExtendedNodeTypeManager extends NodeTypeManager {
   /**
    * The node-type node should be created and saved(!) as
    * /jcr:system/jcr:nodetypes/ <name>as nt:nodeType node before calling this
-   * method
+   * method.
    */
   void registerNodeType(ExtendedNodeType nodeType, int alreadyExistsBehaviour)
       throws RepositoryException;
 
   /**
-   * Registers node type from class containing the NT definition The class
-   * should have constructor with one parameter NodeTypeManager
+   * Registers node type from class containing the NT definition. The class
+   * should have constructor with one parameter NodeTypeManager.
    * 
    * @param nodeTypeType -
    *          Class containing node type definition
@@ -65,7 +65,7 @@ public interface ExtendedNodeTypeManager extends NodeTypeManager {
       throws RepositoryException, InstantiationException;
 
   /**
-   * Registers node type using value object
+   * Registers node type using value object.
    * 
    * @param nodeTypeValue
    * @param alreadyExistsBehaviour
@@ -75,7 +75,7 @@ public interface ExtendedNodeTypeManager extends NodeTypeManager {
       throws RepositoryException;
 
   /**
-   * Registers all node types using XML binding value objects from xml stream
+   * Registers all node types using XML binding value objects from xml stream.
    * 
    * @param xml
    * @param alreadyExistsBehaviour

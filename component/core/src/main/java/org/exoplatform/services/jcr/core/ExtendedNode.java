@@ -32,7 +32,7 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
  * Created by The eXo Platform SAS.<br/> The extension for JSR-170 standard
- * Node interface
+ * Node interface.
  * 
  * @author Gennady Azarenkov
  * @version $Id: ExtendedNode.java 11907 2008-03-13 15:36:21Z ksm $
@@ -41,7 +41,7 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 public interface ExtendedNode extends Node {
 
   /**
-   * Sets permission
+   * Sets permission.
    * 
    * @param permissions
    * @throws RepositoryException
@@ -56,7 +56,7 @@ public interface ExtendedNode extends Node {
   AccessControlList getACL() throws RepositoryException;
 
   /**
-   * Clears Access Control List
+   * Clears Access Control List.
    * 
    * @throws RepositoryException
    * @throws AccessControlException
@@ -64,7 +64,7 @@ public interface ExtendedNode extends Node {
   void clearACL() throws RepositoryException, AccessControlException;
 
   /**
-   * Removes permissions for particular identity
+   * Removes permissions for particular identity.
    * 
    * @param identity
    * @throws RepositoryException
@@ -73,15 +73,16 @@ public interface ExtendedNode extends Node {
   void removePermission(String identity) throws RepositoryException, AccessControlException;
 
   /**
-   * Removes specified permission for particular identity
+   * Removes specified permission for particular identity.
    * 
    * @param identity
    * @throws RepositoryException
    * @throws AccessControlException
    */
   void removePermission(String identity, String permission) throws RepositoryException, AccessControlException;
+  
   /**
-   * Sets permissions for particular identity
+   * Sets permissions for particular identity.
    * 
    * @param identity
    * @param permission
@@ -92,7 +93,7 @@ public interface ExtendedNode extends Node {
       AccessControlException;
 
   /**
-   * Checks if there are permission to perform some actions
+   * Checks if there are permission to perform some actions.
    * 
    * @param actions
    * @throws AccessControlException if no such permissions found

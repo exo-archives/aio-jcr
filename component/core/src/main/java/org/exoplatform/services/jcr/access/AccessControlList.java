@@ -32,7 +32,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS.<br/> Access Control List
+ * Created by The eXo Platform SAS.<br/> Access Control List.
  * 
  * @author Gennady Azarenkov
  * @version $Id: AccessControlList.java 14556 2008-05-21 15:22:15Z pnedonosko $
@@ -54,7 +54,7 @@ public class AccessControlList implements Externalizable {
   /**
    * Default ACL owned by ownerName.
    * 
-   * @param ownerName
+   * @param ownerName owner name
    */
   AccessControlList(String ownerName) {
     this.owner = ownerName;
@@ -65,10 +65,10 @@ public class AccessControlList implements Externalizable {
   }
 
   /**
-   * Create ACL from owner name and collection of permission entries
+   * Create ACL from owner name and collection of permission entries.
    * 
    * @param owner
-   * @param permissions - permission entries
+   * @param accessList - permission entries
    */
   public AccessControlList(String owner, List<AccessControlEntry> accessList) {
     this.owner = owner;
@@ -95,7 +95,8 @@ public class AccessControlList implements Externalizable {
       if (entryTokenizer.countTokens() != 2)
         throw new RepositoryException("AccessControlEntry " + entry
             + " is empty or have a bad format");
-      accessList.add(new AccessControlEntry(entryTokenizer.nextToken(), entryTokenizer.nextToken()));
+      accessList
+          .add(new AccessControlEntry(entryTokenizer.nextToken(), entryTokenizer.nextToken()));
     }
   }
 
@@ -122,6 +123,8 @@ public class AccessControlList implements Externalizable {
   }
 
   /**
+   * Get owner.
+   * 
    * @return Returns the owner.
    */
   public String getOwner() {
@@ -219,13 +222,20 @@ public class AccessControlList implements Externalizable {
   }
 
   /**
+   * Get access list size.
+   * 
    * @return size of access list
    */
   public int getPermissionsSize() {
     return accessList.size();
   }
-  //Special method for internal JCR use
-   List<AccessControlEntry> getPermissionsList() {
+
+  /**
+   *  Special method for internal JCR use.
+   *  
+   *  @return list of AccessControlEntry
+   */
+  List<AccessControlEntry> getPermissionsList() {
     return accessList;
   }
 }

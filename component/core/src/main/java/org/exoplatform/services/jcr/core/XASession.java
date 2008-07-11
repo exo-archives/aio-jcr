@@ -34,13 +34,13 @@ public interface XASession extends Session {
   XAResource getXAResource();
   
   /**
-   * Enlists XAResource in TM
+   * Enlists XAResource in TM.
    * @throws XAException
    */
   void enlistResource() throws XAException;
   
   /**
-   * Delists XAResource in TM
+   * Delists XAResource in TM.
    * @throws XAException
    */
   void delistResource() throws XAException;

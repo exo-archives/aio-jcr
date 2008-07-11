@@ -54,8 +54,10 @@ public abstract class MappedParametrizedObjectEntry {
   }
 
   /**
-   * @param name
-   * @return
+   * Parse named parameter.
+   * 
+   * @param name parameter name
+   * @return String
    * @throws RepositoryConfigurationException
    */
   public String getParameterValue(String name) throws RepositoryConfigurationException {
@@ -66,9 +68,11 @@ public abstract class MappedParametrizedObjectEntry {
   }
 
   /**
-   * @param name
-   * @param defaultValue
-   * @return
+   * Parse named parameter.
+   * 
+   * @param name parameter name
+   * @param defaultValue default value
+   * @return String 
    */
   public String getParameterValue(String name, String defaultValue) {
     String value = defaultValue;
@@ -83,9 +87,11 @@ public abstract class MappedParametrizedObjectEntry {
   }
   
   /**
-   * @param name
-   * @param defaultValue
-   * @return
+   * Parse named parameter as Integer.
+   * 
+   * @param name parameter name
+   * @param defaultValue default Integer value
+   * @return Integer value
    */
   public Integer getParameterInteger(String name, Integer defaultValue) {
     for (int i = 0; i < parameters.size(); i++) {
@@ -104,7 +110,7 @@ public abstract class MappedParametrizedObjectEntry {
   /**
    * Parse named parameter as Integer.
    * 
-   * @param name
+   * @param name parameter name
    * @return Integer value
    * @throws RepositoryConfigurationException
    */
@@ -117,9 +123,11 @@ public abstract class MappedParametrizedObjectEntry {
   }
   
   /**
-   * @param name
-   * @param defaultValue
-   * @return
+   * Parse named parameter as Long.
+   * 
+   * @param name parameter name
+   * @param defaultValue default Long value
+   * @return Long value
    */
   public Long getParameterLong(String name, Long defaultValue) {
     for (int i = 0; i < parameters.size(); i++) {
@@ -138,8 +146,8 @@ public abstract class MappedParametrizedObjectEntry {
   /**
    * Parse named parameter as Long.
    * 
-   * @param name
-   * @return Long value
+   * @param name parameter name
+   * @return Long value 
    * @throws RepositoryConfigurationException
    */
   public Long getParameterLong(String name) throws RepositoryConfigurationException {
@@ -151,8 +159,10 @@ public abstract class MappedParametrizedObjectEntry {
   }
   
   /**
-   * @param name
-   * @param defaultValue
+   * Parse named parameter using {@link StringNumberParser.parseTime} and return time in milliseconds (Long value).
+   * 
+   * @param name parameter name
+   * @param defaultValue default time value
    * @return
    */
   public Long getParameterTime(String name, Long defaultValue) {
@@ -172,7 +182,7 @@ public abstract class MappedParametrizedObjectEntry {
   /**
    * Parse named parameter using {@link StringNumberParser.parseTime} and return time in milliseconds (Long value).
    * 
-   * @param name
+   * @param name parameter name
    * @return Long value
    * @throws RepositoryConfigurationException
    */
@@ -185,9 +195,11 @@ public abstract class MappedParametrizedObjectEntry {
   }
   
   /**
-   * @param name
-   * @param defaultValue
-   * @return
+   * Parse named parameter as Boolean.
+   * 
+   * @param name parameter name
+   * @param defaultValue default value
+   * @return boolean value
    */
   public Boolean getParameterBoolean(String name, Boolean defaultValue) {
     for (int i = 0; i < parameters.size(); i++) {
