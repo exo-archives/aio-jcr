@@ -118,8 +118,10 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
         ((TransactionServiceJotmImpl) tService).pushThreadLocalRMEventList(jotmResourceList);
       }
     } catch (RollbackException e) {
+      e.printStackTrace();
       throw new XAException(e.getMessage());
     } catch (SystemException e) {
+      e.printStackTrace();
       throw new XAException(e.getMessage());
     }
   }
