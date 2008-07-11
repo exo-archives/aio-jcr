@@ -272,6 +272,8 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
     } catch (IllegalStateException e) {
       throw new SystemException(e.getMessage());
     } catch (XAException e) {
+      //TODO remove. Test only.
+      e.printStackTrace();
       throw new SystemException(e.getMessage());
     }
   }
