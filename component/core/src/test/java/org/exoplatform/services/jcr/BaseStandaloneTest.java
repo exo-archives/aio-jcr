@@ -94,9 +94,6 @@ public abstract class BaseStandaloneTest extends TestCase {
     valueFactory = session.getValueFactory();
 
     initRepository();
-    
-    System.out.println("Total Memory"+Runtime.getRuntime().totalMemory());    
-    System.out.println("Free Memory"+Runtime.getRuntime().freeMemory());
   }
 
   protected void tearDown() throws Exception {
