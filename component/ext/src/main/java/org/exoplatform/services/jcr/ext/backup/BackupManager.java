@@ -35,6 +35,10 @@ import org.exoplatform.services.jcr.ext.backup.impl.BackupScheduler;
  */
 
 public interface BackupManager {
+  
+  final static int FULL_BACKUP_ONLY = 0;
+  
+  final static int FULL_AND_INCREMENTAL = 1;
 
   Set<BackupChain> getCurrentBackups();
   
@@ -53,4 +57,8 @@ public interface BackupManager {
   BackupMessage[] getMessages();
   
   File getBackupDirectory();
+  
+  String getFullBackupType();
+  
+  String getIncrementalBackupType();
 }

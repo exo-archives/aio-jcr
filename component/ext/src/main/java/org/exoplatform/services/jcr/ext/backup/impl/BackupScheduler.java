@@ -220,17 +220,14 @@ public class BackupScheduler {
       void writeBackupConfig(BackupConfig config) throws XMLStreamException {
         writer.writeStartElement("backup-config");
 
-        if (config.getFullBackupType() != null) {
-          writer.writeStartElement("full-backup-type");
-          writer.writeCharacters(config.getFullBackupType());
-          writer.writeEndElement();
-        }
+        writer.writeStartElement("full-backup-type");
+        writer.writeCharacters(backup.getFullBackupType());
+        writer.writeEndElement();
 
-        if (config.getIncrementalBackupType() != null) {
-          writer.writeStartElement("incremental-backup-type");
-          writer.writeCharacters(config.getIncrementalBackupType());
-          writer.writeEndElement();
-        }
+        writer.writeStartElement("incremental-backup-type");
+        writer.writeCharacters(backup.getIncrementalBackupType());
+        writer.writeEndElement();
+        
 
         if (config.getBackupDir() != null) {
           writer.writeStartElement("backup-dir");
@@ -386,12 +383,6 @@ public class BackupScheduler {
 
           case StartElement.START_ELEMENT:
             String name = reader.getLocalName();
-
-            if (name.equals("full-backup-type"))
-              conf.setFullBackupType(readContent());
-
-            if (name.equals("incremental-backup-type"))
-              conf.setIncrementalBackupType(readContent());
 
             if (name.equals("backup-dir"))
               conf.setBackupDir(new File(readContent()));

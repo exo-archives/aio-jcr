@@ -35,6 +35,7 @@ import org.exoplatform.services.jcr.ext.backup.BackupConfig;
 import org.exoplatform.services.jcr.ext.backup.BackupConfigurationException;
 import org.exoplatform.services.jcr.ext.backup.BackupJob;
 import org.exoplatform.services.jcr.ext.backup.BackupJobListener;
+import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.ext.backup.BackupOperationException;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -67,24 +68,23 @@ public class BackupChainImpl implements BackupChain {
 
   private Set<BackupJobListener>       listeners = new LinkedHashSet<BackupJobListener>();
 
-  public BackupChainImpl(BackupConfig config, File logDirectory, ManageableRepository repository) throws BackupOperationException,
-                                                                                                 BackupConfigurationException {
+  public BackupChainImpl(BackupConfig config, File logDirectory, ManageableRepository repository, String fullBackupType, 
+      String incrementalBackupType) throws BackupOperationException, BackupConfigurationException {
     this.config = config;
-
     this.jobs = new ArrayList<BackupJob>();
-    this.chainLog = new BackupChainLog(logDirectory, config);
+    this.chainLog = new BackupChainLog(logDirectory, config, fullBackupType, incrementalBackupType);
     this.timeStamp = Calendar.getInstance();
 
     try {
-      this.fullBackup = (AbstractFullBackupJob) Class.forName(config.getFullBackupType()).newInstance();
+      this.fullBackup = (AbstractFullBackupJob) Class.forName(fullBackupType).newInstance();
     } catch (Exception e) {
       throw new BackupConfigurationException("FullBackupType error, " + e, e);
     }
     fullBackup.init(repository, config.getWorkspace(), config, timeStamp);
 
-    if (config.getIncrementalBackupType() != null) {
+    if (config.getBuckupType() == BackupManager.FULL_AND_INCREMENTAL) {
       try {
-        this.incrementalBackup = (AbstractIncrementalBackupJob) Class.forName(config.getIncrementalBackupType()).newInstance();
+        this.incrementalBackup = (AbstractIncrementalBackupJob) Class.forName(incrementalBackupType).newInstance();
       } catch (Exception e) {
         throw new BackupConfigurationException("IncrementalBackupType error, " + e, e);
       }

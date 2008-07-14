@@ -61,8 +61,7 @@ public class TestBackupRestart extends AbstractBackupTestCase {
     BackupConfig config = new BackupConfig();
     config.setRepository(repository.getName());
     config.setWorkspace("ws1");
-    config.setFullBackupType("org.exoplatform.services.jcr.ext.backup.impl.fs.FullBackupJob");
-    config.setIncrementalBackupType("org.exoplatform.services.jcr.ext.backup.impl.fs.IncrementalBackupJob");
+    config.setBuckupType(BackupManager.FULL_AND_INCREMENTAL);
     config.setIncrementalJobPeriod(2 * 60); // incrementalPeriod = 2 min
     config.setBackupDir(backDir);
 

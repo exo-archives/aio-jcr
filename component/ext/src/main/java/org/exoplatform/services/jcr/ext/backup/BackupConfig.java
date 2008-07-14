@@ -26,22 +26,18 @@ import java.io.File;
  */
 
 public class BackupConfig {
-  
-  private String fullBackupType;
-  
-  private String incrementalBackupType;
+
+  private int    buckupType;
 
   private String repository;
 
   private String workspace;
 
-  private long incrementalJobPeriod;
+  private long   incrementalJobPeriod;
 
-  private int incrementalJobNumber;
+  private int    incrementalJobNumber;
 
-  //private String chainLogFile;
-  
-  private File backupDir;
+  private File   backupDir;
 
   public long getIncrementalJobPeriod() {
     return incrementalJobPeriod;
@@ -57,22 +53,6 @@ public class BackupConfig {
 
   public void setIncrementalJobNumber(int incrementalJobNumber) {
     this.incrementalJobNumber = incrementalJobNumber;
-  }
-
-  public String getFullBackupType() {
-    return fullBackupType;
-  }
-
-  public void setFullBackupType(String fullBackupType) {
-    this.fullBackupType = fullBackupType;
-  }
-
-  public String getIncrementalBackupType() {
-    return incrementalBackupType;
-  }
-
-  public void setIncrementalBackupType(String incrementalBackupType) {
-    this.incrementalBackupType = incrementalBackupType;
   }
 
   public String getRepository() {
@@ -91,14 +71,6 @@ public class BackupConfig {
     this.workspace = workspace;
   }
 
-//  public String getChainLogFile() {
-//    return chainLogFile;
-//  }
-//
-//  public void setChainLogFile(String chainFile) {
-//    this.chainLogFile = chainFile;
-//  }
-  
   public File getBackupDir() {
     return backupDir;
   }
@@ -107,4 +79,11 @@ public class BackupConfig {
     this.backupDir = backupDir;
   }
 
+  public int getBuckupType() {
+    return buckupType;
+  }
+
+  public void setBuckupType(int buckupType) {
+    this.buckupType = buckupType;
+  }
 }

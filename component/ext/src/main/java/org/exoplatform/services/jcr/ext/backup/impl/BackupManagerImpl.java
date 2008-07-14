@@ -77,6 +77,24 @@ import org.picocontainer.Startable;
 public class BackupManagerImpl implements BackupManager, Startable {
 
   protected static Log               log = ExoLogger.getLogger("ext.BackupManagerImpl");
+  
+  private final static String        DEFAULT_INCREMENTAL_JOB_PERIOD = "default-incremental-job-period";
+  
+  private final static String        BACKUP_PROPERTIES              = "backup-properties";
+  
+  private final static String        FULL_BACKUP_TYPE               = "full-backup-type";
+  
+  private final static String        INCREMENTAL_BACKUP_TYPE        = "incremental-backup-type";
+  
+  private final static String        BACKUP_DIR                     = "backup-dir";
+  
+  private static final int           MESSAGES_MAXSIZE               = 5;
+  
+  private final long                 defaultIncrementalJobPeriod;
+  
+  private final String               fullBackupType;
+  
+  private final String               incrementalBackupType;
 
   private final HashSet<BackupChain> currentBackups;
 
@@ -87,12 +105,10 @@ public class BackupManagerImpl implements BackupManager, Startable {
   private FileCleaner                fileCleaner;
 
   private BackupScheduler            scheduler;
-
-  private static final int MESSAGES_MAXSIZE = 5;
   
   private final BackupMessagesLog    messages;
   
-  private final MessagesListener messagesListener;
+  private final MessagesListener     messagesListener;
   
   class MessagesListener implements BackupJobListener {
 
@@ -184,17 +200,39 @@ public class BackupManagerImpl implements BackupManager, Startable {
     
     this.repoService = repoService;
 
-    PropertiesParam pps = params.getPropertiesParam("backup-properties");
-    String pathBackupDir = pps.getProperty("backup-dir");
+    PropertiesParam pps = params.getPropertiesParam(BACKUP_PROPERTIES);
+    
+    String pathBackupDir = pps.getProperty(BACKUP_DIR);
 
     if (pathBackupDir == null)
-      throw new RepositoryConfigurationException("backup-dir not specified");
+      throw new RepositoryConfigurationException(BACKUP_DIR + " not specified");
 
     this.logsDirectory = new File(pathBackupDir);
     if (!logsDirectory.exists())
       logsDirectory.mkdirs();
+    
+    //set default incrementalJobPeriod
+    String defIncrPeriod = pps.getProperty(DEFAULT_INCREMENTAL_JOB_PERIOD);
+    
+    if (defIncrPeriod == null)
+      throw new RepositoryConfigurationException(DEFAULT_INCREMENTAL_JOB_PERIOD + " not specified");
+      
+    defaultIncrementalJobPeriod = Integer.valueOf(defIncrPeriod);
+    
+    //set fullBackupType
+    fullBackupType = pps.getProperty(FULL_BACKUP_TYPE);
+    
+    if (fullBackupType == null)
+      throw new RepositoryConfigurationException(FULL_BACKUP_TYPE + " not specified");
+
+    //set incrementalBackupType    
+    incrementalBackupType = pps.getProperty(INCREMENTAL_BACKUP_TYPE);
+    
+    if (incrementalBackupType == null)
+      throw new RepositoryConfigurationException(INCREMENTAL_BACKUP_TYPE + " not specified");
 
     currentBackups = new HashSet<BackupChain>();
+    
     fileCleaner = new FileCleaner(10000);
 
     messages = new BackupMessagesLog(MESSAGES_MAXSIZE);
@@ -301,7 +339,11 @@ public class BackupManagerImpl implements BackupManager, Startable {
                                               RepositoryException,
                                               RepositoryConfigurationException {
 
-    BackupChain bchain = new BackupChainImpl(config, logsDirectory, repoService.getRepository(config.getRepository()));
+    if (config.getIncrementalJobPeriod() == 0 && config.getBuckupType() == BackupManager.FULL_AND_INCREMENTAL)
+      config.setIncrementalJobPeriod(defaultIncrementalJobPeriod);
+    
+    BackupChain bchain = new BackupChainImpl(config, logsDirectory, repoService.getRepository(config.getRepository()), 
+        fullBackupType, incrementalBackupType);
     
     bchain.addListener(messagesListener);
     bchain.addListener(jobListener);
@@ -550,5 +592,13 @@ public class BackupManagerImpl implements BackupManager, Startable {
   
   public File getBackupDirectory() {
     return getLogsDirectory();
+  }
+
+  public String getFullBackupType() {
+    return fullBackupType;
+  }
+
+  public String getIncrementalBackupType() {
+    return incrementalBackupType;
   }
 }

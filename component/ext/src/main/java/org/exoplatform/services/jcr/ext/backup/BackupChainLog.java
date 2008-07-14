@@ -66,7 +66,8 @@ public class BackupChainLog {
   
   private BackupConfig             config;
 
-  public BackupChainLog(File logDir, BackupConfig config) throws BackupOperationException {
+  public BackupChainLog(File logDir, BackupConfig config, String fullBackupType, 
+      String incrementalBackupType) throws BackupOperationException {
     try {
       this.log = File.createTempFile(PREFIX, SUFFIX, logDir);
       this.config = config;
@@ -74,7 +75,7 @@ public class BackupChainLog {
   
       // write config info here
       logWriter = new LogWriter(log);
-      logWriter.write(config);
+      logWriter.write(config, fullBackupType, incrementalBackupType);
     } catch (IOException e) {
       throw new BackupOperationException(e);
     } catch (XMLStreamException e) {
@@ -284,12 +285,6 @@ public class BackupChainLog {
         case StartElement.START_ELEMENT:
           String name = reader.getLocalName();
 
-          if (name.equals("full-backup-type"))
-            conf.setFullBackupType(readContent());
-
-          if (name.equals("incremental-backup-type"))
-            conf.setIncrementalBackupType(readContent());
-
           if (name.equals("backup-dir"))
             conf.setBackupDir(new File(readContent()));
           
@@ -365,20 +360,17 @@ public class BackupChainLog {
       writer.flush();
     }
 
-    public synchronized void write(BackupConfig config) throws XMLStreamException {
+    public synchronized void write(BackupConfig config, String fullBackupType, 
+        String incrementalBackupType) throws XMLStreamException {
       writer.writeStartElement("backup-config");
 
-      if (config.getFullBackupType() != null) {
         writer.writeStartElement("full-backup-type");
-        writer.writeCharacters(config.getFullBackupType());
+        writer.writeCharacters(fullBackupType);
         writer.writeEndElement();
-      }
-
-      if (config.getIncrementalBackupType() != null) {
+      
         writer.writeStartElement("incremental-backup-type");
-        writer.writeCharacters(config.getIncrementalBackupType());
+        writer.writeCharacters(incrementalBackupType);
         writer.writeEndElement();
-      }
 
       if (config.getBackupDir() != null) {
         writer.writeStartElement("backup-dir");

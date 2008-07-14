@@ -44,7 +44,7 @@ public class TestBackupManager extends AbstractBackupTestCase {
     BackupConfig config = new BackupConfig();
     config.setRepository(repository.getName());
     config.setWorkspace("ws1");
-    config.setFullBackupType("org.exoplatform.services.jcr.ext.backup.impl.fs.FullBackupJob");
+    config.setBuckupType(BackupManager.FULL_BACKUP_ONLY);
 
     config.setBackupDir(backDir);
 
@@ -105,8 +105,7 @@ public class TestBackupManager extends AbstractBackupTestCase {
     BackupConfig config = new BackupConfig();
     config.setRepository(repository.getName());
     config.setWorkspace("ws1");
-    config.setFullBackupType("org.exoplatform.services.jcr.ext.backup.impl.fs.FullBackupJob");
-    config.setIncrementalBackupType("org.exoplatform.services.jcr.ext.backup.impl.fs.IncrementalBackupJob");
+    config.setBuckupType(BackupManager.FULL_AND_INCREMENTAL);
 
     config.setBackupDir(backDir);
 
@@ -194,8 +193,7 @@ public class TestBackupManager extends AbstractBackupTestCase {
     BackupConfig config = new BackupConfig();
     config.setRepository(repository.getName());
     config.setWorkspace("ws1");
-    config.setFullBackupType("org.exoplatform.services.jcr.ext.backup.impl.fs.FullBackupJob");
-    config.setIncrementalBackupType("org.exoplatform.services.jcr.ext.backup.impl.fs.IncrementalBackupJob");
+    config.setBuckupType(BackupManager.FULL_AND_INCREMENTAL);
 
     config.setBackupDir(backDir);
 

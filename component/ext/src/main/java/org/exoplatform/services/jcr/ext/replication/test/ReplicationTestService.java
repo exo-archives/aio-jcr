@@ -142,12 +142,9 @@ public class ReplicationTestService implements ResourceContainer {
                               @URIParam("password") String password, 
                               @URIParam("incementalPeriod") Long incementalPeriod) {
     BackupConfig config = new BackupConfig();
+    config.setBuckupType(BackupManager.FULL_AND_INCREMENTAL);
     config.setRepository(repositoryName);
     config.setWorkspace(workspaceName);
-    config.setFullBackupType("org.exoplatform.services.jcr.ext.backup.impl.fs.FullBackupJob");
-    config
-        .setIncrementalBackupType("org.exoplatform.services.jcr.ext.backup.impl.fs.IncrementalBackupJob");
-
     config.setBackupDir(backupManager.getBackupDirectory());
     config.setIncrementalJobPeriod(incementalPeriod);
 
