@@ -43,11 +43,14 @@ public abstract class HandlingContentExporter extends BaseXmlExporter {
                                  boolean skipBinary,
                                  boolean noRecurse) throws NamespaceException, RepositoryException {
 
-    super(dataManager, namespaceRegistry, systemValueFactory, skipBinary, noRecurse ? 1 : -1);
+    super(dataManager, namespaceRegistry, systemValueFactory, skipBinary, noRecurse, noRecurse ? 1
+                                                                                              : -1);
     this.contentHandler = handler;
-    setNoRecurse(noRecurse);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void export(NodeData node) throws RepositoryException, SAXException {
     if (contentHandler != null) {
@@ -61,20 +64,20 @@ public abstract class HandlingContentExporter extends BaseXmlExporter {
   }
 
   protected void endPrefixMapping() throws RepositoryException, SAXException {
-    String[] prefixes = namespaceRegistry.getPrefixes();
+    String[] prefixes = getNamespaceRegistry().getPrefixes();
     for (String prefix : prefixes) {
       contentHandler.endPrefixMapping(prefix);
     }
   }
 
   protected void startPrefixMapping() throws RepositoryException, SAXException {
-    String[] prefixes = namespaceRegistry.getPrefixes();
+    String[] prefixes = getNamespaceRegistry().getPrefixes();
     for (String prefix : prefixes) {
       // skeep xml prefix
       if ((prefix == null) || (prefix.length() < 1) || prefix.equals(Constants.NS_XML_PREFIX)) {
         continue;
       }
-      contentHandler.startPrefixMapping(prefix, namespaceRegistry.getURI(prefix));
+      contentHandler.startPrefixMapping(prefix, getNamespaceRegistry().getURI(prefix));
     }
   }
 }

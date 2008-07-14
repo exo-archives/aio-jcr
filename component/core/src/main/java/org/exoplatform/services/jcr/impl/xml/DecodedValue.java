@@ -23,7 +23,7 @@ import java.io.InputStream;
 import org.apache.ws.commons.util.Base64.Decoder;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: DecodedValue.java 11987 2008-03-17 09:06:06Z ksm $
@@ -35,10 +35,19 @@ import org.apache.ws.commons.util.Base64.Decoder;
  * @author ksm
  */
 public class DecodedValue {
+  /**
+   * Decoder buffer.
+   */
   private BufferedDecoder decoder;
 
+  /**
+   * String buffer.
+   */
   private StringBuffer    stringBuffer;
 
+  /**
+   * Dafault constructor.
+   */
   public DecodedValue() {
     super();
     stringBuffer = new StringBuffer();
@@ -46,8 +55,8 @@ public class DecodedValue {
 
   /**
    * @return Base64 decoder. It is write decoded incoming data into the
-   *         temporary file
-   * @throws IOException
+   *         temporary file.
+   * @exception IOException if an I/O error occurs.
    */
   public Decoder getBinaryDecoder() throws IOException {
     if (decoder == null) {
@@ -58,8 +67,8 @@ public class DecodedValue {
   }
 
   /**
-   * @return InputStream from decoded file
-   * @throws IOException
+   * @return InputStream from decoded file.
+   * @exception IOException if an I/O error occurs.
    */
   public InputStream getInputStream() throws IOException {
     if (decoder == null) {
@@ -69,14 +78,17 @@ public class DecodedValue {
     return decoder.getInputStream();
   }
 
+  /**
+   * @return String buffer.
+   */
   public StringBuffer getStringBuffer() {
     return stringBuffer;
   }
 
   /**
-   * Removes all temporary variables and files
+   * Removes all temporary variables and files.
    * 
-   * @throws IOException
+   * @throws IOException if file can't be removed.
    */
   public void remove() throws IOException {
 
@@ -86,7 +98,9 @@ public class DecodedValue {
     }
   }
 
-  @Override
+  /**
+   * @return string representation for value.
+   */
   public String toString() {
     if (decoder != null) {
       return decoder.toString();

@@ -26,7 +26,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
  */
 public interface ImportItemData {
   /**
-   * Set parent identifer
+   * Set parent identifier
    * 
    * @param identifer
    */

@@ -42,9 +42,10 @@ public abstract class StreamExporter extends BaseXmlExporter {
                         boolean skipBinary,
                         boolean noRecurse) throws NamespaceException, RepositoryException {
 
-    super(dataManager, namespaceRegistry, systemValueFactory, skipBinary, noRecurse ? 1 : -1);
+    super(dataManager, namespaceRegistry, systemValueFactory, skipBinary, noRecurse, noRecurse ? 1
+                                                                                              : -1);
     this.writer = writer;
-    setNoRecurse(noRecurse);
+
 
   }
 
@@ -59,13 +60,13 @@ public abstract class StreamExporter extends BaseXmlExporter {
   }
 
   protected void startPrefixMapping() throws RepositoryException, XMLStreamException {
-    String[] prefixes = namespaceRegistry.getPrefixes();
+    String[] prefixes = getNamespaceRegistry().getPrefixes();
     for (String prefix : prefixes) {
       // skeep xml prefix
       if ((prefix == null) || (prefix.length() < 1) || prefix.equals(Constants.NS_XML_PREFIX)) {
         continue;
       }
-      writer.writeNamespace(prefix, namespaceRegistry.getURI(prefix));
+      writer.writeNamespace(prefix, getNamespaceRegistry().getURI(prefix));
     }
   };
 }

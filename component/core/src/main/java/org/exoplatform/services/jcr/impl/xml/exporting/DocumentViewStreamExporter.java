@@ -52,7 +52,10 @@ public class DocumentViewStreamExporter extends StreamExporter {
     super(writer, dataManager, namespaceRegistry, systemValueFactory, skipBinary, noRecurse);
   }
 
-  @Override
+  /**
+   * 
+   * {@inheritDoc}
+   */
   protected void entering(NodeData node, int level) throws RepositoryException {
     try {
       if (!node.getQPath().getName().equals(Constants.JCR_XMLTEXT)) {
@@ -73,7 +76,10 @@ public class DocumentViewStreamExporter extends StreamExporter {
     }
   }
 
-  @Override
+  /**
+   * 
+   * {@inheritDoc}
+   */
   protected void entering(PropertyData property, int level) throws RepositoryException {
     InternalQName propName = property.getQPath().getName();
     try {
@@ -114,13 +120,16 @@ public class DocumentViewStreamExporter extends StreamExporter {
 
   }
 
-  @Override
+/**
+ * 
+ * {@inheritDoc}
+ */
   protected void leaving(NodeData node, int level) throws RepositoryException {
 
     try {
       if (!node.getQPath().getName().equals(Constants.JCR_XMLTEXT)) {
         List<NodeData> nodes = dataManager.getChildNodesData(node);
-        if (nodes.size() > 0) {
+        if (nodes.size() > 0) { 
           writer.writeEndElement();
         }
 
@@ -130,7 +139,10 @@ public class DocumentViewStreamExporter extends StreamExporter {
     }
   }
 
-  @Override
+  /**
+   * 
+   * {@inheritDoc}
+   */
   protected void leaving(PropertyData property, int level) throws RepositoryException {
   }
 }

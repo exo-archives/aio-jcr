@@ -71,13 +71,13 @@ public class SystemViewStreamExporter extends StreamExporter {
   @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
     try {
-      writer.writeStartElement(Constants.NS_SV_PREFIX, Constants.SV_NODE, SV_NAMESPACE_URI);
+      writer.writeStartElement(Constants.NS_SV_PREFIX, Constants.SV_NODE, getSvNamespaceUri());
       if (level == 0) {
         startPrefixMapping();
       }
 
       writer.writeAttribute(Constants.NS_SV_PREFIX,
-                            SV_NAMESPACE_URI,
+                            getSvNamespaceUri(),
                             Constants.SV_NAME,
                             getExportName(node, false));
     } catch (XMLStreamException e) {
@@ -95,22 +95,22 @@ public class SystemViewStreamExporter extends StreamExporter {
   @Override
   protected void entering(PropertyData property, int level) throws RepositoryException {
     try {
-      writer.writeStartElement(Constants.NS_SV_PREFIX, Constants.SV_PROPERTY, SV_NAMESPACE_URI);
+      writer.writeStartElement(Constants.NS_SV_PREFIX, Constants.SV_PROPERTY, getSvNamespaceUri());
 
       writer.writeAttribute(Constants.NS_SV_PREFIX,
-                            SV_NAMESPACE_URI,
+                            getSvNamespaceUri(),
                             Constants.SV_NAME,
                             getExportName(property, false));
 
       writer.writeAttribute(Constants.NS_SV_PREFIX,
-                            SV_NAMESPACE_URI,
+                            getSvNamespaceUri(),
                             Constants.SV_TYPE,
                             ExtendedPropertyType.nameFromValue(property.getType()));
 
       List<ValueData> values = property.getValues();
       for (ValueData valueData : values) {
 
-        writer.writeStartElement(Constants.NS_SV_PREFIX, Constants.SV_VALUE, SV_NAMESPACE_URI);
+        writer.writeStartElement(Constants.NS_SV_PREFIX, Constants.SV_VALUE, getSvNamespaceUri());
 
         writeValueData(valueData, property.getType());
 

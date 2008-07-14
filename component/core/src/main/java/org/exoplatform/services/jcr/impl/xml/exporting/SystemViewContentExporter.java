@@ -81,9 +81,9 @@ public class SystemViewContentExporter extends HandlingContentExporter {
     try {
       // set name of node as sv:name attribute
       AttributesImpl atts = new AttributesImpl();
-      atts.addAttribute(SV_NAMESPACE_URI, "name", "sv:name", "CDATA", getExportName(node, false));
+      atts.addAttribute(getSvNamespaceUri(), "name", "sv:name", "CDATA", getExportName(node, false));
 
-      contentHandler.startElement(SV_NAMESPACE_URI, "node", "sv:node", atts);
+      contentHandler.startElement(getSvNamespaceUri(), "node", "sv:node", atts);
     } catch (SAXException e) {
       throw new RepositoryException(e);
     }
@@ -101,26 +101,26 @@ public class SystemViewContentExporter extends HandlingContentExporter {
     try {
       // set name and type of property
       AttributesImpl atts = new AttributesImpl();
-      atts.addAttribute(SV_NAMESPACE_URI,
+      atts.addAttribute(getSvNamespaceUri(),
                         "name",
                         "sv:name",
                         "CDATA",
                         getExportName(property, false));
-      atts.addAttribute(SV_NAMESPACE_URI,
+      atts.addAttribute(getSvNamespaceUri(),
                         "type",
                         "sv:type",
                         "CDATA",
                         ExtendedPropertyType.nameFromValue(property.getType()));
 
-      contentHandler.startElement(SV_NAMESPACE_URI, "property", "sv:property", atts);
+      contentHandler.startElement(getSvNamespaceUri(), "property", "sv:property", atts);
 
       List<ValueData> values = property.getValues();
       for (ValueData valueData : values) {
 
-        contentHandler.startElement(SV_NAMESPACE_URI, "value", "sv:value", new AttributesImpl());
+        contentHandler.startElement(getSvNamespaceUri(), "value", "sv:value", new AttributesImpl());
 
         writeValueData(valueData, property.getType());
-        contentHandler.endElement(SV_NAMESPACE_URI, "value", "sv:value");
+        contentHandler.endElement(getSvNamespaceUri(), "value", "sv:value");
       }
     } catch (SAXException e) {
       throw new RepositoryException("Can't export value to string: " + e.getMessage(), e);
@@ -141,7 +141,7 @@ public class SystemViewContentExporter extends HandlingContentExporter {
   protected void leaving(NodeData node, int level) throws RepositoryException {
 
     try {
-      contentHandler.endElement(SV_NAMESPACE_URI, "node", "sv:node");
+      contentHandler.endElement(getSvNamespaceUri(), "node", "sv:node");
     } catch (SAXException e) {
       throw new RepositoryException(e);
     }
@@ -157,7 +157,7 @@ public class SystemViewContentExporter extends HandlingContentExporter {
   @Override
   protected void leaving(PropertyData property, int level) throws RepositoryException {
     try {
-      contentHandler.endElement(SV_NAMESPACE_URI, "property", "sv:property");
+      contentHandler.endElement(getSvNamespaceUri(), "property", "sv:property");
     } catch (SAXException e) {
       throw new RepositoryException(e);
     }

@@ -19,13 +19,10 @@ package org.exoplatform.services.jcr.impl.xml;
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.dataflow.ItemDataKeeper;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
-import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS. ItemDataKeeper for SessionDataManager. Used
@@ -41,11 +38,6 @@ public class ItemDataKeeperAdapter implements ItemDataKeeper {
   private final SessionDataManager sessionDataManager;
 
   /**
-   * Class logger.
-   */
-  private final Log                log = ExoLogger.getLogger("jcr.ItemDataKeeperAdapter");
-
-  /**
    * Adapter from SessionDataManager to ItemDataKeeper.
    * 
    * @param sessionDataManager - Data manager.
@@ -55,11 +47,11 @@ public class ItemDataKeeperAdapter implements ItemDataKeeper {
     this.sessionDataManager = sessionDataManager;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataKeeper#save(org.exoplatform.services.jcr.dataflow.ItemStateChangesLog)
+
+  /**
+   * {@inheritDoc}
    */
+  
   public void save(ItemStateChangesLog changes) throws InvalidItemStateException,
                                                UnsupportedOperationException,
                                                RepositoryException {

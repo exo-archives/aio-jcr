@@ -51,26 +51,68 @@ public class VersionHistoryRemover {
    */
   private final Log                 log = ExoLogger.getLogger("jcr.VersionHistoryRemover");
 
+  /**
+   * Version history identifier.
+   */
   private final String              vhID;
 
+  /**
+   * ItemDataConsumer.
+   */
   private final ItemDataConsumer    dataManager;
 
+  /**
+   * NodeTypeManager.
+   */
   private final NodeTypeManagerImpl ntManager;
 
+  /**
+   * Repository.
+   */
   private final RepositoryImpl      repository;
 
+  /**
+   * Current workspace name.
+   */
   private final String              currentWorkspaceName;
 
+  /**
+   * Containing history path.
+   */
   private final QPath               containingHistory;
 
+  /**
+   * Ancestor to save.
+   */
   private final QPath               ancestorToSave;
 
+  /**
+   * Changes log.
+   */
   private final PlainChangesLogImpl transientChangesLog;
 
+  /**
+   * Access manager.
+   */
   private final AccessManager       accessManager;
 
+  /**
+   * User state.
+   */
   private final ConversationState   userState;
 
+  /**
+   * @param vhID - version history identifier.
+   * @param dataManager - ItemDataConsumer.
+   * @param ntManager - NodeTypeManagerImpl.
+   * @param repository - RepositoryImpl.
+   * @param currentWorkspaceName - current workspace name.
+   * @param containingHistory - containingHistory.
+   * @param ancestorToSave - ancestor to save.
+   * @param transientChangesLog - changes log.
+   * @param accessManager - access manager.
+   * @param userState - user state.
+   */
   public VersionHistoryRemover(String vhID,
                                ItemDataConsumer dataManager,
                                NodeTypeManagerImpl ntManager,
@@ -97,7 +139,7 @@ public class VersionHistoryRemover {
   /**
    * Remove history.
    * 
-   * @throws RepositoryException
+   * @exception RepositoryException if an repository error occurs.
    */
   public void remove() throws RepositoryException {
     NodeData vhnode = (NodeData) dataManager.getItemData(vhID);

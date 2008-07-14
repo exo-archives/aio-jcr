@@ -223,10 +223,10 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
     this.isMixVersionable = isMixVersionable;
   }
 
-  /*
-   * (non-Javadoc)
+  /**
+   * Set parent identifier
    * 
-   * @see org.exoplatform.services.jcr.impl.xml.importing.ImportedItemData#setParentIdentifer(java.lang.String)
+   * @param identifer
    */
   public void setParentIdentifer(String identifer) {
     this.parentIdentifier = identifer;
@@ -240,10 +240,11 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
     primaryTypeName = name;
   }
 
-  /*
-   * (non-Javadoc)
+
+  /**
+   * Set path of item
    * 
-   * @see org.exoplatform.services.jcr.impl.xml.importing.ImportedItemData#setQPath(org.exoplatform.services.jcr.datamodel.QPath)
+   * @param path
    */
   public void setQPath(QPath path) {
     this.qpath = path;

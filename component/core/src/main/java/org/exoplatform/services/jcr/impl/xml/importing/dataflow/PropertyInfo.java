@@ -84,7 +84,10 @@ public class PropertyInfo {
   public List<DecodedValue> getValues() {
     return values;
   }
-
+  /**
+   * 
+   * @return - values count.
+   */
   public int getValuesSize() {
     if (values != null)
       return values.size();

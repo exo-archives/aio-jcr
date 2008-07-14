@@ -30,33 +30,59 @@ import java.io.OutputStream;
 import org.apache.ws.commons.util.Base64;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: BufferedDecoder.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class BufferedDecoder extends Base64.Decoder {
-  private final static int DEFAULT_BUFFER_SIZE = 4096;
+  /**
+   * Default buffer size.
+   */
+  private static final int DEFAULT_BUFFER_SIZE      = 4096;
 
-  //
-  private final int        BUFFER_SIZE;
+  /**
+   * 
+   */
+  private static final int DEFAULT_READ_BUFFER_SIZE = 4096;
 
+  /**
+   * Buffer size.
+   */
+  private final int        bufferSize;
+
+  /**
+   * Buffer file.
+   */
   private File             fileBuffer;
 
+  /**
+   * Output stream.
+   */
   private OutputStream     out;
 
+  /**
+   * Default constructor.
+   */
   public BufferedDecoder() {
     super(DEFAULT_BUFFER_SIZE);
-    BUFFER_SIZE = DEFAULT_BUFFER_SIZE;
-    out = new ByteArrayOutputStream(DEFAULT_BUFFER_SIZE);
+    this.bufferSize = DEFAULT_BUFFER_SIZE;
+    this.out = new ByteArrayOutputStream(DEFAULT_BUFFER_SIZE);
   }
 
+  /**
+   * @param bufferSize - buffer size.
+   */
   public BufferedDecoder(int bufferSize) {
     super(bufferSize);
-    BUFFER_SIZE = bufferSize;
-    out = new ByteArrayOutputStream(DEFAULT_BUFFER_SIZE);
+    this.bufferSize = bufferSize;
+    this.out = new ByteArrayOutputStream(DEFAULT_BUFFER_SIZE);
   }
 
+  /**
+   * @return - input stream.
+   * @throws IOException - unknown output stream.
+   */
   public InputStream getInputStream() throws IOException {
     flush();
     if (out instanceof ByteArrayOutputStream) {
@@ -70,6 +96,11 @@ public class BufferedDecoder extends Base64.Decoder {
     }
   }
 
+  /**
+   * Remove buffer.
+   * 
+   * @throws IOException if file cannot be removed.
+   */
   public void remove() throws IOException {
     if ((fileBuffer != null) && fileBuffer.exists()) {
       if (!fileBuffer.delete()) {
@@ -79,7 +110,9 @@ public class BufferedDecoder extends Base64.Decoder {
     }
   }
 
-  @Override
+  /**
+   * @return string representation for buffer
+   */
   public String toString() {
     if (out instanceof ByteArrayOutputStream) {
       return ((ByteArrayOutputStream) out).toString();
@@ -87,11 +120,10 @@ public class BufferedDecoder extends Base64.Decoder {
       try {
         out.close();
         BufferedInputStream is = new BufferedInputStream(new FileInputStream(fileBuffer));
-        // StringBuffer stringBuffer = new StringBuffer((int)
-        // fileBuffer.length());
-        StringBuffer fileData = new StringBuffer(1000);
 
-        byte[] buf = new byte[BUFFER_SIZE];
+        StringBuffer fileData = new StringBuffer(DEFAULT_READ_BUFFER_SIZE);
+
+        byte[] buf = new byte[bufferSize];
         int numRead = 0;
         while ((numRead = is.read(buf)) != -1) {
 
@@ -109,18 +141,31 @@ public class BufferedDecoder extends Base64.Decoder {
     }
   }
 
+  /**
+   * Swap in-memory buffer with file.
+   * 
+   * @exception IOException if an I/O error occurs.
+   */
   private void swapBuffers() throws IOException {
     byte[] data = ((ByteArrayOutputStream) out).toByteArray();
     fileBuffer = File.createTempFile("decoderBuffer", ".tmp");
     fileBuffer.deleteOnExit();
-    out = new BufferedOutputStream(new FileOutputStream(fileBuffer), BUFFER_SIZE);
+    out = new BufferedOutputStream(new FileOutputStream(fileBuffer), bufferSize);
     out.write(data);
   }
 
-  @Override
+  /**
+   * Writes <code>length</code> bytes from the specified byte array starting
+   * at offset <code>start</code> to this byte array output stream.
+   * 
+   * @param buffer the data.
+   * @param start the start offset in the data.
+   * @param length the number of bytes to write. 
+   * @exception IOException if an I/O error occurs.
+   */
   protected void writeBuffer(byte[] buffer, int start, int length) throws IOException {
     if (out instanceof ByteArrayOutputStream) {
-      if (((ByteArrayOutputStream) out).size() + length > BUFFER_SIZE) {
+      if (((ByteArrayOutputStream) out).size() + length > bufferSize) {
         swapBuffers();
       }
     }

@@ -16,15 +16,10 @@
  */
 package org.exoplatform.services.jcr.impl.xml.exporting;
 
-/**
- * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: BaseXmlExporter.java 14464 2008-05-19 11:05:20Z pnedonosko $
- */
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import javax.jcr.NamespaceException;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
@@ -49,50 +44,112 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.ValueDataConvertor;
 import org.exoplatform.services.jcr.impl.util.ISO9075;
 
+/**
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
+ * @version $Id: ImportNodeData.java 11907 2008-03-13 15:36:21Z ksm $
+ */
 public abstract class BaseXmlExporter extends ItemDataTraversingVisitor {
+  /**
+   * Empty namespace prefix.
+   */
+  public static final String      DEFAULT_EMPTY_NAMESPACE_PREFIX = "jcr_default_empty"
+                                                                     + "_namespace_prefix";
 
-  public static final String        MULTI_VALUE_DELIMITER          = " ";
+  /**
+   * Multi-value delimiter.
+   */
+  public static final String      MULTI_VALUE_DELIMITER          = " ";
 
-  public static final String        DEFAULT_EMPTY_NAMESPACE_PREFIX = "jcr_default_empty"
-                                                                       + "_namespace_prefix";
+  /**
+   * Root node name.
+   */
+  protected static final String   JCR_ROOT                       = "jcr:root";
 
-  protected static final String     JCR_ROOT                       = "jcr:root";
+  /**
+   * NamespacerRegistry.
+   */
+  private final NamespaceRegistry namespaceRegistry;
 
-  protected boolean                 noRecurse;
+  /**
+   * If noRecurse is true then only the node at absPath and its properties, but
+   * not its child nodes, are serialized. If noRecurse is false then the entire
+   * subtree rooted at absPath is serialized.
+   */
+  private final boolean           noRecurse;
 
-  protected final String            SV_NAMESPACE_URI;
+  /**
+   * Skip binary.
+   */
+  private final boolean           skipBinary;
 
-  private final boolean             skipBinary;
+  /**
+   * SV namespace uri.
+   */
+  private final String            svNamespaceUri;
 
-  protected final NamespaceRegistry namespaceRegistry;
+  /**
+   * ValueFactory.
+   */
+  private final ValueFactoryImpl  systemValueFactory;
 
-  private final ValueFactoryImpl    systemValueFactory;
-
+  /**
+   * @param dataManager - ItemDataConsumer
+   * @param namespaceRegistry - NamespaceRegistry
+   * @param systemValueFactory - default ValueFactory
+   * @param skipBinary - If skipBinary is true then any properties of
+   *          PropertyType.BINARY will be serialized as if they are empty.
+   * @param maxLevel - maximum level
+   * @param noRecurse - noRecurse value
+   * @exception RepositoryException if an repository error occurs.
+   */
   public BaseXmlExporter(ItemDataConsumer dataManager,
                          NamespaceRegistry namespaceRegistry,
                          ValueFactoryImpl systemValueFactory,
                          boolean skipBinary,
-                         int maxLevel) throws NamespaceException, RepositoryException {
+                         boolean noRecurse,
+                         int maxLevel) throws RepositoryException {
     super(dataManager, maxLevel);
     this.skipBinary = skipBinary;
+    this.noRecurse = noRecurse;
     this.namespaceRegistry = namespaceRegistry;
-    this.SV_NAMESPACE_URI = namespaceRegistry.getURI("sv");
+    this.svNamespaceUri = namespaceRegistry.getURI("sv");
 
     this.systemValueFactory = systemValueFactory;
 
   }
 
+  /**
+   * @param node - exported node.
+   * @throws Exception - exception.
+   */
   public abstract void export(NodeData node) throws Exception;
 
+  /**
+   * @return - uri of the sv namespace.
+   */
+  public String getSvNamespaceUri() {
+    return svNamespaceUri;
+  }
+
+  /**
+   * @return - noRecurse.
+   */
   public boolean isNoRecurse() {
     return noRecurse;
   }
 
-  public void setNoRecurse(boolean noRecurse) {
-    this.noRecurse = noRecurse;
+  /**
+   * @return - skip binary.
+   */
+  public boolean isSkipBinary() {
+    return skipBinary;
   }
 
-  @Override
+  /**
+   * {@inheritDoc}
+   */
   public void visit(NodeData node) throws RepositoryException {
     try {
       entering(node, currentLevel);
@@ -132,18 +189,47 @@ public abstract class BaseXmlExporter extends ItemDataTraversingVisitor {
   }
 
   /**
-   * Return string representation of values prepared for export. Be attentive
-   * method encode binary values in memory. It is possible OutOfMemoryError on
-   * large Values.
-   * 
-   * @param data
-   * @param type
-   * @return
+   * @param data - exported ItemData.
+   * @param encode - is ISO9075 encode.
+   * @return - exported item name.
+   * @exception RepositoryException if an repository error occurs.
+   */
+  protected String getExportName(ItemData data, boolean encode) throws RepositoryException {
+    String nodeName;
+    QPath itemPath = data.getQPath();
+    if (Constants.ROOT_PATH.equals(itemPath)) {
+      nodeName = JCR_ROOT;
+    } else {
+
+      InternalQName internalNodeName = itemPath.getName();
+      if (encode) {
+        internalNodeName = ISO9075.encode(itemPath.getName());
+      }
+      String prefix = namespaceRegistry.getPrefix(internalNodeName.getNamespace());
+      nodeName = prefix.length() == 0 ? "" : prefix + ":";
+      if ("".equals(itemPath.getName().getName())
+          && itemPath.isDescendantOf(Constants.EXO_NAMESPACES_PATH, false)) {
+        nodeName += DEFAULT_EMPTY_NAMESPACE_PREFIX;
+      } else {
+        nodeName += internalNodeName.getName();
+      }
+
+    }
+    return nodeName;
+  }
+
+  /**
+   * @param data - exported value data.
+   * @param type - value type
+   * @return - string representation of values prepared for export. Be attentive
+   *         method encode binary values in memory. It is possible
+   *         OutOfMemoryError on large Values.
    * @throws IllegalStateException
    * @throws IOException
-   * @throws RepositoryException
+   * @exception RepositoryException if an repository error occurs. 
+   * @exception IOException if an I/O error occurs.
    */
-  protected String getValueAsStringForExport(ValueData data, int type) throws IllegalStateException,
+  protected String getValueAsStringForExport(ValueData data, int type) throws 
                                                                       IOException,
                                                                       RepositoryException {
     String charValue = null;
@@ -175,32 +261,12 @@ public abstract class BaseXmlExporter extends ItemDataTraversingVisitor {
     return charValue;
   }
 
-  protected String getExportName(ItemData data, boolean encode) throws RepositoryException {
-    String nodeName;
-    QPath itemPath = data.getQPath();
-    if (Constants.ROOT_PATH.equals(itemPath)) {
-      nodeName = JCR_ROOT;
-    } else {
-
-      InternalQName internalNodeName = itemPath.getName();
-      if (encode) {
-        internalNodeName = ISO9075.encode(itemPath.getName());
-      }
-      String prefix = namespaceRegistry.getPrefix(internalNodeName.getNamespace());
-      nodeName = prefix.length() == 0 ? "" : prefix + ":";
-      if ("".equals(itemPath.getName().getName())
-          && itemPath.isDescendantOf(Constants.EXO_NAMESPACES_PATH, false)) {
-        nodeName += DEFAULT_EMPTY_NAMESPACE_PREFIX;
-      } else {
-        nodeName += internalNodeName.getName();
-      }
-
-    }
-    return nodeName;
+  public NamespaceRegistry getNamespaceRegistry() {
+    return namespaceRegistry;
   }
 
-  public boolean isSkipBinary() {
-    return skipBinary;
+  public ValueFactoryImpl getSystemValueFactory() {
+    return systemValueFactory;
   }
 
 }
