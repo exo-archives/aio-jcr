@@ -59,7 +59,7 @@ public class TestVersionable extends BaseVersionTest {
 
     testRoot.checkin();
   }
-
+  
   @Override
   protected void tearDown() throws Exception {
     testRoot.remove();
