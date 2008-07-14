@@ -114,10 +114,11 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
         log.debug("Enlist session: " + getSessionInfo() + ", " + this);
       tService.enlistResource(this);
       if (tService instanceof TransactionServiceJotmImpl) {
-        log.info("popThreadLocalRMEventList");
+        log.info("popThreadLocalRMEventList ");
         jotmResourceList = ((TransactionServiceJotmImpl) tService).popThreadLocalRMEventList();
-        log.info("pushThreadLocalRMEventList");
+        log.info("pushThreadLocalRMEventList size="+jotmResourceList.size());
         ((TransactionServiceJotmImpl) tService).pushThreadLocalRMEventList(jotmResourceList);
+        log.info("pushThreadLocalRMEventList size="+jotmResourceList.size());
       }
     } catch (RollbackException e) {
       throw new XAException(e.getMessage());
