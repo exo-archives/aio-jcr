@@ -17,6 +17,16 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeValue;
 
 public class TestCutPasteOnJCRSystem extends BaseStandaloneTest {  
   
+  @Override
+  protected void tearDown() throws Exception {
+    //super.tearDown();
+    if(adminSession_!= null)
+      adminSession_.logout();
+    if(systemSession_!= null)
+      systemSession_.logout();
+      
+  }
+
   private Session adminSession_ ;
   private Session systemSession_ ;
   private String workspaceName ;

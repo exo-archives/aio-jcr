@@ -114,11 +114,8 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
         log.debug("Enlist session: " + getSessionInfo() + ", " + this);
       tService.enlistResource(this);
       if (tService instanceof TransactionServiceJotmImpl) {
-        log.info("popThreadLocalRMEventList ");
         jotmResourceList = ((TransactionServiceJotmImpl) tService).popThreadLocalRMEventList();
-        log.info("pushThreadLocalRMEventList size="+jotmResourceList.size());
         ((TransactionServiceJotmImpl) tService).pushThreadLocalRMEventList(jotmResourceList);
-        log.info("pushThreadLocalRMEventList size="+jotmResourceList.size());
       }
     } catch (RollbackException e) {
       throw new XAException(e.getMessage());
@@ -271,12 +268,11 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
       if (log.isDebugEnabled())
         log.debug("Enlist connection. Session: " + getSessionInfo() + ", " + this
             + ", transaction: " + transaction);
-      log.info("enlistResource");
       enlistResource();
-      log.info("end enlistResource");
     } catch (IllegalStateException e) {
       throw new SystemException(e.getMessage());
     } catch (XAException e) {
+      //e.printStackTrace();
       throw new SystemException(e.getMessage());
     }
   }

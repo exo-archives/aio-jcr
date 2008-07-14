@@ -27,6 +27,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -197,6 +198,7 @@ public abstract class AbstractImportTest extends JcrAPIBaseTest {
     boolean[] posibleSystemViewExport = new boolean[] { true, false };
 
     Collection<Callable<XmlTestResult>> tasks = new ArrayList<Callable<XmlTestResult>>();
+    List<Session> sessions = new ArrayList<Session>();
     for (int z = 0; z < attempts; z++) {
 
       for (int i = 0; i < posibleSaveTypes.length; i++) {
@@ -229,6 +231,8 @@ public abstract class AbstractImportTest extends JcrAPIBaseTest {
                     testSession.save();
 
                   }
+                  
+                  sessions.add(testSession);
                 } catch (IllegalArgumentException e) {
                   throw new RepositoryException(e);
                 } catch (InstantiationException e) {
@@ -256,7 +260,9 @@ public abstract class AbstractImportTest extends JcrAPIBaseTest {
       }
     }
     executor.invokeAll(tasks);
-
+    for (Session testSession : sessions) {
+      testSession.logout();
+    }
   }
 
   /**
