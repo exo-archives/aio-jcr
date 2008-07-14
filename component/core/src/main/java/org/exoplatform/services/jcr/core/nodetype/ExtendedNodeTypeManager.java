@@ -41,7 +41,7 @@ public interface ExtendedNodeTypeManager extends NodeTypeManager {
 
   /**
    * The node-type node should be created and saved(!) as
-   * /jcr:system/jcr:nodetypes/ <name>as nt:nodeType node before calling this
+   * /jcr:system/jcr:nodetypes/"name" as nt:nodeType node before calling this
    * method.
    */
   void registerNodeType(ExtendedNodeType nodeType, int alreadyExistsBehaviour)

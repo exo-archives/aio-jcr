@@ -26,65 +26,65 @@ import javax.jcr.nodetype.PropertyDefinition;
  */
 
 public class PropertyDefinitions {
-	
-	private PropertyDefinition multiDef = null;
-	private PropertyDefinition singleDef = null;
-
-	public PropertyDefinitions() {
-		super();
-	}
-	
-	public void setDefinition(PropertyDefinition def) {
-		boolean residual = ((ExtendedItemDefinition)def).isResidualSet(); 
-		if(def.isMultiple()) {
-			if( (residual && multiDef == null) || !residual) 
-				multiDef = def;
-		} else {
-			if( (residual && singleDef == null) || !residual) 
-				singleDef = def;
-		}
-	}
-	
-	public PropertyDefinition getDefinition(boolean multiple) { 
-
-		refresh();
-		
-		if(multiple && multiDef != null)
-			return multiDef;
-		if(!multiple && singleDef != null)
-			return singleDef;
-		
-		return null;
-	}
-	
-	public PropertyDefinition getAnyDefinition() { 
-
-		refresh();
-		
-		if(multiDef != null)
-			return multiDef;
-		if(singleDef != null)
-			return singleDef;
-		
-		return null;
-	}
   
-	private void refresh() {
-		// if both defined should be both either residual or not 
-		if (multiDef != null && singleDef != null) {
-			if (((ExtendedItemDefinition) multiDef).isResidualSet()
-					&& !((ExtendedItemDefinition) singleDef).isResidualSet())
-				multiDef = null;
-			if (((ExtendedItemDefinition) singleDef).isResidualSet()
-					&& !((ExtendedItemDefinition) multiDef).isResidualSet())
-				singleDef = null;
-		}
+  private PropertyDefinition multiDef = null;
+  private PropertyDefinition singleDef = null;
 
-	}
+  public PropertyDefinitions() {
+    super();
+  }
   
-	public String dump() {
-		return "Definitions single: "+((singleDef==null)?"N/D":singleDef.getName())+
-		", multiple: "+((multiDef==null)?"N/D":multiDef.getName());
-	}
+  public void setDefinition(PropertyDefinition def) {
+    boolean residual = ((ExtendedItemDefinition)def).isResidualSet(); 
+    if(def.isMultiple()) {
+      if( (residual && multiDef == null) || !residual) 
+        multiDef = def;
+    } else {
+      if( (residual && singleDef == null) || !residual) 
+        singleDef = def;
+    }
+  }
+  
+  public PropertyDefinition getDefinition(boolean multiple) { 
+
+    refresh();
+    
+    if(multiple && multiDef != null)
+      return multiDef;
+    if(!multiple && singleDef != null)
+      return singleDef;
+    
+    return null;
+  }
+  
+  public PropertyDefinition getAnyDefinition() { 
+
+    refresh();
+    
+    if(multiDef != null)
+      return multiDef;
+    if(singleDef != null)
+      return singleDef;
+    
+    return null;
+  }
+  
+  private void refresh() {
+    // if both defined should be both either residual or not 
+    if (multiDef != null && singleDef != null) {
+      if (((ExtendedItemDefinition) multiDef).isResidualSet()
+          && !((ExtendedItemDefinition) singleDef).isResidualSet())
+        multiDef = null;
+      if (((ExtendedItemDefinition) singleDef).isResidualSet()
+          && !((ExtendedItemDefinition) multiDef).isResidualSet())
+        singleDef = null;
+    }
+
+  }
+  
+  public String dump() {
+    return "Definitions single: "+((singleDef==null)?"N/D":singleDef.getName())+
+    ", multiple: "+((multiDef==null)?"N/D":multiDef.getName());
+  }
 
 }

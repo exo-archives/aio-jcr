@@ -30,48 +30,48 @@ public class NodeDefinitionValue extends ItemDefinitionValue {
 
   private String defaultNodeTypeName;
 
-	private List<String> requiredNodeTypeNames;
+  private List<String> requiredNodeTypeNames;
 
-	private boolean sameNameSiblings;
+  private boolean sameNameSiblings;
 
-	
-	public NodeDefinitionValue() {
-	}
+  
+  public NodeDefinitionValue() {
+  }
 
-	/**
-	 * @return Returns the defaultNodeTypeName.
-	 */
-	public String getDefaultNodeTypeName() {
-		return defaultNodeTypeName;
-	}
-	/**
-	 * @param defaultNodeTypeName The defaultNodeTypeName to set.
-	 */
-	public void setDefaultNodeTypeName(String defaultNodeTypeName) {
-		this.defaultNodeTypeName = defaultNodeTypeName;
-	}
-	/**
-	 * @return Returns the sameNameSiblings.
-	 */
-	public boolean isSameNameSiblings() {
-		return sameNameSiblings;
-	}
-	/**
-	 * @param sameNameSiblings The sameNameSiblings to set.
-	 */
-	public void setSameNameSiblings(boolean multiple) {
-		this.sameNameSiblings = multiple;
-	}
-	/**
-	 * @return Returns the requiredNodeTypeNames.
-	 */
-	public List<String> getRequiredNodeTypeNames() {
-		return requiredNodeTypeNames;
-	}
-	/**
-	 * @param requiredNodeTypeNames The requiredNodeTypeNames to set.
-	 */
-	public void setRequiredNodeTypeNames(List<String> requiredNodeTypeNames) {
-		this.requiredNodeTypeNames = requiredNodeTypeNames;
-	}
+  /**
+   * @return Returns the defaultNodeTypeName.
+   */
+  public String getDefaultNodeTypeName() {
+    return defaultNodeTypeName;
+  }
+  /**
+   * @param defaultNodeTypeName The defaultNodeTypeName to set.
+   */
+  public void setDefaultNodeTypeName(String defaultNodeTypeName) {
+    this.defaultNodeTypeName = defaultNodeTypeName;
+  }
+  /**
+   * @return Returns the sameNameSiblings.
+   */
+  public boolean isSameNameSiblings() {
+    return sameNameSiblings;
+  }
+  /**
+   * @param sameNameSiblings The sameNameSiblings to set.
+   */
+  public void setSameNameSiblings(boolean multiple) {
+    this.sameNameSiblings = multiple;
+  }
+  /**
+   * @return Returns the requiredNodeTypeNames.
+   */
+  public List<String> getRequiredNodeTypeNames() {
+    return requiredNodeTypeNames;
+  }
+  /**
+   * @param requiredNodeTypeNames The requiredNodeTypeNames to set.
+   */
+  public void setRequiredNodeTypeNames(List<String> requiredNodeTypeNames) {
+    this.requiredNodeTypeNames = requiredNodeTypeNames;
+  }
 }

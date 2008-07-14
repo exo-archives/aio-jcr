@@ -88,23 +88,23 @@ public abstract class ItemDefinitionValue {
   }
   
   /**
-	 * @param onVersion The onVersion to set.
-	 */
-	public void setOnVersion(int onVersion) {
-		this.onVersion = onVersion;
-	}
-	
-	/**
-	 * @return Returns the readOnly.
-	 */
-	public boolean isReadOnly() {
-		return readOnly;
-	}
-	
-	/**
-	 * @param readOnly The readOnly to set.
-	 */
-	public void setReadOnly(boolean readOnly) {
-		this.readOnly = readOnly;
-	}
+   * @param onVersion The onVersion to set.
+   */
+  public void setOnVersion(int onVersion) {
+    this.onVersion = onVersion;
+  }
+  
+  /**
+   * @return Returns the readOnly.
+   */
+  public boolean isReadOnly() {
+    return readOnly;
+  }
+  
+  /**
+   * @param readOnly The readOnly to set.
+   */
+  public void setReadOnly(boolean readOnly) {
+    this.readOnly = readOnly;
+  }
 }

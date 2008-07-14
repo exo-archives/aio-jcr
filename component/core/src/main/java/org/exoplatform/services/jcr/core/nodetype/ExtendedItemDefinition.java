@@ -27,5 +27,5 @@ public interface ExtendedItemDefinition extends ItemDefinition {
 
   public static String RESIDUAL_SET = "*";
 
-  boolean isResidualSet();
+  public boolean isResidualSet();
 }

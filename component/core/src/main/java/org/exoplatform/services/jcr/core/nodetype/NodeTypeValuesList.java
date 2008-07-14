@@ -8,18 +8,18 @@ import java.util.ArrayList;
  * @author <a href="mailto:peterit@rambler.ru">Petro Nedonosko</a>
  */
 public class NodeTypeValuesList {
-	
-	private ArrayList nodeTypeValuesList = null;
-	
-	public NodeTypeValuesList() {		
-	}
-	
-	public ArrayList getNodeTypeValuesList() {
-		return nodeTypeValuesList;
-	}
-	
-	public void setNodeTypeValuesList(ArrayList nodeTypeValuesList) {
-		this.nodeTypeValuesList = nodeTypeValuesList;
-	}
+  
+  private ArrayList nodeTypeValuesList = null;
+  
+  public NodeTypeValuesList() {    
+  }
+  
+  public ArrayList getNodeTypeValuesList() {
+    return nodeTypeValuesList;
+  }
+  
+  public void setNodeTypeValuesList(ArrayList nodeTypeValuesList) {
+    this.nodeTypeValuesList = nodeTypeValuesList;
+  }
 
 }

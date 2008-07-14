@@ -26,64 +26,64 @@ import java.util.List;
  */
 
 public class PropertyDefinitionValue extends ItemDefinitionValue {
-	
-	private int requiredType;
+  
+  private int requiredType;
 
-	private List<String> valueConstraints;
+  private List<String> valueConstraints;
 
-	private List<String> defaultValueStrings;
+  private List<String> defaultValueStrings;
 
-	private boolean multiple;
+  private boolean multiple;
 
-	public PropertyDefinitionValue() {
-	}
+  public PropertyDefinitionValue() {
+  }
 
-	/**
-	 * @return Returns the defaultValues.
-	 */
-	public List<String> getDefaultValueStrings() {
-		return defaultValueStrings;
-	}
-	/**
-	 * @param defaultValues The defaultValues to set.
-	 */
-	public void setDefaultValueStrings(List<String> defaultValues) {
-		this.defaultValueStrings = defaultValues;
-	}
-	/**
-	 * @return Returns the multiple.
-	 */
-	public boolean isMultiple() {
-		return multiple;
-	}
-	/**
-	 * @param multiple The multiple to set.
-	 */
-	public void setMultiple(boolean multiple) {
-		this.multiple = multiple;
-	}
-	/**
-	 * @return Returns the requiredType.
-	 */
-	public int getRequiredType() {
-		return requiredType;
-	}
-	/**
-	 * @param requiredType The requiredType to set.
-	 */
-	public void setRequiredType(int requiredType) {
-		this.requiredType = requiredType;
-	}
-	/**
-	 * @return Returns the valueConstraints.
-	 */
-	public List<String> getValueConstraints() {
-		return valueConstraints;
-	}
-	/**
-	 * @param valueConstraints The valueConstraints to set.
-	 */
-	public void setValueConstraints(List<String> valueConstraints) {
-		this.valueConstraints = valueConstraints;
-	}
+  /**
+   * @return Returns the defaultValues.
+   */
+  public List<String> getDefaultValueStrings() {
+    return defaultValueStrings;
+  }
+  /**
+   * @param defaultValues The defaultValues to set.
+   */
+  public void setDefaultValueStrings(List<String> defaultValues) {
+    this.defaultValueStrings = defaultValues;
+  }
+  /**
+   * @return Returns the multiple.
+   */
+  public boolean isMultiple() {
+    return multiple;
+  }
+  /**
+   * @param multiple The multiple to set.
+   */
+  public void setMultiple(boolean multiple) {
+    this.multiple = multiple;
+  }
+  /**
+   * @return Returns the requiredType.
+   */
+  public int getRequiredType() {
+    return requiredType;
+  }
+  /**
+   * @param requiredType The requiredType to set.
+   */
+  public void setRequiredType(int requiredType) {
+    this.requiredType = requiredType;
+  }
+  /**
+   * @return Returns the valueConstraints.
+   */
+  public List<String> getValueConstraints() {
+    return valueConstraints;
+  }
+  /**
+   * @param valueConstraints The valueConstraints to set.
+   */
+  public void setValueConstraints(List<String> valueConstraints) {
+    this.valueConstraints = valueConstraints;
+  }
 }

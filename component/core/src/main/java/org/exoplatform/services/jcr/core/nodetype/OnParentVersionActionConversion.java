@@ -9,30 +9,30 @@ import javax.jcr.version.OnParentVersionAction;
  */
 public class OnParentVersionActionConversion {
 
-	public static String serializeType(int propertyType) {
-		
-		String r = OnParentVersionAction.ACTIONNAME_IGNORE; // default
-		try {
-			r = OnParentVersionAction.nameFromValue(propertyType);
-		} catch(IllegalArgumentException e) {
-			//r = PropertyType.TYPENAME_UNDEFINED;
-		} catch(Exception e) {
-			//r = PropertyType.TYPENAME_UNDEFINED;
-		}		
-		return r;
-	}
-	
-	public static int deserializeType(String propertyTypeString) {
-		
-		int r = OnParentVersionAction.IGNORE;  // default
-		try {
-			r = OnParentVersionAction.valueFromName(propertyTypeString);
-		} catch(IllegalArgumentException e) {
-			//r = PropertyType.TYPENAME_UNDEFINED;
-		} catch(Exception e) {
-			//r = PropertyType.TYPENAME_UNDEFINED;
-		}		
-		return r;
-	}
-	
+  public static String serializeType(int propertyType) {
+    
+    String r = OnParentVersionAction.ACTIONNAME_IGNORE; // default
+    try {
+      r = OnParentVersionAction.nameFromValue(propertyType);
+    } catch(IllegalArgumentException e) {
+      //r = PropertyType.TYPENAME_UNDEFINED;
+    } catch(Exception e) {
+      //r = PropertyType.TYPENAME_UNDEFINED;
+    }    
+    return r;
+  }
+  
+  public static int deserializeType(String propertyTypeString) {
+    
+    int r = OnParentVersionAction.IGNORE;  // default
+    try {
+      r = OnParentVersionAction.valueFromName(propertyTypeString);
+    } catch(IllegalArgumentException e) {
+      //r = PropertyType.TYPENAME_UNDEFINED;
+    } catch(Exception e) {
+      //r = PropertyType.TYPENAME_UNDEFINED;
+    }    
+    return r;
+  }
+  
 }
