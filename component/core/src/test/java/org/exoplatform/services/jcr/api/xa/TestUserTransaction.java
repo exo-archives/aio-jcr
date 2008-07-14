@@ -105,9 +105,11 @@ public class TestUserTransaction extends JcrAPIBaseTest{
   public void testCommit() throws Exception {
     assertNotNull(txService);
     List<Session> someSessions = openSomeSessions();
-    
+    log.info("before user transaction");
     UserTransaction ut = txService.getUserTransaction();
+    log.info("before begin");
     ut.begin();
+    log.info("after begin");
     session.getRootNode().addNode("txcommit");
     session.save();
     assertNotNull(session.getItem("/txcommit"));
