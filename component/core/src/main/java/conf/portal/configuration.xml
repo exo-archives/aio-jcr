@@ -19,20 +19,5 @@
     <type>org.exoplatform.services.jcr.impl.RepositoryServiceImpl</type>
    </component>
 
-
-  <external-component-plugins>
-    <target-component>org.exoplatform.services.listener.ListenerService</target-component>
-   	<component-plugin>
-   		<name>exo.service.authentication.login</name>
-   		<set-method>addListener</set-method>
-   		<type>org.exoplatform.services.organization.auth.MembershipListener</type>
-   	</component-plugin>
-    <component-plugin>
-      <name>exo.service.authentication.login</name>
-      <set-method>addListener</set-method>
-      <type>org.exoplatform.services.jcr.impl.core.access.JCRAuthenticationListener</type>
-    </component-plugin>
-  </external-component-plugins>
-
   <import>classpath:/conf/portal/jdbcjcr-configuration.hsql.xml</import>
 </configuration>
