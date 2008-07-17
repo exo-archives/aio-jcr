@@ -78,9 +78,9 @@ public class JCRName {
 	}
 	
 	/**
-	 * Stringify this name
-	 * @param showIndex if index should be included to the string
-	 * @return
+	 * Return this name as string.
+	 * @param showIndex if index should be included to the string.
+	 * @return name as string.
 	 */
 	public String getAsString() {
     return stringName; 

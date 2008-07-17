@@ -47,6 +47,7 @@ public class TestAggregateRules extends BaseQueryTest {
   
   
   public void testAdditionFile() throws Exception{
+    try{
     // add aggregate rules to indexing configuration
     
     String conf = "<?xml version=\"1.0\"?>" + "\n"+
@@ -99,6 +100,9 @@ public class TestAggregateRules extends BaseQueryTest {
     
     // tear down
     indexingConfigurationImpl.removeLastAggregateRule();
-    
+    }catch(Exception e){
+      e.printStackTrace();
+      throw e;
+    }
   }
 }

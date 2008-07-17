@@ -75,6 +75,7 @@ public class TestIndexingConfig extends BaseQueryTest {
   }
   
   public void testSimplePropertyAnalyzer()throws Exception{
+    try{
     NodeImpl testNode1 = (NodeImpl)testRoot.addNode("node1");
     testNode1.setProperty(simple, testString1);
     
@@ -139,9 +140,15 @@ public class TestIndexingConfig extends BaseQueryTest {
     
     ir.close();
     is.close();
+    }catch(Exception e){
+      e.printStackTrace();
+      throw e;
+    }
   }
                                            
   public void testWhitespacePropertyAnalyzer()throws Exception{
+    try{
+    
     NodeImpl testNode1 = (NodeImpl)testRoot.addNode("node1");
     testNode1.setProperty(whitespace, testString1);
     
@@ -200,9 +207,14 @@ public class TestIndexingConfig extends BaseQueryTest {
     
     ir.close();
     is.close();
+    }catch(Exception e){
+      e.printStackTrace();
+      throw e;
+    }
   }
            
   public void testStopPropertyAnalyzer()throws Exception{
+    try{
     NodeImpl testNode1 = (NodeImpl)testRoot.addNode("node1");
     testNode1.setProperty(stop, testString1);
     
@@ -261,9 +273,14 @@ public class TestIndexingConfig extends BaseQueryTest {
     
     ir.close();
     is.close();
+    }catch(Exception e){
+      e.printStackTrace();
+      throw e;
+    }
   }
 
   public void testDefaultPropertyAnalyzer()throws Exception{
+    try{
     // StandardAnalyzer used for default
     
     NodeImpl testNode1 = (NodeImpl)testRoot.addNode("node1");
@@ -323,6 +340,10 @@ public class TestIndexingConfig extends BaseQueryTest {
     
     ir.close();
     is.close();
+    }catch(Exception e){
+      e.printStackTrace();
+      throw e;
+    }
   }
   
 }

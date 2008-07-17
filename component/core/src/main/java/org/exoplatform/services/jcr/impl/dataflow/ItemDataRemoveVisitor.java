@@ -44,18 +44,19 @@ import org.exoplatform.services.security.ConversationState;
  * Created by The eXo Platform SAS 15.12.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ItemDataRemoveVisitor.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @version $Id: ItemDataRemoveVisitor.java 14100 2008-05-12 10:53:47Z
+ *          gazarenkov $
  */
 public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
 
-  private static Log                log                       = ExoLogger.getLogger("jcr.ItemDataRemoveVisitor");
+  private static Log                log                       = ExoLogger
+                                                                  .getLogger("jcr.ItemDataRemoveVisitor");
 
   protected List<ItemState>         itemRemovedStates         = new ArrayList<ItemState>();
 
   protected List<ItemState>         reversedItemRemovedStates = null;
 
-
-  protected boolean           validate;
+  protected boolean                 validate;
 
   protected NodeData                removedRoot               = null;
 
@@ -65,21 +66,18 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
 
   private final AccessManager       accessManager;
 
-  private final ConversationState userState;
+  private final ConversationState   userState;
 
   // a deletion without any validation
   public ItemDataRemoveVisitor(ItemDataConsumer dataManager, QPath ancestorToSave) {
-    
+
     this(dataManager, ancestorToSave, null, null, null);
     this.validate = false;
 
   }
- 
-  public ItemDataRemoveVisitor(ItemDataConsumer dataManager,
-                               QPath ancestorToSave,
-                               NodeTypeManagerImpl nodeTypeManager,
-                               AccessManager accessManager,
-                               ConversationState userState) {
+
+  public ItemDataRemoveVisitor(ItemDataConsumer dataManager, QPath ancestorToSave,
+      NodeTypeManagerImpl nodeTypeManager, AccessManager accessManager, ConversationState userState) {
     super(dataManager);
     this.nodeTypeManager = nodeTypeManager;
     this.accessManager = accessManager;
@@ -126,9 +124,8 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
     validateAccessDenied(node);
 
     // 2. check ReferentialIntegrityException - REFERENCE property target
-    if (nodeTypeManager.isNodeType(Constants.MIX_REFERENCEABLE,
-                                   node.getPrimaryTypeName(),
-                                   node.getMixinTypeNames()))
+    if (nodeTypeManager.isNodeType(Constants.MIX_REFERENCEABLE, node.getPrimaryTypeName(), node
+        .getMixinTypeNames()))
       validateReferential(node);
 
     // 3. check ConstraintViolationException - NodeDefinition for
@@ -175,7 +172,8 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
         entering(rpd, currentLevel);
       } else {
         NodeData refParent = (NodeData) dataManager.getItemData(rpd.getParentIdentifier());
-        if (!accessManager.hasPermission(refParent.getACL(), PermissionType.READ, userState.getIdentity())) {
+        if (!accessManager.hasPermission(refParent.getACL(), PermissionType.READ, userState
+            .getIdentity())) {
           throw new AccessDeniedException("Access denied " + rpd.getQPath().getAsString() + " for "
               + userState.getIdentity().getUserId() + " (get reference property parent by id)");
         }
@@ -209,17 +207,16 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
       validate(property);
     }
 
-    ItemState state = new ItemState(property,
-                                    ItemState.DELETED,
-                                    true,
-                                    ancestorToSave != null ? ancestorToSave
-                                                          : removedRoot.getQPath());
+    ItemState state = new ItemState(property, ItemState.DELETED, true,
+        ancestorToSave != null ? ancestorToSave : removedRoot.getQPath());
 
     if (!itemRemovedStates.contains(state))
       itemRemovedStates.add(state);
     else if (log.isDebugEnabled())
       // REFERENCE props usecase, see validateReferential(NodeData)
-      log.debug("A property " + property.getQPath().getAsString() + " is already listed for remove");
+      log
+          .debug("A property " + property.getQPath().getAsString()
+              + " is already listed for remove");
   }
 
   @Override
@@ -236,11 +233,8 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
       validate(node);
     }
 
-    ItemState state = new ItemState(node,
-                                    ItemState.DELETED,
-                                    true,
-                                    ancestorToSave != null ? ancestorToSave
-                                                          : removedRoot.getQPath());
+    ItemState state = new ItemState(node, ItemState.DELETED, true,
+        ancestorToSave != null ? ancestorToSave : removedRoot.getQPath());
     itemRemovedStates.add(state);
   }
 
