@@ -44,6 +44,11 @@ public class TestFileValueIO extends TestCase {
     }
 
     @Override
+    protected String makeFilePath(String propertyId, int orderNumber) {
+      return null;
+    }
+
+    @Override
     protected File getFile(String propertyId, int orderNumber) {
       return null;
     }

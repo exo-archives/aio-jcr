@@ -23,7 +23,6 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
-import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.S3ValueIOUtil;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
@@ -100,8 +99,7 @@ public abstract class S3ValueStorage extends ValueStoragePlugin {
    *      org.exoplatform.services.jcr.datamodel.PropertyData, int)
    */
   @Override
-  public boolean match(String storageId, PropertyData prop) {
-    //return storageId.startsWith("/" + bucket);
+  public boolean match(String storageId) {
     return getId().equals(storageId);
   }
 

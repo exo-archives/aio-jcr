@@ -27,10 +27,13 @@ import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
 /**
  * Created by The eXo Platform SAS        .
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public class CASableSimpleFileValueStorage extends FileValueStorage {
+  
+  public static final String DIGEST_ALGO_PARAM = "digest-algo";
+  public static final String VCAS_TYPE_PARAM = "vcas-type";
   
   private ValueContentAddressStorage vcas;
   
@@ -41,8 +44,8 @@ public class CASableSimpleFileValueStorage extends FileValueStorage {
   public void init(Properties props) throws IOException,
       RepositoryConfigurationException {
     super.init(props);
-    this.digestAlgo = props.getProperty("digestAlgo");
-    String vcasType = props.getProperty("vcasType");
+    this.digestAlgo = props.getProperty(DIGEST_ALGO_PARAM);
+    String vcasType = props.getProperty(VCAS_TYPE_PARAM);
     
     // get other vcas specific props and make VCAS
     try {
@@ -54,11 +57,8 @@ public class CASableSimpleFileValueStorage extends FileValueStorage {
     vcas.init(props);
   }
 
-
-
   @Override
-  public ValueIOChannel openIOChannel() throws IOException {
-    
+  public ValueIOChannel openIOChannel() throws IOException {    
     return new CASableSimpleFileIOChannel(rootDir, cleaner, id, vcas, digestAlgo);
   }
 

@@ -23,7 +23,6 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
-import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePlugin;
@@ -32,7 +31,7 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS.
  * @author Gennady Azarenkov
- * @version $Id: FileValueStorage.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public abstract class FileValueStorage extends ValueStoragePlugin {
@@ -69,7 +68,7 @@ public abstract class FileValueStorage extends ValueStoragePlugin {
    *      org.exoplatform.services.jcr.datamodel.PropertyData, int)
    */
   @Override
-  public boolean match(String storageId, PropertyData prop) {
+  public boolean match(String storageId) {
     return getId().equals(storageId);
   }
 

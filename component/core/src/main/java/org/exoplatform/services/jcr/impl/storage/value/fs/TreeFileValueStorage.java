@@ -18,6 +18,8 @@ package org.exoplatform.services.jcr.impl.storage.value.fs;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 
 import org.apache.commons.logging.Log;
 
@@ -29,7 +31,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: TreeFileValueStorage.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class TreeFileValueStorage extends FileValueStorage {
   
@@ -38,6 +40,8 @@ public class TreeFileValueStorage extends FileValueStorage {
   
   /** Files log */
   private static Log fLog = ExoLogger.getLogger("jcr.TreeFile");
+  
+  private static Semaphore mkdirsLock = new Semaphore(1);
   
   protected class TreeFile extends File {
     
@@ -91,15 +95,25 @@ public class TreeFileValueStorage extends FileValueStorage {
     }
     
     @Override
-    protected File getFile(String propertyId, int orderNumber) {
-      File dir = new File(rootDir.getAbsolutePath() + buildPath(propertyId));
-      mkdirs(dir); // synchronized
-      return new TreeFile(dir.getAbsolutePath() + File.separator + propertyId + orderNumber);
+    protected String makeFilePath(final String propertyId, final int orderNumber) {
+      return buildPath(propertyId) + File.separator + propertyId + orderNumber;
     }
 
     @Override
-    protected File[] getFiles(String propertyId) {
-      File dir = new File(rootDir.getAbsolutePath() + buildPath(propertyId));
+    protected File getFile(final String propertyId, final int orderNumber) {
+      final TreeFile tfile = new TreeFile(rootDir.getAbsolutePath() + makeFilePath(propertyId, orderNumber));
+      mkdirs(tfile.getParentFile()); // make dirs on path
+      return tfile;
+      
+      // TODO clean
+//      File dir = new File(rootDir.getAbsolutePath() + buildPath(propertyId));
+//      mkdirs(dir); // synchronized
+//      return new TreeFile(dir.getAbsolutePath() + File.separator + propertyId + orderNumber);
+    }
+
+    @Override
+    protected File[] getFiles(final String propertyId) {
+      final File dir = new File(rootDir.getAbsolutePath() + buildPath(propertyId));
       String[] fileNames = dir.list();
       File[] files = new File[fileNames.length];
       for (int i=0; i<fileNames.length; i++) {
@@ -187,7 +201,17 @@ public class TreeFileValueStorage extends FileValueStorage {
     return new TreeFileIOChannel(rootDir, cleaner);
   }
   
-  static private synchronized boolean mkdirs(final File dir) {
-    return dir.mkdirs();
+  static private boolean mkdirs(final File dir) {
+    // TODO issue on JIRA syncronized method removed and semaphore use
+    try {
+      mkdirsLock.acquire();
+      return dir.mkdirs();
+    } catch (InterruptedException e) {
+      //chLog.error("mkdirs error on " + dir.getAbsolutePath() + ". " + e, e);
+      //return false;
+      throw new IllegalStateException("mkdirs error on " + dir.getAbsolutePath() + " due to " + e, e);
+    } finally {
+      mkdirsLock.release();
+    }
   }
 }

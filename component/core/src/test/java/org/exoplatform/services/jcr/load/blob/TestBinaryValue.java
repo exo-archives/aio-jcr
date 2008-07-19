@@ -58,13 +58,13 @@ public class TestBinaryValue extends JcrAPIBaseTest {
   private static String TEST_FILE    = null; // URL_SMALL_FILE
 
   public void setUp() throws Exception {
-    super.setUp();
+    super.setUp();//.repository
     testBinaryValue = root.addNode("testBinaryValue");
     session.save();
     
     if (TEST_FILE == null) {
       // create test file
-      TEST_FILE = createBLOBTempFile(3).getAbsolutePath();
+      TEST_FILE = createBLOBTempFile(2).getAbsolutePath();
     }
   }
 

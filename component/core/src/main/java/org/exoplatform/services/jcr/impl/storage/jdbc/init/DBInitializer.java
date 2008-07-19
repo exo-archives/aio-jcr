@@ -325,15 +325,4 @@ public class DBInitializer {
       connection.createStatement().executeUpdate(insert);
     }
   }
-  
-  
-  // ------ custom log --------
-  protected void log(String msg) {
-    System.out.println("DBInitializer:\t" + msg);
-  }
-  
-  protected void log(String msg, Throwable e) {
-    System.out.println("DBInitializer, ERROR:\t" + msg);
-    e.printStackTrace();
-  }
 }

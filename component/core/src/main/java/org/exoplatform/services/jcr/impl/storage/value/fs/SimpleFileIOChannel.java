@@ -18,13 +18,14 @@ package org.exoplatform.services.jcr.impl.storage.value.fs;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
  * Created by The eXo Platform SAS
  * @author Gennady Azarenkov
- * @version $Id: SimpleFileIOChannel.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class SimpleFileIOChannel extends FileIOChannel {
@@ -46,11 +47,18 @@ public class SimpleFileIOChannel extends FileIOChannel {
     super(rootDir, cleaner, storageId);
   }
   
-  protected File getFile(String propertyId, int orderNumber) {
-    return new File(rootDir, propertyId + orderNumber);
+  @Override
+  protected String makeFilePath(String propertyId, int orderNumber) {
+    return propertyId + orderNumber;
   }
 
-  protected File[] getFiles(String propertyId) {
+  @Override
+  protected File getFile(String propertyId, int orderNumber) throws IOException {
+    return new File(rootDir, makeFilePath(propertyId, orderNumber));
+  }
+
+  @Override
+  protected File[] getFiles(String propertyId) throws IOException {
     return rootDir.listFiles(new PropertyIDFilter(propertyId));
   }
 }

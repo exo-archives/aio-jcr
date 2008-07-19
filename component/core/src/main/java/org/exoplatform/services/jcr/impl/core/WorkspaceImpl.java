@@ -109,7 +109,6 @@ public class WorkspaceImpl implements ExtendedWorkspace {
       this.queryManager = null;
     else
       this.queryManager = qf.getQueryManager(session);
-
   }
 
   /**

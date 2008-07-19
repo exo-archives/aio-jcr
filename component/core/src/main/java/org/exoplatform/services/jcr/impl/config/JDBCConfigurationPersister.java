@@ -35,7 +35,9 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.impl.storage.jdbc.DBConstants;
 
 /**
- * Repository service configuration persister
+ * Repository service configuration persister.
+ * 
+ * TODO use log.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: JDBCConfigurationPersister.java 11907 2008-03-13 15:36:21Z ksm $
@@ -45,12 +47,6 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
   public final static String    PARAM_SOURCE_NAME = "source-name";
 
   public final static String    PARAM_DIALECT     = "dialect";
-
-  //  public final static String DB_DIALECT_GENERIC = "Generic".intern();
-  //  public final static String DB_DIALECT_PGSQL = "PgSQL".intern();
-  //  public final static String DB_DIALECT_HSQLDB = "HSQLDB".intern();
-  //  public final static String DB_DIALECT_MSSQL = "MSSQL".intern();
-  //  public final static String DB_DIALECT_SYBASE = "Sybase".intern();
 
   protected static final String CONFIGNAME        = "REPOSITORY-SERVICE-WORKING-CONFIG";
 

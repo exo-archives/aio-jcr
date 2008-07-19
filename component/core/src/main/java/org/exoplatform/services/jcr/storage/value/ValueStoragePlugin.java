@@ -23,7 +23,6 @@ import java.util.Properties;
 import javax.naming.NamingException;
 
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
-import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 
 /**
@@ -77,7 +76,7 @@ public abstract class ValueStoragePlugin {
    */
   public abstract void checkConsistency(WorkspaceStorageConnection dataConnection);
   
-  public abstract boolean match(String valueDataDescriptor, PropertyData prop);
+  public abstract boolean match(String valueDataDescriptor);
 
 }
 

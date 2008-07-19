@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
@@ -37,7 +38,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS       .
  * 
  * @author Gennady Azarenkov
- * @version $Id: FileIOChannel.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public abstract class FileIOChannel implements ValueIOChannel {
@@ -60,11 +61,8 @@ public abstract class FileIOChannel implements ValueIOChannel {
    * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#delete(java.lang.String)
    */
   public boolean delete(String propertyId)  throws IOException {
-    
-    final File[] valueFiles = getFiles(propertyId);
-
     boolean result = true;
-    for(File valueFile: valueFiles) {
+    for(File valueFile: getFiles(propertyId)) {
       if(!valueFile.delete()) {
         result = false;
         cleaner.addFile(valueFile);
@@ -83,35 +81,52 @@ public abstract class FileIOChannel implements ValueIOChannel {
    * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#read(java.lang.String, int, int)
    */
   public ValueData read(String propertyId, int orderNumber, int maxBufferSize) throws IOException {
-    File valueFile = getFile(propertyId, orderNumber);
-    return readValue(valueFile, orderNumber, maxBufferSize, false);
+    return readValue(getFile(propertyId, orderNumber), orderNumber, maxBufferSize, false);
   }
 
   /**
    * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#write(java.lang.String, org.exoplatform.services.jcr.datamodel.ValueData)
    */
   public void write(String propertyId, ValueData value) throws IOException {
-    File file = getFile(propertyId, value.getOrderNumber());
-    writeValue(file, value);
+    writeValue(getFile(propertyId, value.getOrderNumber()), value);
   }
   
   /**
-   * creates file by propertyId and order number
+   * Makes storage file path by propertyId and order number.<br/>
+   * 
    * @param propertyId
    * @param orderNumber
-   * @return 
+   * @return String with path 
    */
-  protected abstract File getFile(String propertyId, int orderNumber);
+  protected abstract String makeFilePath(String propertyId, int orderNumber);
+  
+  /**
+   * Creates storage file by propertyId and order number.<br/>
+   * 
+   * @param propertyId
+   * @param orderNumber
+   * @return actual file on file system related to given parameters
+   */
+  protected abstract File getFile(String propertyId, int orderNumber) throws IOException;
 
   /**
-   * creates file list by propertyId
+   * Creates storage files list by propertyId.<br/>
+   * 
    * @param propertyId
-   * @return
+   * @return actual files on file system related to given propertyId
    */
-  protected abstract File[] getFiles(String propertyId);
+  protected abstract File[] getFiles(String propertyId) throws IOException;
   
-  // ------ file IO helpers ------
-  
+  /**
+   * Read value from file.
+   *   
+   * @param file
+   * @param orderNum - used in PersistedValueData logic
+   * @param maxBufferSize - threshold for spooling
+   * @param temp - temporary file flag
+   * @return
+   * @throws IOException
+   */
   protected ValueData readValue(File file, int orderNum, int maxBufferSize, boolean temp) throws IOException {
     FileInputStream is = new FileInputStream(file);
     FileChannel channel = is.getChannel();
@@ -134,8 +149,29 @@ public abstract class FileIOChannel implements ValueIOChannel {
     }
   }
 
+  /**
+   * Write value to a file.
+   * 
+   * @param file
+   * @param value
+   * @throws IOException
+   */
   protected void writeValue(File file, ValueData value)  throws IOException {
-    FileOutputStream out = new FileOutputStream(file);
+    //OutputStream out = openOutput(file);//TODO
+    OutputStream out = new FileOutputStream(file);
+    writeOutput(out, value);
+    //closeOutput(out);
+    out.close();
+  }
+  
+  /**
+   * Stream value data to the output.
+   * 
+   * @param out
+   * @param value
+   * @throws IOException
+   */
+  protected void writeOutput(OutputStream out, ValueData value)  throws IOException {
     if (value.isByteArray()) {
       byte[] buff = value.getAsByteArray();
       out.write(buff);
@@ -143,14 +179,35 @@ public abstract class FileIOChannel implements ValueIOChannel {
       byte[] buffer = new byte[FileIOChannel.IOBUFFER_SIZE];
       int len;
       InputStream in = value.getAsStream();
-      while ((len = in.read(buffer)) > 0) {
+      while ((len = in.read(buffer)) > 0)
         out.write(buffer, 0, len);
-      }
     }
-    out.close();
   }
 
   public String getStorageId() {
     return storageId;
   }
+  
+//  /**
+//   * Prepare OutputStream to write operation. <br/>
+//   * 
+//   * @param file - destenation File
+//   * @return OutputStream
+//   * @throws IOException
+//   */
+//  protected OutputStream openOutput(File file) throws IOException {
+//    return new FileOutputStream(file);
+//  }
+//  
+//  /**
+//   * Perform post-write operations.<br/>
+//   * In most cases just close OutputStream after a write operation. <br/>
+//   * 
+//   * @param out
+//   * @throws IOException
+//   */
+//  protected void closeOutput(OutputStream out) throws IOException {
+//    out.close();
+//  }
+  
 }

@@ -74,7 +74,7 @@ public class TestConcurrentItems extends JcrAPIBaseTest {
 
   public void setUp() throws Exception {
     super.setUp();
-    Session testSession = repository.login(this.credentials /*session.getCredentials()*/, "ws1");
+    Session testSession = repository.login(this.credentials, "ws");
     testBinaryValue = testSession.getRootNode().addNode(TEST_ROOT);
     testSession.save();
 
@@ -277,7 +277,7 @@ public class TestConcurrentItems extends JcrAPIBaseTest {
 
     log.info("Begin creators...");
     for (int i = 0; i < 100; i++) {
-      Session creatorSession = repository.login(this.credentials /*session.getCredentials()*/, "ws1");
+      Session creatorSession = repository.login(this.credentials, "ws");
       Node root = creatorSession.getRootNode().getNode(TestConcurrentItems.TEST_ROOT);
 
       String testRootName = "root-" + IdGenerator.generate();
@@ -356,7 +356,7 @@ public class TestConcurrentItems extends JcrAPIBaseTest {
       Node testRoot = csession.getRootNode().getNode(TestConcurrentItems.TEST_ROOT);
       Node ntFile = testRoot.addNode(nodeName, "nt:file");
       Node contentNode = ntFile.addNode("jcr:content", "nt:resource");
-      dataStream = new FileInputStream(TestConcurrentItems.TEST_FILE);
+      dataStream = new FileInputStream(TEST_FILE);
       PropertyImpl data = (PropertyImpl) contentNode.setProperty("jcr:data", dataStream);
       contentNode.setProperty("jcr:mimeType", "video/avi");
       contentNode.setProperty("jcr:lastModified", Calendar.getInstance());

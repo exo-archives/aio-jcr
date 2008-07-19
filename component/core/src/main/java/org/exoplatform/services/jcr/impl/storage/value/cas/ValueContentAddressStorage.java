@@ -24,6 +24,8 @@ import java.util.Properties;
 import javax.jcr.ItemExistsException;
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+
 /**
  * Created by The eXo Platform SAS        .
  * 
@@ -41,7 +43,7 @@ import javax.jcr.RepositoryException;
  * are no collisions in checksum calculation (i.e. an address is unique for given content) 
  * 
  * @author Gennady Azarenkov
- * @version $Id: $
+ * @version $Id$
  */
 
 public interface ValueContentAddressStorage {
@@ -50,39 +52,40 @@ public interface ValueContentAddressStorage {
    * deletes the address for given property value
    * @param propertyId
    * @param orderNum
-   * @throws RepositoryException
+   * @throws RecordNotFoundException
    */
-  void delete(String propertyId) throws IOException;
+  void delete(String propertyId) throws RecordNotFoundException, VCASException;
     
 
   /**
    * @param propertyId
    * @param orderNum
    * @param identifier
-   * @throws ItemExistsException if such propertyId/orderNumber already exists in storage
-   * @throws RepositoryException
+   * @throws RecordAlreadyExistsException if such propertyId/orderNumber already exists in storage
    */
-  void add(String propertyId, int orderNum, String identifier) throws IOException;
+  void add(String propertyId, int orderNum, String identifier) throws RecordAlreadyExistsException, VCASException;
 
   /**
+   * 
    * @param propertyId
    * @param orderNum
    * @return identifier
+   * @throws RecordNotFoundException
    */
-  String getIdentifier(String propertyId, int orderNum);
+  String getIdentifier(String propertyId, int orderNum) throws RecordNotFoundException, VCASException;
   
   
   /**
    * @param propertyId
    * @return identifier
    */
-  List <String> getIdentifiers(String propertyId);
+  List <String> getIdentifiers(String propertyId) throws RecordNotFoundException, VCASException;
   
   /**
    * initializes VCAS
    * @param props
    * @throws IOException
    */
-  void init(Properties props) throws IOException; 
+  void init(Properties props) throws RepositoryConfigurationException, VCASException; 
 }
 

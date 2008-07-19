@@ -21,8 +21,6 @@ import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.impl.core.NamespaceRegistryImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 
-import sun.management.FileSystem;
-
 /**
  * Acts as an argument for the {@link QueryHandler} to keep the interface
  * stable. This class provides access to the environment where the query handler

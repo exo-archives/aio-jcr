@@ -1230,7 +1230,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
         if (valueRecords.next()) {
           final String storageId = valueRecords.getString(COLUMN_VSTORAGE_DESC);
           if (!valueRecords.wasNull()) {
-            final ValueIOChannel channel = valueStorageProvider.getChannel(storageId, pdata);
+            final ValueIOChannel channel = valueStorageProvider.getChannel(storageId);
             try {
               channel.delete(pdata.getIdentifier());
             } finally {
@@ -1282,7 +1282,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
   protected ValueData readValueData(PropertyData pdata, int orderNumber, String storageId) throws SQLException,
                                                                                           IOException,
                                                                                           ValueDataNotFoundException {
-    ValueIOChannel channel = valueStorageProvider.getChannel(storageId, pdata);
+    ValueIOChannel channel = valueStorageProvider.getChannel(storageId);
     try {
       return channel.read(pdata.getIdentifier(), orderNumber, maxBufferSize);
     } finally {
@@ -1358,9 +1358,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
       ValueData vd = vdata.get(i);
       vd.setOrderNumber(i);
       ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data, i);
-      InputStream stream = null;
-      int streamLength = 0;
-      String storageId = null;
+      InputStream stream;
+      int streamLength;
+      String storageId;
       if (channel == null) {
         if (vd.isByteArray()) {
           byte[] dataBytes = vd.getAsByteArray();
@@ -1370,9 +1370,12 @@ abstract public class JDBCStorageConnection extends DBConstants implements Works
           stream = vd.getAsStream();
           streamLength = stream.available();
         }
+        storageId = null;
       } else {
         channel.write(data.getIdentifier(), vd);
         storageId = channel.getStorageId();
+        stream = null;
+        streamLength = 0;
       }
       addValueData(getInternalId(data.getIdentifier()), i, stream, streamLength, storageId);
     }
