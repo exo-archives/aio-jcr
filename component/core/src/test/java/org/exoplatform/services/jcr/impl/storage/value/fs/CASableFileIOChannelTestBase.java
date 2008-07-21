@@ -241,6 +241,74 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
     assertEquals("Storage size must be increased on size of ALL files ", initialSize + addedSize, calcDirSize(rootDir));
   }
   
+  /**
+   * Delete one of properties with same content address.
+   * Check if storage still contains (only one) file.
+   * 
+   * @param digestType
+   * @throws Exception
+   */
+  public void deleteSameProperty(String digestType) throws Exception {
+    long initialSize = calcDirSize(rootDir);
+
+    // add some files
+    String propertyId = null;
+    final int count = 20;
+    for (int i=0; i<count; i++) {
+      
+      String pid = IdGenerator.generate();
+      if (i == Math.round(count/2))
+        propertyId = pid;
+      
+      CASableSimpleFileIOChannel fch = new CASableSimpleFileIOChannel(rootDir, fileCleaner, storageId, vcas, digestType);
+      fch.write(pid, new FileStreamPersistedValueData(testFile, 0, true));
+    }
+    
+    // remove mapping in VCAS for one of files
+    CASableSimpleFileIOChannel fch = new CASableSimpleFileIOChannel(rootDir, fileCleaner, storageId, vcas, digestType);
+    fch.delete(propertyId);
+        
+    assertEquals("Storage size must be unchanged after the delete ", initialSize + testFile.length(), calcDirSize(rootDir));
+  }
+  
+  /**
+   * Delete one of properties with unique content address.
+   * Check if storage contains on one file less.
+   * 
+   * @param digestType
+   * @throws Exception
+   */
+  public void deleteUniqueProperty(String digestType) throws Exception {
+    long initialSize = calcDirSize(rootDir);
+
+    // add some files
+    String propertyId = null;
+    final int count = 20;
+    final int fileSizeKb = 355;
+    long fileSize = 0;
+    long addedSize = 0;
+    
+    for (int i=0; i<count; i++) {
+      String pid = IdGenerator.generate();
+      if (i == Math.round(count/2))
+        propertyId = pid;
+      
+      File f = createBLOBTempFile(fileSizeKb);
+      addedSize += (fileSize = f.length());
+      
+      CASableSimpleFileIOChannel fch = new CASableSimpleFileIOChannel(rootDir, fileCleaner, storageId, vcas, digestType);
+      fch.write(pid, new FileStreamPersistedValueData(f, 0, true));
+    }
+    
+    // remove mapping in VCAS for one of files
+    CASableSimpleFileIOChannel fch = new CASableSimpleFileIOChannel(rootDir, fileCleaner, storageId, vcas, digestType);
+    fch.delete(propertyId);
+        
+    assertEquals("Storage size must be decreased on one file size after the delete ", initialSize + (addedSize - fileSize), calcDirSize(rootDir));
+  }
+  
+  // ----- utilities -----
+  
   private long deleteRecursive(File dir) {
     long count = 0;
     for (File sf: dir.listFiles()) {
@@ -264,6 +332,8 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
     }
     return size;
   }
+  
+  // ------ tests ------
   
   public void testWriteMD5() throws Exception {
     write("MD5");
@@ -319,6 +389,22 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
   
   public void testUniquePropertiesSHA1() throws Exception {
     writeUniqueProperties("SHA1");
+  }
+  
+  public void testDeleteSamePropertyMD5() throws Exception {
+    deleteSameProperty("MD5");
+  }
+  
+  public void testDeleteSamePropertySHA1() throws Exception {
+    deleteSameProperty("SHA1");
+  }
+  
+  public void testDeleteUniquePropertyMD5() throws Exception {
+    deleteUniqueProperty("MD5");
+  }
+  
+  public void testDeleteUniquePropertySHA1() throws Exception {
+    deleteUniqueProperty("SHA1");
   }
   
 }

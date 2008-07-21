@@ -21,9 +21,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
-import javax.jcr.ItemExistsException;
-import javax.jcr.RepositoryException;
-
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 
 /**
@@ -80,6 +77,14 @@ public interface ValueContentAddressStorage {
    * @return identifier
    */
   List <String> getIdentifiers(String propertyId) throws RecordNotFoundException, VCASException;
+  
+  /**
+   * Tell if given property shares content with other properties.
+   * 
+   * @param propertyId
+   * @return boolean flag, true if given property shares content with other properties
+   */
+  boolean hasSharedContent(String propertyId) throws RecordNotFoundException, VCASException;
   
   /**
    * initializes VCAS

@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.impl.storage.value.fs;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 
 import org.exoplatform.services.jcr.datamodel.ValueData;
@@ -131,7 +132,10 @@ public class CASableSimpleFileIOChannel extends SimpleFileIOChannel {
   @Override
   public boolean delete(String propertyId) throws IOException {
     try {
-      return super.delete(propertyId);
+      if (!vcas.hasSharedContent(propertyId))
+       return super.delete(propertyId);
+      
+      return true;
     } finally {
       vcas.delete(propertyId);
     }
