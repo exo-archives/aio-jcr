@@ -55,7 +55,7 @@ public class QueryNodeLoader {
           .getComponentInstanceOfType(RepositoryService.class);
       repository = repositoryService.getCurrentRepository();
       Credentials credentials = new SimpleCredentials("admin", "admin".toCharArray());
-      Session session = (SessionImpl) repository.login(credentials, "production");
+      Session session = (SessionImpl) repository.login(credentials, "collaboration");
       Node rootNode = session.getRootNode().getNode("download").getNode("node0").getNode("node1").getNode("node2");
       for (int i = 0; i < NUMBER_OF_NODES; i++) {
         Node nodeToAdd = rootNode.addNode("query-0-1-2-" + i + ".html", "nt:file");
