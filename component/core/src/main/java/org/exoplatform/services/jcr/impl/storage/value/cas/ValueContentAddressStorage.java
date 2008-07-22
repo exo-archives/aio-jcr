@@ -73,10 +73,13 @@ public interface ValueContentAddressStorage {
   
   
   /**
-   * @param propertyId
+   * Return identifiers list for the given property.<br/>
+   * 
+   * @param propertyId - property id
+   * @param ownOnly - boolean, if true the list will contains only owned values, false - all, including shared
    * @return identifier
    */
-  List <String> getIdentifiers(String propertyId) throws RecordNotFoundException, VCASException;
+  List <String> getIdentifiers(String propertyId, boolean ownOnly) throws RecordNotFoundException, VCASException;
   
   /**
    * Tell if given property shares content with other properties.

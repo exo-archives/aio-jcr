@@ -40,8 +40,8 @@
         <!-- property name="log4j.category.database.DBSchemaCreator" value="DEBUG"/ -->
         <!-- property name="log4j.category.jcr.WorkspaceDataReplicator" value="DEBUG"/ -->
 
-        <!-- property name="log4j.category.jcr.WorkspaceStorageCacheImpl" value="DEBUG"/>
-          <property name="log4j.category.jcr.WorkspacePersistentDataManager" value="DEBUG"/ -->
+        <!-- property name="log4j.category.jcr.WorkspaceStorageCacheImpl" value="DEBUG"/ -->
+        <!-- property name="log4j.category.jcr.WorkspacePersistentDataManager" value="DEBUG"/ -->
         <!-- property name="log4j.category.jcr.SessionDataManager" value="DEBUG"/ -->
       </properties-param>
 

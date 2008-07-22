@@ -78,7 +78,52 @@ public class TestJDBCValueContentAddressStorageImpl extends JcrImplBaseTest {
       testSet.add(hashId);
     }
     
-    List<String> ids = vcas.getIdentifiers(propertyId);
+    List<String> ids = vcas.getIdentifiers(propertyId, true);
+    for (int i=0; i<testSet.size(); i++) {
+      assertEquals("id should be same but ", testSet.get(i), ids.get(i));  
+    }
+  }
+  
+  public void testSharedRecords() throws Exception {
+    List<String> testSet = new ArrayList<String>();
+    
+    // add shared in multivalued property notation
+    String property1Id = IdGenerator.generate();
+    String sharedHashId = null;
+    for (int i=0; i<10; i++) {      
+      String hashId = IdGenerator.generate();
+      if (i == 5)
+        sharedHashId = hashId;
+      vcas.add(property1Id, i, hashId);
+      testSet.add(hashId);
+    }
+    
+    String property2Id = IdGenerator.generate();
+    for (int i=0; i<10; i++) {
+      String hashId; 
+      if (i == 2)
+        hashId = sharedHashId;
+      else
+        hashId = IdGenerator.generate();
+      vcas.add(property2Id, i, hashId);
+    }
+    
+    // any stuf
+    vcas.add(IdGenerator.generate(), 0, IdGenerator.generate());
+    vcas.add(IdGenerator.generate(), 0, IdGenerator.generate());
+    
+    // shared in singlevalued property notation
+    vcas.add(IdGenerator.generate(), 0, sharedHashId);
+    
+    // test if can get full values list of proeprty incl. shared
+    List<String> ids = vcas.getIdentifiers(property1Id, false);
+    for (int i=0; i<testSet.size(); i++) {
+      assertEquals("id should be same but ", testSet.get(i), ids.get(i));  
+    }
+    
+    // test if can get list of owned only values (DELETE usecase)
+    testSet.remove(sharedHashId);
+    ids = vcas.getIdentifiers(property1Id, true);
     for (int i=0; i<testSet.size(); i++) {
       assertEquals("id should be same but ", testSet.get(i), ids.get(i));  
     }

@@ -150,7 +150,7 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
    * @param digestType
    * @throws Exception
    */
-  public void writeSameMultivalued(String digestType) throws Exception {
+  protected void writeSameMultivalued(String digestType) throws Exception {
     CASableSimpleFileIOChannel fch = new CASableSimpleFileIOChannel(rootDir, fileCleaner, storageId, vcas, digestType);
     
     String propertyId = IdGenerator.generate();
@@ -174,7 +174,7 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
    * @param digestType
    * @throws Exception
    */
-  public void writeUniqueMultivalued(String digestType) throws Exception {
+  protected void writeUniqueMultivalued(String digestType) throws Exception {
     CASableSimpleFileIOChannel fch = new CASableSimpleFileIOChannel(rootDir, fileCleaner, storageId, vcas, digestType);
     
     String propertyId = IdGenerator.generate();
@@ -200,7 +200,7 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
    * @param digestType
    * @throws Exception
    */
-  public void writeSameProperties(String digestType) throws Exception {
+  protected void writeSameProperties(String digestType) throws Exception {
     long initialSize = calcDirSize(rootDir);
 
     String propertyId = null;
@@ -222,7 +222,7 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
    * @param digestType
    * @throws Exception
    */
-  public void writeUniqueProperties(String digestType) throws Exception {
+  protected void writeUniqueProperties(String digestType) throws Exception {
     long initialSize = calcDirSize(rootDir);
     long addedSize = 0;
     
@@ -248,7 +248,7 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
    * @param digestType
    * @throws Exception
    */
-  public void deleteSameProperty(String digestType) throws Exception {
+  protected void deleteSameProperty(String digestType) throws Exception {
     long initialSize = calcDirSize(rootDir);
 
     // add some files
@@ -278,7 +278,7 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
    * @param digestType
    * @throws Exception
    */
-  public void deleteUniqueProperty(String digestType) throws Exception {
+  protected void deleteUniqueProperty(String digestType) throws Exception {
     long initialSize = calcDirSize(rootDir);
 
     // add some files
@@ -305,6 +305,110 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
     fch.delete(propertyId);
         
     assertEquals("Storage size must be decreased on one file size after the delete ", initialSize + (addedSize - fileSize), calcDirSize(rootDir));
+  }
+  
+  /**
+   * Delete one of properties with value shared between some values in few properties.
+   * Check if storage contains only files related to the values.
+   * 
+   * @param digestType
+   * @throws Exception
+   */
+  protected void addDeleteSharedMultivalued(String digestType) throws Exception {
+    long initialSize = calcDirSize(rootDir);
+
+    CASableSimpleFileIOChannel fch = new CASableSimpleFileIOChannel(rootDir, fileCleaner, storageId, vcas, digestType);
+    
+    final String property1MultivaluedId = IdGenerator.generate();
+
+    FileStreamPersistedValueData sharedValue = null;
+    
+    // add multivaued property
+    long m1fileSize = 0; 
+    long m1filesCount = 0;
+    long addedSize = 0;
+    for (int i=0; i<5; i++) {
+      File f = createBLOBTempFile(450);
+      addedSize += (m1fileSize = f.length());
+      
+      FileStreamPersistedValueData v = new FileStreamPersistedValueData(f, i, true);
+      
+      if (i == 1)
+        sharedValue = v;
+      else
+        m1filesCount++;
+      
+      fch.write(property1MultivaluedId, v);
+    }
+    
+    // add another multivalued with shared file
+    final String property2MultivaluedId = IdGenerator.generate();
+    long m2fileSize = 0; 
+    long m2filesCount = 0;
+    fch = new CASableSimpleFileIOChannel(rootDir, fileCleaner, storageId, vcas, digestType);
+    for (int i=0; i<4; i++) {
+      ValueData v;
+      if (i == 2) {
+        // use shared
+        v = sharedValue;
+        sharedValue.setOrderNumber(i);
+      } else {
+        // new file
+        m2filesCount++;
+        File f = createBLOBTempFile(350);
+        addedSize += (m2fileSize = f.length()); // add size        
+        v = new FileStreamPersistedValueData(f, i, true);
+      }
+      fch.write(property2MultivaluedId, v);
+    }
+    
+    // add some single valued properties, two new property will have shared value too
+    String property1Id = null;
+    String property2Id = null;
+    sharedValue.setOrderNumber(0);
+    for (int i=0; i<10; i++) {
+      String pid = IdGenerator.generate();
+      ValueData v;
+      if (i == 1) {
+        property1Id = pid;
+        v = sharedValue;
+      } else if (i == 5) {
+        property2Id = pid;
+        v = sharedValue;
+      } else {
+        File f = createBLOBTempFile(425);
+        addedSize += f.length();
+        v = new FileStreamPersistedValueData(f, 0, true);
+      }
+      CASableSimpleFileIOChannel vfch = new CASableSimpleFileIOChannel(rootDir, fileCleaner, storageId, vcas, digestType);
+      vfch.write(pid, v);
+    }
+    
+    // final size
+    long finalSize = initialSize + addedSize;
+    
+    // remove mapping in VCAS for singlevalued property #2
+    fch = new CASableSimpleFileIOChannel(rootDir, fileCleaner, storageId, vcas, digestType);
+    fch.delete(property2Id);
+    assertEquals("Storage size must be unchanged after the delete of property #2 ", finalSize, calcDirSize(rootDir));
+    
+    // remove mapping in VCAS for multivalued property #1
+    finalSize -= m1fileSize * m1filesCount;
+    fch = new CASableSimpleFileIOChannel(rootDir, fileCleaner, storageId, vcas, digestType);
+    fch.delete(property1MultivaluedId);
+    assertEquals("Storage size must be unchanged after the delete of multivalue property #1 ", finalSize, calcDirSize(rootDir));
+
+    // remove mapping in VCAS for multivalued property #2
+    finalSize -= m2fileSize * m2filesCount;
+    fch = new CASableSimpleFileIOChannel(rootDir, fileCleaner, storageId, vcas, digestType);
+    fch.delete(property2MultivaluedId);
+    assertEquals("Storage size must be decreased on " + (m2fileSize * m2filesCount) + " bytes after the delete of multivalue property #2 ", finalSize, calcDirSize(rootDir));
+
+    // remove mapping in VCAS for singlevalued property #1
+    finalSize -= m1fileSize;
+    fch = new CASableSimpleFileIOChannel(rootDir, fileCleaner, storageId, vcas, digestType);
+    fch.delete(property1Id);
+    assertEquals("Storage size must be decreased on " + m1fileSize + " bytes after the delete of property #1 ", finalSize, calcDirSize(rootDir));
   }
   
   // ----- utilities -----
@@ -405,6 +509,14 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
   
   public void testDeleteUniquePropertySHA1() throws Exception {
     deleteUniqueProperty("SHA1");
+  }
+  
+  public void testAddDeleteSharedMultivaluedMD5() throws Exception {
+    addDeleteSharedMultivalued("MD5");
+  }
+  
+  public void testAddDeleteSharedMultivaluedSHA1() throws Exception {
+    addDeleteSharedMultivalued("SHA1");
   }
   
 }

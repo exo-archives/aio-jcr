@@ -12,19 +12,22 @@
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="source-name" value="jdbcjcr" />
-              <property name="dialect" value="hsqldb" />
+              <property name="dialect" value="" />
               <property name="multi-db" value="true" />
               <property name="update-storage" value="false" />
               <property name="max-buffer-size" value="200k" />
               <property name="swap-directory" value="target/temp/swap/ws" />
             </properties>
             <value-storages>
-              <value-storage id="ws" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+              <value-storage id="ws" class="org.exoplatform.services.jcr.impl.storage.value.fs.CASableSimpleFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws" />
+									<property name="digest-algo" value="MD5" />
+									<property name="vcas-type" value="org.exoplatform.services.jcr.impl.storage.value.cas.JDBCValueContentAddressStorageImpl" />
+									<property name="jdbc-source-name" value="jdbcjcr" />
                 </properties>
                 <filters>
-                  <filter property-type="Binary" />
+                  <filter property-type="Binary"/>
                 </filters>
               </value-storage>
             </value-storages>
@@ -44,8 +47,8 @@
             <properties>
               <property name="max-size" value="2k" />
               <property name="live-time" value="20m" />
-							<property name="statistic-period" value="30" />
-              <property name="statistic-log" value="true" />
+							<!-- property name="statistic-period" value="30" />
+              <property name="statistic-log" value="true" / -->
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -73,7 +76,7 @@
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="source-name" value="jdbcjcr1" />
-              <property name="dialect" value="hsqldb" />
+              <property name="dialect" value="mysql" />
               <property name="multi-db" value="true" />
               <property name="update-storage" value="false" />
               <property name="max-buffer-size" value="200k" />
@@ -94,8 +97,6 @@
             <properties>
               <property name="max-size" value="2k" />
               <property name="live-time" value="20m" />
-							<property name="statistic-period" value="30" />
-              <property name="statistic-log" value="true" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -115,7 +116,7 @@
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="source-name" value="jdbcjcr2" />
-              <property name="dialect" value="hsqldb" />
+              <property name="dialect" value="mysql" />
               <property name="multi-db" value="true" />
               <property name="update-storage" value="false" />
               <property name="max-buffer-size" value="200k" />
@@ -136,8 +137,6 @@
             <properties>
               <property name="max-size" value="2k" />
               <property name="live-time" value="20m" />
-							<property name="statistic-period" value="30" />
-              <property name="statistic-log" value="true" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -167,7 +166,7 @@
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="source-name" value="jdbcjcrtck" />
-              <property name="dialect" value="hsqldb" />
+              <property name="dialect" value="mysql" />
               <property name="multi-db" value="true" />
               <property name="update-storage" value="false" />
               <property name="max-buffer-size" value="200k" />
@@ -179,7 +178,7 @@
                   <property name="path" value="target/temp/values/wstck" />
                 </properties>
                 <filters>
-                  <filter property-type="Binary" />
+                  <filter property-type="Binary" min-value-size="100K"/>
                 </filters>
               </value-storage>
             </value-storages>
@@ -221,7 +220,7 @@
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="source-name" value="jdbcjcr1tck" />
-              <property name="dialect" value="hsqldb" />
+              <property name="dialect" value="mysql" />
               <property name="multi-db" value="true" />
               <property name="update-storage" value="false" />
               <property name="max-buffer-size" value="200k" />
@@ -233,7 +232,7 @@
                   <property name="path" value="target/temp/values/ws1tck" />
                 </properties>
                 <filters>
-                  <filter property-type="Binary" />
+                  <filter property-type="Binary" min-value-size="100K"/>
                 </filters>
               </value-storage>
             </value-storages>
@@ -267,7 +266,7 @@
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="source-name" value="jdbcjcr2tck" />
-              <property name="dialect" value="hsqldb" />
+              <property name="dialect" value="mysql" />
               <property name="multi-db" value="true" />
               <property name="update-storage" value="false" />
               <property name="max-buffer-size" value="200k" />
@@ -279,7 +278,7 @@
                   <property name="path" value="target/temp/values/ws2tck" />
                 </properties>
                 <filters>
-                  <filter property-type="Binary" />
+                  <filter property-type="Binary" min-value-size="100K"/>
                 </filters>
               </value-storage>
             </value-storages>

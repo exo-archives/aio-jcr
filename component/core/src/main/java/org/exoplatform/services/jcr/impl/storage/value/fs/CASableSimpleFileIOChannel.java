@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.impl.storage.value.fs;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 
 import org.exoplatform.services.jcr.datamodel.ValueData;
@@ -122,20 +121,17 @@ public class CASableSimpleFileIOChannel extends SimpleFileIOChannel {
   /**
    * Delete given property value.<br/>
    * Special logic implemented for Values CAS. 
-   * As the storage may have one file (same hash) for multiple properties/values.
-   * Before the actual delete it will check if other properties/values are mapped to this content.
-   * If are mapped the call just remove the mapping for the property with given id. 
-   * If it's unique mapping the file will be deleted too.
+   * As the storage may have one file (same hash) for multiple properties/values.<br/>
+   * The implementation assumes that delete operations based on {@link getFiles()} method result.
+   * 
+   * @see getFiles()
    * 
    * @param propertyId - property id to be deleted
    */
   @Override
   public boolean delete(String propertyId) throws IOException {
     try {
-      if (!vcas.hasSharedContent(propertyId))
-       return super.delete(propertyId);
-      
-      return true;
+      return super.delete(propertyId);
     } finally {
       vcas.delete(propertyId);
     }
@@ -146,6 +142,17 @@ public class CASableSimpleFileIOChannel extends SimpleFileIOChannel {
     return super.getFile(vcas.getIdentifier(propertyId, orderNumber), CASeableIOSupport.HASHFILE_ORDERNUMBER);
   }
   
+  /**
+   * Returns storage files list by propertyId.<br/>
+   * 
+   * NOTE: Files list used for <strong>delete</strong> operation.
+   * The list will not contains files shared with other properties!
+   * 
+   * @see ValueContentAddressStorage.getIdentifiers()
+   * 
+   * @param propertyId
+   * @return actual files on file system related to given propertyId
+   */
   @Override
   protected File[] getFiles(String propertyId) throws IOException {
 //    List <File> fileList = new ArrayList <File>();
@@ -159,7 +166,7 @@ public class CASableSimpleFileIOChannel extends SimpleFileIOChannel {
 //      
 //    return files;
     
-    List<String> hids = vcas.getIdentifiers(propertyId);
+    List<String> hids = vcas.getIdentifiers(propertyId, true); // return only own ids
     File[] files = new File[hids.size()];
     for (int i=0; i<hids.size(); i++)
       files[i] = super.getFile(hids.get(i), CASeableIOSupport.HASHFILE_ORDERNUMBER);  

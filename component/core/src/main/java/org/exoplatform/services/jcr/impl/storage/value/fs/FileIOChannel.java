@@ -103,6 +103,8 @@ public abstract class FileIOChannel implements ValueIOChannel {
   /**
    * Creates storage file by propertyId and order number.<br/>
    * 
+   * File used for read/write operations.
+   * 
    * @param propertyId
    * @param orderNumber
    * @return actual file on file system related to given parameters
@@ -111,6 +113,8 @@ public abstract class FileIOChannel implements ValueIOChannel {
 
   /**
    * Creates storage files list by propertyId.<br/>
+   * 
+   * NOTE: Files list used for <strong>delete</strong> operation.
    * 
    * @param propertyId
    * @return actual files on file system related to given propertyId
