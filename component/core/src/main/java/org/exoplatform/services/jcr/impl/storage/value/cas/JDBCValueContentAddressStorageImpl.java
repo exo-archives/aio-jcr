@@ -96,19 +96,19 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
    */
   public void init(Properties props) throws RepositoryConfigurationException, VCASException {
     // init database metadata
-    String tn = props.getProperty(TABLE_NAME_PARAM);
+    final String tn = props.getProperty(TABLE_NAME_PARAM);
     if (tn != null)
       tableName = tn;
     else
       tableName = DEFAULT_TABLE_NAME;
     
-    String dialect = props.getProperty(JDBC_DIALECT_PARAM);
+    final String dialect = props.getProperty(JDBC_DIALECT_PARAM, DBConstants.DB_DIALECT_GENERIC);
 
     sqlConstraintPK = tableName + "_PK";
     
     sqlVCASIDX = tableName + "_IDX";  
     
-    if (DBConstants.DB_DIALECT_PGSQL.equals(dialect)) { 
+    if (DBConstants.DB_DIALECT_PGSQL.equalsIgnoreCase(dialect)) { 
       // use lowercase for postgres metadata.getTable(), HSQLDB wants UPPERCASE 
       // for other seems not matter 
       tableName = tableName.toUpperCase().toLowerCase();
@@ -136,7 +136,7 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
             + "WHERE C.CAS_ID=P.CAS_ID AND C.PROPERTY_ID<>P.PROPERTY_ID AND P.PROPERTY_ID=?";
     
     // init database objects
-    String sn = props.getProperty(JDBC_SOURCE_NAME_PARAM);
+    final String sn = props.getProperty(JDBC_SOURCE_NAME_PARAM);
     if (sn != null) {
       try {
         dataSource = (DataSource) new InitialContext().lookup(sn);

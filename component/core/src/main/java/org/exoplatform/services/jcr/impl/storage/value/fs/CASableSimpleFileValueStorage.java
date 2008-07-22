@@ -53,7 +53,7 @@ public class CASableSimpleFileValueStorage extends FileValueStorage {
     } catch (Exception e) {
       e.printStackTrace();
       throw new RepositoryConfigurationException(e.getMessage());
-    } 
+    }
     vcas.init(props);
   }
 
