@@ -12,7 +12,7 @@
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="source-name" value="jdbcjcr" />
-              <property name="dialect" value="" />
+              <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="true" />
               <property name="update-storage" value="false" />
               <property name="max-buffer-size" value="200k" />
@@ -25,6 +25,7 @@
 									<property name="digest-algo" value="MD5" />
 									<property name="vcas-type" value="org.exoplatform.services.jcr.impl.storage.value.cas.JDBCValueContentAddressStorageImpl" />
 									<property name="jdbc-source-name" value="jdbcjcr" />
+									<property name="jdbc-dialect" value="hsqldb" />
                 </properties>
                 <filters>
                   <filter property-type="Binary"/>
@@ -76,7 +77,7 @@
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="source-name" value="jdbcjcr1" />
-              <property name="dialect" value="mysql" />
+              <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="true" />
               <property name="update-storage" value="false" />
               <property name="max-buffer-size" value="200k" />
@@ -116,7 +117,7 @@
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="source-name" value="jdbcjcr2" />
-              <property name="dialect" value="mysql" />
+              <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="true" />
               <property name="update-storage" value="false" />
               <property name="max-buffer-size" value="200k" />
@@ -166,7 +167,7 @@
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="source-name" value="jdbcjcrtck" />
-              <property name="dialect" value="mysql" />
+              <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="true" />
               <property name="update-storage" value="false" />
               <property name="max-buffer-size" value="200k" />
@@ -220,7 +221,7 @@
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="source-name" value="jdbcjcr1tck" />
-              <property name="dialect" value="mysql" />
+              <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="true" />
               <property name="update-storage" value="false" />
               <property name="max-buffer-size" value="200k" />
@@ -266,7 +267,7 @@
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
               <property name="source-name" value="jdbcjcr2tck" />
-              <property name="dialect" value="mysql" />
+              <property name="dialect" value="hsqldb" />
               <property name="multi-db" value="true" />
               <property name="update-storage" value="false" />
               <property name="max-buffer-size" value="200k" />

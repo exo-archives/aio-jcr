@@ -30,6 +30,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.impl.storage.jdbc.DBConstants;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -50,6 +51,11 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
    * JDBC DataSource name for lookup in JNDI.
    */
   public static final String JDBC_SOURCE_NAME_PARAM = "jdbc-source-name";
+  
+  /**
+   * JDBC dialect to work with DataSource
+   */
+  public static final String JDBC_DIALECT_PARAM = "jdbc-dialect";
 
   /**
    * It's possible reassign VCAS table name with this parameter. For development purpose!
@@ -59,7 +65,7 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
   /**
    * Default VCAS table name.
    */
-  public static final String DEFAULT_TABLE_NAME     = "jcr_vcas";
+  public static final String DEFAULT_TABLE_NAME     = "JCR_VCAS";
 
   private static Log         LOG                    = ExoLogger.getLogger("jcr.JDBCValueContentAddressStorageImpl");
 
@@ -80,6 +86,8 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
   protected String           sqlSelectSharingProps;
 
   protected String           sqlConstraintPK;
+  
+  protected String           sqlVCASIDX;
 
   /*
    * (non-Javadoc)
@@ -90,30 +98,43 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
     // init database metadata
     String tn = props.getProperty(TABLE_NAME_PARAM);
     if (tn != null)
-      tableName = tn.toUpperCase().toLowerCase(); // lower case for postgres, for other seems not matter
+      tableName = tn;
     else
       tableName = DEFAULT_TABLE_NAME;
+    
+    String dialect = props.getProperty(JDBC_DIALECT_PARAM);
 
-    sqlAddRecord = "INSERT INTO " + tableName + " (property_id, order_num, cas_id) VALUES(?,?,?)";
-    sqlDeleteRecord = "DELETE FROM " + tableName + " WHERE property_id=?";
-    sqlSelectRecord = "SELECT cas_id FROM " + tableName + " WHERE property_id=? AND order_num=?";
-    sqlSelectRecords = "SELECT cas_id, order_num FROM " + tableName + " WHERE property_id=? ORDER BY order_num";
+    sqlConstraintPK = tableName + "_PK";
+    
+    sqlVCASIDX = tableName + "_IDX";  
+    
+    if (DBConstants.DB_DIALECT_PGSQL.equals(dialect)) { 
+      // use lowercase for postgres metadata.getTable(), HSQLDB wants UPPERCASE 
+      // for other seems not matter 
+      tableName = tableName.toUpperCase().toLowerCase();
+      sqlConstraintPK = sqlConstraintPK.toUpperCase().toLowerCase();
+      sqlVCASIDX = sqlVCASIDX.toUpperCase().toLowerCase();
+    }
 
-    // this script owrks ok if shared exists only
+    sqlAddRecord = "INSERT INTO " + tableName + " (PROPERTY_ID, ORDER_NUM, CAS_ID) VALUES(?,?,?)";
+    sqlDeleteRecord = "DELETE FROM " + tableName + " WHERE PROPERTY_ID=?";
+    sqlSelectRecord = "SELECT CAS_ID FROM " + tableName + " WHERE PROPERTY_ID=? AND ORDER_NUM=?";
+    sqlSelectRecords = "SELECT CAS_ID, ORDER_NUM FROM " + tableName + " WHERE PROPERTY_ID=? ORDER BY ORDER_NUM";
+
+    // TODO CLEANUP. this script owrks ok if shared exists only
     //    sqlSelectOwnRecords =
     //        "SELECT DISTINCT OWN.cas_id, OWN.order_num FROM jcr_vcas_test OWN, jcr_vcas_test S, jcr_vcas_test P "
     //            + "WHERE OWN.property_id=P.property_id AND OWN.cas_id<>S.cas_id AND S.cas_id=P.cas_id AND S.property_id<>P.property_id AND P.property_id=? "
     //            + "ORDER BY OWN.order_num";
     sqlSelectOwnRecords =
-        "SELECT P.cas_id, P.order_num, S.cas_id as shared_id "
-            + "FROM jcr_vcas_test P LEFT JOIN jcr_vcas_test S ON P.property_id<>S.property_id AND P.cas_id=S.cas_id "
-            + "WHERE P.property_id=? GROUP BY P.cas_id, P.order_num, S.cas_id ORDER BY P.order_num";
+        "SELECT P.CAS_ID, P.ORDER_NUM, S.CAS_ID as SHARED_ID "
+            + "FROM " + tableName + " P LEFT JOIN " + tableName + " S ON P.PROPERTY_ID<>S.PROPERTY_ID AND P.CAS_ID=S.CAS_ID "
+            + "WHERE P.PROPERTY_ID=? GROUP BY P.CAS_ID, P.ORDER_NUM, S.CAS_ID ORDER BY P.ORDER_NUM";
 
     sqlSelectSharingProps =
-        "SELECT DISTINCT C.property_id AS property_id FROM " + tableName + " C, " + tableName + " P "
-            + "WHERE C.cas_id=P.cas_id AND C.property_id<>P.property_id AND P.property_id=?";
-    sqlConstraintPK = tableName + "_pk";
-
+        "SELECT DISTINCT C.PROPERTY_ID AS PROPERTY_ID FROM " + tableName + " C, " + tableName + " P "
+            + "WHERE C.CAS_ID=P.CAS_ID AND C.PROPERTY_ID<>P.PROPERTY_ID AND P.PROPERTY_ID=?";
+    
     // init database objects
     String sn = props.getProperty(JDBC_SOURCE_NAME_PARAM);
     if (sn != null) {
@@ -127,12 +148,12 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
             if (!trs.next()) {
               // create table
               con.createStatement().executeUpdate("CREATE TABLE " + tableName
-                  + " (property_id VARCHAR(96) NOT NULL, order_num INTEGER NOT NULL, cas_id VARCHAR(512) NOT NULL, "
-                  + "CONSTRAINT " + sqlConstraintPK + " PRIMARY KEY(property_id, order_num))");
+                  + " (PROPERTY_ID VARCHAR(96) NOT NULL, ORDER_NUM INTEGER NOT NULL, CAS_ID VARCHAR(512) NOT NULL, "
+                  + "CONSTRAINT " + sqlConstraintPK + " PRIMARY KEY(PROPERTY_ID, ORDER_NUM))");
 
               // create index on hash (CAS_ID)
-              con.createStatement().executeUpdate("CREATE INDEX " + tableName + "_idx ON " + tableName
-                  + "(cas_id, property_id, order_num)");
+              con.createStatement().executeUpdate("CREATE INDEX " + sqlVCASIDX + " ON " + tableName
+                  + "(CAS_ID, PROPERTY_ID, ORDER_NUM)");
 
               LOG.info("JDBC Value Content Address Storage initialized in database " + sn);
             } else
@@ -171,7 +192,8 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
         con.close();
       }
     } catch (SQLException e) {
-      if (e.toString().toUpperCase().toLowerCase().indexOf(sqlConstraintPK) >= 0)
+      // search in UPPER case
+      if (e.toString().toLowerCase().toUpperCase().indexOf(sqlConstraintPK.toLowerCase().toUpperCase()) >= 0)
         throw new RecordAlreadyExistsException("Record already exists. propertyId=" + propertyId + " orderNum=" + orderNum
             + ". Error: " + e, e);
 
@@ -215,7 +237,7 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
         ResultSet rs = ps.executeQuery();
 
         if (rs.next()) {
-          return rs.getString("cas_id");
+          return rs.getString("CAS_ID");
         } else
           throw new RecordNotFoundException("No record found with propertyId=" + propertyId + " orderNum=" + orderNum);
       } finally {
@@ -244,9 +266,9 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
           ResultSet rs = ps.executeQuery();
           if (rs.next()) {
             do {
-              rs.getString("shared_id");
+              rs.getString("SHARED_ID");
               if (rs.wasNull())
-                ids.add(rs.getString("cas_id"));
+                ids.add(rs.getString("CAS_ID"));
             } while (rs.next());
             return ids;
           } else
@@ -258,7 +280,7 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
           ResultSet rs = ps.executeQuery();
           if (rs.next()) {
             do {
-              ids.add(rs.getString("cas_id"));
+              ids.add(rs.getString("CAS_ID"));
             } while (rs.next());
             return ids;
           } else
