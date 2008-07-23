@@ -86,9 +86,13 @@ public class ReplicationService implements Startable {
   private long                backupDelayTime  = 0;
 
   private List<BackupCreator> backupCreatorList;
+  
+  private boolean             started;
 
   public ReplicationService(RepositoryService repoService, InitParams params)
       throws RepositoryConfigurationException {
+    started = false;
+
     this.repoService = repoService;
 
     PropertiesParam pps = params.getPropertiesParam("replication-properties");
@@ -266,7 +270,8 @@ public class ReplicationService implements Startable {
     } catch (RepositoryConfigurationException e) {
       log.error("Can not start ReplicationService \n" + e, e);
     }
-
+    
+    started = true;
   }
 
   private String getUniqueName(RepositoryEntry configuration, String workspaceName) {
@@ -290,5 +295,9 @@ public class ReplicationService implements Startable {
   }
 
   public void stop() {
+  }
+  
+  public boolean isStarted() {
+    return started; 
   }
 }
