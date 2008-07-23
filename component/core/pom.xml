@@ -469,10 +469,13 @@
                 </property>
               </systemProperties>
               <includes>
-                <include>**/**/TestErrorMultithreading1.java</include>
-                <include>**/**/TestLinkedCacheMultithread1.java</include>
-                <include>**/**/Test*Cache1.java</include>
-                <include>**/**/Test*CacheMetrics1.java</include>
+                <include>**/**/TestErrorMultithreading__.java</include>
+                <include>**/**/TestConcurrentItems__.java</include>
+								
+								<include>**/**/TestJDBCValueContentAddressStorageImpl.java</include>
+								
+								<include>**/**/TestCASableSimpleFileIOChannel.java</include>
+								<include>**/**/TestCASableTreeFileIOChannel.java</include>
               </includes>
             </configuration>
           </execution>
@@ -518,6 +521,7 @@
                 <exclude>**/api/TestAll.java</exclude>
                 <exclude>**/usecases/**/TestDateBetween.java</exclude>
                 <exclude>**/usecases/**/RemoveSameNameSiblingTest.java</exclude>
+								<exclude>**/usecases/**/TestQueryWithNumberAndSpace.java</exclude>
                 <exclude>**/usecases/BaseUsecasesTest.java</exclude>
                 <exclude>**/apache/**</exclude>
                 <exclude>**/api/**/TestSameNameItems.java</exclude>
