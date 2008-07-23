@@ -18,12 +18,13 @@ package org.exoplatform.services.jcr.impl.core.lock;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.lock.LockException;
 
 import org.apache.commons.logging.Log;
-
+import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.config.LockPersisterEntry;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
@@ -39,6 +40,7 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.query.SearchManager;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
+import org.exoplatform.services.jcr.observation.ExtendedEvent;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -151,10 +153,16 @@ public class FileSystemLockPersister implements LockPersister {
     if (log.isDebugEnabled()) {
       log.debug("Removing all locks");
     }
+    
+    TransactionChangesLog transactionChangesLog = new TransactionChangesLog();
+    
     String[] list = rootDir.list();
-    PlainChangesLog changesLog = new PlainChangesLogImpl();
+    
     try {
       for (int i = 0; i < list.length; i++) {
+        PlainChangesLog plainChangesLog = new PlainChangesLogImpl(new ArrayList<ItemState>(), SystemIdentity.SYSTEM,
+            ExtendedEvent.UNLOCK);
+        
         NodeData lockedNodeData = (NodeData) dataManager.getItemData(list[i]);
         // No item no problem
         if (lockedNodeData != null) {
@@ -163,7 +171,7 @@ public class FileSystemLockPersister implements LockPersister {
                                                                                               0));
 
           if (dataLockIsDeep != null) {
-            changesLog.add(ItemState.createDeletedState(new TransientPropertyData(QPath.makeChildPath(lockedNodeData.getQPath(),
+            plainChangesLog.add(ItemState.createDeletedState(new TransientPropertyData(QPath.makeChildPath(lockedNodeData.getQPath(),
                                                                                                       Constants.JCR_LOCKISDEEP),
                                                                                   dataLockIsDeep.getIdentifier(),
                                                                                   0,
@@ -176,18 +184,23 @@ public class FileSystemLockPersister implements LockPersister {
                                                                               new QPathEntry(Constants.JCR_LOCKOWNER,
                                                                                              0));
           if (dataLockOwner != null)
-            changesLog.add(ItemState.createDeletedState(new TransientPropertyData(QPath.makeChildPath(lockedNodeData.getQPath(),
+            plainChangesLog.add(ItemState.createDeletedState(new TransientPropertyData(QPath.makeChildPath(lockedNodeData.getQPath(),
                                                                                                       Constants.JCR_LOCKOWNER),
                                                                                   dataLockOwner.getIdentifier(),
                                                                                   0,
                                                                                   dataLockOwner.getType(),
                                                                                   dataLockOwner.getParentIdentifier(),
                                                                                   dataLockOwner.isMultiValued())));
+          
+          if (plainChangesLog.getSize() > 0) {
+            transactionChangesLog.addLog(plainChangesLog);
+          }
         }
       }
       
-      if (changesLog.getSize() > 0)
-        dataManager.save(new TransactionChangesLog(changesLog));
+      if (transactionChangesLog.getSize() > 0) {
+        dataManager.save(transactionChangesLog);
+      }
       
       // remove files
       for (int i = 0; i < list.length; i++) {
@@ -260,5 +273,4 @@ public class FileSystemLockPersister implements LockPersister {
         throw new RepositoryException("Can't create dir" + root);
     }
   }
-
 }

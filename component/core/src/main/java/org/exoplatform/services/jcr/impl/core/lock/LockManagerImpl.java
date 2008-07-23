@@ -263,6 +263,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
    */
   public boolean isLocked(NodeData node) {
     LockData lData = getLockData(node, SEARCH_EXECMATCH | SEARCH_CLOSEDPARENT);
+    
     if (lData == null
         || (!node.getIdentifier().equals(lData.getNodeIdentifier()) && !lData.isDeep())) {
       return false;
@@ -325,7 +326,13 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
    */
   public void onSaveItems(ItemStateChangesLog changesLog) {
     List<PlainChangesLog> chengesLogList = new ArrayList<PlainChangesLog>();
-    if (changesLog instanceof PlainChangesLog) {
+    if (changesLog instanceof TransactionChangesLog) {
+      ChangesLogIterator logIterator = ((TransactionChangesLog)changesLog).getLogIterator();
+      
+      while (logIterator.hasNextLog()) { 
+        chengesLogList.add(logIterator.nextLog());
+      }
+    } else if (changesLog instanceof PlainChangesLog) {
       chengesLogList.add((PlainChangesLog) changesLog);
     } else if (changesLog instanceof CompositeChangesLog) {
       for (ChangesLogIterator iter = ((CompositeChangesLog) changesLog).getLogIterator(); iter.hasNextLog();) {
@@ -387,7 +394,6 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
         default:
           HashSet<String> removedLock = new HashSet<String>();
           for (ItemState itemState : currChangesLog.getAllStates()) {
-
             // this is a node and node is locked
             if (itemState.getData().isNode()
                 && locks.containsKey(itemState.getData().getIdentifier())) {
@@ -397,7 +403,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
               } else if (itemState.isAdded() || itemState.isRenamed() || itemState.isUpdated()) {
                 removedLock.remove(nodeIdentifier);
               }
-            }
+            } 
           }
           for (String identifier : removedLock) {
             internalUnLock(currChangesLog.getSessionId(), identifier);
@@ -600,28 +606,33 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
   private synchronized void internalUnLock(String sessionId, String nodeIdentifier) throws LockException {
     LockData lData = locks.get(nodeIdentifier);
 
-    if (lData == null) {
-      throw new LockException("Node with id " + nodeIdentifier + " not locked");
+    //TODO [AR] JCR-474
+//    if (lData == null) {
+//      throw new LockException("Node with id " + nodeIdentifier + " not locked");
+//    }
+    
+    if (lData != null) {
+      NodeData parentNode = null;
+      try {
+        NodeData node = (NodeData) dataManager.getItemData(nodeIdentifier);
+        if (node != null)
+          parentNode = (NodeData) dataManager.getItemData(node.getParentIdentifier());
+      } catch (RepositoryException e) {
+        log.error(e.getLocalizedMessage());
+      }
+      if (parentNode != null && isLocked(parentNode)) {
+        throw new LockException("Session does not have the coorect lock token");
+      }
+  
+      tokensMap.remove(lData.getLockToken(sessionId));
+      locks.remove(nodeIdentifier);
+      
+      lData.setLive(false);
+      if (persister != null) {
+        persister.remove(lData);
+      }
+      lData = null;
     }
-    NodeData parentNode = null;
-    try {
-      NodeData node = (NodeData) dataManager.getItemData(nodeIdentifier);
-      if (node != null)
-        parentNode = (NodeData) dataManager.getItemData(node.getParentIdentifier());
-    } catch (RepositoryException e) {
-      log.error(e.getLocalizedMessage());
-    }
-    if (parentNode != null && isLocked(parentNode)) {
-      throw new LockException("Session does not have the coorect lock token");
-    }
-
-    tokensMap.remove(lData.getLockToken(sessionId));
-    locks.remove(nodeIdentifier);
-    lData.setLive(false);
-    if (persister != null) {
-      persister.remove(lData);
-    }
-    lData = null;
   }
 
   /**

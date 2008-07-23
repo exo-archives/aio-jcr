@@ -48,7 +48,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
   public TransactionChangesLog(PlainChangesLog changesLog) {
     changesLogs = new ArrayList <PlainChangesLog>();
     changesLogs.add(changesLog);
-    this.systemId = changesLog.getSessionId();
+    //this.systemId = changesLog.getSessionId();
   }
 
   /* (non-Javadoc)
