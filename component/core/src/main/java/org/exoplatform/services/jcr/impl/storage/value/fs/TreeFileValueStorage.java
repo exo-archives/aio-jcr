@@ -18,14 +18,9 @@ package org.exoplatform.services.jcr.impl.storage.value.fs;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Semaphore;
-
-import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
-import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS
@@ -35,160 +30,10 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class TreeFileValueStorage extends FileValueStorage {
   
-  /** Channels log */
-  private static Log chLog = ExoLogger.getLogger("jcr.TreeFileIOChannel");
-  
-  /** Files log */
-  private static Log fLog = ExoLogger.getLogger("jcr.TreeFile");
-  
-  private static Semaphore mkdirsLock = new Semaphore(1);
-  
-  protected class TreeFile extends File {
-    
-    private static final long serialVersionUID = 5125295927077006487L;
-
-    TreeFile(String fileName) {
-      super(fileName);
-    }
-    
-    @Override
-    public boolean delete() {
-      boolean res = super.delete();
-      if (res)
-        deleteParent(new File(getParent()));
-      
-      return res;
-    }
-    
-    protected boolean deleteParent(File fp) {
-      boolean res = false;
-      String fpPath = fp.getAbsolutePath();
-      String rootPath = rootDir.getAbsolutePath();
-      if (fpPath.startsWith(rootPath) && fpPath.length() > rootPath.length())
-        if (fp.isDirectory()) {
-          String[] ls = fp.list();
-          if (ls.length<=0) {
-            if (res = fp.delete()) {
-              res = deleteParent(new File(fp.getParent()));
-            } else {
-              fLog.warn("Parent directory can not be deleted now. " + fp.getAbsolutePath());
-              cleaner.addFile(new TreeFile(fp.getAbsolutePath()));
-            }
-          }
-        } else
-          fLog.warn("Parent can not be a file but found " + fp.getAbsolutePath());
-      return res;
-    }
-  }
-  
   protected class TreeFileCleaner extends FileCleaner {
     @Override
     public synchronized void addFile(File file) {
-      super.addFile(new TreeFile(file.getAbsolutePath()));
-    }
-  }
-  
-  protected class TreeFileIOChannel extends FileIOChannel {
-    
-    TreeFileIOChannel(File rootDir, FileCleaner cleaner) {
-      super(rootDir, cleaner, getId());
-    }
-    
-    @Override
-    protected String makeFilePath(final String propertyId, final int orderNumber) {
-      return buildPath(propertyId) + File.separator + propertyId + orderNumber;
-    }
-
-    @Override
-    protected File getFile(final String propertyId, final int orderNumber) {
-      final TreeFile tfile = new TreeFile(rootDir.getAbsolutePath() + makeFilePath(propertyId, orderNumber));
-      mkdirs(tfile.getParentFile()); // make dirs on path
-      return tfile;
-      
-      // TODO clean
-//      File dir = new File(rootDir.getAbsolutePath() + buildPath(propertyId));
-//      mkdirs(dir); // synchronized
-//      return new TreeFile(dir.getAbsolutePath() + File.separator + propertyId + orderNumber);
-    }
-
-    @Override
-    protected File[] getFiles(final String propertyId) {
-      final File dir = new File(rootDir.getAbsolutePath() + buildPath(propertyId));
-      String[] fileNames = dir.list();
-      File[] files = new File[fileNames.length];
-      for (int i=0; i<fileNames.length; i++) {
-        files[i] = new TreeFile(dir.getAbsolutePath() + File.separator + fileNames[i]);
-      }
-      return files;
-    }
-    
-    protected String buildPath(String fileName) {
-      return buildPathX8(fileName);
-    }
-    
-    // not useful, as it slow in read/write
-    protected String buildPathX(String fileName) {
-      char[] chs = fileName.toCharArray();
-      String path = "";
-      for (char ch: chs) {
-        path += File.separator + ch;
-      }
-      return path;
-    }
-    
-    // best for now, 12.07.07
-    protected String buildPathX8(String fileName) {
-      final int xLength = 8;
-      char[] chs = fileName.toCharArray();
-      String path = "";
-      for (int i=0; i<xLength; i++) {
-        path += File.separator + chs[i];
-      }
-      path += fileName.substring(xLength);
-      return path;
-    }
-    
-    protected String buildPathXX2X4(String fileName) {
-      final int xxLength = 4;
-      final int xLength = 8;
-      boolean xxBlock = true;
-      char[] chs = fileName.toCharArray();
-      String path = "";
-      for (int xxi = 0; xxi<xxLength; xxi++) {
-        char ch = chs[xxi];
-        path += xxBlock ? File.separator + ch : ch;
-        xxBlock = !xxBlock;
-      }
-      for (int xi=xxLength; xi<xLength; xi++) {
-        path += File.separator + chs[xi];
-      }
-      path += fileName.substring(xLength);
-      return path;
-    }    
-    
-    protected String buildPathXX(String fileName) {
-      char[] chs = fileName.toCharArray();
-      String path = "";
-      boolean block = true;
-      for (char ch: chs) {
-        path += block ? File.separator + ch : ch;
-        block = !block;
-      }
-      return path;
-    }
-    
-    protected String buildPathXX8(String fileName) {
-      final int xxLength = 16; // length / 2 = xx length  
-      char[] chs = fileName.toCharArray();
-      String path = "";
-      boolean block = true;
-      for (int i=0; i<xxLength; i++) {
-        char ch = chs[i];
-        path += block ? File.separator + ch : ch;
-        block = !block;
-      }
-      path += fileName.substring(xxLength);
-      return path;
+      super.addFile(new TreeFile(file.getAbsolutePath(), cleaner, rootDir));
     }
   }
   
@@ -198,20 +43,6 @@ public class TreeFileValueStorage extends FileValueStorage {
   
   @Override
   public ValueIOChannel openIOChannel() throws IOException {
-    return new TreeFileIOChannel(rootDir, cleaner);
-  }
-  
-  static private boolean mkdirs(final File dir) {
-    // TODO issue on JIRA syncronized method removed and semaphore use
-    try {
-      mkdirsLock.acquire();
-      return dir.mkdirs();
-    } catch (InterruptedException e) {
-      //chLog.error("mkdirs error on " + dir.getAbsolutePath() + ". " + e, e);
-      //return false;
-      throw new IllegalStateException("mkdirs error on " + dir.getAbsolutePath() + " due to " + e, e);
-    } finally {
-      mkdirsLock.release();
-    }
+    return new TreeFileIOChannel(rootDir, cleaner, getId());
   }
 }

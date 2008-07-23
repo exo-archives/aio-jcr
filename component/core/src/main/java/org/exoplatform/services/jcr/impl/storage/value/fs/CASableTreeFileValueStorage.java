@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-
 package org.exoplatform.services.jcr.impl.storage.value.fs;
 
 import java.io.IOException;
@@ -22,16 +21,14 @@ import java.util.Properties;
 
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage;
-import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
 
 /**
- * Created by The eXo Platform SAS .
+ * Created by The eXo Platform SAS
  * 
- * @author Gennady Azarenkov
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-
-public class CASableSimpleFileValueStorage extends FileValueStorage {
+public class CASableTreeFileValueStorage extends TreeFileValueStorage {
 
   private ValueContentAddressStorage vcas;
 
@@ -52,10 +49,9 @@ public class CASableSimpleFileValueStorage extends FileValueStorage {
     }
     vcas.init(props);
   }
-
+  
   @Override
-  public ValueIOChannel openIOChannel() throws IOException {
-    return new CASableSimpleFileIOChannel(rootDir, cleaner, id, vcas, digestAlgo);
+  public FileIOChannel openIOChannel() throws IOException {
+    return new CASableTreeFileIOChannel(rootDir, cleaner, getId(), vcas, digestAlgo);
   }
-
 }

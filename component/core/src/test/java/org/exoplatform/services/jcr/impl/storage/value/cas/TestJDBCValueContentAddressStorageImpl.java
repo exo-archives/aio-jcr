@@ -31,7 +31,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * Date: 19.07.2008
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
- * @version $Id: TestJDBCValueContentAddressStorageImpl.java 111 2008-11-11 11:11:11Z peterit $
+ * @version $Id$
  */
 public class TestJDBCValueContentAddressStorageImpl extends JcrImplBaseTest {
 
@@ -147,5 +147,61 @@ public class TestJDBCValueContentAddressStorageImpl extends JcrImplBaseTest {
     }
   }
   
+  public void testAddExisting() throws Exception {
+    String propertyId, hashId;
+    vcas.add(propertyId = IdGenerator.generate(), 0, hashId = IdGenerator.generate());
+    
+    try {
+      vcas.add(propertyId, 0, hashId);
+      fail("RecordAlreadyExistsException should be thrown, record exists");
+    } catch (RecordAlreadyExistsException e) {
+      // ok
+    }
+  }
   
+  public void testReadNotExisting() throws Exception {
+    try {
+      vcas.getIdentifier(IdGenerator.generate(), 0);
+      fail("RecordNotFoundException should be thrown, record not found");
+    } catch (RecordNotFoundException e) {
+      // ok
+    }
+  }
+  
+  public void testReadNotExistingList() throws Exception {
+    try {
+      vcas.getIdentifiers(IdGenerator.generate(), false);
+      fail("RecordNotFoundException should be thrown, record not found");
+    } catch (RecordNotFoundException e) {
+      // ok
+    }
+    
+    try {
+      vcas.getIdentifiers(IdGenerator.generate(), true);
+      fail("RecordNotFoundException should be thrown, record not found");
+    } catch (RecordNotFoundException e) {
+      // ok
+    }
+  }
+  
+  public void testDeleteNotExisting() throws Exception {
+    try {
+      vcas.delete(IdGenerator.generate());
+      fail("RecordNotFoundException should be thrown, record not found");
+    } catch (RecordNotFoundException e) {
+      // ok
+    }
+  }
+  
+  public void testHasSharedContent() throws Exception {
+    String propertyId, hashId;
+    // multiplevalues property record
+    vcas.add(propertyId = IdGenerator.generate(), 0, hashId = IdGenerator.generate());
+    vcas.add(propertyId, 1, IdGenerator.generate());
+    
+    // singlevalued one
+    vcas.add(IdGenerator.generate(), 0, hashId);
+    
+    assertTrue("Property has shared content but the answer - false", vcas.hasSharedContent(propertyId));
+  }
 }

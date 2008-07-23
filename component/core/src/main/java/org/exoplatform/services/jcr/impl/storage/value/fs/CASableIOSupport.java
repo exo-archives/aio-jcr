@@ -18,16 +18,12 @@ package org.exoplatform.services.jcr.impl.storage.value.fs;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.impl.storage.value.cas.RecordAlreadyExistsException;
-import org.exoplatform.services.jcr.impl.storage.value.cas.RecordNotFoundException;
-import org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage;
+import org.exoplatform.services.jcr.impl.storage.value.cas.VCASException;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -40,7 +36,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class CASeableIOSupport {
+public class CASableIOSupport {
 
   private static Log            LOG                  = ExoLogger.getLogger("jcr.CASeableIOSupport");
 
@@ -48,12 +44,10 @@ public class CASeableIOSupport {
 
   protected final FileIOChannel channel;
 
-  //protected final ValueContentAddressStorage vcas;
   protected final String        digestAlgo;
 
-  CASeableIOSupport(FileIOChannel channel, ValueContentAddressStorage vcas, String digestAlgo) {
+  CASableIOSupport(FileIOChannel channel, String digestAlgo) {
     this.channel = channel;
-    //this.vcas = vcas;
     this.digestAlgo = digestAlgo;
   }
 
@@ -88,58 +82,19 @@ public class CASeableIOSupport {
   void saveFile(FileDigestOutputStream dout) throws IOException, RecordAlreadyExistsException {
 
     // work with digest
-    File hashFile = new File(channel.rootDir, channel.makeFilePath(dout.getDigestHash(), 0));
-    //File hashFile = new File(rootDir, hashId);
+    File vcasFile = new File(channel.rootDir, channel.makeFilePath(dout.getDigestHash(), 0));
+    // TODO (same performed in TreeFileIOChannel.getFile()) make sure parent dir exists
+    vcasFile.getParentFile().mkdirs();
 
-    // actually add content if not existed
-    // TODO created file with name inherited from this channel super class
-    // if same hash exists, the file should be removed
+    // Actually add content if not existed
+    // Created file with name inherited from this channel super class.
+    // If same hash exists, the file should be removed
     // if doesn't the file will be renamed to hash name.
-    if (hashFile.exists())
+    if (vcasFile.exists())
       // remove file if same exists
       dout.getFile().delete(); // should be ok without file cleaner
-    else
-    // rename propetynamed file to hashnamed one
-    if (!dout.getFile().renameTo(hashFile))
-      LOG.warn("File " + dout.getFile().getAbsolutePath() + " can't be renamed to hashnamed " + hashFile.getAbsolutePath());
+    else if (!dout.getFile().renameTo(vcasFile)) // rename propetynamed file to hashnamed one
+      throw new VCASException("File " + dout.getFile().getAbsolutePath() + " can't be renamed to VCAS-named "
+          + vcasFile.getAbsolutePath());
   }
-
-  //  /**
-  //   * Construct file name for given hash id using particular FileIOChannel.
-  //   * 
-  //   * @param hashId
-  //   * @return
-  //   */
-  //  private String makeFilePath(final String hashId) {
-  //    return "h-" + channel.makeFilePath(hashId, 0);  // TODO remove h-
-  //  }
-  //  
-  //  /**
-  //   * Construct file name for value by property id and order number.
-  //   * 
-  //   * @param propertyId
-  //   * @param orderNumber
-  //   * @return
-  //   * @throws RecordNotFoundException
-  //   */
-  //  String makeFilePath(final String propertyId, final int orderNumber) throws RecordNotFoundException {
-  //    return makeFilePath(vcas.getIdentifier(propertyId, orderNumber));
-  //  }
-  //  
-  //  /**
-  //   * Construct files names array for property.
-  //   * 
-  //   * @param propertyId
-  //   * @return
-  //   */
-  //  String[] getFilesPaths(final String propertyId) {
-  //    List <String> fileList = new ArrayList <String>();
-  //    for(String hashId : vcas.getIdentifiers(propertyId))  
-  //      fileList.add(makeFilePath(hashId));
-  //    
-  //    String[] files = new String[fileList.size()];
-  //    fileList.toArray(files);
-  //    return files;
-  //  }
-
 }

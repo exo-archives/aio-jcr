@@ -44,9 +44,13 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
  */
 
 public interface ValueContentAddressStorage {
-  
+
+  static final String DIGEST_ALGO_PARAM = "digest-algo";
+  static final String VCAS_TYPE_PARAM = "vcas-type";
+    
   /**
-   * deletes the address for given property value
+   * Deletes the address for given property value.
+   * 
    * @param propertyId
    * @param orderNum
    * @throws RecordNotFoundException
@@ -55,6 +59,8 @@ public interface ValueContentAddressStorage {
     
 
   /**
+   * Add property address record to the storage.
+   * 
    * @param propertyId
    * @param orderNum
    * @param identifier
@@ -63,34 +69,38 @@ public interface ValueContentAddressStorage {
   void add(String propertyId, int orderNum, String identifier) throws RecordAlreadyExistsException, VCASException;
 
   /**
+   * Return CAS Identifier (address) by given property id and value order number.
    * 
    * @param propertyId
    * @param orderNum
-   * @return identifier
-   * @throws RecordNotFoundException
+   * @return identifier - content address
+   * @throws RecordNotFoundException if no item found
    */
   String getIdentifier(String propertyId, int orderNum) throws RecordNotFoundException, VCASException;
   
   
   /**
-   * Return identifiers list for the given property.<br/>
+   * Return identifiers (addresses) list for the given property.<br/>
    * 
    * @param propertyId - property id
    * @param ownOnly - boolean, if true the list will contains only owned values, false - all, including shared
-   * @return identifier
+   * @return identifiers - content address list  
    */
   List <String> getIdentifiers(String propertyId, boolean ownOnly) throws RecordNotFoundException, VCASException;
   
   /**
-   * Tell if given property shares content with other properties.
-   * 
+   * Tell if given property shares content with other properties.<br/>
+   *
+   * NOTE: not used now.
+   *  
    * @param propertyId
    * @return boolean flag, true if given property shares content with other properties
    */
   boolean hasSharedContent(String propertyId) throws RecordNotFoundException, VCASException;
   
   /**
-   * initializes VCAS
+   * Initializes values CAS.
+   * 
    * @param props
    * @throws IOException
    */

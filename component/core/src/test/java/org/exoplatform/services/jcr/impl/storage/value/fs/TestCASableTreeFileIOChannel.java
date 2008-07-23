@@ -30,8 +30,8 @@ import org.exoplatform.services.jcr.impl.storage.value.cas.JDBCValueContentAddre
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public class TestCASableSimpleFileIOChannel extends CASableFileIOChannelTestBase {
-
+public class TestCASableTreeFileIOChannel extends CASableFileIOChannelTestBase {
+  
   @Override
   protected void initVCAS() throws Exception {
     Properties props = new Properties();
@@ -56,10 +56,10 @@ public class TestCASableSimpleFileIOChannel extends CASableFileIOChannelTestBase
     vcas = new JDBCValueContentAddressStorageImpl();
     vcas.init(props);
   }
-
+  
   @Override
   protected FileIOChannel openCASChannel(String digestType) throws Exception {
-    return new CASableSimpleFileIOChannel(rootDir, fileCleaner, storageId, vcas, digestType);
+    return new CASableTreeFileIOChannel(rootDir, fileCleaner, storageId, vcas, digestType);
   }
   
 }

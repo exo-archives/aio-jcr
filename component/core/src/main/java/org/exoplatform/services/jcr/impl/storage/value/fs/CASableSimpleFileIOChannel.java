@@ -21,9 +21,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.impl.storage.value.cas.RecordAlreadyExistsException;
 import org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS        .
@@ -32,10 +35,10 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
  */
 
 public class CASableSimpleFileIOChannel extends SimpleFileIOChannel {
+
+  static private final Log LOG = ExoLogger.getLogger("jcr.CASableSimpleFileIOChannel");
   
-  //private static Log LOG = ExoLogger.getLogger("jcr.CASableSimpleFileIOChannel");
-  
-  private final CASeableIOSupport cas;
+  private final CASableIOSupport cas;
   
   private final ValueContentAddressStorage vcas;
   
@@ -44,78 +47,33 @@ public class CASableSimpleFileIOChannel extends SimpleFileIOChannel {
     super(rootDir, cleaner, storageId);
     
     this.vcas = vcas;
-    this.cas = new CASeableIOSupport(this, vcas, digestAlgo);
+    this.cas = new CASableIOSupport(this, digestAlgo);
   }
-  
-
-//  @Override
-//  public void write(String propertyId, ValueData value) throws IOException {
-//    
-//    // TODO an algorithm? ("SHA", MD5)
-//    MessageDigest md;
-//    try {
-//      md = MessageDigest.getInstance(digestAlgo);
-//    } catch (NoSuchAlgorithmException e) {
-//      LOG.error("Can't wriet using " + digestAlgo + " algorithm, " + e, e);
-//      throw new IOException(e.getMessage());
-//    }
-//    
-//    // TODO create file in actual location but with special name
-//    File tempfile = File.createTempFile("tmp", "tmp");
-//    FileOutputStream out = new FileOutputStream(tempfile);
-//    byte[] id = null;
-//    
-//    if (value.isByteArray()) {
-//      byte[] buff = value.getAsByteArray();
-//      out.write(buff);
-//      
-//      md.update(buff);
-//      id = md.digest();
-//      
-//    } else {
-//      
-//      byte[] buffer = new byte[FileIOChannel.IOBUFFER_SIZE];
-//      int len;
-//      InputStream in = value.getAsStream();
-//      while ((len = in.read(buffer)) > 0) {
-//        out.write(buffer, 0, len);
-//        
-//        md.update(buffer);
-//      }
-//      
-//      id = md.digest();
-//    }
-//    out.close();
-//    
-//    String identifier = new String(id);
-//    File outfile = new File(rootDir, identifier);
-//    
-//    // actually add content if not existed
-//    // TODO don't use renameTo 
-//    if(!outfile.exists())
-//      tempfile.renameTo(outfile);
-//    else
-//      tempfile.delete(); // should be ok without file cleaner
-//    // add reference to content anyway
-//    vcas.add(propertyId, value.getOrderNumber(), identifier);
-//  }
   
   @Override
   public void write(String propertyId, ValueData value) throws IOException {
-    // calc dogest hash
+    // calc digest hash
     // TODO optimize with NIO
     // we need hash at first to know do we have to store file or just use one existing (with same hash)
-    FileDigestOutputStream out = cas.openFile(new File(rootDir, propertyId + value.getOrderNumber() + ".cas-temp"));
+    File temp = new File(rootDir, propertyId + value.getOrderNumber() + ".cas-temp");
+    FileDigestOutputStream out = cas.openFile(temp);
     writeOutput(out, value);
     
     // close stream
     out.close();
    
-    // rename to hashnamed
-    cas.saveFile(out);
-    
-    // add reference to content anyway
-    vcas.add(propertyId, value.getOrderNumber(), out.getDigestHash());
+    // add reference to content
+    try {
+      vcas.add(propertyId, value.getOrderNumber(), out.getDigestHash());
+      // rename to VCAS-named
+      cas.saveFile(out);
+    } catch (RecordAlreadyExistsException e) {
+      if (!temp.delete()) {
+        LOG.warn("Can't delete cas-temp file. Added to file cleaner. " + temp.getAbsolutePath());
+        cleaner.addFile(temp);
+      }
+      throw new RecordAlreadyExistsException("Write error: " + e, e);
+    }
   }
   
   /**
@@ -139,7 +97,7 @@ public class CASableSimpleFileIOChannel extends SimpleFileIOChannel {
 
   @Override
   protected File getFile(String propertyId, int orderNumber) throws IOException {
-    return super.getFile(vcas.getIdentifier(propertyId, orderNumber), CASeableIOSupport.HASHFILE_ORDERNUMBER);
+    return super.getFile(vcas.getIdentifier(propertyId, orderNumber), CASableIOSupport.HASHFILE_ORDERNUMBER);
   }
   
   /**
@@ -154,22 +112,11 @@ public class CASableSimpleFileIOChannel extends SimpleFileIOChannel {
    * @return actual files on file system related to given propertyId
    */
   @Override
-  protected File[] getFiles(String propertyId) throws IOException {
-//    List <File> fileList = new ArrayList <File>();
-//    for(String identifier : vcas.getIdentifiers(propertyId))  
-//      fileList.add(new File(rootDir, identifier));// TODO getFile
-//    
-//    File[] files = new File[fileList.size()];
-//    int i=0;
-//    for(File file : fileList)
-//      files[i++] = file;
-//      
-//    return files;
-    
+  protected File[] getFiles(String propertyId) throws IOException {   
     List<String> hids = vcas.getIdentifiers(propertyId, true); // return only own ids
     File[] files = new File[hids.size()];
     for (int i=0; i<hids.size(); i++)
-      files[i] = super.getFile(hids.get(i), CASeableIOSupport.HASHFILE_ORDERNUMBER);  
+      files[i] = super.getFile(hids.get(i), CASableIOSupport.HASHFILE_ORDERNUMBER);  
     
     return files;
   }
