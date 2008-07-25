@@ -108,9 +108,11 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
         log.debug("Create SessionProvider for anonymous.");
       provider = SessionProvider.createAnonimProvider();
     }
+    ConversationState.getCurrent().setAttribute(SessionProvider.SESSION_PROVIDER, provider);
     providerService.setSessionProvider(null, provider);
     chain.doFilter(request, response);
     // remove SessionProvider
+    ConversationState.getCurrent().removeAttribute(SessionProvider.SESSION_PROVIDER);
     providerService.removeSessionProvider(null);
   }
 
