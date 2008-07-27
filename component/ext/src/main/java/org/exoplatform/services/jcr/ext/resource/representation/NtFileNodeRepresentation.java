@@ -104,6 +104,15 @@ public class NtFileNodeRepresentation implements NodeRepresentation {
     }
     
   }
+  
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperties(java.lang.String)
+   */
+  public Collection <HierarchicalProperty> getProperties(String name) throws RepositoryException { 
+    ArrayList <HierarchicalProperty> props = new ArrayList <HierarchicalProperty>();
+    props.add(getProperty(name));
+    return props;
+  }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getPropertyNames()

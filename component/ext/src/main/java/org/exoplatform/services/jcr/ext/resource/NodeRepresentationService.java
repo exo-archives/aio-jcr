@@ -138,25 +138,6 @@ public class NodeRepresentationService implements Startable {
 
   }
 
-  // public void addPlugin(ComponentPlugin plugin) {
-  // if (plugin instanceof NodeRepresentationFactoryLoaderPlugin) {
-  // Map<String, String> factories =
-  // ((NodeRepresentationFactoryLoaderPlugin)plugin).getFactories();
-  // for (String key : factories.keySet()) {
-  // try {
-  // Class<? extends NodeRepresentationFactory> factoryType =
-  // (Class<? extends NodeRepresentationFactory>)
-  // Class.forName(factories.get(key));
-  // NodeRepresentationFactory factory = factoryType.newInstance();
-  // addNodeRepresentationFactory(key, factory);
-  // Log.info("Add new NodeRepresentationFactory " + factories.get(key));
-  // } catch (Exception e) {
-  // Log.error("Failed add NodeRepresentationFactory " + factories.get(key));
-  // e.printStackTrace();
-  // }
-  // }
-  // }
-  // }
 
   private NodeRepresentationFactory factory(Node node)
       throws RepositoryException {
@@ -229,6 +210,16 @@ public class NodeRepresentationService implements Startable {
       return null;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperty(java.lang.String)
+     */
+    public Collection <HierarchicalProperty> getProperties(String name)
+        throws RepositoryException {
+      return null;
+    }
+    
     /*
      * (non-Javadoc)
      * 

@@ -97,6 +97,15 @@ public class NtResourceNodeRepresentation implements NodeRepresentation {
     return new HierarchicalProperty(name, value, ns);
     //return new HierarchicalProperty(name, value);
   }
+  
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperties(java.lang.String)
+   */
+  public Collection <HierarchicalProperty> getProperties(String name) throws RepositoryException { 
+    ArrayList <HierarchicalProperty> props = new ArrayList <HierarchicalProperty>();
+    props.add(getProperty(name));
+    return props;
+  }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getPropertyNames()

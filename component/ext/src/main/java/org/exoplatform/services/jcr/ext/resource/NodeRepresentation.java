@@ -63,20 +63,27 @@ public interface NodeRepresentation {
   Collection <String> getPropertyNames () throws RepositoryException;
   
   /**
-   * @param name the name of properties.
-   * @return the properties with specified name.
+   * @param name the name of properties. 
+   * @return the property with specified name. 
+   * Note that there can be multiple same name properties, in this case any one will be returned.
    */
   HierarchicalProperty getProperty(String name) throws RepositoryException;
   
   /**
-   * Get date of last modified, it useful for nt:file.
+   * @param name the name of properties. 
+   * @return the properties with specified name.
+   */
+  Collection <HierarchicalProperty> getProperties(String name) throws RepositoryException;
+  
+  /**
+   * Get date of last modified if available.
    * @return the date of last modified.
    * @throws RepositoryException
    */
   long getLastModified() throws RepositoryException;
   
   /**
-   * @return the node.
+   * @return the underlying node.
    */
   Node getNode();
   
