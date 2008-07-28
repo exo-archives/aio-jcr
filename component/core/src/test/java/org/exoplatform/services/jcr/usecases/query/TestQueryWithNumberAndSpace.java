@@ -36,6 +36,11 @@ import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
  */
 public class TestQueryWithNumberAndSpace extends BaseUsecasesTest {
   
+  /**
+   * Test of number as path in query.
+   * 
+   * @throws Exception
+   */
   public void testQuery1() throws Exception {
     System.out.println("\n\n----------Test query contains number\n\n");
     Node document = root.addNode("Document", "nt:unstructured");
@@ -59,24 +64,36 @@ public class TestQueryWithNumberAndSpace extends BaseUsecasesTest {
     NodeIterator iterate = null;
     
     QueryManager queryManager = session.getWorkspace().getQueryManager();
-    query = queryManager.createQuery("/jcr:root/Document/Test1//*", Query.XPATH);
+    
+    
+    query = queryManager.createQuery("/jcr:root/Document/element(Test1, nt:unstructured)", Query.XPATH);
     result = query.execute();
     iterate = result.getNodes();    
-    assertEquals(iterate.getSize(), 2);    
-        
+    assertEquals(1,iterate.getSize());
+    
+    query = queryManager.createQuery("SELECT * FROM nt:unstructured WHERE jcr:path LIKE '/Document/2008'",
+        Query.SQL);
+    result = query.execute();
+    assertEquals(1, result.getNodes().getSize());
+    
     try {
-      query = queryManager.createQuery("/jcr:root/Document/2008//*", Query.XPATH);
+      query = queryManager.createQuery("/jcr:root/document/element(2008, nt:unstructured)", Query.XPATH);
       result = query.execute();    
+      fail(); // there must be InvalidQueryException - XPATH do not support numbers in path 
     } catch (InvalidQueryException e) {
-      fail("This query throw an Invalid QueryException");
-      e.printStackTrace();
+      // correct
     }    
     
-//  remove data
-    root.remove();
+    // remove data
+    document.remove();
     session.save();
   }
   
+  /**
+   * Test of string with whitespace as path in query.
+   * 
+   * @throws Exception
+   */
   public void testQuery2() throws Exception {
     System.out.println("\n\n----------Test Query contains space\n\n");
     Node document = root.addNode("Document", "nt:unstructured");
@@ -89,13 +106,23 @@ public class TestQueryWithNumberAndSpace extends BaseUsecasesTest {
     session.save();
     
     QueryManager queryManager = session.getWorkspace().getQueryManager();
-    Query query = queryManager.createQuery("/jcr:root/Document/test A//*", Query.XPATH);
-    QueryResult result = query.execute();
-    NodeIterator iterate = result.getNodes();
-    assertEquals(iterate.getSize(), 2);    
     
-//  remove data
-    root.remove();
+    Query  query = queryManager.createQuery("SELECT * FROM nt:unstructured WHERE jcr:path LIKE '/Document/test A'",
+        Query.SQL);
+    QueryResult result = query.execute();
+    assertEquals(1, result.getNodes().getSize());
+    
+    try{
+      query = queryManager.createQuery("/jcr:root/document/element('test A', nt:unstructured)", Query.XPATH);
+      result = query.execute();
+      NodeIterator iterate = result.getNodes();
+      assertEquals(1,iterate.getSize());
+    } catch (InvalidQueryException e) {
+      // correct
+    }    
+    
+    // remove data
+    document.remove();
     session.save();
   }
 }
