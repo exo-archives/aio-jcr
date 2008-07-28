@@ -97,7 +97,7 @@ public interface WebDavService {
    */
   Response copy(String repoName, String repoPath,
       String destinationHeader, String lockTokenHeader, String ifHeader,
-      String baseURI, HierarchicalProperty body);
+      String depthHeader, String overwriteHeader, String baseURI, HierarchicalProperty body);
 
   /**
    * @param repoName
@@ -125,7 +125,7 @@ public interface WebDavService {
    */
   Response move(String repoName, String repoPath,
       String destinationHeader, String lockTokenHeader, String ifHeader,
-      String baseURI, HierarchicalProperty body);
+      String depthHeader, String overwriteHeader, String baseURI, HierarchicalProperty body);
 
   /**
    * @return HTTP response
@@ -140,7 +140,7 @@ public interface WebDavService {
    * @param body
    * @return HTTP response
    */
-  Response propfind(String repoName, String repoPath, String depth,
+  Response propfind(String repoName, String repoPath, String depthHeader,
       String baseURI, HierarchicalProperty body);
   
   /**

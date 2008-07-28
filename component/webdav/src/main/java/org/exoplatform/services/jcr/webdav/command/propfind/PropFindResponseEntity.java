@@ -33,6 +33,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.webdav.Depth;
 import org.exoplatform.services.jcr.webdav.resource.CollectionResource;
 import org.exoplatform.services.jcr.webdav.resource.IllegalResourceTypeException;
 import org.exoplatform.services.jcr.webdav.resource.Resource;
@@ -121,9 +122,15 @@ public class PropFindResponseEntity implements SerializableEntity {
 		PropertyWriteUtil.writePropStats(xmlStreamWriter, propstat.getPropStats());
 
 		xmlStreamWriter.writeEndElement();
+		
+		int d = depth;
+		
+		if (depth == -1){
+
+		}
 
     if(resource.isCollection()) {
-      if (counter < depth) {
+      if (counter < d) {
         CollectionResource collection = (CollectionResource)resource;
         for(Resource child : collection.getResources()) {
           traverseResources(child, counter + 1);

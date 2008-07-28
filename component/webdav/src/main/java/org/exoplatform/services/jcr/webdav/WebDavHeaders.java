@@ -61,7 +61,8 @@ public class WebDavHeaders {
   
   public static final String MULTIPART_BYTERANGES
       = "multipart/byteranges; boundary=";
-
+  
+  public static final String OVERWRITE = "Overwrite";
 
 }
 

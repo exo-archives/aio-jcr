@@ -110,7 +110,7 @@ public class PropFindCommand {
 		
     if(request.getType().equalsIgnoreCase("allprop")) {
       response = new PropFindResponseEntity(depth, resource, null, false);
-    } else if(request.getType().equalsIgnoreCase("propnames")) {
+    } else if(request.getType().equalsIgnoreCase("propname")) {
       response = new PropFindResponseEntity(depth, resource, null, true);
     } else if(request.getType().equalsIgnoreCase("prop")) {      
       response = new PropFindResponseEntity(depth, resource, propertyNames(body), false);

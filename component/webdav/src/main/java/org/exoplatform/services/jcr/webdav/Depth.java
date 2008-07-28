@@ -38,9 +38,14 @@ public class Depth {
     } else {
       try {
         this.intValue = new Integer(strValue);
+        
+        if((this.intValue != 1) && (this.intValue != 0) && (this.intValue != INFINITY_VALUE)){
+          throw new PreconditionException("Invalid depth value " + strValue); 
+        }
+        
         this.stringValue = strValue;
       } catch (NumberFormatException e) {
-        throw new PreconditionException("Invalid depth value "+strValue);
+        throw new PreconditionException("Invalid depth value " + strValue);
       }
     }
   }

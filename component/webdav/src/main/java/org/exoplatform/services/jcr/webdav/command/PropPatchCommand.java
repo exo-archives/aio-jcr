@@ -18,6 +18,7 @@
 package org.exoplatform.services.jcr.webdav.command;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -26,6 +27,7 @@ import javax.jcr.Session;
 import javax.jcr.lock.LockException;
 import javax.xml.namespace.QName;
 
+import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.command.proppatch.PropPatchResponseEntity;
@@ -49,7 +51,8 @@ public class PropPatchCommand {
   }
   
   public Response propPatch(Session session, String path, HierarchicalProperty body, List<String> tokens, String baseURI) {
-    try {
+    try {      
+     
       lockHolder.checkLock(session, path, tokens);
 
       Node node = (Node)session.getItem(path);
@@ -57,8 +60,15 @@ public class PropPatchCommand {
       WebDavNamespaceContext nsContext = new WebDavNamespaceContext(session);
       URI uri = new URI(TextUtil.escape(baseURI + node.getPath(), '%', true));
       
-      List<HierarchicalProperty> setList = setList(body);
-      List<HierarchicalProperty> removeList = removeList(body);
+      List<HierarchicalProperty> setList = Collections.emptyList();
+      if (body.getChild(new QName("DAV:", "set")) != null){
+        setList = setList(body);
+      }
+
+      List<HierarchicalProperty> removeList = Collections.emptyList();
+      if (body.getChild(new QName("DAV:", "remove")) != null){
+        removeList = removeList(body);
+      }
       
       PropPatchResponseEntity entity = new PropPatchResponseEntity(nsContext, node, uri, setList, removeList);
       return Response.Builder.withStatus(WebDavStatus.MULTISTATUS).entity(entity).build();

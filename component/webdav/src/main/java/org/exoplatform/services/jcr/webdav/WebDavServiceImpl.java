@@ -201,33 +201,56 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       @HeaderParam(WebDavHeaders.DESTINATION) String destinationHeader,  
       @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
       @HeaderParam(WebDavHeaders.IF) String ifHeader,
+      @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
+      @HeaderParam(WebDavHeaders.OVERWRITE) String overwriteHeader,
       @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
-      HierarchicalProperty body) {	
+      HierarchicalProperty body) {  
     
     log.debug("COPY " + repoName + "/" + repoPath);
-	  
+    
     try {
       String serverURI = baseURI + "/jcr/" + repoName;
 
       destinationHeader = TextUtil.unescape(destinationHeader, '%');
-	  
+    
       if (!destinationHeader.startsWith(serverURI)) {
         return Response.Builder.withStatus(WebDavStatus.BAD_GATEWAY).build();
       }
-	  
+    
       String destPath = destinationHeader.substring(serverURI.length() + 1);
       String destWorkspace = workspaceName(destPath);
 
       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
-
-      String srcWorkspace = workspaceName(repoPath);
-      if (srcWorkspace.equals(destWorkspace)) {
+      
+      Depth depth = new Depth(depthHeader);
+      
+      if (depth.getStringValue().equalsIgnoreCase("infinity")) {        
+        String srcWorkspace = workspaceName(repoPath);
+        
+        if (srcWorkspace.equals(destWorkspace)) {
+          Session session = session(repoName, destWorkspace, lockTokens);
+          return new CopyCommand().copy(session, path(repoPath), path(destPath));
+        }
+        
+        Session destSession = session(repoName, destWorkspace, lockTokens);
+        return new CopyCommand().copy(destSession, srcWorkspace, path(repoPath), path(destPath));
+        
+      } else 
+      if (depth.getIntValue() == 0){
+        
+        int nodeNameStart = repoPath.lastIndexOf('/') + 1;
+        String nodeName = repoPath.substring(nodeNameStart);
+        
         Session session = session(repoName, destWorkspace, lockTokens);
-        return new CopyCommand().copy(session, path(repoPath), path(destPath));
+        
+        return new MkColCommand(nullResourceLocks).mkCol(session, path(destPath + "/" + nodeName), 
+            defaultFolderNodeType, null, lockTokens);
+        
+      } else
+      {
+        return Response.Builder.withStatus(WebDavStatus.BAD_REQUEST).build();
       }
 
-      Session destSession = session(repoName, destWorkspace, lockTokens);
-      return new CopyCommand().copy(destSession, srcWorkspace, path(repoPath), path(destPath));
     } catch (Exception e) {
       e.printStackTrace();
       return Response.Builder.serverError().build();
@@ -350,7 +373,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 	      @URIParam("repoPath") String repoPath,
 	      @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
 	      @HeaderParam(WebDavHeaders.IF) String ifHeader,
-	      @HeaderParam(WebDavHeaders.DEPTH) String depth,
+	      @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
 	      @HeaderParam(WebDavHeaders.TIMEOUT) String timeout,
 	      HierarchicalProperty body) {	           
     
@@ -359,7 +382,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     try {
       Session session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader, ifHeader));
       return new LockCommand(nullResourceLocks).
-        lock(session, path(repoPath), body, new Depth(depth), "86400");
+        lock(session, path(repoPath), body, new Depth(depthHeader), "86400");
 
     } catch (PreconditionException e) {
       
@@ -452,6 +475,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       @HeaderParam(WebDavHeaders.DESTINATION) String destinationHeader,  
       @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
       @HeaderParam(WebDavHeaders.IF) String ifHeader,
+      @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
+      @HeaderParam(WebDavHeaders.OVERWRITE) String overwriteHeader,
       @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
       HierarchicalProperty body) {     
 
@@ -466,6 +491,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
         return Response.Builder.withStatus(WebDavStatus.BAD_GATEWAY).build();
       }
       
+
+      
       String destPath = destinationHeader.substring(serverURI.length() + 1);
       String destWorkspace = workspaceName(destPath);
       
@@ -473,19 +500,27 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
       
-      if (srcWorkspace.equals(destWorkspace)) {
-        Session session = session(repoName, srcWorkspace, lockTokens);
-        return new MoveCommand().move(session, path(repoPath), path(destPath));
-      }
+      Depth depth = new Depth(depthHeader); 
       
-      Session srcSession = session(repoName, srcWorkspace, lockTokens);
-      Session destSession = session(repoName, destWorkspace, lockTokens);        
-      return new MoveCommand().move(srcSession, destSession, path(repoPath), path(destPath));      
+      if (depth.getStringValue().equalsIgnoreCase("Infinity")) {
+        if (srcWorkspace.equals(destWorkspace)) {
+          Session session = session(repoName, srcWorkspace, lockTokens);
+          return new MoveCommand().move(session, path(repoPath), path(destPath));
+        }
+      
+        Session srcSession = session(repoName, srcWorkspace, lockTokens);
+        Session destSession = session(repoName, destWorkspace, lockTokens);        
+        return new MoveCommand().move(srcSession, destSession, path(repoPath), path(destPath));        
+      } else {
+        return Response.Builder.withStatus(WebDavStatus.BAD_REQUEST).build();
+      }      
+      
     } catch (Exception exc) {
       return Response.Builder.serverError().build();
     }
-		
-	}
+    
+  }
+
 
   @HTTPMethod(WebDavMethods.OPTIONS)
   @URITemplate("/{repoName}/")
@@ -562,7 +597,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   public Response propfind(
       @URIParam("repoName") String repoName,
       @URIParam("repoPath") String repoPath,
-      @HeaderParam(WebDavHeaders.DEPTH) String depth,
+      @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
       @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
       HierarchicalProperty body) {
     
@@ -570,8 +605,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     
     try {
       Session session = session(repoName, workspaceName(repoPath), null);
-      String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath); 
-      return new PropFindCommand().propfind(session, path(repoPath), body, new Integer(depth).intValue(), uri);
+      String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
+      Depth depth = new Depth(depthHeader);
+      return new PropFindCommand().propfind(session, path(repoPath), body, depth.getIntValue(), uri);
     } catch (NoSuchWorkspaceException e) {		  
       e.printStackTrace();
       return Response.Builder.notFound().build();			
@@ -660,18 +696,18 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   public Response report(
       @URIParam("repoName") String repoName,
       @URIParam("repoPath") String repoPath,
-      @HeaderParam(WebDavHeaders.DEPTH) String depth,      
+      @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,      
       @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
       HierarchicalProperty body) {
     
     log.debug("REPORT " + repoName + "/" + repoPath);
     
     try {
-      Depth d;
+      Depth depth;
       Session session = session(repoName, workspaceName(repoPath), null);
-      d = new Depth(depth);
+      depth = new Depth(depthHeader);
       String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath); 
-      return new ReportCommand().report(session, path(repoPath), body, d, uri);      
+      return new ReportCommand().report(session, path(repoPath), body, depth, uri);      
     } catch (NoSuchWorkspaceException exc) {
       return Response.Builder.notFound().build();      
     } catch (Exception exc) {
