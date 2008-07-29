@@ -1,0 +1,13 @@
+[Scripts]
+eXo Release Script
+[eXo Release Script]
+SetupModule=ExoKofaxReleaseScript.dll
+SetupProgID=Exo.KfxReleaseScript.KfxReleaseSetupScript
+SetupVersion=1.0
+ReleaseModule=ExoKofaxReleaseScript.dll
+ReleaseProgID=Exo.KfxReleaseScript.KfxReleaseScript
+ReleaseVersion=1.0
+SupportsNonImageFiles=True
+RemainLoaded=True
+SupportsKofaxPDF=True
+SupportsOriginalFileName=True

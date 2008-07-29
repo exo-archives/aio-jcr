@@ -1,0 +1,46 @@
+<project>
+  <parent>
+    <groupId>org.exoplatform.jcr</groupId>
+    <artifactId>config</artifactId>
+    <version>1.9.1</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>exo.jcr.applications.rest</artifactId>
+  <version>${org.exoplatform.jcr.version}</version>
+  <packaging>war</packaging>
+  <name>eXO JCR Rest web application</name>
+  <url>http://www.exoplatform.org</url>
+  <description>eXO JCR Rest web application</description>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.framework.web</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <finalName>rest</finalName>
+    <plugins>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <!-- This is broken in maven-war-plugin 2.0, works in 2.0.1 -->
+          <warSourceExcludes>WEB-INF/lib/*.jar</warSourceExcludes>
+          <archive>
+            <manifest>
+              <addClasspath>false</addClasspath>
+              <classpathPrefix>lib/</classpathPrefix>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

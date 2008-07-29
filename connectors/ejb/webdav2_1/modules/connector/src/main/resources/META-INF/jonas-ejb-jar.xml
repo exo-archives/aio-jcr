@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jonas-ejb-jar xmlns="http://www.objectweb.org/jonas/ns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.objectweb.org/jonas/ns http://jonas.objectweb.org/ns/jonas-ejb-jar_4_6.xsd">
+  <jonas-session>
+    <ejb-name>WebDAVEJBConnector</ejb-name>
+    <jndi-name>WebDAVEJBConnector</jndi-name>
+    <jndi-local-name>WebDAVEJBConnectorLocal</jndi-local-name>
+  </jonas-session>
+</jonas-ejb-jar>

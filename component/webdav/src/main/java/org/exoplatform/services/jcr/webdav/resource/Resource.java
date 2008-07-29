@@ -1,0 +1,90 @@
+/*
+ * Copyright (C) 2003-2007 eXo Platform SAS.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see<http://www.gnu.org/licenses/>.
+ */
+
+package org.exoplatform.services.jcr.webdav.resource;
+
+import java.net.URI;
+import java.util.Set;
+
+import javax.jcr.AccessDeniedException;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.xml.namespace.QName;
+
+import org.exoplatform.common.util.HierarchicalProperty;
+import org.exoplatform.services.jcr.webdav.util.PropertyConstants;
+import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
+
+/**
+ * Created by The eXo Platform SARL .<br/>
+ * WebDAV applicable abstraction of REST Resource definition
+ * (by Fielding: "Any information that can be named can be a resource... Inother words: 
+ * any concept that might be the target of an author's 
+ * hypertext reference must fit within the definition of a resource")
+ * Here the REST resource abstraction is some narrowed to the WebDAV needs  
+ * @author Gennady Azarenkov
+ * @version $Id: $
+ */
+
+public interface Resource extends PropertyConstants {
+	
+	public static final int FILE = 1;
+	public static final int COLLECTION = 2;
+	public static final int VERSION = 4;
+	public static final int VERSIONED_FILE = 5;
+	public static final int VERSIONED_COLLECTION = 6;
+	public static final int VERSION_HISTORY = 8;
+	public static final int NULL = 0;
+
+	/**
+	 * @return resource identifier
+	 */
+	URI getIdentifier();
+
+	/**
+	 * @return resource type
+	 */
+	int getType();
+	
+	/**
+	 * @param name
+	 * @return property by its name
+	 * @throws PathNotFoundException
+	 * @throws AccessDeniedException
+	 * @throws RepositoryException
+	 */
+	HierarchicalProperty getProperty(QName name) throws PathNotFoundException, AccessDeniedException, RepositoryException;
+
+	/**
+	 * @param namesOnly - if true "empty" properties will be returned (w/o values inside)
+	 * @return all properties belonging to this resource
+	 * @throws RepositoryException
+	 */
+	Set <HierarchicalProperty> getProperties(boolean namesOnly) throws RepositoryException;
+	
+	/**
+	 * @return true if this is collection-able resource - i.e. this 
+	 * resource may contain other resources
+	 */
+	boolean isCollection();
+	
+	/**
+	 * @return namespace context for this resource
+	 */
+	WebDavNamespaceContext getNamespaceContext();
+
+}

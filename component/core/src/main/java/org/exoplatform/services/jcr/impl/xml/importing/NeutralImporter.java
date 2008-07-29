@@ -1,0 +1,159 @@
+/*
+ * Copyright (C) 2003-2007 eXo Platform SAS.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see<http://www.gnu.org/licenses/>.
+ */
+package org.exoplatform.services.jcr.impl.xml.importing;
+
+import java.util.Map;
+
+import javax.jcr.NamespaceRegistry;
+import javax.jcr.RepositoryException;
+
+import org.exoplatform.services.jcr.access.AccessManager;
+import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
+import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.impl.core.LocationFactory;
+import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
+import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
+import org.exoplatform.services.jcr.impl.util.NodeTypeRecognizer;
+import org.exoplatform.services.security.ConversationState;
+
+/**
+ * The main purpose of class is determinate of import document type
+ * 
+ * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
+ * @version $Id: NeutralImporter.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ */
+public class NeutralImporter extends BaseXmlImporter {
+
+  private ContentImporter contentImporter = null;
+
+  // private final NodeData parent;
+
+  public NeutralImporter(NodeData parent,
+                         QPath ancestorToSave,
+                         int uuidBehavior,
+                         ItemDataConsumer dataConsumer,
+                         NodeTypeManagerImpl ntManager,
+                         LocationFactory locationFactory,
+                         ValueFactoryImpl valueFactory,
+                         NamespaceRegistry namespaceRegistry,
+                         AccessManager accessManager,
+                         ConversationState userState,
+                         Map<String, Object> context,
+                         RepositoryImpl repository,
+                         String currentWorkspaceName) {
+    super(parent,
+          ancestorToSave,
+          uuidBehavior,
+          dataConsumer,
+          ntManager,
+          locationFactory,
+          valueFactory,
+          namespaceRegistry,
+          accessManager,
+          userState,
+          context,
+          repository,
+          currentWorkspaceName);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#characters(char[],
+   *      int, int)
+   */
+  public void characters(char[] ch, int start, int length) throws RepositoryException {
+    if (contentImporter == null) {
+      throw new IllegalStateException("StartElement must be  call first");
+    }
+    contentImporter.characters(ch, start, length);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#endElement(java.lang.String,
+   *      java.lang.String, java.lang.String)
+   */
+  public void endElement(String uri, String localName, String qName) throws RepositoryException {
+    if (contentImporter == null) {
+      throw new IllegalStateException("StartElement must be call first");
+    }
+    contentImporter.endElement(uri, localName, qName);
+  }
+
+  @Override
+  public PlainChangesLog getChanges() {
+    if (contentImporter != null)
+      return contentImporter.getChanges();
+    return super.getChanges();
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#startElement(java.lang.String,
+   *      java.lang.String, java.lang.String, java.util.Map)
+   */
+  public void startElement(String namespaceURI,
+                           String localName,
+                           String name,
+                           Map<String, String> atts) throws RepositoryException {
+    if (contentImporter == null) {
+      switch (NodeTypeRecognizer.recognize(namespaceURI, name)) {
+      case DOCVIEW:
+        contentImporter = new DocumentViewImporter(getParent(),
+                                                   ancestorToSave,
+                                                   uuidBehavior,
+                                                   dataConsumer,
+                                                   ntManager,
+                                                   locationFactory,
+                                                   valueFactory,
+                                                   namespaceRegistry,
+                                                   accessManager,
+                                                   userState,
+                                                   context,
+                                                   repository,
+                                                   currentWorkspaceName);
+        break;
+      case SYSVIEW:
+        contentImporter = new SystemViewImporter(getParent(),
+                                                 ancestorToSave,
+                                                 uuidBehavior,
+                                                 dataConsumer,
+                                                 ntManager,
+                                                 locationFactory,
+                                                 valueFactory,
+                                                 namespaceRegistry,
+                                                 accessManager,
+                                                 userState,
+                                                 context,
+                                                 repository,
+                                                 currentWorkspaceName);
+        break;
+      default:
+        throw new IllegalStateException("There was an error during ascertaining the "
+            + "type of document. First element " + namespaceURI + ":" + name);
+      }
+    }
+    contentImporter.startElement(namespaceURI, localName, name, atts);
+  }
+
+}
