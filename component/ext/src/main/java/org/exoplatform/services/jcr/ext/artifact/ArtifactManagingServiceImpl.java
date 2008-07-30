@@ -1,0 +1,1066 @@
+/**
+ * Copyright (C) 2003-2007 eXo Platform SAS.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see<http://www.gnu.org/licenses/>.
+ */
+
+package org.exoplatform.services.jcr.ext.artifact;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
+
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.Property;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Value;
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryManager;
+import javax.jcr.query.QueryResult;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.maven.wagon.observers.ChecksumObserver;
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.PropertiesParam;
+import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.jcr.ext.registry.RegistryEntry;
+import org.exoplatform.services.jcr.ext.registry.RegistryService;
+import org.exoplatform.services.log.ExoLogger;
+import org.picocontainer.Startable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
+
+/**
+ * Created by The eXo Platform SAS .<br/> Service responsible for Administration
+ * Maven repository the served JCR structure inside workspaceName is: rootPath
+ * (maven-root)/ ---part-of-group-folder1/ (nt:folder + exo:groupId)
+ * ---part-of-group-foldern/ ------artifact-root-folder/(nt:folder +
+ * exo:artifactId) ---------maven-metadata.xml(nt:file)
+ * ---------maven-metadata.xml.sha1(nt:file)
+ * ---------artifact-version-folder/(nt:folder + exo:versionId)
+ * ------------artifactId-version.jar (nt:file + exo:mavenjar / nt:resource)
+ * ------------artifactId-version.jar.sha1 (nt:file + exo:mavensha1 /
+ * nt:resource ) ------------artifactId-version.pom (nt:file + exo:mavenpom /
+ * nt:resource) ------------artifactId-version.pom.sha1 (nt:file +
+ * exo:mavensha1/ (nt:resource) ------------maven-metadata.xml (nt:file
+ * +exo:mavenmetadata / (nt:resource )
+ * ------------maven-metadata.xml.sha1(nt:file + exo:mavensha1 / (nt:resource)
+ * 
+ * @author Gennady Azarenkov
+ * @author Volodymyr Krasnikov
+ * @version $Id: $
+ */
+public class ArtifactManagingServiceImpl implements ArtifactManagingService, Startable {
+  private static final int    BUFFER            = 4096;
+
+  private static final String STRING_TERMINATOR = "*";
+
+  private static final String NT_FILE           = "artifact-nodetypes.xml";
+
+  private static final String SERVICE_NAME      = "ArtifactManaging";
+
+  /* private static final String ZIP_PREFFIX = "repository"; */
+
+  private RepositoryService   repositoryService;
+
+  private RegistryService     registryService;
+
+  private InitParams          initParams;
+
+  private SessionProvider     sessionProvider;
+
+  private String              repoWorkspaceName;
+
+  private String              rootNodePath;
+
+  private static Log          LOGGER            = ExoLogger.getLogger(ArtifactManagingServiceImpl.class);
+
+  private Map<String, String> mimeMap           = new Hashtable<String, String>();
+
+  /**
+   * @param params
+   * @param repositoryService
+   * @param registryService
+   * @throws RepositoryConfigurationException
+   */
+  public ArtifactManagingServiceImpl(InitParams initParams,
+                                     RepositoryService repositoryService,
+                                     RegistryService registryService) throws RepositoryConfigurationException {
+    this.repositoryService = repositoryService;
+    this.registryService = registryService;
+
+    if (initParams == null)
+      throw new RepositoryConfigurationException("Init parameters expected !!!");
+
+    this.initParams = initParams;
+
+    setDefaultMimes(); // use config to set this keys!! fake
+  }
+
+  /**
+   * without registry service
+   * 
+   * @param params
+   * @param repositoryService
+   * @throws RepositoryConfigurationException
+   */
+  public ArtifactManagingServiceImpl(InitParams params, RepositoryService repositoryService) throws RepositoryConfigurationException {
+    this(params, repositoryService, null);
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#addArtifact
+   * (org.exoplatform.services.jcr.ext.common.SessionProvider,
+   * org.exoplatform.services.jcr.ext.maven.ArtifactDescriptor,
+   * java.io.InputStream)
+   */
+
+  // remove it with builder pattern
+  public void addArtifact(SessionProvider sp,
+                          ArtifactDescriptor artifact,
+                          InputStream jarIStream,
+                          InputStream pomIStream) throws RepositoryException {
+
+    Session session = currentSession(sp);
+    Node rootNode = (Node) session.getItem(rootNodePath);
+
+    Node groupId_tail = createGroupIdLayout(rootNode, artifact);
+
+    Node artifactId_node = createArtifactIdLayout(groupId_tail, artifact);
+
+    // updateMetadata(artifactId_node, artifact);
+
+    Node version_node = createVersionLayout(artifactId_node, artifact);
+
+    if (version_node != null) { // returns if the same node sibling appears
+      importResource(version_node, jarIStream, "jar", artifact);
+      importResource(version_node, pomIStream, "pom", artifact);
+    }
+
+    // updateMetadata( version_node, artifact );
+
+    session.save();
+
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#exportArtifacts
+   * (org.exoplatform.services.jcr.ext.common.SessionProvider,
+   * org.exoplatform.services.jcr.ext.maven.FolderDescriptor,
+   * java.io.OutputStream)
+   */
+  public void exportArtifacts(SessionProvider sp, FolderDescriptor parentFolder, OutputStream out) throws RepositoryException,
+                                                                                                  FileNotFoundException {
+
+    Session session = currentSession(sp);
+    Node parentNode;
+    if (rootNodePath.length() > 1) {
+      parentNode = (Node) session.getItem(rootNodePath + "/" + parentFolder.getAsPath());
+    } else
+      parentNode = (Node) session.getItem("/" + parentFolder.getAsPath());
+
+    LOGGER.info("Write repository to zipped stream");
+
+    ZipOutputStream zout = new ZipOutputStream(new BufferedOutputStream(out, BUFFER));
+    try {
+      mapRepositoryToZipStream(parentNode, zout);
+      zout.flush();
+      zout.close();
+    } catch (IOException e) {
+      LOGGER.error("Cannot write to zip stream", e);
+    }
+
+  }
+
+  public void exportArtifacts(SessionProvider sp, FolderDescriptor parentFolder, File destFolder) throws RepositoryException,
+                                                                                                 FileNotFoundException {
+
+    Session session = currentSession(sp);
+    Node parentNode;
+    if (rootNodePath.length() > 1) {
+      parentNode = (Node) session.getItem(rootNodePath + "/" + parentFolder.getAsPath());
+    } else
+      parentNode = (Node) session.getItem("/" + parentFolder.getAsPath());
+    // get parent node
+    mapRepositoryToFilefs(parentNode, destFolder);
+  }
+
+  private void mapRepositoryToFilefs(Node parentNode, File parentFolder) throws RepositoryException {
+    NodeIterator folderIterator = parentNode.getNodes();
+    while (folderIterator.hasNext()) {
+      Node folder = folderIterator.nextNode();
+      if (folder.isNodeType("exo:artifact")) {
+        File levelfolder = new File(parentFolder.getAbsoluteFile() + File.separator
+            + folder.getName());
+        levelfolder.mkdir();
+        mapRepositoryToFilefs(folder, levelfolder); // recursive call
+      } else if (folder.isNodeType("exo:file")) {
+        File content = new File(parentFolder + File.separator + folder.getName());
+
+        FileOutputStream fout = null;
+        try {
+          fout = new FileOutputStream(content);
+          Node dataNode = folder.getNode("jcr:content");
+
+          Property data = dataNode.getProperty("jcr:data");
+          Property lastModified = dataNode.getProperty("jcr:lastModified");
+          content.setLastModified(lastModified.getLong());
+          IOUtils.copy(data.getStream(), fout);
+
+        } catch (FileNotFoundException e) {
+          LOGGER.error("!!Can't create content fo file", e);
+        } catch (IOException e) {
+          LOGGER.error("!!Can't write content fo file", e);
+        } finally {
+          IOUtils.closeQuietly(fout);
+        }
+      }
+    }
+  }
+
+  private void mapRepositoryToZipStream(Node parentNode, ZipOutputStream zout) throws RepositoryException,
+                                                                              IOException {
+
+    NodeIterator folderIterator = parentNode.getNodes();
+    while (folderIterator.hasNext()) {
+      Node folder = folderIterator.nextNode();
+      if (folder.isNodeType("exo:artifact")) {
+        String entryName = parentNode.getPath() + File.separator + folder.getName();
+        ZipEntry entry = new ZipEntry(entryName + "/");
+
+        zout.putNextEntry(entry);
+
+        mapRepositoryToZipStream(folder, zout); // recursive call
+
+      } else if (folder.isNodeType("exo:file")) {
+
+        String entryName = parentNode.getPath() + File.separator + folder.getName();
+        ZipEntry entry = new ZipEntry(entryName);
+
+        LOGGER.debug("Zipping " + entryName);
+
+        Node dataNode = folder.getNode("jcr:content");
+        Property data = dataNode.getProperty("jcr:data");
+        InputStream in = data.getStream();
+
+        Property lastModified = dataNode.getProperty("jcr:lastModified");
+
+        entry.setTime(lastModified.getLong());
+        entry.setSize(in.available());
+        zout.putNextEntry(entry);
+
+        int count;
+        byte[] buf = new byte[BUFFER];
+        while ((count = in.read(buf, 0, BUFFER)) != -1) {
+          zout.write(buf, 0, count);
+        }
+        zout.flush();
+        in.close();
+      }
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#getDescriptors
+   * (org.exoplatform.services.jcr.ext.common.SessionProvider,
+   * org.exoplatform.services.jcr.ext.maven.FolderDescriptor)
+   */
+  public List<Descriptor> getDescriptors(SessionProvider sp, FolderDescriptor parentFolder) throws RepositoryException {
+    // TODO Auto-generated method stub
+    LOGGER.info("Get child nodes to : " + parentFolder.getAsString());
+
+    Session session = currentSession(sp);
+
+    session.refresh(true);
+
+    Node rootNode = (Node) session.getItem(rootNodePath);
+    String strPath = parentFolder.getAsString();
+
+    Node targetNode;
+    if (strPath.equals("/")) // to browse over root node
+      targetNode = rootNode;
+    else
+      targetNode = rootNode.getNode(strPath.substring(1)); // remove leading
+    // "/" - relative path
+    LOGGER.info(targetNode.getPath());
+    NodeType[] a = targetNode.getMixinNodeTypes();
+    String mixins = "";
+    for (NodeType type : a) {
+      mixins += type.getName() + " ";
+    }
+    LOGGER.info("**** Mixins : " + mixins);
+
+    LOGGER.info("**** Workspace : " + session.getWorkspace().getName());
+
+    List<Descriptor> childNodes = new ArrayList<Descriptor>();
+    for (NodeIterator iterator = targetNode.getNodes(); iterator.hasNext();) {
+      // descriptor holds names of all child nodes than makes up artifact
+      // coordinates.
+      Node node = iterator.nextNode();
+
+      // LOGGER.info("!!! === >>> "+ node.getName() + " : "+
+      // node.getPrimaryNodeType().getName());
+
+      /*
+       * if(node.isNodeType("exo:artifact") || node.isNodeType("exo:file")){
+       * Descriptor descriptor = new FolderDescriptor(node.getName());
+       * childNodes.add(descriptor); }
+       */
+
+      if (node.isNodeType("nt:folder") || node.isNodeType("nt:file")) {
+        Descriptor descriptor = new FolderDescriptor(node.getName());
+        childNodes.add(descriptor);
+      }
+    }
+
+    return (childNodes.size() == 0) ? null : childNodes;
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#importArtifacts
+   * (org.exoplatform.services.jcr.ext.common.SessionProvider,
+   * java.io.InputStream)
+   */
+  public void importArtifacts(SessionProvider sp, InputStream in) throws RepositoryException,
+                                                                 FileNotFoundException {
+    LOGGER.info("Extract repository to temporary folder");
+    String path = System.getProperty("java.io.tmpdir") + File.separator + "maven2";
+    File temporaryFolder = new File(getUniqueFilename(path));
+    if (!temporaryFolder.mkdir())
+      throw new FileNotFoundException("Cannot create temporary folder");
+    ZipEntry entry;
+    ZipInputStream zipIn = new ZipInputStream(new BufferedInputStream(in));
+    try {
+      while ((entry = zipIn.getNextEntry()) != null) {
+
+        // checks if entry is a directory, thus create appropriate
+        // folder,
+        // !! if it is not a directory than it is a file - write
+        // content
+
+        // LOGGER.info(entry.getName()+" "+entry.isDirectory());
+        // LOGGER.info( entry.isDirectory() );
+
+        if (!(entry.isDirectory() && new File(temporaryFolder + File.separator + entry.getName()).mkdir())) {
+          int count;
+          byte data[] = new byte[BUFFER];
+          // write the files to the disk
+          File file = new File(temporaryFolder + File.separator + entry.getName());
+
+          FileUtils.touch(file);
+
+          FileOutputStream fos = new FileOutputStream(file);
+          BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER);
+          while ((count = zipIn.read(data, 0, BUFFER)) != -1) {
+            dest.write(data, 0, count);
+          }
+          dest.flush();
+          dest.close();
+        }
+
+      }
+    } catch (IOException e) {
+      LOGGER.error("Cannot get zip entry from stream", e);
+    } finally {
+      IOUtils.closeQuietly(zipIn);
+      IOUtils.closeQuietly(in);
+    }
+
+    // main part - copy to JCR from temp folder
+    // use uploading artifacts from local folder.
+
+    importArtifacts(sp, temporaryFolder);
+    try {
+      FileUtils.deleteDirectory(temporaryFolder);
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      LOGGER.error("Cannot remove temporary folder", e);
+    }
+
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#importArtifacts
+   * (org.exoplatform.services.jcr.ext.common.SessionProvider, java.io.File)
+   */
+  public void importArtifacts(SessionProvider sp, File folder) throws RepositoryException,
+                                                              FileNotFoundException {
+    if (!folder.exists())
+      throw new FileNotFoundException("Source folder expected");
+    try {
+      importFilesToJCR(sp, folder);
+    } catch (Exception e) {
+      LOGGER.error("Execption during uploading local folder to JCR", e);
+    }
+  }
+
+  /*
+   * This method provides adding to JCR artifacts. this means that jar-files and
+   * appropriate pom files would be added. Main logic: scan all files & if it is
+   * a pair jar/pom -add it.
+   */
+  private void importFilesToJCR(SessionProvider sp, File folder) throws Exception {
+
+    for (File file : folder.listFiles(new DefaultFileFilter())) {
+
+      if (file.isDirectory())
+        importFilesToJCR(sp, file);
+
+      String ext = FilenameUtils.getExtension(file.getAbsolutePath());
+      if (ext.equals("pom")) {
+        String basename = FilenameUtils.removeExtension(file.getAbsolutePath());
+        File jarfile = new File(basename.concat(".jar"));
+
+        if (jarfile.exists()) {
+          // get descripting from pom file
+
+          ArtifactDescriptor artifact = ArtifactDescriptor.createFromPomfile(file);
+          InputStream jarIStream = new FileInputStream(jarfile);
+          InputStream pomIStream = new FileInputStream(file);
+
+          addArtifact(sp, artifact, jarIStream, pomIStream);
+        }
+      }
+    }
+  }
+
+  /*
+   * According JCR structure, version Node holds all actual data: jar, pom and
+   * ckecksums Removing that node is removing all content and artifact indeed!
+   * @see
+   * org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#removeArtifact
+   * (org.exoplatform.services.jcr.ext.common.SessionProvider,
+   * org.exoplatform.services.jcr.ext.maven.ArtifactDescriptor)
+   */
+  public void removeArtifact(SessionProvider sp, Descriptor artifact) throws RepositoryException {
+    Session session = currentSession(sp);
+    Node root = (Node) session.getItem(rootNodePath);
+
+    String pathToRemove = "";
+
+    if (rootNodePath.length() > 1) // artifact root is some real node
+      pathToRemove = rootNodePath + "/" + artifact.getAsPath();
+    else
+      pathToRemove = "/" + artifact.getAsPath(); // "/" - is root path
+
+    LOGGER.debug("Remove node: " + pathToRemove);
+
+    Node rmNode = (Node) session.getItem(pathToRemove);
+
+    while (rmNode != root) {
+      Node parent = rmNode.getParent();
+      rmNode.remove();
+      if (!parent.hasNodes())
+        rmNode = parent;
+      else
+        break;
+    }
+    session.save();
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#searchArtifacts
+   * (org.exoplatform.services.jcr.ext.common.SessionProvider,
+   * org.exoplatform.services.jcr.ext.maven.SearchCriteria)
+   */
+  public List<Descriptor> searchArtifacts(SessionProvider sp, SearchCriteria criteria) throws RepositoryException {
+    Session session = currentSession(sp);
+
+    session.refresh(true);
+    session.save();
+
+    String param = criteria.getContainsExpr();
+    String pathConstraint = "";
+    if (rootNodePath.length() > 1) // artifact root is some real node
+      pathConstraint = rootNodePath + "/%/" + param + "[%]";
+    else
+      pathConstraint = "/%/" + param + "[%]"; // artifact root is workspace root
+                                              // node !!
+
+    String sqlQuery = String.format("SELECT * FROM nt:folder WHERE jcr:path LIKE '%s' ",
+                                    pathConstraint);
+
+    LOGGER.info(sqlQuery);
+    QueryManager manager = session.getWorkspace().getQueryManager();
+    Query query = manager.createQuery(sqlQuery, Query.SQL);
+
+    QueryResult queryResult = query.execute();
+    NodeIterator iterator = queryResult.getNodes();
+
+    List<Descriptor> preciseNode = new ArrayList<Descriptor>();
+    while (iterator.hasNext()) {
+
+      Node candidate = iterator.nextNode();
+
+      Descriptor descriptor = new FolderDescriptor(candidate.getPath());
+      preciseNode.add(descriptor);
+
+    }
+
+    return preciseNode;
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see org.picocontainer.Startable#start()
+   */
+  public void start() {
+    // responsible for:
+    // 1. reading parameters (such as repoWorkspaceName, repoPath) from
+    // registryService (if present) or init params
+    // 2. initializing artifact service Registry Entry if registryService is
+    // present
+    // if Entry is not initialized yet (first launch)
+    // 3. initializing maven root if not initialized
+    LOGGER.debug("Starting ArtifactManagingService ...");
+
+    sessionProvider = SessionProvider.createSystemProvider();
+
+    try {
+      InputStream xml = getClass().getResourceAsStream(NT_FILE);
+      ManageableRepository rep = repositoryService.getCurrentRepository();
+      rep.getNodeTypeManager().registerNodeTypes(xml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+
+      /*
+       * RegistryEntry entry = registryService.getEntry(sessionProvider,
+       * RegistryService.EXO_SERVICES, SERVICE_NAME);
+       */
+      String entryPath = RegistryService.EXO_SERVICES + "/" + SERVICE_NAME;
+      RegistryEntry entry = registryService.getEntry(sessionProvider, entryPath);
+
+      Document doc = entry.getDocument();
+      /*
+       * DOMSerializerImpl sr = new DOMSerializerImpl(); String str =
+       * sr.writeToString(doc); LOGGER.info( str ); NodeList nd_list =
+       * doc.getElementsByTagName("artifact.workspace"); LOGGER.info("=======>"
+       * + nd_list.item(0).getTextContent());
+       */
+
+      repoWorkspaceName = doc.getElementsByTagName("artifact.workspace").item(0).getTextContent();
+      LOGGER.info("Workspace from config : " + repoWorkspaceName);
+      rootNodePath = doc.getElementsByTagName("artifact.rootNode").item(0).getTextContent();
+      LOGGER.info("Root node from config : " + rootNodePath);
+
+      prepareRootNode(sessionProvider, rootNodePath);
+
+    } catch (PathNotFoundException e) {
+
+      try {
+
+        PropertiesParam props = initParams.getPropertiesParam("artifact.workspace");
+
+        if (props == null)
+          throw new RepositoryConfigurationException("Property parameters 'locations' expected");
+
+        repoWorkspaceName = props.getProperty("workspace");
+        rootNodePath = props.getProperty("rootNode");
+
+        Document doc = createInitConf(repoWorkspaceName, rootNodePath);
+
+        RegistryEntry serviceEntry = new RegistryEntry(doc);
+
+        registryService.createEntry(sessionProvider, RegistryService.EXO_SERVICES, serviceEntry);
+
+        prepareRootNode(sessionProvider, rootNodePath);
+
+      } catch (RepositoryException exc) {
+        LOGGER.error("Cannot write init configuration to RegistryService", exc);
+      } catch (RepositoryConfigurationException exc) {
+        LOGGER.error("Cannot get init properties", exc);
+      } catch (ParserConfigurationException exc) {
+        LOGGER.error("Cann't create XML document", exc);
+      }
+
+    } catch (RepositoryException e) {
+      LOGGER.error("Error while register nodetypes/checking existance", e);
+    } finally {
+
+      sessionProvider.close();
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see org.picocontainer.Startable#stop()
+   */
+  public void stop() {
+  }
+
+  private Session currentSession(SessionProvider sp) throws RepositoryException {
+    return sp.getSession(repoWorkspaceName, repositoryService.getCurrentRepository());
+  }
+
+  private void prepareRootNode(SessionProvider sp, String path) throws RepositoryException {
+    Session session = currentSession(sp);
+    Node current_root = session.getRootNode();
+    for (String folder : path.split("/")) {
+      if (!current_root.hasNode(folder)) {
+        current_root.addNode(folder);
+      }
+      current_root = current_root.getNode(folder);
+    }
+    session.save();
+    if (!session.getItem(path).isNode())
+      throw new RepositoryException("Maven root node is not been initialized");
+  }
+
+  private Document createInitConf(String workspace, String relPath) throws ParserConfigurationException {
+    // Create new DOM tree
+//    DOMImplementation domImpl = new DOMImplementationImpl();
+//    Document doc = domImpl.createDocument(null, SERVICE_NAME, null);
+    Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+//    Element root = doc.getDocumentElement();
+    Element r = doc.createElement(SERVICE_NAME);
+    doc.appendChild(r);
+    
+    // Name of the workspace for holding artifacts
+    Element nameElement = doc.createElement("artifact.workspace");
+    nameElement.setAttribute("id", "workspace");
+    Text nameText = doc.createTextNode(repoWorkspaceName);
+    nameElement.appendChild(nameText);
+//    root.appendChild(nameElement);
+    r.appendChild(nameElement);
+
+    // Set path to internal root node
+    Element descriptionElement = doc.createElement("artifact.rootNode");
+    descriptionElement.setAttribute("id", "root");
+    Text descriptionText = doc.createTextNode(rootNodePath);
+    descriptionElement.appendChild(descriptionText);
+//    root.appendChild(descriptionElement);
+    r.appendChild(descriptionElement);
+
+    return doc;
+  }
+
+  // this function creates hierarchy in JCR storage acording to groupID
+  // parameter : com.google.code...
+  private Node createGroupIdLayout(Node rootNode, ArtifactDescriptor artifact) throws RepositoryException {
+    FolderDescriptor groupId = artifact.getGroupId();
+    List<String> struct_groupId = new ArrayList<String>();
+
+    String[] items = groupId.getAsPath().split("/");
+
+    for (String subString : items) {
+      struct_groupId.add(subString);
+    }
+    Node groupIdTail = rootNode;
+
+    for (Iterator<String> iterator = struct_groupId.iterator(); iterator.hasNext();) {
+      String name = iterator.next();
+      Node levelNode;
+      // Node do not has such child nodes
+      if (!groupIdTail.hasNode(name)) {
+        levelNode = groupIdTail.addNode(name, "nt:folder");
+        levelNode.addMixin("exo:groupId");
+      } else {
+        levelNode = groupIdTail.getNode(name);
+      }
+      groupIdTail = levelNode;
+    }
+
+    return groupIdTail;
+  }
+
+  private Node createArtifactIdLayout(Node groupId_NodeTail, ArtifactDescriptor artifact) throws RepositoryException {
+    String artifactId = artifact.getArtifactId();
+    Node artifactIdNode;
+    if (!groupId_NodeTail.hasNode(artifactId)) {
+      artifactIdNode = groupId_NodeTail.addNode(artifactId, "nt:folder");
+      artifactIdNode.addMixin("exo:artifactId");
+      artifactIdNode.setProperty("exo:versionList", new String[] {
+          ArtifactManagingServiceImpl.STRING_TERMINATOR,
+          ArtifactManagingServiceImpl.STRING_TERMINATOR });
+    } else {
+      artifactIdNode = groupId_NodeTail.getNode(artifactId);
+    }
+    return artifactIdNode;
+  }
+
+  private Node createVersionLayout(Node artifactId, ArtifactDescriptor artifact) throws RepositoryException {
+    String version = artifact.getVersionId();
+
+    if (artifactId.hasNode(version))
+      return null;
+
+    Node currentVersion = artifactId.addNode(version, "nt:folder");
+    currentVersion.addMixin("exo:versionId");
+
+    // version list property is already added to artifactId Node !!!!
+    // updateVersionList(artifactId, artifact); // Add current version to
+    // version
+    // list
+
+    // creates all needed data - "maven-metadata.xml & checksums"
+    // updateMetadata(artifactId, artifact);
+
+    return currentVersion;
+  }
+
+  private void updateVersionList(Node artifactId, ArtifactDescriptor artifact) throws RepositoryException {
+    // Update version list
+    String version = artifact.getVersionId();
+
+    Property property = artifactId.getProperty("exo:versionList");
+    Value[] values = property.getValues();
+    List<String> versions = new ArrayList<String>();
+    for (Value ver : values) {
+      String str = ver.getString();
+      if (!str.equals(ArtifactManagingServiceImpl.STRING_TERMINATOR)) {
+        versions.add(str);
+      }
+    }
+    versions.add(version);
+    String[] newValues = new String[versions.size()];
+    Iterator<String> i = versions.iterator();
+    int index = 0;
+    while (i.hasNext()) {
+      newValues[index++] = i.next();
+    }
+    artifactId.setProperty("exo:versionList", newValues);
+  }
+
+  private List<String> getAllArtifactVersions(Node artifactId) throws RepositoryException,
+                                                              ArtifactManagingException {
+    Property property = artifactId.getProperty("exo:versionList");
+    if (property == null) {
+      throw new ArtifactManagingException("There is no version list property");
+    }
+
+    Value[] values = property.getValues();
+    List<String> versionList = new ArrayList<String>();
+    for (Value ver : values) {
+      String str = ver.getString();
+      if (!str.equals(ArtifactManagingServiceImpl.STRING_TERMINATOR)) {
+        versionList.add(str);
+      }
+    }
+    return versionList;
+  }
+
+  // this function is used to add a metadata to artifact;
+  // metadata can be placed in artifactId Node and contains a list of
+  // available artifacts
+  // also metadata is placed in each version forder with a jar and pom files.
+  // In this case it contains only version of current artifact
+  private void updateMetadata(Node parentNode, ArtifactDescriptor artifact) throws RepositoryException {
+
+    String groupId = artifact.getGroupId().getAsString();
+    String artifactId = artifact.getArtifactId();
+    String current_version = artifact.getVersionId();
+
+    File srcFile = null;
+    try {
+      if (parentNode.isNodeType("exo:artifactId")) {
+        List<String> available_versions = getAllArtifactVersions(parentNode);
+        srcFile = createMultiMetadata(groupId, artifactId, current_version, available_versions);
+      }
+      if (parentNode.isNodeType("exo:versionId")) {
+        srcFile = createSingleMetadata(groupId, artifactId, current_version);
+      }
+
+      InputStream file_in = new FileInputStream(srcFile);
+      importResource(parentNode, file_in, "metadata", artifact);
+
+    } catch (FileNotFoundException e) {
+      LOGGER.error("Cannot create temporary file for holding artifact versions", e);
+    } catch (ArtifactManagingException e) {
+      LOGGER.error("Cannot create list for holding artifact versions", e);
+    }
+
+  }
+
+  // this method used for writing to repo jars, poms and their checksums
+  private void importResource(Node parentNode,
+                              InputStream file_in,
+                              String resourceType,
+                              ArtifactDescriptor artifact) throws RepositoryException {
+    // Note that artifactBean been initialized within constructor
+    // resourceType can be jar, pom, metadata
+
+    String filename;
+    if (resourceType.equals("metadata"))
+      filename = "maven-metadata.xml";
+    else
+      filename = String.format("%s-%s.%s",
+                               artifact.getArtifactId(),
+                               artifact.getVersionId(),
+                               resourceType);
+
+    OutputStream fout = null;
+    File tmp_file = null;
+    try {
+      String tmpFilename = getUniqueFilename(filename);
+      tmp_file = File.createTempFile(tmpFilename, null);
+      fout = new FileOutputStream(tmp_file);
+      IOUtils.copy(file_in, fout);
+      fout.flush();
+    } catch (FileNotFoundException e) {
+      LOGGER.error("Cannot create .tmp file for storing artifact", e);
+    } catch (IOException e) {
+      LOGGER.error("IO exception on .tmp file for storing artifact", e);
+    } finally {
+      IOUtils.closeQuietly(file_in);
+      IOUtils.closeQuietly(fout);
+    }
+
+    writePrimaryContent(parentNode, filename, resourceType, tmp_file);
+    writeChecksum(parentNode, filename, tmp_file, "SHA1");
+
+    try {
+      // and collect all garbage : temporary files
+      FileUtils.forceDelete(tmp_file);
+    } catch (IOException e) {
+      LOGGER.error("Cannot delete tmp file", e);
+    }
+
+  }
+
+  private void writePrimaryContent(Node parentNode,
+                                   String filename,
+                                   String resourceType,
+                                   File srcFile) throws RepositoryException {
+
+    String mimeType = getRelativeMimeType(resourceType);
+    Node nodeResourceFile = parentNode.addNode(filename, "nt:file");
+
+    String mixinType = "exo:maven".concat(resourceType);
+    if (nodeResourceFile.canAddMixin(mixinType))
+      nodeResourceFile.addMixin(mixinType);
+    try {
+      InputStream file_is = new FileInputStream(srcFile);
+
+      Node content = nodeResourceFile.addNode("jcr:content", "nt:resource");
+      content.setProperty("jcr:mimeType", mimeType);
+      content.setProperty("jcr:lastModified", Calendar.getInstance());
+      content.setProperty("jcr:data", file_is);
+
+      IOUtils.closeQuietly(file_is);
+
+    } catch (FileNotFoundException e) {
+      LOGGER.error("Cannot read from .tmp resource file", e);
+    }
+  }
+
+  private void writeChecksum(Node parentNode, String filename, File srcFile, String algorithm) throws RepositoryException {
+    Node nodeChecksumFile = parentNode.addNode(filename.concat("." + algorithm.toLowerCase()),
+                                               "nt:file");
+
+    String mixinType = "exo:maven".concat(algorithm.toLowerCase());
+    if (nodeChecksumFile.canAddMixin(mixinType))
+      nodeChecksumFile.addMixin(mixinType);
+    try {
+      InputStream checksum_is = new ByteArrayInputStream(getChecksum(srcFile, algorithm).getBytes());
+      String mimeType = "text/xml";
+
+      Node content = nodeChecksumFile.addNode("jcr:content", "nt:resource");
+      content.setProperty("jcr:mimeType", mimeType);
+      content.setProperty("jcr:lastModified", Calendar.getInstance());
+      content.setProperty("jcr:data", checksum_is);
+
+      IOUtils.closeQuietly(checksum_is);
+    } catch (FileNotFoundException e) {
+      LOGGER.error("Cannot read from .tmp resource file", e);
+    } catch (IOException e) {
+      LOGGER.error("Cannot read from .tmp resource file", e);
+    } catch (NoSuchAlgorithmException e) {
+      LOGGER.error("No such algorithm for generating checksums", e);
+    }
+  }
+
+  protected String getChecksum(File file, String algo) throws NoSuchAlgorithmException, IOException {
+    ChecksumObserver checksum = null;
+    try {
+      byte[] buffer = FileUtils.readFileToByteArray(file);
+      if ("MD5".equals(algo)) {
+        checksum = new ChecksumObserver("MD5"); // md5 by default
+      } else if ("SHA1".equals(algo)) {
+        checksum = new ChecksumObserver("SHA-1");
+      } else {
+        throw new NoSuchAlgorithmException("No support for algorithm " + algo + ".");
+      }
+      checksum.transferProgress(null, buffer, buffer.length);
+      checksum.transferCompleted(null);
+
+    } catch (IOException e) {
+      LOGGER.error("Error reading from stream", e);
+    }
+    return checksum.getActualChecksum();
+  }
+
+  protected File createSingleMetadata(String groupId, String artifactId, String version) throws FileNotFoundException {
+    File temp = null;
+    try {
+      String filename = getUniqueFilename("maven-metadata.xml");
+      temp = File.createTempFile(filename, null);
+
+      OutputStream os = new FileOutputStream(temp);
+      XMLOutputFactory factory = XMLOutputFactory.newInstance();
+      XMLStreamWriter writer = factory.createXMLStreamWriter(os);
+      try {
+        writer.writeStartDocument("UTF-8", "1.0");
+        writer.writeStartElement("metadata");
+
+        writer.writeStartElement("groupId");
+        writer.writeCharacters(groupId);
+        writer.writeEndElement();
+
+        writer.writeStartElement("artifactId");
+        writer.writeCharacters(artifactId);
+        writer.writeEndElement();
+
+        writer.writeStartElement("version");
+        writer.writeCharacters(version);
+        writer.writeEndElement();
+
+        writer.writeEndElement();
+        writer.writeEndDocument();
+      } finally {
+        writer.flush();
+        writer.close();
+        os.close();
+      }
+    } catch (XMLStreamException e) {
+      LOGGER.error("Error on creating metadata - XML", e);
+    } catch (IOException e) {
+      LOGGER.error("Error on creating metadata - FILE", e);
+    }
+    return (temp.exists()) ? temp : null;
+  }
+
+  protected File createMultiMetadata(String groupId,
+                                     String artifactId,
+                                     String current_version,
+                                     List<String> v_list) throws FileNotFoundException {
+    File temp = null;
+    try {
+      String filename = getUniqueFilename("maven-metadata.xml");
+      temp = File.createTempFile(filename, null);
+
+      OutputStream os = new FileOutputStream(temp);
+      XMLOutputFactory factory = XMLOutputFactory.newInstance();
+      XMLStreamWriter writer = factory.createXMLStreamWriter(os);
+      try {
+        writer.writeStartDocument("UTF-8", "1.0");
+        writer.writeStartElement("metadata");
+
+        writer.writeStartElement("groupId");
+        writer.writeCharacters(groupId);
+        writer.writeEndElement();
+
+        writer.writeStartElement("artifactId");
+        writer.writeCharacters(artifactId);
+        writer.writeEndElement();
+
+        String elderVersion;
+        if (v_list.size() > 0) {
+          Collections.sort(v_list); // sort list
+          elderVersion = v_list.get(0); // get first element
+        } else
+          elderVersion = current_version;
+        v_list.add(current_version);
+
+        writer.writeStartElement("version");
+        writer.writeCharacters(elderVersion);
+        writer.writeEndElement();
+
+        writer.writeStartElement("versions");
+        writer.writeStartElement("versioning");
+
+        for (Iterator<String> iterator = v_list.iterator(); iterator.hasNext();) {
+          writer.writeStartElement("version");
+          writer.writeCharacters(iterator.next());
+          writer.writeEndElement();
+        }
+
+        writer.writeEndElement();
+        writer.writeEndElement();
+
+        writer.writeEndElement();
+        writer.writeEndDocument();
+      } finally {
+        writer.flush();
+        writer.close();
+        os.close();
+      }
+    } catch (XMLStreamException e) {
+      LOGGER.error("Error on creating metadata - XML", e);
+    } catch (IOException e) {
+      LOGGER.error("Error on creating metadata - FILE", e);
+    }
+    return (temp.exists()) ? temp : null;
+  }
+
+  private String getRelativeMimeType(String key) {
+    return (String) mimeMap.get(key);
+  }
+
+  private void setDefaultMimes() {
+    mimeMap.put("jar", "application/java-archive");
+    mimeMap.put("pom", "text/xml");
+    // mimeMap.put("metadata", "text/xml");
+  }
+
+  private String getUniqueFilename(String basename) {
+    String suffix = ((Double) Math.random()).toString().substring(2, 7);
+    return basename + "." + suffix;
+  }
+
+}

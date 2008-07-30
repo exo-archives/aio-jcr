@@ -51,7 +51,8 @@
           <property name="delay-time" value="70000"/>
       </properties-param>
     </init-params>
-  </component -->
+  </component
+-->
   
   <!-- for proxy mode -->
   <!-- component>
@@ -79,7 +80,8 @@
           <property name="delay-time" value="70000"/>
       </properties-param>
     </init-params>
-  </component -->
+  </component
+-->
   
   <!-- config replication for IPv6 -->
    <!-- component>
@@ -107,7 +109,8 @@
           <property name="delay-time" value="70000"/>
       </properties-param>
     </init-params>
-  </component -->
+  </component
+-->
 
   <component>
     <type>org.exoplatform.services.jcr.ext.resource.NodeRepresentationService</type>
@@ -123,7 +126,8 @@
           </properties-param>
         </init-params>
       </component-plugin>
-    </component-plugins -->
+    </component-plugins
+-->
   </component>
   
   <component>
@@ -134,7 +138,7 @@
     <type>org.exoplatform.services.jcr.ext.resource.representation.NtFileNodeRepresentationFactory</type>
   </component>
   
-    <component>
+  <component>
     <type>org.exoplatform.services.jcr.ext.resource.representation.NtResourceNodeRepresentationFactory</type>
   </component>
 <!-- 
@@ -156,6 +160,34 @@
           </field>
         </object>
       </object-param>
+    </init-params>
+  </component>
+-->
+<!--
+  <component>
+    <type>org.exoplatform.services.jcr.ext.artifact.ArtifactManagingServiceImpl</type>
+    <init-params>
+      <properties-param>
+        <name>artifact.workspace</name>
+        <property name="workspace" value="production" />
+        <property name="rootNode" value="/test/" />
+      </properties-param>
+    </init-params>
+  </component>
+-->
+<!--
+  <component>
+    <type>org.exoplatform.services.jcr.ext.artifact.rest.RESTArtifactLoaderService</type>
+    <init-params>
+      <properties-param>
+        <name>artifact.workspace</name>
+        <property name="workspace" value="production" />
+        <property name="repository" value="repository" />
+        <property name="mavenRoot" value="/test/" />
+        
+        <property name="username" value="root" />
+        <property name="password" value="exo" />
+      </properties-param>
     </init-params>
   </component>
 -->
