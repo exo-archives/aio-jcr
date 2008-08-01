@@ -116,7 +116,6 @@ public class PropPatchResponseEntity implements SerializableEntity {
         try {
           node.setProperty(propertyName, setProperty.getValue());
         } catch (RepositoryException exc) {
-          exc.printStackTrace();
           String []value = new String[1];
           value[0] = setProperty.getValue();
           node.setProperty(propertyName, value);
