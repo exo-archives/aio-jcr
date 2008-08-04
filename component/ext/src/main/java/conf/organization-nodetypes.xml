@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nodeTypes xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+	xmlns:mix="http://www.jcp.org/jcr/mix/1.0"
+	xmlns:jcr="http://www.jcp.org/jcr/1.0"
+	xmlns:dc="http://purl.org/dc/elements/1.1/">
+
+	<!-- JCR Organization service -->
+	
+	<nodeType name="exo:user" isMixin="false"
+		hasOrderableChildNodes="false" primaryItemName="exo:userName">
+	  <supertypes>
+			<supertype>nt:base</supertype>
+		</supertypes>
+		<propertyDefinitions>
+			<propertyDefinition name="exo:userName" requiredType="String"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" multiple="false">
+				<valueConstraints/>
+			</propertyDefinition>
+			<propertyDefinition name="exo:password" requiredType="String"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" multiple="false">
+				<valueConstraints/>
+			</propertyDefinition>
+			<propertyDefinition name="exo:firstName" requiredType="String"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" multiple="false">
+				<valueConstraints/>
+			</propertyDefinition>
+			<propertyDefinition name="exo:lastName" requiredType="String"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" multiple="false">
+				<valueConstraints/>
+			</propertyDefinition>
+			<propertyDefinition name="exo:email" requiredType="String"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" multiple="false">
+				<valueConstraints/>
+			</propertyDefinition>
+			<propertyDefinition name="exo:createdDate" requiredType="Date"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" multiple="false">
+				<valueConstraints/>
+			</propertyDefinition>
+			<propertyDefinition name="exo:lastLoginTime" requiredType="Date"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" multiple="false">
+				<valueConstraints/>
+			</propertyDefinition>
+			<propertyDefinition name="exo:organizationId" requiredType="String"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" multiple="false">
+				<valueConstraints/>
+			</propertyDefinition>
+		</propertyDefinitions>
+	</nodeType>
+	
+	<nodeType name="exo:group" isMixin="false"
+		hasOrderableChildNodes="false" primaryItemName="">
+	  <supertypes>
+			<supertype>nt:base</supertype>
+		</supertypes>
+		<propertyDefinitions>
+			<propertyDefinition name="exo:groupName" requiredType="String"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" multiple="false">
+				<valueConstraints/>
+			</propertyDefinition>
+			<!-- TODO replace with mix:referenceable/jcr:uuid if is possible -->
+			<propertyDefinition name="exo:groupId" requiredType="String"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" multiple="false">
+				<valueConstraints/>
+			</propertyDefinition>
+			<propertyDefinition name="exo:parentId" requiredType="String"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" multiple="false">
+				<valueConstraints/>
+			</propertyDefinition>
+			<propertyDefinition name="exo:label" requiredType="String"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" multiple="false">
+				<valueConstraints/>
+			</propertyDefinition>
+			<propertyDefinition name="exo:desciption" requiredType="String"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" multiple="false">
+				<valueConstraints/>
+			</propertyDefinition>
+		</propertyDefinitions>
+	</nodeType>
+	
+	<nodeType name="exo:userProfile" isMixin="false"
+		hasOrderableChildNodes="false" primaryItemName="">
+	  <supertypes>
+			<supertype>nt:base</supertype>
+		</supertypes>
+		<propertyDefinitions>
+			<!-- user name will be used from exo:user -->
+			<!-- propertyDefinition name="exo:userName" requiredType="String"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" multiple="false">
+				<valueConstraints/>
+			</propertyDefinition -->
+			<!-- attributes -->
+			<propertyDefinition name="*" requiredType="String"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" multiple="false">
+				<valueConstraints/>
+			</propertyDefinition>
+		</propertyDefinitions>
+	</nodeType>
+	
+	<nodeType name="exo:organizationProfiles" isMixin="false"
+		hasOrderableChildNodes="true" primaryItemName="">
+	  <supertypes>
+			<supertype>nt:base</supertype>
+		</supertypes>
+		<childNodeDefinitions>
+			<childNodeDefinition name="*" defaultPrimaryType="exo:userProfile"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" sameNameSiblings="false">
+				<requiredPrimaryTypes>
+					<requiredPrimaryType>exo:userProfile</requiredPrimaryType>
+				</requiredPrimaryTypes>
+			</childNodeDefinition>
+	  </childNodeDefinitions>
+	</nodeType>
+	
+	<nodeType name="exo:organizationUsers" isMixin="false"
+		hasOrderableChildNodes="true" primaryItemName="">
+	  <supertypes>
+			<supertype>nt:base</supertype>
+		</supertypes>
+		<childNodeDefinitions>
+			<childNodeDefinition name="*" defaultPrimaryType="exo:user"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" sameNameSiblings="false">
+				<requiredPrimaryTypes>
+					<requiredPrimaryType>exo:user</requiredPrimaryType>
+				</requiredPrimaryTypes>
+			</childNodeDefinition>
+	  </childNodeDefinitions>
+	</nodeType>
+	
+	<nodeType name="exo:organizationGroups" isMixin="false"
+		hasOrderableChildNodes="true" primaryItemName="">
+	  <supertypes>
+			<supertype>nt:base</supertype>
+		</supertypes>
+		<childNodeDefinitions>
+			<childNodeDefinition name="*" defaultPrimaryType="exo:group"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" sameNameSiblings="false">
+				<requiredPrimaryTypes>
+					<requiredPrimaryType>exo:group</requiredPrimaryType>
+				</requiredPrimaryTypes>
+			</childNodeDefinition>
+	  </childNodeDefinitions>
+	</nodeType>
+	
+	<nodeType name="exo:organizationStorage" isMixin="false"
+		hasOrderableChildNodes="false" primaryItemName="">
+		<supertypes>
+			<supertype>nt:base</supertype>
+		</supertypes>
+		<childNodeDefinitions>
+			<childNodeDefinition name="profiles" defaultPrimaryType="exo:organizationProfiles"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" sameNameSiblings="false">
+				<requiredPrimaryTypes>
+					<requiredPrimaryType>exo:organizationProfiles</requiredPrimaryType>
+				</requiredPrimaryTypes>
+			</childNodeDefinition>
+			<childNodeDefinition name="users" defaultPrimaryType="exo:organizationUsers"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" sameNameSiblings="false">
+				<requiredPrimaryTypes>
+					<requiredPrimaryType>exo:organizationUsers</requiredPrimaryType>
+				</requiredPrimaryTypes>
+			</childNodeDefinition>
+			<childNodeDefinition name="groups" defaultPrimaryType="exo:organizationGroups"
+				autoCreated="false" mandatory="false" onParentVersion="COPY"
+				protected="false" sameNameSiblings="false">
+				<requiredPrimaryTypes>
+					<requiredPrimaryType>exo:organizationGroups</requiredPrimaryType>
+				</requiredPrimaryTypes>
+			</childNodeDefinition>
+		</childNodeDefinitions>
+	</nodeType>
+	
+</nodeTypes>	
