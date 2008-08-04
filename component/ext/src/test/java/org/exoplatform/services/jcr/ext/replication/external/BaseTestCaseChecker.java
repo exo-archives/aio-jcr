@@ -24,7 +24,15 @@ import junit.framework.TestCase;
  * @version $Id$
  */
 public class BaseTestCaseChecker extends TestCase {
+  
+  // for exo-application
+  public final static String TEST_REALM = "eXo REST services";
+  
+  // for ECM
+  //public final static String TEST_REALM = "exo-domain";
+  
   protected static int MAX_RANDOM_VALUE = 1000000;
+  
   protected final String workingRepository = "repository";
 
   protected final String workingWorkspace  = "backup";
