@@ -78,7 +78,7 @@ namespace exo_jcr.msofficeplugin.common
         {
             versionHref = null;
             isNeedCompare = false;
-            Versions dialog_versions = new Versions(application, this);
+            Versions dialog_versions = new Versions(application, this, mainControl1.selectedHref);
             dialog_versions.ShowDialog(mainControl1.selectedHref);
             if (versionHref != null) {
                 Utils.doGetFile(application, versionHref);

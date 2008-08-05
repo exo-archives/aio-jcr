@@ -663,7 +663,15 @@ namespace exo_jcr.msofficeplugin.common
             int item_index = ((ListView)sender).FocusedItem.Index;
 
             DavResponse response = (DavResponse)filteredResponses[item_index];
-            selectedHref = response.getHref().getHref();
+
+            String fileName = ((ListView)sender).FocusedItem.Text;
+            String filePath = this.NodeTree.SelectedNode.FullPath.Replace("\\", "/");
+
+            // selectedHref = response.getHref().getHref();
+
+            selectedHref = filePath + "/" + fileName;
+
+
 
             WebDavProperty versionNameProp = response.getProperty("D:" + DavProperty.VERSIONNAME);
             if (versionNameProp != null && versionNameProp.getStatus() == DavStatus.OK)

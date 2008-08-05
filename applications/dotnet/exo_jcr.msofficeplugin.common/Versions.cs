@@ -48,10 +48,13 @@ namespace exo_jcr.msofficeplugin.common
 
         private ApplicationInterface application;
 
-        public Versions(ApplicationInterface application, Form parentForm)
+        private String selectedhref;
+
+        public Versions(ApplicationInterface application, Form parentForm, String selectedhref) 
         {
             this.parentForm = parentForm;
             this.application = application;
+            this.selectedhref = selectedhref;
             InitializeComponent();
         }
 
@@ -162,6 +165,10 @@ namespace exo_jcr.msofficeplugin.common
             int item_index = list_versions.FocusedItem.Index;
             DavResponse response = (DavResponse)responses[item_index];
             String href = response.getHref().getHref();
+            int versionStart = href.LastIndexOf("?");
+            String version = href.Substring(versionStart);
+            href = selectedhref + version;
+
             ((NOpen)parentForm).versionHref = href;
             return true;
         }
