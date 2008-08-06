@@ -140,4 +140,61 @@ public class PropPatchTest extends BaseStandaloneWebDavTest {
     assertEquals(RIGHTS, rightsProp.getValue());
   }
   
+  public void testPropPatchWithoutSetTag() throws Exception {
+    String path = propPatchNode.getPath();
+    
+    String xml = ""+
+    "<D:propertyupdate xmlns:D=\"DAV:\">"+
+      "<D:set>"+
+        "<D:prop>"+
+          "<D:contentlength>10</D:contentlength>"+
+          "<D:someprop>somevalue</D:someprop>"+
+        "</D:prop>"+
+      "</D:set>"+      
+      "<D:remove>"+
+        "<D:prop>"+
+          "<D:prop2 />"+
+          "<D:prop3 />"+
+        "</D:prop>"+
+      "</D:remove>"+    
+    "</D:propertyupdate>";
+    
+    XMLInputTransformer transformer = new XMLInputTransformer();
+    HierarchicalProperty body = 
+      (HierarchicalProperty)transformer.readFrom(new ByteArrayInputStream(xml.getBytes()));
+    
+    NullResourceLocksHolder lockHolder = new NullResourceLocksHolder();
+    
+    PropPatchCommand propPatch = new PropPatchCommand(lockHolder);
+    
+    Response response = propPatch.propPatch(session, path, body, null, "http://localhost");
+    
+    assertEquals(WebDavStatus.MULTISTATUS, response.getStatus());
+    
+    SerializableEntity entity = (SerializableEntity)response.getEntity();
+    
+    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+    
+    entity.writeObject(outStream);
+    
+    HierarchicalProperty multistatus =
+      (HierarchicalProperty)transformer.readFrom(new ByteArrayInputStream(outStream.toByteArray()));
+    assertEquals(new QName("DAV:", "multistatus"), multistatus.getName());
+    assertEquals(1, multistatus.getChildren().size());
+    assertEquals(new QName("DAV:", "response"), multistatus.getChild(0).getName());
+    
+    PropFindCommand propFind = new PropFindCommand();
+    response = propFind.propfind(session, path, null, Integer.MAX_VALUE, "http://localhost");
+    assertEquals(WebDavStatus.MULTISTATUS, response.getStatus());
+    
+    entity = (SerializableEntity)response.getEntity();
+    outStream = new ByteArrayOutputStream();
+    entity.writeObject(outStream);
+    
+    multistatus = (HierarchicalProperty)transformer.readFrom(new ByteArrayInputStream(outStream.toByteArray()));
+    assertEquals(new QName("DAV:", "multistatus"), multistatus.getName());
+    assertEquals(1, multistatus.getChildren().size());
+    assertEquals(new QName("DAV:", "response"), multistatus.getChild(0).getName());    
+   }
+  
 }
