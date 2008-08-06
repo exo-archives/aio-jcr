@@ -100,10 +100,10 @@ public class Handler extends URLStreamHandler implements Startable {
       
       ManageableRepository repository;
       String repositoryName = nodeReference.getRepository();
-      if (repositoryName != null || repositoryName.length() > 0)
-        repository = repositoryService_.getRepository(repositoryName);
-      else 
+      if (repositoryName == null || repositoryName.length() == 0)
         repository = sp.getCurrentRepository();
+      else 
+        repository = repositoryService_.getRepository(repositoryName);
 
       String workspaceName = nodeReference.getWorkspace();
       if (workspaceName == null || workspaceName.length() == 0)
