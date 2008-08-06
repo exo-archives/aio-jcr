@@ -175,6 +175,21 @@ namespace exo_jcr.msofficeplugin.common
 
         private void button1_Click(object sender, EventArgs e)
         {
+            String selectedFileName = selectedhref.Substring(selectedhref.LastIndexOf("/") + 1);
+            String currentFileName = this.application.getActiveDocumentName();
+
+            if (currentFileName.Contains("%3F")) {
+                currentFileName = currentFileName.Substring(0, currentFileName.LastIndexOf("%3F"));
+            }
+
+
+            if (!selectedFileName.Equals(currentFileName))
+            {
+                MessageBox.Show("You can't compare versions of different files", "Error");
+                return;
+            }
+
+
             if (openVersionFile())
             {
                 ((NOpen)parentForm).isNeedCompare = true;
