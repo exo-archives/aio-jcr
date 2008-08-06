@@ -27,6 +27,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.container.xml.InitParams;
@@ -219,10 +220,28 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     
       String destPath = destinationHeader.substring(serverURI.length() + 1);
       String destWorkspace = workspaceName(destPath);
+      String destinationPath = destinationHeader.substring(serverURI.length() + 1);
 
       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
       
       Depth depth = new Depth(depthHeader);
+      
+      if (overwriteHeader == null){
+        overwriteHeader = "F";
+      }
+      
+      
+      if (overwriteHeader.equalsIgnoreCase("T")){
+        delete(repoName, destinationPath, lockTokenHeader, ifHeader);
+      } else {
+        Session session = session(repoName, workspaceName(repoPath), null);
+        String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
+        Response prpfind = new PropFindCommand().propfind(session, path(destinationPath),
+            body, depth.getIntValue(), uri);
+        if(prpfind.getStatus() != WebDavStatus.NOT_FOUND){
+          return Response.Builder.withStatus(WebDavStatus.PRECONDITION_FAILED).build();
+        }
+      }
       
       if (depth.getStringValue().equalsIgnoreCase("infinity")) {        
         String srcWorkspace = workspaceName(repoPath);
@@ -489,18 +508,33 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       
       if (!destinationHeader.startsWith(serverURI)) {
         return Response.Builder.withStatus(WebDavStatus.BAD_GATEWAY).build();
-      }
-      
-
+      }     
       
       String destPath = destinationHeader.substring(serverURI.length() + 1);
       String destWorkspace = workspaceName(destPath);
+      String destinationPath = destinationHeader.substring(serverURI.length() + 1);      
       
       String srcWorkspace = workspaceName(repoPath);
 
       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
       
-      Depth depth = new Depth(depthHeader); 
+      Depth depth = new Depth(depthHeader);
+      
+      if (overwriteHeader == null){
+        overwriteHeader = "F";
+      }
+      
+      if (overwriteHeader.equalsIgnoreCase("T")){
+        delete(repoName, destinationPath, lockTokenHeader, ifHeader);
+      } else {
+        Session session = session(repoName, workspaceName(repoPath), null);
+        String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
+        Response prpfind = new PropFindCommand().propfind(session, path(destinationPath),
+            body, depth.getIntValue(), uri);
+        if(prpfind.getStatus() != WebDavStatus.NOT_FOUND){
+          return Response.Builder.withStatus(WebDavStatus.PRECONDITION_FAILED).build();
+        }
+      }
       
       if (depth.getStringValue().equalsIgnoreCase("Infinity")) {
         if (srcWorkspace.equals(destWorkspace)) {

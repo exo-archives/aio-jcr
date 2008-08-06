@@ -32,6 +32,7 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -39,6 +40,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.webdav.WebDavStatus;
+import org.exoplatform.services.jcr.webdav.util.PropertyConstants;
 import org.exoplatform.services.jcr.webdav.xml.PropertyWriteUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.rest.transformer.SerializableEntity;
@@ -60,6 +62,16 @@ public class PropPatchResponseEntity implements SerializableEntity {
   private final List<HierarchicalProperty> setList;
   
   private final List<HierarchicalProperty> removeList;
+  
+  protected final static Set <QName> NON_REMOVING_PROPS = new HashSet<QName>();
+  static {
+    NON_REMOVING_PROPS.add(PropertyConstants.CREATIONDATE);
+    NON_REMOVING_PROPS.add(PropertyConstants.DISPLAYNAME);
+    NON_REMOVING_PROPS.add(PropertyConstants.GETCONTENTLANGUAGE);
+    NON_REMOVING_PROPS.add(PropertyConstants.GETCONTENTLENGTH);
+    NON_REMOVING_PROPS.add(PropertyConstants.GETCONTENTTYPE);
+    NON_REMOVING_PROPS.add(PropertyConstants.GETLASTMODIFIED);
+  };
   
   public PropPatchResponseEntity(WebDavNamespaceContext nsContext, Node node, URI uri,
       List<HierarchicalProperty> setList, List<HierarchicalProperty> removeList) {
@@ -114,7 +126,7 @@ public class PropPatchResponseEntity implements SerializableEntity {
         String propertyName = WebDavNamespaceContext.createName(setProperty.getName());
         
         try {
-          node.setProperty(propertyName, setProperty.getValue());
+          contentNode().setProperty(propertyName, setProperty.getValue());
         } catch (RepositoryException exc) {
           String []value = new String[1];
           value[0] = setProperty.getValue();
@@ -129,7 +141,7 @@ public class PropPatchResponseEntity implements SerializableEntity {
       } catch (PathNotFoundException e) {
         statname = WebDavStatus.getStatusDescription(WebDavStatus.NOT_FOUND);
       } catch (RepositoryException e) {
-        statname = WebDavStatus.getStatusDescription(WebDavStatus.INTERNAL_SERVER_ERROR);
+        statname = WebDavStatus.getStatusDescription(WebDavStatus.CONFLICT);
       }
 
       if (!propStats.containsKey(statname)) {
@@ -145,6 +157,21 @@ public class PropPatchResponseEntity implements SerializableEntity {
       
       String statname;
       try {
+        
+        if(NON_REMOVING_PROPS.contains(removeProperty.getName())){
+          statname = WebDavStatus.getStatusDescription(WebDavStatus.CONFLICT);
+          
+          if (!propStats.containsKey(statname)) {
+            propStats.put(statname, new HashSet<HierarchicalProperty>());
+          }
+
+          Set<HierarchicalProperty> propSet = propStats.get(statname);
+          propSet.add(new HierarchicalProperty(removeProperty.getName()));    
+          
+          continue;
+          
+        }
+        
         String propertyName = WebDavNamespaceContext.createName(removeProperty.getName());
         
         Property property = node.getProperty(propertyName);
@@ -159,7 +186,7 @@ public class PropPatchResponseEntity implements SerializableEntity {
       } catch (PathNotFoundException e) {
         statname = WebDavStatus.getStatusDescription(WebDavStatus.NOT_FOUND);      
       } catch (RepositoryException e) {
-        statname = WebDavStatus.getStatusDescription(WebDavStatus.INTERNAL_SERVER_ERROR);
+        statname = WebDavStatus.getStatusDescription(WebDavStatus.CONFLICT);
       }
 
       if (!propStats.containsKey(statname)) {
@@ -168,10 +195,14 @@ public class PropPatchResponseEntity implements SerializableEntity {
 
       Set<HierarchicalProperty> propSet = propStats.get(statname);
       propSet.add(new HierarchicalProperty(removeProperty.getName()));      
-    }
-    
+    }    
   
     return propStats;
   }
+  
+  public Node contentNode() throws RepositoryException {
+    return node.getNode("jcr:content");
+  }
+  
   
 }

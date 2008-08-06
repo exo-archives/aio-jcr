@@ -32,6 +32,8 @@ public interface PropertyConstants {
   public static final QName CREATIONDATE = new QName("DAV:", "creationdate");
   
   public static final QName DISPLAYNAME = new QName("DAV:", "displayname");
+  
+  public static final QName GETCONTENTLANGUAGE = new QName ("DAV:", "getcontentlanguage");
 	
 	public static final QName GETCONTENTLENGTH = new QName("DAV:", "getcontentlength");
 	
