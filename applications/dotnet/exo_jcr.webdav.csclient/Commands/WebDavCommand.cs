@@ -110,15 +110,6 @@ namespace exo_jcr.webdav.csclient.Commands
             return responseBytes;
         }
 
-        //public byte[] getBytes(String value) {
-        //    char[] data1 = value.ToCharArray();
-        //    byte[] data2 = new byte[data1.Length];
-        //    for (int i = 0; i < data1.Length; i++) {
-        //        data2[i] = (byte)data1[i];
-        //    }
-        //    return data2;
-        //}
-
         public byte[] getBytes(String value)
         {
             Encoding encoding = Encoding.UTF8;
