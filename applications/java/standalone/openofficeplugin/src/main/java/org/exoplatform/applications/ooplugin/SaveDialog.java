@@ -19,6 +19,7 @@ package org.exoplatform.applications.ooplugin;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 
@@ -426,8 +427,8 @@ public class SaveDialog extends BrowseDialog {
     localFilePath = getDocumentFileName();
   }
   
-  public String getDocumentFileName() {
-    return URLDecoder.decode(xModel.getURL().replaceFirst("file:///", ""));
+  public String getDocumentFileName() throws UnsupportedEncodingException {
+    return URLDecoder.decode(xModel.getURL().replaceFirst("file:///", ""), "UTF-8");
   }
   
   private class LaunchThread extends Thread {
