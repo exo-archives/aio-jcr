@@ -24,16 +24,13 @@ Library allows :
 First of all, you need to Open Office (v. 2.0.2 or upper) and JRE (v. 5.0 or upper) installed 
 on your system.
 
-If this conditions are true, you can install Open Office add-on using "unopkg" application from
-Open-Office project.
+If this conditions are true, you can install Open Office add-on.
 
-Run "unopkg add exo-oo-addon-1.7.zip" in your console for register plug-in in Open Office.
-
-You can try to use install.bat (at Windows system) or install.sh (at Linux systems).    
-
-When installation ends succesfully, new menu column called "Remote Documents" will appear in all
-Open Office products, installed on your system.
-
+a.) Launch any Open Office application.
+b.) Open "Tools / Extension Manager" menu.
+c.) Choose "My Extensions", if you have previos version of exo-oo-addon choose it and click "Remove".
+d.) Click "Add" button and choose path to your eXo Addon *.zip file click "open".
+e.) Restart your application.
 
 3. Configuration
 
@@ -69,3 +66,6 @@ to search in search text field and press "Search" button. Results will appear in
 
 For uninstallation type in your console "unopkg add exo-oo-addon-1.7.zip" and run.
 
+a.) Open "Tools / Extension Manager" menu.
+b.) Choose "My Extensions", choose exo-oo-addon-* and click "Remove".
+c.) Restart your application.

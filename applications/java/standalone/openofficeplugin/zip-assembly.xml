@@ -1,5 +1,5 @@
 <assembly>
-	<id>1.7</id>
+	<id>trunk</id>
 	<formats>
 		<format>zip</format>
 	</formats>
@@ -7,7 +7,7 @@
 
 	<fileSets>
 		<fileSet>			
-			<directory>/src/main/addon</directory>
+			<directory>src/main/addon</directory>
 			<outputDirectory>/</outputDirectory>
 		</fileSet>
 	</fileSets>
