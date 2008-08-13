@@ -32,57 +32,62 @@ import org.apache.commons.chain.Context;
 import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
 import org.exoplatform.frameworks.jcr.command.JCRCommandHelper;
-import org.exoplatform.frameworks.jcr.command.web.DisplayResourceCommand;
 import org.exoplatform.frameworks.jcr.command.web.GenericWebAppContext;
 
 /**
- * Created by The eXo Platform SAS        .<br/>
- * connector?Command=FileUpload&Type=ResourceType&CurrentFolder=FolderPath
+ * Created by The eXo Platform SAS .<br/> connector?Command=FileUpload&Type=ResourceType&CurrentFolder=FolderPath
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: UploadFileCommand.java 12537 2007-02-02 22:38:23Z brice $
+ * @version $Id$
  */
 
-public class UploadFileCommand implements Command {
-  
+public class UploadFileCommand extends AbstractFCKConnector implements Command {
+
   public boolean execute(Context context) throws Exception {
-    
-    GenericWebAppContext webCtx = (GenericWebAppContext)context;
-    //Session session = webCtx.getSession();
+
+    GenericWebAppContext webCtx = (GenericWebAppContext) context;
     HttpServletResponse response = webCtx.getResponse();
     HttpServletRequest request = webCtx.getRequest();
     PrintWriter out = response.getWriter();
     response.setContentType("text/html; charset=UTF-8");
-    response.setHeader("Cache-Control","no-cache");
-    String type = (String)context.get("Type");
-    if(type == null)
+    response.setHeader("Cache-Control", "no-cache");
+    
+    String type = (String) context.get("Type");
+    if (type == null)
       type = "";
-    
-//  To limit browsing set Servlet init param "digitalAssetsPath"
-    // with desired JCR path
-    String rootFolderStr = (String)context.get("org.exoplatform.frameworks.jcr.command.web.fckeditor.digitalAssetsPath");
-    
-    if(rootFolderStr == null)
-      rootFolderStr = "/";
 
-    // set current folder
-    String currentFolderStr = (String)context.get("CurrentFolder");
-    if(currentFolderStr == null)
-      currentFolderStr = "";
-    else if(currentFolderStr.length() < rootFolderStr.length())
-      currentFolderStr = rootFolderStr;
-    
-    String jcrMapping = (String)context.get(GenericWebAppContext.JCR_CONTENT_MAPPING);
-    if(jcrMapping == null)
-      jcrMapping = DisplayResourceCommand.DEFAULT_MAPPING;
-    
-    String digitalWS = (String)webCtx.get(AppConstants.DIGITAL_ASSETS_PROP);
-    if(digitalWS == null)
-      digitalWS = AppConstants.DEFAULT_DIGITAL_ASSETS_WS;
+    ////  To limit browsing set Servlet init param "digitalAssetsPath"
+    //    // with desired JCR path
+    //    String rootFolderStr = (String)context.get("org.exoplatform.frameworks.jcr.command.web.fckeditor.digitalAssetsPath");
+    //    
+    //    if(rootFolderStr == null)
+    //      rootFolderStr = "/";
+    //
+    //    // set current folder
+    //    String currentFolderStr = (String)context.get("CurrentFolder");
+    //    if(currentFolderStr == null)
+    //      currentFolderStr = "";
+    //    else if(currentFolderStr.length() < rootFolderStr.length())
+    //      currentFolderStr = rootFolderStr;
+    //    
+    //    String jcrMapping = (String)context.get(GenericWebAppContext.JCR_CONTENT_MAPPING);
+    //    if(jcrMapping == null)
+    //      jcrMapping = DisplayResourceCommand.DEFAULT_MAPPING;
+    //    
+    //    String digitalWS = (String)webCtx.get(AppConstants.DIGITAL_ASSETS_PROP);
+    //    if(digitalWS == null)
+    //      digitalWS = AppConstants.DEFAULT_DIGITAL_ASSETS_WS;
 
-    webCtx.setCurrentWorkspace(digitalWS);
-    
+    String workspace = (String) webCtx.get(AppConstants.DIGITAL_ASSETS_PROP);
+    if (workspace == null)
+      workspace = AppConstants.DEFAULT_DIGITAL_ASSETS_WS;
+
+    String currentFolderStr = getCurrentFolderPath(webCtx);
+
+    webCtx.setCurrentWorkspace(workspace);
+
     Node parentFolder = (Node) webCtx.getSession().getItem(currentFolderStr);
-    
+
     DiskFileUpload upload = new DiskFileUpload();
     List items = upload.parseRequest(request);
 
@@ -101,15 +106,20 @@ public class UploadFileCommand implements Command {
     // On IE, the file name is specified as an absolute path.
     String fileName = new File(uplFile.getName()).getName();
 
-    Node file = JCRCommandHelper.createResourceFile(parentFolder, fileName, uplFile.getInputStream(), uplFile.getContentType());
+    Node file =
+        JCRCommandHelper.createResourceFile(parentFolder,
+                                            fileName,
+                                            uplFile.getInputStream(),
+                                            uplFile.getContentType());
 
     parentFolder.save();
-    
+
     // TODO
     int retVal = 0;
 
     out.println("<script type=\"text/javascript\">");
-    out.println("window.parent.frames['frmUpload'].OnUploadCompleted("+retVal+",'"+file.getName()+"');");
+    out.println("window.parent.frames['frmUpload'].OnUploadCompleted(" + retVal + ",'"
+        + file.getName() + "');");
     out.println("</script>");
     out.flush();
     out.close();

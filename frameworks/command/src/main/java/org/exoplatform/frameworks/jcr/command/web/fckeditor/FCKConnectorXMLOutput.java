@@ -34,10 +34,10 @@ import org.w3c.dom.Element;
  * Created by The eXo Platform SAS .
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: FCKConnectorXMLOutput.java 5800 2006-05-28 18:03:31Z geaz $
+ * @version $Id$
  */
 
-public class FCKConnectorXMLOutput {
+public class FCKConnectorXMLOutput extends AbstractFCKConnector {
 
   protected Element rootElement;
 
@@ -46,13 +46,9 @@ public class FCKConnectorXMLOutput {
       throws ParserConfigurationException {
 
     Document doc = null;
-    // try {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     DocumentBuilder builder = factory.newDocumentBuilder();
     doc = builder.newDocument();
-    // } catch (ParserConfigurationException pce) {
-    // pce.printStackTrace();
-    // }
 
     rootElement = doc.createElement("Connector");
     doc.appendChild(rootElement);
@@ -63,9 +59,6 @@ public class FCKConnectorXMLOutput {
     myEl.setAttribute("path", currentPath);
     myEl.setAttribute("url", currentUrl);
     rootElement.appendChild(myEl);
-
-    // return root;
-
   }
 
   protected void outRootElement(HttpServletResponse response) throws Exception {
@@ -83,5 +76,4 @@ public class FCKConnectorXMLOutput {
     out.flush();
     out.close();
   }
-
 }

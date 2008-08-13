@@ -13,8 +13,8 @@
 
   <context-param>
     <param-name>org.exoplatform.frameworks.web.repositoryMapping</param-name>
-    <param-value>/jcr</param-value>
-    <description>Repository mapping path. If there are servlet/filter for desplaying internal imeges/links inside html documents it should have the same mapping</description>
+    <param-value>/rest/jcr</param-value>
+    <description>Repository mapping path. If there are servlet/filter for desplaying internal images/links inside html documents it should have the same mapping</description>
   </context-param>
 
   <context-param>
@@ -53,7 +53,7 @@
     <listener-class>org.exoplatform.frameworks.jcr.web.StandaloneContainerInitializedListener</listener-class>
   </listener>
 
-  <servlet>
+  <!-- servlet>
     <servlet-name>DisplayJCRContent</servlet-name>
     <servlet-class>org.exoplatform.frameworks.jcr.web.DisplayJCRContentServlet</servlet-class>
       <init-param>
@@ -64,7 +64,7 @@
       </description>
       </init-param>
     <load-on-startup>1</load-on-startup>
-  </servlet>
+  </servlet -->
 	
 	<servlet>
     <servlet-name>Controller</servlet-name>
@@ -72,22 +72,22 @@
     <load-on-startup>1</load-on-startup>
   </servlet>
 	
-  <!-- servlet>
+  <servlet>
     <servlet-name>RestServer</servlet-name>
     <description>eXo - Platform REST Server</description>
     <servlet-class>org.exoplatform.services.rest.servlet.RestServlet</servlet-class>
     <load-on-startup>4</load-on-startup>
-  </servlet --> 
+  </servlet> 
  
-  <servlet-mapping>
+  <!-- servlet-mapping>
     <servlet-name>DisplayJCRContent</servlet-name>
     <url-pattern>/jcr/*</url-pattern>
-  </servlet-mapping>	
+  </servlet-mapping -->	
 
-  <!-- servlet-mapping>
+  <servlet-mapping>
     <servlet-name>RestServer</servlet-name>
     <url-pattern>/rest/*</url-pattern>
-  </servlet-mapping -->
+  </servlet-mapping>
 	
   <servlet-mapping>
     <servlet-name>Controller</servlet-name>

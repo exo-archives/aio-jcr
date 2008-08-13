@@ -23,65 +23,81 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.chain.Command;
 import org.apache.commons.chain.Context;
-import org.exoplatform.frameworks.jcr.command.web.DisplayResourceCommand;
 import org.exoplatform.frameworks.jcr.command.web.GenericWebAppContext;
+import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
 /**
- * Created by The eXo Platform SAS        .
+ * Created by The eXo Platform SAS .
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: GetFoldersOrFilesCommand.java 5800 2006-05-28 18:03:31Z geaz $
+ * @version $Id$
  */
 
 public class GetFoldersOrFilesCommand extends FCKConnectorXMLOutput implements Command {
 
   public boolean execute(Context context) throws Exception {
 
-    GenericWebAppContext webCtx = (GenericWebAppContext)context;
+    GenericWebAppContext webCtx = (GenericWebAppContext) context;
     HttpServletResponse response = webCtx.getResponse();
     HttpServletRequest request = webCtx.getRequest();
 
-    String filter = (String)context.get("Command");
+    String filter = (String) context.get("Command");
 
-    String type = (String)context.get("Type");
-    if(type == null)
+    String type = (String) context.get("Type");
+    if (type == null)
       type = "";
 
-    // To limit browsing set Servlet init param "digitalAssetsPath"
-    // with desired JCR path
-    String rootFolderStr = (String)context.get("org.exoplatform.frameworks.jcr.command.web.fckeditor.digitalAssetsPath");
+    // To limit browsing set Servlet init param "digitalAssetsPath" with desired JCR path
+    //    String rootFolderStr = (String)context.get("org.exoplatform.frameworks.jcr.command.web.fckeditor.digitalAssetsPath");
+    //    
+    //    if(rootFolderStr == null)
+    //      rootFolderStr = "/";
+    //
+    //    // set current folder
+    //    String currentFolderStr = get;
+    //    if(currentFolderStr == null)
+    //      currentFolderStr = "";
+    //    else if(currentFolderStr.length() < rootFolderStr.length())
+    //      currentFolderStr = rootFolderStr;
+    //
+    //    String jcrMapping = (String)context.get(GenericWebAppContext.JCR_CONTENT_MAPPING);
+    //    if(jcrMapping == null)
+    //      jcrMapping = DisplayResourceCommand.DEFAULT_MAPPING;
+    //
+    //    String workspace = (String)webCtx.get(AppConstants.DIGITAL_ASSETS_PROP);
+    //    if(workspace == null)
+    //      workspace = AppConstants.DEFAULT_DIGITAL_ASSETS_WS;
+    //
+    //    webCtx.setCurrentWorkspace(workspace);
+    //
+    //    Node currentFolder = (Node) webCtx.getSession().getItem(currentFolderStr);
+    //
+    //initRootElement(filter, type, currentPath, request.getContextPath()+currentPath);
+    //    String url = request.getContextPath()+jcrMapping+"?"+
+    //    "workspace="+digitalWS+
+    //    "&path="+currentFolderStr;
+
+    // /portal/jcr?workspace=collaboration&path=/Digital Assets/Pictures/my images/39515971.u1D8dTVD.wilersee_5924.jpg
     
-    if(rootFolderStr == null)
-      rootFolderStr = "/";
+    String workspace = (String) webCtx.get(AppConstants.DIGITAL_ASSETS_PROP);
+    if (workspace == null)
+      workspace = AppConstants.DEFAULT_DIGITAL_ASSETS_WS;
 
-    // set current folder
-    String currentFolderStr = (String)context.get("CurrentFolder");
-    if(currentFolderStr == null)
-      currentFolderStr = "";
-    else if(currentFolderStr.length() < rootFolderStr.length())
-      currentFolderStr = rootFolderStr;
+    String currentFolderStr = getCurrentFolderPath(webCtx);
 
-    String jcrMapping = (String)context.get(GenericWebAppContext.JCR_CONTENT_MAPPING);
-    if(jcrMapping == null)
-      jcrMapping = DisplayResourceCommand.DEFAULT_MAPPING;
-
-    String digitalWS = (String)webCtx.get(AppConstants.DIGITAL_ASSETS_PROP);
-    if(digitalWS == null)
-      digitalWS = AppConstants.DEFAULT_DIGITAL_ASSETS_WS;
-
-    webCtx.setCurrentWorkspace(digitalWS);
-
+    webCtx.setCurrentWorkspace(workspace);
     Node currentFolder = (Node) webCtx.getSession().getItem(currentFolderStr);
 
-    //initRootElement(filter, type, currentPath, request.getContextPath()+currentPath);
-    String url = request.getContextPath()+jcrMapping+"?"+
-    "workspace="+digitalWS+
-    "&path="+currentFolderStr;
+    String repoName = ((ManageableRepository) webCtx.getSession().getRepository()).getConfiguration().getName();
+    
+    String url = request.getContextPath() + makeRESTPath(repoName, workspace, currentFolderStr);
 
     initRootElement(filter, type, currentFolderStr, url);
 
     Document doc = rootElement.getOwnerDocument();
-    if(!filter.equals("GetFiles")) {
+    if (!filter.equals("GetFiles")) {
       Element nodesElement = rootElement.getOwnerDocument().createElement("Folders");
       rootElement.appendChild(nodesElement);
       NodeIterator nodeList = currentFolder.getNodes();
@@ -95,7 +111,8 @@ public class GetFoldersOrFilesCommand extends FCKConnectorXMLOutput implements C
         }
       }
     }
-    if(!filter.equals("GetFolders")) {
+
+    if (!filter.equals("GetFolders")) {
       Element nodesElement = rootElement.getOwnerDocument().createElement("Files");
       rootElement.appendChild(nodesElement);
       NodeIterator nodeList = currentFolder.getNodes();
@@ -117,6 +134,5 @@ public class GetFoldersOrFilesCommand extends FCKConnectorXMLOutput implements C
 
     return false;
   }
-
 
 }
