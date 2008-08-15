@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2007 eXo Platform SAS.
+ * Copyright (C) 2003-2008 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -14,46 +14,71 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-
 package org.exoplatform.services.jcr.webdav.command;
 
-import javax.jcr.Node;
+import junit.framework.TestCase;
 
-import org.exoplatform.services.jcr.webdav.BaseStandaloneWebDavTest;
-import org.exoplatform.services.jcr.webdav.WebDavStatus;
-import org.exoplatform.services.rest.Response;
+import org.exoplatform.common.http.HTTPStatus;
+import org.exoplatform.common.http.client.CookieModule;
+import org.exoplatform.common.http.client.HTTPConnection;
+import org.exoplatform.common.http.client.HTTPResponse;
+import org.exoplatform.services.jcr.webdav.TestUtils;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
- * @version $Id: $
+ * Created by The eXo Platform SAS
+ * Author : Dmytro Katayev
+ *          work.visor.ck@gmail.com
+ * Aug 13, 2008  
  */
-
-public class TestDelete extends BaseStandaloneWebDavTest {
+public class TestDelete extends TestCase {
   
-  private Node deleteNode;
+  private final String folderName = TestUtils.getFolderName();
+  private final String fileName = TestUtils.getFullWorkSpacePath() + "/" +TestUtils.getFileName();
+  private final String fileContent = "TEST FILE CONTENT...";
+  
+  private HTTPConnection connection = TestUtils.GetAuthConnection();
   
   @Override
-  public void setUp() throws Exception {
+  protected void setUp() throws Exception {
+   
+    CookieModule.setCookiePolicyHandler(null);
+    
+    connection = TestUtils.GetAuthConnection();
+   
     super.setUp();
-    if(deleteNode == null) {
-      deleteNode = writeNode.addNode("delete", "nt:unstructured");
-      session.save();
-    }
-  }     
-  
-  public void testDelete() throws Exception {
-    String path = deleteNode.getPath();
-    
-    Response response = new PropFindCommand().propfind(session, path, null, Integer.MAX_VALUE, "http://localhost");
-    assertEquals(WebDavStatus.MULTISTATUS, response.getStatus());
-
-    response = new DeleteCommand().delete(session, path);
-    assertEquals(WebDavStatus.NO_CONTENT, response.getStatus());    
-    assertEquals(false, session.itemExists(path));
-    
-    response = new PropFindCommand().propfind(session, path, null, Integer.MAX_VALUE, "http://localhost");
-    assertEquals(WebDavStatus.NOT_FOUND, response.getStatus());
   }
+  
+  public void testDeleteForNonCollection() throws Exception {
+    
+    HTTPResponse response = connection.Put(fileName, fileContent);
+    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
+    
+    response = connection.Delete(fileName);
+    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
+    
+  }
+  
+  public void testDeleteForCollection() throws Exception {
+    
+    HTTPResponse response = connection.MkCol(TestUtils.getFullWorkSpacePath() + folderName);
+    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
+    
+    String subFolder = TestUtils.getFullWorkSpacePath() + folderName + "/" + "subfolder";
+    response = connection.MkCol(subFolder);
+    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
+    
+    String testFileName = TestUtils.getFileName();
+    
+    response = connection.Put(subFolder + "/" + testFileName , fileContent.getBytes());
+    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
+    
+    response = connection.Delete(TestUtils.getFullWorkSpacePath() + folderName);
+    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
+    
+    
+    response = connection.Get(subFolder + "/" + testFileName);
+    assertEquals(HTTPStatus.NOT_FOUND, response.getStatusCode());   
+    
+  } 
 
 }

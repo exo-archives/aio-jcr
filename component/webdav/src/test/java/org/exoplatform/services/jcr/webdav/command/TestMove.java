@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2007 eXo Platform SAS.
+ * Copyright (C) 2003-2008 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -14,64 +14,88 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-
 package org.exoplatform.services.jcr.webdav.command;
 
-import javax.jcr.Node;
+import org.exoplatform.common.http.HTTPStatus;
+import org.exoplatform.common.http.client.CookieModule;
+import org.exoplatform.common.http.client.HTTPConnection;
+import org.exoplatform.common.http.client.HTTPResponse;
+import org.exoplatform.services.jcr.webdav.TestUtils;
 
-import org.exoplatform.services.jcr.webdav.BaseStandaloneWebDavTest;
-import org.exoplatform.services.jcr.webdav.WebDavStatus;
-import org.exoplatform.services.rest.Response;
+import junit.framework.TestCase;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
- * @version $Id: $
+ * Created by The eXo Platform SAS
+ * Author : Dmytro Katayev
+ *          work.visor.ck@gmail.com
+ * Aug 13, 2008  
  */
-
-public class TestMove extends BaseStandaloneWebDavTest {
+public class TestMove extends TestCase {
   
-  private Node moveNode;
+  private final String fileName = TestUtils.getFileName(); 
+  private final String srcFileName = TestUtils.getFullWorkSpacePath() + "/" + fileName;
   
-  private Node sourceNode;
+  private final String testFolder = TestUtils.getFullUri() + "/test";
+  
+  private final String destFileName = testFolder +"/" + TestUtils.getFileName();
+  
+  private final String fileContent = "TEST FILE CONTENT...";
+    
+  private HTTPConnection connection = TestUtils.GetAuthConnection();
   
   @Override
-  public void setUp() throws Exception {
-    super.setUp();
-    if(moveNode == null) {
-      moveNode = writeNode.addNode("copy", "nt:unstructured");
-      sourceNode = moveNode.addNode("source node " + System.currentTimeMillis(), "nt:folder");
-      session.save();
+  protected void setUp() throws Exception {
+   
+    CookieModule.setCookiePolicyHandler(null);
+    
+    connection = TestUtils.GetAuthConnection();
+    
+    {
+      HTTPResponse response = connection.Put(srcFileName, fileContent);
+      assertEquals(HTTPStatus.CREATED, response.getStatusCode());
+    
+      response = connection.MkCol(testFolder);
+      assertEquals(HTTPStatus.CREATED, response.getStatusCode());
+    
+      response = connection.Put(srcFileName, fileContent);
+      assertEquals(HTTPStatus.CREATED, response.getStatusCode());    
     }
-  }  
   
-  public void testModeSameWorkspace() throws Exception {
-    String source = sourceNode.getPath();
-    String destination = moveNode.getPath() + "/destination node " + System.currentTimeMillis();
-
-    assertEquals(true, session.itemExists(source));
-    assertEquals(false, session.itemExists(destination));
-    
-    Response response = new MoveCommand().move(session, source, destination);
-    assertEquals(WebDavStatus.CREATED, response.getStatus());
-    
-    assertEquals(false, session.itemExists(source));
-    assertEquals(true, session.itemExists(destination));
-  }
-
-  public void testMoveDifferentWorkspace() throws Exception {
-    String source = sourceNode.getPath();
-    String destination = moveNode.getPath() + "/destination node " + System.currentTimeMillis();
-    
-    assertEquals(true, session.itemExists(source));
-    assertEquals(false, session.itemExists(destination));
-    
-    Response response = new MoveCommand().move(session, session, source, destination);
-    assertEquals(WebDavStatus.CREATED, response.getStatus());
-    
-    assertEquals(false, session.itemExists(source));
-    assertEquals(true, session.itemExists(destination));
+    super.setUp();
   }
   
+  @Override
+  protected void tearDown() throws Exception 
+  {
+    HTTPResponse response = connection.Delete(testFolder);
+    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
+  
+    super.tearDown();
+  }
+
+  public void testMoveForNonCollection() throws Exception {
+    
+    HTTPResponse response = connection.Move(srcFileName, destFileName);
+    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
+    response = connection.Get(srcFileName);
+    assertEquals(HTTPStatus.NOT_FOUND, response.getStatusCode());
+    response = connection.Get(destFileName);
+    assertEquals(HTTPStatus.OK, response.getStatusCode());
+    
+    
+  }
+
+  public void testOverwriteMove() throws Exception {
+  
+    HTTPResponse response = connection.Put(destFileName, fileContent);
+    
+    response = connection.Move(srcFileName, destFileName, false);
+    assertEquals(HTTPStatus.PRECON_FAILED, response.getStatusCode());
+    
+    response = connection.Move(srcFileName, destFileName, true);
+    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
+  
+  }
+ 
+
 }
-

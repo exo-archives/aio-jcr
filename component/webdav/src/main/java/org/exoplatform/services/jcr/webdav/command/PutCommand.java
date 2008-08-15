@@ -88,7 +88,7 @@ public class PutCommand {
       return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).build();
       
     } catch (RepositoryException exc) {
-      return Response.Builder.serverError().errorMessage(exc.getMessage()).build();
+      return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
     }
 
     return Response.Builder.withStatus(WebDavStatus.CREATED).build();

@@ -645,6 +645,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     } catch (NoSuchWorkspaceException e) {		  
       e.printStackTrace();
       return Response.Builder.notFound().build();			
+    } catch (PreconditionException e) {
+      e.printStackTrace();
+      return Response.Builder.badRequest().errorMessage(e.getMessage()).build();
     } catch (Exception e) {
       e.printStackTrace();
       return Response.Builder.serverError().errorMessage(e.getMessage()).build();

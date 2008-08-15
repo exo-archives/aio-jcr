@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2007 eXo Platform SAS.
+ * Copyright (C) 2003-2008 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -14,84 +14,52 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-
 package org.exoplatform.services.jcr.webdav.command;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.util.Map;
+import org.exoplatform.common.http.HTTPStatus;
+import org.exoplatform.common.http.client.CookieModule;
+import org.exoplatform.common.http.client.HTTPConnection;
+import org.exoplatform.common.http.client.HTTPResponse;
+import org.exoplatform.services.jcr.webdav.TestUtils;
 
-import javax.jcr.Node;
-import javax.xml.namespace.QName;
-
-import org.exoplatform.common.util.HierarchicalProperty;
-import org.exoplatform.services.jcr.webdav.BaseStandaloneWebDavTest;
-import org.exoplatform.services.jcr.webdav.WebDavStatus;
-import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
-import org.exoplatform.services.jcr.webdav.util.PropertyConstants;
-import org.exoplatform.services.jcr.webdav.utils.WebDavProperty;
-import org.exoplatform.services.jcr.webdav.utils.XmlUtils;
-import org.exoplatform.services.jcr.webdav.xml.XMLInputTransformer;
-import org.exoplatform.services.rest.Response;
-import org.exoplatform.services.rest.transformer.SerializableEntity;
+import junit.framework.TestCase;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
- * @version $Id: $
+ * Created by The eXo Platform SAS
+ * Author : Dmytro Katayev
+ *          work.visor.ck@gmail.com
+ * Aug 13, 2008  
  */
-
-public class TestPut extends BaseStandaloneWebDavTest {
-
-  public static final String FILECONTENT = "test file content";
+public class TestPut extends TestCase {
   
-  private Node putNode;
+  private final String fileName = TestUtils.getFullWorkSpacePath() + "/" +TestUtils.getFileName();
+  private final String fileSubName = TestUtils.getFullWorkSpacePath() + "/sub/" +TestUtils.getFileName();  
+  private final String fileContent = "TEST FILE CONTENT...";
+  
+  private HTTPConnection connection = TestUtils.GetAuthConnection();
   
   @Override
-  public void setUp() throws Exception {
+  protected void setUp() throws Exception {
+   
+    CookieModule.setCookiePolicyHandler(null);
+    
+    connection = TestUtils.GetAuthConnection();
+        
     super.setUp();
-    if(putNode == null) {
-      putNode = writeNode.addNode("putNode", "nt:unstructured");
-      session.save();
-    }
-  }       
-  
-  public void testPut() throws Exception {
-    String fileName = "test put node " + System.currentTimeMillis();
-    
-    String path = putNode.getPath() + "/" + fileName;
-    
-    Response response = new PropFindCommand().propfind(session, path, null, Integer.MAX_VALUE, "http://localhost");
-    assertEquals(WebDavStatus.NOT_FOUND, response.getStatus());
-    
-    NullResourceLocksHolder nullResourceLocks = new NullResourceLocksHolder();
-    
-    ByteArrayInputStream inputStream = new ByteArrayInputStream(FILECONTENT.getBytes());
-    response = new PutCommand(nullResourceLocks).put(session, path, inputStream, "nt:file", "test/xml", null, null);
-    assertEquals(WebDavStatus.CREATED, response.getStatus());
-    
-    response = new PropFindCommand().propfind(session, path, null, Integer.MAX_VALUE, "http://localhost");
-    assertEquals(WebDavStatus.MULTISTATUS, response.getStatus());
-    SerializableEntity entity = (SerializableEntity)response.getEntity();
-    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-    entity.writeObject(outStream);
-    
-    XMLInputTransformer transformer = new XMLInputTransformer();
-    HierarchicalProperty multistatus = (HierarchicalProperty)transformer.readFrom(new ByteArrayInputStream(outStream.toByteArray()));
-    
-    assertEquals(new QName("DAV:", "multistatus"), multistatus.getName());
-    assertEquals(1, multistatus.getChildren().size());
-    
-    HierarchicalProperty property = multistatus.getChild(0);
-    Map<QName, WebDavProperty> properties = XmlUtils.parsePropStat(property);
-    
-    WebDavProperty displayName = properties.get(PropertyConstants.DISPLAYNAME);
-    assertEquals(WebDavStatus.OK, displayName.getStatus());
-    assertEquals(fileName, displayName.getValue());
-    
-    WebDavProperty getContentLength = properties.get(PropertyConstants.GETCONTENTLENGTH);
-    assertEquals(WebDavStatus.OK, getContentLength.getStatus());
-    assertEquals(FILECONTENT.length(), new Integer(getContentLength.getValue()).intValue());
   }
-
+  
+ 
+  public void testSimplePut() throws Exception {
+    
+    HTTPResponse response = connection.Put(fileName, fileContent);
+    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
+        
+    response = connection.Delete(fileName);
+    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
+    
+    response = connection.Put(fileSubName, fileContent);
+    assertEquals(HTTPStatus.CONFLICT, response.getStatusCode());
+    
+  }
+  
 }

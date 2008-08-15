@@ -75,42 +75,23 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <skip>true</skip> <!-- ${exo.test.skip} -->
+          <skip>${exo.test.skip}</skip> <!-- ${exo.test.skip} -->
           <useFile>${exo.test.use.file}</useFile>
           <forkMode>never</forkMode><!--once , pertest -->
           <includes>
             <!-- include>**/Test*.java</include -->
-
-			  <include>**/TestAllPropResponceEntity.java</include>
-			  <include>**/TestPropResponseEntity.java</include>
-			  <include>**/TestPropNamesResponseEntity.java</include>
-			  <include>**/TestSupportedLock.java</include>
-			  <include>**/TestLockDiscovery.java</include>
-			  <include>**/TestMkCol.java</include>
-			  <include>**/TestDelete.java</include>
-			  <include>**/TestPut.java</include>
-			  <include>**/TestGet.java</include>
-			  <include>**/TestCopy.java</include>
-			  <include>**/TestMove.java</include>
-			  <include>**/TestVersionControl.java</include>
-			  <include>**/TestCheckIn.java</include>
-			  <include>**/TestCheckOut.java</include>
-			  <include>**/TestUnCkeckOut.java</include>
-			  <include>**/TestVersionTreeResponseEntity.java</include>
-			  <include>**/TestVersionTreeReport.java</include>
-			  <include>**/TestLock.java</include>
-			  <include>**/TestUnLock.java</include>
-			  <include>**/TestHead.java</include>
-			  <include>**/PropPatchTest.java</include>
-			  <include>**/TestOrderSupport.java</include>
-			  <include>**/TestOrderFirst.java</include>
-			  <include>**/TestOrderLast.java</include>
-			  <include>**/TestOrderBefore.java</include>
-			  <include>**/TestOrderAfter.java</include>
-			  <include>**/TestMultipleOrder.java</include>
-			  <include>**/TestGetByVersion.java</include>
-
-            <!-- include>**/TestSQLSearch.java</include -->
+       
+            <include>**/TestPropFind.java</include>
+            <include>**/TestMkCol.java</include>
+            <include>**/TestGet.java</include>
+            <include>**/TestHead.java</include>
+            <include>**/TestPost.java</include>
+            <include>**/TestDelete.java</include>
+            <include>**/TestPut.java</include>
+            <include>**/TestCopy.java</include>
+            <include>**/TestMove.java</include>
+            <include>**/TestLock.java</include>
+			  		<include>**/TestUnLock.java</include>
 
           </includes>
         </configuration>

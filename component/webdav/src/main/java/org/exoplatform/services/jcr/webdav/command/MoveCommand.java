@@ -45,7 +45,7 @@ public class MoveCommand {
     try {
       session.move(srcPath, destPath);
       session.save();
-      return Response.Builder.withStatus(WebDavStatus.CREATED).cacheControl(cacheControl).build();
+      return Response.Builder.withStatus(WebDavStatus.NO_CONTENT).cacheControl(cacheControl).build();
       
     } catch (LockException exc) {
       return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
@@ -67,7 +67,7 @@ public class MoveCommand {
       sourceSession.getItem(srcPath).remove();
       sourceSession.save();
       
-      return Response.Builder.withStatus(WebDavStatus.CREATED).cacheControl(cacheControl).build();
+      return Response.Builder.withStatus(WebDavStatus.NO_CONTENT).cacheControl(cacheControl).build();
       
     } catch (LockException exc) {
       return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
