@@ -19,7 +19,7 @@
               <property name="swap-directory" value="target/temp/swap/ws" />
             </properties>
             <value-storages>
-              <value-storage id="ws" class="org.exoplatform.services.jcr.impl.storage.value.fs.CASableSimpleFileValueStorage">
+              <value-storage id="ws" class="org.exoplatform.services.jcr.impl.storage.value.fs.CASableTreeFileValueStorage">
                 <properties>
                   <property name="path" value="target/temp/values/ws" />
 									<property name="digest-algo" value="MD5" />

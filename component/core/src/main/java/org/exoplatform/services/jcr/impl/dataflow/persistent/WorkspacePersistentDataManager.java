@@ -69,6 +69,10 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
   
   public void save(final ItemStateChangesLog changesLog) throws RepositoryException {
 
+    // check if this workspace container is not read-only
+    if (dataContainer.isReadOnly())
+      throw new ReadOnlyWorkspaceException("Workspace container '" + dataContainer.getName() + "' is read-only.");
+    
     final List<ItemState> changes = changesLog.getAllStates();
     final Set<QPath> addedNodes = new HashSet<QPath>();
     
@@ -382,7 +386,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
   }
   
   private boolean isSystemPath(QPath path) {
-    return path.equals(Constants.JCR_SYSTEM_PATH) || path.isDescendantOf(Constants.JCR_SYSTEM_PATH, false);
+    return path.isDescendantOf(Constants.JCR_SYSTEM_PATH, false) || path.equals(Constants.JCR_SYSTEM_PATH);
   }
 
   public ItemData getItemData(final NodeData parentData, final QPathEntry name) throws RepositoryException {
