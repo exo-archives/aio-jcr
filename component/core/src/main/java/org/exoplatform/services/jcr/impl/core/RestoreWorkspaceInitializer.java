@@ -621,7 +621,7 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
                   File pfile = propertyValue.getFile();
                   if (pfile != null) {
                     vdata = new TransientValueData(0, null, null, pfile, fileCleaner, maxBufferSize, null, true);
-                    fileCleaner.addFile(pfile); // add manually, cleaner should be started!
+                    //fileCleaner.addFile(pfile); // add manually, cleaner should be started!
                   } else
                     vdata = new TransientValueData(new ByteArrayInputStream(new byte[] {}));  // empty data, should never occurs!
                 }
