@@ -24,7 +24,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -74,7 +73,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Restores workspace from ready backupset. <br/> Should be configured with restore-path parameter. The path to a backup result file.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: RestoreWorkspaceInitializer.java 15035 2008-06-02 08:44:24Z rainf0x $
+ * @version $Id$
  */
 
 public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
@@ -92,18 +91,12 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
 
   private final LocationFactory       locationFactory;
 
-  //  private final NodeTypeManagerImpl   nodeTypeManager;
-  //
-  //  private final ValueFactoryImpl      valueFactory;
-  //
-  //  private final AccessManager         accessManager;
+  private final int                   maxBufferSize;
 
-  private final int                  maxBufferSize;
-  
   /**
    * Cleaner should be started! .
    */
-  private final FileCleaner          fileCleaner;
+  private final FileCleaner           fileCleaner;
 
   protected String                    restorePath;
 
@@ -125,8 +118,7 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
   protected abstract class ValueWriter {
 
     /**
-     * Close writer.
-     * Should be called before getXXX method.
+     * Close writer. Should be called before getXXX method.
      * 
      * @throws IOException
      */
@@ -141,8 +133,8 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
     abstract void write(String text) throws IOException;
 
     /**
-     * Return true if data is textual.
-     * False - if binary data.
+     * Return true if data is textual. False - if binary data.
+     * 
      * @return
      */
     abstract boolean isText();
@@ -255,7 +247,7 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
 
     void close() throws IOException {
       super.flush();
-      
+
       if (buff != null)
         buff.close();
     }
@@ -263,14 +255,14 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
     File getFile() throws IOException {
       return tmpFile;
     }
-    
+
     byte[] getByteArray() throws IOException {
       if (buff != null)
         return ((TempOutputStream) buff).getBuffer();
       else
         return null;
     }
-    
+
     boolean isBuffered() {
       return tmpFile != null;
     }
@@ -323,6 +315,21 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
 
   }
 
+  /**
+   * Initializer constructor.
+   * 
+   * @param config
+   * @param repConfig
+   * @param dataManager
+   * @param namespaceRegistry
+   * @param locationFactory
+   * @param nodeTypeManager TODO remove it
+   * @param valueFactory TODO remove it
+   * @param accessManager TODO remove it
+   * @throws RepositoryConfigurationException
+   * @throws PathNotFoundException
+   * @throws RepositoryException
+   */
   public RestoreWorkspaceInitializer(WorkspaceEntry config,
                                      RepositoryEntry repConfig,
                                      CacheableWorkspaceDataManager dataManager,
@@ -340,9 +347,6 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
 
     this.namespaceRegistry = namespaceRegistry;
     this.locationFactory = locationFactory;
-    //this.nodeTypeManager = nodeTypeManager;
-    //this.valueFactory = valueFactory;
-    //this.accessManager = accessManager;
 
     this.fileCleaner = new FileCleaner(false); // cleaner should be started!
     this.maxBufferSize =
@@ -375,8 +379,6 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
       long start = System.currentTimeMillis();
 
       PlainChangesLog changes = read();
-
-      //log.info(changes.dump());
 
       dataManager.save(changes);
 
@@ -620,10 +622,18 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
                 else {
                   File pfile = propertyValue.getFile();
                   if (pfile != null) {
-                    vdata = new TransientValueData(0, null, null, pfile, fileCleaner, maxBufferSize, null, true);
+                    vdata =
+                        new TransientValueData(0,
+                                               null,
+                                               null,
+                                               pfile,
+                                               fileCleaner,
+                                               maxBufferSize,
+                                               null,
+                                               true);
                     //fileCleaner.addFile(pfile); // add manually, cleaner should be started!
                   } else
-                    vdata = new TransientValueData(new ByteArrayInputStream(new byte[] {}));  // empty data, should never occurs!
+                    vdata = new TransientValueData(new ByteArrayInputStream(new byte[] {})); // empty data, should never occurs!
                 }
               } else {
                 vdata = new TransientValueData(propertyValue.getText()); // other like String 
