@@ -7,18 +7,18 @@
   <!-- JCR Organization service -->
   
   <nodeType name="exo:membershipType" isMixin="false"
-   hasOrderableChildNodes="false" primaryItemName="">
+   hasOrderableChildNodes="false" primaryItemName="exo:label">
     <supertypes>
       <supertype>nt:base</supertype>
       <supertype>mix:referenceable</supertype>
     </supertypes>
     <propertyDefinitions>
       <propertyDefinition name="exo:label" requiredType="String"
-       autoCreated="false" mandatory="false" onParentVersion="COPY"
+       autoCreated="false" mandatory="true" onParentVersion="COPY"
        protected="false" multiple="false">
         <valueConstraints/>
       </propertyDefinition>
-      <propertyDefinition name="exo:desciption" requiredType="String"
+      <propertyDefinition name="exo:description" requiredType="String"
        autoCreated="false" mandatory="false" onParentVersion="COPY"
        protected="false" multiple="false">
         <valueConstraints/>
@@ -27,7 +27,7 @@
   </nodeType>
   
   <nodeType name="exo:userMembership" isMixin="false"
-   hasOrderableChildNodes="false" primaryItemName="">
+   hasOrderableChildNodes="false" primaryItemName="exo:group">
     <supertypes>
       <supertype>nt:base</supertype>
       <supertype>mix:referenceable</supertype>
@@ -46,13 +46,13 @@
     </propertyDefinitions>
   </nodeType>
   
-  <nodeType name="exo:userProfile" isMixin="false"
+	<!-- profile attributes -->
+	<nodeType name="exo:profileAttributes" isMixin="false"
    hasOrderableChildNodes="false" primaryItemName="">
     <supertypes>
       <supertype>nt:base</supertype>
     </supertypes>
     <propertyDefinitions>
-      <!-- attributes -->
       <propertyDefinition name="*" requiredType="String"
        autoCreated="false" mandatory="false" onParentVersion="COPY"
        protected="false" multiple="false">
@@ -60,26 +60,42 @@
       </propertyDefinition>
     </propertyDefinitions>
   </nodeType>
+	
+  <nodeType name="exo:userProfile" isMixin="false"
+   hasOrderableChildNodes="false" primaryItemName="exo:attributes">
+    <supertypes>
+      <supertype>nt:unstructured</supertype>
+    </supertypes>
+		<childNodeDefinitions>
+      <childNodeDefinition name="exo:attributes" defaultPrimaryType="exo:profileAttributes"
+       autoCreated="false" mandatory="true" onParentVersion="COPY"
+       protected="true" sameNameSiblings="false">
+        <requiredPrimaryTypes>
+          <requiredPrimaryType>exo:profileAttributes</requiredPrimaryType>
+        </requiredPrimaryTypes>
+      </childNodeDefinition>
+    </childNodeDefinitions>
+  </nodeType>
   
   <nodeType name="exo:user" isMixin="false"
-   hasOrderableChildNodes="false" primaryItemName="exo:userName">
+   hasOrderableChildNodes="false" primaryItemName="exo:lastName">
     <supertypes>
       <supertype>nt:base</supertype>
       <supertype>mix:referenceable</supertype>
     </supertypes>
     <propertyDefinitions>
       <propertyDefinition name="exo:firstName" requiredType="String"
-       autoCreated="false" mandatory="false" onParentVersion="COPY"
+       autoCreated="false" mandatory="true" onParentVersion="COPY"
        protected="false" multiple="false">
         <valueConstraints/>
       </propertyDefinition>
       <propertyDefinition name="exo:lastName" requiredType="String"
-       autoCreated="false" mandatory="false" onParentVersion="COPY"
+       autoCreated="false" mandatory="true" onParentVersion="COPY"
        protected="false" multiple="false">
         <valueConstraints/>
       </propertyDefinition>
       <propertyDefinition name="exo:password" requiredType="String"
-       autoCreated="false" mandatory="false" onParentVersion="COPY"
+       autoCreated="false" mandatory="true" onParentVersion="COPY"
        protected="false" multiple="false">
         <valueConstraints/>
       </propertyDefinition>
@@ -89,8 +105,8 @@
         <valueConstraints/>
       </propertyDefinition>
       <propertyDefinition name="exo:createdDate" requiredType="Date"
-       autoCreated="false" mandatory="false" onParentVersion="COPY"
-       protected="false" multiple="false">
+       autoCreated="true" mandatory="true" onParentVersion="COPY"
+       protected="true" multiple="false">
         <valueConstraints/>
       </propertyDefinition>
       <propertyDefinition name="exo:lastLoginTime" requiredType="Date"
@@ -98,22 +114,17 @@
        protected="false" multiple="false">
         <valueConstraints/>
       </propertyDefinition>
-      <propertyDefinition name="exo:organizationId" requiredType="String"
-       autoCreated="false" mandatory="false" onParentVersion="COPY"
-       protected="false" multiple="false">
-        <valueConstraints/>
-      </propertyDefinition>
     </propertyDefinitions>
     <childNodeDefinitions>
       <childNodeDefinition name="exo:profile" defaultPrimaryType="exo:userProfile"
-       autoCreated="false" mandatory="false" onParentVersion="COPY"
+       autoCreated="true" mandatory="false" onParentVersion="COPY"
        protected="false" sameNameSiblings="false">
         <requiredPrimaryTypes>
           <requiredPrimaryType>exo:userProfile</requiredPrimaryType>
         </requiredPrimaryTypes>
       </childNodeDefinition>
 			<childNodeDefinition name="exo:membership" defaultPrimaryType="exo:userMembership"
-       autoCreated="false" mandatory="false" onParentVersion="COPY"
+       autoCreated="true" mandatory="true" onParentVersion="COPY"
        protected="false" sameNameSiblings="true">
         <requiredPrimaryTypes>
           <requiredPrimaryType>exo:userMembership</requiredPrimaryType>
@@ -122,7 +133,7 @@
     </childNodeDefinitions>
   </nodeType>
   
-  <nodeType name="exo:group" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+  <nodeType name="exo:group" isMixin="false" hasOrderableChildNodes="false" primaryItemName="exo:label">
     <supertypes>
       <supertype>nt:base</supertype>
       <supertype>mix:referenceable</supertype>
@@ -134,11 +145,11 @@
         <valueConstraints/>
       </propertyDefinition>
       <propertyDefinition name="exo:label" requiredType="String"
-       autoCreated="false" mandatory="false" onParentVersion="COPY"
+       autoCreated="false" mandatory="true" onParentVersion="COPY"
        protected="false" multiple="false">
         <valueConstraints/>
       </propertyDefinition>
-      <propertyDefinition name="exo:desciption" requiredType="String"
+      <propertyDefinition name="exo:description" requiredType="String"
        autoCreated="false" mandatory="false" onParentVersion="COPY"
        protected="false" multiple="false">
         <valueConstraints/>
@@ -201,21 +212,21 @@
     </supertypes>
     <childNodeDefinitions>
       <childNodeDefinition name="exo:users" defaultPrimaryType="exo:organizationUsers"
-       autoCreated="false" mandatory="false" onParentVersion="COPY"
+       autoCreated="false" mandatory="true" onParentVersion="COPY"
        protected="false" sameNameSiblings="false">
         <requiredPrimaryTypes>
           <requiredPrimaryType>exo:organizationUsers</requiredPrimaryType>
         </requiredPrimaryTypes>
       </childNodeDefinition>
       <childNodeDefinition name="exo:groups" defaultPrimaryType="exo:organizationGroups"
-       autoCreated="false" mandatory="false" onParentVersion="COPY"
+       autoCreated="false" mandatory="true" onParentVersion="COPY"
        protected="false" sameNameSiblings="false">
         <requiredPrimaryTypes>
           <requiredPrimaryType>exo:organizationGroups</requiredPrimaryType>
         </requiredPrimaryTypes>
       </childNodeDefinition>
 			<childNodeDefinition name="exo:membershipTypes" defaultPrimaryType="exo:organizationMembershipTypes"
-       autoCreated="false" mandatory="false" onParentVersion="COPY"
+       autoCreated="false" mandatory="true" onParentVersion="COPY"
        protected="false" sameNameSiblings="false">
         <requiredPrimaryTypes>
           <requiredPrimaryType>exo:organizationMembershipTypes</requiredPrimaryType>
