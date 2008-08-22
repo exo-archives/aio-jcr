@@ -1,5 +1,10 @@
-JCR 1.9.1 release notes
+JCR 1.9.2 release notes
 =====================
+
+JCR 1.9.2 changes after JCR 1.9.1
+
+- Restore workspace initializer binary values decoding (BUGFUX).
+- Restore workspace initializer memory consumption improved.
 
 JCR 1.9.1 changes after JCR 1.9 
 
