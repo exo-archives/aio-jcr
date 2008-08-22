@@ -16,9 +16,14 @@
  */
 package org.exoplatform.services.jcr.impl.core;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,7 +40,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.StartElement;
 
 import org.apache.commons.logging.Log;
-
+import org.apache.ws.commons.util.Base64;
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
@@ -58,23 +63,25 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS. <br/>
  * 
- * Restores workspace from ready backupset. <br/> Should be configured with restore-path parameter. The path to a backup result
- * file.
+ * Restores workspace from ready backupset. <br/> Should be configured with restore-path parameter. The path to a backup result file.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: RestoreWorkspaceInitializer.java 15035 2008-06-02 08:44:24Z rainf0x $
+ * @version $Id$
  */
 
 public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
 
   public static final String          RESTORE_PATH_PARAMETER = "restore-path";
 
-  protected static final Log          log                    = ExoLogger.getLogger("jcr.WorkspaceInitializer");
+  protected static final Log          log                    =
+                                                                 ExoLogger.getLogger("jcr.WorkspaceInitializer");
 
   protected final String              workspaceName;
 
@@ -84,13 +91,182 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
 
   private final LocationFactory       locationFactory;
 
-  private final NodeTypeManagerImpl   nodeTypeManager;
+  private final int                   maxBufferSize;
 
-  private final ValueFactoryImpl      valueFactory;
-
-  private final AccessManager         accessManager;
+  /**
+   * Cleaner should be started! .
+   */
+  private final FileCleaner           fileCleaner;
 
   protected String                    restorePath;
+
+  protected class TempOutputStream extends ByteArrayOutputStream {
+
+    byte[] getBuffer() {
+      return buf;
+    }
+
+    int getSize() {
+      return buf.length;
+    }
+
+    public void close() {
+      buf = null;
+    }
+  }
+
+  protected abstract class ValueWriter {
+
+    /**
+     * Close writer. Should be called before getXXX method.
+     * 
+     * @throws IOException
+     */
+    abstract void close() throws IOException;
+
+    /**
+     * Write text.
+     * 
+     * @param text
+     * @throws IOException
+     */
+    abstract void write(String text) throws IOException;
+
+    /**
+     * Return true if data is textual. False - if binary data.
+     * 
+     * @return
+     */
+    abstract boolean isText();
+
+    /**
+     * Get binary data.
+     * 
+     * @return
+     * @throws IOException
+     */
+    abstract File getFile() throws IOException;
+
+    /**
+     * Get textual data.
+     * 
+     * @return
+     * @throws IOException
+     */
+    abstract String getText() throws IOException;
+  }
+
+  protected class StringValueWriter extends ValueWriter {
+    final StringBuilder string = new StringBuilder();
+
+    @Override
+    void close() {
+      // do nothing
+    }
+
+    @Override
+    void write(String text) {
+      this.string.append(text);
+    }
+
+    boolean isText() {
+      return true;
+    }
+
+    @Override
+    File getFile() throws IOException {
+      // should never be used!!!
+      throw new IOException("StringValueWriter.getInputStream() not supported. Use getText() instead.");
+    }
+
+    @Override
+    String getText() {
+      return this.string.toString();
+    }
+  }
+
+  protected class BinaryValueWriter extends ValueWriter {
+    final Base64Decoder decoder = new Base64Decoder();
+
+    @Override
+    void close() throws IOException {
+      this.decoder.flush();
+    }
+
+    @Override
+    void write(String text) throws IOException {
+      this.decoder.write(text.toCharArray(), 0, text.length());
+    }
+
+    @Override
+    File getFile() throws IOException {
+      return this.decoder.getFile();
+    }
+
+    @Override
+    String getText() throws IOException {
+      return new String(this.decoder.getByteArray());
+    }
+
+    @Override
+    boolean isText() {
+      return !this.decoder.isBuffered();
+    }
+  }
+
+  protected class Base64Decoder extends Base64.Decoder {
+
+    private File         tmpFile;
+
+    private OutputStream buff;
+
+    Base64Decoder() {
+      super(maxBufferSize);
+    }
+
+    @Override
+    protected void writeBuffer(byte[] buffer, int offset, int len) throws IOException {
+      if (buff == null) {
+        if (buffer.length >= maxBufferSize) {
+          buff = new FileOutputStream(tmpFile = File.createTempFile("jcrrestorewi", ".tmp"));
+        } else {
+          buff = new TempOutputStream();
+        }
+      } else if (tmpFile == null
+          && (((TempOutputStream) buff).getSize() + buffer.length) > maxBufferSize) {
+        // spool to file
+        FileOutputStream fout =
+            new FileOutputStream(tmpFile = File.createTempFile("jcrrestorewi", ".tmp"));
+        fout.write(((TempOutputStream) buff).getBuffer());
+        buff.close();
+        buff = fout; // use file
+      }
+
+      buff.write(buffer, offset, len);
+    }
+
+    void close() throws IOException {
+      super.flush();
+
+      if (buff != null)
+        buff.close();
+    }
+
+    File getFile() throws IOException {
+      return tmpFile;
+    }
+
+    byte[] getByteArray() throws IOException {
+      if (buff != null)
+        return ((TempOutputStream) buff).getBuffer();
+      else
+        return null;
+    }
+
+    boolean isBuffered() {
+      return tmpFile != null;
+    }
+  }
 
   protected class SVNodeData extends TransientNodeData {
 
@@ -123,14 +299,15 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
 
   protected class SVPropertyData extends TransientPropertyData {
 
-    SVPropertyData(QPath path, String identifier, int version, int type, String parentIdentifier, boolean multivalued) {
+    SVPropertyData(QPath path,
+                   String identifier,
+                   int version,
+                   int type,
+                   String parentIdentifier,
+                   boolean multivalued) {
       super(path, identifier, version, type, parentIdentifier, multivalued);
       this.values = new ArrayList<ValueData>();
     }
-
-    //    public boolean isMultiValued() {
-    //      return values.size() > 1;
-    //    }
 
     public void setMultiValued(boolean multiValued) {
       this.multiValued = multiValued;
@@ -138,16 +315,31 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
 
   }
 
+  /**
+   * Initializer constructor.
+   * 
+   * @param config
+   * @param repConfig
+   * @param dataManager
+   * @param namespaceRegistry
+   * @param locationFactory
+   * @param nodeTypeManager TODO remove it
+   * @param valueFactory TODO remove it
+   * @param accessManager TODO remove it
+   * @throws RepositoryConfigurationException
+   * @throws PathNotFoundException
+   * @throws RepositoryException
+   */
   public RestoreWorkspaceInitializer(WorkspaceEntry config,
-                            RepositoryEntry repConfig,
-                            CacheableWorkspaceDataManager dataManager,
-                            NamespaceRegistryImpl namespaceRegistry,
-                            LocationFactory locationFactory,
-                            NodeTypeManagerImpl nodeTypeManager,
-                            ValueFactoryImpl valueFactory,
-                            AccessManager accessManager) throws RepositoryConfigurationException,
-                                                        PathNotFoundException,
-                                                        RepositoryException {
+                                     RepositoryEntry repConfig,
+                                     CacheableWorkspaceDataManager dataManager,
+                                     NamespaceRegistryImpl namespaceRegistry,
+                                     LocationFactory locationFactory,
+                                     NodeTypeManagerImpl nodeTypeManager,
+                                     ValueFactoryImpl valueFactory,
+                                     AccessManager accessManager) throws RepositoryConfigurationException,
+                                                                 PathNotFoundException,
+                                                                 RepositoryException {
 
     this.workspaceName = config.getName();
 
@@ -155,14 +347,19 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
 
     this.namespaceRegistry = namespaceRegistry;
     this.locationFactory = locationFactory;
-    this.nodeTypeManager = nodeTypeManager;
-    this.valueFactory = valueFactory;
-    this.accessManager = accessManager;
 
-    this.restorePath = config.getInitializer().getParameterValue(RestoreWorkspaceInitializer.RESTORE_PATH_PARAMETER, null);
+    this.fileCleaner = new FileCleaner(false); // cleaner should be started!
+    this.maxBufferSize =
+        config.getContainer().getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
+                                                  WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
+
+    this.restorePath =
+        config.getInitializer()
+              .getParameterValue(RestoreWorkspaceInitializer.RESTORE_PATH_PARAMETER, null);
     if (this.restorePath == null)
       throw new RepositoryConfigurationException("Workspace (" + workspaceName
-          + ") RestoreIntializer should have mandatory parameter " + RestoreWorkspaceInitializer.RESTORE_PATH_PARAMETER);
+          + ") RestoreIntializer should have mandatory parameter "
+          + RestoreWorkspaceInitializer.RESTORE_PATH_PARAMETER);
   }
 
   @Deprecated
@@ -180,10 +377,8 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
 
     try {
       long start = System.currentTimeMillis();
-      
+
       PlainChangesLog changes = read();
-      
-      //log.info(changes.dump());
 
       dataManager.save(changes);
 
@@ -215,11 +410,11 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
    * @throws IllegalNameException
    */
   protected PlainChangesLog read() throws XMLStreamException,
-                                FactoryConfigurationError,
-                                IOException,
-                                NamespaceException,
-                                RepositoryException,
-                                IllegalNameException {
+                                  FactoryConfigurationError,
+                                  IOException,
+                                  NamespaceException,
+                                  RepositoryException,
+                                  IllegalNameException {
 
     InputStream input = new FileInputStream(restorePath);
     try {
@@ -236,10 +431,7 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
 
       SVPropertyData currentProperty = null;
 
-      // TODO use TransientValueData with FileCleaner etc,
-      // to have BLOBs in files
-      // or use EditableValueData
-      StringBuilder propertyValue = null;
+      ValueWriter propertyValue = null;
       int propertyType = -1;
 
       while (reader.hasNext()) {
@@ -295,17 +487,24 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
                   }
                 }
 
-                SVNodeData currentNode = new SVNodeData(currentPath, exoId, parentId, 0, orderNumber);
+                SVNodeData currentNode =
+                    new SVNodeData(currentPath, exoId, parentId, 0, orderNumber);
 
                 // push current node as parent
                 parents.push(currentNode);
 
                 // add current node to changes log.
                 // add node, no event fire, persisted, internally created, root is ancestor to save
-                changes.add(new ItemState(currentNode, ItemState.ADDED, false, Constants.ROOT_PATH, true, true));
+                changes.add(new ItemState(currentNode,
+                                          ItemState.ADDED,
+                                          false,
+                                          Constants.ROOT_PATH,
+                                          true,
+                                          true));
               } else
                 log.warn("Node skipped name=" + svName + " id=" + exoId + ". Context node "
                     + (parents.size() > 0 ? parents.peek().getQPath().getAsString() : "/"));
+
             } else if (Constants.SV_PROPERTY.equals(lname)) {
               String svName = reader.getAttributeValue(svURI, Constants.SV_NAME);
               String exoId = reader.getAttributeValue(exoURI, Constants.EXO_ID);
@@ -314,26 +513,39 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
                 if (parents.size() > 0) {
                   SVNodeData parent = parents.peek();
                   QPath currentPath =
-                      QPath.makeChildPath(parent.getQPath(), locationFactory.parseJCRName(svName).getInternalName());
+                      QPath.makeChildPath(parent.getQPath(), locationFactory.parseJCRName(svName)
+                                                                            .getInternalName());
                   try {
                     propertyType = PropertyType.valueFromName(svType);
                   } catch (IllegalArgumentException e) {
                     propertyType = ExtendedPropertyType.valueFromName(svType);
                   }
-                  
+
                   // exo:multivalued optional, assigned for multivalued properties only
-                  String exoMultivalued = reader.getAttributeValue(exoURI, Constants.EXO_MULTIVALUED);
-                  
-                  currentProperty = new SVPropertyData(currentPath, exoId, 0, propertyType, parent.getIdentifier(),
-                                                       ("true".equals(exoMultivalued) ? true : false));
-                  propertyValue = new StringBuilder();
+                  String exoMultivalued =
+                      reader.getAttributeValue(exoURI, Constants.EXO_MULTIVALUED);
+
+                  currentProperty =
+                      new SVPropertyData(currentPath,
+                                         exoId,
+                                         0,
+                                         propertyType,
+                                         parent.getIdentifier(),
+                                         ("true".equals(exoMultivalued) ? true : false));
                 } else
-                  log.warn("Property can'b be first name=" + svName + " type=" + svType + " id=" + exoId
-                      + ". Node should be prior. Context node "
+                  log.warn("Property can'b be first name=" + svName + " type=" + svType + " id="
+                      + exoId + ". Node should be prior. Context node "
                       + (parents.size() > 0 ? parents.peek().getQPath().getAsString() : "/"));
               } else
-                log.warn("Property skipped name=" + svName + " type=" + svType + " id=" + exoId + ". Context node "
+                log.warn("Property skipped name=" + svName + " type=" + svType + " id=" + exoId
+                    + ". Context node "
                     + (parents.size() > 0 ? parents.peek().getQPath().getAsString() : "/"));
+
+            } else if (Constants.SV_VALUE.equals(lname) && propertyType != -1) {
+              if (propertyType == PropertyType.BINARY)
+                propertyValue = new BinaryValueWriter();
+              else
+                propertyValue = new StringValueWriter();
             }
           }
           break;
@@ -342,7 +554,7 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
         case StartElement.CHARACTERS: {
           if (propertyValue != null)
             // read property value text
-            propertyValue.append(reader.getText()); // TODO String in memory, EOfM problem for BLOBs!!!
+            propertyValue.write(reader.getText());
 
           break;
         }
@@ -355,6 +567,7 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
               // change current context
               // - pop parent from the stack
               parents.pop();
+
             } else if (Constants.SV_PROPERTY.equals(lname)) {
               // apply property to the current node and changes log
               if (currentProperty != null) {
@@ -362,39 +575,75 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
 
                 // check NodeData specific properties
                 if (currentProperty.getQPath().getName().equals(Constants.JCR_PRIMARYTYPE)) {
-                  parent.setPrimartTypeName(InternalQName.parse(new String(currentProperty.getValues().get(0).getAsByteArray())));
+                  parent.setPrimartTypeName(InternalQName.parse(new String(currentProperty.getValues()
+                                                                                          .get(0)
+                                                                                          .getAsByteArray())));
                 } else if (currentProperty.getQPath().getName().equals(Constants.JCR_MIXINTYPES)) {
                   InternalQName[] mixins = new InternalQName[currentProperty.getValues().size()];
                   for (int i = 0; i < currentProperty.getValues().size(); i++) {
-                    mixins[i] = InternalQName.parse(new String(currentProperty.getValues().get(i).getAsByteArray()));
+                    mixins[i] =
+                        InternalQName.parse(new String(currentProperty.getValues()
+                                                                      .get(i)
+                                                                      .getAsByteArray()));
                   }
                   parent.setMixinTypeNames(mixins);
                 }
 
                 // add property, no event fire, persisted, internally created, root is ancestor to save
-                changes.add(new ItemState(currentProperty, ItemState.ADDED, false, Constants.ROOT_PATH, true, true));
+                changes.add(new ItemState(currentProperty,
+                                          ItemState.ADDED,
+                                          false,
+                                          Constants.ROOT_PATH,
+                                          true,
+                                          true));
 
                 // reset property context
-                propertyValue = null;
                 propertyType = -1;
                 currentProperty = null;
               }
+
             } else if (Constants.SV_VALUE.equals(lname)) {
               // apply property value to the current property
+              propertyValue.close();
               TransientValueData vdata;
               if (propertyType == PropertyType.NAME) {
-                vdata = new TransientValueData(locationFactory.parseJCRName(propertyValue.toString()).getInternalName());
+                vdata =
+                    new TransientValueData(locationFactory.parseJCRName(propertyValue.getText())
+                                                          .getInternalName());
               } else if (propertyType == PropertyType.PATH) {
-                vdata = new TransientValueData(locationFactory.parseJCRPath(propertyValue.toString()).getInternalPath());
+                vdata =
+                    new TransientValueData(locationFactory.parseJCRPath(propertyValue.getText())
+                                                          .getInternalPath());
               } else if (propertyType == PropertyType.DATE) {
-                vdata = new TransientValueData(JCRDateFormat.parse(propertyValue.toString()));
+                vdata = new TransientValueData(JCRDateFormat.parse(propertyValue.getText()));
+              } else if (propertyType == PropertyType.BINARY) {
+                if (propertyValue.isText())
+                  vdata = new TransientValueData(propertyValue.getText());
+                else {
+                  File pfile = propertyValue.getFile();
+                  if (pfile != null) {
+                    vdata =
+                        new TransientValueData(0,
+                                               null,
+                                               null,
+                                               pfile,
+                                               fileCleaner,
+                                               maxBufferSize,
+                                               null,
+                                               true);
+                    //fileCleaner.addFile(pfile); // add manually, cleaner should be started!
+                  } else
+                    vdata = new TransientValueData(new ByteArrayInputStream(new byte[] {})); // empty data, should never occurs!
+                }
               } else {
-                vdata = new TransientValueData(propertyValue.toString()); // other like String  
+                vdata = new TransientValueData(propertyValue.getText()); // other like String 
               }
 
               vdata.setOrderNumber(currentProperty.getValues().size());
               currentProperty.getValues().add(vdata);
-              propertyValue = new StringBuilder();
+
+              // reset value context
+              propertyValue = null;
             }
           }
           break;
@@ -409,6 +658,7 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
   }
 
   public void start() {
+    fileCleaner.start();
   }
 
   public void stop() {
