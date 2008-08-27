@@ -17,15 +17,17 @@
 
 package org.exoplatform.applications.ooplugin;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.applications.ooplugin.dav.DavSearch;
+import org.exoplatform.applications.ooplugin.dav.Multistatus;
+import org.exoplatform.applications.ooplugin.dav.ResponseDoc;
+import org.exoplatform.applications.ooplugin.dav.SQLQuery;
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
-import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.frameworks.webdavclient.FileLogger;
-import org.exoplatform.frameworks.webdavclient.commands.DavSearch;
-import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
-import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
-import org.exoplatform.frameworks.webdavclient.http.TextUtils;
-import org.exoplatform.frameworks.webdavclient.search.SQLQuery;
+import org.exoplatform.applications.ooplugin.utils.TextUtils;
+import org.exoplatform.common.http.HTTPStatus;
+
+import org.exoplatform.services.log.ExoLogger;
 
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.XListBox;
@@ -43,6 +45,8 @@ import com.sun.star.uno.XComponentContext;
  */
 
 public class SearchDialog extends BrowseDialog {
+  
+  private static final Log log = ExoLogger.getLogger("jcr.ooplugin.BrowseDialog");
   
   public static final String DIALOG_NAME = "_SearchDialog"; 
   
@@ -90,7 +94,7 @@ public class SearchDialog extends BrowseDialog {
         searchThread.start();
         
       } catch (Exception exc) {
-        FileLogger.info("Unhandled exception", exc);
+        log.info("Unhandled exception" + exc.getMessage(), exc);
       }
       
     }
@@ -110,7 +114,7 @@ public class SearchDialog extends BrowseDialog {
         
         int status = davSearch.execute();
         
-        if (status != Const.HttpStatus.MULTISTATUS) {
+        if (status != HTTPStatus.MULTISTATUS) {
           showMessageBox("Search error! Code: " + status);
           return;
         }
@@ -125,7 +129,7 @@ public class SearchDialog extends BrowseDialog {
 
         enableAll();
       } catch (java.lang.Exception exc) {
-        FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
+        log.info("Unhandled exception. " + exc.getMessage(), exc);
       }
       
     }
@@ -156,7 +160,7 @@ public class SearchDialog extends BrowseDialog {
       try {
         tryOpenSelected();
       } catch (Exception exc) {
-        FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
+        log.info("Unhandled exception. " + exc.getMessage(), exc);
       }
       
     }
@@ -169,7 +173,7 @@ public class SearchDialog extends BrowseDialog {
       try {
         tryOpenSelected();
       } catch (Exception exc) {
-        FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
+        log.info("Unhandled exception. " + exc.getMessage(), exc);
       }
       
     }

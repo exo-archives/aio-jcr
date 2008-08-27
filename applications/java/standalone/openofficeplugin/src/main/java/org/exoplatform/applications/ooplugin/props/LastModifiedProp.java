@@ -15,13 +15,10 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.applications.ooplugin;
+package org.exoplatform.applications.ooplugin.props;
 
-import com.sun.star.awt.XToolkit;
-import com.sun.star.frame.XFrame;
-import com.sun.star.uno.XComponentContext;
-
-import org.exoplatform.applications.ooplugin.WebDavConfig;
+import org.exoplatform.applications.ooplugin.dav.Const;
+import org.w3c.dom.Node;
 
 /**
  * Created by The eXo Platform SAS
@@ -29,13 +26,24 @@ import org.exoplatform.applications.ooplugin.WebDavConfig;
  * @version $Id: $
  */
 
-public class AboutDialog extends PlugInDialog {
+public class LastModifiedProp extends CommonProp {
+
+  protected String lastModified = "";
+
+  public LastModifiedProp() {
+    this.propertyName = Const.DavProp.GETLASTMODIFIED;
+  }
   
-  private static final String NAME = "_AboutDialog";
+  public boolean init(Node node) {
+    if (status != Const.HttpStatus.OK) {
+      return false;
+    }
+    lastModified = node.getTextContent();
+    return false;
+  }    
   
-  public AboutDialog(WebDavConfig config, XComponentContext xComponentContext, XFrame xFrame, XToolkit xToolkit) {
-    super(config, xComponentContext, xFrame, xToolkit);
-    dialogName = NAME;
-  }  
+  public String getLastModified() {
+    return lastModified;
+  }
   
 }

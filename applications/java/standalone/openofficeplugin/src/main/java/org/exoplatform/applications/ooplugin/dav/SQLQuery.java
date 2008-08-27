@@ -15,13 +15,10 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.applications.ooplugin;
+package org.exoplatform.applications.ooplugin.dav;
 
-import com.sun.star.awt.XToolkit;
-import com.sun.star.frame.XFrame;
-import com.sun.star.uno.XComponentContext;
-
-import org.exoplatform.applications.ooplugin.WebDavConfig;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Created by The eXo Platform SAS
@@ -29,13 +26,26 @@ import org.exoplatform.applications.ooplugin.WebDavConfig;
  * @version $Id: $
  */
 
-public class AboutDialog extends PlugInDialog {
+public class SQLQuery implements DavQuery {
   
-  private static final String NAME = "_AboutDialog";
+  private String query = "";
   
-  public AboutDialog(WebDavConfig config, XComponentContext xComponentContext, XFrame xFrame, XToolkit xToolkit) {
-    super(config, xComponentContext, xFrame, xToolkit);
-    dialogName = NAME;
-  }  
+  public SQLQuery() {
+  }
+  
+  public SQLQuery(String query) {
+    this.query = query;   
+  }
+  
+  public void setQuery(String query) {
+    this.query = query;
+  }
+  
+  public Element toXml(Document xmlDocument) {
+    Element sqlElement = xmlDocument.createElementNS(SearchConst.SQL_NAMESPACE,
+        SearchConst.SQL_PREFIX + "sql");
+    sqlElement.setTextContent(query);
+    return sqlElement;
+  }
   
 }

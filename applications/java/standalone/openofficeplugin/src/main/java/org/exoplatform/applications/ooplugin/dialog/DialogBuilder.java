@@ -19,12 +19,14 @@ package org.exoplatform.applications.ooplugin.dialog;
 
 import java.util.ArrayList;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.applications.ooplugin.PlugInDialog;
 import org.exoplatform.applications.ooplugin.Resources;
 import org.exoplatform.applications.ooplugin.config.XmlConfig;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.applications.ooplugin.events.ItemListener;
-import org.exoplatform.frameworks.webdavclient.FileLogger;
+import org.exoplatform.applications.ooplugin.dialog.DialogModel;
+import org.exoplatform.services.log.ExoLogger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -73,6 +75,8 @@ public class DialogBuilder extends XmlConfig {
   public static final String XML_VALUE = "value";
     
   private ArrayList<DialogModel> dialogs = new ArrayList<DialogModel>();
+  
+  private static final Log log = ExoLogger.getLogger("jcr.ooplugin.DialogBuilder");
   
   private PlugInDialog plugInDialog;
   
@@ -228,7 +232,6 @@ public class DialogBuilder extends XmlConfig {
       
       if (fontsValues.length > 2) {
         fontDescriptor.Weight = FontWeight.BOLD;
-        //fontDescriptor.Strikeout = new Short(fontsValues[2]);
       }
              
       propertySet.setPropertyValue(property.getName(), fontDescriptor);
@@ -250,7 +253,7 @@ public class DialogBuilder extends XmlConfig {
       }      
       
     } catch (Exception exc) {
-      FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
+      log.info("Unhandled exception: " + exc.getMessage(), exc);      
     }
   }
   

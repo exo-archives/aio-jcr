@@ -21,21 +21,28 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.applications.ooplugin.WebDavConstants.WebDavProp;
+import org.exoplatform.applications.ooplugin.dav.DavPropFind;
+import org.exoplatform.applications.ooplugin.dav.Multistatus;
+import org.exoplatform.applications.ooplugin.dav.ResponseDoc;
+import org.exoplatform.applications.ooplugin.dav.TimeOutException;
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
-import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.frameworks.webdavclient.FileLogger;
-import org.exoplatform.frameworks.webdavclient.commands.DavPropFind;
-import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
-import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
-import org.exoplatform.frameworks.webdavclient.http.TextUtils;
-import org.exoplatform.frameworks.webdavclient.http.TimeOutException;
-import org.exoplatform.frameworks.webdavclient.properties.CommonProp;
-import org.exoplatform.frameworks.webdavclient.properties.ContentLengthProp;
-import org.exoplatform.frameworks.webdavclient.properties.DisplayNameProp;
-import org.exoplatform.frameworks.webdavclient.properties.LastModifiedProp;
-import org.exoplatform.frameworks.webdavclient.properties.ResourceTypeProp;
-import org.exoplatform.frameworks.webdavclient.properties.VersionNameProp;
+import org.exoplatform.applications.ooplugin.props.CommonProp;
+import org.exoplatform.applications.ooplugin.props.ContentLengthProp;
+import org.exoplatform.applications.ooplugin.props.DisplayNameProp;
+import org.exoplatform.applications.ooplugin.props.LastModifiedProp;
+import org.exoplatform.applications.ooplugin.props.ResourceTypeProp;
+import org.exoplatform.applications.ooplugin.props.VersionNameProp;
+import org.exoplatform.applications.ooplugin.utils.TextUtils;
+import org.exoplatform.common.http.HTTPStatus;
+
+import org.exoplatform.services.log.ExoLogger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.XComboBox;
@@ -56,6 +63,8 @@ import com.sun.star.uno.XComponentContext;
 
 public abstract class BrowseDialog extends PlugInDialog {
   
+  private static final Log log = ExoLogger.getLogger("jcr.ooplugin.PlugInDialog");
+  
   public static final int VNAME_LEN = 3;
   
   public static final int NAME_LEN = 30;
@@ -73,6 +82,8 @@ public abstract class BrowseDialog extends PlugInDialog {
   
   public static final String LBL_TABLEHEAD = "lblTableHead";
   
+  public static final String JCR_PREFIX = "jcr:";
+  
   public static final String JCR_MIMETYPE = "jcr:mimeType";
   
   public static final String JCR_NAMESPACE = "http://www.jcp.org/jcr/1.0";
@@ -83,8 +94,12 @@ public abstract class BrowseDialog extends PlugInDialog {
   
   protected ArrayList<ResponseDoc> responses = new ArrayList<ResponseDoc>();
   
-  protected boolean isNeedAddHandlers = true;
+  protected ArrayList<Node> responseNodes = new ArrayList<Node>();
   
+  protected Document XMLResponse;
+  
+  protected boolean isNeedAddHandlers = true;
+ 
   public BrowseDialog(WebDavConfig config, XComponentContext xComponentContext, XFrame xFrame, XToolkit xToolkit) {
     super(config, xComponentContext, xFrame, xToolkit);    
   }
@@ -133,7 +148,7 @@ public abstract class BrowseDialog extends PlugInDialog {
       xLabelHead.setText(headerValue);
       
     } catch (Exception exc) {
-      FileLogger.info("Unhandled exception", exc);
+      log.info("Unhandled exception: " + exc.getMessage(), exc);
     }
     
     return true;
@@ -178,7 +193,7 @@ public abstract class BrowseDialog extends PlugInDialog {
   
   protected boolean isCollection(ResponseDoc response) {
     ResourceTypeProp resourceTypeProperty = 
-      (ResourceTypeProp)response.getProperty(Const.DavProp.RESOURCETYPE);
+      (ResourceTypeProp)response.getProperty(WebDavProp.RESOURCETYPE);
     if (resourceTypeProperty == null) {
       return false;
     }
@@ -189,9 +204,9 @@ public abstract class BrowseDialog extends PlugInDialog {
     String fileItem = "";
     
     VersionNameProp versionNameProperty = 
-        (VersionNameProp)response.getProperty(Const.DavProp.VERSIONNAME);
+        (VersionNameProp)response.getProperty(WebDavProp.VERSIONNAME);
     if ((versionNameProperty != null) &&
-        (versionNameProperty.getStatus() == Const.HttpStatus.OK)) {
+        (versionNameProperty.getStatus() == HTTPStatus.OK)) {
       fileItem += "*";
     }
     
@@ -200,9 +215,9 @@ public abstract class BrowseDialog extends PlugInDialog {
     }
     
     DisplayNameProp displayNameProperty = 
-      (DisplayNameProp)response.getProperty(Const.DavProp.DISPLAYNAME);
+      (DisplayNameProp)response.getProperty(WebDavProp.DISPLAYNAME);
     ResourceTypeProp resourceTypeProperty =
-      (ResourceTypeProp)response.getProperty(Const.DavProp.RESOURCETYPE);
+      (ResourceTypeProp)response.getProperty(WebDavProp.RESOURCETYPE);
     
     String displayName = displayNameProperty.getDisplayName();
     
@@ -237,7 +252,7 @@ public abstract class BrowseDialog extends PlugInDialog {
     }
     
     ContentLengthProp contentLengthProperty =
-      (ContentLengthProp)response.getProperty(Const.DavProp.GETCONTENTLENGTH);
+      (ContentLengthProp)response.getProperty(WebDavProp.GETCONTENTLENGTH);
     if (contentLengthProperty != null) {
       
       long contentLength = contentLengthProperty.getContentLength();
@@ -280,7 +295,7 @@ public abstract class BrowseDialog extends PlugInDialog {
     }    
     
     LastModifiedProp lastModifiedProperty =
-      (LastModifiedProp)response.getProperty(Const.DavProp.GETLASTMODIFIED);
+      (LastModifiedProp)response.getProperty(WebDavProp.GETLASTMODIFIED);
     if (lastModifiedProperty != null) {
       fileItem += lastModifiedProperty.getLastModified();
     }
@@ -290,7 +305,7 @@ public abstract class BrowseDialog extends PlugInDialog {
     }    
     
     CommonProp commentProperty =
-      (CommonProp)response.getProperty(Const.DavProp.COMMENT);
+      (CommonProp)response.getProperty(WebDavProp.COMMENT);
     if (commentProperty != null) {
       fileItem += commentProperty.getValue();
     }
@@ -321,41 +336,57 @@ public abstract class BrowseDialog extends PlugInDialog {
       try {        
         DavPropFind davPropFind = new DavPropFind(config.getContext());
         davPropFind.setResourcePath(currentPath);        
-        davPropFind.setRequiredProperty(Const.DavProp.DISPLAYNAME);
-        davPropFind.setRequiredProperty(Const.DavProp.RESOURCETYPE);        
-        davPropFind.setRequiredProperty(Const.DavProp.GETLASTMODIFIED);        
-        davPropFind.setRequiredProperty(Const.DavProp.GETCONTENTLENGTH);
-        davPropFind.setRequiredProperty(Const.DavProp.VERSIONNAME);
-        davPropFind.setRequiredProperty(Const.DavProp.COMMENT);        
+        davPropFind.setRequiredProperty(WebDavProp.DISPLAYNAME);
+        davPropFind.setRequiredProperty(WebDavProp.RESOURCETYPE);        
+        davPropFind.setRequiredProperty(WebDavProp.GETLASTMODIFIED);        
+        davPropFind.setRequiredProperty(WebDavProp.GETCONTENTLENGTH);
+        davPropFind.setRequiredProperty(WebDavProp.VERSIONNAME);
+        davPropFind.setRequiredProperty(WebDavProp.COMMENT);        
         davPropFind.setRequiredProperty(JCR_MIMETYPE, JCR_NAMESPACE);        
         davPropFind.setDepth(1);        
-        int status;
         
+        int status;
+      
         try {
           status = davPropFind.execute();
         } catch (TimeOutException exc) {
           davPropFind = new DavPropFind(config.getContext());
           davPropFind.setResourcePath(currentPath);        
-          davPropFind.setRequiredProperty(Const.DavProp.DISPLAYNAME);
-          davPropFind.setRequiredProperty(Const.DavProp.RESOURCETYPE);        
-          davPropFind.setRequiredProperty(Const.DavProp.GETLASTMODIFIED);        
-          davPropFind.setRequiredProperty(Const.DavProp.GETCONTENTLENGTH);
-          davPropFind.setRequiredProperty(Const.DavProp.VERSIONNAME);
-          davPropFind.setRequiredProperty(Const.DavProp.COMMENT);        
+          davPropFind.setRequiredProperty(WebDavProp.DISPLAYNAME);
+          davPropFind.setRequiredProperty(WebDavProp.RESOURCETYPE);        
+          davPropFind.setRequiredProperty(WebDavProp.GETLASTMODIFIED);        
+          davPropFind.setRequiredProperty(WebDavProp.GETCONTENTLENGTH);
+          davPropFind.setRequiredProperty(WebDavProp.VERSIONNAME);
+          davPropFind.setRequiredProperty(WebDavProp.COMMENT);        
           davPropFind.setRequiredProperty(JCR_MIMETYPE, JCR_NAMESPACE);        
           davPropFind.setDepth(1);        
           status = davPropFind.execute();
         }
         
-        String serverPrefix = config.getContext().getServerPrefix();
+        String serverPrefix = config.getServerPrefix();
         String currentHref = serverPrefix + currentPath;
         
-        if (status != Const.HttpStatus.MULTISTATUS) {
+        if (status != HTTPStatus.MULTISTATUS) {
           showMessageBox("Can't open remote directory. ErrorCode: " + status);
           return;
         }
+
+//_
         
-        Multistatus multistatus = davPropFind.getMultistatus();
+        XMLResponse = TextUtils.getXmlFromBytes(davPropFind.getResponseDataBuffer());
+        String str = new String(davPropFind.getResponseDataBuffer());
+
+        
+        Element element = XMLResponse.getDocumentElement();
+        NodeList nodeList = element.getElementsByTagName("D:response");
+        
+        for (int i = 0; i < nodeList.getLength(); i++) {
+          responseNodes.add(nodeList.item(i));
+        }
+       
+//_        
+        
+        Multistatus multistatus = davPropFind.getMultistatus();                
 
         responses.clear();
         
@@ -384,7 +415,7 @@ public abstract class BrowseDialog extends PlugInDialog {
         
         enableAll();
       } catch (Throwable exc) {
-        FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
+        log.info("Unhandled exception: " + exc.getMessage(), exc);
       }
     }
     
@@ -394,8 +425,8 @@ public abstract class BrowseDialog extends PlugInDialog {
     
     public int compare(ResponseDoc resp1, ResponseDoc resp2) {
       
-      ResourceTypeProp rt1 = (ResourceTypeProp)resp1.getProperty(Const.DavProp.RESOURCETYPE);
-      ResourceTypeProp rt2 = (ResourceTypeProp)resp2.getProperty(Const.DavProp.RESOURCETYPE);
+      ResourceTypeProp rt1 = (ResourceTypeProp)resp1.getProperty(WebDavProp.RESOURCETYPE);
+      ResourceTypeProp rt2 = (ResourceTypeProp)resp2.getProperty(WebDavProp.RESOURCETYPE);
       
       if (rt1.isCollection() && !rt2.isCollection()) {
         return 0;
@@ -405,8 +436,8 @@ public abstract class BrowseDialog extends PlugInDialog {
         return 1;
       }
       
-      DisplayNameProp dn1 = (DisplayNameProp)resp1.getProperty(Const.DavProp.DISPLAYNAME);
-      DisplayNameProp dn2 = (DisplayNameProp)resp2.getProperty(Const.DavProp.DISPLAYNAME);
+      DisplayNameProp dn1 = (DisplayNameProp)resp1.getProperty(WebDavProp.DISPLAYNAME);
+      DisplayNameProp dn2 = (DisplayNameProp)resp2.getProperty(WebDavProp.DISPLAYNAME);
       
       return dn1.getDisplayName().compareToIgnoreCase(dn2.getDisplayName());
     }
@@ -438,14 +469,14 @@ public abstract class BrowseDialog extends PlugInDialog {
     } catch (Exception exc) {
       showMessageBox("Can't open remote file!");
       
-      FileLogger.info("Can't open remote file... " + exc.getMessage(), exc);
+      log.info("Can't open remote file... " + exc.getMessage(), exc);
     }
     
   }
   
   protected void doPropFindResponse(ResponseDoc response) {
     String href = TextUtils.UnEscape(response.getHref(), '%');
-    String serverPrefix = config.getContext().getServerPrefix();
+    String serverPrefix = config.getServerPrefix();
 
     if (!href.startsWith(serverPrefix)) {
       return;
@@ -469,7 +500,7 @@ public abstract class BrowseDialog extends PlugInDialog {
           XTextComponent.class, xControlContainer.getControl(COMBO_PATH));
       
       String currentHref = xComboText.getText();
-      String serverPrefix = config.getContext().getServerPrefix();
+      String serverPrefix = config.getServerPrefix();
       
       if (!currentHref.startsWith(serverPrefix)) {
         return;

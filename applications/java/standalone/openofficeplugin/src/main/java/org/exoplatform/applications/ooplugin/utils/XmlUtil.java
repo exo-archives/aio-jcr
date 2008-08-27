@@ -15,13 +15,10 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.applications.ooplugin;
+package org.exoplatform.applications.ooplugin.utils;
 
-import com.sun.star.awt.XToolkit;
-import com.sun.star.frame.XFrame;
-import com.sun.star.uno.XComponentContext;
-
-import org.exoplatform.applications.ooplugin.WebDavConfig;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Created by The eXo Platform SAS
@@ -29,13 +26,17 @@ import org.exoplatform.applications.ooplugin.WebDavConfig;
  * @version $Id: $
  */
 
-public class AboutDialog extends PlugInDialog {
-  
-  private static final String NAME = "_AboutDialog";
-  
-  public AboutDialog(WebDavConfig config, XComponentContext xComponentContext, XFrame xFrame, XToolkit xToolkit) {
-    super(config, xComponentContext, xFrame, xToolkit);
-    dialogName = NAME;
-  }  
+public class XmlUtil {
+
+  public static Node getChildNode(Node node, String childName) {
+    NodeList nodes = node.getChildNodes();
+    for (int i = 0; i < nodes.getLength(); i++) {
+      Node curNode = nodes.item(i);
+      if (curNode.getLocalName() != null && curNode.getLocalName().equals(childName)) {
+        return curNode;
+      }
+    }
+    return null;
+  }
   
 }

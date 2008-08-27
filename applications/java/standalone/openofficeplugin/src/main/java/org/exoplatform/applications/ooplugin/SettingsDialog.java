@@ -17,12 +17,14 @@
 
 package org.exoplatform.applications.ooplugin;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
-import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.frameworks.webdavclient.FileLogger;
-import org.exoplatform.frameworks.webdavclient.WebDavContext;
-import org.exoplatform.frameworks.webdavclient.commands.DavHead;
+import org.exoplatform.applications.ooplugin.utils.WebDavUtils;
+import org.exoplatform.common.http.HTTPStatus;
+import org.exoplatform.common.http.client.HTTPConnection;
+import org.exoplatform.common.http.client.HTTPResponse;
+import org.exoplatform.services.log.ExoLogger;
 
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.XTextComponent;
@@ -39,6 +41,8 @@ import com.sun.star.uno.XComponentContext;
  */
 
 public class SettingsDialog extends PlugInDialog {
+  
+  private static final Log log = ExoLogger.getLogger("jcr.ooplugin.PlugInDialog");
   
   public static final String NAME = "_SettingsDialog";
   
@@ -87,7 +91,7 @@ public class SettingsDialog extends PlugInDialog {
         setTextBoxValue(EDT_PASS, config.getUserPass());
                 
       } catch (Exception exc) {
-        FileLogger.info("Unhandled exception. " + exc.getMessage());
+        log.info("Unhandled exception: " + exc.getMessage(), exc);
       }
     }
   }
@@ -171,22 +175,32 @@ public class SettingsDialog extends PlugInDialog {
         String userId = getTextBoxValue(EDT_USER);
         String userPass = getTextBoxValue(EDT_PASS);
         
-        WebDavContext testContext = new WebDavContext(host, port, path + "/" + repository + "/" + workSpace, userId, userPass);
+        WebDavConfig testConfig = config;
         
-        DavHead davHead = new DavHead(testContext);
-        davHead.setResourcePath("/");
+        testConfig.setHost(host);
+        testConfig.setPort(port);
+        testConfig.setServlet(path);
+        testConfig.setRepository(repository);
+        testConfig.setWorkSpace(workSpace);
+        testConfig.setUserId(userId);
+        testConfig.setUserPass(userPass);
         
-        FileLogger.info("Testing connection....");
+        HTTPConnection connection = WebDavUtils.getAuthConnection(testConfig);
+       
+        String filePath = WebDavUtils.getFullPath(testConfig);
+        HTTPResponse response = connection.Head(filePath);
         
-        int status = davHead.execute();
+        log.info("Testing connection....");
+        
+        int status = response.getStatusCode();
 
-        if (status == Const.HttpStatus.OK) {
+        if (status == HTTPStatus.OK) {
           showMessageBox("Connection successful!");
           return;
         }
         
       } catch (Exception exc) {
-        FileLogger.info("Unhandled exception", exc);
+        log.info("Unhandled exception: " + exc.getMessage(), exc);
       }
 
       showMessageBox(" Can not connect to repository!");      
@@ -216,7 +230,7 @@ public class SettingsDialog extends PlugInDialog {
         
         config.saveConfig();        
       } catch (Exception exc) {
-        FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
+        log.info("Unhandled exception. " + exc.getMessage(), exc);
         showMessageBox("Parameters incorrect!!!");
       }
       

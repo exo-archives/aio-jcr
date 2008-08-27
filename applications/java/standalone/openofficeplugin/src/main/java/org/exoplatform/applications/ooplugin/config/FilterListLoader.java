@@ -19,8 +19,9 @@ package org.exoplatform.applications.ooplugin.config;
 
 import java.util.ArrayList;
 
-import org.exoplatform.frameworks.webdavclient.FileLogger;
-import org.exoplatform.frameworks.webdavclient.XmlUtil;
+import org.apache.commons.logging.Log;
+import org.exoplatform.common.http.client.Util;
+import org.exoplatform.services.log.ExoLogger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -32,6 +33,8 @@ import org.w3c.dom.NodeList;
  */
 
 public class FilterListLoader extends XmlConfig {
+  
+  private static final Log log = ExoLogger.getLogger("jcr.ooplugin.FilterListLoader");
   
   public static final String FILTERLIST_CONFIG = "/config/filterlist.xml";
   
@@ -62,15 +65,15 @@ public class FilterListLoader extends XmlConfig {
       }
       
     } catch (Exception exc) {
-      FileLogger.info("Unhandled exception ", exc);
+      log.info("Unhandled exception ", exc);
     }    
   }
   
   protected void readFilterGroup(Node groopNode) throws Exception {    
-    Node documentNameNode = XmlUtil.getChildNode(groopNode, XML_DOCUMENTNAME);
+    Node documentNameNode = Util.getChildNode(groopNode, XML_DOCUMENTNAME);
     String documentName = documentNameNode.getTextContent();
     
-    Node filtersNode = XmlUtil.getChildNode(groopNode, XML_FILTERS);
+    Node filtersNode = Util.getChildNode(groopNode, XML_FILTERS);
     NodeList filters = filtersNode.getChildNodes();
     for (int i = 0; i < filters.getLength(); i++) {
       Node filterNode = filters.item(i);

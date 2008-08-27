@@ -17,14 +17,18 @@
 
 package org.exoplatform.applications.ooplugin;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.applications.ooplugin.WebDavConstants.WebDavProp;
+import org.exoplatform.applications.ooplugin.dav.ResponseDoc;
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
 import org.exoplatform.applications.ooplugin.events.ItemListener;
-import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.frameworks.webdavclient.FileLogger;
-import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
-import org.exoplatform.frameworks.webdavclient.http.TextUtils;
-import org.exoplatform.frameworks.webdavclient.properties.VersionNameProp;
+
+import org.exoplatform.applications.ooplugin.props.VersionNameProp;
+import org.exoplatform.applications.ooplugin.utils.TextUtils;
+import org.exoplatform.common.http.HTTPStatus;
+
+import org.exoplatform.services.log.ExoLogger;
 
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.ItemEvent;
@@ -42,13 +46,15 @@ import com.sun.star.uno.XComponentContext;
  */
 
 public class OpenDialog extends BrowseDialog {
+  
+  private static final Log log = ExoLogger.getLogger("jcr.ooplugin.BrowseDialog");
+
     
   private static final String DIALOGNAME = "_OpenDialog";
   
   public static final String BTN_VERSIONS = "btnVersions";
   public static final String BTN_OPEN = "btnOpen";
-  
-    
+     
   private Thread launchThread;
   private Thread viewVersionEnableThread;
   
@@ -78,7 +84,7 @@ public class OpenDialog extends BrowseDialog {
         
         doPropFind();
       } catch (Exception exc) {
-        FileLogger.info("Unhandled exception. " + exc.getMessage());
+        log.info("Unhandled exception. " + exc.getMessage(), exc);
         exc.printStackTrace(System.out);
       }
     }
@@ -103,12 +109,12 @@ public class OpenDialog extends BrowseDialog {
           if (selectedPos >= 0) {
             ((XWindow)UnoRuntime.queryInterface(
                 XWindow.class, xControlContainer.getControl(BTN_OPEN))).setEnable(true);
-            
+
             ResponseDoc response = responses.get(selectedPos);
             VersionNameProp versionNameProperty = 
-                (VersionNameProp)response.getProperty(Const.DavProp.VERSIONNAME);
+                (VersionNameProp)response.getProperty(WebDavProp.VERSIONNAME);
             if (versionNameProperty != null && 
-                versionNameProperty.getStatus() == Const.HttpStatus.OK) {
+                versionNameProperty.getStatus() == HTTPStatus.OK) {
               enableVersionView(true);
               continue;
             }
@@ -145,10 +151,10 @@ public class OpenDialog extends BrowseDialog {
           XTextComponent.class, xControlContainer.getControl(COMBO_PATH));
       String path = xComboText.getText();
       
-      String serverPrefix = config.getContext().getServerPrefix();
+      String serverPrefix = config.getServerPrefix();
       
       if (!path.startsWith(serverPrefix)) {
-        FileLogger.info("Can't connect remote WebDav server!!!");
+        log.info("Can't connect remote WebDav server!!!");
         return;
       }
       
@@ -184,12 +190,12 @@ public class OpenDialog extends BrowseDialog {
         ResponseDoc response = responses.get(selectedPos);
         String href = TextUtils.UnEscape(response.getHref(), '%');
         
-        if (!href.startsWith(config.getContext().getServerPrefix())) {
+        if (!href.startsWith(config.getServerPrefix())) {
           showMessageBox("Can't load version list.");
           return;
         }
         
-        String remoteHref = href.substring(config.getContext().getServerPrefix().length());
+        String remoteHref = href.substring(config.getServerPrefix().length());
         
         prepareTmpPath(currentPath);
         
@@ -201,7 +207,7 @@ public class OpenDialog extends BrowseDialog {
         }
         
       } catch (Exception exc) {
-        FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
+        log.info("Unhandled exception. " + exc.getMessage(), exc);
       }      
       
     }

@@ -21,18 +21,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.applications.ooplugin.WebDavConstants.WebDavProp;
+import org.exoplatform.applications.ooplugin.dav.DavReport;
+import org.exoplatform.applications.ooplugin.dav.Multistatus;
+import org.exoplatform.applications.ooplugin.dav.ResponseDoc;
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
-import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.frameworks.webdavclient.FileLogger;
-import org.exoplatform.frameworks.webdavclient.commands.DavReport;
-import org.exoplatform.frameworks.webdavclient.documents.Multistatus;
-import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
-import org.exoplatform.frameworks.webdavclient.http.TextUtils;
-import org.exoplatform.frameworks.webdavclient.properties.ContentLengthProp;
-import org.exoplatform.frameworks.webdavclient.properties.CreationDateProp;
-import org.exoplatform.frameworks.webdavclient.properties.CreatorDisplayNameProp;
-import org.exoplatform.frameworks.webdavclient.properties.DisplayNameProp;
+import org.exoplatform.applications.ooplugin.props.ContentLengthProp;
+import org.exoplatform.applications.ooplugin.props.CreationDateProp;
+import org.exoplatform.applications.ooplugin.props.CreatorDisplayNameProp;
+import org.exoplatform.applications.ooplugin.props.DisplayNameProp;
+import org.exoplatform.applications.ooplugin.utils.TextUtils;
+import org.exoplatform.common.http.HTTPStatus;
+
+import org.exoplatform.services.log.ExoLogger;
 
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.XFixedText;
@@ -49,6 +52,8 @@ import com.sun.star.uno.XComponentContext;
  */
 
 public class ViewVersions extends PlugInDialog {
+  
+  private static final Log log = ExoLogger.getLogger("jcr.ooplugin.ViewVersions");
 
   private static final String DIALOG_NAME = "_ViewVersionsDialog";
   
@@ -107,7 +112,7 @@ public class ViewVersions extends PlugInDialog {
       xLabelHead.setText(headerValue);
       
     } catch (Exception exc) {
-      FileLogger.info("Unhandled exception", exc);
+      log.info("Unhandled exception: " + exc.getMessage(), exc);
     }
     
     return true;
@@ -122,7 +127,7 @@ public class ViewVersions extends PlugInDialog {
         Thread.sleep(100);
         doReport();
       } catch (Exception exc) {
-        FileLogger.info("Unhandled exception. " + exc.getMessage());
+        log.info("Unhandled exception. " + exc.getMessage(), exc);
       }
     }
   }
@@ -136,15 +141,15 @@ public class ViewVersions extends PlugInDialog {
     DavReport davReport = new DavReport(config.getContext());
     davReport.setResourcePath(resourcePath);
     
-    davReport.setRequiredProperty(Const.DavProp.DISPLAYNAME);
-    davReport.setRequiredProperty(Const.DavProp.GETCONTENTLENGTH);
-    davReport.setRequiredProperty(Const.DavProp.CREATIONDATE);
-    davReport.setRequiredProperty(Const.DavProp.CREATORDISPLAYNAME);
+    davReport.setRequiredProperty(WebDavProp.DISPLAYNAME);
+    davReport.setRequiredProperty(WebDavProp.GETCONTENTLENGTH);
+    davReport.setRequiredProperty(WebDavProp.CREATIONDATE);
+    davReport.setRequiredProperty(WebDavProp.CREATORDISPLAYNAME);
     
     davReport.setDepth(1);
     
     int status = davReport.execute();
-    if (status != Const.HttpStatus.MULTISTATUS) {
+    if (status != HTTPStatus.MULTISTATUS) {
       showMessageBox("Can't open version list. ErrorCode: " + status);
       return false;
     }
@@ -169,15 +174,15 @@ public class ViewVersions extends PlugInDialog {
     
     public int compare(ResponseDoc resp1, ResponseDoc resp2) {
       
-      CreationDateProp creationDate1 = (CreationDateProp)resp1.getProperty(Const.DavProp.CREATIONDATE);
-      CreationDateProp creationDate2 = (CreationDateProp)resp2.getProperty(Const.DavProp.CREATIONDATE);
+      CreationDateProp creationDate1 = (CreationDateProp)resp1.getProperty(WebDavProp.CREATIONDATE);
+      CreationDateProp creationDate2 = (CreationDateProp)resp2.getProperty(WebDavProp.CREATIONDATE);
       
       if (!creationDate2.getCreationDate().equals(creationDate1.getCreationDate())) {
         return creationDate2.getCreationDate().compareToIgnoreCase(creationDate1.getCreationDate());
       }
 
-      DisplayNameProp displayName1 = (DisplayNameProp)resp1.getProperty(Const.DavProp.DISPLAYNAME);
-      DisplayNameProp displayName2 = (DisplayNameProp)resp2.getProperty(Const.DavProp.DISPLAYNAME);
+      DisplayNameProp displayName1 = (DisplayNameProp)resp1.getProperty(WebDavProp.DISPLAYNAME);
+      DisplayNameProp displayName2 = (DisplayNameProp)resp2.getProperty(WebDavProp.DISPLAYNAME);
 
       return displayName2.getDisplayName().compareToIgnoreCase(displayName1.getDisplayName());
       
@@ -205,10 +210,10 @@ public class ViewVersions extends PlugInDialog {
   
     
   private String formatLine(ResponseDoc response) {
-    DisplayNameProp displayNameProperty = (DisplayNameProp)response.getProperty(Const.DavProp.DISPLAYNAME);    
-    ContentLengthProp contentLengthProperty = (ContentLengthProp)response.getProperty(Const.DavProp.GETCONTENTLENGTH);
-    CreationDateProp creationDateProperty = (CreationDateProp)response.getProperty(Const.DavProp.CREATIONDATE);
-    CreatorDisplayNameProp creatorDisplayName = (CreatorDisplayNameProp)response.getProperty(Const.DavProp.CREATORDISPLAYNAME);
+    DisplayNameProp displayNameProperty = (DisplayNameProp)response.getProperty(WebDavProp.DISPLAYNAME);    
+    ContentLengthProp contentLengthProperty = (ContentLengthProp)response.getProperty(WebDavProp.GETCONTENTLENGTH);
+    CreationDateProp creationDateProperty = (CreationDateProp)response.getProperty(WebDavProp.CREATIONDATE);
+    CreatorDisplayNameProp creatorDisplayName = (CreatorDisplayNameProp)response.getProperty(WebDavProp.CREATORDISPLAYNAME);
     
     String lineStr = displayNameProperty.getDisplayName();
     while (lineStr.length() < NAME_LEN) {
@@ -254,7 +259,7 @@ public class ViewVersions extends PlugInDialog {
       xDialog.endExecute();
       
     } catch (Exception exc) {
-      FileLogger.info("Unhandled exception.", exc);
+      log.info("Unhandled exception.", exc);
       showMessageBox("Can't open selected version.");
     }
   }

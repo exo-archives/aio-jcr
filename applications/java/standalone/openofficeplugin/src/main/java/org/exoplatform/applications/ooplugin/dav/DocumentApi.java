@@ -15,13 +15,9 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.applications.ooplugin;
+package org.exoplatform.applications.ooplugin.dav;
 
-import com.sun.star.awt.XToolkit;
-import com.sun.star.frame.XFrame;
-import com.sun.star.uno.XComponentContext;
-
-import org.exoplatform.applications.ooplugin.WebDavConfig;
+import org.w3c.dom.Document;
 
 /**
  * Created by The eXo Platform SAS
@@ -29,13 +25,8 @@ import org.exoplatform.applications.ooplugin.WebDavConfig;
  * @version $Id: $
  */
 
-public class AboutDialog extends PlugInDialog {
-  
-  private static final String NAME = "_AboutDialog";
-  
-  public AboutDialog(WebDavConfig config, XComponentContext xComponentContext, XFrame xFrame, XToolkit xToolkit) {
-    super(config, xComponentContext, xFrame, xToolkit);
-    dialogName = NAME;
-  }  
+public interface DocumentApi {
+
+  public boolean initFromDocument(Document document);
   
 }

@@ -15,13 +15,9 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.applications.ooplugin;
+package org.exoplatform.applications.ooplugin.dav;
 
-import com.sun.star.awt.XToolkit;
-import com.sun.star.frame.XFrame;
-import com.sun.star.uno.XComponentContext;
-
-import org.exoplatform.applications.ooplugin.WebDavConfig;
+import org.exoplatform.applications.ooplugin.WebDavContext;
 
 /**
  * Created by The eXo Platform SAS
@@ -29,13 +25,24 @@ import org.exoplatform.applications.ooplugin.WebDavConfig;
  * @version $Id: $
  */
 
-public class AboutDialog extends PlugInDialog {
+public class DavReport extends MultistatusCommand {
   
-  private static final String NAME = "_AboutDialog";
+  private int depth = 0;
+
+  public DavReport(WebDavContext context) throws Exception {
+    super(context);
+    commandName = Const.DavCommand.REPORT;
+    xmlName = Const.StreamDocs.VERSION_TREE;
+  }
   
-  public AboutDialog(WebDavConfig config, XComponentContext xComponentContext, XFrame xFrame, XToolkit xToolkit) {
-    super(config, xComponentContext, xFrame, xToolkit);
-    dialogName = NAME;
+  public void setDepth(int depth) {
+    this.depth = depth;
+  }
+  
+  @Override
+  public int execute() throws Exception {
+    client.setRequestHeader(HttpHeader.DEPTH, "" + depth);    
+    return super.execute();
   }  
   
 }

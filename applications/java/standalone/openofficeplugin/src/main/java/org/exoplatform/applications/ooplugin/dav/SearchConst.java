@@ -15,13 +15,7 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.applications.ooplugin;
-
-import com.sun.star.awt.XToolkit;
-import com.sun.star.frame.XFrame;
-import com.sun.star.uno.XComponentContext;
-
-import org.exoplatform.applications.ooplugin.WebDavConfig;
+package org.exoplatform.applications.ooplugin.dav;
 
 /**
  * Created by The eXo Platform SAS
@@ -29,13 +23,26 @@ import org.exoplatform.applications.ooplugin.WebDavConfig;
  * @version $Id: $
  */
 
-public class AboutDialog extends PlugInDialog {
+public class SearchConst {
   
-  private static final String NAME = "_AboutDialog";
+  public static final String XPATH_NAMESPACE = "XPATH:";
+  public static final String XPATH_PREFIX = "X:";
   
-  public AboutDialog(WebDavConfig config, XComponentContext xComponentContext, XFrame xFrame, XToolkit xToolkit) {
-    super(config, xComponentContext, xFrame, xToolkit);
-    dialogName = NAME;
-  }  
+  public static final String SQL_NAMESPACE = "SQL:";
+  public static final String SQL_PREFIX = "S:";
   
+  //<exo:sql xmlns:exo="http://exoplatform.com/jcr"/>
+  public static final String SQL_SUPPORT = "sql";
+  
+  //<exo:xpath xmlns:exo="http://exoplatform.com/jcr"/>
+  public static final String XPATH_SUPPORT = "xpath";
+  
+  public static final String NOT_TAG = "not";
+  public static final String AND_TAG = "and";
+  public static final String OR_TAG = "or";
+  public static final String LIKE_TAG = "like";
+  public static final String EQ_TAG = "eq";
+  
+  public static final String LITERAL_TAG = "literal";
+
 }

@@ -21,11 +21,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.applications.ooplugin.dialog.DialogBuilder;
 import org.exoplatform.applications.ooplugin.dialog.EventHandler;
-import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.frameworks.webdavclient.FileLogger;
-import org.exoplatform.frameworks.webdavclient.commands.DavGet;
+import org.exoplatform.applications.ooplugin.utils.WebDavUtils;
+import org.exoplatform.common.http.HTTPStatus;
+import org.exoplatform.common.http.client.HTTPConnection;
+import org.exoplatform.common.http.client.HTTPResponse;
+import org.exoplatform.applications.ooplugin.WebDavConfig;
+import org.exoplatform.services.log.ExoLogger;
 
 import com.sun.star.awt.Rectangle;
 import com.sun.star.awt.VclWindowPeerAttribute;
@@ -49,6 +53,8 @@ import com.sun.star.uno.XComponentContext;
  */
 
 public class PlugInDialog {
+  
+  private static final Log log = ExoLogger.getLogger("jcr.ooplugin.PlugInDialog");
 
   protected String dialogName = "";
   protected boolean enabled = false;
@@ -125,7 +131,7 @@ public class PlugInDialog {
       xComponent.dispose();
       
     } catch (java.lang.Exception exc) {
-      FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
+      log.info("Unhandled exception: " + exc.getMessage(), exc);
     }    
     
   }
@@ -149,7 +155,7 @@ public class PlugInDialog {
   }  
   
   protected void doOpenRemoteFile(String href) throws Exception {
-    String serverPrefix = config.getContext().getServerPrefix();
+    String serverPrefix = config.getServerPrefix();
     
     if (!href.startsWith(serverPrefix)) {
       return;
@@ -159,12 +165,13 @@ public class PlugInDialog {
     if (!resourcePath.startsWith("/")) {
       resourcePath = "/" + resourcePath;
     }
-
-    DavGet davGet = new DavGet(config.getContext());
-    davGet.setResourcePath(resourcePath);
-    int status = davGet.execute();
     
-    if (status != Const.HttpStatus.OK) {
+    HTTPConnection connection = WebDavUtils.getAuthConnection(config);
+    HTTPResponse response = connection.Get(href);
+    
+    int status = response.getStatusCode();
+    
+    if (status != HTTPStatus.OK) {
       showMessageBox("Can't open remote file. ErrorCode: " + status);
       return;
     }
@@ -185,7 +192,8 @@ public class PlugInDialog {
     outFile.createNewFile();
     FileOutputStream fileOutStream = new FileOutputStream(outFile);
     
-    byte []fileContent = davGet.getResponseDataBuffer();
+    byte[] fileContent = response.getData(); 
+   
     fileOutStream.write(fileContent);
     fileOutStream.close();        
     
@@ -219,7 +227,7 @@ public class PlugInDialog {
             }
         }
     } catch (com.sun.star.uno.Exception e) {
-    	FileLogger.info("Unhandled exception", e);
+    	log.info("Unhandled exception: " + e.getMessage(), e);
     }
   }  
 
@@ -251,7 +259,7 @@ public class PlugInDialog {
             }
         }
     } catch (com.sun.star.uno.Exception e) {
-      FileLogger.info("Unhandled exception", e);
+      log.info("Unhandled exception" + e.getMessage(), e);
     }
     return 3;
   }  

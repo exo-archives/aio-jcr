@@ -17,7 +17,8 @@
 
 package org.exoplatform.applications.ooplugin;
 
-import org.exoplatform.frameworks.webdavclient.FileLogger;
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
 
 import com.sun.star.awt.Rectangle;
 import com.sun.star.awt.WindowAttribute;
@@ -46,6 +47,8 @@ public class AddonHandler extends WeakBase
                 com.sun.star.lang.XInitialization,
                 com.sun.star.frame.XDispatch {
   
+  private static final Log log = ExoLogger.getLogger("jcr.ooplugin.AddonHandler");
+  
   public static final String MENU_OPEN = "open";
   public static final String MENU_SAVE = "save";
   public static final String MENU_SAVEAS = "saveas";
@@ -72,7 +75,7 @@ public class AddonHandler extends WeakBase
         config = new WebDavConfig();
       }      
     } catch (Throwable thr) {
-      FileLogger.info("Exception", thr);
+      log.info("Undandled exception: " + thr.getMessage() , thr);
     }
   }
 
@@ -90,7 +93,7 @@ public class AddonHandler extends WeakBase
     try {
       return Factory.writeRegistryServiceInfo(m_implementationName, m_serviceNames, xRegistryKey);          
     } catch (Throwable thr) {
-      FileLogger.info("Exception", thr);
+      log.info("Undandled exception: " + thr.getMessage() , thr);
     }
     return false;    
   }
@@ -144,7 +147,7 @@ public class AddonHandler extends WeakBase
   public com.sun.star.frame.XDispatch[] queryDispatches(
         com.sun.star.frame.DispatchDescriptor[] seqDescriptors )    
   {        
-    FileLogger.info("public com.sun.star.frame.XDispatch[] queryDispatches(");
+    log.info("public com.sun.star.frame.XDispatch[] queryDispatches(");
     int nCount = seqDescriptors.length;        
     com.sun.star.frame.XDispatch[] seqDispatcher = 
           new com.sun.star.frame.XDispatch[seqDescriptors.length];         
@@ -158,7 +161,7 @@ public class AddonHandler extends WeakBase
   
   public void initialize( Object[] object ) throws com.sun.star.uno.Exception    
   {
-    //Log.info("public void initialize( Object[] object ) throws com.sun.star.uno.Exception...");
+    //log.info("public void initialize( Object[] object ) throws com.sun.star.uno.Exception...");
     if (object.length > 0) {
       xFrame = (XFrame)UnoRuntime.queryInterface(
             XFrame.class, object[0]);
@@ -173,7 +176,7 @@ public class AddonHandler extends WeakBase
   public void dispatch(com.sun.star.util.URL aURL,      
         com.sun.star.beans.PropertyValue[] aArguments ) {
     
-    //Log.info("public void dispatch(com.sun.star.util.URL aURL,");
+    //log.info("public void dispatch(com.sun.star.util.URL aURL,");
     
     try {
       if ( aURL.Protocol.compareTo("org.exoplatform.applications.ooplugin:") == 0 ) {
@@ -210,7 +213,7 @@ public class AddonHandler extends WeakBase
         
       }      
     } catch (Exception exc) {
-      FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
+      log.info("Unhandled exception. " + exc.getMessage(), exc);
     }
     
   }
@@ -252,7 +255,7 @@ public class AddonHandler extends WeakBase
             }
         }
     } catch (com.sun.star.uno.Exception e) {
-      FileLogger.info("Unhandled exception. " + e.getMessage(), e);
+      log.info("Unhandled exception. " + e.getMessage(), e);
     }
   }
   

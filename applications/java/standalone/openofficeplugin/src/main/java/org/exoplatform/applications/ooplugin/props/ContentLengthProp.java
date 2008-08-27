@@ -15,13 +15,11 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 
-package org.exoplatform.applications.ooplugin;
+package org.exoplatform.applications.ooplugin.props;
 
-import com.sun.star.awt.XToolkit;
-import com.sun.star.frame.XFrame;
-import com.sun.star.uno.XComponentContext;
 
-import org.exoplatform.applications.ooplugin.WebDavConfig;
+import org.exoplatform.applications.ooplugin.dav.Const;
+import org.w3c.dom.Node;
 
 /**
  * Created by The eXo Platform SAS
@@ -29,13 +27,26 @@ import org.exoplatform.applications.ooplugin.WebDavConfig;
  * @version $Id: $
  */
 
-public class AboutDialog extends PlugInDialog {
+public class ContentLengthProp extends CommonProp {
+
+  protected int contentLength = 0;
+
+  public ContentLengthProp() {
+    this.propertyName = Const.DavProp.GETCONTENTLENGTH;
+  }
   
-  private static final String NAME = "_AboutDialog";
+  public boolean init(Node node) {
+    if (status != Const.HttpStatus.OK) {
+      return false;
+    }
+    
+    String contLen = node.getTextContent();
+    contentLength = new Integer(contLen);
+    return true;
+  }    
   
-  public AboutDialog(WebDavConfig config, XComponentContext xComponentContext, XFrame xFrame, XToolkit xToolkit) {
-    super(config, xComponentContext, xFrame, xToolkit);
-    dialogName = NAME;
-  }  
+  public long getContentLength() {
+    return contentLength;
+  }
   
 }

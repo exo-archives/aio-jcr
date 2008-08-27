@@ -22,8 +22,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.HashMap;
 
-import org.exoplatform.frameworks.webdavclient.FileLogger;
-import org.exoplatform.frameworks.webdavclient.WebDavContext;
+import org.apache.commons.logging.Log;
+
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS
@@ -32,6 +33,8 @@ import org.exoplatform.frameworks.webdavclient.WebDavContext;
  */
 
 public class WebDavConfig {
+  
+  private static final Log log = ExoLogger.getLogger("jcr.ooplugin.AddonHandler");
   
   public static final String WHOST = "Host";
   public static final String WPORT = "Port";
@@ -72,6 +75,10 @@ public class WebDavConfig {
     }
     
     return new WebDavContext(host, port, path, user_id, user_pass);
+  }
+  
+  public String getServerPrefix() {
+    return "http://" + host + ":" + port + servlet + repository + "/" + workSpace; 
   }
   
   public String getHost() {
@@ -175,7 +182,7 @@ public class WebDavConfig {
       File configFile = new File(configFileName);
       
       if (!configFile.exists()) {
-        FileLogger.info("Config file not exist!!!!!! USE DEFAULT !!!");
+        log.info("Config file not exist!!!!!! USE DEFAULT !!!");
         return;
       }
       
@@ -200,7 +207,7 @@ public class WebDavConfig {
       user_id = hParams.get(WUSER);
       user_pass = hParams.get(WPASS);      
     } catch (Exception exc) {
-      FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
+      log.info("Unhandled exception. " + exc.getMessage(), exc);
     }
     
   }

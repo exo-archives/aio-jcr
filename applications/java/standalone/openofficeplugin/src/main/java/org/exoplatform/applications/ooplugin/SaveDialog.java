@@ -18,21 +18,25 @@
 package org.exoplatform.applications.ooplugin;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.applications.ooplugin.WebDavConstants.WebDavProp;
 import org.exoplatform.applications.ooplugin.config.FilterListLoader;
 import org.exoplatform.applications.ooplugin.config.FilterType;
+import org.exoplatform.applications.ooplugin.dav.ResponseDoc;
 import org.exoplatform.applications.ooplugin.dialog.Component;
 import org.exoplatform.applications.ooplugin.dialog.DialogException;
 import org.exoplatform.applications.ooplugin.events.ActionListener;
-import org.exoplatform.frameworks.webdavclient.Const;
-import org.exoplatform.frameworks.webdavclient.FileLogger;
-import org.exoplatform.frameworks.webdavclient.commands.DavPut;
-import org.exoplatform.frameworks.webdavclient.documents.ResponseDoc;
-import org.exoplatform.frameworks.webdavclient.properties.DisplayNameProp;
+import org.exoplatform.applications.ooplugin.props.DisplayNameProp;
+import org.exoplatform.applications.ooplugin.utils.WebDavUtils;
+import org.exoplatform.common.http.HTTPStatus;
+import org.exoplatform.common.http.client.HTTPConnection;
+import org.exoplatform.common.http.client.HTTPResponse;
+
+import org.exoplatform.services.log.ExoLogger;
 
 import com.sun.star.awt.ActionEvent;
 import com.sun.star.awt.XComboBox;
@@ -60,6 +64,8 @@ import com.sun.star.uno.XComponentContext;
  */
 
 public class SaveDialog extends BrowseDialog {
+  
+  private static final Log log = ExoLogger.getLogger("jcr.ooplugin.SaveDialog");
   
   public static final String DIALOG_NAME = "_SaveDialog";
   
@@ -115,7 +121,7 @@ public class SaveDialog extends BrowseDialog {
       try {
         doSaveFile();
       } catch (Exception exc) {
-        FileLogger.info("Unhandled exception", exc);
+        log.info("Unhandled exception: " + exc.getMessage(), exc);
       }      
     }
 
@@ -148,11 +154,11 @@ public class SaveDialog extends BrowseDialog {
       try {
         
         DisplayNameProp displayNameProperty = 
-            (DisplayNameProp)response.getProperty(Const.DavProp.DISPLAYNAME);
+            (DisplayNameProp)response.getProperty(WebDavProp.DISPLAYNAME);
         
         setEditFileName(displayNameProperty.getDisplayName());
       } catch (Exception exc) {
-        FileLogger.info("Can't open remote file... " + exc.getMessage(), exc);
+        log.info("Can't open remote file... " + exc.getMessage(), exc);
       }      
     }
     
@@ -220,7 +226,7 @@ public class SaveDialog extends BrowseDialog {
       for (int i = 0; i < responses.size(); i++) {
         ResponseDoc response = responses.get(i);
         
-        DisplayNameProp displayNameProperty = (DisplayNameProp)response.getProperty(Const.DavProp.DISPLAYNAME);
+        DisplayNameProp displayNameProperty = (DisplayNameProp)response.getProperty(WebDavProp.DISPLAYNAME);
         if (displayNameProperty.getDisplayName().equals(fileName)) {          
           finded = true;
           break;
@@ -320,7 +326,7 @@ public class SaveDialog extends BrowseDialog {
       xStorable.storeAsURL(path, loadProps);
     } catch (com.sun.star.io.IOException e) {
       showMessageBox("Can't save file locally!!!!!!!!");
-      FileLogger.info("Exception", e);
+      log.info("Exception" + e.getMessage(), e);
     }
   }  
   
@@ -396,7 +402,7 @@ public class SaveDialog extends BrowseDialog {
 
       return true;
     } catch (Exception exc) {
-      FileLogger.info("Unhandled ecxeption. " + exc.getMessage(), exc);
+      log.info("Unhandled ecxeption. " + exc.getMessage(), exc);
     }
     
     return false;
@@ -445,7 +451,7 @@ public class SaveDialog extends BrowseDialog {
         doPropFind();
                 
       } catch (Exception exc) {
-        FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
+        log.info("Unhandled exception. " + exc.getMessage(), exc);
       }
     }
   }
@@ -473,21 +479,20 @@ public class SaveDialog extends BrowseDialog {
   protected boolean doSave(String localPath, String remotePath) {
     try {      
       File inFile = new File(localPath);
-      FileInputStream inStream = new FileInputStream(inFile);
-      
-      DavPut davPut = new DavPut(config.getContext());
-      davPut.setResourcePath(remotePath);
-      davPut.setRequestInputStream(inStream, inStream.available());
-      
-      int status = davPut.execute();
-      if (status == Const.HttpStatus.CREATED) {
+     
+      HTTPConnection connection = WebDavUtils.getAuthConnection(config);
+      HTTPResponse response = connection.Put(WebDavUtils.getFullPath(config) + remotePath,
+          WebDavUtils.getBytes(inFile));
+     
+      int status = response.getStatusCode();
+      if (status == HTTPStatus.CREATED) {
         showMessageBox("File " + config.getContext().getServerPrefix() + remotePath + " succesfully saved!");
         return true;
       }
       
       showMessageBox("Can't store file. Error code: " + status);
     } catch (Exception exc) {
-      FileLogger.info("Unhandled exception. " + exc.getMessage(), exc);
+      log.info("Unhandled exception. " + exc.getMessage(), exc);
       showMessageBox("Can't store file. Error: " + exc.getMessage());
     }
     return false;

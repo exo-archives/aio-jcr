@@ -17,7 +17,8 @@
 
 package org.exoplatform.applications.ooplugin;
 
-import org.exoplatform.frameworks.webdavclient.FileLogger;
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
 
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.document.XDocumentInfo;
@@ -35,8 +36,11 @@ import com.sun.star.uno.XComponentContext;
  */
 
 public class OOUtils {
+  
+  private static final Log log = ExoLogger.getLogger("jcr.ooplugin.OOUtils");
     
-  public static XComponent loadFromFile(XComponentContext xComponentContext, String url, String remoteUrl) throws Exception {    
+  public static XComponent loadFromFile(XComponentContext xComponentContext, String url, String remoteUrl) throws Exception {
+    
     PropertyValue[] loadProps = null;
 
     loadProps = new PropertyValue[1];
@@ -82,7 +86,7 @@ public class OOUtils {
 //      xStorable.store();
       
     } catch (Exception exc) {
-      FileLogger.info("Can't store info to opened file...");
+      log.info("Can't store info to opened file...");
     }    
     
     return (xComponent);
