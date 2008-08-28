@@ -275,7 +275,7 @@ public class RepositoryImpl implements ManageableRepository {
     WorkspaceContainer workspaceContainer = repositoryContainer.getWorkspaceContainer(workspaceName);
     if (workspaceContainer == null || !workspaceContainer.getWorkspaceInitializer().isWorkspaceInitialized()) {
       throw new RepositoryException("Workspace " + workspaceName
-          + " doesn't exists or workspace doesn't initialized");
+          + " not found or workspace is not initialized");
     }
     SessionFactory sessionFactory = workspaceContainer.getSessionFactory();
 
