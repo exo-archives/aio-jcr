@@ -1,0 +1,98 @@
+<?xml version="1.0" ?>
+<D:multistatus xmlns:D="DAV:"
+	xmlns:b="urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/">
+	<D:response>
+		<D:href>http://localhost:8080/rest/jcr/repository/production
+		</D:href>
+		<D:propstat>
+			<D:prop>
+				<D:displayname></D:displayname>
+				<D:resourcetype>
+					<D:collection />
+				</D:resourcetype>
+			</D:prop>
+			<D:status>HTTP/1.1 200 OK</D:status>
+		</D:propstat>
+		<D:propstat>
+			<D:prop>
+				<jcr:mimeType xmlns:jcr="http://www.jcp.org/jcr/1.0" />
+				<D:comment />
+				<D:getcontentlength />
+				<D:version-name />
+				<D:getlastmodified />
+			</D:prop>
+			<D:status>HTTP/1.1 404 Not Found</D:status>
+		</D:propstat>
+	</D:response>
+	<D:response>
+		<D:href>
+			http://localhost:8080/rest/jcr/repository/production/jcr:system
+		</D:href>
+		<D:propstat>
+			<D:prop>
+				<D:resourcetype>
+					<D:collection />
+				</D:resourcetype>
+				<D:displayname>jcr:system</D:displayname>
+			</D:prop>
+			<D:status>HTTP/1.1 200 OK</D:status>
+		</D:propstat>
+		<D:propstat>
+			<D:prop>
+				<jcr:mimeType xmlns:jcr="http://www.jcp.org/jcr/1.0" />
+				<D:getlastmodified />
+				<D:getcontentlength />
+				<D:version-name />
+				<D:comment />
+			</D:prop>
+			<D:status>HTTP/1.1 404 Not Found</D:status>
+		</D:propstat>
+	</D:response>
+	<D:response>
+		<D:href>
+			http://localhost:8080/rest/jcr/repository/production/exo:registry
+		</D:href>
+		<D:propstat>
+			<D:prop>
+				<D:displayname>exo:registry</D:displayname>
+				<D:resourcetype>
+					<D:collection />
+				</D:resourcetype>
+			</D:prop>
+			<D:status>HTTP/1.1 200 OK</D:status>
+		</D:propstat>
+		<D:propstat>
+			<D:prop>
+				<D:comment />
+				<D:getlastmodified />
+				<jcr:mimeType xmlns:jcr="http://www.jcp.org/jcr/1.0" />
+				<D:getcontentlength />
+				<D:version-name />
+			</D:prop>
+			<D:status>HTTP/1.1 404 Not Found</D:status>
+		</D:propstat>
+	</D:response>
+	<D:response>
+		<D:href>http://localhost:8080/rest/jcr/repository/production/1.odt
+		</D:href>
+		<D:propstat>
+			<D:prop>
+				<jcr:mimeType xmlns:jcr="http://www.jcp.org/jcr/1.0">application/octet-stream
+				</jcr:mimeType>
+				<D:getlastmodified b:dt="dateTime.rfc1123">Thu, 28 Aug 2008
+					07:44:41 GMT</D:getlastmodified>
+				<D:getcontentlength>7081</D:getcontentlength>
+				<D:displayname>1.odt</D:displayname>
+				<D:resourcetype />
+			</D:prop>
+			<D:status>HTTP/1.1 200 OK</D:status>
+		</D:propstat>
+		<D:propstat>
+			<D:prop>
+				<D:version-name />
+				<D:comment />
+			</D:prop>
+			<D:status>HTTP/1.1 500 Internal Server Error</D:status>
+		</D:propstat>
+	</D:response>
+</D:multistatus>
