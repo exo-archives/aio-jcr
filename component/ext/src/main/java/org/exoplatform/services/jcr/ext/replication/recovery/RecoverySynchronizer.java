@@ -37,6 +37,7 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.ext.replication.AbstractWorkspaceDataReceiver;
+import org.exoplatform.services.jcr.ext.replication.ChannelManager;
 import org.exoplatform.services.jcr.ext.replication.FixupStream;
 import org.exoplatform.services.jcr.ext.replication.Packet;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
@@ -51,7 +52,8 @@ import org.jgroups.blocks.MessageDispatcher;
 
 /**
  * Created by The eXo Platform SAS
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
 public class RecoverySynchronizer {
@@ -63,7 +65,7 @@ public class RecoverySynchronizer {
 
   private FileCleaner                        fileCleaner;
 
-  private MessageDispatcher                  disp;
+  private ChannelManager                     channelManager;
 
   private String                             ownName;
 
@@ -82,12 +84,12 @@ public class RecoverySynchronizer {
   private List<String>                       successfulSynchronizedList;
 
   public RecoverySynchronizer(File recoveryDir, FileNameFactory fileNameFactory,
-      FileCleaner fileCleaner, MessageDispatcher messageDispatcher, String ownName,
+      FileCleaner fileCleaner, ChannelManager channelManager, String ownName,
       RecoveryWriter recoveryWriter, String systemId) {
     this.recoveryDir = recoveryDir;
     this.fileNameFactory = fileNameFactory;
     this.fileCleaner = fileCleaner;
-    this.disp = messageDispatcher;
+    this.channelManager = channelManager;
     this.ownName = ownName;
     this.systemId = systemId;
 
@@ -103,7 +105,7 @@ public class RecoverySynchronizer {
     try {
       Packet packet = new Packet(Packet.PacketType.GET_ChangesLog_up_to_DATE, IdGenerator
           .generate(), ownName, Calendar.getInstance());
-      sendPacket(packet);
+      channelManager.sendPacket(packet);
     } catch (Exception e) {
       log.error("Synchronization error", e);
     }
@@ -113,70 +115,9 @@ public class RecoverySynchronizer {
     byte[] buffer = Packet.getAsByteArray(packet);
 
     if (buffer.length <= Packet.MAX_PACKET_SIZE) {
-      send(buffer);
+      channelManager.send(buffer);
     } else
-      sendBigPacket(buffer, packet);
-  }
-
-  private void send(byte[] buffer) {
-    Message msg = new Message(null, null, buffer);
-    disp.castMessage(null, msg, GroupRequest.GET_NONE, 0);
-  }
-
-  private void sendPacket(Packet packet) throws IOException {
-    byte[] buffer = Packet.getAsByteArray(packet);
-    send(buffer);
-  }
-
-  private void sendBigPacket(byte[] data, Packet packet) throws Exception {
-    long offset = 0;
-    byte[] tempBuffer = new byte[Packet.MAX_PACKET_SIZE];
-
-    cutData(data, offset, tempBuffer);
-
-    Packet firsPacket = new Packet(Packet.PacketType.BIG_PACKET_FIRST, data.length, tempBuffer,
-        packet.getIdentifier());
-    firsPacket.setOwnName(packet.getOwnerName());
-    firsPacket.setOffset(offset);
-    sendPacket(firsPacket);
-
-    if (log.isDebugEnabled())
-      log.debug("Send of damp --> " + firsPacket.getByteArray().length);
-
-    offset += tempBuffer.length;
-
-    while ((data.length - offset) > Packet.MAX_PACKET_SIZE) {
-      cutData(data, offset, tempBuffer);
-
-      Packet middlePacket = new Packet(Packet.PacketType.BIG_PACKET_MIDDLE, data.length,
-          tempBuffer, packet.getIdentifier());
-      middlePacket.setOwnName(packet.getOwnerName());
-      middlePacket.setOffset(offset);
-      Thread.sleep(1);
-      sendPacket(middlePacket);
-
-      if (log.isDebugEnabled())
-        log.debug("Send of damp --> " + middlePacket.getByteArray().length);
-
-      offset += tempBuffer.length;
-    }
-
-    byte[] lastBuffer = new byte[data.length - (int) offset];
-    cutData(data, offset, lastBuffer);
-
-    Packet lastPacket = new Packet(Packet.PacketType.BIG_PACKET_LAST, data.length, lastBuffer,
-        packet.getIdentifier());
-    lastPacket.setOwnName(packet.getOwnerName());
-    lastPacket.setOffset(offset);
-    sendPacket(lastPacket);
-
-    if (log.isDebugEnabled())
-      log.debug("Send of damp --> " + lastPacket.getByteArray().length);
-  }
-
-  private void cutData(byte[] sourceData, long startPos, byte[] destination) {
-    for (int i = 0; i < destination.length; i++)
-      destination[i] = sourceData[i + (int) startPos];
+      channelManager.sendBigPacket(buffer, packet);
   }
 
   public int processingPacket(Packet packet, int status) throws Exception {
@@ -205,6 +146,9 @@ public class RecoverySynchronizer {
             packet.getFileName());
 
         if (randomAccessFile != null) {
+          if (log.isDebugEnabled())
+            log.info("Offset : BinaryFile_Middle_Packet :" + packet.getOffset());
+
           randomAccessFile.seek(packet.getOffset());
           randomAccessFile.write(packet.getByteArray());
         } else
@@ -221,6 +165,9 @@ public class RecoverySynchronizer {
             packet.getFileName());
 
         if (randomAccessFile != null) {
+          if (log.isDebugEnabled())
+            log.info("Offset : BinaryFile_Last_Packet :" + packet.getOffset());
+
           randomAccessFile.seek(packet.getOffset());
           randomAccessFile.write(packet.getByteArray());
           randomAccessFile.close();
@@ -244,6 +191,10 @@ public class RecoverySynchronizer {
                 + packet.getOwnerName());
 
           List<FileDescriptor> fileDescriptorList = pbf.getSortedFilesDescriptorList();
+
+          if (log.isDebugEnabled())
+            log.info("fileDescriptorList.size() == pbf.getNeedTransferCounter() : "
+                + fileDescriptorList.size() + "== " + pbf.getNeedTransferCounter());
 
           if (fileDescriptorList.size() == pbf.getNeedTransferCounter()) {
             for (FileDescriptor fileDescriptor : fileDescriptorList) {
@@ -292,13 +243,6 @@ public class RecoverySynchronizer {
                 packet.getIdentifier(), ownName, fileNameList);
             send(packetFileNameList);
 
-            // remove temporary files
-            for (FileDescriptor fd : fileDescriptorList)
-              fileCleaner.addFile(fd.getFile());
-
-            // remove PendingBinaryFile
-            mapPendingBinaryFile.remove(packet.getIdentifier());
-
             log.info("The " + fileDescriptorList.size() + " changeslogs were received and saved");
 
           } else if (log.isDebugEnabled()) {
@@ -319,7 +263,7 @@ public class RecoverySynchronizer {
       Packet removedOldChangesLogPacket = new Packet(
           Packet.PacketType.REMOVED_OLD_CHANGESLOG_COUNTER, packet.getIdentifier(), ownName);
       removedOldChangesLogPacket.setSize(removeCounter);
-      sendPacket(removedOldChangesLogPacket);
+      channelManager.sendPacket(removedOldChangesLogPacket);
 
       break;
 
@@ -330,9 +274,11 @@ public class RecoverySynchronizer {
 
         if (pbf.isAllOldChangesLogsRemoved()) {
 
-          for (String filePath : pbf.getFileNameList())
-            fileCleaner.addFile(new File(filePath));
+          // remove temporary files
+          for (FileDescriptor fd : pbf.getSortedFilesDescriptorList())
+            fileCleaner.addFile(fd.getFile());
 
+          // remove PendingBinaryFile
           mapPendingBinaryFile.remove(packet.getIdentifier());
 
           // next iteration
@@ -380,81 +326,27 @@ public class RecoverySynchronizer {
       Packet needTransferCounter = new Packet(Packet.PacketType.NEED_TRANSFER_COUNTER, identifier,
           ownName);
       needTransferCounter.setSize(filePathList.size());
-      sendPacket(needTransferCounter);
+      channelManager.sendPacket(needTransferCounter);
 
       if (filePathList.size() > 0) {
         for (String filePath : filePathList) {
-          sendBinaryFile(filePath, ownerName, identifier, systemId);
+          channelManager.sendBinaryFile(filePath, ownerName, identifier, systemId);
         }
 
         Packet endPocket = new Packet(Packet.PacketType.ALL_BinaryFile_transferred_OK, identifier);
         endPocket.setOwnName(ownerName);
         endPocket.setSize(filePathList.size());
-        sendPacket(endPocket);
+        channelManager.sendPacket(endPocket);
 
       } else {
         Packet synchronizedOKPacket = new Packet(Packet.PacketType.SYNCHRONIZED_OK, IdGenerator
             .generate(), ownerName);
-        sendPacket(synchronizedOKPacket);
+        channelManager.sendPacket(synchronizedOKPacket);
       }
 
     } catch (Exception e) {
       log.error("ChangesLogs was send with error", e);
     }
-  }
-
-  private void sendBinaryFile(String filePath, String ownerName, String identifier, String systemId)
-      throws Exception {
-    if (log.isDebugEnabled())
-      log.debug("Begin send : " + filePath);
-
-    File f = new File(filePath);
-    InputStream in = new FileInputStream(f);
-
-    Packet packet = new Packet(Packet.PacketType.BinaryFile_First_Packet, identifier, ownerName, f
-        .getName());
-    packet.setSystemId(systemId);
-    sendPacket(packet);
-
-    byte[] buf = new byte[Packet.MAX_PACKET_SIZE];
-    int len;
-    long offset = 0;
-
-    while ((len = in.read(buf)) > 0 && len == Packet.MAX_PACKET_SIZE) {
-      packet = new Packet(Packet.PacketType.BinaryFile_Middle_Packet, new FixupStream(),
-          identifier, buf);
-
-      packet.setOffset(offset);
-      packet.setOwnName(ownerName);
-      packet.setFileName(f.getName());
-      sendPacket(packet);
-
-      offset += len;
-      if (log.isDebugEnabled())
-        log.debug("Send  --> " + offset);
-
-      Thread.sleep(1);
-    }
-
-    if (len < Packet.MAX_PACKET_SIZE) {
-      // check if empty stream
-      len = (len == -1 ? 0 : len);
-
-      byte[] buffer = new byte[len];
-
-      for (int i = 0; i < len; i++)
-        buffer[i] = buf[i];
-
-      packet = new Packet(Packet.PacketType.BinaryFile_Last_Packet, new FixupStream(), identifier,
-          buffer);
-      packet.setOffset(offset);
-      packet.setOwnName(ownerName);
-      packet.setFileName(f.getName());
-      sendPacket(packet);
-    }
-
-    if (log.isDebugEnabled())
-      log.debug("End send : " + filePath);
   }
 
   public void setDataKeeper(ItemDataKeeper dataKeeper) {
@@ -538,12 +430,15 @@ class PendingBinaryFile {
 
   private boolean                                          isSuccessfulTransfer;
 
+  private boolean                                          isSuccessfulSave;
+
   public PendingBinaryFile() {
     mapFilePerOwner = new HashMap<String, HashMap<String, FileDescriptor>>();
     needTransferCounter = 0;
     removedOldChangesLogCounter = 0;
     successfulTransferCounter = 0;
     isSuccessfulTransfer = false;
+    isSuccessfulSave = false;
   }
 
   public void addBinaryFile(String ownerName, String fileName, String systemId) throws IOException {
@@ -675,6 +570,14 @@ class PendingBinaryFile {
     successfulTransferCounter += c;
 
     isSuccessfulTransfer = (needTransferCounter == successfulTransferCounter ? true : false);
+  }
+
+  public boolean isSuccessfulSave() {
+    return isSuccessfulSave;
+  }
+
+  public void setSuccessfulSave(boolean isSuccessfulSave) {
+    this.isSuccessfulSave = isSuccessfulSave;
   }
 }
 

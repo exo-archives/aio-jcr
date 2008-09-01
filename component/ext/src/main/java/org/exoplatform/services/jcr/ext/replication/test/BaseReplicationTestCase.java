@@ -43,7 +43,7 @@ public abstract class BaseReplicationTestCase {
 
   private Credentials  credentials;
 
-  private Repository   repository;
+  protected Repository repository;
   
   public BaseReplicationTestCase(RepositoryService repositoryService, String reposytoryName,
       String workspaceName, String userName, String password) {

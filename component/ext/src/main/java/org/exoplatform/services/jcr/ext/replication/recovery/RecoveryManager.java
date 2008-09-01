@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemDataKeeper;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.ext.replication.AbstractWorkspaceDataReceiver;
+import org.exoplatform.services.jcr.ext.replication.ChannelManager;
 import org.exoplatform.services.jcr.ext.replication.Packet;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
@@ -38,7 +39,8 @@ import org.jgroups.blocks.MessageDispatcher;
 
 /**
  * Created by The eXo Platform SAS
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
 public class RecoveryManager {
@@ -70,7 +72,7 @@ public class RecoveryManager {
 
   private ItemDataKeeper                                          dataKeeper;
 
-  private MessageDispatcher                                       disp;
+  private ChannelManager                                          channelManager;
 
   private List<String>                                            participantsClusterList;
 
@@ -80,7 +82,7 @@ public class RecoveryManager {
 
   public RecoveryManager(File recoveryDir, String ownName, String systemId,
       List<String> participantsClusterList, long waitConformation, String repoName, String wsName,
-      MessageDispatcher messageDispatcher) throws IOException {
+      ChannelManager channelManager) throws IOException {
     this.recoveryDir = recoveryDir;
     this.fileCleaner = new FileCleaner();
 
@@ -91,14 +93,14 @@ public class RecoveryManager {
 
     this.repoName = repoName;
     this.wsName = wsName;
-    this.disp = messageDispatcher;
+    this.channelManager = channelManager;
 
     fileNameFactory = new FileNameFactory();
     recoveryWriter = new RecoveryWriter(recoveryDir, fileNameFactory, fileCleaner, ownName);
     mapPendingConfirmation = new HashMap<String, PendingConfirmationChengesLog>();
     this.waitConformationTimeout = waitConformation;
     recoverySynchronizer = new RecoverySynchronizer(recoveryDir, fileNameFactory, fileCleaner,
-        disp, ownName, recoveryWriter, systemId);
+        channelManager, ownName, recoveryWriter, systemId);
 
     initedParticipantsClusterList = new ArrayList<String>();
 
@@ -234,13 +236,13 @@ public class RecoveryManager {
 
           Packet initedPacket = new Packet(Packet.PacketType.INITED_IN_CLUSTER, IdGenerator
               .generate(), ownName);
-          sendPacket(initedPacket);
+          channelManager.sendPacket(initedPacket);
         }
 
         if (initedParticipantsClusterList.size() == participantsClusterList.size()) {
           Packet allInitedPacket = new Packet(Packet.PacketType.ALL_INITED, IdGenerator.generate(),
               ownName);
-          sendPacket(allInitedPacket);
+          channelManager.sendPacket(allInitedPacket);
         }
       }
       break;
@@ -293,12 +295,5 @@ public class RecoveryManager {
 
   public void startRecovery() {
     recoverySynchronizer.synchronizRepository();
-  }
-
-  private void sendPacket(Packet packet) throws Exception {
-    byte[] buffer = Packet.getAsByteArray(packet);
-
-    Message msg = new Message(null, null, buffer);
-    disp.castMessage(null, msg, GroupRequest.GET_NONE, 0);
   }
 }

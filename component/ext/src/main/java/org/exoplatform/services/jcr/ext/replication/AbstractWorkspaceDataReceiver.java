@@ -39,17 +39,19 @@ import org.jgroups.blocks.RequestHandler;
 
 /**
  * Created by The eXo Platform SAS
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id$
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
+ * @version $Id: AbstractWorkspaceDataReceiver.java 16481 2008-06-26 13:23:34Z
+ *          rainf0x $
  */
 
-public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {
+public abstract class AbstractWorkspaceDataReceiver implements PocketListener {
 
-  public final static int                   INIT_MODE     = -1;
+  public final static int                    INIT_MODE     = -1;
 
-  public final static int                   NORMAL_MODE   = 0;
+  public final static int                    NORMAL_MODE   = 0;
 
-  public final static int                   RECOVERY_MODE = 1;
+  public final static int                    RECOVERY_MODE = 1;
 
   private int                                state;
 
@@ -58,7 +60,7 @@ public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {
 
   private String                             systemId;
 
-  private MessageDispatcher                  disp;
+  private ChannelManager                     channelManager;
 
   private HashMap<String, PendingChangesLog> mapPendingChangesLog;
 
@@ -73,16 +75,17 @@ public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {
   public AbstractWorkspaceDataReceiver() throws RepositoryConfigurationException {
     this.fileCleaner = new FileCleaner(30030);
     mapPendingChangesLog = new HashMap<String, PendingChangesLog>();
-    // mapPendingChangesLog = new Hashtable<String, PendingChangesLog>();
 
     state = INIT_MODE;
   }
 
-  public void init(MessageDispatcher messageDispatcher, String systemId, String ownName,
+  public void init(ChannelManager channelManager, String systemId, String ownName,
       RecoveryManager recoveryManager) {
     this.systemId = systemId;
-    disp = messageDispatcher;
-    disp.setRequestHandler(this);
+    this.channelManager = channelManager;
+
+    this.channelManager.addMessageHandler(this);
+
     this.ownName = ownName;
     this.recoveryManager = recoveryManager;
 
@@ -90,15 +93,15 @@ public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {
 
   public void start() {
     try {
-      Packet memberStartedPacket = new Packet(Packet.PacketType.MEMBER_STARTED, IdGenerator.generate(),
-          ownName);
-      sendPacket(memberStartedPacket);
-      
+      Packet memberStartedPacket = new Packet(Packet.PacketType.MEMBER_STARTED, IdGenerator
+          .generate(), ownName);
+      channelManager.sendPacket(memberStartedPacket);
+
       Thread.sleep(1000);
-      
+
       Packet initedPacket = new Packet(Packet.PacketType.INITED_IN_CLUSTER, IdGenerator.generate(),
           ownName);
-      sendPacket(initedPacket);
+      channelManager.sendPacket(initedPacket);
     } catch (Exception e) {
       log.error("Can't initialized AbstractWorkspaceDataReceiver", e);
     }
@@ -119,12 +122,12 @@ public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {
             log.info(pcl.dump());
           }
         }
-        
+
         dataKeeper.save(changesLog);
-        
+
         Packet packet = new Packet(Packet.PacketType.ADD_OK, identifier, ownName);
-        sendPacket(packet);
-        
+        channelManager.sendPacket(packet);
+
         if (log.isDebugEnabled()) {
           log.info("After save message: the owner systemId --> " + changesLog.getSystemId());
           log.info("After save message: --> " + systemId);
@@ -133,10 +136,8 @@ public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {
     }
   }
 
-  public Object handle(Message msg) {
+  public void receive(Packet packet) {
     try {
-      Packet packet = Packet.getAsPacket(msg.getBuffer());
-      
       Packet bigPacket = null;
 
       switch (packet.getPacketType()) {
@@ -311,10 +312,10 @@ public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {
         }
 
         break;
-      
+
       case Packet.PacketType.BIG_PACKET_FIRST:
-        PendingChangesLog bigLog = new PendingChangesLog(packet.getIdentifier(),
-            (int) packet.getSize());
+        PendingChangesLog bigLog = new PendingChangesLog(packet.getIdentifier(), (int) packet
+            .getSize());
         bigLog.putData((int) packet.getOffset(), packet.getByteArray());
 
         mapPendingChangesLog.put(packet.getIdentifier(), bigLog);
@@ -345,17 +346,16 @@ public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {
 
         break;
       }
-      
+
       if (bigPacket != null) {
         state = recoveryManager.processing(bigPacket, state);
         bigPacket = null;
       } else
         state = recoveryManager.processing(packet, state);
-      
+
     } catch (Exception e) {
       log.error("An error in processing packet : ", e);
     }
-    return new String("Success !");
   }
 
   public void suspect(Address suspected_mbr) {
@@ -372,13 +372,6 @@ public abstract class AbstractWorkspaceDataReceiver implements RequestHandler {
   }
 
   public void setState(byte[] state) {
-  }
-
-  private void sendPacket(Packet packet) throws Exception {
-    byte[] buffer = Packet.getAsByteArray(packet);
-
-    Message msg = new Message(null, null, buffer);
-    disp.castMessage(null, msg, GroupRequest.GET_NONE, 0);
   }
 
   public ItemDataKeeper getDataKeeper() {

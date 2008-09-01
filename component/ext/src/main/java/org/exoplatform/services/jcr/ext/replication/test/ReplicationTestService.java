@@ -22,6 +22,7 @@ import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.ext.backup.BackupConfig;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.ext.replication.ReplicationService;
+import org.exoplatform.services.jcr.ext.replication.test.priority.BasePriorityTestCase;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.HTTPMethod;
 import org.exoplatform.services.rest.OutputTransformer;
@@ -46,37 +47,45 @@ public class ReplicationTestService implements ResourceContainer {
     public final static String OPERATION_PREFIX = "?operation=";
 
     public class OperationType {
-      public final static String ADD_NT_FILE              = "addNTFile";
+      public final static String ADD_NT_FILE                   = "addNTFile";
 
-      public final static String CHECK_NT_FILE            = "checkNTFile";
+      public final static String CHECK_NT_FILE                 = "checkNTFile";
 
-      public final static String START_BACKUP             = "startBackup";
+      public final static String START_BACKUP                  = "startBackup";
 
-      public final static String SET_LOCK                 = "lock";
+      public final static String SET_LOCK                      = "lock";
 
-      public final static String CECK_LOCK                = "checkLock";
+      public final static String CECK_LOCK                     = "checkLock";
 
-      public final static String ADD_VERSIONODE           = "addVersionNode";
+      public final static String ADD_VERSIONODE                = "addVersionNode";
 
-      public final static String CHECK_VERSION_NODE       = "checkVersionNode";
+      public final static String CHECK_VERSION_NODE            = "checkVersionNode";
 
-      public final static String ADD_NEW_VERSION          = "addNewVersion";
+      public final static String ADD_NEW_VERSION               = "addNewVersion";
 
-      public final static String RESTORE_RPEVIOUS_VERSION = "restorePreviousVersion";
+      public final static String RESTORE_RPEVIOUS_VERSION      = "restorePreviousVersion";
 
-      public final static String RESTORE_BASE_VERSION     = "restoreBaseVersion";
+      public final static String RESTORE_BASE_VERSION          = "restoreBaseVersion";
+
+      public final static String DELETE                        = "delete";
+
+      public final static String CHECK_DELETE                  = "checkDelete";
+
+      public final static String WORKSPACE_COPY                = "workspaceCopy";
+
+      public final static String WORKSPASE_MOVE                = "workspaceMove";
+
+      public final static String SESSION_MOVE                  = "sessionMove";
+
+      public final static String CHECK_COPY_MOVE_NODE          = "checkCopyMoveNode";
+
+      public final static String DISCONNECT_CLUSTER_NODE       = "disconnectClusterNode";
+
+      public final static String DISCONNECT_CLUSTER_NODE_BY_ID = "disconnectClusterNodeById";
+
+      public final static String ALLOW_CONNECT                 = "allowConnect";
       
-      public final static String DELETE                   = "delete";
-      
-      public final static String CHECK_DELETE             = "checkDelete";
-      
-      public final static String WORKSPACE_COPY           = "workspaceCopy";
-      
-      public final static String WORKSPASE_MOVE           = "workspaceMove";
-      
-      public final static String SESSION_MOVE             = "sessionMove";
-      
-      public final static String CHECK_COPY_MOVE_NODE     = "checkCopyMoveNode";
+      public final static String WORKSPACE_IS_READ_ONLY        = "workspaceIsReadOnly";
     }
   }
 
@@ -93,22 +102,23 @@ public class ReplicationTestService implements ResourceContainer {
 
     log.info("ReplicationTestService inited");
   }
-  
-  public ReplicationTestService(RepositoryService repoService,
-      BackupManager backupManager, InitParams params) {
+
+  public ReplicationTestService(RepositoryService repoService, BackupManager backupManager,
+      InitParams params) {
     this(repoService, null, backupManager, params);
   }
 
   @QueryTemplate("operation=addNTFile")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{fileName}/{fileSize}/")
-  public Response addNTFile(@URIParam("repositoryName") String repositoryName, 
-                            @URIParam("workspaceName") String workspaceName, 
-                            @URIParam("userName") String userName,
-                            @URIParam("password") String password,
-                            @URIParam("repoPath") String repoPath, 
-                            @URIParam("fileName") String fileName, 
-                            @URIParam("fileSize") Long fileSize) {
+  public Response addNTFile(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("repoPath")
+  String repoPath, @URIParam("fileName")
+  String fileName, @URIParam("fileSize")
+  Long fileSize) {
     NtFileTestCase ntFileTestCase = new NtFileTestCase(repositoryService, repositoryName,
         workspaceName, userName, password);
     StringBuffer sb = ntFileTestCase.addNtFile(repoPath, fileName, fileSize);
@@ -119,13 +129,14 @@ public class ReplicationTestService implements ResourceContainer {
   @QueryTemplate("operation=checkNTFile")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{fileName}/{fileSize}/")
-  public Response checkNTFile(@URIParam("repositoryName") String repositoryName, 
-                              @URIParam("workspaceName") String workspaceName, 
-                              @URIParam("userName") String userName,
-                              @URIParam("password") String password, 
-                              @URIParam("repoPath") String repoPath, 
-                              @URIParam("fileName") String fileName, 
-                              @URIParam("fileSize") Long fileSize) {
+  public Response checkNTFile(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("repoPath")
+  String repoPath, @URIParam("fileName")
+  String fileName, @URIParam("fileSize")
+  Long fileSize) {
     NtFileTestCase ntFileTestCase = new NtFileTestCase(repositoryService, repositoryName,
         workspaceName, userName, password);
     StringBuffer sb = ntFileTestCase.checkNtFile(repoPath, fileName, fileSize);
@@ -136,11 +147,12 @@ public class ReplicationTestService implements ResourceContainer {
   @QueryTemplate("operation=startBackup")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{incementalPeriod}/")
-  public Response startBackup(@URIParam("repositoryName") String repositoryName, 
-                              @URIParam("workspaceName") String workspaceName, 
-                              @URIParam("userName") String userName,
-                              @URIParam("password") String password, 
-                              @URIParam("incementalPeriod") Long incementalPeriod) {
+  public Response startBackup(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("incementalPeriod")
+  Long incementalPeriod) {
     BackupConfig config = new BackupConfig();
     config.setBuckupType(BackupManager.FULL_AND_INCREMENTAL);
     config.setRepository(repositoryName);
@@ -163,11 +175,12 @@ public class ReplicationTestService implements ResourceContainer {
   @QueryTemplate("operation=lock")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/")
-  public Response lock(@URIParam("repositoryName") String repositoryName, 
-                       @URIParam("workspaceName") String workspaceName, 
-                       @URIParam("userName") String userName,
-                       @URIParam("password") String password, 
-                       @URIParam("repoPath") String repoPath) {
+  public Response lock(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("repoPath")
+  String repoPath) {
     LockTestCase lockTestCase = new LockTestCase(repositoryService, repositoryName, workspaceName,
         userName, password);
     StringBuffer sb = lockTestCase.lock(repoPath);
@@ -178,11 +191,12 @@ public class ReplicationTestService implements ResourceContainer {
   @QueryTemplate("operation=checkLock")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/")
-  public Response checkLock(@URIParam("repositoryName") String repositoryName, 
-                            @URIParam("workspaceName") String workspaceName, 
-                            @URIParam("userName") String userName,
-                            @URIParam("password") String password, 
-                            @URIParam("repoPath") String repoPath) {
+  public Response checkLock(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("repoPath")
+  String repoPath) {
     LockTestCase lockTestCase = new LockTestCase(repositoryService, repositoryName, workspaceName,
         userName, password);
     StringBuffer sb = lockTestCase.isLocked(repoPath);
@@ -193,12 +207,13 @@ public class ReplicationTestService implements ResourceContainer {
   @QueryTemplate("operation=addVersionNode")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{value}/")
-  public Response addVersionNode(@URIParam("repositoryName") String repositoryName, 
-                                 @URIParam("workspaceName") String workspaceName, 
-                                 @URIParam("userName") String userName,
-                                 @URIParam("password") String password, 
-                                 @URIParam("repoPath") String repoPath, 
-                                 @URIParam("value") String value) {
+  public Response addVersionNode(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("repoPath")
+  String repoPath, @URIParam("value")
+  String value) {
     VersionTestCase versionTestCase = new VersionTestCase(repositoryService, repositoryName,
         workspaceName, userName, password);
     StringBuffer sb = versionTestCase.addVersionNode(repoPath, value);
@@ -209,12 +224,13 @@ public class ReplicationTestService implements ResourceContainer {
   @QueryTemplate("operation=checkVersionNode")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{checkedValue}/")
-  public Response checkVersionNode(@URIParam("repositoryName") String repositoryName, 
-                                   @URIParam("workspaceName") String workspaceName, 
-                                   @URIParam("userName") String userName,
-                                   @URIParam("password") String password, 
-                                   @URIParam("repoPath") String repoPath, 
-                                   @URIParam("checkedValue") String checkedValue) {
+  public Response checkVersionNode(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("repoPath")
+  String repoPath, @URIParam("checkedValue")
+  String checkedValue) {
     VersionTestCase versionTestCase = new VersionTestCase(repositoryService, repositoryName,
         workspaceName, userName, password);
     StringBuffer sb = versionTestCase.checkVersionNode(repoPath, checkedValue);
@@ -225,12 +241,13 @@ public class ReplicationTestService implements ResourceContainer {
   @QueryTemplate("operation=addNewVersion")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{newValue}/")
-  public Response addNewVersion(@URIParam("repositoryName") String repositoryName, 
-                                @URIParam("workspaceName") String workspaceName, 
-                                @URIParam("userName") String userName,
-                                @URIParam("password") String password, 
-                                @URIParam("repoPath") String repoPath, 
-                                @URIParam("newValue") String newValue) {
+  public Response addNewVersion(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("repoPath")
+  String repoPath, @URIParam("newValue")
+  String newValue) {
     VersionTestCase versionTestCase = new VersionTestCase(repositoryService, repositoryName,
         workspaceName, userName, password);
     StringBuffer sb = versionTestCase.addNewVersion(repoPath, newValue);
@@ -241,11 +258,12 @@ public class ReplicationTestService implements ResourceContainer {
   @QueryTemplate("operation=restorePreviousVersion")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/")
-  public Response restorePreviousVersion(@URIParam("repositoryName") String repositoryName, 
-                                         @URIParam("workspaceName") String workspaceName, 
-                                         @URIParam("userName") String userName,
-                                         @URIParam("password") String password, 
-                                         @URIParam("repoPath") String repoPath) {
+  public Response restorePreviousVersion(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("repoPath")
+  String repoPath) {
     VersionTestCase versionTestCase = new VersionTestCase(repositoryService, repositoryName,
         workspaceName, userName, password);
     StringBuffer sb = versionTestCase.restorePreviousVersion(repoPath);
@@ -256,112 +274,189 @@ public class ReplicationTestService implements ResourceContainer {
   @QueryTemplate("operation=restoreBaseVersion")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/")
-  public Response restoreBaseVersion(@URIParam("repositoryName") String repositoryName, 
-                                     @URIParam("workspaceName") String workspaceName, 
-                                     @URIParam("userName") String userName,
-                                     @URIParam("password") String password, 
-                                     @URIParam("repoPath") String repoPath) {
+  public Response restoreBaseVersion(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("repoPath")
+  String repoPath) {
     VersionTestCase versionTestCase = new VersionTestCase(repositoryService, repositoryName,
         workspaceName, userName, password);
     StringBuffer sb = versionTestCase.restoreBaseVersion(repoPath);
 
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
-  
+
   @QueryTemplate("operation=delete")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{nodeName}/")
-  public Response delete(@URIParam("repositoryName") String repositoryName, 
-                            @URIParam("workspaceName") String workspaceName, 
-                            @URIParam("userName") String userName,
-                            @URIParam("password") String password,
-                            @URIParam("repoPath") String repoPath, 
-                            @URIParam("nodeName") String nodeName) {
-    DeleteTestCase deleteTestCase = new DeleteTestCase(repositoryService, repositoryName, workspaceName, userName, password);
+  public Response delete(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("repoPath")
+  String repoPath, @URIParam("nodeName")
+  String nodeName) {
+    DeleteTestCase deleteTestCase = new DeleteTestCase(repositoryService, repositoryName,
+        workspaceName, userName, password);
     StringBuffer sb = deleteTestCase.delete(repoPath, nodeName);
 
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
-  
+
   @QueryTemplate("operation=checkDelete")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{nodeName}/")
-  public Response checkDelete(@URIParam("repositoryName") String repositoryName, 
-                            @URIParam("workspaceName") String workspaceName, 
-                            @URIParam("userName") String userName,
-                            @URIParam("password") String password,
-                            @URIParam("repoPath") String repoPath, 
-                            @URIParam("nodeName") String nodeName) {
-    DeleteTestCase deleteTestCase = new DeleteTestCase(repositoryService, repositoryName, workspaceName, userName, password);
+  public Response checkDelete(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("repoPath")
+  String repoPath, @URIParam("nodeName")
+  String nodeName) {
+    DeleteTestCase deleteTestCase = new DeleteTestCase(repositoryService, repositoryName,
+        workspaceName, userName, password);
     StringBuffer sb = deleteTestCase.checkDelete(repoPath, nodeName);
 
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
-  
+
   @QueryTemplate("operation=workspaceCopy")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{srcRepoPath}/{nodeName}/{destNodeName}/{contentSize}/")
-  public Response workspaceCopy(@URIParam("repositoryName") String repositoryName, 
-                            @URIParam("workspaceName") String workspaceName, 
-                            @URIParam("userName") String userName,
-                            @URIParam("password") String password,
-                            @URIParam("srcRepoPath") String srcRepoPath, 
-                            @URIParam("nodeName") String nodeName,
-                            @URIParam("destNodeName") String destNodeName,
-                            @URIParam("contentSize") Long contentSize) {
-    CopyMoveTestCase copyMoveTestCase = new CopyMoveTestCase(repositoryService, repositoryName, workspaceName, userName, password);
-    StringBuffer sb = copyMoveTestCase.workspaceCopy(srcRepoPath, nodeName, destNodeName, contentSize);
+  public Response workspaceCopy(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("srcRepoPath")
+  String srcRepoPath, @URIParam("nodeName")
+  String nodeName, @URIParam("destNodeName")
+  String destNodeName, @URIParam("contentSize")
+  Long contentSize) {
+    CopyMoveTestCase copyMoveTestCase = new CopyMoveTestCase(repositoryService, repositoryName,
+        workspaceName, userName, password);
+    StringBuffer sb = copyMoveTestCase.workspaceCopy(srcRepoPath, nodeName, destNodeName,
+        contentSize);
 
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
-  
+
   @QueryTemplate("operation=workspaceMove")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{srcRepoPath}/{nodeName}/{destNodeName}/{contentSize}/")
-  public Response workspaceMove(@URIParam("repositoryName") String repositoryName, 
-                            @URIParam("workspaceName") String workspaceName, 
-                            @URIParam("userName") String userName,
-                            @URIParam("password") String password,
-                            @URIParam("srcRepoPath") String srcRepoPath, 
-                            @URIParam("nodeName") String nodeName,
-                            @URIParam("destNodeName") String destNodeName,
-                            @URIParam("contentSize") Long contentSize) {
-    CopyMoveTestCase copyMoveTestCase = new CopyMoveTestCase(repositoryService, repositoryName, workspaceName, userName, password);
-    StringBuffer sb = copyMoveTestCase.workspaceMove(srcRepoPath, nodeName, destNodeName, contentSize);
+  public Response workspaceMove(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("srcRepoPath")
+  String srcRepoPath, @URIParam("nodeName")
+  String nodeName, @URIParam("destNodeName")
+  String destNodeName, @URIParam("contentSize")
+  Long contentSize) {
+    CopyMoveTestCase copyMoveTestCase = new CopyMoveTestCase(repositoryService, repositoryName,
+        workspaceName, userName, password);
+    StringBuffer sb = copyMoveTestCase.workspaceMove(srcRepoPath, nodeName, destNodeName,
+        contentSize);
 
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
-  
+
   @QueryTemplate("operation=sessionMove")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{srcRepoPath}/{nodeName}/{destNodeName}/{contentSize}/")
-  public Response sessionMove(@URIParam("repositoryName") String repositoryName, 
-                            @URIParam("workspaceName") String workspaceName, 
-                            @URIParam("userName") String userName,
-                            @URIParam("password") String password,
-                            @URIParam("srcRepoPath") String srcRepoPath, 
-                            @URIParam("nodeName") String nodeName,
-                            @URIParam("destNodeName") String destNodeName,
-                            @URIParam("contentSize") Long contentSize) {
-    CopyMoveTestCase copyMoveTestCase = new CopyMoveTestCase(repositoryService, repositoryName, workspaceName, userName, password);
-    StringBuffer sb = copyMoveTestCase.sessionMove(srcRepoPath, nodeName, destNodeName, contentSize);
+  public Response sessionMove(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("srcRepoPath")
+  String srcRepoPath, @URIParam("nodeName")
+  String nodeName, @URIParam("destNodeName")
+  String destNodeName, @URIParam("contentSize")
+  Long contentSize) {
+    CopyMoveTestCase copyMoveTestCase = new CopyMoveTestCase(repositoryService, repositoryName,
+        workspaceName, userName, password);
+    StringBuffer sb = copyMoveTestCase
+        .sessionMove(srcRepoPath, nodeName, destNodeName, contentSize);
+
+    return Response.Builder.ok(sb.toString(), "text/plain").build();
+  }
+
+  @QueryTemplate("operation=checkCopyMoveNode")
+  @HTTPMethod("GET")
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{srcRepoPath}/{nodeName}/{destNodeName}/{contentSize}/")
+  public Response checkCopyMoveNode(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("srcRepoPath")
+  String srcRepoPath, @URIParam("nodeName")
+  String nodeName, @URIParam("destNodeName")
+  String destNodeName, @URIParam("contentSize")
+  Long contentSize) {
+    CopyMoveTestCase copyMoveTestCase = new CopyMoveTestCase(repositoryService, repositoryName,
+        workspaceName, userName, password);
+    StringBuffer sb = copyMoveTestCase.checkCopyMoveNode(srcRepoPath, nodeName, destNodeName,
+        contentSize);
+
+    return Response.Builder.ok(sb.toString(), "text/plain").build();
+  }
+
+  @QueryTemplate("operation=disconnectClusterNode")
+  @HTTPMethod("GET")
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/")
+  public Response disconnectClusterNode(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password) {
+    BasePriorityTestCase priorityTestCase = new BasePriorityTestCase(repositoryService,
+        repositoryName, workspaceName, userName, password);
+    StringBuffer sb = priorityTestCase.disconnectClusterNode();
+
+    return Response.Builder.ok(sb.toString(), "text/plain").build();
+  }
+
+  @QueryTemplate("operation=disconnectClusterNodeById")
+  @HTTPMethod("GET")
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{id}/")
+  public Response disconnectClusterNodeById(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("id")  Integer id) {
+    BasePriorityTestCase priorityTestCase = new BasePriorityTestCase(repositoryService,
+        repositoryName, workspaceName, userName, password);
+    StringBuffer sb = priorityTestCase.disconnectClusterNode(id);
+
+    return Response.Builder.ok(sb.toString(), "text/plain").build();
+  }
+
+  @QueryTemplate("operation=allowConnect")
+  @HTTPMethod("GET")
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/")
+  public Response allowConnect(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password) {
+    BasePriorityTestCase priorityTestCase = new BasePriorityTestCase(repositoryService,
+        repositoryName, workspaceName, userName, password);
+    StringBuffer sb = priorityTestCase.allowConnect();
 
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
   
-  @QueryTemplate("operation=checkCopyMoveNode")
+  @QueryTemplate("operation=workspaceIsReadOnly")
   @HTTPMethod("GET")
-  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{srcRepoPath}/{nodeName}/{destNodeName}/{contentSize}/")
-  public Response checkCopyMoveNode(@URIParam("repositoryName") String repositoryName, 
-                            @URIParam("workspaceName") String workspaceName, 
-                            @URIParam("userName") String userName,
-                            @URIParam("password") String password,
-                            @URIParam("srcRepoPath") String srcRepoPath, 
-                            @URIParam("nodeName") String nodeName,
-                            @URIParam("destNodeName") String destNodeName,
-                            @URIParam("contentSize") Long contentSize) {
-    CopyMoveTestCase copyMoveTestCase = new CopyMoveTestCase(repositoryService, repositoryName, workspaceName, userName, password);
-    StringBuffer sb = copyMoveTestCase.checkCopyMoveNode(srcRepoPath, nodeName, destNodeName, contentSize);
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/")
+  public Response workspaceIsReadOnly(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password) {
+    BasePriorityTestCase priorityTestCase = new BasePriorityTestCase(repositoryService,
+        repositoryName, workspaceName, userName, password);
+    StringBuffer sb = priorityTestCase.isReadOnly(workspaceName);
 
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }

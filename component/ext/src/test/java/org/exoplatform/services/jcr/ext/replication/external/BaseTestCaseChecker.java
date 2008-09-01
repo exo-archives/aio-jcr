@@ -20,32 +20,60 @@ import junit.framework.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
 public class BaseTestCaseChecker extends TestCase {
-  
+
   // for exo-application
-  public final static String TEST_REALM = "eXo REST services";
-  
+  // public final static String TEST_REALM = "eXo REST services";
+
   // for ECM
-  //public final static String TEST_REALM = "exo-domain";
-  
-  protected static int MAX_RANDOM_VALUE = 1000000;
-  
-  protected final String workingRepository = "repository";
+  public final static String TEST_REALM        = "exo-domain";
 
-  protected final String workingWorkspace  = "backup";
+  protected static int       MAX_RANDOM_VALUE  = 1000000;
 
-  private MemberInfo[]   members           = new MemberInfo[] {
-      new MemberInfo("192.168.0.3", 8080, "root", "exo"),
-      new MemberInfo("192.168.0.5", 8080, "root", "exo"),
-      new MemberInfo("192.168.0.15", 8080, "root", "exo"),
-      new MemberInfo("192.168.0.135", 8080, "root", "exo")};
+  protected final String     workingRepository = "repository";
 
-  private MemberInfo     masterMember;
+  protected final String     workingWorkspace  = "system";
 
-  private MemberInfo[]   slaveMembers;
+  private final MemberInfo[] members           = new MemberInfo[] {
+      new MemberInfo("192.168.0.15", 8080, "root", "exo", 100),
+      new MemberInfo("192.168.0.15", 8081, "root", "exo", 50),
+      new MemberInfo("192.168.0.15", 8082, "root", "exo", 30) };
+
+  private int                maxPriorityMemberIndex;
+
+  private int                minPriorityMemberIndex;
+
+  private MemberInfo         masterMember;
+
+  private MemberInfo[]       slaveMembers;
+
+  protected void setUp() throws Exception {
+    // check max and min priority members;
+    int min = Integer.MAX_VALUE;
+    int max = Integer.MIN_VALUE;
+    int minIndex = -1, maxIndex = -1;
+
+    for (int mIndex = 0; mIndex < members.length; mIndex++) {
+      MemberInfo memberInfo = members[mIndex];
+      
+      if (min > memberInfo.getPriority()) {
+        min = memberInfo.getPriority();
+        minIndex = mIndex;
+      }
+      
+      if (max < memberInfo.getPriority()) {
+        max = memberInfo.getPriority();
+        maxIndex = mIndex;
+      }
+    }
+    
+    minPriorityMemberIndex = minIndex;
+    maxPriorityMemberIndex = maxIndex;
+  }
 
   protected String createRelPath(long fSize) {
     String alphabet = "abcdefghijklmnopqrstuvwxyz";
@@ -56,32 +84,53 @@ public class BaseTestCaseChecker extends TestCase {
       int index1 = (int) (Math.random() * 1000) % alphabet.length();
       int index2 = (int) (Math.random() * 1000) % alphabet.length();
       String s = alphabet.substring(index1, index1 + 1) + alphabet.substring(index2, index2 + 1);
-      //s+=(int) (Math.random() * 100000);
-      
+      // s+=(int) (Math.random() * 100000);
+
       relPath += ("::" + s);
     }
 
     return relPath;
   }
-  
+
   public MemberInfo getCurrentMasterMember() {
     return masterMember;
+  }
+
+  public MemberInfo getMaxPriorityMember() {
+    return members[maxPriorityMemberIndex];
+  }
+
+  public MemberInfo getMinPriorityMember() {
+    return members[minPriorityMemberIndex];
+  }
+  
+  public MemberInfo getMiddlePriorityMember() {
+   for (MemberInfo memberInfo : members) 
+     if (!memberInfo.equals(members[maxPriorityMemberIndex]) &&
+         !memberInfo.equals(members[minPriorityMemberIndex])) {
+       return memberInfo;
+     }
+   return members[minPriorityMemberIndex];
   }
 
   public MemberInfo[] getCurrentSlaveMembers() {
     return slaveMembers;
   }
   
+  public MemberInfo[] getAallMembert() {
+    return members;
+  }
+
   public void randomizeMembers() {
-    int masterIndex = (int)(Math.random() * 1000) % members.length;
-    
+    int masterIndex = (int) (Math.random() * 1000) % members.length;
+
     masterMember = members[masterIndex];
-    
-    slaveMembers = new MemberInfo[members.length-1];
+
+    slaveMembers = new MemberInfo[members.length - 1];
 
     int slaveMembersIndex = 0;
-    
-    for (int i = 0; i < members.length; i++) 
+
+    for (int i = 0; i < members.length; i++)
       if (i != masterIndex)
         slaveMembers[slaveMembersIndex++] = members[i];
   }

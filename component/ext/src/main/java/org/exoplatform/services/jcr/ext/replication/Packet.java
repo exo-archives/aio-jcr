@@ -95,6 +95,10 @@ public class Packet implements Externalizable {
     public static final int BIG_PACKET_MIDDLE                            = 28;
     
     public static final int BIG_PACKET_LAST                              = 29;
+    
+    public static final int GET_ALL_PRIORITY                             = 30;
+    
+    public static final int OWN_PRIORITY                                 = 31;
   }
 
   public static final int MAX_PACKET_SIZE = 1024 * 16;
@@ -183,6 +187,11 @@ public class Packet implements Externalizable {
     this(type, identifier_, ownName);
     this.timeStamp = timeStamp;
   }
+  
+  public Packet(int type, String ownName, long size, String identifier) {
+    this(type, identifier, ownName);
+    this.size_ = size;
+  }
 
   public void writeExternal(ObjectOutput out) throws IOException {
     out.writeInt(buffer_.length);
@@ -201,14 +210,6 @@ public class Packet implements Externalizable {
     out.write(ownName.getBytes());
 
     // write timeStamp
-    /*out.writeInt(timeStamp.get(Calendar.YEAR));
-    out.writeInt(timeStamp.get(Calendar.MONTH));
-    out.writeInt(timeStamp.get(Calendar.DAY_OF_MONTH));
-    out.writeInt(timeStamp.get(Calendar.HOUR_OF_DAY));
-    out.writeInt(timeStamp.get(Calendar.MINUTE));
-    out.writeInt(timeStamp.get(Calendar.SECOND));
-    out.writeInt(timeStamp.get(Calendar.MILLISECOND));*/
-    
     out.writeLong(timeStamp.getTimeInMillis());
 
     out.writeInt(fileName.getBytes().length);
@@ -244,14 +245,6 @@ public class Packet implements Externalizable {
     ownName = new String(buf/* , "UTF-8" */);
 
     // set timeStamp
-    /*timeStamp.set(Calendar.YEAR, in.readInt());
-    timeStamp.set(Calendar.MONTH, in.readInt());
-    timeStamp.set(Calendar.DAY_OF_MONTH, in.readInt());
-    timeStamp.set(Calendar.HOUR_OF_DAY, in.readInt());
-    timeStamp.set(Calendar.MINUTE, in.readInt());
-    timeStamp.set(Calendar.SECOND, in.readInt());
-    timeStamp.set(Calendar.MILLISECOND, in.readInt());*/
-    
     timeStamp.setTimeInMillis(in.readLong());
 
     buf = new byte[in.readInt()];

@@ -30,12 +30,15 @@ public class MemberInfo {
   private final String login;
 
   private final String password;
+  
+  private final int    priority;
 
-  public MemberInfo(String ipAddress, int port, String login, String password) {
+  public MemberInfo(String ipAddress, int port, String login, String password, int priority) {
     this.ipAddress = ipAddress;
     this.port = port;
     this.login = login;
     this.password = password;
+    this.priority = priority;
   }
 
   public String getIpAddress() {
@@ -52,5 +55,15 @@ public class MemberInfo {
 
   public String getPassword() {
     return password;
+  }
+  
+  public int getPriority() {
+    return priority;
+  }
+  
+  public boolean equals (MemberInfo memberInfo) {
+    return (ipAddress.equals(memberInfo.getIpAddress()) &&
+            port == memberInfo.getPort() &&
+            priority == memberInfo.getPriority());
   }
 }
