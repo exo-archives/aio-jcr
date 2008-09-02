@@ -60,14 +60,14 @@ public class ChannelManager implements RequestHandler {
 
   private MessageListener      messageListener;
 
-  private List<PocketListener> pocketListeners;
+  private List<PacketListener> packetListeners;
 
   private ChannelListener      channelListener;
 
   public ChannelManager(String channelConfig, String channelName) {
     this.channelConfig = channelConfig;
     this.channelName = channelName;
-    this.pocketListeners = new ArrayList<PocketListener>();
+    this.packetListeners = new ArrayList<PacketListener>();
   }
 
   public synchronized void init() throws ReplicationException {
@@ -126,8 +126,8 @@ public class ChannelManager implements RequestHandler {
     this.messageListener = messageListener;
   }
 
-  public void addMessageHandler(PocketListener pocketListener) {
-    this.pocketListeners.add(pocketListener);
+  public void addMessageHandler(PacketListener packetListener) {
+    this.packetListeners.add(packetListener);
   }
 
   public void setChannelListener(ChannelListener channelListener) {
@@ -263,7 +263,7 @@ public class ChannelManager implements RequestHandler {
     try {
       Packet packet = Packet.getAsPacket(message.getBuffer());
 
-      for (PocketListener handler : pocketListeners)
+      for (PacketListener handler : packetListeners)
         handler.receive(packet);
 
     } catch (IOException e) {

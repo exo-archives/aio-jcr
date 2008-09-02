@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.ChannelManager;
-import org.exoplatform.services.jcr.ext.replication.PocketListener;
+import org.exoplatform.services.jcr.ext.replication.PacketListener;
 import org.exoplatform.services.jcr.ext.replication.Packet;
 import org.exoplatform.services.jcr.ext.replication.ReplicationService;
 import org.exoplatform.services.jcr.ext.replication.priority.AbstractPriorityChecker;

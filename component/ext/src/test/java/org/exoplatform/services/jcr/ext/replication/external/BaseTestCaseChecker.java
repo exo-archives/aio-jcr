@@ -27,16 +27,16 @@ import junit.framework.TestCase;
 public class BaseTestCaseChecker extends TestCase {
 
   // for exo-application
-  // public final static String TEST_REALM = "eXo REST services";
+  public final static String TEST_REALM = "eXo REST services";
 
   // for ECM
-  public final static String TEST_REALM        = "exo-domain";
+  //public final static String TEST_REALM        = "exo-domain";
 
   protected static int       MAX_RANDOM_VALUE  = 1000000;
 
   protected final String     workingRepository = "repository";
 
-  protected final String     workingWorkspace  = "system";
+  protected final String     workingWorkspace  = "backup";
 
   private final MemberInfo[] members           = new MemberInfo[] {
       new MemberInfo("192.168.0.15", 8080, "root", "exo", 100),

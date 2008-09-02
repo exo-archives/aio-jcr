@@ -45,7 +45,7 @@ import org.jgroups.blocks.RequestHandler;
  *          rainf0x $
  */
 
-public abstract class AbstractWorkspaceDataReceiver implements PocketListener {
+public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
 
   public final static int                    INIT_MODE     = -1;
 

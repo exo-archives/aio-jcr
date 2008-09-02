@@ -16,13 +16,12 @@
  */
 package org.exoplatform.services.jcr.ext.replication;
 
-import org.jgroups.Message;
-
 /**
  * Created by The eXo Platform SAS
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: MessageHandler.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public interface PocketListener {
+public interface PacketListener {
   void receive(Packet packet);
 }

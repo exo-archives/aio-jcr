@@ -47,7 +47,7 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
   public void receive(Packet packet) {
     {
       if (log.isDebugEnabled())
-        log.info(" ------->>> receive from " + packet.getOwnerName() + ", byte == " + packet.getByteArray().length);
+        log.debug(" ------->>> receive from " + packet.getOwnerName() + ", byte == " + packet.getByteArray().length);
 
       try {
 
@@ -65,8 +65,8 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
               currentPartisipants.put(packet.getOwnerName(), Integer.valueOf((int) packet.getSize()));
               
               if (log.isDebugEnabled()) {
-                log.info(channelManager.getChannel().getClusterName() + " : " + identifier + " : added member :");
-                log.info("   +" + packet.getOwnerName() + ":" + currentPartisipants.get(packet.getOwnerName()));
+                log.debug(channelManager.getChannel().getClusterName() + " : " + identifier + " : added member :");
+                log.debug("   +" + packet.getOwnerName() + ":" + currentPartisipants.get(packet.getOwnerName()));
               }
             }
 

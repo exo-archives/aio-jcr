@@ -23,7 +23,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.ChannelManager;
 import org.exoplatform.services.jcr.ext.replication.Packet;
-import org.exoplatform.services.jcr.ext.replication.PocketListener;
+import org.exoplatform.services.jcr.ext.replication.PacketListener;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -33,7 +33,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: PriorityChecker.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public abstract class AbstractPriorityChecker implements PocketListener {
+public abstract class AbstractPriorityChecker implements PacketListener {
 
   public static int                  MAX_PRIORITY = 100;
 
@@ -83,9 +83,9 @@ public abstract class AbstractPriorityChecker implements PocketListener {
   }
 
   protected void printOnlineMembers() {
-    log.info(channelManager.getChannel().getClusterName() + " : " + identifier + " :");
+    log.debug(channelManager.getChannel().getClusterName() + " : " + identifier + " :");
     for (String memberName : currentPartisipants.keySet())
-      log.info("    " + memberName + ":" + currentPartisipants.get(memberName));
+      log.debug("    " + memberName + ":" + currentPartisipants.get(memberName));
   }
 
   public void setMemberListener(MemberListener memberListener) {
