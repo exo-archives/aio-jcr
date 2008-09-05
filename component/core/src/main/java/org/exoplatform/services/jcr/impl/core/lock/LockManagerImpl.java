@@ -164,9 +164,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.core.lock.LockManager#lockTokenAdded(org.exoplatform.services.jcr.impl.core.SessionImpl,
-   *      java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.impl.core.lock.LockManager#lockTokenAdded(org.exoplatform.services
+   * .jcr.impl.core.SessionImpl, java.lang.String)
    */
   public synchronized void addLockToken(String sessionId, String lt) {
     LockData currLock = tokensMap.get(lt);
@@ -177,9 +177,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.core.lock.LockManager#addPendingLock(org.exoplatform.services.jcr.impl.core.NodeImpl,
-   *      boolean, boolean, long)
+   * @see
+   * org.exoplatform.services.jcr.impl.core.lock.LockManager#addPendingLock(org.exoplatform.services
+   * .jcr.impl.core.NodeImpl, boolean, boolean, long)
    */
   public synchronized Lock addPendingLock(NodeImpl node,
                                           boolean isDeep,
@@ -216,8 +216,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.core.lock.LockManager#getLock(org.exoplatform.services.jcr.impl.core.NodeImpl)
+   * @see
+   * org.exoplatform.services.jcr.impl.core.lock.LockManager#getLock(org.exoplatform.services.jcr
+   * .impl.core.NodeImpl)
    */
   public LockImpl getLock(NodeImpl node) throws LockException, RepositoryException {
 
@@ -233,7 +234,6 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.impl.core.lock.LockManager#getLockTokens(java.lang.String)
    */
   public synchronized String[] getLockTokens(String sessionID) {
@@ -249,8 +249,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.core.lock.LockManager#holdsLock(org.exoplatform.services.jcr.impl.core.NodeImpl)
+   * @see
+   * org.exoplatform.services.jcr.impl.core.lock.LockManager#holdsLock(org.exoplatform.services.
+   * jcr.impl.core.NodeImpl)
    */
   public boolean holdsLock(NodeData node) throws RepositoryException {
     return getLockData(node, SEARCH_EXECMATCH) != null;
@@ -258,12 +259,13 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.core.lock.LockManager#isLocked(org.exoplatform.services.jcr.datamodel.NodeData)
+   * @see
+   * org.exoplatform.services.jcr.impl.core.lock.LockManager#isLocked(org.exoplatform.services.jcr
+   * .datamodel.NodeData)
    */
   public boolean isLocked(NodeData node) {
     LockData lData = getLockData(node, SEARCH_EXECMATCH | SEARCH_CLOSEDPARENT);
-    
+
     if (lData == null
         || (!node.getIdentifier().equals(lData.getNodeIdentifier()) && !lData.isDeep())) {
       return false;
@@ -273,8 +275,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.core.lock.LockManager#isLockHolder(org.exoplatform.services.jcr.impl.core.NodeImpl)
+   * @see
+   * org.exoplatform.services.jcr.impl.core.lock.LockManager#isLockHolder(org.exoplatform.services
+   * .jcr.impl.core.NodeImpl)
    */
   public boolean isLockHolder(NodeImpl node) throws RepositoryException {
     LockData lData = getLockData((NodeData) node.getData(), SEARCH_EXECMATCH | SEARCH_CLOSEDPARENT);
@@ -283,8 +286,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.core.SessionLifecycleListener#onCloseSession(org.exoplatform.services.jcr.core.ExtendedSession)
+   * @see
+   * org.exoplatform.services.jcr.core.SessionLifecycleListener#onCloseSession(org.exoplatform.services
+   * .jcr.core.ExtendedSession)
    */
   public synchronized void onCloseSession(ExtendedSession session) {
     // List<String> deadLocksList = new ArrayList<String>();
@@ -321,15 +325,15 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener#onSaveItems(org.exoplatform.services.jcr.dataflow.ItemStateChangesLog)
+   * @seeorg.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener#onSaveItems(org.
+   * exoplatform.services.jcr.dataflow.ItemStateChangesLog)
    */
   public void onSaveItems(ItemStateChangesLog changesLog) {
     List<PlainChangesLog> chengesLogList = new ArrayList<PlainChangesLog>();
     if (changesLog instanceof TransactionChangesLog) {
-      ChangesLogIterator logIterator = ((TransactionChangesLog)changesLog).getLogIterator();
-      
-      while (logIterator.hasNextLog()) { 
+      ChangesLogIterator logIterator = ((TransactionChangesLog) changesLog).getLogIterator();
+
+      while (logIterator.hasNextLog()) {
         chengesLogList.add(logIterator.nextLog());
       }
     } else if (changesLog instanceof PlainChangesLog) {
@@ -403,7 +407,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
               } else if (itemState.isAdded() || itemState.isRenamed() || itemState.isUpdated()) {
                 removedLock.remove(nodeIdentifier);
               }
-            } 
+            }
           }
           for (String identifier : removedLock) {
             internalUnLock(currChangesLog.getSessionId(), identifier);
@@ -424,9 +428,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.core.lock.LockManager#lockTokenRemoved(org.exoplatform.services.jcr.impl.core.SessionImpl,
-   *      java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.impl.core.lock.LockManager#lockTokenRemoved(org.exoplatform.services
+   * .jcr.impl.core.SessionImpl, java.lang.String)
    */
   public synchronized void removeLockToken(String sessionId, String lt) {
     LockData lData = tokensMap.get(lt);
@@ -437,7 +441,6 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.picocontainer.Startable#start()
    */
   public void start() {
@@ -468,7 +471,6 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.picocontainer.Startable#stop()
    */
   public void stop() {
@@ -481,6 +483,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /**
    * Copy <code>PropertyData prop<code> to new TransientItemData
+   * 
    * @param prop
    * @return
    * @throws RepositoryException
@@ -512,6 +515,7 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
 
   /**
    * Search item with name <code>itemName<code> in changesLog
+   * 
    * @param changesLog
    * @param itemName
    * @return Item
@@ -606,11 +610,11 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
   private synchronized void internalUnLock(String sessionId, String nodeIdentifier) throws LockException {
     LockData lData = locks.get(nodeIdentifier);
 
-    //TODO [AR] JCR-474
-//    if (lData == null) {
-//      throw new LockException("Node with id " + nodeIdentifier + " not locked");
-//    }
-    
+    // TODO [AR] JCR-474
+    // if (lData == null) {
+    // throw new LockException("Node with id " + nodeIdentifier + " not locked");
+    // }
+
     if (lData != null) {
       NodeData parentNode = null;
       try {
@@ -621,12 +625,12 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
         log.error(e.getLocalizedMessage());
       }
       if (parentNode != null && isLocked(parentNode)) {
-        throw new LockException("Session does not have the coorect lock token");
+        throw new LockException("Session does not have the correct lock token");
       }
-  
+
       tokensMap.remove(lData.getLockToken(sessionId));
       locks.remove(nodeIdentifier);
-      
+
       lData.setLive(false);
       if (persister != null) {
         persister.remove(lData);
