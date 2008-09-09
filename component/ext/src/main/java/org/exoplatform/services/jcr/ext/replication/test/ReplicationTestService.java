@@ -85,6 +85,8 @@ public class ReplicationTestService implements ResourceContainer {
 
       public final static String ALLOW_CONNECT                 = "allowConnect";
       
+      public final static String ALLOW_CONNECT_FORCED          = "allowConnectForced";
+      
       public final static String WORKSPACE_IS_READ_ONLY        = "workspaceIsReadOnly";
     }
   }
@@ -442,6 +444,21 @@ public class ReplicationTestService implements ResourceContainer {
     BasePriorityTestCase priorityTestCase = new BasePriorityTestCase(repositoryService,
         repositoryName, workspaceName, userName, password);
     StringBuffer sb = priorityTestCase.allowConnect();
+
+    return Response.Builder.ok(sb.toString(), "text/plain").build();
+  }
+  
+  @QueryTemplate("operation=allowConnectForced")
+  @HTTPMethod("GET")
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/")
+  public Response allowConnectForced(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password) {
+    BasePriorityTestCase priorityTestCase = new BasePriorityTestCase(repositoryService,
+        repositoryName, workspaceName, userName, password);
+    StringBuffer sb = priorityTestCase.allowConnectForced();
 
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }

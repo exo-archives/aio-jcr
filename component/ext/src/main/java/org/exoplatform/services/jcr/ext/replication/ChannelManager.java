@@ -126,7 +126,7 @@ public class ChannelManager implements RequestHandler {
     this.messageListener = messageListener;
   }
 
-  public void addMessageHandler(PacketListener packetListener) {
+  public void addPacketListener(PacketListener packetListener) {
     this.packetListeners.add(packetListener);
   }
 

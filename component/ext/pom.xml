@@ -167,17 +167,16 @@
 					</testFailureIgnore>
 					<forkMode>${exo.test.forkMode}</forkMode>
 					<includes>
-						<include>**/actions/*Test.java</include>
+						<!-- include>**/actions/*Test.java</include>
 						<include>**/metadata/*Test.java</include>
 						<include>**/owner/*Test.java</include>
 						<include>**/audit/*Test.java</include>
 						<include>**/registry/*Test.java</include>
 						<include>**/app/*Test.java</include>
 						<include>**/resource/*Test.java</include>
-						<include>**/groovy/*Test.java</include>
+						<include>**/groovy/*Test.java</include -->
 						<include>**/replication/*.java</include>
-						<include>**/replication/external/*.java
-						</include>
+						<!-- include>**/replication/external/priority/ThreeMemberDynamicPriorityCheckerTest.java</include -->
 					</includes>
 					<excludes>
 						<exclude>**/*$*</exclude>
@@ -186,9 +185,8 @@
 						-->
 						<exclude>**/BaseStandaloneTest.java
 						</exclude>
-						<exclude>**/replication/*.java</exclude>
-						<exclude>**/replication/external/*.java
-						</exclude>
+						<!-- exclude>**/replication/*.java</exclude>
+						<exclude>**/replication/external/*.java</exclude -->
 						<exclude>**/replication/external/BaseTestCaseChecker.java
 						</exclude>
 						<exclude>**/backup/*.java</exclude>

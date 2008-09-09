@@ -99,6 +99,26 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
 
     return sb;
   }
+  
+  public StringBuffer allowConnectForced() {
+    StringBuffer sb = new StringBuffer();
+    try {
+      ChannelManager channelManager = dataTransmitter.getChannelManager();
+      channelManager.setAllowConnect(true);
+      
+      channelManager.closeChannel();
+      
+      channelManager.init();
+      channelManager.connect();
+
+      sb.append("ok");
+    } catch (Exception e) {
+      log.error("Can't allowed connect node of cluster: ", e);
+      sb.append("fail");
+    }
+
+    return sb;
+  }
 
   public StringBuffer isReadOnly(String workspaceName) {
     StringBuffer sb = new StringBuffer();

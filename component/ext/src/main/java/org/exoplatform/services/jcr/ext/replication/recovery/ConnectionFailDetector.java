@@ -224,6 +224,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
   }
 
   public void memberRejoin() {
+   
     dataContainer.setReadOnly(false);
     log.info(dataContainer.getName() + " set not read-only");
     log.info(dataContainer.getName() + " recovery start ...");

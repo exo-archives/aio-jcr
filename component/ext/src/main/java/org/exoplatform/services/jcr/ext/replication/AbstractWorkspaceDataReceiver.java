@@ -84,7 +84,7 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
     this.systemId = systemId;
     this.channelManager = channelManager;
 
-    this.channelManager.addMessageHandler(this);
+    this.channelManager.addPacketListener(this);
 
     this.ownName = ownName;
     this.recoveryManager = recoveryManager;

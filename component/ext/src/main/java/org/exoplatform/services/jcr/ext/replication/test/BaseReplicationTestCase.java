@@ -71,7 +71,7 @@ public abstract class BaseReplicationTestCase {
       if (resultNode.hasNode(nodeName))
         resultNode = resultNode.getNode(nodeName);
       else
-        resultNode = resultNode.addNode(nodeName);
+        resultNode = resultNode.addNode(nodeName, "nt:unstructured");
 
     return resultNode;
   }

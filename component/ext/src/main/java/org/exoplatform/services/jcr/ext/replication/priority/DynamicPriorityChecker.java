@@ -80,10 +80,9 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
                 log.info("   +" + packet.getOwnerName() + ":"
                     + currentPartisipants.get(packet.getOwnerName()));
               }
-            }
-
-            if (otherPartisipants.size() == currentPartisipants.size()) {
-              memberListener.memberRejoin();
+              
+              if (otherPartisipants.size() == currentPartisipants.size()) 
+                memberListener.memberRejoin();
             }
 
             if (log.isDebugEnabled())
@@ -125,7 +124,8 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
       return ownPriority == MAX_PRIORITY;
     else if (otherPartisipants.size() > 1 && currentPartisipants.size() == 0 && ownPriority == MAX_PRIORITY)
       return false;
-    else if (otherPartisipants.size() > 1 && currentPartisipants.size() == 0 && previousMaxPriority != ownPriority && previousPartisipantsCount == 2)
+    //else if (otherPartisipants.size() > 1 && currentPartisipants.size() == 0 && previousMaxPriority != ownPriority && previousPartisipantsCount == 2)
+    else if (otherPartisipants.size() > 1 && currentPartisipants.size() == 0 && previousMaxPriority != ownPriority && previousPartisipantsCount > 1)
         return false;
       else
         return true;

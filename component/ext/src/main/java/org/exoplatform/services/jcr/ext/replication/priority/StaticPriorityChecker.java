@@ -68,10 +68,9 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
                 log.debug(channelManager.getChannel().getClusterName() + " : " + identifier + " : added member :");
                 log.debug("   +" + packet.getOwnerName() + ":" + currentPartisipants.get(packet.getOwnerName()));
               }
-            }
-
-            if (otherPartisipants.size() == currentPartisipants.size()) {
-              memberListener.memberRejoin();
+              
+              if (otherPartisipants.size() == currentPartisipants.size()) 
+                memberListener.memberRejoin();
             }
             
             if (log.isDebugEnabled())

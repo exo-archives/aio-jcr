@@ -61,7 +61,7 @@ public abstract class AbstractPriorityChecker implements PacketListener {
     this.otherPartisipants = new ArrayList<String>(otherParticipants);
 
     this.channelManager = channelManager;
-    this.channelManager.addMessageHandler(this);
+    this.channelManager.addPacketListener(this);
 
     currentPartisipants = new HashMap<String, Integer>();
   }
