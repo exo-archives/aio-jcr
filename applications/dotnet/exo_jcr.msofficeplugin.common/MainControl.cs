@@ -658,16 +658,16 @@ namespace exo_jcr.msofficeplugin.common
 
             String[] dateParts = date.Split(' ');
 
-            int year = int.Parse(dateParts[3]);
-            int month = 8;
+            int year = int.Parse(dateParts[3]);            
+            string month = dateParts[2];
             int day = int.Parse(dateParts[1]);
             int hour = int.Parse(dateParts[4]);
             int min = int.Parse(dateParts[5]);
             int sec = int.Parse(dateParts[6]);
 
-            DateTime dt = new DateTime(year, month, day, hour, min, sec, DateTimeKind.Utc);
+            DateTime dt = new DateTime(year, 8, day, hour, min, sec, DateTimeKind.Utc);
 
-            return dt.ToLocalTime().ToString();
+            return month + ", " + day + " " + year + " " + dt.ToLocalTime().ToLongTimeString();
         }
 
         public String selectedHref;
