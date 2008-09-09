@@ -585,13 +585,16 @@ namespace exo_jcr.msofficeplugin.common
 
                     WebDavProperty mimeTypeProperty = response.getProperty("jcr:mimeType");
 
+                    String pattern = "ddd, dd MMM yyyy HH':'mm':'ss 'GMT'";
+
                     if (displayNameProp != null)                    
                     {
                         displayName = displayNameProp.getDisplayName();
 
                         if (lastModifiedProp != null)
                         {
-                            modified = lastModifiedProp.getLastModified();
+                            modified = ParseDate(lastModifiedProp.getLastModified());
+                                                     
                         }
 
                         if (mimeTypeProperty != null) {
@@ -645,6 +648,26 @@ namespace exo_jcr.msofficeplugin.common
                 MessageBox.Show("EXCEPTION " + exc.Message + " : " + exc.StackTrace);
             }
 
+        }
+
+        private String ParseDate(String date) {
+            String result = "";
+
+            date = date.Remove(date.IndexOf(',') ,1);
+            date = date.Replace(':', ' ');
+
+            String[] dateParts = date.Split(' ');
+
+            int year = int.Parse(dateParts[3]);
+            int month = 8;
+            int day = int.Parse(dateParts[1]);
+            int hour = int.Parse(dateParts[4]);
+            int min = int.Parse(dateParts[5]);
+            int sec = int.Parse(dateParts[6]);
+
+            DateTime dt = new DateTime(year, month, day, hour, min, sec, DateTimeKind.Utc);
+
+            return dt.ToLocalTime().ToString();
         }
 
         public String selectedHref;
