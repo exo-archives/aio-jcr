@@ -126,7 +126,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
   public void suspect(Address adrress) {
     if (log.isDebugEnabled())
       log.debug(" ------->>> MembershipListener.suspect : " + adrress.toString());
-    
+
     if (suspectMembers == null)
       suspectMembers = new ArrayList<Address>();
 
@@ -145,7 +145,26 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
     if (allInited == true)
       lastViewSize = view.size();
 
+    if (log.isDebugEnabled()) {
+      log.debug("lastViewSize                    == " + lastViewSize);
+      log.debug("otherPartisipants.size()        == " + otherPartisipants.size());
+      log.debug("priorityChecker.isMaxPriority() == " + priorityChecker.isMaxPriority());
+      log.debug("priorityChecker.isAllOnline()   == " + priorityChecker.isAllOnline());
+      log.debug("priorityChecker.isMaxOnline()   == " + priorityChecker.isMaxOnline());
+      log.debug("reconectTtread == null          == " + reconectTtread == null);
+      log
+          .debug("priorityChecker instanceof StaticPriorityChecker || otherPartisipants.size() == 1 == "
+              + (priorityChecker instanceof StaticPriorityChecker || otherPartisipants.size() == 1));
+    }
+
     if (priorityChecker instanceof StaticPriorityChecker || otherPartisipants.size() == 1) {
+
+      if (log.isDebugEnabled()) {
+        log.debug("lastViewSize == 1 && !priorityChecker.isMaxPriority() == "
+            + (lastViewSize == 1 && !priorityChecker.isMaxPriority()));
+        log.debug("lastViewSize > 1 && !priorityChecker.isMaxOnline() == "
+            + (lastViewSize > 1 && !priorityChecker.isMaxOnline()));
+      }
 
       if (lastViewSize == 1 && !priorityChecker.isMaxPriority()) {
         if (reconectTtread == null || reconectTtread.isStoped() == true) {
@@ -164,7 +183,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
         }
       }
     } else if (priorityChecker instanceof DynamicPriorityChecker && otherPartisipants.size() > 1) {
-      
+
       if (lastViewSize == 1 && !priorityChecker.isMaxPriority()) {
         if (reconectTtread == null || reconectTtread.isStoped() == true) {
           reconectTtread = new ReconectTtread(true);
@@ -174,7 +193,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
       } else if (reconectTtread != null && priorityChecker.isAllOnline()) {
         reconectTtread.setStop(false);
         reconectTtread = null;
-      } 
+      }
     }
   }
 
@@ -201,7 +220,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
             channelManager.closeChannel();
 
             Thread.sleep(Math.round(60000 + Math.random()));
-            
+
             channelManager.init();
             channelManager.connect();
           } else {
@@ -224,7 +243,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
   }
 
   public void memberRejoin() {
-   
+
     dataContainer.setReadOnly(false);
     log.info(dataContainer.getName() + " set not read-only");
     log.info(dataContainer.getName() + " recovery start ...");

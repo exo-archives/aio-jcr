@@ -45,142 +45,142 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
   }
 
   public void testDisconnectMAxPriority() throws Exception {
-    MemberInfo maxPriorityMember = getMaxPriorityMember();
-
-    List<MemberInfo> otherMember = new ArrayList<MemberInfo>();
-    otherMember.add(getMiddlePriorityMember());
-    otherMember.add(getMinPriorityMember());
-    
-    
-    // disconnect min and middle priority member
-    for (MemberInfo member : otherMember) {
-      String disconnectUrl = "http://" + member.getIpAddress() + ":" 
-                                      + member.getPort()  
-                                      + ReplicationTestService.Constants.BASE_URL
-                                      + "/" + workingRepository
-                                      + "/" + workingWorkspace
-                                      + "/" + member.getLogin()
-                                      + "/" + member.getPassword() 
-                                      + "/" + channelNameId
-                                      + "/" 
-                                      + ReplicationTestService.Constants.OPERATION_PREFIX
-                                      + ReplicationTestService.Constants.OperationType.DISCONNECT_CLUSTER_NODE_BY_ID;
+      MemberInfo maxPriorityMember = getMaxPriorityMember();
   
-      BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member);
-      String result = client.execute(disconnectUrl);
-      System.out.println(disconnectUrl);
-      System.out.println(result); 
-      
-      assertEquals(result, "ok");
-    }
-    
-    //check is read-only min and middle member
-    for (MemberInfo member : otherMember) {
-      String disconnectUrl = "http://" + member.getIpAddress() + ":" 
-                                      + member.getPort()  
-                                      + ReplicationTestService.Constants.BASE_URL
-                                      + "/" + workingRepository
-                                      + "/" + workingWorkspace
-                                      + "/" + member.getLogin()
-                                      + "/" + member.getPassword() 
-                                      + "/" 
-                                      + ReplicationTestService.Constants.OPERATION_PREFIX
-                                      + ReplicationTestService.Constants.OperationType.WORKSPACE_IS_READ_ONLY;
-  
-      BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member);
-      String result = client.execute(disconnectUrl);
-      System.out.println(disconnectUrl);
-      System.out.println(result); 
-      
-      assertEquals(result, "ok");
-    }
-    
-    
-    // add content to maxPriorityMember
-    for (int i = 0; i < filesSize.length; i++) {
-      long fSize = filesSize[i];
-      String relPath = createRelPath(fSize);
-      relPathArray[i] = relPath;
-      fileNameArray[i] = "nt_file_" + fSize + "_"+ (int)(Math.random() * MAX_RANDOM_VALUE);
+      List<MemberInfo> otherMember = new ArrayList<MemberInfo>();
+      otherMember.add(getMiddlePriorityMember());
+      otherMember.add(getMinPriorityMember());
       
       
-      String url = "http://" + maxPriorityMember.getIpAddress() + ":" 
-                             + maxPriorityMember.getPort()  
-                             + ReplicationTestService.Constants.BASE_URL
-                             + "/" + workingRepository
-                             + "/" + workingWorkspace
-                             + "/" + maxPriorityMember.getLogin()
-                             + "/" + maxPriorityMember.getPassword() 
-                             + "/" + relPath
-                             + "/" + fileNameArray[i]
-                             + "/" + fSize + "/"
-                             + ReplicationTestService.Constants.OPERATION_PREFIX
-                             + ReplicationTestService.Constants.OperationType.ADD_NT_FILE;
-      
-      BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(maxPriorityMember);
-      String result = client.execute(url);
-      System.out.println(url);
-      System.out.println(result);
-      
-      assertEquals(result, "ok");
-    }
-
-    Thread.sleep(60*1000);
+      // disconnect min and middle priority member
+      for (MemberInfo member : otherMember) {
+        String disconnectUrl = "http://" + member.getIpAddress() + ":" 
+                                        + member.getPort()  
+                                        + ReplicationTestService.Constants.BASE_URL
+                                        + "/" + workingRepository
+                                        + "/" + workingWorkspace
+                                        + "/" + member.getLogin()
+                                        + "/" + member.getPassword() 
+                                        + "/" + channelNameId
+                                        + "/" 
+                                        + ReplicationTestService.Constants.OPERATION_PREFIX
+                                        + ReplicationTestService.Constants.OperationType.DISCONNECT_CLUSTER_NODE_BY_ID;
     
-    // allow connect to min and middle priority
-    for (MemberInfo member : otherMember) {
-      String disconnectUrl = "http://" + member.getIpAddress() + ":" 
-                                      + member.getPort()  
-                                      + ReplicationTestService.Constants.BASE_URL
-                                      + "/" + workingRepository
-                                      + "/" + workingWorkspace
-                                      + "/" + member.getLogin()
-                                      + "/" + member.getPassword() 
-                                      + "/" 
-                                      + ReplicationTestService.Constants.OPERATION_PREFIX
-                                      + ReplicationTestService.Constants.OperationType.ALLOW_CONNECT;
-  
-      BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member);
-      String result = client.execute(disconnectUrl);
-      System.out.println(disconnectUrl);
-      System.out.println(result); 
-      
-      assertEquals(result, "ok");
-    }
-    
-    //wait 4 minutes (reconnect + restore will be finished)
-    Thread.sleep(1*60*1000);
-    
-    
-    // check nt:file in members
-    randomizeMembers();
-    
-    for (int i = 0; i < filesSize.length; i++) {
-      long fSize = filesSize[i];
-      String relPath = relPathArray[i];
-      
-      for (MemberInfo member : getAallMembert()) {
-        String checkUrl = "http://" + member.getIpAddress() + ":" 
-                                    + member.getPort()  
-                                    + ReplicationTestService.Constants.BASE_URL
-                                    + "/" + workingRepository
-                                    + "/" + workingWorkspace 
-                                    + "/" + member.getLogin()
-                                    + "/" + member.getPassword()
-                                    + "/" + relPath 
-                                    + "/" + fileNameArray[i]
-                                    + "/" + fSize + "/"
-                                    + ReplicationTestService.Constants.OPERATION_PREFIX
-                                    + ReplicationTestService.Constants.OperationType.CHECK_NT_FILE;
+        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member);
+        String result = client.execute(disconnectUrl);
+        System.out.println(disconnectUrl);
+        System.out.println(result); 
         
-        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member, 4000);
-        String result = client.execute(checkUrl);
-        System.out.println(checkUrl);
+        assertEquals(result, "ok");
+      }
+      
+      //check is read-only min and middle member
+      for (MemberInfo member : otherMember) {
+        String disconnectUrl = "http://" + member.getIpAddress() + ":" 
+                                        + member.getPort()  
+                                        + ReplicationTestService.Constants.BASE_URL
+                                        + "/" + workingRepository
+                                        + "/" + workingWorkspace
+                                        + "/" + member.getLogin()
+                                        + "/" + member.getPassword() 
+                                        + "/" 
+                                        + ReplicationTestService.Constants.OPERATION_PREFIX
+                                        + ReplicationTestService.Constants.OperationType.WORKSPACE_IS_READ_ONLY;
+    
+        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member);
+        String result = client.execute(disconnectUrl);
+        System.out.println(disconnectUrl);
+        System.out.println(result); 
+        
+        assertEquals(result, "ok");
+      }
+      
+      
+      // add content to maxPriorityMember
+      for (int i = 0; i < filesSize.length; i++) {
+        long fSize = filesSize[i];
+        String relPath = createRelPath(fSize);
+        relPathArray[i] = relPath;
+        fileNameArray[i] = "nt_file_" + fSize + "_"+ (int)(Math.random() * MAX_RANDOM_VALUE);
+        
+        
+        String url = "http://" + maxPriorityMember.getIpAddress() + ":" 
+                               + maxPriorityMember.getPort()  
+                               + ReplicationTestService.Constants.BASE_URL
+                               + "/" + workingRepository
+                               + "/" + workingWorkspace
+                               + "/" + maxPriorityMember.getLogin()
+                               + "/" + maxPriorityMember.getPassword() 
+                               + "/" + relPath
+                               + "/" + fileNameArray[i]
+                               + "/" + fSize + "/"
+                               + ReplicationTestService.Constants.OPERATION_PREFIX
+                               + ReplicationTestService.Constants.OperationType.ADD_NT_FILE;
+        
+        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(maxPriorityMember);
+        String result = client.execute(url);
+        System.out.println(url);
         System.out.println(result);
         
         assertEquals(result, "ok");
       }
-    }
+  
+      Thread.sleep(60*1000);
+      
+      // allow connect to min and middle priority
+      for (MemberInfo member : otherMember) {
+        String disconnectUrl = "http://" + member.getIpAddress() + ":" 
+                                        + member.getPort()  
+                                        + ReplicationTestService.Constants.BASE_URL
+                                        + "/" + workingRepository
+                                        + "/" + workingWorkspace
+                                        + "/" + member.getLogin()
+                                        + "/" + member.getPassword() 
+                                        + "/" 
+                                        + ReplicationTestService.Constants.OPERATION_PREFIX
+                                        + ReplicationTestService.Constants.OperationType.ALLOW_CONNECT;
+    
+        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member);
+        String result = client.execute(disconnectUrl);
+        System.out.println(disconnectUrl);
+        System.out.println(result); 
+        
+        assertEquals(result, "ok");
+      }
+      
+      //wait 4 minutes (reconnect + restore will be finished)
+      Thread.sleep(4*60*1000);
+      
+      
+      // check nt:file in members
+      randomizeMembers();
+      
+      for (int i = 0; i < filesSize.length; i++) {
+        long fSize = filesSize[i];
+        String relPath = relPathArray[i];
+        
+        for (MemberInfo member : getAallMembert()) {
+          String checkUrl = "http://" + member.getIpAddress() + ":" 
+                                      + member.getPort()  
+                                      + ReplicationTestService.Constants.BASE_URL
+                                      + "/" + workingRepository
+                                      + "/" + workingWorkspace 
+                                      + "/" + member.getLogin()
+                                      + "/" + member.getPassword()
+                                      + "/" + relPath 
+                                      + "/" + fileNameArray[i]
+                                      + "/" + fSize + "/"
+                                      + ReplicationTestService.Constants.OPERATION_PREFIX
+                                      + ReplicationTestService.Constants.OperationType.CHECK_NT_FILE;
+          
+          BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member, 4000);
+          String result = client.execute(checkUrl);
+          System.out.println(checkUrl);
+          System.out.println(result);
+          
+          assertEquals(result, "ok");
+        }
+      }
   }
   
   public void testDisconnectMiddlPriority() throws Exception {
@@ -287,7 +287,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
     }
     
     //wait 4 minutes (reconnect + restore will be finished)
-    Thread.sleep(1*60*1000);
+    Thread.sleep(4*60*1000);
     
     
     // check nt:file in members
@@ -320,4 +320,152 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
       }
     }
   }
+  public void testDisconnectMAxPriorityForced() throws Exception {
+  
+    for (int iteration = 0; iteration < 5; iteration++)  {
+      System.out.println("Begin iteration #" + iteration);
+      
+      MemberInfo maxPriorityMember = getMaxPriorityMember();
+  
+      List<MemberInfo> otherMember = new ArrayList<MemberInfo>();
+      otherMember.add(getMiddlePriorityMember());
+      otherMember.add(getMinPriorityMember());
+      
+      
+       // disconnect max priority member
+      {
+       String disconnectUrl = "http://" + getMaxPriorityMember().getIpAddress() + ":" 
+                                        + getMaxPriorityMember().getPort()  
+                                        + ReplicationTestService.Constants.BASE_URL
+                                        + "/" + workingRepository
+                                        + "/" + workingWorkspace
+                                        + "/" + getMaxPriorityMember().getLogin()
+                                        + "/" + getMaxPriorityMember().getPassword() 
+                                        + "/" + channelNameId
+                                        + "/" 
+                                        + ReplicationTestService.Constants.OPERATION_PREFIX
+                                        + ReplicationTestService.Constants.OperationType.DISCONNECT_CLUSTER_NODE_BY_ID;
+    
+        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(getMaxPriorityMember());
+        String result = client.execute(disconnectUrl);
+        System.out.println(disconnectUrl);
+        System.out.println(result); 
+        
+        assertEquals(result, "ok");
+      }
+      
+      Thread.sleep(2000);
+      
+      //check is read-only min and middle member
+      for (MemberInfo member : otherMember) {
+        String disconnectUrl = "http://" + member.getIpAddress() + ":" 
+                                        + member.getPort()  
+                                        + ReplicationTestService.Constants.BASE_URL
+                                        + "/" + workingRepository
+                                        + "/" + workingWorkspace
+                                        + "/" + member.getLogin()
+                                        + "/" + member.getPassword() 
+                                        + "/" 
+                                        + ReplicationTestService.Constants.OPERATION_PREFIX
+                                        + ReplicationTestService.Constants.OperationType.WORKSPACE_IS_READ_ONLY;
+    
+        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member);
+        String result = client.execute(disconnectUrl);
+        System.out.println(disconnectUrl);
+        System.out.println(result); 
+        
+        assertEquals(result, "ok");
+      }
+      
+      
+      // add content to maxPriorityMember
+      for (int i = 0; i < filesSize.length; i++) {
+        long fSize = filesSize[i];
+        String relPath = createRelPath(fSize);
+        relPathArray[i] = relPath;
+        fileNameArray[i] = "nt_file_" + fSize + "_"+ (int)(Math.random() * MAX_RANDOM_VALUE);
+        
+        
+        String url = "http://" + maxPriorityMember.getIpAddress() + ":" 
+                               + maxPriorityMember.getPort()  
+                               + ReplicationTestService.Constants.BASE_URL
+                               + "/" + workingRepository
+                               + "/" + workingWorkspace
+                               + "/" + maxPriorityMember.getLogin()
+                               + "/" + maxPriorityMember.getPassword() 
+                               + "/" + relPath
+                               + "/" + fileNameArray[i]
+                               + "/" + fSize + "/"
+                               + ReplicationTestService.Constants.OPERATION_PREFIX
+                               + ReplicationTestService.Constants.OperationType.ADD_NT_FILE;
+        
+        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(maxPriorityMember);
+        String result = client.execute(url);
+        System.out.println(url);
+        System.out.println(result);
+        
+        assertEquals(result, "ok");
+      }
+  
+      Thread.sleep(1*60*1000);
+      
+      // allow connect forced to max priority
+      {
+        String disconnectUrl = "http://" + getMaxPriorityMember().getIpAddress() + ":" 
+                                        + getMaxPriorityMember().getPort()  
+                                        + ReplicationTestService.Constants.BASE_URL
+                                        + "/" + workingRepository
+                                        + "/" + workingWorkspace
+                                        + "/" + getMaxPriorityMember().getLogin()
+                                        + "/" + getMaxPriorityMember().getPassword() 
+                                        + "/" 
+                                        + ReplicationTestService.Constants.OPERATION_PREFIX
+                                        + ReplicationTestService.Constants.OperationType.ALLOW_CONNECT_FORCED;
+    
+        BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(getMaxPriorityMember());
+        String result = client.execute(disconnectUrl);
+        System.out.println(disconnectUrl);
+        System.out.println(result); 
+        
+        assertEquals(result, "ok");
+      }
+      
+      //wait 4 minutes (reconnect + restore will be finished)
+      Thread.sleep(3*60*1000);
+      
+      
+      // check nt:file in members
+      randomizeMembers();
+      
+      for (int i = 0; i < filesSize.length; i++) {
+        long fSize = filesSize[i];
+        String relPath = relPathArray[i];
+        
+        for (MemberInfo member : getAallMembert()) {
+          String checkUrl = "http://" + member.getIpAddress() + ":" 
+                                      + member.getPort()  
+                                      + ReplicationTestService.Constants.BASE_URL
+                                      + "/" + workingRepository
+                                      + "/" + workingWorkspace 
+                                      + "/" + member.getLogin()
+                                      + "/" + member.getPassword()
+                                      + "/" + relPath 
+                                      + "/" + fileNameArray[i]
+                                      + "/" + fSize + "/"
+                                      + ReplicationTestService.Constants.OPERATION_PREFIX
+                                      + ReplicationTestService.Constants.OperationType.CHECK_NT_FILE;
+          
+          BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(member, 4000);
+          String result = client.execute(checkUrl);
+          System.out.println(checkUrl);
+          System.out.println(result);
+          
+          assertEquals(result, "ok");
+        }
+      }
+    
+      System.out.println("End iteration #" + iteration);
+    }
+  }
+  
 }
