@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.ext.common;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -71,7 +72,7 @@ public class SessionProvider implements SessionLifecycleListener {
   
   private SessionProvider(boolean isSystem) {
     this.isSystem = isSystem;
-    this.cache = new HashMap<String, ExtendedSession>();
+    this.cache = Collections.synchronizedMap(new HashMap<String, ExtendedSession>());
   }
   
 
