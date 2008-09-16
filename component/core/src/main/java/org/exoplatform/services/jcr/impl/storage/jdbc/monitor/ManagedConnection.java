@@ -39,7 +39,7 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class ManagedConnection implements Connection {
   
-  public static final String JCR_JDBC_CONNECTION_MONITOR = "exo.jcr.monitor.jdbcMonitor";
+  public static final String JCR_JDBC_CONNECTION_MONITOR = "org.exoplatform.jcr.monitor.jdbcMonitor";
   
   public static final String PREPARE_INTREST_NAME = "PREPARE";
   
