@@ -43,7 +43,7 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataMa
 
   private static Log                          log = ExoLogger.getLogger("jcr.ACLInheritanceSupportedWorkspaceDataManager");
 
-  private final CacheableWorkspaceDataManager persistentManager;
+  protected final CacheableWorkspaceDataManager persistentManager;
 
   public ACLInheritanceSupportedWorkspaceDataManager(CacheableWorkspaceDataManager persistentManager) {
     this.persistentManager = persistentManager;

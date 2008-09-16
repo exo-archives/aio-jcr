@@ -72,9 +72,8 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
    * @see org.exoplatform.services.jcr.impl.core.WorkspaceDataManager#getChildNodes(org.exoplatform.services.jcr.datamodel.NodeData)
    */
   @Override
-  public List<NodeData> getChildNodesData(NodeData nodeData) throws RepositoryException {
-    QPath path = nodeData.getQPath();
-    if(isSystemDescendant(path) && !this.equals(versionDataManager)) {
+  public List<NodeData> getChildNodesData(final NodeData nodeData) throws RepositoryException {
+    if(isSystemDescendant(nodeData.getQPath()) && !this.equals(versionDataManager)) {
       return versionDataManager.getChildNodesData(nodeData);
     }
     return super.getChildNodesData(nodeData);
@@ -85,38 +84,70 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
    * @see org.exoplatform.services.jcr.impl.core.WorkspaceDataManager#getChildProperties(org.exoplatform.services.jcr.datamodel.NodeData)
    */
   @Override
-  public List<PropertyData> getChildPropertiesData(NodeData nodeData) throws RepositoryException {
-    QPath path = nodeData.getQPath();
-    if(isSystemDescendant(path) && !this.equals(versionDataManager)) {
+  public List<PropertyData> getChildPropertiesData(final NodeData nodeData) throws RepositoryException {
+    if(isSystemDescendant(nodeData.getQPath()) && !this.equals(versionDataManager)) {
       return versionDataManager.getChildPropertiesData(nodeData);
     }
     return super.getChildPropertiesData(nodeData);
   }
   
-  public List<PropertyData> listChildPropertiesData(NodeData nodeData) throws RepositoryException {
-    QPath path = nodeData.getQPath();
-    if(isSystemDescendant(path) && !this.equals(versionDataManager)) {
+  public List<PropertyData> listChildPropertiesData(final NodeData nodeData) throws RepositoryException {
+    if(isSystemDescendant(nodeData.getQPath()) && !this.equals(versionDataManager)) {
       return versionDataManager.listChildPropertiesData(nodeData);
     }
     return super.listChildPropertiesData(nodeData);
   }
   
   public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
-    ItemData data = super.getItemData(parentData,name);
-    if(data != null)
-      return data;
-    else if(!this.equals(versionDataManager)) { 
-      // try from version storage if not the same
-      data = versionDataManager.getItemData(parentData,name);
-      if(data != null && isSystemDescendant(data.getQPath()))
-        return data;
-    } 
-    return null;
+//    ItemData data = super.getItemData(parentData,name);
+//    if(data != null)
+//      return data;
+//    else if(!this.equals(versionDataManager)) { 
+//      // try from version storage if not the same
+//      data = versionDataManager.getItemData(parentData,name);
+//      if(data != null && isSystemDescendant(data.getQPath()))
+//        return data;
+//    } 
+//    return null;
+    
+    if (parentData != null) {
+      final QPath ipath = QPath.makeChildPath(parentData.getQPath(), new QPathEntry[] {name});
+      if(isSystemDescendant(ipath) && !this.equals(versionDataManager)) {
+        return versionDataManager.getItemData(parentData,name);
+      }
+    }
+    return super.getItemData(parentData,name);
   }
   /**
    * @see org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager#getItemData(java.lang.String)
    */
   public ItemData getItemData(String identifier) throws RepositoryException {
+//    ItemData data = super.getItemData(identifier);
+//    if(data != null)
+//      return data;
+//    else if(!this.equals(versionDataManager)) { 
+//      // try from version storage if not the same
+//      data = versionDataManager.getItemData(identifier);
+//      if(data != null && isSystemDescendant(data.getQPath()))
+//        return data;
+//    } 
+//    return null;
+    
+    // from cache
+    ItemData cdata = persistentManager.getCachedItemData(identifier);
+    if (cdata != null) 
+      return super.getItemData(identifier);
+    
+    if(!this.equals(versionDataManager)) {
+      cdata = versionDataManager.persistentManager.getCachedItemData(identifier);
+      if (cdata != null)
+        if (isSystemDescendant(cdata.getQPath())) 
+          return versionDataManager.getItemData(identifier);
+        else
+          return null;
+    }
+    
+    // from persistence
     ItemData data = super.getItemData(identifier);
     if(data != null)
       return data;
@@ -125,7 +156,7 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
       data = versionDataManager.getItemData(identifier);
       if(data != null && isSystemDescendant(data.getQPath()))
         return data;
-    } 
+    }
     return null;
   }
 
