@@ -209,15 +209,13 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
         if (mapPendingChangesLog.containsKey(packet.getIdentifier())) {
           container = mapPendingChangesLog.get(packet.getIdentifier());
 
-          container.getFixupStreams().add(packet.getFixupStream());
+          synchronized (container) {
+            container.addNewStream(packet.getFixupStream());
+          }
 
-          File f = File.createTempFile(
-              "tempFile" + packet.getIdentifier() + IdGenerator.generate(), ".tmp");
-
-          container.getListFile().add(f);
-          container.getListRandomAccessFiles().add(new RandomAccessFile(f, "rw"));
           if (log.isDebugEnabled())
             log.debug("First pocket of stream");
+
         }
         break;
 
@@ -248,7 +246,6 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
           if (randomAccessFile != null) {
             randomAccessFile.seek(packet.getOffset());
             randomAccessFile.write(packet.getByteArray());
-            randomAccessFile.close();
           }
           if (log.isDebugEnabled())
             log.debug("Last pocket of stream : " + packet.getByteArray().length + " bytes");

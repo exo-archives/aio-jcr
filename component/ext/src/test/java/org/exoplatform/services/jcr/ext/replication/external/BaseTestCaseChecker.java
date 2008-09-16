@@ -117,7 +117,7 @@ public class BaseTestCaseChecker extends TestCase {
     return slaveMembers;
   }
   
-  public MemberInfo[] getAallMembert() {
+  public MemberInfo[] getAllMembers() {
     return members;
   }
 
@@ -133,5 +133,9 @@ public class BaseTestCaseChecker extends TestCase {
     for (int i = 0; i < members.length; i++)
       if (i != masterIndex)
         slaveMembers[slaveMembersIndex++] = members[i];
+  }
+  
+  public long getRandomLong() {
+    return (long)(Math.random() * MAX_RANDOM_VALUE); 
   }
 }

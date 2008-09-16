@@ -16,6 +16,9 @@
  */
 package org.exoplatform.services.jcr.ext.replication.test;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import javax.jcr.Credentials;
 import javax.jcr.Node;
 import javax.jcr.Repository;
@@ -78,5 +81,80 @@ public abstract class BaseReplicationTestCase {
   
   protected String getNormalizePath(String repoPath) {
    return repoPath.replaceAll("[:][:]", "/"); 
+  }
+  
+  protected void compareStream(InputStream etalon, InputStream data) throws Exception {
+      compareStream(etalon, data, 0, 0, -1);
+  }
+
+  /**
+   * Compare etalon stream with data stream begining from the offset in etalon
+   * and position in data. Length bytes will be readed and compared. if length
+   * is lower 0 then compare streams till one of them will be read.
+   * 
+   * @param etalon
+   * @param data
+   * @param etalonPos
+   * @param length
+   * @param dataPos
+   * @throws IOException
+   */
+  protected void compareStream(InputStream etalon,
+                               InputStream data,
+                               long etalonPos,
+                               long dataPos,
+                               long length) throws Exception {
+
+    int dindex = 0;
+
+    byte[] ebuff = new byte[1024];
+    int eread = 0;
+
+    while ((eread = etalon.read(ebuff)) > 0) {
+
+      byte[] dbuff = new byte[eread];
+      int erindex = 0;
+      while (erindex < eread) {
+        int dread = -1;
+        try {
+          dread = data.read(dbuff);
+        } catch (IOException e) {
+          throw new Exception("Streams is not equals by length or data stream is unreadable. Cause: "
+              + e.getMessage());
+        }
+
+        if (dread == -1)
+          throw new Exception("Streams is not equals by length. Data end-of-stream reached at position "
+              + dindex);
+
+        for (int i = 0; i < dread; i++) {
+          byte eb = ebuff[i];
+          byte db = dbuff[i];
+          if (eb != db)
+            throw new Exception("Streams is not equals. Wrong byte stored at position "
+                + dindex
+                + " of data stream. Expected 0x"
+                + Integer.toHexString(eb)
+                + " '"
+                + new String(new byte[] { eb })
+                + "' but found 0x"
+                + Integer.toHexString(db)
+                + " '"
+                + new String(new byte[] { db }) + "'");
+
+          erindex++;
+          dindex++;
+          if (length > 0 && dindex >= length)
+            return; // tested length reached
+        }
+
+        if (dread < eread)
+          dbuff = new byte[eread - dread];
+      }
+    }
+
+    if (data.available() > 0)
+      throw new Exception("Streams is not equals by length. Data stream contains more data. Were read "
+          + dindex);
   }
 }

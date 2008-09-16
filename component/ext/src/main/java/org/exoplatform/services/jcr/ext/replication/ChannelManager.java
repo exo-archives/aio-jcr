@@ -263,8 +263,11 @@ public class ChannelManager implements RequestHandler {
     try {
       Packet packet = Packet.getAsPacket(message.getBuffer());
 
-      for (PacketListener handler : packetListeners)
-        handler.receive(packet);
+      for (PacketListener handler : packetListeners) {
+//        synchronized (handler) {
+          handler.receive(packet);
+//        }
+      }
 
     } catch (IOException e) {
       log.error("An error in processing packet : ", e);

@@ -158,7 +158,7 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
       long fSize = filesSize[i];
       String relPath = relPathArray[i];
       
-      for (MemberInfo member : getAallMembert()) {
+      for (MemberInfo member : getAllMembers()) {
         String checkUrl = "http://" + member.getIpAddress() + ":" 
                                     + member.getPort()  
                                     + ReplicationTestService.Constants.BASE_URL
@@ -295,7 +295,7 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
       long fSize = filesSize[i];
       String relPath = relPathArray[i];
       
-      for (MemberInfo member : getAallMembert()) {
+      for (MemberInfo member : getAllMembers()) {
         String checkUrl = "http://" + member.getIpAddress() + ":" 
                                     + member.getPort()  
                                     + ReplicationTestService.Constants.BASE_URL
@@ -432,7 +432,7 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
       long fSize = filesSize[i];
       String relPath = relPathArray[i];
       
-      for (MemberInfo member : getAallMembert()) {
+      for (MemberInfo member : getAllMembers()) {
         String checkUrl = "http://" + member.getIpAddress() + ":" 
                                     + member.getPort()  
                                     + ReplicationTestService.Constants.BASE_URL
@@ -696,7 +696,7 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
       long fSize = filesSize[i];
       String relPath = relPathArray[i];
       
-      for (MemberInfo member : getAallMembert()) {
+      for (MemberInfo member : getAllMembers()) {
         String checkUrl = "http://" + member.getIpAddress() + ":" 
                                     + member.getPort()  
                                     + ReplicationTestService.Constants.BASE_URL

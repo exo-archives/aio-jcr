@@ -27,8 +27,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.ItemData;
@@ -37,6 +39,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS Author : Alex Reshetnyak
@@ -47,44 +50,47 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  */
 
 public class PendingChangesLog {
+  private static Log log = ExoLogger.getLogger("ext.PendingChangesLog");
+
   public class Type {
     public static final int ItemDataChangesLog_without_Streams = 1;
 
     public static final int ItemDataChangesLog_with_Streams    = 2;
   }
 
-  private TransactionChangesLog  itemDataChangesLog;
+  private TransactionChangesLog                  itemDataChangesLog;
 
-  private List<InputStream>      listInputStream;
+  private List<InputStream>                      listInputStream;
 
-  private List<RandomAccessFile> listRandomAccessFile;
+  private List<RandomAccessFile>                 listRandomAccessFile;
 
-  private int                    containerType;
+  private int                                    containerType;
 
-  private List<FixupStream>      listFixupStream;
+   private List<FixupStream> listFixupStream;
 
-  private List<File>             listFile;
+  private HashMap<FixupStream, RandomAccessFile> mapFixupStream;
 
-  private String                 identifier;
+  private List<File>                             listFile;
 
-  private FileCleaner            fileCleaner;
-  
-  private byte[]                 data;
+  private String                                 identifier;
 
-  public PendingChangesLog(TransactionChangesLog itemDataChangesLog_,
-      FileCleaner fileCleaner) throws IOException {
+  private FileCleaner                            fileCleaner;
+
+  private byte[]                                 data;
+
+  public PendingChangesLog(TransactionChangesLog itemDataChangesLog_, FileCleaner fileCleaner)
+      throws IOException {
     itemDataChangesLog = itemDataChangesLog_;
     listInputStream = new ArrayList<InputStream>();
     listFixupStream = new ArrayList<FixupStream>();
-    containerType = analysisItemDataChangesLog(); 
+    containerType = analysisItemDataChangesLog();
     listFile = new ArrayList<File>();
     identifier = IdGenerator.generate();
     this.fileCleaner = fileCleaner;
   }
 
-  public PendingChangesLog(TransactionChangesLog itemDataChangesLog_, 
-      String identifier, int type, FileCleaner fileCleaner)
-      throws IOException {
+  public PendingChangesLog(TransactionChangesLog itemDataChangesLog_, String identifier, int type,
+      FileCleaner fileCleaner) throws IOException {
     itemDataChangesLog = itemDataChangesLog_;
     listInputStream = new ArrayList<InputStream>();
     listFixupStream = new ArrayList<FixupStream>();
@@ -94,26 +100,26 @@ public class PendingChangesLog {
     containerType = type;
     this.fileCleaner = fileCleaner;
   }
-  
+
   public PendingChangesLog(String identifier, int dataLength) {
     this.identifier = identifier;
     data = new byte[dataLength];
   }
-  
-  public PendingChangesLog(TransactionChangesLog transactionChangesLog, 
+
+  public PendingChangesLog(TransactionChangesLog transactionChangesLog,
       List<FixupStream> listFixupStreams, List<File> listFiles, FileCleaner fileCleaner) {
     this.itemDataChangesLog = transactionChangesLog;
     this.listFixupStream = listFixupStreams;
     this.listFile = listFiles;
     this.fileCleaner = fileCleaner;
   }
-  
-  public void putData(int offset, byte[] tempData){
-    for (int i = 0; i < tempData.length; i++) 
-      data[i+offset] = tempData[i];
+
+  public void putData(int offset, byte[] tempData) {
+    for (int i = 0; i < tempData.length; i++)
+      data[i + offset] = tempData[i];
   }
-  
-  public byte[] getData(){
+
+  public byte[] getData() {
     return data;
   }
 
@@ -148,23 +154,24 @@ public class PendingChangesLog {
 
       if (itemData instanceof TransientPropertyData) {
         TransientPropertyData propertyData = (TransientPropertyData) itemData;
-        if ((propertyData.getValues() != null)) 
+        if ((propertyData.getValues() != null))
           for (int j = 0; j < propertyData.getValues().size(); j++)
-            if ((propertyData.getValues().get(j).getAsByteArray().length >= (200*1024))) {
+            if ((propertyData.getValues().get(j).getAsByteArray().length >= (200 * 1024))) {
               listFixupStream.add(new FixupStream(i, j));
-              InputStream inputStream = new ByteArrayInputStream(propertyData.getValues().get(j).getAsByteArray());
+              InputStream inputStream = new ByteArrayInputStream(propertyData.getValues().get(j)
+                  .getAsByteArray());
               listInputStream.add(inputStream);
               itemDataChangesLogType = PendingChangesLog.Type.ItemDataChangesLog_with_Streams;
             }
       }
-      
+
       if (itemData instanceof TransientNodeData) {
         TransientNodeData propertyData = (TransientNodeData) itemData;
       }
     }
     return itemDataChangesLogType;
   }
-  
+
   private int analysisItemDataChangesLog() throws IOException {
     int itemDataChangesLogType = PendingChangesLog.Type.ItemDataChangesLog_without_Streams;
 
@@ -176,24 +183,24 @@ public class PendingChangesLog {
 
       if (itemData instanceof TransientPropertyData) {
         TransientPropertyData propertyData = (TransientPropertyData) itemData;
-        if ((propertyData.getValues() != null)) 
+        if ((propertyData.getValues() != null))
           for (int j = 0; j < propertyData.getValues().size(); j++)
             if (!(propertyData.getValues().get(j).isByteArray())) {
               listFixupStream.add(new FixupStream(i, j));
-              
+
               // TODO
               InputStream inputStream;
               if (itemState.isDeleted())
                 inputStream = new ByteArrayInputStream("".getBytes());
               else
                 inputStream = propertyData.getValues().get(j).getAsStream();
-              
+
               listInputStream.add(inputStream);
               itemDataChangesLogType = PendingChangesLog.Type.ItemDataChangesLog_with_Streams;
             }
 
       }
-      
+
       if (itemData instanceof TransientNodeData) {
         TransientNodeData propertyData = (TransientNodeData) itemData;
       }
@@ -229,14 +236,53 @@ public class PendingChangesLog {
     return objRead;
   }
 
-  public RandomAccessFile getRandomAccessFile(FixupStream fs) {
-    for (int i = 0; i < listFixupStream.size(); i++)
-      if (this.listFixupStream.get(i).compare(fs))
+  public RandomAccessFile getRandomAccessFile(FixupStream fs) throws IOException {
+    int i = 0;
+    try {
+      for (i = 0; i < listFixupStream.size(); i++)
+        if (this.listFixupStream.get(i).compare(fs))
+          return listRandomAccessFile.get(i);
+    } catch (IndexOutOfBoundsException e) {
+      try {
+        Thread.sleep(5);
         return listRandomAccessFile.get(i);
+      } catch (InterruptedException ie) {
+        log.error("The interrupted exceptio : ", ie);
+      } catch (IndexOutOfBoundsException ioobe) {
+        if (log.isDebugEnabled()) {
+          log.info("listFixupStream.size() == " + listFixupStream.size());
+          log.info("listRandomAccessFile.size() == " + listRandomAccessFile.size());
+          log.info(" i == " + i);
+        }
+        synchronized (this) {
+          if (listFile.size() > i ) {
+            listFile.remove(i);
+          }
+          listFixupStream.remove(i);
+          
+          addNewStream(fs);
+          
+          getRandomAccessFile(fs);
+        }
+        
+        
+      }
+    }
     return null;
   }
+  
+  public void addNewStream(FixupStream fs) throws IOException {
+    this.getFixupStreams().add(fs);
 
-  public void restore() throws FileNotFoundException {
+    File f = File.createTempFile(
+        "tempFile" + IdGenerator.generate(), ".tmp");
+
+    this.getListFile().add(f);
+    this.getListRandomAccessFiles().add(new RandomAccessFile(f, "rw"));
+
+  }
+
+  public void restore() throws FileNotFoundException, IOException {
     for (int i = 0; i < this.listFixupStream.size(); i++) {
       List<ItemState> listItemState = itemDataChangesLog.getAllStates();
       ItemState itemState = listItemState.get(listFixupStream.get(i).getItemSateId());
@@ -250,9 +296,9 @@ public class PendingChangesLog {
       transientValueData.isByteArray();
     }
 
-    for (int i = 0; i < listFile.size(); i++) 
+    for (int i = 0; i < listFile.size(); i++)
       fileCleaner.addFile(listFile.get(i));
-      
+
   }
 
 }

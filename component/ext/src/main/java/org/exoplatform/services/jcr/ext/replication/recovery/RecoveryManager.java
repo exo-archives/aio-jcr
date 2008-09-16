@@ -256,7 +256,6 @@ public class RecoveryManager {
             log.debug("ALL_INITED : start recovery");
 
           isAllInited = true;
-          startRecovery();
         }
       break;
 

@@ -17,9 +17,7 @@
 package org.exoplatform.services.jcr.ext.replication.recovery;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -38,7 +36,6 @@ import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.ext.replication.AbstractWorkspaceDataReceiver;
 import org.exoplatform.services.jcr.ext.replication.ChannelManager;
-import org.exoplatform.services.jcr.ext.replication.FixupStream;
 import org.exoplatform.services.jcr.ext.replication.Packet;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
 import org.exoplatform.services.jcr.ext.replication.recovery.PendingBinaryFile.FileDescriptor;
@@ -46,9 +43,6 @@ import org.exoplatform.services.jcr.impl.storage.JCRInvalidItemStateException;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
-import org.jgroups.Message;
-import org.jgroups.blocks.GroupRequest;
-import org.jgroups.blocks.MessageDispatcher;
 
 /**
  * Created by The eXo Platform SAS
@@ -135,7 +129,10 @@ public class RecoverySynchronizer {
         mapPendingBinaryFile.put(packet.getIdentifier(), new PendingBinaryFile());
 
       container = mapPendingBinaryFile.get(packet.getIdentifier());
-      container.addBinaryFile(packet.getOwnerName(), packet.getFileName(), packet.getSystemId());
+      
+      synchronized (container) {
+        container.addBinaryFile(packet.getOwnerName(), packet.getFileName(), packet.getSystemId());
+      }
       break;
 
     case Packet.PacketType.BinaryFile_Middle_Packet:

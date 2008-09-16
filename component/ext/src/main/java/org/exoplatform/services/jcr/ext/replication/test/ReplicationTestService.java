@@ -22,6 +22,7 @@ import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.ext.backup.BackupConfig;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.ext.replication.ReplicationService;
+import org.exoplatform.services.jcr.ext.replication.test.concurrent.ConcurrentModificationTestCase;
 import org.exoplatform.services.jcr.ext.replication.test.priority.BasePriorityTestCase;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.HTTPMethod;
@@ -88,6 +89,13 @@ public class ReplicationTestService implements ResourceContainer {
       public final static String ALLOW_CONNECT_FORCED          = "allowConnectForced";
       
       public final static String WORKSPACE_IS_READ_ONLY        = "workspaceIsReadOnly";
+      
+      public final static String CREATE_CONTENT                = "createContent";
+      
+      public final static String COMPARE_DATA                  = "compareData";
+      
+      public final static String START_THREAD_UPDATER          = "startThreadUpdater";
+      
     }
   }
 
@@ -474,6 +482,64 @@ public class ReplicationTestService implements ResourceContainer {
     BasePriorityTestCase priorityTestCase = new BasePriorityTestCase(repositoryService,
         repositoryName, workspaceName, userName, password);
     StringBuffer sb = priorityTestCase.isReadOnly(workspaceName);
+
+    return Response.Builder.ok(sb.toString(), "text/plain").build();
+  }
+  
+  @QueryTemplate("operation=createContent")
+  @HTTPMethod("GET")
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{fileName}/{iterations}/{simpleContent}/")
+  public Response createContent(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("repoPath")
+  String repoPath, @URIParam("fileName")
+  String fileName, @URIParam("iterations")
+  Long iterations, @URIParam("simpleContent")
+  String simpleContent) {
+    ConcurrentModificationTestCase concurrentModificationTestCase = new ConcurrentModificationTestCase(repositoryService,
+        repositoryName, workspaceName, userName, password);
+    StringBuffer sb = concurrentModificationTestCase.createContent(repoPath, fileName, iterations, simpleContent);
+
+    return Response.Builder.ok(sb.toString(), "text/plain").build();
+  }
+  
+  @QueryTemplate("operation=compareData")
+  @HTTPMethod("GET")
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{srcRepoPath}/{srcFileName}/{destRepoPath}/{destFileName}/")
+  public Response compareData(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("srcRepoPath")
+  String srcRepoPath, @URIParam("srcFileName")
+  String srcFileName, @URIParam("destRepoPath")
+  String destRepoPath, @URIParam("destFileName")
+  String destFileName) {
+    ConcurrentModificationTestCase concurrentModificationTestCase = new ConcurrentModificationTestCase(repositoryService,
+        repositoryName, workspaceName, userName, password);
+    StringBuffer sb = concurrentModificationTestCase.compareData(srcRepoPath, srcFileName, destRepoPath, destFileName);
+
+    return Response.Builder.ok(sb.toString(), "text/plain").build();
+  }
+  
+  @QueryTemplate("operation=startThreadUpdater")
+  @HTTPMethod("GET")
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{srcRepoPath}/{srcFileName}/{destRepoPath}/{destFileName}/{iterations}/")
+  public Response startThreadUpdater(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("srcRepoPath")
+  String srcRepoPath, @URIParam("srcFileName")
+  String srcFileName, @URIParam("destRepoPath")
+  String destRepoPath, @URIParam("destFileName")
+  String destFileName, @URIParam("iterations")
+  Long iterations) {
+    ConcurrentModificationTestCase concurrentModificationTestCase = new ConcurrentModificationTestCase(repositoryService,
+        repositoryName, workspaceName, userName, password);
+    StringBuffer sb = concurrentModificationTestCase.startThreadUpdater(srcRepoPath, srcFileName, destRepoPath, destFileName, iterations);
 
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
