@@ -106,18 +106,17 @@
           <forkMode>never</forkMode><!--once , pertest -->
           <includes>
             <!-- include>**/Test*.java</include -->
-<!--        <include>**/TestWebdavLauncher.java</include> -->
             
-            <include>**/TestGet.java</include>          
-						<include>**/TestMkCol.java</include>
-						<include>**/TestHead.java</include>
+            <include>**/TestGet.java</include>
+            <include>**/TestHead.java</include>
+            <include>**/TestMkCol.java</include>
+            
+<!--        <include>**/TestWebdavLauncher.java</include>
+
 						<include>**/TestPut.java</include>
             <include>**/TestDelete.java</include>
             <include>**/TestCopy.java</include>
             <include>**/TestMove.java</include>
-            
-<!--						
- 						 
             <include>**/TestPropFind.java</include>                     
             <include>**/TestLock.java</include>
 			  		<include>**/TestUnLock.java</include>

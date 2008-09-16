@@ -482,7 +482,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     } catch (NoSuchWorkspaceException wexc) {
       return Response.Builder.notFound().build();      
     } catch (Exception exc) {
-      return Response.Builder.serverError().errorMessage(exc.getMessage()).build();
+      exc.printStackTrace();
+      return Response.Builder.serverError().errorMessage(exc.getMessage()).build();      
     }    
 	}
 
